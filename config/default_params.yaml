@@ -1,0 +1,47 @@
+# Default parameters for habitat analysis
+
+feature_extraction:
+  # Radiomics feature extraction parameters
+  parameters:
+    binWidth: 25
+    resampledPixelSpacing: [1, 1, 1]
+    normalize: true
+    interpolator: sitkBSpline
+  
+  # Feature classes to extract
+  feature_classes:
+    - firstorder
+    - shape
+    - glcm
+    - glrlm
+    - glszm
+    - gldm
+    - ngtdm
+
+clustering:
+  # Clustering parameters
+  n_clusters: 3
+  method: kmeans
+  random_state: 42
+  
+  # Feature selection
+  feature_selection:
+    method: variance_threshold
+    threshold: 0.1
+
+visualization:
+  # Visualization parameters
+  colormap: viridis
+  save_format: png
+  dpi: 300
+  
+  # Plot settings
+  figure_size: [10, 8]
+  font_size: 12
+
+output:
+  # Output settings
+  save_features: true
+  save_clusters: true
+  save_visualization: true
+  compression: true 
