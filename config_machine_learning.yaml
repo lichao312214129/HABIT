@@ -1,0 +1,109 @@
+# Machine Learning Configuration File
+# This configuration file defines all parameters for data loading, preprocessing, feature selection, model training, and evaluation.
+
+# Data Input Configuration
+# Multiple input files can be specified for model ensemble or feature combination
+input:
+  - path: 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv'  # Path to the input data file (CSV format)
+    name: ''  # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
+    subject_id_col: 'subjID'  # Column name containing subject identifiers (must be unique for each subject)
+    label_col: 'label'  # Column name containing target labels (0/1 for binary classification)
+    features: # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
+  
+  # Example of additional input file configuration (commented out)
+  # - path: 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml_clinical/all_prediction_results.csv'
+  #   name: 'clinical_'  # Prefix 'clinical_' will be added to all features from this file
+  #   subject_id_col: 'subjid'  # Column name for subject ID in this file
+  #   label_col: 'true_label'  # Column name for the target variable in this file
+  #   features: ['LogisticRegression_prob']  # Only use the LogisticRegression_prob column as a feature
+
+# Output Directory Configuration
+output: 'F:/work/research/radiomics_TLSs/code_for_habitat_analysis/results'  # Directory where all results will be saved (models, plots, statistics)
+
+# Data Splitting Configuration
+# Options: 'random' (completely random split), 'stratified' (preserves class distribution), 'custom' (user-defined splits)
+split_method: 'custom'  # Method used to split data into training and testing sets
+
+# The following parameters are used when split_method is 'random' or 'stratified' (currently commented out)
+# test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
+# random_state: 42  # Seed for random number generator to ensure reproducible splits
+
+# The following parameters are used when split_method is 'custom'
+train_ids_file: 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/train_ids.txt'  # File containing IDs for training set (one ID per line)
+test_ids_file: 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/test_ids.txt'  # File containing IDs for testing set (one ID per line)
+
+# Feature Selection Configuration
+# Multiple feature selection methods can be applied sequentially
+feature_selection_methods:
+  # ICC (Intraclass Correlation Coefficient) method (commented out)
+  # - method: 'icc'  # Selects features based on their reproducibility
+  #   params:
+  #     icc_results: '../demo_data/results/icc_results.json'  # Path to pre-computed ICC results
+  #     keys: ['breast_cancer_dataset_vs_breast_cancer_dataset']  # Key(s) in the ICC results file to use
+  #     threshold: 0.75  # Minimum ICC value required to retain a feature (0.0-1.0)
+
+  # VIF (Variance Inflation Factor) method (commented out)
+  # - method: 'vif'  # Removes features with high multicollinearity
+  #   params:
+  #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
+  #     visualize: false  # Whether to generate visualization of VIF values
+
+  # mRMR (Minimum Redundancy Maximum Relevance) method (commented out)
+  # - method: 'mrmr'  # Selects features with high relevance to target and low redundancy among themselves
+  #   params:
+  #     n_features_to_select: 20  # Number of features to select
+  #     visualize: false  # Whether to generate visualization of selected features
+
+  # LASSO (L1 regularization) method (commented out)
+  # - method: 'lasso'  # Selects features using L1 regularization
+  #   params:
+  #     cv: 5  # Number of cross-validation folds for selecting optimal alpha
+  #     random_state: 42  # Random seed for reproducibility
+  #     visualize: true  # Whether to generate visualization of feature coefficients
+
+  # Univariate Logistic Regression method (active)
+  - method: 'univariate_logistic'  # Selects features based on individual logistic regression p-values
+    params:
+      threshold: 0.1  # Maximum p-value threshold for feature selection (features with p < threshold are retained)
+
+  # Stepwise Feature Selection method (active)
+  - method: 'stepwise'  # Performs step-by-step feature selection using AIC/BIC criteria
+    params:
+      Rhome: 'E:/software/R'  # Path to R installation (required for stepwise selection)
+      direction: 'backward'  # Direction of stepwise selection: 'forward', 'backward', or 'both'
+
+# Model Configuration
+# Multiple models can be defined and will all be trained and evaluated
+models:
+  # Logistic Regression model configuration
+  LogisticRegression:  # Model type: Standard logistic regression classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+      max_iter: 1000  # Maximum number of iterations for convergence
+      C: 1.0  # Inverse of regularization strength (smaller values = stronger regularization)
+      penalty: "l2"  # Regularization type (l1=Lasso, l2=Ridge)
+      solver: "lbfgs"  # Algorithm to use in the optimization problem
+  
+  # Support Vector Machine configuration (commented out)
+  # SVM:  # Model type: Support Vector Machine classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     probability: true  # Whether to enable probability estimates (required for ROC curves)
+  #     kernel: "linear"  # Kernel type: 'linear', 'poly', 'rbf', 'sigmoid'
+  #     C: 1.0  # Regularization parameter (larger values = less regularization)
+  #     gamma: "scale"  # Kernel coefficient for 'rbf', 'poly' and 'sigmoid' kernels
+  
+  # XGBoost configuration (commented out)
+  # XGBoost:  # Model type: Gradient Boosting classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of boosting stages/trees to build
+  #     max_depth: 3  # Maximum tree depth
+  #     learning_rate: 0.1  # Boosting learning rate
+  #     subsample: 0.8  # Fraction of samples used for fitting trees
+  #     colsample_bytree: 0.8  # Fraction of features used per tree
+
+# Visualization and Saving Configuration
+is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
+is_save_model: true  # Whether to save trained models to disk for future use
+
