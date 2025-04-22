@@ -1,15 +1,20 @@
 """
-Base class for clustering algorithms
+Base clustering module for habitat analysis.
 """
 
-from abc import ABC, abstractmethod
 import numpy as np
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
-import importlib
-import inspect
-import os
-import pkgutil
-from typing import Dict, List, Any, Type, Optional, Tuple, Union
+import matplotlib.pyplot as plt
+from abc import ABC, abstractmethod
+from typing import Dict, List, Any, Tuple, Optional, Union, Callable
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.preprocessing import LabelEncoder
+import matplotlib.cm as cm
+from matplotlib.ticker import MaxNLocator
+import warnings
+
+warnings.simplefilter('ignore')
+
+from .cluster_validation_methods import get_default_methods, get_method_description, get_optimization_direction
 
 # Registry for clustering algorithms
 _CLUSTERING_REGISTRY = {}
@@ -107,7 +112,6 @@ class BaseClustering(ABC):
     Subclasses must implement the following methods:
     - fit: Train the clustering model based on input data
     - predict: Predict cluster labels for input data
-    - find_optimal_clusters: Find the optimal number of clusters
     """
     
     def __init__(self, n_clusters: Optional[int] = None, random_state: int = 0):
@@ -151,21 +155,197 @@ class BaseClustering(ABC):
         """
         pass
     
-    @abstractmethod
-    def find_optimal_clusters(self, X: np.ndarray, min_clusters: int, max_clusters: int, methods: Optional[List[str]] = None) -> Tuple[int, Dict[str, List[float]]]:
+    def calculate_inertia_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
         """
-        Find optimal number of clusters
+        Calculate inertia (SSE) for different numbers of clusters (for K-Means)
+        
+        Args:
+            X (np.ndarray): Input data with shape (n_samples, n_features)
+            cluster_range (List[int]): Range of cluster numbers to evaluate
+            
+        Returns:
+            List[float]: List of inertia values
+        """
+        try:
+            from sklearn.cluster import KMeans
+            # 检查是否是KMeans或其子类
+            if "kmeans" not in self.__class__.__name__.lower():
+                warnings.warn(f"calculate_inertia_scores is primarily for KMeans algorithm, but was called on {self.__class__.__name__}")
+            
+            inertias = []
+            for n_clusters in cluster_range:
+                kmeans = KMeans(
+                    n_clusters=n_clusters,
+                    random_state=self.random_state,
+                    # 尝试获取KMeans特有的参数
+                    init=getattr(self, 'init', 'k-means++'),
+                    n_init=getattr(self, 'n_init', 10),
+                    **getattr(self, 'kwargs', {})
+                )
+                kmeans.fit(X)
+                inertias.append(kmeans.inertia_)
+            
+            return inertias
+        except ImportError:
+            raise ImportError("sklearn.cluster.KMeans is required for calculate_inertia_scores")
+        except Exception as e:
+            raise ValueError(f"Error calculating inertia scores: {str(e)}")
+
+    def calculate_bic_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate BIC scores for different numbers of clusters (for GMM)
+        
+        Args:
+            X (np.ndarray): Input data with shape (n_samples, n_features)
+            cluster_range (List[int]): Range of cluster numbers to evaluate
+            
+        Returns:
+            List[float]: List of BIC scores
+        """
+        try:
+            from sklearn.mixture import GaussianMixture
+            # 检查是否是GMM或其子类
+            if "gmm" not in self.__class__.__name__.lower():
+                warnings.warn(f"calculate_bic_scores is primarily for GMM algorithm, but was called on {self.__class__.__name__}")
+            
+            bic_scores = []
+            for n_clusters in cluster_range:
+                gmm = GaussianMixture(
+                    n_components=n_clusters,
+                    random_state=self.random_state,
+                    # 尝试获取GMM特有的参数
+                    covariance_type=getattr(self, 'covariance_type', 'full'),
+                    n_init=getattr(self, 'n_init', 1),
+                    max_iter=getattr(self, 'max_iter', 100),
+                    **getattr(self, 'kwargs', {})
+                )
+                gmm.fit(X)
+                bic_scores.append(gmm.bic(X))
+            
+            return bic_scores
+        except ImportError:
+            raise ImportError("sklearn.mixture.GaussianMixture is required for calculate_bic_scores")
+        except Exception as e:
+            raise ValueError(f"Error calculating BIC scores: {str(e)}")
+
+    def calculate_aic_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate AIC scores for different numbers of clusters (for GMM)
+        
+        Args:
+            X (np.ndarray): Input data with shape (n_samples, n_features)
+            cluster_range (List[int]): Range of cluster numbers to evaluate
+            
+        Returns:
+            List[float]: List of AIC scores
+        """
+        try:
+            from sklearn.mixture import GaussianMixture
+            # 检查是否是GMM或其子类
+            if "gmm" not in self.__class__.__name__.lower():
+                warnings.warn(f"calculate_aic_scores is primarily for GMM algorithm, but was called on {self.__class__.__name__}")
+            
+            aic_scores = []
+            for n_clusters in cluster_range:
+                gmm = GaussianMixture(
+                    n_components=n_clusters,
+                    random_state=self.random_state,
+                    # 尝试获取GMM特有的参数
+                    covariance_type=getattr(self, 'covariance_type', 'full'),
+                    n_init=getattr(self, 'n_init', 1),
+                    max_iter=getattr(self, 'max_iter', 100),
+                    **getattr(self, 'kwargs', {})
+                )
+                gmm.fit(X)
+                aic_scores.append(gmm.aic(X))
+            
+            return aic_scores
+        except ImportError:
+            raise ImportError("sklearn.mixture.GaussianMixture is required for calculate_aic_scores")
+        except Exception as e:
+            raise ValueError(f"Error calculating AIC scores: {str(e)}")
+    
+    def find_optimal_clusters(self, X: np.ndarray, min_clusters: int = 2, 
+                              max_clusters: int = 10, 
+                              methods: Optional[Union[List[str], str]] = None, 
+                              show_progress: bool = True) -> Tuple[int, Dict[str, List[float]]]:
+        """
+        Find the optimal number of clusters
         
         Args:
             X (np.ndarray): Input data with shape (n_samples, n_features)
             min_clusters (int): Minimum number of clusters
             max_clusters (int): Maximum number of clusters
-            methods (Optional[List[str]]): List of methods to determine optimal number of clusters, if None, use default methods
+            methods (Optional[Union[List[str], str]]): List of methods to determine the optimal number of clusters. If None, default methods are used
+            show_progress (bool): Whether to display progress
             
         Returns:
-            Tuple[int, Dict[str, List[float]]]: Optimal number of clusters and scores for different numbers of clusters
+            Tuple[int, Dict[str, List[float]]]: 
+                - int: Optimal number of clusters
+                - Dict[str, List[float]]: Dictionary of scores for different numbers of clusters
         """
-        pass
+        # Basic validation
+        if min_clusters <= 0:
+            raise ValueError("min_clusters must be positive")
+        if max_clusters <= min_clusters:
+            raise ValueError("max_clusters must be greater than min_clusters")
+        if X.shape[0] < max_clusters:
+            raise ValueError(f"Number of samples ({X.shape[0]}) must be greater than max_clusters ({max_clusters})")
+        
+        # If methods is None, use default methods from validation module
+        if methods is None:
+            # Get the clustering algorithm name by checking the class name
+            algo_name = self.__class__.__name__.lower()
+            # Remove 'clustering' suffix if present
+            if algo_name.endswith('clustering'):
+                algo_name = algo_name[:-10]
+            # Get default methods for this algorithm
+            methods = get_default_methods(algo_name)
+            if show_progress:
+                print(f"Using default validation methods for {algo_name}: {methods}")
+        
+        # Save cluster range
+        self.cluster_range = list(range(min_clusters, max_clusters + 1))
+        
+        # Calculate different scores
+        self.scores: Dict[str, List[float]] = {}
+        
+        if show_progress:
+            print("Starting to calculate evaluation metrics for different numbers of clusters...")
+            total = max_clusters - min_clusters + 1
+        
+        # Check and calculate each validation method
+        if isinstance(methods, str):
+            methods = [methods]
+            
+        for method in methods:
+            if hasattr(self, f'calculate_{method}_scores'):
+                if show_progress:
+                    print(f"Calculating {method}...")
+                    
+                # Call the specific calculation method
+                calculation_method = getattr(self, f'calculate_{method}_scores')
+                self.scores[method] = calculation_method(X, self.cluster_range)
+                
+                if show_progress:
+                    print(f"{method.capitalize()} calculation completed!")
+        
+        # Automatically select the best number of clusters
+        if len(methods) == 1:
+            best_method = methods[0]
+        else:
+            # Use combined method
+            best_method = '_'.join(methods)
+        
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        
+        # Set the best number of clusters
+        self.n_clusters = best_n_clusters
+        
+        if show_progress:
+            print(f"Automatically selected best number of clusters: {best_n_clusters}")
+        
+        return best_n_clusters, self.scores 
     
     def calculate_silhouette_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
         """
@@ -290,69 +470,69 @@ class BaseClustering(ABC):
                    min_clusters: int = 2, max_clusters: int = 10, figsize: Tuple[int, int] = (12, 8), 
                    save_path: Optional[str] = None, show: bool = True):
         """
-        Plot scores for different numbers of clusters
+        Plot the evaluation scores for different numbers of clusters
         
         Args:
-            scores_dict (Optional[Dict[str, List[float]]]): Dictionary of scores, keys are method names, values are score lists, if None, use self.scores
-            methods (Optional[Union[List[str], str]]): List of scoring methods to plot, if None, plot all methods in scores_dict
+            scores_dict (Optional[Dict[str, List[float]]]): Dictionary of scores, keys are method names, values are score lists
+            methods (Optional[Union[List[str], str]]): Method(s) to plot
             min_clusters (int): Minimum number of clusters
             max_clusters (int): Maximum number of clusters
             figsize (Tuple[int, int]): Figure size
-            save_path (Optional[str]): Path to save the figure, if None, don't save
-            show (bool): Whether to display the figure
-            
-        Returns:
-            matplotlib.figure.Figure: Matplotlib figure object
+            save_path (Optional[str]): Path to save the figure
+            show (bool): Whether to show the figure
         """
         import matplotlib.pyplot as plt
-
-        # Support for Chinese characters
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
+        from habitat_analysis.clustering.cluster_validation_methods import get_method_description, get_optimization_direction
         
-        # Set cluster range
-        self.cluster_range = list(range(min_clusters, max_clusters + 1))
-        
-        # If scores_dict is None, use self.scores
+        # If scores_dict is not provided, use self.scores
         if scores_dict is None:
             scores_dict = self.scores
         
-        # If methods is None, use all methods in scores_dict
+        # If methods is not provided or None, use all methods in scores_dict
         if methods is None:
             methods = list(scores_dict.keys())
-        else:
-            # Filter out methods not in scores_dict
-            if isinstance(methods, str):  # If methods is a string, convert to list
-                methods = [methods]
-            methods = [m for m in methods if m in scores_dict]
+        elif isinstance(methods, str):
+            methods = [methods]
         
-        if not methods:
-            raise ValueError("No scoring methods to plot")
+        # If cluster_range is not provided, use range(min_clusters, max_clusters + 1)
+        if self.cluster_range is None:
+            self.cluster_range = list(range(min_clusters, max_clusters + 1))
         
         # Create figure
-        fig, axes = plt.subplots(len(methods), 1, figsize=figsize, constrained_layout=True)
+        n_methods = len(methods)
+        if n_methods == 1:
+            fig, axes = plt.subplots(1, 1, figsize=figsize)
+            axes = [axes]  # Make it into a list for consistent access
+        else:
+            fig, axes = plt.subplots(1, n_methods, figsize=figsize)
         
-        # If there's only one method, convert axes to list for uniform handling
-        if len(methods) == 1:
-            axes = [axes]
+        # Get clustering algorithm name
+        algo_name = self.__class__.__name__.lower()
+        if algo_name.endswith('clustering'):
+            algo_name = algo_name[:-10]
         
-        # Iterate through each scoring method
+        # Plot each method
         for i, method in enumerate(methods):
+            if method not in scores_dict:
+                continue
+            
             ax = axes[i]
             scores = scores_dict[method]
                         
             # Plot score curve
             ax.plot(self.cluster_range, scores, 'o-', linewidth=2, markersize=8)
 
+            # Get optimization direction for this method
+            optimization = get_optimization_direction(algo_name, method)
             
             # Mark optimal number of clusters
-            if method in ['silhouette', 'calinski_harabasz']:
-                # These methods are better with higher values
+            if optimization == 'maximize':
+                # For methods where higher is better
                 best_idx = np.argmax(scores)
                 best_score = scores[best_idx]
                 criterion = "Maximum Value"
-            elif method in ['inertia', 'bic', 'aic']:
-                # These methods are better with lower values, but need to use elbow method
+            elif optimization == 'minimize':
+                # For methods where lower is better, use elbow method
                 # Calculate first-order differences
                 deltas = np.diff(scores)
                 # Calculate second-order differences (elbow is usually the point with maximum second-order difference)
@@ -373,38 +553,21 @@ class BaseClustering(ABC):
             ax.plot(best_n_clusters, best_score, 'rx', markersize=12, markeredgewidth=3)
             
             # Set title and labels
-            method_names = {
-                'silhouette': 'Silhouette Score',
-                'calinski_harabasz': 'Calinski-Harabasz Index',
-                'inertia': 'Inertia',
-                'bic': 'BIC Index',
-                'aic': 'AIC Index'
-            }
-            
-            method_name = method_names.get(method, method)
-            ax.set_title(f'{method_name} ({criterion} selects clusters: {best_n_clusters})', fontsize=14)
-            ax.set_xlabel('Number of Clusters', fontsize=12)
-            ax.set_ylabel('Score', fontsize=12)
-            ax.grid(True, linestyle='--', alpha=0.7)
-            
-            # Add annotations
-            for j, (x, y) in enumerate(zip(self.cluster_range, scores)):
-                ax.annotate(f'{y:.2f}', (x, y), textcoords="offset points", 
-                            xytext=(0, 10), ha='center', fontsize=9)
-            
-            # Set x-axis ticks to integers
-            ax.set_xticks(self.cluster_range)
+            method_desc = get_method_description(algo_name, method)
+            ax.set_title(f"{method_desc}\nBest n_clusters = {best_n_clusters} ({criterion})")
+            ax.set_xlabel("Number of clusters")
+            ax.set_ylabel(f"{method.capitalize()} Score")
+            ax.grid(True)
         
-        plt.suptitle('Comparison of Evaluation Metrics for Different Numbers of Clusters', fontsize=16)
+        # Adjust layout
+        plt.tight_layout()
         
-        # Save figure
-        if save_path:
+        # Save figure if needed
+        if save_path is not None:
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
         
-        # Display figure
+        # Show figure if needed
         if show:
             plt.show()
         else:
-            plt.close()
-        
-        return fig 
+            plt.close() 

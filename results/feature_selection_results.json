@@ -1,0 +1,58 @@
+{
+    "selected_features": [
+        "compactness error",
+        "concavity error",
+        "concave points error",
+        "worst texture",
+        "worst area",
+        "worst smoothness",
+        "worst concavity",
+        "worst concave points",
+        "worst fractal dimension"
+    ],
+    "feature_selection_methods": [
+        {
+            "method": "univariate_logistic",
+            "params": {
+                "threshold": 0.1,
+                "outdir": "results"
+            }
+        },
+        {
+            "method": "stepwise",
+            "params": {
+                "Rhome": "E:/software/R",
+                "direction": "backward",
+                "outdir": "results"
+            }
+        }
+    ],
+    "selected_features_of_each_method": {
+        "univariate_logistic": [
+            "compactness error",
+            "concavity error",
+            "concave points error",
+            "worst radius",
+            "worst texture",
+            "worst perimeter",
+            "worst area",
+            "worst smoothness",
+            "worst compactness",
+            "worst concavity",
+            "worst concave points",
+            "worst symmetry",
+            "worst fractal dimension"
+        ],
+        "stepwise": [
+            "compactness error",
+            "concavity error",
+            "concave points error",
+            "worst texture",
+            "worst area",
+            "worst smoothness",
+            "worst concavity",
+            "worst concave points",
+            "worst fractal dimension"
+        ]
+    }
+}

@@ -972,5 +972,5 @@ if __name__ == "__main__":
     # 调试模式：如果没有提供命令行参数，使用默认配置文件
     if len(sys.argv) == 1:
         print("调试模式：使用默认配置文件 config_model_comparison.yaml")
-        sys.argv = [sys.argv[0], "--config", "config_model_comparison.yaml"]
+        sys.argv = [sys.argv[0], "--config", "./config/config_model_comparison.yaml"]
     main() 

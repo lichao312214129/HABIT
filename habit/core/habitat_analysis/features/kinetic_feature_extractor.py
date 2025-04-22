@@ -1,12 +1,15 @@
 """
-Kinetic Feature Extractor for extracting dynamic enhancement features
+Kinetic feature extractor for habitat analysis.
+Extracts kinetic features from time series data.
 """
 
 import numpy as np
-from datetime import datetime
 import pandas as pd
-from typing import List, Dict, Optional, Union, Any
-from habitat_analysis.features.base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from scipy import stats
+from .base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from typing import Dict, List, Optional, Union, Any, Tuple
+
+from ..utils.io_utils import load_timestamp
 
 @register_feature_extractor('kinetic')  # Register feature extractor
 class KineticFeatureExtractor(BaseFeatureExtractor):
@@ -34,7 +37,6 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         # Load timestamp file
         if timestamps:
             try:
-                from habitat_analysis.utils.io_utils import load_timestamp
                 self.time_dict = load_timestamp(timestamps)
             except Exception as e:
                 print(f"Warning: Failed to load timestamp file: {str(e)}")

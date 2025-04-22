@@ -1,21 +1,26 @@
 """
-特征提取器包
+Feature extractors module for habitat analysis.
 """
 
-# 导入所有特征提取器，确保它们被正确注册
-from habitat_analysis.features.base_feature_extractor import (
+from .base_feature_extractor import (
     BaseFeatureExtractor,
-    register_feature_extractor,
-    get_feature_extractor,
-    get_available_feature_extractors
+    register_feature_extractor
 )
 
-# 导入实现的特征提取器
-from habitat_analysis.features.kinetic_feature_extractor import KineticFeatureExtractor
-from habitat_analysis.features.simple_feature_extractor import SimpleFeatureExtractor
+from .kinetic_feature_extractor import KineticFeatureExtractor
+from .simple_feature_extractor import SimpleFeatureExtractor
 
-# 可以添加其他特征提取器的导入
-from habitat_analysis.features.my_feature_extractor import MyFeatureExtractor
+# Add your custom feature extractors here
+from .my_feature_extractor import MyFeatureExtractor
+
+# Import feature preprocessing module
+from .feature_preprocessing import preprocess_features
+
+__all__ = [
+    "BaseFeatureExtractor", "register_feature_extractor", "get_feature_extractors",
+    "KineticFeatureExtractor", "SimpleFeatureExtractor", "MyFeatureExtractor",
+    "preprocess_features"
+]
 
 
 

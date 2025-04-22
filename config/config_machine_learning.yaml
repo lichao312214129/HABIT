@@ -18,7 +18,7 @@ input:
   #   features: ['LogisticRegression_prob']  # Only use the LogisticRegression_prob column as a feature
 
 # Output Directory Configuration
-output: 'F:/work/research/radiomics_TLSs/code_for_habitat_analysis/results'  # Directory where all results will be saved (models, plots, statistics)
+output: 'results'  # Directory where all results will be saved (models, plots, statistics)
 
 # Data Splitting Configuration
 # Options: 'random' (completely random split), 'stratified' (preserves class distribution), 'custom' (user-defined splits)

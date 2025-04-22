@@ -88,7 +88,8 @@ class ModelFactory:
                 # Remove .py extension
                 module_name = filename[:-3]
                 try:
-                    importlib.import_module(f"machine_learning.models.{module_name}")
+                    # Use relative import
+                    importlib.import_module(f".{module_name}", package="habit.core.machine_learning.models")
                     print(f"Successfully imported model module: {module_name}")
                 except ImportError as e:
                     print(f"Warning: Failed to import {module_name}: {e}") 

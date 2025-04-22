@@ -55,9 +55,9 @@ import pandas as pd
 import tqdm
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Dict, List, Optional, Union
-from habitat_analysis.utils.progress_utils import CustomTqdm
+from ..utils.progress_utils import CustomTqdm
 
-from habitat_analysis.utils.io_utils import get_image_and_mask_paths
+from ..utils.io_utils import get_image_and_mask_paths
 
 # 禁用警告
 warnings.filterwarnings('ignore')

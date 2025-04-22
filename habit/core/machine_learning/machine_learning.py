@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 import json
 from typing import Dict, List, Any, Optional, Union, Tuple, Set
-from machine_learning.models.factory import ModelFactory
+from .models.factory import ModelFactory
 from .feature_selectors import run_selector, get_available_selectors
 from .evaluation.model_evaluation import ModelEvaluator, calculate_metrics
 from .visualization.plotting import Plotter 

@@ -15,4 +15,8 @@ try:
 except ImportError as e:
     print(f"Failed to import HabitatFeatureExtractor: {e}")
 
+from habit.core.habitat_analysis import HabitatAnalysis
+
+print("Successfully imported HabitatAnalysis")
+
 print("Import test completed.") 

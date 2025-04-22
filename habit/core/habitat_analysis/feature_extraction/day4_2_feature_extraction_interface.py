@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 """
-特征提取接口
-用于调用加密后的feature_extraction模块
+Feature extraction interface module
 """
 
-
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+from typing import List, Dict, Optional, Union, Any
 import yaml
 import argparse
 import sys
+from .extractor import HabitatFeatureExtractor
 
 def extract_features(params_file_of_non_habitat=None,
                      params_file_of_habitat=None,
@@ -34,9 +40,6 @@ def extract_features(params_file_of_non_habitat=None,
         n_habitats: 生境数量
         mode: 提取模式 ('both', 'extract', 'parse')
     """
-    # 导入加密后的模块
-    from habitat_analysis.feature_extraction.extractor import HabitatFeatureExtractor
-    
     # 创建特征提取器
     extractor = HabitatFeatureExtractor(
         params_file_of_non_habitat=params_file_of_non_habitat,

@@ -1,0 +1,252 @@
+{
+    "train": {
+        "ModelA": {
+            "youden_metrics": {
+                "threshold": 0.464765327,
+                "youden_index": 0.8792029887920298,
+                "metrics": {
+                    "threshold": 0.464765327,
+                    "accuracy": 0.94,
+                    "sensitivity": 0.9545454545454546,
+                    "specificity": 0.9246575342465754,
+                    "ppv": 0.930379746835443,
+                    "npv": 0.9507042253521126,
+                    "f1_score": 0.9423076923076923,
+                    "auc": 0.9824319516100338
+                }
+            },
+            "thresholds": {
+                "youden": 0.464765327,
+                "target": 0.575951789
+            },
+            "target_metrics": {
+                "threshold": 0.575951789,
+                "metrics": {
+                    "threshold": 0.575951789,
+                    "accuracy": 0.9333333333333333,
+                    "sensitivity": 0.935064935064935,
+                    "specificity": 0.9315068493150684,
+                    "ppv": 0.935064935064935,
+                    "npv": 0.9315068493150684,
+                    "f1_score": 0.935064935064935,
+                    "auc": 0.9824319516100338
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9333333333333333,
+                "sensitivity": 0.9415584415584416,
+                "specificity": 0.9246575342465754,
+                "ppv": 0.9294871794871795,
+                "npv": 0.9375,
+                "auc": 0.9824319516100338
+            }
+        },
+        "ModelB": {
+            "youden_metrics": {
+                "threshold": 0.4790648065371409,
+                "youden_index": 0.9592599181640278,
+                "metrics": {
+                    "threshold": 0.4790648065371409,
+                    "accuracy": 0.98,
+                    "sensitivity": 0.9935064935064936,
+                    "specificity": 0.9657534246575342,
+                    "ppv": 0.9683544303797469,
+                    "npv": 0.9929577464788732,
+                    "f1_score": 0.9807692307692308,
+                    "auc": 0.9959082013876535
+                }
+            },
+            "thresholds": {
+                "youden": 0.4790648065371409,
+                "target": 0.744194830063963
+            },
+            "target_metrics": {
+                "threshold": 0.744194830063963,
+                "metrics": {
+                    "threshold": 0.744194830063963,
+                    "accuracy": 0.9633333333333334,
+                    "sensitivity": 0.9415584415584416,
+                    "specificity": 0.9863013698630136,
+                    "ppv": 0.9863945578231292,
+                    "npv": 0.9411764705882353,
+                    "f1_score": 0.9634551495016611,
+                    "auc": 0.9959082013876535
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9733333333333334,
+                "sensitivity": 0.9805194805194806,
+                "specificity": 0.9657534246575342,
+                "ppv": 0.967948717948718,
+                "npv": 0.9791666666666666,
+                "auc": 0.9959082013876535
+            }
+        },
+        "ModelC": {
+            "youden_metrics": {
+                "threshold": 0.8287150859832764,
+                "youden_index": 1.0,
+                "metrics": {
+                    "threshold": 0.8287150859832764,
+                    "accuracy": 1.0,
+                    "sensitivity": 1.0,
+                    "specificity": 1.0,
+                    "ppv": 1.0,
+                    "npv": 1.0,
+                    "f1_score": 1.0,
+                    "auc": 1.0
+                }
+            },
+            "thresholds": {
+                "youden": 0.8287150859832764,
+                "target": 0.8287150859832764
+            },
+            "target_metrics": {
+                "threshold": 0.8287150859832764,
+                "metrics": {
+                    "threshold": 0.8287150859832764,
+                    "accuracy": 1.0,
+                    "sensitivity": 1.0,
+                    "specificity": 1.0,
+                    "ppv": 1.0,
+                    "npv": 1.0,
+                    "f1_score": 1.0,
+                    "auc": 1.0
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 1.0,
+                "sensitivity": 1.0,
+                "specificity": 1.0,
+                "ppv": 1.0,
+                "npv": 1.0,
+                "auc": 1.0
+            }
+        }
+    },
+    "test": {
+        "ModelA": {
+            "youden_metrics": {
+                "threshold": 0.464765327,
+                "youden_index": 0.8764741006120316,
+                "metrics": {
+                    "threshold": 0.464765327,
+                    "accuracy": 0.9144981412639405,
+                    "sensitivity": 0.8916256157635468,
+                    "specificity": 0.9848484848484849,
+                    "ppv": 0.9945054945054945,
+                    "npv": 0.7471264367816092,
+                    "f1_score": 0.9402597402597402,
+                    "auc": 0.9916405433646813
+                }
+            },
+            "thresholds": {
+                "youden": 0.464765327,
+                "target": 0.575951789
+            },
+            "target_metrics": {
+                "threshold": 0.575951789,
+                "metrics": {
+                    "threshold": 0.575951789,
+                    "accuracy": 0.8773234200743495,
+                    "sensitivity": 0.8423645320197044,
+                    "specificity": 0.9848484848484849,
+                    "ppv": 0.9941860465116279,
+                    "npv": 0.6701030927835051,
+                    "f1_score": 0.9119999999999999,
+                    "auc": 0.9916405433646813
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9070631970260223,
+                "sensitivity": 0.8817733990147784,
+                "specificity": 0.9848484848484849,
+                "ppv": 0.9944444444444445,
+                "npv": 0.7303370786516854,
+                "auc": 0.9916405433646813
+            }
+        },
+        "ModelB": {
+            "youden_metrics": {
+                "threshold": 0.4790648065371409,
+                "youden_index": 0.9552918346021795,
+                "metrics": {
+                    "threshold": 0.4790648065371409,
+                    "accuracy": 0.9739776951672863,
+                    "sensitivity": 0.9704433497536946,
+                    "specificity": 0.9848484848484849,
+                    "ppv": 0.9949494949494949,
+                    "npv": 0.9154929577464789,
+                    "f1_score": 0.9825436408977556,
+                    "auc": 0.9994028959546202
+                }
+            },
+            "thresholds": {
+                "youden": 0.4790648065371409,
+                "target": 0.744194830063963
+            },
+            "target_metrics": {
+                "threshold": 0.744194830063963,
+                "metrics": {
+                    "threshold": 0.744194830063963,
+                    "accuracy": 0.9256505576208178,
+                    "sensitivity": 0.9014778325123153,
+                    "specificity": 1.0,
+                    "ppv": 1.0,
+                    "npv": 0.7674418604651163,
+                    "f1_score": 0.9481865284974093,
+                    "auc": 0.9994028959546202
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9702602230483272,
+                "sensitivity": 0.9655172413793104,
+                "specificity": 0.9848484848484849,
+                "ppv": 0.9949238578680203,
+                "npv": 0.9027777777777778,
+                "auc": 0.9994028959546202
+            }
+        },
+        "ModelC": {
+            "youden_metrics": {
+                "threshold": 0.8287150859832764,
+                "youden_index": 0.8866995073891626,
+                "metrics": {
+                    "threshold": 0.8287150859832764,
+                    "accuracy": 0.9144981412639405,
+                    "sensitivity": 0.8866995073891626,
+                    "specificity": 1.0,
+                    "ppv": 1.0,
+                    "npv": 0.7415730337078652,
+                    "f1_score": 0.9399477806788512,
+                    "auc": 0.9988804299149128
+                }
+            },
+            "thresholds": {
+                "youden": 0.8287150859832764,
+                "target": 0.8287150859832764
+            },
+            "target_metrics": {
+                "threshold": 0.8287150859832764,
+                "metrics": {
+                    "threshold": 0.8287150859832764,
+                    "accuracy": 0.9144981412639405,
+                    "sensitivity": 0.8866995073891626,
+                    "specificity": 1.0,
+                    "ppv": 1.0,
+                    "npv": 0.7415730337078652,
+                    "f1_score": 0.9399477806788512,
+                    "auc": 0.9988804299149128
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9739776951672863,
+                "sensitivity": 0.9704433497536946,
+                "specificity": 0.9848484848484849,
+                "ppv": 0.9949494949494949,
+                "npv": 0.9154929577464789,
+                "auc": 0.9988804299149128
+            }
+        }
+    }
+}

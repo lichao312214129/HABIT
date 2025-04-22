@@ -1,4 +1,4 @@
-from habitat_analysis.config_kmeans import Config
+from .config_kmeans import Config
 
 config = Config()
 

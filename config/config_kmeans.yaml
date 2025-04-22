@@ -57,7 +57,7 @@ HabitatsSegmention:
     n_init: 10
 
 # General settings
-processes: 4  # Number of parallel processes
+processes: 2  # Number of parallel processes
 plot_curves: true  # Whether to generate and save plots
 random_state: 42  # Random seed for reproducibility
 debug: false  # Enable debug mode for detailed logging 

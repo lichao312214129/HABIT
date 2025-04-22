@@ -5,10 +5,8 @@ supervoxel clustering, and habitat clustering. It supports various feature extra
 and clustering algorithms for comprehensive habitat analysis.
 """
 
-import json
-import os
+
 import sys  
-import yaml
 import tkinter as tk
 import argparse
 from tkinter import filedialog, messagebox, BooleanVar, Checkbutton

@@ -13,19 +13,19 @@ import matplotlib.pyplot as plt
 from glob import glob
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
 
-from habitat_analysis.utils.io_utils import (get_image_and_mask_paths,
-                                              detect_image_names,
-                                              check_data_structure,
-                                              save_habitat_image)
+from .utils.io_utils import (get_image_and_mask_paths,
+                            detect_image_names,
+                            check_data_structure,
+                            save_habitat_image)
 
-from habitat_analysis.features.feature_extractor_factory import create_feature_extractor
-from habitat_analysis.clustering.base_clustering import get_clustering_algorithm
-from habitat_analysis.clustering.cluster_validation_methods import (
+from .features.feature_extractor_factory import create_feature_extractor
+from .clustering.base_clustering import get_clustering_algorithm
+from .clustering.cluster_validation_methods import (
     get_validation_methods, 
     is_valid_method_for_algorithm, 
     get_default_methods
 )
-from habitat_analysis.features.feature_preprocessing import preprocess_features
+from .features.feature_preprocessing import preprocess_features
 
 # Ignore warnings
 warnings.simplefilter('ignore')
