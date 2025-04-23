@@ -5,6 +5,6 @@ This module provides functionality for extracting various features from habitat 
 including radiomic features, non-radiomic features, and MSI features.
 """
 
-from ._extractor import HabitatFeatureExtractor
+from .extractor import HabitatFeatureExtractor
 
 __all__ = ['HabitatFeatureExtractor']

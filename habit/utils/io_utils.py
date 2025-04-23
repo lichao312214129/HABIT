@@ -147,23 +147,28 @@ def get_image_and_mask_paths(
     root_dir: Union[str, Path],
     keyword_of_raw_folder: str = "images",
     keyword_of_mask_folder: str = "masks"
-) -> Tuple[Dict[str, List[str]], Dict[str, str]]:
+) -> Tuple[Dict[str, Union[Dict[str, str], List[str]]], Dict[str, Union[Dict[str, str], str]]]:
     """
     Get paths of images and masks.
     
     Args:
-        root_dir: Root directory containing images and masks
+        root_dir: Root directory containing images and masks, or path to a txt file defining file locations
         keyword_of_raw_folder: Keyword for raw image folder
         keyword_of_mask_folder: Keyword for mask folder
         
     Returns:
         Tuple containing:
-            - Dictionary mapping subject IDs to lists of image paths
-            - Dictionary mapping subject IDs to mask paths
+            - Dictionary mapping subject IDs to dictionary of modality-image path pairs
+            - Dictionary mapping subject IDs to dictionary of modality-mask path pairs
     """
     import glob
+    import os
     
     root_dir = str(root_dir)
+    
+    # Check if root_dir is a txt file
+    if root_dir.endswith('.txt'):
+        return _parse_paths_from_txt(root_dir)
     
     # Find image directory
     image_dir = os.path.join(root_dir, keyword_of_raw_folder)
@@ -175,26 +180,117 @@ def get_image_and_mask_paths(
     if not os.path.exists(mask_dir):
         raise FileNotFoundError(f"Mask directory not found: {mask_dir}")
     
-    # Get subject IDs
-    subject_ids = set()
-    for path in glob.glob(os.path.join(mask_dir, "*.nii.gz")):
-        filename = os.path.basename(path)
-        subject_id = filename.split("_")[0]
-        subject_ids.add(subject_id)
-    
-    # Get image paths for each subject
+    # Get image paths for each subject and modality
     images_paths = {}
-    for subject_id in subject_ids:
-        images_paths[subject_id] = sorted(
-            glob.glob(os.path.join(image_dir, f"{subject_id}_*.nii.gz"))
-        )
     
-    # Get mask path for each subject
+    # 获取所有非隐藏的患者目录
+    patient_dirs = [d for d in os.listdir(image_dir) 
+                   if os.path.isdir(os.path.join(image_dir, d)) and not d.startswith('.')]
+    
+    for patient_id in patient_dirs:
+        patient_path = os.path.join(image_dir, patient_id)
+        if not os.path.isdir(patient_path):
+            continue
+            
+        images_paths[patient_id] = {}
+        
+        # 获取所有非隐藏的模态/序列目录
+        modality_dirs = [d for d in os.listdir(patient_path) 
+                        if os.path.isdir(os.path.join(patient_path, d)) and not d.startswith('.')]
+        
+        for modality in modality_dirs:
+            modality_path = os.path.join(patient_path, modality)
+            # 获取目录中的所有非隐藏文件
+            files = [f for f in os.listdir(modality_path) 
+                    if os.path.isfile(os.path.join(modality_path, f)) and not f.startswith('.')]
+            # 警告如果有多个文件
+            if len(files) > 1:
+                print(f"Warning: Multiple files found in {patient_id}/{modality}, using the first one") 
+            if files:  # 如果目录中有文件
+                images_paths[patient_id][modality] = os.path.join(modality_path, files[0])
+    
+    # Get mask path for each subject and modality
     mask_paths = {}
-    for subject_id in subject_ids:
-        masks = glob.glob(os.path.join(mask_dir, f"{subject_id}_*.nii.gz"))
-        if masks:
-            mask_paths[subject_id] = masks[0]
+    # 获取所有非隐藏的患者目录
+    patient_dirs = [d for d in os.listdir(mask_dir) 
+                   if os.path.isdir(os.path.join(mask_dir, d)) and not d.startswith('.')]
+
+    for patient_id in patient_dirs:
+        patient_path = os.path.join(mask_dir, patient_id)
+        if not os.path.isdir(patient_path):
+            continue   
+        mask_paths[patient_id] = {}
+        # 获取所有非隐藏的模态/序列目录
+        modality_dirs = [d for d in os.listdir(patient_path) 
+                        if os.path.isdir(os.path.join(patient_path, d)) and not d.startswith('.')]
+        for modality in modality_dirs:
+            modality_path = os.path.join(patient_path, modality)
+            # 获取目录中的所有非隐藏文件
+            files = [f for f in os.listdir(modality_path) 
+                    if os.path.isfile(os.path.join(modality_path, f)) and not f.startswith('.')]
+            # 警告如果有多个文件
+            if len(files) > 1:
+                print(f"Warning: Multiple files found in {patient_id}/{modality} mask, using the first one")                
+            if files:  # 如果目录中有文件
+                mask_paths[patient_id][modality] = os.path.join(modality_path, files[0])
+    
+    return images_paths, mask_paths
+
+
+def _parse_paths_from_txt(txt_path: str) -> Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
+    """
+    Parse image and mask paths from a txt file.
+    
+    Args:
+        txt_path: Path to the txt file defining file locations
+        
+    Returns:
+        Tuple containing:
+            - Dictionary mapping subject IDs to dictionary of modality-image path pairs
+            - Dictionary mapping subject IDs to dictionary of modality-mask path pairs
+            
+    The txt file format should be:
+    Subject_ID, Modality, Image_Path, Mask_Path
+    e.g.:
+    001, T1, /path/to/001_T1.nii.gz, /path/to/001_T1_mask.nii.gz
+    001, T2, /path/to/001_T2.nii.gz, /path/to/001_T2_mask.nii.gz
+    002, T1, /path/to/002_T1.nii.gz, /path/to/002_T1_mask.nii.gz
+    ...
+    """
+    images_paths = {}
+    mask_paths = {}
+    
+    with open(txt_path, 'r') as f:
+        lines = f.readlines()
+        
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('#'):  # Skip empty lines and comments
+            continue
+            
+        parts = [part.strip() for part in line.split(',')]
+        if len(parts) < 4:
+            print(f"Warning: Invalid line format in {txt_path}: {line}")
+            continue
+            
+        subject_id, modality, image_path, mask_path = parts[:4]
+        
+        # Initialize dictionaries for new subjects
+        if subject_id not in images_paths:
+            images_paths[subject_id] = {}
+        if subject_id not in mask_paths:
+            mask_paths[subject_id] = {}
+            
+        # Add paths
+        if os.path.exists(image_path):
+            images_paths[subject_id][modality] = image_path
+        else:
+            print(f"Warning: Image file does not exist: {image_path}")
+            
+        if os.path.exists(mask_path):
+            mask_paths[subject_id][modality] = mask_path
+        else:
+            print(f"Warning: Mask file does not exist: {mask_path}")
     
     return images_paths, mask_paths
 

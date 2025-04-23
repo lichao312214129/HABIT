@@ -52,12 +52,10 @@ from functools import partial
 import argparse
 import sys
 import pandas as pd
-import tqdm
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Dict, List, Optional, Union
-from ..utils.progress_utils import CustomTqdm
 
-from ..utils.io_utils import get_image_and_mask_paths
+from ....utils.io_utils import get_image_and_mask_paths
+from ..utils.progress_utils import CustomTqdm
 
 # 禁用警告
 warnings.filterwarnings('ignore')

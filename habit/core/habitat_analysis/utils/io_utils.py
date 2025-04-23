@@ -7,6 +7,7 @@ import json
 import pandas as pd
 import SimpleITK as sitk
 import numpy as np
+from ....utils.io_utils import get_image_and_mask_paths
 
 
 def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
@@ -124,67 +125,6 @@ def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path:
     sitk.WriteImage(habitats_img, output_path)
     
     return output_path
-
-
-def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
-    """
-    Get paths for all image and mask files
-    
-    Args:
-        root_folder (str): Root directory
-        keyword_of_raw_folder (str, optional): Name of the images folder
-        keyword_of_mask_folder (str, optional): Name of the masks folder
-    
-    Returns:
-        tuple: Dictionary of image paths and dictionary of mask paths
-    """
-    # Get image paths
-    images_paths = {}
-    images_root = os.path.join(root_folder, keyword_of_raw_folder)
-    # Filter out .DS_Store and other hidden files
-    subjects = [f for f in os.listdir(images_root) if not f.startswith('.')]
-    
-    for subj in subjects:
-        images_paths[subj] = {}
-        subj_path = os.path.join(images_root, subj)
-        # Filter out .DS_Store and other hidden files
-        img_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
-        
-        for img_subfolder in img_subfolders:
-            img_subfolder_path = os.path.join(subj_path, img_subfolder)
-            if os.path.isdir(img_subfolder_path):
-                # Filter out .DS_Store and other hidden files
-                img_files = [f for f in os.listdir(img_subfolder_path) if not f.startswith('.')]
-                # Warning if multiple files
-                if len(img_files) > 1:
-                    print(f"Warning: Multiple image files in {subj}/{img_subfolder}")
-                img_file = img_files[0]
-                images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
-    
-    # Get mask paths
-    mask_paths = {}
-    masks_root = os.path.join(root_folder, keyword_of_mask_folder)
-    # Filter out .DS_Store and other hidden files
-    subjects = [f for f in os.listdir(masks_root) if not f.startswith('.')]
-    
-    for subj in subjects:
-        mask_paths[subj] = {}
-        subj_path = os.path.join(masks_root, subj)
-        # Filter out .DS_Store and other hidden files
-        mask_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
-        
-        for mask_subfolder in mask_subfolders:
-            mask_subfolder_path = os.path.join(subj_path, mask_subfolder)
-            if os.path.isdir(mask_subfolder_path):
-                # Filter out .DS_Store and other hidden files
-                mask_files = [f for f in os.listdir(mask_subfolder_path) if not f.startswith('.')]
-                # Warning if multiple files
-                if len(mask_files) > 1:
-                    print(f"Warning: Multiple mask files in {subj}/{mask_subfolder}")
-                mask_file = mask_files[0]
-                mask_paths[subj][mask_subfolder] = os.path.join(mask_subfolder_path, mask_file)
-    
-    return images_paths, mask_paths
 
 
 def detect_image_names(images_paths: dict) -> list:

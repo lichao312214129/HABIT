@@ -5,15 +5,12 @@ including traditional radiomics, non-radiomics features, whole habitat features,
 individual habitat features, and MSI (Multi-Scale Image) features.
 """
 
-import json
 import os
 import sys
-import yaml
 import argparse
 import logging
 import time
-from pathlib import Path
-from habit.core.habitat_analysis import HabitatFeatureExtractor
+from habit.core.habitat_analysis.feature_extraction.new_extractor import HabitatFeatureExtractor
 from habit.utils.io_utils import load_config, setup_logging
 
 
@@ -287,11 +284,11 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         print("调试模式：使用默认参数")
         sys.argv.extend([
-            '--params_file_of_non_habitat', 'parameter.yaml',
-            '--params_file_of_habitat', 'parameter_habitat.yaml',
-            '--raw_img_folder', 'G:\\lessThan50AndNoMacrovascularInvasion_structured',
-            '--habitats_map_folder', 'F:\\work\\research\\radiomics_TLSs\\data\\results_416',
-            '--out_dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_416\\parsed_features',
+            '--params_file_of_non_habitat', './config/parameter.yaml',
+            '--params_file_of_habitat', './config/parameter_habitat.yaml',
+            '--raw_img_folder', 'H:\\Registration_ICC_structured_test',
+            '--habitats_map_folder', 'F:\\work\\research\\radiomics_TLSs\\data\\results_420',
+            '--out_dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_420\\parsed_features',
             '--n_processes', '4',
             '--habitat_pattern', '*_habitats.nrrd',
             '--feature_types', 'traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi',
