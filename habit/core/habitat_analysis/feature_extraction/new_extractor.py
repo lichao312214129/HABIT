@@ -6,6 +6,7 @@ This tool provides functionality for extracting features from habitat maps:
 2. Radiomic features of habitats within the entire ROI
 3. Number of disconnected regions and volume percentage for each habitat
 4. MSI (Mutual Spatial Integrity) features from habitat maps
+5. ITH (Intratumoral Heterogeneity) scores from habitat maps
 """
 
 import time
@@ -26,6 +27,7 @@ from ..utils.progress_utils import CustomTqdm
 from .basic_features import BasicFeatureExtractor
 from .habitat_radiomics import HabitatRadiomicsExtractor
 from .msi_features import MSIFeatureExtractor
+from .ith_features import ITHFeatureExtractor
 from .feature_utils import FeatureUtils
 
 # Disable warnings
@@ -39,6 +41,7 @@ class HabitatFeatureExtractor:
     2. Radiomic features of habitats within the entire ROI
     3. Number of disconnected regions and volume percentage for each habitat
     4. MSI (Mutual Spatial Integrity) features from habitat maps
+    5. ITH (Intratumoral Heterogeneity) scores from habitat maps
     """
     
     def __init__(self, 
@@ -49,7 +52,8 @@ class HabitatFeatureExtractor:
                 out_dir=None,
                 n_processes=None,
                 habitat_pattern=None,
-                voxel_cutoff=10):
+                voxel_cutoff=10,
+                extract_ith=False):
         """
         Initialize the habitat feature extractor
         
@@ -62,6 +66,7 @@ class HabitatFeatureExtractor:
             n_processes: Number of processes to use
             habitat_pattern: Pattern for matching habitat files
             voxel_cutoff: Voxel threshold for filtering small regions in MSI feature calculation
+            extract_ith: Whether to extract ITH scores
         """
         # Feature extraction related parameters
         self.params_file_of_non_habitat = params_file_of_non_habitat
@@ -72,6 +77,7 @@ class HabitatFeatureExtractor:
         self._habitat_pattern = habitat_pattern
         self.n_habitats = None  # Initialize as None, will be read from file later
         self.voxel_cutoff = voxel_cutoff
+        self.extract_ith = extract_ith
         
         # Process number settings
         if n_processes is None:
@@ -83,6 +89,13 @@ class HabitatFeatureExtractor:
         self.basic_extractor = BasicFeatureExtractor()
         self.radiomics_extractor = HabitatRadiomicsExtractor()
         self.msi_extractor = MSIFeatureExtractor(voxel_cutoff=voxel_cutoff)
+        if self.extract_ith:
+            self.ith_extractor = ITHFeatureExtractor(
+                params_file=self.params_file_of_non_habitat,
+                window_size=3,
+                margin_size=3,
+                voxel_cutoff=voxel_cutoff
+            )
         
         # Setup logging
         self._setup_logging()
@@ -137,16 +150,16 @@ class HabitatFeatureExtractor:
     def get_mask_and_raw_files(self):
         """Get paths to all original images and habitat maps"""
         # Use the get_image_and_mask_paths function imported from io_utils
-        images_paths, _ = get_image_and_mask_paths(self.raw_img_folder)
+        images_paths, mask_paths = get_image_and_mask_paths(self.raw_img_folder)
 
         habitat_paths = {}
         for subj in Path(self.habitats_map_folder).glob(self._habitat_pattern):
             key = subj.name.replace(self._habitat_pattern.replace("*", ""), "")
             habitat_paths[key] = str(subj)
 
-        return images_paths, habitat_paths
+        return images_paths, habitat_paths, mask_paths
 
-    def process_subject(self, subj, images_paths, habitat_paths):
+    def process_subject(self, subj, images_paths, habitat_paths, mask_paths=None):
         """Process a single subject for habitat feature extraction"""
         subject_features = {}
         imgs = list(images_paths[subj].keys())
@@ -208,10 +221,31 @@ class HabitatFeatureExtractor:
         except Exception as e:
             logging.error(f"Error processing MSI features for subject {subj}: {str(e)}")
             subject_features['msi_features'] = {"error": str(e)}
+            
+        # Extract ITH features if enabled and masks are available
+        if self.extract_ith and mask_paths and subj in mask_paths:
+            subject_features['ith_features'] = {}
+            for img in imgs:
+                try:
+                    # Create visualization directory if needed
+                    viz_dir = None
+                    if self.out_dir:
+                        viz_dir = os.path.join(self.out_dir, 'ith_visualizations')
+                        
+                    # Extract ITH features
+                    ith_features = self.ith_extractor.extract_ith_features(
+                        images_paths[subj][img],
+                        mask_paths[subj][img],
+                        out_dir=viz_dir
+                    )
+                    subject_features['ith_features'][img] = ith_features
+                except Exception as e:
+                    logging.error(f"Error processing ITH features for subject {subj}, image {img}: {str(e)}")
+                    subject_features['ith_features'][img] = {"error": str(e), "ith_score": 0.0}
 
         return subj, subject_features
 
-    def extract_features(self, images_paths, habitat_paths):
+    def extract_features(self, images_paths, habitat_paths, mask_paths=None):
         """Extract habitat features for all subjects"""
         features = {}
         subjs = list(set(images_paths.keys()) & set(habitat_paths.keys()))
@@ -227,7 +261,8 @@ class HabitatFeatureExtractor:
             os.makedirs(temp_dir)
             
         with multiprocessing.Pool(processes=self.n_processes) as pool:
-            process_func = partial(self.process_subject, images_paths=images_paths, habitat_paths=habitat_paths)
+            process_func = partial(self.process_subject, images_paths=images_paths, 
+                                 habitat_paths=habitat_paths, mask_paths=mask_paths)
             
             total = len(subjs)
             progress_bar = CustomTqdm(total=total, desc="Extracting Features")
@@ -283,6 +318,9 @@ class HabitatFeatureExtractor:
             
         if 'msi' in feature_types:
             results['msi'] = self._extract_msi_features()
+            
+        if 'ith' in feature_types and self.extract_ith:
+            results['ith'] = self._extract_ith_features()
             
         return results
 
@@ -500,12 +538,70 @@ class HabitatFeatureExtractor:
             logging.error("No valid MSI features data")
             return None
 
+    def _extract_ith_features(self):
+        """Extract ITH features and save as CSV file"""
+        logging.info("Starting extraction of ITH features")
+        subjs = list(self.data.keys())
+        ith_features_list = []
+        total = len(subjs)
+        
+        progress_bar = CustomTqdm(total=total, desc="Processing ITH Features")
+        for i, subj in enumerate(subjs):
+            progress_bar.update(1)
+            
+            try:
+                if 'ith_features' in self.data.get(subj):
+                    # Process all images
+                    imgs = list(self.data.get(subj).get('ith_features').keys())
+                    
+                    for img in imgs:
+                        features = self.data.get(subj).get('ith_features').get(img)
+                        if 'error' not in features:
+                            features_df = pd.DataFrame.from_dict(features, orient='index').T
+                            # Add subject and image info
+                            features_df['subject_id'] = subj
+                            features_df['image_id'] = img
+                            features_df.set_index(['subject_id', 'image_id'], inplace=True)
+                            ith_features_list.append(features_df)
+                        else:
+                            logging.error(f"Error extracting ITH features for subject {subj}, image {img}: {features['error']}")
+                            # Create empty DataFrame if there are successful extractions
+                            if len(ith_features_list) > 0:
+                                empty_df = FeatureUtils.create_empty_dataframe_like(
+                                    ith_features_list[0].reset_index().drop(['subject_id', 'image_id'], axis=1),
+                                    index=[0]
+                                )
+                                empty_df['subject_id'] = subj
+                                empty_df['image_id'] = img
+                                empty_df.set_index(['subject_id', 'image_id'], inplace=True)
+                                ith_features_list.append(empty_df)
+                else:
+                    logging.error(f"No ITH features data for subject {subj}")
+            except Exception as e:
+                logging.error(f"Error processing ITH features for subject {subj}: {str(e)}")
+        
+        if len(ith_features_list) > 0:
+            ith_features_df = pd.concat(ith_features_list)
+            out_file = os.path.join(self.out_dir, "ith_features.csv")
+            ith_features_df.to_csv(out_file)
+            logging.info(f"ITH features saved to {out_file}")
+            
+            # Also create a simplified version with just subject_id and ITH scores
+            ith_scores_df = ith_features_df.reset_index()[['subject_id', 'image_id', 'ith_score']]
+            ith_scores_df.to_csv(os.path.join(self.out_dir, "ith_scores.csv"), index=False)
+            logging.info(f"ITH scores saved to {os.path.join(self.out_dir, 'ith_scores.csv')}")
+            
+            return ith_features_df
+        else:
+            logging.error("No valid ITH features data")
+            return None
+
     def run(self, feature_types: Optional[List[str]] = None, n_habitats: Optional[int] = None, mode: str = 'both'):
         """Run the complete analysis pipeline"""
         # Feature extraction
         if self.out_dir and (mode == 'extract' or mode == 'both'):
-            images_paths, habitat_paths = self.get_mask_and_raw_files()
-            self.extract_features(images_paths, habitat_paths)
+            images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
+            self.extract_features(images_paths, habitat_paths, mask_paths)
             
         # Feature parsing
         if feature_types and self.out_dir and (mode == 'parse' or mode == 'both'):
@@ -519,9 +615,9 @@ def parse_arguments():
     
     # Feature extraction parameters
     parser.add_argument('--params_file_of_non_habitat', type=str,
-                        help='Parameter file for extracting radiomics features from raw images')
+                        help='Parameter file for extracting radiomic features from raw images')
     parser.add_argument('--params_file_of_habitat', type=str,
-                        help='Parameter file for extracting radiomics features from habitat images')
+                        help='Parameter file for extracting radiomic features from habitat images')
     parser.add_argument('--raw_img_folder', type=str,
                         help='Root directory of raw images')
     parser.add_argument('--habitats_map_folder', type=str,
@@ -535,10 +631,12 @@ def parse_arguments():
                         help='Pattern for matching habitat files')
     parser.add_argument('--voxel_cutoff', type=int, default=10,
                         help='Voxel threshold for filtering small regions in MSI feature calculation')
+    parser.add_argument('--extract_ith', action='store_true',
+                        help='Extract ITH scores')
     
     # Feature parsing parameters
     parser.add_argument('--feature_types', nargs='+', type=str,
-                        choices=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi'],
+                        choices=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith'],
                         help='Types of features to parse')
     parser.add_argument('--n_habitats', type=int,
                         help='Number of habitats to process (if not specified, will be read from habitats.csv)')
@@ -560,7 +658,8 @@ if __name__ == "__main__":
             '--n_processes', '4',
             '--habitat_pattern', '*_habitats.nrrd',
             '--voxel_cutoff', '10',
-            '--feature_types', 'traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi',
+            '--extract_ith',
+            '--feature_types', 'traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith',
             '--mode', 'both'
         ])
     
@@ -577,11 +676,12 @@ if __name__ == "__main__":
         out_dir=args.out_dir,
         n_processes=args.n_processes,
         habitat_pattern=args.habitat_pattern,
-        voxel_cutoff=args.voxel_cutoff
+        voxel_cutoff=args.voxel_cutoff,
+        extract_ith=args.extract_ith
     )
     extractor.run(feature_types=args.feature_types, n_habitats=args.n_habitats, mode=args.mode)
     e = time.time()
     print(f"Total time: {e - s:.2f} seconds") 
 
     # Command line form (using real sys parameters):
-    # python new_extractor.py --params_file_of_non_habitat parameter.yaml --params_file_of_habitat parameter_habitat.yaml --raw_img_folder G:\lessThan50AndNoMacrovascularInvasion_structured --habitats_map_folder F:\work\research\radiomics_TLSs\data\results_kmeans_0401 --out_dir F:\work\research\radiomics_TLSs\data\results_kmeans_0401\parsed_features --n_processes 10 --habitat_pattern *_habitats.nrrd --feature_types traditional non_radiomics whole_habitat each_habitat msi --mode parse 
+    # python new_extractor.py --params_file_of_non_habitat parameter.yaml --params_file_of_habitat parameter_habitat.yaml --raw_img_folder G:\lessThan50AndNoMacrovascularInvasion_structured --habitats_map_folder F:\work\research\radiomics_TLSs\data\results_kmeans_0401 --out_dir F:\work\research\radiomics_TLSs\data\results_kmeans_0401\parsed_features --n_processes 10 --habitat_pattern *_habitats.nrrd --feature_types traditional non_radiomics whole_habitat each_habitat msi ith --extract_ith --mode parse 
