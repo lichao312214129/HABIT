@@ -230,17 +230,18 @@ def get_optimization_direction(clustering_algorithm: str, validation_method: str
 
 def get_method_description(clustering_algorithm: str, validation_method: str) -> str:
     """
-    Get the description of the validation method
+    获取验证方法的描述信息
     
     Args:
-        clustering_algorithm: Name of the clustering algorithm
-        validation_method: Name of the validation method
+        clustering_algorithm: 聚类算法名称
+        validation_method: 验证方法名称
         
     Returns:
-        str: Method description
+        str: 验证方法描述
     """
     validation_info = get_validation_methods(clustering_algorithm)
     if validation_method in validation_info['methods']:
         return validation_info['methods'][validation_method]['description']
     else:
-        return "Unknown validation method"
+        # 默认描述
+        return f"{validation_method.capitalize()} Score"

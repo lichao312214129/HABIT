@@ -14,7 +14,7 @@ Usage Instructions:
 
 import numpy as np
 from typing import List, Dict, Any, Optional, Union
-from habitat_clustering.features.base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from .base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
 
 
 @register_feature_extractor('custom_template')  # Register feature extractor (please change to your method name)

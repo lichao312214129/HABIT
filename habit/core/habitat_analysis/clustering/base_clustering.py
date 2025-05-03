@@ -11,6 +11,10 @@ from sklearn.preprocessing import LabelEncoder
 import matplotlib.cm as cm
 from matplotlib.ticker import MaxNLocator
 import warnings
+import os
+import importlib
+import pkgutil
+import inspect
 
 warnings.simplefilter('ignore')
 
@@ -53,8 +57,8 @@ def get_clustering_algorithm(name: str, **kwargs) -> 'BaseClustering':
     # If not found, try dynamic import
     try:
         # Try to import module with specified name
-        module_name = f"habitat_clustering.clustering.{name}_clustering"
-        module = importlib.import_module(module_name)
+        module_name = f"{name}_clustering"
+        module = importlib.import_module(f".{module_name}", package=__package__)
         
         # Find clustering algorithm class in the module
         for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
@@ -93,7 +97,7 @@ def discover_clustering_algorithms() -> None:
         if module_name.endswith('_clustering') and module_name != 'base_clustering':
             try:
                 # Dynamically import module
-                module = importlib.import_module(f"habitat_clustering.clustering.{module_name}")
+                module = importlib.import_module(f".{module_name}", package=__package__)
                 
                 # Find and register clustering algorithms defined in the module
                 for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
@@ -482,7 +486,7 @@ class BaseClustering(ABC):
             show (bool): Whether to show the figure
         """
         import matplotlib.pyplot as plt
-        from habitat_analysis.clustering.cluster_validation_methods import get_method_description, get_optimization_direction
+        from .cluster_validation_methods import get_method_description, get_optimization_direction
         
         # If scores_dict is not provided, use self.scores
         if scores_dict is None:

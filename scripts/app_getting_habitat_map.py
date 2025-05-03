@@ -193,11 +193,11 @@ def main() -> None:
     supervoxel_method = supervoxel_config.get('algorithm', 'kmeans')
     n_clusters_supervoxel = supervoxel_config.get('n_clusters', 50)
 
-    
     # Extract habitat method configuration
     habitat_config = habitats_config.get('habitat', {})
-    habitat_method = habitat_config.get('algorithm', 'kmeas')
+    habitat_method = habitat_config.get('algorithm', 'kmeans')
     n_clusters_habitats_max = habitat_config.get('max_clusters', 10)
+    n_clusters_habitats_min = habitat_config.get('min_clusters', 2)
     habitat_cluster_selection_method = habitat_config.get('habitat_cluster_selection_method', None)
     best_n_clusters = habitat_config.get('best_n_clusters', None)
     # Convert best_n_clusters to integer if it's not None and can be converted to an integer
@@ -232,6 +232,7 @@ def main() -> None:
         n_clusters_supervoxel=n_clusters_supervoxel,
         habitat_clustering_method=habitat_method,
         n_clusters_habitats_max=n_clusters_habitats_max,
+        n_clusters_habitats_min=n_clusters_habitats_min,
         habitat_cluster_selection_method=habitat_cluster_selection_method,
         best_n_clusters=best_n_clusters,
         n_processes=n_processes,

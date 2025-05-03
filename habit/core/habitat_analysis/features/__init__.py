@@ -8,7 +8,11 @@ from .base_feature_extractor import (
 )
 
 from .kinetic_feature_extractor import KineticFeatureExtractor
-from .simple_feature_extractor import SimpleFeatureExtractor
+from .raw_feature_extractor import RawFeatureExtractor
+from .voxel_radiomics_extractor import VoxelRadiomicsExtractor
+from .supervoxel_radiomics_extractor import SupervoxelRadiomicsExtractor
+from .concat_feature_extractor import ConcatImageFeatureExtractor
+from .mean_voxel_features_extractor import MeanVoxelFeaturesExtractor
 
 # Add your custom feature extractors here
 from .my_feature_extractor import MyFeatureExtractor
@@ -19,7 +23,7 @@ from .feature_preprocessing import preprocess_features
 __all__ = [
     "BaseFeatureExtractor", "register_feature_extractor", "get_feature_extractors",
     "KineticFeatureExtractor", "SimpleFeatureExtractor", "MyFeatureExtractor",
-    "preprocess_features"
+    "SupervoxelRadiomicsExtractor", "preprocess_features", "MeanVoxelFeaturesExtractor"
 ]
 
 

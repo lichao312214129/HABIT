@@ -49,7 +49,7 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         Extract kinetic features
         
         Args:
-            image_data (np.ndarray): Image data with shape [n_voxels, n_timepoints]
+            image_data (dict): Dictionary of image data with keys as image names and values as 2D arrays [n_voxels, n_features]
             **kwargs: Other parameters such as timestamps, subject, etc.
             
         Returns:
@@ -58,8 +58,16 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         # Get parameters from kwargs
         subject = kwargs.get('subject', None)
         
+        # to df
+        # Convert image_data dictionary to DataFrame 
+        # header =  key_name
+        image_df = pd.DataFrame()
+        for k, v in image_data.items():
+            image_df = pd.concat([image_df, pd.DataFrame(v)], axis=1)
+        image_df.columns = image_data.keys()
+        
         # Calculate features
-        features = self._compute_kinetic_features(image_data, self.time_dict.loc[subject])
+        features = self._compute_kinetic_features(image_df, self.time_dict.loc[subject])
         return features
     
     def _compute_kinetic_features(self, image_array: pd.DataFrame, image_timestamp: List[str]) -> np.ndarray:
@@ -110,5 +118,17 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
             wash_out_slope_of_lap_and_pvp,
             wash_out_slope_of_pvp_and_dp
         ]).T
+
+        # to df
+        metrics_df = pd.DataFrame(metrics, columns=self.feature_names)
         
-        return metrics 
+        return metrics_df 
+    
+    def get_feature_names(self) -> List[str]:
+        """
+        Get feature names
+        
+        Returns:
+            List[str]: List of feature names
+        """
+        return self.feature_names

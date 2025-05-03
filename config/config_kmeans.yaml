@@ -22,10 +22,21 @@ Preprocessing:
 
 # Feature extraction settings
 FeatureConstruction:
-  image_names: [pre_contrast, LAP, PVP, delay_3min]
-  method: kinetic  # kinetic, simple, or custom
-  params:
-    timestamps: F:\\work\\research\\radiomics_TLSs\\data\\scan_time_of_phases.xlsx
+  voxel_level:
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    params:
+      params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
+      kernelRadius: 2
+      timestamps: F:\\work\\research\\radiomics_TLSs\\data\\scan_time_of_phases.xlsx
+
+  supervoxel_level:
+    # TODO: method include mean_voxel_features, names using mean value of voxel features in each supervoxel
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    # method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file), supervoxel_radiomics(PVP, params_file), supervoxel_radiomics(delay_3min, params_file))
+    method: mean_voxel_features()
+    params:
+      params_file: ./config/parameter.yaml
+
   preprocessing:
     methods:
       - method: minmax
@@ -36,8 +47,6 @@ FeatureConstruction:
 
 # Habitat segmentation settings
 HabitatsSegmention:
-  method: 2step  # Two-step clustering method
-  
   # Supervoxel clustering settings
   supervoxel:
     algorithm: kmeans
