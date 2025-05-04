@@ -6,19 +6,18 @@ out_dir: F:\\work\\research\\radiomics_TLSs\\data\\results_420
 
 # Preprocessing settings
 Preprocessing:
-  N4BiasCorrection:
-    enabled: true
-    images: [pre_contrast, LAP, PVP, delay_3min]
+  # N4_bias_correction:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
 
   resample:
     images: [pre_contrast, LAP, PVP, delay_3min]
     target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in mm
 
-  registration:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    fixedImage: PVP
-    movingImage: [pre_contrast, LAP, delay_3min]
-    method: rigid  # rigid or affine
+  # registration:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   fixed_image: PVP
+  #   moving_images: [pre_contrast, LAP, delay_3min]
+  #   type_of_transform: rigid  # rigid or affine
 
 # Feature extraction settings
 FeatureConstruction:

@@ -1,6 +1,10 @@
-# HABIT - Habitat Analysis Tool for Medical Images
+# HABIT - Habitat Analysis Based on Imaging Traits
 
 HABIT是一个用于医学图像生境分析的综合工具包，提供了放射组学特征提取、生境聚类分析、机器学习模型构建等功能。本工具包采用模块化设计，遵循Python最佳实践规范。
+
+HABIT implements a two-step clustering approach to identify distinct tumor habitats based on imaging features:
+1. Individual-level clustering: Divide each tumor into supervoxels
+2. Population-level clustering: Cluster supervoxels across all subjects to identify habitats
 
 ## 项目结构
 
@@ -32,20 +36,37 @@ HABIT/
 
 ## 功能特性
 
-1. **生境分析**
-   - 影像放射组学特征提取
-   - 基于聚类的生境识别
-   - 生境特征统计与可视化
+1. **生境分析 (Habitat Analysis)**
+   - 影像放射组学特征提取 (Radiomics feature extraction)
+   - 基于聚类的生境识别 (Cluster-based habitat identification)
+   - 生境特征统计与可视化 (Habitat feature statistics and visualization)
+   - 多模态图像支持 (Multi-modal image support)
+   - 灵活的特征构建表达式 (Flexible feature construction expressions)
 
-2. **机器学习分析**
-   - 特征选择与预处理
-   - 模型训练与评估
-   - 预测与结果分析
+2. **特征提取方法 (Feature Extraction Methods)**
+   - 原始强度特征 (Raw intensity features)
+   - 动态增强特征 (Kinetic features from dynamic images)
+   - 体素级放射组学特征 (Voxel-level radiomics features)
+   - 超体素级放射组学特征 (Supervoxel-level radiomics features)
+   - 自定义特征提取器 (Custom feature extractors)
 
-3. **工具函数**
-   - 配置管理
-   - 结果保存与读取
-   - 可视化工具
+3. **聚类算法 (Clustering Algorithms)**
+   - K-means聚类 (K-means clustering)
+   - 层次聚类 (Hierarchical agglomerative clustering)
+   - 谱聚类 (Spectral clustering)
+   - 高斯混合模型 (Gaussian Mixture Models)
+
+4. **机器学习分析 (Machine Learning Analysis)**
+   - 特征选择与预处理 (Feature selection and preprocessing)
+   - 模型训练与评估 (Model training and evaluation)
+   - 预测与结果分析 (Prediction and result analysis)
+   - 自动参数选择 (Automatic parameter selection)
+
+5. **工具函数 (Utility Functions)**
+   - 配置管理 (Configuration management)
+   - 结果保存与读取 (Result saving and loading)
+   - 可视化工具 (Visualization tools)
+   - 进度显示 (Progress display)
 
 ## 安装方法
 
@@ -114,10 +135,102 @@ python scripts/run_machine_learning.py \
 
 ## 配置文件说明
 
-### 特征提取配置
+HABIT使用YAML格式的配置文件来定义分析流程。配置文件分为几个主要部分：
+
+### 生境分析配置 (Habitat Analysis Configuration)
 
 ```yaml
-# 示例配置文件
+# 数据路径
+data_dir: /path/to/input/data
+out_dir: /path/to/output/directory
+
+# 预处理设置
+Preprocessing:
+  N4BiasCorrection:
+    enabled: true
+    images: [pre_contrast, LAP, PVP, delay_3min]
+
+  resample:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    target_spacing: [1.0, 1.0, 1.0]  # 目标体素间距（毫米）
+
+  registration:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    fixedImage: PVP
+    movingImage: [pre_contrast, LAP, delay_3min]
+    method: rigid  # rigid或affine
+
+# 特征提取设置
+FeatureConstruction:
+  voxel_level:
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    params:
+      params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
+      kernelRadius: 2
+      timestamps: /path/to/timestamps.xlsx
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params:
+      params_file: ./config/parameter.yaml
+
+  preprocessing:
+    methods:
+      - method: minmax
+        global_normalize: true
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: true
+
+# 生境分割设置
+HabitatsSegmention:
+  # 超体素聚类设置
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  # 生境聚类设置
+  habitat:
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method: inertia  # inertia, silhouette, calinski_harabasz
+    best_n_clusters: null  # 设为null表示自动选择
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+# 通用设置
+processes: 2  # 并行处理的进程数
+plot_curves: true  # 是否生成和保存评估曲线
+random_state: 42  # 随机种子
+debug: false  # 是否启用调试模式
+```
+
+#### 特征构建表达式 (Feature Construction Expressions)
+
+HABIT使用函数式语法来定义特征提取方法。表达式可以嵌套，格式为：
+
+```
+method_name(arg1, arg2, ..., paramName1, paramName2, ...)
+```
+
+常用方法包括：
+
+- `raw(image_name)`: 从指定图像提取原始强度值
+- `kinetic(image1, image2, ..., timestamps)`: 使用时间戳从多个图像提取动态特征
+- `voxel_radiomics(image_name, params_file)`: 从指定图像提取体素级放射组学特征
+- `supervoxel_radiomics(image_name, params_file)`: 为每个超体素提取放射组学特征
+- `concat(method1(image1), method2(image2), ...)`: 连接多个方法的特征
+- `mean_voxel_features()`: 计算每个超体素的体素特征平均值
+
+### 特征提取配置 (Feature Extraction Configuration)
+
+```yaml
+# 特征提取配置示例
 params_file_of_non_habitat: parameter.yaml
 params_file_of_habitat: parameter_habitat.yaml
 raw_img_folder: /path/to/images
@@ -130,15 +243,16 @@ feature_types:
   - non_radiomics
   - whole_habitat
   - each_habitat
+  - msi
 n_habitats: 0  # 0表示自动检测
 mode: both     # extract, parse, both
 debug: false
 ```
 
-### 机器学习配置
+### 机器学习配置 (Machine Learning Configuration)
 
 ```yaml
-# 示例配置文件
+# 机器学习配置示例
 input:
   - path: /path/to/features.csv
     name: features
@@ -170,6 +284,14 @@ is_save_model: true
 model_file: /path/to/save/model.pkl
 ```
 
+更多详细配置说明，请参阅[配置指南](doc/configuration.md)。
+
+## 文档
+
+- [使用指南](doc/usage_guide.md): 详细介绍如何使用HABIT
+- [配置指南](doc/configuration.md): 详细解释配置参数
+- [API参考](doc/api_reference.md): 类和函数参考
+
 ## 贡献指南
 
 1. Fork 仓库
@@ -182,6 +304,21 @@ model_file: /path/to/save/model.pkl
 
 此项目基于 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件
 
+## 引用
+
+如果您在研究中使用了HABIT，请引用我们的论文：
+
+```
+@article{habit2023,
+  title={HABIT: Habitat Analysis Based on Imaging Traits},
+  author={Author, A. and Author, B.},
+  journal={Journal of Medical Imaging},
+  year={2023},
+  volume={1},
+  pages={1-10}
+}
+```
+
 ## 联系方式
 
-如有任何问题，请联系项目维护者 example@example.com 
+如有任何问题，请联系项目维护者 example@example.com

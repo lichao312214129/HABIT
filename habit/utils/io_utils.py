@@ -1,308 +1,320 @@
 """
-I/O utility functions for HABIT package.
+I/O utilities for habitat analysis
 """
 
 import os
 import json
-import yaml
-import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from pathlib import Path
-from typing import Dict, Any, Union, Optional, List, Tuple
+import numpy as np
+from typing import Dict, Any, Optional, List
+import yaml
 
 
-def load_config(config_file: Union[str, Path]) -> Dict[str, Any]:
+
+def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
     """
-    Load configuration from a config file (JSON or YAML format)
+    Get paths for all image and mask files
     
     Args:
-        config_file: Path to the configuration file
-        
+        root_folder (str): Root directory
+        keyword_of_raw_folder (str, optional): Name of the images folder
+        keyword_of_mask_folder (str, optional): Name of the masks folder
+    
     Returns:
-        Configuration dictionary containing all parameters
+        tuple: Dictionary of image paths and dictionary of mask paths
+    """
+    # Get image paths
+    images_paths = {}
+    images_root = os.path.join(root_folder, keyword_of_raw_folder)
+    # Filter out .DS_Store and other hidden files
+    subjects = [f for f in os.listdir(images_root) if not f.startswith('.')]
+    
+    for subj in subjects:
+        images_paths[subj] = {}
+        subj_path = os.path.join(images_root, subj)
+        # Filter out .DS_Store and other hidden files
+        img_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
+        
+        for img_subfolder in img_subfolders:
+            img_subfolder_path = os.path.join(subj_path, img_subfolder)
+            if os.path.isdir(img_subfolder_path):
+                # Filter out .DS_Store and other hidden files
+                img_files = [f for f in os.listdir(img_subfolder_path) if not f.startswith('.')]
+                # Warning if multiple files
+                if len(img_files) > 1:
+                    print(f"Warning: Multiple image files in {subj}/{img_subfolder}")
+                img_file = img_files[0]
+                images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
+    
+    # Get mask paths
+    mask_paths = {}
+    masks_root = os.path.join(root_folder, keyword_of_mask_folder)
+    # Filter out .DS_Store and other hidden files
+    subjects = [f for f in os.listdir(masks_root) if not f.startswith('.')]
+    
+    for subj in subjects:
+        mask_paths[subj] = {}
+        subj_path = os.path.join(masks_root, subj)
+        # Filter out .DS_Store and other hidden files
+        mask_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
+        
+        for mask_subfolder in mask_subfolders:
+            mask_subfolder_path = os.path.join(subj_path, mask_subfolder)
+            if os.path.isdir(mask_subfolder_path):
+                # Filter out .DS_Store and other hidden files
+                mask_files = [f for f in os.listdir(mask_subfolder_path) if not f.startswith('.')]
+                # Warning if multiple files
+                if len(mask_files) > 1:
+                    print(f"Warning: Multiple mask files in {subj}/{mask_subfolder}")
+                mask_file = mask_files[0]
+                mask_paths[subj][mask_subfolder] = os.path.join(mask_subfolder_path, mask_file)
+    
+    return images_paths, mask_paths
+
+def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
+    """
+    Load scan timestamps from Excel file
+    
+    Args:
+        file_path (str): Path to the Excel file
+        subjID_column (str, optional): Name of the subject ID column
+    
+    Returns:
+        dict: Dictionary with subject names as keys and timestamp lists as values
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    df = pd.read_excel(file_path, index_col=subjID_column)
+    # convert index to string
+    df.index = df.index.astype(str)
+    return df
+
+def save_results(out_folder: str, results: pd.DataFrame, config: dict = None, file_name: str = "habitats.csv") -> None:
+    """
+    Save clustering results
+    
+    Args:
+        out_folder (str): Output directory
+        results (DataFrame): Results DataFrame
+        config (dict, optional): Configuration dictionary, saved as JSON if not None
+        file_name (str, optional): Name of the CSV file to save
+    """
+    # Create output folder if it doesn't exist
+    if not os.path.exists(out_folder):
+        os.makedirs(out_folder)
+    
+    # Save configuration
+    if config:
+        with open(os.path.join(out_folder, "config.json"), "w") as f:
+            json.dump(config, f, indent=4)
+    
+    # Save CSV results
+    results.to_csv(os.path.join(out_folder, file_name), index=True)
+    print(f"Results saved to {os.path.join(out_folder, file_name)}")
+
+def save_supervoxel_image(subject: str, supervoxel_labels: np.ndarray, mask_path: str, out_folder: str) -> str:
+    """
+    Save supervoxel image
+    
+    Args:
+        subject (str): Subject name
+        supervoxel_labels (ndarray): Supervoxel labels
+        mask_path (str): Path to the mask file
+        out_folder (str): Output directory
+    
+    Returns:
+        str: Path to the saved file
+    """
+    # Load mask
+    mask = sitk.ReadImage(mask_path)
+    mask_array = sitk.GetArrayFromImage(mask)
+    
+    # Create supervoxel image
+    supervoxel_map = np.zeros_like(mask_array)
+    supervoxel_map[mask_array > 0] = supervoxel_labels
+    
+    # Convert to SimpleITK image and save
+    supervoxel_img = sitk.GetImageFromArray(supervoxel_map)
+    supervoxel_img.CopyInformation(mask)
+    
+    output_path = os.path.join(out_folder, f"{subject}_supervoxel.nrrd")
+    sitk.WriteImage(supervoxel_img, output_path)
+    
+    return output_path
+
+def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path: str, out_folder: str) -> str:
+    """
+    Save habitat image
+    
+    Args:
+        subject (str): Subject name
+        habitats_df (DataFrame): Habitat DataFrame containing Supervoxel and Habitats columns
+        supervoxel_path (str): Path to the supervoxel image
+        out_folder (str): Output directory
+    
+    Returns:
+        str: Path to the saved file
+
+    TODO: 
+    1. 某个团块的体素只有很少的几个，是否需要删除，或者归位其他相似的团块中去
+    """
+    # Load supervoxel image
+    supervoxel = sitk.ReadImage(supervoxel_path)
+    supervoxel_array = sitk.GetArrayFromImage(supervoxel)
+    
+
+    # Create habitat image
+    habitats_array = np.zeros_like(supervoxel_array)
+    habitats_subj = habitats_df.loc[subject]
+    n_clusters_supervoxel = habitats_subj.shape[0]
+    for i in range(n_clusters_supervoxel):
+        # Assert that habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'] has exactly one value
+        # assert habitats_subj[habitats_subj['Supervoxel'] == i+1].shape[0] == 1, f"Multiple rows for supervoxel {i+1} in subject {subject}, please check the data table"
+        if (supervoxel_array == i+1).sum() > 0:
+            habitats_array[supervoxel_array == i+1] = habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'].values[0]
+    
+
+    # Convert to SimpleITK image and save
+    habitats_img = sitk.GetImageFromArray(habitats_array)
+    habitats_img.CopyInformation(supervoxel)
+    
+    output_path = os.path.join(out_folder, f"{subject}_habitats.nrrd")
+    sitk.WriteImage(habitats_img, output_path)
+    
+    return output_path
+
+def detect_image_names(images_paths: dict) -> list:
+    """
+    Automatically detect image names
+    
+    Args:
+        images_paths (dict): Dictionary of image paths
+    
+    Returns:
+        list: List of all unique image names
+    """
+    # Collect all image names
+    all_image_names = []
+    for subj in images_paths:
+        for img_name in images_paths[subj].keys():
+            all_image_names.append(img_name)
+    
+    # Get unique image names and sort
+    unique_image_names = sorted(list(set(all_image_names)))
+    
+    return unique_image_names
+
+def check_data_structure(images_paths: dict, mask_paths: dict, image_names: list, time_dict: dict = None) -> bool:
+    """
+    Validate data structure
+    
+    Args:
+        images_paths (dict): Dictionary of image paths
+        mask_paths (dict): Dictionary of mask paths
+        image_names (list): List of image names
+        time_dict (dict, optional): Dictionary of timestamps, if None, not checked
+    
+    Raises:
+        ValueError: If data structure is invalid
+    
+    Returns:
+        bool: True if data structure is valid
+    """
+    # Check data structure for each subject
+    for subj in images_paths.keys():
+        img_names = images_paths[subj].keys()
+        mask_names = mask_paths[subj].keys()
+        
+        # Check if image and mask names match
+        diff_img_mask = set(img_names) - set(mask_names)
+        if len(diff_img_mask) > 0:
+            raise ValueError(f"Image and mask names don't match for {subj}, difference: {diff_img_mask}")
+        
+        # Check if required images exist
+        diff_img = set(image_names) - set(img_names)
+        if len(diff_img) > 0:
+            raise ValueError(f"Image names don't match for {subj}, difference: {diff_img}")
+    
+    return True 
+
+def load_config(config_path: str) -> Dict[str, Any]:
+    """
+    Load configuration file
+    
+    Args:
+        config_path (str): Path to configuration file, supports YAML and JSON
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary
         
     Raises:
-        FileNotFoundError: If the config file does not exist
-        ValueError: If the file format is not supported (only JSON or YAML are supported)
+        FileNotFoundError: If configuration file is not found
+        ValueError: If file format is not supported
     """
-    config_file = str(config_file)
-    if not os.path.exists(config_file):
-        raise FileNotFoundError(f"Configuration file not found: {config_file}")
-        
-    # Determine parsing method based on file extension
-    if config_file.endswith('.json'):
-        with open(config_file, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    elif config_file.endswith(('.yaml', '.yml')):
-        with open(config_file, 'r', encoding='utf-8') as f:
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    # Determine how to load based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
+    elif ext.lower() == '.json':
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
     else:
-        raise ValueError(f"Unsupported configuration file format: {config_file}, only JSON or YAML are supported")
+        raise ValueError(f"Unsupported configuration file format: {ext}")
     
     return config
 
-
-def save_config(config: Dict[str, Any], output_path: Union[str, Path]) -> None:
+def save_config(config: Dict[str, Any], config_path: str) -> None:
     """
-    Save configuration to YAML or JSON file.
+    Save configuration to file
     
     Args:
-        config: Configuration dictionary
-        output_path: Path to save configuration file
+        config (Dict[str, Any]): Configuration dictionary
+        config_path (str): Path to save configuration file, supports YAML and JSON
         
     Raises:
-        ValueError: If output file format is invalid
+        ValueError: If file format is not supported
     """
-    output_path = str(output_path)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(config_path)), exist_ok=True)
     
-    if output_path.endswith(('.yaml', '.yml')):
-        with open(output_path, 'w', encoding='utf-8') as f:
-            yaml.dump(config, f, default_flow_style=False)
-    elif output_path.endswith('.json'):
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2)
+    # Determine how to save based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    elif ext.lower() == '.json':
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4)
     else:
-        raise ValueError(f"Unsupported output file format: {output_path}")
+        raise ValueError(f"Unsupported configuration file format: {ext}")
 
-
-def setup_logging(out_dir: Union[str, Path], debug: bool = False) -> None:
+def validate_config(config: Dict[str, Any], required_keys: Optional[List[str]] = None) -> bool:
     """
-    Configure logging settings
+    Validate if configuration contains required keys
     
     Args:
-        out_dir: Output directory for log file
-        debug: Whether to enable debug mode
-    """
-    import logging
-    import time
+        config (Dict[str, Any]): Configuration dictionary
+        required_keys (Optional[List[str]]): List of required keys
     
-    # Create output directory
-    out_dir = str(out_dir)
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-    
-    # Get timestamp
-    data = time.time()
-    timeArray = time.localtime(data)
-    timestr = time.strftime('%Y_%m_%d_%H_%M_%S', timeArray)
-    
-    # Set log file
-    log_file = os.path.join(out_dir, f'habit_{timestr}.log')
-    
-    # Configure log level
-    log_level = logging.DEBUG if debug else logging.INFO
-    
-    # Configure log
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(log_file)
-        ]
-    )
-    
-    logging.info(f"Log file will be saved to: {log_file}")
-
-
-def save_results(results: Dict[str, Any], output_dir: Union[str, Path], prefix: str = "") -> None:
-    """
-    Save analysis results to disk.
-    
-    Args:
-        results: Dictionary containing analysis results
-        output_dir: Directory to save results
-        prefix: Prefix for output files
-    """
-    output_dir = str(output_dir)
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Save different types of data
-    for key, value in results.items():
-        # Numpy arrays
-        if isinstance(value, np.ndarray):
-            np.save(os.path.join(output_dir, f"{prefix}{key}.npy"), value)
-        # DataFrames
-        elif isinstance(value, pd.DataFrame):
-            value.to_csv(os.path.join(output_dir, f"{prefix}{key}.csv"))
-        # Dictionaries
-        elif isinstance(value, dict):
-            with open(os.path.join(output_dir, f"{prefix}{key}.json"), 'w') as f:
-                json.dump(value, f, indent=2, cls=NumpyEncoder)
-        # SimpleITK images
-        elif isinstance(value, sitk.Image):
-            sitk.WriteImage(value, os.path.join(output_dir, f"{prefix}{key}.nrrd"))
-        # Other types
-        else:
-            try:
-                with open(os.path.join(output_dir, f"{prefix}{key}.txt"), 'w') as f:
-                    f.write(str(value))
-            except:
-                print(f"Warning: Could not save result '{key}' of type {type(value)}")
-
-
-def get_image_and_mask_paths(
-    root_dir: Union[str, Path],
-    keyword_of_raw_folder: str = "images",
-    keyword_of_mask_folder: str = "masks"
-) -> Tuple[Dict[str, Union[Dict[str, str], List[str]]], Dict[str, Union[Dict[str, str], str]]]:
-    """
-    Get paths of images and masks.
-    
-    Args:
-        root_dir: Root directory containing images and masks, or path to a txt file defining file locations
-        keyword_of_raw_folder: Keyword for raw image folder
-        keyword_of_mask_folder: Keyword for mask folder
-        
     Returns:
-        Tuple containing:
-            - Dictionary mapping subject IDs to dictionary of modality-image path pairs
-            - Dictionary mapping subject IDs to dictionary of modality-mask path pairs
+        bool: Whether the configuration is valid
+    
+    Raises:
+        ValueError: If required keys are missing
     """
-    import glob
-    import os
+    if required_keys is None:
+        return True
     
-    root_dir = str(root_dir)
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ValueError(f"Configuration missing required keys: {missing_keys}")
     
-    # Check if root_dir is a txt file
-    if root_dir.endswith('.txt'):
-        return _parse_paths_from_txt(root_dir)
-    
-    # Find image directory
-    image_dir = os.path.join(root_dir, keyword_of_raw_folder)
-    if not os.path.exists(image_dir):
-        raise FileNotFoundError(f"Image directory not found: {image_dir}")
-    
-    # Find mask directory
-    mask_dir = os.path.join(root_dir, keyword_of_mask_folder)
-    if not os.path.exists(mask_dir):
-        raise FileNotFoundError(f"Mask directory not found: {mask_dir}")
-    
-    # Get image paths for each subject and modality
-    images_paths = {}
-    
-    # 获取所有非隐藏的患者目录
-    patient_dirs = [d for d in os.listdir(image_dir) 
-                   if os.path.isdir(os.path.join(image_dir, d)) and not d.startswith('.')]
-    
-    for patient_id in patient_dirs:
-        patient_path = os.path.join(image_dir, patient_id)
-        if not os.path.isdir(patient_path):
-            continue
-            
-        images_paths[patient_id] = {}
-        
-        # 获取所有非隐藏的模态/序列目录
-        modality_dirs = [d for d in os.listdir(patient_path) 
-                        if os.path.isdir(os.path.join(patient_path, d)) and not d.startswith('.')]
-        
-        for modality in modality_dirs:
-            modality_path = os.path.join(patient_path, modality)
-            # 获取目录中的所有非隐藏文件
-            files = [f for f in os.listdir(modality_path) 
-                    if os.path.isfile(os.path.join(modality_path, f)) and not f.startswith('.')]
-            # 警告如果有多个文件
-            if len(files) > 1:
-                print(f"Warning: Multiple files found in {patient_id}/{modality}, using the first one") 
-            if files:  # 如果目录中有文件
-                images_paths[patient_id][modality] = os.path.join(modality_path, files[0])
-    
-    # Get mask path for each subject and modality
-    mask_paths = {}
-    # 获取所有非隐藏的患者目录
-    patient_dirs = [d for d in os.listdir(mask_dir) 
-                   if os.path.isdir(os.path.join(mask_dir, d)) and not d.startswith('.')]
-
-    for patient_id in patient_dirs:
-        patient_path = os.path.join(mask_dir, patient_id)
-        if not os.path.isdir(patient_path):
-            continue   
-        mask_paths[patient_id] = {}
-        # 获取所有非隐藏的模态/序列目录
-        modality_dirs = [d for d in os.listdir(patient_path) 
-                        if os.path.isdir(os.path.join(patient_path, d)) and not d.startswith('.')]
-        for modality in modality_dirs:
-            modality_path = os.path.join(patient_path, modality)
-            # 获取目录中的所有非隐藏文件
-            files = [f for f in os.listdir(modality_path) 
-                    if os.path.isfile(os.path.join(modality_path, f)) and not f.startswith('.')]
-            # 警告如果有多个文件
-            if len(files) > 1:
-                print(f"Warning: Multiple files found in {patient_id}/{modality} mask, using the first one")                
-            if files:  # 如果目录中有文件
-                mask_paths[patient_id][modality] = os.path.join(modality_path, files[0])
-    
-    return images_paths, mask_paths
-
-
-def _parse_paths_from_txt(txt_path: str) -> Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
-    """
-    Parse image and mask paths from a txt file.
-    
-    Args:
-        txt_path: Path to the txt file defining file locations
-        
-    Returns:
-        Tuple containing:
-            - Dictionary mapping subject IDs to dictionary of modality-image path pairs
-            - Dictionary mapping subject IDs to dictionary of modality-mask path pairs
-            
-    The txt file format should be:
-    Subject_ID, Modality, Image_Path, Mask_Path
-    e.g.:
-    001, T1, /path/to/001_T1.nii.gz, /path/to/001_T1_mask.nii.gz
-    001, T2, /path/to/001_T2.nii.gz, /path/to/001_T2_mask.nii.gz
-    002, T1, /path/to/002_T1.nii.gz, /path/to/002_T1_mask.nii.gz
-    ...
-    """
-    images_paths = {}
-    mask_paths = {}
-    
-    with open(txt_path, 'r') as f:
-        lines = f.readlines()
-        
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith('#'):  # Skip empty lines and comments
-            continue
-            
-        parts = [part.strip() for part in line.split(',')]
-        if len(parts) < 4:
-            print(f"Warning: Invalid line format in {txt_path}: {line}")
-            continue
-            
-        subject_id, modality, image_path, mask_path = parts[:4]
-        
-        # Initialize dictionaries for new subjects
-        if subject_id not in images_paths:
-            images_paths[subject_id] = {}
-        if subject_id not in mask_paths:
-            mask_paths[subject_id] = {}
-            
-        # Add paths
-        if os.path.exists(image_path):
-            images_paths[subject_id][modality] = image_path
-        else:
-            print(f"Warning: Image file does not exist: {image_path}")
-            
-        if os.path.exists(mask_path):
-            mask_paths[subject_id][modality] = mask_path
-        else:
-            print(f"Warning: Mask file does not exist: {mask_path}")
-    
-    return images_paths, mask_paths
-
-
-class NumpyEncoder(json.JSONEncoder):
-    """JSON encoder that handles NumPy types."""
-    
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NumpyEncoder, self).default(obj) 
+    return True 

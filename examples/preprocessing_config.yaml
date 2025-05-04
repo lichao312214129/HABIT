@@ -1,0 +1,79 @@
+# 多模态医学图像预处理配置示例
+# 适用于多模态医学图像预处理流水线
+
+# 基本设置
+modalities:
+  - CT
+  - PET
+  - MRI
+
+auto_load: true   # 自动加载图像
+save_output: true # 保存处理后的图像
+cache_rate: 0.5   # 缓存率，设置为0.5表示缓存一半的数据到内存中以加速处理
+deterministic: true  # 设置确定性行为以保证可重复性
+seed: 42  # 随机种子
+
+# 步骤1: 加载所有模态
+# 由auto_load: true自动处理
+
+# 步骤2: 添加通道维度
+# 由auto_load: true自动处理
+
+# 步骤3: 统一空间采样（以CT为基准）
+resample:
+  transform: Spacingd
+  keys:
+    - CT
+    - PET
+    - MRI
+  pixdim: [1.5, 1.5, 2.0]  # 目标体素尺寸 (x, y, z)，单位为毫米
+  mode: bilinear           # 插值模式
+  align_corners: false     # 是否对齐角点
+
+# 步骤4: 配准到CT
+register_pet:
+  custom: registration
+  keys:
+    - PET
+  fixed_key: CT
+  moving_key: PET
+  transform_type: rigid
+
+register_mri:
+  custom: registration
+  keys:
+    - MRI
+  fixed_key: CT
+  moving_key: MRI
+  transform_type: rigid
+
+# 步骤5: 模态特定的强度归一化
+normalize_ct:
+  transform: ScaleIntensityRanged
+  keys:
+    - CT
+  a_min: -1000  # HU值范围最小值
+  a_max: 3000   # HU值范围最大值
+  b_min: 0.0    # 归一化目标范围最小值
+  b_max: 1.0    # 归一化目标范围最大值
+  clip: true    # 裁剪超出范围的值
+
+normalize_pet:
+  transform: ScaleIntensityRanged
+  keys:
+    - PET
+  a_min: 0      # SUV值范围最小值
+  a_max: 30     # SUV值范围最大值
+  b_min: 0.0    # 归一化目标范围最小值
+  b_max: 1.0    # 归一化目标范围最大值
+  clip: true    # 裁剪超出范围的值
+
+normalize_mri:
+  transform: ScaleIntensityRanged
+  keys:
+    - MRI
+  a_min: -200   # MRI值范围最小值
+  a_max: 2000   # MRI值范围最大值
+  b_min: 0.0    # 归一化目标范围最小值
+  b_max: 1.0    # 归一化目标范围最大值
+  clip: true    # 裁剪超出范围的值

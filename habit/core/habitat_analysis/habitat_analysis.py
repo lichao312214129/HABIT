@@ -13,43 +13,28 @@ import matplotlib.pyplot as plt
 from glob import glob
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
 
-from .utils.io_utils import (get_image_and_mask_paths,
+from habit.utils.io_utils import (get_image_and_mask_paths,
                             detect_image_names,
                             check_data_structure,
                             save_habitat_image)
 
-from .utils.visualization import plot_cluster_scores
+from habit.utils.visualization import plot_cluster_scores
 
-from .clustering.base_clustering import get_clustering_algorithm
-from .clustering.cluster_validation_methods import (
+from habit.core.habitat_analysis.clustering.base_clustering import get_clustering_algorithm
+from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
     get_default_methods,
     get_method_description,
     get_optimization_direction
 )
-from .features.feature_preprocessing import preprocess_features
+from habit.core.habitat_analysis.features.feature_preprocessing import preprocess_features
 
 # Ignore warnings
 warnings.simplefilter('ignore')
 
-# Define custom progress bar function
-def print_progress_bar(i: int, total: int, prefix: str = '', suffix: str = '') -> None:
-    """
-    Custom progress bar
-
-    Args:
-        i (int): Current iteration index
-        total (int): Total iterations
-        prefix (str): Prefix string
-        suffix (str): Suffix string
-    """
-    progress = int((i + 1) / total * 50)  # 50 is the length of the progress bar
-    bar = "█" * progress + "-" * (50 - progress)
-    percent = (i + 1) / total * 100
-    print(f"\r{prefix}[{bar}] {percent:.2f}% ({i+1}/{total}) {suffix}", end="")
-    if i == total - 1:
-        print()
+# Import progress utilities
+from habit.utils.progress_utils import CustomTqdm, tqdm_with_message
 
 
 class HabitatAnalysis:
@@ -189,11 +174,11 @@ class HabitatAnalysis:
 
         # Initialize feature configuration dictionary
         self.feature_config = feature_config or {}
-        
+
         # 检查feature_config格式
         if 'voxel_level' not in self.feature_config:
             raise ValueError("voxel_level configuration is required")
-            
+
         # 检查supervoxel_level配置（可选）
         if 'supervoxel_level' in self.feature_config and self.verbose:
             print("Note: supervoxel_level feature configuration is detected but not used in the current implementation.")
@@ -254,33 +239,33 @@ class HabitatAnalysis:
 
         # 创建表达式解析器实例
         self.expression_parser = FeatureExpressionParser()
-        
+
         # 提取voxel_level配置
         voxel_config = self.feature_config['voxel_level']
-        
+
         # 确保voxel_config是字典且包含method字段
         if not isinstance(voxel_config, dict) or 'method' not in voxel_config:
             raise ValueError("voxel_level must be a dictionary with 'method' field")
-        
+
         # 解析voxel_level表达式
         self.voxel_method, self.voxel_params, self.voxel_processing_steps = self.expression_parser.parse(voxel_config)
-        
+
         # 检查是否提供了supervoxel_level配置
         self.has_supervoxel_config = 'supervoxel_level' in self.feature_config
         if self.has_supervoxel_config:
             # 提取supervoxel_level配置
             supervoxel_config = self.feature_config['supervoxel_level']
-            
+
             # 确保supervoxel_config是字典且包含method字段
             if not isinstance(supervoxel_config, dict) or 'method' not in supervoxel_config:
                 raise ValueError("supervoxel_level must be a dictionary with 'method' field")
-            
+
             # 解析supervoxel_level表达式
             self.supervoxel_method_name, self.supervoxel_params, self.supervoxel_processing_steps = self.expression_parser.parse(supervoxel_config)
-            
+
             if self.verbose:
                 print("supervoxel_level feature configuration detected but not used in current implementation")
-        
+
         # 创建单图像特征提取器
         from .features.feature_extractor_factory import create_feature_extractor
 
@@ -458,19 +443,20 @@ class HabitatAnalysis:
                 results_iter = pool.imap_unordered(self._process_subject, subjects)
 
                 # 使用自定义进度条显示进度
-                total = len(subjects)
-                for i, (subject, mean_features_df) in enumerate(results_iter):
+                progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
+                for subject, mean_features_df in results_iter:
                     mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
-                    print_progress_bar(i, total, prefix=f"Processing subjects:{subject}", suffix="")
+                    progress_bar.update(1)
 
                 if self.verbose:
-                    print(f"\nAll {total} subjects have been processed. Proceeding to clustering...")
+                    print(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
         else:
             # Single process processing, use custom progress bar
-            for i, subject in enumerate(subjects):
+            progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
+            for subject in subjects:
                 _, mean_features_df = self._process_subject(subject)
                 mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
-                print_progress_bar(i, len(subjects), prefix="Processing subjects:", suffix="")
+                progress_bar.update(1)
 
         # Check if there is enough data for clustering
         if len(mean_features_all) == 0:
@@ -492,12 +478,12 @@ class HabitatAnalysis:
                     break
             else:
                 raise ValueError(f"No supervoxel file found for subject {subject}")
-            
+
         if not self.supervoxel_file_dict:
             raise ValueError(f"No supervoxel files found in {self.out_dir}")
-        
+
         # 检查是否使用mean_voxel_features
-        is_mean_voxel_features = 'mean_voxel_features' in self.feature_config['supervoxel_level']['method'] 
+        is_mean_voxel_features = 'mean_voxel_features' in self.feature_config['supervoxel_level']['method']
         if is_mean_voxel_features:
             features_for_clustering = self.features_for_clustering
         else:
@@ -509,27 +495,28 @@ class HabitatAnalysis:
                 with multiprocessing.Pool(processes=self.n_processes) as pool:
                     if self.verbose:
                         print("Starting parallel supervoxel feature extraction...")
-                    
+
                     # Use imap_unordered to process subjects in parallel
                     results_iter = pool.imap_unordered(self.extract_supervoxel_features, subjects)
 
                     # Collect features from all subjects
                     features_for_clustering = []
-                    total = len(subjects)
-                    for i, features in enumerate(results_iter):
+                    progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
+                    for features in results_iter:
                         features_for_clustering.append(features)
-                        print_progress_bar(i, total, prefix="Extracting supervoxel features:", suffix="")
-                    
+                        progress_bar.update(1)
+
                     # concat
                     features_for_clustering = pd.concat(features_for_clustering, ignore_index=True)
             else:
                 # Single process processing
                 features_for_clustering = []
-                for i, subject in enumerate(subjects):
+                progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
+                for subject in subjects:
                     features = self.extract_supervoxel_features(subject)
                     features_for_clustering.append(features)
-                    print_progress_bar(i, len(subjects), prefix="Extracting supervoxel features:", suffix="")
-                
+                    progress_bar.update(1)
+
                 # Convert to numpy array
                 features_for_clustering = pd.concat(features_for_clustering, ignore_index=True)
 
@@ -578,10 +565,10 @@ class HabitatAnalysis:
                             try:
                                 # 确保输出目录存在
                                 os.makedirs(self.out_dir, exist_ok=True)
-                                
+
                                 # 构造保存路径
                                 save_path = os.path.join(self.out_dir, 'habitat_clustering_scores.png')
-                                
+
                                 # 使用新的可视化函数绘图
                                 plot_cluster_scores(
                                     scores_dict=scores,
@@ -592,7 +579,7 @@ class HabitatAnalysis:
                                     save_path=save_path,
                                     show=False
                                 )
-                                
+
                                 if self.verbose:
                                     print(f"聚类评分图已保存至 {save_path}")
                             except Exception as e:
@@ -651,11 +638,11 @@ class HabitatAnalysis:
                     'voxel_level': self.feature_config['voxel_level']
                 }
             }
-            
+
             # 添加supervoxel_level配置（如果有）
             if 'supervoxel_level' in self.feature_config:
                 config['feature_config']['supervoxel_level'] = self.feature_config['supervoxel_level']
-                
+
             # 添加preprocessing配置（如果有）
             if 'preprocessing' in self.feature_config:
                 config['feature_config']['preprocessing'] = self.feature_config['preprocessing']
@@ -681,9 +668,9 @@ class HabitatAnalysis:
                 args_list = [(i, subject) for i, subject in enumerate(subjects)]
 
                 # 使用imap_unordered并配合自定义进度条
-                total = len(subjects)
-                for i, _ in enumerate(pool.imap_unordered(self._save_habitat_for_subject, args_list)):
-                    print_progress_bar(i, total, prefix="Save habitat images:", suffix="")
+                progress_bar = CustomTqdm(total=len(subjects), desc="Save habitat images")
+                for _ in pool.imap_unordered(self._save_habitat_for_subject, args_list):
+                    progress_bar.update(1)
 
         return self.results_df
 
@@ -739,7 +726,7 @@ class HabitatAnalysis:
                         step_params[param_name] = voxel_params[param_name]
                     elif isinstance(param_value, str) and param_value in voxel_params:
                         step_params[param_name] = voxel_params[param_value]
-            
+
             # 使用单图像特征提取器处理图像
             step_params['subject'] = subject
             extractor = self.single_image_extractors[img_name]
@@ -774,23 +761,23 @@ class HabitatAnalysis:
     def extract_supervoxel_features(self, subject: str) -> np.ndarray:
         """
         Extract supervoxel-level features from supervoxel maps and original images
-        
+
         Returns:
             np.ndarray: Supervoxel features for clustering
         """
-        
+
         # Get image and mask paths
         img_paths = self.images_paths[subject]
         mask_path = self.supervoxel_file_dict[subject]
-               
+
         # 获取outdir中的所有supervoxel文件
         if self.verbose:
             print("Extracting supervoxel-level features...")
-        
+
         # 创建特征提取器
         from .features.feature_extractor_factory import create_feature_extractor
-        
-        
+
+
         # 先处理单图像
         processed_images = {}
         # 遍历处理步骤，处理每个单图像
@@ -808,7 +795,7 @@ class HabitatAnalysis:
                 **step_params
             )
             processed_images[img_name] = single_image_extractors.extract_features(img_paths.get(img_name), mask_path, **step_params)
-            
+
         # 创建跨图像特征提取器
         cross_image_kwargs = self.supervoxel_params.copy()
         supervoxel_extractor = create_feature_extractor(
@@ -816,9 +803,9 @@ class HabitatAnalysis:
             **self.supervoxel_params
         )
         features = supervoxel_extractor.extract_features(processed_images, **cross_image_kwargs)
-        
+
         return features
-        
-        
-        
-       
+
+
+
+

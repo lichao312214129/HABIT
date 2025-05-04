@@ -54,8 +54,8 @@ import sys
 import pandas as pd
 from typing import Dict, List, Optional, Union
 
-from ....utils.io_utils import get_image_and_mask_paths
-from ..utils.progress_utils import CustomTqdm
+from habit.utils.io_utils import get_image_and_mask_paths
+from habit.utils.progress_utils import CustomTqdm
 
 # 禁用警告
 warnings.filterwarnings('ignore')

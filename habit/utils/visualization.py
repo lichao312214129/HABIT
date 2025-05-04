@@ -1,248 +1,234 @@
 """
-Visualization utility functions for HABIT package.
+Visualization utilities for habitat analysis
 """
 
 import os
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from typing import Dict, List, Any, Union, Optional, Tuple
-from pathlib import Path
-import seaborn as sns
+import numpy as np
+from typing import Dict, List, Tuple, Optional, Union
 
 
-def plot_feature_importance(
-    feature_importances: Dict[str, np.ndarray],
-    feature_names: List[str],
-    output_dir: Union[str, Path],
-    top_n: int = 20,
-    figsize: Tuple[int, int] = (12, 8)
-) -> None:
+def plot_cluster_scores(scores_dict: Dict[str, List[float]], 
+                      cluster_range: List[int], 
+                      methods: Optional[Union[List[str], str]] = None,
+                      clustering_algorithm: str = 'kmeans',
+                      figsize: Tuple[int, int] = (12, 8),
+                      save_path: Optional[str] = None,
+                      show: bool = True,
+                      dpi: int = 300):
     """
-    Plot feature importance.
+    Plot the scoring curves for cluster evaluation
     
     Args:
-        feature_importances: Dictionary mapping feature selector names to importance values
-        feature_names: List of feature names
-        output_dir: Directory to save plots
-        top_n: Number of top features to show
-        figsize: Figure size
+        scores_dict: Dictionary of scores, with method names as keys and score lists as values
+        cluster_range: Range of cluster numbers to evaluate
+        methods: Methods to plot, can be a string or list of strings, None means plot all methods
+        clustering_algorithm: Name of the clustering algorithm
+        figsize: Size of the figure
+        save_path: Path to save the figure, None means do not save
+        show: Whether to display the figure
+        dpi: Image resolution
     """
-    output_dir = str(output_dir)
-    os.makedirs(output_dir, exist_ok=True)
+    from ..clustering.cluster_validation_methods import get_method_description, get_optimization_direction
     
-    # Make sure there are no Chinese characters in feature names
-    feature_names = [name.encode('ascii', 'ignore').decode() for name in feature_names]
+    # If methods is None, use all methods in scores_dict
+    if methods is None:
+        methods = list(scores_dict.keys())
+    elif isinstance(methods, str):
+        methods = [methods]
     
-    for name, importance in feature_importances.items():
-        plt.figure(figsize=figsize)
-        
-        # Sort features by importance
-        indices = np.argsort(importance)[::-1]
-        top_indices = indices[:top_n]
-        
-        # Plot bar chart
-        plt.barh(range(len(top_indices)), importance[top_indices])
-        plt.yticks(range(len(top_indices)), [feature_names[i] for i in top_indices])
-        plt.xlabel('Importance')
-        plt.ylabel('Feature')
-        plt.title(f'Feature Importance - {name}')
-        plt.tight_layout()
-        
-        # Save plot
-        plt.savefig(os.path.join(output_dir, f'feature_importance_{name}.png'), dpi=300)
-        plt.close()
-
-
-def plot_confusion_matrix(
-    confusion_matrix: np.ndarray,
-    class_names: List[str],
-    output_path: Union[str, Path],
-    normalize: bool = True,
-    figsize: Tuple[int, int] = (8, 6),
-    cmap: str = 'Blues'
-) -> None:
-    """
-    Plot confusion matrix.
-    
-    Args:
-        confusion_matrix: Confusion matrix array
-        class_names: List of class names
-        output_path: Path to save the plot
-        normalize: Whether to normalize the confusion matrix
-        figsize: Figure size
-        cmap: Colormap
-    """
-    output_path = str(output_path)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Normalize if required
-    if normalize:
-        confusion_matrix = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
-        fmt = '.2f'
+    # Create figure
+    n_methods = len(methods)
+    if n_methods == 1:
+        fig, axes = plt.subplots(1, 1, figsize=figsize)
+        axes = [axes]  # Convert to list for consistent access
     else:
-        fmt = 'd'
+        fig, axes = plt.subplots(1, n_methods, figsize=figsize)
+        if n_methods > 1 and not isinstance(axes, np.ndarray):
+            axes = [axes]
     
-    plt.figure(figsize=figsize)
-    sns.heatmap(
-        confusion_matrix, 
-        annot=True, 
-        fmt=fmt, 
-        cmap=cmap,
-        xticklabels=class_names,
-        yticklabels=class_names
-    )
-    plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
-    plt.title('Confusion Matrix')
+    # Plot for each method
+    for i, method in enumerate(methods):
+        if method not in scores_dict:
+            continue
+        
+        ax = axes[i] if i < len(axes) else axes[-1]
+        scores = scores_dict[method]
+        
+        # Plot score curve
+        ax.plot(cluster_range, scores, 'o-', linewidth=2, markersize=8)
+
+        # Get optimization direction for the method
+        optimization = get_optimization_direction(clustering_algorithm, method)
+        
+        # Mark the optimal number of clusters
+        if optimization == 'maximize':
+            # For methods where higher is better
+            best_idx = np.argmax(scores)
+            best_score = scores[best_idx]
+            criterion = "Maximum"
+        elif optimization == 'minimize':
+            # For methods where lower is better, use elbow method
+            # Calculate first-order differences
+            deltas = np.diff(scores)
+            # Calculate second-order differences (inflection point typically has max second-order difference)
+            deltas2 = np.diff(deltas)
+            # Inflection point is the point after the max second-order difference
+            best_idx = np.argmax(deltas2) + 1
+            if best_idx >= len(scores) - 1:
+                best_idx = len(scores) - 2
+            best_score = scores[best_idx]
+            criterion = "Elbow Method"
+        else:
+            # Default to maximum
+            best_idx = np.argmax(scores)
+            best_score = scores[best_idx]
+            criterion = "Maximum"
+        
+        # Get the optimal number of clusters
+        best_n_clusters = cluster_range[best_idx]
+        
+        # Mark the optimal point on the plot
+        ax.plot(best_n_clusters, best_score, 'rx', markersize=12, markeredgewidth=3)
+        
+        # Set title and labels
+        method_desc = get_method_description(clustering_algorithm, method)
+        ax.set_title(f"{method_desc}\nOptimal Clusters = {best_n_clusters} ({criterion})")
+        ax.set_xlabel("Number of Clusters")
+        ax.set_ylabel(f"{method.capitalize()} Score")
+        ax.grid(True)
+    
+    # Adjust layout
     plt.tight_layout()
     
-    # Save plot
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-
-
-def plot_roc_curve(
-    fpr: Dict[str, np.ndarray],
-    tpr: Dict[str, np.ndarray],
-    auc: Dict[str, float],
-    output_path: Union[str, Path],
-    figsize: Tuple[int, int] = (10, 8)
-) -> None:
-    """
-    Plot ROC curve.
+    # Save figure if path is provided
+    if save_path is not None:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+        plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
     
-    Args:
-        fpr: Dictionary mapping model names to false positive rates
-        tpr: Dictionary mapping model names to true positive rates
-        auc: Dictionary mapping model names to AUC values
-        output_path: Path to save the plot
-        figsize: Figure size
-    """
-    output_path = str(output_path)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    plt.figure(figsize=figsize)
-    
-    # Plot ROC curve for each model
-    for name in fpr.keys():
-        plt.plot(
-            fpr[name], 
-            tpr[name], 
-            lw=2,
-            label=f'{name} (AUC = {auc[name]:.3f})'
-        )
-    
-    # Plot diagonal reference line
-    plt.plot([0, 1], [0, 1], 'k--', lw=2)
-    
-    # Set plot parameters
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.legend(loc="lower right")
-    plt.grid(alpha=0.3)
-    
-    # Save plot
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-
-
-def plot_habitat_map(
-    habitat_map: np.ndarray,
-    original_image: Optional[np.ndarray] = None,
-    output_path: Union[str, Path] = None,
-    figsize: Tuple[int, int] = (15, 10),
-    cmap: str = 'viridis',
-    alpha: float = 0.7
-) -> None:
-    """
-    Plot habitat map overlaid on original image.
-    
-    Args:
-        habitat_map: 3D habitat map array
-        original_image: 3D original image array (optional)
-        output_path: Path to save the plot
-        figsize: Figure size
-        cmap: Colormap for habitat map
-        alpha: Alpha value for overlay
-    """
-    # Calculate middle slice for 2D visualization
-    if len(habitat_map.shape) == 3:
-        slice_index = habitat_map.shape[0] // 2
-        habitat_slice = habitat_map[slice_index, :, :]
-        
-        if original_image is not None and len(original_image.shape) == 3:
-            image_slice = original_image[slice_index, :, :]
-        else:
-            image_slice = None
-    else:
-        habitat_slice = habitat_map
-        image_slice = original_image
-    
-    plt.figure(figsize=figsize)
-    
-    # If original image is provided, show it first
-    if image_slice is not None:
-        plt.imshow(image_slice, cmap='gray')
-        plt.imshow(habitat_slice, cmap=cmap, alpha=alpha)
-    else:
-        plt.imshow(habitat_slice, cmap=cmap)
-    
-    plt.colorbar(label='Habitat ID')
-    plt.axis('off')
-    plt.title('Habitat Map')
-    
-    # Save or show
-    if output_path:
-        output_path = str(output_path)
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
-    else:
+    # Show or close figure
+    if show:
         plt.show()
+    else:
+        plt.close()
 
 
-def plot_feature_distribution(
-    features: pd.DataFrame,
-    group_column: str,
-    output_dir: Union[str, Path],
-    max_features: int = 10,
-    figsize: Tuple[int, int] = (12, 8)
-) -> None:
+def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=None):
     """
-    Plot feature distribution by group.
+    Plot the elbow curve
     
     Args:
-        features: DataFrame containing features
-        group_column: Column name for grouping
-        output_dir: Directory to save plots
-        max_features: Maximum number of features to plot
-        figsize: Figure size
+        cluster_range: Range of cluster numbers
+        scores: Corresponding scores
+        score_type: Type of score for title and y-axis label
+        title: Figure title, automatically generated if None
+        save_path: Path to save the figure, do not save if None
     """
-    output_dir = str(output_dir)
-    os.makedirs(output_dir, exist_ok=True)
+    if title is None:
+        title = f"The {score_type} Method showing the optimal k"
     
-    # Get feature columns
-    feature_columns = [col for col in features.columns if col != group_column]
+    plt.figure(figsize=(8, 5))
+    plt.plot(cluster_range, scores, 'bx-')
+    plt.xlabel('Number of clusters')
+    plt.ylabel(score_type)
+    plt.title(title)
+    plt.tight_layout()
     
-    # Limit number of features if needed
-    if len(feature_columns) > max_features:
-        feature_columns = feature_columns[:max_features]
+    if save_path:
+        plt.savefig(save_path)
     
-    # Plot each feature
-    for feature in feature_columns:
-        plt.figure(figsize=figsize)
+    plt.show()
+
+
+def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None):
+    """
+    Plot multiple scoring methods on the same graph
+    
+    Args:
+        cluster_range: Range of cluster numbers
+        scores_dict: Dictionary with scoring method names as keys and score lists as values
+        title: Figure title, automatically generated if None
+        save_path: Path to save the figure, do not save if None
+    """
+    if title is None:
+        title = "Comparison of different cluster evaluation metrics"
+    
+    plt.figure(figsize=(12, 8))
+    
+    for i, (score_name, scores) in enumerate(scores_dict.items()):
+        # Normalize scores to be in the same range
+        normalized_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
         
-        # Box plot with swarm plot overlay
-        ax = sns.boxplot(x=group_column, y=feature, data=features)
-        sns.swarmplot(x=group_column, y=feature, data=features, color='black', alpha=0.5)
+        # Invert BIC/AIC to make lower is better become higher is better
+        if score_name.lower() in ['bic', 'aic', 'inertia']:
+            normalized_scores = 1 - normalized_scores
         
-        plt.title(f'Distribution of {feature}')
-        plt.tight_layout()
-        
-        # Save plot
-        plt.savefig(os.path.join(output_dir, f'distribution_{feature}.png'), dpi=300)
-        plt.close() 
+        plt.plot(cluster_range, normalized_scores, 'o-', label=score_name)
+    
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Normalized score (higher is better)')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+    
+    plt.show()
+
+
+def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None, save_path=None):
+    """
+    Plot scatter plot of clustering results
+    
+    Args:
+        X: Input data, shape (n_samples, n_features)
+        labels: Cluster labels, shape (n_samples,)
+        centers: Cluster centers, plotted if not None
+        title: Figure title
+        feature_names: Feature names for x and y axis labels
+        save_path: Path to save the figure, do not save if None
+    """
+    # Use PCA for dimensionality reduction if features > 2
+    if X.shape[1] > 2:
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=2)
+        X_pca = pca.fit_transform(X)
+        if centers is not None:
+            centers_pca = pca.transform(centers)
+    else:
+        X_pca = X
+        centers_pca = centers
+    
+    plt.figure(figsize=(10, 8))
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis', marker='o', alpha=0.7)
+    
+    if centers_pca is not None:
+        plt.scatter(centers_pca[:, 0], centers_pca[:, 1], c='red', marker='X', s=200, label='Cluster centers')
+    
+    if title:
+        plt.title(title)
+    else:
+        plt.title('Cluster Results')
+    
+    if feature_names and len(feature_names) >= 2:
+        if X.shape[1] > 2:
+            plt.xlabel('PCA Component 1')
+            plt.ylabel('PCA Component 2')
+        else:
+            plt.xlabel(feature_names[0])
+            plt.ylabel(feature_names[1])
+    else:
+        plt.xlabel('Feature 1')
+        plt.ylabel('Feature 2')
+    
+    plt.colorbar(label='Cluster')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+    
+    plt.show() 

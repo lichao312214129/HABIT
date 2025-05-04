@@ -9,7 +9,7 @@ from scipy import stats
 from .base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
 from typing import Dict, List, Optional, Union, Any, Tuple
 
-from ..utils.io_utils import load_timestamp
+from habit.utils.io_utils import load_timestamp
 
 @register_feature_extractor('kinetic')  # Register feature extractor
 class KineticFeatureExtractor(BaseFeatureExtractor):
