@@ -72,24 +72,43 @@ class ResamplePreprocessor(BasePreprocessor):
             # Get the image
             image = data[key]
             
-            # Handle SimpleITK images
+            # Handle path
+            if isinstance(image, str):
+                image = sitk.ReadImage(image)
+                data[key] = self._resample_sitk_image(image, self.target_spacing, self.mode)
+                continue
+                
+            # Handle SimpleITK images    
             if isinstance(image, sitk.Image):
                 data[key] = self._resample_sitk_image(image, self.target_spacing, self.mode)
                 continue
                 
-            # Handle path
-            if isinstance(image, str):
-                image = sitk.ReadImage(image)
             meta_key = f"{key}_meta_dict"
             if meta_key not in data:
                 print(f"Warning: Metadata for key {key} not found, using default spacing")
-                # mete key从图像中获取
+                # Create metadata dictionary with default values
                 data[meta_key] = {
-                    "spacing": image.GetSpacing(),
-                    "origin": image.GetOrigin(),
-                    "direction": image.GetDirection()
+                    "spacing": self.default_spacing,
+                    "origin": (0.0, 0.0, 0.0),
+                    "direction": (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
                 }
+                spacing = self.default_spacing
+            else:
                 spacing = data[meta_key].get("spacing", self.default_spacing)
+            
+            # Ensure image is a PyTorch tensor
+            if not isinstance(image, torch.Tensor):
+                if isinstance(image, np.ndarray):
+                    image = torch.from_numpy(image).float()
+                else:
+                    print(f"Warning: Unsupported image type {type(image)} for key {key}")
+                    continue
+                    
+            # Ensure image has batch dimension [B, C, H, W, D]
+            if image.ndim == 3:  # [H, W, D]
+                image = image.unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
+            elif image.ndim == 4:  # [C, H, W, D]
+                image = image.unsqueeze(0)  # Add batch dimension
             
             # Create Resample transform
             resampler = Resample(
@@ -100,7 +119,11 @@ class ResamplePreprocessor(BasePreprocessor):
             )
             
             # Apply resampling
-            resampled_image = resampler(image)
+            resampled_image = resampler(
+                img=image, 
+                orig_size=image.shape[1:],  # Original spatial dimensions
+                orig_pixdim=spacing,  # Original pixel dimensions
+            )
             
             # Update the data dictionary
             data[key] = resampled_image
@@ -117,6 +140,12 @@ class ResamplePreprocessor(BasePreprocessor):
             # Get the mask
             mask = data[key]
             
+            # Handle path
+            if isinstance(mask, str):
+                mask = sitk.ReadImage(mask)
+                data[key] = self._resample_sitk_image(mask, self.target_spacing, self.mask_mode)
+                continue
+                
             # Handle SimpleITK images
             if isinstance(mask, sitk.Image):
                 data[key] = self._resample_sitk_image(mask, self.target_spacing, self.mask_mode)
@@ -136,6 +165,20 @@ class ResamplePreprocessor(BasePreprocessor):
             else:
                 spacing = data[meta_key].get("spacing", self.default_spacing)
             
+            # Ensure mask is a PyTorch tensor
+            if not isinstance(mask, torch.Tensor):
+                if isinstance(mask, np.ndarray):
+                    mask = torch.from_numpy(mask).float()
+                else:
+                    print(f"Warning: Unsupported mask type {type(mask)} for key {key}")
+                    continue
+                    
+            # Ensure mask has batch dimension [B, C, H, W, D]
+            if mask.ndim == 3:  # [H, W, D]
+                mask = mask.unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
+            elif mask.ndim == 4:  # [C, H, W, D]
+                mask = mask.unsqueeze(0)  # Add batch dimension
+            
             # Create Resample transform
             resampler = Resample(
                 pixdim=self.target_spacing,
@@ -145,7 +188,11 @@ class ResamplePreprocessor(BasePreprocessor):
             )
             
             # Apply resampling
-            resampled_mask = resampler(mask)
+            resampled_mask = resampler(
+                img=mask,
+                orig_size=mask.shape[1:],  # Original spatial dimensions
+                orig_pixdim=spacing,  # Original pixel dimensions
+            )
             
             # Update the data dictionary
             data[key] = resampled_mask
