@@ -10,7 +10,7 @@ from ...utils.image_converter import ImageConverter
 class N4CorrectionPreprocessor(BasePreprocessor):
     """N4 bias field correction preprocessor.
     
-    This preprocessor applies N4 bias field correction to images using SimpleITK.
+    This preprocessor performs N4 bias field correction on medical images.
     Compatible with MONAI's LoadImaged and EnsureChannelFirstd transforms.
     Automatically skips processing of mask/label keys.
     """
@@ -26,29 +26,32 @@ class N4CorrectionPreprocessor(BasePreprocessor):
         wiener_filter_noise: float = 0.02,
         num_histogram_bins: int = 100,
         allow_missing_keys: bool = False,
+        **kwargs
     ):
         """Initialize the N4 correction preprocessor.
         
         Args:
             keys (Union[str, List[str]]): Keys of the corresponding items to be transformed.
                 Any keys containing 'mask' or 'label' will be automatically skipped.
-            shrink_factor (int): Shrink factor for multi-resolution approach. Higher values speed up processing. Defaults to 8.
-            convergence_threshold (float): Convergence threshold. Higher values speed up convergence. Defaults to 0.005.
-            max_iterations (int): Maximum number of iterations per level. Lower values speed up processing. Defaults to 5.
-            num_fitting_levels (int): Number of fitting levels. Lower values speed up processing. Defaults to 2.
-            bias_field_fwhm (float): Bias field full width at half maximum. Defaults to 0.2.
+            shrink_factor (int): Factor by which to shrink the input image. Defaults to 8.
+            convergence_threshold (float): Threshold for convergence. Defaults to 0.005.
+            max_iterations (int): Maximum number of iterations. Defaults to 5.
+            num_fitting_levels (int): Number of fitting levels. Defaults to 2.
+            bias_field_fwhm (float): FWHM of bias field. Defaults to 0.2.
             wiener_filter_noise (float): Wiener filter noise level. Defaults to 0.02.
-            num_histogram_bins (int): Number of histogram bins. Lower values speed up processing. Defaults to 100.
+            num_histogram_bins (int): Number of histogram bins. Defaults to 100.
             allow_missing_keys (bool): If True, allows missing keys in the input data.
+            **kwargs: Additional parameters to pass to the N4 bias field correction algorithm.
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
-        self.shrink_factor = shrink_factor
-        self.convergence_threshold = convergence_threshold
-        self.max_iterations = max_iterations
-        self.num_fitting_levels = num_fitting_levels
-        self.bias_field_fwhm = bias_field_fwhm
-        self.wiener_filter_noise = wiener_filter_noise
-        self.num_histogram_bins = num_histogram_bins
+        self.shrink_factor = kwargs.pop('shrink_factor', shrink_factor)
+        self.convergence_threshold = kwargs.pop('convergence_threshold', convergence_threshold)
+        self.max_iterations = kwargs.pop('max_iterations', max_iterations)
+        self.num_fitting_levels = kwargs.pop('num_fitting_levels', num_fitting_levels)
+        self.bias_field_fwhm = kwargs.pop('bias_field_fwhm', bias_field_fwhm)
+        self.wiener_filter_noise = kwargs.pop('wiener_filter_noise', wiener_filter_noise)
+        self.num_histogram_bins = kwargs.pop('num_histogram_bins', num_histogram_bins)
+        self.kwargs = kwargs  # Store any remaining kwargs
         
     def _is_mask_or_label(self, key: str) -> bool:
         """Check if the key represents a mask or label.

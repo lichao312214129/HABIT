@@ -146,12 +146,38 @@ out_dir: /path/to/output/directory
 
 # 预处理设置
 Preprocessing:
+  N4BiasCorrection:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    n_iterations: [50, 50, 30, 20]  # 每个尺度级别的迭代次数
+    convergence_threshold: 0.001
+    shrink_factor: 4
+    spline_order: 3
+    n_fitting_levels: 4
+    bias_field_fwhm: 0.15
+
+  resample:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    target_spacing: [1.0, 1.0, 1.0]  # 目标体素间距（毫米）
+    mode: bilinear  # 图像插值模式
+    mask_mode: nearest  # mask插值模式
+    align_corners: false
+    anti_aliasing: true
+    preserve_range: true
+
   registration:
     images: [pre_contrast, LAP, PVP, delay_3min]
     fixed_image: PVP
     moving_images: [pre_contrast, LAP, delay_3min]
-    type_of_transform: Rigid  # rigid或affine
+    type_of_transform: Rigid  # Rigid或Affine
     use_mask: true  # 是否使用mask进行配准
+    optimizer_type: gradient_descent
+    optimizer_params:
+      learning_rate: 0.01
+      number_of_iterations: 100
+    metric_type: mutual_information
+    metric_params:
+      number_of_histogram_bins: 50
+    interpolator_type: linear
 
 # 特征提取设置
 FeatureConstruction:

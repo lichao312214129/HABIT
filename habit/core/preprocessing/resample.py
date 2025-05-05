@@ -22,6 +22,7 @@ class ResamplePreprocessor(BasePreprocessor):
         padding_mode: str = "border",
         align_corners: bool = False,
         allow_missing_keys: bool = False,
+        **kwargs
     ):
         """Initialize the resample preprocessor.
         
@@ -33,6 +34,7 @@ class ResamplePreprocessor(BasePreprocessor):
             padding_mode (str): Padding mode for out-of-bound values. Defaults to "border".
             align_corners (bool): Whether to align corners. Defaults to False.
             allow_missing_keys (bool): If True, allows missing keys in the input data.
+            **kwargs: Additional parameters to pass to MONAI's Spacingd transform.
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
         
@@ -45,25 +47,33 @@ class ResamplePreprocessor(BasePreprocessor):
         self.mask_keys = [key for key in keys if 'mask' in key.lower()]
         self.img_keys = [key for key in keys if 'mask' not in key.lower()]
         
+        # Get parameters from kwargs or use defaults
+        self.target_spacing = kwargs.pop('target_spacing', target_spacing)
+        self.img_mode = kwargs.pop('img_mode', img_mode)
+        self.padding_mode = kwargs.pop('padding_mode', padding_mode)
+        self.align_corners = kwargs.pop('align_corners', align_corners)
+        
         # Initialize separate transforms for images and masks
         if self.img_keys:
             self.img_transform = Spacingd(
                 keys=self.img_keys,
-                pixdim=target_spacing,
-                mode=img_mode,
-                padding_mode=padding_mode,
-                align_corners=align_corners,
-                allow_missing_keys=allow_missing_keys
+                pixdim=self.target_spacing,
+                mode=self.img_mode,
+                padding_mode=self.padding_mode,
+                align_corners=self.align_corners,
+                allow_missing_keys=allow_missing_keys,
+                **kwargs
             )
             
         if self.mask_keys:
             self.mask_transform = Spacingd(
                 keys=self.mask_keys,
-                pixdim=target_spacing,
+                pixdim=self.target_spacing,
                 mode="nearest",
-                padding_mode=padding_mode,
-                align_corners=align_corners,
-                allow_missing_keys=allow_missing_keys
+                padding_mode=self.padding_mode,
+                align_corners=self.align_corners,
+                allow_missing_keys=allow_missing_keys,
+                **kwargs
             )
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:

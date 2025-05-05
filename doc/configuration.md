@@ -28,36 +28,97 @@ out_dir: /path/to/output/directory
 Preprocessing:
   N4BiasCorrection:
     images: [pre_contrast, LAP, PVP, delay_3min]
+    n_iterations: [50, 50, 30, 20]  # Number of iterations at each scale level
+    convergence_threshold: 0.001
+    shrink_factor: 4
+    spline_order: 3
+    n_fitting_levels: 4
+    bias_field_fwhm: 0.15
 
   resample:
     images: [pre_contrast, LAP, PVP, delay_3min]
     target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in mm
+    mode: bilinear  # Interpolation mode for images
+    mask_mode: nearest  # Interpolation mode for masks
+    align_corners: false
+    anti_aliasing: true
+    preserve_range: true
 
   registration:
     images: [pre_contrast, LAP, PVP, delay_3min]
     fixed_image: PVP
     moving_images: [pre_contrast, LAP, delay_3min]
-    type_of_transform: Rigid  # rigid or affine
-    use_mask: true  # whether to use mask for registration
+    type_of_transform: Rigid  # Rigid or Affine
+    use_mask: true  # Whether to use mask for registration
+    optimizer_type: gradient_descent
+    optimizer_params:
+      learning_rate: 0.01
+      number_of_iterations: 100
+    metric_type: mutual_information
+    metric_params:
+      number_of_histogram_bins: 50
+    interpolator_type: linear
 ```
 
 ### N4BiasCorrection
 
-- `enabled`: Whether to apply N4 bias field correction to the images
-- `images`: List of image types to apply the correction to
+N4偏置场校正用于校正MRI图像中的强度不均匀性。
+
+- `images`: 需要进行校正的图像列表
+- `n_iterations`: 每个尺度级别的迭代次数列表，长度表示尺度级别数
+- `convergence_threshold`: 收敛阈值，当两次迭代之间的变化小于此值时停止
+- `shrink_factor`: 图像缩小因子，用于加速计算
+- `spline_order`: B样条阶数 (默认: 3)
+- `n_fitting_levels`: 拟合层级数 (默认: 4)
+- `bias_field_fwhm`: 偏置场的半高全宽，控制平滑程度 (默认: 0.15)
 
 ### Resample
 
-- `images`: List of image types to resample
-- `target_spacing`: Target voxel spacing in millimeters [x, y, z]
+重采样用于统一不同图像的体素大小。
+
+- `images`: 需要进行重采样的图像列表
+- `target_spacing`: 目标体素间距 [x, y, z]，单位为毫米
+- `mode`: 图像插值模式 (默认: "bilinear")
+  - "nearest": 最近邻插值
+  - "linear"/"bilinear": 线性插值
+  - "bicubic": 三次插值
+- `mask_mode`: mask插值模式 (默认: "nearest")
+- `align_corners`: 是否对齐角点 (默认: false)
+- `anti_aliasing`: 是否使用抗锯齿 (默认: true)
+- `preserve_range`: 是否保持像素值范围 (默认: true)
 
 ### Registration
 
-- `images`: List of all image types involved in registration
-- `fixed_image`: The reference image that other images will be registered to
-- `moving_images`: List of images that will be registered to the fixed image
-- `type_of_transform`: Registration transform type, either "Rigid" or "Affine"
-- `use_mask`: Whether to use the mask during registration process
+图像配准用于将不同时相的图像对齐到同一空间。
+
+- `images`: 所有参与配准的图像列表
+- `fixed_image`: 固定图像（参考图像）
+- `moving_images`: 需要配准的移动图像列表
+- `type_of_transform`: 变换类型
+  - "Rigid": 刚体变换（平移和旋转）
+  - "Affine": 仿射变换（平移、旋转、缩放和剪切）
+- `use_mask`: 是否在配准过程中使用mask
+- `optimizer_type`: 优化器类型 (默认: "gradient_descent")
+  - "gradient_descent": 梯度下降
+  - "conjugate_gradient": 共轭梯度
+  - "lbfgs": L-BFGS优化器
+- `optimizer_params`: 优化器参数
+  - `learning_rate`: 学习率
+  - `number_of_iterations`: 最大迭代次数
+  - `convergence_minimum_value`: 收敛最小值
+  - `convergence_window_size`: 收敛窗口大小
+- `metric_type`: 相似度度量类型 (默认: "mutual_information")
+  - "mutual_information": 互信息
+  - "normalized_mutual_information": 归一化互信息
+  - "mean_squares": 均方误差
+  - "normalized_correlation": 归一化相关系数
+- `metric_params`: 相似度度量参数
+  - `number_of_histogram_bins`: 直方图bin数（用于互信息）
+  - `sampling_percentage`: 采样百分比
+- `interpolator_type`: 插值器类型 (默认: "linear")
+  - "nearest": 最近邻插值
+  - "linear": 线性插值
+  - "bspline": B样条插值
 
 ## Feature Construction
 

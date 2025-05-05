@@ -22,7 +22,8 @@ class RegistrationPreprocessor(BasePreprocessor):
         moving_images: Optional[Union[str, List[str]]] = None,
         use_mask: bool = False,
         type_of_transform: str = "SyN",
-        allow_missing_keys: bool = False
+        allow_missing_keys: bool = False,
+        **kwargs
     ):
         """Initialize the registration preprocessor.
         
@@ -33,18 +34,34 @@ class RegistrationPreprocessor(BasePreprocessor):
             use_mask (bool): Whether to use mask for registration. If True, expects a 'mask' key in data.
             type_of_transform (str): Type of transform to use. Defaults to "SyN".
             allow_missing_keys (bool): If True, allows missing keys in the input data.
-            default_spacing (Tuple[float, float, float]): Default spacing to use if meta_dict is missing.
-            default_origin (Tuple[float, float, float]): Default origin to use if meta_dict is missing.
-            default_direction (Tuple[float, ...]): Default direction to use if meta_dict is missing.
+            **kwargs: Additional parameters to pass to ANTs registration function.
+                Supported parameters include:
+                - optimizer_type: Type of optimizer (e.g., "gradient_descent")
+                - optimizer_params: Dictionary of optimizer parameters
+                - metric_type: Type of similarity metric
+                - metric_params: Dictionary of metric parameters
+                - interpolator_type: Type of interpolator
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
         self.fixed_key = fixed_image
-        self.use_mask = use_mask
-        self.type_of_transform = type_of_transform
+        self.use_mask = kwargs.pop('use_mask', use_mask)
+        self.type_of_transform = kwargs.pop('type_of_transform', type_of_transform)
         self.moving_images = moving_images if moving_images is not None else keys
         if isinstance(self.moving_images, str):
             self.moving_images = [self.moving_images]
-
+            
+        # Get registration parameters from kwargs
+        self.optimizer_type = kwargs.pop('optimizer_type', 'gradient_descent')
+        self.optimizer_params = kwargs.pop('optimizer_params', {
+            'learning_rate': 0.01,
+            'number_of_iterations': 100
+        })
+        self.metric_type = kwargs.pop('metric_type', 'mutual_information')
+        self.metric_params = kwargs.pop('metric_params', {
+            'number_of_histogram_bins': 50
+        })
+        self.interpolator_type = kwargs.pop('interpolator_type', 'linear')
+        self.kwargs = kwargs  # Store any remaining kwargs
         
     def _is_mask_or_label(self, key: str) -> bool:
         """Check if the key represents a mask or label.
@@ -112,13 +129,22 @@ class RegistrationPreprocessor(BasePreprocessor):
             # Read moving image directly using ANTs
             moving_image = ants.image_read(data[moving_meta_key]["filename_or_obj"])
             
+            # Prepare registration parameters
+            reg_params = {
+                'fixed': fixed_image,
+                'moving': moving_image,
+                'type_of_transform': self.type_of_transform,
+                'mask': fixed_mask,
+                'optimizer': self.optimizer_type,
+                'metric': self.metric_type,
+                'interpolator': self.interpolator_type,
+                **self.optimizer_params,
+                **self.metric_params,
+                **self.kwargs
+            }
+            
             # Perform registration
-            reg_result = ants.registration(
-                fixed=fixed_image,
-                moving=moving_image,
-                type_of_transform=self.type_of_transform,
-                mask=fixed_mask,
-            )
+            reg_result = ants.registration(**reg_params)
             
             # Get the warped image
             warped_image = reg_result["warpedmovout"]
