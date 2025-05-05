@@ -24,6 +24,13 @@ from habit.utils.progress_utils import CustomTqdm
 from monai.transforms.io.array import LoadImage
 from monai.data.image_reader import ITKReader
 import SimpleITK as sitk
+import os
+import platform
+from multiprocessing import cpu_count
+import multiprocessing
+from functools import partial
+import traceback
+from multiprocessing import Pool
 
 # 定义全局函数用于替代lambda
 def identity_collate(batch):
@@ -61,12 +68,35 @@ class BatchProcessor:
         Args:
             config_path (Union[str, Path]): Path to the configuration file.
             num_workers (Optional[int]): Number of worker processes. If None, uses
-                number of CPU cores.
+                number of CPU cores - 1 on Linux/Mac, or 0 on Windows.
             log_level (str): Logging level. Defaults to "INFO".
         """
         self.config = self._load_config(config_path)
         self._setup_logging(log_level)
         self.preprocessors = self._create_preprocessors()
+        
+        # --- 强制使用单进程进行测试 ---
+        self.logger.warning("Forcing num_workers=0 for debugging purposes.")
+        self.num_workers = 0 
+        # --- 原来的逻辑 (注释掉) ---
+        # # Set number of workers based on system
+        # if num_workers is None:
+        #     if platform.system() == 'Windows':
+        #         self.num_workers = 0  # Use single process on Windows
+        #     else:
+        #         # Use config value or default to 0 if not specified or invalid
+        #         try:
+        #             self.num_workers = int(self.config.get("processes", 0))
+        #             if self.num_workers < 0:
+        #                 self.logger.warning(f"Invalid 'processes' value ({self.num_workers}) in config, defaulting to 0.")
+        #                 self.num_workers = 0
+        #         except (ValueError, TypeError):
+        #             self.logger.warning(f"Invalid 'processes' type in config, defaulting to 0.")
+        #             self.num_workers = 0 
+        # else:
+        #     self.num_workers = num_workers
+        # self.logger.info(f"Using {self.num_workers} worker processes.")
+        # --- 结束原来的逻辑 ---
         
     def _load_config(self, config_path: Union[str, Path]) -> Dict:
         """Load configuration from YAML file.
@@ -173,17 +203,185 @@ class BatchProcessor:
         # Create a single Compose object with all transforms
         return Compose(transforms)
         
-    def process_batch(self) -> None:
-        """Process all subjects in parallel using MONAI's DataLoader.
+    def _process_single_subject(self, subject_data, output_dir, progress_queue=None):
+        """处理单个主题的数据。
         
-        This method processes all subjects in parallel using MONAI's DataLoader.
-        It first gets all image and mask paths, then creates a dataset and data loader
-        for parallel processing.
+        Args:
+            subject_data (Dict): 单个主题的数据字典
+            output_dir (Path): 输出目录
+            progress_queue (Queue, optional): 用于报告进度的队列
+
+        Returns:
+            str: 处理结果消息
+        """
+        try:
+            subject_id = subject_data['subj']
+            # 创建单独的预处理管道实例
+            transforms = []
+            
+            # 添加LoadImage转换
+            all_modalities_for_load = [k for k in subject_data.keys() if k not in ["subj"]]
+            
+            image_loader = LoadImaged(
+                keys=all_modalities_for_load,
+                reader=ITKReader(reverse_indexing=True),
+                image_only=False
+            )
+            transforms.append(image_loader)
+            
+            # 添加EnsureChannelFirst转换
+            ensure_channel = EnsureChannelFirstd(keys=all_modalities_for_load)
+            transforms.append(ensure_channel)
+            
+            # 处理配置中定义的每个预处理步骤
+            for step_name, params in self.config["Preprocessing"].items():
+                # Extract modalities from params
+                modalities = params.get("images", [])
+                modalities = [mod.lower() for mod in modalities]
+                if not modalities:
+                    continue
+                
+                # add mask
+                if "mask" not in modalities:
+                    modalities.append("mask")
+                
+                # 仅处理存在于当前subject_data中的modalities
+                modalities = [mod for mod in modalities if mod in subject_data]
+                
+                # 创建预处理器
+                processor = PreprocessorFactory.create(
+                    name=step_name,
+                    keys=modalities,
+                    **{k: v for k, v in params.items() if k != "images"}
+                )
+                transforms.append(processor)
+            
+            # 创建组合转换
+            pipeline = Compose(transforms)
+            
+            # 应用预处理
+            processed_data = pipeline(subject_data)
+            
+            # 保存处理后的数据
+            self._save_processed_data(processed_data, output_dir)
+            
+            # 报告进度
+            if progress_queue is not None:
+                progress_queue.put(subject_id)
+            
+            return f"Success: {subject_id}"
+        except Exception as e:
+            return f"Error processing {subject_data.get('subj', 'unknown')}: {str(e)}\n{traceback.format_exc()}"
+
+    def _save_processed_data(self, processed_data, output_dir):
+        """保存已处理的数据。
+        
+        Args:
+            processed_data (Dict): 处理后的数据
+            output_dir (Path): 输出根目录
+        """
+        if "subj" not in processed_data:
+            self.logger.error("缺少subject ID，无法保存数据")
+            return
+        
+        subject_id = processed_data["subj"]
+        
+        # 创建基本目录
+        out_dir = Path(output_dir)
+        images_dir = out_dir / "processed_images" / "images"
+        masks_dir = out_dir / "processed_images" / "masks"
+        images_dir.mkdir(parents=True, exist_ok=True)
+        masks_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 获取图像模态键 - 排除元数据键和特殊键
+        image_keys = [k for k in processed_data.keys() 
+                    if k not in ["subj", "mask"] and not k.endswith("_meta_dict")]
+        
+        # 处理每个模态
+        for key in image_keys:
+            if key in processed_data:
+                # 获取图像数据和元数据
+                image_data = processed_data[key]
+                # 图像数据是4D numpy数组
+                if image_data.ndim == 4:
+                    # 获取第一个3D图像
+                    image_data = image_data[0, :, :, :]
+                
+                # 转置数组以匹配SimpleITK的坐标系统 (z,y,x)
+                if isinstance(image_data, np.ndarray):
+                    image_data = np.transpose(image_data, (2, 1, 0))
+                elif isinstance(image_data, torch.Tensor):
+                    image_data = image_data.permute(2, 1, 0).numpy()
+                
+                metadata_key = f"{key}_meta_dict"
+                
+                if metadata_key in processed_data:
+                    metadata = processed_data[metadata_key]
+                    
+                    # 将numpy数组转换为sitk图像
+                    image = sitk.GetImageFromArray(image_data)
+                        
+                    # 创建扫描类型目录
+                    scan_type_dir = images_dir / subject_id / key
+                    scan_type_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # 保存图像
+                    output_path = scan_type_dir / "image.nii.gz"
+                    sitk.WriteImage(image, str(output_path))
+                    
+                    # 如果有相应的mask，保存它
+                    if "mask" in processed_data:
+                        mask_data = processed_data["mask"]
+                        # mask数据是4D numpy数组
+                        if mask_data.ndim == 4:
+                            mask_data = mask_data[0, :, :, :]
+                            
+                        # 转置mask以匹配SimpleITK的坐标系统
+                        if isinstance(mask_data, np.ndarray):
+                            mask_data = np.transpose(mask_data, (2, 1, 0))
+                        elif isinstance(mask_data, torch.Tensor):
+                            mask_data = mask_data.permute(2, 1, 0).numpy()
+                            
+                        mask_metadata_key = "mask_meta_dict"
+                        
+                        if mask_metadata_key in processed_data:
+                            mask_metadata = processed_data[mask_metadata_key]
+                            
+                            # 将mask数据转换为sitk图像
+                            mask = sitk.GetImageFromArray(mask_data)
+                            
+                            # 创建mask扫描类型目录
+                            mask_scan_type_dir = masks_dir / subject_id / key
+                            mask_scan_type_dir.mkdir(parents=True, exist_ok=True)
+                            
+                            # 保存mask
+                            mask_output_path = mask_scan_type_dir / "mask.nii.gz"
+                            sitk.WriteImage(mask, str(mask_output_path))
+
+    def _update_progress_from_queue(self, progress_queue, total_subjects, progress_bar):
+        """从队列更新进度信息。
+        
+        Args:
+            progress_queue (Queue): 进度队列
+            total_subjects (int): 总主题数
+            progress_bar (CustomTqdm): 进度条对象
+        """
+        completed = 0
+        while completed < total_subjects:
+            subject_id = progress_queue.get()
+            progress_bar.update(1)
+            completed += 1
+            self.logger.info(f"完成处理主题: {subject_id} ({completed}/{total_subjects})")
+
+    def process_batch(self) -> None:
+        """处理所有主题数据。
+        
+        使用自定义的并行处理替代MONAI的DataLoader，更好地处理Windows和多进程环境。
         """
         output_root = Path(self.config["out_dir"])
         output_root.mkdir(parents=True, exist_ok=True)
         
-        # Get all image and mask paths
+        # 获取所有图像和mask路径
         images_paths, mask_paths = get_image_and_mask_paths(self.config["data_dir"])
         
         subject_data_list = []
@@ -210,36 +408,94 @@ class BatchProcessor:
             self.logger.warning("No valid subjects found")
             return
             
-        # Create dataset
-        dataset = Dataset(
-            data=subject_data_list,
-            transform=self.preprocessors
-        )
+        # 获取处理器数量
+        if platform.system() == 'Windows':
+            num_processes = 0  # Windows下默认使用单进程
+        else:
+            num_processes = self.config.get("processes", min(multiprocessing.cpu_count() - 1, 1))  # 默认使用CPU核心数-1
         
-        # Create data loader - use single process mode on Windows to avoid errors
-        dataloader = DataLoader(
-            dataset,
-            batch_size=1,  # 小批次以减少内存使用   FIXME
-            num_workers=0,  # 设置为0使用主进程，避免Windows多进程问题 FIXME
-            collate_fn=identity_collate,  # 使用命名函数而不是lambda函数
-            pin_memory=False,  # 避免内存溢出
-            persistent_workers=False,  # 避免工作进程持久化导致的内存累积
-            shuffle=False  # 保持处理顺序一致
-        )
+        self.logger.info(f"将使用 {num_processes} 个进程进行处理")
+        total_subjects = len(subject_data_list)
+        self.logger.info(f"共有 {total_subjects} 个主题需要处理")
         
-        # Process batches with progress bar from utils
-        progress_bar = CustomTqdm(total=len(subject_data_list), desc="Processing subjects")
-        for batch_idx, batch in enumerate(dataloader):
-            self.logger.info(f"Processing batch {batch_idx+1}")
-            for subject in batch:
-                try:
-                    self._save_processed_batch(subject, output_root)
-                    progress_bar.update(1)
-                except Exception as e:
-                    self.logger.error(f"Error processing subject {subject['subj']}: {e}")
-                    
+        # 单进程处理
+        if num_processes <= 0:
+            self._process_batch_single_thread(subject_data_list, output_root, total_subjects)
+        # 多进程处理
+        else:
+            self._process_batch_multi_thread(subject_data_list, output_root, total_subjects, num_processes)
+        
+        self.logger.info("批处理完成")
+
+    def _process_batch_single_thread(self, subject_data_list, output_root, total_subjects):
+        """使用单线程处理批量数据。
+        
+        Args:
+            subject_data_list (List[Dict]): 主题数据列表
+            output_root (Path): 输出目录
+            total_subjects (int): 总主题数
+        """
+        self.logger.info("使用单进程模式处理")
+        progress_bar = CustomTqdm(total=total_subjects, desc="Processing subjects")
+        
+        for subject_data in subject_data_list:
+            try:
+                self.logger.info(f"开始处理主题: {subject_data['subj']}")
+                # 应用预处理转换
+                processed_data = self.preprocessors(subject_data)
+                # 保存处理后的数据
+                self._save_processed_batch(processed_data, output_root)
+                progress_bar.update(1)
+                self.logger.info(f"完成处理主题: {subject_data['subj']} ({progress_bar.n}/{total_subjects})")
+            except Exception as e:
+                self.logger.error(f"处理主题 {subject_data['subj']} 时出错: {e}")
+                self.logger.error(traceback.format_exc())
+                
         progress_bar.close()
-        self.logger.info("Batch processing completed")
+
+    def _process_batch_multi_thread(self, subject_data_list, output_root, total_subjects, num_processes):
+        """使用多线程处理批量数据，使用与habitat_analysis模块相同的方式。
+        
+        Args:
+            subject_data_list (List[Dict]): 主题数据列表
+            output_root (Path): 输出目录
+            total_subjects (int): 总主题数
+            num_processes (int): 进程数
+        """
+        self.logger.info("使用多进程模式处理")
+        
+        # 创建进度队列
+        manager = multiprocessing.Manager()
+        progress_queue = manager.Queue()
+        
+        # 创建进度条
+        progress_bar = CustomTqdm(total=total_subjects, desc="Processing subjects")
+        
+        # 启动进度更新线程
+        import threading
+        progress_thread = threading.Thread(
+            target=self._update_progress_from_queue, 
+            args=(progress_queue, total_subjects, progress_bar)
+        )
+        progress_thread.daemon = True
+        progress_thread.start()
+        
+        # 为函数准备参数
+        def process_wrapper(subject_data):
+            return self._process_single_subject(subject_data, output_root, progress_queue)
+        
+        # 使用与habitat_analysis模块相同的方式处理
+        with multiprocessing.Pool(processes=num_processes) as pool:
+            self.logger.info("开始并行处理所有主题...")
+            results_iter = pool.imap_unordered(process_wrapper, subject_data_list)
+            
+            # 处理结果
+            for result in results_iter:
+                if result.startswith("Error"):
+                    self.logger.error(result)
+        
+        # 关闭进度条
+        progress_bar.close()
         
     def _save_processed_batch(
         self,
@@ -351,4 +607,7 @@ class BatchProcessor:
                             mask_output_path = mask_scan_type_dir / "mask.nii.gz"
                             sitk.WriteImage(mask, str(mask_output_path))
                 else:
-                    self.logger.warning(f"No metadata found for {key}, skipping save") 
+                    self.logger.warning(f"No metadata found for {key}, skipping save")
+
+            
+            

@@ -1,0 +1,13 @@
+2025-05-05 19:32:55,480 - app_preprocessing - INFO - Python version: 3.8.16 (default, Jun 12 2023, 21:00:42) [MSC v.1916 64 bit (AMD64)]
+2025-05-05 19:32:55,481 - app_preprocessing - INFO - Platform: Windows-10-10.0.19045-SP0
+2025-05-05 19:32:55,481 - app_preprocessing - INFO - Current working directory: F:\work\research\radiomics_TLSs\HABIT
+2025-05-05 19:32:55,481 - app_preprocessing - INFO - 使用配置文件: ./config/config_kmeans.yaml
+2025-05-05 19:32:55,520 - habit.core.preprocessing.image_processor_pipeline - WARNING - Forcing num_workers=0 for debugging purposes.
+2025-05-05 19:32:55,521 - app_preprocessing - INFO - 成功初始化BatchProcessor
+2025-05-05 19:32:55,521 - app_preprocessing - INFO - 开始处理批次数据
+2025-05-05 19:32:55,524 - habit.core.preprocessing.image_processor_pipeline - INFO - 使用批处理大小: 1
+2025-05-05 19:32:55,525 - habit.core.preprocessing.image_processor_pipeline - INFO - Starting batch processing with 0 workers
+2025-05-05 19:32:55,525 - habit.core.preprocessing.image_processor_pipeline - INFO - Total subjects to process: 2
+2025-05-05 19:34:27,123 - habit.core.preprocessing.image_processor_pipeline - INFO - Processing batch 1/2
+2025-05-05 19:34:27,161 - matplotlib.pyplot - DEBUG - Loaded backend tkagg version 8.6.
+2025-05-05 19:35:18,165 - habit.core.preprocessing.image_processor_pipeline - INFO - Completed processing subject CheMu__MR_2118482_2021_08_28 (2/2)
