@@ -146,24 +146,17 @@ out_dir: /path/to/output/directory
 
 # 预处理设置
 Preprocessing:
-  N4BiasCorrection:
-    enabled: true
-    images: [pre_contrast, LAP, PVP, delay_3min]
-
-  resample:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    target_spacing: [1.0, 1.0, 1.0]  # 目标体素间距（毫米）
-
   registration:
     images: [pre_contrast, LAP, PVP, delay_3min]
-    fixedImage: PVP
-    movingImage: [pre_contrast, LAP, delay_3min]
-    method: rigid  # rigid或affine
+    fixed_image: PVP
+    moving_images: [pre_contrast, LAP, delay_3min]
+    type_of_transform: Rigid  # rigid或affine
+    use_mask: true  # 是否使用mask进行配准
 
 # 特征提取设置
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     params:
       params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
       kernelRadius: 2
@@ -171,7 +164,7 @@ FeatureConstruction:
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: mean_voxel_features()
+    method: mean_voxel_features()  # 使用体素特征的平均值
     params:
       params_file: ./config/parameter.yaml
 
@@ -188,7 +181,7 @@ HabitatsSegmention:
   # 超体素聚类设置
   supervoxel:
     algorithm: kmeans
-    n_clusters: 50
+    n_clusters: 50  # 超体素数量
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -196,9 +189,9 @@ HabitatsSegmention:
   # 生境聚类设置
   habitat:
     algorithm: kmeans
-    max_clusters: 10
-    habitat_cluster_selection_method: inertia  # inertia, silhouette, calinski_harabasz
-    best_n_clusters: null  # 设为null表示自动选择
+    max_clusters: 10  # 最大生境数量
+    habitat_cluster_selection_method: inertia  # 聚类数选择方法：inertia, silhouette, calinski_harabasz
+    best_n_clusters: null  # 设为null表示自动选择最佳聚类数
     random_state: 42
     max_iter: 300
     n_init: 10

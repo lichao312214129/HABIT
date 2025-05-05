@@ -27,7 +27,6 @@ out_dir: /path/to/output/directory
 ```yaml
 Preprocessing:
   N4BiasCorrection:
-    enabled: true
     images: [pre_contrast, LAP, PVP, delay_3min]
 
   resample:
@@ -36,9 +35,10 @@ Preprocessing:
 
   registration:
     images: [pre_contrast, LAP, PVP, delay_3min]
-    fixedImage: PVP
-    movingImage: [pre_contrast, LAP, delay_3min]
-    method: rigid  # rigid or affine
+    fixed_image: PVP
+    moving_images: [pre_contrast, LAP, delay_3min]
+    type_of_transform: Rigid  # rigid or affine
+    use_mask: true  # whether to use mask for registration
 ```
 
 ### N4BiasCorrection
@@ -54,9 +54,10 @@ Preprocessing:
 ### Registration
 
 - `images`: List of all image types involved in registration
-- `fixedImage`: The reference image that other images will be registered to
-- `movingImage`: List of images that will be registered to the fixed image
-- `method`: Registration method, either "rigid" or "affine"
+- `fixed_image`: The reference image that other images will be registered to
+- `moving_images`: List of images that will be registered to the fixed image
+- `type_of_transform`: Registration transform type, either "Rigid" or "Affine"
+- `use_mask`: Whether to use the mask during registration process
 
 ## Feature Construction
 
@@ -142,7 +143,7 @@ HabitatsSegmention:
   # Supervoxel clustering settings
   supervoxel:
     algorithm: kmeans
-    n_clusters: 50
+    n_clusters: 50  # number of supervoxels to create
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -150,9 +151,9 @@ HabitatsSegmention:
   # Habitat clustering settings
   habitat:
     algorithm: kmeans
-    max_clusters: 10
-    habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz
-    best_n_clusters: null  # Set to null for automatic selection
+    max_clusters: 10  # maximum number of habitats to consider
+    habitat_cluster_selection_method: inertia  # method to determine optimal number of clusters
+    best_n_clusters: null  # set to null for automatic selection
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -160,19 +161,22 @@ HabitatsSegmention:
 
 ### Supervoxel Clustering
 
-- `algorithm`: Clustering algorithm for supervoxel segmentation (e.g., "kmeans")
-- `n_clusters`: Number of supervoxels to create
+- `algorithm`: Clustering algorithm for supervoxel segmentation (currently supports "kmeans")
+- `n_clusters`: Number of supervoxels to create (fixed value)
 - `random_state`: Random seed for reproducibility
 - `max_iter`: Maximum number of iterations for the clustering algorithm
 - `n_init`: Number of times the algorithm will be run with different centroid seeds
 
 ### Habitat Clustering
 
-- `algorithm`: Clustering algorithm for habitat segmentation (e.g., "kmeans")
-- `max_clusters`: Maximum number of habitats to consider
+- `algorithm`: Clustering algorithm for habitat segmentation (currently supports "kmeans")
+- `max_clusters`: Maximum number of habitats to consider during automatic selection
 - `habitat_cluster_selection_method`: Method to determine the optimal number of clusters
-  - Options: "inertia", "silhouette", "calinski_harabasz", "davies_bouldin"
-- `best_n_clusters`: Directly specify the number of clusters (if null, will be determined automatically)
+  - Options: 
+    - "inertia": Use elbow method based on inertia
+    - "silhouette": Use silhouette score
+    - "calinski_harabasz": Use Calinski-Harabasz index
+- `best_n_clusters`: Directly specify the number of clusters (if null, will be determined automatically using the specified method)
 - `random_state`: Random seed for reproducibility
 - `max_iter`: Maximum number of iterations for the clustering algorithm
 - `n_init`: Number of times the algorithm will be run with different centroid seeds
