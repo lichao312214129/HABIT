@@ -11,17 +11,19 @@ Example:
 """
 
 from typing import Dict, List, Optional, Union
-import os
 import logging
 from pathlib import Path
 import numpy as np
 import torch
 import yaml
-from monai.transforms import Compose, LoadImage
+from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd
 from monai.data import Dataset, DataLoader
 from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
+from monai.transforms.io.array import LoadImage
+from monai.data.image_reader import ITKReader
+import SimpleITK as sitk
 
 # 定义全局函数用于替代lambda
 def identity_collate(batch):
@@ -117,13 +119,49 @@ class BatchProcessor:
             
         transforms = []
         
-        # Process each preprocessing step
+        # 首先添加图像加载和通道处理转换
+        # 获取所有可能需要处理的图像键
+        all_modalities = []
+        for step_name, params in self.config["Preprocessing"].items():
+            modalities = params.get("images", [])
+            for mod in modalities:
+                if mod not in all_modalities:
+                    all_modalities.append(mod)
+        
+        # 如果存在mask，也添加到键列表中
+        if "mask" not in all_modalities:
+            all_modalities.append("mask")
+            
+        # 添加LoadImage转换，负责高效加载图像文件,keys中不包含subj    
+        all_modalities_for_load = [mod for mod in all_modalities if mod != "subj"]
+        # Use lowercase keys for LoadImage compatible with MONAI
+        all_modalities_for_load = [mod.lower() for mod in all_modalities_for_load]
+        
+        # Create image loader with ITKReader for .nrrd files
+        image_loader = LoadImaged(
+            keys=all_modalities_for_load,
+            reader=ITKReader(reverse_indexing=True),
+            image_only=False
+        )
+        transforms.append(image_loader)
+        
+        # 添加EnsureChannelFirst转换，确保图像数据的通道维度在前，不包括subj
+        ensure_channel = EnsureChannelFirstd(keys=all_modalities_for_load)
+        transforms.append(ensure_channel)
+        
+        # 处理配置中定义的每个预处理步骤
         for step_name, params in self.config["Preprocessing"].items():
             # Extract modalities from params
             modalities = params.get("images", [])
+            # Use lowercase keys for PreprocessorFactory compatible with MONAI FIXME
+            modalities = [mod.lower() for mod in modalities]
             if not modalities:
                 raise ValueError(f"No modalities specified for {step_name}")
-                
+            
+            # add mask
+            if "mask" not in modalities:
+                modalities.append("mask")
+
             # Create a single preprocessor for all modalities
             processor = PreprocessorFactory.create(
                 name=step_name,
@@ -154,8 +192,8 @@ class BatchProcessor:
             
             # 遍历当前科目的所有图像路径
             for scan_type, img_path in images_paths[subject].items():
-                # 动态添加图像路径
-                data_entry[scan_type] = img_path
+                # 使用小写作为键名，与LoadImage的keys参数匹配
+                data_entry[scan_type.lower()] = img_path
                 
                 # 只添加一个mask，使用第一个可用的scan_type的mask
                 if "mask" not in data_entry and subject in mask_paths and scan_type in mask_paths[subject]:
@@ -208,28 +246,109 @@ class BatchProcessor:
         subject: Dict,
         output_root: Path
     ) -> None:
-        """Save processed batch data.
+        """Save processed batch data following the structure:
+        data_root/processed_images/
+        ├── images/
+        │   └── subject1/
+        │       ├── pre_contrast/
+        │       │   └── image.nii.gz
+        │       └── ...
+        └── masks/
+            └── subject1/
+                ├── pre_contrast/
+                │   └── mask.nii.gz
+                └── ...
         
         Args:
             subject (Dict): Processed subject data.
             output_root (Path): Root directory for output.
         """
+        # Create base directories
+        out_dir = output_root / "processed_images"
+        images_dir = out_dir / "images"
+        masks_dir = out_dir / "masks"
+        images_dir.mkdir(parents=True, exist_ok=True)
+        masks_dir.mkdir(parents=True, exist_ok=True)
+        
         subject_id = subject["subj"]
-        subject_output_dir = output_root / subject_id
-        subject_output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Get image modality keys
-        image_keys = [k for k in subject.keys() if k not in ["subj", "mask"]]
+        # Get image modality keys - exclude metadata keys and special keys
+        image_keys = [k for k in subject.keys() 
+                    if k not in ["subj", "mask"] and not k.endswith("_meta_dict")]
         
-        # Save processed images
+        # Process each modality (scan type)
         for key in image_keys:
             if key in subject:
-                image = subject[key]
-                output_path = subject_output_dir / f"{key.lower()}.nii.gz"
-                torch.save(image, output_path)
+                # Get image data and metadata
+                image_data = subject[key]
+                # image data is 4D numpy array
+                if image_data.ndim == 4:
+                    # Get first 3D image
+                    image_data = image_data[0, :, :, :]
                 
-        # Save processed mask
-        if "mask" in subject:
-            mask = subject["mask"]
-            output_path = subject_output_dir / "mask.nii.gz"
-            torch.save(mask, output_path) 
+                # Transpose the array to match SimpleITK's coordinate system (z,y,x)
+                if isinstance(image_data, np.ndarray):
+                    image_data = np.transpose(image_data, (2, 1, 0))
+                elif isinstance(image_data, torch.Tensor):
+                    image_data = image_data.permute(2, 1, 0).numpy()
+                
+                metadata_key = f"{key}_meta_dict"
+                
+                if metadata_key in subject:
+                    metadata = subject[metadata_key]
+                    
+                    # Convert numpy array to sitk image
+                    image = sitk.GetImageFromArray(image_data)
+                        
+                    # Copy metadata to the new image
+                    for meta_key in metadata.keys():
+                        try:
+                            image.SetMetaData(meta_key, str(metadata[meta_key]))
+                        except Exception as e:
+                            self.logger.warning(f"Failed to set metadata {meta_key} for {key}: {e}")
+                    
+                    # Create scan type directory under images
+                    scan_type_dir = images_dir / subject_id / key
+                    scan_type_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Save image
+                    output_path = scan_type_dir / "image.nii.gz"
+                    sitk.WriteImage(image, str(output_path))
+                    
+                    # If there's a corresponding mask, save it
+                    if "mask" in subject:
+                        mask_data = subject["mask"]
+                        # mask data is 4D numpy array
+                        if mask_data.ndim == 4:
+                            mask_data = mask_data[0, :, :, :]
+                            
+                        # Transpose the mask to match SimpleITK's coordinate system
+                        if isinstance(mask_data, np.ndarray):
+                            mask_data = np.transpose(mask_data, (2, 1, 0))
+                        elif isinstance(mask_data, torch.Tensor):
+                            mask_data = mask_data.permute(2, 1, 0).numpy()
+                            
+                        mask_metadata_key = "mask_meta_dict"
+                        
+                        if mask_metadata_key in subject:
+                            mask_metadata = subject[mask_metadata_key]
+                            
+                            # Convert mask data to sitk image
+                            mask = sitk.GetImageFromArray(mask_data)
+                            
+                            # Copy metadata to mask
+                            for meta_key in mask_metadata.keys():
+                                try:
+                                    mask.SetMetaData(meta_key, str(mask_metadata[meta_key]))
+                                except Exception as e:
+                                    self.logger.warning(f"Failed to set metadata {meta_key} for mask: {e}")
+                            
+                            # Create scan type directory under masks
+                            mask_scan_type_dir = masks_dir / subject_id / key
+                            mask_scan_type_dir.mkdir(parents=True, exist_ok=True)
+                            
+                            # Save mask
+                            mask_output_path = mask_scan_type_dir / "mask.nii.gz"
+                            sitk.WriteImage(mask, str(mask_output_path))
+                else:
+                    self.logger.warning(f"No metadata found for {key}, skipping save") 

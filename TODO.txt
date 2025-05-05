@@ -1,3 +1,0 @@
-1、resample有问题，mask也要一起resample，注意插值区别
-2、n4偏移场矫正有问题
-3、windows 调用Dataloader并行处理问题。可能需要定义到main中，但还是希望其它方式解决。实在不行就自己定义多进程

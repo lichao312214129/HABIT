@@ -9,15 +9,16 @@ Preprocessing:
   # N4_bias_correction:
   #   images: [pre_contrast, LAP, PVP, delay_3min]
 
-  resample:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in mm
-
-  # registration:
+  # resample:
   #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   fixed_image: PVP
-  #   moving_images: [pre_contrast, LAP, delay_3min]
-  #   type_of_transform: rigid  # rigid or affine
+  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in mm
+
+  registration:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    fixed_image: PVP
+    moving_images: [pre_contrast, LAP, delay_3min]
+    type_of_transform: Rigid  # rigid or affine
+    use_mask: true
 
 # Feature extraction settings
 FeatureConstruction:
