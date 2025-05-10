@@ -2,7 +2,7 @@
 
 ## 功能概述
 
-`app_model_comparison_plots.py` 是HABIT工具包中用于生成机器学习模型比较和评估图表的专用工具。它支持多种可视化方法，可用于比较不同模型的性能、特征重要性、决策边界等，帮助研究人员理解和解释模型结果。
+`app_model_comparison_plots.py` 是HABIT工具包中用于比较和评估多个机器学习模型性能的专用工具。它能读取多个模型的预测结果，合并评估数据，生成多种性能评估图表和指标，并支持按数据集分组进行分析（如训练集、测试集）。
 
 ## 用法
 
@@ -23,286 +23,194 @@ python scripts/app_model_comparison_plots.py --config <config_file_path>
 ### 基本配置
 
 ```yaml
-# 数据和输出路径
-input: <输入数据文件路径>
-results_path: <模型结果目录>
-output: <图表输出目录>
-label: <标签列名>
-random_seed: <随机种子>
+# 输出目录配置
+output_dir: "./results/model_comparison"  # 所有比较结果将保存到的目录
 ```
 
-### 模型配置
+### 模型预测文件配置
 
 ```yaml
-models:
-  - name: <模型名称1>
-    path: <模型文件路径1>
-  - name: <模型名称2>
-    path: <模型文件路径2>
-  ...
+# 每个条目定义要包含在比较中的模型预测文件
+files_config:
+  - path: "path/to/model_a_predictions.csv"  # 包含模型预测的CSV文件路径
+    model_name: "ModelA"                     # 模型的显示名称
+    subject_id_col: "subjid"                 # 包含受试者标识符的列名
+    label_col: "true_label"                  # 包含真实结果标签的列名(0/1)
+    prob_col: "prediction_probability"       # 包含预测概率的列名
+    pred_col: "prediction_class"             # 包含离散预测的列名(可选)
+    split_col: "split"                       # 指示数据分割的列名(例如"train"或"test")
 ```
 
-### 绘图配置
+### 合并数据配置
 
 ```yaml
-plots:
-  performance_comparison:
-    enabled: <是否启用>
-    metrics: <指标列表>
-    
-  roc_curves:
-    enabled: <是否启用>
-    
-  pr_curves:
-    enabled: <是否启用>
-    
-  confusion_matrices:
-    enabled: <是否启用>
-    normalize: <是否归一化>
-    
-  feature_importance:
-    enabled: <是否启用>
-    n_features: <显示的特征数量>
-    
-  decision_boundaries:
-    enabled: <是否启用>
-    feature_pairs: <特征对列表>
-    resolution: <决策边界分辨率>
-    
-  calibration_curves:
-    enabled: <是否启用>
-    n_bins: <分箱数量>
-    
-  learning_curves:
-    enabled: <是否启用>
-    train_sizes: <训练集大小列表>
-    
-  dimension_reduction:
-    enabled: <是否启用>
-    method: <降维方法>
-    n_components: <组件数量>
-    
-  shap_analysis:
-    enabled: <是否启用>
-    max_display: <最大显示特征数>
-    plot_types: <SHAP图表类型列表>
+# 控制如何合并来自不同模型的预测数据
+merged_data:
+  enabled: true                           # 是否将不同模型的预测合并到单个数据集中
+  save_name: "combined_predictions.csv"   # 保存的合并数据集文件名
 ```
 
-## 支持的绘图功能
-
-### 1. 性能比较图 (performance_comparison)
-
-生成不同模型的各项评估指标对比图，支持条形图和雷达图。
-
-**参数：**
-- `metrics`: 要比较的评估指标列表
-- `plot_type`: 图表类型，可选 "bar" 或 "radar"
-- `sort_by`: 用于排序的指标
-
-### 2. ROC曲线 (roc_curves)
-
-绘制所有模型的ROC曲线（受试者工作特征曲线）。
-
-**参数：**
-- `micro_average`: 是否计算微平均
-- `macro_average`: 是否计算宏平均
-- `conf_intervals`: 是否显示置信区间
-- `n_bootstraps`: Bootstrap重采样次数
-
-### 3. PR曲线 (pr_curves)
-
-绘制所有模型的精确率-召回率曲线。
-
-**参数：**
-- `micro_average`: 是否计算微平均
-- `macro_average`: 是否计算宏平均
-- `baseline`: 是否显示基线
-
-### 4. 混淆矩阵 (confusion_matrices)
-
-生成每个模型的混淆矩阵可视化。
-
-**参数：**
-- `normalize`: 是否归一化混淆矩阵
-- `colormap`: 颜色映射
-- `include_values`: 是否在单元格中显示数值
-
-### 5. 特征重要性图 (feature_importance)
-
-显示每个模型的特征重要性排名。
-
-**参数：**
-- `n_features`: 显示的特征数量
-- `sort`: 是否对特征进行排序
-- `method`: 计算特征重要性的方法，可选 "builtin", "permutation", "shap"
-
-### 6. 决策边界图 (decision_boundaries)
-
-绘制二维特征空间中的模型决策边界。
-
-**参数：**
-- `feature_pairs`: 要可视化的特征对列表
-- `resolution`: 决策边界的分辨率
-- `colormap`: 颜色映射
-
-### 7. 校准曲线 (calibration_curves)
-
-检查分类模型概率校准的可靠性曲线。
-
-**参数：**
-- `n_bins`: 分箱数量
-- `strategy`: 分箱策略，可选 "uniform", "quantile"
-
-### 8. 学习曲线 (learning_curves)
-
-显示模型性能随训练数据量变化的趋势。
-
-**参数：**
-- `train_sizes`: 训练集大小列表或比例
-- `scoring`: 评分方法
-- `n_jobs`: 并行任务数量
-
-### 9. 降维可视化 (dimension_reduction)
-
-将高维特征空间降维并可视化样本分布。
-
-**参数：**
-- `method`: 降维方法，可选 "pca", "tsne", "umap"
-- `n_components`: 降维后的维度数
-- `perplexity`: t-SNE的困惑度参数
-- `n_neighbors`: UMAP的邻居数量
-
-### 10. SHAP分析图 (shap_analysis)
-
-使用SHAP值解释模型预测，提供多种可视化方式。
-
-**参数：**
-- `max_display`: 最大显示特征数
-- `plot_types`: SHAP图表类型列表，可选 "summary", "bar", "beeswarm", "waterfall", "force", "decision"
-- `sample_idx`: 用于局部解释的样本索引
-
-## 完整配置示例
+### 分割配置
 
 ```yaml
-# 基本配置
-input: ./data/radiomics_features.csv
-results_path: ./results/models
-output: ./results/visualization
-label: cancer_type
-random_seed: 42
-
-# 模型配置
-models:
-  - name: LogisticRegression
-    path: ./results/models/logistic_regression.pkl
-  - name: RandomForest
-    path: ./results/models/random_forest.pkl
-  - name: XGBoost
-    path: ./results/models/xgboost.pkl
-
-# 绘图配置
-plots:
-  performance_comparison:
-    enabled: true
-    metrics: ["accuracy", "precision", "recall", "f1", "roc_auc"]
-    plot_type: "radar"
-    
-  roc_curves:
-    enabled: true
-    micro_average: true
-    macro_average: true
-    conf_intervals: true
-    n_bootstraps: 1000
-    
-  pr_curves:
-    enabled: true
-    micro_average: true
-    macro_average: true
-    baseline: true
-    
-  confusion_matrices:
-    enabled: true
-    normalize: true
-    colormap: "Blues"
-    include_values: true
-    
-  feature_importance:
-    enabled: true
-    n_features: 20
-    sort: true
-    method: "permutation"
-    
-  decision_boundaries:
-    enabled: true
-    feature_pairs: [["feature1", "feature2"], ["feature3", "feature4"]]
-    resolution: 100
-    colormap: "RdBu"
-    
-  calibration_curves:
-    enabled: true
-    n_bins: 10
-    strategy: "uniform"
-    
-  learning_curves:
-    enabled: true
-    train_sizes: [0.1, 0.3, 0.5, 0.7, 0.9]
-    scoring: "accuracy"
-    n_jobs: -1
-    
-  dimension_reduction:
-    enabled: true
-    method: "tsne"
-    n_components: 2
-    perplexity: 30
-    
-  shap_analysis:
-    enabled: true
-    max_display: 15
-    plot_types: ["summary", "beeswarm", "waterfall"]
-    sample_idx: 0
+# 控制是否分别分析训练集和测试集
+split:
+  enabled: true                           # 是否为不同的数据分割生成单独的分析
 ```
+
+### 可视化配置
+
+```yaml
+# 控制生成哪些性能图表及其属性
+visualization:
+  # ROC曲线配置
+  roc:
+    enabled: true                         # 是否生成ROC曲线图
+    save_name: "roc_curves.pdf"           # 保存的ROC曲线图文件名
+    title: "ROC Curves Comparison"        # ROC曲线图上显示的标题
+  
+  # 决策曲线分析(DCA)配置
+  dca:
+    enabled: true                         # 是否生成决策曲线分析图
+    save_name: "decision_curves.pdf"      # 保存的决策曲线图文件名
+    title: "Decision Curve Analysis"      # 决策曲线图上显示的标题
+  
+  # 校准曲线配置
+  calibration:
+    enabled: true                         # 是否生成校准曲线图
+    save_name: "calibration_curves.pdf"   # 保存的校准曲线图文件名
+    n_bins: 10                            # 用于校准曲线计算的分箱数
+    title: "Calibration Curves"           # 校准曲线图上显示的标题
+  
+  # 精确率-召回率曲线配置
+  pr_curve:
+    enabled: true                         # 是否生成精确率-召回率曲线图
+    save_name: "precision_recall_curves.pdf"  # 保存的精确率-召回率曲线图文件名
+    title: "Precision-Recall Curves"      # 精确率-召回率曲线图上显示的标题
+```
+
+### DeLong检验配置
+
+```yaml
+# 控制使用DeLong检验进行ROC曲线之间的统计比较
+delong_test:
+  enabled: true                           # 是否执行DeLong检验以比较AUCs
+  save_name: "delong_results.json"        # 保存DeLong检验结果的文件名
+```
+
+### 指标配置
+
+```yaml
+# 指标计算配置
+metrics:
+  # 基本指标配置
+  basic_metrics:
+    enabled: true                         # 是否计算基本指标
+  
+  # Youden指数指标配置
+  youden_metrics:
+    enabled: true                         # 是否计算Youden指数指标
+  
+  # 目标指标配置
+  target_metrics:
+    enabled: true                         # 是否计算目标指标
+    targets:                              # 要计算的目标指标
+      sensitivity: 0.9                    # 敏感性目标
+      specificity: 0.8                    # 特异性目标
+```
+
+## 功能模块
+
+### 1. 数据合并和分组
+
+工具能从多个文件读取模型预测，合并为单个数据集，并可选择按照指定的分割列（如train/test）进行分组分析。
+
+**核心功能**：
+- 读取多个模型预测文件
+- 将不同模型的预测合并到一个统一的数据集
+- 根据split列将数据分组(例如训练集vs测试集)
+- 保存合并后的数据集供进一步分析
+
+### 2. 生成可视化图表
+
+为每个模型和每个数据分组（如果启用）生成以下可视化图表：
+
+**ROC曲线**：
+- 显示每个模型的受试者工作特征曲线
+- 包括AUC值作为模型性能指标
+
+**决策曲线分析(DCA)**：
+- 显示在不同阈值概率下各模型的临床净获益
+- 包括"Treat All"和"Treat None"基线
+
+**校准曲线**：
+- 评估预测概率的校准程度（即，预测概率与实际结果的匹配程度）
+- 支持自定义分箱数量
+
+**精确率-召回率曲线**：
+- 展示不同阈值下每个模型的精确率和召回率权衡
+- 适用于处理不平衡数据集
+
+### 3. 计算性能指标
+
+计算并比较多种性能指标，支持不同阈值的指标计算：
+
+**基本指标**：
+- 准确率(Accuracy)、精确率(Precision)、召回率(Recall)、F1分数
+- 特异性(Specificity)、敏感性(Sensitivity)
+- AUC、log loss等
+
+**Youden指数指标**：
+- 在Youden指数(敏感性+特异性-1)最大的阈值下计算指标
+- 对于训练集/测试集分析，使用训练集确定的阈值应用于所有数据集
+
+**目标指标**：
+- 基于用户指定的敏感性/特异性目标计算最佳阈值
+- 计算达到目标指标的阈值下的综合性能指标
+- 支持同时满足多个目标的阈值搜索
+
+### 4. 模型比较
+
+**DeLong检验**：
+- 执行DeLong检验比较不同模型的ROC曲线
+- 生成p值矩阵表示模型之间的显著性差异
+
+**指标汇总**：
+- 将所有模型和数据分组的指标汇总到一个JSON文件
+- 支持不同指标间的比较和分析
 
 ## 执行流程
 
-1. 加载配置文件和数据
-2. 加载指定的模型文件
-3. 根据配置生成性能评估和比较图表
-4. 保存所有图表到输出目录
+1. 解析命令行参数获取配置文件路径
+2. 创建ModelComparisonTool实例并读取配置
+3. 读取预测文件并准备数据
+   - 读取每个模型的预测文件
+   - 合并数据并添加分割信息
+   - 按分组创建数据子集(如果启用)
+4. 保存合并的预测数据
+5. 执行模型评估
+   - 对每个数据分组生成可视化图表
+   - 计算和比较性能指标
+   - 执行DeLong检验比较ROC曲线
+6. 保存所有计算得到的指标到JSON文件
 
 ## 输出结果
 
 程序执行后，将在指定的输出目录生成以下内容：
 
-1. `performance_comparison/`: 性能比较图
-2. `roc_curves/`: ROC曲线图
-3. `pr_curves/`: PR曲线图
-4. `confusion_matrices/`: 混淆矩阵可视化
-5. `feature_importance/`: 特征重要性图
-6. `decision_boundaries/`: 决策边界图
-7. `calibration_curves/`: 校准曲线图
-8. `learning_curves/`: 学习曲线图
-9. `dimension_reduction/`: 降维可视化
-10. `shap_analysis/`: SHAP分析图
-
-每个子目录中包含对应类型的图表文件（PNG和PDF格式）。
-
-## 自定义主题和样式
-
-配置文件中支持设置图表主题和样式：
-
-```yaml
-visualization:
-  theme: <主题名称>  # 如 "default", "dark", "light", "pastel", "journal"
-  figsize: [<宽>, <高>]  # 默认图表尺寸
-  dpi: <分辨率>  # 图表分辨率
-  font_family: <字体>  # 如 "Arial", "Times New Roman"
-  colorblind_friendly: <是否启用色盲友好模式>
-```
+1. `combined_predictions.csv`: 包含所有模型预测的合并数据集
+2. 每个分组的子目录(如"train"、"test"等)，每个子目录中包含：
+   - ROC曲线图表
+   - 决策曲线分析图表
+   - 校准曲线图表
+   - 精确率-召回率曲线图表
+   - DeLong检验结果
+3. `metrics/metrics.json`: 包含所有模型和分组的性能指标
 
 ## 注意事项
 
-1. 确保模型文件路径正确
-2. 对于大数据集，降维可视化可能需要较长时间
-3. SHAP分析对计算资源要求较高
-4. 决策边界图仅适用于二维特征空间
-5. 某些图表类型可能仅适用于特定类型的模型（如分类或回归） 
+1. 确保所有预测文件都包含必需的列(subject_id_col, label_col, prob_col)
+2. 对于分组分析，训练集上确定的阈值将应用于所有数据集
+3. 确保所有文件中的受试者ID格式一致，以便正确合并数据
+4. 该工具主要设计用于二分类问题，不支持多分类情况
+5. 在同一分析中的所有模型应该针对相同的目标变量 

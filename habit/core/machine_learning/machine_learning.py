@@ -473,7 +473,7 @@ class Modeling:
             Modeling: Self instance for method chaining
         """
         # Create evaluator
-        evaluator = ModelEvaluator(self.config['output'])
+        evaluator = ModelEvaluator(self.output_dir)
         
         # Get feature data
         X_train = self.x_train[self.selected_features]
@@ -753,7 +753,7 @@ class Modeling:
 
     @staticmethod
     def load_and_predict(model_file_path: str, new_data: pd.DataFrame, model_name: str = None, 
-                        output_dir: str = None, evaluate_performance: bool = False) -> pd.DataFrame:
+                        output_dir: str = None, evaluate: bool = False) -> pd.DataFrame:
         """
         Load a saved model package and make predictions on new data
         
@@ -762,7 +762,7 @@ class Modeling:
             new_data (pd.DataFrame): New data for prediction
             model_name (str, optional): Name of model to use. If None, use all models.
             output_dir (str, optional): Directory to save evaluation results and plots
-            evaluate_performance (bool, optional): Whether to evaluate model performance and generate plots
+            evaluate (bool, optional): Whether to evaluate model performance and generate plots
             
         Returns:
             pd.DataFrame: DataFrame with predictions (only essential columns)
@@ -869,7 +869,7 @@ class Modeling:
             result_df[f'{name}_prob'] = y_pred_proba
         
         # If true labels are available and evaluation is requested
-        if label_col in new_data.columns and evaluate_performance:
+        if label_col in new_data.columns and evaluate:
             # Create output directory if not exists
             if output_dir:
                 os.makedirs(output_dir, exist_ok=True)
@@ -877,7 +877,7 @@ class Modeling:
                 output_dir = os.path.dirname(model_file_path)
             
             # Create ModelEvaluator instance
-            evaluator = ModelEvaluator({'output': output_dir})
+            evaluator = ModelEvaluator(output_dir)
             
             # Prepare data for evaluation
             y_true = new_data[label_col]
@@ -901,8 +901,5 @@ class Modeling:
             
             # Plot evaluation results
             evaluator.plot_curves(results)
-            
-            # Save results
-            evaluator._save_results(results)
         
         return result_df

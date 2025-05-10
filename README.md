@@ -338,20 +338,6 @@ model_file: /path/to/save/model.pkl
 }
 ```
 
-## TODO list
-- windows 调用Dataloader并行处理问题。可能需要定义到main中，但还是希望其它方式解决。实在不行就自己定义多进程
-- 特征构建使用monai的compose模块，但要注意保留原始值
-```
-class YourTransform(MapTransform):
-    def __init__(self, source_key, target_key):
-        self.source_key = source_key
-        self.target_key = target_key
-
-    def __call__(self, data):
-        data[self.target_key] = data[self.source_key].clone()  # 深拷贝
-        return data
-```
-
 ## 联系方式
 
 如有任何问题，请联系项目维护者 lichao19870617@163.com
@@ -476,3 +462,8 @@ out_dir/
 3. The pipeline will automatically handle both images and their corresponding masks
 4. Processing logs are saved in the `logs` directory
 5. The pipeline supports parallel processing for faster execution
+
+## TODO list
+- * 用于聚类的特征提取增加一个计算体素的熵的方法
+- * 逐个调试讲课需要用到的特征提取方法、聚类方法、机器学习方法
+- 聚类的时候能否保存聚类模型，以便下次使用？

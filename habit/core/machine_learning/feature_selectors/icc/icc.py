@@ -7,7 +7,7 @@ import multiprocessing
 import logging
 import argparse
 from itertools import product
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional, Set
 
 # Logger configuration will be set in the main function to use the output path
 
@@ -60,13 +60,14 @@ def read_file(file_path: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {ext}. Supported formats: .csv, .xlsx, .xls")
 
-def calculate_icc(files_list: List[str], logger) -> Dict[str, Dict[str, float]]:
+def calculate_icc(files_list: List[str], logger, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, float]]:
     """
     Calculate ICC (Intraclass Correlation Coefficient) values between multiple files
     
     Args:
         files_list: List of file paths to analyze
         logger: Logger instance for recording progress and errors
+        selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
         
     Returns:
         Dictionary containing ICC values in the format {feature_name: icc_value}
@@ -110,6 +111,16 @@ def calculate_icc(files_list: List[str], logger) -> Dict[str, Dict[str, float]]:
         logger.warning(f"{group_name} has no common feature columns")
         return {group_name: {}}
     
+    # Filter features if selected_features is provided
+    if selected_features:
+        # Find intersection between common_columns and selected_features
+        target_columns = [col for col in common_columns if col in selected_features]
+        if not target_columns:
+            logger.warning(f"{group_name} has no selected features in common")
+            return {group_name: {}}
+        common_columns = target_columns
+        logger.info(f"Analyzing {len(common_columns)} selected features")
+    
     # Calculate ICC for each feature
     icc_values = {}
     total = len(common_columns)
@@ -144,22 +155,22 @@ def calculate_icc(files_list: List[str], logger) -> Dict[str, Dict[str, float]]:
     # Return results with group name
     return {group_name: icc_values}
 
-def process_files_group(args: Tuple[List[str], logging.Logger]) -> Tuple[str, Dict[str, float]]:
+def process_files_group(args: Tuple[List[str], logging.Logger, Optional[List[str]]]) -> Tuple[str, Dict[str, float]]:
     """
     Process a single group of files for multiprocessing
     
     Args:
-        args: Tuple containing list of files and logger instance
+        args: Tuple containing list of files, logger instance, and optional selected features
         
     Returns:
         Tuple containing group name and ICC values
     """
-    files_list, logger = args
-    result = calculate_icc(files_list, logger)
+    files_list, logger, selected_features = args
+    result = calculate_icc(files_list, logger, selected_features)
     group_name = list(result.keys())[0]
     return group_name, result[group_name]
 
-def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = None, logger=None) -> Dict[str, Dict[str, float]]:
+def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = None, logger=None, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, float]]:
     """
     Analyze ICC for multiple groups of files using parallel processing
     
@@ -167,6 +178,7 @@ def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = Non
         file_groups: List of file groups, where each group is a list of file paths
         n_processes: Number of processes to use (default: all available CPUs)
         logger: Logger instance for recording progress
+        selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
         
     Returns:
         Dictionary containing ICC values for all file groups
@@ -180,7 +192,7 @@ def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = Non
     total = len(file_groups)
     
     # Prepare arguments for multiprocessing
-    process_args = [(group, logger) for group in file_groups]
+    process_args = [(group, logger, selected_features) for group in file_groups]
     
     with multiprocessing.Pool(processes=n_processes) as pool:
         # Use imap_unordered for faster results
@@ -265,6 +277,20 @@ def parse_directories(dirs_input: str) -> List[List[str]]:
     
     return all_groups
 
+def parse_features(features_input: str) -> List[str]:
+    """
+    Parse user input for feature names
+    
+    Args:
+        features_input: String containing feature names in format "feature1,feature2,feature3"
+        
+    Returns:
+        List of feature names
+    """
+    if not features_input:
+        return []
+    return [f.strip() for f in features_input.split(',')]
+
 def main():
     parser = argparse.ArgumentParser(description="对多个CSV/Excel文件计算ICC值")
     
@@ -273,6 +299,7 @@ def main():
     group.add_argument('--files', type=str, help='文件列表，格式为 "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"')
     group.add_argument('--dirs', type=str, help='目录列表，格式为 "dir1,dir2,dir3"，将匹配目录中同名的数据文件')
     
+    parser.add_argument('--features', type=str, help='要计算ICC的特征列名，格式为 "feature1,feature2,feature3"（不指定则计算所有共同特征）')
     parser.add_argument('--processes', type=int, default=None, help='进程数，默认使用所有可用CPU')
     parser.add_argument('--output', type=str, default='icc_results.json', help='输出结果的JSON文件路径')
     
@@ -280,6 +307,11 @@ def main():
     
     # 配置日志
     logger = configure_logger(args.output)
+    
+    # 解析特征列表
+    selected_features = parse_features(args.features) if args.features else None
+    if selected_features:
+        logger.info(f"将只计算以下特征的ICC值: {', '.join(selected_features)}")
     
     # 解析文件组或目录列表
     if args.files:
@@ -294,7 +326,7 @@ def main():
     logger.info(f"将分析 {len(file_groups)} 组文件")
     
     # 执行分析
-    results = analyze_multiple_groups(file_groups, args.processes, logger)
+    results = analyze_multiple_groups(file_groups, args.processes, logger, selected_features)
     
     # 保存结果
     with open(args.output, 'w') as f:
@@ -302,13 +334,5 @@ def main():
     
     logger.info(f"分析完成，结果已保存到 {args.output}")
 
-
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) == 1:  # If no command line arguments are provided
-        sys.argv.extend([
-            '--dirs', 'F:\\work\\research\\radiomics_TLSs\\data\\results\\parsed_habitat_features,F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc\\parsed_habitat_features',
-            '--processes', '4',
-            '--output', 'F:\\work\\research\\radiomics_TLSs\\data\\results\\icc.json'
-        ])
-    main() 
+    main()

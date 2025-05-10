@@ -35,38 +35,60 @@ test_ids_file: 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504
 # Feature Selection Configuration
 # Multiple feature selection methods can be applied sequentially
 feature_selection_methods:
-  # ICC (Intraclass Correlation Coefficient) method (commented out)
+  # ICC (Intraclass Correlation Coefficient) method
   # - method: 'icc'  # Selects features based on their reproducibility
   #   params:
   #     icc_results: '../demo_data/results/icc_results.json'  # Path to pre-computed ICC results
   #     keys: ['breast_cancer_dataset_vs_breast_cancer_dataset']  # Key(s) in the ICC results file to use
   #     threshold: 0.75  # Minimum ICC value required to retain a feature (0.0-1.0)
 
-  # VIF (Variance Inflation Factor) method (commented out)
+  # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
   # - method: 'vif'  # Removes features with high multicollinearity
   #   params:
   #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
   #     visualize: false  # Whether to generate visualization of VIF values
 
-  # mRMR (Minimum Redundancy Maximum Relevance) method (commented out)
+  # Correlation method - removes highly correlated features
+  # - method: 'correlation'
+  #   params:
+  #     threshold: 0.8  # Correlation threshold (features with correlation above this value will be removed)
+  #     method: 'spearman'  # Correlation method: 'pearson', 'spearman', or 'kendall'
+  #     visualize: true  # Whether to generate correlation heatmap
+
+  # ANOVA method - selects features based on ANOVA F-value
+  # - method: 'anova'
+  #   params:
+  #     n_features_to_select: 20  # Number of top features to select
+  #     plot_importance: true  # Whether to plot feature importance
+
+  # LASSO (L1 regularization) method - selects features using L1 regularization
+  # - method: 'lasso'  # Selects features using L1 regularization
+  #   params:
+  #     cv: 5  # Number of cross-validation folds for selecting optimal alpha
+  #     n_alphas: 100  # Number of alpha values to try
+  #     random_state: 42  # Random seed for reproducibility
+  #     visualize: true  # Whether to generate visualization of feature coefficients
+
+  # Boruta method - all-relevant feature selection based on Random Forest importance
+  # - method: 'boruta'
+  #   params:
+  #     n_estimators: 100  # Number of trees in the Random Forest
+  #     max_iter: 100  # Maximum number of iterations
+  #     random_state: 42  # Random seed for reproducibility
+  #     include_tentative: true  # Whether to include tentatively important features
+
+  # mRMR (Minimum Redundancy Maximum Relevance) method
   # - method: 'mrmr'  # Selects features with high relevance to target and low redundancy among themselves
   #   params:
   #     n_features_to_select: 20  # Number of features to select
   #     visualize: false  # Whether to generate visualization of selected features
 
-  # LASSO (L1 regularization) method (commented out)
-  # - method: 'lasso'  # Selects features using L1 regularization
-  #   params:
-  #     cv: 5  # Number of cross-validation folds for selecting optimal alpha
-  #     random_state: 42  # Random seed for reproducibility
-  #     visualize: true  # Whether to generate visualization of feature coefficients
-
-  # Univariate Logistic Regression method (active)
+  # Univariate Logistic Regression method
   - method: 'univariate_logistic'  # Selects features based on individual logistic regression p-values
     params:
       threshold: 0.1  # Maximum p-value threshold for feature selection (features with p < threshold are retained)
 
-  # Stepwise Feature Selection method (active)
+  # Stepwise Feature Selection method
   - method: 'stepwise'  # Performs step-by-step feature selection using AIC/BIC criteria
     params:
       Rhome: 'E:/software/R'  # Path to R installation (required for stepwise selection)
@@ -84,7 +106,7 @@ models:
       penalty: "l2"  # Regularization type (l1=Lasso, l2=Ridge)
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   
-  # Support Vector Machine configuration (commented out)
+  # Support Vector Machine configuration
   # SVM:  # Model type: Support Vector Machine classifier
   #   params:
   #     random_state: 42  # Random seed for reproducibility
@@ -93,7 +115,7 @@ models:
   #     C: 1.0  # Regularization parameter (larger values = less regularization)
   #     gamma: "scale"  # Kernel coefficient for 'rbf', 'poly' and 'sigmoid' kernels
   
-  # XGBoost configuration (commented out)
+  # XGBoost configuration
   # XGBoost:  # Model type: Gradient Boosting classifier
   #   params:
   #     random_state: 42  # Random seed for reproducibility
@@ -102,6 +124,8 @@ models:
   #     learning_rate: 0.1  # Boosting learning rate
   #     subsample: 0.8  # Fraction of samples used for fitting trees
   #     colsample_bytree: 0.8  # Fraction of features used per tree
+  #     objective: "binary:logistic"  # Objective function for optimization
+  #     eval_metric: "logloss"  # Evaluation metric during training
 
 # Visualization and Saving Configuration
 is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)

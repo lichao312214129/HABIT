@@ -1,0 +1,31 @@
+# Configuration file for ICC analysis
+
+# Input configuration
+input:
+  # Type of input: 'files' or 'directories'
+  type: "files"
+  
+  # File groups configuration (used when type is 'files')
+  # Each inner list represents a group of files to be analyzed together
+  file_groups:
+    - ["./results/all_prediction_results.csv", "./results/all_prediction_results.csv"]
+    - ["./results/all_prediction_results1.csv", "./results/all_prediction_results1.csv"]
+  
+  # Directory list configuration (used when type is 'directories')
+  # The system will match same-named files across directories
+  dir_list:
+    - "path/to/dir1"
+    - "path/to/dir2"
+    - "path/to/dir3"
+
+# Output configuration
+output:
+  # Path to output JSON file
+  path: "./results/icc_results.json"
+
+# Processing configuration
+# Number of processes to use (null/None for using all available CPU cores)
+processes: null
+
+# Debug mode (enables additional logging)
+debug: false 

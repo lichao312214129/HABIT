@@ -38,68 +38,55 @@ python scripts/app_of_machine_learning.py --config <config_file_path> --mode pre
 
 ```yaml
 # 数据和输出路径
-input: <输入数据文件路径>
+input:
+  - path: <输入数据文件路径>
+    name: <特征名称前缀，默认为空>
+    subject_id_col: <患者ID列名>
+    label_col: <标签列名>
+    features: <可选的特定特征列表>
 output: <输出目录路径>
-label: <标签列名>
-task_type: <任务类型，分类(classification)或回归(regression)>
-random_seed: <随机种子>
-```
-
-### 数据预处理配置
-
-```yaml
-preprocessing:
-  drop_features: <要删除的特征列表>
-  drop_features_with_nan_rate: <删除空值率超过此阈值的特征>
-  drop_correlated_features: <是否删除高相关特征>
-  correlation_threshold: <相关性阈值>
-  one_hot_encode: <是否进行独热编码>
-  categorical_features: <分类特征列表>
-  impute_method: <缺失值填充方法>
 ```
 
 ### 数据分割配置
 
 ```yaml
-data_split:
-  method: <分割方法>
-  test_size: <测试集比例>
-  n_splits: <交叉验证折数>
-  group_col: <分组列名>
+# 数据分割方法：random(随机分割)、stratified(分层分割)或custom(自定义分割)
+split_method: <分割方法>
+test_size: <测试集比例>  # 当split_method为random或stratified时使用
+
+# 当split_method为custom时使用
+train_ids_file: <训练集ID文件路径>
+test_ids_file: <测试集ID文件路径>
 ```
 
 ### 特征选择配置
 
 ```yaml
-feature_selection:
-  method: <特征选择方法>
-  n_features: <选择的特征数量>
-  alpha: <alpha参数>
-  step: <步长>
+feature_selection_methods:
+  # 可以配置多个特征选择方法，它们将按顺序执行
+  - method: <特征选择方法名称>
+    params:
+      <参数1>: <值1>
+      <参数2>: <值2>
+      ...
 ```
 
 ### 机器学习模型配置
 
 ```yaml
 models:
-  - name: <模型名称>
-    type: <模型类型>
-    hyperparameters:
+  <模型名称>:
+    params:
       <参数1>: <值1>
       <参数2>: <值2>
       ...
-  - name: <模型名称2>
-    ...
 ```
 
-### 模型评估配置
+### 可视化和保存配置
 
 ```yaml
-evaluation:
-  metrics: <评估指标列表>
-  n_permutations: <置换测试次数>
-  generate_plots: <是否生成图表>
-  calibration: <是否进行校准>
+is_visualize: <是否生成性能可视化图表>
+is_save_model: <是否保存训练好的模型>
 ```
 
 ## 支持的数据预处理方法
@@ -112,42 +99,82 @@ evaluation:
 - `constant`: 常数填充
 - `knn`: K近邻填充
 
-### 特征选择方法
+## 支持的特征选择方法
 
-- `univariate`: 单变量特征选择（基于统计测试）
-- `rfe`: 递归特征消除
-- `lasso`: Lasso正则化特征选择
-- `pca`: 主成分分析
-- `variance_threshold`: 方差阈值特征选择
-- `boruta`: Boruta算法特征选择
-- `none`: 不进行特征选择
+### ICC (Intraclass Correlation Coefficient) 方法
+- `method: 'icc'`: 基于特征重复性选择特征
+- 参数:
+  - `icc_results`: ICC结果JSON文件路径
+  - `keys`: 使用的ICC结果键
+  - `threshold`: 保留特征的最小ICC值(0.0-1.0)
+
+### VIF (Variance Inflation Factor) 方法
+- `method: 'vif'`: 移除具有高多重共线性的特征
+- 参数:
+  - `max_vif`: 最大允许的VIF值
+  - `visualize`: 是否生成VIF值可视化
+
+### 相关性方法
+- `method: 'correlation'`: 移除高度相关的特征
+- 参数:
+  - `threshold`: 相关性阈值
+  - `method`: 相关性计算方法('pearson', 'spearman'或'kendall')
+  - `visualize`: 是否生成相关性热图
+
+### ANOVA方法
+- `method: 'anova'`: 基于ANOVA F值选择特征
+- 参数:
+  - `n_features_to_select`: 选择的顶级特征数量
+  - `plot_importance`: 是否绘制特征重要性
+
+### mRMR (Minimum Redundancy Maximum Relevance) 方法
+- `method: 'mrmr'`: 选择与目标高度相关但特征间冗余度低的特征
+- 参数:
+  - `n_features_to_select`: 选择的特征数量
+  - `visualize`: 是否生成选定特征的可视化
+
+### LASSO (L1正则化) 方法
+- `method: 'lasso'`: 使用L1正则化进行特征选择
+- 参数:
+  - `cv`: 选择最优alpha的交叉验证折数
+  - `n_alphas`: 尝试的alpha值数量
+  - `random_state`: 随机种子
+  - `visualize`: 是否生成特征系数可视化
+
+### Boruta方法
+- `method: 'boruta'`: 基于随机森林重要性的全相关特征选择
+- 参数:
+  - `n_estimators`: 随机森林中的树数量
+  - `max_iter`: 最大迭代次数
+  - `random_state`: 随机种子
+  - `include_tentative`: 是否包括暂定重要特征
+
+### 单变量逻辑回归方法
+- `method: 'univariate_logistic'`: 基于单变量逻辑回归p值选择特征
+- 参数:
+  - `threshold`: 特征选择的最大p值阈值
+
+### 逐步特征选择方法
+- `method: 'stepwise'`: 使用AIC/BIC准则进行逐步特征选择
+- 参数:
+  - `Rhome`: R安装路径（逐步选择需要）
+  - `direction`: 逐步选择方向：'forward'(前向)、'backward'(后向)或'both'(双向)
 
 ## 支持的机器学习模型
 
 ### 分类模型
 
-- `logistic_regression`: 逻辑回归
-- `svm`: 支持向量机
-- `random_forest`: 随机森林
-- `xgboost`: XGBoost
-- `lightgbm`: LightGBM
-- `decision_tree`: 决策树
-- `naive_bayes`: 朴素贝叶斯
-- `knn`: K近邻分类器
-- `neural_network`: 神经网络
+- `LogisticRegression`: 逻辑回归
+- `SVM`: 支持向量机
+- `RandomForest`: 随机森林
+- `XGBoost`: XGBoost
 
 ### 回归模型
 
-- `linear_regression`: 线性回归
-- `lasso`: Lasso回归
-- `ridge`: Ridge回归
-- `elastic_net`: 弹性网络回归
-- `svr`: 支持向量回归
-- `random_forest_regressor`: 随机森林回归
-- `xgboost_regressor`: XGBoost回归
-- `lightgbm_regressor`: LightGBM回归
-- `decision_tree_regressor`: 决策树回归
-- `knn_regressor`: K近邻回归
+- `LinearRegression`: 线性回归
+- `Ridge`: Ridge回归
+- `RandomForestRegressor`: 随机森林回归
+- `XGBoostRegressor`: XGBoost回归
 
 ## 支持的评估指标
 
@@ -176,116 +203,88 @@ evaluation:
 
 ```yaml
 # 基本配置
-input: ./data/radiomics_features.csv
+input:
+  - path: ./data/radiomics_features.csv
+    name: ''
+    subject_id_col: 'subjID'
+    label_col: 'label'
+    features: []
 output: ./results/classification_results
-label: label
-task_type: classification
-random_seed: 42
-
-# 数据预处理
-preprocessing:
-  drop_features: ["patient_id", "date", "image_path"]
-  drop_features_with_nan_rate: 0.2
-  drop_correlated_features: true
-  correlation_threshold: 0.9
-  one_hot_encode: true
-  categorical_features: ["gender", "stage"]
-  impute_method: mean
 
 # 数据分割
-data_split:
-  method: stratified
-  test_size: 0.3
-  n_splits: 5
+split_method: 'custom'  # 使用自定义分割方法
+train_ids_file: './data/train_ids.txt'  # 训练集ID文件
+test_ids_file: './data/test_ids.txt'  # 测试集ID文件
 
 # 特征选择
-feature_selection:
-  method: lasso
-  n_features: 20
-  alpha: 0.01
-  step: 1
+feature_selection_methods:
+  - method: 'univariate_logistic'  # 基于单变量逻辑回归p值选择特征
+    params:
+      threshold: 0.1  # p值阈值，低于此值的特征被保留
+      
+  - method: 'stepwise'  # 逐步特征选择
+    params:
+      Rhome: 'E:/software/R'  # R安装路径
+      direction: 'backward'  # 使用后向选择方法
 
 # 模型配置
 models:
-  - name: LogisticRegression
-    type: logistic_regression
-    hyperparameters:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
       C: 1.0
-      penalty: l2
-      solver: liblinear
-      
-  - name: RandomForest
-    type: random_forest
-    hyperparameters:
-      n_estimators: 100
-      max_depth: 5
-      min_samples_split: 5
-      
-  - name: XGBoost
-    type: xgboost
-    hyperparameters:
-      n_estimators: 100
-      max_depth: 3
-      learning_rate: 0.1
+      penalty: "l2"
+      solver: "lbfgs"
 
-# 评估配置
-evaluation:
-  metrics: ["accuracy", "precision", "recall", "f1", "roc_auc"]
-  n_permutations: 100
-  generate_plots: true
-  calibration: true
+# 可视化和保存配置
+is_visualize: true  # 生成性能可视化图表
+is_save_model: true  # 保存训练好的模型
 ```
 
 ### 回归任务
 
 ```yaml
 # 基本配置
-input: ./data/radiomics_features.csv
+input:
+  - path: ./data/radiomics_features.csv
+    name: ''
+    subject_id_col: 'subjID'
+    label_col: 'survival_time'
+    features: []
 output: ./results/regression_results
-label: survival_time
-task_type: regression
-random_seed: 42
-
-# 数据预处理
-preprocessing:
-  drop_features: ["patient_id", "date", "image_path"]
-  drop_features_with_nan_rate: 0.2
-  drop_correlated_features: true
-  correlation_threshold: 0.9
-  impute_method: median
 
 # 数据分割
-data_split:
-  method: random
-  test_size: 0.3
-  n_splits: 5
+split_method: 'random'
+test_size: 0.3
+random_state: 42
 
 # 特征选择
-feature_selection:
-  method: rfe
-  n_features: 15
+feature_selection_methods:
+  - method: 'lasso'
+    params:
+      cv: 5
+      n_alphas: 100
+      random_state: 42
+      visualize: true
 
 # 模型配置
 models:
-  - name: LinearRegression
-    type: linear_regression
+  LinearRegression:
+    params: {}
     
-  - name: Ridge
-    type: ridge
-    hyperparameters:
+  Ridge:
+    params:
       alpha: 1.0
       
-  - name: RandomForestRegressor
-    type: random_forest_regressor
-    hyperparameters:
+  RandomForestRegressor:
+    params:
       n_estimators: 100
       max_depth: 5
 
-# 评估配置
-evaluation:
-  metrics: ["r2", "mae", "rmse"]
-  n_permutations: 100
-  generate_plots: true
+# 可视化和保存配置
+is_visualize: true
+is_save_model: true
 ```
 
 ## 执行流程
@@ -293,13 +292,13 @@ evaluation:
 ### 训练模式
 
 1. 读取配置文件和数据
-2. 数据预处理（填充缺失值、删除高相关特征等）
-3. 数据分割（训练集、测试集或交叉验证）
+2. 数据预处理
+3. 数据分割（训练集、测试集）
 4. 特征标准化/归一化
 5. 特征选择
 6. 模型训练（支持多个模型同时训练）
 7. 模型评估（计算性能指标、生成图表）
-8. 模型解释（特征重要性分析）
+8. 模型解释（特征重要性分析、SHAP值）
 9. 保存模型和结果
 
 ### 预测模式

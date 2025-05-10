@@ -50,8 +50,7 @@ class HabitatFeatureExtractor:
                 out_dir=None,
                 n_processes=None,
                 habitat_pattern=None,
-                voxel_cutoff=10,
-                extract_ith=False):
+                voxel_cutoff=10):
         """
         Initialize the habitat feature extractor
         
@@ -64,7 +63,6 @@ class HabitatFeatureExtractor:
             n_processes: Number of processes to use
             habitat_pattern: Pattern for matching habitat files
             voxel_cutoff: Voxel threshold for filtering small regions in MSI feature calculation
-            extract_ith: Whether to extract ITH scores
         """
         # Feature extraction related parameters
         self.params_file_of_non_habitat = params_file_of_non_habitat
@@ -75,7 +73,6 @@ class HabitatFeatureExtractor:
         self._habitat_pattern = habitat_pattern
         self.n_habitats = None  # Initialize as None, will be read from file later
         self.voxel_cutoff = voxel_cutoff
-        self.extract_ith = extract_ith
         
         # Process number settings
         if n_processes is None:
@@ -87,13 +84,7 @@ class HabitatFeatureExtractor:
         self.basic_extractor = BasicFeatureExtractor()
         self.radiomics_extractor = HabitatRadiomicsExtractor()
         self.msi_extractor = MSIFeatureExtractor(voxel_cutoff=voxel_cutoff)
-        if self.extract_ith:
-            self.ith_extractor = ITHFeatureExtractor(
-                params_file=self.params_file_of_non_habitat,
-                window_size=3,
-                margin_size=3,
-                voxel_cutoff=voxel_cutoff
-            )
+        self.ith_extractor = ITHFeatureExtractor()
         
         # Setup logging
         self._setup_logging()
@@ -114,7 +105,7 @@ class HabitatFeatureExtractor:
         log_file = os.path.join(self.out_dir, f'habitat_analysis_{timestr}.log')
         # Configure logging
         logging.basicConfig(
-            level=logging.ERROR,
+            level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
@@ -122,7 +113,7 @@ class HabitatFeatureExtractor:
             ]
         )
         
-        logging.error(f"Log file will be saved to: {log_file}")
+        logging.info(f"Log file will be saved to: {log_file}")
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""
@@ -157,93 +148,92 @@ class HabitatFeatureExtractor:
 
         return images_paths, habitat_paths, mask_paths
 
-    def process_subject(self, subj, images_paths, habitat_paths, mask_paths=None):
+    def process_subject(self, subj, images_paths, habitat_paths, mask_paths=None, feature_types=None):
         """Process a single subject for habitat feature extraction"""
         subject_features = {}
         imgs = list(images_paths[subj].keys())
+        
+        # 如果未指定特征类型，则默认提取所有特征
+        if feature_types is None:
+            feature_types = ['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith_score']
 
         # Extract basic habitat features
-        try:
-            non_radiomics_features = self.basic_extractor.get_non_radiomics_features(habitat_paths[subj])
-            subject_features['non_radiomics_features'] = non_radiomics_features
-        except Exception as e:
-            logging.error(f"Error processing basic features for subject {subj}: {str(e)}")
-            subject_features['non_radiomics_features'] = {"error": str(e)}
+        if 'non_radiomics' in feature_types:
+            try:
+                non_radiomics_features = self.basic_extractor.get_non_radiomics_features(habitat_paths[subj])
+                subject_features['non_radiomics_features'] = non_radiomics_features
+            except Exception as e:
+                logging.error(f"Error processing basic features for subject {subj}: {str(e)}")
+                subject_features['non_radiomics_features'] = {"error": str(e)}
 
         # Extract traditional radiomics features from original images
-        subject_features['tranditional_radiomics_features'] = {}
-        for img in imgs:
-            try:
-                subject_features['tranditional_radiomics_features'][img] = \
-                    self.radiomics_extractor.extract_tranditional_radiomics(
-                    images_paths[subj][img], 
-                    habitat_paths[subj], 
-                    subj,
-                    self.params_file_of_non_habitat
-                )
-            except Exception as e:
-                logging.error(f"Error processing traditional radiomics features for subject {subj}, image {img}: {str(e)}")
-                subject_features['tranditional_radiomics_features'][img] = {"error": str(e)}
-
-        # Extract radiomics features from the whole habitat map
-        try:
-            radiomics_features_of_whole_habitat = self.radiomics_extractor.extract_radiomics_features_for_whole_habitat(
-                habitat_paths[subj], 
-                self.params_file_of_habitat
-            )
-            subject_features['radiomics_features_of_whole_habitat_map'] = radiomics_features_of_whole_habitat
-        except Exception as e:
-            logging.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
-            subject_features['radiomics_features_of_whole_habitat_map'] = {"error": str(e)}
-        
-        # Extract radiomics features from each habitat
-        subject_features['radiomics_features_from_each_habitat'] = {}
-        for img in imgs:
-            try:
-                habitat_features = self.radiomics_extractor.extract_radiomics_features_from_each_habitat(
-                    habitat_paths[subj], 
-                    images_paths[subj][img], 
-                    subj, 
-                    self.params_file_of_non_habitat
-                )
-                subject_features['radiomics_features_from_each_habitat'][img] = habitat_features
-            except Exception as e:
-                logging.error(f"Error processing radiomics features for subject {subj}, habitat {img}: {str(e)}")
-                subject_features['radiomics_features_from_each_habitat'][img] = {"error": str(e)}
-                
-        # Extract MSI features
-        try:
-            n_habitats = self._get_n_habitats_from_csv()
-            msi_features = self.msi_extractor.extract_MSI_features(habitat_paths[subj], n_habitats, subj)
-            subject_features['msi_features'] = msi_features
-        except Exception as e:
-            logging.error(f"Error processing MSI features for subject {subj}: {str(e)}")
-            subject_features['msi_features'] = {"error": str(e)}
-            
-        # Extract ITH features if enabled and masks are available
-        if self.extract_ith and mask_paths and subj in mask_paths:
-            subject_features['ith_features'] = {}
+        if 'traditional' in feature_types:
+            subject_features['tranditional_radiomics_features'] = {}
             for img in imgs:
                 try:
-                    # Create visualization directory if needed
-                    viz_dir = None
-                    if self.out_dir:
-                        viz_dir = os.path.join(self.out_dir, 'ith_visualizations')
-                        
-                    # Extract ITH features
-                    ith_features = self.ith_extractor.extract_ith_features(
-                        images_paths[subj][img],
-                        mask_paths[subj][img],
-                        out_dir=viz_dir
+                    subject_features['tranditional_radiomics_features'][img] = \
+                        self.radiomics_extractor.extract_tranditional_radiomics(
+                        images_paths[subj][img], 
+                        habitat_paths[subj], 
+                        subj,
+                        self.params_file_of_non_habitat
                     )
-                    subject_features['ith_features'][img] = ith_features
                 except Exception as e:
-                    logging.error(f"Error processing ITH features for subject {subj}, image {img}: {str(e)}")
-                    subject_features['ith_features'][img] = {"error": str(e), "ith_score": 0.0}
+                    logging.error(f"Error processing traditional radiomics features for subject {subj}, image {img}: {str(e)}")
+                    subject_features['tranditional_radiomics_features'][img] = {"error": str(e)}
+
+        # Extract radiomics features from the whole habitat map
+        if 'whole_habitat' in feature_types:
+            try:
+                radiomics_features_of_whole_habitat = self.radiomics_extractor.extract_radiomics_features_for_whole_habitat(
+                    habitat_paths[subj], 
+                    self.params_file_of_habitat
+                )
+                subject_features['radiomics_features_of_whole_habitat_map'] = radiomics_features_of_whole_habitat
+            except Exception as e:
+                logging.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
+                subject_features['radiomics_features_of_whole_habitat_map'] = {"error": str(e)}
+        
+        # Extract radiomics features from each habitat
+        if 'each_habitat' in feature_types:
+            subject_features['radiomics_features_from_each_habitat'] = {}
+            for img in imgs:
+                try:
+                    habitat_features = self.radiomics_extractor.extract_radiomics_features_from_each_habitat(
+                        habitat_paths[subj], 
+                        images_paths[subj][img], 
+                        subj, 
+                        self.params_file_of_non_habitat
+                    )
+                    subject_features['radiomics_features_from_each_habitat'][img] = habitat_features
+                except Exception as e:
+                    logging.error(f"Error processing radiomics features for subject {subj}, habitat {img}: {str(e)}")
+                    subject_features['radiomics_features_from_each_habitat'][img] = {"error": str(e)}
+                
+        # Extract MSI features
+        if 'msi' in feature_types:
+            try:
+                n_habitats = self._get_n_habitats_from_csv()
+                msi_features = self.msi_extractor.extract_MSI_features(habitat_paths[subj], n_habitats, subj)
+                subject_features['msi_features'] = msi_features
+            except Exception as e:
+                logging.error(f"Error processing MSI features for subject {subj}: {str(e)}")
+                subject_features['msi_features'] = {"error": str(e)}
+            
+        # Extract ITH features if enabled and masks are available
+        if 'ith_score' in feature_types:
+            subject_features['ith_features'] = {}
+            try:
+                # Extract ITH features
+                ith_features = self.ith_extractor.extract_ith_features(habitat_paths[subj])
+                subject_features['ith_features'] = ith_features
+            except Exception as e:
+                logging.error(f"Error processing ITH features for subject {subj}: {str(e)}")
+                subject_features['ith_features'] = {"error": str(e)}
 
         return subj, subject_features
 
-    def extract_features(self, images_paths, habitat_paths, mask_paths=None):
+    def extract_features(self, images_paths, habitat_paths, mask_paths=None, feature_types=None):
         """Extract habitat features for all subjects"""
         features = {}
         subjs = list(set(images_paths.keys()) & set(habitat_paths.keys()))
@@ -256,7 +246,8 @@ class HabitatFeatureExtractor:
         
         with multiprocessing.Pool(processes=self.n_processes) as pool:
             process_func = partial(self.process_subject, images_paths=images_paths, 
-                                 habitat_paths=habitat_paths, mask_paths=mask_paths)
+                                 habitat_paths=habitat_paths, mask_paths=mask_paths,
+                                 feature_types=feature_types)
             
             total = len(subjs)
             progress_bar = CustomTqdm(total=total, desc="Extracting Features")
@@ -278,7 +269,7 @@ class HabitatFeatureExtractor:
             
         # 提取特征并直接处理为CSV
         images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
-        feature_data = self.extract_features(images_paths, habitat_paths, mask_paths)
+        feature_data = self.extract_features(images_paths, habitat_paths, mask_paths, feature_types)
         
         # 直接生成CSV (如果未指定特征类型则不生成)
         if feature_types:
@@ -306,7 +297,7 @@ class HabitatFeatureExtractor:
             if 'msi' in feature_types:
                 self._extract_msi_features()
                 
-            if 'ith' in feature_types and self.extract_ith:
+            if 'ith_score' in feature_types:
                 self._extract_ith_features()
             
         return self
@@ -550,7 +541,7 @@ class HabitatFeatureExtractor:
         """Extract ITH features and save as CSV file"""
         logging.info("Starting extraction of ITH features")
         subjs = list(self.data.keys())
-        ith_features_list = []
+        ith_features_list = {}
         total = len(subjs)
         
         progress_bar = CustomTqdm(total=total, desc="Processing ITH Features")
@@ -560,44 +551,17 @@ class HabitatFeatureExtractor:
             try:
                 if 'ith_features' in self.data.get(subj):
                     # Process all images
-                    imgs = list(self.data.get(subj).get('ith_features').keys())
-                    
-                    for img in imgs:
-                        features = self.data.get(subj).get('ith_features').get(img)
-                        if 'error' not in features:
-                            features_df = pd.DataFrame.from_dict(features, orient='index').T
-                            # Add subject and image info
-                            features_df['subject_id'] = subj
-                            features_df['image_id'] = img
-                            features_df.set_index(['subject_id', 'image_id'], inplace=True)
-                            ith_features_list.append(features_df)
-                        else:
-                            logging.error(f"Error extracting ITH features for subject {subj}, image {img}: {features['error']}")
-                            # Create empty DataFrame if there are successful extractions
-                            if len(ith_features_list) > 0:
-                                empty_df = FeatureUtils.create_empty_dataframe_like(
-                                    ith_features_list[0].reset_index().drop(['subject_id', 'image_id'], axis=1),
-                                    index=[0]
-                                )
-                                empty_df['subject_id'] = subj
-                                empty_df['image_id'] = img
-                                empty_df.set_index(['subject_id', 'image_id'], inplace=True)
-                                ith_features_list.append(empty_df)
-                else:
-                    logging.error(f"No ITH features data for subject {subj}")
+                    value = self.data.get(subj).get('ith_features')
+                    ith_features_list[subj] = value
             except Exception as e:
                 logging.error(f"Error processing ITH features for subject {subj}: {str(e)}")
         
         if len(ith_features_list) > 0:
-            ith_features_df = pd.concat(ith_features_list)
-            out_file = os.path.join(self.out_dir, "ith_features.csv")
+            ith_features_df = pd.DataFrame.from_dict(ith_features_list, orient='index')
+            out_file = os.path.join(self.out_dir, "ith_scores.csv")
             ith_features_df.to_csv(out_file)
             logging.info(f"ITH features saved to {out_file}")
             
-            # Also create a simplified version with just subject_id and ITH scores
-            ith_scores_df = ith_features_df.reset_index()[['subject_id', 'image_id', 'ith_score']]
-            ith_scores_df.to_csv(os.path.join(self.out_dir, "ith_scores.csv"), index=False)
-            logging.info(f"ITH scores saved to {os.path.join(self.out_dir, 'ith_scores.csv')}")
             
             return ith_features_df
         else:

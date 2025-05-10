@@ -914,38 +914,3 @@ class HabitatFeatureExtractor:
         else:
             logging.error("没有有效的MSI特征数据")
             return None
-
-def parse_arguments():
-    """解析命令行参数"""
-    parser = argparse.ArgumentParser(description='生境特征提取工具')
-    
-    # 特征提取相关参数
-    parser.add_argument('--params_file_of_non_habitat', type=str,
-                        help='用于从原始影像提取组学特征的参数文件')
-    parser.add_argument('--params_file_of_habitat', type=str,
-                        help='用于从生境影像提取组学特征的参数文件')
-    parser.add_argument('--raw_img_folder', type=str,
-                        help='原始影像根目录')
-    parser.add_argument('--habitats_map_folder', type=str,
-                        help='生境图根目录')
-    parser.add_argument('--out_dir', type=str,
-                        help='输出目录')
-    parser.add_argument('--n_processes', type=int,
-                        help='使用的进程数')
-    parser.add_argument('--habitat_pattern', type=str,
-                        choices=['*_habitats.nrrd', '*_habitats_remapped.nrrd'],
-                        help='生境文件匹配模式')
-    parser.add_argument('--voxel_cutoff', type=int, default=10,
-                        help='MSI特征计算时过滤小区域的体素阈值')
-    
-    # 特征解析相关参数
-    parser.add_argument('--feature_types', nargs='+', type=str,
-                        choices=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi'],
-                        help='要解析的特征类型')
-    parser.add_argument('--n_habitats', type=int,
-                        help='要处理的生境数量（如不指定，将从habitats.csv中自动读取）')
-    parser.add_argument('--mode', type=str, default='both',
-                        choices=['extract', 'parse', 'both'],
-                        help='运行模式：仅提取特征(extract)、仅解析特征(parse)或两者都做(both)')
-    
-    return parser.parse_args()

@@ -20,7 +20,8 @@ feature_types:  # Types of features to extract
   - whole_habitat
   - each_habitat
   - msi
-  # TODO ith index
+  - ith_score
+
 
 n_habitats:   # Number of habitats to process (empty for auto detection)
 

@@ -114,6 +114,15 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         sys.argv.extend(['--config', './config/config_machine_learning.yaml',
                          '--mode', 'train'])
+        
+        # 预测新数据
+        # sys.argv.extend(['--config', './config/config_machine_learning.yaml',
+        #                  '--mode', 'predict',
+        #                  '--model', './results/model_package.pkl',
+        #                  '--data', 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv',
+        #                  '--output', './results/'
+        #                  ])
+
     
     main()
     # Example command:
