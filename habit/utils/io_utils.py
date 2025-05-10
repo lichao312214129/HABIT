@@ -9,6 +9,8 @@ import SimpleITK as sitk
 import numpy as np
 from typing import Dict, Any, Optional, List
 import yaml
+import logging
+from datetime import datetime
 
 
 
@@ -318,3 +320,30 @@ def validate_config(config: Dict[str, Any], required_keys: Optional[List[str]] =
         raise ValueError(f"Configuration missing required keys: {missing_keys}")
     
     return True 
+
+def setup_logging(out_dir: str, debug: bool = False) -> None:
+    """
+    Set up logging configuration
+    
+    Args:
+        out_dir (str): Output directory for log files
+        debug (bool, optional): Whether to enable debug mode. Defaults to False.
+    """
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.join(out_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Set up logging configuration
+    log_level = logging.DEBUG if debug else logging.INFO
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(log_dir, f"habit_{timestamp}.log")
+    
+    # Configure logging
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
+    ) 

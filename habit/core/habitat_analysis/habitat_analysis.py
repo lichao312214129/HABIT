@@ -19,22 +19,21 @@ from habit.utils.io_utils import (get_image_and_mask_paths,
                             save_habitat_image)
 
 from habit.utils.visualization import plot_cluster_scores
+from habit.utils.log_utils import get_logger
 
 from habit.core.habitat_analysis.clustering.base_clustering import get_clustering_algorithm
 from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
-    get_default_methods,
-    get_method_description,
-    get_optimization_direction
+    get_default_methods
 )
 from habit.core.habitat_analysis.features.feature_preprocessing import preprocess_features
-
+from .features.feature_extractor_factory import create_feature_extractor
 # Ignore warnings
 warnings.simplefilter('ignore')
 
 # Import progress utilities
-from habit.utils.progress_utils import CustomTqdm, tqdm_with_message
+from habit.utils.progress_utils import CustomTqdm
 
 
 class HabitatAnalysis:
@@ -94,6 +93,9 @@ class HabitatAnalysis:
         self.data_dir = os.path.abspath(root_folder)
         self.out_dir = os.path.abspath(out_folder or os.path.join(self.data_dir, "habitats_output"))
 
+        # Initialize logger
+        self.logger = get_logger(self.out_dir, "HabitatAnalysis")
+
         # Clustering parameters
         self.supervoxel_method = supervoxel_clustering_method
         self.habitat_method = habitat_clustering_method
@@ -109,15 +111,15 @@ class HabitatAnalysis:
         default_methods = get_default_methods(habitat_clustering_method)
 
         if self.verbose:
-            print(f"Validation methods supported by clustering method '{habitat_clustering_method}': {', '.join(valid_selection_methods)}")
-            print(f"Default validation methods: {', '.join(default_methods)}")
+            self.logger.info(f"Validation methods supported by clustering method '{habitat_clustering_method}': {', '.join(valid_selection_methods)}")
+            self.logger.info(f"Default validation methods: {', '.join(default_methods)}")
 
         # Check validity of habitat_cluster_selection_method parameter
         if habitat_cluster_selection_method is None:
             # Use default methods
             self.habitat_cluster_selection_method = default_methods
             if self.verbose:
-                print(f"No clustering evaluation method specified, using default methods: {', '.join(default_methods)}")
+                self.logger.info(f"No clustering evaluation method specified, using default methods: {', '.join(default_methods)}")
         elif isinstance(habitat_cluster_selection_method, str):
             # Check if single method is valid
             if is_valid_method_for_algorithm(habitat_clustering_method, habitat_cluster_selection_method.lower()):
@@ -127,9 +129,9 @@ class HabitatAnalysis:
                 original_method = habitat_cluster_selection_method
                 self.habitat_cluster_selection_method = default_methods
                 if self.verbose:
-                    print(f"WarninValidation methodg: Validation method '{original_method}' is invalid for clustering method '{habitat_clustering_method}'")
-                    print(f"Available validation methods: {', '.join(valid_selection_methods)}")
-                    print(f"Using default methods: {', '.join(default_methods)}")
+                    self.logger.warning(f"Validation method '{original_method}' is invalid for clustering method '{habitat_clustering_method}'")
+                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
+                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
         elif isinstance(habitat_cluster_selection_method, list):
             # Check if multiple methods are valid
             valid_methods = []
@@ -144,21 +146,21 @@ class HabitatAnalysis:
             if valid_methods:
                 self.habitat_cluster_selection_method = valid_methods
                 if invalid_methods and self.verbose:
-                    print(f"Warning: The following validation methods are invalid for clustering method '{habitat_clustering_method}': {', '.join(invalid_methods)}")
-                    print(f"Only using valid methods: {', '.join(valid_methods)}")
+                    self.logger.warning(f"The following validation methods are invalid for clustering method '{habitat_clustering_method}': {', '.join(invalid_methods)}")
+                    self.logger.info(f"Only using valid methods: {', '.join(valid_methods)}")
             else:
                 # If no valid methods, use default methods
                 self.habitat_cluster_selection_method = default_methods
                 if self.verbose:
-                    print(f"Warning: All specified validation methods are invalid for clustering method '{habitat_clustering_method}'")
-                    print(f"Available validation methods: {', '.join(valid_selection_methods)}")
-                    print(f"Using default methods: {', '.join(default_methods)}")
+                    self.logger.warning(f"All specified validation methods are invalid for clustering method '{habitat_clustering_method}'")
+                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
+                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
         else:
             # Parameter type error, use default methods
             self.habitat_cluster_selection_method = default_methods
             if self.verbose:
-                print(f"Warning: Clustering evaluation method parameter type error, should be string or list")
-                print(f"Using default methods: {', '.join(default_methods)}")
+                self.logger.warning("Clustering evaluation method parameter type error, should be string or list")
+                self.logger.info(f"Using default methods: {', '.join(default_methods)}")
 
 
         # Parameters
@@ -181,7 +183,7 @@ class HabitatAnalysis:
 
         # 检查supervoxel_level配置（可选）
         if 'supervoxel_level' in self.feature_config and self.verbose:
-            print("Note: supervoxel_level feature configuration is detected but not used in the current implementation.")
+            self.logger.info("Note: supervoxel_level feature configuration is detected but not used in the current implementation.")
 
         # Create output directory
         os.makedirs(self.out_dir, exist_ok=True)
@@ -196,11 +198,11 @@ class HabitatAnalysis:
         voxel_config = self.feature_config['voxel_level']
         if isinstance(voxel_config, dict) and 'image_names' not in voxel_config:
             if self.verbose:
-                print("Image names not provided in voxel_level config, automatically detecting from data directory...")
+                self.logger.info("Image names not provided in voxel_level config, automatically detecting from data directory...")
             image_names = detect_image_names(self.images_paths)
             self.feature_config['voxel_level']['image_names'] = image_names
             if self.verbose:
-                print(f"Detected image names: {image_names}")
+                self.logger.info(f"Detected image names: {image_names}")
 
         # Initialize feature extractor
         self._init_feature_extractor()
@@ -264,10 +266,7 @@ class HabitatAnalysis:
             self.supervoxel_method_name, self.supervoxel_params, self.supervoxel_processing_steps = self.expression_parser.parse(supervoxel_config)
 
             if self.verbose:
-                print("supervoxel_level feature configuration detected but not used in current implementation")
-
-        # 创建单图像特征提取器
-        from .features.feature_extractor_factory import create_feature_extractor
+                self.logger.info("supervoxel_level feature configuration detected but not used in current implementation")
 
         # 创建单图像特征提取器字典
         self.single_image_extractors = {}
@@ -427,7 +426,7 @@ class HabitatAnalysis:
 
         # Extract features and perform supervoxel clustering for each subject
         if self.verbose:
-            print("Extracting features and performing supervoxel clustering...")
+            self.logger.info("Extracting features and performing supervoxel clustering...")
 
         # Results storage
         mean_features_all = pd.DataFrame()
@@ -435,11 +434,11 @@ class HabitatAnalysis:
         # Use multiprocessing to process subjects
         if self.n_processes > 1 and len(subjects) > 1:
             if self.verbose:
-                print(f"Using {self.n_processes} processes for parallel processing...")
+                self.logger.info(f"Using {self.n_processes} processes for parallel processing...")
 
             with multiprocessing.Pool(processes=self.n_processes) as pool:
                 if self.verbose:
-                    print("Starting parallel processing of all subjects...")
+                    self.logger.info("Starting parallel processing of all subjects...")
                 results_iter = pool.imap_unordered(self._process_subject, subjects)
 
                 # 使用自定义进度条显示进度
@@ -449,7 +448,7 @@ class HabitatAnalysis:
                     progress_bar.update(1)
 
                 if self.verbose:
-                    print(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
+                    self.logger.info(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
         else:
             # Single process processing, use custom progress bar
             progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
@@ -490,11 +489,11 @@ class HabitatAnalysis:
             # Use multiprocessing to extract supervoxel features for all subjects
             if self.n_processes > 1 and len(subjects) > 1:
                 if self.verbose:
-                    print(f"Using {self.n_processes} processes for supervoxel feature extraction...")
+                    self.logger.info(f"Using {self.n_processes} processes for supervoxel feature extraction...")
 
                 with multiprocessing.Pool(processes=self.n_processes) as pool:
                     if self.verbose:
-                        print("Starting parallel supervoxel feature extraction...")
+                        self.logger.info("Starting parallel supervoxel feature extraction...")
 
                     # Use imap_unordered to process subjects in parallel
                     results_iter = pool.imap_unordered(self.extract_supervoxel_features, subjects)
@@ -531,11 +530,11 @@ class HabitatAnalysis:
             optimal_n_clusters = self.best_n_clusters
             scores = None
             if self.verbose:
-                print(f"Using specified best number of clusters: {optimal_n_clusters}")
+                self.logger.info(f"Using specified best number of clusters: {optimal_n_clusters}")
         else:
             # Otherwise find optimal number of clusters
             if self.verbose:
-                print("Finding optimal number of clusters...")
+                self.logger.info("Finding optimal number of clusters...")
 
             try:
                 # Ensure cluster number range is reasonable
@@ -545,7 +544,7 @@ class HabitatAnalysis:
                 if max_clusters <= min_clusters:
                     # If range is invalid, use default minimum value
                     if self.verbose:
-                        print(f"Warning: Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
+                        self.logger.warning(f"Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
                     optimal_n_clusters = min_clusters
                     scores = None
                 else:
@@ -581,33 +580,33 @@ class HabitatAnalysis:
                                 )
 
                                 if self.verbose:
-                                    print(f"聚类评分图已保存至 {save_path}")
+                                    self.logger.info(f"聚类评分图已保存至 {save_path}")
                             except Exception as e:
                                 # 捕获绘图过程中的错误
                                 if self.verbose:
-                                    print(f"绘制聚类评分图时出错: {str(e)}")
-                                    print("继续执行其他流程...")
+                                    self.logger.error(f"绘制聚类评分图时出错: {str(e)}")
+                                    self.logger.info("继续执行其他流程...")
                     except Exception as e:
                         # If optimal number of clusters cannot be found, use default value and warn user
                         if self.verbose:
-                            print(f"Warning: Failed to find optimal number of clusters: {str(e)}")
-                            print("Using default number of clusters")
+                            self.logger.warning(f"Failed to find optimal number of clusters: {str(e)}")
+                            self.logger.info("Using default number of clusters")
                         optimal_n_clusters = min(3, max_clusters)  # Use a reasonable default value
                         scores = None
             except Exception as e:
                 # Catch all exceptions, use default value
                 if self.verbose:
-                    print(f"Error: Exception occurred when determining optimal number of clusters: {str(e)}")
-                    print("Using default number of clusters")
+                    self.logger.error(f"Exception occurred when determining optimal number of clusters: {str(e)}")
+                    self.logger.info("Using default number of clusters")
                 optimal_n_clusters = 3  # Default to 3 clusters
                 scores = None
 
             if self.verbose:
-                print(f"Optimal number of clusters: {optimal_n_clusters}")
+                self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
 
         # Perform population-level clustering using optimal number of clusters
         if self.verbose:
-            print("Performing population-level clustering...")
+            self.logger.info("Performing population-level clustering...")
 
 
         # Reinitialize clustering algorithm with optimal number of clusters
@@ -624,7 +623,7 @@ class HabitatAnalysis:
         # Save results
         if save_results_csv:
             if self.verbose:
-                print("Saving results...")
+                self.logger.info("Saving results...")
 
             # 创建配置字典
             config = {
@@ -772,11 +771,7 @@ class HabitatAnalysis:
 
         # 获取outdir中的所有supervoxel文件
         if self.verbose:
-            print("Extracting supervoxel-level features...")
-
-        # 创建特征提取器
-        from .features.feature_extractor_factory import create_feature_extractor
-
+            self.logger.info("Extracting supervoxel-level features...")
 
         # 先处理单图像
         processed_images = {}

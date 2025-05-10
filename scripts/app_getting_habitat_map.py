@@ -247,8 +247,8 @@ if __name__ == "__main__":
     # 如果没有命令行参数，添加默认的调试用参数
     if len(sys.argv) == 1:
         # 添加默认的配置文件路径，方便调试
-        sys.argv.extend(["--config", "./config/config_kmeans.yaml", "--debug"])
-        print(f"调试模式：使用默认配置文件 'config_kmeans.yaml'")
+        sys.argv.extend(["--config", "./config/config_getting_habitat.yaml", "--debug"])
+        print(f"调试模式：使用默认配置文件 'config_getting_habitat.yaml'")
     
     try:
         main()

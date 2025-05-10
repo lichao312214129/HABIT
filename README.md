@@ -1,6 +1,6 @@
 # HABIT - Habitat Analysis Based on Imaging Traits
 
-HABIT是一个用于医学图像生境分析的综合工具包，提供了放射组学特征提取、生境聚类分析、机器学习模型构建等功能。本工具包采用模块化设计，遵循Python最佳实践规范。
+HABIT是一个用于医学图像生境分析的综合工具包，提供了生境聚类分析、生境特征提取、机器学习模型构建等功能。
 
 HABIT implements a two-step clustering approach to identify distinct tumor habitats based on imaging features:
 1. Individual-level clustering: Divide each tumor into supervoxels

@@ -14,49 +14,18 @@ from habit.core.habitat_analysis.feature_extraction.new_extractor import Habitat
 from habit.utils.io_utils import load_config, setup_logging
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments for habitat feature extraction
     
     Returns:
-        argparse.Namespace: Parsed command line arguments
+        argparse.Namespace: Parsed command line arguments containing only config file path
     """
     parser = argparse.ArgumentParser(description='Habitat Feature Extraction Tool')
     
-    # Configuration file argument
-    parser.add_argument('--config', type=str, help='Path to configuration file')
-    
-    # Parameter files
-    parser.add_argument('--params_file_of_non_habitat', type=str,
-                        help='Parameter file for extracting radiomics features from original images')
-    parser.add_argument('--params_file_of_habitat', type=str,
-                        help='Parameter file for extracting radiomics features from habitat maps')
-    
-    # Data directories
-    parser.add_argument('--raw_img_folder', type=str,
-                        help='Root directory containing original images')
-    parser.add_argument('--habitats_map_folder', type=str,
-                        help='Root directory containing habitat maps')
-    parser.add_argument('--out_dir', type=str,
-                        help='Output directory for results')
-    
-    # Feature extraction parameters
-    parser.add_argument('--n_processes', type=int, default=4,
-                        help='Number of processes to use for parallel processing')
-    parser.add_argument('--habitat_pattern', type=str, default='*_habitats.nrrd',
-                        choices=['*_habitats.nrrd', '*_habitats_remapped.nrrd'],
-                        help='Pattern for matching habitat files')
-    
-    # Feature type parameters
-    parser.add_argument('--feature_types', nargs='+', type=str,
-                        default=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi'],
-                        choices=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi'],
-                        help='Types of features to extract')
-    parser.add_argument('--n_habitats', type=int, default=0,
-                        help='Number of habitats to process (0 for auto detection)')
-    parser.add_argument('--mode', type=str, default='both',
-                        choices=['extract', 'parse', 'both'],
-                        help='Operation mode: extract features only, parse features only, or both')
+    # Configuration file argument - now the only required argument
+    parser.add_argument('--config', type=str, required=True, 
+                        help='Path to YAML configuration file with extraction parameters')
     
     # Debug parameter
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')
@@ -64,7 +33,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def validate_config(config):
+def validate_config(config: dict) -> bool:
     """
     Validate configuration parameters
     
@@ -126,7 +95,7 @@ def validate_config(config):
     return True
 
 
-def print_config_summary(config):
+def print_config_summary(config: dict) -> None:
     """
     Print a summary of the configuration
     
@@ -139,12 +108,11 @@ def print_config_summary(config):
     logging.info(f"原始图像目录: {config.get('raw_img_folder')}")
     logging.info(f"生境图目录: {config.get('habitats_map_folder')}")
     logging.info(f"输出目录: {config.get('out_dir')}")
-    logging.info(f"生境文件匹配模式: {config.get('habitat_pattern')}")
+    logging.info(f"生境文件匹配模式: {config.get('habitat_pattern', '*_habitats.nrrd')}")
     logging.info(f"需要提取的特征类型: {', '.join(config.get('feature_types', []))}")
-    logging.info(f"操作模式: {config.get('mode', 'both')}")
     logging.info(f"进程数量: {config.get('n_processes', 4)}")
     
-    if 'n_habitats' in config and config['n_habitats'] > 0:
+    if 'n_habitats' in config and config['n_habitats'] is not None:
         logging.info(f"生境数量: {config['n_habitats']}")
     else:
         logging.info("生境数量: 自动检测")
@@ -153,7 +121,7 @@ def print_config_summary(config):
     logging.info("=========================")
 
 
-def run_extractor(config):
+def run_extractor(config: dict) -> bool:
     """
     Run the habitat feature extractor with the provided configuration
     
@@ -185,8 +153,7 @@ def run_extractor(config):
         start_time = time.time()
         extractor.run(
             feature_types=config['feature_types'],
-            n_habitats=config.get('n_habitats'),
-            mode=config.get('mode', 'both')
+            n_habitats=config.get('n_habitats', 0)
         )
         end_time = time.time()
         
@@ -213,48 +180,18 @@ def main() -> None:
     # Parse command line arguments
     args = parse_args()
     
-    # Determine configuration source
-    config = None
-    
-    # Try to build configuration directly from command line arguments
-    if (args.params_file_of_non_habitat and args.params_file_of_habitat and
-        args.raw_img_folder and args.habitats_map_folder and args.out_dir):
+    try:
+        # Load configuration from YAML file
+        config = load_config(args.config)
         
-        config = {
-            'params_file_of_non_habitat': args.params_file_of_non_habitat,
-            'params_file_of_habitat': args.params_file_of_habitat,
-            'raw_img_folder': args.raw_img_folder,
-            'habitats_map_folder': args.habitats_map_folder,
-            'out_dir': args.out_dir,
-            'n_processes': args.n_processes,
-            'habitat_pattern': args.habitat_pattern,
-            'feature_types': args.feature_types,
-            'mode': args.mode,
-            'debug': args.debug
-        }
-        
-        if args.n_habitats:
-            config['n_habitats'] = args.n_habitats
+        # Add debug flag from command line
+        if args.debug:
+            config['debug'] = True
             
-    # If a configuration file is provided, load from configuration file
-    elif args.config:
-        try:
-            config = load_config(args.config)
-            # Command line arguments will override configuration file
-            for key, value in vars(args).items():
-                if value is not None and key != 'config':
-                    config[key] = value
-        except Exception as e:
-            print(f"配置文件加载错误: {str(e)}")
-            return
-    
-    # If not enough configuration information
-    if not config:
-        print("错误: 请提供必要的参数或配置文件")
-        print("使用方法示例:")
-        print("python app_extracting_habitat_features.py --params_file_of_non_habitat parameter.yaml --params_file_of_habitat parameter_habitat.yaml --raw_img_folder raw_images --habitats_map_folder habitat_maps --out_dir results")
-        print("或者:")
-        print("python app_extracting_habitat_features.py --config config.yaml")
+    except Exception as e:
+        print(f"配置文件加载错误: {str(e)}")
+        print("请提供有效的YAML配置文件, 例如:")
+        print("python app_extracting_habitat_features.py --config config/extract_features_config.yaml")
         return
     
     # Set up logging
@@ -280,19 +217,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # # 开发模式：当没有命令行参数时，使用默认值
+    # 开发模式：当没有命令行参数时，使用默认配置文件
     if len(sys.argv) == 1:
-        print("调试模式：使用默认参数")
+        print("调试模式：使用默认配置文件")
         sys.argv.extend([
-            '--params_file_of_non_habitat', './config/parameter.yaml',
-            '--params_file_of_habitat', './config/parameter_habitat.yaml',
-            '--raw_img_folder', 'H:\\Registration_ICC_structured_test',
-            '--habitats_map_folder', 'F:\\work\\research\\radiomics_TLSs\\data\\results_420',
-            '--out_dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_420\\parsed_features',
-            '--n_processes', '4',
-            '--habitat_pattern', '*_habitats.nrrd',
-            '--feature_types', 'traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi',
-            '--mode', 'both',
-            '--debug'
+            '--config', './config/config_extract_features.yaml'
         ])
     main()

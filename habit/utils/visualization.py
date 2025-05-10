@@ -29,7 +29,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         show: Whether to display the figure
         dpi: Image resolution
     """
-    from ..clustering.cluster_validation_methods import get_method_description, get_optimization_direction
+    from habit.core.habitat_analysis.clustering.cluster_validation_methods import get_method_description, get_optimization_direction
     
     # If methods is None, use all methods in scores_dict
     if methods is None:

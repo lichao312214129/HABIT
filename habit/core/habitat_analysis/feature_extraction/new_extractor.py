@@ -17,13 +17,11 @@ from pathlib import Path
 import warnings
 import multiprocessing
 from functools import partial
-import argparse
-import sys
 import pandas as pd
 from typing import Dict, List, Optional, Union
 
-from ....utils.io_utils import get_image_and_mask_paths
-from ..utils.progress_utils import CustomTqdm
+from habit.utils.io_utils import get_image_and_mask_paths
+from habit.utils.progress_utils import CustomTqdm
 from .basic_features import BasicFeatureExtractor
 from .habitat_radiomics import HabitatRadiomicsExtractor
 from .msi_features import MSIFeatureExtractor
@@ -41,7 +39,7 @@ class HabitatFeatureExtractor:
     2. Radiomic features of habitats within the entire ROI
     3. Number of disconnected regions and volume percentage for each habitat
     4. MSI (Mutual Spatial Integrity) features from habitat maps
-    5. ITH (Intratumoral Heterogeneity) scores from habitat maps
+    5. ITH (Intratumoral Heterogeneity) index from habitat maps
     """
     
     def __init__(self, 
@@ -252,14 +250,10 @@ class HabitatFeatureExtractor:
         
         if not subjs:
             logging.error("No matching subjects found between original images and habitat maps")
-            return self
+            return features
             
         print(f"**************Starting habitat feature extraction for {len(subjs)} subjects using {self.n_processes} processes**************")
         
-        temp_dir = os.path.join(self.out_dir, "temp")
-        if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
-            
         with multiprocessing.Pool(processes=self.n_processes) as pool:
             process_func = partial(self.process_subject, images_paths=images_paths, 
                                  habitat_paths=habitat_paths, mask_paths=mask_paths)
@@ -270,59 +264,52 @@ class HabitatFeatureExtractor:
                 features[subj] = subject_features
                 progress_bar.update(1)
                 
-                if (i + 1) % self.save_every_n_files == 0:
-                    temp_file = os.path.join(temp_dir, f"features_temp_{i+1}.npy")
-                    np.save(temp_file, features)
-                    
-        for temp_file in os.listdir(temp_dir):
-            os.remove(os.path.join(temp_dir, temp_file))
-        os.rmdir(temp_dir)
-            
-        out_file = os.path.join(self.out_dir, "habitats_features.npy")
-        np.save(out_file, features)
-        print(f"Features saved to {out_file}")
-        return self
+        return features
 
-    def parse_features(self, feature_types: List[str], n_habitats: Optional[int] = None):
-        """Parse habitat features to CSV files"""
+    def run(self, feature_types: Optional[List[str]] = None, n_habitats: Optional[int] = None):
+        """Run the complete analysis pipeline
+        
+        Args:
+            feature_types: Types of features to extract
+            n_habitats: Number of habitats to process (None for auto detection)
+        """
         if not self.out_dir:
-            raise ValueError("Output directory must be specified to parse features")
+            raise ValueError("Output directory must be specified to run the analysis")
             
-        try:
-            self.data = np.load(os.path.join(self.out_dir, "habitats_features.npy"), allow_pickle=True).item()
-            logging.info(f"Successfully loaded data from habitats_features.npy")
-        except Exception as e:
-            logging.error(f"Error loading data from habitats_features.npy: {str(e)}")
-            raise
-
-        # If n_habitats is not specified, try to read from CSV file
-        if n_habitats is None:
-            n_habitats = self._get_n_habitats_from_csv()
+        # 提取特征并直接处理为CSV
+        images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
+        feature_data = self.extract_features(images_paths, habitat_paths, mask_paths)
         
-        logging.info(f"Using habitat count: {n_habitats}")
-        self.n_habitats = n_habitats
+        # 直接生成CSV (如果未指定特征类型则不生成)
+        if feature_types:
+            # 如果未指定n_habitats则自动检测
+            if n_habitats is None:
+                n_habitats = self._get_n_habitats_from_csv()
+                
+            logging.info(f"Using habitat count: {n_habitats}")
+            self.n_habitats = n_habitats
+            self.data = feature_data
             
-        results = {}
-        
-        if 'traditional' in feature_types:
-            results['traditional'] = self._extract_traditional_radiomics()
+            # 根据指定的特征类型生成CSV
+            if 'traditional' in feature_types:
+                self._extract_traditional_radiomics()
+                
+            if 'non_radiomics' in feature_types:
+                self._extract_non_radiomics_features(n_habitats)
+                
+            if 'whole_habitat' in feature_types:
+                self._extract_radiomics_features_for_whole_habitat_map()
+                
+            if 'each_habitat' in feature_types:
+                self._extract_radiomics_features_from_each_habitat(n_habitats)
+                
+            if 'msi' in feature_types:
+                self._extract_msi_features()
+                
+            if 'ith' in feature_types and self.extract_ith:
+                self._extract_ith_features()
             
-        if 'non_radiomics' in feature_types:
-            results['non_radiomics'] = self._extract_non_radiomics_features(n_habitats)
-            
-        if 'whole_habitat' in feature_types:
-            results['whole_habitat'] = self._extract_radiomics_features_for_whole_habitat_map()
-            
-        if 'each_habitat' in feature_types:
-            results['each_habitat'] = self._extract_radiomics_features_from_each_habitat(n_habitats)
-            
-        if 'msi' in feature_types:
-            results['msi'] = self._extract_msi_features()
-            
-        if 'ith' in feature_types and self.extract_ith:
-            results['ith'] = self._extract_ith_features()
-            
-        return results
+        return self
 
     def _extract_traditional_radiomics(self):
         """Extract traditional radiomics features from original images"""
@@ -368,24 +355,45 @@ class HabitatFeatureExtractor:
         """Extract basic habitat features (number of disconnected regions and volume ratio)"""
         logging.info("Starting extraction of basic habitat features")
         subjs = list(self.data.keys())
+        
+        # 定义列名：num_habitats + 每个生境的区域数量和体积比例
         n1 = [f"{i}_num_regions" for i in range(1, n_habitats+1)]
         n2 = [f"{i}_volume_ratio" for i in range(1, n_habitats+1)]
-        non_radiomics_features = pd.DataFrame(index=subjs, columns=['num_habitats']+n1+n2)
+        columns = ['num_habitats'] + n1 + n2
+        
+        non_radiomics_features = pd.DataFrame(index=subjs, columns=columns)
         total = len(subjs)
         
         progress_bar = CustomTqdm(total=total, desc="Processing Basic Habitat Features")
         for i, subj in enumerate(subjs):
             progress_bar.update(1)
             
-            fd = FeatureUtils.flatten_dict(self.data.get(subj).get('non_radiomics_features'))
-            for fn in non_radiomics_features.columns:
-                try:
-                    non_radiomics_features.loc[subj, fn] = fd.get(fn)
-                except Exception as e:
-                    logging.error(f"Error processing feature {fn} for subject {subj}: {str(e)}")
-                    # Set feature to NaN
-                    non_radiomics_features.loc[subj, fn] = np.nan
+            try:
+                # 获取基本特征数据
+                features = self.data.get(subj).get('non_radiomics_features')
+                
+                # 处理num_habitats
+                non_radiomics_features.loc[subj, 'num_habitats'] = features.get('num_habitats', 0)
+                
+                # 处理每个生境的特征
+                for habitat_id in range(1, n_habitats+1):
+                    habitat_data = features.get(habitat_id, {})
+                    
+                    # 区域数量
+                    num_regions_col = f"{habitat_id}_num_regions"
+                    if num_regions_col in columns:
+                        non_radiomics_features.loc[subj, num_regions_col] = habitat_data.get('num_regions', 0)
+                    
+                    # 体积比例
+                    volume_ratio_col = f"{habitat_id}_volume_ratio"
+                    if volume_ratio_col in columns:
+                        non_radiomics_features.loc[subj, volume_ratio_col] = habitat_data.get('volume_ratio', 0.0)
+            except Exception as e:
+                logging.error(f"Error processing basic habitat features for subject {subj}: {str(e)}")
+                # 设置所有特征为NaN
+                non_radiomics_features.loc[subj, :] = np.nan
 
+        # 保存到CSV文件
         out_file = os.path.join(self.out_dir, "habitat_basic_features.csv")
         non_radiomics_features.to_csv(out_file, index=True)
         logging.info(f"Basic habitat features saved to {out_file}")
@@ -595,93 +603,3 @@ class HabitatFeatureExtractor:
         else:
             logging.error("No valid ITH features data")
             return None
-
-    def run(self, feature_types: Optional[List[str]] = None, n_habitats: Optional[int] = None, mode: str = 'both'):
-        """Run the complete analysis pipeline"""
-        # Feature extraction
-        if self.out_dir and (mode == 'extract' or mode == 'both'):
-            images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
-            self.extract_features(images_paths, habitat_paths, mask_paths)
-            
-        # Feature parsing
-        if feature_types and self.out_dir and (mode == 'parse' or mode == 'both'):
-            self.parse_features(feature_types, n_habitats)
-            
-        return self
-
-def parse_arguments():
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description='Habitat Feature Extraction Tool')
-    
-    # Feature extraction parameters
-    parser.add_argument('--params_file_of_non_habitat', type=str,
-                        help='Parameter file for extracting radiomic features from raw images')
-    parser.add_argument('--params_file_of_habitat', type=str,
-                        help='Parameter file for extracting radiomic features from habitat images')
-    parser.add_argument('--raw_img_folder', type=str,
-                        help='Root directory of raw images')
-    parser.add_argument('--habitats_map_folder', type=str,
-                        help='Root directory of habitat maps')
-    parser.add_argument('--out_dir', type=str,
-                        help='Output directory')
-    parser.add_argument('--n_processes', type=int,
-                        help='Number of processes to use')
-    parser.add_argument('--habitat_pattern', type=str,
-                        choices=['*_habitats.nrrd', '*_habitats_remapped.nrrd'],
-                        help='Pattern for matching habitat files')
-    parser.add_argument('--voxel_cutoff', type=int, default=10,
-                        help='Voxel threshold for filtering small regions in MSI feature calculation')
-    parser.add_argument('--extract_ith', action='store_true',
-                        help='Extract ITH scores')
-    
-    # Feature parsing parameters
-    parser.add_argument('--feature_types', nargs='+', type=str,
-                        choices=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith'],
-                        help='Types of features to parse')
-    parser.add_argument('--n_habitats', type=int,
-                        help='Number of habitats to process (if not specified, will be read from habitats.csv)')
-    parser.add_argument('--mode', type=str, default='both',
-                        choices=['extract', 'parse', 'both'],
-                        help='Run mode: extract features only (extract), parse features only (parse), or both')
-    
-    return parser.parse_args()
-
-if __name__ == "__main__":
-    # Use default values if no command line arguments are provided
-    if len(sys.argv) == 1:
-        sys.argv.extend([
-            '--params_file_of_non_habitat', 'F:\\work\\research\\radiomics_TLSs\\code_for_habitat_analysis\\parameter.yaml',
-            '--params_file_of_habitat', 'F:\\work\\research\\radiomics_TLSs\\code_for_habitat_analysis\\parameter_habitat.yaml',
-            '--raw_img_folder', 'H:\\lessThan50AndNoMacrovascularInvasion_structured',
-            '--habitats_map_folder', 'F:\\work\\research\\radiomics_TLSs\\data\\results_kmeans_0402_4clusters_test',
-            '--out_dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_kmeans_0402_4clusters_test\\parsed_features',
-            '--n_processes', '4',
-            '--habitat_pattern', '*_habitats.nrrd',
-            '--voxel_cutoff', '10',
-            '--extract_ith',
-            '--feature_types', 'traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith',
-            '--mode', 'both'
-        ])
-    
-    # Parse command line arguments
-    args = parse_arguments()
-    
-    # Create feature extractor instance and run
-    s = time.time()
-    extractor = HabitatFeatureExtractor(
-        params_file_of_non_habitat=args.params_file_of_non_habitat,
-        params_file_of_habitat=args.params_file_of_habitat,
-        raw_img_folder=args.raw_img_folder,
-        habitats_map_folder=args.habitats_map_folder,
-        out_dir=args.out_dir,
-        n_processes=args.n_processes,
-        habitat_pattern=args.habitat_pattern,
-        voxel_cutoff=args.voxel_cutoff,
-        extract_ith=args.extract_ith
-    )
-    extractor.run(feature_types=args.feature_types, n_habitats=args.n_habitats, mode=args.mode)
-    e = time.time()
-    print(f"Total time: {e - s:.2f} seconds") 
-
-    # Command line form (using real sys parameters):
-    # python new_extractor.py --params_file_of_non_habitat parameter.yaml --params_file_of_habitat parameter_habitat.yaml --raw_img_folder G:\lessThan50AndNoMacrovascularInvasion_structured --habitats_map_folder F:\work\research\radiomics_TLSs\data\results_kmeans_0401 --out_dir F:\work\research\radiomics_TLSs\data\results_kmeans_0401\parsed_features --n_processes 10 --habitat_pattern *_habitats.nrrd --feature_types traditional non_radiomics whole_habitat each_habitat msi ith --extract_ith --mode parse 

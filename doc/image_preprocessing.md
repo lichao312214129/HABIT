@@ -37,10 +37,10 @@ The resampling step adjusts the voxel spacing of images to a target resolution. 
 
 ```yaml
 resample:
-  images: ["t1", "t2", "flair"]
+  images: [t1, t2, flair]
   target_spacing: [1.0, 1.0, 1.0]
-  img_mode: "linear"
-  padding_mode: "border"
+  img_mode: linear
+  padding_mode: border
   align_corners: false
 ```
 
@@ -91,11 +91,11 @@ The registration step aligns images to a reference image using ANTs (Advanced No
 
 ```yaml
 registration:
-  images: ["t2", "flair"]
-  fixed_image: "t1"
-  type_of_transform: "SyN"
-  metric: "MI"
-  optimizer: "gradient_descent"
+  images: [t2, flair]
+  fixed_image: t1
+  type_of_transform: SyN
+  metric: MI
+  optimizer: gradient_descent
   use_mask: true
 ```
 
@@ -115,7 +115,7 @@ The N4 bias field correction step corrects intensity inhomogeneity in medical im
 
 ```yaml
 n4_correction:
-  images: ["t1", "t2", "flair"]
+  images: [t1, t2, flair]
   num_fitting_levels: 4
   num_iterations: [50, 50, 50, 50]
   convergence_threshold: 0.001

@@ -1,7 +1,7 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: H:\\Registration_ICC_structured_test
+data_dir: F:\work\research\radiomics_TLSs\data\results_420\processed_images
 out_dir: F:\\work\\research\\radiomics_TLSs\\data\\results_420
 
 # Preprocessing settings
@@ -27,7 +27,6 @@ FeatureConstruction:
       timestamps: F:\\work\\research\\radiomics_TLSs\\data\\scan_time_of_phases.xlsx
 
   supervoxel_level:
-    # TODO: method include mean_voxel_features, names using mean value of voxel features in each supervoxel
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     # method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file), supervoxel_radiomics(PVP, params_file), supervoxel_radiomics(delay_3min, params_file))
     method: mean_voxel_features()
