@@ -55,11 +55,11 @@ class BatchProcessor:
             verbose (bool): Whether to print verbose output. Defaults to True.
         """
         self.config = load_config(config_path)
-        self._setup_logging(log_level)
         self.output_root = Path(self.config["out_dir"])
         self.output_root.mkdir(parents=True, exist_ok=True)
         # 不再创建全局预处理器，而是为每个样本单独创建
         self.verbose = verbose
+        self._setup_logging(log_level)
         
         # Use config value or default to 0 if not specified or invalid
         try:
@@ -81,11 +81,30 @@ class BatchProcessor:
         Args:
             log_level (str): Logging level.
         """
-        logging.basicConfig(
-            level=getattr(logging, log_level.upper()),
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
+        # Setup logger
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(getattr(logging, log_level.upper()))
+        
+        # Clear any existing handlers
+        self.logger.handlers = []
+        
+        # Add console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        self.logger.addHandler(console_handler)
+        
+        # Add file handler
+        log_dir = self.output_root / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "processing.log"
+        file_handler = logging.FileHandler(str(log_file), encoding='utf-8')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        
+        self.logger.info(f"Logging initialized. Log file: {log_file}")
         
     def _process_single_subject(self, subject_data):
         """处理单个样本的数据。

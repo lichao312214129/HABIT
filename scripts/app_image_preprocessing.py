@@ -4,7 +4,6 @@ import platform
 import traceback
 import logging
 import multiprocessing
-from pathlib import Path
 from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
 # 设置日志记录
