@@ -79,3 +79,19 @@ class ImageConverter:
         if dtype is not None or device is not None:
             tensor = tensor.to(dtype=dtype, device=device)
         return tensor 
+    
+    @staticmethod
+    def ants_2_itk(image):
+        imageITK = sitk.GetImageFromArray(image.numpy().transpose(2, 1, 0))
+        imageITK.SetOrigin(image.origin)
+        imageITK.SetSpacing(image.spacing)
+        imageITK.SetDirection(image.direction.reshape(9))
+        return imageITK
+
+    @staticmethod
+    def itk_2_ants(image):
+        image_ants = ants.from_numpy(sitk.GetArrayFromImage(image).transpose(2, 1, 0), 
+                                    origin=image.GetOrigin(), 
+                                    spacing=image.GetSpacing(), 
+                                    direction=np.array(image.GetDirection()).reshape(3, 3))
+        return image_ants

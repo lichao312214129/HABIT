@@ -338,13 +338,11 @@ model_file: /path/to/save/model.pkl
 }
 ```
 
-## TODO
-1、resample有问题，mask也要一起resample，注意插值区别：FIXED
-2、n4偏移场矫正有问题：FIXED
-3、windows 调用Dataloader并行处理问题。可能需要定义到main中，但还是希望其它方式解决。实在不行就自己定义多进程
-4、特征构建使用monai的compose模块，但要注意保留原始值
-`
-class CopyKey(MapTransform):
+## TODO list
+- windows 调用Dataloader并行处理问题。可能需要定义到main中，但还是希望其它方式解决。实在不行就自己定义多进程
+- 特征构建使用monai的compose模块，但要注意保留原始值
+```
+class YourTransform(MapTransform):
     def __init__(self, source_key, target_key):
         self.source_key = source_key
         self.target_key = target_key
@@ -352,8 +350,7 @@ class CopyKey(MapTransform):
     def __call__(self, data):
         data[self.target_key] = data[self.source_key].clone()  # 深拷贝
         return data
-`
-5、支持每一步图像预处理后保存处理后的图像，目前只支持所有处理后保存
+```
 
 ## 联系方式
 

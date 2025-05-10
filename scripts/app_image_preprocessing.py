@@ -3,6 +3,7 @@ import os
 import platform
 import traceback
 import logging
+import multiprocessing
 from pathlib import Path
 from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
@@ -34,6 +35,11 @@ def main():
         
         # 初始化处理器
         try:
+            # 在Windows上强制使用spawn方法创建进程
+            if platform.system() == 'Windows':
+                multiprocessing.set_start_method('spawn', force=True)
+                logger.info("在Windows上设置多进程启动方法为'spawn'")
+            
             processor = BatchProcessor(config_path=config_path)
             logger.info("成功初始化BatchProcessor")
         except Exception as e:

@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
 import torch
 import numpy as np
 import SimpleITK as sitk
@@ -6,167 +6,131 @@ from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
 from ...utils.image_converter import ImageConverter
 
-@PreprocessorFactory.register("N4_bias_correction")
-class N4CorrectionPreprocessor(BasePreprocessor):
-    """N4 bias field correction preprocessor.
+@PreprocessorFactory.register("n4_correction")
+class N4BiasFieldCorrection(BasePreprocessor):
+    """Apply N4 bias field correction to images using SimpleITK.
     
-    This preprocessor performs N4 bias field correction on medical images.
-    Compatible with MONAI's LoadImaged and EnsureChannelFirstd transforms.
-    Automatically skips processing of mask/label keys.
+    This preprocessor applies N4 bias field correction to correct for intensity
+    inhomogeneity in medical images.
     """
     
     def __init__(
         self,
         keys: Union[str, List[str]],
-        shrink_factor: int = 8,
-        convergence_threshold: float = 0.005,
-        max_iterations: int = 5,
-        num_fitting_levels: int = 2,
-        bias_field_fwhm: float = 0.2,
-        wiener_filter_noise: float = 0.02,
-        num_histogram_bins: int = 100,
+        mask_keys: Optional[Union[str, List[str]]] = None,
+        num_fitting_levels: int = 4,
+        num_iterations: List[int] = None,
+        convergence_threshold: float = 0.001,
         allow_missing_keys: bool = False,
         **kwargs
     ):
-        """Initialize the N4 correction preprocessor.
+        """Initialize the N4 bias field correction preprocessor.
         
         Args:
-            keys (Union[str, List[str]]): Keys of the corresponding items to be transformed.
-                Any keys containing 'mask' or 'label' will be automatically skipped.
-            shrink_factor (int): Factor by which to shrink the input image. Defaults to 8.
-            convergence_threshold (float): Threshold for convergence. Defaults to 0.005.
-            max_iterations (int): Maximum number of iterations. Defaults to 5.
-            num_fitting_levels (int): Number of fitting levels. Defaults to 2.
-            bias_field_fwhm (float): FWHM of bias field. Defaults to 0.2.
-            wiener_filter_noise (float): Wiener filter noise level. Defaults to 0.02.
-            num_histogram_bins (int): Number of histogram bins. Defaults to 100.
+            keys (Union[str, List[str]]): Keys of the images to be corrected.
+            mask_keys (Optional[Union[str, List[str]]]): Keys of the masks to use for correction.
+                If None, no mask will be used.
+            num_fitting_levels (int): Number of fitting levels for the bias field correction.
+            num_iterations (List[int]): Number of iterations at each fitting level.
+                If None, will use [50] * num_fitting_levels.
+            convergence_threshold (float): Convergence threshold for the correction.
             allow_missing_keys (bool): If True, allows missing keys in the input data.
-            **kwargs: Additional parameters to pass to the N4 bias field correction algorithm.
+            **kwargs: Additional parameters for N4 correction.
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
-        self.shrink_factor = kwargs.pop('shrink_factor', shrink_factor)
-        self.convergence_threshold = kwargs.pop('convergence_threshold', convergence_threshold)
-        self.max_iterations = kwargs.pop('max_iterations', max_iterations)
-        self.num_fitting_levels = kwargs.pop('num_fitting_levels', num_fitting_levels)
-        self.bias_field_fwhm = kwargs.pop('bias_field_fwhm', bias_field_fwhm)
-        self.wiener_filter_noise = kwargs.pop('wiener_filter_noise', wiener_filter_noise)
-        self.num_histogram_bins = kwargs.pop('num_histogram_bins', num_histogram_bins)
-        self.kwargs = kwargs  # Store any remaining kwargs
         
-    def _is_mask_or_label(self, key: str) -> bool:
-        """Check if the key represents a mask or label.
+        # Convert single key to list
+        if isinstance(keys, str):
+            keys = [keys]
+        self.keys = keys
         
-        Args:
-            key (str): The key to check.
-            
-        Returns:
-            bool: True if the key represents a mask or label, False otherwise.
-        """
-        return 'mask' in key.lower() or 'label' in key.lower()
+        # Handle mask keys
+        if mask_keys is None:
+            self.mask_keys = None
+        else:
+            self.mask_keys = [mask_keys] if isinstance(mask_keys, str) else mask_keys
         
-    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Apply N4 bias field correction to the images.
+        # Set N4 parameters
+        self.num_fitting_levels = num_fitting_levels
+        self.num_iterations = num_iterations if num_iterations is not None else [50] * num_fitting_levels
+        self.convergence_threshold = convergence_threshold
         
-        Args:
-            data (Dict[str, Any]): Input data dictionary containing image and metadata from MONAI.
-            
-        Returns:
-            Dict[str, Any]: Data dictionary with bias-corrected images.
-        """
-        self._check_keys(data)
-        
-        for key in self.keys:
-            # Skip if key is missing and allowed to be missing
-            if key not in data:
-                if not self.allow_missing_keys:
-                    raise KeyError(f"Key '{key}' is missing in the data dictionary.")
-                continue
-                
-            # Skip processing if the key represents a mask or label
-            if self._is_mask_or_label(key):
-                continue
-                
-            # Get the image and metadata
-            image = data[key]  # Should be torch.Tensor from MONAI's LoadImaged
-            meta_dict = data[f"{key}_meta_dict"] if f"{key}_meta_dict" in data else None
-            
-            if meta_dict is None:
-                raise ValueError(f"Metadata for key {key} not found. Ensure LoadImaged is used before N4CorrectionPreprocessor.")
-            
-            # Convert to SimpleITK for N4 correction
-            array = ImageConverter.tensor_to_numpy(image)
-            # transpose the array to [Z,Y,X] order
-            array = np.transpose(array, (2, 1, 0))
-            sitk_image = sitk.GetImageFromArray(array)
-            print(f"sitk_image.shape: {sitk_image.GetSize()}")
-            
-            # Set metadata
-            if "spacing" in meta_dict:
-                sitk_image.SetSpacing(meta_dict["spacing"])
-            if "original_affine" in meta_dict:
-                affine = meta_dict["original_affine"]
-                if affine is not None:
-                    origin = affine[:3, 3].tolist()
-                    direction = affine[:3, :3].flatten().tolist()
-                    sitk_image.SetOrigin(origin)
-                    sitk_image.SetDirection(direction)
-                          
-            # Apply N4 correction
-            corrected_sitk_image = self._apply_n4_correction(sitk_image)
-            
-            # Convert back to numpy array
-            corrected_array = sitk.GetArrayFromImage(corrected_sitk_image)
-            # transpose the array to [Z,Y,X] order
-            corrected_array = np.transpose(corrected_array, (2, 1, 0))
-            
-            # Convert to torch tensor with same dtype and device as input
-            corrected_tensor = ImageConverter.numpy_to_tensor(corrected_array, dtype=image.dtype, device=image.device)
-            
-            # Update the data dictionary
-            data[key] = corrected_tensor
-            data[f"{key}_meta_dict"]["n4_corrected"] = True
-            
-        return data
-        
-    def _apply_n4_correction(
-        self,
-        image: sitk.Image
-    ) -> sitk.Image:
-        """Apply N4 bias field correction.
+    def _apply_n4_correction(self, 
+                           sitk_image: sitk.Image,
+                           sitk_mask: Optional[sitk.Image] = None) -> sitk.Image:
+        """Apply N4 bias field correction to a SimpleITK image.
         
         Args:
-            image (sitk.Image): Input image.
+            sitk_image (sitk.Image): Input SimpleITK image to correct
+            sitk_mask (Optional[sitk.Image]): Optional mask for the correction
             
         Returns:
-            sitk.Image: Bias-corrected image.
+            sitk.Image: Corrected SimpleITK image
         """
-        # Cast to float32 if needed
-        if image.GetPixelID() != sitk.sitkFloat32:
-            image = sitk.Cast(image, sitk.sitkFloat32)
-            
         # Create N4 bias field correction filter
-        corrector = sitk.N4BiasFieldCorrectionImageFilter()
+        n4_filter = sitk.N4BiasFieldCorrectionImageFilter()
         
         # Set parameters
-        corrector.SetConvergenceThreshold(self.convergence_threshold)
+        n4_filter.SetMaximumNumberOfIterations(self.num_iterations)
+        n4_filter.SetConvergenceThreshold(self.convergence_threshold)
+        n4_filter.SetNumberOfFittingLevels(self.num_fitting_levels)
         
-        # Set number of fitting levels and iterations
-        iterations = [self.max_iterations] * self.num_fitting_levels
-        corrector.SetMaximumNumberOfIterations(iterations)
-        
-        # Set parameters to control the B-spline fitting
-        corrector.SetBiasFieldFullWidthAtHalfMaximum(self.bias_field_fwhm)
-        corrector.SetWienerFilterNoise(self.wiener_filter_noise)
-        corrector.SetNumberOfHistogramBins(self.num_histogram_bins)
-        
-        try:
-            # Apply correction without using mask
-            corrected_image = corrector.Execute(image)
-        except RuntimeError as e:
-            print(f"N4 correction failed: {str(e)}")
-            print(f"Image pixel type: {image.GetPixelIDTypeAsString()}")
-            print(f"Image dimension: {image.GetDimension()}")
-            # Return original image if correction fails
-            return image
+        # Apply correction
+        if sitk_mask is not None:
+            corrected_image = n4_filter.Execute(sitk_image, sitk_mask)
+        else:
+            corrected_image = n4_filter.Execute(sitk_image)
             
-        return corrected_image 
+        return corrected_image
+        
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply N4 bias field correction to the specified images.
+        
+        Args:
+            data (Dict[str, Any]): Input data dictionary containing SimpleITK image objects.
+            
+        Returns:
+            Dict[str, Any]: Data dictionary with corrected images.
+        """
+        print("Applying N4 bias field correction...")
+        self._check_keys(data)
+        
+        # Process each image
+        for key in self.keys:
+            # Get SimpleITK image from data
+            sitk_image = data[key]
+            
+            # Ensure we have a SimpleITK image object
+            if not isinstance(sitk_image, sitk.Image):
+                print(f"Warning: {key} is not a SimpleITK Image object. Skipping.")
+                continue
+            
+            # Get corresponding mask if specified
+            sitk_mask = None
+            if self.mask_keys is not None:
+                mask_key = f"mask_{key}"
+                if mask_key in data:
+                    sitk_mask = data[mask_key]
+                    if not isinstance(sitk_mask, sitk.Image):
+                        print(f"Warning: {mask_key} is not a SimpleITK Image object. Using no mask.")
+                        sitk_mask = None
+            
+            try:
+                # Apply N4 correction
+                corrected_image = self._apply_n4_correction(sitk_image, sitk_mask)
+                
+                # Store the corrected image
+                data[key] = corrected_image
+                
+                # Update metadata
+                meta_key = f"{key}_meta_dict"
+                if meta_key not in data:
+                    data[meta_key] = {}
+                data[meta_key]["n4_corrected"] = True
+                
+            except Exception as e:
+                print(f"Error applying N4 correction to {key}: {e}")
+                if not self.allow_missing_keys:
+                    raise
+        
+        return data 
