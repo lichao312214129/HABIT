@@ -355,3 +355,124 @@ class YourTransform(MapTransform):
 ## 联系方式
 
 如有任何问题，请联系项目维护者 lichao19870617@163.com
+
+# HABIT - Medical Image Preprocessing Pipeline
+
+## Image Preprocessing Pipeline
+
+The HABIT preprocessing pipeline provides a comprehensive set of tools for medical image preprocessing, including resampling, registration, and N4 bias field correction.
+
+### Configuration File
+
+The preprocessing pipeline is configured using a YAML file. Here's an example configuration:
+
+```yaml
+data_dir: "/path/to/your/data"
+out_dir: "/path/to/output"
+
+Preprocessing:
+  resample:
+    images: [t1, t2, T2FLAIR]  # List of modalities to resample
+    target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in mm
+
+  registration:
+    images: [t2, T2FLAIR]  # Images to register
+    fixed_image: t1  # Reference image
+    type_of_transform: "SyN"  # Type of transformation
+    metric: "MI"  # Similarity metric
+    optimizer: "gradient_descent"  # Optimization method
+    use_mask: true  # Whether to use masks for registration
+
+```
+
+### Preprocessing Steps
+
+#### 1. Resampling
+
+Resamples images to a target voxel spacing.
+
+Parameters:
+- `target_spacing`: Target voxel spacing in mm (e.g., [1.0, 1.0, 1.0])
+- `img_mode`: Interpolation mode for images
+  - Options: "nearest", "linear", "bilinear", "bspline", "bicubic", "gaussian", "lanczos", "hamming", "cosine", "welch", "blackman"
+- `padding_mode`: Padding mode for out-of-bound values
+- `align_corners`: Whether to align corners
+
+#### 2. Registration
+
+Registers images to a reference image using ANTs.
+
+Parameters:
+- `fixed_image`: Key of the reference image to register to
+- `type_of_transform`: Type of transformation
+  - Options:
+    - "Rigid": Rigid transformation
+    - "Affine": Affine transformation
+    - "SyN": Symmetric normalization (deformable)
+    - "SyNRA": SyN + Rigid + Affine
+    - "SyNOnly": SyN without initial rigid/affine
+    - "TRSAA": Translation + Rotation + Scaling + Affine
+    - "Elastic": Elastic transformation
+    - "SyNCC": SyN with cross-correlation metric
+    - "SyNabp": SyN with mutual information metric
+    - "SyNBold": SyN optimized for BOLD images
+    - "SyNBoldAff": SyN + Affine for BOLD images
+    - "SyNAggro": SyN with aggressive optimization
+    - "TVMSQ": Time-varying diffeomorphism with mean square metric
+- `metric`: Similarity metric
+  - Options: "CC" (Cross-correlation), "MI" (Mutual information), "MeanSquares", "Demons"
+- `optimizer`: Optimization method
+  - Options: "gradient_descent", "lbfgsb", "amoeba"
+- `use_mask`: Whether to use masks for registration
+
+#### 3. N4 Bias Field Correction
+
+Corrects intensity inhomogeneity in medical images.
+
+Parameters:
+- `num_fitting_levels`: Number of fitting levels for the bias field correction
+- `num_iterations`: Number of iterations at each fitting level
+- `convergence_threshold`: Convergence threshold for the correction
+
+### Usage
+
+```python
+from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
+
+# Initialize the processor with your config file
+processor = BatchProcessor(config_path="./config/config.yaml")
+
+# Process all images
+processor.process_batch()
+```
+
+### Output Structure
+
+The processed images will be saved in the following structure:
+
+```
+out_dir/
+├── processed_images/
+│   ├── images/
+│   │   └── subject_id/
+│   │       ├── modality1/
+│   │       │   └── modality1.nii.gz
+│   │       └── modality2/
+│   │           └── modality2.nii.gz
+│   └── masks/
+│       └── subject_id/
+│           ├── modality1/
+│           │   └── mask_modality1.nii.gz
+│           └── modality2/
+│               └── mask_modality2.nii.gz
+└── logs/
+    └── processing.log
+```
+
+### Notes
+
+1. All images should be in NIfTI format (.nii.gz)
+2. Masks should be named with the prefix "mask_" followed by the modality name
+3. The pipeline will automatically handle both images and their corresponding masks
+4. Processing logs are saved in the `logs` directory
+5. The pipeline supports parallel processing for faster execution

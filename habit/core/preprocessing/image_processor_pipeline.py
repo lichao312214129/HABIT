@@ -22,7 +22,6 @@ from habit.utils.progress_utils import CustomTqdm
 from habit.utils.config_utils import load_config
 import multiprocessing
 import traceback
-from functools import partial
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
 
 
