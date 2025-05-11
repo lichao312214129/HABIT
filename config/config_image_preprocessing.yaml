@@ -1,0 +1,22 @@
+# Habitat Analysis Configuration
+
+# Data paths
+data_dir: H:\Registration_ICC_structured_test
+out_dir: F:\\work\\research\\radiomics_TLSs\\data\\results_420
+
+# Preprocessing settings
+Preprocessing:
+  resample:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    target_spacing: [2.0, 2.0, 2.0]  # Target voxel spacing in x, y, z
+
+  registration:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    fixed_image: PVP
+    moving_images: [pre_contrast, LAP, delay_3min]
+    type_of_transform: rigid  # support all ants registration methods
+    use_mask: true
+
+# General settings
+processes: 2  # Number of parallel processes
+random_state: 42  # Random seed for reproducibility

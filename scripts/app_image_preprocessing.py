@@ -4,6 +4,7 @@ import platform
 import traceback
 import logging
 import multiprocessing
+import argparse
 from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
 # 设置日志记录
@@ -17,7 +18,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger("app_preprocessing")
 
-def main():
+def parse_args():
+    """
+    Parse command line arguments using argparse
+    
+    Returns:
+        str: Path to the configuration file
+    """
+    parser = argparse.ArgumentParser(description='图像预处理程序')
+    parser.add_argument('-c', '--config', 
+                        type=str, 
+                        default="./config/config_image_preprocessing.yaml",
+                        help='配置文件路径')
+    return parser.parse_args()
+
+def main(config_path):
     try:
         # 记录系统信息
         logger.info(f"Python version: {sys.version}")
@@ -25,7 +40,6 @@ def main():
         logger.info(f"Current working directory: {os.getcwd()}")
         
         # 检查配置文件
-        config_path = "./config/config_kmeans.yaml"
         if not os.path.exists(config_path):
             logger.error(f"配置文件不存在: {config_path}")
             return
@@ -59,4 +73,13 @@ def main():
         logger.error(traceback.format_exc())
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 1:
+        config_path = "./config/config_image_preprocessing.yaml"
+    else:
+        # 检查是否使用了argparse格式的参数
+        if sys.argv[1].startswith('-'):
+            args = parse_args()
+            config_path = args.config
+        else:
+            config_path = sys.argv[1]
+    main(config_path)
