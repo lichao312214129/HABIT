@@ -1,3 +1,136 @@
+from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
+import torch
+import numpy as np
+import SimpleITK as sitk
+from .base_preprocessor import BasePreprocessor
+from .preprocessor_factory import PreprocessorFactory
+from ...utils.image_converter import ImageConverter
 
-import base64
-exec(base64.b64decode(b'ZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIEFueSwgT3B0aW9uYWwsIFVuaW9uLCBMaXN0LCBUdXBsZSwgU2VxdWVuY2UNCmltcG9ydCB0b3JjaA0KaW1wb3J0IG51bXB5IGFzIG5wDQppbXBvcnQgU2ltcGxlSVRLIGFzIHNpdGsNCmZyb20gLmJhc2VfcHJlcHJvY2Vzc29yIGltcG9ydCBCYXNlUHJlcHJvY2Vzc29yDQpmcm9tIC5wcmVwcm9jZXNzb3JfZmFjdG9yeSBpbXBvcnQgUHJlcHJvY2Vzc29yRmFjdG9yeQ0KZnJvbSAuLi51dGlscy5pbWFnZV9jb252ZXJ0ZXIgaW1wb3J0IEltYWdlQ29udmVydGVyDQoNCkBQcmVwcm9jZXNzb3JGYWN0b3J5LnJlZ2lzdGVyKCJuNF9jb3JyZWN0aW9uIikNCmNsYXNzIE40Qmlhc0ZpZWxkQ29ycmVjdGlvbihCYXNlUHJlcHJvY2Vzc29yKToNCiAgICAiIiJBcHBseSBONCBiaWFzIGZpZWxkIGNvcnJlY3Rpb24gdG8gaW1hZ2VzIHVzaW5nIFNpbXBsZUlUSy4NCiAgICANCiAgICBUaGlzIHByZXByb2Nlc3NvciBhcHBsaWVzIE40IGJpYXMgZmllbGQgY29ycmVjdGlvbiB0byBjb3JyZWN0IGZvciBpbnRlbnNpdHkNCiAgICBpbmhvbW9nZW5laXR5IGluIG1lZGljYWwgaW1hZ2VzLg0KICAgICIiIg0KICAgIA0KICAgIGRlZiBfX2luaXRfXygNCiAgICAgICAgc2VsZiwNCiAgICAgICAga2V5czogVW5pb25bc3RyLCBMaXN0W3N0cl1dLA0KICAgICAgICBtYXNrX2tleXM6IE9wdGlvbmFsW1VuaW9uW3N0ciwgTGlzdFtzdHJdXV0gPSBOb25lLA0KICAgICAgICBudW1fZml0dGluZ19sZXZlbHM6IGludCA9IDQsDQogICAgICAgIG51bV9pdGVyYXRpb25zOiBMaXN0W2ludF0gPSBOb25lLA0KICAgICAgICBjb252ZXJnZW5jZV90aHJlc2hvbGQ6IGZsb2F0ID0gMC4wMDEsDQogICAgICAgIGFsbG93X21pc3Npbmdfa2V5czogYm9vbCA9IEZhbHNlLA0KICAgICAgICAqKmt3YXJncw0KICAgICk6DQogICAgICAgICIiIkluaXRpYWxpemUgdGhlIE40IGJpYXMgZmllbGQgY29ycmVjdGlvbiBwcmVwcm9jZXNzb3IuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAga2V5cyAoVW5pb25bc3RyLCBMaXN0W3N0cl1dKTogS2V5cyBvZiB0aGUgaW1hZ2VzIHRvIGJlIGNvcnJlY3RlZC4NCiAgICAgICAgICAgIG1hc2tfa2V5cyAoT3B0aW9uYWxbVW5pb25bc3RyLCBMaXN0W3N0cl1dXSk6IEtleXMgb2YgdGhlIG1hc2tzIHRvIHVzZSBmb3IgY29ycmVjdGlvbi4NCiAgICAgICAgICAgICAgICBJZiBOb25lLCBubyBtYXNrIHdpbGwgYmUgdXNlZC4NCiAgICAgICAgICAgIG51bV9maXR0aW5nX2xldmVscyAoaW50KTogTnVtYmVyIG9mIGZpdHRpbmcgbGV2ZWxzIGZvciB0aGUgYmlhcyBmaWVsZCBjb3JyZWN0aW9uLg0KICAgICAgICAgICAgbnVtX2l0ZXJhdGlvbnMgKExpc3RbaW50XSk6IE51bWJlciBvZiBpdGVyYXRpb25zIGF0IGVhY2ggZml0dGluZyBsZXZlbC4NCiAgICAgICAgICAgICAgICBJZiBOb25lLCB3aWxsIHVzZSBbNTBdICogbnVtX2ZpdHRpbmdfbGV2ZWxzLg0KICAgICAgICAgICAgY29udmVyZ2VuY2VfdGhyZXNob2xkIChmbG9hdCk6IENvbnZlcmdlbmNlIHRocmVzaG9sZCBmb3IgdGhlIGNvcnJlY3Rpb24uDQogICAgICAgICAgICBhbGxvd19taXNzaW5nX2tleXMgKGJvb2wpOiBJZiBUcnVlLCBhbGxvd3MgbWlzc2luZyBrZXlzIGluIHRoZSBpbnB1dCBkYXRhLg0KICAgICAgICAgICAgKiprd2FyZ3M6IEFkZGl0aW9uYWwgcGFyYW1ldGVycyBmb3IgTjQgY29ycmVjdGlvbi4NCiAgICAgICAgIiIiDQogICAgICAgIHN1cGVyKCkuX19pbml0X18oa2V5cz1rZXlzLCBhbGxvd19taXNzaW5nX2tleXM9YWxsb3dfbWlzc2luZ19rZXlzKQ0KICAgICAgICANCiAgICAgICAgIyBDb252ZXJ0IHNpbmdsZSBrZXkgdG8gbGlzdA0KICAgICAgICBpZiBpc2luc3RhbmNlKGtleXMsIHN0cik6DQogICAgICAgICAgICBrZXlzID0gW2tleXNdDQogICAgICAgIHNlbGYua2V5cyA9IGtleXMNCiAgICAgICAgDQogICAgICAgICMgSGFuZGxlIG1hc2sga2V5cw0KICAgICAgICBpZiBtYXNrX2tleXMgaXMgTm9uZToNCiAgICAgICAgICAgIHNlbGYubWFza19rZXlzID0gTm9uZQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgc2VsZi5tYXNrX2tleXMgPSBbbWFza19rZXlzXSBpZiBpc2luc3RhbmNlKG1hc2tfa2V5cywgc3RyKSBlbHNlIG1hc2tfa2V5cw0KICAgICAgICANCiAgICAgICAgIyBTZXQgTjQgcGFyYW1ldGVycw0KICAgICAgICBzZWxmLm51bV9maXR0aW5nX2xldmVscyA9IG51bV9maXR0aW5nX2xldmVscw0KICAgICAgICBzZWxmLm51bV9pdGVyYXRpb25zID0gbnVtX2l0ZXJhdGlvbnMgaWYgbnVtX2l0ZXJhdGlvbnMgaXMgbm90IE5vbmUgZWxzZSBbNTBdICogbnVtX2ZpdHRpbmdfbGV2ZWxzDQogICAgICAgIHNlbGYuY29udmVyZ2VuY2VfdGhyZXNob2xkID0gY29udmVyZ2VuY2VfdGhyZXNob2xkDQogICAgICAgIA0KICAgIGRlZiBfYXBwbHlfbjRfY29ycmVjdGlvbihzZWxmLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpdGtfaW1hZ2U6IHNpdGsuSW1hZ2UsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBzaXRrX21hc2s6IE9wdGlvbmFsW3NpdGsuSW1hZ2VdID0gTm9uZSkgLT4gc2l0ay5JbWFnZToNCiAgICAgICAgIiIiQXBwbHkgTjQgYmlhcyBmaWVsZCBjb3JyZWN0aW9uIHRvIGEgU2ltcGxlSVRLIGltYWdlLg0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIHNpdGtfaW1hZ2UgKHNpdGsuSW1hZ2UpOiBJbnB1dCBTaW1wbGVJVEsgaW1hZ2UgdG8gY29ycmVjdA0KICAgICAgICAgICAgc2l0a19tYXNrIChPcHRpb25hbFtzaXRrLkltYWdlXSk6IE9wdGlvbmFsIG1hc2sgZm9yIHRoZSBjb3JyZWN0aW9uDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIHNpdGsuSW1hZ2U6IENvcnJlY3RlZCBTaW1wbGVJVEsgaW1hZ2UNCiAgICAgICAgIiIiDQogICAgICAgICMgQ3JlYXRlIE40IGJpYXMgZmllbGQgY29ycmVjdGlvbiBmaWx0ZXINCiAgICAgICAgbjRfZmlsdGVyID0gc2l0ay5ONEJpYXNGaWVsZENvcnJlY3Rpb25JbWFnZUZpbHRlcigpDQogICAgICAgIA0KICAgICAgICAjIFNldCBwYXJhbWV0ZXJzDQogICAgICAgIG40X2ZpbHRlci5TZXRNYXhpbXVtTnVtYmVyT2ZJdGVyYXRpb25zKHNlbGYubnVtX2l0ZXJhdGlvbnMpDQogICAgICAgIG40X2ZpbHRlci5TZXRDb252ZXJnZW5jZVRocmVzaG9sZChzZWxmLmNvbnZlcmdlbmNlX3RocmVzaG9sZCkNCiAgICAgICAgbjRfZmlsdGVyLlNldE51bWJlck9mRml0dGluZ0xldmVscyhzZWxmLm51bV9maXR0aW5nX2xldmVscykNCiAgICAgICAgDQogICAgICAgICMgQXBwbHkgY29ycmVjdGlvbg0KICAgICAgICBpZiBzaXRrX21hc2sgaXMgbm90IE5vbmU6DQogICAgICAgICAgICBjb3JyZWN0ZWRfaW1hZ2UgPSBuNF9maWx0ZXIuRXhlY3V0ZShzaXRrX2ltYWdlLCBzaXRrX21hc2spDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICBjb3JyZWN0ZWRfaW1hZ2UgPSBuNF9maWx0ZXIuRXhlY3V0ZShzaXRrX2ltYWdlKQ0KICAgICAgICAgICAgDQogICAgICAgIHJldHVybiBjb3JyZWN0ZWRfaW1hZ2UNCiAgICAgICAgDQogICAgZGVmIF9fY2FsbF9fKHNlbGYsIGRhdGE6IERpY3Rbc3RyLCBBbnldKSAtPiBEaWN0W3N0ciwgQW55XToNCiAgICAgICAgIiIiQXBwbHkgTjQgYmlhcyBmaWVsZCBjb3JyZWN0aW9uIHRvIHRoZSBzcGVjaWZpZWQgaW1hZ2VzLg0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGRhdGEgKERpY3Rbc3RyLCBBbnldKTogSW5wdXQgZGF0YSBkaWN0aW9uYXJ5IGNvbnRhaW5pbmcgU2ltcGxlSVRLIGltYWdlIG9iamVjdHMuDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIERpY3Rbc3RyLCBBbnldOiBEYXRhIGRpY3Rpb25hcnkgd2l0aCBjb3JyZWN0ZWQgaW1hZ2VzLg0KICAgICAgICAiIiINCiAgICAgICAgcHJpbnQoIkFwcGx5aW5nIE40IGJpYXMgZmllbGQgY29ycmVjdGlvbi4uLiIpDQogICAgICAgIHNlbGYuX2NoZWNrX2tleXMoZGF0YSkNCiAgICAgICAgDQogICAgICAgICMgUHJvY2VzcyBlYWNoIGltYWdlDQogICAgICAgIGZvciBrZXkgaW4gc2VsZi5rZXlzOg0KICAgICAgICAgICAgIyBHZXQgU2ltcGxlSVRLIGltYWdlIGZyb20gZGF0YQ0KICAgICAgICAgICAgc2l0a19pbWFnZSA9IGRhdGFba2V5XQ0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIEVuc3VyZSB3ZSBoYXZlIGEgU2ltcGxlSVRLIGltYWdlIG9iamVjdA0KICAgICAgICAgICAgaWYgbm90IGlzaW5zdGFuY2Uoc2l0a19pbWFnZSwgc2l0ay5JbWFnZSk6DQogICAgICAgICAgICAgICAgcHJpbnQoZiJXYXJuaW5nOiB7a2V5fSBpcyBub3QgYSBTaW1wbGVJVEsgSW1hZ2Ugb2JqZWN0LiBTa2lwcGluZy4iKQ0KICAgICAgICAgICAgICAgIGNvbnRpbnVlDQogICAgICAgICAgICANCiAgICAgICAgICAgICMgR2V0IGNvcnJlc3BvbmRpbmcgbWFzayBpZiBzcGVjaWZpZWQNCiAgICAgICAgICAgIHNpdGtfbWFzayA9IE5vbmUNCiAgICAgICAgICAgIGlmIHNlbGYubWFza19rZXlzIGlzIG5vdCBOb25lOg0KICAgICAgICAgICAgICAgIG1hc2tfa2V5ID0gZiJtYXNrX3trZXl9Ig0KICAgICAgICAgICAgICAgIGlmIG1hc2tfa2V5IGluIGRhdGE6DQogICAgICAgICAgICAgICAgICAgIHNpdGtfbWFzayA9IGRhdGFbbWFza19rZXldDQogICAgICAgICAgICAgICAgICAgIGlmIG5vdCBpc2luc3RhbmNlKHNpdGtfbWFzaywgc2l0ay5JbWFnZSk6DQogICAgICAgICAgICAgICAgICAgICAgICBwcmludChmIldhcm5pbmc6IHttYXNrX2tleX0gaXMgbm90IGEgU2ltcGxlSVRLIEltYWdlIG9iamVjdC4gVXNpbmcgbm8gbWFzay4iKQ0KICAgICAgICAgICAgICAgICAgICAgICAgc2l0a19tYXNrID0gTm9uZQ0KICAgICAgICAgICAgDQogICAgICAgICAgICB0cnk6DQogICAgICAgICAgICAgICAgIyBBcHBseSBONCBjb3JyZWN0aW9uDQogICAgICAgICAgICAgICAgY29ycmVjdGVkX2ltYWdlID0gc2VsZi5fYXBwbHlfbjRfY29ycmVjdGlvbihzaXRrX2ltYWdlLCBzaXRrX21hc2spDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBTdG9yZSB0aGUgY29ycmVjdGVkIGltYWdlDQogICAgICAgICAgICAgICAgZGF0YVtrZXldID0gY29ycmVjdGVkX2ltYWdlDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBVcGRhdGUgbWV0YWRhdGENCiAgICAgICAgICAgICAgICBtZXRhX2tleSA9IGYie2tleX1fbWV0YV9kaWN0Ig0KICAgICAgICAgICAgICAgIGlmIG1ldGFfa2V5IG5vdCBpbiBkYXRhOg0KICAgICAgICAgICAgICAgICAgICBkYXRhW21ldGFfa2V5XSA9IHt9DQogICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV1bIm40X2NvcnJlY3RlZCJdID0gVHJ1ZQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICAgICAgICAgIHByaW50KGYiRXJyb3IgYXBwbHlpbmcgTjQgY29ycmVjdGlvbiB0byB7a2V5fToge2V9IikNCiAgICAgICAgICAgICAgICBpZiBub3Qgc2VsZi5hbGxvd19taXNzaW5nX2tleXM6DQogICAgICAgICAgICAgICAgICAgIHJhaXNlDQogICAgICAgIA0KICAgICAgICByZXR1cm4gZGF0YSA=').decode())
+@PreprocessorFactory.register("n4_correction")
+class N4BiasFieldCorrection(BasePreprocessor):
+    """Apply N4 bias field correction to images using SimpleITK.
+    
+    This preprocessor applies N4 bias field correction to correct for intensity
+    inhomogeneity in medical images.
+    """
+    
+    def __init__(
+        self,
+        keys: Union[str, List[str]],
+        mask_keys: Optional[Union[str, List[str]]] = None,
+        num_fitting_levels: int = 4,
+        num_iterations: List[int] = None,
+        convergence_threshold: float = 0.001,
+        allow_missing_keys: bool = False,
+        **kwargs
+    ):
+        """Initialize the N4 bias field correction preprocessor.
+        
+        Args:
+            keys (Union[str, List[str]]): Keys of the images to be corrected.
+            mask_keys (Optional[Union[str, List[str]]]): Keys of the masks to use for correction.
+                If None, no mask will be used.
+            num_fitting_levels (int): Number of fitting levels for the bias field correction.
+            num_iterations (List[int]): Number of iterations at each fitting level.
+                If None, will use [50] * num_fitting_levels.
+            convergence_threshold (float): Convergence threshold for the correction.
+            allow_missing_keys (bool): If True, allows missing keys in the input data.
+            **kwargs: Additional parameters for N4 correction.
+        """
+        super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
+        
+        # Convert single key to list
+        if isinstance(keys, str):
+            keys = [keys]
+        self.keys = keys
+        
+        # Handle mask keys
+        if mask_keys is None:
+            self.mask_keys = None
+        else:
+            self.mask_keys = [mask_keys] if isinstance(mask_keys, str) else mask_keys
+        
+        # Set N4 parameters
+        self.num_fitting_levels = num_fitting_levels
+        self.num_iterations = num_iterations if num_iterations is not None else [50] * num_fitting_levels
+        self.convergence_threshold = convergence_threshold
+        
+    def _apply_n4_correction(self, 
+                           sitk_image: sitk.Image,
+                           sitk_mask: Optional[sitk.Image] = None) -> sitk.Image:
+        """Apply N4 bias field correction to a SimpleITK image.
+        
+        Args:
+            sitk_image (sitk.Image): Input SimpleITK image to correct
+            sitk_mask (Optional[sitk.Image]): Optional mask for the correction
+            
+        Returns:
+            sitk.Image: Corrected SimpleITK image
+        """
+        # Create N4 bias field correction filter
+        n4_filter = sitk.N4BiasFieldCorrectionImageFilter()
+        
+        # Set parameters
+        n4_filter.SetMaximumNumberOfIterations(self.num_iterations)
+        n4_filter.SetConvergenceThreshold(self.convergence_threshold)
+        n4_filter.SetNumberOfFittingLevels(self.num_fitting_levels)
+        
+        # Apply correction
+        if sitk_mask is not None:
+            corrected_image = n4_filter.Execute(sitk_image, sitk_mask)
+        else:
+            corrected_image = n4_filter.Execute(sitk_image)
+            
+        return corrected_image
+        
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply N4 bias field correction to the specified images.
+        
+        Args:
+            data (Dict[str, Any]): Input data dictionary containing SimpleITK image objects.
+            
+        Returns:
+            Dict[str, Any]: Data dictionary with corrected images.
+        """
+        print("Applying N4 bias field correction...")
+        self._check_keys(data)
+        
+        # Process each image
+        for key in self.keys:
+            # Get SimpleITK image from data
+            sitk_image = data[key]
+            
+            # Ensure we have a SimpleITK image object
+            if not isinstance(sitk_image, sitk.Image):
+                print(f"Warning: {key} is not a SimpleITK Image object. Skipping.")
+                continue
+            
+            # Get corresponding mask if specified
+            sitk_mask = None
+            if self.mask_keys is not None:
+                mask_key = f"mask_{key}"
+                if mask_key in data:
+                    sitk_mask = data[mask_key]
+                    if not isinstance(sitk_mask, sitk.Image):
+                        print(f"Warning: {mask_key} is not a SimpleITK Image object. Using no mask.")
+                        sitk_mask = None
+            
+            try:
+                # Apply N4 correction
+                corrected_image = self._apply_n4_correction(sitk_image, sitk_mask)
+                
+                # Store the corrected image
+                data[key] = corrected_image
+                
+                # Update metadata
+                meta_key = f"{key}_meta_dict"
+                if meta_key not in data:
+                    data[meta_key] = {}
+                data[meta_key]["n4_corrected"] = True
+                
+            except Exception as e:
+                print(f"Error applying N4 correction to {key}: {e}")
+                if not self.allow_missing_keys:
+                    raise
+        
+        return data 

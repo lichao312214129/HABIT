@@ -1,3 +1,398 @@
+"""
+Metrics Calculation Module
+Provides functions for calculating various evaluation metrics
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpNZXRyaWNzIENhbGN1bGF0aW9uIE1vZHVsZQ0KUHJvdmlkZXMgZnVuY3Rpb25zIGZvciBjYWxjdWxhdGluZyB2YXJpb3VzIGV2YWx1YXRpb24gbWV0cmljcw0KIiIiDQoNCmltcG9ydCBudW1weSBhcyBucA0KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIFR1cGxlLCBVbmlvbiwgTGlzdA0KZnJvbSBza2xlYXJuIGltcG9ydCBtZXRyaWNzDQpmcm9tIHNrbGVhcm4ubWV0cmljcyBpbXBvcnQgcm9jX2F1Y19zY29yZSwgYWNjdXJhY3lfc2NvcmUsIHJvY19jdXJ2ZQ0KZnJvbSBzY2lweSBpbXBvcnQgc3RhdHMNCmZyb20gZGVsb25nX3Rlc3QgaW1wb3J0IGRlbG9uZ19yb2NfdmFyaWFuY2UsIGRlbG9uZ19yb2NfdGVzdA0KDQpkZWYgY2FsY3VsYXRlX21ldHJpY3MoeV90cnVlOiBucC5uZGFycmF5LCB5X3ByZWQ6IG5wLm5kYXJyYXksIHlfcHJlZF9wcm9iYTogbnAubmRhcnJheSkgLT4gRGljdFtzdHIsIGZsb2F0XToNCiAgICAiIiINCiAgICBDYWxjdWxhdGUgbW9kZWwgZXZhbHVhdGlvbiBtZXRyaWNzDQogICAgDQogICAgQXJnczoNCiAgICAgICAgeV90cnVlIChucC5uZGFycmF5KTogVHJ1ZSBsYWJlbHMNCiAgICAgICAgeV9wcmVkIChucC5uZGFycmF5KTogUHJlZGljdGVkIGxhYmVscyBvciBwcmVkaWN0ZWQgcHJvYmFiaWxpdGllcyAoaWYgc2FtZSBhcyB5X3ByZWRfcHJvYmEpDQogICAgICAgIHlfcHJlZF9wcm9iYSAobnAubmRhcnJheSk6IFByZWRpY3RlZCBwcm9iYWJpbGl0aWVzDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIERpY3Rbc3RyLCBmbG9hdF06IERpY3Rpb25hcnkgY29udGFpbmluZyB2YXJpb3VzIG1ldHJpY3MNCiAgICAiIiINCiAgICAjIENoZWNrIGlmIHlfcHJlZCBpcyB0aGUgc2FtZSBhcyB5X3ByZWRfcHJvYmEgKHByb2JhYmlsaXR5IHZhbHVlcykNCiAgICBpZiBucC5hcnJheV9lcXVhbCh5X3ByZWQsIHlfcHJlZF9wcm9iYSk6DQogICAgICAgICMgQ29udmVydCBwcm9iYWJpbGl0aWVzIHRvIGJpbmFyeSBwcmVkaWN0aW9ucyB1c2luZyBhIHRocmVzaG9sZCBvZiAwLjUNCiAgICAgICAgeV9wcmVkX2JpbmFyeSA9ICh5X3ByZWRfcHJvYmEgPj0gMC41KS5hc3R5cGUoaW50KQ0KICAgICAgICBjbSA9IG1ldHJpY3MuY29uZnVzaW9uX21hdHJpeCh5X3RydWUsIHlfcHJlZF9iaW5hcnkpDQogICAgZWxzZToNCiAgICAgICAgIyBVc2UgeV9wcmVkIGFzIGlzIChhbHJlYWR5IGJpbmFyeSkNCiAgICAgICAgY20gPSBtZXRyaWNzLmNvbmZ1c2lvbl9tYXRyaXgoeV90cnVlLCB5X3ByZWQpDQogICAgDQogICAgbWV0cmljc19kaWN0ID0gew0KICAgICAgICAnYWNjdXJhY3knOiBhY2N1cmFjeV9zY29yZSh5X3RydWUsIHlfcHJlZCBpZiBub3QgbnAuYXJyYXlfZXF1YWwoeV9wcmVkLCB5X3ByZWRfcHJvYmEpIGVsc2UgKHlfcHJlZF9wcm9iYSA+PSAwLjUpLmFzdHlwZShpbnQpKSwNCiAgICAgICAgJ3NlbnNpdGl2aXR5JzogY21bMSwgMV0gLyAoY21bMSwgMV0gKyBjbVsxLCAwXSksDQogICAgICAgICdzcGVjaWZpY2l0eSc6IGNtWzAsIDBdIC8gKGNtWzAsIDBdICsgY21bMCwgMV0pLA0KICAgICAgICAncHB2JzogY21bMSwgMV0gLyAoY21bMSwgMV0gKyBjbVswLCAxXSksDQogICAgICAgICducHYnOiBjbVswLCAwXSAvIChjbVswLCAwXSArIGNtWzEsIDBdKSwNCiAgICAgICAgJ2F1Yyc6IHJvY19hdWNfc2NvcmUoeV90cnVlLCB5X3ByZWRfcHJvYmEpDQogICAgfQ0KICAgIHJldHVybiBtZXRyaWNzX2RpY3QNCg0KZGVmIGFwcGx5X3RocmVzaG9sZCh5X3RydWU6IG5wLm5kYXJyYXksIHlfcHJlZF9wcm9iYTogbnAubmRhcnJheSwgdGhyZXNob2xkOiBmbG9hdCkgLT4gRGljdFtzdHIsIGZsb2F0XToNCiAgICAiIiINCiAgICBBcHBseSBhIGdpdmVuIHRocmVzaG9sZCB0byBwcmVkaWN0ZWQgcHJvYmFiaWxpdGllcyBhbmQgY2FsY3VsYXRlIG1ldHJpY3MNCiAgICANCiAgICBBcmdzOg0KICAgICAgICB5X3RydWUgKG5wLm5kYXJyYXkpOiBUcnVlIGxhYmVscw0KICAgICAgICB5X3ByZWRfcHJvYmEgKG5wLm5kYXJyYXkpOiBQcmVkaWN0ZWQgcHJvYmFiaWxpdGllcw0KICAgICAgICB0aHJlc2hvbGQgKGZsb2F0KTogVGhyZXNob2xkIHRvIGFwcGx5DQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIERpY3Rbc3RyLCBmbG9hdF06IERpY3Rpb25hcnkgY29udGFpbmluZyB2YXJpb3VzIG1ldHJpY3MgYXQgdGhlIGdpdmVuIHRocmVzaG9sZA0KICAgICIiIg0KICAgICMgTWFrZSBiaW5hcnkgcHJlZGljdGlvbnMgdXNpbmcgdGhlIHNwZWNpZmllZCB0aHJlc2hvbGQNCiAgICB5X3ByZWQgPSAoeV9wcmVkX3Byb2JhID49IHRocmVzaG9sZCkuYXN0eXBlKGludCkNCiAgICANCiAgICAjIENhbGN1bGF0ZSBjb25mdXNpb24gbWF0cml4DQogICAgY20gPSBtZXRyaWNzLmNvbmZ1c2lvbl9tYXRyaXgoeV90cnVlLCB5X3ByZWQpDQogICAgdG4sIGZwLCBmbiwgdHAgPSBjbS5yYXZlbCgpDQogICAgDQogICAgIyBDYWxjdWxhdGUgbWV0cmljcw0KICAgIGFjY3VyYWN5ID0gKHRwICsgdG4pIC8gKHRwICsgdG4gKyBmcCArIGZuKQ0KICAgIHNlbnNpdGl2aXR5ID0gdHAgLyAodHAgKyBmbikgaWYgKHRwICsgZm4pID4gMCBlbHNlIDANCiAgICBzcGVjaWZpY2l0eSA9IHRuIC8gKHRuICsgZnApIGlmICh0biArIGZwKSA+IDAgZWxzZSAwDQogICAgcHB2ID0gdHAgLyAodHAgKyBmcCkgaWYgKHRwICsgZnApID4gMCBlbHNlIDANCiAgICBucHYgPSB0biAvICh0biArIGZuKSBpZiAodG4gKyBmbikgPiAwIGVsc2UgMA0KICAgIGYxX3Njb3JlID0gMiAqIChwcHYgKiBzZW5zaXRpdml0eSkgLyAocHB2ICsgc2Vuc2l0aXZpdHkpIGlmIChwcHYgKyBzZW5zaXRpdml0eSkgPiAwIGVsc2UgMA0KICAgIGF1YyA9IHJvY19hdWNfc2NvcmUoeV90cnVlLCB5X3ByZWRfcHJvYmEpDQogICAgDQogICAgIyBDb21waWxlIG1ldHJpY3MNCiAgICBtZXRyaWNzX2RpY3QgPSB7DQogICAgICAgICd0aHJlc2hvbGQnOiBmbG9hdCh0aHJlc2hvbGQpLA0KICAgICAgICAnYWNjdXJhY3knOiBhY2N1cmFjeSwNCiAgICAgICAgJ3NlbnNpdGl2aXR5Jzogc2Vuc2l0aXZpdHksDQogICAgICAgICdzcGVjaWZpY2l0eSc6IHNwZWNpZmljaXR5LA0KICAgICAgICAncHB2JzogcHB2LA0KICAgICAgICAnbnB2JzogbnB2LA0KICAgICAgICAnZjFfc2NvcmUnOiBmMV9zY29yZSwNCiAgICAgICAgJ2F1Yyc6IGF1Yw0KICAgIH0NCiAgICANCiAgICByZXR1cm4gbWV0cmljc19kaWN0DQoNCmRlZiBjYWxjdWxhdGVfbWV0cmljc195b3VkZW4oeV90cnVlOiBucC5uZGFycmF5LCB5X3ByZWRfcHJvYmE6IG5wLm5kYXJyYXkpIC0+IERpY3Rbc3RyLCBVbmlvbltmbG9hdCwgRGljdFtzdHIsIGZsb2F0XV1dOg0KICAgICIiIg0KICAgIENhbGN1bGF0ZSBtZXRyaWNzIGJhc2VkIG9uIHRoZSBvcHRpbWFsIFlvdWRlbiBpbmRleCAoc2Vuc2l0aXZpdHkgKyBzcGVjaWZpY2l0eSAtIDEpDQogICAgDQogICAgQXJnczoNCiAgICAgICAgeV90cnVlIChucC5uZGFycmF5KTogVHJ1ZSBsYWJlbHMNCiAgICAgICAgeV9wcmVkX3Byb2JhIChucC5uZGFycmF5KTogUHJlZGljdGVkIHByb2JhYmlsaXRpZXMNCiAgICAgICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgRGljdDogRGljdGlvbmFyeSBjb250YWluaW5nOg0KICAgICAgICAgICAgLSAndGhyZXNob2xkJzogT3B0aW1hbCB0aHJlc2hvbGQgYmFzZWQgb24gWW91ZGVuIGluZGV4DQogICAgICAgICAgICAtICd5b3VkZW5faW5kZXgnOiBNYXhpbXVtIFlvdWRlbiBpbmRleCB2YWx1ZQ0KICAgICAgICAgICAgLSAnbWV0cmljcyc6IERpY3Rpb25hcnkgb2YgbWV0cmljcyBhdCB0aGUgb3B0aW1hbCB0aHJlc2hvbGQNCiAgICAgICAgICAgIC0gJ2FsbF90aHJlc2hvbGRzJzogQXJyYXkgb2YgYWxsIHRlc3RlZCB0aHJlc2hvbGRzDQogICAgICAgICAgICAtICdhbGxfc2Vuc2l0aXZpdGllcyc6IEFycmF5IG9mIHNlbnNpdGl2aXRpZXMgYXQgYWxsIHRocmVzaG9sZHMNCiAgICAgICAgICAgIC0gJ2FsbF9zcGVjaWZpY2l0aWVzJzogQXJyYXkgb2Ygc3BlY2lmaWNpdGllcyBhdCBhbGwgdGhyZXNob2xkcw0KICAgICAgICAgICAgLSAnYWxsX3lvdWRlbnMnOiBBcnJheSBvZiBZb3VkZW4gaW5kaWNlcyBhdCBhbGwgdGhyZXNob2xkcw0KICAgICIiIg0KICAgICMgRW5zdXJlIGlucHV0cyBhcmUgbnVtcHkgYXJyYXlzDQogICAgeV90cnVlID0gbnAuYXJyYXkoeV90cnVlKQ0KICAgIHlfcHJlZF9wcm9iYSA9IG5wLmFycmF5KHlfcHJlZF9wcm9iYSkNCiAgICANCiAgICAjIENhbGN1bGF0ZSBST0MgY3VydmUNCiAgICBmcHIsIHRwciwgdGhyZXNob2xkcyA9IHJvY19jdXJ2ZSh5X3RydWUsIHlfcHJlZF9wcm9iYSkNCiAgICANCiAgICAjIENhbGN1bGF0ZSBzZW5zaXRpdml0aWVzIGFuZCBzcGVjaWZpY2l0aWVzDQogICAgc2Vuc2l0aXZpdGllcyA9IHRwcg0KICAgIHNwZWNpZmljaXRpZXMgPSAxIC0gZnByDQogICAgDQogICAgIyBDYWxjdWxhdGUgWW91ZGVuIGluZGV4IGZvciBlYWNoIHRocmVzaG9sZA0KICAgIHlvdWRlbl9pbmRpY2VzID0gc2Vuc2l0aXZpdGllcyArIHNwZWNpZmljaXRpZXMgLSAxDQogICAgDQogICAgIyBGaW5kIHRocmVzaG9sZCB3aXRoIG1heGltdW0gWW91ZGVuIGluZGV4DQogICAgb3B0aW1hbF9pZHggPSBucC5hcmdtYXgoeW91ZGVuX2luZGljZXMpDQogICAgb3B0aW1hbF90aHJlc2hvbGQgPSB0aHJlc2hvbGRzW29wdGltYWxfaWR4XQ0KICAgIG1heF95b3VkZW4gPSB5b3VkZW5faW5kaWNlc1tvcHRpbWFsX2lkeF0NCiAgICANCiAgICAjIENhbGN1bGF0ZSBtZXRyaWNzIGF0IG9wdGltYWwgdGhyZXNob2xkDQogICAgbWV0cmljc19kaWN0ID0gYXBwbHlfdGhyZXNob2xkKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhLCBvcHRpbWFsX3RocmVzaG9sZCkNCiAgICANCiAgICAjIFJldHVybiByZXN1bHRzDQogICAgcmV0dXJuIHsNCiAgICAgICAgJ3RocmVzaG9sZCc6IGZsb2F0KG9wdGltYWxfdGhyZXNob2xkKSwNCiAgICAgICAgJ3lvdWRlbl9pbmRleCc6IGZsb2F0KG1heF95b3VkZW4pLA0KICAgICAgICAnbWV0cmljcyc6IG1ldHJpY3NfZGljdCwNCiAgICAgICAgJ2FsbF90aHJlc2hvbGRzJzogdGhyZXNob2xkcy50b2xpc3QoKSwNCiAgICAgICAgJ2FsbF9zZW5zaXRpdml0aWVzJzogc2Vuc2l0aXZpdGllcy50b2xpc3QoKSwNCiAgICAgICAgJ2FsbF9zcGVjaWZpY2l0aWVzJzogc3BlY2lmaWNpdGllcy50b2xpc3QoKSwNCiAgICAgICAgJ2FsbF95b3VkZW5zJzogeW91ZGVuX2luZGljZXMudG9saXN0KCkNCiAgICB9DQoNCmRlZiBhcHBseV95b3VkZW5fdGhyZXNob2xkKHlfdHJ1ZTogbnAubmRhcnJheSwgeV9wcmVkX3Byb2JhOiBucC5uZGFycmF5LCB0aHJlc2hvbGQ6IGZsb2F0KSAtPiBEaWN0W3N0ciwgVW5pb25bZmxvYXQsIERpY3Rbc3RyLCBmbG9hdF1dXToNCiAgICAiIiINCiAgICBBcHBseSBhIHByZS1kZXRlcm1pbmVkIFlvdWRlbiB0aHJlc2hvbGQgdG8gZXZhbHVhdGUgcHJlZGljdGlvbnMNCiAgICANCiAgICBBcmdzOg0KICAgICAgICB5X3RydWUgKG5wLm5kYXJyYXkpOiBUcnVlIGxhYmVscw0KICAgICAgICB5X3ByZWRfcHJvYmEgKG5wLm5kYXJyYXkpOiBQcmVkaWN0ZWQgcHJvYmFiaWxpdGllcw0KICAgICAgICB0aHJlc2hvbGQgKGZsb2F0KTogVGhyZXNob2xkIGRldGVybWluZWQgcHJldmlvdXNseSAodXN1YWxseSBmcm9tIHRyYWluaW5nIGRhdGEpDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIERpY3Q6IERpY3Rpb25hcnkgY29udGFpbmluZyBtZXRyaWNzIGF0IHRoZSBwcm92aWRlZCB0aHJlc2hvbGQNCiAgICAiIiINCiAgICAjIENhbGN1bGF0ZSBtZXRyaWNzIGF0IHRoZSBnaXZlbiB0aHJlc2hvbGQNCiAgICBtZXRyaWNzX2RpY3QgPSBhcHBseV90aHJlc2hvbGQoeV90cnVlLCB5X3ByZWRfcHJvYmEsIHRocmVzaG9sZCkNCiAgICANCiAgICAjIENhbGN1bGF0ZSBST0MgQVVDIGZvciByZWZlcmVuY2UNCiAgICBhdWMgPSByb2NfYXVjX3Njb3JlKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKQ0KICAgIG1ldHJpY3NfZGljdFsnYXVjJ10gPSBhdWMNCiAgICANCiAgICAjIENhbGN1bGF0ZSBzZW5zaXRpdml0eSBhbmQgc3BlY2lmaWNpdHkgZm9yIFlvdWRlbiBpbmRleA0KICAgIHNlbnNpdGl2aXR5ID0gbWV0cmljc19kaWN0WydzZW5zaXRpdml0eSddDQogICAgc3BlY2lmaWNpdHkgPSBtZXRyaWNzX2RpY3RbJ3NwZWNpZmljaXR5J10NCiAgICB5b3VkZW5faW5kZXggPSBzZW5zaXRpdml0eSArIHNwZWNpZmljaXR5IC0gMQ0KICAgIA0KICAgICMgUmV0dXJuIHJlc3VsdHMNCiAgICByZXR1cm4gew0KICAgICAgICAndGhyZXNob2xkJzogZmxvYXQodGhyZXNob2xkKSwNCiAgICAgICAgJ3lvdWRlbl9pbmRleCc6IGZsb2F0KHlvdWRlbl9pbmRleCksDQogICAgICAgICdtZXRyaWNzJzogbWV0cmljc19kaWN0DQogICAgfQ0KDQpkZWYgY2FsY3VsYXRlX21ldHJpY3NfYXRfdGFyZ2V0KHlfdHJ1ZTogbnAubmRhcnJheSwgeV9wcmVkX3Byb2JhOiBucC5uZGFycmF5LCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXJnZXRfbWV0cmljczogRGljdFtzdHIsIGZsb2F0XSkgLT4gRGljdFtzdHIsIFVuaW9uW2Zsb2F0LCBEaWN0W3N0ciwgZmxvYXRdXV06DQogICAgIiIiDQogICAgQ2FsY3VsYXRlIG1ldHJpY3MgYXQgdGhyZXNob2xkcyB0aGF0IGFjaGlldmUgdGFyZ2V0IG1ldHJpYyB2YWx1ZXMNCiAgICANCiAgICBBcmdzOg0KICAgICAgICB5X3RydWUgKG5wLm5kYXJyYXkpOiBUcnVlIGxhYmVscw0KICAgICAgICB5X3ByZWRfcHJvYmEgKG5wLm5kYXJyYXkpOiBQcmVkaWN0ZWQgcHJvYmFiaWxpdGllcw0KICAgICAgICB0YXJnZXRfbWV0cmljcyAoRGljdFtzdHIsIGZsb2F0XSk6IERpY3Rpb25hcnkgb2YgdGFyZ2V0IG1ldHJpY3MgYW5kIHRoZWlyIHZhbHVlcw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU3VwcG9ydGVkIG1ldHJpY3M6ICdzZW5zaXRpdml0eScsICdzcGVjaWZpY2l0eScsICdwcHYnLCAnbnB2Jw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRXhhbXBsZTogeydzZW5zaXRpdml0eSc6IDAuOSwgJ3NwZWNpZmljaXR5JzogMC44fQ0KICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIERpY3Q6IERpY3Rpb25hcnkgY29udGFpbmluZyByZXN1bHRzIGZvciBlYWNoIHRocmVzaG9sZCB0aGF0IHNhdGlzZmllcyBhdCBsZWFzdCBvbmUgdGFyZ2V0IG1ldHJpYzoNCiAgICAgICAgICAgIC0gJ3RocmVzaG9sZHMnOiBEaWN0aW9uYXJ5IG1hcHBpbmcgbWV0cmljIG5hbWUgdG8gdGhyZXNob2xkIHRoYXQgYWNoaWV2ZXMgdGhlIHRhcmdldA0KICAgICAgICAgICAgLSAnbWV0cmljc19hdF90aHJlc2hvbGRzJzogRGljdGlvbmFyeSBtYXBwaW5nIG1ldHJpYyBuYW1lIHRvIGFsbCBtZXRyaWNzIGF0IHRoYXQgdGhyZXNob2xkDQogICAgICAgICAgICAtICdjb21iaW5lZF9yZXN1bHRzJzogUmVzdWx0cyBmb3IgdGhyZXNob2xkcyB0aGF0IHNhdGlzZnkgbXVsdGlwbGUgdGFyZ2V0IG1ldHJpY3MgKGlmIGFwcGxpY2FibGUpDQogICAgIiIiDQogICAgIyBFbnN1cmUgaW5wdXRzIGFyZSBudW1weSBhcnJheXMNCiAgICB5X3RydWUgPSBucC5hcnJheSh5X3RydWUpDQogICAgeV9wcmVkX3Byb2JhID0gbnAuYXJyYXkoeV9wcmVkX3Byb2JhKQ0KICAgIA0KICAgICMgQ2FsY3VsYXRlIFJPQyBjdXJ2ZQ0KICAgIGZwciwgdHByLCB0aHJlc2hvbGRzID0gcm9jX2N1cnZlKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKQ0KICAgIA0KICAgICMgQWRkIHNwZWNpYWwgdGhyZXNob2xkIHBvaW50cyB0byBlbnN1cmUgd2UgY292ZXIgdGhlIGVudGlyZSByYW5nZQ0KICAgIGlmIGxlbih0aHJlc2hvbGRzKSA+IDA6DQogICAgICAgIGlmIHRocmVzaG9sZHNbMF0gIT0gMS4wOg0KICAgICAgICAgICAgdGhyZXNob2xkcyA9IG5wLmFwcGVuZCh0aHJlc2hvbGRzLCAxLjApDQogICAgICAgICAgICBmcHIgPSBucC5hcHBlbmQoZnByLCAwLjApDQogICAgICAgICAgICB0cHIgPSBucC5hcHBlbmQodHByLCAwLjApDQogICAgICAgIGlmIHRocmVzaG9sZHNbLTFdICE9IDAuMDoNCiAgICAgICAgICAgIHRocmVzaG9sZHMgPSBucC5hcHBlbmQodGhyZXNob2xkcywgMC4wKQ0KICAgICAgICAgICAgZnByID0gbnAuYXBwZW5kKGZwciwgMS4wKQ0KICAgICAgICAgICAgdHByID0gbnAuYXBwZW5kKHRwciwgMS4wKQ0KICAgIA0KICAgICMgU29ydCB0aHJlc2hvbGRzIGZyb20gaGlnaGVzdCB0byBsb3dlc3QNCiAgICBzb3J0ZWRfaW5kaWNlcyA9IG5wLmFyZ3NvcnQodGhyZXNob2xkcylbOjotMV0NCiAgICB0aHJlc2hvbGRzID0gdGhyZXNob2xkc1tzb3J0ZWRfaW5kaWNlc10NCiAgICBmcHIgPSBmcHJbc29ydGVkX2luZGljZXNdDQogICAgdHByID0gdHByW3NvcnRlZF9pbmRpY2VzXQ0KICAgIA0KICAgICMgQ2FsY3VsYXRlIGFsbCBtZXRyaWNzIGZvciBhbGwgdGhyZXNob2xkcw0KICAgIGFsbF9tZXRyaWNzID0ge30NCiAgICBmb3IgdGhyZXNob2xkIGluIHRocmVzaG9sZHM6DQogICAgICAgIHlfcHJlZCA9ICh5X3ByZWRfcHJvYmEgPj0gdGhyZXNob2xkKS5hc3R5cGUoaW50KQ0KICAgICAgICBjbSA9IG1ldHJpY3MuY29uZnVzaW9uX21hdHJpeCh5X3RydWUsIHlfcHJlZCkNCiAgICAgICAgdG4sIGZwLCBmbiwgdHAgPSBjbS5yYXZlbCgpDQogICAgICAgIA0KICAgICAgICBzZW5zaXRpdml0eSA9IHRwIC8gKHRwICsgZm4pIGlmICh0cCArIGZuKSA+IDAgZWxzZSAwDQogICAgICAgIHNwZWNpZmljaXR5ID0gdG4gLyAodG4gKyBmcCkgaWYgKHRuICsgZnApID4gMCBlbHNlIDANCiAgICAgICAgcHB2ID0gdHAgLyAodHAgKyBmcCkgaWYgKHRwICsgZnApID4gMCBlbHNlIDANCiAgICAgICAgbnB2ID0gdG4gLyAodG4gKyBmbikgaWYgKHRuICsgZm4pID4gMCBlbHNlIDANCiAgICAgICAgYWNjdXJhY3kgPSAodHAgKyB0bikgLyAodHAgKyB0biArIGZwICsgZm4pDQogICAgICAgIGYxX3Njb3JlID0gMiAqIChwcHYgKiBzZW5zaXRpdml0eSkgLyAocHB2ICsgc2Vuc2l0aXZpdHkpIGlmIChwcHYgKyBzZW5zaXRpdml0eSkgPiAwIGVsc2UgMA0KICAgICAgICANCiAgICAgICAgYWxsX21ldHJpY3NbdGhyZXNob2xkXSA9IHsNCiAgICAgICAgICAgICd0aHJlc2hvbGQnOiB0aHJlc2hvbGQsDQogICAgICAgICAgICAnYWNjdXJhY3knOiBhY2N1cmFjeSwNCiAgICAgICAgICAgICdzZW5zaXRpdml0eSc6IHNlbnNpdGl2aXR5LA0KICAgICAgICAgICAgJ3NwZWNpZmljaXR5Jzogc3BlY2lmaWNpdHksDQogICAgICAgICAgICAncHB2JzogcHB2LA0KICAgICAgICAgICAgJ25wdic6IG5wdiwNCiAgICAgICAgICAgICdmMV9zY29yZSc6IGYxX3Njb3JlDQogICAgICAgIH0NCiAgICANCiAgICAjIEZpbmQgdGhyZXNob2xkcyB0aGF0IGFjaGlldmUgdGFyZ2V0IG1ldHJpY3MNCiAgICB0YXJnZXRfdGhyZXNob2xkcyA9IHt9DQogICAgbWV0cmljc19hdF90aHJlc2hvbGRzID0ge30NCiAgICANCiAgICBmb3IgbWV0cmljX25hbWUsIHRhcmdldF92YWx1ZSBpbiB0YXJnZXRfbWV0cmljcy5pdGVtcygpOg0KICAgICAgICAjIFNraXAgdW5zdXBwb3J0ZWQgbWV0cmljcw0KICAgICAgICBpZiBtZXRyaWNfbmFtZSBub3QgaW4gWydzZW5zaXRpdml0eScsICdzcGVjaWZpY2l0eScsICdwcHYnLCAnbnB2J106DQogICAgICAgICAgICBjb250aW51ZQ0KICAgICAgICANCiAgICAgICAgIyBGaW5kIHRocmVzaG9sZCB0aGF0IGFjaGlldmVzIHRoZSB0YXJnZXQgbWV0cmljIHZhbHVlDQogICAgICAgIGJlc3RfdGhyZXNob2xkID0gTm9uZQ0KICAgICAgICANCiAgICAgICAgIyBEaWZmZXJlbnQgc2VhcmNoIHN0cmF0ZWdpZXMgZm9yIGRpZmZlcmVudCBtZXRyaWNzDQogICAgICAgIGlmIG1ldHJpY19uYW1lIGluIFsnc3BlY2lmaWNpdHknLCAncHB2J106DQogICAgICAgICAgICAjIEZvciBzcGVjaWZpY2l0eSBhbmQgUFBWOiBhcyB0aHJlc2hvbGQgaW5jcmVhc2VzLCB0aGVzZSBtZXRyaWNzIGluY3JlYXNlDQogICAgICAgICAgICAjIFN0YXJ0IGZyb20gbG93ZXN0IHRocmVzaG9sZCBhbmQgZmluZCB0aGUgZmlyc3QgdGhyZXNob2xkIHRoYXQgbWVldHMgdGhlIHRhcmdldA0KICAgICAgICAgICAgZm9yIHRocmVzaG9sZCBpbiByZXZlcnNlZCh0aHJlc2hvbGRzKTogICMgU2VhcmNoIGZyb20gbG93IHRvIGhpZ2gNCiAgICAgICAgICAgICAgICBtZXRyaWNfdmFsdWUgPSBhbGxfbWV0cmljc1t0aHJlc2hvbGRdW21ldHJpY19uYW1lXQ0KICAgICAgICAgICAgICAgIGlmIG1ldHJpY192YWx1ZSA+PSB0YXJnZXRfdmFsdWU6DQogICAgICAgICAgICAgICAgICAgIGJlc3RfdGhyZXNob2xkID0gdGhyZXNob2xkDQogICAgICAgICAgICAgICAgICAgIGJyZWFrDQogICAgICAgIGVsc2U6ICAjIEZvciBzZW5zaXRpdml0eSBhbmQgTlBWDQogICAgICAgICAgICAjIEZvciBzZW5zaXRpdml0eSBhbmQgTlBWOiBhcyB0aHJlc2hvbGQgZGVjcmVhc2VzLCB0aGVzZSBtZXRyaWNzIGluY3JlYXNlDQogICAgICAgICAgICAjIFN0YXJ0IGZyb20gaGlnaGVzdCB0aHJlc2hvbGQgYW5kIGZpbmQgdGhlIGZpcnN0IHRocmVzaG9sZCB0aGF0IG1lZXRzIHRoZSB0YXJnZXQNCiAgICAgICAgICAgIGZvciB0aHJlc2hvbGQgaW4gdGhyZXNob2xkczogICMgU2VhcmNoIGZyb20gaGlnaCB0byBsb3cgKHRocmVzaG9sZHMgYXJlIGFscmVhZHkgc29ydGVkIGhpZ2ggdG8gbG93KQ0KICAgICAgICAgICAgICAgIG1ldHJpY192YWx1ZSA9IGFsbF9tZXRyaWNzW3RocmVzaG9sZF1bbWV0cmljX25hbWVdDQogICAgICAgICAgICAgICAgaWYgbWV0cmljX3ZhbHVlID49IHRhcmdldF92YWx1ZToNCiAgICAgICAgICAgICAgICAgICAgYmVzdF90aHJlc2hvbGQgPSB0aHJlc2hvbGQNCiAgICAgICAgICAgICAgICAgICAgYnJlYWsNCiAgICAgICAgDQogICAgICAgICMgU3RvcmUgdGhlIGJlc3QgdGhyZXNob2xkIGFuZCBpdHMgbWV0cmljcw0KICAgICAgICBpZiBiZXN0X3RocmVzaG9sZCBpcyBub3QgTm9uZToNCiAgICAgICAgICAgIHRhcmdldF90aHJlc2hvbGRzW21ldHJpY19uYW1lXSA9IGJlc3RfdGhyZXNob2xkDQogICAgICAgICAgICBtZXRyaWNzX2F0X3RocmVzaG9sZHNbbWV0cmljX25hbWVdID0gYWxsX21ldHJpY3NbYmVzdF90aHJlc2hvbGRdDQogICAgDQogICAgIyBDYWxjdWxhdGUgY29tYmluZWQgcmVzdWx0cyBmb3IgbXVsdGlwbGUgdGFyZ2V0IG1ldHJpY3MNCiAgICBjb21iaW5lZF9yZXN1bHRzID0ge30NCiAgICANCiAgICBpZiBsZW4odGFyZ2V0X21ldHJpY3MpID4gMToNCiAgICAgICAgIyBDaGVjayBhbGwgdGhyZXNob2xkcyB0byBmaW5kIG9uZXMgdGhhdCBzYXRpc2Z5IG11bHRpcGxlIG1ldHJpY3MNCiAgICAgICAgc2F0aXNmaWVkX21ldHJpY3NfYnlfdGhyZXNob2xkID0ge30NCiAgICAgICAgDQogICAgICAgIGZvciB0aHJlc2hvbGQsIG1ldHJpY3NfZGljdCBpbiBhbGxfbWV0cmljcy5pdGVtcygpOg0KICAgICAgICAgICAgc2F0aXNmaWVkX21ldHJpY3MgPSBbXQ0KICAgICAgICAgICAgDQogICAgICAgICAgICBmb3IgbWV0cmljX25hbWUsIHRhcmdldF92YWx1ZSBpbiB0YXJnZXRfbWV0cmljcy5pdGVtcygpOg0KICAgICAgICAgICAgICAgIGlmIG1ldHJpY19uYW1lIGluIFsnc2Vuc2l0aXZpdHknLCAnc3BlY2lmaWNpdHknLCAncHB2JywgJ25wdiddOg0KICAgICAgICAgICAgICAgICAgICBtZXRyaWNfdmFsdWUgPSBtZXRyaWNzX2RpY3RbbWV0cmljX25hbWVdDQogICAgICAgICAgICAgICAgICAgIGlmIG1ldHJpY192YWx1ZSA+PSB0YXJnZXRfdmFsdWU6DQogICAgICAgICAgICAgICAgICAgICAgICBzYXRpc2ZpZWRfbWV0cmljcy5hcHBlbmQobWV0cmljX25hbWUpDQogICAgICAgICAgICANCiAgICAgICAgICAgIGlmIGxlbihzYXRpc2ZpZWRfbWV0cmljcykgPiAxOg0KICAgICAgICAgICAgICAgIHNhdGlzZmllZF9tZXRyaWNzX2J5X3RocmVzaG9sZFt0aHJlc2hvbGRdID0gc2F0aXNmaWVkX21ldHJpY3MNCiAgICAgICAgDQogICAgICAgICMgRm9yIGVhY2ggY29tYmluYXRpb24gb2YgbWV0cmljcywgc2F2ZSBhbGwgdGhyZXNob2xkcyB0aGF0IHNhdGlzZnkgdGhlIGNvbWJpbmF0aW9uDQogICAgICAgIGZyb20gaXRlcnRvb2xzIGltcG9ydCBjb21iaW5hdGlvbnMNCiAgICAgICAgZm9yIHIgaW4gcmFuZ2UoMiwgbGVuKHRhcmdldF9tZXRyaWNzKSArIDEpOg0KICAgICAgICAgICAgZm9yIGNvbWJvIGluIGNvbWJpbmF0aW9ucyh0YXJnZXRfbWV0cmljcy5rZXlzKCksIHIpOg0KICAgICAgICAgICAgICAgIGNvbWJvX25hbWUgPSAnICYgJy5qb2luKGNvbWJvKQ0KICAgICAgICAgICAgICAgIHZhbGlkX3RocmVzaG9sZHMgPSB7fQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgQ2hlY2sgZWFjaCB0aHJlc2hvbGQgdGhhdCBzYXRpc2ZpZWQgbXVsdGlwbGUgbWV0cmljcw0KICAgICAgICAgICAgICAgIGZvciB0aHJlc2hvbGQsIHNhdGlzZmllZCBpbiBzYXRpc2ZpZWRfbWV0cmljc19ieV90aHJlc2hvbGQuaXRlbXMoKToNCiAgICAgICAgICAgICAgICAgICAgaWYgYWxsKG1ldHJpYyBpbiBzYXRpc2ZpZWQgZm9yIG1ldHJpYyBpbiBjb21ibyk6DQogICAgICAgICAgICAgICAgICAgICAgICB2YWxpZF90aHJlc2hvbGRzW3N0cih0aHJlc2hvbGQpXSA9IGFsbF9tZXRyaWNzW3RocmVzaG9sZF0NCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBpZiB2YWxpZF90aHJlc2hvbGRzOg0KICAgICAgICAgICAgICAgICAgICBjb21iaW5lZF9yZXN1bHRzW2NvbWJvX25hbWVdID0gdmFsaWRfdGhyZXNob2xkcw0KICAgIA0KICAgICMgUmV0dXJuIHJlc3VsdHMNCiAgICByZXR1cm4gew0KICAgICAgICAndGhyZXNob2xkcyc6IHRhcmdldF90aHJlc2hvbGRzLA0KICAgICAgICAnbWV0cmljc19hdF90aHJlc2hvbGRzJzogbWV0cmljc19hdF90aHJlc2hvbGRzLA0KICAgICAgICAnY29tYmluZWRfcmVzdWx0cyc6IGNvbWJpbmVkX3Jlc3VsdHMNCiAgICB9DQoNCmRlZiBhcHBseV90YXJnZXRfdGhyZXNob2xkKHlfdHJ1ZTogbnAubmRhcnJheSwgeV9wcmVkX3Byb2JhOiBucC5uZGFycmF5LCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHRocmVzaG9sZDogZmxvYXQpIC0+IERpY3Rbc3RyLCBVbmlvbltmbG9hdCwgRGljdFtzdHIsIGZsb2F0XV1dOg0KICAgICIiIg0KICAgIEFwcGx5IGEgcHJlLWRldGVybWluZWQgdGFyZ2V0IHRocmVzaG9sZCB0byBldmFsdWF0ZSBwcmVkaWN0aW9ucw0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIHlfdHJ1ZSAobnAubmRhcnJheSk6IFRydWUgbGFiZWxzDQogICAgICAgIHlfcHJlZF9wcm9iYSAobnAubmRhcnJheSk6IFByZWRpY3RlZCBwcm9iYWJpbGl0aWVzDQogICAgICAgIHRocmVzaG9sZCAoZmxvYXQpOiBUaHJlc2hvbGQgZGV0ZXJtaW5lZCBwcmV2aW91c2x5ICh1c3VhbGx5IGZyb20gdHJhaW5pbmcgZGF0YSkNCiAgICAgICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgRGljdDogRGljdGlvbmFyeSBjb250YWluaW5nIG1ldHJpY3MgYXQgdGhlIHByb3ZpZGVkIHRocmVzaG9sZA0KICAgICIiIg0KICAgICMgQ2FsY3VsYXRlIG1ldHJpY3MgYXQgdGhlIGdpdmVuIHRocmVzaG9sZA0KICAgIG1ldHJpY3NfZGljdCA9IGFwcGx5X3RocmVzaG9sZCh5X3RydWUsIHlfcHJlZF9wcm9iYSwgdGhyZXNob2xkKQ0KICAgIA0KICAgICMgUmV0dXJuIHJlc3VsdHMgd2l0aCB0aGUgdGhyZXNob2xkIGluY2x1ZGVkDQogICAgcmV0dXJuIHsNCiAgICAgICAgJ3RocmVzaG9sZCc6IGZsb2F0KHRocmVzaG9sZCksDQogICAgICAgICdtZXRyaWNzJzogbWV0cmljc19kaWN0DQogICAgfQ0KDQpkZWYgY2FsY3VsYXRlX25ldF9iZW5lZml0KHlfdHJ1ZSwgeV9wcmVkX3Byb2JhLCB0aHJlc2hvbGQpOg0KICAgICMgRW5zdXJlIHRocmVzaG9sZCBpcyBhIHNjYWxhciB2YWx1ZQ0KICAgIGlmIGlzaW5zdGFuY2UodGhyZXNob2xkLCBsaXN0KToNCiAgICAgICAgdGhyZXNob2xkID0gdGhyZXNob2xkWzBdICAjIE9yIHVzZSBucC5tZWFuKHRocmVzaG9sZCkNCiAgICANCiAgICAjIFByZXZlbnQgZGl2aXNpb24gYnkgemVybyBlcnJvciB3aXRoIGV4dHJlbWUgdGhyZXNob2xkIHZhbHVlcw0KICAgIGlmIHRocmVzaG9sZCA+PSAwLjk5OTogICMgSWYgdGhyZXNob2xkIGlzIHRvbyBjbG9zZSB0byAxLCBpdCBjYW4gY2F1c2UgZGl2aXNpb24gYnkgemVybw0KICAgICAgICByZXR1cm4gMC4wDQogICAgDQogICAgIyBDb252ZXJ0IHRvIG51bXB5IGFycmF5cyBmb3IgY29uc2lzdGVuY3kNCiAgICB5X3RydWUgPSBucC5hcnJheSh5X3RydWUpDQogICAgeV9wcmVkX3Byb2JhID0gbnAuYXJyYXkoeV9wcmVkX3Byb2JhKQ0KICAgIA0KICAgICMgR2V0IHBvc2l0aXZlIGFuZCBuZWdhdGl2ZSBwcmVkaWN0aW9ucw0KICAgIHlfcHJlZCA9ICh5X3ByZWRfcHJvYmEgPj0gdGhyZXNob2xkKS5hc3R5cGUoaW50KQ0KICAgIA0KICAgICMgQ2FsY3VsYXRlIHRydWUgcG9zaXRpdmVzIGFuZCBmYWxzZSBwb3NpdGl2ZXMNCiAgICB0cnVlX3Bvc2l0aXZlcyA9IG5wLnN1bSgoeV9wcmVkID09IDEpICYgKHlfdHJ1ZSA9PSAxKSkNCiAgICBmYWxzZV9wb3NpdGl2ZXMgPSBucC5zdW0oKHlfcHJlZCA9PSAxKSAmICh5X3RydWUgPT0gMCkpDQogICAgDQogICAgbiA9IGxlbih5X3RydWUpDQogICAgDQogICAgIyBDYWxjdWxhdGUgbmV0IGJlbmVmaXQNCiAgICBiZW5lZml0ID0gKHRydWVfcG9zaXRpdmVzIC8gbikgLSAoZmFsc2VfcG9zaXRpdmVzIC8gbikgKiAodGhyZXNob2xkIC8gKDEgLSB0aHJlc2hvbGQpKQ0KICAgIA0KICAgICMgRW5zdXJlIHJlc3VsdCBpcyBhIGZpbml0ZSB2YWx1ZQ0KICAgIGlmIG5vdCBucC5pc2Zpbml0ZShiZW5lZml0KToNCiAgICAgICAgcmV0dXJuIDAuMA0KICAgICAgICANCiAgICByZXR1cm4gYmVuZWZpdA0KDQpkZWYgc3BpZWdlbGhhbHRlcl96X3Rlc3QoeV90cnVlOiBucC5uZGFycmF5LCB5X3ByZWRfcHJvYmE6IG5wLm5kYXJyYXkpIC0+IFR1cGxlW2Zsb2F0LCBmbG9hdF06DQogICAgIiIiDQogICAgUGVyZm9ybSBTcGllZ2VsaGFsdGVyIFotdGVzdCBmb3IgY2FsaWJyYXRpb24NCiAgICANCiAgICBBcmdzOg0KICAgICAgICB5X3RydWUgKG5wLm5kYXJyYXkpOiBUcnVlIGxhYmVscw0KICAgICAgICB5X3ByZWRfcHJvYmEgKG5wLm5kYXJyYXkpOiBQcmVkaWN0ZWQgcHJvYmFiaWxpdGllcw0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBUdXBsZVtmbG9hdCwgZmxvYXRdOiAoei1zY29yZSwgcC12YWx1ZSkNCiAgICAiIiINCiAgICBuID0gbGVuKHlfdHJ1ZSkNCiAgICBvX21pbnVzX2UgPSB5X3RydWUgLSB5X3ByZWRfcHJvYmENCiAgICB2YXIgPSB5X3ByZWRfcHJvYmEgKiAoMSAtIHlfcHJlZF9wcm9iYSkNCiAgICB6ID0gbnAuc3VtKG9fbWludXNfZSkgLyBucC5zcXJ0KG5wLnN1bSh2YXIpKQ0KICAgIHBfdmFsdWUgPSAyICogKDEgLSBzdGF0cy5ub3JtLmNkZihhYnMoeikpKQ0KICAgIHJldHVybiB6LCBwX3ZhbHVlDQoNCmRlZiBkZWxvbmdfcm9jX2NpKHlfdHJ1ZTogbnAubmRhcnJheSwgeV9wcmVkX3Byb2JhOiBucC5uZGFycmF5LCBhbHBoYTogZmxvYXQgPSAwLjk1KSAtPiBUdXBsZVtmbG9hdCwgbnAubmRhcnJheV06DQogICAgIiIiDQogICAgQ2FsY3VsYXRlIERlTG9uZyBjb25maWRlbmNlIGludGVydmFscyBmb3IgUk9DIGN1cnZlDQogICAgDQogICAgQXJnczoNCiAgICAgICAgeV90cnVlIChucC5uZGFycmF5KTogVHJ1ZSBsYWJlbHMNCiAgICAgICAgeV9wcmVkX3Byb2JhIChucC5uZGFycmF5KTogUHJlZGljdGVkIHByb2JhYmlsaXRpZXMNCiAgICAgICAgYWxwaGEgKGZsb2F0KTogQ29uZmlkZW5jZSBsZXZlbA0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBUdXBsZVtmbG9hdCwgbnAubmRhcnJheV06IChBVUMgdmFsdWUsIGNvbmZpZGVuY2UgaW50ZXJ2YWwpDQogICAgIiIiDQogICAgYXVjcywgYXVjX2NvdiA9IGRlbG9uZ19yb2NfdmFyaWFuY2UoeV90cnVlLCB5X3ByZWRfcHJvYmEpDQogICAgYXVjX3N0ZCA9IG5wLnNxcnQoYXVjX2NvdikNCiAgICBsb3dlcl91cHBlcl9xID0gbnAuYWJzKG5wLmFycmF5KFswLCAxXSkgLSAoMSAtIGFscGhhKSAvIDIpDQogICAgY2kgPSBzdGF0cy5ub3JtLnBwZihsb3dlcl91cHBlcl9xLCBsb2M9YXVjcywgc2NhbGU9YXVjX3N0ZCkNCiAgICBjaVtjaSA+IDFdID0gMQ0KICAgIHJldHVybiBhdWNzLCBjaSA=').decode())
+import numpy as np
+from typing import Dict, Tuple, Union, List
+from sklearn import metrics
+from sklearn.metrics import roc_auc_score, accuracy_score, roc_curve
+from scipy import stats
+from habit.core.machine_learning.statistics.delong_test import delong_roc_variance, delong_roc_test
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.ndarray) -> Dict[str, float]:
+    """
+    Calculate model evaluation metrics
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred (np.ndarray): Predicted labels or predicted probabilities (if same as y_pred_proba)
+        y_pred_proba (np.ndarray): Predicted probabilities
+        
+    Returns:
+        Dict[str, float]: Dictionary containing various metrics
+    """
+    # Check if y_pred is the same as y_pred_proba (probability values)
+    if np.array_equal(y_pred, y_pred_proba):
+        # Convert probabilities to binary predictions using a threshold of 0.5
+        y_pred_binary = (y_pred_proba >= 0.5).astype(int)
+        cm = metrics.confusion_matrix(y_true, y_pred_binary)
+    else:
+        # Use y_pred as is (already binary)
+        cm = metrics.confusion_matrix(y_true, y_pred)
+    
+    metrics_dict = {
+        'accuracy': accuracy_score(y_true, y_pred if not np.array_equal(y_pred, y_pred_proba) else (y_pred_proba >= 0.5).astype(int)),
+        'sensitivity': cm[1, 1] / (cm[1, 1] + cm[1, 0]),
+        'specificity': cm[0, 0] / (cm[0, 0] + cm[0, 1]),
+        'ppv': cm[1, 1] / (cm[1, 1] + cm[0, 1]),
+        'npv': cm[0, 0] / (cm[0, 0] + cm[1, 0]),
+        'auc': roc_auc_score(y_true, y_pred_proba)
+    }
+    return metrics_dict
+
+def apply_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, threshold: float) -> Dict[str, float]:
+    """
+    Apply a given threshold to predicted probabilities and calculate metrics
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        threshold (float): Threshold to apply
+        
+    Returns:
+        Dict[str, float]: Dictionary containing various metrics at the given threshold
+    """
+    # Make binary predictions using the specified threshold
+    y_pred = (y_pred_proba >= threshold).astype(int)
+    
+    # Calculate confusion matrix
+    cm = metrics.confusion_matrix(y_true, y_pred)
+    tn, fp, fn, tp = cm.ravel()
+    
+    # Calculate metrics
+    accuracy = (tp + tn) / (tp + tn + fp + fn)
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    ppv = tp / (tp + fp) if (tp + fp) > 0 else 0
+    npv = tn / (tn + fn) if (tn + fn) > 0 else 0
+    f1_score = 2 * (ppv * sensitivity) / (ppv + sensitivity) if (ppv + sensitivity) > 0 else 0
+    auc = roc_auc_score(y_true, y_pred_proba)
+    
+    # Compile metrics
+    metrics_dict = {
+        'threshold': float(threshold),
+        'accuracy': accuracy,
+        'sensitivity': sensitivity,
+        'specificity': specificity,
+        'ppv': ppv,
+        'npv': npv,
+        'f1_score': f1_score,
+        'auc': auc
+    }
+    
+    return metrics_dict
+
+def calculate_metrics_youden(y_true: np.ndarray, y_pred_proba: np.ndarray) -> Dict[str, Union[float, Dict[str, float]]]:
+    """
+    Calculate metrics based on the optimal Youden index (sensitivity + specificity - 1)
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        
+    Returns:
+        Dict: Dictionary containing:
+            - 'threshold': Optimal threshold based on Youden index
+            - 'youden_index': Maximum Youden index value
+            - 'metrics': Dictionary of metrics at the optimal threshold
+            - 'all_thresholds': Array of all tested thresholds
+            - 'all_sensitivities': Array of sensitivities at all thresholds
+            - 'all_specificities': Array of specificities at all thresholds
+            - 'all_youdens': Array of Youden indices at all thresholds
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred_proba = np.array(y_pred_proba)
+    
+    # Calculate ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred_proba)
+    
+    # Calculate sensitivities and specificities
+    sensitivities = tpr
+    specificities = 1 - fpr
+    
+    # Calculate Youden index for each threshold
+    youden_indices = sensitivities + specificities - 1
+    
+    # Find threshold with maximum Youden index
+    optimal_idx = np.argmax(youden_indices)
+    optimal_threshold = thresholds[optimal_idx]
+    max_youden = youden_indices[optimal_idx]
+    
+    # Calculate metrics at optimal threshold
+    metrics_dict = apply_threshold(y_true, y_pred_proba, optimal_threshold)
+    
+    # Return results
+    return {
+        'threshold': float(optimal_threshold),
+        'youden_index': float(max_youden),
+        'metrics': metrics_dict,
+        'all_thresholds': thresholds.tolist(),
+        'all_sensitivities': sensitivities.tolist(),
+        'all_specificities': specificities.tolist(),
+        'all_youdens': youden_indices.tolist()
+    }
+
+def apply_youden_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, threshold: float) -> Dict[str, Union[float, Dict[str, float]]]:
+    """
+    Apply a pre-determined Youden threshold to evaluate predictions
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        threshold (float): Threshold determined previously (usually from training data)
+        
+    Returns:
+        Dict: Dictionary containing metrics at the provided threshold
+    """
+    # Calculate metrics at the given threshold
+    metrics_dict = apply_threshold(y_true, y_pred_proba, threshold)
+    
+    # Calculate ROC AUC for reference
+    auc = roc_auc_score(y_true, y_pred_proba)
+    metrics_dict['auc'] = auc
+    
+    # Calculate sensitivity and specificity for Youden index
+    sensitivity = metrics_dict['sensitivity']
+    specificity = metrics_dict['specificity']
+    youden_index = sensitivity + specificity - 1
+    
+    # Return results
+    return {
+        'threshold': float(threshold),
+        'youden_index': float(youden_index),
+        'metrics': metrics_dict
+    }
+
+def calculate_metrics_at_target(y_true: np.ndarray, y_pred_proba: np.ndarray, 
+                               target_metrics: Dict[str, float]) -> Dict[str, Union[float, Dict[str, float]]]:
+    """
+    Calculate metrics at thresholds that achieve target metric values
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        target_metrics (Dict[str, float]): Dictionary of target metrics and their values
+                                          Supported metrics: 'sensitivity', 'specificity', 'ppv', 'npv'
+                                          Example: {'sensitivity': 0.9, 'specificity': 0.8}
+    
+    Returns:
+        Dict: Dictionary containing results for each threshold that satisfies at least one target metric:
+            - 'thresholds': Dictionary mapping metric name to threshold that achieves the target
+            - 'metrics_at_thresholds': Dictionary mapping metric name to all metrics at that threshold
+            - 'combined_results': Results for thresholds that satisfy multiple target metrics (if applicable)
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred_proba = np.array(y_pred_proba)
+    
+    # Calculate ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred_proba)
+    
+    # Add special threshold points to ensure we cover the entire range
+    if len(thresholds) > 0:
+        if thresholds[0] != 1.0:
+            thresholds = np.append(thresholds, 1.0)
+            fpr = np.append(fpr, 0.0)
+            tpr = np.append(tpr, 0.0)
+        if thresholds[-1] != 0.0:
+            thresholds = np.append(thresholds, 0.0)
+            fpr = np.append(fpr, 1.0)
+            tpr = np.append(tpr, 1.0)
+    
+    # Sort thresholds from highest to lowest
+    sorted_indices = np.argsort(thresholds)[::-1]
+    thresholds = thresholds[sorted_indices]
+    fpr = fpr[sorted_indices]
+    tpr = tpr[sorted_indices]
+    
+    # Calculate all metrics for all thresholds
+    all_metrics = {}
+    for threshold in thresholds:
+        y_pred = (y_pred_proba >= threshold).astype(int)
+        cm = metrics.confusion_matrix(y_true, y_pred)
+        tn, fp, fn, tp = cm.ravel()
+        
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        ppv = tp / (tp + fp) if (tp + fp) > 0 else 0
+        npv = tn / (tn + fn) if (tn + fn) > 0 else 0
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        f1_score = 2 * (ppv * sensitivity) / (ppv + sensitivity) if (ppv + sensitivity) > 0 else 0
+        
+        all_metrics[threshold] = {
+            'threshold': threshold,
+            'accuracy': accuracy,
+            'sensitivity': sensitivity,
+            'specificity': specificity,
+            'ppv': ppv,
+            'npv': npv,
+            'f1_score': f1_score
+        }
+    
+    # Find thresholds that achieve target metrics
+    target_thresholds = {}
+    metrics_at_thresholds = {}
+    
+    for metric_name, target_value in target_metrics.items():
+        # Skip unsupported metrics
+        if metric_name not in ['sensitivity', 'specificity', 'ppv', 'npv']:
+            continue
+        
+        # Find threshold that achieves the target metric value
+        best_threshold = None
+        
+        # Different search strategies for different metrics
+        if metric_name in ['specificity', 'ppv']:
+            # For specificity and PPV: as threshold increases, these metrics increase
+            # Start from lowest threshold and find the first threshold that meets the target
+            for threshold in reversed(thresholds):  # Search from low to high
+                metric_value = all_metrics[threshold][metric_name]
+                if metric_value >= target_value:
+                    best_threshold = threshold
+                    break
+        else:  # For sensitivity and NPV
+            # For sensitivity and NPV: as threshold decreases, these metrics increase
+            # Start from highest threshold and find the first threshold that meets the target
+            for threshold in thresholds:  # Search from high to low (thresholds are already sorted high to low)
+                metric_value = all_metrics[threshold][metric_name]
+                if metric_value >= target_value:
+                    best_threshold = threshold
+                    break
+        
+        # Store the best threshold and its metrics
+        if best_threshold is not None:
+            target_thresholds[metric_name] = best_threshold
+            metrics_at_thresholds[metric_name] = all_metrics[best_threshold]
+    
+    # Calculate combined results for multiple target metrics
+    combined_results = {}
+    
+    if len(target_metrics) > 1:
+        # Check all thresholds to find ones that satisfy multiple metrics
+        satisfied_metrics_by_threshold = {}
+        
+        for threshold, metrics_dict in all_metrics.items():
+            satisfied_metrics = []
+            
+            for metric_name, target_value in target_metrics.items():
+                if metric_name in ['sensitivity', 'specificity', 'ppv', 'npv']:
+                    metric_value = metrics_dict[metric_name]
+                    if metric_value >= target_value:
+                        satisfied_metrics.append(metric_name)
+            
+            if len(satisfied_metrics) > 1:
+                satisfied_metrics_by_threshold[threshold] = satisfied_metrics
+        
+        # For each combination of metrics, save all thresholds that satisfy the combination
+        from itertools import combinations
+        for r in range(2, len(target_metrics) + 1):
+            for combo in combinations(target_metrics.keys(), r):
+                combo_name = ' & '.join(combo)
+                valid_thresholds = {}
+                
+                # Check each threshold that satisfied multiple metrics
+                for threshold, satisfied in satisfied_metrics_by_threshold.items():
+                    if all(metric in satisfied for metric in combo):
+                        valid_thresholds[str(threshold)] = all_metrics[threshold]
+                
+                if valid_thresholds:
+                    combined_results[combo_name] = valid_thresholds
+    
+    # Return results
+    return {
+        'thresholds': target_thresholds,
+        'metrics_at_thresholds': metrics_at_thresholds,
+        'combined_results': combined_results
+    }
+
+def apply_target_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, 
+                           threshold: float) -> Dict[str, Union[float, Dict[str, float]]]:
+    """
+    Apply a pre-determined target threshold to evaluate predictions
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        threshold (float): Threshold determined previously (usually from training data)
+        
+    Returns:
+        Dict: Dictionary containing metrics at the provided threshold
+    """
+    # Calculate metrics at the given threshold
+    metrics_dict = apply_threshold(y_true, y_pred_proba, threshold)
+    
+    # Return results with the threshold included
+    return {
+        'threshold': float(threshold),
+        'metrics': metrics_dict
+    }
+
+def calculate_net_benefit(y_true, y_pred_proba, threshold):
+    # Ensure threshold is a scalar value
+    if isinstance(threshold, list):
+        threshold = threshold[0]  # Or use np.mean(threshold)
+    
+    # Prevent division by zero error with extreme threshold values
+    if threshold >= 0.999:  # If threshold is too close to 1, it can cause division by zero
+        return 0.0
+    
+    # Convert to numpy arrays for consistency
+    y_true = np.array(y_true)
+    y_pred_proba = np.array(y_pred_proba)
+    
+    # Get positive and negative predictions
+    y_pred = (y_pred_proba >= threshold).astype(int)
+    
+    # Calculate true positives and false positives
+    true_positives = np.sum((y_pred == 1) & (y_true == 1))
+    false_positives = np.sum((y_pred == 1) & (y_true == 0))
+    
+    n = len(y_true)
+    
+    # Calculate net benefit
+    benefit = (true_positives / n) - (false_positives / n) * (threshold / (1 - threshold))
+    
+    # Ensure result is a finite value
+    if not np.isfinite(benefit):
+        return 0.0
+        
+    return benefit
+
+def spiegelhalter_z_test(y_true: np.ndarray, y_pred_proba: np.ndarray) -> Tuple[float, float]:
+    """
+    Perform Spiegelhalter Z-test for calibration
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        
+    Returns:
+        Tuple[float, float]: (z-score, p-value)
+    """
+    n = len(y_true)
+    o_minus_e = y_true - y_pred_proba
+    var = y_pred_proba * (1 - y_pred_proba)
+    z = np.sum(o_minus_e) / np.sqrt(np.sum(var))
+    p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+    return z, p_value
+
+def delong_roc_ci(y_true: np.ndarray, y_pred_proba: np.ndarray, alpha: float = 0.95) -> Tuple[float, np.ndarray]:
+    """
+    Calculate DeLong confidence intervals for ROC curve
+    
+    Args:
+        y_true (np.ndarray): True labels
+        y_pred_proba (np.ndarray): Predicted probabilities
+        alpha (float): Confidence level
+        
+    Returns:
+        Tuple[float, np.ndarray]: (AUC value, confidence interval)
+    """
+    aucs, auc_cov = delong_roc_variance(y_true, y_pred_proba)
+    auc_std = np.sqrt(auc_cov)
+    lower_upper_q = np.abs(np.array([0, 1]) - (1 - alpha) / 2)
+    ci = stats.norm.ppf(lower_upper_q, loc=aucs, scale=auc_std)
+    ci[ci > 1] = 1
+    return aucs, ci 

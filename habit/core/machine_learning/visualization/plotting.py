@@ -1,3 +1,498 @@
+"""
+Plotting Module
+Provides various evaluation chart plotting functions
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiClBsb3R0aW5nIE1vZHVsZQpQcm92aWRlcyB2YXJpb3VzIGV2YWx1YXRpb24gY2hhcnQgcGxvdHRpbmcgZnVuY3Rpb25zCiIiIgoKaW1wb3J0IG9zCmZyb20gdHlwaW5nIGltcG9ydCBEaWN0LCBMaXN0LCBUdXBsZSwgVW5pb24sIEFueQppbXBvcnQgbnVtcHkgYXMgbnAKaW1wb3J0IG1hdHBsb3RsaWIucHlwbG90IGFzIHBsdAppbXBvcnQgc2VhYm9ybiBhcyBzbnMKaW1wb3J0IHNoYXAKZnJvbSBza2xlYXJuLm1ldHJpY3MgaW1wb3J0IHJvY19jdXJ2ZSwgcHJlY2lzaW9uX3JlY2FsbF9jdXJ2ZSwgY29uZnVzaW9uX21hdHJpeApmcm9tIHNrbGVhcm4uY2FsaWJyYXRpb24gaW1wb3J0IGNhbGlicmF0aW9uX2N1cnZlICAjIENhbGlicmF0aW9uIGN1cnZlIHJlbGF0ZWQKZnJvbSAuLmV2YWx1YXRpb24ubWV0cmljcyBpbXBvcnQgY2FsY3VsYXRlX25ldF9iZW5lZml0CgpjbGFzcyBQbG90dGVyOgogICAgZGVmIF9faW5pdF9fKHNlbGYsIG91dHB1dF9kaXI6IHN0ciwgZHBpOiBpbnQgPSA2MDApIC0+IE5vbmU6CiAgICAgICAgIiIiCiAgICAgICAgSW5pdGlhbGl6ZSB0aGUgcGxvdHRlcgogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIG91dHB1dF9kaXIgKHN0cik6IE91dHB1dCBkaXJlY3RvcnkgcGF0aAogICAgICAgICAgICBkcGkgKGludCk6IFJlc29sdXRpb24gZm9yIG5vbi1QREYgZm9ybWF0IGltYWdlcwogICAgICAgICIiIgogICAgICAgIHNlbGYub3V0cHV0X2RpciA9IG91dHB1dF9kaXIKICAgICAgICBzZWxmLmRwaSA9IGRwaQogICAgICAgIG9zLm1ha2VkaXJzKG91dHB1dF9kaXIsIGV4aXN0X29rPVRydWUpCiAgICAgICAgCiAgICAgICAgIyBTZXQgcGxvdHRpbmcgc3R5bGUKICAgICAgICAjIHBsdC5zdHlsZS51c2UoJ3NlYWJvcm4nKQogICAgICAgICMgc25zLnNldF9jb250ZXh0KCJwYXBlciIsIGZvbnRfc2NhbGU9MS4yKQogICAgICAgIAogICAgZGVmIHBsb3Rfcm9jX3YyKHNlbGYsIG1vZGVsc19kYXRhOiBEaWN0W3N0ciwgVHVwbGVbbnAubmRhcnJheSwgbnAubmRhcnJheV1dLCBzYXZlX25hbWU6IHN0ciA9ICdST0MucGRmJywgdGl0bGU6IHN0ciA9ICd0ZXN0JykgLT4gTm9uZToKICAgICAgICAiIiIKICAgICAgICBQbG90IFJPQyBjdXJ2ZXMgZm9yIGEgc2luZ2xlIGRhdGFzZXQgKG9wdGltaXplZCB2ZXJzaW9uKQogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIG1vZGVsc19kYXRhOiBEaWN0aW9uYXJ5IHdpdGggbW9kZWwgbmFtZXMgYXMga2V5cyBhbmQgKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKSB0dXBsZXMgYXMgdmFsdWVzCiAgICAgICAgICAgIHNhdmVfbmFtZTogTmFtZSBvZiB0aGUgZmlsZSB0byBzYXZlIHRoZSBwbG90CiAgICAgICAgICAgIHRpdGxlOiBEYXRhIHR5cGUgZm9yIHRpdGxlIGRpc3BsYXkgKCd0cmFpbicgb3IgJ3Rlc3QnKQogICAgICAgICIiIgogICAgICAgICMgQ3JlYXRlIGZpZ3VyZQogICAgICAgIHBsdC5maWd1cmUoZmlnc2l6ZT0oOCwgOCkpCiAgICAgICAgCiAgICAgICAgIyBQbG90IFJPQyBjdXJ2ZXMgZm9yIGVhY2ggbW9kZWwKICAgICAgICBmb3IgbW9kZWxfbmFtZSwgKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKSBpbiBtb2RlbHNfZGF0YS5pdGVtcygpOgogICAgICAgICAgICBmcHIsIHRwciwgXyA9IHJvY19jdXJ2ZSh5X3RydWUsIHlfcHJlZF9wcm9iYSkKICAgICAgICAgICAgYXVjID0gbnAudHJhcHoodHByLCBmcHIpCiAgICAgICAgICAgIHBsdC5wbG90KGZwciwgdHByLCBsYWJlbD1mJ3ttb2RlbF9uYW1lfSAoQVVDID0ge2F1YzouM2Z9KScsIGxpbmV3aWR0aD0xLjUpCiAgICAgICAgCiAgICAgICAgIyBBZGQgZGlhZ29uYWwgbGluZQogICAgICAgIHBsdC5wbG90KFswLCAxXSwgWzAsIDFdLCAnay0tJywgbGluZXdpZHRoPTEuNSkKICAgICAgICBwbHQueGxpbShbLTAuMDIsIDEuMDJdKQogICAgICAgIHBsdC55bGltKFstMC4wMiwgMS4wMl0pCiAgICAgICAgcGx0LnhsYWJlbCgnRmFsc2UgUG9zaXRpdmUgUmF0ZScsIGZvbnRzaXplPTEyKQogICAgICAgIHBsdC55bGFiZWwoJ1RydWUgUG9zaXRpdmUgUmF0ZScsIGZvbnRzaXplPTEyKQogICAgICAgIAogICAgICAgICMgU2V0IHRpdGxlIGJhc2VkIG9uIGRhdGEgdHlwZQogICAgICAgIHRpdGxlID0gZiJ7dGl0bGV9IFNldCBST0MgQ3VydmVzIgogICAgICAgIHBsdC50aXRsZSh0aXRsZSwgZm9udHNpemU9MTQpCiAgICAgICAgcGx0LmxlZ2VuZChsb2M9Imxvd2VyIHJpZ2h0IikKICAgICAgICAKICAgICAgICBwbHQuZ3JpZChUcnVlLCBsaW5lc3R5bGU9Jy0tJywgYWxwaGE9MC43KQogICAgICAgIHBsdC5nY2EoKS5zZXRfZmFjZWNvbG9yKCcjZjhmOWZhJykKICAgICAgICAKICAgICAgICAjIE9ubHkgc2hvdyBsZWZ0IGFuZCBib3R0b20gc3BpbmVzIGFuZCBzZXQgdGhlaXIgd2lkdGggdG8gMS41CiAgICAgICAgYXggPSBwbHQuZ2NhKCkKICAgICAgICBheC5zcGluZXNbJ3RvcCddLnNldF92aXNpYmxlKEZhbHNlKQogICAgICAgIGF4LnNwaW5lc1sncmlnaHQnXS5zZXRfdmlzaWJsZShGYWxzZSkKICAgICAgICBheC5zcGluZXNbJ2JvdHRvbSddLnNldF92aXNpYmxlKFRydWUpCiAgICAgICAgYXguc3BpbmVzWydsZWZ0J10uc2V0X3Zpc2libGUoVHJ1ZSkKICAgICAgICBheC5zcGluZXNbJ2JvdHRvbSddLnNldF9saW5ld2lkdGgoMS41KQogICAgICAgIGF4LnNwaW5lc1snbGVmdCddLnNldF9saW5ld2lkdGgoMS41KQogICAgICAgIAogICAgICAgICMgU2F2ZSBmaWd1cmUKICAgICAgICBwbHQudGlnaHRfbGF5b3V0KCkKICAgICAgICAKICAgICAgICAjIOagueaNruaWh+S7tuaJqeWxleWQjeWGs+WumuaYr+WQpuW6lOeUqOWOi+e8qeWSjERQSeiuvue9rgogICAgICAgIGZpbGVfZXh0ID0gb3MucGF0aC5zcGxpdGV4dChzYXZlX25hbWUpWzFdLmxvd2VyKCkKICAgICAgICBpZiBmaWxlX2V4dCA9PSAnLnBkZic6CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcpCiAgICAgICAgZWxpZiBmaWxlX2V4dCBpbiBbJy50aWYnLCAnLnRpZmYnXToKICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2Rpciwgc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JywgCiAgICAgICAgICAgICAgICAgICAgICAgIGRwaT1zZWxmLmRwaSwgZm9ybWF0PSd0aWYnLCBjb21wcmVzc2lvbj0ndGlmZl9sencnKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGkpCiAgICAgICAgCiAgICAgICAgcGx0LmNsb3NlKCkKICAgICAgCiAgICBkZWYgcGxvdF9kY2FfdjIoc2VsZiwgbW9kZWxzX2RhdGE6IERpY3Rbc3RyLCBUdXBsZVtucC5uZGFycmF5LCBucC5uZGFycmF5XV0sIHNhdmVfbmFtZTogc3RyID0gJ0RDQS5wZGYnLCB0aXRsZTogc3RyID0gJ3Rlc3QnKSAtPiBOb25lOgogICAgICAgICIiIgogICAgICAgIFBsb3QgRGVjaXNpb24gQ3VydmUgQW5hbHlzaXMgKERDQSkgZm9yIGEgc2luZ2xlIGRhdGFzZXQgKG9wdGltaXplZCB2ZXJzaW9uKQogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIG1vZGVsc19kYXRhOiBEaWN0aW9uYXJ5IHdpdGggbW9kZWwgbmFtZXMgYXMga2V5cyBhbmQgKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKSB0dXBsZXMgYXMgdmFsdWVzCiAgICAgICAgICAgIHNhdmVfbmFtZTogTmFtZSBvZiB0aGUgZmlsZSB0byBzYXZlIHRoZSBwbG90CiAgICAgICAgICAgIHRpdGxlOiBEYXRhIHR5cGUgZm9yIHRpdGxlIGRpc3BsYXkgKCd0cmFpbicgb3IgJ3Rlc3QnKQogICAgICAgICIiIgogICAgICAgIHBsdC5maWd1cmUoZmlnc2l6ZT0oOCwgOCkpCiAgICAgICAgCiAgICAgICAgIyBEZWZpbmUgdGhyZXNob2xkIHJhbmdlCiAgICAgICAgdGhyZXNob2xkcyA9IG5wLmxpbnNwYWNlKDAsIDEsIDEwMCkKICAgICAgICAKICAgICAgICAjIEV4dHJhY3QgeV90cnVlIGFzIHJlZmVyZW5jZSAoYW55IG1vZGVsIGNhbiBiZSB1c2VkIHNpbmNlIHlfdHJ1ZSBzaG91bGQgYmUgY29uc2lzdGVudCkKICAgICAgICBpZiBub3QgbW9kZWxzX2RhdGE6CiAgICAgICAgICAgIHByaW50KCJObyBkYXRhIHByb3ZpZGVkIGZvciBEQ0EgcGxvdCIpCiAgICAgICAgICAgIHJldHVybgogICAgICAgIAogICAgICAgICMg5qOA5rWL5qih5Z6L55qE6L6T5Ye65qaC546H5piv5ZCm6LaF6L+HMC0x77yM5aaC5p6c6LaF6L+H5YiZ6L+b6KGM5b2S5LiA5YyWCiAgICAgICAgZm9yIG1vZGVsX25hbWUsICh5X3RydWUsIHlfcHJlZF9wcm9iYSkgaW4gbW9kZWxzX2RhdGEuaXRlbXMoKToKICAgICAgICAgICAgaWYgbnAuYW55KHlfcHJlZF9wcm9iYSA+IDEpIG9yIG5wLmFueSh5X3ByZWRfcHJvYmEgPCAwKToKICAgICAgICAgICAgICAgIHByaW50KGYiV2FybmluZzogTW9kZWwge21vZGVsX25hbWV9IGhhcyBwcmVkaWN0ZWQgcHJvYmFiaWxpdGllcyBvdXRzaWRlIFswLCAxXSIpCiAgICAgICAgICAgICAgICB5X3ByZWRfcHJvYmEgPSAoeV9wcmVkX3Byb2JhIC0gbnAubWluKHlfcHJlZF9wcm9iYSkpIC8gKG5wLm1heCh5X3ByZWRfcHJvYmEpIC0gbnAubWluKHlfcHJlZF9wcm9iYSkpCiAgICAgICAgICAgICAgICBtb2RlbHNfZGF0YVttb2RlbF9uYW1lXSA9ICh5X3RydWUsIHlfcHJlZF9wcm9iYSkKICAgICAgICB5X3RydWUgPSBuZXh0KGl0ZXIobW9kZWxzX2RhdGEudmFsdWVzKCkpKVswXQogICAgICAgIAogICAgICAgICMgQ2FsY3VsYXRlIGFuZCBwbG90ICJUcmVhdCBBbGwiIGN1cnZlCiAgICAgICAgbmV0X2JlbmVmaXRfYWxsID0gbnAuYXJyYXkoW2NhbGN1bGF0ZV9uZXRfYmVuZWZpdCh5X3RydWUsIG5wLm9uZXNfbGlrZSh5X3RydWUpLCB0KSBmb3IgdCBpbiB0aHJlc2hvbGRzXSkKICAgICAgICBwbHQucGxvdCh0aHJlc2hvbGRzLCBuZXRfYmVuZWZpdF9hbGwsICdrLS0nLCBsYWJlbD0nVHJlYXQgQWxsJywgbGluZXdpZHRoPTEuNSkKICAgICAgICAKICAgICAgICAjIENhbGN1bGF0ZSBhbmQgcGxvdCAiVHJlYXQgTm9uZSIgY3VydmUKICAgICAgICBuZXRfYmVuZWZpdF9ub25lID0gbnAuYXJyYXkoW2NhbGN1bGF0ZV9uZXRfYmVuZWZpdCh5X3RydWUsIG5wLnplcm9zX2xpa2UoeV90cnVlKSwgdCkgZm9yIHQgaW4gdGhyZXNob2xkc10pCiAgICAgICAgcGx0LnBsb3QodGhyZXNob2xkcywgbmV0X2JlbmVmaXRfbm9uZSwgJ2stJywgbGFiZWw9J1RyZWF0IE5vbmUnLCBsaW5ld2lkdGg9MS41KQogICAgICAgIAogICAgICAgICMgUGxvdCBkZWNpc2lvbiBjdXJ2ZXMgZm9yIGVhY2ggbW9kZWwKICAgICAgICBmb3IgbW9kZWxfbmFtZSwgKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKSBpbiBtb2RlbHNfZGF0YS5pdGVtcygpOgogICAgICAgICAgICBuZXRfYmVuZWZpdHMgPSBucC5hcnJheShbY2FsY3VsYXRlX25ldF9iZW5lZml0KHlfdHJ1ZSwgeV9wcmVkX3Byb2JhLCB0KSBmb3IgdCBpbiB0aHJlc2hvbGRzXSkKICAgICAgICAgICAgcGx0LnBsb3QodGhyZXNob2xkcywgbmV0X2JlbmVmaXRzLCAnLScsIGxpbmV3aWR0aD0xLjUsIGxhYmVsPW1vZGVsX25hbWUpCiAgICAgICAgCiAgICAgICAgIyBCZWF1dGlmeSB0aGUgcGxvdAogICAgICAgIHBsdC54bGFiZWwoJ1RocmVzaG9sZCBQcm9iYWJpbGl0eScsIGZvbnRzaXplPTEyKQogICAgICAgIHBsdC55bGFiZWwoJ05ldCBCZW5lZml0JywgZm9udHNpemU9MTIpCiAgICAgICAgdGl0bGUgPSBmInsnVHJhaW5pbmcnIGlmIHRpdGxlLmxvd2VyKCkgPT0gJ3RyYWluJyBlbHNlICdUZXN0aW5nJ30gU2V0IERlY2lzaW9uIEN1cnZlIEFuYWx5c2lzIgogICAgICAgIHBsdC50aXRsZSh0aXRsZSwgZm9udHNpemU9MTQpCiAgICAgICAgcGx0LmdyaWQoVHJ1ZSwgbGluZXN0eWxlPSctLScsIGFscGhhPTAuNykKICAgICAgICBwbHQuZ2NhKCkuc2V0X2ZhY2Vjb2xvcignI2Y4ZjlmYScpCiAgICAgICAgcGx0LmxlZ2VuZChsb2M9J2Jlc3QnKQogICAgICAgIAogICAgICAgICMgT25seSBzaG93IGxlZnQgYW5kIGJvdHRvbSBzcGluZXMgYW5kIHNldCB0aGVpciB3aWR0aCB0byAxLjUKICAgICAgICBheCA9IHBsdC5nY2EoKQogICAgICAgIGF4LnNwaW5lc1sndG9wJ10uc2V0X3Zpc2libGUoRmFsc2UpCiAgICAgICAgYXguc3BpbmVzWydyaWdodCddLnNldF92aXNpYmxlKEZhbHNlKQogICAgICAgIGF4LnNwaW5lc1snYm90dG9tJ10uc2V0X3Zpc2libGUoVHJ1ZSkKICAgICAgICBheC5zcGluZXNbJ2xlZnQnXS5zZXRfdmlzaWJsZShUcnVlKQogICAgICAgIGF4LnNwaW5lc1snYm90dG9tJ10uc2V0X2xpbmV3aWR0aCgxLjUpCiAgICAgICAgYXguc3BpbmVzWydsZWZ0J10uc2V0X2xpbmV3aWR0aCgxLjUpCiAgICAgICAgCiAgICAgICAgIyBTYWZlbHkgc2V0IHktYXhpcyByYW5nZSwgaGFuZGxpbmcgcG9zc2libGUgTmFOIG9yIEluZgogICAgICAgIHlfbWluID0gLTAuMDUgICMgRGVmYXVsdCBtaW5pbXVtCiAgICAgICAgeV9tYXggPSAwLjUgICAgIyBEZWZhdWx0IG1heGltdW0KICAgICAgICAKICAgICAgICAjIFNhZmVseSBnZXQgbWluaW11bSBvZiBuZXRfYmVuZWZpdF9ub25lCiAgICAgICAgaWYgbGVuKG5ldF9iZW5lZml0X25vbmUpID4gMCBhbmQgbnAuaXNmaW5pdGUobmV0X2JlbmVmaXRfbm9uZSkuYW55KCk6CiAgICAgICAgICAgIG5vbmVfbWluID0gbnAubmFubWluKG5ldF9iZW5lZml0X25vbmVbbnAuaXNmaW5pdGUobmV0X2JlbmVmaXRfbm9uZSldKQogICAgICAgICAgICBpZiBucC5pc2Zpbml0ZShub25lX21pbik6CiAgICAgICAgICAgICAgICB5X21pbiA9IG1pbih5X21pbiwgbm9uZV9taW4pCiAgICAgICAgCiAgICAgICAgIyBTYWZlbHkgZ2V0IG1heGltdW0gb2YgbmV0X2JlbmVmaXRfYWxsCiAgICAgICAgaWYgbGVuKG5ldF9iZW5lZml0X2FsbCkgPiAwIGFuZCBucC5pc2Zpbml0ZShuZXRfYmVuZWZpdF9hbGwpLmFueSgpOgogICAgICAgICAgICBhbGxfbWF4ID0gbnAubmFubWF4KG5ldF9iZW5lZml0X2FsbFtucC5pc2Zpbml0ZShuZXRfYmVuZWZpdF9hbGwpXSkKICAgICAgICAgICAgaWYgbnAuaXNmaW5pdGUoYWxsX21heCk6CiAgICAgICAgICAgICAgICB5X21heCA9IG1heCh5X21heCwgYWxsX21heCArIDAuMSkKICAgICAgICAKICAgICAgICBwbHQueWxpbShbeV9taW4sIHlfbWF4XSkKICAgICAgICAKICAgICAgICAjIFNhdmUgaW1hZ2UKICAgICAgICBwbHQudGlnaHRfbGF5b3V0KCkKICAgICAgICAKICAgICAgICAjIOagueaNruaWh+S7tuaJqeWxleWQjeWGs+WumuaYr+WQpuW6lOeUqOWOi+e8qeWSjERQSeiuvue9rgogICAgICAgIGZpbGVfZXh0ID0gb3MucGF0aC5zcGxpdGV4dChzYXZlX25hbWUpWzFdLmxvd2VyKCkKICAgICAgICBpZiBmaWxlX2V4dCA9PSAnLnBkZic6CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcpCiAgICAgICAgZWxpZiBmaWxlX2V4dCBpbiBbJy50aWYnLCAnLnRpZmYnXToKICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2Rpciwgc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JywgCiAgICAgICAgICAgICAgICAgICAgICAgIGRwaT1zZWxmLmRwaSwgZm9ybWF0PSd0aWYnLCBjb21wcmVzc2lvbj0ndGlmZl9sencnKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGkpCiAgICAgICAgCiAgICAgICAgcGx0LmNsb3NlKCkKICAgIAogICAgZGVmIHBsb3RfY29uZnVzaW9uX21hdHJpeChzZWxmLCB5X3RydWU6IG5wLm5kYXJyYXksIHlfcHJlZDogbnAubmRhcnJheSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2F2ZV9uYW1lOiBzdHIgPSAnQ29uZnVzaW9uX01hdHJpeC5wZGYnLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0aXRsZTogc3RyID0gJ0NvbmZ1c2lvbiBNYXRyaXgnLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzX25hbWVzOiBMaXN0W3N0cl0gPSBOb25lLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5vcm1hbGl6ZTogYm9vbCA9IEZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNtYXA6IHN0ciA9ICdCbHVlcycpIC0+IE5vbmU6CiAgICAgICAgIiIiCiAgICAgICAgUGxvdCBjb25mdXNpb24gbWF0cml4CiAgICAgICAgCiAgICAgICAgQXJnczoKICAgICAgICAgICAgeV90cnVlIChucC5uZGFycmF5KTogVHJ1ZSBsYWJlbHMKICAgICAgICAgICAgeV9wcmVkIChucC5uZGFycmF5KTogUHJlZGljdGVkIGxhYmVscwogICAgICAgICAgICBzYXZlX25hbWUgKHN0cik6IE5hbWUgb2YgdGhlIGZpbGUgdG8gc2F2ZSB0aGUgcGxvdAogICAgICAgICAgICB0aXRsZSAoc3RyKTogVGl0bGUgb2YgdGhlIHBsb3QKICAgICAgICAgICAgY2xhc3NfbmFtZXMgKExpc3Rbc3RyXSk6IE5hbWVzIG9mIHRoZSBjbGFzc2VzIChkZWZhdWx0OiBOb25lLCB3aWxsIHVzZSAnMCcsICcxJyBmb3IgYmluYXJ5IGNsYXNzaWZpY2F0aW9uKQogICAgICAgICAgICBub3JtYWxpemUgKGJvb2wpOiBXaGV0aGVyIHRvIG5vcm1hbGl6ZSB0aGUgY29uZnVzaW9uIG1hdHJpeCAoZGVmYXVsdDogRmFsc2UpCiAgICAgICAgICAgIGNtYXAgKHN0cik6IENvbG9ybWFwIHRvIHVzZSAoZGVmYXVsdDogJ0JsdWVzJykKICAgICAgICAiIiIKICAgICAgICAjIENhbGN1bGF0ZSBjb25mdXNpb24gbWF0cml4CiAgICAgICAgY20gPSBjb25mdXNpb25fbWF0cml4KHlfdHJ1ZSwgeV9wcmVkKQogICAgICAgIAogICAgICAgICMgU2V0IGNsYXNzIG5hbWVzIGlmIG5vdCBwcm92aWRlZAogICAgICAgIGlmIGNsYXNzX25hbWVzIGlzIE5vbmU6CiAgICAgICAgICAgIGlmIGNtLnNoYXBlWzBdID09IDI6ICAjIEJpbmFyeSBjbGFzc2lmaWNhdGlvbgogICAgICAgICAgICAgICAgY2xhc3NfbmFtZXMgPSBbJ05lZ2F0aXZlJywgJ1Bvc2l0aXZlJ10KICAgICAgICAgICAgZWxzZTogICMgTXVsdGktY2xhc3MgY2xhc3NpZmljYXRpb24KICAgICAgICAgICAgICAgIGNsYXNzX25hbWVzID0gW3N0cihpKSBmb3IgaSBpbiByYW5nZShjbS5zaGFwZVswXSldCiAgICAgICAgCiAgICAgICAgIyBOb3JtYWxpemUgdGhlIGNvbmZ1c2lvbiBtYXRyaXggaWYgcmVxdWVzdGVkCiAgICAgICAgaWYgbm9ybWFsaXplOgogICAgICAgICAgICBjbSA9IGNtLmFzdHlwZSgnZmxvYXQnKSAvIGNtLnN1bShheGlzPTEpWzosIG5wLm5ld2F4aXNdCiAgICAgICAgICAgIGZtdCA9ICcuMmYnCiAgICAgICAgICAgIHRpdGxlID0gZidOb3JtYWxpemVkIHt0aXRsZX0nCiAgICAgICAgZWxzZToKICAgICAgICAgICAgZm10ID0gJ2QnCiAgICAgICAgCiAgICAgICAgIyBDcmVhdGUgZmlndXJlIGFuZCBwbG90IGNvbmZ1c2lvbiBtYXRyaXgKICAgICAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDgsIDYpKQogICAgICAgIHNucy5oZWF0bWFwKGNtLCBhbm5vdD1UcnVlLCBmbXQ9Zm10LCBjbWFwPWNtYXAsIAogICAgICAgICAgICAgICAgICAgeHRpY2tsYWJlbHM9Y2xhc3NfbmFtZXMsIHl0aWNrbGFiZWxzPWNsYXNzX25hbWVzLAogICAgICAgICAgICAgICAgICAgY2Jhcj1UcnVlLCBzcXVhcmU9VHJ1ZSwgbGluZXdpZHRocz0wLjUpCiAgICAgICAgCiAgICAgICAgIyBBZGQgbGFiZWxzIGFuZCB0aXRsZQogICAgICAgIHBsdC54bGFiZWwoJ1ByZWRpY3RlZCBMYWJlbCcsIGZvbnRzaXplPTEyKQogICAgICAgIHBsdC55bGFiZWwoJ1RydWUgTGFiZWwnLCBmb250c2l6ZT0xMikKICAgICAgICBwbHQudGl0bGUodGl0bGUsIGZvbnRzaXplPTE0KQogICAgICAgIAogICAgICAgICMgQ2FsY3VsYXRlIGFuZCBhZGQgbWV0cmljcyB0byB0aGUgcGxvdAogICAgICAgIHRuLCBmcCwgZm4sIHRwID0gY20ucmF2ZWwoKQogICAgICAgIHNlbnNpdGl2aXR5ID0gdHAgLyAodHAgKyBmbikgaWYgKHRwICsgZm4pID4gMCBlbHNlIDAKICAgICAgICBzcGVjaWZpY2l0eSA9IHRuIC8gKHRuICsgZnApIGlmICh0biArIGZwKSA+IDAgZWxzZSAwCiAgICAgICAgYWNjdXJhY3kgPSAodHAgKyB0bikgLyAodHAgKyB0biArIGZwICsgZm4pCiAgICAgICAgCiAgICAgICAgcGx0LmZpZ3RleHQoMC41LCAwLjAxLCAKICAgICAgICAgICAgICAgICAgZidBY2N1cmFjeToge2FjY3VyYWN5Oi4zZn0sIFNlbnNpdGl2aXR5OiB7c2Vuc2l0aXZpdHk6LjNmfSwgU3BlY2lmaWNpdHk6IHtzcGVjaWZpY2l0eTouM2Z9JywKICAgICAgICAgICAgICAgICAgaGE9J2NlbnRlcicsIGZvbnRzaXplPTEwLCBiYm94PWRpY3QoZmFjZWNvbG9yPSd3aGl0ZScsIGFscGhhPTAuOCwgYm94c3R5bGU9J3JvdW5kLHBhZD0wLjUnKSkKICAgICAgICAKICAgICAgICAjIEFkanVzdCBwbG90IGFlc3RoZXRpY3MKICAgICAgICBwbHQudGlnaHRfbGF5b3V0KHJlY3Q9WzAsIDAuMDUsIDEsIDAuOTVdKQogICAgICAgIAogICAgICAgICMgU2F2ZSBmaWd1cmUKICAgICAgICBmaWxlX2V4dCA9IG9zLnBhdGguc3BsaXRleHQoc2F2ZV9uYW1lKVsxXS5sb3dlcigpCiAgICAgICAgaWYgZmlsZV9leHQgPT0gJy5wZGYnOgogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnKQogICAgICAgIGVsaWYgZmlsZV9leHQgaW4gWycudGlmJywgJy50aWZmJ106CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGksIGZvcm1hdD0ndGlmJywgY29tcHJlc3Npb249J3RpZmZfbHp3JykKICAgICAgICBlbHNlOgogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgZHBpPXNlbGYuZHBpKQogICAgICAgIAogICAgICAgIHBsdC5jbG9zZSgpCiAgICAKICAgIGRlZiBjYWxjdWxhdGVfbmV0X2JlbmVmaXQoc2VsZiwgeV90cnVlLCB5X3ByZWRfcHJvYmEsIHRocmVzaG9sZCk6CiAgICAgICAgIiIiCiAgICAgICAgQ2FsY3VsYXRlIHRoZSBuZXQgYmVuZWZpdCBhdCBhIGdpdmVuIHRocmVzaG9sZCBmb3IgZGVjaXNpb24gY3VydmUgYW5hbHlzaXMuCiAgICAgICAgCiAgICAgICAgQXJnczoKICAgICAgICAgICAgeV90cnVlIChucC5uZGFycmF5KTogVHJ1ZSBiaW5hcnkgbGFiZWxzICgwIG9yIDEpCiAgICAgICAgICAgIHlfcHJlZF9wcm9iYSAobnAubmRhcnJheSk6IFByZWRpY3RlZCBwcm9iYWJpbGl0aWVzCiAgICAgICAgICAgIHRocmVzaG9sZCAoZmxvYXQpOiBEZWNpc2lvbiB0aHJlc2hvbGQgZm9yIGNsYXNzaWZpY2F0aW9uCiAgICAgICAgICAgIAogICAgICAgIFJldHVybnM6CiAgICAgICAgICAgIGZsb2F0OiBOZXQgYmVuZWZpdCB2YWx1ZSBhdCB0aGUgZ2l2ZW4gdGhyZXNob2xkCiAgICAgICAgIiIiCiAgICAgICAgIyBIYW5kbGUgYm91bmRhcnkgY2FzZXMKICAgICAgICBpZiB0aHJlc2hvbGQgPj0gMC45OTk6ICAjIFByZXZlbnQgZGl2aXNpb24gYnkgdmFsdWVzIGNsb3NlIHRvIHplcm8KICAgICAgICAgICAgcmV0dXJuIDAuMAogICAgICAgICAgICAKICAgICAgICAjIENvbnZlcnQgdG8gYmluYXJ5IHByZWRpY3Rpb24gYmFzZWQgb24gdGhyZXNob2xkCiAgICAgICAgeV9wcmVkID0gKHlfcHJlZF9wcm9iYSA+PSB0aHJlc2hvbGQpLmFzdHlwZShpbnQpCiAgICAgICAgCiAgICAgICAgIyBDYWxjdWxhdGUgdHJ1ZSBwb3NpdGl2ZXMgYW5kIGZhbHNlIHBvc2l0aXZlcwogICAgICAgIFRQID0gbnAuc3VtKCh5X3ByZWQgPT0gMSkgJiAoeV90cnVlID09IDEpKQogICAgICAgIEZQID0gbnAuc3VtKCh5X3ByZWQgPT0gMSkgJiAoeV90cnVlID09IDApKQogICAgICAgIAogICAgICAgICMgVG90YWwgc2FtcGxlIGNvdW50CiAgICAgICAgbiA9IGxlbih5X3RydWUpCiAgICAgICAgCiAgICAgICAgIyBDYWxjdWxhdGUgbmV0IGJlbmVmaXQKICAgICAgICBpZiBUUCArIEZQID09IDA6CiAgICAgICAgICAgIHJldHVybiAwCiAgICAgICAgZWxzZToKICAgICAgICAgICAgYmVuZWZpdCA9IChUUCAvIG4pIC0gKEZQIC8gbikgKiAodGhyZXNob2xkIC8gKDEgLSB0aHJlc2hvbGQpKQogICAgICAgICAgICAKICAgICAgICAgICAgIyBFbnN1cmUgcmV0dXJuZWQgdmFsdWUgaXMgZmluaXRlCiAgICAgICAgICAgIGlmIG5vdCBucC5pc2Zpbml0ZShiZW5lZml0KToKICAgICAgICAgICAgICAgIHJldHVybiAwLjAKICAgICAgICAgICAgcmV0dXJuIGJlbmVmaXQKICAgIAogICAgZGVmIHBsb3RfY2FsaWJyYXRpb25fdjIoc2VsZiwgbW9kZWxzX2RhdGE6IERpY3Rbc3RyLCBUdXBsZVtucC5uZGFycmF5LCBucC5uZGFycmF5XV0sIHNhdmVfbmFtZTogc3RyID0gJ0NhbGlicmF0aW9uLnBkZicsIG5fYmluczogaW50ID0gNSwgdGl0bGU6IHN0ciA9ICd0ZXN0JykgLT4gTm9uZToKICAgICAgICAiIiIKICAgICAgICBQbG90IGNhbGlicmF0aW9uIGN1cnZlcyBmb3IgYSBzaW5nbGUgZGF0YXNldCAob3B0aW1pemVkIHZlcnNpb24pCiAgICAgICAgCiAgICAgICAgQXJnczoKICAgICAgICAgICAgbW9kZWxzX2RhdGE6IERpY3Rpb25hcnkgd2l0aCBtb2RlbCBuYW1lcyBhcyBrZXlzIGFuZCAoeV90cnVlLCB5X3ByZWRfcHJvYmEpIHR1cGxlcyBhcyB2YWx1ZXMKICAgICAgICAgICAgc2F2ZV9uYW1lOiBOYW1lIG9mIHRoZSBmaWxlIHRvIHNhdmUgdGhlIHBsb3QKICAgICAgICAgICAgbl9iaW5zOiBOdW1iZXIgb2YgYmlucyB0byB1c2UgZm9yIGNhbGlicmF0aW9uIGN1cnZlCiAgICAgICAgICAgIHRpdGxlOiBEYXRhIHR5cGUgZm9yIHRpdGxlIGRpc3BsYXkgKCd0cmFpbicgb3IgJ3Rlc3QnKQogICAgICAgICIiIgogICAgICAgIHBsdC5maWd1cmUoZmlnc2l6ZT0oOCwgOCkpCiAgICAgICAgCiAgICAgICAgIyBQbG90IGNhbGlicmF0aW9uIGN1cnZlcyBmb3IgZWFjaCBtb2RlbAogICAgICAgIGZvciBtb2RlbF9uYW1lLCAoeV90cnVlLCB5X3ByZWRfcHJvYmEpIGluIG1vZGVsc19kYXRhLml0ZW1zKCk6CiAgICAgICAgICAgICMgRW5zdXJlIHByZWRpY3RlZCBwcm9iYWJpbGl0aWVzIGFyZSB3aXRoaW4gMC0xIHJhbmdlCiAgICAgICAgICAgIHlfcHJlZF9ub3JtYWxpemVkID0gKHlfcHJlZF9wcm9iYSAtIG5wLm1pbih5X3ByZWRfcHJvYmEpKSAvIChucC5tYXgoeV9wcmVkX3Byb2JhKSAtIG5wLm1pbih5X3ByZWRfcHJvYmEpKQogICAgICAgICAgICAKICAgICAgICAgICAgIyBDYWxjdWxhdGUgY2FsaWJyYXRpb24gY3VydmUKICAgICAgICAgICAgcHJvYl90cnVlLCBwcm9iX3ByZWQgPSBjYWxpYnJhdGlvbl9jdXJ2ZSh5X3RydWUsIHlfcHJlZF9ub3JtYWxpemVkLCBuX2JpbnM9bl9iaW5zLCBzdHJhdGVneT0ncXVhbnRpbGUnKQogICAgICAgICAgICBwbHQucGxvdChwcm9iX3ByZWQsIHByb2JfdHJ1ZSwgJ3MtJywgbGluZXdpZHRoPTEuNSwgbWFya2Vyc2l6ZT04LCBsYWJlbD1tb2RlbF9uYW1lKQogICAgICAgIAogICAgICAgICMgQWRkIGlkZWFsIGNhbGlicmF0aW9uIGxpbmUgYW5kIGJlYXV0aWZ5IHRoZSBwbG90CiAgICAgICAgcGx0LnBsb3QoWzAsIDFdLCBbMCwgMV0sICdrLS0nLCBsaW5ld2lkdGg9MS41LCBsYWJlbD0nUGVyZmVjdGx5IENhbGlicmF0ZWQnKQogICAgICAgIHBsdC54bGFiZWwoJ01lYW4gUHJlZGljdGVkIFByb2JhYmlsaXR5JywgZm9udHNpemU9MTIpCiAgICAgICAgcGx0LnlsYWJlbCgnUG9zaXRpdmUgU2FtcGxlIFByb3BvcnRpb24nLCBmb250c2l6ZT0xMikKICAgICAgICAKICAgICAgICAjIFNldCB0aXRsZSBiYXNlZCBvbiBkYXRhIHR5cGUKICAgICAgICB0aXRsZSA9IGYieydUcmFpbmluZycgaWYgdGl0bGUubG93ZXIoKSA9PSAndHJhaW4nIGVsc2UgJ1Rlc3RpbmcnfSBTZXQgQ2FsaWJyYXRpb24gQ3VydmVzIgogICAgICAgIHBsdC50aXRsZSh0aXRsZSwgZm9udHNpemU9MTQpCiAgICAgICAgCiAgICAgICAgcGx0LmxlZ2VuZChsb2M9J2Jlc3QnLCBmcmFtZW9uPVRydWUsIGZhY2Vjb2xvcj0nd2hpdGUnLCBmcmFtZWFscGhhPTAuOSkKICAgICAgICBwbHQuZ3JpZChUcnVlLCBsaW5lc3R5bGU9Jy0tJywgYWxwaGE9MC43KQogICAgICAgIHBsdC5nY2EoKS5zZXRfZmFjZWNvbG9yKCcjZjhmOWZhJykKICAgICAgICAKICAgICAgICAjIE9ubHkgc2hvdyBsZWZ0IGFuZCBib3R0b20gc3BpbmVzIGFuZCBzZXQgdGhlaXIgd2lkdGggdG8gMS41CiAgICAgICAgYXggPSBwbHQuZ2NhKCkKICAgICAgICBheC5zcGluZXNbJ3RvcCddLnNldF92aXNpYmxlKEZhbHNlKQogICAgICAgIGF4LnNwaW5lc1sncmlnaHQnXS5zZXRfdmlzaWJsZShGYWxzZSkKICAgICAgICBheC5zcGluZXNbJ2JvdHRvbSddLnNldF92aXNpYmxlKFRydWUpCiAgICAgICAgYXguc3BpbmVzWydsZWZ0J10uc2V0X3Zpc2libGUoVHJ1ZSkKICAgICAgICBheC5zcGluZXNbJ2JvdHRvbSddLnNldF9saW5ld2lkdGgoMS41KQogICAgICAgIGF4LnNwaW5lc1snbGVmdCddLnNldF9saW5ld2lkdGgoMS41KQogICAgICAgIAogICAgICAgICMgRXhwYW5kIGF4aXMgcmFuZ2UKICAgICAgICBwbHQueGxpbShbLTAuMDUsIDEuMDVdKQogICAgICAgIHBsdC55bGltKFstMC4wNSwgMS4wNV0pCiAgICAgICAgCiAgICAgICAgIyBTYXZlIGltYWdlCiAgICAgICAgcGx0LnRpZ2h0X2xheW91dCgpCiAgICAgICAgCiAgICAgICAgIyDmoLnmja7mlofku7bmianlsZXlkI3lhrPlrprmmK/lkKblupTnlKjljovnvKnlkoxEUEnorr7nva4KICAgICAgICBmaWxlX2V4dCA9IG9zLnBhdGguc3BsaXRleHQoc2F2ZV9uYW1lKVsxXS5sb3dlcigpCiAgICAgICAgaWYgZmlsZV9leHQgPT0gJy5wZGYnOgogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnKQogICAgICAgIGVsaWYgZmlsZV9leHQgaW4gWycudGlmJywgJy50aWZmJ106CiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGksIGZvcm1hdD0ndGlmJywgY29tcHJlc3Npb249J3RpZmZfbHp3JykKICAgICAgICBlbHNlOgogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgZHBpPXNlbGYuZHBpKQogICAgICAgIAogICAgICAgIHBsdC5jbG9zZSgpCiAgICAgICAgICAgICAKICAgIGRlZiBwbG90X3NoYXAoc2VsZiwgbW9kZWw6IEFueSwgWDogbnAubmRhcnJheSwgZmVhdHVyZV9uYW1lczogTGlzdFtzdHJdLCBzYXZlX25hbWU6IHN0ciA9ICdTSEFQLnBkZicpIC0+IE5vbmU6CiAgICAgICAgIiIiCiAgICAgICAgUGxvdCBTSEFQIHZhbHVlcwogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIG1vZGVsIChBbnkpOiBUcmFpbmVkIG1vZGVsCiAgICAgICAgICAgIFggKG5wLm5kYXJyYXkpOiBGZWF0dXJlIGRhdGEKICAgICAgICAgICAgZmVhdHVyZV9uYW1lcyAoTGlzdFtzdHJdKTogTGlzdCBvZiBmZWF0dXJlIG5hbWVzCiAgICAgICAgICAgIHNhdmVfbmFtZSAoc3RyKTogTmFtZSBvZiB0aGUgZmlsZSB0byBzYXZlIHRoZSBwbG90CiAgICAgICAgIiIiCiAgICAgICAgIyBDcmVhdGUgU0hBUCBleHBsYWluZXIKICAgICAgICB0cnk6CiAgICAgICAgICAgICMgRmlyc3QgY2hlY2sgaWYgbW9kZWwgaGFzIGdldF9tb2RlbCBtZXRob2QgKGN1c3RvbSBtb2RlbCB3cmFwcGVyKQogICAgICAgICAgICBpZiBoYXNhdHRyKG1vZGVsLCAnZ2V0X21vZGVsJyk6CiAgICAgICAgICAgICAgICAjIEdldCB0aGUgdW5kZXJseWluZyBtb2RlbAogICAgICAgICAgICAgICAgYmFzZV9tb2RlbCA9IG1vZGVsLmdldF9tb2RlbCgpCiAgICAgICAgICAgICAgICBpZiBoYXNhdHRyKGJhc2VfbW9kZWwsICdmZWF0dXJlX2ltcG9ydGFuY2VzXycpOgogICAgICAgICAgICAgICAgICAgICMgVHJlZSBtb2RlbAogICAgICAgICAgICAgICAgICAgIGV4cGxhaW5lciA9IHNoYXAuVHJlZUV4cGxhaW5lcihiYXNlX21vZGVsKQogICAgICAgICAgICAgICAgZWxpZiBoYXNhdHRyKGJhc2VfbW9kZWwsICdjb2VmXycpOgogICAgICAgICAgICAgICAgICAgICMgTGluZWFyIG1vZGVsCiAgICAgICAgICAgICAgICAgICAgZXhwbGFpbmVyID0gc2hhcC5MaW5lYXJFeHBsYWluZXIoYmFzZV9tb2RlbCwgWCkKICAgICAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICAgICAgIyBPdGhlciBtb2RlbHMgLSB1c2UgS2VybmVsRXhwbGFpbmVyCiAgICAgICAgICAgICAgICAgICAgZXhwbGFpbmVyID0gc2hhcC5LZXJuZWxFeHBsYWluZXIobW9kZWwucHJlZGljdF9wcm9iYSwgWCkKICAgICAgICAgICAgZWxpZiBoYXNhdHRyKG1vZGVsLCAnZmVhdHVyZV9pbXBvcnRhbmNlc18nKToKICAgICAgICAgICAgICAgICMgVHJlZSBtb2RlbAogICAgICAgICAgICAgICAgZXhwbGFpbmVyID0gc2hhcC5UcmVlRXhwbGFpbmVyKG1vZGVsKQogICAgICAgICAgICBlbGlmIGhhc2F0dHIobW9kZWwsICdjb2VmXycpOgogICAgICAgICAgICAgICAgIyBMaW5lYXIgbW9kZWwKICAgICAgICAgICAgICAgIGV4cGxhaW5lciA9IHNoYXAuTGluZWFyRXhwbGFpbmVyKG1vZGVsLCBYKQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgIyBPdGhlciBtb2RlbHMKICAgICAgICAgICAgICAgIGV4cGxhaW5lciA9IHNoYXAuS2VybmVsRXhwbGFpbmVyKG1vZGVsLnByZWRpY3QsIFgpCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgIyBDYWxjdWxhdGUgU0hBUCB2YWx1ZXMKICAgICAgICAgICAgc2hhcF92YWx1ZXMgPSBleHBsYWluZXIuc2hhcF92YWx1ZXMoWCkKICAgICAgICAgICAgCiAgICAgICAgICAgICMgRm9yIGNsYXNzaWZpY2F0aW9uIHByb2JsZW1zLCBzaGFwX3ZhbHVlcyBtYXkgYmUgYSBsaXN0IGNvbnRhaW5pbmcgU0hBUCB2YWx1ZXMgZm9yIGVhY2ggY2xhc3MKICAgICAgICAgICAgaWYgaXNpbnN0YW5jZShzaGFwX3ZhbHVlcywgbGlzdCk6CiAgICAgICAgICAgICAgICBzaGFwX3ZhbHVlcyA9IHNoYXBfdmFsdWVzWzFdICAjIFRha2UgU0hBUCB2YWx1ZXMgZm9yIHBvc2l0aXZlIGNsYXNzCiAgICAgICAgICAgIAogICAgICAgICAgICAjIFBsb3Qgc3VtbWFyeSBwbG90CiAgICAgICAgICAgIHBsdC5maWd1cmUoZmlnc2l6ZT0oMTAsIDYpKQogICAgICAgICAgICAKICAgICAgICAgICAgIyBFbnN1cmUgZmVhdHVyZSBuYW1lcyBsaXN0IG1hdGNoZXMgdGhlIG51bWJlciBvZiBmZWF0dXJlcwogICAgICAgICAgICBpZiBsZW4oZmVhdHVyZV9uYW1lcykgIT0gWC5zaGFwZVsxXToKICAgICAgICAgICAgICAgIHByaW50KGYiV2FybmluZzogRmVhdHVyZSBuYW1lcyBsaXN0IGxlbmd0aCAoe2xlbihmZWF0dXJlX25hbWVzKX0pIGRvZXMgbm90IG1hdGNoIG51bWJlciBvZiBmZWF0dXJlcyAoe1guc2hhcGVbMV19KSIpCiAgICAgICAgICAgICAgICBmZWF0dXJlX25hbWVzID0gW2YiRmVhdHVyZSB7aX0iIGZvciBpIGluIHJhbmdlKFguc2hhcGVbMV0pXQogICAgICAgICAgICAgICAgCiAgICAgICAgICAgIHNoYXAuc3VtbWFyeV9wbG90KHNoYXBfdmFsdWVzLCBYLCBmZWF0dXJlX25hbWVzPWZlYXR1cmVfbmFtZXMsIHNob3c9RmFsc2UpCiAgICAgICAgICAgIHBsdC50aXRsZSgnRmVhdHVyZSBJbXBvcnRhbmNlIChTSEFQKScpCiAgICAgICAgICAgIAogICAgICAgICAgICAjIFNhdmUgdGhlIHBsb3QKICAgICAgICAgICAgZmlsZV9leHQgPSBvcy5wYXRoLnNwbGl0ZXh0KHNhdmVfbmFtZSlbMV0ubG93ZXIoKQogICAgICAgICAgICBpZiBmaWxlX2V4dCA9PSAnLnBkZic6CiAgICAgICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnKQogICAgICAgICAgICBlbGlmIGZpbGVfZXh0IGluIFsnLnRpZicsICcudGlmZiddOgogICAgICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2Rpciwgc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGksIGZvcm1hdD0ndGlmJywgY29tcHJlc3Npb249J3RpZmZfbHp3JykKICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIHNhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZHBpPXNlbGYuZHBpKQogICAgICAgICAgICAKICAgICAgICAgICAgcGx0LmNsb3NlKCkKICAgICAgICAgICAgCiAgICAgICAgICAgICMgQWRkaXRpb25hbCBiYXIgcGxvdAogICAgICAgICAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDEwLCA2KSkKICAgICAgICAgICAgc2hhcC5zdW1tYXJ5X3Bsb3Qoc2hhcF92YWx1ZXMsIFgsIGZlYXR1cmVfbmFtZXM9ZmVhdHVyZV9uYW1lcywgcGxvdF90eXBlPSJiYXIiLCBzaG93PUZhbHNlKQogICAgICAgICAgICBwbHQudGl0bGUoJ0ZlYXR1cmUgSW1wb3J0YW5jZSAoU0hBUCBCYXIgUGxvdCknKQogICAgICAgICAgICAKICAgICAgICAgICAgIyBTYXZlIGJhciBwbG90CiAgICAgICAgICAgIGJhcl9zYXZlX25hbWUgPSBzYXZlX25hbWUucmVwbGFjZSgnLnBkZicsICdfYmFyLnBkZicpCiAgICAgICAgICAgIGZpbGVfZXh0ID0gb3MucGF0aC5zcGxpdGV4dChiYXJfc2F2ZV9uYW1lKVsxXS5sb3dlcigpCiAgICAgICAgICAgIGlmIGZpbGVfZXh0ID09ICcucGRmJzoKICAgICAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihzZWxmLm91dHB1dF9kaXIsIGJhcl9zYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnKQogICAgICAgICAgICBlbGlmIGZpbGVfZXh0IGluIFsnLnRpZicsICcudGlmZiddOgogICAgICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2RpciwgYmFyX3NhdmVfbmFtZSksIGJib3hfaW5jaGVzPSd0aWdodCcsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZHBpPXNlbGYuZHBpLCBmb3JtYXQ9J3RpZicsIGNvbXByZXNzaW9uPSd0aWZmX2x6dycpCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBiYXJfc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBkcGk9c2VsZi5kcGkpCiAgICAgICAgICAgIAogICAgICAgICAgICBwbHQuY2xvc2UoKQogICAgICAgICAgICAKICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgIHByaW50KGYiV2FybmluZzogRmFpbGVkIHRvIHBsb3QgU0hBUCB2YWx1ZXM6IHtzdHIoZSl9IikKICAgIAogICAgZGVmIHBsb3RfcHJfY3VydmUoc2VsZiwgbW9kZWxzX2RhdGE6IERpY3Rbc3RyLCBUdXBsZVtucC5uZGFycmF5LCBucC5uZGFycmF5XV0sIAogICAgICAgICAgICAgICAgICBzYXZlX25hbWU6IHN0ciA9ICdQUl9jdXJ2ZS5wZGYnLCAKICAgICAgICAgICAgICAgICAgdGl0bGU6IHN0ciA9ICdldmFsdWF0aW9uJykgLT4gTm9uZToKCiAgICAgICAgIiIiCiAgICAgICAgUGxvdCBQcmVjaXNpb24tUmVjYWxsIGN1cnZlIGZvciBtdWx0aXBsZSBtb2RlbHMKICAgICAgICBBcmdzOgogICAgICAgICAgICBtb2RlbHNfZGF0YTogRGljdGlvbmFyeSB3aXRoIG1vZGVsIG5hbWVzIGFzIGtleXMgYW5kICh5X3RydWUsIHlfcHJlZF9wcm9iYSkgdHVwbGVzIGFzIHZhbHVlcwogICAgICAgICAgICBzYXZlX25hbWU6IE5hbWUgb2YgdGhlIGZpbGUgdG8gc2F2ZSB0aGUgcGxvdAogICAgICAgICAgICB0aXRsZTogRGF0YSB0eXBlIGZvciB0aXRsZSBkaXNwbGF5ICgndHJhaW4nLCAndGVzdCcsIG9yICdldmFsdWF0aW9uJykKCiAgICAgICAgIiIiCiAgICAgICAgcGx0LmZpZ3VyZShmaWdzaXplPSg2LCA2KSkKICAgICAgICAjIFBsb3QgUFIgY3VydmVzIGZvciBlYWNoIG1vZGVsCiAgICAgICAgZm9yIG1vZGVsX25hbWUsICh5X3RydWUsIHlfcHJlZF9wcm9iYSkgaW4gbW9kZWxzX2RhdGEuaXRlbXMoKToKICAgICAgICAgICAgcHJlY2lzaW9uLCByZWNhbGwsIF8gPSBwcmVjaXNpb25fcmVjYWxsX2N1cnZlKHlfdHJ1ZSwgeV9wcmVkX3Byb2JhKQogICAgICAgICAgICAjIENhbGN1bGF0ZSBhdmVyYWdlIHByZWNpc2lvbiBzY29yZQogICAgICAgICAgICBhcCA9IG5wLnRyYXB6KHByZWNpc2lvbiwgcmVjYWxsKQogICAgICAgICAgICAjIOWFs+mUruS/ruaUue+8mue7mOWItuaXtuS6pOaNonjlkox56L2077yM5L2/5Zu+5b2i5LuO5bem5LiL5Yiw5Y+z5LiKCiAgICAgICAgICAgIHBsdC5wbG90KDEgLSBwcmVjaXNpb24sIHJlY2FsbCwgbGluZXdpZHRoPTIsIGxhYmVsPWYne21vZGVsX25hbWV9IChBUCA9IHthcDouM2Z9KScpCiAgICAgICAgCiAgICAgICAgIyBCZWF1dGlmeSB0aGUgcGxvdAogICAgICAgIHBsdC54bGFiZWwoJzEgLSBQcmVjaXNpb24nKSAgIyDkv67mlLlY6L205qCH562+CgogICAgICAgIHBsdC55bGFiZWwoJ1JlY2FsbCcpCiAgICAgICAgcGx0LnRpdGxlKGYnTW9kaWZpZWQgUHJlY2lzaW9uLVJlY2FsbCBDdXJ2ZSAoe3RpdGxlLmNhcGl0YWxpemUoKX0pJykKICAgICAgICBwbHQubGVnZW5kKGxvYz0nYmVzdCcpCiAgICAgICAgcGx0LmdyaWQoVHJ1ZSwgbGluZXN0eWxlPSctLScsIGFscGhhPTAuNykKICAgICAgICAjIFNldCBheGlzIGxpbWl0cyBmb3IgbGVmdC10by1yaWdodCwgYm90dG9tLXRvLXRvcCBkaXJlY3Rpb24KICAgICAgICBwbHQueGxpbShbLTAuMDIsIDEuMDJdKQogICAgICAgIHBsdC55bGltKFstMC4wMiwgMS4wMl0pCgogICAgICAgICMgT25seSBzaG93IGxlZnQgYW5kIGJvdHRvbSBzcGluZXMgYW5kIHNldCB0aGVpciB3aWR0aCB0byAxLjUKICAgICAgICBheCA9IHBsdC5nY2EoKQogICAgICAgIGF4LnNwaW5lc1sndG9wJ10uc2V0X3Zpc2libGUoRmFsc2UpCiAgICAgICAgYXguc3BpbmVzWydyaWdodCddLnNldF92aXNpYmxlKEZhbHNlKQogICAgICAgIGF4LnNwaW5lc1snYm90dG9tJ10uc2V0X3Zpc2libGUoVHJ1ZSkKICAgICAgICBheC5zcGluZXNbJ2xlZnQnXS5zZXRfdmlzaWJsZShUcnVlKQogICAgICAgIGF4LnNwaW5lc1snYm90dG9tJ10uc2V0X2xpbmV3aWR0aCgxLjUpCiAgICAgICAgYXguc3BpbmVzWydsZWZ0J10uc2V0X2xpbmV3aWR0aCgxLjUpCgogICAgICAgIHBsdC50aWdodF9sYXlvdXQoKQogICAgICAgIAogICAgICAgICMg5qC55o2u5paH5Lu25omp5bGV5ZCN5Yaz5a6a5piv5ZCm5bqU55So5Y6L57yp5ZKMRFBJ6K6+572uCiAgICAgICAgZmlsZV9leHQgPSBvcy5wYXRoLnNwbGl0ZXh0KHNhdmVfbmFtZSlbMV0ubG93ZXIoKQogICAgICAgIGlmIGZpbGVfZXh0ID09ICcucGRmJzoKICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2Rpciwgc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JykKICAgICAgICBlbGlmIGZpbGVfZXh0IGluIFsnLnRpZicsICcudGlmZiddOgogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4oc2VsZi5vdXRwdXRfZGlyLCBzYXZlX25hbWUpLCBiYm94X2luY2hlcz0ndGlnaHQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgZHBpPXNlbGYuZHBpLCBmb3JtYXQ9J3RpZicsIGNvbXByZXNzaW9uPSd0aWZmX2x6dycpCiAgICAgICAgZWxzZToKICAgICAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKHNlbGYub3V0cHV0X2Rpciwgc2F2ZV9uYW1lKSwgYmJveF9pbmNoZXM9J3RpZ2h0JywgCiAgICAgICAgICAgICAgICAgICAgICAgIGRwaT1zZWxmLmRwaSkKICAgICAgICAKICAgICAgICBwbHQuY2xvc2UoKQ==').decode())
+import os
+from typing import Dict, List, Tuple, Union, Any
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import shap
+from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix
+from sklearn.calibration import calibration_curve  # Calibration curve related
+from ..evaluation.metrics import calculate_net_benefit
+
+class Plotter:
+    def __init__(self, output_dir: str, dpi: int = 600) -> None:
+        """
+        Initialize the plotter
+        
+        Args:
+            output_dir (str): Output directory path
+            dpi (int): Resolution for non-PDF format images
+        """
+        self.output_dir = output_dir
+        self.dpi = dpi
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Set plotting style
+        # plt.style.use('seaborn')
+        # sns.set_context("paper", font_scale=1.2)
+        
+    def plot_roc_v2(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], save_name: str = 'ROC.pdf', title: str = 'test') -> None:
+        """
+        Plot ROC curves for a single dataset (optimized version)
+        
+        Args:
+            models_data: Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values
+            save_name: Name of the file to save the plot
+            title: Data type for title display ('train' or 'test')
+        """
+        # Create figure
+        plt.figure(figsize=(8, 8))
+        
+        # Plot ROC curves for each model
+        for model_name, (y_true, y_pred_proba) in models_data.items():
+            fpr, tpr, _ = roc_curve(y_true, y_pred_proba)
+            auc = np.trapz(tpr, fpr)
+            plt.plot(fpr, tpr, label=f'{model_name} (AUC = {auc:.3f})', linewidth=1.5)
+        
+        # Add diagonal line
+        plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5)
+        plt.xlim([-0.02, 1.02])
+        plt.ylim([-0.02, 1.02])
+        plt.xlabel('False Positive Rate', fontsize=12)
+        plt.ylabel('True Positive Rate', fontsize=12)
+        
+        # Set title based on data type
+        title = f"{title} Set ROC Curves"
+        plt.title(title, fontsize=14)
+        plt.legend(loc="lower right")
+        
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.gca().set_facecolor('#f8f9fa')
+        
+        # Only show left and bottom spines and set their width to 1.5
+        ax = plt.gca()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(True)
+        ax.spines['left'].set_visible(True)
+        ax.spines['bottom'].set_linewidth(1.5)
+        ax.spines['left'].set_linewidth(1.5)
+        
+        # Save figure
+        plt.tight_layout()
+        
+        # 根据文件扩展名决定是否应用压缩和DPI设置
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
+        
+        plt.close()
+      
+    def plot_dca_v2(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], save_name: str = 'DCA.pdf', title: str = 'test') -> None:
+        """
+        Plot Decision Curve Analysis (DCA) for a single dataset (optimized version)
+        
+        Args:
+            models_data: Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values
+            save_name: Name of the file to save the plot
+            title: Data type for title display ('train' or 'test')
+        """
+        plt.figure(figsize=(8, 8))
+        
+        # Define threshold range
+        thresholds = np.linspace(0, 1, 100)
+        
+        # Extract y_true as reference (any model can be used since y_true should be consistent)
+        if not models_data:
+            print("No data provided for DCA plot")
+            return
+        
+        # 检测模型的输出概率是否超过0-1，如果超过则进行归一化
+        for model_name, (y_true, y_pred_proba) in models_data.items():
+            if np.any(y_pred_proba > 1) or np.any(y_pred_proba < 0):
+                print(f"Warning: Model {model_name} has predicted probabilities outside [0, 1]")
+                y_pred_proba = (y_pred_proba - np.min(y_pred_proba)) / (np.max(y_pred_proba) - np.min(y_pred_proba))
+                models_data[model_name] = (y_true, y_pred_proba)
+        y_true = next(iter(models_data.values()))[0]
+        
+        # Calculate and plot "Treat All" curve
+        net_benefit_all = np.array([calculate_net_benefit(y_true, np.ones_like(y_true), t) for t in thresholds])
+        plt.plot(thresholds, net_benefit_all, 'k--', label='Treat All', linewidth=1.5)
+        
+        # Calculate and plot "Treat None" curve
+        net_benefit_none = np.array([calculate_net_benefit(y_true, np.zeros_like(y_true), t) for t in thresholds])
+        plt.plot(thresholds, net_benefit_none, 'k-', label='Treat None', linewidth=1.5)
+        
+        # Plot decision curves for each model
+        for model_name, (y_true, y_pred_proba) in models_data.items():
+            net_benefits = np.array([calculate_net_benefit(y_true, y_pred_proba, t) for t in thresholds])
+            plt.plot(thresholds, net_benefits, '-', linewidth=1.5, label=model_name)
+        
+        # Beautify the plot
+        plt.xlabel('Threshold Probability', fontsize=12)
+        plt.ylabel('Net Benefit', fontsize=12)
+        title = f"{'Training' if title.lower() == 'train' else 'Testing'} Set Decision Curve Analysis"
+        plt.title(title, fontsize=14)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.gca().set_facecolor('#f8f9fa')
+        plt.legend(loc='best')
+        
+        # Only show left and bottom spines and set their width to 1.5
+        ax = plt.gca()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(True)
+        ax.spines['left'].set_visible(True)
+        ax.spines['bottom'].set_linewidth(1.5)
+        ax.spines['left'].set_linewidth(1.5)
+        
+        # Safely set y-axis range, handling possible NaN or Inf
+        y_min = -0.05  # Default minimum
+        y_max = 0.5    # Default maximum
+        
+        # Safely get minimum of net_benefit_none
+        if len(net_benefit_none) > 0 and np.isfinite(net_benefit_none).any():
+            none_min = np.nanmin(net_benefit_none[np.isfinite(net_benefit_none)])
+            if np.isfinite(none_min):
+                y_min = min(y_min, none_min)
+        
+        # Safely get maximum of net_benefit_all
+        if len(net_benefit_all) > 0 and np.isfinite(net_benefit_all).any():
+            all_max = np.nanmax(net_benefit_all[np.isfinite(net_benefit_all)])
+            if np.isfinite(all_max):
+                y_max = max(y_max, all_max + 0.1)
+        
+        plt.ylim([y_min, y_max])
+        
+        # Save image
+        plt.tight_layout()
+        
+        # 根据文件扩展名决定是否应用压缩和DPI设置
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
+        
+        plt.close()
+    
+    def plot_confusion_matrix(self, y_true: np.ndarray, y_pred: np.ndarray, 
+                             save_name: str = 'Confusion_Matrix.pdf', 
+                             title: str = 'Confusion Matrix',
+                             class_names: List[str] = None,
+                             normalize: bool = False,
+                             cmap: str = 'Blues') -> None:
+        """
+        Plot confusion matrix
+        
+        Args:
+            y_true (np.ndarray): True labels
+            y_pred (np.ndarray): Predicted labels
+            save_name (str): Name of the file to save the plot
+            title (str): Title of the plot
+            class_names (List[str]): Names of the classes (default: None, will use '0', '1' for binary classification)
+            normalize (bool): Whether to normalize the confusion matrix (default: False)
+            cmap (str): Colormap to use (default: 'Blues')
+        """
+        # Calculate confusion matrix
+        cm = confusion_matrix(y_true, y_pred)
+        
+        # Set class names if not provided
+        if class_names is None:
+            if cm.shape[0] == 2:  # Binary classification
+                class_names = ['Negative', 'Positive']
+            else:  # Multi-class classification
+                class_names = [str(i) for i in range(cm.shape[0])]
+        
+        # Normalize the confusion matrix if requested
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            fmt = '.2f'
+            title = f'Normalized {title}'
+        else:
+            fmt = 'd'
+        
+        # Create figure and plot confusion matrix
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt=fmt, cmap=cmap, 
+                   xticklabels=class_names, yticklabels=class_names,
+                   cbar=True, square=True, linewidths=0.5)
+        
+        # Add labels and title
+        plt.xlabel('Predicted Label', fontsize=12)
+        plt.ylabel('True Label', fontsize=12)
+        plt.title(title, fontsize=14)
+        
+        # Calculate and add metrics to the plot
+        tn, fp, fn, tp = cm.ravel()
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        
+        plt.figtext(0.5, 0.01, 
+                  f'Accuracy: {accuracy:.3f}, Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}',
+                  ha='center', fontsize=10, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+        
+        # Adjust plot aesthetics
+        plt.tight_layout(rect=[0, 0.05, 1, 0.95])
+        
+        # Save figure
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
+        
+        plt.close()
+    
+    def calculate_net_benefit(self, y_true, y_pred_proba, threshold):
+        """
+        Calculate the net benefit at a given threshold for decision curve analysis.
+        
+        Args:
+            y_true (np.ndarray): True binary labels (0 or 1)
+            y_pred_proba (np.ndarray): Predicted probabilities
+            threshold (float): Decision threshold for classification
+            
+        Returns:
+            float: Net benefit value at the given threshold
+        """
+        # Handle boundary cases
+        if threshold >= 0.999:  # Prevent division by values close to zero
+            return 0.0
+            
+        # Convert to binary prediction based on threshold
+        y_pred = (y_pred_proba >= threshold).astype(int)
+        
+        # Calculate true positives and false positives
+        TP = np.sum((y_pred == 1) & (y_true == 1))
+        FP = np.sum((y_pred == 1) & (y_true == 0))
+        
+        # Total sample count
+        n = len(y_true)
+        
+        # Calculate net benefit
+        if TP + FP == 0:
+            return 0
+        else:
+            benefit = (TP / n) - (FP / n) * (threshold / (1 - threshold))
+            
+            # Ensure returned value is finite
+            if not np.isfinite(benefit):
+                return 0.0
+            return benefit
+    
+    def plot_calibration_v2(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], save_name: str = 'Calibration.pdf', n_bins: int = 5, title: str = 'test') -> None:
+        """
+        Plot calibration curves for a single dataset (optimized version)
+        
+        Args:
+            models_data: Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values
+            save_name: Name of the file to save the plot
+            n_bins: Number of bins to use for calibration curve
+            title: Data type for title display ('train' or 'test')
+        """
+        plt.figure(figsize=(8, 8))
+        
+        # Plot calibration curves for each model
+        for model_name, (y_true, y_pred_proba) in models_data.items():
+            # Ensure predicted probabilities are within 0-1 range
+            y_pred_normalized = (y_pred_proba - np.min(y_pred_proba)) / (np.max(y_pred_proba) - np.min(y_pred_proba))
+            
+            # Calculate calibration curve
+            prob_true, prob_pred = calibration_curve(y_true, y_pred_normalized, n_bins=n_bins, strategy='quantile')
+            plt.plot(prob_pred, prob_true, 's-', linewidth=1.5, markersize=8, label=model_name)
+        
+        # Add ideal calibration line and beautify the plot
+        plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5, label='Perfectly Calibrated')
+        plt.xlabel('Mean Predicted Probability', fontsize=12)
+        plt.ylabel('Positive Sample Proportion', fontsize=12)
+        
+        # Set title based on data type
+        title = f"{'Training' if title.lower() == 'train' else 'Testing'} Set Calibration Curves"
+        plt.title(title, fontsize=14)
+        
+        plt.legend(loc='best', frameon=True, facecolor='white', framealpha=0.9)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.gca().set_facecolor('#f8f9fa')
+        
+        # Only show left and bottom spines and set their width to 1.5
+        ax = plt.gca()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(True)
+        ax.spines['left'].set_visible(True)
+        ax.spines['bottom'].set_linewidth(1.5)
+        ax.spines['left'].set_linewidth(1.5)
+        
+        # Expand axis range
+        plt.xlim([-0.05, 1.05])
+        plt.ylim([-0.05, 1.05])
+        
+        # Save image
+        plt.tight_layout()
+        
+        # 根据文件扩展名决定是否应用压缩和DPI设置
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
+        
+        plt.close()
+             
+    def plot_shap(self, model: Any, X: np.ndarray, feature_names: List[str], save_name: str = 'SHAP.pdf') -> None:
+        """
+        Plot SHAP values
+        
+        Args:
+            model (Any): Trained model
+            X (np.ndarray): Feature data
+            feature_names (List[str]): List of feature names
+            save_name (str): Name of the file to save the plot
+        """
+        # Create SHAP explainer
+        try:
+            # First check if model has get_model method (custom model wrapper)
+            if hasattr(model, 'get_model'):
+                # Get the underlying model
+                base_model = model.get_model()
+                if hasattr(base_model, 'feature_importances_'):
+                    # Tree model
+                    explainer = shap.TreeExplainer(base_model)
+                elif hasattr(base_model, 'coef_'):
+                    # Linear model
+                    explainer = shap.LinearExplainer(base_model, X)
+                else:
+                    # Other models - use KernelExplainer
+                    explainer = shap.KernelExplainer(model.predict_proba, X)
+            elif hasattr(model, 'feature_importances_'):
+                # Tree model
+                explainer = shap.TreeExplainer(model)
+            elif hasattr(model, 'coef_'):
+                # Linear model
+                explainer = shap.LinearExplainer(model, X)
+            else:
+                # Other models
+                explainer = shap.KernelExplainer(model.predict, X)
+                
+            # Calculate SHAP values
+            shap_values = explainer.shap_values(X)
+            
+            # For classification problems, shap_values may be a list containing SHAP values for each class
+            if isinstance(shap_values, list):
+                shap_values = shap_values[1]  # Take SHAP values for positive class
+            
+            # Plot summary plot
+            plt.figure(figsize=(10, 6))
+            
+            # Ensure feature names list matches the number of features
+            if len(feature_names) != X.shape[1]:
+                print(f"Warning: Feature names list length ({len(feature_names)}) does not match number of features ({X.shape[1]})")
+                feature_names = [f"Feature {i}" for i in range(X.shape[1])]
+                
+            shap.summary_plot(shap_values, X, feature_names=feature_names, show=False)
+            plt.title('Feature Importance (SHAP)')
+            
+            # Save the plot
+            file_ext = os.path.splitext(save_name)[1].lower()
+            if file_ext == '.pdf':
+                plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+            elif file_ext in ['.tif', '.tiff']:
+                plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                            dpi=self.dpi, format='tif', compression='tiff_lzw')
+            else:
+                plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                            dpi=self.dpi)
+            
+            plt.close()
+            
+            # Additional bar plot
+            plt.figure(figsize=(10, 6))
+            shap.summary_plot(shap_values, X, feature_names=feature_names, plot_type="bar", show=False)
+            plt.title('Feature Importance (SHAP Bar Plot)')
+            
+            # Save bar plot
+            bar_save_name = save_name.replace('.pdf', '_bar.pdf')
+            file_ext = os.path.splitext(bar_save_name)[1].lower()
+            if file_ext == '.pdf':
+                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight')
+            elif file_ext in ['.tif', '.tiff']:
+                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight', 
+                            dpi=self.dpi, format='tif', compression='tiff_lzw')
+            else:
+                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight', 
+                            dpi=self.dpi)
+            
+            plt.close()
+            
+        except Exception as e:
+            print(f"Warning: Failed to plot SHAP values: {str(e)}")
+    
+    def plot_pr_curve(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], 
+                  save_name: str = 'PR_curve.pdf', 
+                  title: str = 'evaluation') -> None:
+
+        """
+        Plot Precision-Recall curve for multiple models
+        Args:
+            models_data: Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values
+            save_name: Name of the file to save the plot
+            title: Data type for title display ('train', 'test', or 'evaluation')
+
+        """
+        plt.figure(figsize=(6, 6))
+        # Plot PR curves for each model
+        for model_name, (y_true, y_pred_proba) in models_data.items():
+            precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+            # Calculate average precision score
+            ap = np.trapz(precision, recall)
+            # 关键修改：绘制时交换x和y轴，使图形从左下到右上
+            plt.plot(1 - precision, recall, linewidth=2, label=f'{model_name} (AP = {ap:.3f})')
+        
+        # Beautify the plot
+        plt.xlabel('1 - Precision')  # 修改X轴标签
+
+        plt.ylabel('Recall')
+        plt.title(f'Modified Precision-Recall Curve ({title.capitalize()})')
+        plt.legend(loc='best')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        # Set axis limits for left-to-right, bottom-to-top direction
+        plt.xlim([-0.02, 1.02])
+        plt.ylim([-0.02, 1.02])
+
+        # Only show left and bottom spines and set their width to 1.5
+        ax = plt.gca()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(True)
+        ax.spines['left'].set_visible(True)
+        ax.spines['bottom'].set_linewidth(1.5)
+        ax.spines['left'].set_linewidth(1.5)
+
+        plt.tight_layout()
+        
+        # 根据文件扩展名决定是否应用压缩和DPI设置
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
+        
+        plt.close()

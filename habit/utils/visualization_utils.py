@@ -1,3 +1,117 @@
+"""
+Visualization utility functions
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.colors import ListedColormap
 
-import base64
-exec(base64.b64decode(b'IiIiClZpc3VhbGl6YXRpb24gdXRpbGl0eSBmdW5jdGlvbnMKIiIiCmltcG9ydCBudW1weSBhcyBucAppbXBvcnQgbWF0cGxvdGxpYi5weXBsb3QgYXMgcGx0CmltcG9ydCBzZWFib3JuIGFzIHNucwpmcm9tIG1hdHBsb3RsaWIuY29sb3JzIGltcG9ydCBMaXN0ZWRDb2xvcm1hcAoKZGVmIHBsb3RfaGFiaXRhdHMoaGFiaXRhdF9sYWJlbHM6IG5wLm5kYXJyYXksIGZlYXR1cmVfZGF0YTogbnAubmRhcnJheSwgY29vcmRzOiBucC5uZGFycmF5ID0gTm9uZSwgCiAgICAgICAgICAgICAgICAgIGZpZ3NpemU6IHR1cGxlID0gKDEwLCAxMCksIGNtYXA6IHN0ciA9ICd2aXJpZGlzJywgdGl0bGU6IHN0ciA9ICdIYWJpdGF0IERpc3RyaWJ1dGlvbicsIAogICAgICAgICAgICAgICAgICBhbHBoYTogZmxvYXQgPSAwLjgsIHM6IGludCA9IDUwLCBsZWdlbmQ6IGJvb2wgPSBUcnVlLCAqKmt3YXJncykgLT4gdHVwbGU6CiAgICAiIiIKICAgIFBsb3QgaGFiaXRhdCBkaXN0cmlidXRpb24KICAgIAogICAgQXJnczoKICAgICAgICBoYWJpdGF0X2xhYmVsczogSGFiaXRhdCBsYWJlbHMsIHNoYXBlIChuX3NhbXBsZXMsKQogICAgICAgIGZlYXR1cmVfZGF0YTogRmVhdHVyZSBkYXRhLCBzaGFwZSAobl9zYW1wbGVzLCBuX2ZlYXR1cmVzKQogICAgICAgIGNvb3JkczogQ29vcmRpbmF0ZSBpbmZvcm1hdGlvbiwgc2hhcGUgKG5fc2FtcGxlcywgMiksIGlmIE5vbmUsIFBDQSBkaW1lbnNpb25hbGl0eSByZWR1Y3Rpb24gaXMgdXNlZAogICAgICAgIGZpZ3NpemU6IEZpZ3VyZSBzaXplCiAgICAgICAgY21hcDogQ29sb3IgbWFwCiAgICAgICAgdGl0bGU6IEZpZ3VyZSB0aXRsZQogICAgICAgIGFscGhhOiBQb2ludCB0cmFuc3BhcmVuY3kKICAgICAgICBzOiBQb2ludCBzaXplCiAgICAgICAgbGVnZW5kOiBXaGV0aGVyIHRvIGRpc3BsYXkgbGVnZW5kCiAgICAgICAgKiprd2FyZ3M6IE90aGVyIHBhcmFtZXRlcnMgcGFzc2VkIHRvIHBsdC5zY2F0dGVyCiAgICAKICAgIFJldHVybnM6CiAgICAgICAgdHVwbGU6IChmaWcsIGF4KSBGaWd1cmUgYW5kIGF4aXMgb2JqZWN0cwogICAgIiIiCiAgICBpZiBjb29yZHMgaXMgTm9uZToKICAgICAgICAjIFVzZSBQQ0EgZGltZW5zaW9uYWxpdHkgcmVkdWN0aW9uIHRvIDJEIGZvciB2aXN1YWxpemF0aW9uCiAgICAgICAgZnJvbSBza2xlYXJuLmRlY29tcG9zaXRpb24gaW1wb3J0IFBDQQogICAgICAgIHBjYSA9IFBDQShuX2NvbXBvbmVudHM9MikKICAgICAgICBjb29yZHMgPSBwY2EuZml0X3RyYW5zZm9ybShmZWF0dXJlX2RhdGEpCiAgICAKICAgICMgQ3JlYXRlIGZpZ3VyZQogICAgZmlnLCBheCA9IHBsdC5zdWJwbG90cyhmaWdzaXplPWZpZ3NpemUpCiAgICAKICAgICMgR2V0IHVuaXF1ZSBsYWJlbHMKICAgIHVuaXF1ZV9sYWJlbHMgPSBucC51bmlxdWUoaGFiaXRhdF9sYWJlbHMpCiAgICAKICAgICMgSWYgY21hcCBpcyBhIHN0cmluZyB0eXBlLCBjb252ZXJ0IHRvIExpc3RlZENvbG9ybWFwCiAgICBpZiBpc2luc3RhbmNlKGNtYXAsIHN0cik6CiAgICAgICAgIyBVc2UgYnVpbHQtaW4gY29sb3IgbWFwCiAgICAgICAgY21hcCA9IHBsdC5nZXRfY21hcChjbWFwLCBsZW4odW5pcXVlX2xhYmVscykpCiAgICBlbGlmIGlzaW5zdGFuY2UoY21hcCwgbGlzdCk6CiAgICAgICAgIyBVc2UgY3VzdG9tIGNvbG9yIGxpc3QKICAgICAgICBjbWFwID0gTGlzdGVkQ29sb3JtYXAoY21hcCkKICAgIAogICAgIyBQbG90IHBvaW50cyBmb3IgZWFjaCBoYWJpdGF0CiAgICBmb3IgaSwgbGFiZWwgaW4gZW51bWVyYXRlKHVuaXF1ZV9sYWJlbHMpOgogICAgICAgIG1hc2sgPSBoYWJpdGF0X2xhYmVscyA9PSBsYWJlbAogICAgICAgIGF4LnNjYXR0ZXIoY29vcmRzW21hc2ssIDBdLCBjb29yZHNbbWFzaywgMV0sIAogICAgICAgICAgICAgICAgICBjb2xvcj1jbWFwKGkpIGlmIGhhc2F0dHIoY21hcCwgJ19fY2FsbF9fJykgZWxzZSBjbWFwLCAKICAgICAgICAgICAgICAgICAgbGFiZWw9ZidIYWJpdGF0IHtsYWJlbH0nLAogICAgICAgICAgICAgICAgICBhbHBoYT1hbHBoYSwgcz1zLCAqKmt3YXJncykKICAgIAogICAgaWYgbGVnZW5kOgogICAgICAgIGF4LmxlZ2VuZChsb2M9J2Jlc3QnKQogICAgCiAgICBheC5zZXRfdGl0bGUodGl0bGUpCiAgICBheC5ncmlkKFRydWUsIGxpbmVzdHlsZT0nLS0nLCBhbHBoYT0wLjcpCiAgICAKICAgIHJldHVybiBmaWcsIGF4CgpkZWYgcGxvdF9mZWF0dXJlX3Njb3JlcyhmZWF0dXJlX25hbWVzOiBsaXN0LCBmZWF0dXJlX3Njb3JlczogbGlzdCwgZmlnc2l6ZTogdHVwbGUgPSAoMTIsIDgpLCB0b3BfbjogaW50ID0gTm9uZSwgCiAgICAgICAgICAgICAgICAgICAgICAgIHRpdGxlOiBzdHIgPSAnRmVhdHVyZSBJbXBvcnRhbmNlIFNjb3JlcycsIGNvbG9yOiBzdHIgPSAnc2t5Ymx1ZScsIAogICAgICAgICAgICAgICAgICAgICAgICBzb3J0OiBib29sID0gVHJ1ZSwgKiprd2FyZ3MpIC0+IHR1cGxlOgogICAgIiIiCiAgICBQbG90IGZlYXR1cmUgaW1wb3J0YW5jZSBzY29yZXMKICAgIAogICAgQXJnczoKICAgICAgICBmZWF0dXJlX25hbWVzOiBMaXN0IG9mIGZlYXR1cmUgbmFtZXMKICAgICAgICBmZWF0dXJlX3Njb3JlczogTGlzdCBvZiBmZWF0dXJlIHNjb3JlcwogICAgICAgIGZpZ3NpemU6IEZpZ3VyZSBzaXplCiAgICAgICAgdG9wX246IE9ubHkgZGlzcGxheSB0b3AgTiBmZWF0dXJlcwogICAgICAgIHRpdGxlOiBGaWd1cmUgdGl0bGUKICAgICAgICBjb2xvcjogQmFyIGNoYXJ0IGNvbG9yCiAgICAgICAgc29ydDogV2hldGhlciB0byBzb3J0IGJ5IHNjb3JlCiAgICAgICAgKiprd2FyZ3M6IE90aGVyIHBhcmFtZXRlcnMgcGFzc2VkIHRvIHBsdC5iYXIKICAgIAogICAgUmV0dXJuczoKICAgICAgICB0dXBsZTogKGZpZywgYXgpIEZpZ3VyZSBhbmQgYXhpcyBvYmplY3RzCiAgICAiIiIKICAgICMgQ3JlYXRlIGRhdGFmcmFtZQogICAgaW1wb3J0IHBhbmRhcyBhcyBwZAogICAgZGYgPSBwZC5EYXRhRnJhbWUoeydmZWF0dXJlJzogZmVhdHVyZV9uYW1lcywgJ3Njb3JlJzogZmVhdHVyZV9zY29yZXN9KQogICAgCiAgICAjIFNvcnQKICAgIGlmIHNvcnQ6CiAgICAgICAgZGYgPSBkZi5zb3J0X3ZhbHVlcygnc2NvcmUnLCBhc2NlbmRpbmc9RmFsc2UpCiAgICAKICAgICMgR2V0IHRvcF9uIGZlYXR1cmVzCiAgICBpZiB0b3BfbiBpcyBub3QgTm9uZToKICAgICAgICBkZiA9IGRmLmhlYWQodG9wX24pCiAgICAKICAgICMgQ3JlYXRlIGZpZ3VyZQogICAgZmlnLCBheCA9IHBsdC5zdWJwbG90cyhmaWdzaXplPWZpZ3NpemUpCiAgICAKICAgICMgRHJhdyBiYXIgY2hhcnQKICAgIGF4LmJhcihkZlsnZmVhdHVyZSddLCBkZlsnc2NvcmUnXSwgY29sb3I9Y29sb3IsICoqa3dhcmdzKQogICAgCiAgICAjIFNldCB0aXRsZSBhbmQgbGFiZWxzCiAgICBheC5zZXRfdGl0bGUodGl0bGUpCiAgICBheC5zZXRfeGxhYmVsKCdGZWF0dXJlIE5hbWUnKQogICAgYXguc2V0X3lsYWJlbCgnSW1wb3J0YW5jZSBTY29yZScpCiAgICAKICAgICMgUm90YXRlIHgtYXhpcyBsYWJlbHMgdG8gcHJldmVudCBvdmVybGFwCiAgICBwbHQueHRpY2tzKHJvdGF0aW9uPTQ1LCBoYT0ncmlnaHQnKQogICAgCiAgICAjIEFkZCBncmlkCiAgICBheC5ncmlkKFRydWUsIGxpbmVzdHlsZT0nLS0nLCBhbHBoYT0wLjcsIGF4aXM9J3knKQogICAgCiAgICAjIEFkanVzdCBsYXlvdXQKICAgIHBsdC50aWdodF9sYXlvdXQoKQogICAgCiAgICByZXR1cm4gZmlnLCBheCA=').decode())
+def plot_habitats(habitat_labels: np.ndarray, feature_data: np.ndarray, coords: np.ndarray = None, 
+                  figsize: tuple = (10, 10), cmap: str = 'viridis', title: str = 'Habitat Distribution', 
+                  alpha: float = 0.8, s: int = 50, legend: bool = True, **kwargs) -> tuple:
+    """
+    Plot habitat distribution
+    
+    Args:
+        habitat_labels: Habitat labels, shape (n_samples,)
+        feature_data: Feature data, shape (n_samples, n_features)
+        coords: Coordinate information, shape (n_samples, 2), if None, PCA dimensionality reduction is used
+        figsize: Figure size
+        cmap: Color map
+        title: Figure title
+        alpha: Point transparency
+        s: Point size
+        legend: Whether to display legend
+        **kwargs: Other parameters passed to plt.scatter
+    
+    Returns:
+        tuple: (fig, ax) Figure and axis objects
+    """
+    if coords is None:
+        # Use PCA dimensionality reduction to 2D for visualization
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=2)
+        coords = pca.fit_transform(feature_data)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Get unique labels
+    unique_labels = np.unique(habitat_labels)
+    
+    # If cmap is a string type, convert to ListedColormap
+    if isinstance(cmap, str):
+        # Use built-in color map
+        cmap = plt.get_cmap(cmap, len(unique_labels))
+    elif isinstance(cmap, list):
+        # Use custom color list
+        cmap = ListedColormap(cmap)
+    
+    # Plot points for each habitat
+    for i, label in enumerate(unique_labels):
+        mask = habitat_labels == label
+        ax.scatter(coords[mask, 0], coords[mask, 1], 
+                  color=cmap(i) if hasattr(cmap, '__call__') else cmap, 
+                  label=f'Habitat {label}',
+                  alpha=alpha, s=s, **kwargs)
+    
+    if legend:
+        ax.legend(loc='best')
+    
+    ax.set_title(title)
+    ax.grid(True, linestyle='--', alpha=0.7)
+    
+    return fig, ax
+
+def plot_feature_scores(feature_names: list, feature_scores: list, figsize: tuple = (12, 8), top_n: int = None, 
+                        title: str = 'Feature Importance Scores', color: str = 'skyblue', 
+                        sort: bool = True, **kwargs) -> tuple:
+    """
+    Plot feature importance scores
+    
+    Args:
+        feature_names: List of feature names
+        feature_scores: List of feature scores
+        figsize: Figure size
+        top_n: Only display top N features
+        title: Figure title
+        color: Bar chart color
+        sort: Whether to sort by score
+        **kwargs: Other parameters passed to plt.bar
+    
+    Returns:
+        tuple: (fig, ax) Figure and axis objects
+    """
+    # Create dataframe
+    import pandas as pd
+    df = pd.DataFrame({'feature': feature_names, 'score': feature_scores})
+    
+    # Sort
+    if sort:
+        df = df.sort_values('score', ascending=False)
+    
+    # Get top_n features
+    if top_n is not None:
+        df = df.head(top_n)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Draw bar chart
+    ax.bar(df['feature'], df['score'], color=color, **kwargs)
+    
+    # Set title and labels
+    ax.set_title(title)
+    ax.set_xlabel('Feature Name')
+    ax.set_ylabel('Importance Score')
+    
+    # Rotate x-axis labels to prevent overlap
+    plt.xticks(rotation=45, ha='right')
+    
+    # Add grid
+    ax.grid(True, linestyle='--', alpha=0.7, axis='y')
+    
+    # Adjust layout
+    plt.tight_layout()
+    
+    return fig, ax 

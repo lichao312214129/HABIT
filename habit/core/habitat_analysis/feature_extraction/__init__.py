@@ -1,3 +1,10 @@
+"""
+Feature extraction module for habitat analysis.
 
-import base64
-exec(base64.b64decode(b'IiIiDQpGZWF0dXJlIGV4dHJhY3Rpb24gbW9kdWxlIGZvciBoYWJpdGF0IGFuYWx5c2lzLg0KDQpUaGlzIG1vZHVsZSBwcm92aWRlcyBmdW5jdGlvbmFsaXR5IGZvciBleHRyYWN0aW5nIHZhcmlvdXMgZmVhdHVyZXMgZnJvbSBoYWJpdGF0IG1hcHMsDQppbmNsdWRpbmcgcmFkaW9taWMgZmVhdHVyZXMsIG5vbi1yYWRpb21pYyBmZWF0dXJlcywgYW5kIE1TSSBmZWF0dXJlcy4NCiIiIg0KDQpmcm9tIC5leHRyYWN0b3IgaW1wb3J0IEhhYml0YXRGZWF0dXJlRXh0cmFjdG9yDQoNCl9fYWxsX18gPSBbJ0hhYml0YXRGZWF0dXJlRXh0cmFjdG9yJ10NCg==').decode())
+This module provides functionality for extracting various features from habitat maps,
+including radiomic features, non-radiomic features, and MSI features.
+"""
+
+from .extractor import HabitatFeatureExtractor
+
+__all__ = ['HabitatFeatureExtractor']

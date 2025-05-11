@@ -1,3 +1,89 @@
+"""
+mRMR Feature Selector
 
-import base64
-exec(base64.b64decode(b'IiIiDQptUk1SIEZlYXR1cmUgU2VsZWN0b3INCg0KSW1wbGVtZW50YXRpb24gb2YgTWluaW11bSBSZWR1bmRhbmN5IE1heGltdW0gUmVsZXZhbmNlIGFsZ29yaXRobSBmb3IgZmVhdHVyZSBzZWxlY3Rpb24uDQpSRUY6ICJGZWF0dXJlIHNlbGVjdGlvbiBiYXNlZCBvbiBtdXR1YWwgaW5mb3JtYXRpb246IGNyaXRlcmlhIG9mIG1heC1kZXBlbmRlbmN5LCBtYXgtcmVsZXZhbmNlLCBhbmQgbWluLXJlZHVuZGFuY3kiDQoiIiINCg0KaW1wb3J0IG51bXB5IGFzIG5wDQppbXBvcnQgcGFuZGFzIGFzIHBkDQpmcm9tIHR5cGluZyBpbXBvcnQgTGlzdCwgVHVwbGUsIEFueSwgRGljdCwgT3B0aW9uYWwsIFVuaW9uDQppbXBvcnQgb3MNCmltcG9ydCBqc29uDQp0cnk6DQogICAgZnJvbSBza2ZlYXR1cmUuZnVuY3Rpb24uaW5mb3JtYXRpb25fdGhlb3JldGljYWxfYmFzZWQgaW1wb3J0IE1STVINCiAgICBTS0ZFQVRVUkVfQVZBSUxBQkxFID0gVHJ1ZQ0KZXhjZXB0IEltcG9ydEVycm9yOg0KICAgIFNLRkVBVFVSRV9BVkFJTEFCTEUgPSBGYWxzZQ0KICAgIHByaW50KCJXYXJuaW5nOiBzY2lraXQtZmVhdHVyZSBwYWNrYWdlIG5vdCBhdmFpbGFibGUuIG1STVIgc2VsZWN0aW9uIHdpbGwgbm90IGJlIGF2YWlsYWJsZS4iKQ0KICAgIHByaW50KCJZb3UgY2FuIGluc3RhbGwgc2Npa2l0LWZlYXR1cmUgZnJvbSBHaXRIdWI6IGh0dHBzOi8vZ2l0aHViLmNvbS9qdW5kb25nbC9zY2lraXQtZmVhdHVyZSIpDQoNCmZyb20gLnNlbGVjdG9yX3JlZ2lzdHJ5IGltcG9ydCByZWdpc3Rlcl9zZWxlY3Rvcg0KDQpAcmVnaXN0ZXJfc2VsZWN0b3IoJ21ybXInKQ0KZGVmIG1ybXJfc2VsZWN0b3IoDQogICAgICAgIFg6IHBkLkRhdGFGcmFtZSwNCiAgICAgICAgeTogcGQuU2VyaWVzLA0KICAgICAgICBzZWxlY3RlZF9mZWF0dXJlczogTGlzdFtzdHJdLA0KICAgICAgICBuX2ZlYXR1cmVzX3RvX3NlbGVjdDogaW50ID0gMjAsDQogICAgICAgIG91dGRpcjogT3B0aW9uYWxbc3RyXSA9IE5vbmUsDQogICAgICAgICoqa3dhcmdzDQogICAgKSAtPiBMaXN0W3N0cl06DQogICAgIiIiDQogICAgQXBwbHkgbVJNUiBhbGdvcml0aG0gdG8gc2VsZWN0IHRoZSBtb3N0IHJlbGV2YW50IGZlYXR1cmVzDQogICAgDQogICAgQXJnczoNCiAgICAgICAgWDogRmVhdHVyZSBkYXRhDQogICAgICAgIHk6IFRhcmdldCB2YXJpYWJsZQ0KICAgICAgICBzZWxlY3RlZF9mZWF0dXJlczogTGlzdCBvZiBmZWF0dXJlcyB0byBzZWxlY3QgZnJvbQ0KICAgICAgICBuX2ZlYXR1cmVzX3RvX3NlbGVjdDogTnVtYmVyIG9mIGZlYXR1cmVzIHRvIHNlbGVjdA0KICAgICAgICBvdXRkaXI6IE91dHB1dCBkaXJlY3RvcnkgZm9yIHJlc3VsdHMNCiAgICAgICAgKiprd2FyZ3M6IEFkZGl0aW9uYWwgYXJndW1lbnRzDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIExpc3Rbc3RyXTogU2VsZWN0ZWQgZmVhdHVyZSBuYW1lcw0KICAgICAgICANCiAgICBSYWlzZXM6DQogICAgICAgIEltcG9ydEVycm9yOiBJZiBzY2lraXQtZmVhdHVyZSBwYWNrYWdlIGlzIG5vdCBhdmFpbGFibGUNCiAgICAiIiINCiAgICBpZiBub3QgU0tGRUFUVVJFX0FWQUlMQUJMRToNCiAgICAgICAgcmFpc2UgSW1wb3J0RXJyb3IoInNjaWtpdC1mZWF0dXJlIHBhY2thZ2UgaXMgcmVxdWlyZWQgZm9yIG1STVIgc2VsZWN0aW9uIikNCiAgICANCiAgICAjIEVuc3VyZSBuX2ZlYXR1cmVzX3RvX3NlbGVjdCBpcyB2YWxpZA0KICAgIG5fZmVhdHVyZXNfdG9fc2VsZWN0ID0gbWluKG5fZmVhdHVyZXNfdG9fc2VsZWN0LCBsZW4oc2VsZWN0ZWRfZmVhdHVyZXMpKQ0KICAgIA0KICAgICMgQ29udmVydCBkYXRhIHRvIG51bXB5IGFycmF5cw0KICAgIFhfZGF0YSA9IFhbc2VsZWN0ZWRfZmVhdHVyZXNdLnZhbHVlcw0KICAgIHlfZGF0YSA9IHkudmFsdWVzDQogICAgDQogICAgIyBBcHBseSB0aGUgbVJNUiBhbGdvcml0aG0gdG8gc2VsZWN0IGZlYXR1cmVzDQogICAgc2VsZWN0ZWRfaW5kaWNlcyA9IE1STVIubXJtcihYX2RhdGEsIHlfZGF0YSwgbl9zZWxlY3RlZF9mZWF0dXJlcz1uX2ZlYXR1cmVzX3RvX3NlbGVjdCkNCiAgICANCiAgICAjIEdldCB0aGUgc2VsZWN0ZWQgZmVhdHVyZSBuYW1lcw0KICAgIHNlbGVjdGVkX2ZlYXR1cmVzX3Jlc3VsdCA9IFtzZWxlY3RlZF9mZWF0dXJlc1tpXSBmb3IgaSBpbiBzZWxlY3RlZF9pbmRpY2VzXQ0KDQogICAgcHJpbnQoZiJtUk1SIHNlbGVjdGlvbjogU2VsZWN0ZWQge25fZmVhdHVyZXNfdG9fc2VsZWN0fSBmZWF0dXJlcyBmcm9tIHtsZW4oc2VsZWN0ZWRfZmVhdHVyZXMpfSBmZWF0dXJlcyIpDQogICAgDQogICAgIyBTYXZlIHJlc3VsdHMgaWYgb3V0cHV0IGRpcmVjdG9yeSBzcGVjaWZpZWQNCiAgICBpZiBvdXRkaXI6DQogICAgICAgIG9zLm1ha2VkaXJzKG91dGRpciwgZXhpc3Rfb2s9VHJ1ZSkNCiAgICAgICAgDQogICAgICAgICMgU2F2ZSBzZWxlY3RlZCBmZWF0dXJlcw0KICAgICAgICByZXN1bHRfZmlsZSA9IG9zLnBhdGguam9pbihvdXRkaXIsICdtcm1yX3NlbGVjdGVkX2ZlYXR1cmVzLmpzb24nKQ0KICAgICAgICB3aXRoIG9wZW4ocmVzdWx0X2ZpbGUsICd3JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoNCiAgICAgICAgICAgIGpzb24uZHVtcCh7DQogICAgICAgICAgICAgICAgJ3NlbGVjdGVkX2ZlYXR1cmVzJzogc2VsZWN0ZWRfZmVhdHVyZXNfcmVzdWx0LA0KICAgICAgICAgICAgICAgICdzZWxlY3RlZF9pbmRpY2VzJzogc2VsZWN0ZWRfaW5kaWNlcy50b2xpc3QoKSwNCiAgICAgICAgICAgICAgICAnbl9mZWF0dXJlc19zZWxlY3RlZCc6IGxlbihzZWxlY3RlZF9mZWF0dXJlc19yZXN1bHQpLA0KICAgICAgICAgICAgICAgICdvcmlnaW5hbF9mZWF0dXJlX2NvdW50JzogbGVuKHNlbGVjdGVkX2ZlYXR1cmVzKQ0KICAgICAgICAgICAgfSwgZiwgZW5zdXJlX2FzY2lpPUZhbHNlLCBpbmRlbnQ9NCkNCiAgICAgICAgICAgIA0KICAgICAgICAjIFNhdmUgZmVhdHVyZSByYW5raW5nDQogICAgICAgIHJhbmtpbmdfZGF0YSA9IHBkLkRhdGFGcmFtZSh7DQogICAgICAgICAgICAnZmVhdHVyZSc6IFtzZWxlY3RlZF9mZWF0dXJlc1tpXSBmb3IgaSBpbiBzZWxlY3RlZF9pbmRpY2VzXSwNCiAgICAgICAgICAgICdyYW5rJzogcmFuZ2UoMSwgbGVuKHNlbGVjdGVkX2luZGljZXMpICsgMSkNCiAgICAgICAgfSkNCiAgICAgICAgcmFua2luZ19maWxlID0gb3MucGF0aC5qb2luKG91dGRpciwgJ21ybXJfZmVhdHVyZV9yYW5raW5nLmNzdicpDQogICAgICAgIHJhbmtpbmdfZGF0YS50b19jc3YocmFua2luZ19maWxlLCBpbmRleD1GYWxzZSkNCiAgICAgICAgDQogICAgcmV0dXJuIHNlbGVjdGVkX2ZlYXR1cmVzX3Jlc3VsdFs6bl9mZWF0dXJlc190b19zZWxlY3Rd').decode())
+Implementation of Minimum Redundancy Maximum Relevance algorithm for feature selection.
+REF: "Feature selection based on mutual information: criteria of max-dependency, max-relevance, and min-redundancy"
+"""
+
+import numpy as np
+import pandas as pd
+from typing import List, Tuple, Any, Dict, Optional, Union
+import os
+import json
+try:
+    from skfeature.function.information_theoretical_based import MRMR
+    SKFEATURE_AVAILABLE = True
+except ImportError:
+    SKFEATURE_AVAILABLE = False
+    print("Warning: scikit-feature package not available. mRMR selection will not be available.")
+    print("You can install scikit-feature from GitHub: https://github.com/jundongl/scikit-feature")
+
+from .selector_registry import register_selector
+
+@register_selector('mrmr')
+def mrmr_selector(
+        X: pd.DataFrame,
+        y: pd.Series,
+        selected_features: List[str],
+        n_features_to_select: int = 20,
+        outdir: Optional[str] = None,
+        **kwargs
+    ) -> List[str]:
+    """
+    Apply mRMR algorithm to select the most relevant features
+    
+    Args:
+        X: Feature data
+        y: Target variable
+        selected_features: List of features to select from
+        n_features_to_select: Number of features to select
+        outdir: Output directory for results
+        **kwargs: Additional arguments
+        
+    Returns:
+        List[str]: Selected feature names
+        
+    Raises:
+        ImportError: If scikit-feature package is not available
+    """
+    if not SKFEATURE_AVAILABLE:
+        raise ImportError("scikit-feature package is required for mRMR selection")
+    
+    # Ensure n_features_to_select is valid
+    n_features_to_select = min(n_features_to_select, len(selected_features))
+    
+    # Convert data to numpy arrays
+    X_data = X[selected_features].values
+    y_data = y.values
+    
+    # Apply the mRMR algorithm to select features
+    selected_indices = MRMR.mrmr(X_data, y_data, n_selected_features=n_features_to_select)
+    
+    # Get the selected feature names
+    selected_features_result = [selected_features[i] for i in selected_indices]
+
+    print(f"mRMR selection: Selected {n_features_to_select} features from {len(selected_features)} features")
+    
+    # Save results if output directory specified
+    if outdir:
+        os.makedirs(outdir, exist_ok=True)
+        
+        # Save selected features
+        result_file = os.path.join(outdir, 'mrmr_selected_features.json')
+        with open(result_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                'selected_features': selected_features_result,
+                'selected_indices': selected_indices.tolist(),
+                'n_features_selected': len(selected_features_result),
+                'original_feature_count': len(selected_features)
+            }, f, ensure_ascii=False, indent=4)
+            
+        # Save feature ranking
+        ranking_data = pd.DataFrame({
+            'feature': [selected_features[i] for i in selected_indices],
+            'rank': range(1, len(selected_indices) + 1)
+        })
+        ranking_file = os.path.join(outdir, 'mrmr_feature_ranking.csv')
+        ranking_data.to_csv(ranking_file, index=False)
+        
+    return selected_features_result[:n_features_to_select]

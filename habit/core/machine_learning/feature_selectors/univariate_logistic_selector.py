@@ -1,3 +1,188 @@
+"""
+Univariate Logistic Regression Feature Selector
 
-import base64
-exec(base64.b64decode(b'IiIiDQpVbml2YXJpYXRlIExvZ2lzdGljIFJlZ3Jlc3Npb24gRmVhdHVyZSBTZWxlY3Rvcg0KDQpQZXJmb3JtcyBmZWF0dXJlIHNlbGVjdGlvbiB1c2luZyB1bml2YXJpYXRlIGxvZ2lzdGljIHJlZ3Jlc3Npb24NCiIiIg0KaW1wb3J0IG9zDQppbXBvcnQgcGFuZGFzIGFzIHBkDQppbXBvcnQgbnVtcHkgYXMgbnANCmZyb20gdHlwaW5nIGltcG9ydCBMaXN0LCBEaWN0LCBUdXBsZSwgT3B0aW9uYWwsIFVuaW9uDQppbXBvcnQgc3RhdHNtb2RlbHMuZm9ybXVsYS5hcGkgYXMgc21mDQpmcm9tIHRxZG0gaW1wb3J0IHRxZG0NCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aA0KDQpmcm9tIC5zZWxlY3Rvcl9yZWdpc3RyeSBpbXBvcnQgcmVnaXN0ZXJfc2VsZWN0b3INCg0KZGVmIGRldGVjdF9maWxlX3R5cGUoaW5wdXRfcGF0aDogc3RyKSAtPiBPcHRpb25hbFtzdHJdOg0KICAgICIiIg0KICAgIEF1dG9tYXRpY2FsbHkgZGV0ZWN0IGZpbGUgdHlwZQ0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGlucHV0X3BhdGg6IHN0ciwgSW5wdXQgZmlsZSBwYXRoDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIE9wdGlvbmFsW3N0cl06IERldGVjdGVkIGZpbGUgdHlwZSwgcmV0dXJucyBOb25lIGlmIGNhbm5vdCBkZXRlY3QNCiAgICAiIiINCiAgICBmaWxlX2V4dCA9IFBhdGgoaW5wdXRfcGF0aCkuc3VmZml4Lmxvd2VyKCkNCiAgICBmaWxlX3R5cGVzID0gew0KICAgICAgICAnLmNzdic6ICdjc3YnLA0KICAgICAgICAnLnhsc3gnOiAnZXhjZWwnLA0KICAgICAgICAnLnhscyc6ICdleGNlbCcsDQogICAgICAgICcucGFycXVldCc6ICdwYXJxdWV0JywNCiAgICAgICAgJy5qc29uJzogJ2pzb24nLA0KICAgICAgICAnLnBrbCc6ICdwaWNrbGUnLA0KICAgICAgICAnLnBpY2tsZSc6ICdwaWNrbGUnDQogICAgfQ0KICAgIA0KICAgIGlmIGZpbGVfZXh0IGluIGZpbGVfdHlwZXM6DQogICAgICAgIHJldHVybiBmaWxlX3R5cGVzW2ZpbGVfZXh0XQ0KICAgIA0KICAgIHRyeToNCiAgICAgICAgd2l0aCBvcGVuKGlucHV0X3BhdGgsICdyJywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoNCiAgICAgICAgICAgIGZpcnN0X2xpbmUgPSBmLnJlYWRsaW5lKCkuc3RyaXAoKQ0KICAgICAgICAgICAgaWYgJywnIGluIGZpcnN0X2xpbmUgYW5kIGxlbihmaXJzdF9saW5lLnNwbGl0KCcsJykpID4gMToNCiAgICAgICAgICAgICAgICByZXR1cm4gJ2NzdicNCiAgICAgICAgICAgIGVsaWYgZmlyc3RfbGluZS5zdGFydHN3aXRoKCd7Jykgb3IgZmlyc3RfbGluZS5zdGFydHN3aXRoKCdbJyk6DQogICAgICAgICAgICAgICAgcmV0dXJuICdqc29uJw0KICAgIGV4Y2VwdDoNCiAgICAgICAgcGFzcw0KICAgIA0KICAgIHJldHVybiBOb25lDQoNCmRlZiBsb2FkX2RhdGEoaW5wdXRfZGF0YTogVW5pb25bc3RyLCBwZC5EYXRhRnJhbWVdLCANCiAgICAgICAgICAgICAgdGFyZ2V0X2NvbHVtbjogT3B0aW9uYWxbc3RyXSA9IE5vbmUsDQogICAgICAgICAgICAgIGZpbGVfdHlwZTogT3B0aW9uYWxbc3RyXSA9IE5vbmUsDQogICAgICAgICAgICAgIGNvbHVtbnM6IE9wdGlvbmFsW1VuaW9uW3N0ciwgTGlzdFtzdHJdXV0gPSBOb25lKSAtPiBUdXBsZVtwZC5EYXRhRnJhbWUsIHBkLlNlcmllc106DQogICAgIiIiDQogICAgTG9hZCBkYXRhIGZyb20gdmFyaW91cyBmb3JtYXRzDQogICAgDQogICAgQXJnczoNCiAgICAgICAgaW5wdXRfZGF0YTogVW5pb25bc3RyLCBwZC5EYXRhRnJhbWVdLCBJbnB1dCBkYXRhIHBhdGggb3IgRGF0YUZyYW1lIG9iamVjdA0KICAgICAgICB0YXJnZXRfY29sdW1uOiBPcHRpb25hbFtzdHJdLCBUYXJnZXQgdmFyaWFibGUgY29sdW1uIG5hbWUNCiAgICAgICAgZmlsZV90eXBlOiBPcHRpb25hbFtzdHJdLCBGaWxlIHR5cGUNCiAgICAgICAgY29sdW1uczogT3B0aW9uYWxbVW5pb25bc3RyLCBMaXN0W3N0cl1dXSwgRmVhdHVyZSBjb2x1bW4gc2VsZWN0aW9uDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIFR1cGxlW3BkLkRhdGFGcmFtZSwgcGQuU2VyaWVzXTogRmVhdHVyZSBkYXRhIGFuZCB0YXJnZXQgdmFyaWFibGUNCiAgICAiIiINCiAgICBpZiBpc2luc3RhbmNlKGlucHV0X2RhdGEsIHBkLkRhdGFGcmFtZSk6DQogICAgICAgIGRhdGEgPSBpbnB1dF9kYXRhDQogICAgZWxzZToNCiAgICAgICAgaWYgbm90IG9zLnBhdGguZXhpc3RzKGlucHV0X2RhdGEpOg0KICAgICAgICAgICAgcmFpc2UgRmlsZU5vdEZvdW5kRXJyb3IoZiJFcnJvcjogRmlsZSB7aW5wdXRfZGF0YX0gZG9lcyBub3QgZXhpc3QiKQ0KICAgICAgICANCiAgICAgICAgaWYgZmlsZV90eXBlIGlzIE5vbmU6DQogICAgICAgICAgICBmaWxlX3R5cGUgPSBkZXRlY3RfZmlsZV90eXBlKGlucHV0X2RhdGEpDQogICAgICAgICAgICBpZiBmaWxlX3R5cGUgaXMgTm9uZToNCiAgICAgICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiQ2Fubm90IGRldGVjdCBmaWxlIHR5cGU6IHtpbnB1dF9kYXRhfSIpDQogICAgICAgICAgICBwcmludChmIkF1dG9tYXRpY2FsbHkgZGV0ZWN0ZWQgZmlsZSB0eXBlOiB7ZmlsZV90eXBlfSIpDQogICAgICAgIA0KICAgICAgICBsb2FkZXJzID0gew0KICAgICAgICAgICAgJ2Nzdic6IHBkLnJlYWRfY3N2LA0KICAgICAgICAgICAgJ2V4Y2VsJzogcGQucmVhZF9leGNlbCwNCiAgICAgICAgICAgICdwYXJxdWV0JzogcGQucmVhZF9wYXJxdWV0LA0KICAgICAgICAgICAgJ2pzb24nOiBwZC5yZWFkX2pzb24sDQogICAgICAgICAgICAncGlja2xlJzogcGQucmVhZF9waWNrbGUNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgaWYgZmlsZV90eXBlLmxvd2VyKCkgbm90IGluIGxvYWRlcnM6DQogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiVW5zdXBwb3J0ZWQgZmlsZSB0eXBlOiB7ZmlsZV90eXBlfSIpDQogICAgICAgIA0KICAgICAgICB0cnk6DQogICAgICAgICAgICBkYXRhID0gbG9hZGVyc1tmaWxlX3R5cGUubG93ZXIoKV0oaW5wdXRfZGF0YSkNCiAgICAgICAgICAgIGlmIGRhdGEuZW1wdHk6DQogICAgICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkxvYWRlZCBkYXRhIGlzIGVtcHR5OiB7aW5wdXRfZGF0YX0iKQ0KICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6DQogICAgICAgICAgICByYWlzZSBFeGNlcHRpb24oZiJFcnJvciBsb2FkaW5nIGRhdGE6IHtlfSIpDQogICAgDQogICAgIyBIYW5kbGUgY29sdW1uIHNlbGVjdGlvbg0KICAgIGlmIHRhcmdldF9jb2x1bW4gaXMgTm9uZToNCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiVGFyZ2V0IGNvbHVtbiBuYW1lIG11c3QgYmUgc3BlY2lmaWVkIikNCiAgICANCiAgICBpZiBjb2x1bW5zIGlzIG5vdCBOb25lOg0KICAgICAgICBpZiBpc2luc3RhbmNlKGNvbHVtbnMsIHN0cik6DQogICAgICAgICAgICBpZiAnOicgaW4gY29sdW1uczoNCiAgICAgICAgICAgICAgICBzdGFydCwgZW5kID0gY29sdW1ucy5zcGxpdCgnOicpDQogICAgICAgICAgICAgICAgc3RhcnQgPSBpbnQoc3RhcnQpIGlmIHN0YXJ0IGVsc2UgMA0KICAgICAgICAgICAgICAgIGVuZCA9IGludChlbmQpIGlmIGVuZCBlbHNlIE5vbmUNCiAgICAgICAgICAgICAgICAjIEdldCBhbGwgY29sdW1uIG5hbWVzDQogICAgICAgICAgICAgICAgYWxsX2NvbHMgPSBkYXRhLmNvbHVtbnMudG9saXN0KCkNCiAgICAgICAgICAgICAgICAjIFRhcmdldCBjb2x1bW4gaW5kZXgNCiAgICAgICAgICAgICAgICB0YXJnZXRfaWR4ID0gYWxsX2NvbHMuaW5kZXgodGFyZ2V0X2NvbHVtbikNCiAgICAgICAgICAgICAgICAjIEZlYXR1cmUgY29sdW1ucyAoZXhjbHVkaW5nIHRhcmdldCBjb2x1bW4pDQogICAgICAgICAgICAgICAgWF9jb2xzID0gYWxsX2NvbHNbc3RhcnQ6ZW5kXQ0KICAgICAgICAgICAgICAgIGlmIHRhcmdldF9jb2x1bW4gaW4gWF9jb2xzOg0KICAgICAgICAgICAgICAgICAgICBYX2NvbHMucmVtb3ZlKHRhcmdldF9jb2x1bW4pDQogICAgICAgICAgICAgICAgWCA9IGRhdGFbWF9jb2xzXQ0KICAgICAgICAgICAgZWxzZToNCiAgICAgICAgICAgICAgICBjb2x1bW5zX2xpc3QgPSBbY29sLnN0cmlwKCkgZm9yIGNvbCBpbiBjb2x1bW5zLnNwbGl0KCcsJyldDQogICAgICAgICAgICAgICAgWCA9IGRhdGFbY29sdW1uc19saXN0XQ0KICAgICAgICBlbGlmIGlzaW5zdGFuY2UoY29sdW1ucywgbGlzdCk6DQogICAgICAgICAgICBYID0gZGF0YVtjb2x1bW5zXQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiY29sdW1ucyBwYXJhbWV0ZXIgbXVzdCBiZSBhIGxpc3Qgb2YgY29sdW1uIG5hbWVzIG9yIGEgY29sdW1uIHJhbmdlIHN0cmluZyIpDQogICAgZWxzZToNCiAgICAgICAgIyBVc2UgYWxsIGNvbHVtbnMgZXhjZXB0IHRhcmdldCBjb2x1bW4gYXMgZmVhdHVyZXMNCiAgICAgICAgWCA9IGRhdGEuZHJvcChjb2x1bW5zPVt0YXJnZXRfY29sdW1uXSkNCiAgICANCiAgICB5ID0gZGF0YVt0YXJnZXRfY29sdW1uXQ0KICAgIA0KICAgIHJldHVybiBYLCB5DQoNCkByZWdpc3Rlcl9zZWxlY3RvcigndW5pdmFyaWF0ZV9sb2dpc3RpYycpDQpkZWYgdW5pdmFyaWF0ZV9sb2dpc3RpY19zZWxlY3RvcihYOiBwZC5EYXRhRnJhbWUsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHk6IHBkLlNlcmllcywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRkaXI6IHN0ciA9IE5vbmUsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWxwaGE6IGZsb2F0ID0gMC4wNSkgLT4gRGljdDoNCiAgICAiIiINCiAgICBQZXJmb3JtIHVuaXZhcmlhdGUgbG9naXN0aWMgcmVncmVzc2lvbiBmZWF0dXJlIHNlbGVjdGlvbg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIFg6IHBkLkRhdGFGcmFtZSwgRmVhdHVyZSBtYXRyaXgNCiAgICAgICAgeTogcGQuU2VyaWVzLCBUYXJnZXQgdmFyaWFibGUNCiAgICAgICAgYWxwaGE6IGZsb2F0LCBTaWduaWZpY2FuY2UgbGV2ZWwgZm9yIGZlYXR1cmUgc2VsZWN0aW9uDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIERpY3Q6IERpY3Rpb25hcnkgY29udGFpbmluZyBzZWxlY3Rpb24gcmVzdWx0cyBpbmNsdWRpbmc6DQogICAgICAgICAgICAtIHNlbGVjdGVkX2ZlYXR1cmVzOiBMaXN0IG9mIHNlbGVjdGVkIGZlYXR1cmUgbmFtZXMNCiAgICAgICAgICAgIC0gcmVzdWx0czogRGF0YUZyYW1lIHdpdGggZGV0YWlsZWQgc3RhdGlzdGljcyBmb3IgZWFjaCBmZWF0dXJlDQogICAgIiIiDQogICAgcmVzdWx0cyA9IFtdDQogICAgaGVhZGVyID0gWC5jb2x1bW5zDQogICAgDQogICAgIyBQZXJmb3JtIHVuaXZhcmlhdGUgbG9naXN0aWMgcmVncmVzc2lvbiBmb3IgZWFjaCBmZWF0dXJlDQogICAgZm9yIGkgaW4gdHFkbShyYW5nZShYLnNoYXBlWzFdKSk6DQogICAgICAgIHhfID0gWC5pbG9jWzosIGldDQogICAgICAgIG1vZGVsID0gc21mLmxvZ2l0KGZvcm11bGE9ImV2ZW50IH4geCIsIGRhdGE9cGQuRGF0YUZyYW1lKHsnZXZlbnQnOiB5LCAneCc6IHhffSkpDQogICAgICAgIHJlc3VsdCA9IG1vZGVsLmZpdCh2ZXJib3NlPTApDQogICAgICAgIA0KICAgICAgICAjIEV4dHJhY3Qgc3RhdGlzdGljcw0KICAgICAgICBwID0gcmVzdWx0LnB2YWx1ZXNbMV0NCiAgICAgICAgT1IgPSBucC5leHAocmVzdWx0LnBhcmFtc1sxXSkNCiAgICAgICAgbG93LCBoaWdoID0gbnAuZXhwKHJlc3VsdC5jb25mX2ludCgpLmlsb2NbMSwgOl0pDQogICAgICAgIA0KICAgICAgICAjIFN0b3JlIHJlc3VsdHMNCiAgICAgICAgcmVzdWx0cy5hcHBlbmQocGQuRGF0YUZyYW1lKHsNCiAgICAgICAgICAgICdwX3ZhbHVlJzogcCwNCiAgICAgICAgICAgICdvZGRzX3JhdGlvJzogT1IsDQogICAgICAgICAgICAnY2lfbG93ZXInOiBsb3csDQogICAgICAgICAgICAnY2lfdXBwZXInOiBoaWdoDQogICAgICAgIH0sIGluZGV4PVtoZWFkZXJbaV1dKSkNCiAgICANCiAgICAjIENvbWJpbmUgYWxsIHJlc3VsdHMNCiAgICByZXN1bHRzX2RmID0gcGQuY29uY2F0KHJlc3VsdHMsIGF4aXM9MCkNCiAgICANCiAgICAjIFNlbGVjdCBmZWF0dXJlcyBiYXNlZCBvbiBwLXZhbHVlIHRocmVzaG9sZA0KICAgIHNlbGVjdGVkX2ZlYXR1cmVzID0gbnAuYXJyYXkoaGVhZGVyKVtyZXN1bHRzX2RmWydwX3ZhbHVlJ10gPCBhbHBoYV0udG9saXN0KCkNCiAgICByZXN1bHRzX2RpY3QgPSB7DQogICAgICAgICdzZWxlY3RlZF9mZWF0dXJlcyc6IHNlbGVjdGVkX2ZlYXR1cmVzLA0KICAgICAgICAncmVzdWx0cyc6IHJlc3VsdHNfZGYudG9fZGljdCgpLA0KICAgICAgICAnYWxwaGEnOiBhbHBoYQ0KICAgIH0gDQoNCiAgICAjIHNhdmUgcmVzdWx0c19kZiB0byBjc3YNCiAgICBpZiBvdXRkaXIgaXMgbm90IE5vbmU6DQogICAgICAgIHJlc3VsdHNfZGYudG9fY3N2KG9zLnBhdGguam9pbihvdXRkaXIsICd1bml2YXJpYXRlX2xvZ2lzdGljX3Jlc3VsdHMuY3N2JyksIGluZGV4PVRydWUpDQoNCiAgICByZXR1cm4gc2VsZWN0ZWRfZmVhdHVyZXMsIHJlc3VsdHNfZGljdA0KDQo=').decode())
+Performs feature selection using univariate logistic regression
+"""
+import os
+import pandas as pd
+import numpy as np
+from typing import List, Dict, Tuple, Optional, Union
+import statsmodels.formula.api as smf
+from tqdm import tqdm
+from pathlib import Path
+
+from .selector_registry import register_selector
+
+def detect_file_type(input_path: str) -> Optional[str]:
+    """
+    Automatically detect file type
+    
+    Args:
+        input_path: str, Input file path
+        
+    Returns:
+        Optional[str]: Detected file type, returns None if cannot detect
+    """
+    file_ext = Path(input_path).suffix.lower()
+    file_types = {
+        '.csv': 'csv',
+        '.xlsx': 'excel',
+        '.xls': 'excel',
+        '.parquet': 'parquet',
+        '.json': 'json',
+        '.pkl': 'pickle',
+        '.pickle': 'pickle'
+    }
+    
+    if file_ext in file_types:
+        return file_types[file_ext]
+    
+    try:
+        with open(input_path, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+            if ',' in first_line and len(first_line.split(',')) > 1:
+                return 'csv'
+            elif first_line.startswith('{') or first_line.startswith('['):
+                return 'json'
+    except:
+        pass
+    
+    return None
+
+def load_data(input_data: Union[str, pd.DataFrame], 
+              target_column: Optional[str] = None,
+              file_type: Optional[str] = None,
+              columns: Optional[Union[str, List[str]]] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Load data from various formats
+    
+    Args:
+        input_data: Union[str, pd.DataFrame], Input data path or DataFrame object
+        target_column: Optional[str], Target variable column name
+        file_type: Optional[str], File type
+        columns: Optional[Union[str, List[str]]], Feature column selection
+        
+    Returns:
+        Tuple[pd.DataFrame, pd.Series]: Feature data and target variable
+    """
+    if isinstance(input_data, pd.DataFrame):
+        data = input_data
+    else:
+        if not os.path.exists(input_data):
+            raise FileNotFoundError(f"Error: File {input_data} does not exist")
+        
+        if file_type is None:
+            file_type = detect_file_type(input_data)
+            if file_type is None:
+                raise ValueError(f"Cannot detect file type: {input_data}")
+            print(f"Automatically detected file type: {file_type}")
+        
+        loaders = {
+            'csv': pd.read_csv,
+            'excel': pd.read_excel,
+            'parquet': pd.read_parquet,
+            'json': pd.read_json,
+            'pickle': pd.read_pickle
+        }
+        
+        if file_type.lower() not in loaders:
+            raise ValueError(f"Unsupported file type: {file_type}")
+        
+        try:
+            data = loaders[file_type.lower()](input_data)
+            if data.empty:
+                raise ValueError(f"Loaded data is empty: {input_data}")
+        except Exception as e:
+            raise Exception(f"Error loading data: {e}")
+    
+    # Handle column selection
+    if target_column is None:
+        raise ValueError("Target column name must be specified")
+    
+    if columns is not None:
+        if isinstance(columns, str):
+            if ':' in columns:
+                start, end = columns.split(':')
+                start = int(start) if start else 0
+                end = int(end) if end else None
+                # Get all column names
+                all_cols = data.columns.tolist()
+                # Target column index
+                target_idx = all_cols.index(target_column)
+                # Feature columns (excluding target column)
+                X_cols = all_cols[start:end]
+                if target_column in X_cols:
+                    X_cols.remove(target_column)
+                X = data[X_cols]
+            else:
+                columns_list = [col.strip() for col in columns.split(',')]
+                X = data[columns_list]
+        elif isinstance(columns, list):
+            X = data[columns]
+        else:
+            raise ValueError("columns parameter must be a list of column names or a column range string")
+    else:
+        # Use all columns except target column as features
+        X = data.drop(columns=[target_column])
+    
+    y = data[target_column]
+    
+    return X, y
+
+@register_selector('univariate_logistic')
+def univariate_logistic_selector(X: pd.DataFrame, 
+                               y: pd.Series,
+                               outdir: str = None,
+                               alpha: float = 0.05) -> Dict:
+    """
+    Perform univariate logistic regression feature selection
+    
+    Args:
+        X: pd.DataFrame, Feature matrix
+        y: pd.Series, Target variable
+        alpha: float, Significance level for feature selection
+        
+    Returns:
+        Dict: Dictionary containing selection results including:
+            - selected_features: List of selected feature names
+            - results: DataFrame with detailed statistics for each feature
+    """
+    results = []
+    header = X.columns
+    
+    # Perform univariate logistic regression for each feature
+    for i in tqdm(range(X.shape[1])):
+        x_ = X.iloc[:, i]
+        model = smf.logit(formula="event ~ x", data=pd.DataFrame({'event': y, 'x': x_}))
+        result = model.fit(verbose=0)
+        
+        # Extract statistics
+        p = result.pvalues[1]
+        OR = np.exp(result.params[1])
+        low, high = np.exp(result.conf_int().iloc[1, :])
+        
+        # Store results
+        results.append(pd.DataFrame({
+            'p_value': p,
+            'odds_ratio': OR,
+            'ci_lower': low,
+            'ci_upper': high
+        }, index=[header[i]]))
+    
+    # Combine all results
+    results_df = pd.concat(results, axis=0)
+    
+    # Select features based on p-value threshold
+    selected_features = np.array(header)[results_df['p_value'] < alpha].tolist()
+    results_dict = {
+        'selected_features': selected_features,
+        'results': results_df.to_dict(),
+        'alpha': alpha
+    } 
+
+    # save results_df to csv
+    if outdir is not None:
+        results_df.to_csv(os.path.join(outdir, 'univariate_logistic_results.csv'), index=True)
+
+    return selected_features, results_dict
+

@@ -1,3 +1,76 @@
+#!/usr/bin/env python
+"""
+Basic Habitat Features Extraction
+This module provides functionality for extracting basic features from habitat maps:
+1. Number of disconnected regions for each habitat
+2. Volume percentage for each habitat
+"""
 
-import base64
-exec(base64.b64decode(b'IyEvdXNyL2Jpbi9lbnYgcHl0aG9uDQoiIiINCkJhc2ljIEhhYml0YXQgRmVhdHVyZXMgRXh0cmFjdGlvbg0KVGhpcyBtb2R1bGUgcHJvdmlkZXMgZnVuY3Rpb25hbGl0eSBmb3IgZXh0cmFjdGluZyBiYXNpYyBmZWF0dXJlcyBmcm9tIGhhYml0YXQgbWFwczoNCjEuIE51bWJlciBvZiBkaXNjb25uZWN0ZWQgcmVnaW9ucyBmb3IgZWFjaCBoYWJpdGF0DQoyLiBWb2x1bWUgcGVyY2VudGFnZSBmb3IgZWFjaCBoYWJpdGF0DQoiIiINCg0KaW1wb3J0IGxvZ2dpbmcNCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IFNpbXBsZUlUSyBhcyBzaXRrDQpmcm9tIHR5cGluZyBpbXBvcnQgRGljdA0KDQpjbGFzcyBCYXNpY0ZlYXR1cmVFeHRyYWN0b3I6DQogICAgIiIiRXh0cmFjdG9yIGNsYXNzIGZvciBiYXNpYyBoYWJpdGF0IGZlYXR1cmVzIiIiDQogICAgDQogICAgQHN0YXRpY21ldGhvZA0KICAgIGRlZiBnZXRfbm9uX3JhZGlvbWljc19mZWF0dXJlcyhoYWJpdGF0X2ltZyk6DQogICAgICAgICIiIg0KICAgICAgICBDYWxjdWxhdGUgbnVtYmVyIG9mIGRpc2Nvbm5lY3RlZCByZWdpb25zIGFuZCB2b2x1bWUgcmF0aW8gZm9yIGVhY2ggaGFiaXRhdA0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGhhYml0YXRfaW1nOiBTaW1wbGVJVEsgaW1hZ2Ugb3IgcGF0aCB0byBoYWJpdGF0IG1hcCBmaWxlDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIERpY3Q6IERpY3Rpb25hcnkgY29udGFpbmluZyBiYXNpYyBmZWF0dXJlcyBmb3IgZWFjaCBoYWJpdGF0DQogICAgICAgICIiIg0KICAgICAgICB0cnk6DQogICAgICAgICAgICBpZiBpc2luc3RhbmNlKGhhYml0YXRfaW1nLCBzdHIpOg0KICAgICAgICAgICAgICAgIGhhYml0YXRfaW1nID0gc2l0ay5SZWFkSW1hZ2UoaGFiaXRhdF9pbWcpDQogICAgICAgICAgICBlbGlmIG5vdCBpc2luc3RhbmNlKGhhYml0YXRfaW1nLCBzaXRrLkltYWdlKToNCiAgICAgICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJoYWJpdGF0X2ltZyBtdXN0IGJlIGEgU2ltcGxlSVRLIGltYWdlIG9yIGEgZmlsZSBwYXRoLiIpDQoNCiAgICAgICAgICAgIHJlc3VsdHMgPSB7fQ0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIENhbGN1bGF0ZSB0b3RhbCB2b2x1bWUgb2YgdGhlIGhhYml0YXQgbWFwDQogICAgICAgICAgICBzdGF0c19maWx0ZXIgPSBzaXRrLlN0YXRpc3RpY3NJbWFnZUZpbHRlcigpDQogICAgICAgICAgICBzdGF0c19maWx0ZXIuRXhlY3V0ZShoYWJpdGF0X2ltZyAhPSAwKQ0KICAgICAgICAgICAgdG90YWxfdm94ZWxzID0gaW50KHN0YXRzX2ZpbHRlci5HZXRTdW0oKSkNCg0KICAgICAgICAgICAgbGFiZWxfZmlsdGVyID0gc2l0ay5MYWJlbFN0YXRpc3RpY3NJbWFnZUZpbHRlcigpDQogICAgICAgICAgICBsYWJlbF9maWx0ZXIuRXhlY3V0ZShoYWJpdGF0X2ltZywgaGFiaXRhdF9pbWcpDQogICAgICAgICAgICBsYWJlbHMgPSBsYWJlbF9maWx0ZXIuR2V0TGFiZWxzKCkNCiAgICAgICAgICAgIGxhYmVscyA9IFtpbnQobGFiZWwpIGZvciBsYWJlbCBpbiBsYWJlbHMgaWYgbGFiZWwgIT0gMF0NCiAgICAgICAgICAgIA0KICAgICAgICAgICAgZm9yIGxhYmVsIGluIGxhYmVsczoNCiAgICAgICAgICAgICAgICB0cnk6DQogICAgICAgICAgICAgICAgICAgIGJpbmFyeV9pbWcgPSBzaXRrLkJpbmFyeVRocmVzaG9sZChoYWJpdGF0X2ltZywgbG93ZXJUaHJlc2hvbGQ9bGFiZWwsIHVwcGVyVGhyZXNob2xkPWxhYmVsKQ0KICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgc3RhdHNfZmlsdGVyLkV4ZWN1dGUoYmluYXJ5X2ltZykNCiAgICAgICAgICAgICAgICAgICAgaGFiaXRhdF92b3hlbHMgPSBpbnQoc3RhdHNfZmlsdGVyLkdldFN1bSgpKQ0KICAgICAgICAgICAgICAgICAgICB2b2x1bWVfcmF0aW8gPSBoYWJpdGF0X3ZveGVscyAvIHRvdGFsX3ZveGVscyBpZiB0b3RhbF92b3hlbHMgPiAwIGVsc2UgMC4wDQogICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICBjY19maWx0ZXIgPSBzaXRrLkNvbm5lY3RlZENvbXBvbmVudEltYWdlRmlsdGVyKCkNCiAgICAgICAgICAgICAgICAgICAgY2NfZmlsdGVyLlNldEZ1bGx5Q29ubmVjdGVkKEZhbHNlKQ0KICAgICAgICAgICAgICAgICAgICBsYWJlbGVkX2ltZyA9IGNjX2ZpbHRlci5FeGVjdXRlKGJpbmFyeV9pbWcpDQogICAgICAgICAgICAgICAgICAgIG51bV9yZWdpb25zID0gY2NfZmlsdGVyLkdldE9iamVjdENvdW50KCkNCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgIHJlc3VsdHNbbGFiZWxdID0gew0KICAgICAgICAgICAgICAgICAgICAgICAgJ251bV9yZWdpb25zJzogbnVtX3JlZ2lvbnMsDQogICAgICAgICAgICAgICAgICAgICAgICAndm9sdW1lX3JhdGlvJzogdm9sdW1lX3JhdGlvDQogICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6DQogICAgICAgICAgICAgICAgICAgIGxvZ2dpbmcuZXJyb3IoZiJFcnJvciBwcm9jZXNzaW5nIGhhYml0YXQgbGFiZWwge2xhYmVsfToge3N0cihlKX0iKQ0KICAgICAgICAgICAgICAgICAgICByZXN1bHRzW2xhYmVsXSA9IHsNCiAgICAgICAgICAgICAgICAgICAgICAgICdudW1fcmVnaW9ucyc6IDAsDQogICAgICAgICAgICAgICAgICAgICAgICAndm9sdW1lX3JhdGlvJzogMC4wLA0KICAgICAgICAgICAgICAgICAgICAgICAgJ2Vycm9yJzogc3RyKGUpDQogICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICByZXN1bHRzWydudW1faGFiaXRhdHMnXSA9IGxlbihsYWJlbHMpDQogICAgICAgICAgICANCiAgICAgICAgICAgIHJldHVybiByZXN1bHRzDQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToNCiAgICAgICAgICAgIGxvZ2dpbmcuZXJyb3IoZiJFcnJvciBjYWxjdWxhdGluZyBiYXNpYyBoYWJpdGF0IGZlYXR1cmVzOiB7c3RyKGUpfSIpDQogICAgICAgICAgICByZXR1cm4geyJlcnJvciI6IHN0cihlKSwgIm51bV9oYWJpdGF0cyI6IDB9IA==').decode())
+import logging
+import numpy as np
+import SimpleITK as sitk
+from typing import Dict
+
+class BasicFeatureExtractor:
+    """Extractor class for basic habitat features"""
+    
+    @staticmethod
+    def get_non_radiomics_features(habitat_img):
+        """
+        Calculate number of disconnected regions and volume ratio for each habitat
+        
+        Args:
+            habitat_img: SimpleITK image or path to habitat map file
+            
+        Returns:
+            Dict: Dictionary containing basic features for each habitat
+        """
+        try:
+            if isinstance(habitat_img, str):
+                habitat_img = sitk.ReadImage(habitat_img)
+            elif not isinstance(habitat_img, sitk.Image):
+                raise ValueError("habitat_img must be a SimpleITK image or a file path.")
+
+            results = {}
+            
+            # Calculate total volume of the habitat map
+            stats_filter = sitk.StatisticsImageFilter()
+            stats_filter.Execute(habitat_img != 0)
+            total_voxels = int(stats_filter.GetSum())
+
+            label_filter = sitk.LabelStatisticsImageFilter()
+            label_filter.Execute(habitat_img, habitat_img)
+            labels = label_filter.GetLabels()
+            labels = [int(label) for label in labels if label != 0]
+            
+            for label in labels:
+                try:
+                    binary_img = sitk.BinaryThreshold(habitat_img, lowerThreshold=label, upperThreshold=label)
+                    
+                    stats_filter.Execute(binary_img)
+                    habitat_voxels = int(stats_filter.GetSum())
+                    volume_ratio = habitat_voxels / total_voxels if total_voxels > 0 else 0.0
+                    
+                    cc_filter = sitk.ConnectedComponentImageFilter()
+                    cc_filter.SetFullyConnected(False)
+                    labeled_img = cc_filter.Execute(binary_img)
+                    num_regions = cc_filter.GetObjectCount()
+                    
+                    results[label] = {
+                        'num_regions': num_regions,
+                        'volume_ratio': volume_ratio
+                    }
+                except Exception as e:
+                    logging.error(f"Error processing habitat label {label}: {str(e)}")
+                    results[label] = {
+                        'num_regions': 0,
+                        'volume_ratio': 0.0,
+                        'error': str(e)
+                    }
+                    
+            results['num_habitats'] = len(labels)
+            
+            return results
+        except Exception as e:
+            logging.error(f"Error calculating basic habitat features: {str(e)}")
+            return {"error": str(e), "num_habitats": 0} 

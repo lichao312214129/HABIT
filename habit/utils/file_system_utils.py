@@ -1,3 +1,149 @@
+"""
+File system utilities for safe file operations, especially in Windows environments
+"""
+import os
+import time
+import logging
+import shutil
+from pathlib import Path
+from typing import Union, Optional
 
-import base64
-exec(base64.b64decode(b'IiIiDQpGaWxlIHN5c3RlbSB1dGlsaXRpZXMgZm9yIHNhZmUgZmlsZSBvcGVyYXRpb25zLCBlc3BlY2lhbGx5IGluIFdpbmRvd3MgZW52aXJvbm1lbnRzDQoiIiINCmltcG9ydCBvcw0KaW1wb3J0IHRpbWUNCmltcG9ydCBsb2dnaW5nDQppbXBvcnQgc2h1dGlsDQpmcm9tIHBhdGhsaWIgaW1wb3J0IFBhdGgNCmZyb20gdHlwaW5nIGltcG9ydCBVbmlvbiwgT3B0aW9uYWwNCg0KbG9nZ2VyID0gbG9nZ2luZy5nZXRMb2dnZXIoX19uYW1lX18pDQoNCmRlZiBzYWZlX21rZGlyKHBhdGg6IFVuaW9uW3N0ciwgUGF0aF0sIGV4aXN0X29rOiBib29sID0gVHJ1ZSkgLT4gYm9vbDoNCiAgICAiIiINCiAgICBTYWZlbHkgY3JlYXRlIGEgZGlyZWN0b3J5LCB3aXRoIHJldHJ5IG1lY2hhbmlzbSBmb3IgV2luZG93cyBlbnZpcm9ubWVudHMNCiAgICANCiAgICBBcmdzOg0KICAgICAgICBwYXRoIChVbmlvbltzdHIsIFBhdGhdKTogRGlyZWN0b3J5IHBhdGggdG8gY3JlYXRlDQogICAgICAgIGV4aXN0X29rIChib29sKTogV2hldGhlciBpdCdzIG9rYXkgaWYgZGlyZWN0b3J5IGFscmVhZHkgZXhpc3RzDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIGJvb2w6IFRydWUgaWYgZGlyZWN0b3J5IHdhcyBjcmVhdGVkIG9yIGFscmVhZHkgZXhpc3RzLCBGYWxzZSBvdGhlcndpc2UNCiAgICAiIiINCiAgICBwYXRoID0gUGF0aChwYXRoKSBpZiBpc2luc3RhbmNlKHBhdGgsIHN0cikgZWxzZSBwYXRoDQogICAgDQogICAgIyBJZiBkaXJlY3RvcnkgYWxyZWFkeSBleGlzdHMgYW5kIGV4aXN0X29rIGlzIFRydWUsIHJldHVybiBUcnVlDQogICAgaWYgcGF0aC5leGlzdHMoKSBhbmQgZXhpc3Rfb2s6DQogICAgICAgIHJldHVybiBUcnVlDQogICAgICAgIA0KICAgICMgVHJ5IHRvIGNyZWF0ZSBkaXJlY3Rvcnkgd2l0aCByZXRyaWVzDQogICAgbWF4X3JldHJpZXMgPSAzDQogICAgcmV0cnlfZGVsYXkgPSAwLjUgICMgc2Vjb25kcw0KICAgIA0KICAgIGZvciBhdHRlbXB0IGluIHJhbmdlKG1heF9yZXRyaWVzKToNCiAgICAgICAgdHJ5Og0KICAgICAgICAgICAgcGF0aC5ta2RpcihwYXJlbnRzPVRydWUsIGV4aXN0X29rPWV4aXN0X29rKQ0KICAgICAgICAgICAgcmV0dXJuIFRydWUNCiAgICAgICAgZXhjZXB0IFBlcm1pc3Npb25FcnJvciBhcyBlOg0KICAgICAgICAgICAgbG9nZ2VyLndhcm5pbmcoZiLmnYPpmZDplJnor6/vvIzml6Dms5XliJvlu7rnm67lvZUge3BhdGh977yae3N0cihlKX0iKQ0KICAgICAgICAgICAgcmV0dXJuIEZhbHNlDQogICAgICAgIGV4Y2VwdCBGaWxlRXhpc3RzRXJyb3I6DQogICAgICAgICAgICBpZiBleGlzdF9vazoNCiAgICAgICAgICAgICAgICByZXR1cm4gVHJ1ZQ0KICAgICAgICAgICAgbG9nZ2VyLndhcm5pbmcoZiLnm67lvZXlt7LlrZjlnKg6IHtwYXRofSIpDQogICAgICAgICAgICByZXR1cm4gRmFsc2UNCiAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICAgICAgaWYgYXR0ZW1wdCA8IG1heF9yZXRyaWVzIC0gMToNCiAgICAgICAgICAgICAgICBsb2dnZXIud2FybmluZyhmIuWIm+W7uuebruW9lSB7cGF0aH0g5pe25Y+R55Sf6ZSZ6K+vICjlsJ3or5Uge2F0dGVtcHQrMX0ve21heF9yZXRyaWVzfSk6IHtzdHIoZSl9IikNCiAgICAgICAgICAgICAgICB0aW1lLnNsZWVwKHJldHJ5X2RlbGF5KQ0KICAgICAgICAgICAgZWxzZToNCiAgICAgICAgICAgICAgICBsb2dnZXIuZXJyb3IoZiLliJvlu7rnm67lvZUge3BhdGh9IOWksei0pToge3N0cihlKX0iKQ0KICAgICAgICAgICAgICAgIHJldHVybiBGYWxzZQ0KICAgIA0KICAgIHJldHVybiBGYWxzZQ0KDQpkZWYgc2FmZV9zYXZlX2ZpbGUoZGF0YTogYnl0ZXMsIGZpbGVwYXRoOiBVbmlvbltzdHIsIFBhdGhdLCBvdmVyd3JpdGU6IGJvb2wgPSBUcnVlKSAtPiBib29sOg0KICAgICIiIg0KICAgIFNhZmVseSBzYXZlIGJpbmFyeSBkYXRhIHRvIGEgZmlsZSB3aXRoIHJldHJ5IG1lY2hhbmlzbQ0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGRhdGEgKGJ5dGVzKTogQmluYXJ5IGRhdGEgdG8gc2F2ZQ0KICAgICAgICBmaWxlcGF0aCAoVW5pb25bc3RyLCBQYXRoXSk6IFBhdGggdG8gc2F2ZSB0aGUgZmlsZQ0KICAgICAgICBvdmVyd3JpdGUgKGJvb2wpOiBXaGV0aGVyIHRvIG92ZXJ3cml0ZSBhbiBleGlzdGluZyBmaWxlDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIGJvb2w6IFRydWUgaWYgZmlsZSB3YXMgc2F2ZWQgc3VjY2Vzc2Z1bGx5LCBGYWxzZSBvdGhlcndpc2UNCiAgICAiIiINCiAgICBmaWxlcGF0aCA9IFBhdGgoZmlsZXBhdGgpIGlmIGlzaW5zdGFuY2UoZmlsZXBhdGgsIHN0cikgZWxzZSBmaWxlcGF0aA0KICAgIA0KICAgICMgQ2hlY2sgaWYgZmlsZSBleGlzdHMgYW5kIG92ZXJ3cml0ZSBpcyBGYWxzZQ0KICAgIGlmIGZpbGVwYXRoLmV4aXN0cygpIGFuZCBub3Qgb3ZlcndyaXRlOg0KICAgICAgICBsb2dnZXIud2FybmluZyhmIuaWh+S7tuW3suWtmOWcqOS4lOS4jeWFgeiuuOimhuebljoge2ZpbGVwYXRofSIpDQogICAgICAgIHJldHVybiBGYWxzZQ0KICAgIA0KICAgICMgRW5zdXJlIGRpcmVjdG9yeSBleGlzdHMNCiAgICBpZiBub3Qgc2FmZV9ta2RpcihmaWxlcGF0aC5wYXJlbnQpOg0KICAgICAgICByZXR1cm4gRmFsc2UNCiAgICANCiAgICAjIFRyeSB0byBzYXZlIGZpbGUgd2l0aCByZXRyaWVzDQogICAgbWF4X3JldHJpZXMgPSAzDQogICAgcmV0cnlfZGVsYXkgPSAwLjUgICMgc2Vjb25kcw0KICAgIA0KICAgIGZvciBhdHRlbXB0IGluIHJhbmdlKG1heF9yZXRyaWVzKToNCiAgICAgICAgdHJ5Og0KICAgICAgICAgICAgd2l0aCBvcGVuKGZpbGVwYXRoLCAnd2InKSBhcyBmOg0KICAgICAgICAgICAgICAgIGYud3JpdGUoZGF0YSkNCiAgICAgICAgICAgIHJldHVybiBUcnVlDQogICAgICAgIGV4Y2VwdCBQZXJtaXNzaW9uRXJyb3IgYXMgZToNCiAgICAgICAgICAgIGxvZ2dlci53YXJuaW5nKGYi5p2D6ZmQ6ZSZ6K+v77yM5peg5rOV5L+d5a2Y5paH5Lu2IHtmaWxlcGF0aH3vvJp7c3RyKGUpfSIpDQogICAgICAgICAgICByZXR1cm4gRmFsc2UNCiAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICAgICAgaWYgYXR0ZW1wdCA8IG1heF9yZXRyaWVzIC0gMToNCiAgICAgICAgICAgICAgICBsb2dnZXIud2FybmluZyhmIuS/neWtmOaWh+S7tiB7ZmlsZXBhdGh9IOaXtuWPkeeUn+mUmeivryAo5bCd6K+VIHthdHRlbXB0KzF9L3ttYXhfcmV0cmllc30pOiB7c3RyKGUpfSIpDQogICAgICAgICAgICAgICAgdGltZS5zbGVlcChyZXRyeV9kZWxheSkNCiAgICAgICAgICAgIGVsc2U6DQogICAgICAgICAgICAgICAgbG9nZ2VyLmVycm9yKGYi5L+d5a2Y5paH5Lu2IHtmaWxlcGF0aH0g5aSx6LSlOiB7c3RyKGUpfSIpDQogICAgICAgICAgICAgICAgcmV0dXJuIEZhbHNlDQogICAgDQogICAgcmV0dXJuIEZhbHNlDQoNCmRlZiBzYWZlX2NvcHlfZmlsZShzcmM6IFVuaW9uW3N0ciwgUGF0aF0sIGRzdDogVW5pb25bc3RyLCBQYXRoXSwgb3ZlcndyaXRlOiBib29sID0gVHJ1ZSkgLT4gYm9vbDoNCiAgICAiIiINCiAgICBTYWZlbHkgY29weSBmaWxlIHdpdGggcmV0cnkgbWVjaGFuaXNtDQogICAgDQogICAgQXJnczoNCiAgICAgICAgc3JjIChVbmlvbltzdHIsIFBhdGhdKTogU291cmNlIGZpbGUgcGF0aA0KICAgICAgICBkc3QgKFVuaW9uW3N0ciwgUGF0aF0pOiBEZXN0aW5hdGlvbiBmaWxlIHBhdGgNCiAgICAgICAgb3ZlcndyaXRlIChib29sKTogV2hldGhlciB0byBvdmVyd3JpdGUgZXhpc3RpbmcgZGVzdGluYXRpb24gZmlsZQ0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBib29sOiBUcnVlIGlmIGZpbGUgd2FzIGNvcGllZCBzdWNjZXNzZnVsbHksIEZhbHNlIG90aGVyd2lzZQ0KICAgICIiIg0KICAgIHNyYyA9IFBhdGgoc3JjKSBpZiBpc2luc3RhbmNlKHNyYywgc3RyKSBlbHNlIHNyYw0KICAgIGRzdCA9IFBhdGgoZHN0KSBpZiBpc2luc3RhbmNlKGRzdCwgc3RyKSBlbHNlIGRzdA0KICAgIA0KICAgICMgQ2hlY2sgaWYgc291cmNlIGZpbGUgZXhpc3RzDQogICAgaWYgbm90IHNyYy5leGlzdHMoKToNCiAgICAgICAgbG9nZ2VyLndhcm5pbmcoZiLmupDmlofku7bkuI3lrZjlnKg6IHtzcmN9IikNCiAgICAgICAgcmV0dXJuIEZhbHNlDQogICAgDQogICAgIyBDaGVjayBpZiBkZXN0aW5hdGlvbiBmaWxlIGV4aXN0cyBhbmQgb3ZlcndyaXRlIGlzIEZhbHNlDQogICAgaWYgZHN0LmV4aXN0cygpIGFuZCBub3Qgb3ZlcndyaXRlOg0KICAgICAgICBsb2dnZXIud2FybmluZyhmIuebruagh+aWh+S7tuW3suWtmOWcqOS4lOS4jeWFgeiuuOimhuebljoge2RzdH0iKQ0KICAgICAgICByZXR1cm4gRmFsc2UNCiAgICANCiAgICAjIEVuc3VyZSBkZXN0aW5hdGlvbiBkaXJlY3RvcnkgZXhpc3RzDQogICAgaWYgbm90IHNhZmVfbWtkaXIoZHN0LnBhcmVudCk6DQogICAgICAgIHJldHVybiBGYWxzZQ0KICAgIA0KICAgICMgVHJ5IHRvIGNvcHkgZmlsZSB3aXRoIHJldHJpZXMNCiAgICBtYXhfcmV0cmllcyA9IDMNCiAgICByZXRyeV9kZWxheSA9IDAuNSAgIyBzZWNvbmRzDQogICAgDQogICAgZm9yIGF0dGVtcHQgaW4gcmFuZ2UobWF4X3JldHJpZXMpOg0KICAgICAgICB0cnk6DQogICAgICAgICAgICBzaHV0aWwuY29weTIoc3JjLCBkc3QpDQogICAgICAgICAgICByZXR1cm4gVHJ1ZQ0KICAgICAgICBleGNlcHQgUGVybWlzc2lvbkVycm9yIGFzIGU6DQogICAgICAgICAgICBsb2dnZXIud2FybmluZyhmIuadg+mZkOmUmeivr++8jOaXoOazleWkjeWItuaWh+S7tiB7c3JjfSDliLAge2RzdH3vvJp7c3RyKGUpfSIpDQogICAgICAgICAgICByZXR1cm4gRmFsc2UNCiAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICAgICAgaWYgYXR0ZW1wdCA8IG1heF9yZXRyaWVzIC0gMToNCiAgICAgICAgICAgICAgICBsb2dnZXIud2FybmluZyhmIuWkjeWItuaWh+S7tiB7c3JjfSDliLAge2RzdH0g5pe25Y+R55Sf6ZSZ6K+vICjlsJ3or5Uge2F0dGVtcHQrMX0ve21heF9yZXRyaWVzfSk6IHtzdHIoZSl9IikNCiAgICAgICAgICAgICAgICB0aW1lLnNsZWVwKHJldHJ5X2RlbGF5KQ0KICAgICAgICAgICAgZWxzZToNCiAgICAgICAgICAgICAgICBsb2dnZXIuZXJyb3IoZiLlpI3liLbmlofku7Yge3NyY30g5YiwIHtkc3R9IOWksei0pToge3N0cihlKX0iKQ0KICAgICAgICAgICAgICAgIHJldHVybiBGYWxzZQ0KICAgIA0KICAgIHJldHVybiBGYWxzZSA=').decode())
+logger = logging.getLogger(__name__)
+
+def safe_mkdir(path: Union[str, Path], exist_ok: bool = True) -> bool:
+    """
+    Safely create a directory, with retry mechanism for Windows environments
+    
+    Args:
+        path (Union[str, Path]): Directory path to create
+        exist_ok (bool): Whether it's okay if directory already exists
+        
+    Returns:
+        bool: True if directory was created or already exists, False otherwise
+    """
+    path = Path(path) if isinstance(path, str) else path
+    
+    # If directory already exists and exist_ok is True, return True
+    if path.exists() and exist_ok:
+        return True
+        
+    # Try to create directory with retries
+    max_retries = 3
+    retry_delay = 0.5  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            path.mkdir(parents=True, exist_ok=exist_ok)
+            return True
+        except PermissionError as e:
+            logger.warning(f"权限错误，无法创建目录 {path}：{str(e)}")
+            return False
+        except FileExistsError:
+            if exist_ok:
+                return True
+            logger.warning(f"目录已存在: {path}")
+            return False
+        except Exception as e:
+            if attempt < max_retries - 1:
+                logger.warning(f"创建目录 {path} 时发生错误 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+                time.sleep(retry_delay)
+            else:
+                logger.error(f"创建目录 {path} 失败: {str(e)}")
+                return False
+    
+    return False
+
+def safe_save_file(data: bytes, filepath: Union[str, Path], overwrite: bool = True) -> bool:
+    """
+    Safely save binary data to a file with retry mechanism
+    
+    Args:
+        data (bytes): Binary data to save
+        filepath (Union[str, Path]): Path to save the file
+        overwrite (bool): Whether to overwrite an existing file
+        
+    Returns:
+        bool: True if file was saved successfully, False otherwise
+    """
+    filepath = Path(filepath) if isinstance(filepath, str) else filepath
+    
+    # Check if file exists and overwrite is False
+    if filepath.exists() and not overwrite:
+        logger.warning(f"文件已存在且不允许覆盖: {filepath}")
+        return False
+    
+    # Ensure directory exists
+    if not safe_mkdir(filepath.parent):
+        return False
+    
+    # Try to save file with retries
+    max_retries = 3
+    retry_delay = 0.5  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            with open(filepath, 'wb') as f:
+                f.write(data)
+            return True
+        except PermissionError as e:
+            logger.warning(f"权限错误，无法保存文件 {filepath}：{str(e)}")
+            return False
+        except Exception as e:
+            if attempt < max_retries - 1:
+                logger.warning(f"保存文件 {filepath} 时发生错误 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+                time.sleep(retry_delay)
+            else:
+                logger.error(f"保存文件 {filepath} 失败: {str(e)}")
+                return False
+    
+    return False
+
+def safe_copy_file(src: Union[str, Path], dst: Union[str, Path], overwrite: bool = True) -> bool:
+    """
+    Safely copy file with retry mechanism
+    
+    Args:
+        src (Union[str, Path]): Source file path
+        dst (Union[str, Path]): Destination file path
+        overwrite (bool): Whether to overwrite existing destination file
+        
+    Returns:
+        bool: True if file was copied successfully, False otherwise
+    """
+    src = Path(src) if isinstance(src, str) else src
+    dst = Path(dst) if isinstance(dst, str) else dst
+    
+    # Check if source file exists
+    if not src.exists():
+        logger.warning(f"源文件不存在: {src}")
+        return False
+    
+    # Check if destination file exists and overwrite is False
+    if dst.exists() and not overwrite:
+        logger.warning(f"目标文件已存在且不允许覆盖: {dst}")
+        return False
+    
+    # Ensure destination directory exists
+    if not safe_mkdir(dst.parent):
+        return False
+    
+    # Try to copy file with retries
+    max_retries = 3
+    retry_delay = 0.5  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            shutil.copy2(src, dst)
+            return True
+        except PermissionError as e:
+            logger.warning(f"权限错误，无法复制文件 {src} 到 {dst}：{str(e)}")
+            return False
+        except Exception as e:
+            if attempt < max_retries - 1:
+                logger.warning(f"复制文件 {src} 到 {dst} 时发生错误 (尝试 {attempt+1}/{max_retries}): {str(e)}")
+                time.sleep(retry_delay)
+            else:
+                logger.error(f"复制文件 {src} 到 {dst} 失败: {str(e)}")
+                return False
+    
+    return False 

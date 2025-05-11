@@ -1,3 +1,419 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import base64
-exec(base64.b64decode(b'IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMw0KIyAtKi0gY29kaW5nOiB1dGYtOCAtKi0NCg0KaW1wb3J0IHBhbmRhcyBhcyBwZA0KaW1wb3J0IG51bXB5IGFzIG5wDQppbXBvcnQgc2NpcHkuc3RhdHMNCmZyb20gc2NpcHkgaW1wb3J0IHN0YXRzDQppbXBvcnQgYXJncGFyc2UNCmltcG9ydCBzeXMNCmltcG9ydCBvcw0KaW1wb3J0IGpzb24NCiMgQVVDIGNvbXBhcmlzb24gYWRhcHRlZCBmcm9tDQojIGh0dHBzOi8vZ2l0aHViLmNvbS9OZXRmbGl4L3ZtYWYvDQpkZWYgY29tcHV0ZV9taWRyYW5rKHgpOg0KICAgIiIiQ29tcHV0ZXMgbWlkcmFua3MuDQogICBBcmdzOg0KICAgICAgeCAtIGEgMUQgbnVtcHkgYXJyYXkNCiAgIFJldHVybnM6DQogICAgICBhcnJheSBvZiBtaWRyYW5rcw0KICAgIiIiDQogICBKID0gbnAuYXJnc29ydCh4KQ0KICAgWiA9IHhbSl0NCiAgIE4gPSBsZW4oeCkNCiAgIFQgPSBucC56ZXJvcyhOLCBkdHlwZT1ucC5mbG9hdDMyKQ0KICAgaSA9IDANCiAgIHdoaWxlIGkgPCBOOg0KICAgICAgIGogPSBpDQogICAgICAgd2hpbGUgaiA8IE4gYW5kIFpbal0gPT0gWltpXToNCiAgICAgICAgICAgaiArPSAxDQogICAgICAgVFtpOmpdID0gMC41KihpICsgaiAtIDEpDQogICAgICAgaSA9IGoNCiAgIFQyID0gbnAuZW1wdHkoTiwgZHR5cGU9bnAuZmxvYXQzMikNCiAgICMgTm90ZShrYXplZXZuKSArMSBpcyBkdWUgdG8gUHl0aG9uIHVzaW5nIDAtYmFzZWQgaW5kZXhpbmcNCiAgICMgaW5zdGVhZCBvZiAxLWJhc2VkIGluIHRoZSBBVUMgZm9ybXVsYSBpbiB0aGUgcGFwZXINCiAgIFQyW0pdID0gVCArIDENCiAgIHJldHVybiBUMg0KDQpkZWYgY29tcHV0ZV9taWRyYW5rX3dlaWdodCh4LCBzYW1wbGVfd2VpZ2h0KToNCiAgICIiIkNvbXB1dGVzIG1pZHJhbmtzLg0KICAgQXJnczoNCiAgICAgIHggLSBhIDFEIG51bXB5IGFycmF5DQogICBSZXR1cm5zOg0KICAgICAgYXJyYXkgb2YgbWlkcmFua3MNCiAgICIiIg0KICAgSiA9IG5wLmFyZ3NvcnQoeCkNCiAgIFogPSB4W0pdDQogICBjdW11bGF0aXZlX3dlaWdodCA9IG5wLmN1bXN1bShzYW1wbGVfd2VpZ2h0W0pdKQ0KICAgTiA9IGxlbih4KQ0KICAgVCA9IG5wLnplcm9zKE4sIGR0eXBlPW5wLmZsb2F0MzIpDQogICBpID0gMA0KICAgd2hpbGUgaSA8IE46DQogICAgICAgaiA9IGkNCiAgICAgICB3aGlsZSBqIDwgTiBhbmQgWltqXSA9PSBaW2ldOg0KICAgICAgICAgICBqICs9IDENCiAgICAgICBUW2k6al0gPSBjdW11bGF0aXZlX3dlaWdodFtpOmpdLm1lYW4oKQ0KICAgICAgIGkgPSBqDQogICBUMiA9IG5wLmVtcHR5KE4sIGR0eXBlPW5wLmZsb2F0MzIpDQogICBUMltKXSA9IFQNCiAgIHJldHVybiBUMg0KDQpkZWYgZmFzdERlTG9uZyhwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZCwgbGFiZWxfMV9jb3VudCwgc2FtcGxlX3dlaWdodD1Ob25lKToNCg0KICAgaWYgc2FtcGxlX3dlaWdodCBpcyBOb25lOg0KDQogICAgICAgcmV0dXJuIGZhc3REZUxvbmdfbm9fd2VpZ2h0cyhwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZCwgbGFiZWxfMV9jb3VudCkNCg0KICAgZWxzZToNCg0KICAgICAgIHJldHVybiBmYXN0RGVMb25nX3dlaWdodHMocHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQsIGxhYmVsXzFfY291bnQsIHNhbXBsZV93ZWlnaHQpDQoNCmRlZiBmYXN0RGVMb25nX3dlaWdodHMocHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQsIGxhYmVsXzFfY291bnQsIHNhbXBsZV93ZWlnaHQpOg0KDQogICAiIiINCg0KICAgVGhlIGZhc3QgdmVyc2lvbiBvZiBEZUxvbmcncyBtZXRob2QgZm9yIGNvbXB1dGluZyB0aGUgY292YXJpYW5jZSBvZg0KDQogICB1bmFkanVzdGVkIEFVQy4NCg0KICAgQXJnczoNCg0KICAgICAgcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQ6IGEgMkQgbnVtcHkuYXJyYXlbbl9jbGFzc2lmaWVycywgbl9leGFtcGxlc10NCg0KICAgICAgICAgc29ydGVkIHN1Y2ggYXMgdGhlIGV4YW1wbGVzIHdpdGggbGFiZWwgIjEiIGFyZSBmaXJzdA0KDQogICBSZXR1cm5zOg0KDQogICAgICAoQVVDIHZhbHVlLCBEZUxvbmcgY292YXJpYW5jZSkNCg0KICAgUmVmZXJlbmNlOg0KDQogICAgQGFydGljbGV7c3VuMjAxNGZhc3QsDQoNCiAgICAgIHRpdGxlPXtGYXN0IEltcGxlbWVudGF0aW9uIG9mIERlTG9uZydzIEFsZ29yaXRobSBmb3INCg0KICAgICAgICAgICAgIENvbXBhcmluZyB0aGUgQXJlYXMgVW5kZXIgQ29ycmVsYXRlZCBSZWNlaXZlciBPZXJhdGluZyBDaGFyYWN0ZXJpc3RpYyBDdXJ2ZXN9LA0KDQogICAgICBhdXRob3I9e1h1IFN1biBhbmQgV2VpY2hhbyBYdX0sDQoNCiAgICAgIGpvdXJuYWw9e0lFRUUgU2lnbmFsIFByb2Nlc3NpbmcgTGV0dGVyc30sDQoNCiAgICAgIHZvbHVtZT17MjF9LA0KDQogICAgICBudW1iZXI9ezExfSwNCg0KICAgICAgcGFnZXM9ezEzODktLTEzOTN9LA0KDQogICAgICB5ZWFyPXsyMDE0fSwNCg0KICAgICAgcHVibGlzaGVyPXtJRUVFfQ0KDQogICAgfQ0KDQogICAiIiINCg0KICAgIyBTaG9ydCB2YXJpYWJsZXMgYXJlIG5hbWVkIGFzIHRoZXkgYXJlIGluIHRoZSBwYXBlcg0KDQogICBtID0gbGFiZWxfMV9jb3VudA0KDQogICBuID0gcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQuc2hhcGVbMV0gLSBtDQoNCiAgIHBvc2l0aXZlX2V4YW1wbGVzID0gcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWRbOiwgOm1dDQoNCiAgIG5lZ2F0aXZlX2V4YW1wbGVzID0gcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWRbOiwgbTpdDQoNCiAgIGsgPSBwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZC5zaGFwZVswXQ0KDQoNCg0KICAgdHggPSBucC5lbXB0eShbaywgbV0sIGR0eXBlPW5wLmZsb2F0MzIpDQoNCiAgIHR5ID0gbnAuZW1wdHkoW2ssIG5dLCBkdHlwZT1ucC5mbG9hdDMyKQ0KDQogICB0eiA9IG5wLmVtcHR5KFtrLCBtICsgbl0sIGR0eXBlPW5wLmZsb2F0MzIpDQoNCiAgIGZvciByIGluIHJhbmdlKGspOg0KDQogICAgICAgdHhbciwgOl0gPSBjb21wdXRlX21pZHJhbmtfd2VpZ2h0KHBvc2l0aXZlX2V4YW1wbGVzW3IsIDpdLCBzYW1wbGVfd2VpZ2h0WzptXSkNCg0KICAgICAgIHR5W3IsIDpdID0gY29tcHV0ZV9taWRyYW5rX3dlaWdodChuZWdhdGl2ZV9leGFtcGxlc1tyLCA6XSwgc2FtcGxlX3dlaWdodFttOl0pDQoNCiAgICAgICB0eltyLCA6XSA9IGNvbXB1dGVfbWlkcmFua193ZWlnaHQocHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWRbciwgOl0sIHNhbXBsZV93ZWlnaHQpDQoNCiAgIHRvdGFsX3Bvc2l0aXZlX3dlaWdodHMgPSBzYW1wbGVfd2VpZ2h0WzptXS5zdW0oKQ0KDQogICB0b3RhbF9uZWdhdGl2ZV93ZWlnaHRzID0gc2FtcGxlX3dlaWdodFttOl0uc3VtKCkNCg0KICAgcGFpcl93ZWlnaHRzID0gbnAuZG90KHNhbXBsZV93ZWlnaHRbOm0sIG5wLm5ld2F4aXNdLCBzYW1wbGVfd2VpZ2h0W25wLm5ld2F4aXMsIG06XSkNCg0KICAgdG90YWxfcGFpcl93ZWlnaHRzID0gcGFpcl93ZWlnaHRzLnN1bSgpDQoNCiAgIGF1Y3MgPSAoc2FtcGxlX3dlaWdodFs6bV0qKHR6WzosIDptXSAtIHR4KSkuc3VtKGF4aXM9MSkgLyB0b3RhbF9wYWlyX3dlaWdodHMNCg0KICAgdjAxID0gKHR6WzosIDptXSAtIHR4WzosIDpdKSAvIHRvdGFsX25lZ2F0aXZlX3dlaWdodHMNCg0KICAgdjEwID0gMS4gLSAodHpbOiwgbTpdIC0gdHlbOiwgOl0pIC8gdG90YWxfcG9zaXRpdmVfd2VpZ2h0cw0KDQogICBzeCA9IG5wLmNvdih2MDEpDQoNCiAgIHN5ID0gbnAuY292KHYxMCkNCg0KICAgZGVsb25nY292ID0gc3ggLyBtICsgc3kgLyBuDQoNCiAgIHJldHVybiBhdWNzLCBkZWxvbmdjb3YNCg0KZGVmIGZhc3REZUxvbmdfbm9fd2VpZ2h0cyhwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZCwgbGFiZWxfMV9jb3VudCk6DQoNCiAgICIiIg0KDQogICBUaGUgZmFzdCB2ZXJzaW9uIG9mIERlTG9uZydzIG1ldGhvZCBmb3IgY29tcHV0aW5nIHRoZSBjb3ZhcmlhbmNlIG9mDQoNCiAgIHVuYWRqdXN0ZWQgQVVDLg0KDQogICBBcmdzOg0KDQogICAgICBwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZDogYSAyRCBudW1weS5hcnJheVtuX2NsYXNzaWZpZXJzLCBuX2V4YW1wbGVzXQ0KDQogICAgICAgICBzb3J0ZWQgc3VjaCBhcyB0aGUgZXhhbXBsZXMgd2l0aCBsYWJlbCAiMSIgYXJlIGZpcnN0DQoNCiAgIFJldHVybnM6DQoNCiAgICAgIChBVUMgdmFsdWUsIERlTG9uZyBjb3ZhcmlhbmNlKQ0KDQogICBSZWZlcmVuY2U6DQoNCiAgICBAYXJ0aWNsZXtzdW4yMDE0ZmFzdCwNCg0KICAgICAgdGl0bGU9e0Zhc3QgSW1wbGVtZW50YXRpb24gb2YgRGVMb25nJ3MgQWxnb3JpdGhtIGZvcg0KDQogICAgICAgICAgICAgQ29tcGFyaW5nIHRoZSBBcmVhcyBVbmRlciBDb3JyZWxhdGVkIFJlY2VpdmVyIE9lcmF0aW5nDQoNCiAgICAgICAgICAgICBDaGFyYWN0ZXJpc3RpYyBDdXJ2ZXN9LA0KDQogICAgICBhdXRob3I9e1h1IFN1biBhbmQgV2VpY2hhbyBYdX0sDQoNCiAgICAgIGpvdXJuYWw9e0lFRUUgU2lnbmFsIFByb2Nlc3NpbmcgTGV0dGVyc30sDQoNCiAgICAgIHZvbHVtZT17MjF9LA0KDQogICAgICBudW1iZXI9ezExfSwNCg0KICAgICAgcGFnZXM9ezEzODktLTEzOTN9LA0KDQogICAgICB5ZWFyPXsyMDE0fSwNCg0KICAgICAgcHVibGlzaGVyPXtJRUVFfQ0KDQogICAgfQ0KDQogICAiIiINCg0KICAgIyBTaG9ydCB2YXJpYWJsZXMgYXJlIG5hbWVkIGFzIHRoZXkgYXJlIGluIHRoZSBwYXBlcg0KDQogICBtID0gbGFiZWxfMV9jb3VudA0KICAgbiA9IHByZWRpY3Rpb25zX3NvcnRlZF90cmFuc3Bvc2VkLnNoYXBlWzFdIC0gbQ0KICAgcG9zaXRpdmVfZXhhbXBsZXMgPSBwcmVkaWN0aW9uc19zb3J0ZWRfdHJhbnNwb3NlZFs6LCA6bV0NCiAgIG5lZ2F0aXZlX2V4YW1wbGVzID0gcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWRbOiwgbTpdDQogICBrID0gcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQuc2hhcGVbMF0NCg0KDQoNCiAgIHR4ID0gbnAuZW1wdHkoW2ssIG1dLCBkdHlwZT1ucC5mbG9hdDMyKQ0KICAgdHkgPSBucC5lbXB0eShbaywgbl0sIGR0eXBlPW5wLmZsb2F0MzIpDQogICB0eiA9IG5wLmVtcHR5KFtrLCBtICsgbl0sIGR0eXBlPW5wLmZsb2F0MzIpDQoNCiAgIGZvciByIGluIHJhbmdlKGspOg0KDQogICAgICAgdHhbciwgOl0gPSBjb21wdXRlX21pZHJhbmsocG9zaXRpdmVfZXhhbXBsZXNbciwgOl0pDQogICAgICAgdHlbciwgOl0gPSBjb21wdXRlX21pZHJhbmsobmVnYXRpdmVfZXhhbXBsZXNbciwgOl0pDQogICAgICAgdHpbciwgOl0gPSBjb21wdXRlX21pZHJhbmsocHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWRbciwgOl0pDQoNCiAgIGF1Y3MgPSB0els6LCA6bV0uc3VtKGF4aXM9MSkgLyBtIC8gbiAtIGZsb2F0KG0gKyAxLjApIC8gMi4wIC8gbg0KICAgdjAxID0gKHR6WzosIDptXSAtIHR4WzosIDpdKSAvIG4NCiAgIHYxMCA9IDEuMCAtICh0els6LCBtOl0gLSB0eVs6LCA6XSkgLyBtDQoNCiAgIHN4ID0gbnAuY292KHYwMSkNCiAgIHN5ID0gbnAuY292KHYxMCkNCiAgIGRlbG9uZ2NvdiA9IHN4IC8gbSArIHN5IC8gbg0KDQogICByZXR1cm4gYXVjcywgZGVsb25nY292DQoNCmRlZiBjYWxjX3B2YWx1ZShhdWNzLCBzaWdtYSk6DQogICAiIiJDb21wdXRlcyBsb2coMTApIG9mIHAtdmFsdWVzLg0KICAgQXJnczoNCiAgICAgIGF1Y3M6IDFEIGFycmF5IG9mIEFVQ3MNCiAgICAgIHNpZ21hOiBBVUMgRGVMb25nIGNvdmFyaWFuY2VzDQogICBSZXR1cm5zOg0KICAgICAgbG9nMTAocHZhbHVlKQ0KDQogICAiIiINCg0KICAgbCA9IG5wLmFycmF5KFtbMSwgLTFdXSkNCg0KICAgeiA9IG5wLmFicyhucC5kaWZmKGF1Y3MpKSAvIChucC5zcXJ0KG5wLmRvdChucC5kb3QobCwgc2lnbWEpLCBsLlQpKSArIDFlLTgpDQogICBwdmFsdWUgPSAyICogKDEgLSBzY2lweS5zdGF0cy5ub3JtLmNkZihucC5hYnMoeikpKQ0KICAgIyAgcHJpbnQoMTAqKihucC5sb2cxMCgyKSArIHNjaXB5LnN0YXRzLm5vcm0ubG9nc2YoeiwgbG9jPTAsIHNjYWxlPTEpIC8gbnAubG9nKDEwKSkpDQogICByZXR1cm4gcHZhbHVlDQoNCmRlZiBjb21wdXRlX2dyb3VuZF90cnV0aF9zdGF0aXN0aWNzKGdyb3VuZF90cnV0aCwgc2FtcGxlX3dlaWdodD1Ob25lKToNCiAgIGFzc2VydCBucC5hcnJheV9lcXVhbChucC51bmlxdWUoZ3JvdW5kX3RydXRoKSwgWzAsIDFdKQ0KICAgb3JkZXIgPSAoLWdyb3VuZF90cnV0aCkuYXJnc29ydCgpDQogICBsYWJlbF8xX2NvdW50ID0gaW50KGdyb3VuZF90cnV0aC5zdW0oKSkNCiAgIGlmIHNhbXBsZV93ZWlnaHQgaXMgTm9uZToNCiAgICAgICBvcmRlcmVkX3NhbXBsZV93ZWlnaHQgPSBOb25lDQogICBlbHNlOg0KICAgICAgIG9yZGVyZWRfc2FtcGxlX3dlaWdodCA9IHNhbXBsZV93ZWlnaHRbb3JkZXJdDQoNCiAgIHJldHVybiBvcmRlciwgbGFiZWxfMV9jb3VudCwgb3JkZXJlZF9zYW1wbGVfd2VpZ2h0DQoNCmRlZiBkZWxvbmdfcm9jX3ZhcmlhbmNlKGdyb3VuZF90cnV0aCwgcHJlZGljdGlvbnMpOg0KICAgIiIiDQogICBDb21wdXRlcyBST0MgQVVDIHZhcmlhbmNlIGZvciBhIHNpbmdsZSBzZXQgb2YgcHJlZGljdGlvbnMNCiAgIEFyZ3M6DQogICAgICBncm91bmRfdHJ1dGg6IG5wLmFycmF5IG9mIDAgYW5kIDENCiAgICAgIHByZWRpY3Rpb25zOiBucC5hcnJheSBvZiBmbG9hdHMgb2YgdGhlIHByb2JhYmlsaXR5IG9mIGJlaW5nIGNsYXNzIDENCiAgICIiIg0KICAgc2FtcGxlX3dlaWdodCA9IE5vbmUNCiAgIG9yZGVyLCBsYWJlbF8xX2NvdW50LCBvcmRlcmVkX3NhbXBsZV93ZWlnaHQgPSBjb21wdXRlX2dyb3VuZF90cnV0aF9zdGF0aXN0aWNzKA0KICAgICAgIGdyb3VuZF90cnV0aCwgc2FtcGxlX3dlaWdodCkNCiAgIHByZWRpY3Rpb25zX3NvcnRlZF90cmFuc3Bvc2VkID0gcHJlZGljdGlvbnNbbnAubmV3YXhpcywgb3JkZXJdDQogICBhdWNzLCBkZWxvbmdjb3YgPSBmYXN0RGVMb25nKHByZWRpY3Rpb25zX3NvcnRlZF90cmFuc3Bvc2VkLCBsYWJlbF8xX2NvdW50KQ0KDQogICBhc3NlcnQgbGVuKGF1Y3MpID09IDEsICJUaGVyZSBpcyBhIGJ1ZyBpbiB0aGUgY29kZSwgcGxlYXNlIGZvcndhcmQgdGhpcyB0byB0aGUgZGV2ZWxvcGVycyINCiAgIHJldHVybiBhdWNzWzBdLCBkZWxvbmdjb3YNCg0KZGVmIGRlbG9uZ19yb2NfdGVzdChncm91bmRfdHJ1dGgsIHByZWRpY3Rpb25zX29uZSwgcHJlZGljdGlvbnNfdHdvKToNCiAgICIiIg0KICAgQ29tcHV0ZXMgbG9nKHAtdmFsdWUpIGZvciBoeXBvdGhlc2lzIHRoYXQgdHdvIFJPQyBBVUNzIGFyZSBkaWZmZXJlbnQNCiAgIEFyZ3M6DQogICAgICBncm91bmRfdHJ1dGg6IG5wLmFycmF5IG9mIDAgYW5kIDENCiAgICAgIHByZWRpY3Rpb25zX29uZTogcHJlZGljdGlvbnMgb2YgdGhlIGZpcnN0IG1vZGVsLA0KICAgICAgICAgbnAuYXJyYXkgb2YgZmxvYXRzIG9mIHRoZSBwcm9iYWJpbGl0eSBvZiBiZWluZyBjbGFzcyAxDQogICAgICBwcmVkaWN0aW9uc190d286IHByZWRpY3Rpb25zIG9mIHRoZSBzZWNvbmQgbW9kZWwsDQogICAgICAgICBucC5hcnJheSBvZiBmbG9hdHMgb2YgdGhlIHByb2JhYmlsaXR5IG9mIGJlaW5nIGNsYXNzIDENCiAgICIiIg0KICAgc2FtcGxlX3dlaWdodCA9IE5vbmUNCiAgIG9yZGVyLCBsYWJlbF8xX2NvdW50LG9yZGVyZWRfc2FtcGxlX3dlaWdodCA9IGNvbXB1dGVfZ3JvdW5kX3RydXRoX3N0YXRpc3RpY3MoZ3JvdW5kX3RydXRoKQ0KICAgcHJlZGljdGlvbnNfc29ydGVkX3RyYW5zcG9zZWQgPSBucC52c3RhY2soKHByZWRpY3Rpb25zX29uZSwgcHJlZGljdGlvbnNfdHdvKSlbOiwgb3JkZXJdDQogICBhdWNzLCBkZWxvbmdjb3YgPSBmYXN0RGVMb25nKHByZWRpY3Rpb25zX3NvcnRlZF90cmFuc3Bvc2VkLCBsYWJlbF8xX2NvdW50LHNhbXBsZV93ZWlnaHQpDQoNCiAgIHJldHVybiBjYWxjX3B2YWx1ZShhdWNzLCBkZWxvbmdjb3YpDQoNCmRlZiBkZWxvbmdfcm9jX2NpKHlfdHJ1ZTogbnAubmRhcnJheSwgeV9wcmVkOiBucC5uZGFycmF5LCBhbHBoYTogZmxvYXQgPSAwLjk1KSAtPiB0dXBsZToNCiAgICAiIiINCiAgICBDb21wdXRlcyBST0MgQVVDIGFuZCBpdHMgY29uZmlkZW5jZSBpbnRlcnZhbCB1c2luZyBEZUxvbmcncyBtZXRob2QuDQogICAgQXJnczoNCiAgICAgICAgeV90cnVlOiB0cnVlIGxhYmVscw0KICAgICAgICB5X3ByZWQ6IHByZWRpY3RlZCBwcm9iYWJpbGl0aWVzDQogICAgICAgIGFscGhhOiBjb25maWRlbmNlIGxldmVsDQogICAgUmV0dXJuczoNCiAgICAgICAgKEFVQywgKGxvd2VyX2NpLCB1cHBlcl9jaSkpDQogICAgIiIiDQogICAgYXVjcywgYXVjX2NvdiA9IGRlbG9uZ19yb2NfdmFyaWFuY2UoeV90cnVlLCB5X3ByZWQpDQogICAgYXVjX3N0ZCA9IG5wLnNxcnQoYXVjX2NvdikNCiAgICBsb3dlcl91cHBlcl9xID0gbnAuYWJzKG5wLmFycmF5KFswLCAxXSkgLSAoMSAtIGFscGhhKSAvIDIpDQogICAgY2kgPSBzdGF0cy5ub3JtLnBwZigNCiAgICAgICAgbG93ZXJfdXBwZXJfcSwNCiAgICAgICAgbG9jPWF1Y3MsDQogICAgICAgIHNjYWxlPWF1Y19zdGQpDQogICAgY2lbY2kgPiAxXSA9IDENCiAgICByZXR1cm4gYXVjcywgY2kNCg0KZGVmIHBlcmZvcm1fZGVsb25nX3Rlc3QoaW5wdXRfZmlsZTogc3RyLCB0cnVlX2xhYmVsX2NvbDogc3RyLCBtb2RlbF9jb2xzOiBsaXN0KSAtPiBsaXN0Og0KICAgICIiIg0KICAgIFBlcmZvcm1zIERlTG9uZyB0ZXN0IG9uIG11bHRpcGxlIG1vZGVscycgcHJlZGljdGlvbnMgZnJvbSBhIENTViBmaWxlLg0KICAgIEFyZ3M6DQogICAgICAgIGlucHV0X2ZpbGU6IHBhdGggdG8gaW5wdXQgQ1NWIGZpbGUNCiAgICAgICAgdHJ1ZV9sYWJlbF9jb2w6IGNvbHVtbiBuYW1lIGZvciB0cnVlIGxhYmVscw0KICAgICAgICBtb2RlbF9jb2xzOiBsaXN0IG9mIGNvbHVtbiBuYW1lcyBmb3IgbW9kZWwgcHJlZGljdGlvbnMNCiAgICBSZXR1cm5zOg0KICAgICAgICBsaXN0IG9mIGNvbXBhcmlzb24gcmVzdWx0cw0KICAgICIiIg0KICAgICMgUmVhZCB0aGUgQ1NWIGZpbGUNCiAgICBkZiA9IHBkLnJlYWRfY3N2KGlucHV0X2ZpbGUpDQogICAgDQogICAgIyBHZXQgdHJ1ZSBsYWJlbHMNCiAgICB5X3RydWUgPSBkZlt0cnVlX2xhYmVsX2NvbF0udmFsdWVzDQogICAgDQogICAgIyBQZXJmb3JtIHBhaXJ3aXNlIGNvbXBhcmlzb25zDQogICAgcmVzdWx0cyA9IFtdDQogICAgZm9yIGkgaW4gcmFuZ2UobGVuKG1vZGVsX2NvbHMpKToNCiAgICAgICAgZm9yIGogaW4gcmFuZ2UoaSArIDEsIGxlbihtb2RlbF9jb2xzKSk6DQogICAgICAgICAgICBtb2RlbDEgPSBtb2RlbF9jb2xzW2ldDQogICAgICAgICAgICBtb2RlbDIgPSBtb2RlbF9jb2xzW2pdDQogICAgICAgICAgICB5X3ByZWQxID0gZGZbbW9kZWwxXS52YWx1ZXMNCiAgICAgICAgICAgIHlfcHJlZDIgPSBkZlttb2RlbDJdLnZhbHVlcw0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIENhbGN1bGF0ZSBBVUNzIGFuZCBDSXMNCiAgICAgICAgICAgIGF1YzEsIGNpMSA9IGRlbG9uZ19yb2NfY2koeV90cnVlLCB5X3ByZWQxKQ0KICAgICAgICAgICAgYXVjMiwgY2kyID0gZGVsb25nX3JvY19jaSh5X3RydWUsIHlfcHJlZDIpDQogICAgICAgICAgICANCiAgICAgICAgICAgICMgQ2FsY3VsYXRlIHAtdmFsdWUNCiAgICAgICAgICAgIHBfdmFsdWUgPSBkZWxvbmdfcm9jX3Rlc3QoeV90cnVlLCB5X3ByZWQxLCB5X3ByZWQyKQ0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIENyZWF0ZSBjb21wYXJpc29uIHJlc3VsdA0KICAgICAgICAgICAgY29tcGFyaXNvbl9yZXN1bHQgPSB7DQogICAgICAgICAgICAgICAgJ2NvbXBhcmlzb24nOiBmInttb2RlbDF9IHZzIHttb2RlbDJ9IiwNCiAgICAgICAgICAgICAgICBmJ3ttb2RlbDF9X2F1Yyc6IGZsb2F0KGF1YzEpLA0KICAgICAgICAgICAgICAgIGYne21vZGVsMX1fY2lfbG93ZXInOiBmbG9hdChjaTFbMF0pLA0KICAgICAgICAgICAgICAgIGYne21vZGVsMX1fY2lfdXBwZXInOiBmbG9hdChjaTFbMV0pLA0KICAgICAgICAgICAgICAgIGYne21vZGVsMn1fYXVjJzogZmxvYXQoYXVjMiksDQogICAgICAgICAgICAgICAgZid7bW9kZWwyfV9jaV9sb3dlcic6IGZsb2F0KGNpMlswXSksDQogICAgICAgICAgICAgICAgZid7bW9kZWwyfV9jaV91cHBlcic6IGZsb2F0KGNpMlsxXSksDQogICAgICAgICAgICAgICAgJ3BfdmFsdWUnOiBmbG9hdChwX3ZhbHVlKSwNCiAgICAgICAgICAgICAgICAnc2lnbmlmaWNhbnRfZGlmZmVyZW5jZSc6IGJvb2wocF92YWx1ZSA8IDAuMDUpLA0KICAgICAgICAgICAgICAgICdjb25jbHVzaW9uJzogZiJ7bW9kZWwxfSBhbmQge21vZGVsMn0gaGF2ZSBzaWduaWZpY2FudGx5IGRpZmZlcmVudCBBVUNzIChwPDAuMDUpIiBpZiBwX3ZhbHVlIDwgMC4wNSBlbHNlIGYie21vZGVsMX0gYW5kIHttb2RlbDJ9IGRvIG5vdCBoYXZlIHNpZ25pZmljYW50bHkgZGlmZmVyZW50IEFVQ3MgKHDiiaUwLjA1KSINCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIHJlc3VsdHMuYXBwZW5kKGNvbXBhcmlzb25fcmVzdWx0KQ0KICAgIA0KICAgIHJldHVybiByZXN1bHRzDQoNCmRlZiBtYWluKCk6DQogICAgcGFyc2VyID0gYXJncGFyc2UuQXJndW1lbnRQYXJzZXIoZGVzY3JpcHRpb249J1BlcmZvcm0gRGVMb25nIHRlc3Qgb24gbXVsdGlwbGUgbW9kZWxzJykNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLWlucHV0JywgdHlwZT1zdHIsIHJlcXVpcmVkPVRydWUsIGhlbHA9J0lucHV0IENTViBmaWxlIHBhdGgnKQ0KICAgIHBhcnNlci5hZGRfYXJndW1lbnQoJy0tdHJ1ZV9sYWJlbCcsIHR5cGU9c3RyLCByZXF1aXJlZD1UcnVlLCBoZWxwPSdDb2x1bW4gbmFtZSBmb3IgdHJ1ZSBsYWJlbHMnKQ0KICAgIHBhcnNlci5hZGRfYXJndW1lbnQoJy0tbW9kZWxfY29scycsIHR5cGU9c3RyLCByZXF1aXJlZD1UcnVlLCBoZWxwPSdDb21tYS1zZXBhcmF0ZWQgbGlzdCBvZiBjb2x1bW4gbmFtZXMgZm9yIG1vZGVsIHByZWRpY3Rpb25zJykNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLW91dHB1dCcsIHR5cGU9c3RyLCBoZWxwPSdPdXRwdXQgSlNPTiBmaWxlIHBhdGggKG9wdGlvbmFsKScpDQogICAgYXJncyA9IHBhcnNlci5wYXJzZV9hcmdzKCkNCiAgICANCiAgICAjIENoZWNrIGlmIGZpbGUgZXhpc3RzDQogICAgaWYgbm90IG9zLnBhdGguZXhpc3RzKGFyZ3MuaW5wdXQpOg0KICAgICAgICBwcmludChmIkVycm9yOiBGaWxlIHthcmdzLmlucHV0fSBkb2VzIG5vdCBleGlzdCIpDQogICAgICAgIHN5cy5leGl0KDEpDQogICAgDQogICAgIyBQYXJzZSBtb2RlbCBjb2x1bW5zDQogICAgbW9kZWxfY29scyA9IFtjb2wuc3RyaXAoKSBmb3IgY29sIGluIGFyZ3MubW9kZWxfY29scy5zcGxpdCgnLCcpXQ0KICAgIA0KICAgICMgUGVyZm9ybSBEZUxvbmcgdGVzdA0KICAgIHJlc3VsdHMgPSBwZXJmb3JtX2RlbG9uZ190ZXN0KGFyZ3MuaW5wdXQsIGFyZ3MudHJ1ZV9sYWJlbCwgbW9kZWxfY29scykNCiAgICANCiAgICAjIFByaW50IHJlc3VsdHMNCiAgICBwcmludCgiXG5EZUxvbmcgVGVzdCBSZXN1bHRzOiIpDQogICAgcHJpbnQoIj0iICogNTApDQogICAgZm9yIHJlc3VsdCBpbiByZXN1bHRzOg0KICAgICAgICBwcmludChmIlxue3Jlc3VsdFsnY29tcGFyaXNvbiddfSIpDQogICAgICAgIHByaW50KGYiUC12YWx1ZToge3Jlc3VsdFsncF92YWx1ZSddOi40Zn0iKQ0KICAgICAgICBwcmludChmIkNvbmNsdXNpb246IHtyZXN1bHRbJ2NvbmNsdXNpb24nXX0iKQ0KICAgICAgICBwcmludChmIkFVQ3Mgd2l0aCA5NSUgQ0k6IikNCiAgICAgICAgbW9kZWwxLCBtb2RlbDIgPSByZXN1bHRbJ2NvbXBhcmlzb24nXS5zcGxpdCgiIHZzICIpDQogICAgICAgIHByaW50KGYie21vZGVsMX06IHtyZXN1bHRbZid7bW9kZWwxfV9hdWMnXTouM2Z9ICh7cmVzdWx0W2Yne21vZGVsMX1fY2lfbG93ZXInXTouM2Z9LXtyZXN1bHRbZid7bW9kZWwxfV9jaV91cHBlciddOi4zZn0pIikNCiAgICAgICAgcHJpbnQoZiJ7bW9kZWwyfToge3Jlc3VsdFtmJ3ttb2RlbDJ9X2F1YyddOi4zZn0gKHtyZXN1bHRbZid7bW9kZWwyfV9jaV9sb3dlciddOi4zZn0te3Jlc3VsdFtmJ3ttb2RlbDJ9X2NpX3VwcGVyJ106LjNmfSkiKQ0KICAgIA0KICAgICMgU2F2ZSByZXN1bHRzIHRvIGZpbGUgaWYgc3BlY2lmaWVkDQogICAgaWYgYXJncy5vdXRwdXQ6DQogICAgICAgIHdpdGggb3BlbihhcmdzLm91dHB1dCwgJ3cnKSBhcyBmOg0KICAgICAgICAgICAganNvbi5kdW1wKHJlc3VsdHMsIGYsIGluZGVudD00KQ0KICAgICAgICBwcmludChmIlxuUmVzdWx0cyBzYXZlZCB0byB7YXJncy5vdXRwdXR9IikNCg0KaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoNCiAgICAjIEZvciBkZWJ1Z2dpbmcNCiAgICBpZiBsZW4oc3lzLmFyZ3YpID09IDE6DQogICAgICAgICMgRGVmYXVsdCB0ZXN0IGNhc2UNCiAgICAgICAgc3lzLmFyZ3YuZXh0ZW5kKFsNCiAgICAgICAgICAgICctLWlucHV0JywgJy4uL2RlbW9fZGF0YS9yZXN1bHRzL2FsbF9wcmVkaWN0aW9uX3Jlc3VsdHMuY3N2JywNCiAgICAgICAgICAgICctLXRydWVfbGFiZWwnLCAndHJ1ZV9sYWJlbCcsDQogICAgICAgICAgICAnLS1tb2RlbF9jb2xzJywgJ0xvZ2lzdGljUmVncmVzc2lvbl9wcm9iLFNWQ19wcm9iLFhHQm9vc3RfcHJvYicsDQogICAgICAgICAgICAnLS1vdXRwdXQnLCAnLi4vZGVtb19kYXRhL3Jlc3VsdHMvZGVsb25nX3Rlc3RfcmVzdWx0cy5qc29uJw0KICAgICAgICBdKQ0KICAgIA0KICAgIG1haW4oKSA=').decode())
+import pandas as pd
+import numpy as np
+import scipy.stats
+from scipy import stats
+import argparse
+import sys
+import os
+import json
+# AUC comparison adapted from
+# https://github.com/Netflix/vmaf/
+def compute_midrank(x):
+   """Computes midranks.
+   Args:
+      x - a 1D numpy array
+   Returns:
+      array of midranks
+   """
+   J = np.argsort(x)
+   Z = x[J]
+   N = len(x)
+   T = np.zeros(N, dtype=np.float32)
+   i = 0
+   while i < N:
+       j = i
+       while j < N and Z[j] == Z[i]:
+           j += 1
+       T[i:j] = 0.5*(i + j - 1)
+       i = j
+   T2 = np.empty(N, dtype=np.float32)
+   # Note(kazeevn) +1 is due to Python using 0-based indexing
+   # instead of 1-based in the AUC formula in the paper
+   T2[J] = T + 1
+   return T2
+
+def compute_midrank_weight(x, sample_weight):
+   """Computes midranks.
+   Args:
+      x - a 1D numpy array
+   Returns:
+      array of midranks
+   """
+   J = np.argsort(x)
+   Z = x[J]
+   cumulative_weight = np.cumsum(sample_weight[J])
+   N = len(x)
+   T = np.zeros(N, dtype=np.float32)
+   i = 0
+   while i < N:
+       j = i
+       while j < N and Z[j] == Z[i]:
+           j += 1
+       T[i:j] = cumulative_weight[i:j].mean()
+       i = j
+   T2 = np.empty(N, dtype=np.float32)
+   T2[J] = T
+   return T2
+
+def fastDeLong(predictions_sorted_transposed, label_1_count, sample_weight=None):
+
+   if sample_weight is None:
+
+       return fastDeLong_no_weights(predictions_sorted_transposed, label_1_count)
+
+   else:
+
+       return fastDeLong_weights(predictions_sorted_transposed, label_1_count, sample_weight)
+
+def fastDeLong_weights(predictions_sorted_transposed, label_1_count, sample_weight):
+
+   """
+
+   The fast version of DeLong's method for computing the covariance of
+
+   unadjusted AUC.
+
+   Args:
+
+      predictions_sorted_transposed: a 2D numpy.array[n_classifiers, n_examples]
+
+         sorted such as the examples with label "1" are first
+
+   Returns:
+
+      (AUC value, DeLong covariance)
+
+   Reference:
+
+    @article{sun2014fast,
+
+      title={Fast Implementation of DeLong's Algorithm for
+
+             Comparing the Areas Under Correlated Receiver Oerating Characteristic Curves},
+
+      author={Xu Sun and Weichao Xu},
+
+      journal={IEEE Signal Processing Letters},
+
+      volume={21},
+
+      number={11},
+
+      pages={1389--1393},
+
+      year={2014},
+
+      publisher={IEEE}
+
+    }
+
+   """
+
+   # Short variables are named as they are in the paper
+
+   m = label_1_count
+
+   n = predictions_sorted_transposed.shape[1] - m
+
+   positive_examples = predictions_sorted_transposed[:, :m]
+
+   negative_examples = predictions_sorted_transposed[:, m:]
+
+   k = predictions_sorted_transposed.shape[0]
+
+
+
+   tx = np.empty([k, m], dtype=np.float32)
+
+   ty = np.empty([k, n], dtype=np.float32)
+
+   tz = np.empty([k, m + n], dtype=np.float32)
+
+   for r in range(k):
+
+       tx[r, :] = compute_midrank_weight(positive_examples[r, :], sample_weight[:m])
+
+       ty[r, :] = compute_midrank_weight(negative_examples[r, :], sample_weight[m:])
+
+       tz[r, :] = compute_midrank_weight(predictions_sorted_transposed[r, :], sample_weight)
+
+   total_positive_weights = sample_weight[:m].sum()
+
+   total_negative_weights = sample_weight[m:].sum()
+
+   pair_weights = np.dot(sample_weight[:m, np.newaxis], sample_weight[np.newaxis, m:])
+
+   total_pair_weights = pair_weights.sum()
+
+   aucs = (sample_weight[:m]*(tz[:, :m] - tx)).sum(axis=1) / total_pair_weights
+
+   v01 = (tz[:, :m] - tx[:, :]) / total_negative_weights
+
+   v10 = 1. - (tz[:, m:] - ty[:, :]) / total_positive_weights
+
+   sx = np.cov(v01)
+
+   sy = np.cov(v10)
+
+   delongcov = sx / m + sy / n
+
+   return aucs, delongcov
+
+def fastDeLong_no_weights(predictions_sorted_transposed, label_1_count):
+
+   """
+
+   The fast version of DeLong's method for computing the covariance of
+
+   unadjusted AUC.
+
+   Args:
+
+      predictions_sorted_transposed: a 2D numpy.array[n_classifiers, n_examples]
+
+         sorted such as the examples with label "1" are first
+
+   Returns:
+
+      (AUC value, DeLong covariance)
+
+   Reference:
+
+    @article{sun2014fast,
+
+      title={Fast Implementation of DeLong's Algorithm for
+
+             Comparing the Areas Under Correlated Receiver Oerating
+
+             Characteristic Curves},
+
+      author={Xu Sun and Weichao Xu},
+
+      journal={IEEE Signal Processing Letters},
+
+      volume={21},
+
+      number={11},
+
+      pages={1389--1393},
+
+      year={2014},
+
+      publisher={IEEE}
+
+    }
+
+   """
+
+   # Short variables are named as they are in the paper
+
+   m = label_1_count
+   n = predictions_sorted_transposed.shape[1] - m
+   positive_examples = predictions_sorted_transposed[:, :m]
+   negative_examples = predictions_sorted_transposed[:, m:]
+   k = predictions_sorted_transposed.shape[0]
+
+
+
+   tx = np.empty([k, m], dtype=np.float32)
+   ty = np.empty([k, n], dtype=np.float32)
+   tz = np.empty([k, m + n], dtype=np.float32)
+
+   for r in range(k):
+
+       tx[r, :] = compute_midrank(positive_examples[r, :])
+       ty[r, :] = compute_midrank(negative_examples[r, :])
+       tz[r, :] = compute_midrank(predictions_sorted_transposed[r, :])
+
+   aucs = tz[:, :m].sum(axis=1) / m / n - float(m + 1.0) / 2.0 / n
+   v01 = (tz[:, :m] - tx[:, :]) / n
+   v10 = 1.0 - (tz[:, m:] - ty[:, :]) / m
+
+   sx = np.cov(v01)
+   sy = np.cov(v10)
+   delongcov = sx / m + sy / n
+
+   return aucs, delongcov
+
+def calc_pvalue(aucs, sigma):
+   """Computes log(10) of p-values.
+   Args:
+      aucs: 1D array of AUCs
+      sigma: AUC DeLong covariances
+   Returns:
+      log10(pvalue)
+
+   """
+
+   l = np.array([[1, -1]])
+
+   z = np.abs(np.diff(aucs)) / (np.sqrt(np.dot(np.dot(l, sigma), l.T)) + 1e-8)
+   pvalue = 2 * (1 - scipy.stats.norm.cdf(np.abs(z)))
+   #  print(10**(np.log10(2) + scipy.stats.norm.logsf(z, loc=0, scale=1) / np.log(10)))
+   return pvalue
+
+def compute_ground_truth_statistics(ground_truth, sample_weight=None):
+   assert np.array_equal(np.unique(ground_truth), [0, 1])
+   order = (-ground_truth).argsort()
+   label_1_count = int(ground_truth.sum())
+   if sample_weight is None:
+       ordered_sample_weight = None
+   else:
+       ordered_sample_weight = sample_weight[order]
+
+   return order, label_1_count, ordered_sample_weight
+
+def delong_roc_variance(ground_truth, predictions):
+   """
+   Computes ROC AUC variance for a single set of predictions
+   Args:
+      ground_truth: np.array of 0 and 1
+      predictions: np.array of floats of the probability of being class 1
+   """
+   sample_weight = None
+   order, label_1_count, ordered_sample_weight = compute_ground_truth_statistics(
+       ground_truth, sample_weight)
+   predictions_sorted_transposed = predictions[np.newaxis, order]
+   aucs, delongcov = fastDeLong(predictions_sorted_transposed, label_1_count)
+
+   assert len(aucs) == 1, "There is a bug in the code, please forward this to the developers"
+   return aucs[0], delongcov
+
+def delong_roc_test(ground_truth, predictions_one, predictions_two):
+   """
+   Computes log(p-value) for hypothesis that two ROC AUCs are different
+   Args:
+      ground_truth: np.array of 0 and 1
+      predictions_one: predictions of the first model,
+         np.array of floats of the probability of being class 1
+      predictions_two: predictions of the second model,
+         np.array of floats of the probability of being class 1
+   """
+   sample_weight = None
+   order, label_1_count,ordered_sample_weight = compute_ground_truth_statistics(ground_truth)
+   predictions_sorted_transposed = np.vstack((predictions_one, predictions_two))[:, order]
+   aucs, delongcov = fastDeLong(predictions_sorted_transposed, label_1_count,sample_weight)
+
+   return calc_pvalue(aucs, delongcov)
+
+def delong_roc_ci(y_true: np.ndarray, y_pred: np.ndarray, alpha: float = 0.95) -> tuple:
+    """
+    Computes ROC AUC and its confidence interval using DeLong's method.
+    Args:
+        y_true: true labels
+        y_pred: predicted probabilities
+        alpha: confidence level
+    Returns:
+        (AUC, (lower_ci, upper_ci))
+    """
+    aucs, auc_cov = delong_roc_variance(y_true, y_pred)
+    auc_std = np.sqrt(auc_cov)
+    lower_upper_q = np.abs(np.array([0, 1]) - (1 - alpha) / 2)
+    ci = stats.norm.ppf(
+        lower_upper_q,
+        loc=aucs,
+        scale=auc_std)
+    ci[ci > 1] = 1
+    return aucs, ci
+
+def perform_delong_test(input_file: str, true_label_col: str, model_cols: list) -> list:
+    """
+    Performs DeLong test on multiple models' predictions from a CSV file.
+    Args:
+        input_file: path to input CSV file
+        true_label_col: column name for true labels
+        model_cols: list of column names for model predictions
+    Returns:
+        list of comparison results
+    """
+    # Read the CSV file
+    df = pd.read_csv(input_file)
+    
+    # Get true labels
+    y_true = df[true_label_col].values
+    
+    # Perform pairwise comparisons
+    results = []
+    for i in range(len(model_cols)):
+        for j in range(i + 1, len(model_cols)):
+            model1 = model_cols[i]
+            model2 = model_cols[j]
+            y_pred1 = df[model1].values
+            y_pred2 = df[model2].values
+            
+            # Calculate AUCs and CIs
+            auc1, ci1 = delong_roc_ci(y_true, y_pred1)
+            auc2, ci2 = delong_roc_ci(y_true, y_pred2)
+            
+            # Calculate p-value
+            p_value = delong_roc_test(y_true, y_pred1, y_pred2)
+            
+            # Create comparison result
+            comparison_result = {
+                'comparison': f"{model1} vs {model2}",
+                f'{model1}_auc': float(auc1),
+                f'{model1}_ci_lower': float(ci1[0]),
+                f'{model1}_ci_upper': float(ci1[1]),
+                f'{model2}_auc': float(auc2),
+                f'{model2}_ci_lower': float(ci2[0]),
+                f'{model2}_ci_upper': float(ci2[1]),
+                'p_value': float(p_value),
+                'significant_difference': bool(p_value < 0.05),
+                'conclusion': f"{model1} and {model2} have significantly different AUCs (p<0.05)" if p_value < 0.05 else f"{model1} and {model2} do not have significantly different AUCs (p≥0.05)"
+            }
+            results.append(comparison_result)
+    
+    return results
+
+def main():
+    parser = argparse.ArgumentParser(description='Perform DeLong test on multiple models')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file path')
+    parser.add_argument('--true_label', type=str, required=True, help='Column name for true labels')
+    parser.add_argument('--model_cols', type=str, required=True, help='Comma-separated list of column names for model predictions')
+    parser.add_argument('--output', type=str, help='Output JSON file path (optional)')
+    args = parser.parse_args()
+    
+    # Check if file exists
+    if not os.path.exists(args.input):
+        print(f"Error: File {args.input} does not exist")
+        sys.exit(1)
+    
+    # Parse model columns
+    model_cols = [col.strip() for col in args.model_cols.split(',')]
+    
+    # Perform DeLong test
+    results = perform_delong_test(args.input, args.true_label, model_cols)
+    
+    # Print results
+    print("\nDeLong Test Results:")
+    print("=" * 50)
+    for result in results:
+        print(f"\n{result['comparison']}")
+        print(f"P-value: {result['p_value']:.4f}")
+        print(f"Conclusion: {result['conclusion']}")
+        print(f"AUCs with 95% CI:")
+        model1, model2 = result['comparison'].split(" vs ")
+        print(f"{model1}: {result[f'{model1}_auc']:.3f} ({result[f'{model1}_ci_lower']:.3f}-{result[f'{model1}_ci_upper']:.3f})")
+        print(f"{model2}: {result[f'{model2}_auc']:.3f} ({result[f'{model2}_ci_lower']:.3f}-{result[f'{model2}_ci_upper']:.3f})")
+    
+    # Save results to file if specified
+    if args.output:
+        with open(args.output, 'w') as f:
+            json.dump(results, f, indent=4)
+        print(f"\nResults saved to {args.output}")
+
+if __name__ == "__main__":
+    # For debugging
+    if len(sys.argv) == 1:
+        # Default test case
+        sys.argv.extend([
+            '--input', '../demo_data/results/all_prediction_results.csv',
+            '--true_label', 'true_label',
+            '--model_cols', 'LogisticRegression_prob,SVC_prob,XGBoost_prob',
+            '--output', '../demo_data/results/delong_test_results.json'
+        ])
+    
+    main() 

@@ -1,3 +1,66 @@
+"""
+Progress bar utilities, providing custom progress bar display
+"""
+import os
+import sys
+import threading
+import time
 
-import base64
-exec(base64.b64decode(b'IiIiClByb2dyZXNzIGJhciB1dGlsaXRpZXMsIHByb3ZpZGluZyBjdXN0b20gcHJvZ3Jlc3MgYmFyIGRpc3BsYXkKIiIiCmltcG9ydCBvcwppbXBvcnQgc3lzCmltcG9ydCB0aHJlYWRpbmcKaW1wb3J0IHRpbWUKCmNsYXNzIEN1c3RvbVRxZG06CiAgICAiIiIKICAgIEN1c3RvbSBwcm9ncmVzcyBiYXIgY2xhc3MsIHVzZWQgYXMgYW4gYWx0ZXJuYXRpdmUgdG8gdHFkbQogICAgCiAgICBUaGlzIGNsYXNzIGlzIGRlc2lnbmVkIHRvIGJlIHNhZmUgZm9yIG11bHRpLXByb2Nlc3NpbmcgZW52aXJvbm1lbnRzLgogICAgIiIiCiAgICBfcHJpbnRfbG9jayA9IHRocmVhZGluZy5Mb2NrKCkKICAgIAogICAgZGVmIF9faW5pdF9fKHNlbGYsIHRvdGFsOiBpbnQgPSBOb25lLCBkZXNjOiBzdHIgPSAiUHJvZ3Jlc3MiKToKICAgICAgICAiIiIKICAgICAgICBJbml0aWFsaXplIHByb2dyZXNzIGJhcgogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIHRvdGFsIChpbnQsIG9wdGlvbmFsKTogVG90YWwgbnVtYmVyIG9mIGl0ZXJhdGlvbnMKICAgICAgICAgICAgZGVzYyAoc3RyLCBvcHRpb25hbCk6IFByb2dyZXNzIGJhciBkZXNjcmlwdGlvbgogICAgICAgICIiIgogICAgICAgIHNlbGYudG90YWwgPSB0b3RhbAogICAgICAgIHNlbGYuZGVzYyA9IGRlc2MKICAgICAgICBzZWxmLm4gPSAwCiAgICAgICAgc2VsZi5sYXN0X3ByaW50X3RpbWUgPSAwCiAgICAgICAgc2VsZi5taW5fcHJpbnRfaW50ZXJ2YWwgPSAwLjEgICMg5pyA5bCP5pu05paw6Ze06ZqU77yI56eS77yJCiAgICAgICAgCiAgICBkZWYgdXBkYXRlKHNlbGYsIG46IGludCA9IDEpIC0+IE5vbmU6CiAgICAgICAgIiIiCiAgICAgICAgVXBkYXRlIHByb2dyZXNzIGJhcgogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIG4gKGludCwgb3B0aW9uYWwpOiBOdW1iZXIgb2Ygc3RlcHMgdG8gdXBkYXRlCiAgICAgICAgIiIiCiAgICAgICAgc2VsZi5uICs9IG4KICAgICAgICBpZiBzZWxmLnRvdGFsIGlzIG5vdCBOb25lOgogICAgICAgICAgICAjIOmZkOWItuaJk+WNsOmikeeOh+S7pemBv+WFjeWcqOWkmui/m+eoi+eOr+Wig+S4reS6ieeUqOagh+WHhui+k+WHugogICAgICAgICAgICBjdXJyZW50X3RpbWUgPSB0aW1lLnRpbWUoKQogICAgICAgICAgICBpZiBjdXJyZW50X3RpbWUgLSBzZWxmLmxhc3RfcHJpbnRfdGltZSA+IHNlbGYubWluX3ByaW50X2ludGVydmFsIG9yIHNlbGYubiA+PSBzZWxmLnRvdGFsOgogICAgICAgICAgICAgICAgc2VsZi5fcHJpbnRfcHJvZ3Jlc3MoKQogICAgICAgICAgICAgICAgc2VsZi5sYXN0X3ByaW50X3RpbWUgPSBjdXJyZW50X3RpbWUKICAgIAogICAgZGVmIHNldF9kZXNjcmlwdGlvbihzZWxmLCBkZXNjOiBzdHIpIC0+IE5vbmU6CiAgICAgICAgIiIiCiAgICAgICAgU2V0IHByb2dyZXNzIGJhciBkZXNjcmlwdGlvbgogICAgICAgIAogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIGRlc2MgKHN0cik6IFByb2dyZXNzIGJhciBkZXNjcmlwdGlvbgogICAgICAgICIiIgogICAgICAgIHNlbGYuZGVzYyA9IGRlc2MKICAgICAgICAKICAgIGRlZiBfcHJpbnRfcHJvZ3Jlc3Moc2VsZikgLT4gTm9uZToKICAgICAgICAiIiJQcmludCBwcm9ncmVzcyBiYXIgd2l0aCB0aHJlYWQgc2FmZXR5IiIiCiAgICAgICAgd2l0aCBDdXN0b21UcWRtLl9wcmludF9sb2NrOgogICAgICAgICAgICBwcm9ncmVzcyA9IGludChzZWxmLm4gLyBzZWxmLnRvdGFsICogNTApICAjIDUw5piv6L+b5bqm5p2h6ZW/5bqmCiAgICAgICAgICAgIGJhciA9ICLilogiICogcHJvZ3Jlc3MgKyAiLSIgKiAoNTAgLSBwcm9ncmVzcykKICAgICAgICAgICAgcGVyY2VudCA9IHNlbGYubiAvIHNlbGYudG90YWwgKiAxMDAKICAgICAgICAgICAgIyDkvb/nlKhzeXMuc3Rkb3V055u05o6l5YaZ5YWl5bm25Yi35paw57yT5Yay5Yy6CiAgICAgICAgICAgIHN5cy5zdGRvdXQud3JpdGUoZiJccntzZWxmLmRlc2N9OiBbe2Jhcn1dIHtwZXJjZW50Oi4yZn0lICh7c2VsZi5ufS97c2VsZi50b3RhbH0pIikKICAgICAgICAgICAgc3lzLnN0ZG91dC5mbHVzaCgpCiAgICAgICAgICAgIGlmIHNlbGYubiA+PSBzZWxmLnRvdGFsOgogICAgICAgICAgICAgICAgc3lzLnN0ZG91dC53cml0ZSgiXG4iKQogICAgICAgICAgICAgICAgc3lzLnN0ZG91dC5mbHVzaCgp').decode())
+class CustomTqdm:
+    """
+    Custom progress bar class, used as an alternative to tqdm
+    
+    This class is designed to be safe for multi-processing environments.
+    """
+    _print_lock = threading.Lock()
+    
+    def __init__(self, total: int = None, desc: str = "Progress"):
+        """
+        Initialize progress bar
+        
+        Args:
+            total (int, optional): Total number of iterations
+            desc (str, optional): Progress bar description
+        """
+        self.total = total
+        self.desc = desc
+        self.n = 0
+        self.last_print_time = 0
+        self.min_print_interval = 0.1  # 最小更新间隔（秒）
+        
+    def update(self, n: int = 1) -> None:
+        """
+        Update progress bar
+        
+        Args:
+            n (int, optional): Number of steps to update
+        """
+        self.n += n
+        if self.total is not None:
+            # 限制打印频率以避免在多进程环境中争用标准输出
+            current_time = time.time()
+            if current_time - self.last_print_time > self.min_print_interval or self.n >= self.total:
+                self._print_progress()
+                self.last_print_time = current_time
+    
+    def set_description(self, desc: str) -> None:
+        """
+        Set progress bar description
+        
+        Args:
+            desc (str): Progress bar description
+        """
+        self.desc = desc
+        
+    def _print_progress(self) -> None:
+        """Print progress bar with thread safety"""
+        with CustomTqdm._print_lock:
+            progress = int(self.n / self.total * 50)  # 50是进度条长度
+            bar = "█" * progress + "-" * (50 - progress)
+            percent = self.n / self.total * 100
+            # 使用sys.stdout直接写入并刷新缓冲区
+            sys.stdout.write(f"\r{self.desc}: [{bar}] {percent:.2f}% ({self.n}/{self.total})")
+            sys.stdout.flush()
+            if self.n >= self.total:
+                sys.stdout.write("\n")
+                sys.stdout.flush()

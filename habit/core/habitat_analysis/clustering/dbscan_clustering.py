@@ -1,3 +1,252 @@
+"""
+Implementation of DBSCAN (Density-Based Spatial Clustering of Applications with Noise) algorithm
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpJbXBsZW1lbnRhdGlvbiBvZiBEQlNDQU4gKERlbnNpdHktQmFzZWQgU3BhdGlhbCBDbHVzdGVyaW5nIG9mIEFwcGxpY2F0aW9ucyB3aXRoIE5vaXNlKSBhbGdvcml0aG0NCiIiIg0KDQppbXBvcnQgbnVtcHkgYXMgbnANCmZyb20gc2tsZWFybi5jbHVzdGVyIGltcG9ydCBEQlNDQU4NCmZyb20gc2tsZWFybi5tZXRyaWNzIGltcG9ydCBzaWxob3VldHRlX3Njb3JlLCBjYWxpbnNraV9oYXJhYmFzel9zY29yZQ0KZnJvbSB0eXBpbmcgaW1wb3J0IFR1cGxlLCBEaWN0LCBBbnksIE9wdGlvbmFsLCBMaXN0DQpmcm9tIGhhYml0YXRfY2x1c3RlcmluZy5jbHVzdGVyaW5nLmJhc2VfY2x1c3RlcmluZyBpbXBvcnQgQmFzZUNsdXN0ZXJpbmcsIHJlZ2lzdGVyX2NsdXN0ZXJpbmcNCg0KQHJlZ2lzdGVyX2NsdXN0ZXJpbmcoJ2Ric2NhbicpDQpjbGFzcyBEQlNDQU5DbHVzdGVyaW5nKEJhc2VDbHVzdGVyaW5nKToNCiAgICAiIiINCiAgICBEQlNDQU4gQ2x1c3RlcmluZyBpbXBsZW1lbnRhdGlvbg0KICAgIA0KICAgIFBhcmFtZXRlcnM6DQogICAgLS0tLS0tLS0tLS0NCiAgICBlcHMgOiBmbG9hdCwgb3B0aW9uYWwgKGRlZmF1bHQ9MC41KQ0KICAgICAgICBUaGUgbWF4aW11bSBkaXN0YW5jZSBiZXR3ZWVuIHR3byBzYW1wbGVzIGZvciBvbmUgdG8gYmUgY29uc2lkZXJlZA0KICAgICAgICBhcyBpbiB0aGUgbmVpZ2hib3Job29kIG9mIHRoZSBvdGhlcg0KICAgICAgICANCiAgICBtaW5fc2FtcGxlcyA6IGludCwgb3B0aW9uYWwgKGRlZmF1bHQ9NSkNCiAgICAgICAgVGhlIG51bWJlciBvZiBzYW1wbGVzIChvciB0b3RhbCB3ZWlnaHQpIGluIGEgbmVpZ2hib3Job29kIGZvciBhIHBvaW50DQogICAgICAgIHRvIGJlIGNvbnNpZGVyZWQgYXMgYSBjb3JlIHBvaW50DQogICAgICAgIA0KICAgIG1ldHJpYyA6IHN0ciwgb3B0aW9uYWwgKGRlZmF1bHQ9J2V1Y2xpZGVhbicpDQogICAgICAgIFRoZSBtZXRyaWMgdG8gdXNlIHdoZW4gY2FsY3VsYXRpbmcgZGlzdGFuY2UgYmV0d2VlbiBpbnN0YW5jZXMgaW4gYSBmZWF0dXJlIGFycmF5DQogICAgICAgIC0gJ2V1Y2xpZGVhbicNCiAgICAgICAgLSAnbWFuaGF0dGFuJw0KICAgICAgICAtICdjb3NpbmUnDQogICAgICAgIC0gZXRjLg0KICAgICAgICANCiAgICBhbGdvcml0aG0gOiBzdHIsIG9wdGlvbmFsIChkZWZhdWx0PSdhdXRvJykNCiAgICAgICAgVGhlIGFsZ29yaXRobSB0byBiZSB1c2VkIGJ5IHRoZSBOZWFyZXN0TmVpZ2hib3JzIG1vZHVsZSB0byBjb21wdXRlIHBvaW50d2lzZSBkaXN0YW5jZXMNCiAgICAgICAgYW5kIGZpbmQgbmVhcmVzdCBuZWlnaGJvcnMNCiAgICAgICAgLSAnYXV0bycNCiAgICAgICAgLSAnYmFsbF90cmVlJw0KICAgICAgICAtICdrZF90cmVlJw0KICAgICAgICAtICdicnV0ZScNCiAgICAiIiINCiAgICANCiAgICBkZWYgX19pbml0X18oc2VsZiwgZXBzOiBmbG9hdCA9IDAuNSwgbWluX3NhbXBsZXM6IGludCA9IDUsDQogICAgICAgICAgICAgICAgIG1ldHJpYzogc3RyID0gJ2V1Y2xpZGVhbicsIGFsZ29yaXRobTogc3RyID0gJ2F1dG8nLA0KICAgICAgICAgICAgICAgICByYW5kb21fc3RhdGU6IGludCA9IDAsICoqa3dhcmdzKToNCiAgICAgICAgc3VwZXIoKS5fX2luaXRfXyhuX2NsdXN0ZXJzPU5vbmUsIHJhbmRvbV9zdGF0ZT1yYW5kb21fc3RhdGUpICAjIERCU0NBTiBkb2Vzbid0IHJlcXVpcmUgbl9jbHVzdGVycw0KICAgICAgICBzZWxmLmVwcyA9IGVwcw0KICAgICAgICBzZWxmLm1pbl9zYW1wbGVzID0gbWluX3NhbXBsZXMNCiAgICAgICAgc2VsZi5tZXRyaWMgPSBtZXRyaWMNCiAgICAgICAgc2VsZi5hbGdvcml0aG0gPSBhbGdvcml0aG0NCiAgICAgICAgc2VsZi5rd2FyZ3MgPSBrd2FyZ3MNCiAgICAgICAgc2VsZi5tb2RlbCA9IE5vbmUNCiAgICAgICAgc2VsZi5sYWJlbHNfID0gTm9uZQ0KICAgIA0KICAgIGRlZiBmaXQoc2VsZiwgWDogbnAubmRhcnJheSkgLT4gJ0RCU0NBTkNsdXN0ZXJpbmcnOg0KICAgICAgICAiIiINCiAgICAgICAgRml0IHRoZSBEQlNDQU4gY2x1c3RlcmluZyBtb2RlbA0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIFggOiBucC5uZGFycmF5DQogICAgICAgICAgICAgICAgVHJhaW5pbmcgZGF0YSBvZiBzaGFwZSAobl9zYW1wbGVzLCBuX2ZlYXR1cmVzKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgc2VsZiA6IERCU0NBTkNsdXN0ZXJpbmcNCiAgICAgICAgICAgICAgICBSZXR1cm5zIHRoZSBpbnN0YW5jZSBpdHNlbGYNCiAgICAgICAgIiIiDQogICAgICAgIHNlbGYubW9kZWwgPSBEQlNDQU4oDQogICAgICAgICAgICBlcHM9c2VsZi5lcHMsDQogICAgICAgICAgICBtaW5fc2FtcGxlcz1zZWxmLm1pbl9zYW1wbGVzLA0KICAgICAgICAgICAgbWV0cmljPXNlbGYubWV0cmljLA0KICAgICAgICAgICAgYWxnb3JpdGhtPXNlbGYuYWxnb3JpdGhtDQogICAgICAgICkNCiAgICAgICAgc2VsZi5sYWJlbHNfID0gc2VsZi5tb2RlbC5maXRfcHJlZGljdChYKQ0KICAgICAgICByZXR1cm4gc2VsZg0KICAgIA0KICAgIGRlZiBwcmVkaWN0KHNlbGYsIFg6IG5wLm5kYXJyYXkpIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBQcmVkaWN0IHRoZSBjbG9zZXN0IGNsdXN0ZXIgZWFjaCBzYW1wbGUgaW4gWCBiZWxvbmdzIHRvDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBOZXcgZGF0YSB0byBwcmVkaWN0IG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBsYWJlbHMgOiBucC5uZGFycmF5DQogICAgICAgICAgICAgICAgQ2x1c3RlciBsYWJlbHMgZm9yIGVhY2ggc2FtcGxlLiBOb2lzZSBwb2ludHMgYXJlIGxhYmVsZWQgYXMgLTENCiAgICAgICAgIiIiDQogICAgICAgIGlmIHNlbGYubW9kZWwgaXMgTm9uZToNCiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIk11c3QgY2FsbCBmaXQgbWV0aG9kIGZpcnN0IikNCiAgICAgICAgcmV0dXJuIHNlbGYubW9kZWwuZml0X3ByZWRpY3QoWCkNCiAgICANCiAgICBkZWYgY2FsY3VsYXRlX3NpbGhvdWV0dGVfc2NvcmVzKHNlbGYsIFg6IG5wLm5kYXJyYXksIGVwc19yYW5nZTogTGlzdFtmbG9hdF0pIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBDYWxjdWxhdGUgc2lsaG91ZXR0ZSBzY29yZXMgZm9yIGRpZmZlcmVudCBlcHMgdmFsdWVzDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBJbnB1dCBkYXRhIG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICBlcHNfcmFuZ2UgOiBMaXN0W2Zsb2F0XQ0KICAgICAgICAgICAgICAgIExpc3Qgb2YgZXBzIHZhbHVlcyB0byBldmFsdWF0ZQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgc2NvcmVzIDogbnAubmRhcnJheQ0KICAgICAgICAgICAgICAgIFNpbGhvdWV0dGUgc2NvcmVzIGZvciBlYWNoIGVwcyB2YWx1ZQ0KICAgICAgICAiIiINCiAgICAgICAgc2NvcmVzID0gW10NCiAgICAgICAgZm9yIGVwcyBpbiBlcHNfcmFuZ2U6DQogICAgICAgICAgICBtb2RlbCA9IERCU0NBTigNCiAgICAgICAgICAgICAgICBlcHM9ZXBzLA0KICAgICAgICAgICAgICAgIG1pbl9zYW1wbGVzPXNlbGYubWluX3NhbXBsZXMsDQogICAgICAgICAgICAgICAgbWV0cmljPXNlbGYubWV0cmljLA0KICAgICAgICAgICAgICAgIGFsZ29yaXRobT1zZWxmLmFsZ29yaXRobQ0KICAgICAgICAgICAgKQ0KICAgICAgICAgICAgbGFiZWxzID0gbW9kZWwuZml0X3ByZWRpY3QoWCkNCiAgICAgICAgICAgICMgT25seSBjYWxjdWxhdGUgc2NvcmUgaWYgdGhlcmUgYXJlIGF0IGxlYXN0IDIgY2x1c3RlcnMgYW5kIG5vdCBhbGwgcG9pbnRzIGFyZSBub2lzZQ0KICAgICAgICAgICAgaWYgbGVuKG5wLnVuaXF1ZShsYWJlbHMpKSA+IDEgYW5kIG5vdCBucC5hbGwobGFiZWxzID09IC0xKToNCiAgICAgICAgICAgICAgICBzY29yZSA9IHNpbGhvdWV0dGVfc2NvcmUoWCwgbGFiZWxzKQ0KICAgICAgICAgICAgICAgIHNjb3Jlcy5hcHBlbmQoc2NvcmUpDQogICAgICAgICAgICBlbHNlOg0KICAgICAgICAgICAgICAgIHNjb3Jlcy5hcHBlbmQoLTEpICAjIEludmFsaWQgY2x1c3RlcmluZw0KICAgICAgICByZXR1cm4gbnAuYXJyYXkoc2NvcmVzKQ0KICAgIA0KICAgIGRlZiBjYWxjdWxhdGVfY2FsaW5za2lfaGFyYWJhc3pfc2NvcmVzKHNlbGYsIFg6IG5wLm5kYXJyYXksIGVwc19yYW5nZTogTGlzdFtmbG9hdF0pIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBDYWxjdWxhdGUgQ2FsaW5za2ktSGFyYWJhc3ogc2NvcmVzIGZvciBkaWZmZXJlbnQgZXBzIHZhbHVlcw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIFggOiBucC5uZGFycmF5DQogICAgICAgICAgICAgICAgSW5wdXQgZGF0YSBvZiBzaGFwZSAobl9zYW1wbGVzLCBuX2ZlYXR1cmVzKQ0KICAgICAgICAgICAgZXBzX3JhbmdlIDogTGlzdFtmbG9hdF0NCiAgICAgICAgICAgICAgICBMaXN0IG9mIGVwcyB2YWx1ZXMgdG8gZXZhbHVhdGUNCiAgICAgICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIHNjb3JlcyA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBDYWxpbnNraS1IYXJhYmFzeiBzY29yZXMgZm9yIGVhY2ggZXBzIHZhbHVlDQogICAgICAgICIiIg0KICAgICAgICBzY29yZXMgPSBbXQ0KICAgICAgICBmb3IgZXBzIGluIGVwc19yYW5nZToNCiAgICAgICAgICAgIG1vZGVsID0gREJTQ0FOKA0KICAgICAgICAgICAgICAgIGVwcz1lcHMsDQogICAgICAgICAgICAgICAgbWluX3NhbXBsZXM9c2VsZi5taW5fc2FtcGxlcywNCiAgICAgICAgICAgICAgICBtZXRyaWM9c2VsZi5tZXRyaWMsDQogICAgICAgICAgICAgICAgYWxnb3JpdGhtPXNlbGYuYWxnb3JpdGhtDQogICAgICAgICAgICApDQogICAgICAgICAgICBsYWJlbHMgPSBtb2RlbC5maXRfcHJlZGljdChYKQ0KICAgICAgICAgICAgIyBPbmx5IGNhbGN1bGF0ZSBzY29yZSBpZiB0aGVyZSBhcmUgYXQgbGVhc3QgMiBjbHVzdGVycyBhbmQgbm90IGFsbCBwb2ludHMgYXJlIG5vaXNlDQogICAgICAgICAgICBpZiBsZW4obnAudW5pcXVlKGxhYmVscykpID4gMSBhbmQgbm90IG5wLmFsbChsYWJlbHMgPT0gLTEpOg0KICAgICAgICAgICAgICAgIHNjb3JlID0gY2FsaW5za2lfaGFyYWJhc3pfc2NvcmUoWCwgbGFiZWxzKQ0KICAgICAgICAgICAgICAgIHNjb3Jlcy5hcHBlbmQoc2NvcmUpDQogICAgICAgICAgICBlbHNlOg0KICAgICAgICAgICAgICAgIHNjb3Jlcy5hcHBlbmQoLTEpICAjIEludmFsaWQgY2x1c3RlcmluZw0KICAgICAgICByZXR1cm4gbnAuYXJyYXkoc2NvcmVzKQ0KICAgIA0KICAgIGRlZiBmaW5kX29wdGltYWxfY2x1c3RlcnMoc2VsZiwgWDogbnAubmRhcnJheSwgbWluX2VwczogZmxvYXQgPSAwLjEsIG1heF9lcHM6IGZsb2F0ID0gMS4wLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICBuX2VwczogaW50ID0gMTAsIG1ldGhvZHM6IExpc3Rbc3RyXSA9IE5vbmUsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNob3dfcHJvZ3Jlc3M6IGJvb2wgPSBUcnVlKSAtPiBUdXBsZVtmbG9hdCwgRGljdFtzdHIsIG5wLm5kYXJyYXldXToNCiAgICAgICAgIiIiDQogICAgICAgIEZpbmQgdGhlIG9wdGltYWwgZXBzIHZhbHVlIGZvciBEQlNDQU4NCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBYIDogbnAubmRhcnJheQ0KICAgICAgICAgICAgICAgIElucHV0IGRhdGEgb2Ygc2hhcGUgKG5fc2FtcGxlcywgbl9mZWF0dXJlcykNCiAgICAgICAgICAgIG1pbl9lcHMgOiBmbG9hdCwgb3B0aW9uYWwgKGRlZmF1bHQ9MC4xKQ0KICAgICAgICAgICAgICAgIE1pbmltdW0gZXBzIHZhbHVlIHRvIGNvbnNpZGVyDQogICAgICAgICAgICBtYXhfZXBzIDogZmxvYXQsIG9wdGlvbmFsIChkZWZhdWx0PTEuMCkNCiAgICAgICAgICAgICAgICBNYXhpbXVtIGVwcyB2YWx1ZSB0byBjb25zaWRlcg0KICAgICAgICAgICAgbl9lcHMgOiBpbnQsIG9wdGlvbmFsIChkZWZhdWx0PTEwKQ0KICAgICAgICAgICAgICAgIE51bWJlciBvZiBlcHMgdmFsdWVzIHRvIGV2YWx1YXRlDQogICAgICAgICAgICBtZXRob2RzIDogTGlzdFtzdHJdLCBvcHRpb25hbCAoZGVmYXVsdD1Ob25lKQ0KICAgICAgICAgICAgICAgIExpc3Qgb2YgbWV0aG9kcyB0byB1c2UgZm9yIGRldGVybWluaW5nIG9wdGltYWwgZXBzDQogICAgICAgICAgICBzaG93X3Byb2dyZXNzIDogYm9vbCwgb3B0aW9uYWwgKGRlZmF1bHQ9VHJ1ZSkNCiAgICAgICAgICAgICAgICBXaGV0aGVyIHRvIHNob3cgcHJvZ3Jlc3MgZHVyaW5nIGNhbGN1bGF0aW9uDQogICAgICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBiZXN0X2VwcyA6IGZsb2F0DQogICAgICAgICAgICAgICAgT3B0aW1hbCBlcHMgdmFsdWUNCiAgICAgICAgICAgIHNjb3JlcyA6IERpY3Rbc3RyLCBucC5uZGFycmF5XQ0KICAgICAgICAgICAgICAgIERpY3Rpb25hcnkgb2Ygc2NvcmVzIGZvciBlYWNoIG1ldGhvZA0KICAgICAgICAiIiINCiAgICAgICAgaWYgbWV0aG9kcyBpcyBOb25lOg0KICAgICAgICAgICAgbWV0aG9kcyA9IFsnc2lsaG91ZXR0ZScsICdjYWxpbnNraV9oYXJhYmFzeiddDQogICAgICAgICAgICANCiAgICAgICAgZXBzX3JhbmdlID0gbnAubGluc3BhY2UobWluX2VwcywgbWF4X2Vwcywgbl9lcHMpDQogICAgICAgIHNlbGYuZXBzX3JhbmdlID0gZXBzX3JhbmdlDQogICAgICAgIHNlbGYuc2NvcmVzID0ge30NCiAgICAgICAgDQogICAgICAgIGlmICdzaWxob3VldHRlJyBpbiBtZXRob2RzOg0KICAgICAgICAgICAgaWYgc2hvd19wcm9ncmVzczoNCiAgICAgICAgICAgICAgICBwcmludCgiQ2FsY3VsYXRpbmcgc2lsaG91ZXR0ZSBzY29yZXMuLi4iKQ0KICAgICAgICAgICAgc2VsZi5zY29yZXNbJ3NpbGhvdWV0dGUnXSA9IHNlbGYuY2FsY3VsYXRlX3NpbGhvdWV0dGVfc2NvcmVzKFgsIGVwc19yYW5nZSkNCiAgICAgICAgICAgIGlmIHNob3dfcHJvZ3Jlc3M6DQogICAgICAgICAgICAgICAgcHJpbnQoIlNpbGhvdWV0dGUgc2NvcmUgY2FsY3VsYXRpb24gY29tcGxldGVkISIpDQogICAgICAgICAgICAgICAgDQogICAgICAgIGlmICdjYWxpbnNraV9oYXJhYmFzeicgaW4gbWV0aG9kczoNCiAgICAgICAgICAgIGlmIHNob3dfcHJvZ3Jlc3M6DQogICAgICAgICAgICAgICAgcHJpbnQoIkNhbGN1bGF0aW5nIENhbGluc2tpLUhhcmFiYXN6IHNjb3Jlcy4uLiIpDQogICAgICAgICAgICBzZWxmLnNjb3Jlc1snY2FsaW5za2lfaGFyYWJhc3onXSA9IHNlbGYuY2FsY3VsYXRlX2NhbGluc2tpX2hhcmFiYXN6X3Njb3JlcyhYLCBlcHNfcmFuZ2UpDQogICAgICAgICAgICBpZiBzaG93X3Byb2dyZXNzOg0KICAgICAgICAgICAgICAgIHByaW50KCJDYWxpbnNraS1IYXJhYmFzeiBzY29yZSBjYWxjdWxhdGlvbiBjb21wbGV0ZWQhIikNCiAgICAgICAgICAgICAgICANCiAgICAgICAgaWYgbGVuKG1ldGhvZHMpID09IDE6DQogICAgICAgICAgICBiZXN0X21ldGhvZCA9IG1ldGhvZHNbMF0NCiAgICAgICAgZWxzZToNCiAgICAgICAgICAgIGJlc3RfbWV0aG9kID0gJ18nLmpvaW4obWV0aG9kcykNCiAgICAgICAgICAgIA0KICAgICAgICBiZXN0X2Vwc19pZHggPSBzZWxmLmF1dG9fc2VsZWN0X2Jlc3Rfbl9jbHVzdGVycyhzZWxmLnNjb3JlcywgYmVzdF9tZXRob2QpDQogICAgICAgIGJlc3RfZXBzID0gZXBzX3JhbmdlW2Jlc3RfZXBzX2lkeF0NCiAgICAgICAgc2VsZi5lcHMgPSBiZXN0X2Vwcw0KICAgICAgICANCiAgICAgICAgaWYgc2hvd19wcm9ncmVzczoNCiAgICAgICAgICAgIHByaW50KGYiQXV0b21hdGljYWxseSBzZWxlY3RlZCBiZXN0IGVwcyB2YWx1ZToge2Jlc3RfZXBzfSIpDQogICAgICAgICAgICANCiAgICAgICAgcmV0dXJuIGJlc3RfZXBzLCBzZWxmLnNjb3Jlcw0KICAgIA0KICAgIGRlZiBnZXRfcGFyYW1zKHNlbGYpIC0+IERpY3Rbc3RyLCBBbnldOg0KICAgICAgICAiIiINCiAgICAgICAgR2V0IHBhcmFtZXRlcnMgZm9yIHRoaXMgZXN0aW1hdG9yDQogICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgcGFyYW1zIDogZGljdA0KICAgICAgICAgICAgICAgIFBhcmFtZXRlciBuYW1lcyBtYXBwZWQgdG8gdGhlaXIgdmFsdWVzDQogICAgICAgICIiIg0KICAgICAgICBwYXJhbXMgPSBzdXBlcigpLmdldF9wYXJhbXMoKQ0KICAgICAgICBwYXJhbXMudXBkYXRlKHsNCiAgICAgICAgICAgICdlcHMnOiBzZWxmLmVwcywNCiAgICAgICAgICAgICdtaW5fc2FtcGxlcyc6IHNlbGYubWluX3NhbXBsZXMsDQogICAgICAgICAgICAnbWV0cmljJzogc2VsZi5tZXRyaWMsDQogICAgICAgICAgICAnYWxnb3JpdGhtJzogc2VsZi5hbGdvcml0aG0NCiAgICAgICAgfSkNCiAgICAgICAgcmV0dXJuIHBhcmFtcw0KICAgIA0KICAgIGRlZiBzZXRfcGFyYW1zKHNlbGYsICoqcGFyYW1zKSAtPiAnREJTQ0FOQ2x1c3RlcmluZyc6DQogICAgICAgICIiIg0KICAgICAgICBTZXQgdGhlIHBhcmFtZXRlcnMgb2YgdGhpcyBlc3RpbWF0b3INCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICAqKnBhcmFtcyA6IGRpY3QNCiAgICAgICAgICAgICAgICBFc3RpbWF0b3IgcGFyYW1ldGVycw0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBzZWxmIDogREJTQ0FOQ2x1c3RlcmluZw0KICAgICAgICAgICAgICAgIFJldHVybnMgdGhlIGluc3RhbmNlIGl0c2VsZg0KICAgICAgICAiIiINCiAgICAgICAgc3VwZXIoKS5zZXRfcGFyYW1zKCoqcGFyYW1zKQ0KICAgICAgICBpZiAnZXBzJyBpbiBwYXJhbXM6DQogICAgICAgICAgICBzZWxmLmVwcyA9IHBhcmFtc1snZXBzJ10NCiAgICAgICAgaWYgJ21pbl9zYW1wbGVzJyBpbiBwYXJhbXM6DQogICAgICAgICAgICBzZWxmLm1pbl9zYW1wbGVzID0gcGFyYW1zWydtaW5fc2FtcGxlcyddDQogICAgICAgIGlmICdtZXRyaWMnIGluIHBhcmFtczoNCiAgICAgICAgICAgIHNlbGYubWV0cmljID0gcGFyYW1zWydtZXRyaWMnXQ0KICAgICAgICBpZiAnYWxnb3JpdGhtJyBpbiBwYXJhbXM6DQogICAgICAgICAgICBzZWxmLmFsZ29yaXRobSA9IHBhcmFtc1snYWxnb3JpdGhtJ10NCiAgICAgICAgcmV0dXJuIHNlbGYg').decode())
+import numpy as np
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from typing import Tuple, Dict, Any, Optional, List
+from habitat_clustering.clustering.base_clustering import BaseClustering, register_clustering
+
+@register_clustering('dbscan')
+class DBSCANClustering(BaseClustering):
+    """
+    DBSCAN Clustering implementation
+    
+    Parameters:
+    -----------
+    eps : float, optional (default=0.5)
+        The maximum distance between two samples for one to be considered
+        as in the neighborhood of the other
+        
+    min_samples : int, optional (default=5)
+        The number of samples (or total weight) in a neighborhood for a point
+        to be considered as a core point
+        
+    metric : str, optional (default='euclidean')
+        The metric to use when calculating distance between instances in a feature array
+        - 'euclidean'
+        - 'manhattan'
+        - 'cosine'
+        - etc.
+        
+    algorithm : str, optional (default='auto')
+        The algorithm to be used by the NearestNeighbors module to compute pointwise distances
+        and find nearest neighbors
+        - 'auto'
+        - 'ball_tree'
+        - 'kd_tree'
+        - 'brute'
+    """
+    
+    def __init__(self, eps: float = 0.5, min_samples: int = 5,
+                 metric: str = 'euclidean', algorithm: str = 'auto',
+                 random_state: int = 0, **kwargs):
+        super().__init__(n_clusters=None, random_state=random_state)  # DBSCAN doesn't require n_clusters
+        self.eps = eps
+        self.min_samples = min_samples
+        self.metric = metric
+        self.algorithm = algorithm
+        self.kwargs = kwargs
+        self.model = None
+        self.labels_ = None
+    
+    def fit(self, X: np.ndarray) -> 'DBSCANClustering':
+        """
+        Fit the DBSCAN clustering model
+        
+        Args:
+            X : np.ndarray
+                Training data of shape (n_samples, n_features)
+                
+        Returns:
+            self : DBSCANClustering
+                Returns the instance itself
+        """
+        self.model = DBSCAN(
+            eps=self.eps,
+            min_samples=self.min_samples,
+            metric=self.metric,
+            algorithm=self.algorithm
+        )
+        self.labels_ = self.model.fit_predict(X)
+        return self
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predict the closest cluster each sample in X belongs to
+        
+        Args:
+            X : np.ndarray
+                New data to predict of shape (n_samples, n_features)
+                
+        Returns:
+            labels : np.ndarray
+                Cluster labels for each sample. Noise points are labeled as -1
+        """
+        if self.model is None:
+            raise ValueError("Must call fit method first")
+        return self.model.fit_predict(X)
+    
+    def calculate_silhouette_scores(self, X: np.ndarray, eps_range: List[float]) -> np.ndarray:
+        """
+        Calculate silhouette scores for different eps values
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            eps_range : List[float]
+                List of eps values to evaluate
+                
+        Returns:
+            scores : np.ndarray
+                Silhouette scores for each eps value
+        """
+        scores = []
+        for eps in eps_range:
+            model = DBSCAN(
+                eps=eps,
+                min_samples=self.min_samples,
+                metric=self.metric,
+                algorithm=self.algorithm
+            )
+            labels = model.fit_predict(X)
+            # Only calculate score if there are at least 2 clusters and not all points are noise
+            if len(np.unique(labels)) > 1 and not np.all(labels == -1):
+                score = silhouette_score(X, labels)
+                scores.append(score)
+            else:
+                scores.append(-1)  # Invalid clustering
+        return np.array(scores)
+    
+    def calculate_calinski_harabasz_scores(self, X: np.ndarray, eps_range: List[float]) -> np.ndarray:
+        """
+        Calculate Calinski-Harabasz scores for different eps values
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            eps_range : List[float]
+                List of eps values to evaluate
+                
+        Returns:
+            scores : np.ndarray
+                Calinski-Harabasz scores for each eps value
+        """
+        scores = []
+        for eps in eps_range:
+            model = DBSCAN(
+                eps=eps,
+                min_samples=self.min_samples,
+                metric=self.metric,
+                algorithm=self.algorithm
+            )
+            labels = model.fit_predict(X)
+            # Only calculate score if there are at least 2 clusters and not all points are noise
+            if len(np.unique(labels)) > 1 and not np.all(labels == -1):
+                score = calinski_harabasz_score(X, labels)
+                scores.append(score)
+            else:
+                scores.append(-1)  # Invalid clustering
+        return np.array(scores)
+    
+    def find_optimal_clusters(self, X: np.ndarray, min_eps: float = 0.1, max_eps: float = 1.0,
+                             n_eps: int = 10, methods: List[str] = None,
+                             show_progress: bool = True) -> Tuple[float, Dict[str, np.ndarray]]:
+        """
+        Find the optimal eps value for DBSCAN
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            min_eps : float, optional (default=0.1)
+                Minimum eps value to consider
+            max_eps : float, optional (default=1.0)
+                Maximum eps value to consider
+            n_eps : int, optional (default=10)
+                Number of eps values to evaluate
+            methods : List[str], optional (default=None)
+                List of methods to use for determining optimal eps
+            show_progress : bool, optional (default=True)
+                Whether to show progress during calculation
+                
+        Returns:
+            best_eps : float
+                Optimal eps value
+            scores : Dict[str, np.ndarray]
+                Dictionary of scores for each method
+        """
+        if methods is None:
+            methods = ['silhouette', 'calinski_harabasz']
+            
+        eps_range = np.linspace(min_eps, max_eps, n_eps)
+        self.eps_range = eps_range
+        self.scores = {}
+        
+        if 'silhouette' in methods:
+            if show_progress:
+                print("Calculating silhouette scores...")
+            self.scores['silhouette'] = self.calculate_silhouette_scores(X, eps_range)
+            if show_progress:
+                print("Silhouette score calculation completed!")
+                
+        if 'calinski_harabasz' in methods:
+            if show_progress:
+                print("Calculating Calinski-Harabasz scores...")
+            self.scores['calinski_harabasz'] = self.calculate_calinski_harabasz_scores(X, eps_range)
+            if show_progress:
+                print("Calinski-Harabasz score calculation completed!")
+                
+        if len(methods) == 1:
+            best_method = methods[0]
+        else:
+            best_method = '_'.join(methods)
+            
+        best_eps_idx = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_eps = eps_range[best_eps_idx]
+        self.eps = best_eps
+        
+        if show_progress:
+            print(f"Automatically selected best eps value: {best_eps}")
+            
+        return best_eps, self.scores
+    
+    def get_params(self) -> Dict[str, Any]:
+        """
+        Get parameters for this estimator
+        
+        Returns:
+            params : dict
+                Parameter names mapped to their values
+        """
+        params = super().get_params()
+        params.update({
+            'eps': self.eps,
+            'min_samples': self.min_samples,
+            'metric': self.metric,
+            'algorithm': self.algorithm
+        })
+        return params
+    
+    def set_params(self, **params) -> 'DBSCANClustering':
+        """
+        Set the parameters of this estimator
+        
+        Args:
+            **params : dict
+                Estimator parameters
+            
+        Returns:
+            self : DBSCANClustering
+                Returns the instance itself
+        """
+        super().set_params(**params)
+        if 'eps' in params:
+            self.eps = params['eps']
+        if 'min_samples' in params:
+            self.min_samples = params['min_samples']
+        if 'metric' in params:
+            self.metric = params['metric']
+        if 'algorithm' in params:
+            self.algorithm = params['algorithm']
+        return self 

@@ -1,3 +1,198 @@
+#!/usr/bin/env python
+"""
+MSI (Mutual Spatial Integrity) Features Extraction
+This module provides functionality for extracting MSI features from habitat maps
+"""
 
-import base64
-exec(base64.b64decode(b'IyEvdXNyL2Jpbi9lbnYgcHl0aG9uDQoiIiINCk1TSSAoTXV0dWFsIFNwYXRpYWwgSW50ZWdyaXR5KSBGZWF0dXJlcyBFeHRyYWN0aW9uDQpUaGlzIG1vZHVsZSBwcm92aWRlcyBmdW5jdGlvbmFsaXR5IGZvciBleHRyYWN0aW5nIE1TSSBmZWF0dXJlcyBmcm9tIGhhYml0YXQgbWFwcw0KIiIiDQoNCmltcG9ydCBsb2dnaW5nDQppbXBvcnQgbnVtcHkgYXMgbnANCmltcG9ydCBTaW1wbGVJVEsgYXMgc2l0aw0KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QNCg0KY2xhc3MgTVNJRmVhdHVyZUV4dHJhY3RvcjoNCiAgICAiIiJFeHRyYWN0b3IgY2xhc3MgZm9yIE1TSSBmZWF0dXJlcyIiIg0KICAgIA0KICAgIGRlZiBfX2luaXRfXyhzZWxmLCB2b3hlbF9jdXRvZmY9MTApOg0KICAgICAgICAiIiINCiAgICAgICAgSW5pdGlhbGl6ZSBNU0kgZmVhdHVyZSBleHRyYWN0b3INCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICB2b3hlbF9jdXRvZmY6IFZveGVsIHRocmVzaG9sZCBmb3IgZmlsdGVyaW5nIHNtYWxsIHJlZ2lvbnMgaW4gTVNJIGZlYXR1cmUgY2FsY3VsYXRpb24NCiAgICAgICAgIiIiDQogICAgICAgIHNlbGYudm94ZWxfY3V0b2ZmID0gdm94ZWxfY3V0b2ZmDQogICAgDQogICAgZGVmIGNhbGN1bGF0ZV9NU0lfbWF0cml4KHNlbGYsIGhhYml0YXRfYXJyYXk6IG5wLm5kYXJyYXksIHVuaXF1ZV9jbGFzczogaW50KSAtPiBucC5uZGFycmF5Og0KICAgICAgICAiIiINCiAgICAgICAgQ2FsY3VsYXRlIHRoZSBNU0kgbWF0cml4IGZyb20gaGFiaXRhdCBhcnJheQ0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGhhYml0YXRfYXJyYXk6IEFycmF5IHJlcHJlc2VudGluZyB0aGUgaGFiaXRhdCBtYXANCiAgICAgICAgICAgIHVuaXF1ZV9jbGFzczogTnVtYmVyIG9mIGhhYml0YXQgY2xhc3NlcyAoaW5jbHVkaW5nIGJhY2tncm91bmQpDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIG1zaV9tYXRyaXg6IENhbGN1bGF0ZWQgTVNJIG1hdHJpeA0KICAgICAgICAiIiINCiAgICAgICAgIyBGaW5kIHRoZSBtaW5pbXVtIGJvdW5kaW5nIGJveCBvZiBub24temVybyByZWdpb25zIGluIGhhYml0YXRfYXJyYXkNCiAgICAgICAgcm9pX3osIHJvaV95LCByb2lfeCA9IG5wLndoZXJlKGhhYml0YXRfYXJyYXkgIT0gMCkNCiAgICAgICAgDQogICAgICAgIGlmIGxlbihyb2lfeikgPT0gMDoNCiAgICAgICAgICAgIGxvZ2dpbmcud2FybmluZygiTm8gbm9uLXplcm8gZWxlbWVudHMgZm91bmQgaW4gaGFiaXRhdCBhcnJheSIpDQogICAgICAgICAgICByZXR1cm4gbnAuemVyb3MoKHVuaXF1ZV9jbGFzcywgdW5pcXVlX2NsYXNzKSwgZHR5cGU9bnAuaW50NjQpDQogICAgICAgICAgICANCiAgICAgICAgel9taW4sIHpfbWF4ID0gbnAubWluKHJvaV96KSwgbnAubWF4KHJvaV96KQ0KICAgICAgICB5X21pbiwgeV9tYXggPSBucC5taW4ocm9pX3kpLCBucC5tYXgocm9pX3kpDQogICAgICAgIHhfbWluLCB4X21heCA9IG5wLm1pbihyb2lfeCksIG5wLm1heChyb2lfeCkNCg0KICAgICAgICAjIEV4dHJhY3QgZGF0YSB3aXRoaW4gdGhlIGJvdW5kaW5nIGJveA0KICAgICAgICBib3hfb2ZfVk9JID0gaGFiaXRhdF9hcnJheVt6X21pbjp6X21heCsxLCB5X21pbjp5X21heCsxLCB4X21pbjp4X21heCsxXQ0KICAgICAgICANCiAgICAgICAgIyBBZGQgYSBsYXllciBvZiB6ZXJvcyBhcm91bmQgdGhlIGJveCB0byBjYXB0dXJlIGJvdW5kYXJ5IGluZm9ybWF0aW9uDQogICAgICAgIGJveF9vZl9WT0kgPSBucC5wYWQoYm94X29mX1ZPSSwgKCgxLCAxKSwgKDEsIDEpLCAoMSwgMSkpLCAnY29uc3RhbnQnLCBjb25zdGFudF92YWx1ZXM9MCkNCg0KICAgICAgICAjIERlZmluZSAzRCBuZWlnaGJvcmhvb2QgKGZhY2UtY29ubmVjdGVkIG9ubHkpDQogICAgICAgIG5laWdoYm9yaG9vZF8zZF9jdWJlX29ubHkgPSBbDQogICAgICAgICAgICAoLTEsIDAsIDApLCAoMSwgMCwgMCksICAjIFVwIGFuZCBkb3duIG5laWdoYm9ycw0KICAgICAgICAgICAgKDAsIC0xLCAwKSwgKDAsIDEsIDApLCAgIyBMZWZ0IGFuZCByaWdodCBuZWlnaGJvcnMNCiAgICAgICAgICAgICgwLCAwLCAtMSksICgwLCAwLCAxKSAgICMgRnJvbnQgYW5kIGJhY2sgbmVpZ2hib3JzDQogICAgICAgIF0NCg0KICAgICAgICAjIEluaXRpYWxpemUgTVNJIG1hdHJpeA0KICAgICAgICBtc2lfbWF0cml4ID0gbnAuemVyb3MoKHVuaXF1ZV9jbGFzcywgdW5pcXVlX2NsYXNzKSwgZHR5cGU9bnAuaW50NjQpDQogICAgICAgIA0KICAgICAgICAjIFRyYXZlcnNlIHRoZSAzRCBpbWFnZSBhbmQgY291bnQgbmVpZ2hib3IgcmVsYXRpb25zaGlwcw0KICAgICAgICBmb3IgeiBpbiByYW5nZShib3hfb2ZfVk9JLnNoYXBlWzBdKTogIA0KICAgICAgICAgICAgZm9yIHkgaW4gcmFuZ2UoYm94X29mX1ZPSS5zaGFwZVsxXSk6ICANCiAgICAgICAgICAgICAgICBmb3IgeCBpbiByYW5nZShib3hfb2ZfVk9JLnNoYXBlWzJdKTogDQogICAgICAgICAgICAgICAgICAgICMgR2V0IGN1cnJlbnQgdm94ZWwgdmFsdWUNCiAgICAgICAgICAgICAgICAgICAgY3VycmVudF92b3hlbF92YWx1ZSA9IGJveF9vZl9WT0lbeiwgeSwgeF0NCg0KICAgICAgICAgICAgICAgICAgICAjIENoZWNrIGFsbCBuZWlnaGJvcnMNCiAgICAgICAgICAgICAgICAgICAgZm9yIGR6LCBkeSwgZHggaW4gbmVpZ2hib3Job29kXzNkX2N1YmVfb25seToNCiAgICAgICAgICAgICAgICAgICAgICAgIG5laWdoYm9yX3ogPSB6ICsgZHoNCiAgICAgICAgICAgICAgICAgICAgICAgIG5laWdoYm9yX3kgPSB5ICsgZHkNCiAgICAgICAgICAgICAgICAgICAgICAgIG5laWdoYm9yX3ggPSB4ICsgZHgNCiAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgIyBDaGVjayBpZiBuZWlnaGJvciBpcyB3aXRoaW4gaW1hZ2UgYm91bmRzDQogICAgICAgICAgICAgICAgICAgICAgICBpZiAwIDw9IG5laWdoYm9yX3ogPCBib3hfb2ZfVk9JLnNoYXBlWzBdIGFuZCBcDQogICAgICAgICAgICAgICAgICAgICAgICAwIDw9IG5laWdoYm9yX3kgPCBib3hfb2ZfVk9JLnNoYXBlWzFdIGFuZCBcDQogICAgICAgICAgICAgICAgICAgICAgICAwIDw9IG5laWdoYm9yX3ggPCBib3hfb2ZfVk9JLnNoYXBlWzJdOg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5laWdoYm9yX3ZveGVsX3ZhbHVlID0gYm94X29mX1ZPSVtuZWlnaGJvcl96LCBuZWlnaGJvcl95LCBuZWlnaGJvcl94XQ0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICMgVXBkYXRlIE1TSSBtYXRyaXgNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBtc2lfbWF0cml4W2N1cnJlbnRfdm94ZWxfdmFsdWUsIG5laWdoYm9yX3ZveGVsX3ZhbHVlXSArPSAxDQoNCiAgICAgICAgcmV0dXJuIG1zaV9tYXRyaXgNCg0KICAgIGRlZiBjYWxjdWxhdGVfTVNJX2ZlYXR1cmVzKHNlbGYsIG1zaV9tYXRyaXg6IG5wLm5kYXJyYXksIG5hbWU6IHN0cikgLT4gRGljdDoNCiAgICAgICAgIiIiDQogICAgICAgIENhbGN1bGF0ZSBNU0kgZmVhdHVyZXMgZnJvbSB0aGUgTVNJIG1hdHJpeA0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIG1zaV9tYXRyaXg6IE1TSSBtYXRyaXgNCiAgICAgICAgICAgIG5hbWU6IFByZWZpeCBmb3IgZmVhdHVyZSBuYW1lcw0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBEaWN0OiBDYWxjdWxhdGVkIE1TSSBmZWF0dXJlcw0KICAgICAgICAiIiINCiAgICAgICAgIyBBc3NlcnQgdGhhdCBtc2lfbWF0cml4IGlzIHNxdWFyZSBhbmQgY29udGFpbnMgbm8gbmVnYXRpdmUgdmFsdWVzDQogICAgICAgIGFzc2VydCBtc2lfbWF0cml4LnNoYXBlWzBdID09IG1zaV9tYXRyaXguc2hhcGVbMV0sIGYnbXNpX21hdHJpeCBvZiB7bmFtZX0gaXMgbm90IGEgc3F1YXJlIG1hdHJpeCcNCiAgICAgICAgYXNzZXJ0IG5wLmFsbChtc2lfbWF0cml4ID49IDApLCBmJ21zaV9tYXRyaXggb2Yge25hbWV9IGhhcyBuZWdhdGl2ZSB2YWx1ZScNCiAgICAgICAgDQogICAgICAgICMgRmlyc3Qtb3JkZXIgZmVhdHVyZXM6IFZvbHVtZSBvZiBlYWNoIHN1YnJlZ2lvbiAoZGlhZ29uYWwpIGFuZCBib3JkZXJzIG9mIHR3byBkaWZmZXJpbmcgc3VicmVnaW9ucyAob2ZmLWRpYWdvbmFsKQ0KICAgICAgICBmaXJzdG9yZGVyX2ZlYXR1cmUgPSB7fQ0KICAgICAgICBmb3IgaSBpbiByYW5nZSgwLCBtc2lfbWF0cml4LnNoYXBlWzBdKToNCiAgICAgICAgICAgIGZvciBqIGluIHJhbmdlKGkrMSwgbXNpX21hdHJpeC5zaGFwZVswXSk6DQogICAgICAgICAgICAgICAgZmlyc3RvcmRlcl9mZWF0dXJlWydmaXJzdG9yZGVyX3t9X2FuZF97fScuZm9ybWF0KGksIGopXSA9IG1zaV9tYXRyaXhbaSwgal0NCg0KICAgICAgICAjIENhbGN1bGF0ZSBkaWFnb25hbCBlbGVtZW50cywgZXhjbHVkaW5nIGJhY2tncm91bmQNCiAgICAgICAgZm9yIGkgaW4gcmFuZ2UoMSwgbXNpX21hdHJpeC5zaGFwZVswXSk6DQogICAgICAgICAgICBmaXJzdG9yZGVyX2ZlYXR1cmVbJ2ZpcnN0b3JkZXJfe31fYW5kX3t9Jy5mb3JtYXQoaSwgaSldID0gbXNpX21hdHJpeFtpLCBpXQ0KDQogICAgICAgICMgTm9ybWFsaXplZCBmaXJzdC1vcmRlciBmZWF0dXJlcywgZGVub21pbmF0b3IgaW5jbHVkZXMgb25seSB0aGUgbG93ZXIgdHJpYW5ndWxhciBwYXJ0IGV4Y2x1ZGluZyB0aGUgZmlyc3QgZWxlbWVudA0KICAgICAgICBkZW5vbWluYXRvcl9tYXQgPSBucC50cmlsKG1zaV9tYXRyaXgsIGs9MCkNCiAgICAgICAgZGVub21pbmF0b3JfbWF0WzBdID0gMA0KICAgICAgICBkZW5vbWluYXRvciA9IG5wLnN1bShkZW5vbWluYXRvcl9tYXQpDQogICAgICAgIA0KICAgICAgICBpZiBkZW5vbWluYXRvciA9PSAwOg0KICAgICAgICAgICAgbG9nZ2luZy53YXJuaW5nKGYiTVNJIG1hdHJpeCBkZW5vbWluYXRvciBpcyAwIGZvciB7bmFtZX0sIGNhbm5vdCBjYWxjdWxhdGUgbm9ybWFsaXplZCBmZWF0dXJlcyIpDQogICAgICAgICAgICBub3JtYWxfbXNpX21hdHJpeCA9IG5wLnplcm9zX2xpa2UobXNpX21hdHJpeCwgZHR5cGU9ZmxvYXQpDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICBub3JtYWxfbXNpX21hdHJpeCA9IG1zaV9tYXRyaXggLyBkZW5vbWluYXRvcg0KICAgICAgICAgICAgDQogICAgICAgIGZpcnN0b3JkZXJfZmVhdHVyZV9ub3JtYWxpemVkID0ge30NCiAgICAgICAgZm9yIGkgaW4gcmFuZ2UoMCwgbm9ybWFsX21zaV9tYXRyaXguc2hhcGVbMF0pOg0KICAgICAgICAgICAgZm9yIGogaW4gcmFuZ2UoaSsxLCBub3JtYWxfbXNpX21hdHJpeC5zaGFwZVsxXSk6DQogICAgICAgICAgICAgICAgZmlyc3RvcmRlcl9mZWF0dXJlX25vcm1hbGl6ZWRbJ2ZpcnN0b3JkZXJfbm9ybWFsaXplZF97fV9hbmRfe30nLmZvcm1hdChpLCBqKV0gPSBub3JtYWxfbXNpX21hdHJpeFtpLCBqXQ0KDQogICAgICAgIGZvciBpIGluIHJhbmdlKDEsIG5vcm1hbF9tc2lfbWF0cml4LnNoYXBlWzBdKToNCiAgICAgICAgICAgIGZpcnN0b3JkZXJfZmVhdHVyZV9ub3JtYWxpemVkWydmaXJzdG9yZGVyX25vcm1hbGl6ZWRfe31fYW5kX3t9Jy5mb3JtYXQoaSwgaSldID0gbm9ybWFsX21zaV9tYXRyaXhbaSwgaV0NCiAgICAgICAgDQogICAgICAgICMgU2Vjb25kLW9yZGVyIGZlYXR1cmVzIGJhc2VkIG9uIG5vcm1hbGl6ZWQgTVNJIG1hdHJpeA0KICAgICAgICBwID0gbm9ybWFsX21zaV9tYXRyaXguY29weSgpDQogICAgICAgIA0KICAgICAgICAjIENhbGN1bGF0ZSBjb250cmFzdA0KICAgICAgICBpX2luZGljZXMsIGpfaW5kaWNlcyA9IG5wLmluZGljZXMocC5zaGFwZSkNCiAgICAgICAgY29udHJhc3QgPSBucC5zdW0oKGlfaW5kaWNlcyAtIGpfaW5kaWNlcykqKjIgKiBwKQ0KICAgICAgICANCiAgICAgICAgIyBDYWxjdWxhdGUgaG9tb2dlbmVpdHkNCiAgICAgICAgaG9tb2dlbmVpdHkgPSBucC5zdW0ocCAvICgxLjAgKyAoaV9pbmRpY2VzIC0gal9pbmRpY2VzKSoqMikpDQogICAgICAgIA0KICAgICAgICAjIENhbGN1bGF0ZSBjb3JyZWxhdGlvbg0KICAgICAgICBweCA9IG5wLnN1bShwLCBheGlzPTEpDQogICAgICAgIHB5ID0gbnAuc3VtKHAsIGF4aXM9MCkNCiAgICAgICAgDQogICAgICAgIHV4ID0gbnAuc3VtKHB4ICogbnAuYXJhbmdlKGxlbihweCkpKQ0KICAgICAgICB1eSA9IG5wLnN1bShweSAqIG5wLmFyYW5nZShsZW4ocHkpKSkNCiAgICAgICAgDQogICAgICAgIHNpZ21heCA9IG5wLnNxcnQobnAuc3VtKHB4ICogKG5wLmFyYW5nZShsZW4ocHgpKSAtIHV4KSoqMikpDQogICAgICAgIHNpZ21heSA9IG5wLnNxcnQobnAuc3VtKHB5ICogKG5wLmFyYW5nZShsZW4ocHkpKSAtIHV5KSoqMikpDQogICAgICAgIA0KICAgICAgICBpZiBzaWdtYXggPiAwIGFuZCBzaWdtYXkgPiAwOg0KICAgICAgICAgICAgc3VtX3BfaWogPSBucC5zdW0ocCAqIGlfaW5kaWNlcyAqIGpfaW5kaWNlcykNCiAgICAgICAgICAgIGNvcnJlbGF0aW9uID0gKHN1bV9wX2lqIC0gdXggKiB1eSkgLyAoc2lnbWF4ICogc2lnbWF5KQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgY29ycmVsYXRpb24gPSAxLjANCiAgICAgICAgDQogICAgICAgICMgQ2FsY3VsYXRlIGVuZXJneQ0KICAgICAgICBlbmVyZ3kgPSBucC5zdW0ocCoqMikNCiAgICAgICAgDQogICAgICAgIHNlY29uZG9yZGVyX2ZlYXR1cmUgPSB7IA0KICAgICAgICAgICAgJ2NvbnRyYXN0JzogY29udHJhc3QsDQogICAgICAgICAgICAnaG9tb2dlbmVpdHknOiBob21vZ2VuZWl0eSwNCiAgICAgICAgICAgICdjb3JyZWxhdGlvbic6IGNvcnJlbGF0aW9uLA0KICAgICAgICAgICAgJ2VuZXJneSc6IGVuZXJneQ0KICAgICAgICB9DQoNCiAgICAgICAgIyBDb21iaW5lIGFsbCBmZWF0dXJlcw0KICAgICAgICBtc2lfZmVhdHVyZSA9IHsqKmZpcnN0b3JkZXJfZmVhdHVyZSwgKipmaXJzdG9yZGVyX2ZlYXR1cmVfbm9ybWFsaXplZCwgKipzZWNvbmRvcmRlcl9mZWF0dXJlfQ0KICAgICAgICByZXR1cm4gbXNpX2ZlYXR1cmUNCg0KICAgIGRlZiBleHRyYWN0X01TSV9mZWF0dXJlcyhzZWxmLCBoYWJpdGF0X3BhdGg6IHN0ciwgbl9oYWJpdGF0czogaW50LCBzdWJqOiBzdHIpIC0+IERpY3Q6DQogICAgICAgICIiIg0KICAgICAgICBFeHRyYWN0IE1TSSBmZWF0dXJlcyBmcm9tIGEgc2luZ2xlIGhhYml0YXQgbWFwDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgaGFiaXRhdF9wYXRoOiBQYXRoIHRvIHRoZSBoYWJpdGF0IG1hcCBmaWxlDQogICAgICAgICAgICBuX2hhYml0YXRzOiBOdW1iZXIgb2YgaGFiaXRhdHMNCiAgICAgICAgICAgIHN1Ymo6IFN1YmplY3QgSUQNCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgRGljdDogRXh0cmFjdGVkIE1TSSBmZWF0dXJlcw0KICAgICAgICAiIiINCiAgICAgICAgdHJ5Og0KICAgICAgICAgICAgaW1nID0gc2l0ay5SZWFkSW1hZ2UoaGFiaXRhdF9wYXRoKQ0KICAgICAgICAgICAgYXJyYXkgPSBzaXRrLkdldEFycmF5RnJvbUltYWdlKGltZykNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgdW5pcXVlX2NsYXNzID0gbl9oYWJpdGF0cysxICAjIE51bWJlciBvZiBoYWJpdGF0cyArIDEgKGluY2x1ZGluZyBiYWNrZ3JvdW5kKQ0KDQogICAgICAgICAgICAjIENhbGN1bGF0ZSBNU0kgbWF0cml4DQogICAgICAgICAgICBtc2lfbWF0cml4ID0gc2VsZi5jYWxjdWxhdGVfTVNJX21hdHJpeChhcnJheSwgdW5pcXVlX2NsYXNzKQ0KDQogICAgICAgICAgICAjIENhbGN1bGF0ZSBNU0kgZmVhdHVyZXMNCiAgICAgICAgICAgIG1zaV9mZWF0dXJlID0gc2VsZi5jYWxjdWxhdGVfTVNJX2ZlYXR1cmVzKG1zaV9tYXRyaXgsIHN1YmopDQogICAgICAgICAgICANCiAgICAgICAgICAgIHJldHVybiBtc2lfZmVhdHVyZQ0KICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6DQogICAgICAgICAgICBsb2dnaW5nLmVycm9yKGYiRXJyb3IgZXh0cmFjdGluZyBNU0kgZmVhdHVyZXMgZm9yIHN1YmplY3Qge3N1Ymp9OiB7c3RyKGUpfSIpDQogICAgICAgICAgICByZXR1cm4geyJlcnJvciI6IHN0cihlKX0g').decode())
+import logging
+import numpy as np
+import SimpleITK as sitk
+from typing import Dict
+
+class MSIFeatureExtractor:
+    """Extractor class for MSI features"""
+    
+    def __init__(self, voxel_cutoff=10):
+        """
+        Initialize MSI feature extractor
+        
+        Args:
+            voxel_cutoff: Voxel threshold for filtering small regions in MSI feature calculation
+        """
+        self.voxel_cutoff = voxel_cutoff
+    
+    def calculate_MSI_matrix(self, habitat_array: np.ndarray, unique_class: int) -> np.ndarray:
+        """
+        Calculate the MSI matrix from habitat array
+        
+        Args:
+            habitat_array: Array representing the habitat map
+            unique_class: Number of habitat classes (including background)
+            
+        Returns:
+            msi_matrix: Calculated MSI matrix
+        """
+        # Find the minimum bounding box of non-zero regions in habitat_array
+        roi_z, roi_y, roi_x = np.where(habitat_array != 0)
+        
+        if len(roi_z) == 0:
+            logging.warning("No non-zero elements found in habitat array")
+            return np.zeros((unique_class, unique_class), dtype=np.int64)
+            
+        z_min, z_max = np.min(roi_z), np.max(roi_z)
+        y_min, y_max = np.min(roi_y), np.max(roi_y)
+        x_min, x_max = np.min(roi_x), np.max(roi_x)
+
+        # Extract data within the bounding box
+        box_of_VOI = habitat_array[z_min:z_max+1, y_min:y_max+1, x_min:x_max+1]
+        
+        # Add a layer of zeros around the box to capture boundary information
+        box_of_VOI = np.pad(box_of_VOI, ((1, 1), (1, 1), (1, 1)), 'constant', constant_values=0)
+
+        # Define 3D neighborhood (face-connected only)
+        neighborhood_3d_cube_only = [
+            (-1, 0, 0), (1, 0, 0),  # Up and down neighbors
+            (0, -1, 0), (0, 1, 0),  # Left and right neighbors
+            (0, 0, -1), (0, 0, 1)   # Front and back neighbors
+        ]
+
+        # Initialize MSI matrix
+        msi_matrix = np.zeros((unique_class, unique_class), dtype=np.int64)
+        
+        # Traverse the 3D image and count neighbor relationships
+        for z in range(box_of_VOI.shape[0]):  
+            for y in range(box_of_VOI.shape[1]):  
+                for x in range(box_of_VOI.shape[2]): 
+                    # Get current voxel value
+                    current_voxel_value = box_of_VOI[z, y, x]
+
+                    # Check all neighbors
+                    for dz, dy, dx in neighborhood_3d_cube_only:
+                        neighbor_z = z + dz
+                        neighbor_y = y + dy
+                        neighbor_x = x + dx
+                        
+                        # Check if neighbor is within image bounds
+                        if 0 <= neighbor_z < box_of_VOI.shape[0] and \
+                        0 <= neighbor_y < box_of_VOI.shape[1] and \
+                        0 <= neighbor_x < box_of_VOI.shape[2]:
+                            
+                            neighbor_voxel_value = box_of_VOI[neighbor_z, neighbor_y, neighbor_x]
+                            
+                            # Update MSI matrix
+                            msi_matrix[current_voxel_value, neighbor_voxel_value] += 1
+
+        return msi_matrix
+
+    def calculate_MSI_features(self, msi_matrix: np.ndarray, name: str) -> Dict:
+        """
+        Calculate MSI features from the MSI matrix
+        
+        Args:
+            msi_matrix: MSI matrix
+            name: Prefix for feature names
+            
+        Returns:
+            Dict: Calculated MSI features
+        """
+        # Assert that msi_matrix is square and contains no negative values
+        assert msi_matrix.shape[0] == msi_matrix.shape[1], f'msi_matrix of {name} is not a square matrix'
+        assert np.all(msi_matrix >= 0), f'msi_matrix of {name} has negative value'
+        
+        # First-order features: Volume of each subregion (diagonal) and borders of two differing subregions (off-diagonal)
+        firstorder_feature = {}
+        for i in range(0, msi_matrix.shape[0]):
+            for j in range(i+1, msi_matrix.shape[0]):
+                firstorder_feature['firstorder_{}_and_{}'.format(i, j)] = msi_matrix[i, j]
+
+        # Calculate diagonal elements, excluding background
+        for i in range(1, msi_matrix.shape[0]):
+            firstorder_feature['firstorder_{}_and_{}'.format(i, i)] = msi_matrix[i, i]
+
+        # Normalized first-order features, denominator includes only the lower triangular part excluding the first element
+        denominator_mat = np.tril(msi_matrix, k=0)
+        denominator_mat[0] = 0
+        denominator = np.sum(denominator_mat)
+        
+        if denominator == 0:
+            logging.warning(f"MSI matrix denominator is 0 for {name}, cannot calculate normalized features")
+            normal_msi_matrix = np.zeros_like(msi_matrix, dtype=float)
+        else:
+            normal_msi_matrix = msi_matrix / denominator
+            
+        firstorder_feature_normalized = {}
+        for i in range(0, normal_msi_matrix.shape[0]):
+            for j in range(i+1, normal_msi_matrix.shape[1]):
+                firstorder_feature_normalized['firstorder_normalized_{}_and_{}'.format(i, j)] = normal_msi_matrix[i, j]
+
+        for i in range(1, normal_msi_matrix.shape[0]):
+            firstorder_feature_normalized['firstorder_normalized_{}_and_{}'.format(i, i)] = normal_msi_matrix[i, i]
+        
+        # Second-order features based on normalized MSI matrix
+        p = normal_msi_matrix.copy()
+        
+        # Calculate contrast
+        i_indices, j_indices = np.indices(p.shape)
+        contrast = np.sum((i_indices - j_indices)**2 * p)
+        
+        # Calculate homogeneity
+        homogeneity = np.sum(p / (1.0 + (i_indices - j_indices)**2))
+        
+        # Calculate correlation
+        px = np.sum(p, axis=1)
+        py = np.sum(p, axis=0)
+        
+        ux = np.sum(px * np.arange(len(px)))
+        uy = np.sum(py * np.arange(len(py)))
+        
+        sigmax = np.sqrt(np.sum(px * (np.arange(len(px)) - ux)**2))
+        sigmay = np.sqrt(np.sum(py * (np.arange(len(py)) - uy)**2))
+        
+        if sigmax > 0 and sigmay > 0:
+            sum_p_ij = np.sum(p * i_indices * j_indices)
+            correlation = (sum_p_ij - ux * uy) / (sigmax * sigmay)
+        else:
+            correlation = 1.0
+        
+        # Calculate energy
+        energy = np.sum(p**2)
+        
+        secondorder_feature = { 
+            'contrast': contrast,
+            'homogeneity': homogeneity,
+            'correlation': correlation,
+            'energy': energy
+        }
+
+        # Combine all features
+        msi_feature = {**firstorder_feature, **firstorder_feature_normalized, **secondorder_feature}
+        return msi_feature
+
+    def extract_MSI_features(self, habitat_path: str, n_habitats: int, subj: str) -> Dict:
+        """
+        Extract MSI features from a single habitat map
+        
+        Args:
+            habitat_path: Path to the habitat map file
+            n_habitats: Number of habitats
+            subj: Subject ID
+            
+        Returns:
+            Dict: Extracted MSI features
+        """
+        try:
+            img = sitk.ReadImage(habitat_path)
+            array = sitk.GetArrayFromImage(img)
+            
+            unique_class = n_habitats+1  # Number of habitats + 1 (including background)
+
+            # Calculate MSI matrix
+            msi_matrix = self.calculate_MSI_matrix(array, unique_class)
+
+            # Calculate MSI features
+            msi_feature = self.calculate_MSI_features(msi_matrix, subj)
+            
+            return msi_feature
+        except Exception as e:
+            logging.error(f"Error extracting MSI features for subject {subj}: {str(e)}")
+            return {"error": str(e)} 

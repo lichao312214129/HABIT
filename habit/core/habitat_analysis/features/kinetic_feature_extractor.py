@@ -1,3 +1,134 @@
+"""
+Kinetic feature extractor for habitat analysis.
+Extracts kinetic features from time series data.
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpLaW5ldGljIGZlYXR1cmUgZXh0cmFjdG9yIGZvciBoYWJpdGF0IGFuYWx5c2lzLg0KRXh0cmFjdHMga2luZXRpYyBmZWF0dXJlcyBmcm9tIHRpbWUgc2VyaWVzIGRhdGEuDQoiIiINCg0KaW1wb3J0IG51bXB5IGFzIG5wDQppbXBvcnQgcGFuZGFzIGFzIHBkDQpmcm9tIHNjaXB5IGltcG9ydCBzdGF0cw0KZnJvbSAuYmFzZV9mZWF0dXJlX2V4dHJhY3RvciBpbXBvcnQgQmFzZUZlYXR1cmVFeHRyYWN0b3IsIHJlZ2lzdGVyX2ZlYXR1cmVfZXh0cmFjdG9yDQpmcm9tIHR5cGluZyBpbXBvcnQgRGljdCwgTGlzdCwgT3B0aW9uYWwsIFVuaW9uLCBBbnksIFR1cGxlDQoNCmZyb20gaGFiaXQudXRpbHMuaW9fdXRpbHMgaW1wb3J0IGxvYWRfdGltZXN0YW1wDQoNCkByZWdpc3Rlcl9mZWF0dXJlX2V4dHJhY3Rvcigna2luZXRpYycpICAjIFJlZ2lzdGVyIGZlYXR1cmUgZXh0cmFjdG9yDQpjbGFzcyBLaW5ldGljRmVhdHVyZUV4dHJhY3RvcihCYXNlRmVhdHVyZUV4dHJhY3Rvcik6DQogICAgIiIiDQogICAgS2luZXRpYyBGZWF0dXJlIEV4dHJhY3Rvcg0KICAgIA0KICAgIEV4dHJhY3RzIGR5bmFtaWMgZmVhdHVyZXMgYmFzZWQgb24gdGltZS1zZXJpZXMgaW1hZ2VzLCBzdWNoIGFzIGVuaGFuY2VtZW50IHJhdGUsIHBlYWsgZW5oYW5jZW1lbnQsIGV0Yy4NCiAgICAiIiINCiAgICANCiAgICBkZWYgX19pbml0X18oc2VsZiwgdGltZXN0YW1wczogT3B0aW9uYWxbc3RyXSA9IE5vbmUsICoqa3dhcmdzOiBBbnkpIC0+IE5vbmU6DQogICAgICAgICIiIg0KICAgICAgICBJbml0aWFsaXplIHRoZSBraW5ldGljIGZlYXR1cmUgZXh0cmFjdG9yDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgdGltZXN0YW1wcyAoc3RyLCBvcHRpb25hbCk6IFBhdGggdG8gdGltZXN0YW1wIGZpbGUgY29udGFpbmluZyBhY3F1aXNpdGlvbiB0aW1lIGZvciBlYWNoIGltYWdlDQogICAgICAgICAgICAqKmt3YXJnczogT3RoZXIgcGFyYW1ldGVycyB0byBiZSBwYXNzZWQgdG8gdGhlIHBhcmVudCBjbGFzcw0KICAgICAgICAiIiINCiAgICAgICAgc3VwZXIoKS5fX2luaXRfXyh0aW1lc3RhbXBzPXRpbWVzdGFtcHMsICoqa3dhcmdzKQ0KICAgICAgICBzZWxmLmZlYXR1cmVfbmFtZXMgPSBbDQogICAgICAgICAgICAnd2FzaF9pbl9zbG9wZScsICAgICAgICAgICAgICAgICAgICAjIFdhc2gtaW4gcmF0ZQ0KICAgICAgICAgICAgJ3dhc2hfb3V0X3Nsb3BlX2xhcF9wdnAnLCAgICAgICAgICAjIFdhc2gtb3V0IHJhdGUgZnJvbSBhcnRlcmlhbCBwaGFzZSB0byBwb3J0YWwgdmVub3VzIHBoYXNlDQogICAgICAgICAgICAnd2FzaF9vdXRfc2xvcGVfcHZwX2RwJyAgICAgICAgICAgICMgV2FzaC1vdXQgcmF0ZSBmcm9tIHBvcnRhbCB2ZW5vdXMgcGhhc2UgdG8gZGVsYXllZCBwaGFzZQ0KICAgICAgICBdDQogICAgICAgIA0KICAgICAgICAjIExvYWQgdGltZXN0YW1wIGZpbGUNCiAgICAgICAgaWYgdGltZXN0YW1wczoNCiAgICAgICAgICAgIHRyeToNCiAgICAgICAgICAgICAgICBzZWxmLnRpbWVfZGljdCA9IGxvYWRfdGltZXN0YW1wKHRpbWVzdGFtcHMpDQogICAgICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6DQogICAgICAgICAgICAgICAgcHJpbnQoZiJXYXJuaW5nOiBGYWlsZWQgdG8gbG9hZCB0aW1lc3RhbXAgZmlsZToge3N0cihlKX0iKQ0KICAgICAgICAgICAgICAgIHNlbGYudGltZV9kaWN0ID0gTm9uZQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgc2VsZi50aW1lX2RpY3QgPSBOb25lDQogICAgDQogICAgZGVmIGV4dHJhY3RfZmVhdHVyZXMoc2VsZiwgaW1hZ2VfZGF0YTogbnAubmRhcnJheSwgKiprd2FyZ3M6IEFueSkgLT4gbnAubmRhcnJheToNCiAgICAgICAgIiIiDQogICAgICAgIEV4dHJhY3Qga2luZXRpYyBmZWF0dXJlcw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGltYWdlX2RhdGEgKGRpY3QpOiBEaWN0aW9uYXJ5IG9mIGltYWdlIGRhdGEgd2l0aCBrZXlzIGFzIGltYWdlIG5hbWVzIGFuZCB2YWx1ZXMgYXMgMkQgYXJyYXlzIFtuX3ZveGVscywgbl9mZWF0dXJlc10NCiAgICAgICAgICAgICoqa3dhcmdzOiBPdGhlciBwYXJhbWV0ZXJzIHN1Y2ggYXMgdGltZXN0YW1wcywgc3ViamVjdCwgZXRjLg0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBucC5uZGFycmF5OiBGZWF0dXJlIG1hdHJpeCB3aXRoIHNoYXBlIFtuX3ZveGVscywgbl9mZWF0dXJlc10NCiAgICAgICAgIiIiDQogICAgICAgICMgR2V0IHBhcmFtZXRlcnMgZnJvbSBrd2FyZ3MNCiAgICAgICAgc3ViamVjdCA9IGt3YXJncy5nZXQoJ3N1YmplY3QnLCBOb25lKQ0KICAgICAgICANCiAgICAgICAgIyB0byBkZg0KICAgICAgICAjIENvbnZlcnQgaW1hZ2VfZGF0YSBkaWN0aW9uYXJ5IHRvIERhdGFGcmFtZSANCiAgICAgICAgIyBoZWFkZXIgPSAga2V5X25hbWUNCiAgICAgICAgaW1hZ2VfZGYgPSBwZC5EYXRhRnJhbWUoKQ0KICAgICAgICBmb3IgaywgdiBpbiBpbWFnZV9kYXRhLml0ZW1zKCk6DQogICAgICAgICAgICBpbWFnZV9kZiA9IHBkLmNvbmNhdChbaW1hZ2VfZGYsIHBkLkRhdGFGcmFtZSh2KV0sIGF4aXM9MSkNCiAgICAgICAgaW1hZ2VfZGYuY29sdW1ucyA9IGltYWdlX2RhdGEua2V5cygpDQogICAgICAgIA0KICAgICAgICAjIENhbGN1bGF0ZSBmZWF0dXJlcw0KICAgICAgICBmZWF0dXJlcyA9IHNlbGYuX2NvbXB1dGVfa2luZXRpY19mZWF0dXJlcyhpbWFnZV9kZiwgc2VsZi50aW1lX2RpY3QubG9jW3N1YmplY3RdKQ0KICAgICAgICByZXR1cm4gZmVhdHVyZXMNCiAgICANCiAgICBkZWYgX2NvbXB1dGVfa2luZXRpY19mZWF0dXJlcyhzZWxmLCBpbWFnZV9hcnJheTogcGQuRGF0YUZyYW1lLCBpbWFnZV90aW1lc3RhbXA6IExpc3Rbc3RyXSkgLT4gbnAubmRhcnJheToNCiAgICAgICAgIiIiDQogICAgICAgIENvbXB1dGUga2luZXRpYyBmZWF0dXJlcw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGltYWdlX2FycmF5IChwZC5EYXRhRnJhbWUpOiBEYXRhRnJhbWUgb2Ygdm94ZWwgaW50ZW5zaXRpZXMgb3ZlciB0aW1lIFtuX3ZveGVscywgbl90aW1lcG9pbnRzXQ0KICAgICAgICAgICAgaW1hZ2VfdGltZXN0YW1wIChsaXN0KTogTGlzdCBvZiBzY2FuIHRpbWVzdGFtcHMNCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgbnAubmRhcnJheTogQ29tcHV0ZWQga2luZXRpYyBmZWF0dXJlcw0KICAgICAgICAiIiINCiAgICAgICAgIyBWYWxpZGF0ZSBpbnB1dCBkaW1lbnNpb25zDQogICAgICAgIGFzc2VydCBucC5zaGFwZShpbWFnZV9hcnJheSlbMV0gPT0gbGVuKGltYWdlX3RpbWVzdGFtcCksICJOdW1iZXIgb2YgY29sdW1ucyBpbiBpbWFnZSBhcnJheSBzaG91bGQgZXF1YWwgbGVuZ3RoIG9mIHRpbWVzdGFtcCBsaXN0Ig0KICAgICAgICANCiAgICAgICAgIyBTbWFsbCBjb25zdGFudCB0byBhdm9pZCBkaXZpc2lvbiBieSB6ZXJvDQogICAgICAgIGVwc2lsb24gPSAxZS02DQogICAgICAgIA0KICAgICAgICAjIFBhcnNlIHRpbWVzdGFtcHMNCiAgICAgICAgdGltZV9mb3JtYXQgPSAiJUgtJU0tJVMiDQogICAgICAgICMgcGQudG9fZGF0ZXRpbWUNCiAgICAgICAgaW1hZ2VfdGltZXN0YW1wID0gcGQudG9fZGF0ZXRpbWUoaW1hZ2VfdGltZXN0YW1wLCBmb3JtYXQ9dGltZV9mb3JtYXQpDQogICAgICAgICMgU2V0IHRoZSBmaXJzdCB0aW1lc3RhbXAgdG8gMjUgc2Vjb25kcyBiZWZvcmUgdGhlIHNlY29uZCBzY2FuDQogICAgICAgIGltYWdlX3RpbWVzdGFtcFsncHJlX2NvbnRyYXN0J10gPSBpbWFnZV90aW1lc3RhbXBbJ0xBUCddIC0gcGQuVGltZWRlbHRhKHNlY29uZHM9MjUpDQogICAgICAgIA0KICAgICAgICAjIENhbGN1bGF0ZSB0aW1lIGRpZmZlcmVuY2VzDQogICAgICAgIGRlbHRhX3QxID0gKGltYWdlX3RpbWVzdGFtcFsnTEFQJ10gLSBpbWFnZV90aW1lc3RhbXBbJ3ByZV9jb250cmFzdCddKS50b3RhbF9zZWNvbmRzKCkNCiAgICAgICAgZGVsdGFfdDIgPSAoaW1hZ2VfdGltZXN0YW1wWydQVlAnXSAtIGltYWdlX3RpbWVzdGFtcFsnTEFQJ10pLnRvdGFsX3NlY29uZHMoKQ0KICAgICAgICBkZWx0YV90MyA9IChpbWFnZV90aW1lc3RhbXBbJ2RlbGF5XzNtaW4nXSAtIGltYWdlX3RpbWVzdGFtcFsnUFZQJ10pLnRvdGFsX3NlY29uZHMoKQ0KICAgICAgICANCiAgICAgICAgIyBDYWxjdWxhdGUgcmVsYXRpdmUgaW50ZW5zaXR5IGRpZmZlcmVuY2VzIHdpdGggZXBzaWxvbiB0byBhdm9pZCBkaXZpc2lvbiBieSB6ZXJvDQogICAgICAgIGxhcF9wcmVjb250cmFzdCA9IGltYWdlX2FycmF5LmxvY1s6LCAnTEFQJ10gLSBpbWFnZV9hcnJheS5sb2NbOiwgJ3ByZV9jb250cmFzdCddDQogICAgICAgIHB2cF9sYXAgPSBpbWFnZV9hcnJheS5sb2NbOiwgJ1BWUCddIC0gaW1hZ2VfYXJyYXkubG9jWzosICdMQVAnXQ0KICAgICAgICBkZWxheV9wdnAgPSBpbWFnZV9hcnJheS5sb2NbOiwgJ2RlbGF5XzNtaW4nXSAtIGltYWdlX2FycmF5LmxvY1s6LCAnUFZQJ10NCiAgICAgICAgDQogICAgICAgICMgU2V0IG5lZ2F0aXZlIGVuaGFuY2VtZW50IHZhbHVlcyB0byAwDQogICAgICAgIGxhcF9wcmVjb250cmFzdFtsYXBfcHJlY29udHJhc3QgPCAwXSA9IDANCiAgICAgICAgDQogICAgICAgICMgQ2FsY3VsYXRlIGtpbmV0aWMgZmVhdHVyZXMNCiAgICAgICAgd2FzaF9pbl9zbG9wZSA9IGxhcF9wcmVjb250cmFzdCAvIChkZWx0YV90MSArIGVwc2lsb24pDQogICAgICAgIHdhc2hfb3V0X3Nsb3BlX29mX2xhcF9hbmRfcHZwID0gcHZwX2xhcCAvIChkZWx0YV90MiArIGVwc2lsb24pDQogICAgICAgIHdhc2hfb3V0X3Nsb3BlX29mX3B2cF9hbmRfZHAgPSBkZWxheV9wdnAgLyAoZGVsdGFfdDMgKyBlcHNpbG9uKQ0KICAgICAgICANCiAgICAgICAgIyBDb21iaW5lIGZlYXR1cmVzDQogICAgICAgIG1ldHJpY3MgPSBucC5hcnJheShbDQogICAgICAgICAgICB3YXNoX2luX3Nsb3BlLA0KICAgICAgICAgICAgd2FzaF9vdXRfc2xvcGVfb2ZfbGFwX2FuZF9wdnAsDQogICAgICAgICAgICB3YXNoX291dF9zbG9wZV9vZl9wdnBfYW5kX2RwDQogICAgICAgIF0pLlQNCg0KICAgICAgICAjIHRvIGRmDQogICAgICAgIG1ldHJpY3NfZGYgPSBwZC5EYXRhRnJhbWUobWV0cmljcywgY29sdW1ucz1zZWxmLmZlYXR1cmVfbmFtZXMpDQogICAgICAgIA0KICAgICAgICByZXR1cm4gbWV0cmljc19kZiANCiAgICANCiAgICBkZWYgZ2V0X2ZlYXR1cmVfbmFtZXMoc2VsZikgLT4gTGlzdFtzdHJdOg0KICAgICAgICAiIiINCiAgICAgICAgR2V0IGZlYXR1cmUgbmFtZXMNCiAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBMaXN0W3N0cl06IExpc3Qgb2YgZmVhdHVyZSBuYW1lcw0KICAgICAgICAiIiINCiAgICAgICAgcmV0dXJuIHNlbGYuZmVhdHVyZV9uYW1lcw0K').decode())
+import numpy as np
+import pandas as pd
+from scipy import stats
+from .base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from typing import Dict, List, Optional, Union, Any, Tuple
+
+from habit.utils.io_utils import load_timestamp
+
+@register_feature_extractor('kinetic')  # Register feature extractor
+class KineticFeatureExtractor(BaseFeatureExtractor):
+    """
+    Kinetic Feature Extractor
+    
+    Extracts dynamic features based on time-series images, such as enhancement rate, peak enhancement, etc.
+    """
+    
+    def __init__(self, timestamps: Optional[str] = None, **kwargs: Any) -> None:
+        """
+        Initialize the kinetic feature extractor
+        
+        Args:
+            timestamps (str, optional): Path to timestamp file containing acquisition time for each image
+            **kwargs: Other parameters to be passed to the parent class
+        """
+        super().__init__(timestamps=timestamps, **kwargs)
+        self.feature_names = [
+            'wash_in_slope',                    # Wash-in rate
+            'wash_out_slope_lap_pvp',          # Wash-out rate from arterial phase to portal venous phase
+            'wash_out_slope_pvp_dp'            # Wash-out rate from portal venous phase to delayed phase
+        ]
+        
+        # Load timestamp file
+        if timestamps:
+            try:
+                self.time_dict = load_timestamp(timestamps)
+            except Exception as e:
+                print(f"Warning: Failed to load timestamp file: {str(e)}")
+                self.time_dict = None
+        else:
+            self.time_dict = None
+    
+    def extract_features(self, image_data: np.ndarray, **kwargs: Any) -> np.ndarray:
+        """
+        Extract kinetic features
+        
+        Args:
+            image_data (dict): Dictionary of image data with keys as image names and values as 2D arrays [n_voxels, n_features]
+            **kwargs: Other parameters such as timestamps, subject, etc.
+            
+        Returns:
+            np.ndarray: Feature matrix with shape [n_voxels, n_features]
+        """
+        # Get parameters from kwargs
+        subject = kwargs.get('subject', None)
+        
+        # to df
+        # Convert image_data dictionary to DataFrame 
+        # header =  key_name
+        image_df = pd.DataFrame()
+        for k, v in image_data.items():
+            image_df = pd.concat([image_df, pd.DataFrame(v)], axis=1)
+        image_df.columns = image_data.keys()
+        
+        # Calculate features
+        features = self._compute_kinetic_features(image_df, self.time_dict.loc[subject])
+        return features
+    
+    def _compute_kinetic_features(self, image_array: pd.DataFrame, image_timestamp: List[str]) -> np.ndarray:
+        """
+        Compute kinetic features
+        
+        Args:
+            image_array (pd.DataFrame): DataFrame of voxel intensities over time [n_voxels, n_timepoints]
+            image_timestamp (list): List of scan timestamps
+            
+        Returns:
+            np.ndarray: Computed kinetic features
+        """
+        # Validate input dimensions
+        assert np.shape(image_array)[1] == len(image_timestamp), "Number of columns in image array should equal length of timestamp list"
+        
+        # Small constant to avoid division by zero
+        epsilon = 1e-6
+        
+        # Parse timestamps
+        time_format = "%H-%M-%S"
+        # pd.to_datetime
+        image_timestamp = pd.to_datetime(image_timestamp, format=time_format)
+        # Set the first timestamp to 25 seconds before the second scan
+        image_timestamp['pre_contrast'] = image_timestamp['LAP'] - pd.Timedelta(seconds=25)
+        
+        # Calculate time differences
+        delta_t1 = (image_timestamp['LAP'] - image_timestamp['pre_contrast']).total_seconds()
+        delta_t2 = (image_timestamp['PVP'] - image_timestamp['LAP']).total_seconds()
+        delta_t3 = (image_timestamp['delay_3min'] - image_timestamp['PVP']).total_seconds()
+        
+        # Calculate relative intensity differences with epsilon to avoid division by zero
+        lap_precontrast = image_array.loc[:, 'LAP'] - image_array.loc[:, 'pre_contrast']
+        pvp_lap = image_array.loc[:, 'PVP'] - image_array.loc[:, 'LAP']
+        delay_pvp = image_array.loc[:, 'delay_3min'] - image_array.loc[:, 'PVP']
+        
+        # Set negative enhancement values to 0
+        lap_precontrast[lap_precontrast < 0] = 0
+        
+        # Calculate kinetic features
+        wash_in_slope = lap_precontrast / (delta_t1 + epsilon)
+        wash_out_slope_of_lap_and_pvp = pvp_lap / (delta_t2 + epsilon)
+        wash_out_slope_of_pvp_and_dp = delay_pvp / (delta_t3 + epsilon)
+        
+        # Combine features
+        metrics = np.array([
+            wash_in_slope,
+            wash_out_slope_of_lap_and_pvp,
+            wash_out_slope_of_pvp_and_dp
+        ]).T
+
+        # to df
+        metrics_df = pd.DataFrame(metrics, columns=self.feature_names)
+        
+        return metrics_df 
+    
+    def get_feature_names(self) -> List[str]:
+        """
+        Get feature names
+        
+        Returns:
+            List[str]: List of feature names
+        """
+        return self.feature_names

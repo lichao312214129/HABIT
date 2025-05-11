@@ -1,3 +1,50 @@
+import pandas as pd
+import os
 
-import base64
-exec(base64.b64decode(b'aW1wb3J0IHBhbmRhcyBhcyBwZA0KaW1wb3J0IG9zDQoNCmRlZiBmbGF0dGVuX2RpY3QoZGF0YSk6DQogICAgIiIiDQogICAg5bCG5bWM5aWX5a2X5YW45omB5bmz5YyW5Li65oyH5a6a5qC85byP55qE5a2X5YW444CCDQogICAg5L6L5aaC77yaDQogICAg6L6T5YWl77yaezE6IHsnbnVtX3JlZ2lvbnMnOiAyMywgJ3ZvbHVtZV9yYXRpbyc6IDAuNDkyOTc3NTI4MDg5ODg3NjV9LCAzOiB7J251bV9yZWdpb25zJzogNSwgJ3ZvbHVtZV9yYXRpbyc6IDAuNTA3MDIyNDcxOTEwMTEyNH0sICdudW1faGFiaXRhdHMnOiAyfQ0KICAgIOi+k+WHuu+8mnsnbnVtX3JlZ2lvbnNfMSc6IDIzLCAndm9sdW1lX3JhdGlvXzEnOiAwLjQ5Mjk3NzUyODA4OTg4NzY1LCAnbnVtX3JlZ2lvbnNfMyc6IDUsICd2b2x1bWVfcmF0aW9fMyc6IDAuNTA3MDIyNDcxOTEwMTEyNCwgJ251bV9oYWJpdGF0cyc6IDJ9DQogICAgIiIiDQogICAgaWYgbm90IGlzaW5zdGFuY2UoZGF0YSwgZGljdCk6DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIui+k+WFpeW/hemhu+aYr+S4gOS4quWtl+WFuO+8iGRpY3TvvInjgIIiKQ0KDQogICAgZmxhdF9kaWN0ID0ge30NCiAgICBmb3Iga2V5LCB2YWx1ZSBpbiBkYXRhLml0ZW1zKCk6DQogICAgICAgIGlmIGlzaW5zdGFuY2UodmFsdWUsIGRpY3QpOiAgIyDlpoLmnpzlgLzmmK/lrZflhbjvvIzov5vkuIDmraXlsZXlvIANCiAgICAgICAgICAgIGZvciBzdWJfa2V5LCBzdWJfdmFsdWUgaW4gdmFsdWUuaXRlbXMoKToNCiAgICAgICAgICAgICAgICBmbGF0X2RpY3RbZiJ7c3ViX2tleX1fe2tleX0iXSA9IHN1Yl92YWx1ZQ0KICAgICAgICBlbHNlOiAgIyDlpoLmnpzlgLzkuI3mmK/lrZflhbjvvIznm7TmjqXmt7vliqDliLDnu5PmnpzkuK0NCiAgICAgICAgICAgIGZsYXRfZGljdFtrZXldID0gdmFsdWUNCiAgICByZXR1cm4gZmxhdF9kaWN0DQoNCmRlZiBzYXZlX3RvX2V4Y2VsX3NoZWV0KGRmLCBmaWxlX25hbWUsIHNoZWV0X25hbWUpOg0KICAgICIiIg0KICAgIOWwhiBEYXRhRnJhbWUg5YaZ5YWlIEV4Y2VsIOaWh+S7tu+8mg0KICAgIC0g6Iul5paH5Lu25a2Y5Zyo77ya6KaG55uW5oyH5a6aIFNoZWV077yM5L+d55WZ5YW25LuWIFNoZWV0DQogICAgLSDoi6Xmlofku7bkuI3lrZjlnKjvvJrliJvlu7rmlrDmlofku7blubblhpnlhaUgU2hlZXQNCiAgICAiIiINCiAgICB0cnk6DQogICAgICAgICMg5bCd6K+V6L+95Yqg5qih5byP77yI5paH5Lu25bey5a2Y5Zyo77yJDQogICAgICAgIHdpdGggcGQuRXhjZWxXcml0ZXIoZmlsZV9uYW1lLCBlbmdpbmU9J29wZW5weXhsJywgbW9kZT0nYScpIGFzIHdyaXRlcjoNCiAgICAgICAgICAgICMg5qOA5p+l55uu5qCHIFNoZWV0IOaYr+WQpuWtmOWcqA0KICAgICAgICAgICAgaWYgc2hlZXRfbmFtZSBpbiB3cml0ZXIuYm9vay5zaGVldG5hbWVzOg0KICAgICAgICAgICAgICAgICMg5Yig6Zmk5penIFNoZWV0DQogICAgICAgICAgICAgICAgd3JpdGVyLmJvb2sucmVtb3ZlKHdyaXRlci5ib29rW3NoZWV0X25hbWVdKQ0KICAgICAgICAgICAgIyDlhpnlhaXmlrAgU2hlZXQNCiAgICAgICAgICAgIGRmLnRvX2V4Y2VsKHdyaXRlciwgc2hlZXRfbmFtZT1zaGVldF9uYW1lLCBpbmRleD1UcnVlKQ0KICAgICAgICAgICAgcHJpbnQoZiLinIUg5pWw5o2u5bey6KaG55uW5YaZ5YWl5paH5Lu2IHtmaWxlX25hbWV9IOeahCBTaGVldCBbe3NoZWV0X25hbWV9XSIpDQogICAgICAgICAgICANCiAgICBleGNlcHQgRmlsZU5vdEZvdW5kRXJyb3I6DQogICAgICAgICMg5paH5Lu25LiN5a2Y5Zyo77yM5Yib5bu65paw5paH5Lu2DQogICAgICAgIHdpdGggcGQuRXhjZWxXcml0ZXIoZmlsZV9uYW1lLCBlbmdpbmU9J29wZW5weXhsJywgbW9kZT0ndycpIGFzIHdyaXRlcjoNCiAgICAgICAgICAgIGRmLnRvX2V4Y2VsKHdyaXRlciwgc2hlZXRfbmFtZT1zaGVldF9uYW1lLCBpbmRleD1UcnVlKQ0KICAgICAgICAgICAgcHJpbnQoZiLwn4aVIOaWh+S7tiB7ZmlsZV9uYW1lfSDkuI3lrZjlnKjvvIzlt7LliJvlu7rlubblhpnlhaUgU2hlZXQgW3tzaGVldF9uYW1lfV0iKQ0KICAgICAgICAgICAgDQogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICBwcmludChmIuKdjCDkv53lrZjlpLHotKXvvIzplJnor6/vvJp7c3RyKGUpfSIpDQoNCg0KDQo=').decode())
+def flatten_dict(data):
+    """
+    将嵌套字典扁平化为指定格式的字典。
+    例如：
+    输入：{1: {'num_regions': 23, 'volume_ratio': 0.49297752808988765}, 3: {'num_regions': 5, 'volume_ratio': 0.5070224719101124}, 'num_habitats': 2}
+    输出：{'num_regions_1': 23, 'volume_ratio_1': 0.49297752808988765, 'num_regions_3': 5, 'volume_ratio_3': 0.5070224719101124, 'num_habitats': 2}
+    """
+    if not isinstance(data, dict):
+        raise ValueError("输入必须是一个字典（dict）。")
+
+    flat_dict = {}
+    for key, value in data.items():
+        if isinstance(value, dict):  # 如果值是字典，进一步展开
+            for sub_key, sub_value in value.items():
+                flat_dict[f"{sub_key}_{key}"] = sub_value
+        else:  # 如果值不是字典，直接添加到结果中
+            flat_dict[key] = value
+    return flat_dict
+
+def save_to_excel_sheet(df, file_name, sheet_name):
+    """
+    将 DataFrame 写入 Excel 文件：
+    - 若文件存在：覆盖指定 Sheet，保留其他 Sheet
+    - 若文件不存在：创建新文件并写入 Sheet
+    """
+    try:
+        # 尝试追加模式（文件已存在）
+        with pd.ExcelWriter(file_name, engine='openpyxl', mode='a') as writer:
+            # 检查目标 Sheet 是否存在
+            if sheet_name in writer.book.sheetnames:
+                # 删除旧 Sheet
+                writer.book.remove(writer.book[sheet_name])
+            # 写入新 Sheet
+            df.to_excel(writer, sheet_name=sheet_name, index=True)
+            print(f"✅ 数据已覆盖写入文件 {file_name} 的 Sheet [{sheet_name}]")
+            
+    except FileNotFoundError:
+        # 文件不存在，创建新文件
+        with pd.ExcelWriter(file_name, engine='openpyxl', mode='w') as writer:
+            df.to_excel(writer, sheet_name=sheet_name, index=True)
+            print(f"🆕 文件 {file_name} 不存在，已创建并写入 Sheet [{sheet_name}]")
+            
+    except Exception as e:
+        print(f"❌ 保存失败，错误：{str(e)}")
+
+
+

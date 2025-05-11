@@ -1,3 +1,52 @@
+from typing import Dict, Type, Any, List
+from .base_preprocessor import BasePreprocessor
 
-import base64
-exec(base64.b64decode(b'ZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIFR5cGUsIEFueSwgTGlzdA0KZnJvbSAuYmFzZV9wcmVwcm9jZXNzb3IgaW1wb3J0IEJhc2VQcmVwcm9jZXNzb3INCg0KY2xhc3MgUHJlcHJvY2Vzc29yRmFjdG9yeToNCiAgICAiIiJGYWN0b3J5IGNsYXNzIGZvciBjcmVhdGluZyBwcmVwcm9jZXNzb3JzLg0KICAgIA0KICAgIFRoaXMgY2xhc3MgbWFuYWdlcyB0aGUgcmVnaXN0cmF0aW9uIGFuZCBpbnN0YW50aWF0aW9uIG9mIHByZXByb2Nlc3NvcnMuDQogICAgIiIiDQogICAgDQogICAgX3ByZXByb2Nlc3NvcnM6IERpY3Rbc3RyLCBUeXBlW0Jhc2VQcmVwcm9jZXNzb3JdXSA9IHt9DQogICAgDQogICAgQGNsYXNzbWV0aG9kDQogICAgZGVmIHJlZ2lzdGVyKGNscywgbmFtZTogc3RyKSAtPiBjYWxsYWJsZToNCiAgICAgICAgIiIiUmVnaXN0ZXIgYSBwcmVwcm9jZXNzb3IgY2xhc3Mgd2l0aCB0aGUgZmFjdG9yeS4NCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBuYW1lIChzdHIpOiBOYW1lIG9mIHRoZSBwcmVwcm9jZXNzb3IgdG8gcmVnaXN0ZXIuDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIGNhbGxhYmxlOiBEZWNvcmF0b3IgZnVuY3Rpb24uDQogICAgICAgICIiIg0KICAgICAgICBkZWYgZGVjb3JhdG9yKHByZXByb2Nlc3Nvcl9jbGFzczogVHlwZVtCYXNlUHJlcHJvY2Vzc29yXSkgLT4gVHlwZVtCYXNlUHJlcHJvY2Vzc29yXToNCiAgICAgICAgICAgIGNscy5fcHJlcHJvY2Vzc29yc1tuYW1lXSA9IHByZXByb2Nlc3Nvcl9jbGFzcw0KICAgICAgICAgICAgcmV0dXJuIHByZXByb2Nlc3Nvcl9jbGFzcw0KICAgICAgICByZXR1cm4gZGVjb3JhdG9yDQogICAgDQogICAgQGNsYXNzbWV0aG9kDQogICAgZGVmIGNyZWF0ZShjbHMsIG5hbWU6IHN0ciwgKiprd2FyZ3M6IEFueSkgLT4gQmFzZVByZXByb2Nlc3NvcjoNCiAgICAgICAgIiIiQ3JlYXRlIGFuIGluc3RhbmNlIG9mIGEgcmVnaXN0ZXJlZCBwcmVwcm9jZXNzb3IuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgbmFtZSAoc3RyKTogTmFtZSBvZiB0aGUgcHJlcHJvY2Vzc29yIHRvIGNyZWF0ZS4NCiAgICAgICAgICAgICoqa3dhcmdzOiBBZGRpdGlvbmFsIGFyZ3VtZW50cyB0byBwYXNzIHRvIHRoZSBwcmVwcm9jZXNzb3IgY29uc3RydWN0b3IuDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIEJhc2VQcmVwcm9jZXNzb3I6IEluc3RhbmNlIG9mIHRoZSByZXF1ZXN0ZWQgcHJlcHJvY2Vzc29yLg0KICAgICAgICAgICAgDQogICAgICAgIFJhaXNlczoNCiAgICAgICAgICAgIFZhbHVlRXJyb3I6IElmIHRoZSByZXF1ZXN0ZWQgcHJlcHJvY2Vzc29yIGlzIG5vdCByZWdpc3RlcmVkLg0KICAgICAgICAiIiINCiAgICAgICAgaWYgbmFtZSBub3QgaW4gY2xzLl9wcmVwcm9jZXNzb3JzOg0KICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIlByZXByb2Nlc3NvciAne25hbWV9JyBpcyBub3QgcmVnaXN0ZXJlZCIpDQogICAgICAgIHJldHVybiBjbHMuX3ByZXByb2Nlc3NvcnNbbmFtZV0oKiprd2FyZ3MpDQogICAgDQogICAgQGNsYXNzbWV0aG9kDQogICAgZGVmIGdldF9hdmFpbGFibGVfcHJlcHJvY2Vzc29ycyhjbHMpIC0+IExpc3Rbc3RyXToNCiAgICAgICAgIiIiR2V0IGEgbGlzdCBvZiBhbGwgcmVnaXN0ZXJlZCBwcmVwcm9jZXNzb3IgbmFtZXMuDQogICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgTGlzdFtzdHJdOiBMaXN0IG9mIHJlZ2lzdGVyZWQgcHJlcHJvY2Vzc29yIG5hbWVzLg0KICAgICAgICAiIiINCiAgICAgICAgcmV0dXJuIGxpc3QoY2xzLl9wcmVwcm9jZXNzb3JzLmtleXMoKSkg').decode())
+class PreprocessorFactory:
+    """Factory class for creating preprocessors.
+    
+    This class manages the registration and instantiation of preprocessors.
+    """
+    
+    _preprocessors: Dict[str, Type[BasePreprocessor]] = {}
+    
+    @classmethod
+    def register(cls, name: str) -> callable:
+        """Register a preprocessor class with the factory.
+        
+        Args:
+            name (str): Name of the preprocessor to register.
+            
+        Returns:
+            callable: Decorator function.
+        """
+        def decorator(preprocessor_class: Type[BasePreprocessor]) -> Type[BasePreprocessor]:
+            cls._preprocessors[name] = preprocessor_class
+            return preprocessor_class
+        return decorator
+    
+    @classmethod
+    def create(cls, name: str, **kwargs: Any) -> BasePreprocessor:
+        """Create an instance of a registered preprocessor.
+        
+        Args:
+            name (str): Name of the preprocessor to create.
+            **kwargs: Additional arguments to pass to the preprocessor constructor.
+            
+        Returns:
+            BasePreprocessor: Instance of the requested preprocessor.
+            
+        Raises:
+            ValueError: If the requested preprocessor is not registered.
+        """
+        if name not in cls._preprocessors:
+            raise ValueError(f"Preprocessor '{name}' is not registered")
+        return cls._preprocessors[name](**kwargs)
+    
+    @classmethod
+    def get_available_preprocessors(cls) -> List[str]:
+        """Get a list of all registered preprocessor names.
+        
+        Returns:
+            List[str]: List of registered preprocessor names.
+        """
+        return list(cls._preprocessors.keys()) 

@@ -14,7 +14,7 @@ FeatureConstruction:
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file))
+    method: mean_voxel_features()  
     params:
       params_file: ./config/params_supervoxel_radiomics.yaml
 

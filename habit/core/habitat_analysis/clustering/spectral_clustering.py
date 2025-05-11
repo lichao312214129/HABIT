@@ -1,3 +1,283 @@
+"""
+Implementation of Spectral Clustering algorithm
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpJbXBsZW1lbnRhdGlvbiBvZiBTcGVjdHJhbCBDbHVzdGVyaW5nIGFsZ29yaXRobQ0KIiIiDQoNCmltcG9ydCBudW1weSBhcyBucA0KZnJvbSBza2xlYXJuLmNsdXN0ZXIgaW1wb3J0IFNwZWN0cmFsQ2x1c3RlcmluZw0KZnJvbSBza2xlYXJuLm1ldHJpY3MgaW1wb3J0IHNpbGhvdWV0dGVfc2NvcmUsIGNhbGluc2tpX2hhcmFiYXN6X3Njb3JlLCBkYXZpZXNfYm91bGRpbl9zY29yZQ0KZnJvbSB0eXBpbmcgaW1wb3J0IFR1cGxlLCBEaWN0LCBBbnksIE9wdGlvbmFsLCBMaXN0DQpmcm9tIGhhYml0YXRfY2x1c3RlcmluZy5jbHVzdGVyaW5nLmJhc2VfY2x1c3RlcmluZyBpbXBvcnQgQmFzZUNsdXN0ZXJpbmcsIHJlZ2lzdGVyX2NsdXN0ZXJpbmcNCg0KQHJlZ2lzdGVyX2NsdXN0ZXJpbmcoJ3NwZWN0cmFsJykNCmNsYXNzIE15U3BlY3RyYWxDbHVzdGVyaW5nKEJhc2VDbHVzdGVyaW5nKToNCiAgICAiIiINCiAgICBTcGVjdHJhbCBDbHVzdGVyaW5nIGltcGxlbWVudGF0aW9uDQogICAgDQogICAgUGFyYW1ldGVyczoNCiAgICAtLS0tLS0tLS0tLQ0KICAgIG5fY2x1c3RlcnMgOiBpbnQsIG9wdGlvbmFsIChkZWZhdWx0PU5vbmUpDQogICAgICAgIFRoZSBudW1iZXIgb2YgY2x1c3RlcnMgdG8gZmluZC4gSWYgTm9uZSwgaXQgd2lsbCBiZSBkZXRlcm1pbmVkIGJ5IGZpbmRfb3B0aW1hbF9jbHVzdGVycyBtZXRob2QNCiAgICAgICAgDQogICAgYWZmaW5pdHkgOiBzdHIsIG9wdGlvbmFsIChkZWZhdWx0PSdyYmYnKQ0KICAgICAgICBIb3cgdG8gY29uc3RydWN0IHRoZSBhZmZpbml0eSBtYXRyaXgNCiAgICAgICAgLSAnbmVhcmVzdF9uZWlnaGJvcnMnOiBjb25zdHJ1Y3QgdGhlIGFmZmluaXR5IG1hdHJpeCBieSBjb21wdXRpbmcgYQ0KICAgICAgICAgIGdyYXBoIG9mIG5lYXJlc3QgbmVpZ2hib3JzDQogICAgICAgIC0gJ3JiZic6IGNvbnN0cnVjdCB0aGUgYWZmaW5pdHkgbWF0cml4IHVzaW5nIGEgcmFkaWFsIGJhc2lzIGZ1bmN0aW9uIChSQkYpIGtlcm5lbA0KICAgICAgICAtICdwcmVjb21wdXRlZCc6IGludGVycHJldCBYIGFzIGEgcHJlY29tcHV0ZWQgYWZmaW5pdHkgbWF0cml4DQogICAgICAgIC0gJ3ByZWNvbXB1dGVkX25lYXJlc3RfbmVpZ2hib3JzJzogaW50ZXJwcmV0IFggYXMgYSBzcGFyc2UgZ3JhcGggb2YgcHJlY29tcHV0ZWQgZGlzdGFuY2VzDQogICAgICAgIA0KICAgIGdhbW1hIDogZmxvYXQsIG9wdGlvbmFsIChkZWZhdWx0PTEuMCkNCiAgICAgICAgS2VybmVsIGNvZWZmaWNpZW50IGZvciByYmYsIHBvbHksIHNpZ21vaWQsIGxhcGxhY2lhbiBhbmQgY2hpMiBrZXJuZWxzDQogICAgICAgIA0KICAgIG5fbmVpZ2hib3JzIDogaW50LCBvcHRpb25hbCAoZGVmYXVsdD0xMCkNCiAgICAgICAgTnVtYmVyIG9mIG5laWdoYm9ycyB0byB1c2Ugd2hlbiBjb25zdHJ1Y3RpbmcgdGhlIGFmZmluaXR5IG1hdHJpeCB1c2luZw0KICAgICAgICB0aGUgbmVhcmVzdCBuZWlnaGJvcnMgbWV0aG9kDQogICAgICAgIA0KICAgIGVpZ2VuX3NvbHZlciA6IHN0ciwgb3B0aW9uYWwgKGRlZmF1bHQ9J2FycGFjaycpDQogICAgICAgIFRoZSBlaWdlbnZhbHVlIGRlY29tcG9zaXRpb24gc3RyYXRlZ3kgdG8gdXNlLiBBUlBBQ0sgY2FuIGhhbmRsZSBib3RoDQogICAgICAgIHNwYXJzZSBhbmQgZGVuc2UgcHJvYmxlbXMsIHdoaWxlICdsb2JwY2cnIGlzIHJlY29tbWVuZGVkIGZvciB2ZXJ5IGxhcmdlDQogICAgICAgIGFuZCBzcGFyc2UgcHJvYmxlbXMNCiAgICAiIiINCiAgICANCiAgICBkZWYgX19pbml0X18oc2VsZiwgbl9jbHVzdGVyczogaW50ID0gTm9uZSwgYWZmaW5pdHk6IHN0ciA9ICdyYmYnLA0KICAgICAgICAgICAgICAgICBnYW1tYTogZmxvYXQgPSAxLjAsIG5fbmVpZ2hib3JzOiBpbnQgPSAxMCwNCiAgICAgICAgICAgICAgICAgZWlnZW5fc29sdmVyOiBzdHIgPSAnYXJwYWNrJywgcmFuZG9tX3N0YXRlOiBpbnQgPSAwLCAqKmt3YXJncyk6DQogICAgICAgIHN1cGVyKCkuX19pbml0X18obl9jbHVzdGVycz1uX2NsdXN0ZXJzLCByYW5kb21fc3RhdGU9cmFuZG9tX3N0YXRlKQ0KICAgICAgICBzZWxmLmFmZmluaXR5ID0gYWZmaW5pdHkNCiAgICAgICAgc2VsZi5nYW1tYSA9IGdhbW1hDQogICAgICAgIHNlbGYubl9uZWlnaGJvcnMgPSBuX25laWdoYm9ycw0KICAgICAgICBzZWxmLmVpZ2VuX3NvbHZlciA9IGVpZ2VuX3NvbHZlcg0KICAgICAgICBzZWxmLmt3YXJncyA9IGt3YXJncw0KICAgICAgICBzZWxmLm1vZGVsID0gTm9uZQ0KICAgICAgICBzZWxmLmxhYmVsc18gPSBOb25lDQogICAgDQogICAgZGVmIGZpdChzZWxmLCBYOiBucC5uZGFycmF5KSAtPiAnTXlTcGVjdHJhbENsdXN0ZXJpbmcnOg0KICAgICAgICAiIiINCiAgICAgICAgRml0IHRoZSBzcGVjdHJhbCBjbHVzdGVyaW5nIG1vZGVsDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBUcmFpbmluZyBkYXRhIG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBzZWxmIDogTXlTcGVjdHJhbENsdXN0ZXJpbmcNCiAgICAgICAgICAgICAgICBSZXR1cm5zIHRoZSBpbnN0YW5jZSBpdHNlbGYNCiAgICAgICAgIiIiDQogICAgICAgIGlmIHNlbGYubl9jbHVzdGVycyBpcyBOb25lOg0KICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigibl9jbHVzdGVycyBtdXN0IGJlIHNwZWNpZmllZCBvciBkZXRlcm1pbmVkIGJ5IGZpbmRfb3B0aW1hbF9jbHVzdGVycyBtZXRob2QiKQ0KICAgICAgICAgICAgDQogICAgICAgIHNlbGYubW9kZWwgPSBTcGVjdHJhbENsdXN0ZXJpbmcoDQogICAgICAgICAgICBuX2NsdXN0ZXJzPXNlbGYubl9jbHVzdGVycywNCiAgICAgICAgICAgIGFmZmluaXR5PXNlbGYuYWZmaW5pdHksDQogICAgICAgICAgICBnYW1tYT1zZWxmLmdhbW1hLA0KICAgICAgICAgICAgbl9uZWlnaGJvcnM9c2VsZi5uX25laWdoYm9ycywNCiAgICAgICAgICAgIGVpZ2VuX3NvbHZlcj1zZWxmLmVpZ2VuX3NvbHZlciwNCiAgICAgICAgICAgIHJhbmRvbV9zdGF0ZT1zZWxmLnJhbmRvbV9zdGF0ZQ0KICAgICAgICApDQogICAgICAgIHJldHVybiBzZWxmLm1vZGVsLmZpdChYKQ0KICAgIA0KICAgIGRlZiBwcmVkaWN0KHNlbGYsIFg6IG5wLm5kYXJyYXkpIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBQcmVkaWN0IHRoZSBjbG9zZXN0IGNsdXN0ZXIgZWFjaCBzYW1wbGUgaW4gWCBiZWxvbmdzIHRvDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBOZXcgZGF0YSB0byBwcmVkaWN0IG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBsYWJlbHMgOiBucC5uZGFycmF5DQogICAgICAgICAgICAgICAgQ2x1c3RlciBsYWJlbHMgZm9yIGVhY2ggc2FtcGxlDQogICAgICAgICIiIg0KICAgICAgICBpZiBzZWxmLm1vZGVsIGlzIE5vbmU6DQogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJNdXN0IGNhbGwgZml0IG1ldGhvZCBmaXJzdCIpDQogICAgICAgIHJldHVybiBzZWxmLm1vZGVsLmZpdF9wcmVkaWN0KFgpDQogICAgDQogICAgZGVmIGNhbGN1bGF0ZV9zaWxob3VldHRlX3Njb3JlcyhzZWxmLCBYOiBucC5uZGFycmF5LCBjbHVzdGVyX3JhbmdlOiBMaXN0W2ludF0pIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBDYWxjdWxhdGUgc2lsaG91ZXR0ZSBzY29yZXMgZm9yIGRpZmZlcmVudCBudW1iZXJzIG9mIGNsdXN0ZXJzDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBJbnB1dCBkYXRhIG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICBjbHVzdGVyX3JhbmdlIDogTGlzdFtpbnRdDQogICAgICAgICAgICAgICAgTGlzdCBvZiBjbHVzdGVyIG51bWJlcnMgdG8gZXZhbHVhdGUNCiAgICAgICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIHNjb3JlcyA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBTaWxob3VldHRlIHNjb3JlcyBmb3IgZWFjaCBudW1iZXIgb2YgY2x1c3RlcnMNCiAgICAgICAgIiIiDQogICAgICAgIHNjb3JlcyA9IFtdDQogICAgICAgIGZvciBuIGluIGNsdXN0ZXJfcmFuZ2U6DQogICAgICAgICAgICBtb2RlbCA9IFNwZWN0cmFsQ2x1c3RlcmluZygNCiAgICAgICAgICAgICAgICBuX2NsdXN0ZXJzPW4sDQogICAgICAgICAgICAgICAgYWZmaW5pdHk9c2VsZi5hZmZpbml0eSwNCiAgICAgICAgICAgICAgICBnYW1tYT1zZWxmLmdhbW1hLA0KICAgICAgICAgICAgICAgIG5fbmVpZ2hib3JzPXNlbGYubl9uZWlnaGJvcnMsDQogICAgICAgICAgICAgICAgZWlnZW5fc29sdmVyPXNlbGYuZWlnZW5fc29sdmVyLA0KICAgICAgICAgICAgICAgIHJhbmRvbV9zdGF0ZT1zZWxmLnJhbmRvbV9zdGF0ZQ0KICAgICAgICAgICAgKQ0KICAgICAgICAgICAgbGFiZWxzID0gbW9kZWwuZml0X3ByZWRpY3QoWCkNCiAgICAgICAgICAgIHNjb3JlID0gc2lsaG91ZXR0ZV9zY29yZShYLCBsYWJlbHMpDQogICAgICAgICAgICBzY29yZXMuYXBwZW5kKHNjb3JlKQ0KICAgICAgICByZXR1cm4gbnAuYXJyYXkoc2NvcmVzKQ0KICAgIA0KICAgIGRlZiBjYWxjdWxhdGVfY2FsaW5za2lfaGFyYWJhc3pfc2NvcmVzKHNlbGYsIFg6IG5wLm5kYXJyYXksIGNsdXN0ZXJfcmFuZ2U6IExpc3RbaW50XSkgLT4gbnAubmRhcnJheToNCiAgICAgICAgIiIiDQogICAgICAgIENhbGN1bGF0ZSBDYWxpbnNraS1IYXJhYmFzeiBzY29yZXMgZm9yIGRpZmZlcmVudCBudW1iZXJzIG9mIGNsdXN0ZXJzDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWCA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBJbnB1dCBkYXRhIG9mIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpDQogICAgICAgICAgICBjbHVzdGVyX3JhbmdlIDogTGlzdFtpbnRdDQogICAgICAgICAgICAgICAgTGlzdCBvZiBjbHVzdGVyIG51bWJlcnMgdG8gZXZhbHVhdGUNCiAgICAgICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIHNjb3JlcyA6IG5wLm5kYXJyYXkNCiAgICAgICAgICAgICAgICBDYWxpbnNraS1IYXJhYmFzeiBzY29yZXMgZm9yIGVhY2ggbnVtYmVyIG9mIGNsdXN0ZXJzDQogICAgICAgICIiIg0KICAgICAgICBzY29yZXMgPSBbXQ0KICAgICAgICBmb3IgbiBpbiBjbHVzdGVyX3JhbmdlOg0KICAgICAgICAgICAgbW9kZWwgPSBTcGVjdHJhbENsdXN0ZXJpbmcoDQogICAgICAgICAgICAgICAgbl9jbHVzdGVycz1uLA0KICAgICAgICAgICAgICAgIGFmZmluaXR5PXNlbGYuYWZmaW5pdHksDQogICAgICAgICAgICAgICAgZ2FtbWE9c2VsZi5nYW1tYSwNCiAgICAgICAgICAgICAgICBuX25laWdoYm9ycz1zZWxmLm5fbmVpZ2hib3JzLA0KICAgICAgICAgICAgICAgIGVpZ2VuX3NvbHZlcj1zZWxmLmVpZ2VuX3NvbHZlciwNCiAgICAgICAgICAgICAgICByYW5kb21fc3RhdGU9c2VsZi5yYW5kb21fc3RhdGUNCiAgICAgICAgICAgICkNCiAgICAgICAgICAgIGxhYmVscyA9IG1vZGVsLmZpdF9wcmVkaWN0KFgpDQogICAgICAgICAgICBzY29yZSA9IGNhbGluc2tpX2hhcmFiYXN6X3Njb3JlKFgsIGxhYmVscykNCiAgICAgICAgICAgIHNjb3Jlcy5hcHBlbmQoc2NvcmUpDQogICAgICAgIHJldHVybiBucC5hcnJheShzY29yZXMpDQogICAgDQogICAgZGVmIGNhbGN1bGF0ZV9kYXZpZXNfYm91bGRpbl9zY29yZXMoc2VsZiwgWDogbnAubmRhcnJheSwgY2x1c3Rlcl9yYW5nZTogTGlzdFtpbnRdKSAtPiBucC5uZGFycmF5Og0KICAgICAgICAiIiINCiAgICAgICAgQ2FsY3VsYXRlIERhdmllcy1Cb3VsZGluIHNjb3JlcyBmb3IgZGlmZmVyZW50IG51bWJlcnMgb2YgY2x1c3RlcnMNCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBYIDogbnAubmRhcnJheQ0KICAgICAgICAgICAgICAgIElucHV0IGRhdGEgb2Ygc2hhcGUgKG5fc2FtcGxlcywgbl9mZWF0dXJlcykNCiAgICAgICAgICAgIGNsdXN0ZXJfcmFuZ2UgOiBMaXN0W2ludF0NCiAgICAgICAgICAgICAgICBMaXN0IG9mIGNsdXN0ZXIgbnVtYmVycyB0byBldmFsdWF0ZQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgc2NvcmVzIDogbnAubmRhcnJheQ0KICAgICAgICAgICAgICAgIERhdmllcy1Cb3VsZGluIHNjb3JlcyBmb3IgZWFjaCBudW1iZXIgb2YgY2x1c3RlcnMNCiAgICAgICAgIiIiDQogICAgICAgIHNjb3JlcyA9IFtdDQogICAgICAgIGZvciBuIGluIGNsdXN0ZXJfcmFuZ2U6DQogICAgICAgICAgICBtb2RlbCA9IFNwZWN0cmFsQ2x1c3RlcmluZygNCiAgICAgICAgICAgICAgICBuX2NsdXN0ZXJzPW4sDQogICAgICAgICAgICAgICAgYWZmaW5pdHk9c2VsZi5hZmZpbml0eSwNCiAgICAgICAgICAgICAgICBnYW1tYT1zZWxmLmdhbW1hLA0KICAgICAgICAgICAgICAgIG5fbmVpZ2hib3JzPXNlbGYubl9uZWlnaGJvcnMsDQogICAgICAgICAgICAgICAgZWlnZW5fc29sdmVyPXNlbGYuZWlnZW5fc29sdmVyLA0KICAgICAgICAgICAgICAgIHJhbmRvbV9zdGF0ZT1zZWxmLnJhbmRvbV9zdGF0ZQ0KICAgICAgICAgICAgKQ0KICAgICAgICAgICAgbGFiZWxzID0gbW9kZWwuZml0X3ByZWRpY3QoWCkNCiAgICAgICAgICAgIHNjb3JlID0gZGF2aWVzX2JvdWxkaW5fc2NvcmUoWCwgbGFiZWxzKQ0KICAgICAgICAgICAgc2NvcmVzLmFwcGVuZChzY29yZSkNCiAgICAgICAgcmV0dXJuIG5wLmFycmF5KHNjb3JlcykNCiAgICANCiAgICBkZWYgZmluZF9vcHRpbWFsX2NsdXN0ZXJzKHNlbGYsIFg6IG5wLm5kYXJyYXksIG1pbl9jbHVzdGVyczogaW50ID0gMiwgbWF4X2NsdXN0ZXJzOiBpbnQgPSAxMCwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1ldGhvZHM6IExpc3Rbc3RyXSA9IE5vbmUsIHNob3dfcHJvZ3Jlc3M6IGJvb2wgPSBUcnVlKSAtPiBUdXBsZVtpbnQsIERpY3Rbc3RyLCBucC5uZGFycmF5XV06DQogICAgICAgICIiIg0KICAgICAgICBGaW5kIHRoZSBvcHRpbWFsIG51bWJlciBvZiBjbHVzdGVycw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIFggOiBucC5uZGFycmF5DQogICAgICAgICAgICAgICAgSW5wdXQgZGF0YSBvZiBzaGFwZSAobl9zYW1wbGVzLCBuX2ZlYXR1cmVzKQ0KICAgICAgICAgICAgbWluX2NsdXN0ZXJzIDogaW50LCBvcHRpb25hbCAoZGVmYXVsdD0yKQ0KICAgICAgICAgICAgICAgIE1pbmltdW0gbnVtYmVyIG9mIGNsdXN0ZXJzIHRvIGNvbnNpZGVyDQogICAgICAgICAgICBtYXhfY2x1c3RlcnMgOiBpbnQsIG9wdGlvbmFsIChkZWZhdWx0PTEwKQ0KICAgICAgICAgICAgICAgIE1heGltdW0gbnVtYmVyIG9mIGNsdXN0ZXJzIHRvIGNvbnNpZGVyDQogICAgICAgICAgICBtZXRob2RzIDogTGlzdFtzdHJdLCBvcHRpb25hbCAoZGVmYXVsdD1Ob25lKQ0KICAgICAgICAgICAgICAgIExpc3Qgb2YgbWV0aG9kcyB0byB1c2UgZm9yIGRldGVybWluaW5nIG9wdGltYWwgY2x1c3RlcnMNCiAgICAgICAgICAgIHNob3dfcHJvZ3Jlc3MgOiBib29sLCBvcHRpb25hbCAoZGVmYXVsdD1UcnVlKQ0KICAgICAgICAgICAgICAgIFdoZXRoZXIgdG8gc2hvdyBwcm9ncmVzcyBkdXJpbmcgY2FsY3VsYXRpb24NCiAgICAgICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIGJlc3Rfbl9jbHVzdGVycyA6IGludA0KICAgICAgICAgICAgICAgIE9wdGltYWwgbnVtYmVyIG9mIGNsdXN0ZXJzDQogICAgICAgICAgICBzY29yZXMgOiBEaWN0W3N0ciwgbnAubmRhcnJheV0NCiAgICAgICAgICAgICAgICBEaWN0aW9uYXJ5IG9mIHNjb3JlcyBmb3IgZWFjaCBtZXRob2QNCiAgICAgICAgIiIiDQogICAgICAgIGlmIG1ldGhvZHMgaXMgTm9uZToNCiAgICAgICAgICAgIG1ldGhvZHMgPSBbJ3NpbGhvdWV0dGUnLCAnY2FsaW5za2lfaGFyYWJhc3onLCAnZGF2aWVzX2JvdWxkaW4nXQ0KICAgICAgICAgICAgDQogICAgICAgIHNlbGYuY2x1c3Rlcl9yYW5nZSA9IGxpc3QocmFuZ2UobWluX2NsdXN0ZXJzLCBtYXhfY2x1c3RlcnMgKyAxKSkNCiAgICAgICAgc2VsZi5zY29yZXMgPSB7fQ0KICAgICAgICANCiAgICAgICAgaWYgJ3NpbGhvdWV0dGUnIGluIG1ldGhvZHM6DQogICAgICAgICAgICBpZiBzaG93X3Byb2dyZXNzOg0KICAgICAgICAgICAgICAgIHByaW50KCJDYWxjdWxhdGluZyBzaWxob3VldHRlIHNjb3Jlcy4uLiIpDQogICAgICAgICAgICBzZWxmLnNjb3Jlc1snc2lsaG91ZXR0ZSddID0gc2VsZi5jYWxjdWxhdGVfc2lsaG91ZXR0ZV9zY29yZXMoWCwgc2VsZi5jbHVzdGVyX3JhbmdlKQ0KICAgICAgICAgICAgaWYgc2hvd19wcm9ncmVzczoNCiAgICAgICAgICAgICAgICBwcmludCgiU2lsaG91ZXR0ZSBzY29yZSBjYWxjdWxhdGlvbiBjb21wbGV0ZWQhIikNCiAgICAgICAgICAgICAgICANCiAgICAgICAgaWYgJ2NhbGluc2tpX2hhcmFiYXN6JyBpbiBtZXRob2RzOg0KICAgICAgICAgICAgaWYgc2hvd19wcm9ncmVzczoNCiAgICAgICAgICAgICAgICBwcmludCgiQ2FsY3VsYXRpbmcgQ2FsaW5za2ktSGFyYWJhc3ogc2NvcmVzLi4uIikNCiAgICAgICAgICAgIHNlbGYuc2NvcmVzWydjYWxpbnNraV9oYXJhYmFzeiddID0gc2VsZi5jYWxjdWxhdGVfY2FsaW5za2lfaGFyYWJhc3pfc2NvcmVzKFgsIHNlbGYuY2x1c3Rlcl9yYW5nZSkNCiAgICAgICAgICAgIGlmIHNob3dfcHJvZ3Jlc3M6DQogICAgICAgICAgICAgICAgcHJpbnQoIkNhbGluc2tpLUhhcmFiYXN6IHNjb3JlIGNhbGN1bGF0aW9uIGNvbXBsZXRlZCEiKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICBpZiAnZGF2aWVzX2JvdWxkaW4nIGluIG1ldGhvZHM6DQogICAgICAgICAgICBpZiBzaG93X3Byb2dyZXNzOg0KICAgICAgICAgICAgICAgIHByaW50KCJDYWxjdWxhdGluZyBEYXZpZXMtQm91bGRpbiBzY29yZXMuLi4iKQ0KICAgICAgICAgICAgc2VsZi5zY29yZXNbJ2Rhdmllc19ib3VsZGluJ10gPSBzZWxmLmNhbGN1bGF0ZV9kYXZpZXNfYm91bGRpbl9zY29yZXMoWCwgc2VsZi5jbHVzdGVyX3JhbmdlKQ0KICAgICAgICAgICAgaWYgc2hvd19wcm9ncmVzczoNCiAgICAgICAgICAgICAgICBwcmludCgiRGF2aWVzLUJvdWxkaW4gc2NvcmUgY2FsY3VsYXRpb24gY29tcGxldGVkISIpDQogICAgICAgICAgICAgICAgDQogICAgICAgIGlmIGxlbihtZXRob2RzKSA9PSAxOg0KICAgICAgICAgICAgYmVzdF9tZXRob2QgPSBtZXRob2RzWzBdDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICBiZXN0X21ldGhvZCA9ICdfJy5qb2luKG1ldGhvZHMpDQogICAgICAgICAgICANCiAgICAgICAgYmVzdF9uX2NsdXN0ZXJzID0gc2VsZi5hdXRvX3NlbGVjdF9iZXN0X25fY2x1c3RlcnMoc2VsZi5zY29yZXMsIGJlc3RfbWV0aG9kKQ0KICAgICAgICBzZWxmLm5fY2x1c3RlcnMgPSBiZXN0X25fY2x1c3RlcnMNCiAgICAgICAgDQogICAgICAgIGlmIHNob3dfcHJvZ3Jlc3M6DQogICAgICAgICAgICBwcmludChmIkF1dG9tYXRpY2FsbHkgc2VsZWN0ZWQgYmVzdCBudW1iZXIgb2YgY2x1c3RlcnM6IHtiZXN0X25fY2x1c3RlcnN9IikNCiAgICAgICAgICAgIA0KICAgICAgICByZXR1cm4gYmVzdF9uX2NsdXN0ZXJzLCBzZWxmLnNjb3Jlcw0KICAgIA0KICAgIGRlZiBnZXRfcGFyYW1zKHNlbGYpIC0+IERpY3Rbc3RyLCBBbnldOg0KICAgICAgICAiIiINCiAgICAgICAgR2V0IHBhcmFtZXRlcnMgZm9yIHRoaXMgZXN0aW1hdG9yDQogICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgcGFyYW1zIDogZGljdA0KICAgICAgICAgICAgICAgIFBhcmFtZXRlciBuYW1lcyBtYXBwZWQgdG8gdGhlaXIgdmFsdWVzDQogICAgICAgICIiIg0KICAgICAgICBwYXJhbXMgPSBzdXBlcigpLmdldF9wYXJhbXMoKQ0KICAgICAgICBwYXJhbXMudXBkYXRlKHsNCiAgICAgICAgICAgICdhZmZpbml0eSc6IHNlbGYuYWZmaW5pdHksDQogICAgICAgICAgICAnZ2FtbWEnOiBzZWxmLmdhbW1hLA0KICAgICAgICAgICAgJ25fbmVpZ2hib3JzJzogc2VsZi5uX25laWdoYm9ycywNCiAgICAgICAgICAgICdlaWdlbl9zb2x2ZXInOiBzZWxmLmVpZ2VuX3NvbHZlcg0KICAgICAgICB9KQ0KICAgICAgICByZXR1cm4gcGFyYW1zDQogICAgDQogICAgZGVmIHNldF9wYXJhbXMoc2VsZiwgKipwYXJhbXMpIC0+ICdNeVNwZWN0cmFsQ2x1c3RlcmluZyc6DQogICAgICAgICIiIg0KICAgICAgICBTZXQgdGhlIHBhcmFtZXRlcnMgb2YgdGhpcyBlc3RpbWF0b3INCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICAqKnBhcmFtcyA6IGRpY3QNCiAgICAgICAgICAgICAgICBFc3RpbWF0b3IgcGFyYW1ldGVycw0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBzZWxmIDogTXlTcGVjdHJhbENsdXN0ZXJpbmcNCiAgICAgICAgICAgICAgICBSZXR1cm5zIHRoZSBpbnN0YW5jZSBpdHNlbGYNCiAgICAgICAgIiIiDQogICAgICAgIHN1cGVyKCkuc2V0X3BhcmFtcygqKnBhcmFtcykNCiAgICAgICAgaWYgJ2FmZmluaXR5JyBpbiBwYXJhbXM6DQogICAgICAgICAgICBzZWxmLmFmZmluaXR5ID0gcGFyYW1zWydhZmZpbml0eSddDQogICAgICAgIGlmICdnYW1tYScgaW4gcGFyYW1zOg0KICAgICAgICAgICAgc2VsZi5nYW1tYSA9IHBhcmFtc1snZ2FtbWEnXQ0KICAgICAgICBpZiAnbl9uZWlnaGJvcnMnIGluIHBhcmFtczoNCiAgICAgICAgICAgIHNlbGYubl9uZWlnaGJvcnMgPSBwYXJhbXNbJ25fbmVpZ2hib3JzJ10NCiAgICAgICAgaWYgJ2VpZ2VuX3NvbHZlcicgaW4gcGFyYW1zOg0KICAgICAgICAgICAgc2VsZi5laWdlbl9zb2x2ZXIgPSBwYXJhbXNbJ2VpZ2VuX3NvbHZlciddDQogICAgICAgIHJldHVybiBzZWxmIA==').decode())
+import numpy as np
+from sklearn.cluster import SpectralClustering
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from typing import Tuple, Dict, Any, Optional, List
+from habitat_clustering.clustering.base_clustering import BaseClustering, register_clustering
+
+@register_clustering('spectral')
+class MySpectralClustering(BaseClustering):
+    """
+    Spectral Clustering implementation
+    
+    Parameters:
+    -----------
+    n_clusters : int, optional (default=None)
+        The number of clusters to find. If None, it will be determined by find_optimal_clusters method
+        
+    affinity : str, optional (default='rbf')
+        How to construct the affinity matrix
+        - 'nearest_neighbors': construct the affinity matrix by computing a
+          graph of nearest neighbors
+        - 'rbf': construct the affinity matrix using a radial basis function (RBF) kernel
+        - 'precomputed': interpret X as a precomputed affinity matrix
+        - 'precomputed_nearest_neighbors': interpret X as a sparse graph of precomputed distances
+        
+    gamma : float, optional (default=1.0)
+        Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels
+        
+    n_neighbors : int, optional (default=10)
+        Number of neighbors to use when constructing the affinity matrix using
+        the nearest neighbors method
+        
+    eigen_solver : str, optional (default='arpack')
+        The eigenvalue decomposition strategy to use. ARPACK can handle both
+        sparse and dense problems, while 'lobpcg' is recommended for very large
+        and sparse problems
+    """
+    
+    def __init__(self, n_clusters: int = None, affinity: str = 'rbf',
+                 gamma: float = 1.0, n_neighbors: int = 10,
+                 eigen_solver: str = 'arpack', random_state: int = 0, **kwargs):
+        super().__init__(n_clusters=n_clusters, random_state=random_state)
+        self.affinity = affinity
+        self.gamma = gamma
+        self.n_neighbors = n_neighbors
+        self.eigen_solver = eigen_solver
+        self.kwargs = kwargs
+        self.model = None
+        self.labels_ = None
+    
+    def fit(self, X: np.ndarray) -> 'MySpectralClustering':
+        """
+        Fit the spectral clustering model
+        
+        Args:
+            X : np.ndarray
+                Training data of shape (n_samples, n_features)
+                
+        Returns:
+            self : MySpectralClustering
+                Returns the instance itself
+        """
+        if self.n_clusters is None:
+            raise ValueError("n_clusters must be specified or determined by find_optimal_clusters method")
+            
+        self.model = SpectralClustering(
+            n_clusters=self.n_clusters,
+            affinity=self.affinity,
+            gamma=self.gamma,
+            n_neighbors=self.n_neighbors,
+            eigen_solver=self.eigen_solver,
+            random_state=self.random_state
+        )
+        return self.model.fit(X)
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predict the closest cluster each sample in X belongs to
+        
+        Args:
+            X : np.ndarray
+                New data to predict of shape (n_samples, n_features)
+                
+        Returns:
+            labels : np.ndarray
+                Cluster labels for each sample
+        """
+        if self.model is None:
+            raise ValueError("Must call fit method first")
+        return self.model.fit_predict(X)
+    
+    def calculate_silhouette_scores(self, X: np.ndarray, cluster_range: List[int]) -> np.ndarray:
+        """
+        Calculate silhouette scores for different numbers of clusters
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            cluster_range : List[int]
+                List of cluster numbers to evaluate
+                
+        Returns:
+            scores : np.ndarray
+                Silhouette scores for each number of clusters
+        """
+        scores = []
+        for n in cluster_range:
+            model = SpectralClustering(
+                n_clusters=n,
+                affinity=self.affinity,
+                gamma=self.gamma,
+                n_neighbors=self.n_neighbors,
+                eigen_solver=self.eigen_solver,
+                random_state=self.random_state
+            )
+            labels = model.fit_predict(X)
+            score = silhouette_score(X, labels)
+            scores.append(score)
+        return np.array(scores)
+    
+    def calculate_calinski_harabasz_scores(self, X: np.ndarray, cluster_range: List[int]) -> np.ndarray:
+        """
+        Calculate Calinski-Harabasz scores for different numbers of clusters
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            cluster_range : List[int]
+                List of cluster numbers to evaluate
+                
+        Returns:
+            scores : np.ndarray
+                Calinski-Harabasz scores for each number of clusters
+        """
+        scores = []
+        for n in cluster_range:
+            model = SpectralClustering(
+                n_clusters=n,
+                affinity=self.affinity,
+                gamma=self.gamma,
+                n_neighbors=self.n_neighbors,
+                eigen_solver=self.eigen_solver,
+                random_state=self.random_state
+            )
+            labels = model.fit_predict(X)
+            score = calinski_harabasz_score(X, labels)
+            scores.append(score)
+        return np.array(scores)
+    
+    def calculate_davies_bouldin_scores(self, X: np.ndarray, cluster_range: List[int]) -> np.ndarray:
+        """
+        Calculate Davies-Bouldin scores for different numbers of clusters
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            cluster_range : List[int]
+                List of cluster numbers to evaluate
+                
+        Returns:
+            scores : np.ndarray
+                Davies-Bouldin scores for each number of clusters
+        """
+        scores = []
+        for n in cluster_range:
+            model = SpectralClustering(
+                n_clusters=n,
+                affinity=self.affinity,
+                gamma=self.gamma,
+                n_neighbors=self.n_neighbors,
+                eigen_solver=self.eigen_solver,
+                random_state=self.random_state
+            )
+            labels = model.fit_predict(X)
+            score = davies_bouldin_score(X, labels)
+            scores.append(score)
+        return np.array(scores)
+    
+    def find_optimal_clusters(self, X: np.ndarray, min_clusters: int = 2, max_clusters: int = 10, 
+                             methods: List[str] = None, show_progress: bool = True) -> Tuple[int, Dict[str, np.ndarray]]:
+        """
+        Find the optimal number of clusters
+        
+        Args:
+            X : np.ndarray
+                Input data of shape (n_samples, n_features)
+            min_clusters : int, optional (default=2)
+                Minimum number of clusters to consider
+            max_clusters : int, optional (default=10)
+                Maximum number of clusters to consider
+            methods : List[str], optional (default=None)
+                List of methods to use for determining optimal clusters
+            show_progress : bool, optional (default=True)
+                Whether to show progress during calculation
+                
+        Returns:
+            best_n_clusters : int
+                Optimal number of clusters
+            scores : Dict[str, np.ndarray]
+                Dictionary of scores for each method
+        """
+        if methods is None:
+            methods = ['silhouette', 'calinski_harabasz', 'davies_bouldin']
+            
+        self.cluster_range = list(range(min_clusters, max_clusters + 1))
+        self.scores = {}
+        
+        if 'silhouette' in methods:
+            if show_progress:
+                print("Calculating silhouette scores...")
+            self.scores['silhouette'] = self.calculate_silhouette_scores(X, self.cluster_range)
+            if show_progress:
+                print("Silhouette score calculation completed!")
+                
+        if 'calinski_harabasz' in methods:
+            if show_progress:
+                print("Calculating Calinski-Harabasz scores...")
+            self.scores['calinski_harabasz'] = self.calculate_calinski_harabasz_scores(X, self.cluster_range)
+            if show_progress:
+                print("Calinski-Harabasz score calculation completed!")
+                
+        if 'davies_bouldin' in methods:
+            if show_progress:
+                print("Calculating Davies-Bouldin scores...")
+            self.scores['davies_bouldin'] = self.calculate_davies_bouldin_scores(X, self.cluster_range)
+            if show_progress:
+                print("Davies-Bouldin score calculation completed!")
+                
+        if len(methods) == 1:
+            best_method = methods[0]
+        else:
+            best_method = '_'.join(methods)
+            
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        self.n_clusters = best_n_clusters
+        
+        if show_progress:
+            print(f"Automatically selected best number of clusters: {best_n_clusters}")
+            
+        return best_n_clusters, self.scores
+    
+    def get_params(self) -> Dict[str, Any]:
+        """
+        Get parameters for this estimator
+        
+        Returns:
+            params : dict
+                Parameter names mapped to their values
+        """
+        params = super().get_params()
+        params.update({
+            'affinity': self.affinity,
+            'gamma': self.gamma,
+            'n_neighbors': self.n_neighbors,
+            'eigen_solver': self.eigen_solver
+        })
+        return params
+    
+    def set_params(self, **params) -> 'MySpectralClustering':
+        """
+        Set the parameters of this estimator
+        
+        Args:
+            **params : dict
+                Estimator parameters
+            
+        Returns:
+            self : MySpectralClustering
+                Returns the instance itself
+        """
+        super().set_params(**params)
+        if 'affinity' in params:
+            self.affinity = params['affinity']
+        if 'gamma' in params:
+            self.gamma = params['gamma']
+        if 'n_neighbors' in params:
+            self.n_neighbors = params['n_neighbors']
+        if 'eigen_solver' in params:
+            self.eigen_solver = params['eigen_solver']
+        return self 

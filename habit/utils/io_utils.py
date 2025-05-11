@@ -1,3 +1,349 @@
+"""
+I/O utilities for habitat analysis
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiCkkvTyB1dGlsaXRpZXMgZm9yIGhhYml0YXQgYW5hbHlzaXMKIiIiCgppbXBvcnQgb3MKaW1wb3J0IGpzb24KaW1wb3J0IHBhbmRhcyBhcyBwZAppbXBvcnQgU2ltcGxlSVRLIGFzIHNpdGsKaW1wb3J0IG51bXB5IGFzIG5wCmZyb20gdHlwaW5nIGltcG9ydCBEaWN0LCBBbnksIE9wdGlvbmFsLCBMaXN0CmltcG9ydCB5YW1sCmltcG9ydCBsb2dnaW5nCmZyb20gZGF0ZXRpbWUgaW1wb3J0IGRhdGV0aW1lCgoKCmRlZiBnZXRfaW1hZ2VfYW5kX21hc2tfcGF0aHMocm9vdF9mb2xkZXI6IHN0ciwga2V5d29yZF9vZl9yYXdfZm9sZGVyOiBzdHIgPSAiaW1hZ2VzIiwga2V5d29yZF9vZl9tYXNrX2ZvbGRlcjogc3RyID0gIm1hc2tzIikgLT4gdHVwbGU6CiAgICAiIiIKICAgIEdldCBwYXRocyBmb3IgYWxsIGltYWdlIGFuZCBtYXNrIGZpbGVzCiAgICAKICAgIEFyZ3M6CiAgICAgICAgcm9vdF9mb2xkZXIgKHN0cik6IFJvb3QgZGlyZWN0b3J5CiAgICAgICAga2V5d29yZF9vZl9yYXdfZm9sZGVyIChzdHIsIG9wdGlvbmFsKTogTmFtZSBvZiB0aGUgaW1hZ2VzIGZvbGRlcgogICAgICAgIGtleXdvcmRfb2ZfbWFza19mb2xkZXIgKHN0ciwgb3B0aW9uYWwpOiBOYW1lIG9mIHRoZSBtYXNrcyBmb2xkZXIKICAgIAogICAgUmV0dXJuczoKICAgICAgICB0dXBsZTogRGljdGlvbmFyeSBvZiBpbWFnZSBwYXRocyBhbmQgZGljdGlvbmFyeSBvZiBtYXNrIHBhdGhzCiAgICAiIiIKICAgICMgR2V0IGltYWdlIHBhdGhzCiAgICBpbWFnZXNfcGF0aHMgPSB7fQogICAgaW1hZ2VzX3Jvb3QgPSBvcy5wYXRoLmpvaW4ocm9vdF9mb2xkZXIsIGtleXdvcmRfb2ZfcmF3X2ZvbGRlcikKICAgICMgRmlsdGVyIG91dCAuRFNfU3RvcmUgYW5kIG90aGVyIGhpZGRlbiBmaWxlcwogICAgc3ViamVjdHMgPSBbZiBmb3IgZiBpbiBvcy5saXN0ZGlyKGltYWdlc19yb290KSBpZiBub3QgZi5zdGFydHN3aXRoKCcuJyldCiAgICAKICAgIGZvciBzdWJqIGluIHN1YmplY3RzOgogICAgICAgIGltYWdlc19wYXRoc1tzdWJqXSA9IHt9CiAgICAgICAgc3Vial9wYXRoID0gb3MucGF0aC5qb2luKGltYWdlc19yb290LCBzdWJqKQogICAgICAgICMgRmlsdGVyIG91dCAuRFNfU3RvcmUgYW5kIG90aGVyIGhpZGRlbiBmaWxlcwogICAgICAgIGltZ19zdWJmb2xkZXJzID0gW2YgZm9yIGYgaW4gb3MubGlzdGRpcihzdWJqX3BhdGgpIGlmIG5vdCBmLnN0YXJ0c3dpdGgoJy4nKV0KICAgICAgICAKICAgICAgICBmb3IgaW1nX3N1YmZvbGRlciBpbiBpbWdfc3ViZm9sZGVyczoKICAgICAgICAgICAgaW1nX3N1YmZvbGRlcl9wYXRoID0gb3MucGF0aC5qb2luKHN1YmpfcGF0aCwgaW1nX3N1YmZvbGRlcikKICAgICAgICAgICAgaWYgb3MucGF0aC5pc2RpcihpbWdfc3ViZm9sZGVyX3BhdGgpOgogICAgICAgICAgICAgICAgIyBGaWx0ZXIgb3V0IC5EU19TdG9yZSBhbmQgb3RoZXIgaGlkZGVuIGZpbGVzCiAgICAgICAgICAgICAgICBpbWdfZmlsZXMgPSBbZiBmb3IgZiBpbiBvcy5saXN0ZGlyKGltZ19zdWJmb2xkZXJfcGF0aCkgaWYgbm90IGYuc3RhcnRzd2l0aCgnLicpXQogICAgICAgICAgICAgICAgIyBXYXJuaW5nIGlmIG11bHRpcGxlIGZpbGVzCiAgICAgICAgICAgICAgICBpZiBsZW4oaW1nX2ZpbGVzKSA+IDE6CiAgICAgICAgICAgICAgICAgICAgcHJpbnQoZiJXYXJuaW5nOiBNdWx0aXBsZSBpbWFnZSBmaWxlcyBpbiB7c3Vian0ve2ltZ19zdWJmb2xkZXJ9IikKICAgICAgICAgICAgICAgIGltZ19maWxlID0gaW1nX2ZpbGVzWzBdCiAgICAgICAgICAgICAgICBpbWFnZXNfcGF0aHNbc3Vial1baW1nX3N1YmZvbGRlcl0gPSBvcy5wYXRoLmpvaW4oaW1nX3N1YmZvbGRlcl9wYXRoLCBpbWdfZmlsZSkKICAgIAogICAgIyBHZXQgbWFzayBwYXRocwogICAgbWFza19wYXRocyA9IHt9CiAgICBtYXNrc19yb290ID0gb3MucGF0aC5qb2luKHJvb3RfZm9sZGVyLCBrZXl3b3JkX29mX21hc2tfZm9sZGVyKQogICAgIyBGaWx0ZXIgb3V0IC5EU19TdG9yZSBhbmQgb3RoZXIgaGlkZGVuIGZpbGVzCiAgICBzdWJqZWN0cyA9IFtmIGZvciBmIGluIG9zLmxpc3RkaXIobWFza3Nfcm9vdCkgaWYgbm90IGYuc3RhcnRzd2l0aCgnLicpXQogICAgCiAgICBmb3Igc3ViaiBpbiBzdWJqZWN0czoKICAgICAgICBtYXNrX3BhdGhzW3N1YmpdID0ge30KICAgICAgICBzdWJqX3BhdGggPSBvcy5wYXRoLmpvaW4obWFza3Nfcm9vdCwgc3ViaikKICAgICAgICAjIEZpbHRlciBvdXQgLkRTX1N0b3JlIGFuZCBvdGhlciBoaWRkZW4gZmlsZXMKICAgICAgICBtYXNrX3N1YmZvbGRlcnMgPSBbZiBmb3IgZiBpbiBvcy5saXN0ZGlyKHN1YmpfcGF0aCkgaWYgbm90IGYuc3RhcnRzd2l0aCgnLicpXQogICAgICAgIAogICAgICAgIGZvciBtYXNrX3N1YmZvbGRlciBpbiBtYXNrX3N1YmZvbGRlcnM6CiAgICAgICAgICAgIG1hc2tfc3ViZm9sZGVyX3BhdGggPSBvcy5wYXRoLmpvaW4oc3Vial9wYXRoLCBtYXNrX3N1YmZvbGRlcikKICAgICAgICAgICAgaWYgb3MucGF0aC5pc2RpcihtYXNrX3N1YmZvbGRlcl9wYXRoKToKICAgICAgICAgICAgICAgICMgRmlsdGVyIG91dCAuRFNfU3RvcmUgYW5kIG90aGVyIGhpZGRlbiBmaWxlcwogICAgICAgICAgICAgICAgbWFza19maWxlcyA9IFtmIGZvciBmIGluIG9zLmxpc3RkaXIobWFza19zdWJmb2xkZXJfcGF0aCkgaWYgbm90IGYuc3RhcnRzd2l0aCgnLicpXQogICAgICAgICAgICAgICAgIyBXYXJuaW5nIGlmIG11bHRpcGxlIGZpbGVzCiAgICAgICAgICAgICAgICBpZiBsZW4obWFza19maWxlcykgPiAxOgogICAgICAgICAgICAgICAgICAgIHByaW50KGYiV2FybmluZzogTXVsdGlwbGUgbWFzayBmaWxlcyBpbiB7c3Vian0ve21hc2tfc3ViZm9sZGVyfSIpCiAgICAgICAgICAgICAgICBtYXNrX2ZpbGUgPSBtYXNrX2ZpbGVzWzBdCiAgICAgICAgICAgICAgICBtYXNrX3BhdGhzW3N1YmpdW21hc2tfc3ViZm9sZGVyXSA9IG9zLnBhdGguam9pbihtYXNrX3N1YmZvbGRlcl9wYXRoLCBtYXNrX2ZpbGUpCiAgICAKICAgIHJldHVybiBpbWFnZXNfcGF0aHMsIG1hc2tfcGF0aHMKCmRlZiBsb2FkX3RpbWVzdGFtcChmaWxlX3BhdGg6IHN0ciwgc3ViaklEX2NvbHVtbjogc3RyID0gIk5hbWUiKSAtPiBkaWN0OgogICAgIiIiCiAgICBMb2FkIHNjYW4gdGltZXN0YW1wcyBmcm9tIEV4Y2VsIGZpbGUKICAgIAogICAgQXJnczoKICAgICAgICBmaWxlX3BhdGggKHN0cik6IFBhdGggdG8gdGhlIEV4Y2VsIGZpbGUKICAgICAgICBzdWJqSURfY29sdW1uIChzdHIsIG9wdGlvbmFsKTogTmFtZSBvZiB0aGUgc3ViamVjdCBJRCBjb2x1bW4KICAgIAogICAgUmV0dXJuczoKICAgICAgICBkaWN0OiBEaWN0aW9uYXJ5IHdpdGggc3ViamVjdCBuYW1lcyBhcyBrZXlzIGFuZCB0aW1lc3RhbXAgbGlzdHMgYXMgdmFsdWVzCiAgICAiIiIKICAgIGlmIG5vdCBvcy5wYXRoLmV4aXN0cyhmaWxlX3BhdGgpOgogICAgICAgIHJhaXNlIEZpbGVOb3RGb3VuZEVycm9yKGYiRmlsZSBub3QgZm91bmQ6IHtmaWxlX3BhdGh9IikKICAgIAogICAgZGYgPSBwZC5yZWFkX2V4Y2VsKGZpbGVfcGF0aCwgaW5kZXhfY29sPXN1YmpJRF9jb2x1bW4pCiAgICAjIGNvbnZlcnQgaW5kZXggdG8gc3RyaW5nCiAgICBkZi5pbmRleCA9IGRmLmluZGV4LmFzdHlwZShzdHIpCiAgICByZXR1cm4gZGYKCmRlZiBzYXZlX3Jlc3VsdHMob3V0X2ZvbGRlcjogc3RyLCByZXN1bHRzOiBwZC5EYXRhRnJhbWUsIGNvbmZpZzogZGljdCA9IE5vbmUsIGZpbGVfbmFtZTogc3RyID0gImhhYml0YXRzLmNzdiIpIC0+IE5vbmU6CiAgICAiIiIKICAgIFNhdmUgY2x1c3RlcmluZyByZXN1bHRzCiAgICAKICAgIEFyZ3M6CiAgICAgICAgb3V0X2ZvbGRlciAoc3RyKTogT3V0cHV0IGRpcmVjdG9yeQogICAgICAgIHJlc3VsdHMgKERhdGFGcmFtZSk6IFJlc3VsdHMgRGF0YUZyYW1lCiAgICAgICAgY29uZmlnIChkaWN0LCBvcHRpb25hbCk6IENvbmZpZ3VyYXRpb24gZGljdGlvbmFyeSwgc2F2ZWQgYXMgSlNPTiBpZiBub3QgTm9uZQogICAgICAgIGZpbGVfbmFtZSAoc3RyLCBvcHRpb25hbCk6IE5hbWUgb2YgdGhlIENTViBmaWxlIHRvIHNhdmUKICAgICIiIgogICAgIyBDcmVhdGUgb3V0cHV0IGZvbGRlciBpZiBpdCBkb2Vzbid0IGV4aXN0CiAgICBpZiBub3Qgb3MucGF0aC5leGlzdHMob3V0X2ZvbGRlcik6CiAgICAgICAgb3MubWFrZWRpcnMob3V0X2ZvbGRlcikKICAgIAogICAgIyBTYXZlIGNvbmZpZ3VyYXRpb24KICAgIGlmIGNvbmZpZzoKICAgICAgICB3aXRoIG9wZW4ob3MucGF0aC5qb2luKG91dF9mb2xkZXIsICJjb25maWcuanNvbiIpLCAidyIpIGFzIGY6CiAgICAgICAgICAgIGpzb24uZHVtcChjb25maWcsIGYsIGluZGVudD00KQogICAgCiAgICAjIFNhdmUgQ1NWIHJlc3VsdHMKICAgIHJlc3VsdHMudG9fY3N2KG9zLnBhdGguam9pbihvdXRfZm9sZGVyLCBmaWxlX25hbWUpLCBpbmRleD1UcnVlKQogICAgcHJpbnQoZiJSZXN1bHRzIHNhdmVkIHRvIHtvcy5wYXRoLmpvaW4ob3V0X2ZvbGRlciwgZmlsZV9uYW1lKX0iKQoKZGVmIHNhdmVfc3VwZXJ2b3hlbF9pbWFnZShzdWJqZWN0OiBzdHIsIHN1cGVydm94ZWxfbGFiZWxzOiBucC5uZGFycmF5LCBtYXNrX3BhdGg6IHN0ciwgb3V0X2ZvbGRlcjogc3RyKSAtPiBzdHI6CiAgICAiIiIKICAgIFNhdmUgc3VwZXJ2b3hlbCBpbWFnZQogICAgCiAgICBBcmdzOgogICAgICAgIHN1YmplY3QgKHN0cik6IFN1YmplY3QgbmFtZQogICAgICAgIHN1cGVydm94ZWxfbGFiZWxzIChuZGFycmF5KTogU3VwZXJ2b3hlbCBsYWJlbHMKICAgICAgICBtYXNrX3BhdGggKHN0cik6IFBhdGggdG8gdGhlIG1hc2sgZmlsZQogICAgICAgIG91dF9mb2xkZXIgKHN0cik6IE91dHB1dCBkaXJlY3RvcnkKICAgIAogICAgUmV0dXJuczoKICAgICAgICBzdHI6IFBhdGggdG8gdGhlIHNhdmVkIGZpbGUKICAgICIiIgogICAgIyBMb2FkIG1hc2sKICAgIG1hc2sgPSBzaXRrLlJlYWRJbWFnZShtYXNrX3BhdGgpCiAgICBtYXNrX2FycmF5ID0gc2l0ay5HZXRBcnJheUZyb21JbWFnZShtYXNrKQogICAgCiAgICAjIENyZWF0ZSBzdXBlcnZveGVsIGltYWdlCiAgICBzdXBlcnZveGVsX21hcCA9IG5wLnplcm9zX2xpa2UobWFza19hcnJheSkKICAgIHN1cGVydm94ZWxfbWFwW21hc2tfYXJyYXkgPiAwXSA9IHN1cGVydm94ZWxfbGFiZWxzCiAgICAKICAgICMgQ29udmVydCB0byBTaW1wbGVJVEsgaW1hZ2UgYW5kIHNhdmUKICAgIHN1cGVydm94ZWxfaW1nID0gc2l0ay5HZXRJbWFnZUZyb21BcnJheShzdXBlcnZveGVsX21hcCkKICAgIHN1cGVydm94ZWxfaW1nLkNvcHlJbmZvcm1hdGlvbihtYXNrKQogICAgCiAgICBvdXRwdXRfcGF0aCA9IG9zLnBhdGguam9pbihvdXRfZm9sZGVyLCBmIntzdWJqZWN0fV9zdXBlcnZveGVsLm5ycmQiKQogICAgc2l0ay5Xcml0ZUltYWdlKHN1cGVydm94ZWxfaW1nLCBvdXRwdXRfcGF0aCkKICAgIAogICAgcmV0dXJuIG91dHB1dF9wYXRoCgpkZWYgc2F2ZV9oYWJpdGF0X2ltYWdlKHN1YmplY3Q6IHN0ciwgaGFiaXRhdHNfZGY6IHBkLkRhdGFGcmFtZSwgc3VwZXJ2b3hlbF9wYXRoOiBzdHIsIG91dF9mb2xkZXI6IHN0cikgLT4gc3RyOgogICAgIiIiCiAgICBTYXZlIGhhYml0YXQgaW1hZ2UKICAgIAogICAgQXJnczoKICAgICAgICBzdWJqZWN0IChzdHIpOiBTdWJqZWN0IG5hbWUKICAgICAgICBoYWJpdGF0c19kZiAoRGF0YUZyYW1lKTogSGFiaXRhdCBEYXRhRnJhbWUgY29udGFpbmluZyBTdXBlcnZveGVsIGFuZCBIYWJpdGF0cyBjb2x1bW5zCiAgICAgICAgc3VwZXJ2b3hlbF9wYXRoIChzdHIpOiBQYXRoIHRvIHRoZSBzdXBlcnZveGVsIGltYWdlCiAgICAgICAgb3V0X2ZvbGRlciAoc3RyKTogT3V0cHV0IGRpcmVjdG9yeQogICAgCiAgICBSZXR1cm5zOgogICAgICAgIHN0cjogUGF0aCB0byB0aGUgc2F2ZWQgZmlsZQoKICAgIFRPRE86IAogICAgMS4g5p+Q5Liq5Zui5Z2X55qE5L2T57Sg5Y+q5pyJ5b6I5bCR55qE5Yeg5Liq77yM5piv5ZCm6ZyA6KaB5Yig6Zmk77yM5oiW6ICF5b2S5L2N5YW25LuW55u45Ly855qE5Zui5Z2X5Lit5Y67CiAgICAiIiIKICAgICMgTG9hZCBzdXBlcnZveGVsIGltYWdlCiAgICBzdXBlcnZveGVsID0gc2l0ay5SZWFkSW1hZ2Uoc3VwZXJ2b3hlbF9wYXRoKQogICAgc3VwZXJ2b3hlbF9hcnJheSA9IHNpdGsuR2V0QXJyYXlGcm9tSW1hZ2Uoc3VwZXJ2b3hlbCkKICAgIAoKICAgICMgQ3JlYXRlIGhhYml0YXQgaW1hZ2UKICAgIGhhYml0YXRzX2FycmF5ID0gbnAuemVyb3NfbGlrZShzdXBlcnZveGVsX2FycmF5KQogICAgaGFiaXRhdHNfc3ViaiA9IGhhYml0YXRzX2RmLmxvY1tzdWJqZWN0XQogICAgbl9jbHVzdGVyc19zdXBlcnZveGVsID0gaGFiaXRhdHNfc3Viai5zaGFwZVswXQogICAgZm9yIGkgaW4gcmFuZ2Uobl9jbHVzdGVyc19zdXBlcnZveGVsKToKICAgICAgICAjIEFzc2VydCB0aGF0IGhhYml0YXRzX3N1YmpbaGFiaXRhdHNfc3VialsnU3VwZXJ2b3hlbCddID09IGkrMV1bJ0hhYml0YXRzJ10gaGFzIGV4YWN0bHkgb25lIHZhbHVlCiAgICAgICAgIyBhc3NlcnQgaGFiaXRhdHNfc3VialtoYWJpdGF0c19zdWJqWydTdXBlcnZveGVsJ10gPT0gaSsxXS5zaGFwZVswXSA9PSAxLCBmIk11bHRpcGxlIHJvd3MgZm9yIHN1cGVydm94ZWwge2krMX0gaW4gc3ViamVjdCB7c3ViamVjdH0sIHBsZWFzZSBjaGVjayB0aGUgZGF0YSB0YWJsZSIKICAgICAgICBpZiAoc3VwZXJ2b3hlbF9hcnJheSA9PSBpKzEpLnN1bSgpID4gMDoKICAgICAgICAgICAgaGFiaXRhdHNfYXJyYXlbc3VwZXJ2b3hlbF9hcnJheSA9PSBpKzFdID0gaGFiaXRhdHNfc3VialtoYWJpdGF0c19zdWJqWydTdXBlcnZveGVsJ10gPT0gaSsxXVsnSGFiaXRhdHMnXS52YWx1ZXNbMF0KICAgIAoKICAgICMgQ29udmVydCB0byBTaW1wbGVJVEsgaW1hZ2UgYW5kIHNhdmUKICAgIGhhYml0YXRzX2ltZyA9IHNpdGsuR2V0SW1hZ2VGcm9tQXJyYXkoaGFiaXRhdHNfYXJyYXkpCiAgICBoYWJpdGF0c19pbWcuQ29weUluZm9ybWF0aW9uKHN1cGVydm94ZWwpCiAgICAKICAgIG91dHB1dF9wYXRoID0gb3MucGF0aC5qb2luKG91dF9mb2xkZXIsIGYie3N1YmplY3R9X2hhYml0YXRzLm5ycmQiKQogICAgc2l0ay5Xcml0ZUltYWdlKGhhYml0YXRzX2ltZywgb3V0cHV0X3BhdGgpCiAgICAKICAgIHJldHVybiBvdXRwdXRfcGF0aAoKZGVmIGRldGVjdF9pbWFnZV9uYW1lcyhpbWFnZXNfcGF0aHM6IGRpY3QpIC0+IGxpc3Q6CiAgICAiIiIKICAgIEF1dG9tYXRpY2FsbHkgZGV0ZWN0IGltYWdlIG5hbWVzCiAgICAKICAgIEFyZ3M6CiAgICAgICAgaW1hZ2VzX3BhdGhzIChkaWN0KTogRGljdGlvbmFyeSBvZiBpbWFnZSBwYXRocwogICAgCiAgICBSZXR1cm5zOgogICAgICAgIGxpc3Q6IExpc3Qgb2YgYWxsIHVuaXF1ZSBpbWFnZSBuYW1lcwogICAgIiIiCiAgICAjIENvbGxlY3QgYWxsIGltYWdlIG5hbWVzCiAgICBhbGxfaW1hZ2VfbmFtZXMgPSBbXQogICAgZm9yIHN1YmogaW4gaW1hZ2VzX3BhdGhzOgogICAgICAgIGZvciBpbWdfbmFtZSBpbiBpbWFnZXNfcGF0aHNbc3Vial0ua2V5cygpOgogICAgICAgICAgICBhbGxfaW1hZ2VfbmFtZXMuYXBwZW5kKGltZ19uYW1lKQogICAgCiAgICAjIEdldCB1bmlxdWUgaW1hZ2UgbmFtZXMgYW5kIHNvcnQKICAgIHVuaXF1ZV9pbWFnZV9uYW1lcyA9IHNvcnRlZChsaXN0KHNldChhbGxfaW1hZ2VfbmFtZXMpKSkKICAgIAogICAgcmV0dXJuIHVuaXF1ZV9pbWFnZV9uYW1lcwoKZGVmIGNoZWNrX2RhdGFfc3RydWN0dXJlKGltYWdlc19wYXRoczogZGljdCwgbWFza19wYXRoczogZGljdCwgaW1hZ2VfbmFtZXM6IGxpc3QsIHRpbWVfZGljdDogZGljdCA9IE5vbmUpIC0+IGJvb2w6CiAgICAiIiIKICAgIFZhbGlkYXRlIGRhdGEgc3RydWN0dXJlCiAgICAKICAgIEFyZ3M6CiAgICAgICAgaW1hZ2VzX3BhdGhzIChkaWN0KTogRGljdGlvbmFyeSBvZiBpbWFnZSBwYXRocwogICAgICAgIG1hc2tfcGF0aHMgKGRpY3QpOiBEaWN0aW9uYXJ5IG9mIG1hc2sgcGF0aHMKICAgICAgICBpbWFnZV9uYW1lcyAobGlzdCk6IExpc3Qgb2YgaW1hZ2UgbmFtZXMKICAgICAgICB0aW1lX2RpY3QgKGRpY3QsIG9wdGlvbmFsKTogRGljdGlvbmFyeSBvZiB0aW1lc3RhbXBzLCBpZiBOb25lLCBub3QgY2hlY2tlZAogICAgCiAgICBSYWlzZXM6CiAgICAgICAgVmFsdWVFcnJvcjogSWYgZGF0YSBzdHJ1Y3R1cmUgaXMgaW52YWxpZAogICAgCiAgICBSZXR1cm5zOgogICAgICAgIGJvb2w6IFRydWUgaWYgZGF0YSBzdHJ1Y3R1cmUgaXMgdmFsaWQKICAgICIiIgogICAgIyBDaGVjayBkYXRhIHN0cnVjdHVyZSBmb3IgZWFjaCBzdWJqZWN0CiAgICBmb3Igc3ViaiBpbiBpbWFnZXNfcGF0aHMua2V5cygpOgogICAgICAgIGltZ19uYW1lcyA9IGltYWdlc19wYXRoc1tzdWJqXS5rZXlzKCkKICAgICAgICBtYXNrX25hbWVzID0gbWFza19wYXRoc1tzdWJqXS5rZXlzKCkKICAgICAgICAKICAgICAgICAjIENoZWNrIGlmIGltYWdlIGFuZCBtYXNrIG5hbWVzIG1hdGNoCiAgICAgICAgZGlmZl9pbWdfbWFzayA9IHNldChpbWdfbmFtZXMpIC0gc2V0KG1hc2tfbmFtZXMpCiAgICAgICAgaWYgbGVuKGRpZmZfaW1nX21hc2spID4gMDoKICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkltYWdlIGFuZCBtYXNrIG5hbWVzIGRvbid0IG1hdGNoIGZvciB7c3Vian0sIGRpZmZlcmVuY2U6IHtkaWZmX2ltZ19tYXNrfSIpCiAgICAgICAgCiAgICAgICAgIyBDaGVjayBpZiByZXF1aXJlZCBpbWFnZXMgZXhpc3QKICAgICAgICBkaWZmX2ltZyA9IHNldChpbWFnZV9uYW1lcykgLSBzZXQoaW1nX25hbWVzKQogICAgICAgIGlmIGxlbihkaWZmX2ltZykgPiAwOgogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiSW1hZ2UgbmFtZXMgZG9uJ3QgbWF0Y2ggZm9yIHtzdWJqfSwgZGlmZmVyZW5jZToge2RpZmZfaW1nfSIpCiAgICAKICAgIHJldHVybiBUcnVlIAoKZGVmIGxvYWRfY29uZmlnKGNvbmZpZ19wYXRoOiBzdHIpIC0+IERpY3Rbc3RyLCBBbnldOgogICAgIiIiCiAgICBMb2FkIGNvbmZpZ3VyYXRpb24gZmlsZQogICAgCiAgICBBcmdzOgogICAgICAgIGNvbmZpZ19wYXRoIChzdHIpOiBQYXRoIHRvIGNvbmZpZ3VyYXRpb24gZmlsZSwgc3VwcG9ydHMgWUFNTCBhbmQgSlNPTgogICAgCiAgICBSZXR1cm5zOgogICAgICAgIERpY3Rbc3RyLCBBbnldOiBDb25maWd1cmF0aW9uIGRpY3Rpb25hcnkKICAgICAgICAKICAgIFJhaXNlczoKICAgICAgICBGaWxlTm90Rm91bmRFcnJvcjogSWYgY29uZmlndXJhdGlvbiBmaWxlIGlzIG5vdCBmb3VuZAogICAgICAgIFZhbHVlRXJyb3I6IElmIGZpbGUgZm9ybWF0IGlzIG5vdCBzdXBwb3J0ZWQKICAgICIiIgogICAgaWYgbm90IG9zLnBhdGguZXhpc3RzKGNvbmZpZ19wYXRoKToKICAgICAgICByYWlzZSBGaWxlTm90Rm91bmRFcnJvcihmIkNvbmZpZ3VyYXRpb24gZmlsZSBub3QgZm91bmQ6IHtjb25maWdfcGF0aH0iKQogICAgCiAgICAjIERldGVybWluZSBob3cgdG8gbG9hZCBiYXNlZCBvbiBmaWxlIGV4dGVuc2lvbgogICAgXywgZXh0ID0gb3MucGF0aC5zcGxpdGV4dChjb25maWdfcGF0aCkKICAgIAogICAgaWYgZXh0Lmxvd2VyKCkgaW4gWycueWFtbCcsICcueW1sJ106CiAgICAgICAgd2l0aCBvcGVuKGNvbmZpZ19wYXRoLCAncicsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAgICAgIGNvbmZpZyA9IHlhbWwuc2FmZV9sb2FkKGYpCiAgICBlbGlmIGV4dC5sb3dlcigpID09ICcuanNvbic6CiAgICAgICAgd2l0aCBvcGVuKGNvbmZpZ19wYXRoLCAncicsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAgICAgIGNvbmZpZyA9IGpzb24ubG9hZChmKQogICAgZWxzZToKICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiVW5zdXBwb3J0ZWQgY29uZmlndXJhdGlvbiBmaWxlIGZvcm1hdDoge2V4dH0iKQogICAgCiAgICByZXR1cm4gY29uZmlnCgpkZWYgc2F2ZV9jb25maWcoY29uZmlnOiBEaWN0W3N0ciwgQW55XSwgY29uZmlnX3BhdGg6IHN0cikgLT4gTm9uZToKICAgICIiIgogICAgU2F2ZSBjb25maWd1cmF0aW9uIHRvIGZpbGUKICAgIAogICAgQXJnczoKICAgICAgICBjb25maWcgKERpY3Rbc3RyLCBBbnldKTogQ29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5CiAgICAgICAgY29uZmlnX3BhdGggKHN0cik6IFBhdGggdG8gc2F2ZSBjb25maWd1cmF0aW9uIGZpbGUsIHN1cHBvcnRzIFlBTUwgYW5kIEpTT04KICAgICAgICAKICAgIFJhaXNlczoKICAgICAgICBWYWx1ZUVycm9yOiBJZiBmaWxlIGZvcm1hdCBpcyBub3Qgc3VwcG9ydGVkCiAgICAiIiIKICAgICMgQ3JlYXRlIGRpcmVjdG9yeSBpZiBpdCBkb2Vzbid0IGV4aXN0CiAgICBvcy5tYWtlZGlycyhvcy5wYXRoLmRpcm5hbWUob3MucGF0aC5hYnNwYXRoKGNvbmZpZ19wYXRoKSksIGV4aXN0X29rPVRydWUpCiAgICAKICAgICMgRGV0ZXJtaW5lIGhvdyB0byBzYXZlIGJhc2VkIG9uIGZpbGUgZXh0ZW5zaW9uCiAgICBfLCBleHQgPSBvcy5wYXRoLnNwbGl0ZXh0KGNvbmZpZ19wYXRoKQogICAgCiAgICBpZiBleHQubG93ZXIoKSBpbiBbJy55YW1sJywgJy55bWwnXToKICAgICAgICB3aXRoIG9wZW4oY29uZmlnX3BhdGgsICd3JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoKICAgICAgICAgICAgeWFtbC5kdW1wKGNvbmZpZywgZiwgZGVmYXVsdF9mbG93X3N0eWxlPUZhbHNlLCBzb3J0X2tleXM9RmFsc2UpCiAgICBlbGlmIGV4dC5sb3dlcigpID09ICcuanNvbic6CiAgICAgICAgd2l0aCBvcGVuKGNvbmZpZ19wYXRoLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAgICAgIGpzb24uZHVtcChjb25maWcsIGYsIGluZGVudD00KQogICAgZWxzZToKICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiVW5zdXBwb3J0ZWQgY29uZmlndXJhdGlvbiBmaWxlIGZvcm1hdDoge2V4dH0iKQoKZGVmIHZhbGlkYXRlX2NvbmZpZyhjb25maWc6IERpY3Rbc3RyLCBBbnldLCByZXF1aXJlZF9rZXlzOiBPcHRpb25hbFtMaXN0W3N0cl1dID0gTm9uZSkgLT4gYm9vbDoKICAgICIiIgogICAgVmFsaWRhdGUgaWYgY29uZmlndXJhdGlvbiBjb250YWlucyByZXF1aXJlZCBrZXlzCiAgICAKICAgIEFyZ3M6CiAgICAgICAgY29uZmlnIChEaWN0W3N0ciwgQW55XSk6IENvbmZpZ3VyYXRpb24gZGljdGlvbmFyeQogICAgICAgIHJlcXVpcmVkX2tleXMgKE9wdGlvbmFsW0xpc3Rbc3RyXV0pOiBMaXN0IG9mIHJlcXVpcmVkIGtleXMKICAgIAogICAgUmV0dXJuczoKICAgICAgICBib29sOiBXaGV0aGVyIHRoZSBjb25maWd1cmF0aW9uIGlzIHZhbGlkCiAgICAKICAgIFJhaXNlczoKICAgICAgICBWYWx1ZUVycm9yOiBJZiByZXF1aXJlZCBrZXlzIGFyZSBtaXNzaW5nCiAgICAiIiIKICAgIGlmIHJlcXVpcmVkX2tleXMgaXMgTm9uZToKICAgICAgICByZXR1cm4gVHJ1ZQogICAgCiAgICBtaXNzaW5nX2tleXMgPSBba2V5IGZvciBrZXkgaW4gcmVxdWlyZWRfa2V5cyBpZiBrZXkgbm90IGluIGNvbmZpZ10KICAgIGlmIG1pc3Npbmdfa2V5czoKICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiQ29uZmlndXJhdGlvbiBtaXNzaW5nIHJlcXVpcmVkIGtleXM6IHttaXNzaW5nX2tleXN9IikKICAgIAogICAgcmV0dXJuIFRydWUgCgpkZWYgc2V0dXBfbG9nZ2luZyhvdXRfZGlyOiBzdHIsIGRlYnVnOiBib29sID0gRmFsc2UpIC0+IE5vbmU6CiAgICAiIiIKICAgIFNldCB1cCBsb2dnaW5nIGNvbmZpZ3VyYXRpb24KICAgIAogICAgQXJnczoKICAgICAgICBvdXRfZGlyIChzdHIpOiBPdXRwdXQgZGlyZWN0b3J5IGZvciBsb2cgZmlsZXMKICAgICAgICBkZWJ1ZyAoYm9vbCwgb3B0aW9uYWwpOiBXaGV0aGVyIHRvIGVuYWJsZSBkZWJ1ZyBtb2RlLiBEZWZhdWx0cyB0byBGYWxzZS4KICAgICIiIgogICAgIyBDcmVhdGUgbG9ncyBkaXJlY3RvcnkgaWYgaXQgZG9lc24ndCBleGlzdAogICAgbG9nX2RpciA9IG9zLnBhdGguam9pbihvdXRfZGlyLCAibG9ncyIpCiAgICBvcy5tYWtlZGlycyhsb2dfZGlyLCBleGlzdF9vaz1UcnVlKQogICAgCiAgICAjIFNldCB1cCBsb2dnaW5nIGNvbmZpZ3VyYXRpb24KICAgIGxvZ19sZXZlbCA9IGxvZ2dpbmcuREVCVUcgaWYgZGVidWcgZWxzZSBsb2dnaW5nLklORk8KICAgIHRpbWVzdGFtcCA9IGRhdGV0aW1lLm5vdygpLnN0cmZ0aW1lKCIlWSVtJWRfJUglTSVTIikKICAgIGxvZ19maWxlID0gb3MucGF0aC5qb2luKGxvZ19kaXIsIGYiaGFiaXRfe3RpbWVzdGFtcH0ubG9nIikKICAgIAogICAgIyBDb25maWd1cmUgbG9nZ2luZwogICAgbG9nZ2luZy5iYXNpY0NvbmZpZygKICAgICAgICBsZXZlbD1sb2dfbGV2ZWwsCiAgICAgICAgZm9ybWF0PSclKGFzY3RpbWUpcyAtICUobmFtZSlzIC0gJShsZXZlbG5hbWUpcyAtICUobWVzc2FnZSlzJywKICAgICAgICBoYW5kbGVycz1bCiAgICAgICAgICAgIGxvZ2dpbmcuRmlsZUhhbmRsZXIobG9nX2ZpbGUpLAogICAgICAgICAgICBsb2dnaW5nLlN0cmVhbUhhbmRsZXIoKQogICAgICAgIF0KICAgICkg').decode())
+import os
+import json
+import pandas as pd
+import SimpleITK as sitk
+import numpy as np
+from typing import Dict, Any, Optional, List
+import yaml
+import logging
+from datetime import datetime
+
+
+
+def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
+    """
+    Get paths for all image and mask files
+    
+    Args:
+        root_folder (str): Root directory
+        keyword_of_raw_folder (str, optional): Name of the images folder
+        keyword_of_mask_folder (str, optional): Name of the masks folder
+    
+    Returns:
+        tuple: Dictionary of image paths and dictionary of mask paths
+    """
+    # Get image paths
+    images_paths = {}
+    images_root = os.path.join(root_folder, keyword_of_raw_folder)
+    # Filter out .DS_Store and other hidden files
+    subjects = [f for f in os.listdir(images_root) if not f.startswith('.')]
+    
+    for subj in subjects:
+        images_paths[subj] = {}
+        subj_path = os.path.join(images_root, subj)
+        # Filter out .DS_Store and other hidden files
+        img_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
+        
+        for img_subfolder in img_subfolders:
+            img_subfolder_path = os.path.join(subj_path, img_subfolder)
+            if os.path.isdir(img_subfolder_path):
+                # Filter out .DS_Store and other hidden files
+                img_files = [f for f in os.listdir(img_subfolder_path) if not f.startswith('.')]
+                # Warning if multiple files
+                if len(img_files) > 1:
+                    print(f"Warning: Multiple image files in {subj}/{img_subfolder}")
+                img_file = img_files[0]
+                images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
+    
+    # Get mask paths
+    mask_paths = {}
+    masks_root = os.path.join(root_folder, keyword_of_mask_folder)
+    # Filter out .DS_Store and other hidden files
+    subjects = [f for f in os.listdir(masks_root) if not f.startswith('.')]
+    
+    for subj in subjects:
+        mask_paths[subj] = {}
+        subj_path = os.path.join(masks_root, subj)
+        # Filter out .DS_Store and other hidden files
+        mask_subfolders = [f for f in os.listdir(subj_path) if not f.startswith('.')]
+        
+        for mask_subfolder in mask_subfolders:
+            mask_subfolder_path = os.path.join(subj_path, mask_subfolder)
+            if os.path.isdir(mask_subfolder_path):
+                # Filter out .DS_Store and other hidden files
+                mask_files = [f for f in os.listdir(mask_subfolder_path) if not f.startswith('.')]
+                # Warning if multiple files
+                if len(mask_files) > 1:
+                    print(f"Warning: Multiple mask files in {subj}/{mask_subfolder}")
+                mask_file = mask_files[0]
+                mask_paths[subj][mask_subfolder] = os.path.join(mask_subfolder_path, mask_file)
+    
+    return images_paths, mask_paths
+
+def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
+    """
+    Load scan timestamps from Excel file
+    
+    Args:
+        file_path (str): Path to the Excel file
+        subjID_column (str, optional): Name of the subject ID column
+    
+    Returns:
+        dict: Dictionary with subject names as keys and timestamp lists as values
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    df = pd.read_excel(file_path, index_col=subjID_column)
+    # convert index to string
+    df.index = df.index.astype(str)
+    return df
+
+def save_results(out_folder: str, results: pd.DataFrame, config: dict = None, file_name: str = "habitats.csv") -> None:
+    """
+    Save clustering results
+    
+    Args:
+        out_folder (str): Output directory
+        results (DataFrame): Results DataFrame
+        config (dict, optional): Configuration dictionary, saved as JSON if not None
+        file_name (str, optional): Name of the CSV file to save
+    """
+    # Create output folder if it doesn't exist
+    if not os.path.exists(out_folder):
+        os.makedirs(out_folder)
+    
+    # Save configuration
+    if config:
+        with open(os.path.join(out_folder, "config.json"), "w") as f:
+            json.dump(config, f, indent=4)
+    
+    # Save CSV results
+    results.to_csv(os.path.join(out_folder, file_name), index=True)
+    print(f"Results saved to {os.path.join(out_folder, file_name)}")
+
+def save_supervoxel_image(subject: str, supervoxel_labels: np.ndarray, mask_path: str, out_folder: str) -> str:
+    """
+    Save supervoxel image
+    
+    Args:
+        subject (str): Subject name
+        supervoxel_labels (ndarray): Supervoxel labels
+        mask_path (str): Path to the mask file
+        out_folder (str): Output directory
+    
+    Returns:
+        str: Path to the saved file
+    """
+    # Load mask
+    mask = sitk.ReadImage(mask_path)
+    mask_array = sitk.GetArrayFromImage(mask)
+    
+    # Create supervoxel image
+    supervoxel_map = np.zeros_like(mask_array)
+    supervoxel_map[mask_array > 0] = supervoxel_labels
+    
+    # Convert to SimpleITK image and save
+    supervoxel_img = sitk.GetImageFromArray(supervoxel_map)
+    supervoxel_img.CopyInformation(mask)
+    
+    output_path = os.path.join(out_folder, f"{subject}_supervoxel.nrrd")
+    sitk.WriteImage(supervoxel_img, output_path)
+    
+    return output_path
+
+def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path: str, out_folder: str) -> str:
+    """
+    Save habitat image
+    
+    Args:
+        subject (str): Subject name
+        habitats_df (DataFrame): Habitat DataFrame containing Supervoxel and Habitats columns
+        supervoxel_path (str): Path to the supervoxel image
+        out_folder (str): Output directory
+    
+    Returns:
+        str: Path to the saved file
+
+    TODO: 
+    1. 某个团块的体素只有很少的几个，是否需要删除，或者归位其他相似的团块中去
+    """
+    # Load supervoxel image
+    supervoxel = sitk.ReadImage(supervoxel_path)
+    supervoxel_array = sitk.GetArrayFromImage(supervoxel)
+    
+
+    # Create habitat image
+    habitats_array = np.zeros_like(supervoxel_array)
+    habitats_subj = habitats_df.loc[subject]
+    n_clusters_supervoxel = habitats_subj.shape[0]
+    for i in range(n_clusters_supervoxel):
+        # Assert that habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'] has exactly one value
+        # assert habitats_subj[habitats_subj['Supervoxel'] == i+1].shape[0] == 1, f"Multiple rows for supervoxel {i+1} in subject {subject}, please check the data table"
+        if (supervoxel_array == i+1).sum() > 0:
+            habitats_array[supervoxel_array == i+1] = habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'].values[0]
+    
+
+    # Convert to SimpleITK image and save
+    habitats_img = sitk.GetImageFromArray(habitats_array)
+    habitats_img.CopyInformation(supervoxel)
+    
+    output_path = os.path.join(out_folder, f"{subject}_habitats.nrrd")
+    sitk.WriteImage(habitats_img, output_path)
+    
+    return output_path
+
+def detect_image_names(images_paths: dict) -> list:
+    """
+    Automatically detect image names
+    
+    Args:
+        images_paths (dict): Dictionary of image paths
+    
+    Returns:
+        list: List of all unique image names
+    """
+    # Collect all image names
+    all_image_names = []
+    for subj in images_paths:
+        for img_name in images_paths[subj].keys():
+            all_image_names.append(img_name)
+    
+    # Get unique image names and sort
+    unique_image_names = sorted(list(set(all_image_names)))
+    
+    return unique_image_names
+
+def check_data_structure(images_paths: dict, mask_paths: dict, image_names: list, time_dict: dict = None) -> bool:
+    """
+    Validate data structure
+    
+    Args:
+        images_paths (dict): Dictionary of image paths
+        mask_paths (dict): Dictionary of mask paths
+        image_names (list): List of image names
+        time_dict (dict, optional): Dictionary of timestamps, if None, not checked
+    
+    Raises:
+        ValueError: If data structure is invalid
+    
+    Returns:
+        bool: True if data structure is valid
+    """
+    # Check data structure for each subject
+    for subj in images_paths.keys():
+        img_names = images_paths[subj].keys()
+        mask_names = mask_paths[subj].keys()
+        
+        # Check if image and mask names match
+        diff_img_mask = set(img_names) - set(mask_names)
+        if len(diff_img_mask) > 0:
+            raise ValueError(f"Image and mask names don't match for {subj}, difference: {diff_img_mask}")
+        
+        # Check if required images exist
+        diff_img = set(image_names) - set(img_names)
+        if len(diff_img) > 0:
+            raise ValueError(f"Image names don't match for {subj}, difference: {diff_img}")
+    
+    return True 
+
+def load_config(config_path: str) -> Dict[str, Any]:
+    """
+    Load configuration file
+    
+    Args:
+        config_path (str): Path to configuration file, supports YAML and JSON
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If configuration file is not found
+        ValueError: If file format is not supported
+    """
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    # Determine how to load based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+    elif ext.lower() == '.json':
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+    else:
+        raise ValueError(f"Unsupported configuration file format: {ext}")
+    
+    return config
+
+def save_config(config: Dict[str, Any], config_path: str) -> None:
+    """
+    Save configuration to file
+    
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+        config_path (str): Path to save configuration file, supports YAML and JSON
+        
+    Raises:
+        ValueError: If file format is not supported
+    """
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(config_path)), exist_ok=True)
+    
+    # Determine how to save based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    elif ext.lower() == '.json':
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4)
+    else:
+        raise ValueError(f"Unsupported configuration file format: {ext}")
+
+def validate_config(config: Dict[str, Any], required_keys: Optional[List[str]] = None) -> bool:
+    """
+    Validate if configuration contains required keys
+    
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+        required_keys (Optional[List[str]]): List of required keys
+    
+    Returns:
+        bool: Whether the configuration is valid
+    
+    Raises:
+        ValueError: If required keys are missing
+    """
+    if required_keys is None:
+        return True
+    
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ValueError(f"Configuration missing required keys: {missing_keys}")
+    
+    return True 
+
+def setup_logging(out_dir: str, debug: bool = False) -> None:
+    """
+    Set up logging configuration
+    
+    Args:
+        out_dir (str): Output directory for log files
+        debug (bool, optional): Whether to enable debug mode. Defaults to False.
+    """
+    # Create logs directory if it doesn't exist
+    log_dir = os.path.join(out_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Set up logging configuration
+    log_level = logging.DEBUG if debug else logging.INFO
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(log_dir, f"habit_{timestamp}.log")
+    
+    # Configure logging
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
+    ) 

@@ -1,3 +1,276 @@
+"""
+Feature expression parser for parsing complex feature construction expressions
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiCkZlYXR1cmUgZXhwcmVzc2lvbiBwYXJzZXIgZm9yIHBhcnNpbmcgY29tcGxleCBmZWF0dXJlIGNvbnN0cnVjdGlvbiBleHByZXNzaW9ucwoiIiIKCmltcG9ydCByZQpmcm9tIHR5cGluZyBpbXBvcnQgRGljdCwgTGlzdCwgQW55LCBDYWxsYWJsZSwgT3B0aW9uYWwsIFR1cGxlLCBVbmlvbgoKY2xhc3MgRmVhdHVyZUV4cHJlc3Npb25QYXJzZXI6CiAgICAiIiJQYXJzZXIgZm9yIGZlYXR1cmUgY29uc3RydWN0aW9uIGV4cHJlc3Npb25zIiIiCiAgICBkZWYgX19pbml0X18oc2VsZik6CiAgICAgICAgIiIiSW5pdGlhbGl6ZSB0aGUgcGFyc2VyIiIiCiAgICAgICAgcGFzcwoKICAgIGRlZiBwYXJzZShzZWxmLCBjb25maWc6IFVuaW9uW3N0ciwgRGljdFtzdHIsIEFueV1dLCBwYXJhbXM6IE9wdGlvbmFsW0RpY3Rbc3RyLCBBbnldXSA9IE5vbmUpIC0+IFR1cGxlW3N0ciwgRGljdFtzdHIsIEFueV0sIExpc3RbRGljdFtzdHIsIEFueV1dXToKICAgICAgICAiIiJQYXJzZSBhIGZlYXR1cmUgY29uc3RydWN0aW9uIGV4cHJlc3Npb24KCiAgICAgICAgQXJnczoKICAgICAgICAgICAgY29uZmlnOiBGZWF0dXJlIGNvbnN0cnVjdGlvbiBleHByZXNzaW9uIHN0cmluZyBvciBjb25maWd1cmF0aW9uIGRpY3Rpb25hcnkKICAgICAgICAgICAgICAgIElmIGRpY3Rpb25hcnksIHNob3VsZCBoYXZlIGZvcm1hdDoKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAibWV0aG9kIjogImtpbmV0aWMocmF3KHByZV9jb250cmFzdCwgcDEpLCByYXcoTEFQLCBwMSksIHJhdyhQVlAsIHAyKSwgcmF3KGRlbGF5XzNtaW4sIHAzKSwgdGltZXN0YW1wcykiLAogICAgICAgICAgICAgICAgICAgICJwYXJhbXMiOiB7CiAgICAgICAgICAgICAgICAgICAgICAgICJwMSI6IDEuMCwKICAgICAgICAgICAgICAgICAgICAgICAgInAyIjogVHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgInAzIjogRmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgICJ0aW1lc3RhbXBzIjogInBhdGgvdG8vdGltZXN0YW1wcy54bHN4IgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIOS5n+aUr+aMgeWNleWbvuWDj+WkhOeQhuaWueW8j++8mgogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICJtZXRob2QiOiAicmF3KHByZV9jb250cmFzdCkiLAogICAgICAgICAgICAgICAgICAgICJwYXJhbXMiOiB7fQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAg5Lmf5pSv5oyB5YW25LuW5aSE55CG5pa55byP77yaCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgIm1ldGhvZCI6ICJzdXBlcnZveGVsX3JhZGlvbWljcyhwcmVfY29udHJhc3QpIiwKICAgICAgICAgICAgICAgICAgICAicGFyYW1zIjogewogICAgICAgICAgICAgICAgICAgICAgICAicGFyYW1zX2ZpbGUiOiAicGF0aC90by9yYWRpb21pY3NfcGFyYW1zLnlhbWwiCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICBwYXJhbXM6IE9wdGlvbmFsIGRpY3Rpb25hcnkgb2YgcGFyYW1ldGVycyBmb3IgdGhlIGV4cHJlc3Npb24KCiAgICAgICAgUmV0dXJuczoKICAgICAgICAgICAgVHVwbGVbc3RyLCBEaWN0W3N0ciwgQW55XSwgTGlzdFtEaWN0W3N0ciwgQW55XV1dOiBUdXBsZSBjb250YWluaW5nOgogICAgICAgICAgICAgICAgLSBjcm9zc19pbWFnZV9tZXRob2Q6IFRoZSBtYWluIG1ldGhvZCBuYW1lCiAgICAgICAgICAgICAgICAtIGNyb3NzX2ltYWdlX3BhcmFtczogUGFyYW1ldGVycyBmb3IgdGhlIGNyb3NzLWltYWdlIG1ldGhvZAogICAgICAgICAgICAgICAgLSBwcm9jZXNzaW5nX3N0ZXBzOiBMaXN0IG9mIHByb2Nlc3Npbmcgc3RlcHMKCiAgICAgICAgUmFpc2VzOgogICAgICAgICAgICBUeXBlRXJyb3I6IElmIGNvbmZpZyBpcyBub3QgYSBzdHJpbmcgb3IgZGljdGlvbmFyeQogICAgICAgICAgICBWYWx1ZUVycm9yOiBJZiBleHByZXNzaW9uIGZvcm1hdCBpcyBpbnZhbGlkIG9yIGNvbmZpZyBpcyBtaXNzaW5nIHJlcXVpcmVkIGZpZWxkcwogICAgICAgICIiIgogICAgICAgICMgRXh0cmFjdCBleHByZXNzaW9uIGFuZCBwYXJhbWV0ZXJzIGZyb20gY29uZmlnCiAgICAgICAgaWYgaXNpbnN0YW5jZShjb25maWcsIHN0cik6CiAgICAgICAgICAgIGV4cHJlc3Npb24gPSBjb25maWcKICAgICAgICAgICAgcGFyYW1zID0gcGFyYW1zIG9yIHt9CiAgICAgICAgZWxpZiBpc2luc3RhbmNlKGNvbmZpZywgZGljdCk6CiAgICAgICAgICAgIGlmICdtZXRob2QnIG5vdCBpbiBjb25maWc6CiAgICAgICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJDb25maWd1cmF0aW9uIGRpY3Rpb25hcnkgbXVzdCBjb250YWluICdtZXRob2QnIGZpZWxkIikKICAgICAgICAgICAgZXhwcmVzc2lvbiA9IGNvbmZpZ1snbWV0aG9kJ10KICAgICAgICAgICAgIyBHZXQgcGFyYW1ldGVycyBmcm9tIGNvbmZpZydzIHBhcmFtcyBmaWVsZAogICAgICAgICAgICBjb25maWdfcGFyYW1zID0gY29uZmlnLmdldCgncGFyYW1zJywge30pCiAgICAgICAgICAgICMgTWVyZ2Ugd2l0aCBwcm92aWRlZCBwYXJhbXMsIGdpdmluZyBwcmlvcml0eSB0byBwcm92aWRlZCBwYXJhbXMKICAgICAgICAgICAgaWYgcGFyYW1zOgogICAgICAgICAgICAgICAgY29uZmlnX3BhcmFtcy51cGRhdGUocGFyYW1zKQogICAgICAgICAgICBwYXJhbXMgPSBjb25maWdfcGFyYW1zCiAgICAgICAgZWxzZToKICAgICAgICAgICAgcmFpc2UgVHlwZUVycm9yKGYiQ29uZmlnIG11c3QgYmUgYSBzdHJpbmcgb3IgZGljdGlvbmFyeSwgZ290IHt0eXBlKGNvbmZpZyl9IikKCiAgICAgICAgIyBJbml0aWFsaXplIHJldHVybiB2YWx1ZXMKICAgICAgICBjcm9zc19pbWFnZV9tZXRob2QgPSBOb25lCiAgICAgICAgY3Jvc3NfaW1hZ2VfcGFyYW1zID0ge30KICAgICAgICBwcm9jZXNzaW5nX3N0ZXBzID0gW10KCiAgICAgICAgIyDmj5Dlj5bmnIDlpJblsYLnmoTmlrnms5XlkI0KICAgICAgICBtYWluX21ldGhvZF9tYXRjaCA9IHJlLm1hdGNoKHInXihcdyspXHMqXCgnLCBleHByZXNzaW9uKQogICAgICAgIGlmIG5vdCBtYWluX21ldGhvZF9tYXRjaDoKICAgICAgICAgICAgbWFpbl9tZXRob2RfbWF0Y2ggPSBleHByZXNzaW9uLnJlcGxhY2UoJygnLCAnJykucmVwbGFjZSgnKScsICcnKQogICAgICAgICAgICBjcm9zc19pbWFnZV9tZXRob2QgPSBtYWluX21ldGhvZF9tYXRjaAogICAgICAgIGVsc2U6CiAgICAgICAgICAgIG1ldGhvZF9uYW1lID0gbWFpbl9tZXRob2RfbWF0Y2guZ3JvdXAoMSkKICAgICAgICAgICAgY3Jvc3NfaW1hZ2VfbWV0aG9kID0gbWV0aG9kX25hbWUKCiAgICAgICAgIyDmj5Dlj5bmlrnms5Xmi6zlj7flhoXnmoTlhoXlrrkKICAgICAgICB0cnk6CiAgICAgICAgICAgIGlubmVyX2V4cHIgPSBzZWxmLl9leHRyYWN0X2lubmVyX2V4cHJlc3Npb24oZXhwcmVzc2lvbikKICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJGYWlsZWQgdG8gZXh0cmFjdCBpbm5lciBleHByZXNzaW9uOiB7c3RyKGUpfSIpCgogICAgICAgICMg5aSE55CG5Y2V5pa55rOV6KGo6L6+5byP77yI5aaCcmF3KGltYWdlX25hbWUp5oiWc3VwZXJ2b3hlbF9yYWRpb21pY3MoaW1hZ2VfbmFtZSnvvIkKICAgICAgICBpZiBub3Qgc2VsZi5fY29udGFpbnNfZnVuY3Rpb25fY2FsbChpbm5lcl9leHByKToKICAgICAgICAgICAgIyDnroDljZXooajovr7lvI/vvIzkvovlpoIgcmF3KHByZV9jb250cmFzdCkg5oiWIHN1cGVydm94ZWxfcmFkaW9taWNzKHByZV9jb250cmFzdCkKICAgICAgICAgICAgaW1hZ2VfbmFtZSA9IGlubmVyX2V4cHIuc3RyaXAoKQoKICAgICAgICAgICAgIyDliJvlu7rlpITnkIbmraXpqqQKICAgICAgICAgICAgc3RlcCA9IHsKICAgICAgICAgICAgICAgICdtZXRob2QnOiBtZXRob2RfbmFtZSwKICAgICAgICAgICAgICAgICdpbWFnZSc6IGltYWdlX25hbWUsCiAgICAgICAgICAgICAgICAncGFyYW1zJzoge30KICAgICAgICAgICAgfQoKICAgICAgICAgICAgIyDmt7vliqDmlrnms5Xlj4LmlbAKICAgICAgICAgICAgZm9yIHBhcmFtX25hbWUsIHBhcmFtX3ZhbHVlIGluIHBhcmFtcy5pdGVtcygpOgogICAgICAgICAgICAgICAgaWYgcGFyYW1fbmFtZSAhPSAnaW1hZ2UnOiAgIyDpgb/lhY3opobnm5ZpbWFnZeWPguaVsAogICAgICAgICAgICAgICAgICAgIHN0ZXBbJ3BhcmFtcyddW3BhcmFtX25hbWVdID0gcGFyYW1fdmFsdWUKCiAgICAgICAgICAgIHByb2Nlc3Npbmdfc3RlcHMuYXBwZW5kKHN0ZXApCiAgICAgICAgICAgIHJldHVybiBjcm9zc19pbWFnZV9tZXRob2QsIGNyb3NzX2ltYWdlX3BhcmFtcywgcHJvY2Vzc2luZ19zdGVwcwoKICAgICAgICAjIOWkhOeQhuW1jOWll+aWueazleihqOi+vuW8jwogICAgICAgICMg5ouG5YiG5YaF6YOo6KGo6L6+5byPCiAgICAgICAgcGFydHMgPSBzZWxmLl9zcGxpdF9leHByZXNzaW9uKGlubmVyX2V4cHIpCgogICAgICAgICMg5aSE55CG5q+P5Liq6YOo5YiGCiAgICAgICAgZm9yIHBhcnQgaW4gcGFydHM6CiAgICAgICAgICAgIHBhcnQgPSBwYXJ0LnN0cmlwKCkKICAgICAgICAgICAgaWYgbm90IHBhcnQ6CiAgICAgICAgICAgICAgICBjb250aW51ZQoKICAgICAgICAgICAgIyDlpITnkIblh73mlbDosIPnlKgKICAgICAgICAgICAgaWYgc2VsZi5faXNfZnVuY3Rpb25fY2FsbChwYXJ0KToKICAgICAgICAgICAgICAgICMg6Kej5p6Q5Ye95pWw5ZKM5Y+C5pWwCiAgICAgICAgICAgICAgICBmdW5jX25hbWUsIGZ1bmNfYXJncyA9IHNlbGYuX3BhcnNlX2Z1bmN0aW9uX2NhbGwocGFydCkKCiAgICAgICAgICAgICAgICAjIOino+aekOWPguaVsOWIl+ihqAogICAgICAgICAgICAgICAgYXJnX2xpc3QgPSBzZWxmLl9zcGxpdF9leHByZXNzaW9uKGZ1bmNfYXJncykKCiAgICAgICAgICAgICAgICBpZiBsZW4oYXJnX2xpc3QpID09IDA6CiAgICAgICAgICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkVtcHR5IGFyZ3VtZW50cyBmb3IgZnVuY3Rpb246IHtmdW5jX25hbWV9IikKCiAgICAgICAgICAgICAgICAjIOesrOS4gOS4quWPguaVsOW6lOivpeaYr+WbvuWDj+WQjeensAogICAgICAgICAgICAgICAgaW1hZ2VfbmFtZSA9IGFyZ19saXN0WzBdLnN0cmlwKCkKCiAgICAgICAgICAgICAgICAjIOWIm+W7uuWkhOeQhuatpemqpAogICAgICAgICAgICAgICAgc3RlcCA9IHsKICAgICAgICAgICAgICAgICAgICAnbWV0aG9kJzogZnVuY19uYW1lLAogICAgICAgICAgICAgICAgICAgICdpbWFnZSc6IGltYWdlX25hbWUsCiAgICAgICAgICAgICAgICAgICAgJ3BhcmFtcyc6IHt9CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgIyDlpITnkIblhbbku5blj4LmlbAKICAgICAgICAgICAgICAgIGZvciBpLCBhcmcgaW4gZW51bWVyYXRlKGFyZ19saXN0WzE6XSwgMSk6CiAgICAgICAgICAgICAgICAgICAgYXJnID0gYXJnLnN0cmlwKCkKICAgICAgICAgICAgICAgICAgICAjIOajgOafpeWPguaVsOWQjeaYr+WQpuWtmOWcqOS6jnBhcmFtc+Wtl+WFuOS4rQogICAgICAgICAgICAgICAgICAgIGlmIGFyZyBpbiBwYXJhbXM6CiAgICAgICAgICAgICAgICAgICAgICAgICMg5L2/55So5Y+C5pWw5ZCN56ew5L2c5Li6a2V5CiAgICAgICAgICAgICAgICAgICAgICAgIHN0ZXBbJ3BhcmFtcyddW2FyZ10gPSBwYXJhbXNbYXJnXQogICAgICAgICAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICAgICAgICAgICMg5aaC5p6c5Y+C5pWw5ZCN5LiN5ZyocGFyYW1z5Lit77yM5bCd6K+V55u05o6l5L2/55So5Y+C5pWw5YC8CiAgICAgICAgICAgICAgICAgICAgICAgICMg5a+55LqOc3VwZXJ2b3hlbF9yYWRpb21pY3PnrYnmlrnms5XvvIzlj4LmlbDlkI3lj6/og73lsLHmmK/lj4LmlbDmnKzouqsKICAgICAgICAgICAgICAgICAgICAgICAgIyDkvovlpoLvvJpzdXBlcnZveGVsX3JhZGlvbWljcyhwcmVfY29udHJhc3QsIHBhcmFtZXRlcinkuK3nmoRwYXJhbWV0ZXIKICAgICAgICAgICAgICAgICAgICAgICAgIyDov5nph4zmiJHku6zkvb/nlKjlj4LmlbDlkI3kvZzkuLprZXnvvIzogIzkuI3mmK9wYXJhbXtpfQogICAgICAgICAgICAgICAgICAgICAgICBzdGVwWydwYXJhbXMnXVthcmddID0gYXJnCgogICAgICAgICAgICAgICAgcHJvY2Vzc2luZ19zdGVwcy5hcHBlbmQoc3RlcCkKICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgICMg5qOA5p+l5piv5ZCm5piv5Y+C5pWw5ZCN56ewCiAgICAgICAgICAgICAgICBpZiBwYXJ0IGluIHBhcmFtczoKICAgICAgICAgICAgICAgICAgICAjIOi/meaYr+S4u+aWueazleeahOWPguaVsAogICAgICAgICAgICAgICAgICAgIGNyb3NzX2ltYWdlX3BhcmFtc1twYXJ0XSA9IHBhcmFtc1twYXJ0XQogICAgICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgICAgICAjIOS4jeaYr+WHveaVsOiwg+eUqOS5n+S4jeaYr+W3suefpeWPguaVsO+8jOWBh+iuvuaYr+WbvuWDj+WQjeensAogICAgICAgICAgICAgICAgICAgIHN0ZXAgPSB7CiAgICAgICAgICAgICAgICAgICAgICAgICdtZXRob2QnOiAncmF3JywgICMg6buY6K6k5L2/55SocmF3CiAgICAgICAgICAgICAgICAgICAgICAgICdpbWFnZSc6IHBhcnQsCiAgICAgICAgICAgICAgICAgICAgICAgICdwYXJhbXMnOiB7fQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBwcm9jZXNzaW5nX3N0ZXBzLmFwcGVuZChzdGVwKQoKICAgICAgICByZXR1cm4gY3Jvc3NfaW1hZ2VfbWV0aG9kLCBjcm9zc19pbWFnZV9wYXJhbXMsIHByb2Nlc3Npbmdfc3RlcHMKCiAgICBkZWYgX2V4dHJhY3RfaW5uZXJfZXhwcmVzc2lvbihzZWxmLCBleHByZXNzaW9uOiBzdHIpIC0+IHN0cjoKICAgICAgICAiIiLmj5Dlj5blh73mlbDosIPnlKjnmoTlhoXpg6jooajovr7lvI8KCiAgICAgICAgQXJnczoKICAgICAgICAgICAgZXhwcmVzc2lvbjog6KGo6L6+5byP5a2X56ym5LiyCgogICAgICAgIFJldHVybnM6CiAgICAgICAgICAgIHN0cjog5YaF6YOo6KGo6L6+5byPCiAgICAgICAgIiIiCiAgICAgICAgIyDmib7liLDnrKzkuIDkuKrlt6bmi6zlj7cKICAgICAgICBmaXJzdF9wYXJlbiA9IGV4cHJlc3Npb24uZmluZCgnKCcpCiAgICAgICAgaWYgZmlyc3RfcGFyZW4gPT0gLTE6CiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJObyBvcGVuaW5nIHBhcmVudGhlc2lzIGZvdW5kIGluIGV4cHJlc3Npb246IHtleHByZXNzaW9ufSIpCgogICAgICAgICMg5om+5Yiw5Yy56YWN55qE5Y+z5ous5Y+3CiAgICAgICAgcGFyZW5fY291bnQgPSAxCiAgICAgICAgZm9yIGkgaW4gcmFuZ2UoZmlyc3RfcGFyZW4gKyAxLCBsZW4oZXhwcmVzc2lvbikpOgogICAgICAgICAgICBpZiBleHByZXNzaW9uW2ldID09ICcoJzoKICAgICAgICAgICAgICAgIHBhcmVuX2NvdW50ICs9IDEKICAgICAgICAgICAgZWxpZiBleHByZXNzaW9uW2ldID09ICcpJzoKICAgICAgICAgICAgICAgIHBhcmVuX2NvdW50IC09IDEKICAgICAgICAgICAgICAgIGlmIHBhcmVuX2NvdW50ID09IDA6CiAgICAgICAgICAgICAgICAgICAgIyDov5Tlm57lhoXpg6jooajovr7lvI/vvIzkuI3ljIXmi6zmnIDlpJblsYLnmoTmi6zlj7cKICAgICAgICAgICAgICAgICAgICByZXR1cm4gZXhwcmVzc2lvbltmaXJzdF9wYXJlbiArIDE6aV0KCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIlVubWF0Y2hlZCBvcGVuaW5nIHBhcmVudGhlc2lzIGluIGV4cHJlc3Npb246IHtleHByZXNzaW9ufSIpCgogICAgZGVmIF9pc19mdW5jdGlvbl9jYWxsKHNlbGYsIGV4cHI6IHN0cikgLT4gYm9vbDoKICAgICAgICAiIiLmo4Dmn6Xooajovr7lvI/mmK/lkKbmmK/lh73mlbDosIPnlKgKCiAgICAgICAgQXJnczoKICAgICAgICAgICAgZXhwcjog6KGo6L6+5byP5a2X56ym5LiyCgogICAgICAgIFJldHVybnM6CiAgICAgICAgICAgIGJvb2w6IOWmguaenOihqOi+vuW8j+aYr+WHveaVsOiwg+eUqOWImeS4ulRydWUKICAgICAgICAiIiIKICAgICAgICByZXR1cm4gcmUubWF0Y2gocideXHcrXHMqXCgnLCBleHByKSBpcyBub3QgTm9uZQoKICAgIGRlZiBfY29udGFpbnNfZnVuY3Rpb25fY2FsbChzZWxmLCBleHByOiBzdHIpIC0+IGJvb2w6CiAgICAgICAgIiIi5qOA5p+l6KGo6L6+5byP5piv5ZCm5YyF5ZCr5Ye95pWw6LCD55SoCgogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIGV4cHI6IOihqOi+vuW8j+Wtl+espuS4sgoKICAgICAgICBSZXR1cm5zOgogICAgICAgICAgICBib29sOiDlpoLmnpzooajovr7lvI/ljIXlkKvlh73mlbDosIPnlKjliJnkuLpUcnVlCiAgICAgICAgIiIiCiAgICAgICAgcmV0dXJuIHJlLnNlYXJjaChyJ1x3K1xzKlwoJywgZXhwcikgaXMgbm90IE5vbmUKCiAgICBkZWYgX3BhcnNlX2Z1bmN0aW9uX2NhbGwoc2VsZiwgZXhwcjogc3RyKSAtPiBUdXBsZVtzdHIsIHN0cl06CiAgICAgICAgIiIi6Kej5p6Q5Ye95pWw6LCD55So77yM5o+Q5Y+W5Ye95pWw5ZCN5ZKM5Y+C5pWwCgogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIGV4cHI6IOWHveaVsOiwg+eUqOihqOi+vuW8jwoKICAgICAgICBSZXR1cm5zOgogICAgICAgICAgICBUdXBsZVtzdHIsIHN0cl06IOWHveaVsOWQjeWSjOWPguaVsOWtl+espuS4sgogICAgICAgICIiIgogICAgICAgIG1hdGNoID0gcmUubWF0Y2gocideKFx3KylccypcKCguKilcKSQnLCBleHByKQogICAgICAgIGlmIG5vdCBtYXRjaDoKICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkludmFsaWQgZnVuY3Rpb24gY2FsbCBmb3JtYXQ6IHtleHByfSIpCgogICAgICAgIGZ1bmNfbmFtZSA9IG1hdGNoLmdyb3VwKDEpCiAgICAgICAgZnVuY19hcmdzID0gbWF0Y2guZ3JvdXAoMikKCiAgICAgICAgcmV0dXJuIGZ1bmNfbmFtZSwgZnVuY19hcmdzCgogICAgZGVmIF9zcGxpdF9leHByZXNzaW9uKHNlbGYsIGV4cHJlc3Npb246IHN0cikgLT4gTGlzdFtzdHJdOgogICAgICAgICIiIlNwbGl0IGFuIGV4cHJlc3Npb24gaW50byBwYXJ0cywgaGFuZGxpbmcgbmVzdGVkIHBhcmVudGhlc2VzCgogICAgICAgIEFyZ3M6CiAgICAgICAgICAgIGV4cHJlc3Npb246IEV4cHJlc3Npb24gc3RyaW5nIHRvIHNwbGl0CgogICAgICAgIFJldHVybnM6CiAgICAgICAgICAgIExpc3Rbc3RyXTogTGlzdCBvZiBleHByZXNzaW9uIHBhcnRzCiAgICAgICAgIiIiCiAgICAgICAgaWYgbm90IGV4cHJlc3Npb246CiAgICAgICAgICAgIHJldHVybiBbXQoKICAgICAgICBwYXJ0cyA9IFtdCiAgICAgICAgY3VycmVudCA9ICIiCiAgICAgICAgcGFyZW5fY291bnQgPSAwCgogICAgICAgIGZvciBjaGFyIGluIGV4cHJlc3Npb246CiAgICAgICAgICAgIGlmIGNoYXIgPT0gJygnOgogICAgICAgICAgICAgICAgcGFyZW5fY291bnQgKz0gMQogICAgICAgICAgICAgICAgY3VycmVudCArPSBjaGFyCiAgICAgICAgICAgIGVsaWYgY2hhciA9PSAnKSc6CiAgICAgICAgICAgICAgICBwYXJlbl9jb3VudCAtPSAxCiAgICAgICAgICAgICAgICBjdXJyZW50ICs9IGNoYXIKICAgICAgICAgICAgICAgIGlmIHBhcmVuX2NvdW50IDwgMDoKICAgICAgICAgICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJVbm1hdGNoZWQgY2xvc2luZyBwYXJlbnRoZXNpcyIpCiAgICAgICAgICAgIGVsaWYgY2hhciA9PSAnLCcgYW5kIHBhcmVuX2NvdW50ID09IDA6CiAgICAgICAgICAgICAgICBwYXJ0cy5hcHBlbmQoY3VycmVudC5zdHJpcCgpKQogICAgICAgICAgICAgICAgY3VycmVudCA9ICIiCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBjdXJyZW50ICs9IGNoYXIKCiAgICAgICAgaWYgcGFyZW5fY291bnQgIT0gMDoKICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiVW5tYXRjaGVkIG9wZW5pbmcgcGFyZW50aGVzaXMiKQoKICAgICAgICBpZiBjdXJyZW50OgogICAgICAgICAgICBwYXJ0cy5hcHBlbmQoY3VycmVudC5zdHJpcCgpKQoKICAgICAgICByZXR1cm4gW3AgZm9yIHAgaW4gcGFydHMgaWYgcF0=').decode())
+import re
+from typing import Dict, List, Any, Callable, Optional, Tuple, Union
+
+class FeatureExpressionParser:
+    """Parser for feature construction expressions"""
+    def __init__(self):
+        """Initialize the parser"""
+        pass
+
+    def parse(self, config: Union[str, Dict[str, Any]], params: Optional[Dict[str, Any]] = None) -> Tuple[str, Dict[str, Any], List[Dict[str, Any]]]:
+        """Parse a feature construction expression
+
+        Args:
+            config: Feature construction expression string or configuration dictionary
+                If dictionary, should have format:
+                {
+                    "method": "kinetic(raw(pre_contrast, p1), raw(LAP, p1), raw(PVP, p2), raw(delay_3min, p3), timestamps)",
+                    "params": {
+                        "p1": 1.0,
+                        "p2": True,
+                        "p3": False,
+                        "timestamps": "path/to/timestamps.xlsx"
+                    }
+                }
+                也支持单图像处理方式：
+                {
+                    "method": "raw(pre_contrast)",
+                    "params": {}
+                }
+                也支持其他处理方式：
+                {
+                    "method": "supervoxel_radiomics(pre_contrast)",
+                    "params": {
+                        "params_file": "path/to/radiomics_params.yaml"
+                    }
+                }
+            params: Optional dictionary of parameters for the expression
+
+        Returns:
+            Tuple[str, Dict[str, Any], List[Dict[str, Any]]]: Tuple containing:
+                - cross_image_method: The main method name
+                - cross_image_params: Parameters for the cross-image method
+                - processing_steps: List of processing steps
+
+        Raises:
+            TypeError: If config is not a string or dictionary
+            ValueError: If expression format is invalid or config is missing required fields
+        """
+        # Extract expression and parameters from config
+        if isinstance(config, str):
+            expression = config
+            params = params or {}
+        elif isinstance(config, dict):
+            if 'method' not in config:
+                raise ValueError("Configuration dictionary must contain 'method' field")
+            expression = config['method']
+            # Get parameters from config's params field
+            config_params = config.get('params', {})
+            # Merge with provided params, giving priority to provided params
+            if params:
+                config_params.update(params)
+            params = config_params
+        else:
+            raise TypeError(f"Config must be a string or dictionary, got {type(config)}")
+
+        # Initialize return values
+        cross_image_method = None
+        cross_image_params = {}
+        processing_steps = []
+
+        # 提取最外层的方法名
+        main_method_match = re.match(r'^(\w+)\s*\(', expression)
+        if not main_method_match:
+            main_method_match = expression.replace('(', '').replace(')', '')
+            cross_image_method = main_method_match
+        else:
+            method_name = main_method_match.group(1)
+            cross_image_method = method_name
+
+        # 提取方法括号内的内容
+        try:
+            inner_expr = self._extract_inner_expression(expression)
+        except Exception as e:
+            raise ValueError(f"Failed to extract inner expression: {str(e)}")
+
+        # 处理单方法表达式（如raw(image_name)或supervoxel_radiomics(image_name)）
+        if not self._contains_function_call(inner_expr):
+            # 简单表达式，例如 raw(pre_contrast) 或 supervoxel_radiomics(pre_contrast)
+            image_name = inner_expr.strip()
+
+            # 创建处理步骤
+            step = {
+                'method': method_name,
+                'image': image_name,
+                'params': {}
+            }
+
+            # 添加方法参数
+            for param_name, param_value in params.items():
+                if param_name != 'image':  # 避免覆盖image参数
+                    step['params'][param_name] = param_value
+
+            processing_steps.append(step)
+            return cross_image_method, cross_image_params, processing_steps
+
+        # 处理嵌套方法表达式
+        # 拆分内部表达式
+        parts = self._split_expression(inner_expr)
+
+        # 处理每个部分
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+
+            # 处理函数调用
+            if self._is_function_call(part):
+                # 解析函数和参数
+                func_name, func_args = self._parse_function_call(part)
+
+                # 解析参数列表
+                arg_list = self._split_expression(func_args)
+
+                if len(arg_list) == 0:
+                    raise ValueError(f"Empty arguments for function: {func_name}")
+
+                # 第一个参数应该是图像名称
+                image_name = arg_list[0].strip()
+
+                # 创建处理步骤
+                step = {
+                    'method': func_name,
+                    'image': image_name,
+                    'params': {}
+                }
+
+                # 处理其他参数
+                for i, arg in enumerate(arg_list[1:], 1):
+                    arg = arg.strip()
+                    # 检查参数名是否存在于params字典中
+                    if arg in params:
+                        # 使用参数名称作为key
+                        step['params'][arg] = params[arg]
+                    else:
+                        # 如果参数名不在params中，尝试直接使用参数值
+                        # 对于supervoxel_radiomics等方法，参数名可能就是参数本身
+                        # 例如：supervoxel_radiomics(pre_contrast, parameter)中的parameter
+                        # 这里我们使用参数名作为key，而不是param{i}
+                        step['params'][arg] = arg
+
+                processing_steps.append(step)
+            else:
+                # 检查是否是参数名称
+                if part in params:
+                    # 这是主方法的参数
+                    cross_image_params[part] = params[part]
+                else:
+                    # 不是函数调用也不是已知参数，假设是图像名称
+                    step = {
+                        'method': 'raw',  # 默认使用raw
+                        'image': part,
+                        'params': {}
+                    }
+                    processing_steps.append(step)
+
+        return cross_image_method, cross_image_params, processing_steps
+
+    def _extract_inner_expression(self, expression: str) -> str:
+        """提取函数调用的内部表达式
+
+        Args:
+            expression: 表达式字符串
+
+        Returns:
+            str: 内部表达式
+        """
+        # 找到第一个左括号
+        first_paren = expression.find('(')
+        if first_paren == -1:
+            raise ValueError(f"No opening parenthesis found in expression: {expression}")
+
+        # 找到匹配的右括号
+        paren_count = 1
+        for i in range(first_paren + 1, len(expression)):
+            if expression[i] == '(':
+                paren_count += 1
+            elif expression[i] == ')':
+                paren_count -= 1
+                if paren_count == 0:
+                    # 返回内部表达式，不包括最外层的括号
+                    return expression[first_paren + 1:i]
+
+        raise ValueError(f"Unmatched opening parenthesis in expression: {expression}")
+
+    def _is_function_call(self, expr: str) -> bool:
+        """检查表达式是否是函数调用
+
+        Args:
+            expr: 表达式字符串
+
+        Returns:
+            bool: 如果表达式是函数调用则为True
+        """
+        return re.match(r'^\w+\s*\(', expr) is not None
+
+    def _contains_function_call(self, expr: str) -> bool:
+        """检查表达式是否包含函数调用
+
+        Args:
+            expr: 表达式字符串
+
+        Returns:
+            bool: 如果表达式包含函数调用则为True
+        """
+        return re.search(r'\w+\s*\(', expr) is not None
+
+    def _parse_function_call(self, expr: str) -> Tuple[str, str]:
+        """解析函数调用，提取函数名和参数
+
+        Args:
+            expr: 函数调用表达式
+
+        Returns:
+            Tuple[str, str]: 函数名和参数字符串
+        """
+        match = re.match(r'^(\w+)\s*\((.*)\)$', expr)
+        if not match:
+            raise ValueError(f"Invalid function call format: {expr}")
+
+        func_name = match.group(1)
+        func_args = match.group(2)
+
+        return func_name, func_args
+
+    def _split_expression(self, expression: str) -> List[str]:
+        """Split an expression into parts, handling nested parentheses
+
+        Args:
+            expression: Expression string to split
+
+        Returns:
+            List[str]: List of expression parts
+        """
+        if not expression:
+            return []
+
+        parts = []
+        current = ""
+        paren_count = 0
+
+        for char in expression:
+            if char == '(':
+                paren_count += 1
+                current += char
+            elif char == ')':
+                paren_count -= 1
+                current += char
+                if paren_count < 0:
+                    raise ValueError("Unmatched closing parenthesis")
+            elif char == ',' and paren_count == 0:
+                parts.append(current.strip())
+                current = ""
+            else:
+                current += char
+
+        if paren_count != 0:
+            raise ValueError("Unmatched opening parenthesis")
+
+        if current:
+            parts.append(current.strip())
+
+        return [p for p in parts if p]

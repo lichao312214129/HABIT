@@ -1,3 +1,107 @@
+"""
+XGBoost Model
 
-import base64
-exec(base64.b64decode(b'IiIiDQpYR0Jvb3N0IE1vZGVsDQoNCldyYXBwZXIgZm9yIFhHQm9vc3QgbW9kZWwNCiIiIg0KaW1wb3J0IHhnYm9vc3QgYXMgeGdiDQpmcm9tIHR5cGluZyBpbXBvcnQgRGljdCwgQW55LCBPcHRpb25hbCwgVW5pb24NCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IHBhbmRhcyBhcyBwZA0KZnJvbSAuYmFzZSBpbXBvcnQgQmFzZU1vZGVsDQpmcm9tIC5mYWN0b3J5IGltcG9ydCBNb2RlbEZhY3RvcnkNCg0KQE1vZGVsRmFjdG9yeS5yZWdpc3RlcignWEdCb29zdCcpDQpjbGFzcyBYR0Jvb3N0TW9kZWwoQmFzZU1vZGVsKToNCiAgICAiIiJXcmFwcGVyIGZvciBYR0Jvb3N0IG1vZGVsIiIiDQogICAgDQogICAgZGVmIF9faW5pdF9fKHNlbGYsIGNvbmZpZzogRGljdFtzdHIsIEFueV0pOg0KICAgICAgICAiIiINCiAgICAgICAgSW5pdGlhbGl6ZSB0aGUgbW9kZWwNCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBjb25maWc6IENvbmZpZ3VyYXRpb24gZGljdGlvbmFyeSB3aXRoIG1vZGVsIHBhcmFtZXRlcnMNCiAgICAgICAgIiIiDQogICAgICAgIHN1cGVyKCkuX19pbml0X18oY29uZmlnKQ0KICAgICAgICANCiAgICAgICAgIyBFeHRyYWN0IHBhcmFtZXRlcnMgZnJvbSBjb25maWcNCiAgICAgICAgcGFyYW1zID0gY29uZmlnLmdldCgncGFyYW1zJywge30pDQogICAgICAgIA0KICAgICAgICAjIENyZWF0ZSBtb2RlbCB3aXRoIHBhcmFtZXRlcnMNCiAgICAgICAgc2VsZi5tb2RlbCA9IHhnYi5YR0JDbGFzc2lmaWVyKA0KICAgICAgICAgICAgbl9lc3RpbWF0b3JzPXBhcmFtcy5nZXQoJ25fZXN0aW1hdG9ycycsIDEwMCksDQogICAgICAgICAgICBtYXhfZGVwdGg9cGFyYW1zLmdldCgnbWF4X2RlcHRoJywgMyksDQogICAgICAgICAgICBsZWFybmluZ19yYXRlPXBhcmFtcy5nZXQoJ2xlYXJuaW5nX3JhdGUnLCAwLjEpLA0KICAgICAgICAgICAgc3Vic2FtcGxlPXBhcmFtcy5nZXQoJ3N1YnNhbXBsZScsIDAuOCksDQogICAgICAgICAgICBjb2xzYW1wbGVfYnl0cmVlPXBhcmFtcy5nZXQoJ2NvbHNhbXBsZV9ieXRyZWUnLCAwLjgpLA0KICAgICAgICAgICAgb2JqZWN0aXZlPXBhcmFtcy5nZXQoJ29iamVjdGl2ZScsICdiaW5hcnk6bG9naXN0aWMnKSwNCiAgICAgICAgICAgIGV2YWxfbWV0cmljPXBhcmFtcy5nZXQoJ2V2YWxfbWV0cmljJywgJ2xvZ2xvc3MnKSwNCiAgICAgICAgICAgIHJhbmRvbV9zdGF0ZT1wYXJhbXMuZ2V0KCdyYW5kb21fc3RhdGUnLCA0MiksDQogICAgICAgICAgICAqKntrOiB2IGZvciBrLCB2IGluIHBhcmFtcy5pdGVtcygpIGlmIGsgbm90IGluIFsnbl9lc3RpbWF0b3JzJywgJ21heF9kZXB0aCcsICdsZWFybmluZ19yYXRlJywgJ3N1YnNhbXBsZScsICdjb2xzYW1wbGVfYnl0cmVlJywgJ29iamVjdGl2ZScsICdldmFsX21ldHJpYycsICdyYW5kb21fc3RhdGUnXX0NCiAgICAgICAgKQ0KICAgICAgICANCiAgICBkZWYgZml0KHNlbGYsIFg6IFVuaW9uW3BkLkRhdGFGcmFtZSwgbnAubmRhcnJheV0sIA0KICAgICAgICAgICAgIHk6IFVuaW9uW3BkLlNlcmllcywgbnAubmRhcnJheV0pIC0+IE5vbmU6DQogICAgICAgICIiIg0KICAgICAgICBUcmFpbiB0aGUgbW9kZWwNCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBYOiBUcmFpbmluZyBmZWF0dXJlcw0KICAgICAgICAgICAgeTogVHJhaW5pbmcgbGFiZWxzDQogICAgICAgICIiIg0KICAgICAgICAjIFNhdmUgZmVhdHVyZSBuYW1lcyBpZiBYIGlzIGEgRGF0YUZyYW1lDQogICAgICAgIGlmIGlzaW5zdGFuY2UoWCwgcGQuRGF0YUZyYW1lKToNCiAgICAgICAgICAgIHNlbGYuZmVhdHVyZV9uYW1lcyA9IGxpc3QoWC5jb2x1bW5zKQ0KICAgICAgICANCiAgICAgICAgIyBUcmFpbiB0aGUgbW9kZWwNCiAgICAgICAgc2VsZi5tb2RlbC5maXQoWCwgeSkNCiAgICAgICAgDQogICAgZGVmIHByZWRpY3Qoc2VsZiwgWDogVW5pb25bcGQuRGF0YUZyYW1lLCBucC5uZGFycmF5XSkgLT4gbnAubmRhcnJheToNCiAgICAgICAgIiIiDQogICAgICAgIE1ha2UgcHJlZGljdGlvbnMNCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBYOiBGZWF0dXJlcw0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBucC5uZGFycmF5OiBQcmVkaWN0ZWQgY2xhc3MgbGFiZWxzDQogICAgICAgICIiIg0KICAgICAgICBpZiBzZWxmLm1vZGVsIGlzIE5vbmU6DQogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJNb2RlbCBub3QgdHJhaW5lZC4gQ2FsbCBmaXQoKSBmaXJzdC4iKQ0KICAgICAgICByZXR1cm4gc2VsZi5tb2RlbC5wcmVkaWN0KFgpDQogICAgICAgIA0KICAgIGRlZiBwcmVkaWN0X3Byb2JhKHNlbGYsIFg6IFVuaW9uW3BkLkRhdGFGcmFtZSwgbnAubmRhcnJheV0pIC0+IG5wLm5kYXJyYXk6DQogICAgICAgICIiIg0KICAgICAgICBHZXQgcHJlZGljdGlvbiBwcm9iYWJpbGl0aWVzDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWDogRmVhdHVyZXMNCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgbnAubmRhcnJheTogUHJlZGljdGVkIHByb2JhYmlsaXRpZXMgZm9yIHBvc2l0aXZlIGNsYXNzDQogICAgICAgICIiIg0KICAgICAgICBpZiBzZWxmLm1vZGVsIGlzIE5vbmU6DQogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJNb2RlbCBub3QgdHJhaW5lZC4gQ2FsbCBmaXQoKSBmaXJzdC4iKQ0KICAgICAgICByZXR1cm4gc2VsZi5tb2RlbC5wcmVkaWN0X3Byb2JhKFgpDQogICAgICAgIA0KICAgIGRlZiBnZXRfZmVhdHVyZV9pbXBvcnRhbmNlKHNlbGYpIC0+IERpY3Rbc3RyLCBmbG9hdF06DQogICAgICAgICIiIg0KICAgICAgICBHZXQgZmVhdHVyZSBpbXBvcnRhbmNlIHNjb3Jlcw0KICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIERpY3Rbc3RyLCBmbG9hdF06IEZlYXR1cmUgaW1wb3J0YW5jZSBzY29yZXMNCiAgICAgICAgIiIiDQogICAgICAgIGlmIHNlbGYubW9kZWwgaXMgTm9uZToNCiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIk1vZGVsIG5vdCB0cmFpbmVkLiBDYWxsIGZpdCgpIGZpcnN0LiIpDQogICAgICAgICAgICANCiAgICAgICAgaWYgbm90IGhhc2F0dHIoc2VsZi5tb2RlbCwgJ2ZlYXR1cmVfaW1wb3J0YW5jZXNfJyk6DQogICAgICAgICAgICByZXR1cm4ge30NCiAgICAgICAgICAgIA0KICAgICAgICAjIEdldCBmZWF0dXJlIG5hbWVzDQogICAgICAgIGZlYXR1cmVfbmFtZXMgPSBzZWxmLmZlYXR1cmVfbmFtZXMgb3IgW2YiZmVhdHVyZV97aX0iIGZvciBpIGluIHJhbmdlKGxlbihzZWxmLm1vZGVsLmZlYXR1cmVfaW1wb3J0YW5jZXNfKSldDQogICAgICAgIA0KICAgICAgICAjIEdldCBmZWF0dXJlIGltcG9ydGFuY2VzDQogICAgICAgIGltcG9ydGFuY2VzID0gc2VsZi5tb2RlbC5mZWF0dXJlX2ltcG9ydGFuY2VzXw0KICAgICAgICANCiAgICAgICAgIyBSZXR1cm4gYXMgZGljdGlvbmFyeQ0KICAgICAgICByZXR1cm4gZGljdCh6aXAoZmVhdHVyZV9uYW1lcywgaW1wb3J0YW5jZXMpKSANCg0K').decode())
+Wrapper for XGBoost model
+"""
+import xgboost as xgb
+from typing import Dict, Any, Optional, Union
+import numpy as np
+import pandas as pd
+from .base import BaseModel
+from .factory import ModelFactory
+
+@ModelFactory.register('XGBoost')
+class XGBoostModel(BaseModel):
+    """Wrapper for XGBoost model"""
+    
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the model
+        
+        Args:
+            config: Configuration dictionary with model parameters
+        """
+        super().__init__(config)
+        
+        # Extract parameters from config
+        params = config.get('params', {})
+        
+        # Create model with parameters
+        self.model = xgb.XGBClassifier(
+            n_estimators=params.get('n_estimators', 100),
+            max_depth=params.get('max_depth', 3),
+            learning_rate=params.get('learning_rate', 0.1),
+            subsample=params.get('subsample', 0.8),
+            colsample_bytree=params.get('colsample_bytree', 0.8),
+            objective=params.get('objective', 'binary:logistic'),
+            eval_metric=params.get('eval_metric', 'logloss'),
+            random_state=params.get('random_state', 42),
+            **{k: v for k, v in params.items() if k not in ['n_estimators', 'max_depth', 'learning_rate', 'subsample', 'colsample_bytree', 'objective', 'eval_metric', 'random_state']}
+        )
+        
+    def fit(self, X: Union[pd.DataFrame, np.ndarray], 
+             y: Union[pd.Series, np.ndarray]) -> None:
+        """
+        Train the model
+        
+        Args:
+            X: Training features
+            y: Training labels
+        """
+        # Save feature names if X is a DataFrame
+        if isinstance(X, pd.DataFrame):
+            self.feature_names = list(X.columns)
+        
+        # Train the model
+        self.model.fit(X, y)
+        
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """
+        Make predictions
+        
+        Args:
+            X: Features
+            
+        Returns:
+            np.ndarray: Predicted class labels
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+        return self.model.predict(X)
+        
+    def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """
+        Get prediction probabilities
+        
+        Args:
+            X: Features
+            
+        Returns:
+            np.ndarray: Predicted probabilities for positive class
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+        return self.model.predict_proba(X)
+        
+    def get_feature_importance(self) -> Dict[str, float]:
+        """
+        Get feature importance scores
+        
+        Returns:
+            Dict[str, float]: Feature importance scores
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+            
+        if not hasattr(self.model, 'feature_importances_'):
+            return {}
+            
+        # Get feature names
+        feature_names = self.feature_names or [f"feature_{i}" for i in range(len(self.model.feature_importances_))]
+        
+        # Get feature importances
+        importances = self.model.feature_importances_
+        
+        # Return as dictionary
+        return dict(zip(feature_names, importances)) 
+

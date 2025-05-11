@@ -1,3 +1,91 @@
+"""
+Configuration utilities for loading and saving configurations
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiCkNvbmZpZ3VyYXRpb24gdXRpbGl0aWVzIGZvciBsb2FkaW5nIGFuZCBzYXZpbmcgY29uZmlndXJhdGlvbnMKIiIiCgppbXBvcnQgb3MKaW1wb3J0IHlhbWwKaW1wb3J0IGpzb24KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIExpc3QsIEFueSwgT3B0aW9uYWwKCgpkZWYgbG9hZF9jb25maWcoY29uZmlnX3BhdGg6IHN0cikgLT4gRGljdFtzdHIsIEFueV06CiAgICAiIiIKICAgIExvYWQgY29uZmlndXJhdGlvbiBmaWxlCiAgICAKICAgIEFyZ3M6CiAgICAgICAgY29uZmlnX3BhdGggKHN0cik6IFBhdGggdG8gY29uZmlndXJhdGlvbiBmaWxlLCBzdXBwb3J0cyBZQU1MIGFuZCBKU09OCiAgICAKICAgIFJldHVybnM6CiAgICAgICAgRGljdFtzdHIsIEFueV06IENvbmZpZ3VyYXRpb24gZGljdGlvbmFyeQogICAgICAgIAogICAgUmFpc2VzOgogICAgICAgIEZpbGVOb3RGb3VuZEVycm9yOiBJZiBjb25maWd1cmF0aW9uIGZpbGUgaXMgbm90IGZvdW5kCiAgICAgICAgVmFsdWVFcnJvcjogSWYgZmlsZSBmb3JtYXQgaXMgbm90IHN1cHBvcnRlZAogICAgIiIiCiAgICBpZiBub3Qgb3MucGF0aC5leGlzdHMoY29uZmlnX3BhdGgpOgogICAgICAgIHJhaXNlIEZpbGVOb3RGb3VuZEVycm9yKGYiQ29uZmlndXJhdGlvbiBmaWxlIG5vdCBmb3VuZDoge2NvbmZpZ19wYXRofSIpCiAgICAKICAgICMgRGV0ZXJtaW5lIGhvdyB0byBsb2FkIGJhc2VkIG9uIGZpbGUgZXh0ZW5zaW9uCiAgICBfLCBleHQgPSBvcy5wYXRoLnNwbGl0ZXh0KGNvbmZpZ19wYXRoKQogICAgCiAgICBpZiBleHQubG93ZXIoKSBpbiBbJy55YW1sJywgJy55bWwnXToKICAgICAgICB3aXRoIG9wZW4oY29uZmlnX3BhdGgsICdyJywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoKICAgICAgICAgICAgY29uZmlnID0geWFtbC5zYWZlX2xvYWQoZikKICAgIGVsaWYgZXh0Lmxvd2VyKCkgPT0gJy5qc29uJzoKICAgICAgICB3aXRoIG9wZW4oY29uZmlnX3BhdGgsICdyJywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoKICAgICAgICAgICAgY29uZmlnID0ganNvbi5sb2FkKGYpCiAgICBlbHNlOgogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbnN1cHBvcnRlZCBjb25maWd1cmF0aW9uIGZpbGUgZm9ybWF0OiB7ZXh0fSIpCiAgICAKICAgIHJldHVybiBjb25maWcKCgpkZWYgc2F2ZV9jb25maWcoY29uZmlnOiBEaWN0W3N0ciwgQW55XSwgY29uZmlnX3BhdGg6IHN0cikgLT4gTm9uZToKICAgICIiIgogICAgU2F2ZSBjb25maWd1cmF0aW9uIHRvIGZpbGUKICAgIAogICAgQXJnczoKICAgICAgICBjb25maWcgKERpY3Rbc3RyLCBBbnldKTogQ29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5CiAgICAgICAgY29uZmlnX3BhdGggKHN0cik6IFBhdGggdG8gc2F2ZSBjb25maWd1cmF0aW9uIGZpbGUsIHN1cHBvcnRzIFlBTUwgYW5kIEpTT04KICAgICAgICAKICAgIFJhaXNlczoKICAgICAgICBWYWx1ZUVycm9yOiBJZiBmaWxlIGZvcm1hdCBpcyBub3Qgc3VwcG9ydGVkCiAgICAiIiIKICAgICMgQ3JlYXRlIGRpcmVjdG9yeSBpZiBpdCBkb2Vzbid0IGV4aXN0CiAgICBvcy5tYWtlZGlycyhvcy5wYXRoLmRpcm5hbWUob3MucGF0aC5hYnNwYXRoKGNvbmZpZ19wYXRoKSksIGV4aXN0X29rPVRydWUpCiAgICAKICAgICMgRGV0ZXJtaW5lIGhvdyB0byBzYXZlIGJhc2VkIG9uIGZpbGUgZXh0ZW5zaW9uCiAgICBfLCBleHQgPSBvcy5wYXRoLnNwbGl0ZXh0KGNvbmZpZ19wYXRoKQogICAgCiAgICBpZiBleHQubG93ZXIoKSBpbiBbJy55YW1sJywgJy55bWwnXToKICAgICAgICB3aXRoIG9wZW4oY29uZmlnX3BhdGgsICd3JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoKICAgICAgICAgICAgeWFtbC5kdW1wKGNvbmZpZywgZiwgZGVmYXVsdF9mbG93X3N0eWxlPUZhbHNlLCBzb3J0X2tleXM9RmFsc2UpCiAgICBlbGlmIGV4dC5sb3dlcigpID09ICcuanNvbic6CiAgICAgICAgd2l0aCBvcGVuKGNvbmZpZ19wYXRoLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAgICAgIGpzb24uZHVtcChjb25maWcsIGYsIGluZGVudD00KQogICAgZWxzZToKICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiVW5zdXBwb3J0ZWQgY29uZmlndXJhdGlvbiBmaWxlIGZvcm1hdDoge2V4dH0iKQoKCmRlZiB2YWxpZGF0ZV9jb25maWcoY29uZmlnOiBEaWN0W3N0ciwgQW55XSwgcmVxdWlyZWRfa2V5czogT3B0aW9uYWxbTGlzdFtzdHJdXSA9IE5vbmUpIC0+IGJvb2w6CiAgICAiIiIKICAgIFZhbGlkYXRlIGlmIGNvbmZpZ3VyYXRpb24gY29udGFpbnMgcmVxdWlyZWQga2V5cwogICAgCiAgICBBcmdzOgogICAgICAgIGNvbmZpZyAoRGljdFtzdHIsIEFueV0pOiBDb25maWd1cmF0aW9uIGRpY3Rpb25hcnkKICAgICAgICByZXF1aXJlZF9rZXlzIChPcHRpb25hbFtMaXN0W3N0cl1dKTogTGlzdCBvZiByZXF1aXJlZCBrZXlzCiAgICAKICAgIFJldHVybnM6CiAgICAgICAgYm9vbDogV2hldGhlciB0aGUgY29uZmlndXJhdGlvbiBpcyB2YWxpZAogICAgCiAgICBSYWlzZXM6CiAgICAgICAgVmFsdWVFcnJvcjogSWYgcmVxdWlyZWQga2V5cyBhcmUgbWlzc2luZwogICAgIiIiCiAgICBpZiByZXF1aXJlZF9rZXlzIGlzIE5vbmU6CiAgICAgICAgcmV0dXJuIFRydWUKICAgIAogICAgbWlzc2luZ19rZXlzID0gW2tleSBmb3Iga2V5IGluIHJlcXVpcmVkX2tleXMgaWYga2V5IG5vdCBpbiBjb25maWddCiAgICBpZiBtaXNzaW5nX2tleXM6CiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkNvbmZpZ3VyYXRpb24gbWlzc2luZyByZXF1aXJlZCBrZXlzOiB7bWlzc2luZ19rZXlzfSIpCiAgICAKICAgIHJldHVybiBUcnVlIA==').decode())
+import os
+import yaml
+import json
+from typing import Dict, List, Any, Optional
+
+
+def load_config(config_path: str) -> Dict[str, Any]:
+    """
+    Load configuration file
+    
+    Args:
+        config_path (str): Path to configuration file, supports YAML and JSON
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If configuration file is not found
+        ValueError: If file format is not supported
+    """
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    # Determine how to load based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+    elif ext.lower() == '.json':
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+    else:
+        raise ValueError(f"Unsupported configuration file format: {ext}")
+    
+    return config
+
+
+def save_config(config: Dict[str, Any], config_path: str) -> None:
+    """
+    Save configuration to file
+    
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+        config_path (str): Path to save configuration file, supports YAML and JSON
+        
+    Raises:
+        ValueError: If file format is not supported
+    """
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(config_path)), exist_ok=True)
+    
+    # Determine how to save based on file extension
+    _, ext = os.path.splitext(config_path)
+    
+    if ext.lower() in ['.yaml', '.yml']:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    elif ext.lower() == '.json':
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4)
+    else:
+        raise ValueError(f"Unsupported configuration file format: {ext}")
+
+
+def validate_config(config: Dict[str, Any], required_keys: Optional[List[str]] = None) -> bool:
+    """
+    Validate if configuration contains required keys
+    
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+        required_keys (Optional[List[str]]): List of required keys
+    
+    Returns:
+        bool: Whether the configuration is valid
+    
+    Raises:
+        ValueError: If required keys are missing
+    """
+    if required_keys is None:
+        return True
+    
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ValueError(f"Configuration missing required keys: {missing_keys}")
+    
+    return True 

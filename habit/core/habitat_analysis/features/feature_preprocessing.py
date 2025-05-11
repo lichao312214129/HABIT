@@ -1,3 +1,255 @@
+"""
+Feature preprocessing utilities for habitat clustering
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpGZWF0dXJlIHByZXByb2Nlc3NpbmcgdXRpbGl0aWVzIGZvciBoYWJpdGF0IGNsdXN0ZXJpbmcNCiIiIg0KDQppbXBvcnQgbnVtcHkgYXMgbnANCmZyb20gc2tsZWFybi5wcmVwcm9jZXNzaW5nIGltcG9ydCBLQmluc0Rpc2NyZXRpemVyDQpmcm9tIHR5cGluZyBpbXBvcnQgT3B0aW9uYWwsIFVuaW9uLCBMaXRlcmFsLCBMaXN0LCBEaWN0LCBBbnkNCg0KZGVmIHByb2Nlc3NfZmVhdHVyZXNfcGlwZWxpbmUoDQogICAgZmVhdHVyZXM6IG5wLm5kYXJyYXksDQogICAgbWV0aG9kczogTGlzdFtEaWN0W3N0ciwgQW55XV0NCikgLT4gbnAubmRhcnJheToNCiAgICAiIiINCiAgICBBcHBseSBhIHBpcGVsaW5lIG9mIHByZXByb2Nlc3NpbmcgbWV0aG9kcyB0byBmZWF0dXJlcw0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGZlYXR1cmVzIChucC5uZGFycmF5KTogRmVhdHVyZSBtYXRyaXggdG8gcHJlcHJvY2Vzcw0KICAgICAgICBtZXRob2RzIChMaXN0W0RpY3Rbc3RyLCBBbnldXSk6IExpc3Qgb2YgcHJlcHJvY2Vzc2luZyBtZXRob2RzIGNvbmZpZ3MNCiAgICAgICAgICAgIEVhY2ggZGljdCBzaG91bGQgY29udGFpbiBhICdtZXRob2QnIGtleSBhbmQgb3RoZXIgcGFyYW1ldGVycyBmb3IgdGhhdCBtZXRob2QNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBucC5uZGFycmF5OiBQcmVwcm9jZXNzZWQgZmVhdHVyZSBtYXRyaXggYWZ0ZXIgYXBwbHlpbmcgYWxsIG1ldGhvZHMgaW4gc2VxdWVuY2UNCiAgICAiIiINCiAgICBwcm9jZXNzZWRfZmVhdHVyZXMgPSBmZWF0dXJlcy5jb3B5KCkNCiAgICANCiAgICBmb3IgbWV0aG9kX2NvbmZpZyBpbiBtZXRob2RzOg0KICAgICAgICAjIEdldCB0aGUgbWV0aG9kIG5hbWUgYW5kIGNyZWF0ZSBhIGNvcHkgb2YgdGhlIGNvbmZpZw0KICAgICAgICBtZXRob2RfbmFtZSA9IG1ldGhvZF9jb25maWcuZ2V0KCdtZXRob2QnLCAnbWlubWF4JykNCiAgICAgICAgY29uZmlnID0gbWV0aG9kX2NvbmZpZy5jb3B5KCkNCiAgICAgICAgDQogICAgICAgICMgUmVtb3ZlICdtZXRob2QnIGtleSBhcyBpdCdzIHBhc3NlZCBhcyBhIHNlcGFyYXRlIHBhcmFtDQogICAgICAgIGlmICdtZXRob2QnIGluIGNvbmZpZzoNCiAgICAgICAgICAgIGRlbCBjb25maWdbJ21ldGhvZCddDQogICAgICAgICAgICANCiAgICAgICAgIyBBcHBseSB0aGUgcHJlcHJvY2Vzc2luZyBtZXRob2QNCiAgICAgICAgcHJvY2Vzc2VkX2ZlYXR1cmVzID0gcHJlcHJvY2Vzc19mZWF0dXJlcyhwcm9jZXNzZWRfZmVhdHVyZXMsIG1ldGhvZD1tZXRob2RfbmFtZSwgKipjb25maWcpDQogICAgDQogICAgcmV0dXJuIHByb2Nlc3NlZF9mZWF0dXJlcw0KDQpkZWYgcHJlcHJvY2Vzc19mZWF0dXJlcygNCiAgICBmZWF0dXJlczogbnAubmRhcnJheSwNCiAgICBtZXRob2Q6IExpdGVyYWxbJ21pbm1heCcsICd6c2NvcmUnLCAncm9idXN0JywgJ2Jpbm5pbmcnLCAnZ2xvYmFsX21pbm1heCcsICdnbG9iYWxfenNjb3JlJywgJ3dpbnNvcml6ZScsICdsb2cnXSA9ICdtaW5tYXgnLA0KICAgIGJpbl9jb3VudDogaW50ID0gMTAsDQogICAgYmluX3N0cmF0ZWd5OiBzdHIgPSAndW5pZm9ybScsDQogICAgZ2xvYmFsX25vcm1hbGl6ZTogYm9vbCA9IEZhbHNlLA0KICAgIHdpbnNvcl9saW1pdHM6IHR1cGxlID0gKDAuMDUsIDAuMDUpLA0KICAgIGRpc2NyZXRpemVyOiBPcHRpb25hbFtLQmluc0Rpc2NyZXRpemVyXSA9IE5vbmUsDQogICAgbWV0aG9kczogT3B0aW9uYWxbTGlzdFtEaWN0W3N0ciwgQW55XV1dID0gTm9uZQ0KKSAtPiBucC5uZGFycmF5Og0KICAgICIiIg0KICAgIFByZXByb2Nlc3MgZmVhdHVyZXMgdXNpbmcgc3BlY2lmaWVkIG1ldGhvZCBvciBtZXRob2QgcGlwZWxpbmUNCiAgICANCiAgICBBcmdzOg0KICAgICAgICBmZWF0dXJlcyAobnAubmRhcnJheSk6IEZlYXR1cmUgbWF0cml4IHRvIHByZXByb2Nlc3MNCiAgICAgICAgbWV0aG9kIChzdHIpOiBQcmVwcm9jZXNzaW5nIG1ldGhvZA0KICAgICAgICAgICAgLSAnbWlubWF4JzogTWluLU1heCBzY2FsaW5nIHRvIFswLCAxXQ0KICAgICAgICAgICAgLSAnenNjb3JlJzogWi1zY29yZSBzdGFuZGFyZGl6YXRpb24NCiAgICAgICAgICAgIC0gJ3JvYnVzdCc6IFJvYnVzdCBzY2FsaW5nIHVzaW5nIElRUg0KICAgICAgICAgICAgLSAnYmlubmluZyc6IERpc2NyZXRpemUgZmVhdHVyZXMgaW50byBiaW5zDQogICAgICAgICAgICAtICdnbG9iYWxfbWlubWF4JzogR2xvYmFsIE1pbi1NYXggc2NhbGluZyBhY3Jvc3MgYWxsIGZlYXR1cmVzDQogICAgICAgICAgICAtICdnbG9iYWxfenNjb3JlJzogR2xvYmFsIFotc2NvcmUgc3RhbmRhcmRpemF0aW9uIGFjcm9zcyBhbGwgZmVhdHVyZXMNCiAgICAgICAgICAgIC0gJ3dpbnNvcml6ZSc6IExpbWl0IGV4dHJlbWUgdmFsdWVzIHRvIHNwZWNpZmllZCBwZXJjZW50aWxlcw0KICAgICAgICAgICAgLSAnbG9nJzogQXBwbHkgbG9nIHRyYW5zZm9ybWF0aW9uIChsb2coeCArIDEpKQ0KICAgICAgICBiaW5fY291bnQgKGludCk6IE51bWJlciBvZiBiaW5zIGZvciBiaW5uaW5nIG1ldGhvZA0KICAgICAgICBiaW5fc3RyYXRlZ3kgKHN0cik6IFN0cmF0ZWd5IGZvciBiaW5uaW5nICgndW5pZm9ybScsICdxdWFudGlsZScsICdrbWVhbnMnKQ0KICAgICAgICBnbG9iYWxfbm9ybWFsaXplIChib29sKTogV2hldGhlciB0byBub3JtYWxpemUgYWNyb3NzIGFsbCBmZWF0dXJlcw0KICAgICAgICB3aW5zb3JfbGltaXRzICh0dXBsZSk6IExvd2VyIGFuZCB1cHBlciBwZXJjZW50aWxlcyBmb3Igd2luc29yaXppbmcNCiAgICAgICAgZGlzY3JldGl6ZXIgKEtCaW5zRGlzY3JldGl6ZXIsIG9wdGlvbmFsKTogUHJlLWluaXRpYWxpemVkIGRpc2NyZXRpemVyIGZvciBiaW5uaW5nDQogICAgICAgIG1ldGhvZHMgKExpc3RbRGljdFtzdHIsIEFueV1dLCBvcHRpb25hbCk6IExpc3Qgb2YgcHJlcHJvY2Vzc2luZyBtZXRob2RzIHRvIGFwcGx5IGluIHNlcXVlbmNlDQogICAgICAgICAgICBJZiBwcm92aWRlZCwgdGhpcyBvdmVycmlkZXMgdGhlICdtZXRob2QnIHBhcmFtZXRlciBhbmQgYXBwbGllcyBtdWx0aXBsZSBtZXRob2RzDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIG5wLm5kYXJyYXk6IFByZXByb2Nlc3NlZCBmZWF0dXJlIG1hdHJpeA0KICAgICIiIg0KICAgICMgSWYgbWV0aG9kcyBsaXN0IGlzIHByb3ZpZGVkLCB1c2UgcGlwZWxpbmUgcHJvY2Vzc2luZw0KICAgIGlmIG1ldGhvZHMgaXMgbm90IE5vbmU6DQogICAgICAgIHJldHVybiBwcm9jZXNzX2ZlYXR1cmVzX3BpcGVsaW5lKGZlYXR1cmVzLCBtZXRob2RzKQ0KICAgIA0KICAgICMgSGFuZGxlIE5hTiBhbmQgaW5maW5pdGUgdmFsdWVzIGJlZm9yZSBwcmVwcm9jZXNzaW5nDQogICAgZmVhdHVyZXMgPSBoYW5kbGVfZXh0cmVtZV92YWx1ZXMoZmVhdHVyZXMpDQogICAgDQogICAgaWYgbWV0aG9kID09ICdtaW5tYXgnOg0KICAgICAgICBpZiBnbG9iYWxfbm9ybWFsaXplOg0KICAgICAgICAgICAgIyBHbG9iYWwgTWluLU1heCBzY2FsaW5nIGFjcm9zcyBhbGwgZmVhdHVyZXMNCiAgICAgICAgICAgIG1pbl92YWwgPSBucC5taW4oZmVhdHVyZXMpDQogICAgICAgICAgICBtYXhfdmFsID0gbnAubWF4KGZlYXR1cmVzKQ0KICAgICAgICAgICAgcmV0dXJuIChmZWF0dXJlcyAtIG1pbl92YWwpIC8gKG1heF92YWwgLSBtaW5fdmFsICsgMWUtNikNCiAgICAgICAgZWxzZToNCiAgICAgICAgICAgICMgUGVyLWZlYXR1cmUgTWluLU1heCBzY2FsaW5nDQogICAgICAgICAgICBtaW5fdmFscyA9IG5wLm1pbihmZWF0dXJlcywgYXhpcz0wKQ0KICAgICAgICAgICAgbWF4X3ZhbHMgPSBucC5tYXgoZmVhdHVyZXMsIGF4aXM9MCkNCiAgICAgICAgICAgIHJldHVybiAoZmVhdHVyZXMgLSBtaW5fdmFscykgLyAobWF4X3ZhbHMgLSBtaW5fdmFscyArIDFlLTYpDQogICAgICAgIA0KICAgIGVsaWYgbWV0aG9kID09ICd6c2NvcmUnOg0KICAgICAgICBpZiBnbG9iYWxfbm9ybWFsaXplOg0KICAgICAgICAgICAgIyBHbG9iYWwgWi1zY29yZSBzdGFuZGFyZGl6YXRpb24NCiAgICAgICAgICAgIG1lYW4gPSBucC5tZWFuKGZlYXR1cmVzKQ0KICAgICAgICAgICAgc3RkID0gbnAuc3RkKGZlYXR1cmVzKQ0KICAgICAgICAgICAgcmV0dXJuIChmZWF0dXJlcyAtIG1lYW4pIC8gKHN0ZCArIDFlLTYpDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICAjIFBlci1mZWF0dXJlIFotc2NvcmUgc3RhbmRhcmRpemF0aW9uDQogICAgICAgICAgICBtZWFuID0gbnAubWVhbihmZWF0dXJlcywgYXhpcz0wKQ0KICAgICAgICAgICAgc3RkID0gbnAuc3RkKGZlYXR1cmVzLCBheGlzPTApDQogICAgICAgICAgICByZXR1cm4gKGZlYXR1cmVzIC0gbWVhbikgLyAoc3RkICsgMWUtNikNCiAgICAgICAgDQogICAgZWxpZiBtZXRob2QgPT0gJ3JvYnVzdCc6DQogICAgICAgIGlmIGdsb2JhbF9ub3JtYWxpemU6DQogICAgICAgICAgICAjIEdsb2JhbCByb2J1c3Qgc2NhbGluZyB1c2luZyBJUVINCiAgICAgICAgICAgIHExID0gbnAucGVyY2VudGlsZShmZWF0dXJlcy5mbGF0dGVuKCksIDI1KQ0KICAgICAgICAgICAgcTMgPSBucC5wZXJjZW50aWxlKGZlYXR1cmVzLmZsYXR0ZW4oKSwgNzUpDQogICAgICAgICAgICBpcXIgPSBxMyAtIHExDQogICAgICAgICAgICBtZWRpYW4gPSBucC5tZWRpYW4oZmVhdHVyZXMuZmxhdHRlbigpKQ0KICAgICAgICAgICAgcmV0dXJuIChmZWF0dXJlcyAtIG1lZGlhbikgLyAoaXFyICsgMWUtNikNCiAgICAgICAgZWxzZToNCiAgICAgICAgICAgICMgUGVyLWZlYXR1cmUgcm9idXN0IHNjYWxpbmcgdXNpbmcgSVFSDQogICAgICAgICAgICBxMSA9IG5wLnBlcmNlbnRpbGUoZmVhdHVyZXMsIDI1LCBheGlzPTApDQogICAgICAgICAgICBxMyA9IG5wLnBlcmNlbnRpbGUoZmVhdHVyZXMsIDc1LCBheGlzPTApDQogICAgICAgICAgICBpcXIgPSBxMyAtIHExDQogICAgICAgICAgICBtZWRpYW4gPSBucC5tZWRpYW4oZmVhdHVyZXMsIGF4aXM9MCkNCiAgICAgICAgICAgIHJldHVybiAoZmVhdHVyZXMgLSBtZWRpYW4pIC8gKGlxciArIDFlLTYpDQogICAgICAgIA0KICAgIGVsaWYgbWV0aG9kID09ICdiaW5uaW5nJzoNCiAgICAgICAgaWYgZ2xvYmFsX25vcm1hbGl6ZToNCiAgICAgICAgICAgICMgR2xvYmFsIGJpbm5pbmcgLSBmbGF0dGVuLCBiaW4sIGFuZCByZXNoYXBlDQogICAgICAgICAgICBvcmlnaW5hbF9zaGFwZSA9IGZlYXR1cmVzLnNoYXBlDQogICAgICAgICAgICBmbGF0dGVuZWQgPSBmZWF0dXJlcy5mbGF0dGVuKCkucmVzaGFwZSgtMSwgMSkNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgaWYgZGlzY3JldGl6ZXIgaXMgTm9uZToNCiAgICAgICAgICAgICAgICBkaXNjcmV0aXplciA9IEtCaW5zRGlzY3JldGl6ZXIoDQogICAgICAgICAgICAgICAgICAgIG5fYmlucz1iaW5fY291bnQsDQogICAgICAgICAgICAgICAgICAgIGVuY29kZT0nb3JkaW5hbCcsICAjIFJldHVybiBiaW4gaW5kaWNlcw0KICAgICAgICAgICAgICAgICAgICBzdHJhdGVneT1iaW5fc3RyYXRlZ3kNCiAgICAgICAgICAgICAgICApDQogICAgICAgICAgICAgICAgYmlubmVkX2ZsYXR0ZW5lZCA9IGRpc2NyZXRpemVyLmZpdF90cmFuc2Zvcm0oZmxhdHRlbmVkKQ0KICAgICAgICAgICAgZWxzZToNCiAgICAgICAgICAgICAgICBiaW5uZWRfZmxhdHRlbmVkID0gZGlzY3JldGl6ZXIudHJhbnNmb3JtKGZsYXR0ZW5lZCkNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBSZXNoYXBlIGJhY2sgdG8gb3JpZ2luYWwgZGltZW5zaW9ucw0KICAgICAgICAgICAgYmlubmVkX2ZlYXR1cmVzID0gYmlubmVkX2ZsYXR0ZW5lZC5yZXNoYXBlKG9yaWdpbmFsX3NoYXBlKQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgIyBQZXItZmVhdHVyZSBiaW5uaW5nDQogICAgICAgICAgICBpZiBkaXNjcmV0aXplciBpcyBOb25lOg0KICAgICAgICAgICAgICAgIGRpc2NyZXRpemVyID0gS0JpbnNEaXNjcmV0aXplcigNCiAgICAgICAgICAgICAgICAgICAgbl9iaW5zPWJpbl9jb3VudCwNCiAgICAgICAgICAgICAgICAgICAgZW5jb2RlPSdvcmRpbmFsJywgICMgUmV0dXJuIGJpbiBpbmRpY2VzDQogICAgICAgICAgICAgICAgICAgIHN0cmF0ZWd5PWJpbl9zdHJhdGVneQ0KICAgICAgICAgICAgICAgICkNCiAgICAgICAgICAgICAgICBiaW5uZWRfZmVhdHVyZXMgPSBkaXNjcmV0aXplci5maXRfdHJhbnNmb3JtKGZlYXR1cmVzKQ0KICAgICAgICAgICAgZWxzZToNCiAgICAgICAgICAgICAgICBiaW5uZWRfZmVhdHVyZXMgPSBkaXNjcmV0aXplci50cmFuc2Zvcm0oZmVhdHVyZXMpDQogICAgICAgICAgICANCiAgICAgICAgIyBOb3JtYWxpemUgdG8gWzAsIDFdIHJhbmdlDQogICAgICAgIHJldHVybiBiaW5uZWRfZmVhdHVyZXMgLyAoYmluX2NvdW50IC0gMSkNCiAgICANCiAgICBlbGlmIG1ldGhvZCA9PSAnd2luc29yaXplJzoNCiAgICAgICAgaWYgZ2xvYmFsX25vcm1hbGl6ZToNCiAgICAgICAgICAgICMgR2xvYmFsIHdpbnNvcml6YXRpb24NCiAgICAgICAgICAgIGZsYXR0ZW5lZCA9IGZlYXR1cmVzLmZsYXR0ZW4oKQ0KICAgICAgICAgICAgbG93ZXIgPSBucC5wZXJjZW50aWxlKGZsYXR0ZW5lZCwgd2luc29yX2xpbWl0c1swXSAqIDEwMCkNCiAgICAgICAgICAgIHVwcGVyID0gbnAucGVyY2VudGlsZShmbGF0dGVuZWQsICgxIC0gd2luc29yX2xpbWl0c1sxXSkgKiAxMDApDQogICAgICAgICAgICByZXR1cm4gbnAuY2xpcChmZWF0dXJlcywgbG93ZXIsIHVwcGVyKQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgIyBQZXItZmVhdHVyZSB3aW5zb3JpemF0aW9uDQogICAgICAgICAgICBsb3dlciA9IG5wLnBlcmNlbnRpbGUoZmVhdHVyZXMsIHdpbnNvcl9saW1pdHNbMF0gKiAxMDAsIGF4aXM9MCkNCiAgICAgICAgICAgIHVwcGVyID0gbnAucGVyY2VudGlsZShmZWF0dXJlcywgKDEgLSB3aW5zb3JfbGltaXRzWzFdKSAqIDEwMCwgYXhpcz0wKQ0KICAgICAgICAgICAgcmV0dXJuIG5wLmNsaXAoZmVhdHVyZXMsIGxvd2VyLCB1cHBlcikNCiAgICANCiAgICBlbGlmIG1ldGhvZCA9PSAnbG9nJzoNCiAgICAgICAgaWYgZ2xvYmFsX25vcm1hbGl6ZToNCiAgICAgICAgICAgICMgR2xvYmFsIGxvZyB0cmFuc2Zvcm1hdGlvbg0KICAgICAgICAgICAgbWluX3ZhbCA9IG5wLm1pbihmZWF0dXJlcykNCiAgICAgICAgICAgIHNoaWZ0ZWRfZmVhdHVyZXMgPSBmZWF0dXJlcyAtIG1pbl92YWwgKyAxLjAgICMgRW5zdXJlIGFsbCB2YWx1ZXMgPiAwDQogICAgICAgICAgICByZXR1cm4gbnAubG9nKHNoaWZ0ZWRfZmVhdHVyZXMpDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICAjIFBlci1mZWF0dXJlIGxvZyB0cmFuc2Zvcm1hdGlvbg0KICAgICAgICAgICAgbWluX3ZhbHMgPSBucC5taW4oZmVhdHVyZXMsIGF4aXM9MCkNCiAgICAgICAgICAgIHNoaWZ0ZWRfZmVhdHVyZXMgPSBmZWF0dXJlcyAtIG1pbl92YWxzICsgMS4wICAjIEVuc3VyZSBhbGwgdmFsdWVzID4gMA0KICAgICAgICAgICAgcmV0dXJuIG5wLmxvZyhzaGlmdGVkX2ZlYXR1cmVzKQ0KICAgIA0KICAgIGVsc2U6DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbmtub3duIHByZXByb2Nlc3NpbmcgbWV0aG9kOiB7bWV0aG9kfSIpDQoNCmRlZiBoYW5kbGVfZXh0cmVtZV92YWx1ZXMoZmVhdHVyZXM6IG5wLm5kYXJyYXksIHN0cmF0ZWd5OiBzdHIgPSAnbWVhbl9yZXBsYWNlbWVudCcpIC0+IG5wLm5kYXJyYXk6DQogICAgIiIiDQogICAgSGFuZGxlIGV4dHJlbWUgdmFsdWVzIGluIGZlYXR1cmUgbWF0cml4DQogICAgDQogICAgQXJnczoNCiAgICAgICAgZmVhdHVyZXMgKG5wLm5kYXJyYXkpOiBGZWF0dXJlIG1hdHJpeA0KICAgICAgICBzdHJhdGVneSAoc3RyKTogU3RyYXRlZ3kgZm9yIGhhbmRsaW5nIGV4dHJlbWUgdmFsdWVzDQogICAgICAgICAgICAtICdtZWFuX3JlcGxhY2VtZW50JzogUmVwbGFjZSBpbmYvbmFuIHdpdGggY29sdW1uIG1lYW4NCiAgICAgICAgICAgIC0gJ21lZGlhbl9yZXBsYWNlbWVudCc6IFJlcGxhY2UgaW5mL25hbiB3aXRoIGNvbHVtbiBtZWRpYW4NCiAgICAgICAgICAgIC0gJ2NvbnN0YW50JzogUmVwbGFjZSBpbmYvbmFuIHdpdGggc3BlY2lmaWVkIGNvbnN0YW50DQogICAgICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBucC5uZGFycmF5OiBGZWF0dXJlIG1hdHJpeCB3aXRoIGV4dHJlbWUgdmFsdWVzIGhhbmRsZWQNCiAgICAiIiINCiAgICAjIENyZWF0ZSBhIGNvcHkgdG8gYXZvaWQgbW9kaWZ5aW5nIHRoZSBvcmlnaW5hbA0KICAgIGZlYXR1cmVzX2NsZWFuID0gZmVhdHVyZXMuY29weSgpDQogICAgDQogICAgIyBIYW5kbGUgaW5maW5pdHkNCiAgICBpZiBucC5hbnkobnAuaXNpbmYoZmVhdHVyZXNfY2xlYW4pKToNCiAgICAgICAgZm9yIGNvbCBpbiByYW5nZShmZWF0dXJlc19jbGVhbi5zaGFwZVsxXSk6DQogICAgICAgICAgICBjb2xfZGF0YSA9IGZlYXR1cmVzX2NsZWFuWzosIGNvbF0NCiAgICAgICAgICAgIG1hc2tfaW5mID0gbnAuaXNpbmYoY29sX2RhdGEpDQogICAgICAgICAgICANCiAgICAgICAgICAgIGlmIG5wLmFsbChtYXNrX2luZik6ICAjIElmIGFsbCB2YWx1ZXMgYXJlIGluZiwgcmVwbGFjZSB3aXRoIDANCiAgICAgICAgICAgICAgICBmZWF0dXJlc19jbGVhbls6LCBjb2xdID0gMA0KICAgICAgICAgICAgZWxpZiBucC5hbnkobWFza19pbmYpOg0KICAgICAgICAgICAgICAgIHZhbGlkX2RhdGEgPSBjb2xfZGF0YVt+bWFza19pbmZdDQogICAgICAgICAgICAgICAgaWYgc3RyYXRlZ3kgPT0gJ21lYW5fcmVwbGFjZW1lbnQnOg0KICAgICAgICAgICAgICAgICAgICByZXBsYWNlX3ZhbHVlID0gbnAubWVhbih2YWxpZF9kYXRhKQ0KICAgICAgICAgICAgICAgIGVsaWYgc3RyYXRlZ3kgPT0gJ21lZGlhbl9yZXBsYWNlbWVudCc6DQogICAgICAgICAgICAgICAgICAgIHJlcGxhY2VfdmFsdWUgPSBucC5tZWRpYW4odmFsaWRfZGF0YSkNCiAgICAgICAgICAgICAgICBlbHNlOiAgIyBEZWZhdWx0IHRvIDANCiAgICAgICAgICAgICAgICAgICAgcmVwbGFjZV92YWx1ZSA9IDANCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgZmVhdHVyZXNfY2xlYW5bbWFza19pbmYsIGNvbF0gPSByZXBsYWNlX3ZhbHVlDQogICAgDQogICAgIyBIYW5kbGUgTmFOIHZhbHVlcw0KICAgIGlmIG5wLmFueShucC5pc25hbihmZWF0dXJlc19jbGVhbikpOg0KICAgICAgICBmb3IgY29sIGluIHJhbmdlKGZlYXR1cmVzX2NsZWFuLnNoYXBlWzFdKToNCiAgICAgICAgICAgIGNvbF9kYXRhID0gZmVhdHVyZXNfY2xlYW5bOiwgY29sXQ0KICAgICAgICAgICAgbWFza19uYW4gPSBucC5pc25hbihjb2xfZGF0YSkNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgaWYgbnAuYWxsKG1hc2tfbmFuKTogICMgSWYgYWxsIHZhbHVlcyBhcmUgTmFOLCByZXBsYWNlIHdpdGggMA0KICAgICAgICAgICAgICAgIGZlYXR1cmVzX2NsZWFuWzosIGNvbF0gPSAwDQogICAgICAgICAgICBlbGlmIG5wLmFueShtYXNrX25hbik6DQogICAgICAgICAgICAgICAgdmFsaWRfZGF0YSA9IGNvbF9kYXRhW35tYXNrX25hbl0NCiAgICAgICAgICAgICAgICBpZiBzdHJhdGVneSA9PSAnbWVhbl9yZXBsYWNlbWVudCc6DQogICAgICAgICAgICAgICAgICAgIHJlcGxhY2VfdmFsdWUgPSBucC5tZWFuKHZhbGlkX2RhdGEpDQogICAgICAgICAgICAgICAgZWxpZiBzdHJhdGVneSA9PSAnbWVkaWFuX3JlcGxhY2VtZW50JzoNCiAgICAgICAgICAgICAgICAgICAgcmVwbGFjZV92YWx1ZSA9IG5wLm1lZGlhbih2YWxpZF9kYXRhKQ0KICAgICAgICAgICAgICAgIGVsc2U6ICAjIERlZmF1bHQgdG8gMA0KICAgICAgICAgICAgICAgICAgICByZXBsYWNlX3ZhbHVlID0gMA0KICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBmZWF0dXJlc19jbGVhblttYXNrX25hbiwgY29sXSA9IHJlcGxhY2VfdmFsdWUNCiAgICANCiAgICByZXR1cm4gZmVhdHVyZXNfY2xlYW4NCg0KZGVmIGNyZWF0ZV9kaXNjcmV0aXplcihiaW5fY291bnQ6IGludCA9IDEwLCBiaW5fc3RyYXRlZ3k6IHN0ciA9ICd1bmlmb3JtJykgLT4gS0JpbnNEaXNjcmV0aXplcjoNCiAgICAiIiINCiAgICBDcmVhdGUgYSBLQmluc0Rpc2NyZXRpemVyIGZvciBmZWF0dXJlIGJpbm5pbmcNCiAgICANCiAgICBBcmdzOg0KICAgICAgICBiaW5fY291bnQgKGludCk6IE51bWJlciBvZiBiaW5zDQogICAgICAgIGJpbl9zdHJhdGVneSAoc3RyKTogQmlubmluZyBzdHJhdGVneSAoJ3VuaWZvcm0nLCAncXVhbnRpbGUnLCAna21lYW5zJykNCiAgICAgICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgS0JpbnNEaXNjcmV0aXplcjogQ29uZmlndXJlZCBkaXNjcmV0aXplcg0KICAgICIiIg0KICAgIHJldHVybiBLQmluc0Rpc2NyZXRpemVyKA0KICAgICAgICBuX2JpbnM9YmluX2NvdW50LA0KICAgICAgICBlbmNvZGU9J29yZGluYWwnLCAgIyBSZXR1cm4gYmluIGluZGljZXMNCiAgICAgICAgc3RyYXRlZ3k9YmluX3N0cmF0ZWd5DQogICAgKSA=').decode())
+import numpy as np
+from sklearn.preprocessing import KBinsDiscretizer
+from typing import Optional, Union, Literal, List, Dict, Any
+
+def process_features_pipeline(
+    features: np.ndarray,
+    methods: List[Dict[str, Any]]
+) -> np.ndarray:
+    """
+    Apply a pipeline of preprocessing methods to features
+    
+    Args:
+        features (np.ndarray): Feature matrix to preprocess
+        methods (List[Dict[str, Any]]): List of preprocessing methods configs
+            Each dict should contain a 'method' key and other parameters for that method
+    
+    Returns:
+        np.ndarray: Preprocessed feature matrix after applying all methods in sequence
+    """
+    processed_features = features.copy()
+    
+    for method_config in methods:
+        # Get the method name and create a copy of the config
+        method_name = method_config.get('method', 'minmax')
+        config = method_config.copy()
+        
+        # Remove 'method' key as it's passed as a separate param
+        if 'method' in config:
+            del config['method']
+            
+        # Apply the preprocessing method
+        processed_features = preprocess_features(processed_features, method=method_name, **config)
+    
+    return processed_features
+
+def preprocess_features(
+    features: np.ndarray,
+    method: Literal['minmax', 'zscore', 'robust', 'binning', 'global_minmax', 'global_zscore', 'winsorize', 'log'] = 'minmax',
+    bin_count: int = 10,
+    bin_strategy: str = 'uniform',
+    global_normalize: bool = False,
+    winsor_limits: tuple = (0.05, 0.05),
+    discretizer: Optional[KBinsDiscretizer] = None,
+    methods: Optional[List[Dict[str, Any]]] = None
+) -> np.ndarray:
+    """
+    Preprocess features using specified method or method pipeline
+    
+    Args:
+        features (np.ndarray): Feature matrix to preprocess
+        method (str): Preprocessing method
+            - 'minmax': Min-Max scaling to [0, 1]
+            - 'zscore': Z-score standardization
+            - 'robust': Robust scaling using IQR
+            - 'binning': Discretize features into bins
+            - 'global_minmax': Global Min-Max scaling across all features
+            - 'global_zscore': Global Z-score standardization across all features
+            - 'winsorize': Limit extreme values to specified percentiles
+            - 'log': Apply log transformation (log(x + 1))
+        bin_count (int): Number of bins for binning method
+        bin_strategy (str): Strategy for binning ('uniform', 'quantile', 'kmeans')
+        global_normalize (bool): Whether to normalize across all features
+        winsor_limits (tuple): Lower and upper percentiles for winsorizing
+        discretizer (KBinsDiscretizer, optional): Pre-initialized discretizer for binning
+        methods (List[Dict[str, Any]], optional): List of preprocessing methods to apply in sequence
+            If provided, this overrides the 'method' parameter and applies multiple methods
+        
+    Returns:
+        np.ndarray: Preprocessed feature matrix
+    """
+    # If methods list is provided, use pipeline processing
+    if methods is not None:
+        return process_features_pipeline(features, methods)
+    
+    # Handle NaN and infinite values before preprocessing
+    features = handle_extreme_values(features)
+    
+    if method == 'minmax':
+        if global_normalize:
+            # Global Min-Max scaling across all features
+            min_val = np.min(features)
+            max_val = np.max(features)
+            return (features - min_val) / (max_val - min_val + 1e-6)
+        else:
+            # Per-feature Min-Max scaling
+            min_vals = np.min(features, axis=0)
+            max_vals = np.max(features, axis=0)
+            return (features - min_vals) / (max_vals - min_vals + 1e-6)
+        
+    elif method == 'zscore':
+        if global_normalize:
+            # Global Z-score standardization
+            mean = np.mean(features)
+            std = np.std(features)
+            return (features - mean) / (std + 1e-6)
+        else:
+            # Per-feature Z-score standardization
+            mean = np.mean(features, axis=0)
+            std = np.std(features, axis=0)
+            return (features - mean) / (std + 1e-6)
+        
+    elif method == 'robust':
+        if global_normalize:
+            # Global robust scaling using IQR
+            q1 = np.percentile(features.flatten(), 25)
+            q3 = np.percentile(features.flatten(), 75)
+            iqr = q3 - q1
+            median = np.median(features.flatten())
+            return (features - median) / (iqr + 1e-6)
+        else:
+            # Per-feature robust scaling using IQR
+            q1 = np.percentile(features, 25, axis=0)
+            q3 = np.percentile(features, 75, axis=0)
+            iqr = q3 - q1
+            median = np.median(features, axis=0)
+            return (features - median) / (iqr + 1e-6)
+        
+    elif method == 'binning':
+        if global_normalize:
+            # Global binning - flatten, bin, and reshape
+            original_shape = features.shape
+            flattened = features.flatten().reshape(-1, 1)
+            
+            if discretizer is None:
+                discretizer = KBinsDiscretizer(
+                    n_bins=bin_count,
+                    encode='ordinal',  # Return bin indices
+                    strategy=bin_strategy
+                )
+                binned_flattened = discretizer.fit_transform(flattened)
+            else:
+                binned_flattened = discretizer.transform(flattened)
+            
+            # Reshape back to original dimensions
+            binned_features = binned_flattened.reshape(original_shape)
+        else:
+            # Per-feature binning
+            if discretizer is None:
+                discretizer = KBinsDiscretizer(
+                    n_bins=bin_count,
+                    encode='ordinal',  # Return bin indices
+                    strategy=bin_strategy
+                )
+                binned_features = discretizer.fit_transform(features)
+            else:
+                binned_features = discretizer.transform(features)
+            
+        # Normalize to [0, 1] range
+        return binned_features / (bin_count - 1)
+    
+    elif method == 'winsorize':
+        if global_normalize:
+            # Global winsorization
+            flattened = features.flatten()
+            lower = np.percentile(flattened, winsor_limits[0] * 100)
+            upper = np.percentile(flattened, (1 - winsor_limits[1]) * 100)
+            return np.clip(features, lower, upper)
+        else:
+            # Per-feature winsorization
+            lower = np.percentile(features, winsor_limits[0] * 100, axis=0)
+            upper = np.percentile(features, (1 - winsor_limits[1]) * 100, axis=0)
+            return np.clip(features, lower, upper)
+    
+    elif method == 'log':
+        if global_normalize:
+            # Global log transformation
+            min_val = np.min(features)
+            shifted_features = features - min_val + 1.0  # Ensure all values > 0
+            return np.log(shifted_features)
+        else:
+            # Per-feature log transformation
+            min_vals = np.min(features, axis=0)
+            shifted_features = features - min_vals + 1.0  # Ensure all values > 0
+            return np.log(shifted_features)
+    
+    else:
+        raise ValueError(f"Unknown preprocessing method: {method}")
+
+def handle_extreme_values(features: np.ndarray, strategy: str = 'mean_replacement') -> np.ndarray:
+    """
+    Handle extreme values in feature matrix
+    
+    Args:
+        features (np.ndarray): Feature matrix
+        strategy (str): Strategy for handling extreme values
+            - 'mean_replacement': Replace inf/nan with column mean
+            - 'median_replacement': Replace inf/nan with column median
+            - 'constant': Replace inf/nan with specified constant
+            
+    Returns:
+        np.ndarray: Feature matrix with extreme values handled
+    """
+    # Create a copy to avoid modifying the original
+    features_clean = features.copy()
+    
+    # Handle infinity
+    if np.any(np.isinf(features_clean)):
+        for col in range(features_clean.shape[1]):
+            col_data = features_clean[:, col]
+            mask_inf = np.isinf(col_data)
+            
+            if np.all(mask_inf):  # If all values are inf, replace with 0
+                features_clean[:, col] = 0
+            elif np.any(mask_inf):
+                valid_data = col_data[~mask_inf]
+                if strategy == 'mean_replacement':
+                    replace_value = np.mean(valid_data)
+                elif strategy == 'median_replacement':
+                    replace_value = np.median(valid_data)
+                else:  # Default to 0
+                    replace_value = 0
+                    
+                features_clean[mask_inf, col] = replace_value
+    
+    # Handle NaN values
+    if np.any(np.isnan(features_clean)):
+        for col in range(features_clean.shape[1]):
+            col_data = features_clean[:, col]
+            mask_nan = np.isnan(col_data)
+            
+            if np.all(mask_nan):  # If all values are NaN, replace with 0
+                features_clean[:, col] = 0
+            elif np.any(mask_nan):
+                valid_data = col_data[~mask_nan]
+                if strategy == 'mean_replacement':
+                    replace_value = np.mean(valid_data)
+                elif strategy == 'median_replacement':
+                    replace_value = np.median(valid_data)
+                else:  # Default to 0
+                    replace_value = 0
+                    
+                features_clean[mask_nan, col] = replace_value
+    
+    return features_clean
+
+def create_discretizer(bin_count: int = 10, bin_strategy: str = 'uniform') -> KBinsDiscretizer:
+    """
+    Create a KBinsDiscretizer for feature binning
+    
+    Args:
+        bin_count (int): Number of bins
+        bin_strategy (str): Binning strategy ('uniform', 'quantile', 'kmeans')
+        
+    Returns:
+        KBinsDiscretizer: Configured discretizer
+    """
+    return KBinsDiscretizer(
+        n_bins=bin_count,
+        encode='ordinal',  # Return bin indices
+        strategy=bin_strategy
+    ) 

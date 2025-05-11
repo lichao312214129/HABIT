@@ -1,3 +1,8 @@
+"""
+Habitat Analysis module for HABIT package.
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpIYWJpdGF0IEFuYWx5c2lzIG1vZHVsZSBmb3IgSEFCSVQgcGFja2FnZS4NCiIiIg0KDQpmcm9tIC5oYWJpdGF0X2FuYWx5c2lzIGltcG9ydCBIYWJpdGF0QW5hbHlzaXMNCmZyb20gLmZlYXR1cmVfZXh0cmFjdGlvbiBpbXBvcnQgSGFiaXRhdEZlYXR1cmVFeHRyYWN0b3INCg0KX19hbGxfXyA9IFsiSGFiaXRhdEFuYWx5c2lzIiwgIkhhYml0YXRGZWF0dXJlRXh0cmFjdG9yIl0NCg==').decode())
+from .habitat_analysis import HabitatAnalysis
+from .feature_extraction import HabitatFeatureExtractor
+
+__all__ = ["HabitatAnalysis", "HabitatFeatureExtractor"]

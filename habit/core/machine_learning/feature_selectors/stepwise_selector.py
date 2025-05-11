@@ -1,3 +1,219 @@
+"""
+Stepwise Regression Feature Selector
 
-import base64
-exec(base64.b64decode(b'IiIiClN0ZXB3aXNlIFJlZ3Jlc3Npb24gRmVhdHVyZSBTZWxlY3RvcgoKVXNlcyBmb3J3YXJkLCBiYWNrd2FyZCwgb3Igc3RlcHdpc2UgKGJpZGlyZWN0aW9uYWwpIGxvZ2lzdGljIHJlZ3Jlc3Npb24gZm9yIGZlYXR1cmUgc2VsZWN0aW9uCiIiIgppbXBvcnQgb3MKaW1wb3J0IHBhbmRhcyBhcyBwZAppbXBvcnQgbnVtcHkgYXMgbnAKaW1wb3J0IG1hdHBsb3RsaWIucHlwbG90IGFzIHBsdApmcm9tIHR5cGluZyBpbXBvcnQgTGlzdCwgT3B0aW9uYWwsIFR1cGxlLCBEaWN0LCBVbmlvbgpmcm9tIHRxZG0gaW1wb3J0IHRxZG0KZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCgpmcm9tIC5zZWxlY3Rvcl9yZWdpc3RyeSBpbXBvcnQgcmVnaXN0ZXJfc2VsZWN0b3IKCmRlZiBfc2V0X3JfZW52aXJvbm1lbnQoUmhvbWU6IE9wdGlvbmFsW3N0cl0pIC0+IE5vbmU6CiAgICAiIiIKICAgIFNldCB1cCBSIGVudmlyb25tZW50CiAgICAKICAgIEFyZ3M6CiAgICAgICAgUmhvbWU6IFIgaW5zdGFsbGF0aW9uIHBhdGgKICAgICAgICAKICAgIFJhaXNlczoKICAgICAgICBFbnZpcm9ubWVudEVycm9yOiBJZiBSIGluc3RhbGxhdGlvbiBwYXRoIGlzIG5vdCBmb3VuZAogICAgIiIiCiAgICBpZiBSaG9tZToKICAgICAgICBvcy5lbnZpcm9uWydSX0hPTUUnXSA9IFJob21lCiAgICBlbHNlOgogICAgICAgIHJhaXNlIEVudmlyb25tZW50RXJyb3IoIlIgaW5zdGFsbGF0aW9uIHBhdGggbm90IGZvdW5kLCBwbGVhc2Ugc3BlY2lmeSBSaG9tZSBpbiBjb25maWcgZmlsZSIpCiAgICAKICAgICMgaW1wb3J0IHJweTIgcmVsYXRlZCBwYWNrYWdlcyBhZnRlciBzZXR0aW5nIFJfSE9NRQogICAgZ2xvYmFsIHJvLCByLCBwYW5kYXMycmksIGltcG9ydHIKICAgIGltcG9ydCBycHkyLnJvYmplY3RzIGFzIHJvCiAgICBmcm9tIHJweTIucm9iamVjdHMgaW1wb3J0IHIsIHBhbmRhczJyaQogICAgZnJvbSBycHkyLnJvYmplY3RzLnBhY2thZ2VzIGltcG9ydCBpbXBvcnRyCiAgICAgICAgCmRlZiBkZXRlY3RfZmlsZV90eXBlKGlucHV0X3BhdGg6IHN0cikgLT4gT3B0aW9uYWxbc3RyXToKICAgICIiIgogICAgQXV0b21hdGljYWxseSBkZXRlY3QgZmlsZSB0eXBlCiAgICAKICAgIEFyZ3M6CiAgICAgICAgaW5wdXRfcGF0aDogSW5wdXQgZmlsZSBwYXRoCiAgICAgICAgCiAgICBSZXR1cm5zOgogICAgICAgIE9wdGlvbmFsW3N0cl06IERldGVjdGVkIGZpbGUgdHlwZSwgcmV0dXJucyBOb25lIGlmIGNhbm5vdCBkZXRlY3QKICAgICIiIgogICAgZmlsZV9leHQgPSBQYXRoKGlucHV0X3BhdGgpLnN1ZmZpeC5sb3dlcigpCiAgICBmaWxlX3R5cGVzID0gewogICAgICAgICcuY3N2JzogJ2NzdicsCiAgICAgICAgJy54bHN4JzogJ2V4Y2VsJywKICAgICAgICAnLnhscyc6ICdleGNlbCcsCiAgICAgICAgJy5wYXJxdWV0JzogJ3BhcnF1ZXQnLAogICAgICAgICcuanNvbic6ICdqc29uJywKICAgICAgICAnLnBrbCc6ICdwaWNrbGUnLAogICAgICAgICcucGlja2xlJzogJ3BpY2tsZScKICAgIH0KICAgIAogICAgaWYgZmlsZV9leHQgaW4gZmlsZV90eXBlczoKICAgICAgICByZXR1cm4gZmlsZV90eXBlc1tmaWxlX2V4dF0KICAgIAogICAgdHJ5OgogICAgICAgIHdpdGggb3BlbihpbnB1dF9wYXRoLCAncicsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAgICAgIGZpcnN0X2xpbmUgPSBmLnJlYWRsaW5lKCkuc3RyaXAoKQogICAgICAgICAgICBpZiAnLCcgaW4gZmlyc3RfbGluZSBhbmQgbGVuKGZpcnN0X2xpbmUuc3BsaXQoJywnKSkgPiAxOgogICAgICAgICAgICAgICAgcmV0dXJuICdjc3YnCiAgICAgICAgICAgIGVsaWYgZmlyc3RfbGluZS5zdGFydHN3aXRoKCd7Jykgb3IgZmlyc3RfbGluZS5zdGFydHN3aXRoKCdbJyk6CiAgICAgICAgICAgICAgICByZXR1cm4gJ2pzb24nCiAgICBleGNlcHQ6CiAgICAgICAgcGFzcwogICAgCiAgICByZXR1cm4gTm9uZQoKZGVmIGxvYWRfZGF0YShpbnB1dF9kYXRhOiBVbmlvbltzdHIsIHBkLkRhdGFGcmFtZV0sIAogICAgICAgICAgICAgIHRhcmdldF9jb2x1bW46IE9wdGlvbmFsW3N0cl0gPSBOb25lLAogICAgICAgICAgICAgIGZpbGVfdHlwZTogT3B0aW9uYWxbc3RyXSA9IE5vbmUsCiAgICAgICAgICAgICAgY29sdW1uczogT3B0aW9uYWxbVW5pb25bc3RyLCBMaXN0W3N0cl1dXSA9IE5vbmUpIC0+IFR1cGxlW3BkLkRhdGFGcmFtZSwgcGQuU2VyaWVzXToKICAgICIiIgogICAgTG9hZCBkYXRhIGZyb20gdmFyaW91cyBmb3JtYXRzCiAgICAKICAgIEFyZ3M6CiAgICAgICAgaW5wdXRfZGF0YTogSW5wdXQgZGF0YSBwYXRoIG9yIERhdGFGcmFtZSBvYmplY3QKICAgICAgICB0YXJnZXRfY29sdW1uOiBUYXJnZXQgdmFyaWFibGUgY29sdW1uIG5hbWUKICAgICAgICBmaWxlX3R5cGU6IEZpbGUgdHlwZQogICAgICAgIGNvbHVtbnM6IEZlYXR1cmUgY29sdW1uIHNlbGVjdGlvbgogICAgICAgIAogICAgUmV0dXJuczoKICAgICAgICBUdXBsZVtwZC5EYXRhRnJhbWUsIHBkLlNlcmllc106IEZlYXR1cmUgZGF0YSBhbmQgdGFyZ2V0IHZhcmlhYmxlCiAgICAiIiIKICAgIGlmIGlzaW5zdGFuY2UoaW5wdXRfZGF0YSwgcGQuRGF0YUZyYW1lKToKICAgICAgICBkYXRhID0gaW5wdXRfZGF0YQogICAgZWxzZToKICAgICAgICBpZiBub3Qgb3MucGF0aC5leGlzdHMoaW5wdXRfZGF0YSk6CiAgICAgICAgICAgIHJhaXNlIEZpbGVOb3RGb3VuZEVycm9yKGYiRXJyb3I6IEZpbGUge2lucHV0X2RhdGF9IGRvZXMgbm90IGV4aXN0IikKICAgICAgICAKICAgICAgICBpZiBmaWxlX3R5cGUgaXMgTm9uZToKICAgICAgICAgICAgZmlsZV90eXBlID0gZGV0ZWN0X2ZpbGVfdHlwZShpbnB1dF9kYXRhKQogICAgICAgICAgICBpZiBmaWxlX3R5cGUgaXMgTm9uZToKICAgICAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJDYW5ub3QgZGV0ZWN0IGZpbGUgdHlwZToge2lucHV0X2RhdGF9IikKICAgICAgICAgICAgcHJpbnQoZiJBdXRvbWF0aWNhbGx5IGRldGVjdGVkIGZpbGUgdHlwZToge2ZpbGVfdHlwZX0iKQogICAgICAgIAogICAgICAgIGxvYWRlcnMgPSB7CiAgICAgICAgICAgICdjc3YnOiBwZC5yZWFkX2NzdiwKICAgICAgICAgICAgJ2V4Y2VsJzogcGQucmVhZF9leGNlbCwKICAgICAgICAgICAgJ3BhcnF1ZXQnOiBwZC5yZWFkX3BhcnF1ZXQsCiAgICAgICAgICAgICdqc29uJzogcGQucmVhZF9qc29uLAogICAgICAgICAgICAncGlja2xlJzogcGQucmVhZF9waWNrbGUKICAgICAgICB9CiAgICAgICAgCiAgICAgICAgaWYgZmlsZV90eXBlLmxvd2VyKCkgbm90IGluIGxvYWRlcnM6CiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbnN1cHBvcnRlZCBmaWxlIHR5cGU6IHtmaWxlX3R5cGV9IikKICAgICAgICAKICAgICAgICB0cnk6CiAgICAgICAgICAgIGRhdGEgPSBsb2FkZXJzW2ZpbGVfdHlwZS5sb3dlcigpXShpbnB1dF9kYXRhKQogICAgICAgICAgICBpZiBkYXRhLmVtcHR5OgogICAgICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIkxvYWRlZCBkYXRhIGlzIGVtcHR5OiB7aW5wdXRfZGF0YX0iKQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICAgICAgcmFpc2UgRXhjZXB0aW9uKGYiRXJyb3IgbG9hZGluZyBkYXRhOiB7ZX0iKQogICAgCiAgICAjIEhhbmRsZSBjb2x1bW4gc2VsZWN0aW9uCiAgICBpZiB0YXJnZXRfY29sdW1uIGlzIE5vbmU6CiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiVGFyZ2V0IGNvbHVtbiBuYW1lIG11c3QgYmUgc3BlY2lmaWVkIikKICAgIAogICAgaWYgY29sdW1ucyBpcyBub3QgTm9uZToKICAgICAgICBpZiBpc2luc3RhbmNlKGNvbHVtbnMsIHN0cik6CiAgICAgICAgICAgIGlmICc6JyBpbiBjb2x1bW5zOgogICAgICAgICAgICAgICAgc3RhcnQsIGVuZCA9IGNvbHVtbnMuc3BsaXQoJzonKQogICAgICAgICAgICAgICAgc3RhcnQgPSBpbnQoc3RhcnQpIGlmIHN0YXJ0IGVsc2UgMAogICAgICAgICAgICAgICAgZW5kID0gaW50KGVuZCkgaWYgZW5kIGVsc2UgTm9uZQogICAgICAgICAgICAgICAgIyBHZXQgYWxsIGNvbHVtbiBuYW1lcwogICAgICAgICAgICAgICAgYWxsX2NvbHMgPSBkYXRhLmNvbHVtbnMudG9saXN0KCkKICAgICAgICAgICAgICAgICMgVGFyZ2V0IGNvbHVtbiBpbmRleAogICAgICAgICAgICAgICAgdGFyZ2V0X2lkeCA9IGFsbF9jb2xzLmluZGV4KHRhcmdldF9jb2x1bW4pCiAgICAgICAgICAgICAgICAjIEZlYXR1cmUgY29sdW1ucyAoZXhjbHVkaW5nIHRhcmdldCBjb2x1bW4pCiAgICAgICAgICAgICAgICBYX2NvbHMgPSBhbGxfY29sc1tzdGFydDplbmRdCiAgICAgICAgICAgICAgICBpZiB0YXJnZXRfY29sdW1uIGluIFhfY29sczoKICAgICAgICAgICAgICAgICAgICBYX2NvbHMucmVtb3ZlKHRhcmdldF9jb2x1bW4pCiAgICAgICAgICAgICAgICBYID0gZGF0YVtYX2NvbHNdCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBjb2x1bW5zX2xpc3QgPSBbY29sLnN0cmlwKCkgZm9yIGNvbCBpbiBjb2x1bW5zLnNwbGl0KCcsJyldCiAgICAgICAgICAgICAgICBYID0gZGF0YVtjb2x1bW5zX2xpc3RdCiAgICAgICAgZWxpZiBpc2luc3RhbmNlKGNvbHVtbnMsIGxpc3QpOgogICAgICAgICAgICBYID0gZGF0YVtjb2x1bW5zXQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoImNvbHVtbnMgcGFyYW1ldGVyIG11c3QgYmUgYSBsaXN0IG9mIGNvbHVtbiBuYW1lcyBvciBhIGNvbHVtbiByYW5nZSBzdHJpbmciKQogICAgZWxzZToKICAgICAgICAjIFVzZSBhbGwgY29sdW1ucyBleGNlcHQgdGFyZ2V0IGNvbHVtbiBhcyBmZWF0dXJlcwogICAgICAgIFggPSBkYXRhLmRyb3AoY29sdW1ucz1bdGFyZ2V0X2NvbHVtbl0pCiAgICAKICAgIHkgPSBkYXRhW3RhcmdldF9jb2x1bW5dCiAgICAKICAgIHJldHVybiBYLCB5CgpAcmVnaXN0ZXJfc2VsZWN0b3IoJ3N0ZXB3aXNlX3InKQpkZWYgc3RlcHdpc2Vfc2VsZWN0b3IoWDogcGQuRGF0YUZyYW1lLCAKICAgICAgICAgICAgICAgICAgICAgeTogcGQuU2VyaWVzLAogICAgICAgICAgICAgICAgICAgICBkaXJlY3Rpb246IHN0ciA9ICdiYWNrd2FyZCcsCiAgICAgICAgICAgICAgICAgICAgIG91dGRpcjogc3RyID0gTm9uZSwKICAgICAgICAgICAgICAgICAgICAgUmhvbWU6IHN0ciA9IE5vbmUpIC0+IExpc3Rbc3RyXToKICAgICIiIgogICAgUnVuIHN0ZXB3aXNlIHJlZ3Jlc3Npb24gZmVhdHVyZSBzZWxlY3Rpb24gdXNpbmcgUidzIHN0ZXBBSUMKICAgIAogICAgQXJnczoKICAgICAgICBYOiBwZC5EYXRhRnJhbWUsIEZlYXR1cmUgbWF0cml4CiAgICAgICAgeTogcGQuU2VyaWVzLCBUYXJnZXQgdmFyaWFibGUKICAgICAgICBkaXJlY3Rpb246IHN0ciwgRGlyZWN0aW9uIG9mIHN0ZXB3aXNlIHNlbGVjdGlvbiAoJ2ZvcndhcmQnLCAnYmFja3dhcmQnLCBvciAnYm90aCcpCiAgICAgICAgUmhvbWU6IHN0ciwgUiBpbnN0YWxsYXRpb24gcGF0aAogICAgICAgIAogICAgUmV0dXJuczoKICAgICAgICBMaXN0W3N0cl06IExpc3Qgb2Ygc2VsZWN0ZWQgZmVhdHVyZSBuYW1lcwogICAgIiIiCiAgICBfc2V0X3JfZW52aXJvbm1lbnQoUmhvbWUpCgogICAgIyBJbml0aWFsaXplIFIgZW52aXJvbm1lbnQKICAgIHBhbmRhczJyaS5hY3RpdmF0ZSgpCiAgICBNQVNTID0gaW1wb3J0cignTUFTUycpCiAgICBzdGFyZ2F6ZXIgPSBpbXBvcnRyKCdzdGFyZ2F6ZXInKQogICAgCiAgICAjIFByZXBhcmUgZGF0YSBmb3IgUgogICAgWFsnZXZlbnQnXSA9IHkKICAgIFhfciA9IHBhbmRhczJyaS5weTJycHkoWCkKICAgIHIuYXNzaWduKCd4X3RyYWluJywgWF9yKQogICAgCiAgICAjIFJ1biBsb2dpc3RpYyByZWdyZXNzaW9uIGFuZCBzdGVwd2lzZSBBSUMgaW4gUgogICAgcm8ucignJycKICAgICAgICBtb2RlbCA8LSBnbG0oZXZlbnQgfiAuLCBkYXRhID0geF90cmFpbiwgZmFtaWx5ID0gYmlub21pYWwpCiAgICAgICAgc3RlcF9tb2RlbCA8LSBzdGVwQUlDKG1vZGVsLCB0cmFjZSA9IEZBTFNFLCBkaXJlY3Rpb24gPSAie30iKQogICAgJycnLmZvcm1hdChkaXJlY3Rpb24pKQogICAgCiAgICAjIENhbGN1bGF0ZSBPUiBhbmQgOTUlIENJCiAgICByby5yKCcnJwogICAgICAgIGV4cF9jb2VmIDwtIGV4cChjb2VmKHN0ZXBfbW9kZWwpKQogICAgICAgIGNvbmZfaW50IDwtIGV4cChjb25maW50KHN0ZXBfbW9kZWwpKQogICAgICAgIHBfdmFsdWVzIDwtIHN1bW1hcnkoc3RlcF9tb2RlbCkkY29lZmZpY2llbnRzWywgNF0KICAgICAgICByZXN1bHRzIDwtIGRhdGEuZnJhbWUoT1IgPSBleHBfY29lZiwgYDIuNSUgQ0lgID0gY29uZl9pbnRbLCAxXSwgYDk3LjUlIENJYCA9IGNvbmZfaW50WywgMl0sIHBfdmFsdWUgPSBwX3ZhbHVlcykKICAgICcnJykKICAgIAogICAgIyBHZXQgc2VsZWN0ZWQgZmVhdHVyZXMKICAgIHNlbGVjdGVkX2ZlYXR1cmVzID0gcm8ucignbmFtZXMoc3RlcF9tb2RlbCRjb2VmZmljaWVudHMpJykKICAgICMgUmVtb3ZlIGludGVyY2VwdCB0ZXJtCiAgICBzZWxlY3RlZF9mZWF0dXJlcyA9IHNlbGVjdGVkX2ZlYXR1cmVzWzE6XQogICAgIyBDbGVhbiBmZWF0dXJlIG5hbWVzLCByZW1vdmUgYmFja3RpY2tzCiAgICBzZWxlY3RlZF9mZWF0dXJlcyA9IFtmZWF0dXJlLnN0cmlwKCdgJykgZm9yIGZlYXR1cmUgaW4gc2VsZWN0ZWRfZmVhdHVyZXNdCiAgICAKICAgICMgRXh0cmFjdCByZXN1bHRzIGZyb20gUiBhbmQgY29udmVydCB0byBwYW5kYXMgRGF0YUZyYW1lCiAgICB0cnk6CiAgICAgICAgcmVzdWx0c19yID0gcm8ucigncmVzdWx0cycpCiAgICAgICAgaGVhZGVyX25hbWUgPSByby5yKCduYW1lcyhyZXN1bHRzKScpCiAgICAgICAgZmVhdHVyZV9uYW1lID0gcm8ucigncm93bmFtZXMocmVzdWx0cyknKQogICAgICAgIHJlc3VsdHNfZGYgPSBwZC5EYXRhRnJhbWUocmVzdWx0c19yKQogICAgICAgIHJlc3VsdHNfZGYuY29sdW1ucyA9IGZlYXR1cmVfbmFtZQogICAgICAgIHJlc3VsdHNfZGYuaW5kZXggPSBoZWFkZXJfbmFtZQogICAgICAgIHJlc3VsdHNfZGYudG9fY3N2KG9zLnBhdGguam9pbihvdXRkaXIsICdzdGVwd2lzZV9yZXN1bHRzLmNzdicpLCBpbmRleD1UcnVlKQogICAgZXhjZXB0OgogICAgICAgIHJlc3VsdHNfciA9IHJvLnIoJ3Jlc3VsdHMnKQogICAgICAgIHJlc3VsdHNfZGYgPSBwZC5EYXRhRnJhbWUocmVzdWx0c19yKQogICAgICAgIHJlc3VsdHNfZGYudG9fY3N2KG9zLnBhdGguam9pbihvdXRkaXIsICdzdGVwd2lzZV9yZXN1bHRzLmNzdicpLCBpbmRleD1UcnVlKQoKICAgIHJldHVybiBzZWxlY3RlZF9mZWF0dXJlcwoK').decode())
+Uses forward, backward, or stepwise (bidirectional) logistic regression for feature selection
+"""
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from typing import List, Optional, Tuple, Dict, Union
+from tqdm import tqdm
+from pathlib import Path
+
+from .selector_registry import register_selector
+
+def _set_r_environment(Rhome: Optional[str]) -> None:
+    """
+    Set up R environment
+    
+    Args:
+        Rhome: R installation path
+        
+    Raises:
+        EnvironmentError: If R installation path is not found
+    """
+    if Rhome:
+        os.environ['R_HOME'] = Rhome
+    else:
+        raise EnvironmentError("R installation path not found, please specify Rhome in config file")
+    
+    # import rpy2 related packages after setting R_HOME
+    global ro, r, pandas2ri, importr
+    import rpy2.robjects as ro
+    from rpy2.robjects import r, pandas2ri
+    from rpy2.robjects.packages import importr
+        
+def detect_file_type(input_path: str) -> Optional[str]:
+    """
+    Automatically detect file type
+    
+    Args:
+        input_path: Input file path
+        
+    Returns:
+        Optional[str]: Detected file type, returns None if cannot detect
+    """
+    file_ext = Path(input_path).suffix.lower()
+    file_types = {
+        '.csv': 'csv',
+        '.xlsx': 'excel',
+        '.xls': 'excel',
+        '.parquet': 'parquet',
+        '.json': 'json',
+        '.pkl': 'pickle',
+        '.pickle': 'pickle'
+    }
+    
+    if file_ext in file_types:
+        return file_types[file_ext]
+    
+    try:
+        with open(input_path, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+            if ',' in first_line and len(first_line.split(',')) > 1:
+                return 'csv'
+            elif first_line.startswith('{') or first_line.startswith('['):
+                return 'json'
+    except:
+        pass
+    
+    return None
+
+def load_data(input_data: Union[str, pd.DataFrame], 
+              target_column: Optional[str] = None,
+              file_type: Optional[str] = None,
+              columns: Optional[Union[str, List[str]]] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Load data from various formats
+    
+    Args:
+        input_data: Input data path or DataFrame object
+        target_column: Target variable column name
+        file_type: File type
+        columns: Feature column selection
+        
+    Returns:
+        Tuple[pd.DataFrame, pd.Series]: Feature data and target variable
+    """
+    if isinstance(input_data, pd.DataFrame):
+        data = input_data
+    else:
+        if not os.path.exists(input_data):
+            raise FileNotFoundError(f"Error: File {input_data} does not exist")
+        
+        if file_type is None:
+            file_type = detect_file_type(input_data)
+            if file_type is None:
+                raise ValueError(f"Cannot detect file type: {input_data}")
+            print(f"Automatically detected file type: {file_type}")
+        
+        loaders = {
+            'csv': pd.read_csv,
+            'excel': pd.read_excel,
+            'parquet': pd.read_parquet,
+            'json': pd.read_json,
+            'pickle': pd.read_pickle
+        }
+        
+        if file_type.lower() not in loaders:
+            raise ValueError(f"Unsupported file type: {file_type}")
+        
+        try:
+            data = loaders[file_type.lower()](input_data)
+            if data.empty:
+                raise ValueError(f"Loaded data is empty: {input_data}")
+        except Exception as e:
+            raise Exception(f"Error loading data: {e}")
+    
+    # Handle column selection
+    if target_column is None:
+        raise ValueError("Target column name must be specified")
+    
+    if columns is not None:
+        if isinstance(columns, str):
+            if ':' in columns:
+                start, end = columns.split(':')
+                start = int(start) if start else 0
+                end = int(end) if end else None
+                # Get all column names
+                all_cols = data.columns.tolist()
+                # Target column index
+                target_idx = all_cols.index(target_column)
+                # Feature columns (excluding target column)
+                X_cols = all_cols[start:end]
+                if target_column in X_cols:
+                    X_cols.remove(target_column)
+                X = data[X_cols]
+            else:
+                columns_list = [col.strip() for col in columns.split(',')]
+                X = data[columns_list]
+        elif isinstance(columns, list):
+            X = data[columns]
+        else:
+            raise ValueError("columns parameter must be a list of column names or a column range string")
+    else:
+        # Use all columns except target column as features
+        X = data.drop(columns=[target_column])
+    
+    y = data[target_column]
+    
+    return X, y
+
+@register_selector('stepwise_r')
+def stepwise_selector(X: pd.DataFrame, 
+                     y: pd.Series,
+                     direction: str = 'backward',
+                     outdir: str = None,
+                     Rhome: str = None) -> List[str]:
+    """
+    Run stepwise regression feature selection using R's stepAIC
+    
+    Args:
+        X: pd.DataFrame, Feature matrix
+        y: pd.Series, Target variable
+        direction: str, Direction of stepwise selection ('forward', 'backward', or 'both')
+        Rhome: str, R installation path
+        
+    Returns:
+        List[str]: List of selected feature names
+    """
+    _set_r_environment(Rhome)
+
+    # Initialize R environment
+    pandas2ri.activate()
+    MASS = importr('MASS')
+    stargazer = importr('stargazer')
+    
+    # Prepare data for R
+    X['event'] = y
+    X_r = pandas2ri.py2rpy(X)
+    r.assign('x_train', X_r)
+    
+    # Run logistic regression and stepwise AIC in R
+    ro.r('''
+        model <- glm(event ~ ., data = x_train, family = binomial)
+        step_model <- stepAIC(model, trace = FALSE, direction = "{}")
+    '''.format(direction))
+    
+    # Calculate OR and 95% CI
+    ro.r('''
+        exp_coef <- exp(coef(step_model))
+        conf_int <- exp(confint(step_model))
+        p_values <- summary(step_model)$coefficients[, 4]
+        results <- data.frame(OR = exp_coef, `2.5% CI` = conf_int[, 1], `97.5% CI` = conf_int[, 2], p_value = p_values)
+    ''')
+    
+    # Get selected features
+    selected_features = ro.r('names(step_model$coefficients)')
+    # Remove intercept term
+    selected_features = selected_features[1:]
+    # Clean feature names, remove backticks
+    selected_features = [feature.strip('`') for feature in selected_features]
+    
+    # Extract results from R and convert to pandas DataFrame
+    try:
+        results_r = ro.r('results')
+        header_name = ro.r('names(results)')
+        feature_name = ro.r('rownames(results)')
+        results_df = pd.DataFrame(results_r)
+        results_df.columns = feature_name
+        results_df.index = header_name
+        results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
+    except:
+        results_r = ro.r('results')
+        results_df = pd.DataFrame(results_r)
+        results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
+
+    return selected_features
+

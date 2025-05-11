@@ -1,3 +1,306 @@
+from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
+import numpy as np
+import SimpleITK as sitk
+import ants
+from habit.utils.image_converter import ImageConverter
+from .base_preprocessor import BasePreprocessor
+from .preprocessor_factory import PreprocessorFactory
 
-import base64
-exec(base64.b64decode(b'ZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIEFueSwgT3B0aW9uYWwsIFVuaW9uLCBMaXN0LCBUdXBsZSwgU2VxdWVuY2UNCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IFNpbXBsZUlUSyBhcyBzaXRrDQppbXBvcnQgYW50cw0KZnJvbSBoYWJpdC51dGlscy5pbWFnZV9jb252ZXJ0ZXIgaW1wb3J0IEltYWdlQ29udmVydGVyDQpmcm9tIC5iYXNlX3ByZXByb2Nlc3NvciBpbXBvcnQgQmFzZVByZXByb2Nlc3Nvcg0KZnJvbSAucHJlcHJvY2Vzc29yX2ZhY3RvcnkgaW1wb3J0IFByZXByb2Nlc3NvckZhY3RvcnkNCg0KQFByZXByb2Nlc3NvckZhY3RvcnkucmVnaXN0ZXIoInJlZ2lzdHJhdGlvbiIpDQpjbGFzcyBSZWdpc3RyYXRpb25QcmVwcm9jZXNzb3IoQmFzZVByZXByb2Nlc3Nvcik6DQogICAgIiIiUmVnaXN0ZXIgaW1hZ2VzIHRvIGEgcmVmZXJlbmNlIGltYWdlIHVzaW5nIEFOVHMuDQogICAgDQogICAgVGhpcyBwcmVwcm9jZXNzb3IgcGVyZm9ybXMgaW1hZ2UgcmVnaXN0cmF0aW9uIHVzaW5nIEFOVHMgKEFkdmFuY2VkIE5vcm1hbGl6YXRpb24gVG9vbHMpLg0KICAgIEl0IHN1cHBvcnRzIHZhcmlvdXMgcmVnaXN0cmF0aW9uIG1ldGhvZHMgaW5jbHVkaW5nIFN5TiwgUmlnaWQsIEFmZmluZSwgZXRjLg0KICAgICIiIg0KICAgIA0KICAgIGRlZiBfX2luaXRfXygNCiAgICAgICAgc2VsZiwNCiAgICAgICAga2V5czogVW5pb25bc3RyLCBMaXN0W3N0cl1dLA0KICAgICAgICBmaXhlZF9pbWFnZTogc3RyLA0KICAgICAgICBtYXNrX2tleXM6IE9wdGlvbmFsW1VuaW9uW3N0ciwgTGlzdFtzdHJdXV0gPSBOb25lLA0KICAgICAgICB0eXBlX29mX3RyYW5zZm9ybTogc3RyID0gIlN5TiIsDQogICAgICAgIG1ldHJpYzogc3RyID0gIk1JIiwNCiAgICAgICAgb3B0aW1pemVyOiBzdHIgPSAiZ3JhZGllbnRfZGVzY2VudCIsDQogICAgICAgIHVzZV9tYXNrOiBib29sID0gRmFsc2UsDQogICAgICAgIGFsbG93X21pc3Npbmdfa2V5czogYm9vbCA9IEZhbHNlLA0KICAgICAgICAqKmt3YXJncw0KICAgICk6DQogICAgICAgICIiIkluaXRpYWxpemUgdGhlIHJlZ2lzdHJhdGlvbiBwcmVwcm9jZXNzb3IuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAga2V5cyAoVW5pb25bc3RyLCBMaXN0W3N0cl1dKTogS2V5cyBvZiB0aGUgaW1hZ2VzIHRvIGJlIHJlZ2lzdGVyZWQuDQogICAgICAgICAgICBmaXhlZF9pbWFnZSAoc3RyKTogS2V5IG9mIHRoZSByZWZlcmVuY2UgaW1hZ2UgdG8gcmVnaXN0ZXIgdG8uDQogICAgICAgICAgICBtYXNrX2tleXMgKE9wdGlvbmFsW1VuaW9uW3N0ciwgTGlzdFtzdHJdXV0pOiBLZXlzIG9mIHRoZSBtYXNrcyB0byB1c2UgZm9yIHJlZ2lzdHJhdGlvbi4NCiAgICAgICAgICAgIHR5cGVfb2ZfdHJhbnNmb3JtIChzdHIpOiBUeXBlIG9mIHRyYW5zZm9ybSB0byB1c2UuIE9wdGlvbnM6IA0KICAgICAgICAgICAgICAgIC0gIlJpZ2lkIjogUmlnaWQgdHJhbnNmb3JtYXRpb24NCiAgICAgICAgICAgICAgICAtICJBZmZpbmUiOiBBZmZpbmUgdHJhbnNmb3JtYXRpb24NCiAgICAgICAgICAgICAgICAtICJTeU4iOiBTeW1tZXRyaWMgbm9ybWFsaXphdGlvbiAoZGVmb3JtYWJsZSkNCiAgICAgICAgICAgICAgICAtICJTeU5SQSI6IFN5TiArIFJpZ2lkICsgQWZmaW5lDQogICAgICAgICAgICAgICAgLSAiU3lOT25seSI6IFN5TiB3aXRob3V0IGluaXRpYWwgcmlnaWQvYWZmaW5lDQogICAgICAgICAgICAgICAgLSAiVFJTQUEiOiBUcmFuc2xhdGlvbiArIFJvdGF0aW9uICsgU2NhbGluZyArIEFmZmluZQ0KICAgICAgICAgICAgICAgIC0gIkVsYXN0aWMiOiBFbGFzdGljIHRyYW5zZm9ybWF0aW9uDQogICAgICAgICAgICAgICAgLSAiU3lOQ0MiOiBTeU4gd2l0aCBjcm9zcy1jb3JyZWxhdGlvbiBtZXRyaWMNCiAgICAgICAgICAgICAgICAtICJTeU5hYnAiOiBTeU4gd2l0aCBtdXR1YWwgaW5mb3JtYXRpb24gbWV0cmljDQogICAgICAgICAgICAgICAgLSAiU3lOQm9sZCI6IFN5TiBvcHRpbWl6ZWQgZm9yIEJPTEQgaW1hZ2VzDQogICAgICAgICAgICAgICAgLSAiU3lOQm9sZEFmZiI6IFN5TiArIEFmZmluZSBmb3IgQk9MRCBpbWFnZXMNCiAgICAgICAgICAgICAgICAtICJTeU5BZ2dybyI6IFN5TiB3aXRoIGFnZ3Jlc3NpdmUgb3B0aW1pemF0aW9uDQogICAgICAgICAgICAgICAgLSAiVFZNU1EiOiBUaW1lLXZhcnlpbmcgZGlmZmVvbW9ycGhpc20gd2l0aCBtZWFuIHNxdWFyZSBtZXRyaWMNCiAgICAgICAgICAgIG1ldHJpYyAoc3RyKTogU2ltaWxhcml0eSBtZXRyaWMgdG8gdXNlLiBPcHRpb25zOg0KICAgICAgICAgICAgICAgIC0gIkNDIjogQ3Jvc3MtY29ycmVsYXRpb24NCiAgICAgICAgICAgICAgICAtICJNSSI6IE11dHVhbCBpbmZvcm1hdGlvbg0KICAgICAgICAgICAgICAgIC0gIk1lYW5TcXVhcmVzIjogTWVhbiBzcXVhcmVzDQogICAgICAgICAgICAgICAgLSAiRGVtb25zIjogRGVtb25zIG1ldHJpYw0KICAgICAgICAgICAgb3B0aW1pemVyIChzdHIpOiBPcHRpbWl6ZXIgdG8gdXNlLiBPcHRpb25zOg0KICAgICAgICAgICAgICAgIC0gImdyYWRpZW50X2Rlc2NlbnQiOiBHcmFkaWVudCBkZXNjZW50DQogICAgICAgICAgICAgICAgLSAibGJmZ3NiIjogTC1CRkdTLUINCiAgICAgICAgICAgICAgICAtICJhbW9lYmEiOiBBbW9lYmENCiAgICAgICAgICAgIHVzZV9tYXNrIChib29sKTogSWYgVHJ1ZSwgdXNlIG1hc2sgZm9yIHJlZ2lzdHJhdGlvbi4NCiAgICAgICAgICAgIGFsbG93X21pc3Npbmdfa2V5cyAoYm9vbCk6IElmIFRydWUsIGFsbG93cyBtaXNzaW5nIGtleXMgaW4gdGhlIGlucHV0IGRhdGEuDQogICAgICAgICAgICAqKmt3YXJnczogQWRkaXRpb25hbCBwYXJhbWV0ZXJzIGZvciByZWdpc3RyYXRpb24uDQogICAgICAgICIiIg0KICAgICAgICBzdXBlcigpLl9faW5pdF9fKGtleXM9a2V5cywgYWxsb3dfbWlzc2luZ19rZXlzPWFsbG93X21pc3Npbmdfa2V5cykNCiAgICAgICAgDQogICAgICAgICMgQ29udmVydCBzaW5nbGUga2V5IHRvIGxpc3QNCiAgICAgICAgaWYgaXNpbnN0YW5jZShrZXlzLCBzdHIpOg0KICAgICAgICAgICAga2V5cyA9IFtrZXlzXQ0KICAgICAgICBzZWxmLmtleXMgPSBrZXlzDQogICAgICAgIHNlbGYuZml4ZWRfaW1hZ2UgPSBmaXhlZF9pbWFnZQ0KICAgICAgICANCiAgICAgICAgIyBIYW5kbGUgbWFzayBrZXlzDQogICAgICAgIGlmIG1hc2tfa2V5cyBpcyBOb25lOg0KICAgICAgICAgICAgc2VsZi5tYXNrX2tleXMgPSBOb25lDQogICAgICAgIGVsc2U6DQogICAgICAgICAgICBzZWxmLm1hc2tfa2V5cyA9IFttYXNrX2tleXNdIGlmIGlzaW5zdGFuY2UobWFza19rZXlzLCBzdHIpIGVsc2UgbWFza19rZXlzDQogICAgICAgIA0KICAgICAgICAjIFNldCByZWdpc3RyYXRpb24gcGFyYW1ldGVycw0KICAgICAgICBzZWxmLnR5cGVfb2ZfdHJhbnNmb3JtID0gdHlwZV9vZl90cmFuc2Zvcm0NCiAgICAgICAgc2VsZi5tZXRyaWMgPSBtZXRyaWMNCiAgICAgICAgc2VsZi5vcHRpbWl6ZXIgPSBvcHRpbWl6ZXINCiAgICAgICAgc2VsZi51c2VfbWFzayA9IHVzZV9tYXNrDQogICAgICAgIA0KICAgICAgICAjIFN0b3JlIGFkZGl0aW9uYWwgcGFyYW1ldGVycw0KICAgICAgICBzZWxmLnJlZ19wYXJhbXMgPSBrd2FyZ3MNCiAgICAgICAgDQogICAgZGVmIF9yZWdpc3Rlcl9pbWFnZShzZWxmLA0KICAgICAgICAgICAgICAgICAgICAgICBmaXhlZF9pbWFnZTogYW50cy5BTlRzSW1hZ2UsDQogICAgICAgICAgICAgICAgICAgICAgIG1vdmluZ19pbWFnZTogYW50cy5BTlRzSW1hZ2UsDQogICAgICAgICAgICAgICAgICAgICAgIGZpeGVkX21hc2s6IE9wdGlvbmFsW2FudHMuQU5Uc0ltYWdlXSA9IE5vbmUsDQogICAgICAgICAgICAgICAgICAgICAgIG1vdmluZ19tYXNrOiBPcHRpb25hbFthbnRzLkFOVHNJbWFnZV0gPSBOb25lKSAtPiBUdXBsZVthbnRzLkFOVHNJbWFnZSwgTGlzdFtzdHJdXToNCiAgICAgICAgIiIiUmVnaXN0ZXIgYSBtb3ZpbmcgaW1hZ2UgdG8gYSBmaXhlZCBpbWFnZSB1c2luZyBBTlRzLg0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGZpeGVkX2ltYWdlIChhbnRzLkFOVHNJbWFnZSk6IFJlZmVyZW5jZSBpbWFnZQ0KICAgICAgICAgICAgbW92aW5nX2ltYWdlIChhbnRzLkFOVHNJbWFnZSk6IEltYWdlIHRvIGJlIHJlZ2lzdGVyZWQNCiAgICAgICAgICAgIGZpeGVkX21hc2sgKE9wdGlvbmFsW2FudHMuQU5Uc0ltYWdlXSk6IE1hc2sgZm9yIHJlZmVyZW5jZSBpbWFnZQ0KICAgICAgICAgICAgbW92aW5nX21hc2sgKE9wdGlvbmFsW2FudHMuQU5Uc0ltYWdlXSk6IE1hc2sgZm9yIG1vdmluZyBpbWFnZQ0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBUdXBsZVthbnRzLkFOVHNJbWFnZSwgTGlzdFtzdHJdXTogDQogICAgICAgICAgICAgICAgLSBSZWdpc3RlcmVkIGltYWdlDQogICAgICAgICAgICAgICAgLSBMaXN0IG9mIHRyYW5zZm9ybSBmaWxlcw0KICAgICAgICAiIiINCiAgICAgICAgDQogICAgICAgICMgUHJlcGFyZSByZWdpc3RyYXRpb24gcGFyYW1ldGVycw0KICAgICAgICByZWdfcGFyYW1zID0gew0KICAgICAgICAgICAgJ3R5cGVfb2ZfdHJhbnNmb3JtJzogc2VsZi50eXBlX29mX3RyYW5zZm9ybSwNCiAgICAgICAgICAgICdtZXRyaWMnOiBzZWxmLm1ldHJpYywNCiAgICAgICAgICAgICdvcHRpbWl6ZXInOiBzZWxmLm9wdGltaXplciwNCiAgICAgICAgICAgICoqc2VsZi5yZWdfcGFyYW1zDQogICAgICAgIH0NCiAgICAgICAgDQogICAgICAgICMgQWRkIG1hc2tzIGlmIHByb3ZpZGVkDQogICAgICAgIGlmIGZpeGVkX21hc2sgaXMgbm90IE5vbmU6DQogICAgICAgICAgICByZWdfcGFyYW1zWydtYXNrJ10gPSBmaXhlZF9tYXNrDQogICAgICAgIGlmIG1vdmluZ19tYXNrIGlzIG5vdCBOb25lOg0KICAgICAgICAgICAgcmVnX3BhcmFtc1snbW92aW5nX21hc2snXSA9IG1vdmluZ19tYXNrDQogICAgICAgICAgICANCiAgICAgICAgIyBQZXJmb3JtIHJlZ2lzdHJhdGlvbg0KICAgICAgICByZWdfcmVzdWx0ID0gYW50cy5yZWdpc3RyYXRpb24oDQogICAgICAgICAgICBmaXhlZD1maXhlZF9pbWFnZSwNCiAgICAgICAgICAgIG1vdmluZz1tb3ZpbmdfaW1hZ2UsDQogICAgICAgICAgICAqKnJlZ19wYXJhbXMNCiAgICAgICAgKQ0KICAgICAgICANCiAgICAgICAgcmV0dXJuIHJlZ19yZXN1bHRbJ3dhcnBlZG1vdm91dCddLCByZWdfcmVzdWx0Wydmd2R0cmFuc2Zvcm1zJ10NCiAgICAgICAgDQogICAgZGVmIF9fY2FsbF9fKHNlbGYsIGRhdGE6IERpY3Rbc3RyLCBBbnldKSAtPiBEaWN0W3N0ciwgQW55XToNCiAgICAgICAgIiIiUmVnaXN0ZXIgdGhlIHNwZWNpZmllZCBpbWFnZXMgdG8gdGhlIHJlZmVyZW5jZSBpbWFnZS4NCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBkYXRhIChEaWN0W3N0ciwgQW55XSk6IElucHV0IGRhdGEgZGljdGlvbmFyeSBjb250YWluaW5nIEFOVHMgaW1hZ2Ugb2JqZWN0cy4NCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgRGljdFtzdHIsIEFueV06IERhdGEgZGljdGlvbmFyeSB3aXRoIHJlZ2lzdGVyZWQgaW1hZ2VzLg0KICAgICAgICAiIiINCiAgICAgICAgcHJpbnQoZiJSZWdpc3RlcmluZyBpbWFnZXMgdG8ge3NlbGYuZml4ZWRfaW1hZ2V9Li4uIikNCiAgICAgICAgc2VsZi5fY2hlY2tfa2V5cyhkYXRhKQ0KICAgICAgICANCiAgICAgICAgIyBHZXQgcmVmZXJlbmNlIGltYWdlDQogICAgICAgIGlmIHNlbGYuZml4ZWRfaW1hZ2Ugbm90IGluIGRhdGE6DQogICAgICAgICAgICByYWlzZSBLZXlFcnJvcihmIlJlZmVyZW5jZSBrZXkge3NlbGYuZml4ZWRfaW1hZ2V9IG5vdCBmb3VuZCBpbiBkYXRhIGRpY3Rpb25hcnkiKQ0KICAgICAgICANCiAgICAgICAgZml4ZWRfaW1hZ2UgPSBkYXRhW3NlbGYuZml4ZWRfaW1hZ2VdDQogICAgICAgIA0KICAgICAgICAjIHRvIGZsb2F0MzIgZm9yIHNpdGsNCiAgICAgICAgZml4ZWRfaW1hZ2UgPSBzaXRrLkNhc3QoZml4ZWRfaW1hZ2UsIHNpdGsuc2l0a0Zsb2F0MzIpDQoNCiAgICAgICAgIyDlsIZTaW1wbGVJVEvlm77lg4/ovazmjaLkuLpBTlRz5Zu+5YOPDQogICAgICAgIGZpeGVkX2ltYWdlID0gSW1hZ2VDb252ZXJ0ZXIuaXRrXzJfYW50cyhmaXhlZF9pbWFnZSkNCiAgICAgICAgDQogICAgICAgICMgR2V0IHJlZmVyZW5jZSBtYXNrIGlmIHNwZWNpZmllZA0KICAgICAgICBmaXhlZF9tYXNrID0gTm9uZQ0KICAgICAgICBpZiBzZWxmLnVzZV9tYXNrOg0KICAgICAgICAgICAgbWFza19rZXkgPSBmIm1hc2tfe3NlbGYuZml4ZWRfaW1hZ2V9Ig0KICAgICAgICAgICAgaWYgbWFza19rZXkgaW4gZGF0YToNCiAgICAgICAgICAgICAgICBmaXhlZF9tYXNrID0gZGF0YVttYXNrX2tleV0NCiAgICAgICAgICAgICAgICBmaXhlZF9tYXNrID0gc2l0ay5DYXN0KGZpeGVkX21hc2ssIHNpdGsuc2l0a1VJbnQ4KQ0KICAgICAgICAgICAgICAgIGZpeGVkX21hc2sgPSBJbWFnZUNvbnZlcnRlci5pdGtfMl9hbnRzKGZpeGVkX21hc2spDQogICAgICAgIA0KICAgICAgICAjIFByb2Nlc3MgZWFjaCBpbWFnZQ0KICAgICAgICBmb3Iga2V5IGluIHNlbGYua2V5czoNCiAgICAgICAgICAgIGlmIGtleSA9PSBzZWxmLmZpeGVkX2ltYWdlOg0KICAgICAgICAgICAgICAgIGNvbnRpbnVlDQoNCiAgICAgICAgICAgICMgR2V0IGZpeGVkIGltYWdlDQogICAgICAgICAgICBmaXhlZF9pbWFnZSA9IGRhdGFbc2VsZi5maXhlZF9pbWFnZV0NCiAgICAgICAgICAgIGZpeGVkX2ltYWdlID0gc2l0ay5DYXN0KGZpeGVkX2ltYWdlLCBzaXRrLnNpdGtGbG9hdDMyKQ0KICAgICAgICAgICAgZml4ZWRfaW1hZ2UgPSBJbWFnZUNvbnZlcnRlci5pdGtfMl9hbnRzKGZpeGVkX2ltYWdlKQ0KDQogICAgICAgICAgICAjIEdldCBtb3ZpbmcgaW1hZ2UNCiAgICAgICAgICAgIG1vdmluZ19pbWFnZSA9IGRhdGFba2V5XQ0KICAgICAgICAgICAgbW92aW5nX2ltYWdlID0gc2l0ay5DYXN0KG1vdmluZ19pbWFnZSwgc2l0ay5zaXRrRmxvYXQzMikNCiAgICAgICAgICAgIG1vdmluZ19pbWFnZSA9IEltYWdlQ29udmVydGVyLml0a18yX2FudHMobW92aW5nX2ltYWdlKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBHZXQgbW92aW5nIG1hc2sgaWYgc3BlY2lmaWVkDQogICAgICAgICAgICBtb3ZpbmdfbWFzayA9IE5vbmUNCiAgICAgICAgICAgIGlmIHNlbGYudXNlX21hc2s6DQogICAgICAgICAgICAgICAgbWFza19rZXkgPSBmIm1hc2tfe2tleX0iDQogICAgICAgICAgICAgICAgaWYgbWFza19rZXkgaW4gZGF0YToNCiAgICAgICAgICAgICAgICAgICAgbW92aW5nX21hc2sgPSBkYXRhW21hc2tfa2V5XQ0KICAgICAgICAgICAgICAgICAgICBtb3ZpbmdfbWFzayA9IHNpdGsuQ2FzdChtb3ZpbmdfbWFzaywgc2l0ay5zaXRrVUludDgpDQogICAgICAgICAgICAgICAgICAgIG1vdmluZ19tYXNrID0gSW1hZ2VDb252ZXJ0ZXIuaXRrXzJfYW50cyhtb3ZpbmdfbWFzaykNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgdHJ5Og0KICAgICAgICAgICAgICAgICMgUmVnaXN0ZXIgaW1hZ2UNCiAgICAgICAgICAgICAgICByZWdpc3RlcmVkX2ltYWdlLCB0cmFuc2Zvcm1fZmlsZXMgPSBzZWxmLl9yZWdpc3Rlcl9pbWFnZSgNCiAgICAgICAgICAgICAgICAgICAgZml4ZWRfaW1hZ2UsIG1vdmluZ19pbWFnZSwgZml4ZWRfbWFzaywgbW92aW5nX21hc2sNCiAgICAgICAgICAgICAgICApDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBDb252ZXJ0IEFOVHMgaW1hZ2UgdG8gU2ltcGxlSVRLIGltYWdlDQogICAgICAgICAgICAgICAgcmVnaXN0ZXJlZF9zaXRrID0gSW1hZ2VDb252ZXJ0ZXIuYW50c18yX2l0ayhyZWdpc3RlcmVkX2ltYWdlKQ0KICAgICAgICAgICAgICAgIHNpdGsuR2V0QXJyYXlGcm9tSW1hZ2UocmVnaXN0ZXJlZF9zaXRrKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgU3RvcmUgdGhlIHJlZ2lzdGVyZWQgaW1hZ2UNCiAgICAgICAgICAgICAgICBkYXRhW2tleV0gPSByZWdpc3RlcmVkX3NpdGsNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAjIFN0b3JlIHRoZSB0cmFuc2Zvcm0gZmlsZXMNCiAgICAgICAgICAgICAgICB0cmFuc2Zvcm1fa2V5ID0gZiJ7a2V5fV90cmFuc2Zvcm1fZmlsZXMiDQogICAgICAgICAgICAgICAgZGF0YVt0cmFuc2Zvcm1fa2V5XSA9IHRyYW5zZm9ybV9maWxlcw0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgVXBkYXRlIG1ldGFkYXRhDQogICAgICAgICAgICAgICAgbWV0YV9rZXkgPSBmIntrZXl9X21ldGFfZGljdCINCiAgICAgICAgICAgICAgICBpZiBtZXRhX2tleSBub3QgaW4gZGF0YToNCiAgICAgICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV0gPSB7fQ0KICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldWyJyZWdpc3RlcmVkIl0gPSBUcnVlDQogICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV1bImZpeGVkX2ltYWdlIl0gPSBzZWxmLmZpeGVkX2ltYWdlDQogICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV1bInR5cGVfb2ZfdHJhbnNmb3JtIl0gPSBzZWxmLnR5cGVfb2ZfdHJhbnNmb3JtDQogICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV1bIm1ldHJpYyJdID0gc2VsZi5tZXRyaWMNCiAgICAgICAgICAgICAgICBkYXRhW21ldGFfa2V5XVsib3B0aW1pemVyIl0gPSBzZWxmLm9wdGltaXplcg0KICAgICAgICAgICAgICAgICMgVXBkYXRlIHRoZSBpbWFnZSBwYXRoIHRvIGluZGljYXRlIGl0J3MgcmVnaXN0ZXJlZA0KICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldWyJpbWFnZV9wYXRoIl0gPSBkYXRhW21ldGFfa2V5XVsiaW1hZ2VfcGF0aCJdLnJlcGxhY2UoIi5uaWkuZ3oiLCAiX3JlZ2lzdGVyZWQubmlpLmd6IikNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToNCiAgICAgICAgICAgICAgICBwcmludChmIkVycm9yIHJlZ2lzdGVyaW5nIGltYWdlIHtrZXl9OiB7ZX0iKQ0KICAgICAgICAgICAgICAgIGlmIG5vdCBzZWxmLmFsbG93X21pc3Npbmdfa2V5czoNCiAgICAgICAgICAgICAgICAgICAgcmFpc2UNCiAgICAgICAgDQogICAgICAgICMgPT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KICAgICAgICAjIFByb2Nlc3MgZWFjaCBtYXNrIGltYWdlDQogICAgICAgIGZvciBrZXkgaW4gc2VsZi5rZXlzOg0KICAgICAgICAgICAgaWYga2V5ID09IHNlbGYuZml4ZWRfaW1hZ2U6DQogICAgICAgICAgICAgICAgY29udGludWUNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBHZXQgZml4ZWQgaW1hZ2UNCiAgICAgICAgICAgIGZpeGVkX2ltYWdlID0gZGF0YVtmIm1hc2tfe3NlbGYuZml4ZWRfaW1hZ2V9Il0NCiAgICAgICAgICAgIGZpeGVkX2ltYWdlID0gc2l0ay5DYXN0KGZpeGVkX2ltYWdlLCBzaXRrLnNpdGtVSW50OCkNCiAgICAgICAgICAgIGZpeGVkX2ltYWdlID0gSW1hZ2VDb252ZXJ0ZXIuaXRrXzJfYW50cyhmaXhlZF9pbWFnZSkNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgIG1hc2tfa2V5ID0gZiJtYXNrX3trZXl9Ig0KICAgICAgICAgICAgdHJhbnNmb3JtX2tleSA9IGYie2tleX1fdHJhbnNmb3JtX2ZpbGVzIg0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIFNraXAgaWYgbm8gbWFzayBvciBubyB0cmFuc2Zvcm0gZmlsZXMNCiAgICAgICAgICAgIGlmIG1hc2tfa2V5IG5vdCBpbiBkYXRhIG9yIHRyYW5zZm9ybV9rZXkgbm90IGluIGRhdGE6DQogICAgICAgICAgICAgICAgY29udGludWUNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICMgR2V0IHRoZSBtYXNrIGltYWdlIGFuZCBjb252ZXJ0IHRvIEFOVHMNCiAgICAgICAgICAgIG1vdmluZ19tYXNrID0gZGF0YVttYXNrX2tleV0NCiAgICAgICAgICAgIG1vdmluZ19tYXNrID0gc2l0ay5DYXN0KG1vdmluZ19tYXNrLCBzaXRrLnNpdGtVSW50OCkNCiAgICAgICAgICAgIG1vdmluZ19tYXNrX2FudHMgPSBJbWFnZUNvbnZlcnRlci5pdGtfMl9hbnRzKG1vdmluZ19tYXNrKQ0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIEdldCB0aGUgdHJhbnNmb3JtIGZpbGVzIGZyb20gcHJldmlvdXMgcmVnaXN0cmF0aW9uDQogICAgICAgICAgICB0cmFuc2Zvcm1fZmlsZXMgPSBkYXRhW3RyYW5zZm9ybV9rZXldDQogICAgICAgICAgICANCiAgICAgICAgICAgIHRyeToNCiAgICAgICAgICAgICAgICAjIEFwcGx5IHRoZSB0cmFuc2Zvcm0gdG8gdGhlIG1hc2sNCiAgICAgICAgICAgICAgICB0cmFuc2Zvcm1lZF9tYXNrID0gYW50cy5hcHBseV90cmFuc2Zvcm1zKA0KICAgICAgICAgICAgICAgICAgICBmaXhlZD1maXhlZF9pbWFnZSwNCiAgICAgICAgICAgICAgICAgICAgbW92aW5nPW1vdmluZ19tYXNrX2FudHMsDQogICAgICAgICAgICAgICAgICAgIHRyYW5zZm9ybWxpc3Q9dHJhbnNmb3JtX2ZpbGVzLA0KICAgICAgICAgICAgICAgICAgICBpbnRlcnBvbGF0b3I9Im5lYXJlc3ROZWlnaGJvciIgICMgVXNlIG5lYXJlc3QgbmVpZ2hib3IgZm9yIG1hc2tzDQogICAgICAgICAgICAgICAgKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgQ29udmVydCBiYWNrIHRvIFNpbXBsZUlUSw0KICAgICAgICAgICAgICAgIHRyYW5zZm9ybWVkX21hc2tfc2l0ayA9IEltYWdlQ29udmVydGVyLmFudHNfMl9pdGsodHJhbnNmb3JtZWRfbWFzaykNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAjIEVuc3VyZSBpdCdzIGJpbmFyeSAodWludDgpDQogICAgICAgICAgICAgICAgdHJhbnNmb3JtZWRfbWFza19zaXRrID0gc2l0ay5DYXN0KHRyYW5zZm9ybWVkX21hc2tfc2l0aywgc2l0ay5zaXRrVUludDgpDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBTdG9yZSB0aGUgdHJhbnNmb3JtZWQgbWFzaw0KICAgICAgICAgICAgICAgIGRhdGFbbWFza19rZXldID0gdHJhbnNmb3JtZWRfbWFza19zaXRrDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBVcGRhdGUgbWV0YWRhdGENCiAgICAgICAgICAgICAgICBtZXRhX2tleSA9IGYie21hc2tfa2V5fV9tZXRhX2RpY3QiDQogICAgICAgICAgICAgICAgaWYgbWV0YV9rZXkgbm90IGluIGRhdGE6DQogICAgICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldID0ge30NCiAgICAgICAgICAgICAgICBkYXRhW21ldGFfa2V5XVsicmVnaXN0ZXJlZCJdID0gVHJ1ZQ0KICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldWyJmaXhlZF9pbWFnZSJdID0gc2VsZi5maXhlZF9pbWFnZQ0KICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldWyJ0eXBlX29mX3RyYW5zZm9ybSJdID0gc2VsZi50eXBlX29mX3RyYW5zZm9ybQ0KICAgICAgICAgICAgICAgIGRhdGFbbWV0YV9rZXldWyJtZXRyaWMiXSA9IHNlbGYubWV0cmljDQogICAgICAgICAgICAgICAgZGF0YVttZXRhX2tleV1bIm9wdGltaXplciJdID0gc2VsZi5vcHRpbWl6ZXINCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToNCiAgICAgICAgICAgICAgICBwcmludChmIkVycm9yIGFwcGx5aW5nIHRyYW5zZm9ybSB0byBtYXNrIHttYXNrX2tleX06IHtlfSIpDQogICAgICAgICAgICAgICAgIyBDb250aW51ZSBldmVuIGlmIGVycm9yIG9jY3VycyBmb3Igb25lIG1hc2sNCiAgICAgICAg').decode())
+@PreprocessorFactory.register("registration")
+class RegistrationPreprocessor(BasePreprocessor):
+    """Register images to a reference image using ANTs.
+    
+    This preprocessor performs image registration using ANTs (Advanced Normalization Tools).
+    It supports various registration methods including SyN, Rigid, Affine, etc.
+    """
+    
+    def __init__(
+        self,
+        keys: Union[str, List[str]],
+        fixed_image: str,
+        mask_keys: Optional[Union[str, List[str]]] = None,
+        type_of_transform: str = "SyN",
+        metric: str = "MI",
+        optimizer: str = "gradient_descent",
+        use_mask: bool = False,
+        allow_missing_keys: bool = False,
+        replace_by_fixed_image_mask: bool = True,
+        **kwargs
+    ):
+        """Initialize the registration preprocessor.
+        
+        Args:
+            keys (Union[str, List[str]]): Keys of the images to be registered.
+            fixed_image (str): Key of the reference image to register to.
+            mask_keys (Optional[Union[str, List[str]]]): Keys of the masks to use for registration.
+            type_of_transform (str): Type of transform to use. Options: 
+                - "Rigid": Rigid transformation
+                - "Affine": Affine transformation
+                - "SyN": Symmetric normalization (deformable)
+                - "SyNRA": SyN + Rigid + Affine
+                - "SyNOnly": SyN without initial rigid/affine
+                - "TRSAA": Translation + Rotation + Scaling + Affine
+                - "Elastic": Elastic transformation
+                - "SyNCC": SyN with cross-correlation metric
+                - "SyNabp": SyN with mutual information metric
+                - "SyNBold": SyN optimized for BOLD images
+                - "SyNBoldAff": SyN + Affine for BOLD images
+                - "SyNAggro": SyN with aggressive optimization
+                - "TVMSQ": Time-varying diffeomorphism with mean square metric
+            metric (str): Similarity metric to use. Options:
+                - "CC": Cross-correlation
+                - "MI": Mutual information
+                - "MeanSquares": Mean squares
+                - "Demons": Demons metric
+            optimizer (str): Optimizer to use. Options:
+                - "gradient_descent": Gradient descent
+                - "lbfgsb": L-BFGS-B
+                - "amoeba": Amoeba
+            use_mask (bool): If True, use mask for registration.
+            allow_missing_keys (bool): If True, allows missing keys in the input data.
+            replace_by_fixed_image_mask (bool): If True, use fixed image's mask to replace moving image's mask after registration.
+            **kwargs: Additional parameters for registration.
+        """
+        super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
+        
+        # Convert single key to list
+        if isinstance(keys, str):
+            keys = [keys]
+        self.keys = keys
+        self.fixed_image = fixed_image
+        
+        # Handle mask keys
+        if mask_keys is None:
+            self.mask_keys = None
+        else:
+            self.mask_keys = [mask_keys] if isinstance(mask_keys, str) else mask_keys
+        
+        # Set registration parameters
+        self.type_of_transform = type_of_transform
+        self.metric = metric
+        self.optimizer = optimizer
+        self.use_mask = use_mask
+        self.replace_by_fixed_image_mask = replace_by_fixed_image_mask
+        
+        # Store additional parameters
+        self.reg_params = kwargs
+        
+    def _register_image(self,
+                       fixed_image: ants.ANTsImage,
+                       moving_image: ants.ANTsImage,
+                       fixed_mask: Optional[ants.ANTsImage] = None,
+                       moving_mask: Optional[ants.ANTsImage] = None) -> Tuple[ants.ANTsImage, List[str]]:
+        """Register a moving image to a fixed image using ANTs.
+        
+        Args:
+            fixed_image (ants.ANTsImage): Reference image
+            moving_image (ants.ANTsImage): Image to be registered
+            fixed_mask (Optional[ants.ANTsImage]): Mask for reference image
+            moving_mask (Optional[ants.ANTsImage]): Mask for moving image
+            
+        Returns:
+            Tuple[ants.ANTsImage, List[str]]: 
+                - Registered image
+                - List of transform files
+        """
+        
+        # Prepare registration parameters
+        reg_params = {
+            'type_of_transform': self.type_of_transform,
+            'metric': self.metric,
+            'optimizer': self.optimizer,
+            **self.reg_params
+        }
+        
+        # Add masks if provided
+        if fixed_mask is not None:
+            reg_params['mask'] = fixed_mask
+        if moving_mask is not None:
+            reg_params['moving_mask'] = moving_mask
+            
+        # Perform registration
+        reg_result = ants.registration(
+            fixed=fixed_image,
+            moving=moving_image,
+            **reg_params
+        )
+        
+        return reg_result['warpedmovout'], reg_result['fwdtransforms']
+        
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Register the specified images to the reference image.
+        
+        Args:
+            data (Dict[str, Any]): Input data dictionary containing ANTs image objects.
+            
+        Returns:
+            Dict[str, Any]: Data dictionary with registered images.
+        """
+        print(f"Registering images to {self.fixed_image}...")
+        self._check_keys(data)
+        
+        # Get reference image
+        if self.fixed_image not in data:
+            raise KeyError(f"Reference key {self.fixed_image} not found in data dictionary")
+        
+        fixed_image = data[self.fixed_image]
+        
+        # to float32 for sitk
+        fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
+
+        # 将SimpleITK图像转换为ANTs图像
+        fixed_image = ImageConverter.itk_2_ants(fixed_image)
+        
+        # Get reference mask if specified
+        fixed_mask = None
+        if self.use_mask:
+            mask_key = f"mask_{self.fixed_image}"
+            if mask_key in data:
+                fixed_mask = data[mask_key]
+                fixed_mask = sitk.Cast(fixed_mask, sitk.sitkUInt8)
+                fixed_mask = ImageConverter.itk_2_ants(fixed_mask)
+        
+        # Process each image
+        for key in self.keys:
+            if key == self.fixed_image:
+                continue
+
+            # Get fixed image
+            fixed_image = data[self.fixed_image]
+            fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
+            fixed_image = ImageConverter.itk_2_ants(fixed_image)
+
+            # Get moving image
+            moving_image = data[key]
+            moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
+            moving_image = ImageConverter.itk_2_ants(moving_image)
+                
+            # Get moving mask if specified
+            moving_mask = None
+            if self.use_mask:
+                mask_key = f"mask_{key}"
+                if mask_key in data:
+                    moving_mask = data[mask_key]
+                    moving_mask = sitk.Cast(moving_mask, sitk.sitkUInt8)
+                    moving_mask = ImageConverter.itk_2_ants(moving_mask)
+            
+            try:
+                # Register image
+                registered_image, transform_files = self._register_image(
+                    fixed_image, moving_image, fixed_mask, moving_mask
+                )
+                
+                # Convert ANTs image to SimpleITK image
+                registered_sitk = ImageConverter.ants_2_itk(registered_image)
+                sitk.GetArrayFromImage(registered_sitk)
+                
+                # Store the registered image
+                data[key] = registered_sitk
+                
+                # Store the transform files
+                transform_key = f"{key}_transform_files"
+                data[transform_key] = transform_files
+                
+                # Update metadata
+                meta_key = f"{key}_meta_dict"
+                if meta_key not in data:
+                    data[meta_key] = {}
+                data[meta_key]["registered"] = True
+                data[meta_key]["fixed_image"] = self.fixed_image
+                data[meta_key]["type_of_transform"] = self.type_of_transform
+                data[meta_key]["metric"] = self.metric
+                data[meta_key]["optimizer"] = self.optimizer
+                # Update the image path to indicate it's registered
+                data[meta_key]["image_path"] = data[meta_key]["image_path"].replace(".nii.gz", "_registered.nii.gz")
+                
+            except Exception as e:
+                print(f"Error registering image {key}: {e}")
+                if not self.allow_missing_keys:
+                    raise
+        
+        # ============================
+        # Process each mask image
+        for key in self.keys:
+            if key == self.fixed_image:
+                continue
+            
+            mask_key = f"mask_{key}"
+            fixed_mask_key = f"mask_{self.fixed_image}"
+            transform_key = f"{key}_transform_files"
+            
+            # Skip if no mask for moving image
+            if mask_key not in data:
+                continue
+                
+            # Skip if no mask for fixed image and replace option is enabled
+            if self.replace_by_fixed_image_mask and fixed_mask_key not in data:
+                print(f"Warning: Cannot replace mask for {key} because fixed mask {fixed_mask_key} not found.")
+                continue
+                
+            # If user chose to replace moving mask with fixed mask
+            if self.replace_by_fixed_image_mask:
+                print(f"Replacing mask for {key} with fixed image mask as requested.")
+                # Get the fixed mask and make a copy for the moving image
+                fixed_mask = data[fixed_mask_key]
+                data[mask_key] = sitk.Cast(fixed_mask, sitk.sitkUInt8)
+                
+                # Update metadata
+                meta_key = f"{mask_key}_meta_dict"
+                if meta_key not in data:
+                    data[meta_key] = {}
+                data[meta_key]["registered"] = True
+                data[meta_key]["fixed_image"] = self.fixed_image
+                data[meta_key]["replaced_by_fixed_mask"] = True
+                continue
+                
+            # Normal mask registration process
+            # Skip if no transform files (which means image registration failed)
+            if transform_key not in data:
+                print(f"Warning: No transform files found for {key}. Skipping mask registration.")
+                continue
+                
+            # Get fixed image for transform application
+            fixed_image = data[self.fixed_image]
+            fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
+            fixed_image = ImageConverter.itk_2_ants(fixed_image)
+                
+            # Get the mask image and convert to ANTs
+            moving_mask = data[mask_key]
+            moving_mask = sitk.Cast(moving_mask, sitk.sitkUInt8)
+            moving_mask_ants = ImageConverter.itk_2_ants(moving_mask)
+            
+            # Get the transform files from previous registration
+            transform_files = data[transform_key]
+            
+            try:
+                # Apply the transform to the mask
+                transformed_mask = ants.apply_transforms(
+                    fixed=fixed_image,
+                    moving=moving_mask_ants,
+                    transformlist=transform_files,
+                    interpolator="nearestNeighbor"  # Use nearest neighbor for masks
+                )
+                
+                # Convert back to SimpleITK
+                transformed_mask_sitk = ImageConverter.ants_2_itk(transformed_mask)
+                
+                # Ensure it's binary (uint8)
+                transformed_mask_sitk = sitk.Cast(transformed_mask_sitk, sitk.sitkUInt8)
+                
+                # Store the transformed mask
+                data[mask_key] = transformed_mask_sitk
+                
+                # Update metadata
+                meta_key = f"{mask_key}_meta_dict"
+                if meta_key not in data:
+                    data[meta_key] = {}
+                data[meta_key]["registered"] = True
+                data[meta_key]["fixed_image"] = self.fixed_image
+                data[meta_key]["type_of_transform"] = self.type_of_transform
+                data[meta_key]["metric"] = self.metric
+                data[meta_key]["optimizer"] = self.optimizer
+                
+            except Exception as e:
+                print(f"Error applying transform to mask {mask_key}: {e}")
+                # Continue even if error occurs for one mask
+        

@@ -1,3 +1,120 @@
+"""
+ANOVA Feature Selector
 
-import base64
-exec(base64.b64decode(b'IiIiDQpBTk9WQSBGZWF0dXJlIFNlbGVjdG9yDQoNCkltcGxlbWVudGF0aW9uIG9mIEFOT1ZBIEYtdmFsdWUgYmFzZWQgZmVhdHVyZSBzZWxlY3Rpb24gZm9yIGNsYXNzaWZpY2F0aW9uIHByb2JsZW1zLg0KIiIiDQoNCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IHBhbmRhcyBhcyBwZA0KZnJvbSB0eXBpbmcgaW1wb3J0IExpc3QsIFR1cGxlLCBBbnksIERpY3QsIE9wdGlvbmFsLCBVbmlvbg0KaW1wb3J0IG9zDQppbXBvcnQganNvbg0KZnJvbSBza2xlYXJuLmZlYXR1cmVfc2VsZWN0aW9uIGltcG9ydCBTZWxlY3RLQmVzdCwgZl9jbGFzc2lmDQppbXBvcnQgbWF0cGxvdGxpYi5weXBsb3QgYXMgcGx0DQppbXBvcnQgc2VhYm9ybiBhcyBzbnMNCg0KZnJvbSAuc2VsZWN0b3JfcmVnaXN0cnkgaW1wb3J0IHJlZ2lzdGVyX3NlbGVjdG9yDQoNCkByZWdpc3Rlcl9zZWxlY3RvcignYW5vdmEnKQ0KZGVmIGFub3ZhX3NlbGVjdG9yKA0KICAgICAgICBYOiBwZC5EYXRhRnJhbWUsDQogICAgICAgIHk6IHBkLlNlcmllcywNCiAgICAgICAgc2VsZWN0ZWRfZmVhdHVyZXM6IExpc3Rbc3RyXSwNCiAgICAgICAgbl9mZWF0dXJlc190b19zZWxlY3Q6IGludCA9IDIwLA0KICAgICAgICBwbG90X2ltcG9ydGFuY2U6IGJvb2wgPSBUcnVlLA0KICAgICAgICBvdXRkaXI6IE9wdGlvbmFsW3N0cl0gPSBOb25lLA0KICAgICAgICAqKmt3YXJncw0KICAgICkgLT4gTGlzdFtzdHJdOg0KICAgICIiIg0KICAgIEFwcGx5IEFOT1ZBIEYtdmFsdWUgYmFzZWQgZmVhdHVyZSBzZWxlY3Rpb24NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBYOiBGZWF0dXJlIGRhdGENCiAgICAgICAgeTogVGFyZ2V0IHZhcmlhYmxlDQogICAgICAgIHNlbGVjdGVkX2ZlYXR1cmVzOiBMaXN0IG9mIGZlYXR1cmVzIHRvIHNlbGVjdCBmcm9tDQogICAgICAgIG5fZmVhdHVyZXNfdG9fc2VsZWN0OiBOdW1iZXIgb2YgZmVhdHVyZXMgdG8gc2VsZWN0DQogICAgICAgIHBsb3RfaW1wb3J0YW5jZTogV2hldGhlciB0byBwbG90IGZlYXR1cmUgaW1wb3J0YW5jZQ0KICAgICAgICBvdXRkaXI6IE91dHB1dCBkaXJlY3RvcnkgZm9yIHJlc3VsdHMNCiAgICAgICAgKiprd2FyZ3M6IEFkZGl0aW9uYWwgYXJndW1lbnRzDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIExpc3Rbc3RyXTogU2VsZWN0ZWQgZmVhdHVyZSBuYW1lcw0KICAgICIiIg0KICAgICMgRW5zdXJlIG5fZmVhdHVyZXNfdG9fc2VsZWN0IGlzIHZhbGlkDQogICAgbl9mZWF0dXJlc190b19zZWxlY3QgPSBtaW4obl9mZWF0dXJlc190b19zZWxlY3QsIGxlbihzZWxlY3RlZF9mZWF0dXJlcykpDQogICAgDQogICAgIyBHZXQgZmVhdHVyZSBzdWJzZXQNCiAgICBYX3N1YnNldCA9IFhbc2VsZWN0ZWRfZmVhdHVyZXNdDQogICAgDQogICAgIyBBcHBseSBBTk9WQSBGLXRlc3QNCiAgICBzZWxlY3RvciA9IFNlbGVjdEtCZXN0KGZfY2xhc3NpZiwgaz1uX2ZlYXR1cmVzX3RvX3NlbGVjdCkNCiAgICBzZWxlY3Rvci5maXQoWF9zdWJzZXQsIHkpDQogICAgDQogICAgIyBHZXQgc2VsZWN0ZWQgZmVhdHVyZSBpbmRpY2VzIGFuZCBzY29yZXMNCiAgICBzZWxlY3RlZF9pbmRpY2VzID0gc2VsZWN0b3IuZ2V0X3N1cHBvcnQoaW5kaWNlcz1UcnVlKQ0KICAgIHNjb3JlcyA9IHNlbGVjdG9yLnNjb3Jlc18NCiAgICANCiAgICAjIENyZWF0ZSBmZWF0dXJlIHJhbmtpbmcNCiAgICBmZWF0dXJlX3JhbmtpbmcgPSBwZC5EYXRhRnJhbWUoew0KICAgICAgICAnZmVhdHVyZSc6IHNlbGVjdGVkX2ZlYXR1cmVzLA0KICAgICAgICAnc2NvcmUnOiBzY29yZXMsDQogICAgICAgICdwdmFsdWUnOiBzZWxlY3Rvci5wdmFsdWVzXywNCiAgICAgICAgJ3NlbGVjdGVkJzogc2VsZWN0b3IuZ2V0X3N1cHBvcnQoKQ0KICAgIH0pDQogICAgDQogICAgIyBTb3J0IGJ5IHNjb3JlDQogICAgZmVhdHVyZV9yYW5raW5nID0gZmVhdHVyZV9yYW5raW5nLnNvcnRfdmFsdWVzKCdzY29yZScsIGFzY2VuZGluZz1GYWxzZSkucmVzZXRfaW5kZXgoZHJvcD1UcnVlKQ0KICAgIA0KICAgICMgR2V0IHNlbGVjdGVkIGZlYXR1cmUgbmFtZXMNCiAgICBzZWxlY3RlZF9mZWF0dXJlc19yZXN1bHQgPSBbc2VsZWN0ZWRfZmVhdHVyZXNbaV0gZm9yIGkgaW4gc2VsZWN0ZWRfaW5kaWNlc10NCiAgICANCiAgICAjIFNhdmUgcmVzdWx0cyBpZiBvdXRwdXQgZGlyZWN0b3J5IHNwZWNpZmllZA0KICAgIGlmIG91dGRpcjoNCiAgICAgICAgb3MubWFrZWRpcnMob3V0ZGlyLCBleGlzdF9vaz1UcnVlKQ0KICAgICAgICANCiAgICAgICAgIyBTYXZlIHNlbGVjdGVkIGZlYXR1cmVzDQogICAgICAgIHJlc3VsdF9maWxlID0gb3MucGF0aC5qb2luKG91dGRpciwgJ2Fub3ZhX3NlbGVjdGVkX2ZlYXR1cmVzLmpzb24nKQ0KICAgICAgICB3aXRoIG9wZW4ocmVzdWx0X2ZpbGUsICd3JywgZW5jb2Rpbmc9J3V0Zi04JykgYXMgZjoNCiAgICAgICAgICAgIGpzb24uZHVtcCh7DQogICAgICAgICAgICAgICAgJ3NlbGVjdGVkX2ZlYXR1cmVzJzogc2VsZWN0ZWRfZmVhdHVyZXNfcmVzdWx0LA0KICAgICAgICAgICAgICAgICduX2ZlYXR1cmVzX3NlbGVjdGVkJzogbGVuKHNlbGVjdGVkX2ZlYXR1cmVzX3Jlc3VsdCksDQogICAgICAgICAgICAgICAgJ29yaWdpbmFsX2ZlYXR1cmVfY291bnQnOiBsZW4oc2VsZWN0ZWRfZmVhdHVyZXMpDQogICAgICAgICAgICB9LCBmLCBlbnN1cmVfYXNjaWk9RmFsc2UsIGluZGVudD00KQ0KICAgICAgICAgICAgDQogICAgICAgICMgU2F2ZSBmZWF0dXJlIHJhbmtpbmcNCiAgICAgICAgcmFua2luZ19maWxlID0gb3MucGF0aC5qb2luKG91dGRpciwgJ2Fub3ZhX2ZlYXR1cmVfcmFua2luZy5jc3YnKQ0KICAgICAgICBmZWF0dXJlX3JhbmtpbmcudG9fY3N2KHJhbmtpbmdfZmlsZSwgaW5kZXg9RmFsc2UpDQogICAgICAgIA0KICAgICAgICAjIFBsb3QgZmVhdHVyZSBpbXBvcnRhbmNlDQogICAgICAgIGlmIHBsb3RfaW1wb3J0YW5jZToNCiAgICAgICAgICAgIHBsdC5maWd1cmUoZmlnc2l6ZT0oMTIsIDgpKQ0KICAgICAgICAgICAgc25zLmJhcnBsb3QoeD0nc2NvcmUnLCB5PSdmZWF0dXJlJywgZGF0YT1mZWF0dXJlX3JhbmtpbmcuaGVhZChtaW4oMjAsIGxlbihzZWxlY3RlZF9mZWF0dXJlcykpKSkNCiAgICAgICAgICAgIHBsdC50aXRsZSgnQU5PVkEgRi1TY29yZSBGZWF0dXJlIEltcG9ydGFuY2UnKQ0KICAgICAgICAgICAgcGx0LnRpZ2h0X2xheW91dCgpDQogICAgICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4ob3V0ZGlyLCAnYW5vdmFfZmVhdHVyZV9pbXBvcnRhbmNlLnBkZicpKQ0KICAgICAgICAgICAgcGx0LmNsb3NlKCkNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBQbG90IGZlYXR1cmUgaW1wb3J0YW5jZSB3aXRoIHAtdmFsdWVzDQogICAgICAgICAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDEyLCA4KSkNCiAgICAgICAgICAgIHRvcF9mZWF0dXJlcyA9IGZlYXR1cmVfcmFua2luZy5oZWFkKG1pbigyMCwgbGVuKHNlbGVjdGVkX2ZlYXR1cmVzKSkpDQogICAgICAgICAgICBheCA9IHNucy5iYXJwbG90KHg9J3Njb3JlJywgeT0nZmVhdHVyZScsIGRhdGE9dG9wX2ZlYXR1cmVzKQ0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIEFkZCBwLXZhbHVlIGFubm90YXRpb25zDQogICAgICAgICAgICBmb3IgaSwgZmVhdHVyZSBpbiBlbnVtZXJhdGUodG9wX2ZlYXR1cmVzWydmZWF0dXJlJ10pOg0KICAgICAgICAgICAgICAgIHBfdmFsdWUgPSB0b3BfZmVhdHVyZXMubG9jW3RvcF9mZWF0dXJlc1snZmVhdHVyZSddID09IGZlYXR1cmUsICdwdmFsdWUnXS52YWx1ZXNbMF0NCiAgICAgICAgICAgICAgICBzdGFycyA9ICcnDQogICAgICAgICAgICAgICAgaWYgcF92YWx1ZSA8IDAuMDAxOg0KICAgICAgICAgICAgICAgICAgICBzdGFycyA9ICcqKionDQogICAgICAgICAgICAgICAgZWxpZiBwX3ZhbHVlIDwgMC4wMToNCiAgICAgICAgICAgICAgICAgICAgc3RhcnMgPSAnKionDQogICAgICAgICAgICAgICAgZWxpZiBwX3ZhbHVlIDwgMC4wNToNCiAgICAgICAgICAgICAgICAgICAgc3RhcnMgPSAnKicNCiAgICAgICAgICAgICAgICBheC50ZXh0KHRvcF9mZWF0dXJlcy5sb2NbdG9wX2ZlYXR1cmVzWydmZWF0dXJlJ10gPT0gZmVhdHVyZSwgJ3Njb3JlJ10udmFsdWVzWzBdICsgMC41LCANCiAgICAgICAgICAgICAgICAgICAgICAgIGksIHN0YXJzLCBoYT0nbGVmdCcsIHZhPSdjZW50ZXInKQ0KICAgICAgICAgICAgDQogICAgICAgICAgICBwbHQudGl0bGUoJ0FOT1ZBIEYtU2NvcmUgRmVhdHVyZSBJbXBvcnRhbmNlIHdpdGggUC12YWx1ZXMgKCogcDwwLjA1LCAqKiBwPDAuMDEsICoqKiBwPDAuMDAxKScpDQogICAgICAgICAgICBwbHQudGlnaHRfbGF5b3V0KCkNCiAgICAgICAgICAgIHBsdC5zYXZlZmlnKG9zLnBhdGguam9pbihvdXRkaXIsICdhbm92YV9mZWF0dXJlX2ltcG9ydGFuY2Vfd2l0aF9wdmFsdWVzLnBkZicpKQ0KICAgICAgICAgICAgcGx0LmNsb3NlKCkNCiAgICAgICAgDQogICAgcmV0dXJuIHNlbGVjdGVkX2ZlYXR1cmVzX3Jlc3VsdCA=').decode())
+Implementation of ANOVA F-value based feature selection for classification problems.
+"""
+
+import numpy as np
+import pandas as pd
+from typing import List, Tuple, Any, Dict, Optional, Union
+import os
+import json
+from sklearn.feature_selection import SelectKBest, f_classif
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from .selector_registry import register_selector
+
+@register_selector('anova')
+def anova_selector(
+        X: pd.DataFrame,
+        y: pd.Series,
+        selected_features: List[str],
+        n_features_to_select: int = 20,
+        plot_importance: bool = True,
+        outdir: Optional[str] = None,
+        **kwargs
+    ) -> List[str]:
+    """
+    Apply ANOVA F-value based feature selection
+    
+    Args:
+        X: Feature data
+        y: Target variable
+        selected_features: List of features to select from
+        n_features_to_select: Number of features to select
+        plot_importance: Whether to plot feature importance
+        outdir: Output directory for results
+        **kwargs: Additional arguments
+        
+    Returns:
+        List[str]: Selected feature names
+    """
+    # Ensure n_features_to_select is valid
+    n_features_to_select = min(n_features_to_select, len(selected_features))
+    
+    # Get feature subset
+    X_subset = X[selected_features]
+    
+    # Apply ANOVA F-test
+    selector = SelectKBest(f_classif, k=n_features_to_select)
+    selector.fit(X_subset, y)
+    
+    # Get selected feature indices and scores
+    selected_indices = selector.get_support(indices=True)
+    scores = selector.scores_
+    
+    # Create feature ranking
+    feature_ranking = pd.DataFrame({
+        'feature': selected_features,
+        'score': scores,
+        'pvalue': selector.pvalues_,
+        'selected': selector.get_support()
+    })
+    
+    # Sort by score
+    feature_ranking = feature_ranking.sort_values('score', ascending=False).reset_index(drop=True)
+    
+    # Get selected feature names
+    selected_features_result = [selected_features[i] for i in selected_indices]
+    
+    # Save results if output directory specified
+    if outdir:
+        os.makedirs(outdir, exist_ok=True)
+        
+        # Save selected features
+        result_file = os.path.join(outdir, 'anova_selected_features.json')
+        with open(result_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                'selected_features': selected_features_result,
+                'n_features_selected': len(selected_features_result),
+                'original_feature_count': len(selected_features)
+            }, f, ensure_ascii=False, indent=4)
+            
+        # Save feature ranking
+        ranking_file = os.path.join(outdir, 'anova_feature_ranking.csv')
+        feature_ranking.to_csv(ranking_file, index=False)
+        
+        # Plot feature importance
+        if plot_importance:
+            plt.figure(figsize=(12, 8))
+            sns.barplot(x='score', y='feature', data=feature_ranking.head(min(20, len(selected_features))))
+            plt.title('ANOVA F-Score Feature Importance')
+            plt.tight_layout()
+            plt.savefig(os.path.join(outdir, 'anova_feature_importance.pdf'))
+            plt.close()
+            
+            # Plot feature importance with p-values
+            plt.figure(figsize=(12, 8))
+            top_features = feature_ranking.head(min(20, len(selected_features)))
+            ax = sns.barplot(x='score', y='feature', data=top_features)
+            
+            # Add p-value annotations
+            for i, feature in enumerate(top_features['feature']):
+                p_value = top_features.loc[top_features['feature'] == feature, 'pvalue'].values[0]
+                stars = ''
+                if p_value < 0.001:
+                    stars = '***'
+                elif p_value < 0.01:
+                    stars = '**'
+                elif p_value < 0.05:
+                    stars = '*'
+                ax.text(top_features.loc[top_features['feature'] == feature, 'score'].values[0] + 0.5, 
+                        i, stars, ha='left', va='center')
+            
+            plt.title('ANOVA F-Score Feature Importance with P-values (* p<0.05, ** p<0.01, *** p<0.001)')
+            plt.tight_layout()
+            plt.savefig(os.path.join(outdir, 'anova_feature_importance_with_pvalues.pdf'))
+            plt.close()
+        
+    return selected_features_result 

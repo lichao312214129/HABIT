@@ -1,3 +1,418 @@
+"""
+Background: The labels from two habitat analyses (mainly due to the randomness of cluster assignment) may not correspond. 
+For example, label1 in the first analysis and label1 in the second analysis may represent different feature attributes. 
+Direct analysis would lead to mismatched feature pairs in subsequent ICC analysis.
 
-import base64
-exec(base64.b64decode(b'IiIiDQpCYWNrZ3JvdW5kOiBUaGUgbGFiZWxzIGZyb20gdHdvIGhhYml0YXQgYW5hbHlzZXMgKG1haW5seSBkdWUgdG8gdGhlIHJhbmRvbW5lc3Mgb2YgY2x1c3RlciBhc3NpZ25tZW50KSBtYXkgbm90IGNvcnJlc3BvbmQuIA0KRm9yIGV4YW1wbGUsIGxhYmVsMSBpbiB0aGUgZmlyc3QgYW5hbHlzaXMgYW5kIGxhYmVsMSBpbiB0aGUgc2Vjb25kIGFuYWx5c2lzIG1heSByZXByZXNlbnQgZGlmZmVyZW50IGZlYXR1cmUgYXR0cmlidXRlcy4gDQpEaXJlY3QgYW5hbHlzaXMgd291bGQgbGVhZCB0byBtaXNtYXRjaGVkIGZlYXR1cmUgcGFpcnMgaW4gc3Vic2VxdWVudCBJQ0MgYW5hbHlzaXMuDQoNCk1vZHVsZSBmb3IgbWFwcGluZyBoYWJpdGF0IGxhYmVscyBiZXR3ZWVuIHRlc3QtcmV0ZXN0IG1lZGljYWwgaW1hZ2luZyBkYXRhLg0KDQpQdXJwb3NlOg0KLSBJbXBsZW1lbnRzIGNvcnJlbGF0aW9uLWJhc2VkIG1hcHBpbmcgb2YgaGFiaXRhdCBsYWJlbHMgYmV0d2VlbiBsb25naXR1ZGluYWwgc2NhbnMNCi0gSGFuZGxlcyBtZWRpY2FsIGltYWdlIHByb2Nlc3NpbmcgYW5kIGxhYmVsIHJlbWFwcGluZyBvcGVyYXRpb25zDQotIFN1cHBvcnRzIG11bHRpcHJvY2Vzc2luZyBmb3IgZWZmaWNpZW50IGJhdGNoIHByb2Nlc3NpbmcNCg0KS2V5IEZlYXR1cmVzOg0KMS4gQ3Jvc3MtbW9kYWwgY29ycmVsYXRpb24gYW5hbHlzaXMgYmV0d2VlbiB0ZXN0L3JldGVzdCBmZWF0dXJlcw0KMi4gQXV0b21hdGVkIGhhYml0YXQgbGFiZWwgbWFwcGluZyBiYXNlZCBvbiBzdGF0aXN0aWNhbCBzaW1pbGFyaXR5DQozLiBQYXJhbGxlbCBwcm9jZXNzaW5nIG9mIG1lZGljYWwgaW1hZ2UgZmlsZXMgKE5SUkQgZm9ybWF0KQ0KNC4gQ29tcHJlaGVuc2l2ZSBsb2dnaW5nIGFuZCBwcm9ncmVzcyB0cmFja2luZw0KNS4gQ29uZmlndXJhYmxlIHRocm91Z2ggWUFNTCBjb25maWd1cmF0aW9uIGZpbGVzDQoNCklucHV0czoNCi0gUGFpcmVkIENTVi9FeGNlbCBmaWxlcyB3aXRoIHRlc3QvcmV0ZXN0IGhhYml0YXQgZmVhdHVyZXMNCi0gTlJSRCBmb3JtYXQgbWVkaWNhbCBpbWFnZXMgZm9yIHByb2Nlc3NpbmcNCi0gWUFNTCBjb25maWd1cmF0aW9uIHNwZWNpZnlpbmcgYW5hbHlzaXMgcGFyYW1ldGVycw0KDQpPdXRwdXRzOg0KLSBSZW1hcHBlZCBtZWRpY2FsIGltYWdlcyB3aXRoIGNvbnNpc3RlbnQgbGFiZWxpbmcNCi0gRGV0YWlsZWQgbG9nZ2luZyBvZiBtYXBwaW5nIG9wZXJhdGlvbnMgYW5kIGVycm9ycw0KLSBQcmVzZXJ2YXRpb24gb2Ygc3BhdGlhbCBjaGFyYWN0ZXJpc3RpY3MgaW4gb3V0cHV0IGltYWdlcw0KDQpEZXBlbmRlbmNpZXM6DQotIFV0aWxpemVzIFNpbXBsZUlUSyBmb3IgbWVkaWNhbCBpbWFnZSBJL08gb3BlcmF0aW9ucw0KLSBFbXBsb3lzIHBhbmRhcyBmb3IgZmVhdHVyZSBkYXRhIGFuYWx5c2lzDQotIFVzZXMgbXVsdGlwcm9jZXNzaW5nIGZvciBwYXJhbGxlbCBleGVjdXRpb24NCi0gUmVxdWlyZXMgWUFNTCBjb25maWd1cmF0aW9uIGZvciBhbmFseXNpcyBwYXJhbWV0ZXJzDQoNClVzYWdlIEV4YW1wbGU6DQo+Pj4gcHl0aG9uIGhhYml0YXRfdGVzdF9yZXRlc3RfbWFwcGVyLnB5IFwNCiAgICAtLWNvbmZpZyAuLi9jb25maWd1cmF0aW9uLnlhbWwgXA0KICAgIC0tdGVzdCAuLi9kYXRhL3Jlc3VsdHMvaGFiaXRhdHMuY3N2IFwNCiAgICAtLXJldGVzdCAuLi9kYXRhL3Jlc3VsdHNfb2ZfaWNjL2hhYml0YXRzLmNzdiBcDQogICAgLS1pbnB1dC1kaXIgLi4vZGF0YS9yZXN1bHRzX29mX2ljYyBcDQogICAgLS1vdXQtZGlyIC4uL2RhdGEvcmVzdWx0c19vZl9pY2MgXA0KICAgIC0tcHJvY2Vzc2VzIDgNCg0KTm90ZTogTWFpbnRhaW5zIG9yaWdpbmFsIGltYWdlIGdlb21ldHJ5IGFuZCBtZXRhZGF0YSBkdXJpbmcgcmVtYXBwaW5nDQogICAgICBvcGVyYXRpb25zLiBIYW5kbGVzIGVkZ2UgY2FzZXMgdGhyb3VnaCBjb21wcmVoZW5zaXZlIGVycm9yIGxvZ2dpbmcuDQoiIiINCg0KDQppbXBvcnQgcGFuZGFzIGFzIHBkDQppbXBvcnQgbnVtcHkgYXMgbnANCmltcG9ydCBTaW1wbGVJVEsgYXMgc2l0aw0KaW1wb3J0IHlhbWwNCmltcG9ydCBhcmdwYXJzZQ0KaW1wb3J0IHN5cw0KaW1wb3J0IGxvZ2dpbmcNCmltcG9ydCBnbG9iDQppbXBvcnQgb3MNCmltcG9ydCBtdWx0aXByb2Nlc3NpbmcNCmZyb20gZnVuY3Rvb2xzIGltcG9ydCBwYXJ0aWFsDQpmcm9tIHR5cGluZyBpbXBvcnQgRGljdCwgVHVwbGUsIExpc3QsIEFueQ0KaW1wb3J0IGNoYXJkZXQNCmZyb20gc2NpcHkuc3BhdGlhbC5kaXN0YW5jZSBpbXBvcnQgZXVjbGlkZWFuLCBjb3NpbmUNCmZyb20gc2NpcHkuc3RhdHMgaW1wb3J0IHBlYXJzb25yLCBzcGVhcm1hbnIsIGtlbmRhbGx0YXUNCg0KDQpkZWYgY2FsY3VsYXRlX3NpbWlsYXJpdHkoeDogbnAubmRhcnJheSwgeTogbnAubmRhcnJheSwgbWV0aG9kOiBzdHIgPSAncGVhcnNvbicpIC0+IGZsb2F0Og0KICAgICIiIg0KICAgIENhbGN1bGF0ZSBzaW1pbGFyaXR5IGJldHdlZW4gdHdvIGZlYXR1cmUgdmVjdG9ycyB1c2luZyBzcGVjaWZpZWQgbWV0aG9kLg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIHg6IEZpcnN0IGZlYXR1cmUgdmVjdG9yDQogICAgICAgIHk6IFNlY29uZCBmZWF0dXJlIHZlY3Rvcg0KICAgICAgICBtZXRob2Q6IFNpbWlsYXJpdHkgY2FsY3VsYXRpb24gbWV0aG9kLCBvcHRpb25zOg0KICAgICAgICAgICAgICAgLSAncGVhcnNvbic6IFBlYXJzb24gY29ycmVsYXRpb24gY29lZmZpY2llbnQNCiAgICAgICAgICAgICAgIC0gJ3NwZWFybWFuJzogU3BlYXJtYW4gcmFuayBjb3JyZWxhdGlvbg0KICAgICAgICAgICAgICAgLSAna2VuZGFsbCc6IEtlbmRhbGwgcmFuayBjb3JyZWxhdGlvbg0KICAgICAgICAgICAgICAgLSAnZXVjbGlkZWFuJzogRXVjbGlkZWFuIGRpc3RhbmNlIChub3JtYWxpemVkIGFuZCBuZWdhdGVkKQ0KICAgICAgICAgICAgICAgLSAnY29zaW5lJzogQ29zaW5lIHNpbWlsYXJpdHkNCiAgICAgICAgICAgICAgIC0gJ21hbmhhdHRhbic6IE1hbmhhdHRhbiBkaXN0YW5jZSAobm9ybWFsaXplZCBhbmQgbmVnYXRlZCkNCiAgICAgICAgICAgICAgIC0gJ2NoZWJ5c2hldic6IENoZWJ5c2hldiBkaXN0YW5jZSAobm9ybWFsaXplZCBhbmQgbmVnYXRlZCkNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBmbG9hdDogU2ltaWxhcml0eSB2YWx1ZSByYW5naW5nIGZyb20gWy0xLCAxXQ0KICAgICIiIg0KICAgIGlmIG1ldGhvZCA9PSAncGVhcnNvbic6DQogICAgICAgIHJldHVybiBwZWFyc29ucih4LCB5KVswXQ0KICAgIGVsaWYgbWV0aG9kID09ICdzcGVhcm1hbic6DQogICAgICAgIHJldHVybiBzcGVhcm1hbnIoeCwgeSlbMF0NCiAgICBlbGlmIG1ldGhvZCA9PSAna2VuZGFsbCc6DQogICAgICAgIHJldHVybiBrZW5kYWxsdGF1KHgsIHkpWzBdDQogICAgZWxpZiBtZXRob2QgPT0gJ2V1Y2xpZGVhbic6DQogICAgICAgICMg5b2S5LiA5YyW5ZCO5Y+W6LSf77yM5L2/5b6X6Led56a76LaK5bCP55u45Ly85bqm6LaK6auYDQogICAgICAgIHJldHVybiAtZXVjbGlkZWFuKHgsIHkpIC8gbnAuc3FydChsZW4oeCkpDQogICAgZWxpZiBtZXRob2QgPT0gJ2Nvc2luZSc6DQogICAgICAgIHJldHVybiAxIC0gY29zaW5lKHgsIHkpICAjIGNvc2luZei3neemu+i9rOS4uuebuOS8vOW6pg0KICAgIGVsaWYgbWV0aG9kID09ICdtYW5oYXR0YW4nOg0KICAgICAgICByZXR1cm4gLW5wLnN1bShucC5hYnMoeCAtIHkpKSAvIGxlbih4KQ0KICAgIGVsaWYgbWV0aG9kID09ICdjaGVieXNoZXYnOg0KICAgICAgICByZXR1cm4gLW5wLm1heChucC5hYnMoeCAtIHkpKQ0KICAgIGVsc2U6DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiLkuI3mlK/mjIHnmoTnm7jkvLzluqborqHnrpfmlrnms5U6IHttZXRob2R9IikNCg0KDQpkZWYgZmluZF9oYWJpdGF0X21hcHBpbmcodGVzdF9oYWJpdGF0X3RhYmxlOiBzdHIsIHJldGVzdF9oYWJpdGF0X3RhYmxlOiBzdHIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgZmVhdHVyZXM6IExpc3Rbc3RyXSA9IE5vbmUsDQogICAgICAgICAgICAgICAgICAgICAgICBzaW1pbGFyaXR5X21ldGhvZDogc3RyID0gJ3BlYXJzb24nKSAtPiBEaWN0W2ludCwgaW50XToNCiAgICAiIiINCiAgICBGaW5kIGhhYml0YXQgbGFiZWwgbWFwcGluZyBiZXR3ZWVuIHR3byBhbmFseXNlcyBiYXNlZCBvbiBmZWF0dXJlIHNpbWlsYXJpdHkuDQogICAgDQogICAgQXJnczoNCiAgICAgICAgdGVzdF9oYWJpdGF0X3RhYmxlOiBQYXRoIHRvIHRoZSBoYWJpdGF0IGZlYXR1cmUgdGFibGUgZmlsZSBmb3IgdGVzdCBncm91cA0KICAgICAgICByZXRlc3RfaGFiaXRhdF90YWJsZTogUGF0aCB0byB0aGUgaGFiaXRhdCBmZWF0dXJlIHRhYmxlIGZpbGUgZm9yIHJldGVzdCBncm91cA0KICAgICAgICBmZWF0dXJlczogTGlzdCBvZiBmZWF0dXJlIG5hbWVzIHVzZWQgZm9yIHNpbWlsYXJpdHkgY2FsY3VsYXRpb24uIElmIE5vbmUsIA0KICAgICAgICAgICAgICAgICB1c2VzIGNvbHVtbnMgNCB0byBzZWNvbmQtdG8tbGFzdA0KICAgICAgICBzaW1pbGFyaXR5X21ldGhvZDogTWV0aG9kIGZvciBjYWxjdWxhdGluZyBzaW1pbGFyaXR5IGJldHdlZW4gZmVhdHVyZXMNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBEaWN0W2ludCwgaW50XTogTWFwcGluZyBmcm9tIHJldGVzdCBoYWJpdGF0IGxhYmVscyB0byB0ZXN0IGhhYml0YXQgbGFiZWxzDQogICAgIiIiDQogICAgIyBMb2FkIGRhdGENCiAgICBpZiB0ZXN0X2hhYml0YXRfdGFibGUuZW5kc3dpdGgoJy5jc3YnKToNCiAgICAgICAgdGVzdF9kZiA9IHBkLnJlYWRfY3N2KHRlc3RfaGFiaXRhdF90YWJsZSkNCiAgICBlbGlmIHRlc3RfaGFiaXRhdF90YWJsZS5lbmRzd2l0aCgnLnhsc3gnKToNCiAgICAgICAgdGVzdF9kZiA9IHBkLnJlYWRfZXhjZWwodGVzdF9oYWJpdGF0X3RhYmxlKQ0KICAgIGVsc2U6DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoJ3Rlc3RfaGFiaXRhdF90YWJsZSBzaG91bGQgYmUgYSBjc3Ygb3IgZXhjZWwgZmlsZScpDQogICAgDQogICAgaWYgcmV0ZXN0X2hhYml0YXRfdGFibGUuZW5kc3dpdGgoJy5jc3YnKToNCiAgICAgICAgcmV0ZXN0X2RmID0gcGQucmVhZF9jc3YocmV0ZXN0X2hhYml0YXRfdGFibGUpDQogICAgZWxpZiByZXRlc3RfaGFiaXRhdF90YWJsZS5lbmRzd2l0aCgnLnhsc3gnKToNCiAgICAgICAgcmV0ZXN0X2RmID0gcGQucmVhZF9leGNlbChyZXRlc3RfaGFiaXRhdF90YWJsZSkNCiAgICBlbHNlOg0KICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCdyZXRlc3RfaGFiaXRhdF90YWJsZSBzaG91bGQgYmUgYSBjc3Ygb3IgZXhjZWwgZmlsZScpDQogICAgDQogICAgIyBJZiBmZWF0dXJlcyBub3Qgc3BlY2lmaWVkLCB1c2UgY29sdW1ucyA0IHRvIHNlY29uZC10by1sYXN0DQogICAgaWYgZmVhdHVyZXMgaXMgTm9uZToNCiAgICAgICAgYWxsX2NvbHVtbnMgPSB0ZXN0X2RmLmNvbHVtbnMudG9saXN0KCkNCiAgICAgICAgZmVhdHVyZXMgPSBhbGxfY29sdW1uc1szOi0xXQ0KICAgICAgICBsb2dnaW5nLmluZm8oZiJVc2luZyBkZWZhdWx0IGZlYXR1cmUgY29sdW1uczoge2ZlYXR1cmVzfSIpDQogICAgZWxzZToNCiAgICAgICAgIyBWZXJpZnkgYWxsIHNwZWNpZmllZCBmZWF0dXJlcyBleGlzdCBpbiB0aGUgZGF0YQ0KICAgICAgICBtaXNzaW5nX2ZlYXR1cmVzID0gW2YgZm9yIGYgaW4gZmVhdHVyZXMgaWYgZiBub3QgaW4gdGVzdF9kZi5jb2x1bW5zIG9yIGYgbm90IGluIHJldGVzdF9kZi5jb2x1bW5zXQ0KICAgICAgICBpZiBtaXNzaW5nX2ZlYXR1cmVzOg0KICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcihmIlRoZSBmb2xsb3dpbmcgZmVhdHVyZXMgZG8gbm90IGV4aXN0IGluIHRoZSBkYXRhOiB7bWlzc2luZ19mZWF0dXJlc30iKQ0KICAgIA0KICAgICMgR2V0IHVuaXF1ZSBoYWJpdGF0IGxhYmVscw0KICAgIHVuaXF1ZV9oYWJpdGF0cyA9IG5wLnVuaXF1ZShyZXRlc3RfZGZbJ0hhYml0YXRzJ10pDQogICAgDQogICAgIyBDYWxjdWxhdGUgbWVkaWFuIGZlYXR1cmVzIGZvciBlYWNoIGhhYml0YXQNCiAgICBtZWRpYW5fZmVhdHVyZXNfdGVzdCA9IHt9DQogICAgbWVkaWFuX2ZlYXR1cmVzX3JldGVzdCA9IHt9DQogICAgZm9yIGhhYml0YXRfbGFiZWwgaW4gdW5pcXVlX2hhYml0YXRzOg0KICAgICAgICBtZWRpYW5fZmVhdHVyZXNfdGVzdFtoYWJpdGF0X2xhYmVsXSA9IHRlc3RfZGZbZmVhdHVyZXNdWw0KICAgICAgICAgICAgdGVzdF9kZlsnSGFiaXRhdHMnXSA9PSBoYWJpdGF0X2xhYmVsXS5tZWRpYW4oKQ0KICAgICAgICBtZWRpYW5fZmVhdHVyZXNfcmV0ZXN0W2hhYml0YXRfbGFiZWxdID0gcmV0ZXN0X2RmW2ZlYXR1cmVzXVsNCiAgICAgICAgICAgIHJldGVzdF9kZlsnSGFiaXRhdHMnXSA9PSBoYWJpdGF0X2xhYmVsXS5tZWRpYW4oKQ0KICAgIA0KICAgICMgQ29udmVydCB0byBEYXRhRnJhbWUgZm9yIGVhc2llciBjYWxjdWxhdGlvbg0KICAgIG1lZGlhbl9mZWF0dXJlc190ZXN0ID0gcGQuRGF0YUZyYW1lKG1lZGlhbl9mZWF0dXJlc190ZXN0KS5UDQogICAgbWVkaWFuX2ZlYXR1cmVzX3JldGVzdCA9IHBkLkRhdGFGcmFtZShtZWRpYW5fZmVhdHVyZXNfcmV0ZXN0KS5UDQogICAgDQogICAgIyBGaW5kIGJlc3QgbWF0Y2hpbmcgaGFiaXRhdHMNCiAgICBoYWJpdGF0X21hcHBpbmcgPSB7fQ0KICAgIGZvciBoYWJpdGF0X2xhYmVsIGluIHVuaXF1ZV9oYWJpdGF0czoNCiAgICAgICAgc2ltaWxhcml0aWVzID0ge30NCiAgICAgICAgcmV0ZXN0X2ZlYXR1cmVzID0gbWVkaWFuX2ZlYXR1cmVzX3JldGVzdC5sb2NbaGFiaXRhdF9sYWJlbF0udmFsdWVzDQogICAgICAgIGZvciB0ZXN0X2xhYmVsIGluIHVuaXF1ZV9oYWJpdGF0czoNCiAgICAgICAgICAgIHRlc3RfZmVhdHVyZXMgPSBtZWRpYW5fZmVhdHVyZXNfdGVzdC5sb2NbdGVzdF9sYWJlbF0udmFsdWVzDQogICAgICAgICAgICBzaW1pbGFyaXRpZXNbdGVzdF9sYWJlbF0gPSBjYWxjdWxhdGVfc2ltaWxhcml0eSgNCiAgICAgICAgICAgICAgICByZXRlc3RfZmVhdHVyZXMsIHRlc3RfZmVhdHVyZXMsIHNpbWlsYXJpdHlfbWV0aG9kKQ0KICAgICAgICANCiAgICAgICAgIyBNYXAgdG8gdGhlIHRlc3QgaGFiaXRhdCB3aXRoIGhpZ2hlc3Qgc2ltaWxhcml0eQ0KICAgICAgICBiZXN0X21hdGNoID0gbWF4KHNpbWlsYXJpdGllcy5pdGVtcygpLCBrZXk9bGFtYmRhIHg6IHhbMV0pWzBdDQogICAgICAgIGhhYml0YXRfbWFwcGluZ1toYWJpdGF0X2xhYmVsXSA9IGJlc3RfbWF0Y2gNCiAgICANCiAgICByZXR1cm4gaGFiaXRhdF9tYXBwaW5nDQoNCg0KZGVmIGNoYW5nZV9oYWJpdGF0X2xhYmVsKHJldGVzdF9ucnJkOiBzdHIsIGhhYml0YXRfbWFwcGluZzogRGljdFtpbnQsIGludF0sIG91dF9kaXI6IHN0cikgLT4gc3RyOg0KICAgICIiIg0KICAgIENoYW5nZSBoYWJpdGF0IGxhYmVscyBpbiByZXRlc3QgTlJSRCBmaWxlIGFjY29yZGluZyB0byB0aGUgbWFwcGluZy4NCiAgICANCiAgICBBcmdzOg0KICAgICAgICByZXRlc3RfbnJyZDogUGF0aCB0byB0aGUgcmV0ZXN0IE5SUkQgZmlsZSBjb250YWluaW5nIGhhYml0YXQgbGFiZWxzDQogICAgICAgIGhhYml0YXRfbWFwcGluZzogRGljdGlvbmFyeSBtYXBwaW5nIHJldGVzdCBoYWJpdGF0IGxhYmVscyB0byB0ZXN0IGxhYmVscw0KICAgICAgICBvdXRfZGlyOiBPdXRwdXQgZGlyZWN0b3J5IHRvIHNhdmUgcHJvY2Vzc2VkIGZpbGVzDQogICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgc3RyOiBCYXNlbmFtZSBvZiB0aGUgcHJvY2Vzc2VkIGZpbGUNCiAgICAiIiINCiAgICAjIFJlYWQgTlJSRCBpbWFnZQ0KICAgIHJldGVzdF9ucnJkX2ltZyA9IHNpdGsuUmVhZEltYWdlKHJldGVzdF9ucnJkKQ0KICAgIHJldGVzdF9ucnJkX2FycmF5ID0gc2l0ay5HZXRBcnJheUZyb21JbWFnZShyZXRlc3RfbnJyZF9pbWcpDQoNCiAgICAjIFRlbXBvcmFyaWx5IHNoaWZ0IG5vbi16ZXJvIHZhbHVlcyB0byBhdm9pZCBsYWJlbCBjb25mbGljdHMNCiAgICBtYXhfdmFsdWUgPSBucC5tYXgocmV0ZXN0X25ycmRfYXJyYXkpDQogICAgcmV0ZXN0X25ycmRfYXJyYXlbcmV0ZXN0X25ycmRfYXJyYXkgIT0gMF0gKz0gbWF4X3ZhbHVlDQoNCiAgICAjIEFwcGx5IGhhYml0YXQgbWFwcGluZw0KICAgIGZvciByZXRlc3RfbGFiZWwsIHRlc3RfbGFiZWwgaW4gaGFiaXRhdF9tYXBwaW5nLml0ZW1zKCk6DQogICAgICAgIGxvZ2dpbmcuZGVidWcoZiJNYXBwaW5nIGhhYml0YXQge3JldGVzdF9sYWJlbH0gdG8ge3Rlc3RfbGFiZWx9IikNCiAgICAgICAgcmV0ZXN0X25ycmRfYXJyYXlbKHJldGVzdF9ucnJkX2FycmF5LW1heF92YWx1ZSkgPT0gcmV0ZXN0X2xhYmVsXSA9IHRlc3RfbGFiZWwNCg0KICAgICMgU2F2ZSBwcm9jZXNzZWQgTlJSRCBmaWxlDQogICAgYmFzZV9uYW1lID0gb3MucGF0aC5iYXNlbmFtZShyZXRlc3RfbnJyZCkuc3BsaXQoJy4nKVswXSArICdfcmVtYXBwZWQubnJyZCcNCiAgICBvdXRfZmlsZSA9IG9zLnBhdGguam9pbihvdXRfZGlyLCBiYXNlX25hbWUpDQogICAgaW1nID0gc2l0ay5HZXRJbWFnZUZyb21BcnJheShyZXRlc3RfbnJyZF9hcnJheSkNCiAgICBpbWcuQ29weUluZm9ybWF0aW9uKHJldGVzdF9ucnJkX2ltZykNCiAgICBzaXRrLldyaXRlSW1hZ2UoaW1nLCBvdXRfZmlsZSkNCiAgICByZXR1cm4gb3MucGF0aC5iYXNlbmFtZShyZXRlc3RfbnJyZCkNCg0KDQpkZWYgc2V0dXBfbG9nZ2VyKGRlYnVnOiBib29sID0gRmFsc2UpIC0+IE5vbmU6DQogICAgIiIiDQogICAgQ29uZmlndXJlIGxvZ2dpbmcgc2V0dGluZ3MuDQogICAgDQogICAgQXJnczoNCiAgICAgICAgZGVidWc6IElmIFRydWUsIHNldCBsb2dnaW5nIGxldmVsIHRvIERFQlVHLCBvdGhlcndpc2UgSU5GTw0KICAgICIiIg0KICAgIGxldmVsID0gbG9nZ2luZy5ERUJVRyBpZiBkZWJ1ZyBlbHNlIGxvZ2dpbmcuSU5GTw0KICAgIGxvZ2dpbmcuYmFzaWNDb25maWcoDQogICAgICAgIGxldmVsPWxldmVsLA0KICAgICAgICBmb3JtYXQ9JyUoYXNjdGltZSlzIC0gJShsZXZlbG5hbWUpcyAtICUobWVzc2FnZSlzJywNCiAgICAgICAgaGFuZGxlcnM9W2xvZ2dpbmcuU3RyZWFtSGFuZGxlcihzeXMuc3Rkb3V0KV0NCiAgICApDQoNCg0KZGVmIHByb2Nlc3Nfc2luZ2xlX2ZpbGUocmV0ZXN0X25ycmQ6IHN0ciwgaGFiaXRhdF9tYXBwaW5nOiBEaWN0W2ludCwgaW50XSwgb3V0X2Rpcjogc3RyKSAtPiBUdXBsZVtzdHIsIGJvb2xdOg0KICAgICIiIg0KICAgIFByb2Nlc3MgYSBzaW5nbGUgTlJSRCBmaWxlIHdpdGggaGFiaXRhdCBtYXBwaW5nLg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIHJldGVzdF9ucnJkOiBQYXRoIHRvIHRoZSBOUlJEIGZpbGUNCiAgICAgICAgaGFiaXRhdF9tYXBwaW5nOiBEaWN0aW9uYXJ5IG1hcHBpbmcgcmV0ZXN0IGhhYml0YXQgbGFiZWxzIHRvIHRlc3QgbGFiZWxzDQogICAgICAgIG91dF9kaXI6IE91dHB1dCBkaXJlY3RvcnkgdG8gc2F2ZSBwcm9jZXNzZWQgZmlsZXMNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBUdXBsZVtzdHIsIGJvb2xdOiAoZmlsZW5hbWUsIHN1Y2Nlc3NfZmxhZykNCiAgICAiIiINCiAgICB0cnk6DQogICAgICAgIGZpbGVuYW1lID0gY2hhbmdlX2hhYml0YXRfbGFiZWwocmV0ZXN0X25ycmQsIGhhYml0YXRfbWFwcGluZywgb3V0X2RpcikNCiAgICAgICAgcmV0dXJuIGZpbGVuYW1lLCBUcnVlDQogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICByZXR1cm4gb3MucGF0aC5iYXNlbmFtZShyZXRlc3RfbnJyZCksIEZhbHNlDQoNCg0KZGVmIGJhdGNoX3Byb2Nlc3NfZmlsZXMoaW5wdXRfZGlyOiBzdHIsIGhhYml0YXRfbWFwcGluZzogRGljdFtpbnQsIGludF0sIG91dF9kaXI6IHN0ciwgbl9wcm9jZXNzZXM6IGludCA9IDQpIC0+IE5vbmU6DQogICAgIiIiDQogICAgUHJvY2VzcyBtdWx0aXBsZSBOUlJEIGZpbGVzIGluIHBhcmFsbGVsIHVzaW5nIG11bHRpcHJvY2Vzc2luZy4NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBpbnB1dF9kaXI6IERpcmVjdG9yeSBjb250YWluaW5nIE5SUkQgZmlsZXMgdG8gcHJvY2Vzcw0KICAgICAgICBoYWJpdGF0X21hcHBpbmc6IERpY3Rpb25hcnkgbWFwcGluZyByZXRlc3QgaGFiaXRhdCBsYWJlbHMgdG8gdGVzdCBsYWJlbHMNCiAgICAgICAgb3V0X2RpcjogT3V0cHV0IGRpcmVjdG9yeSB0byBzYXZlIHByb2Nlc3NlZCBmaWxlcw0KICAgICAgICBuX3Byb2Nlc3NlczogTnVtYmVyIG9mIHBhcmFsbGVsIHByb2Nlc3NlcyB0byB1c2UNCiAgICAiIiINCiAgICAjIEZpbmQgYWxsIE5SUkQgZmlsZXMNCiAgICBucnJkX2ZpbGVzID0gZ2xvYi5nbG9iKG9zLnBhdGguam9pbihpbnB1dF9kaXIsICIqaGFiaXRhdHMubnJyZCIpKQ0KICAgIHRvdGFsID0gbGVuKG5ycmRfZmlsZXMpDQogICAgbG9nZ2luZy5pbmZvKGYiRm91bmQge3RvdGFsfSBmaWxlcyB0byBwcm9jZXNzIikNCiAgICANCiAgICBpZiB0b3RhbCA9PSAwOg0KICAgICAgICBsb2dnaW5nLndhcm5pbmcoZiJObyBmaWxlcyBmb3VuZCBpbiB7aW5wdXRfZGlyfSBtYXRjaGluZyBwYXR0ZXJuICpoYWJpdGF0cy5ucnJkIikNCiAgICAgICAgcmV0dXJuDQogICAgDQogICAgIyBDcmVhdGUgcHJvY2Vzc2luZyBmdW5jdGlvbiB3aXRoIGZpeGVkIGFyZ3VtZW50cw0KICAgIHByb2Nlc3NfZnVuYyA9IHBhcnRpYWwocHJvY2Vzc19zaW5nbGVfZmlsZSwgaGFiaXRhdF9tYXBwaW5nPWhhYml0YXRfbWFwcGluZywgb3V0X2Rpcj1vdXRfZGlyKQ0KICAgIA0KICAgICMgSW5pdGlhbGl6ZSBjb3VudGVycw0KICAgIHN1Y2Nlc3NfY291bnQgPSAwDQogICAgZmFpbHVyZV9jb3VudCA9IDANCiAgICANCiAgICAjIFByb2Nlc3MgZmlsZXMgdXNpbmcgbXVsdGlwcm9jZXNzaW5nIHBvb2wNCiAgICB3aXRoIG11bHRpcHJvY2Vzc2luZy5Qb29sKHByb2Nlc3Nlcz1uX3Byb2Nlc3NlcykgYXMgcG9vbDoNCiAgICAgICAgIyBVc2UgaW1hcF91bm9yZGVyZWQgZm9yIGJldHRlciBwZXJmb3JtYW5jZQ0KICAgICAgICBmb3IgaSwgKGZpbGVuYW1lLCBzdWNjZXNzKSBpbiBlbnVtZXJhdGUocG9vbC5pbWFwX3Vub3JkZXJlZChwcm9jZXNzX2Z1bmMsIG5ycmRfZmlsZXMpKToNCiAgICAgICAgICAgICMgVXBkYXRlIHByb2Nlc3Npbmcgc3RhdGlzdGljcw0KICAgICAgICAgICAgaWYgc3VjY2VzczoNCiAgICAgICAgICAgICAgICBzdWNjZXNzX2NvdW50ICs9IDENCiAgICAgICAgICAgICAgICBzdGF0dXMgPSAiU3VjY2VzcyINCiAgICAgICAgICAgIGVsc2U6DQogICAgICAgICAgICAgICAgZmFpbHVyZV9jb3VudCArPSAxDQogICAgICAgICAgICAgICAgc3RhdHVzID0gIkZhaWxlZCINCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBVcGRhdGUgcHJvZ3Jlc3MgYmFyDQogICAgICAgICAgICBwcm9ncmVzcyA9IGludCgoaSArIDEpIC8gdG90YWwgKiA1MCkNCiAgICAgICAgICAgIGJhciA9ICLilogiICogcHJvZ3Jlc3MgKyAiLSIgKiAoNTAgLSBwcm9ncmVzcykNCiAgICAgICAgICAgIHBlcmNlbnQgPSAoaSArIDEpIC8gdG90YWwgKiAxMDANCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBEaXNwbGF5IHByb2dyZXNzDQogICAgICAgICAgICBwcmludChmIlxyW3tiYXJ9XSB7cGVyY2VudDouMmZ9JSAoe2krMX0ve3RvdGFsfSkgLSB7c3RhdHVzfToge2ZpbGVuYW1lfSIsIGVuZD0iIikNCiAgICAgICAgICAgIHN5cy5zdGRvdXQuZmx1c2goKQ0KICAgIA0KICAgIHByaW50KCkgICMgTmV3IGxpbmUgYWZ0ZXIgcHJvZ3Jlc3MgYmFyDQogICAgbG9nZ2luZy5pbmZvKGYiUHJvY2Vzc2luZyBjb21wbGV0ZS4gU3VjY2Vzczoge3N1Y2Nlc3NfY291bnR9LCBGYWlsZWQ6IHtmYWlsdXJlX2NvdW50fSIpDQoNCg0KZGVmIGRldGVjdF9maWxlX2VuY29kaW5nKGZpbGVfcGF0aDogc3RyKSAtPiBzdHI6DQogICAgIiIiDQogICAgRGV0ZWN0IHRoZSBlbmNvZGluZyBmb3JtYXQgb2YgYSBmaWxlLg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGZpbGVfcGF0aDogUGF0aCB0byB0aGUgZmlsZQ0KICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIHN0cjogRGV0ZWN0ZWQgZW5jb2RpbmcgZm9ybWF0DQogICAgIiIiDQogICAgIyBSZWFkIGZpcnN0IDEwMDAgYnl0ZXMgb2YgdGhlIGZpbGUgdG8gZGV0ZWN0IGVuY29kaW5nDQogICAgd2l0aCBvcGVuKGZpbGVfcGF0aCwgJ3JiJykgYXMgZjoNCiAgICAgICAgcmF3X2RhdGEgPSBmLnJlYWQoMTAwMCkNCiAgICAgICAgcmVzdWx0ID0gY2hhcmRldC5kZXRlY3QocmF3X2RhdGEpDQogICAgICAgIHJldHVybiByZXN1bHRbJ2VuY29kaW5nJ10NCg0KDQpkZWYgcmVhZF9maWxlX3dpdGhfZW5jb2RpbmcoZmlsZV9wYXRoOiBzdHIpIC0+IEFueToNCiAgICAiIiINCiAgICBBdHRlbXB0IHRvIHJlYWQgZmlsZSB1c2luZyBkZXRlY3RlZCBlbmNvZGluZywgZmFsbGJhY2sgdG8gb3RoZXIgZW5jb2RpbmdzIGlmIGZhaWxlZC4NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBmaWxlX3BhdGg6IFBhdGggdG8gdGhlIGZpbGUNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBBbnk6IEZpbGUgY29udGVudHMNCiAgICANCiAgICBSYWlzZXM6DQogICAgICAgIFVuaWNvZGVEZWNvZGVFcnJvcjogSWYgYWxsIGVuY29kaW5nIGF0dGVtcHRzIGZhaWwNCiAgICAiIiINCiAgICAjIEZpcnN0IHRyeSBkZXRlY3RlZCBlbmNvZGluZw0KICAgIGRldGVjdGVkX2VuY29kaW5nID0gZGV0ZWN0X2ZpbGVfZW5jb2RpbmcoZmlsZV9wYXRoKQ0KICAgIGlmIGRldGVjdGVkX2VuY29kaW5nOg0KICAgICAgICB0cnk6DQogICAgICAgICAgICB3aXRoIG9wZW4oZmlsZV9wYXRoLCAncicsIGVuY29kaW5nPWRldGVjdGVkX2VuY29kaW5nKSBhcyBmOg0KICAgICAgICAgICAgICAgIHJldHVybiB5YW1sLnNhZmVfbG9hZChmKQ0KICAgICAgICBleGNlcHQgVW5pY29kZURlY29kZUVycm9yOg0KICAgICAgICAgICAgcGFzcw0KICAgIA0KICAgICMgSWYgZGV0ZWN0ZWQgZW5jb2RpbmcgZmFpbHMsIHRyeSBvdGhlciBlbmNvZGluZ3MNCiAgICBlbmNvZGluZ3MgPSBbJ3V0Zi04JywgJ2diaycsICdnYjIzMTInLCAnZ2IxODAzMCcsICdiaWc1J10NCiAgICBmb3IgZW5jb2RpbmcgaW4gZW5jb2RpbmdzOg0KICAgICAgICBpZiBlbmNvZGluZyA9PSBkZXRlY3RlZF9lbmNvZGluZzoNCiAgICAgICAgICAgIGNvbnRpbnVlICAjIFNraXAgYWxyZWFkeSB0cmllZCBlbmNvZGluZw0KICAgICAgICB0cnk6DQogICAgICAgICAgICB3aXRoIG9wZW4oZmlsZV9wYXRoLCAncicsIGVuY29kaW5nPWVuY29kaW5nKSBhcyBmOg0KICAgICAgICAgICAgICAgIHJldHVybiB5YW1sLnNhZmVfbG9hZChmKQ0KICAgICAgICBleGNlcHQgVW5pY29kZURlY29kZUVycm9yOg0KICAgICAgICAgICAgY29udGludWUNCiAgICByYWlzZSBVbmljb2RlRGVjb2RlRXJyb3IoZiJVbmFibGUgdG8gcmVhZCBmaWxlIHdpdGggYW55IHN1cHBvcnRlZCBlbmNvZGluZzoge2ZpbGVfcGF0aH0iKQ0KDQoNCmRlZiBtYWluKCk6DQogICAgIiIiDQogICAgTWFpbiBwcm9ncmFtIGVudHJ5IHBvaW50IGZvciBoYWJpdGF0IHRlc3QtcmV0ZXN0IG1hcHBpbmcuDQogICAgIiIiDQogICAgcGFyc2VyID0gYXJncGFyc2UuQXJndW1lbnRQYXJzZXIoDQogICAgICAgIGRlc2NyaXB0aW9uPSdNYXAgaGFiaXRhdCBsYWJlbHMgYmV0d2VlbiB0ZXN0LXJldGVzdCBkYXRhJw0KICAgICkNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLXRlc3QtaGFiaXRhdC10YWJsZScsIHR5cGU9c3RyLCByZXF1aXJlZD1UcnVlLA0KICAgICAgICAgICAgICAgICAgICAgIGhlbHA9J+a1i+ivlee7hOeahGhhYml0YXTnibnlvoHooajmoLzmlofku7bot6/lvoQnKQ0KICAgIHBhcnNlci5hZGRfYXJndW1lbnQoJy0tcmV0ZXN0LWhhYml0YXQtdGFibGUnLCB0eXBlPXN0ciwgcmVxdWlyZWQ9VHJ1ZSwNCiAgICAgICAgICAgICAgICAgICAgICBoZWxwPSfph43mtYvnu4TnmoRoYWJpdGF054m55b6B6KGo5qC85paH5Lu26Lev5b6EJykNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLWZlYXR1cmVzJywgdHlwZT1zdHIsIG5hcmdzPScrJywNCiAgICAgICAgICAgICAgICAgICAgICBoZWxwPSfnlKjkuo7orqHnrpfnm7jkvLzmgKfnmoTnibnlvoHlkI3np7DliJfooajvvIzlpoLmnpzkuI3mjIflrprliJnkvb/nlKjnrKw05Yiw5YCS5pWw56ysMeWIlycpDQogICAgcGFyc2VyLmFkZF9hcmd1bWVudCgnLS1zaW1pbGFyaXR5LW1ldGhvZCcsIHR5cGU9c3RyLCBkZWZhdWx0PSdwZWFyc29uJywNCiAgICAgICAgICAgICAgICAgICAgICBjaG9pY2VzPVsncGVhcnNvbicsICdzcGVhcm1hbicsICdrZW5kYWxsJywgJ2V1Y2xpZGVhbicsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJ2Nvc2luZScsICdtYW5oYXR0YW4nLCAnY2hlYnlzaGV2J10sDQogICAgICAgICAgICAgICAgICAgICAgaGVscD0n55u45Ly85bqm6K6h566X5pa55rOVJykNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLWlucHV0LWRpcicsIHR5cGU9c3RyLCByZXF1aXJlZD1UcnVlLA0KICAgICAgICAgICAgICAgICAgICAgIGhlbHA9J+WMheWQq+mHjea1i+e7hE5SUkTmlofku7bnmoTnm67lvZUnKQ0KICAgIHBhcnNlci5hZGRfYXJndW1lbnQoJy0tb3V0LWRpcicsIHR5cGU9c3RyLCByZXF1aXJlZD1UcnVlLA0KICAgICAgICAgICAgICAgICAgICAgIGhlbHA9J+WkhOeQhuWQjuaWh+S7tueahOi+k+WHuuebruW9lScpDQogICAgcGFyc2VyLmFkZF9hcmd1bWVudCgnLS1wcm9jZXNzZXMnLCB0eXBlPWludCwNCiAgICAgICAgICAgICAgICAgICAgICBkZWZhdWx0PTIsDQogICAgICAgICAgICAgICAgICAgICAgaGVscD0n5L2/55So55qE6L+b56iL5pWwICjpu5jorqQ6IDIpJykNCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCctLWRlYnVnJywgYWN0aW9uPSdzdG9yZV90cnVlJywNCiAgICAgICAgICAgICAgICAgICAgICBoZWxwPSflkK/nlKjosIPor5Xml6Xlv5cnKQ0KICAgIA0KICAgIGFyZ3MgPSBwYXJzZXIucGFyc2VfYXJncygpDQogICAgc2V0dXBfbG9nZ2VyKGFyZ3MuZGVidWcpDQogICAgDQogICAgdHJ5Og0KICAgICAgICAjIOWIm+W7uui+k+WHuuebruW9lQ0KICAgICAgICBvcy5tYWtlZGlycyhhcmdzLm91dF9kaXIsIGV4aXN0X29rPVRydWUpDQogICAgICAgIA0KICAgICAgICAjIOaJvuWIsGhhYml0YXTmmKDlsIQNCiAgICAgICAgbG9nZ2luZy5pbmZvKCLorqHnrpfmtYvor5Xlkozph43mtYvmlbDmja7kuYvpl7TnmoRoYWJpdGF05pig5bCELi4uIikNCiAgICAgICAgaGFiaXRhdF9tYXBwaW5nID0gZmluZF9oYWJpdGF0X21hcHBpbmcoDQogICAgICAgICAgICBhcmdzLnRlc3RfaGFiaXRhdF90YWJsZSwgYXJncy5yZXRlc3RfaGFiaXRhdF90YWJsZSwgDQogICAgICAgICAgICBhcmdzLmZlYXR1cmVzLCBhcmdzLnNpbWlsYXJpdHlfbWV0aG9kKQ0KICAgICAgICBsb2dnaW5nLmRlYnVnKGYiSGFiaXRhdOaYoOWwhDoge2hhYml0YXRfbWFwcGluZ30iKQ0KICAgICAgICANCiAgICAgICAgIyDlpITnkIbmlofku7YNCiAgICAgICAgbG9nZ2luZy5pbmZvKGYi5L2/55Soe2FyZ3MucHJvY2Vzc2VzfeS4qui/m+eoi+W8gOWni+aJueWkhOeQhi4uLiIpDQogICAgICAgIGJhdGNoX3Byb2Nlc3NfZmlsZXMoYXJncy5pbnB1dF9kaXIsIGhhYml0YXRfbWFwcGluZywgYXJncy5vdXRfZGlyLCBhcmdzLnByb2Nlc3NlcykNCiAgICAgICAgDQogICAgICAgIGxvZ2dpbmcuaW5mbygi5aSE55CG5a6M5oiQIikNCiAgICAgICAgDQogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICBsb2dnaW5nLmVycm9yKGYi5Y+R55Sf6ZSZ6K+vOiB7c3RyKGUpfSIpDQogICAgICAgIGlmIGFyZ3MuZGVidWc6DQogICAgICAgICAgICBpbXBvcnQgdHJhY2ViYWNrDQogICAgICAgICAgICB0cmFjZWJhY2sucHJpbnRfZXhjKCkNCiAgICAgICAgc3lzLmV4aXQoMSkNCg0KDQppZiBfX25hbWVfXyA9PSAnX19tYWluX18nOg0KICAgIGlmIGxlbihzeXMuYXJndikgPT0gMTogICMgSWYgbm8gY29tbWFuZCBsaW5lIGFyZ3VtZW50cyBhcmUgcHJvdmlkZWQNCiAgICAgICAgIyBEZWZhdWx0IGFyZ3VtZW50cyBmb3IgZGVidWdnaW5nDQogICAgICAgIHN5cy5hcmd2LmV4dGVuZChbDQogICAgICAgICAgICAnLS10ZXN0LWhhYml0YXQtdGFibGUnLCAnRjpcXHdvcmtcXHJlc2VhcmNoXFxyYWRpb21pY3NfVExTc1xcZGF0YVxccmVzdWx0c1xcaGFiaXRhdHMuY3N2JywNCiAgICAgICAgICAgICctLXJldGVzdC1oYWJpdGF0LXRhYmxlJywgJ0Y6XFx3b3JrXFxyZXNlYXJjaFxccmFkaW9taWNzX1RMU3NcXGRhdGFcXHJlc3VsdHNfb2ZfaWNjXFxoYWJpdGF0cy5jc3YnLA0KICAgICAgICAgICAgJy0taW5wdXQtZGlyJywgJ0Y6XFx3b3JrXFxyZXNlYXJjaFxccmFkaW9taWNzX1RMU3NcXGRhdGFcXHJlc3VsdHNfb2ZfaWNjMScsDQogICAgICAgICAgICAnLS1vdXQtZGlyJywgJ0Y6XFx3b3JrXFxyZXNlYXJjaFxccmFkaW9taWNzX1RMU3NcXGRhdGFcXHJlc3VsdHNfb2ZfaWNjMScsDQogICAgICAgICAgICAnLS1wcm9jZXNzZXMnLCAnNCcsDQogICAgICAgICAgICAnLS1kZWJ1ZycNCiAgICAgICAgXSkNCiAgICBtYWluKCkgDQogICAgIyDlkb3ku6TooYznmoTlhpnms5XmmK/vvJpweXRob24gaGFiaXRhdF90ZXN0X3JldGVzdF9tYXBwZXIucHkgLS10ZXN0LWhhYml0YXQtdGFibGUgRjpcXHdvcmtcXHJlc2VhcmNoXFxyYWRpb21pY3NfVExTc1xcZGF0YVxccmVzdWx0c1xcaGFiaXRhdHMuY3N2IC0tcmV0ZXN0LWhhYml0YXQtdGFibGUgRjpcXHdvcmtcXHJlc2VhcmNoXFxyYWRpb21pY3NfVExTc1xcZGF0YVxccmVzdWx0c19vZl9pY2NcXGhhYml0YXRzLmNzdiAtLWlucHV0LWRpciBGOlxcd29ya1xccmVzZWFyY2hcXHJhZGlvbWljc19UTFNzXFxkYXRhXFxyZXN1bHRzX29mX2ljYzEgLS1vdXQtZGlyIEY6XFx3b3JrXFxyZXNlYXJjaFxccmFkaW9taWNzX1RMU3NcXGRhdGFcXHJlc3VsdHNfb2ZfaWNjMSAtLXByb2Nlc3NlcyA0IC0tZGVidWc=').decode())
+Module for mapping habitat labels between test-retest medical imaging data.
+
+Purpose:
+- Implements correlation-based mapping of habitat labels between longitudinal scans
+- Handles medical image processing and label remapping operations
+- Supports multiprocessing for efficient batch processing
+
+Key Features:
+1. Cross-modal correlation analysis between test/retest features
+2. Automated habitat label mapping based on statistical similarity
+3. Parallel processing of medical image files (NRRD format)
+4. Comprehensive logging and progress tracking
+5. Configurable through YAML configuration files
+
+Inputs:
+- Paired CSV/Excel files with test/retest habitat features
+- NRRD format medical images for processing
+- YAML configuration specifying analysis parameters
+
+Outputs:
+- Remapped medical images with consistent labeling
+- Detailed logging of mapping operations and errors
+- Preservation of spatial characteristics in output images
+
+Dependencies:
+- Utilizes SimpleITK for medical image I/O operations
+- Employs pandas for feature data analysis
+- Uses multiprocessing for parallel execution
+- Requires YAML configuration for analysis parameters
+
+Usage Example:
+>>> python habitat_test_retest_mapper.py \
+    --config ../configuration.yaml \
+    --test ../data/results/habitats.csv \
+    --retest ../data/results_of_icc/habitats.csv \
+    --input-dir ../data/results_of_icc \
+    --out-dir ../data/results_of_icc \
+    --processes 8
+
+Note: Maintains original image geometry and metadata during remapping
+      operations. Handles edge cases through comprehensive error logging.
+"""
+
+
+import pandas as pd
+import numpy as np
+import SimpleITK as sitk
+import yaml
+import argparse
+import sys
+import logging
+import glob
+import os
+import multiprocessing
+from functools import partial
+from typing import Dict, Tuple, List, Any
+import chardet
+from scipy.spatial.distance import euclidean, cosine
+from scipy.stats import pearsonr, spearmanr, kendalltau
+
+
+def calculate_similarity(x: np.ndarray, y: np.ndarray, method: str = 'pearson') -> float:
+    """
+    Calculate similarity between two feature vectors using specified method.
+    
+    Args:
+        x: First feature vector
+        y: Second feature vector
+        method: Similarity calculation method, options:
+               - 'pearson': Pearson correlation coefficient
+               - 'spearman': Spearman rank correlation
+               - 'kendall': Kendall rank correlation
+               - 'euclidean': Euclidean distance (normalized and negated)
+               - 'cosine': Cosine similarity
+               - 'manhattan': Manhattan distance (normalized and negated)
+               - 'chebyshev': Chebyshev distance (normalized and negated)
+    
+    Returns:
+        float: Similarity value ranging from [-1, 1]
+    """
+    if method == 'pearson':
+        return pearsonr(x, y)[0]
+    elif method == 'spearman':
+        return spearmanr(x, y)[0]
+    elif method == 'kendall':
+        return kendalltau(x, y)[0]
+    elif method == 'euclidean':
+        # 归一化后取负，使得距离越小相似度越高
+        return -euclidean(x, y) / np.sqrt(len(x))
+    elif method == 'cosine':
+        return 1 - cosine(x, y)  # cosine距离转为相似度
+    elif method == 'manhattan':
+        return -np.sum(np.abs(x - y)) / len(x)
+    elif method == 'chebyshev':
+        return -np.max(np.abs(x - y))
+    else:
+        raise ValueError(f"不支持的相似度计算方法: {method}")
+
+
+def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str, 
+                        features: List[str] = None,
+                        similarity_method: str = 'pearson') -> Dict[int, int]:
+    """
+    Find habitat label mapping between two analyses based on feature similarity.
+    
+    Args:
+        test_habitat_table: Path to the habitat feature table file for test group
+        retest_habitat_table: Path to the habitat feature table file for retest group
+        features: List of feature names used for similarity calculation. If None, 
+                 uses columns 4 to second-to-last
+        similarity_method: Method for calculating similarity between features
+    
+    Returns:
+        Dict[int, int]: Mapping from retest habitat labels to test habitat labels
+    """
+    # Load data
+    if test_habitat_table.endswith('.csv'):
+        test_df = pd.read_csv(test_habitat_table)
+    elif test_habitat_table.endswith('.xlsx'):
+        test_df = pd.read_excel(test_habitat_table)
+    else:
+        raise ValueError('test_habitat_table should be a csv or excel file')
+    
+    if retest_habitat_table.endswith('.csv'):
+        retest_df = pd.read_csv(retest_habitat_table)
+    elif retest_habitat_table.endswith('.xlsx'):
+        retest_df = pd.read_excel(retest_habitat_table)
+    else:
+        raise ValueError('retest_habitat_table should be a csv or excel file')
+    
+    # If features not specified, use columns 4 to second-to-last
+    if features is None:
+        all_columns = test_df.columns.tolist()
+        features = all_columns[3:-1]
+        logging.info(f"Using default feature columns: {features}")
+    else:
+        # Verify all specified features exist in the data
+        missing_features = [f for f in features if f not in test_df.columns or f not in retest_df.columns]
+        if missing_features:
+            raise ValueError(f"The following features do not exist in the data: {missing_features}")
+    
+    # Get unique habitat labels
+    unique_habitats = np.unique(retest_df['Habitats'])
+    
+    # Calculate median features for each habitat
+    median_features_test = {}
+    median_features_retest = {}
+    for habitat_label in unique_habitats:
+        median_features_test[habitat_label] = test_df[features][
+            test_df['Habitats'] == habitat_label].median()
+        median_features_retest[habitat_label] = retest_df[features][
+            retest_df['Habitats'] == habitat_label].median()
+    
+    # Convert to DataFrame for easier calculation
+    median_features_test = pd.DataFrame(median_features_test).T
+    median_features_retest = pd.DataFrame(median_features_retest).T
+    
+    # Find best matching habitats
+    habitat_mapping = {}
+    for habitat_label in unique_habitats:
+        similarities = {}
+        retest_features = median_features_retest.loc[habitat_label].values
+        for test_label in unique_habitats:
+            test_features = median_features_test.loc[test_label].values
+            similarities[test_label] = calculate_similarity(
+                retest_features, test_features, similarity_method)
+        
+        # Map to the test habitat with highest similarity
+        best_match = max(similarities.items(), key=lambda x: x[1])[0]
+        habitat_mapping[habitat_label] = best_match
+    
+    return habitat_mapping
+
+
+def change_habitat_label(retest_nrrd: str, habitat_mapping: Dict[int, int], out_dir: str) -> str:
+    """
+    Change habitat labels in retest NRRD file according to the mapping.
+    
+    Args:
+        retest_nrrd: Path to the retest NRRD file containing habitat labels
+        habitat_mapping: Dictionary mapping retest habitat labels to test labels
+        out_dir: Output directory to save processed files
+    
+    Returns:
+        str: Basename of the processed file
+    """
+    # Read NRRD image
+    retest_nrrd_img = sitk.ReadImage(retest_nrrd)
+    retest_nrrd_array = sitk.GetArrayFromImage(retest_nrrd_img)
+
+    # Temporarily shift non-zero values to avoid label conflicts
+    max_value = np.max(retest_nrrd_array)
+    retest_nrrd_array[retest_nrrd_array != 0] += max_value
+
+    # Apply habitat mapping
+    for retest_label, test_label in habitat_mapping.items():
+        logging.debug(f"Mapping habitat {retest_label} to {test_label}")
+        retest_nrrd_array[(retest_nrrd_array-max_value) == retest_label] = test_label
+
+    # Save processed NRRD file
+    base_name = os.path.basename(retest_nrrd).split('.')[0] + '_remapped.nrrd'
+    out_file = os.path.join(out_dir, base_name)
+    img = sitk.GetImageFromArray(retest_nrrd_array)
+    img.CopyInformation(retest_nrrd_img)
+    sitk.WriteImage(img, out_file)
+    return os.path.basename(retest_nrrd)
+
+
+def setup_logger(debug: bool = False) -> None:
+    """
+    Configure logging settings.
+    
+    Args:
+        debug: If True, set logging level to DEBUG, otherwise INFO
+    """
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+
+
+def process_single_file(retest_nrrd: str, habitat_mapping: Dict[int, int], out_dir: str) -> Tuple[str, bool]:
+    """
+    Process a single NRRD file with habitat mapping.
+    
+    Args:
+        retest_nrrd: Path to the NRRD file
+        habitat_mapping: Dictionary mapping retest habitat labels to test labels
+        out_dir: Output directory to save processed files
+    
+    Returns:
+        Tuple[str, bool]: (filename, success_flag)
+    """
+    try:
+        filename = change_habitat_label(retest_nrrd, habitat_mapping, out_dir)
+        return filename, True
+    except Exception as e:
+        return os.path.basename(retest_nrrd), False
+
+
+def batch_process_files(input_dir: str, habitat_mapping: Dict[int, int], out_dir: str, n_processes: int = 4) -> None:
+    """
+    Process multiple NRRD files in parallel using multiprocessing.
+    
+    Args:
+        input_dir: Directory containing NRRD files to process
+        habitat_mapping: Dictionary mapping retest habitat labels to test labels
+        out_dir: Output directory to save processed files
+        n_processes: Number of parallel processes to use
+    """
+    # Find all NRRD files
+    nrrd_files = glob.glob(os.path.join(input_dir, "*habitats.nrrd"))
+    total = len(nrrd_files)
+    logging.info(f"Found {total} files to process")
+    
+    if total == 0:
+        logging.warning(f"No files found in {input_dir} matching pattern *habitats.nrrd")
+        return
+    
+    # Create processing function with fixed arguments
+    process_func = partial(process_single_file, habitat_mapping=habitat_mapping, out_dir=out_dir)
+    
+    # Initialize counters
+    success_count = 0
+    failure_count = 0
+    
+    # Process files using multiprocessing pool
+    with multiprocessing.Pool(processes=n_processes) as pool:
+        # Use imap_unordered for better performance
+        for i, (filename, success) in enumerate(pool.imap_unordered(process_func, nrrd_files)):
+            # Update processing statistics
+            if success:
+                success_count += 1
+                status = "Success"
+            else:
+                failure_count += 1
+                status = "Failed"
+            
+            # Update progress bar
+            progress = int((i + 1) / total * 50)
+            bar = "█" * progress + "-" * (50 - progress)
+            percent = (i + 1) / total * 100
+            
+            # Display progress
+            print(f"\r[{bar}] {percent:.2f}% ({i+1}/{total}) - {status}: {filename}", end="")
+            sys.stdout.flush()
+    
+    print()  # New line after progress bar
+    logging.info(f"Processing complete. Success: {success_count}, Failed: {failure_count}")
+
+
+def detect_file_encoding(file_path: str) -> str:
+    """
+    Detect the encoding format of a file.
+    
+    Args:
+        file_path: Path to the file
+    
+    Returns:
+        str: Detected encoding format
+    """
+    # Read first 1000 bytes of the file to detect encoding
+    with open(file_path, 'rb') as f:
+        raw_data = f.read(1000)
+        result = chardet.detect(raw_data)
+        return result['encoding']
+
+
+def read_file_with_encoding(file_path: str) -> Any:
+    """
+    Attempt to read file using detected encoding, fallback to other encodings if failed.
+    
+    Args:
+        file_path: Path to the file
+    
+    Returns:
+        Any: File contents
+    
+    Raises:
+        UnicodeDecodeError: If all encoding attempts fail
+    """
+    # First try detected encoding
+    detected_encoding = detect_file_encoding(file_path)
+    if detected_encoding:
+        try:
+            with open(file_path, 'r', encoding=detected_encoding) as f:
+                return yaml.safe_load(f)
+        except UnicodeDecodeError:
+            pass
+    
+    # If detected encoding fails, try other encodings
+    encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5']
+    for encoding in encodings:
+        if encoding == detected_encoding:
+            continue  # Skip already tried encoding
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                return yaml.safe_load(f)
+        except UnicodeDecodeError:
+            continue
+    raise UnicodeDecodeError(f"Unable to read file with any supported encoding: {file_path}")
+
+
+def main():
+    """
+    Main program entry point for habitat test-retest mapping.
+    """
+    parser = argparse.ArgumentParser(
+        description='Map habitat labels between test-retest data'
+    )
+    parser.add_argument('--test-habitat-table', type=str, required=True,
+                      help='测试组的habitat特征表格文件路径')
+    parser.add_argument('--retest-habitat-table', type=str, required=True,
+                      help='重测组的habitat特征表格文件路径')
+    parser.add_argument('--features', type=str, nargs='+',
+                      help='用于计算相似性的特征名称列表，如果不指定则使用第4到倒数第1列')
+    parser.add_argument('--similarity-method', type=str, default='pearson',
+                      choices=['pearson', 'spearman', 'kendall', 'euclidean', 
+                              'cosine', 'manhattan', 'chebyshev'],
+                      help='相似度计算方法')
+    parser.add_argument('--input-dir', type=str, required=True,
+                      help='包含重测组NRRD文件的目录')
+    parser.add_argument('--out-dir', type=str, required=True,
+                      help='处理后文件的输出目录')
+    parser.add_argument('--processes', type=int,
+                      default=2,
+                      help='使用的进程数 (默认: 2)')
+    parser.add_argument('--debug', action='store_true',
+                      help='启用调试日志')
+    
+    args = parser.parse_args()
+    setup_logger(args.debug)
+    
+    try:
+        # 创建输出目录
+        os.makedirs(args.out_dir, exist_ok=True)
+        
+        # 找到habitat映射
+        logging.info("计算测试和重测数据之间的habitat映射...")
+        habitat_mapping = find_habitat_mapping(
+            args.test_habitat_table, args.retest_habitat_table, 
+            args.features, args.similarity_method)
+        logging.debug(f"Habitat映射: {habitat_mapping}")
+        
+        # 处理文件
+        logging.info(f"使用{args.processes}个进程开始批处理...")
+        batch_process_files(args.input_dir, habitat_mapping, args.out_dir, args.processes)
+        
+        logging.info("处理完成")
+        
+    except Exception as e:
+        logging.error(f"发生错误: {str(e)}")
+        if args.debug:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:  # If no command line arguments are provided
+        # Default arguments for debugging
+        sys.argv.extend([
+            '--test-habitat-table', 'F:\\work\\research\\radiomics_TLSs\\data\\results\\habitats.csv',
+            '--retest-habitat-table', 'F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc\\habitats.csv',
+            '--input-dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc1',
+            '--out-dir', 'F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc1',
+            '--processes', '4',
+            '--debug'
+        ])
+    main() 
+    # 命令行的写法是：python habitat_test_retest_mapper.py --test-habitat-table F:\\work\\research\\radiomics_TLSs\\data\\results\\habitats.csv --retest-habitat-table F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc\\habitats.csv --input-dir F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc1 --out-dir F:\\work\\research\\radiomics_TLSs\\data\\results_of_icc1 --processes 4 --debug

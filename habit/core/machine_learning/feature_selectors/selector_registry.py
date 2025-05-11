@@ -1,3 +1,115 @@
+"""
+Feature Selector Registry
 
-import base64
-exec(base64.b64decode(b'IiIiDQpGZWF0dXJlIFNlbGVjdG9yIFJlZ2lzdHJ5DQoNClByb3ZpZGVzIG1lY2hhbmlzbXMgZm9yIHJlZ2lzdGVyaW5nIGFuZCByZXRyaWV2aW5nIGZlYXR1cmUgc2VsZWN0aW9uIG1ldGhvZHMuDQoiIiINCg0KaW1wb3J0IGluc3BlY3QNCmltcG9ydCBwYW5kYXMgYXMgcGQNCmltcG9ydCBudW1weSBhcyBucA0KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIExpc3QsIENhbGxhYmxlLCBBbnksIE9wdGlvbmFsLCBVbmlvbiwgVHVwbGUNCg0KIyBGZWF0dXJlIHNlbGVjdG9yIHJlZ2lzdHJ5DQpfRkVBVFVSRV9TRUxFQ1RPUlM6IERpY3Rbc3RyLCBDYWxsYWJsZV0gPSB7fQ0KDQpkZWYgcmVnaXN0ZXJfc2VsZWN0b3IobmFtZTogc3RyKSAtPiBDYWxsYWJsZToNCiAgICAiIiINCiAgICBEZWNvcmF0b3IgZm9yIHJlZ2lzdGVyaW5nIGZlYXR1cmUgc2VsZWN0b3JzDQogICAgDQogICAgQXJnczoNCiAgICAgICAgbmFtZTogU2VsZWN0b3IgbmFtZQ0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBDYWxsYWJsZTogRGVjb3JhdG9yIGZ1bmN0aW9uDQogICAgIiIiDQogICAgZGVmIGRlY29yYXRvcihmdW5jOiBDYWxsYWJsZSkgLT4gQ2FsbGFibGU6DQogICAgICAgIF9GRUFUVVJFX1NFTEVDVE9SU1tuYW1lXSA9IGZ1bmMNCiAgICAgICAgcmV0dXJuIGZ1bmMNCiAgICByZXR1cm4gZGVjb3JhdG9yDQoNCmRlZiBnZXRfc2VsZWN0b3IobmFtZTogc3RyKSAtPiBDYWxsYWJsZToNCiAgICAiIiINCiAgICBHZXQgZmVhdHVyZSBzZWxlY3RvciBieSBuYW1lDQogICAgDQogICAgQXJnczoNCiAgICAgICAgbmFtZTogU2VsZWN0b3IgbmFtZQ0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBDYWxsYWJsZTogRmVhdHVyZSBzZWxlY3Rpb24gZnVuY3Rpb24NCiAgICAgICAgDQogICAgUmFpc2VzOg0KICAgICAgICBWYWx1ZUVycm9yOiBJZiBzZWxlY3RvciBub3QgZm91bmQNCiAgICAiIiINCiAgICBpZiBuYW1lIG5vdCBpbiBfRkVBVFVSRV9TRUxFQ1RPUlM6DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJGZWF0dXJlIHNlbGVjdG9yIHtuYW1lfSBub3QgZm91bmQiKQ0KICAgIHJldHVybiBfRkVBVFVSRV9TRUxFQ1RPUlNbbmFtZV0NCg0KZGVmIGdldF9hdmFpbGFibGVfc2VsZWN0b3JzKCkgLT4gTGlzdFtzdHJdOg0KICAgICIiIg0KICAgIEdldCBsaXN0IG9mIGFsbCBhdmFpbGFibGUgZmVhdHVyZSBzZWxlY3RvcnMNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBMaXN0W3N0cl06IExpc3Qgb2Ygc2VsZWN0b3IgbmFtZXMNCiAgICAiIiINCiAgICByZXR1cm4gbGlzdChfRkVBVFVSRV9TRUxFQ1RPUlMua2V5cygpKQ0KDQpkZWYgcnVuX3NlbGVjdG9yKG5hbWU6IHN0ciwgDQogICAgICAgICAgICAgICAgWDogcGQuRGF0YUZyYW1lLCANCiAgICAgICAgICAgICAgICB5OiBwZC5TZXJpZXMsIA0KICAgICAgICAgICAgICAgIHNlbGVjdGVkX2ZlYXR1cmVzOiBPcHRpb25hbFtMaXN0W3N0cl1dID0gTm9uZSwNCiAgICAgICAgICAgICAgICAqKmt3YXJncykgLT4gTGlzdFtzdHJdOg0KICAgICIiIg0KICAgIFJ1biBhIGZlYXR1cmUgc2VsZWN0b3INCiAgICANCiAgICBBcmdzOg0KICAgICAgICBuYW1lOiBTZWxlY3RvciBuYW1lDQogICAgICAgIFg6IEZlYXR1cmUgZGF0YQ0KICAgICAgICB5OiBUYXJnZXQgdmFyaWFibGUNCiAgICAgICAgc2VsZWN0ZWRfZmVhdHVyZXM6IExpc3Qgb2YgYWxyZWFkeSBzZWxlY3RlZCBmZWF0dXJlcyAoaWYgTm9uZSwgdXNlIGFsbCBjb2x1bW5zIG9mIFgpDQogICAgICAgICoqa3dhcmdzOiBBZGRpdGlvbmFsIGFyZ3VtZW50cyBwYXNzZWQgdG8gdGhlIHNlbGVjdG9yDQogICAgICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIExpc3Rbc3RyXTogTGlzdCBvZiBzZWxlY3RlZCBmZWF0dXJlcw0KICAgICIiIg0KICAgIGlmIHNlbGVjdGVkX2ZlYXR1cmVzIGlzIE5vbmU6DQogICAgICAgIHNlbGVjdGVkX2ZlYXR1cmVzID0gWC5jb2x1bW5zLnRvbGlzdCgpDQogICAgDQogICAgc2VsZWN0b3IgPSBnZXRfc2VsZWN0b3IobmFtZSkNCiAgICANCiAgICAjIENoZWNrIGZ1bmN0aW9uIHNpZ25hdHVyZQ0KICAgIHNpZyA9IGluc3BlY3Quc2lnbmF0dXJlKHNlbGVjdG9yKQ0KICAgIA0KICAgICMgUHJlcGFyZSBwYXJhbWV0ZXJzDQogICAgcGFyYW1zID0ge30NCiAgICBwYXJhbV9tYXBwaW5ncyA9IHsNCiAgICAgICAgJ1gnOiBbJ1gnLCAneCcsICdkYXRhJywgJ2ZlYXR1cmVzJ10sDQogICAgICAgICd5JzogWyd5JywgJ1knLCAndGFyZ2V0JywgJ2xhYmVscyddLA0KICAgICAgICAnc2VsZWN0ZWRfZmVhdHVyZXMnOiBbJ3NlbGVjdGVkX2ZlYXR1cmVzJywgJ2ZlYXR1cmVfbmFtZXMnXQ0KICAgIH0NCiAgICANCiAgICBmb3IgcGFyYW1fbmFtZSBpbiBzaWcucGFyYW1ldGVyczoNCiAgICAgICAgbWF0Y2hlZCA9IEZhbHNlDQogICAgICAgIGZvciBrZXksIGFsaWFzZXMgaW4gcGFyYW1fbWFwcGluZ3MuaXRlbXMoKToNCiAgICAgICAgICAgIGlmIHBhcmFtX25hbWUgaW4gYWxpYXNlczoNCiAgICAgICAgICAgICAgICBpZiBrZXkgPT0gJ1gnOg0KICAgICAgICAgICAgICAgICAgICBwYXJhbXNbcGFyYW1fbmFtZV0gPSBYW3NlbGVjdGVkX2ZlYXR1cmVzXQ0KICAgICAgICAgICAgICAgIGVsaWYga2V5ID09ICd5JzoNCiAgICAgICAgICAgICAgICAgICAgcGFyYW1zW3BhcmFtX25hbWVdID0geQ0KICAgICAgICAgICAgICAgIGVsaWYga2V5ID09ICdzZWxlY3RlZF9mZWF0dXJlcyc6DQogICAgICAgICAgICAgICAgICAgIHBhcmFtc1twYXJhbV9uYW1lXSA9IHNlbGVjdGVkX2ZlYXR1cmVzDQogICAgICAgICAgICAgICAgbWF0Y2hlZCA9IFRydWUNCiAgICAgICAgICAgICAgICBicmVhaw0KICAgICAgICAgICAgICAgIA0KICAgICAgICBpZiBub3QgbWF0Y2hlZCBhbmQgcGFyYW1fbmFtZSBpbiBrd2FyZ3M6DQogICAgICAgICAgICBwYXJhbXNbcGFyYW1fbmFtZV0gPSBrd2FyZ3NbcGFyYW1fbmFtZV0NCiAgICANCiAgICAjIENhbGwgc2VsZWN0b3INCiAgICByZXN1bHQgPSBzZWxlY3RvcigqKnBhcmFtcykNCiAgICANCiAgICAjIFByb2Nlc3MgcmV0dXJuIHZhbHVlDQogICAgaWYgaXNpbnN0YW5jZShyZXN1bHQsIHR1cGxlKToNCiAgICAgICAgIyBJZiB0dXBsZSByZXR1cm5lZCwgZmlyc3QgZWxlbWVudCBpcyBzZWxlY3RlZCBmZWF0dXJlcw0KICAgICAgICByZXR1cm4gcmVzdWx0WzBdDQogICAgZWxzZToNCiAgICAgICAgIyBPdGhlcndpc2UgZW50aXJlIHJlc3VsdCBpcyBzZWxlY3RlZCBmZWF0dXJlcw0KICAgICAgICByZXR1cm4gcmVzdWx0IA==').decode())
+Provides mechanisms for registering and retrieving feature selection methods.
+"""
+
+import inspect
+import pandas as pd
+import numpy as np
+from typing import Dict, List, Callable, Any, Optional, Union, Tuple
+
+# Feature selector registry
+_FEATURE_SELECTORS: Dict[str, Callable] = {}
+
+def register_selector(name: str) -> Callable:
+    """
+    Decorator for registering feature selectors
+    
+    Args:
+        name: Selector name
+        
+    Returns:
+        Callable: Decorator function
+    """
+    def decorator(func: Callable) -> Callable:
+        _FEATURE_SELECTORS[name] = func
+        return func
+    return decorator
+
+def get_selector(name: str) -> Callable:
+    """
+    Get feature selector by name
+    
+    Args:
+        name: Selector name
+        
+    Returns:
+        Callable: Feature selection function
+        
+    Raises:
+        ValueError: If selector not found
+    """
+    if name not in _FEATURE_SELECTORS:
+        raise ValueError(f"Feature selector {name} not found")
+    return _FEATURE_SELECTORS[name]
+
+def get_available_selectors() -> List[str]:
+    """
+    Get list of all available feature selectors
+    
+    Returns:
+        List[str]: List of selector names
+    """
+    return list(_FEATURE_SELECTORS.keys())
+
+def run_selector(name: str, 
+                X: pd.DataFrame, 
+                y: pd.Series, 
+                selected_features: Optional[List[str]] = None,
+                **kwargs) -> List[str]:
+    """
+    Run a feature selector
+    
+    Args:
+        name: Selector name
+        X: Feature data
+        y: Target variable
+        selected_features: List of already selected features (if None, use all columns of X)
+        **kwargs: Additional arguments passed to the selector
+        
+    Returns:
+        List[str]: List of selected features
+    """
+    if selected_features is None:
+        selected_features = X.columns.tolist()
+    
+    selector = get_selector(name)
+    
+    # Check function signature
+    sig = inspect.signature(selector)
+    
+    # Prepare parameters
+    params = {}
+    param_mappings = {
+        'X': ['X', 'x', 'data', 'features'],
+        'y': ['y', 'Y', 'target', 'labels'],
+        'selected_features': ['selected_features', 'feature_names']
+    }
+    
+    for param_name in sig.parameters:
+        matched = False
+        for key, aliases in param_mappings.items():
+            if param_name in aliases:
+                if key == 'X':
+                    params[param_name] = X[selected_features]
+                elif key == 'y':
+                    params[param_name] = y
+                elif key == 'selected_features':
+                    params[param_name] = selected_features
+                matched = True
+                break
+                
+        if not matched and param_name in kwargs:
+            params[param_name] = kwargs[param_name]
+    
+    # Call selector
+    result = selector(**params)
+    
+    # Process return value
+    if isinstance(result, tuple):
+        # If tuple returned, first element is selected features
+        return result[0]
+    else:
+        # Otherwise entire result is selected features
+        return result 

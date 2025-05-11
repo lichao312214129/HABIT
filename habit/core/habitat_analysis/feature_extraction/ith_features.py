@@ -1,3 +1,120 @@
+#!/usr/bin/env python
+"""
+Intratumoral Heterogeneity (ITH) Score Calculation
+This module provides functionality for calculating ITH scores from habitat maps
+based on the methodology described in literature for quantifying tumor heterogeneity.
+"""
 
-import base64
-exec(base64.b64decode(b'IyEvdXNyL2Jpbi9lbnYgcHl0aG9uDQoiIiINCkludHJhdHVtb3JhbCBIZXRlcm9nZW5laXR5IChJVEgpIFNjb3JlIENhbGN1bGF0aW9uDQpUaGlzIG1vZHVsZSBwcm92aWRlcyBmdW5jdGlvbmFsaXR5IGZvciBjYWxjdWxhdGluZyBJVEggc2NvcmVzIGZyb20gaGFiaXRhdCBtYXBzDQpiYXNlZCBvbiB0aGUgbWV0aG9kb2xvZ3kgZGVzY3JpYmVkIGluIGxpdGVyYXR1cmUgZm9yIHF1YW50aWZ5aW5nIHR1bW9yIGhldGVyb2dlbmVpdHkuDQoiIiINCg0KaW1wb3J0IG51bXB5IGFzIG5wDQppbXBvcnQgU2ltcGxlSVRLIGFzIHNpdGsNCmZyb20gdHlwaW5nIGltcG9ydCBEaWN0LCBVbmlvbg0KaW1wb3J0IGxvZ2dpbmcNCg0KY2xhc3MgSVRIRmVhdHVyZUV4dHJhY3RvcjoNCiAgICAiIiJFeHRyYWN0b3IgY2xhc3MgZm9yIEludHJhdHVtb3JhbCBIZXRlcm9nZW5laXR5IChJVEgpIHNjb3JlcyIiIg0KICAgIA0KICAgIGRlZiBfX2luaXRfXyhzZWxmKToNCiAgICAgICAgIiIiDQogICAgICAgIEluaXRpYWxpemUgSVRIIGZlYXR1cmUgZXh0cmFjdG9yDQogICAgICAgICIiIg0KICAgICAgICBwYXNzDQogICAgDQogICAgZGVmIGV4dHJhY3RfaXRoX2ZlYXR1cmVzKHNlbGYsIGhhYml0YXRfaW1nOiBVbmlvbltzdHIsIHNpdGsuSW1hZ2VdKSAtPiBEaWN0Og0KICAgICAgICAiIiINCiAgICAgICAgQ2FsY3VsYXRlIElUSCBzY29yZSBkaXJlY3RseSBmcm9tIGEgaGFiaXRhdCBpbWFnZQ0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIGhhYml0YXRfaW1nOiBTaW1wbGVJVEsgaW1hZ2Ugb3IgcGF0aCB0byBoYWJpdGF0IG1hcCBmaWxlDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIERpY3Q6IERpY3Rpb25hcnkgY29udGFpbmluZyBJVEggc2NvcmUgYW5kIHJlbGF0ZWQgZmVhdHVyZXMNCiAgICAgICAgIiIiDQogICAgICAgIHRyeToNCiAgICAgICAgICAgICMgTG9hZCBpbWFnZSBpZiBwYXRoIGlzIHByb3ZpZGVkDQogICAgICAgICAgICBpZiBpc2luc3RhbmNlKGhhYml0YXRfaW1nLCBzdHIpOg0KICAgICAgICAgICAgICAgIGhhYml0YXRfaW1nID0gc2l0ay5SZWFkSW1hZ2UoaGFiaXRhdF9pbWcpDQogICAgICAgICAgICBlbGlmIG5vdCBpc2luc3RhbmNlKGhhYml0YXRfaW1nLCBzaXRrLkltYWdlKToNCiAgICAgICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJoYWJpdGF0X2ltZyBtdXN0IGJlIGEgU2ltcGxlSVRLIGltYWdlIG9yIGEgZmlsZSBwYXRoLiIpDQogICAgICAgICAgICANCiAgICAgICAgICAgICMgQ2FsY3VsYXRlIHRvdGFsIGFyZWEgdXNpbmcgU2ltcGxlSVRLDQogICAgICAgICAgICBiaW5hcnlfbWFzayA9IHNpdGsuQmluYXJ5VGhyZXNob2xkKGhhYml0YXRfaW1nLCAxLCAxMDAwMDAsIDEsIDApICAjIGxhcmdlIHVwcGVyIGJvdW5kDQogICAgICAgICAgICBzdGF0X2ZpbHRlciA9IHNpdGsuU3RhdGlzdGljc0ltYWdlRmlsdGVyKCkNCiAgICAgICAgICAgIHN0YXRfZmlsdGVyLkV4ZWN1dGUoYmluYXJ5X21hc2spDQogICAgICAgICAgICB0b3RhbF9hcmVhID0gc3RhdF9maWx0ZXIuR2V0U3VtKCkNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgaWYgdG90YWxfYXJlYSA9PSAwOg0KICAgICAgICAgICAgICAgIHJldHVybiB7Iml0aF9zY29yZSI6IDAuMCwgImVycm9yIjogIkVtcHR5IGhhYml0YXQgbWFwIn0NCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBHZXQgdW5pcXVlIGhhYml0YXRzIHVzaW5nIFNpbXBsZUlUSw0KICAgICAgICAgICAgbGFiZWxfc3RhdHMgPSBzaXRrLkxhYmVsSW50ZW5zaXR5U3RhdGlzdGljc0ltYWdlRmlsdGVyKCkNCiAgICAgICAgICAgIG1hc2sgPSBzaXRrLkJpbmFyeVRocmVzaG9sZChoYWJpdGF0X2ltZywgMSwgMTAwMDAwLCAxLCAwKSAgIyBsYXJnZSB1cHBlciBib3VuZA0KICAgICAgICAgICAgbGFiZWxfc3RhdHMuRXhlY3V0ZShoYWJpdGF0X2ltZywgaGFiaXRhdF9pbWcpICAjIFVzaW5nIHRoZSBpbWFnZSBpdHNlbGYgYXMgYm90aCBpbnB1dHMNCiAgICAgICAgICAgIA0KICAgICAgICAgICAgIyBHZXQgYWxsIGxhYmVscyAoaGFiaXRhdHMpIGV4Y2x1ZGluZyBiYWNrZ3JvdW5kDQogICAgICAgICAgICBoYWJpdGF0cyA9IFtsYWJlbCBmb3IgbGFiZWwgaW4gbGFiZWxfc3RhdHMuR2V0TGFiZWxzKCkgaWYgbGFiZWwgPiAwXQ0KICAgICAgICAgICAgDQogICAgICAgICAgICBpZiBub3QgaGFiaXRhdHM6DQogICAgICAgICAgICAgICAgcmV0dXJuIHsiaXRoX3Njb3JlIjogMC4wLCAiZXJyb3IiOiAiTm8gaGFiaXRhdHMgZm91bmQifQ0KICAgICAgICAgICAgDQogICAgICAgICAgICBzdW1tYXRpb24gPSAwLjANCiAgICAgICAgICAgIGhhYml0YXRfc3RhdHMgPSB7fQ0KICAgICAgICAgICAgDQogICAgICAgICAgICBmb3IgaGFiaXRhdCBpbiBoYWJpdGF0czoNCiAgICAgICAgICAgICAgICAjIENyZWF0ZSBiaW5hcnkgbWFzayBmb3IgdGhpcyBoYWJpdGF0IHVzaW5nIFNpbXBsZUlUSw0KICAgICAgICAgICAgICAgIHRocmVzaG9sZF9maWx0ZXIgPSBzaXRrLkJpbmFyeVRocmVzaG9sZEltYWdlRmlsdGVyKCkNCiAgICAgICAgICAgICAgICB0aHJlc2hvbGRfZmlsdGVyLlNldExvd2VyVGhyZXNob2xkKGhhYml0YXQpDQogICAgICAgICAgICAgICAgdGhyZXNob2xkX2ZpbHRlci5TZXRVcHBlclRocmVzaG9sZChoYWJpdGF0KQ0KICAgICAgICAgICAgICAgIHRocmVzaG9sZF9maWx0ZXIuU2V0SW5zaWRlVmFsdWUoMSkNCiAgICAgICAgICAgICAgICB0aHJlc2hvbGRfZmlsdGVyLlNldE91dHNpZGVWYWx1ZSgwKQ0KICAgICAgICAgICAgICAgIGhhYml0YXRfbWFza19zaXRrID0gdGhyZXNob2xkX2ZpbHRlci5FeGVjdXRlKGhhYml0YXRfaW1nKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgTGFiZWwgY29ubmVjdGVkIGNvbXBvbmVudHMgdXNpbmcgU2ltcGxlSVRLDQogICAgICAgICAgICAgICAgY29ubmVjdGVkX2NvbXBvbmVudHMgPSBzaXRrLkNvbm5lY3RlZENvbXBvbmVudChoYWJpdGF0X21hc2tfc2l0aykNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAjIEdldCBzdGF0cyBvZiBjb25uZWN0ZWQgY29tcG9uZW50cw0KICAgICAgICAgICAgICAgIGxhYmVsX3N0YXRzID0gc2l0ay5MYWJlbFNoYXBlU3RhdGlzdGljc0ltYWdlRmlsdGVyKCkNCiAgICAgICAgICAgICAgICBsYWJlbF9zdGF0cy5FeGVjdXRlKGNvbm5lY3RlZF9jb21wb25lbnRzKQ0KICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICMgR2V0IG51bWJlciBvZiByZWdpb25zIChsYWJlbHMpDQogICAgICAgICAgICAgICAgbnVtX3JlZ2lvbnMgPSBsYWJlbF9zdGF0cy5HZXROdW1iZXJPZkxhYmVscygpDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBTa2lwIGlmIG5vIHJlZ2lvbnMgZm91bmQNCiAgICAgICAgICAgICAgICBpZiBudW1fcmVnaW9ucyA9PSAwOg0KICAgICAgICAgICAgICAgICAgICBoYWJpdGF0X3N0YXRzW2YnaGFiaXRhdF97aGFiaXRhdH1fcmVnaW9ucyddID0gMA0KICAgICAgICAgICAgICAgICAgICBoYWJpdGF0X3N0YXRzW2YnaGFiaXRhdF97aGFiaXRhdH1fbGFyZ2VzdF9hcmVhJ10gPSAwDQogICAgICAgICAgICAgICAgICAgIGhhYml0YXRfc3RhdHNbZidoYWJpdGF0X3toYWJpdGF0fV9hcmVhX3JhdGlvJ10gPSAwDQogICAgICAgICAgICAgICAgICAgIGNvbnRpbnVlDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBGaW5kIGxhcmdlc3QgcmVnaW9uIGFyZWENCiAgICAgICAgICAgICAgICBsYXJnZXN0X2FyZWEgPSAwDQogICAgICAgICAgICAgICAgZm9yIGxhYmVsIGluIGxhYmVsX3N0YXRzLkdldExhYmVscygpOg0KICAgICAgICAgICAgICAgICAgICBhcmVhID0gbGFiZWxfc3RhdHMuR2V0TnVtYmVyT2ZQaXhlbHMobGFiZWwpDQogICAgICAgICAgICAgICAgICAgIGlmIGFyZWEgPiBsYXJnZXN0X2FyZWE6DQogICAgICAgICAgICAgICAgICAgICAgICBsYXJnZXN0X2FyZWEgPSBhcmVhDQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgIyBBZGQgdG8gc3VtbWF0aW9uIGZvciBJVEggc2NvcmUNCiAgICAgICAgICAgICAgICBzdW1tYXRpb24gKz0gbGFyZ2VzdF9hcmVhIC8gbnVtX3JlZ2lvbnMNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAjIFN0b3JlIGhhYml0YXQgc3RhdGlzdGljcw0KICAgICAgICAgICAgICAgIGhhYml0YXRfc3RhdHNbZidoYWJpdGF0X3toYWJpdGF0fV9yZWdpb25zJ10gPSBudW1fcmVnaW9ucw0KICAgICAgICAgICAgICAgIGhhYml0YXRfc3RhdHNbZidoYWJpdGF0X3toYWJpdGF0fV9sYXJnZXN0X2FyZWEnXSA9IGludChsYXJnZXN0X2FyZWEpDQogICAgICAgICAgICAgICAgaGFiaXRhdF9zdGF0c1tmJ2hhYml0YXRfe2hhYml0YXR9X2FyZWFfcmF0aW8nXSA9IGxhcmdlc3RfYXJlYSAvIG51bV9yZWdpb25zDQogICAgICAgICAgICANCiAgICAgICAgICAgICMgQ2FsY3VsYXRlIElUSCBzY29yZTogMSAtICgxL1NfdG90YWwpICogzqMoU19pLG1heCAvIG5faSkNCiAgICAgICAgICAgIGl0aF9zY29yZSA9IDEuMCAtICgxLjAgLyB0b3RhbF9hcmVhKSAqIHN1bW1hdGlvbg0KICAgICAgICAgICAgDQogICAgICAgICAgICAjIFByZXBhcmUgcmVzdWx0IGRpY3Rpb25hcnkNCiAgICAgICAgICAgIHJlc3VsdCA9IHsNCiAgICAgICAgICAgICAgICAnaXRoX3Njb3JlJzogaXRoX3Njb3JlLA0KICAgICAgICAgICAgICAgICdudW1faGFiaXRhdHMnOiBsZW4oaGFiaXRhdHMpLA0KICAgICAgICAgICAgICAgICd0b3RhbF9hcmVhJzogaW50KHRvdGFsX2FyZWEpDQogICAgICAgICAgICB9DQogICAgICAgICAgICANCiAgICAgICAgICAgICMgQWRkIGhhYml0YXQgc3RhdGlzdGljcw0KICAgICAgICAgICAgcmVzdWx0LnVwZGF0ZShoYWJpdGF0X3N0YXRzKQ0KICAgICAgICAgICAgDQogICAgICAgICAgICByZXR1cm4gcmVzdWx0DQogICAgICAgICAgICANCiAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOg0KICAgICAgICAgICAgbG9nZ2luZy5lcnJvcihmIkVycm9yIGNhbGN1bGF0aW5nIElUSCBzY29yZSBmcm9tIGhhYml0YXQgaW1hZ2U6IHtzdHIoZSl9IikNCiAgICAgICAgICAgIHJldHVybiB7ImVycm9yIjogc3RyKGUpLCAiaXRoX3Njb3JlIjogMC4wfQ==').decode())
+import numpy as np
+import SimpleITK as sitk
+from typing import Dict, Union
+import logging
+
+class ITHFeatureExtractor:
+    """Extractor class for Intratumoral Heterogeneity (ITH) scores"""
+    
+    def __init__(self):
+        """
+        Initialize ITH feature extractor
+        """
+        pass
+    
+    def extract_ith_features(self, habitat_img: Union[str, sitk.Image]) -> Dict:
+        """
+        Calculate ITH score directly from a habitat image
+        
+        Args:
+            habitat_img: SimpleITK image or path to habitat map file
+            
+        Returns:
+            Dict: Dictionary containing ITH score and related features
+        """
+        try:
+            # Load image if path is provided
+            if isinstance(habitat_img, str):
+                habitat_img = sitk.ReadImage(habitat_img)
+            elif not isinstance(habitat_img, sitk.Image):
+                raise ValueError("habitat_img must be a SimpleITK image or a file path.")
+            
+            # Calculate total area using SimpleITK
+            binary_mask = sitk.BinaryThreshold(habitat_img, 1, 100000, 1, 0)  # large upper bound
+            stat_filter = sitk.StatisticsImageFilter()
+            stat_filter.Execute(binary_mask)
+            total_area = stat_filter.GetSum()
+            
+            if total_area == 0:
+                return {"ith_score": 0.0, "error": "Empty habitat map"}
+            
+            # Get unique habitats using SimpleITK
+            label_stats = sitk.LabelIntensityStatisticsImageFilter()
+            mask = sitk.BinaryThreshold(habitat_img, 1, 100000, 1, 0)  # large upper bound
+            label_stats.Execute(habitat_img, habitat_img)  # Using the image itself as both inputs
+            
+            # Get all labels (habitats) excluding background
+            habitats = [label for label in label_stats.GetLabels() if label > 0]
+            
+            if not habitats:
+                return {"ith_score": 0.0, "error": "No habitats found"}
+            
+            summation = 0.0
+            habitat_stats = {}
+            
+            for habitat in habitats:
+                # Create binary mask for this habitat using SimpleITK
+                threshold_filter = sitk.BinaryThresholdImageFilter()
+                threshold_filter.SetLowerThreshold(habitat)
+                threshold_filter.SetUpperThreshold(habitat)
+                threshold_filter.SetInsideValue(1)
+                threshold_filter.SetOutsideValue(0)
+                habitat_mask_sitk = threshold_filter.Execute(habitat_img)
+                
+                # Label connected components using SimpleITK
+                connected_components = sitk.ConnectedComponent(habitat_mask_sitk)
+                
+                # Get stats of connected components
+                label_stats = sitk.LabelShapeStatisticsImageFilter()
+                label_stats.Execute(connected_components)
+                
+                # Get number of regions (labels)
+                num_regions = label_stats.GetNumberOfLabels()
+                
+                # Skip if no regions found
+                if num_regions == 0:
+                    habitat_stats[f'habitat_{habitat}_regions'] = 0
+                    habitat_stats[f'habitat_{habitat}_largest_area'] = 0
+                    habitat_stats[f'habitat_{habitat}_area_ratio'] = 0
+                    continue
+                
+                # Find largest region area
+                largest_area = 0
+                for label in label_stats.GetLabels():
+                    area = label_stats.GetNumberOfPixels(label)
+                    if area > largest_area:
+                        largest_area = area
+                
+                # Add to summation for ITH score
+                summation += largest_area / num_regions
+                
+                # Store habitat statistics
+                habitat_stats[f'habitat_{habitat}_regions'] = num_regions
+                habitat_stats[f'habitat_{habitat}_largest_area'] = int(largest_area)
+                habitat_stats[f'habitat_{habitat}_area_ratio'] = largest_area / num_regions
+            
+            # Calculate ITH score: 1 - (1/S_total) * Σ(S_i,max / n_i)
+            ith_score = 1.0 - (1.0 / total_area) * summation
+            
+            # Prepare result dictionary
+            result = {
+                'ith_score': ith_score,
+                'num_habitats': len(habitats),
+                'total_area': int(total_area)
+            }
+            
+            # Add habitat statistics
+            result.update(habitat_stats)
+            
+            return result
+            
+        except Exception as e:
+            logging.error(f"Error calculating ITH score from habitat image: {str(e)}")
+            return {"error": str(e), "ith_score": 0.0}

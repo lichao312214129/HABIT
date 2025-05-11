@@ -1,3 +1,153 @@
+"""
+Lasso Feature Selector
 
-import base64
-exec(base64.b64decode(b'IiIiDQpMYXNzbyBGZWF0dXJlIFNlbGVjdG9yDQoNClVzZXMgTDEgcmVndWxhcml6YXRpb24gZm9yIGZlYXR1cmUgc2VsZWN0aW9uLCBhdXRvbWF0aWNhbGx5IGlkZW50aWZ5aW5nIGltcG9ydGFudCBmZWF0dXJlcw0KIiIiDQppbXBvcnQgb3MNCmltcG9ydCBwYW5kYXMgYXMgcGQNCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IG1hdHBsb3RsaWIucHlwbG90IGFzIHBsdA0KZnJvbSB0eXBpbmcgaW1wb3J0IExpc3QsIE9wdGlvbmFsLCBUdXBsZSwgRGljdCwgVW5pb24NCmZyb20gc2tsZWFybi5saW5lYXJfbW9kZWwgaW1wb3J0IExhc3NvQ1YsIGxhc3NvX3BhdGgNCmZyb20gc2tsZWFybi5wcmVwcm9jZXNzaW5nIGltcG9ydCBTdGFuZGFyZFNjYWxlcg0KZnJvbSAuc2VsZWN0b3JfcmVnaXN0cnkgaW1wb3J0IHJlZ2lzdGVyX3NlbGVjdG9yDQoNCkByZWdpc3Rlcl9zZWxlY3RvcignbGFzc28nKQ0KZGVmIGxhc3NvX3NlbGVjdG9yKFg6IHBkLkRhdGFGcmFtZSwgDQogICAgICAgICAgICAgICAgICB5OiBwZC5TZXJpZXMsDQogICAgICAgICAgICAgICAgICBjdjogaW50ID0gMTAsIA0KICAgICAgICAgICAgICAgICAgbl9hbHBoYXM6IGludCA9IDEwMCwNCiAgICAgICAgICAgICAgICAgIGFscGhhczogT3B0aW9uYWxbTGlzdFtmbG9hdF1dID0gTm9uZSwNCiAgICAgICAgICAgICAgICAgIHJhbmRvbV9zdGF0ZTogaW50ID0gNDIsDQogICAgICAgICAgICAgICAgICB2aXN1YWxpemU6IGJvb2wgPSBGYWxzZSwNCiAgICAgICAgICAgICAgICAgIG91dGRpcjogT3B0aW9uYWxbc3RyXSA9IE5vbmUsDQogICAgICAgICAgICAgICAgICBzZWxlY3RlZF9mZWF0dXJlczogT3B0aW9uYWxbTGlzdFtzdHJdXSA9IE5vbmUpIC0+IFVuaW9uW0xpc3Rbc3RyXSwgVHVwbGVbTGlzdFtzdHJdLCBmbG9hdCwgbnAubmRhcnJheSwgbnAubmRhcnJheV1dOg0KICAgICIiIg0KICAgIEZlYXR1cmUgc2VsZWN0aW9uIGJhc2VkIG9uIExhc3NvIHJlZ3Jlc3Npb24NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBYOiBGZWF0dXJlIGRhdGENCiAgICAgICAgeTogVGFyZ2V0IHZhcmlhYmxlDQogICAgICAgIGN2OiBOdW1iZXIgb2YgY3Jvc3MtdmFsaWRhdGlvbiBmb2xkcw0KICAgICAgICBuX2FscGhhczogTnVtYmVyIG9mIGFscGhhIHBhcmFtZXRlcnMgKGlmIGFscGhhcyBpcyBOb25lKQ0KICAgICAgICBhbHBoYXM6IExpc3Qgb2Ygc3BlY2lmaWVkIGFscGhhIHBhcmFtZXRlcnMNCiAgICAgICAgcmFuZG9tX3N0YXRlOiBSYW5kb20gc2VlZA0KICAgICAgICB2aXN1YWxpemU6IFdoZXRoZXIgdG8gZ2VuZXJhdGUgdmlzdWFsaXphdGlvbiByZXN1bHRzDQogICAgICAgIG91dGRpcjogT3V0cHV0IGRpcmVjdG9yeSwgcmVxdWlyZWQgaWYgdmlzdWFsaXplIGlzIFRydWUNCiAgICAgICAgc2VsZWN0ZWRfZmVhdHVyZXM6IExpc3Qgb2YgYWxyZWFkeSBzZWxlY3RlZCBmZWF0dXJlcywgaWYgTm9uZSB1c2UgYWxsIGNvbHVtbnMgb2YgWA0KICAgICAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBVbmlvbltMaXN0W3N0cl0sIFR1cGxlW0xpc3Rbc3RyXSwgZmxvYXQsIG5wLm5kYXJyYXksIG5wLm5kYXJyYXldXToNCiAgICAgICAgICAgIC0gSWYgZGV0YWlsZWRfb3V0cHV0IGlzIEZhbHNlLCByZXR1cm5zIG9ubHkgdGhlIGxpc3Qgb2Ygc2VsZWN0ZWQgZmVhdHVyZXMNCiAgICAgICAgICAgIC0gSWYgZGV0YWlsZWRfb3V0cHV0IGlzIFRydWUsIHJldHVybnMgKHNlbGVjdGVkIGZlYXR1cmVzIGxpc3QsIG9wdGltYWwgYWxwaGEsIGFscGhhIHBhdGgsIGNvZWZmaWNpZW50IHBhdGgpDQogICAgIiIiDQogICAgaWYgc2VsZWN0ZWRfZmVhdHVyZXMgaXMgTm9uZToNCiAgICAgICAgc2VsZWN0ZWRfZmVhdHVyZXMgPSBYLmNvbHVtbnMudG9saXN0KCkNCiAgICANCiAgICAjIE9ubHkgdXNlIHNlbGVjdGVkIGZlYXR1cmVzDQogICAgWF9zZWxlY3RlZCA9IFhbc2VsZWN0ZWRfZmVhdHVyZXNdDQogICAgDQogICAgIyBDcmVhdGUgTGFzc29DViBvYmplY3QNCiAgICBsYXNzb19jdiA9IExhc3NvQ1YoDQogICAgICAgIGN2PWN2LCANCiAgICAgICAgbl9hbHBoYXM9bl9hbHBoYXMsDQogICAgICAgIGFscGhhcz1hbHBoYXMsDQogICAgICAgIHJhbmRvbV9zdGF0ZT1yYW5kb21fc3RhdGUsDQogICAgICAgIG5fam9icz0tMSAgIyBVc2UgYWxsIGF2YWlsYWJsZSBDUFUgY29yZXMNCiAgICApDQogICAgDQogICAgIyBGaXQgdGhlIG1vZGVsDQogICAgbGFzc29fY3YuZml0KFgsIHkpDQogICAgDQogICAgIyBHZXQgb3B0aW1hbCBhbHBoYSB2YWx1ZQ0KICAgIGJlc3RfYWxwaGEgPSBsYXNzb19jdi5hbHBoYV8NCiAgICBwcmludChmIkxhc3NvIHNlbGVjdGlvbjogT3B0aW1hbCBhbHBoYSB2YWx1ZSBpcyB7YmVzdF9hbHBoYTouNmZ9IikNCiAgICANCiAgICAjIEdldCBmZWF0dXJlIGNvZWZmaWNpZW50cw0KICAgIGNvZWZzID0gbGFzc29fY3YuY29lZl8NCiAgICANCiAgICAjIENyZWF0ZSBmZWF0dXJlIGltcG9ydGFuY2UgRGF0YUZyYW1lDQogICAgZmVhdHVyZV9pbXBvcnRhbmNlID0gcGQuRGF0YUZyYW1lKHsNCiAgICAgICAgJ2ZlYXR1cmUnOiBzZWxlY3RlZF9mZWF0dXJlcywNCiAgICAgICAgJ2NvZWZmaWNpZW50JzogY29lZnMNCiAgICB9KQ0KICAgIA0KICAgICMgU2VsZWN0IGZlYXR1cmVzIHdpdGggbm9uLXplcm8gY29lZmZpY2llbnRzDQogICAgc2VsZWN0ZWQgPSBmZWF0dXJlX2ltcG9ydGFuY2VbZmVhdHVyZV9pbXBvcnRhbmNlWydjb2VmZmljaWVudCddICE9IDBdWydmZWF0dXJlJ10udG9saXN0KCkNCiAgICANCiAgICAjIE91dHB1dCByZXN1bHRzDQogICAgcHJpbnQoZiJMYXNzbyBzZWxlY3Rpb246IFNlbGVjdGVkIHtsZW4oc2VsZWN0ZWQpfSBmZWF0dXJlcyBmcm9tIHtsZW4oc2VsZWN0ZWRfZmVhdHVyZXMpfSBmZWF0dXJlcyIpDQogICAgDQogICAgIyBDYWxjdWxhdGUgTGFzc28gcGF0aCAoZm9yIHZpc3VhbGl6YXRpb24pDQogICAgYWxwaGFzX3BhdGgsIGNvZWZzX3BhdGgsIF8gPSBsYXNzb19wYXRoKFgsIHksIGFscGhhcz1hbHBoYXMpDQogICAgDQogICAgIyBWaXN1YWxpemF0aW9uDQogICAgaWYgdmlzdWFsaXplIGFuZCBvdXRkaXI6DQogICAgICAgIG9zLm1ha2VkaXJzKG91dGRpciwgZXhpc3Rfb2s9VHJ1ZSkNCiAgICAgICAgDQogICAgICAgICMgQ3JlYXRlIExhc3NvIHBhdGggcGxvdA0KICAgICAgICBmaWcsIChheDEsIGF4MikgPSBwbHQuc3VicGxvdHMoMiwgMSwgZmlnc2l6ZT0oMTIsIDEwKSkNCiAgICAgICAgDQogICAgICAgICMgRmlyc3Qgc3VicGxvdDogTVNFIHBhdGgNCiAgICAgICAgYWxwaGFzID0gbGFzc29fY3YuYWxwaGFzXw0KICAgICAgICBtc2VfcGF0aCA9IGxhc3NvX2N2Lm1zZV9wYXRoXy5tZWFuKGF4aXM9MSkNCg0KICAgICAgICBheDEucGxvdChhbHBoYXMsIG1zZV9wYXRoLCAnLScsIGxhYmVsPSdNZWFuIFNxdWFyZWQgRXJyb3InKQ0KICAgICAgICBheDEuYXh2bGluZShiZXN0X2FscGhhLCBjb2xvcj0ncicsIGxpbmVzdHlsZT0nLS0nLCBsYWJlbD1mJ09wdGltYWwgYWxwaGEgPSB7YmVzdF9hbHBoYTouNmZ9JykNCiAgICAgICAgYXgxLnNldF94c2NhbGUoJ2xvZycpDQogICAgICAgIGF4MS5zZXRfeGxhYmVsKCdhbHBoYScpDQogICAgICAgIGF4MS5zZXRfeWxhYmVsKCdNZWFuIFNxdWFyZWQgRXJyb3InKQ0KICAgICAgICBheDEuc2V0X3RpdGxlKCdDcm9zcy12YWxpZGF0aW9uIE1TRSB2cyBhbHBoYScpDQogICAgICAgIGF4MS5sZWdlbmQoKQ0KICAgICAgICBheDEuZ3JpZChUcnVlKQ0KICAgICAgICANCiAgICAgICAgIyBTZWNvbmQgc3VicGxvdDogQ29lZmZpY2llbnQgcGF0aA0KICAgICAgICBmb3IgaSwgZmVhdHVyZSBpbiBlbnVtZXJhdGUoc2VsZWN0ZWRfZmVhdHVyZXMpOg0KICAgICAgICAgICAgYXgyLnBsb3QoYWxwaGFzX3BhdGgsIGNvZWZzX3BhdGhbaV0sIGxhYmVsPWZlYXR1cmUgaWYgZmVhdHVyZSBpbiBzZWxlY3RlZCBlbHNlIE5vbmUpDQogICAgICAgIA0KICAgICAgICAjIEhpZ2hsaWdodCBzZWxlY3RlZCBmZWF0dXJlcw0KICAgICAgICBmb3IgaSwgZmVhdHVyZSBpbiBlbnVtZXJhdGUoc2VsZWN0ZWRfZmVhdHVyZXMpOg0KICAgICAgICAgICAgaWYgZmVhdHVyZSBpbiBzZWxlY3RlZDoNCiAgICAgICAgICAgICAgICBheDIucGxvdChhbHBoYXNfcGF0aCwgY29lZnNfcGF0aFtpXSwgbGluZXdpZHRoPTIpDQogICAgICAgIA0KICAgICAgICBheDIuYXh2bGluZShiZXN0X2FscGhhLCBjb2xvcj0ncicsIGxpbmVzdHlsZT0nLS0nKQ0KICAgICAgICBheDIuc2V0X3hzY2FsZSgnbG9nJykNCiAgICAgICAgYXgyLnNldF94bGFiZWwoJ2FscGhhJykNCiAgICAgICAgYXgyLnNldF95bGFiZWwoJ0NvZWZmaWNpZW50JykNCiAgICAgICAgYXgyLnNldF90aXRsZSgnTGFzc28gQ29lZmZpY2llbnQgUGF0aCcpDQogICAgICAgIGF4Mi5ncmlkKFRydWUpDQogICAgICAgIA0KICAgICAgICAjIEFkanVzdCBsYXlvdXQNCiAgICAgICAgcGx0LnRpZ2h0X2xheW91dCgpDQogICAgICAgIA0KICAgICAgICAjIFNhdmUgcGxvdA0KICAgICAgICBwbHQuc2F2ZWZpZyhvcy5wYXRoLmpvaW4ob3V0ZGlyLCAnbGFzc29fcGF0aC5wZGYnKSwgYmJveF9pbmNoZXM9J3RpZ2h0JykNCiAgICAgICAgcGx0LmNsb3NlKCkNCiAgICAgICAgDQogICAgICAgICMgU2F2ZSBmZWF0dXJlIGltcG9ydGFuY2UNCiAgICAgICAgZmVhdHVyZV9pbXBvcnRhbmNlID0gZmVhdHVyZV9pbXBvcnRhbmNlLnNvcnRfdmFsdWVzKGJ5PSdjb2VmZmljaWVudCcsIGtleT1hYnMsIGFzY2VuZGluZz1GYWxzZSkNCiAgICAgICAgZmVhdHVyZV9pbXBvcnRhbmNlLnRvX2Nzdihvcy5wYXRoLmpvaW4ob3V0ZGlyLCAnbGFzc29fZmVhdHVyZV9pbXBvcnRhbmNlLmNzdicpLCBpbmRleD1GYWxzZSkNCiAgICAgICAgDQogICAgICAgICMgQ3JlYXRlIGZlYXR1cmUgaW1wb3J0YW5jZSBiYXIgcGxvdA0KICAgICAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDEyLCA4KSkNCiAgICAgICAgDQogICAgICAgICMgT25seSBzaG93IGZlYXR1cmVzIHdpdGggbm9uLXplcm8gY29lZmZpY2llbnRzDQogICAgICAgIG5vbnplcm9fZmVhdHVyZXMgPSBmZWF0dXJlX2ltcG9ydGFuY2VbZmVhdHVyZV9pbXBvcnRhbmNlWydjb2VmZmljaWVudCddICE9IDBdDQogICAgICAgIA0KICAgICAgICAjIFNvcnQgYnkgYWJzb2x1dGUgdmFsdWUNCiAgICAgICAgbm9uemVyb19mZWF0dXJlcyA9IG5vbnplcm9fZmVhdHVyZXMucmVpbmRleChub256ZXJvX2ZlYXR1cmVzWydjb2VmZmljaWVudCddLmFicygpLnNvcnRfdmFsdWVzKGFzY2VuZGluZz1UcnVlKS5pbmRleCkNCiAgICAgICAgDQogICAgICAgICMgU2V0IGNvbG9ycw0KICAgICAgICBjb2xvcnMgPSBbJ3JlZCcgaWYgYyA8IDAgZWxzZSAnYmx1ZScgZm9yIGMgaW4gbm9uemVyb19mZWF0dXJlc1snY29lZmZpY2llbnQnXV0NCiAgICAgICAgDQogICAgICAgICMgRHJhdyBiYXIgcGxvdA0KICAgICAgICBwbHQuYmFyaChub256ZXJvX2ZlYXR1cmVzWydmZWF0dXJlJ10sIG5vbnplcm9fZmVhdHVyZXNbJ2NvZWZmaWNpZW50J10sIGNvbG9yPWNvbG9ycykNCiAgICAgICAgcGx0LmF4dmxpbmUoeD0wLCBjb2xvcj0nYmxhY2snLCBsaW5lc3R5bGU9Jy0nLCBsaW5ld2lkdGg9MC41KQ0KICAgICAgICBwbHQueGxhYmVsKCdDb2VmZmljaWVudCcpDQogICAgICAgIHBsdC55bGFiZWwoJ0ZlYXR1cmUnKQ0KICAgICAgICBwbHQudGl0bGUoJ0xhc3NvIEZlYXR1cmUgSW1wb3J0YW5jZSAoUmVkOiBuZWdhdGl2ZSBjb2VmZmljaWVudHMsIEJsdWU6IHBvc2l0aXZlIGNvZWZmaWNpZW50cyknKQ0KICAgICAgICBwbHQudGlnaHRfbGF5b3V0KCkNCiAgICAgICAgcGx0LnNhdmVmaWcob3MucGF0aC5qb2luKG91dGRpciwgJ2xhc3NvX2ZlYXR1cmVfaW1wb3J0YW5jZS5wbmcnKSwgZHBpPTMwMCwgYmJveF9pbmNoZXM9J3RpZ2h0JykNCiAgICAgICAgcGx0LmNsb3NlKCkNCiAgICANCiAgICByZXR1cm4gc2VsZWN0ZWQsIGJlc3RfYWxwaGEsIGFscGhhc19wYXRoLCBjb2Vmc19wYXRoIA==').decode())
+Uses L1 regularization for feature selection, automatically identifying important features
+"""
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from typing import List, Optional, Tuple, Dict, Union
+from sklearn.linear_model import LassoCV, lasso_path
+from sklearn.preprocessing import StandardScaler
+from .selector_registry import register_selector
+
+@register_selector('lasso')
+def lasso_selector(X: pd.DataFrame, 
+                  y: pd.Series,
+                  cv: int = 10, 
+                  n_alphas: int = 100,
+                  alphas: Optional[List[float]] = None,
+                  random_state: int = 42,
+                  visualize: bool = False,
+                  outdir: Optional[str] = None,
+                  selected_features: Optional[List[str]] = None) -> Union[List[str], Tuple[List[str], float, np.ndarray, np.ndarray]]:
+    """
+    Feature selection based on Lasso regression
+    
+    Args:
+        X: Feature data
+        y: Target variable
+        cv: Number of cross-validation folds
+        n_alphas: Number of alpha parameters (if alphas is None)
+        alphas: List of specified alpha parameters
+        random_state: Random seed
+        visualize: Whether to generate visualization results
+        outdir: Output directory, required if visualize is True
+        selected_features: List of already selected features, if None use all columns of X
+        
+    Returns:
+        Union[List[str], Tuple[List[str], float, np.ndarray, np.ndarray]]:
+            - If detailed_output is False, returns only the list of selected features
+            - If detailed_output is True, returns (selected features list, optimal alpha, alpha path, coefficient path)
+    """
+    if selected_features is None:
+        selected_features = X.columns.tolist()
+    
+    # Only use selected features
+    X_selected = X[selected_features]
+    
+    # Create LassoCV object
+    lasso_cv = LassoCV(
+        cv=cv, 
+        n_alphas=n_alphas,
+        alphas=alphas,
+        random_state=random_state,
+        n_jobs=-1  # Use all available CPU cores
+    )
+    
+    # Fit the model
+    lasso_cv.fit(X, y)
+    
+    # Get optimal alpha value
+    best_alpha = lasso_cv.alpha_
+    print(f"Lasso selection: Optimal alpha value is {best_alpha:.6f}")
+    
+    # Get feature coefficients
+    coefs = lasso_cv.coef_
+    
+    # Create feature importance DataFrame
+    feature_importance = pd.DataFrame({
+        'feature': selected_features,
+        'coefficient': coefs
+    })
+    
+    # Select features with non-zero coefficients
+    selected = feature_importance[feature_importance['coefficient'] != 0]['feature'].tolist()
+    
+    # Output results
+    print(f"Lasso selection: Selected {len(selected)} features from {len(selected_features)} features")
+    
+    # Calculate Lasso path (for visualization)
+    alphas_path, coefs_path, _ = lasso_path(X, y, alphas=alphas)
+    
+    # Visualization
+    if visualize and outdir:
+        os.makedirs(outdir, exist_ok=True)
+        
+        # Create Lasso path plot
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+        
+        # First subplot: MSE path
+        alphas = lasso_cv.alphas_
+        mse_path = lasso_cv.mse_path_.mean(axis=1)
+
+        ax1.plot(alphas, mse_path, '-', label='Mean Squared Error')
+        ax1.axvline(best_alpha, color='r', linestyle='--', label=f'Optimal alpha = {best_alpha:.6f}')
+        ax1.set_xscale('log')
+        ax1.set_xlabel('alpha')
+        ax1.set_ylabel('Mean Squared Error')
+        ax1.set_title('Cross-validation MSE vs alpha')
+        ax1.legend()
+        ax1.grid(True)
+        
+        # Second subplot: Coefficient path
+        for i, feature in enumerate(selected_features):
+            ax2.plot(alphas_path, coefs_path[i], label=feature if feature in selected else None)
+        
+        # Highlight selected features
+        for i, feature in enumerate(selected_features):
+            if feature in selected:
+                ax2.plot(alphas_path, coefs_path[i], linewidth=2)
+        
+        ax2.axvline(best_alpha, color='r', linestyle='--')
+        ax2.set_xscale('log')
+        ax2.set_xlabel('alpha')
+        ax2.set_ylabel('Coefficient')
+        ax2.set_title('Lasso Coefficient Path')
+        ax2.grid(True)
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save plot
+        plt.savefig(os.path.join(outdir, 'lasso_path.pdf'), bbox_inches='tight')
+        plt.close()
+        
+        # Save feature importance
+        feature_importance = feature_importance.sort_values(by='coefficient', key=abs, ascending=False)
+        feature_importance.to_csv(os.path.join(outdir, 'lasso_feature_importance.csv'), index=False)
+        
+        # Create feature importance bar plot
+        plt.figure(figsize=(12, 8))
+        
+        # Only show features with non-zero coefficients
+        nonzero_features = feature_importance[feature_importance['coefficient'] != 0]
+        
+        # Sort by absolute value
+        nonzero_features = nonzero_features.reindex(nonzero_features['coefficient'].abs().sort_values(ascending=True).index)
+        
+        # Set colors
+        colors = ['red' if c < 0 else 'blue' for c in nonzero_features['coefficient']]
+        
+        # Draw bar plot
+        plt.barh(nonzero_features['feature'], nonzero_features['coefficient'], color=colors)
+        plt.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
+        plt.xlabel('Coefficient')
+        plt.ylabel('Feature')
+        plt.title('Lasso Feature Importance (Red: negative coefficients, Blue: positive coefficients)')
+        plt.tight_layout()
+        plt.savefig(os.path.join(outdir, 'lasso_feature_importance.png'), dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    return selected, best_alpha, alphas_path, coefs_path 

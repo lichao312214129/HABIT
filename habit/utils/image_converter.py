@@ -1,3 +1,97 @@
+from typing import Dict, Any, Tuple, Optional
+import torch
+import numpy as np
+import SimpleITK as sitk
+import ants
 
-import base64
-exec(base64.b64decode(b'ZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIEFueSwgVHVwbGUsIE9wdGlvbmFsDQppbXBvcnQgdG9yY2gNCmltcG9ydCBudW1weSBhcyBucA0KaW1wb3J0IFNpbXBsZUlUSyBhcyBzaXRrDQppbXBvcnQgYW50cw0KDQpjbGFzcyBJbWFnZUNvbnZlcnRlcjoNCiAgICAiIiJVdGlsaXR5IGNsYXNzIGZvciBjb252ZXJ0aW5nIGJldHdlZW4gZGlmZmVyZW50IGltYWdlIGZvcm1hdHMuIiIiDQogICAgDQogICAgQHN0YXRpY21ldGhvZA0KICAgIGRlZiBnZXRfbWV0YWRhdGEobWV0YV9kaWN0OiBEaWN0W3N0ciwgQW55XSwgbmRpbTogaW50KSAtPiBUdXBsZVt0dXBsZSwgdHVwbGUsIHR1cGxlXToNCiAgICAgICAgIiIiRXh0cmFjdCBhbmQgdmFsaWRhdGUgbWV0YWRhdGEgZnJvbSBkaWN0aW9uYXJ5Lg0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIG1ldGFfZGljdCAoRGljdFtzdHIsIEFueV0pOiBNZXRhZGF0YSBkaWN0aW9uYXJ5Lg0KICAgICAgICAgICAgbmRpbSAoaW50KTogTnVtYmVyIG9mIGRpbWVuc2lvbnMuDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIFR1cGxlW3R1cGxlLCB0dXBsZSwgdHVwbGVdOiBWYWxpZGF0ZWQgc3BhY2luZywgb3JpZ2luLCBhbmQgZGlyZWN0aW9uLg0KICAgICAgICAiIiINCiAgICAgICAgIyBEZWZhdWx0IHZhbHVlcw0KICAgICAgICBkZWZhdWx0X3NwYWNpbmcgPSB0dXBsZShbMS4wXSAqIG5kaW0pDQogICAgICAgIGRlZmF1bHRfb3JpZ2luID0gdHVwbGUoWzAuMF0gKiBuZGltKQ0KICAgICAgICBkZWZhdWx0X2RpcmVjdGlvbiA9IHR1cGxlKFsxLjAgaWYgaSA9PSBqIGVsc2UgMC4wIGZvciBpIGluIHJhbmdlKG5kaW0pIGZvciBqIGluIHJhbmdlKG5kaW0pXSkNCiAgICAgICAgDQogICAgICAgICMgR2V0IG1ldGFkYXRhIHdpdGggZGVmYXVsdHMNCiAgICAgICAgc3BhY2luZyA9IG1ldGFfZGljdC5nZXQoInNwYWNpbmciLCBkZWZhdWx0X3NwYWNpbmcpDQogICAgICAgIG9yaWdpbiA9IG1ldGFfZGljdC5nZXQoIm9yaWdpbiIsIGRlZmF1bHRfb3JpZ2luKQ0KICAgICAgICBkaXJlY3Rpb24gPSBtZXRhX2RpY3QuZ2V0KCJkaXJlY3Rpb24iLCBkZWZhdWx0X2RpcmVjdGlvbikNCiAgICAgICAgDQogICAgICAgICMgQ29udmVydCB0byB0dXBsZXMgaWYgbmVjZXNzYXJ5DQogICAgICAgIGlmIG5vdCBpc2luc3RhbmNlKHNwYWNpbmcsIHR1cGxlKToNCiAgICAgICAgICAgIHNwYWNpbmcgPSB0dXBsZShzcGFjaW5nWzpuZGltXSkNCiAgICAgICAgaWYgbm90IGlzaW5zdGFuY2Uob3JpZ2luLCB0dXBsZSk6DQogICAgICAgICAgICBvcmlnaW4gPSB0dXBsZShvcmlnaW5bOm5kaW1dKQ0KICAgICAgICBpZiBub3QgaXNpbnN0YW5jZShkaXJlY3Rpb24sIHR1cGxlKToNCiAgICAgICAgICAgIGRpcmVjdGlvbiA9IHR1cGxlKGRpcmVjdGlvbikNCiAgICAgICAgICAgIA0KICAgICAgICAjIFZhbGlkYXRlIGRpcmVjdGlvbiBtYXRyaXggc2l6ZQ0KICAgICAgICBkaXJlY3Rpb25fc2l6ZSA9IG5kaW0gKiBuZGltDQogICAgICAgIGlmIGxlbihkaXJlY3Rpb24pICE9IGRpcmVjdGlvbl9zaXplOg0KICAgICAgICAgICAgZGlyZWN0aW9uID0gZGVmYXVsdF9kaXJlY3Rpb24NCiAgICAgICAgICAgIA0KICAgICAgICByZXR1cm4gc3BhY2luZywgb3JpZ2luLCBkaXJlY3Rpb24NCiAgICANCiAgICBAc3RhdGljbWV0aG9kDQogICAgZGVmIHRlbnNvcl90b19udW1weSh0ZW5zb3I6IHRvcmNoLlRlbnNvcikgLT4gbnAubmRhcnJheToNCiAgICAgICAgIiIiQ29udmVydCB0b3JjaCB0ZW5zb3IgdG8gbnVtcHkgYXJyYXkuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgdGVuc29yICh0b3JjaC5UZW5zb3IpOiBJbnB1dCB0ZW5zb3IgKE1PTkFJIGZvcm1hdDogW0MsWixZLFhdIG9yIFtDLEgsV10pLg0KICAgICAgICAgICAgDQogICAgICAgIFJldHVybnM6DQogICAgICAgICAgICBucC5uZGFycmF5OiBOdW1weSBhcnJheSB3aXRoIGNoYW5uZWwgZGltZW5zaW9uIHJlbW92ZWQgaWYgc2luZ2xlIGNoYW5uZWwuDQogICAgICAgICIiIg0KICAgICAgICBhcnJheSA9IHRlbnNvci5jcHUoKS5udW1weSgpDQogICAgICAgIGlmIGFycmF5LnNoYXBlWzBdID09IDE6ICAjIElmIHNpbmdsZSBjaGFubmVsDQogICAgICAgICAgICBhcnJheSA9IGFycmF5LnNxdWVlemUoMCkgICMgUmVtb3ZlIGNoYW5uZWwgZGltZW5zaW9uDQogICAgICAgIHJldHVybiBhcnJheQ0KICAgIA0KICAgIEBzdGF0aWNtZXRob2QNCiAgICBkZWYgbnVtcHlfdG9fdGVuc29yKGFycmF5OiBucC5uZGFycmF5LCBkdHlwZTogT3B0aW9uYWxbdG9yY2guZHR5cGVdID0gTm9uZSwgZGV2aWNlOiBPcHRpb25hbFt0b3JjaC5kZXZpY2VdID0gTm9uZSkgLT4gdG9yY2guVGVuc29yOg0KICAgICAgICAiIiJDb252ZXJ0IG51bXB5IGFycmF5IHRvIHRvcmNoIHRlbnNvci4NCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBhcnJheSAobnAubmRhcnJheSk6IElucHV0IGFycmF5IGluIFtaLFksWF0gZm9ybWF0Lg0KICAgICAgICAgICAgZHR5cGUgKE9wdGlvbmFsW3RvcmNoLmR0eXBlXSk6IFRhcmdldCB0ZW5zb3IgZHR5cGUuDQogICAgICAgICAgICBkZXZpY2UgKE9wdGlvbmFsW3RvcmNoLmRldmljZV0pOiBUYXJnZXQgdGVuc29yIGRldmljZS4NCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgdG9yY2guVGVuc29yOiBUb3JjaCB0ZW5zb3Igd2l0aCBhZGRlZCBjaGFubmVsIGRpbWVuc2lvbiBbMSxaLFksWF0uDQogICAgICAgICIiIg0KICAgICAgICBpZiBhcnJheS5uZGltID09IDI6DQogICAgICAgICAgICBhcnJheSA9IGFycmF5W25wLm5ld2F4aXMsIC4uLl0gICMgQWRkIGNoYW5uZWwgZGltIGZvciAyRA0KICAgICAgICBlbGlmIGFycmF5Lm5kaW0gPT0gMzoNCiAgICAgICAgICAgIGFycmF5ID0gYXJyYXlbbnAubmV3YXhpcywgLi4uXSAgIyBBZGQgY2hhbm5lbCBkaW0gZm9yIDNEDQogICAgICAgICAgICANCiAgICAgICAgdGVuc29yID0gdG9yY2guZnJvbV9udW1weShhcnJheSkNCiAgICAgICAgaWYgZHR5cGUgaXMgbm90IE5vbmUgb3IgZGV2aWNlIGlzIG5vdCBOb25lOg0KICAgICAgICAgICAgdGVuc29yID0gdGVuc29yLnRvKGR0eXBlPWR0eXBlLCBkZXZpY2U9ZGV2aWNlKQ0KICAgICAgICByZXR1cm4gdGVuc29yIA0KICAgIA0KICAgIEBzdGF0aWNtZXRob2QNCiAgICBkZWYgYW50c18yX2l0ayhpbWFnZSk6DQogICAgICAgIGltYWdlSVRLID0gc2l0ay5HZXRJbWFnZUZyb21BcnJheShpbWFnZS5udW1weSgpLnRyYW5zcG9zZSgyLCAxLCAwKSkNCiAgICAgICAgaW1hZ2VJVEsuU2V0T3JpZ2luKGltYWdlLm9yaWdpbikNCiAgICAgICAgaW1hZ2VJVEsuU2V0U3BhY2luZyhpbWFnZS5zcGFjaW5nKQ0KICAgICAgICBpbWFnZUlUSy5TZXREaXJlY3Rpb24oaW1hZ2UuZGlyZWN0aW9uLnJlc2hhcGUoOSkpDQogICAgICAgIHJldHVybiBpbWFnZUlUSw0KDQogICAgQHN0YXRpY21ldGhvZA0KICAgIGRlZiBpdGtfMl9hbnRzKGltYWdlKToNCiAgICAgICAgaW1hZ2VfYW50cyA9IGFudHMuZnJvbV9udW1weShzaXRrLkdldEFycmF5RnJvbUltYWdlKGltYWdlKS50cmFuc3Bvc2UoMiwgMSwgMCksIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3JpZ2luPWltYWdlLkdldE9yaWdpbigpLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNwYWNpbmc9aW1hZ2UuR2V0U3BhY2luZygpLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRpcmVjdGlvbj1ucC5hcnJheShpbWFnZS5HZXREaXJlY3Rpb24oKSkucmVzaGFwZSgzLCAzKSkNCiAgICAgICAgcmV0dXJuIGltYWdlX2FudHM=').decode())
+class ImageConverter:
+    """Utility class for converting between different image formats."""
+    
+    @staticmethod
+    def get_metadata(meta_dict: Dict[str, Any], ndim: int) -> Tuple[tuple, tuple, tuple]:
+        """Extract and validate metadata from dictionary.
+        
+        Args:
+            meta_dict (Dict[str, Any]): Metadata dictionary.
+            ndim (int): Number of dimensions.
+            
+        Returns:
+            Tuple[tuple, tuple, tuple]: Validated spacing, origin, and direction.
+        """
+        # Default values
+        default_spacing = tuple([1.0] * ndim)
+        default_origin = tuple([0.0] * ndim)
+        default_direction = tuple([1.0 if i == j else 0.0 for i in range(ndim) for j in range(ndim)])
+        
+        # Get metadata with defaults
+        spacing = meta_dict.get("spacing", default_spacing)
+        origin = meta_dict.get("origin", default_origin)
+        direction = meta_dict.get("direction", default_direction)
+        
+        # Convert to tuples if necessary
+        if not isinstance(spacing, tuple):
+            spacing = tuple(spacing[:ndim])
+        if not isinstance(origin, tuple):
+            origin = tuple(origin[:ndim])
+        if not isinstance(direction, tuple):
+            direction = tuple(direction)
+            
+        # Validate direction matrix size
+        direction_size = ndim * ndim
+        if len(direction) != direction_size:
+            direction = default_direction
+            
+        return spacing, origin, direction
+    
+    @staticmethod
+    def tensor_to_numpy(tensor: torch.Tensor) -> np.ndarray:
+        """Convert torch tensor to numpy array.
+        
+        Args:
+            tensor (torch.Tensor): Input tensor (MONAI format: [C,Z,Y,X] or [C,H,W]).
+            
+        Returns:
+            np.ndarray: Numpy array with channel dimension removed if single channel.
+        """
+        array = tensor.cpu().numpy()
+        if array.shape[0] == 1:  # If single channel
+            array = array.squeeze(0)  # Remove channel dimension
+        return array
+    
+    @staticmethod
+    def numpy_to_tensor(array: np.ndarray, dtype: Optional[torch.dtype] = None, device: Optional[torch.device] = None) -> torch.Tensor:
+        """Convert numpy array to torch tensor.
+        
+        Args:
+            array (np.ndarray): Input array in [Z,Y,X] format.
+            dtype (Optional[torch.dtype]): Target tensor dtype.
+            device (Optional[torch.device]): Target tensor device.
+            
+        Returns:
+            torch.Tensor: Torch tensor with added channel dimension [1,Z,Y,X].
+        """
+        if array.ndim == 2:
+            array = array[np.newaxis, ...]  # Add channel dim for 2D
+        elif array.ndim == 3:
+            array = array[np.newaxis, ...]  # Add channel dim for 3D
+            
+        tensor = torch.from_numpy(array)
+        if dtype is not None or device is not None:
+            tensor = tensor.to(dtype=dtype, device=device)
+        return tensor 
+    
+    @staticmethod
+    def ants_2_itk(image):
+        imageITK = sitk.GetImageFromArray(image.numpy().transpose(2, 1, 0))
+        imageITK.SetOrigin(image.origin)
+        imageITK.SetSpacing(image.spacing)
+        imageITK.SetDirection(image.direction.reshape(9))
+        return imageITK
+
+    @staticmethod
+    def itk_2_ants(image):
+        image_ants = ants.from_numpy(sitk.GetArrayFromImage(image).transpose(2, 1, 0), 
+                                    origin=image.GetOrigin(), 
+                                    spacing=image.GetSpacing(), 
+                                    direction=np.array(image.GetDirection()).reshape(3, 3))
+        return image_ants

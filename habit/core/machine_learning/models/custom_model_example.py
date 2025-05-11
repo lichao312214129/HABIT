@@ -1,3 +1,92 @@
+"""
+Custom Model Example
 
-import base64
-exec(base64.b64decode(b'IiIiDQpDdXN0b20gTW9kZWwgRXhhbXBsZQ0KDQpUaGlzIGZpbGUgZGVtb25zdHJhdGVzIGhvdyB0byBjcmVhdGUgYW5kIHJlZ2lzdGVyIGEgY3VzdG9tIG1vZGVsDQoiIiINCmZyb20gc2tsZWFybi5saW5lYXJfbW9kZWwgaW1wb3J0IExvZ2lzdGljUmVncmVzc2lvbg0KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIEFueSwgT3B0aW9uYWwsIFVuaW9uLCBMaXN0DQppbXBvcnQgbnVtcHkgYXMgbnANCmltcG9ydCBwYW5kYXMgYXMgcGQNCmZyb20gLmJhc2UgaW1wb3J0IEJhc2VNb2RlbA0KZnJvbSAuZmFjdG9yeSBpbXBvcnQgTW9kZWxGYWN0b3J5DQoNCkBNb2RlbEZhY3RvcnkucmVnaXN0ZXIoJ0N1c3RvbUVuc2VtYmxlJykNCmNsYXNzIEN1c3RvbUVuc2VtYmxlQ2xhc3NpZmllcihCYXNlTW9kZWwpOg0KICAgICIiIg0KICAgIEEgY3VzdG9tIGVuc2VtYmxlIGNsYXNzaWZpZXIgdGhhdCBjb21iaW5lcyBtdWx0aXBsZSBiYXNlIG1vZGVscw0KICAgICIiIg0KICAgIGRlZiBfX2luaXRfXyhzZWxmLCANCiAgICAgICAgICAgICAgICAgYmFzZV9tb2RlbHM6IExpc3QsDQogICAgICAgICAgICAgICAgIHdlaWdodHM6IE9wdGlvbmFsW0xpc3RbZmxvYXRdXSA9IE5vbmUsDQogICAgICAgICAgICAgICAgIHZvdGluZzogc3RyID0gJ3NvZnQnKToNCiAgICAgICAgIiIiDQogICAgICAgIEluaXRpYWxpemUgY3VzdG9tIGVuc2VtYmxlDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgYmFzZV9tb2RlbHM6IExpc3Qgb2YgYmFzZSBlc3RpbWF0b3Igb2JqZWN0cw0KICAgICAgICAgICAgd2VpZ2h0czogTW9kZWwgd2VpZ2h0cyBmb3Igdm90aW5nDQogICAgICAgICAgICB2b3Rpbmc6ICdoYXJkJyBvciAnc29mdCcgdm90aW5nDQogICAgICAgICIiIg0KICAgICAgICBzZWxmLmJhc2VfbW9kZWxzID0gYmFzZV9tb2RlbHMNCiAgICAgICAgc2VsZi53ZWlnaHRzID0gd2VpZ2h0cw0KICAgICAgICBzZWxmLnZvdGluZyA9IHZvdGluZw0KICAgICAgICBzZWxmLl9maXR0ZWQgPSBGYWxzZQ0KICAgICAgICANCiAgICBkZWYgZml0KHNlbGYsIFgsIHkpOg0KICAgICAgICAiIiINCiAgICAgICAgRml0IGFsbCBiYXNlIG1vZGVscw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIFg6IFRyYWluaW5nIGRhdGENCiAgICAgICAgICAgIHk6IFRhcmdldCB2YWx1ZXMNCiAgICAgICAgIiIiDQogICAgICAgICMgRml0IGVhY2ggYmFzZSBtb2RlbA0KICAgICAgICBmb3IgbW9kZWwgaW4gc2VsZi5iYXNlX21vZGVsczoNCiAgICAgICAgICAgIG1vZGVsLmZpdChYLCB5KQ0KICAgICAgICANCiAgICAgICAgc2VsZi5fZml0dGVkID0gVHJ1ZQ0KICAgICAgICByZXR1cm4gc2VsZg0KICAgICAgICANCiAgICBkZWYgcHJlZGljdChzZWxmLCBYKToNCiAgICAgICAgIiIiDQogICAgICAgIFByZWRpY3QgdXNpbmcgdm90aW5nDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgWDogVGVzdCBkYXRhDQogICAgICAgICIiIg0KICAgICAgICBpZiBub3Qgc2VsZi5fZml0dGVkOg0KICAgICAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiTW9kZWwgbm90IGZpdHRlZCB5ZXQiKQ0KICAgICAgICAgICAgDQogICAgICAgIGlmIHNlbGYudm90aW5nID09ICdoYXJkJzoNCiAgICAgICAgICAgICMgSGFyZCB2b3Rpbmc6IG1ham9yaXR5IHJ1bGUNCiAgICAgICAgICAgIHByZWRpY3Rpb25zID0gbnAuYXNhcnJheShbbW9kZWwucHJlZGljdChYKSBmb3IgbW9kZWwgaW4gc2VsZi5iYXNlX21vZGVsc10pDQogICAgICAgICAgICBtYWogPSBucC5hcHBseV9hbG9uZ19heGlzKGxhbWJkYSB4OiBucC5hcmdtYXgobnAuYmluY291bnQoeCwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB3ZWlnaHRzPXNlbGYud2VpZ2h0cykpLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGF4aXM9MCwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcnI9cHJlZGljdGlvbnMuYXN0eXBlKCdpbnQnKSkNCiAgICAgICAgICAgIHJldHVybiBtYWoNCiAgICAgICAgZWxzZToNCiAgICAgICAgICAgICMgU29mdCB2b3Rpbmc6IHdlaWdodGVkIHByb2JhYmlsaXRpZXMNCiAgICAgICAgICAgIHJldHVybiBzZWxmLnByZWRpY3RfcHJvYmEoWClbOiwgMV0gPj0gMC41DQogICAgICAgICAgICANCiAgICBkZWYgcHJlZGljdF9wcm9iYShzZWxmLCBYKToNCiAgICAgICAgIiIiDQogICAgICAgIFByZWRpY3QgY2xhc3MgcHJvYmFiaWxpdGllcw0KICAgICAgICANCiAgICAgICAgQXJnczoNCiAgICAgICAgICAgIFg6IFRlc3QgZGF0YQ0KICAgICAgICAiIiINCiAgICAgICAgaWYgbm90IHNlbGYuX2ZpdHRlZDoNCiAgICAgICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIk1vZGVsIG5vdCBmaXR0ZWQgeWV0IikNCiAgICAgICAgICAgIA0KICAgICAgICAjIEdldCBwcmVkaWN0ZWQgcHJvYmFiaWxpdGllcyBmcm9tIGVhY2ggbW9kZWwNCiAgICAgICAgcHJvYmFzID0gbnAuYXNhcnJheShbbW9kZWwucHJlZGljdF9wcm9iYShYKSBmb3IgbW9kZWwgaW4gc2VsZi5iYXNlX21vZGVsc10pDQogICAgICAgIA0KICAgICAgICAjIEFwcGx5IHdlaWdodHMgaWYgc3BlY2lmaWVkDQogICAgICAgIGlmIHNlbGYud2VpZ2h0cyBpcyBub3QgTm9uZToNCiAgICAgICAgICAgIHByb2JhcyA9IG5wLmF2ZXJhZ2UocHJvYmFzLCBheGlzPTAsIHdlaWdodHM9c2VsZi53ZWlnaHRzKQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgcHJvYmFzID0gbnAuYXZlcmFnZShwcm9iYXMsIGF4aXM9MCkNCiAgICAgICAgICAgIA0KICAgICAgICByZXR1cm4gcHJvYmFzDQoNCg==').decode())
+This file demonstrates how to create and register a custom model
+"""
+from sklearn.linear_model import LogisticRegression
+from typing import Dict, Any, Optional, Union, List
+import numpy as np
+import pandas as pd
+from .base import BaseModel
+from .factory import ModelFactory
+
+@ModelFactory.register('CustomEnsemble')
+class CustomEnsembleClassifier(BaseModel):
+    """
+    A custom ensemble classifier that combines multiple base models
+    """
+    def __init__(self, 
+                 base_models: List,
+                 weights: Optional[List[float]] = None,
+                 voting: str = 'soft'):
+        """
+        Initialize custom ensemble
+        
+        Args:
+            base_models: List of base estimator objects
+            weights: Model weights for voting
+            voting: 'hard' or 'soft' voting
+        """
+        self.base_models = base_models
+        self.weights = weights
+        self.voting = voting
+        self._fitted = False
+        
+    def fit(self, X, y):
+        """
+        Fit all base models
+        
+        Args:
+            X: Training data
+            y: Target values
+        """
+        # Fit each base model
+        for model in self.base_models:
+            model.fit(X, y)
+        
+        self._fitted = True
+        return self
+        
+    def predict(self, X):
+        """
+        Predict using voting
+        
+        Args:
+            X: Test data
+        """
+        if not self._fitted:
+            raise ValueError("Model not fitted yet")
+            
+        if self.voting == 'hard':
+            # Hard voting: majority rule
+            predictions = np.asarray([model.predict(X) for model in self.base_models])
+            maj = np.apply_along_axis(lambda x: np.argmax(np.bincount(x, 
+                                       weights=self.weights)), 
+                                       axis=0, 
+                                       arr=predictions.astype('int'))
+            return maj
+        else:
+            # Soft voting: weighted probabilities
+            return self.predict_proba(X)[:, 1] >= 0.5
+            
+    def predict_proba(self, X):
+        """
+        Predict class probabilities
+        
+        Args:
+            X: Test data
+        """
+        if not self._fitted:
+            raise ValueError("Model not fitted yet")
+            
+        # Get predicted probabilities from each model
+        probas = np.asarray([model.predict_proba(X) for model in self.base_models])
+        
+        # Apply weights if specified
+        if self.weights is not None:
+            probas = np.average(probas, axis=0, weights=self.weights)
+        else:
+            probas = np.average(probas, axis=0)
+            
+        return probas
+

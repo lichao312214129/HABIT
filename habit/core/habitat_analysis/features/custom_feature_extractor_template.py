@@ -1,3 +1,73 @@
+"""
+Custom Feature Extractor Template
 
-import base64
-exec(base64.b64decode(b'IiIiDQpDdXN0b20gRmVhdHVyZSBFeHRyYWN0b3IgVGVtcGxhdGUNCg0KVXNhZ2UgSW5zdHJ1Y3Rpb25zOg0KMS4gQ29weSB0aGlzIGZpbGUgYW5kIHJlbmFtZSBpdCB0byB5b3VyX21ldGhvZF9mZWF0dXJlX2V4dHJhY3Rvci5weQ0KMi4gQ2hhbmdlIHRoZSBjbGFzcyBuYW1lIEN1c3RvbUZlYXR1cmVFeHRyYWN0b3JUZW1wbGF0ZSB0byB5b3VyIGZlYXR1cmUgZXh0cmFjdG9yIG5hbWUNCjMuIE1vZGlmeSB0aGUgbmFtZSBpbiB0aGUgcmVnaXN0ZXJfZmVhdHVyZV9leHRyYWN0b3IgZGVjb3JhdG9yIHRvIHlvdXIgbWV0aG9kJ3MgYWJicmV2aWF0aW9uDQo0LiBJbXBsZW1lbnQgdGhlIGV4dHJhY3RfZmVhdHVyZXMgbWV0aG9kIGFuZCBzZXQgdGhlIGZlYXR1cmVfbmFtZXMgYXR0cmlidXRlDQo1LiBObyBuZWVkIHRvIG1vZGlmeSBfX2luaXRfXy5weSwgdGhlIHN5c3RlbSB3aWxsIGF1dG9tYXRpY2FsbHkgZGlzY292ZXIgYW5kIHJlZ2lzdGVyIHlvdXIgZmVhdHVyZSBleHRyYWN0b3INCg0K5rOo5oSP77ya5b+F6aG75ZyoX19pbml0X1/kuK3liJ3lp4vljJZmZWF0dXJlX25hbWVz5bGe5oCn77yM5Lul56Gu5L+dZ2V0X2ZlYXR1cmVfbmFtZXPmlrnms5Xlj6/ku6XooqvosIPnlKgNCuiAjOS4jeS+nei1luS6jmV4dHJhY3RfZmVhdHVyZXPmlrnms5XnmoTmiafooYzjgIINCiIiIg0KDQppbXBvcnQgbnVtcHkgYXMgbnANCmZyb20gdHlwaW5nIGltcG9ydCBMaXN0LCBEaWN0LCBBbnksIE9wdGlvbmFsLCBVbmlvbg0KZnJvbSAuYmFzZV9mZWF0dXJlX2V4dHJhY3RvciBpbXBvcnQgQmFzZUZlYXR1cmVFeHRyYWN0b3IsIHJlZ2lzdGVyX2ZlYXR1cmVfZXh0cmFjdG9yDQoNCg0KQHJlZ2lzdGVyX2ZlYXR1cmVfZXh0cmFjdG9yKCdjdXN0b21fdGVtcGxhdGUnKSAgIyBSZWdpc3RlciBmZWF0dXJlIGV4dHJhY3RvciAocGxlYXNlIGNoYW5nZSB0byB5b3VyIG1ldGhvZCBuYW1lKQ0KY2xhc3MgQ3VzdG9tRmVhdHVyZUV4dHJhY3RvclRlbXBsYXRlKEJhc2VGZWF0dXJlRXh0cmFjdG9yKToNCiAgICAiIiINCiAgICBDdXN0b20gRmVhdHVyZSBFeHRyYWN0b3IgVGVtcGxhdGUgQ2xhc3MgLSBQbGVhc2UgcmVwbGFjZSB3aXRoIHlvdXIgZmVhdHVyZSBleHRyYWN0b3IgZGVzY3JpcHRpb24NCiAgICAiIiINCiAgICANCiAgICBkZWYgX19pbml0X18oc2VsZiwgbm9ybWFsaXplOiBib29sID0gRmFsc2UsIGltYWdlX25hbWVzOiBPcHRpb25hbFtMaXN0W3N0cl1dID0gTm9uZSwgKiprd2FyZ3M6IEFueSkgLT4gTm9uZToNCiAgICAgICAgIiIiDQogICAgICAgIEluaXRpYWxpemUgdGhlIGZlYXR1cmUgZXh0cmFjdG9yDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgbm9ybWFsaXplOiBXaGV0aGVyIHRvIG5vcm1hbGl6ZSBmZWF0dXJlcw0KICAgICAgICAgICAgaW1hZ2VfbmFtZXM6IE9wdGlvbmFsIGxpc3Qgb2YgaW1hZ2UgbmFtZXMgdG8gdXNlIGFzIGZlYXR1cmUgbmFtZXMNCiAgICAgICAgICAgICoqa3dhcmdzOiBPdGhlciBwYXJhbWV0ZXJzIHRoYXQgd2lsbCBiZSBwYXNzZWQgdG8gdGhlIHBhcmVudCBjbGFzcw0KICAgICAgICAiIiINCiAgICAgICAgc3VwZXIoKS5fX2luaXRfXygqKmt3YXJncykNCiAgICAgICAgc2VsZi5ub3JtYWxpemUgPSBub3JtYWxpemUNCiAgICAgICAgDQogICAgICAgICMg5by65Yi26K6+572uZmVhdHVyZV9uYW1lcw0KICAgICAgICBzZWxmLmZlYXR1cmVfbmFtZXMgPSBbJ2ZlYXR1cmVfMScsICdmZWF0dXJlXzInLCAnZmVhdHVyZV8zJywgJ2ZlYXR1cmVfNCddDQoNCiAgICANCiAgICBkZWYgZXh0cmFjdF9mZWF0dXJlcyhzZWxmLCBpbWFnZV9kYXRhOiBucC5uZGFycmF5LCAqKmt3YXJnczogQW55KSAtPiBucC5uZGFycmF5Og0KICAgICAgICAiIiINCiAgICAgICAgRXh0cmFjdCBmZWF0dXJlcyBmcm9tIGltYWdlIGRhdGENCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBpbWFnZV9kYXRhOiBJbnB1dCBpbWFnZSBkYXRhIHdpdGggc2hhcGUgW25fdm94ZWxzLCBuX3RpbWVwb2ludHNdIG9yIG90aGVyIGZvcm1hdA0KICAgICAgICAgICAgKiprd2FyZ3M6IEFkZGl0aW9uYWwgcGFyYW1ldGVycyBzdWNoIGFzIHN1YmplY3QsIG1hc2ssIGV0Yy4NCiAgICAgICAgICAgIA0KICAgICAgICBSZXR1cm5zOg0KICAgICAgICAgICAgbnAubmRhcnJheTogRXh0cmFjdGVkIGZlYXR1cmVzIHdpdGggc2hhcGUgW25fdm94ZWxzLCBuX2ZlYXR1cmVzXQ0KICAgICAgICAiIiINCiAgICAgICAgIyBJbXBsZW1lbnQgeW91ciBmZWF0dXJlIGV4dHJhY3Rpb24gbG9naWMgaGVyZQ0KICAgICAgICAjIEZvciBleGFtcGxlOiBjYWxjdWxhdGUgdGV4dHVyZSBmZWF0dXJlcywgc2hhcGUgZmVhdHVyZXMsIGV0Yy4NCiAgICAgICAgDQogICAgICAgICMgRXhhbXBsZSBjb2RlIGZvciBkZW1vbnN0cmF0aW9uIChwbGVhc2UgcmVwbGFjZSB3aXRoIGFjdHVhbCBpbXBsZW1lbnRhdGlvbikNCiAgICAgICAgbl9zYW1wbGVzID0gaW1hZ2VfZGF0YS5zaGFwZVswXQ0KICAgICAgICBuX2ZlYXR1cmVzID0gMyAgIyBFeGFtcGxlOiBleHRyYWN0IDMgZmVhdHVyZXMNCiAgICAgICAgDQogICAgICAgICMgQ3JlYXRlIHJhbmRvbSBmZWF0dXJlcyBhcyBhbiBleGFtcGxlIChwbGVhc2UgcmVwbGFjZSB3aXRoIGFjdHVhbCBmZWF0dXJlIGNhbGN1bGF0aW9uKQ0KICAgICAgICBmZWF0dXJlcyA9IG5wLnJhbmRvbS5yYW5kb20oKG5fc2FtcGxlcywgbl9mZWF0dXJlcykpDQogICAgICAgIA0KICAgICAgICAjIE5vcm1hbGl6ZSBpZiBuZWVkZWQNCiAgICAgICAgaWYgc2VsZi5ub3JtYWxpemU6DQogICAgICAgICAgICBmb3IgaSBpbiByYW5nZShmZWF0dXJlcy5zaGFwZVsxXSk6DQogICAgICAgICAgICAgICAgY29sdW1uID0gZmVhdHVyZXNbOiwgaV0NCiAgICAgICAgICAgICAgICBtaW5fdmFsID0gbnAubWluKGNvbHVtbikNCiAgICAgICAgICAgICAgICBtYXhfdmFsID0gbnAubWF4KGNvbHVtbikNCiAgICAgICAgICAgICAgICBpZiBtYXhfdmFsID4gbWluX3ZhbDoNCiAgICAgICAgICAgICAgICAgICAgZmVhdHVyZXNbOiwgaV0gPSAoY29sdW1uIC0gbWluX3ZhbCkgLyAobWF4X3ZhbCAtIG1pbl92YWwpDQogICAgICAgIA0KICAgICAgICANCiAgICAgICAgcmV0dXJuIGZlYXR1cmVzIA==').decode())
+Usage Instructions:
+1. Copy this file and rename it to your_method_feature_extractor.py
+2. Change the class name CustomFeatureExtractorTemplate to your feature extractor name
+3. Modify the name in the register_feature_extractor decorator to your method's abbreviation
+4. Implement the extract_features method and set the feature_names attribute
+5. No need to modify __init__.py, the system will automatically discover and register your feature extractor
+
+注意：必须在__init__中初始化feature_names属性，以确保get_feature_names方法可以被调用
+而不依赖于extract_features方法的执行。
+"""
+
+import numpy as np
+from typing import List, Dict, Any, Optional, Union
+from .base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+
+
+@register_feature_extractor('custom_template')  # Register feature extractor (please change to your method name)
+class CustomFeatureExtractorTemplate(BaseFeatureExtractor):
+    """
+    Custom Feature Extractor Template Class - Please replace with your feature extractor description
+    """
+    
+    def __init__(self, normalize: bool = False, image_names: Optional[List[str]] = None, **kwargs: Any) -> None:
+        """
+        Initialize the feature extractor
+        
+        Args:
+            normalize: Whether to normalize features
+            image_names: Optional list of image names to use as feature names
+            **kwargs: Other parameters that will be passed to the parent class
+        """
+        super().__init__(**kwargs)
+        self.normalize = normalize
+        
+        # 强制设置feature_names
+        self.feature_names = ['feature_1', 'feature_2', 'feature_3', 'feature_4']
+
+    
+    def extract_features(self, image_data: np.ndarray, **kwargs: Any) -> np.ndarray:
+        """
+        Extract features from image data
+        
+        Args:
+            image_data: Input image data with shape [n_voxels, n_timepoints] or other format
+            **kwargs: Additional parameters such as subject, mask, etc.
+            
+        Returns:
+            np.ndarray: Extracted features with shape [n_voxels, n_features]
+        """
+        # Implement your feature extraction logic here
+        # For example: calculate texture features, shape features, etc.
+        
+        # Example code for demonstration (please replace with actual implementation)
+        n_samples = image_data.shape[0]
+        n_features = 3  # Example: extract 3 features
+        
+        # Create random features as an example (please replace with actual feature calculation)
+        features = np.random.random((n_samples, n_features))
+        
+        # Normalize if needed
+        if self.normalize:
+            for i in range(features.shape[1]):
+                column = features[:, i]
+                min_val = np.min(column)
+                max_val = np.max(column)
+                if max_val > min_val:
+                    features[:, i] = (column - min_val) / (max_val - min_val)
+        
+        
+        return features 

@@ -14,7 +14,7 @@ Preprocessing:
     images: [pre_contrast, LAP, PVP, delay_3min]
     fixed_image: PVP
     moving_images: [pre_contrast, LAP, delay_3min]
-    type_of_transform: rigid  # support all ants registration methods
+    type_of_transform: SyN  # support all ants registration methods
     use_mask: true
 
 # General settings

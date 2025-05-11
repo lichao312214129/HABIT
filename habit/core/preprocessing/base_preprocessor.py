@@ -1,3 +1,47 @@
+from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional, Union, List
+import torch
+from monai.transforms import Transform
 
-import base64
-exec(base64.b64decode(b'ZnJvbSBhYmMgaW1wb3J0IEFCQywgYWJzdHJhY3RtZXRob2QNCmZyb20gdHlwaW5nIGltcG9ydCBEaWN0LCBBbnksIE9wdGlvbmFsLCBVbmlvbiwgTGlzdA0KaW1wb3J0IHRvcmNoDQpmcm9tIG1vbmFpLnRyYW5zZm9ybXMgaW1wb3J0IFRyYW5zZm9ybQ0KDQpjbGFzcyBCYXNlUHJlcHJvY2Vzc29yKFRyYW5zZm9ybSwgQUJDKToNCiAgICAiIiJCYXNlIGNsYXNzIGZvciBhbGwgaW1hZ2UgcHJlcHJvY2Vzc29ycyBpbiBIQUJJVC4NCiAgICANCiAgICBUaGlzIGNsYXNzIGRlZmluZXMgdGhlIGJhc2ljIGludGVyZmFjZSB0aGF0IGFsbCBwcmVwcm9jZXNzb3JzIG11c3QgaW1wbGVtZW50Lg0KICAgIEl0IGluaGVyaXRzIGZyb20gTU9OQUkncyBUcmFuc2Zvcm0gdG8gZW5zdXJlIGNvbXBhdGliaWxpdHkgd2l0aCBNT05BSSdzIENvbXBvc2UuDQogICAgIiIiDQogICAgDQogICAgZGVmIF9faW5pdF9fKHNlbGYsIGtleXM6IFVuaW9uW3N0ciwgTGlzdFtzdHJdXSwgYWxsb3dfbWlzc2luZ19rZXlzOiBib29sID0gRmFsc2UpOg0KICAgICAgICAiIiJJbml0aWFsaXplIHRoZSBwcmVwcm9jZXNzb3IuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAga2V5cyAoVW5pb25bc3RyLCBMaXN0W3N0cl1dKTogS2V5cyBvZiB0aGUgY29ycmVzcG9uZGluZyBpdGVtcyB0byBiZSB0cmFuc2Zvcm1lZC4NCiAgICAgICAgICAgIGFsbG93X21pc3Npbmdfa2V5cyAoYm9vbCk6IElmIFRydWUsIGFsbG93cyBtaXNzaW5nIGtleXMgaW4gdGhlIGlucHV0IGRhdGEuDQogICAgICAgICIiIg0KICAgICAgICBzdXBlcigpLl9faW5pdF9fKCkNCiAgICAgICAgc2VsZi5rZXlzID0gW2tleXNdIGlmIGlzaW5zdGFuY2Uoa2V5cywgc3RyKSBlbHNlIGtleXMNCiAgICAgICAgc2VsZi5hbGxvd19taXNzaW5nX2tleXMgPSBhbGxvd19taXNzaW5nX2tleXMNCg0KICAgIEBhYnN0cmFjdG1ldGhvZA0KICAgIGRlZiBfX2NhbGxfXyhzZWxmLCBkYXRhOiBEaWN0W3N0ciwgQW55XSkgLT4gRGljdFtzdHIsIEFueV06DQogICAgICAgICIiIlByb2Nlc3MgdGhlIGlucHV0IGRhdGEuDQogICAgICAgIA0KICAgICAgICBBcmdzOg0KICAgICAgICAgICAgZGF0YSAoRGljdFtzdHIsIEFueV0pOiBJbnB1dCBkYXRhIGRpY3Rpb25hcnkgY29udGFpbmluZyBpbWFnZSBhbmQgbWV0YWRhdGEuDQogICAgICAgICAgICANCiAgICAgICAgUmV0dXJuczoNCiAgICAgICAgICAgIERpY3Rbc3RyLCBBbnldOiBQcm9jZXNzZWQgZGF0YSBkaWN0aW9uYXJ5Lg0KICAgICAgICAiIiINCiAgICAgICAgcGFzcw0KDQogICAgZGVmIF9jaGVja19rZXlzKHNlbGYsIGRhdGE6IERpY3Rbc3RyLCBBbnldKSAtPiBOb25lOg0KICAgICAgICAiIiJDaGVjayBpZiBhbGwgcmVxdWlyZWQga2V5cyBhcmUgcHJlc2VudCBpbiB0aGUgaW5wdXQgZGF0YS4NCiAgICAgICAgDQogICAgICAgIEFyZ3M6DQogICAgICAgICAgICBkYXRhIChEaWN0W3N0ciwgQW55XSk6IElucHV0IGRhdGEgZGljdGlvbmFyeS4NCiAgICAgICAgICAgIA0KICAgICAgICBSYWlzZXM6DQogICAgICAgICAgICBLZXlFcnJvcjogSWYgYSByZXF1aXJlZCBrZXkgaXMgbWlzc2luZyBhbmQgYWxsb3dfbWlzc2luZ19rZXlzIGlzIEZhbHNlLg0KICAgICAgICAiIiINCiAgICAgICAgZm9yIGtleSBpbiBzZWxmLmtleXM6DQogICAgICAgICAgICBpZiBrZXkgbm90IGluIGRhdGEgYW5kIG5vdCBzZWxmLmFsbG93X21pc3Npbmdfa2V5czoNCiAgICAgICAgICAgICAgICByYWlzZSBLZXlFcnJvcihmIktleSB7a2V5fSBub3QgZm91bmQgaW4gZGF0YSBkaWN0aW9uYXJ5Iikg').decode())
+class BasePreprocessor(Transform, ABC):
+    """Base class for all image preprocessors in HABIT.
+    
+    This class defines the basic interface that all preprocessors must implement.
+    It inherits from MONAI's Transform to ensure compatibility with MONAI's Compose.
+    """
+    
+    def __init__(self, keys: Union[str, List[str]], allow_missing_keys: bool = False):
+        """Initialize the preprocessor.
+        
+        Args:
+            keys (Union[str, List[str]]): Keys of the corresponding items to be transformed.
+            allow_missing_keys (bool): If True, allows missing keys in the input data.
+        """
+        super().__init__()
+        self.keys = [keys] if isinstance(keys, str) else keys
+        self.allow_missing_keys = allow_missing_keys
+
+    @abstractmethod
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process the input data.
+        
+        Args:
+            data (Dict[str, Any]): Input data dictionary containing image and metadata.
+            
+        Returns:
+            Dict[str, Any]: Processed data dictionary.
+        """
+        pass
+
+    def _check_keys(self, data: Dict[str, Any]) -> None:
+        """Check if all required keys are present in the input data.
+        
+        Args:
+            data (Dict[str, Any]): Input data dictionary.
+            
+        Raises:
+            KeyError: If a required key is missing and allow_missing_keys is False.
+        """
+        for key in self.keys:
+            if key not in data and not self.allow_missing_keys:
+                raise KeyError(f"Key {key} not found in data dictionary") 

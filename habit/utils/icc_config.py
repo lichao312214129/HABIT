@@ -1,3 +1,157 @@
+"""
+ICC configuration utilities for loading and validating ICC analysis config
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiDQpJQ0MgY29uZmlndXJhdGlvbiB1dGlsaXRpZXMgZm9yIGxvYWRpbmcgYW5kIHZhbGlkYXRpbmcgSUNDIGFuYWx5c2lzIGNvbmZpZw0KIiIiDQoNCmltcG9ydCBvcw0KZnJvbSB0eXBpbmcgaW1wb3J0IERpY3QsIEFueSwgTGlzdCwgVW5pb24sIE9wdGlvbmFsDQppbXBvcnQgeWFtbA0KZnJvbSBoYWJpdC51dGlscy5jb25maWdfdXRpbHMgaW1wb3J0IGxvYWRfY29uZmlnLCB2YWxpZGF0ZV9jb25maWcNCg0KZGVmIGxvYWRfaWNjX2NvbmZpZyhjb25maWdfcGF0aDogc3RyKSAtPiBEaWN0W3N0ciwgQW55XToNCiAgICAiIiINCiAgICBMb2FkIElDQyBhbmFseXNpcyBjb25maWd1cmF0aW9uIGZyb20gWUFNTCBmaWxlDQogICAgDQogICAgQXJnczoNCiAgICAgICAgY29uZmlnX3BhdGggKHN0cik6IFBhdGggdG8gSUNDIGNvbmZpZ3VyYXRpb24gZmlsZSAoWUFNTCkNCiAgICANCiAgICBSZXR1cm5zOg0KICAgICAgICBEaWN0W3N0ciwgQW55XTogQ29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5DQogICAgIiIiDQogICAgY29uZmlnID0gbG9hZF9jb25maWcoY29uZmlnX3BhdGgpDQogICAgdmFsaWRhdGVfaWNjX2NvbmZpZyhjb25maWcpDQogICAgcmV0dXJuIGNvbmZpZw0KDQpkZWYgdmFsaWRhdGVfaWNjX2NvbmZpZyhjb25maWc6IERpY3Rbc3RyLCBBbnldKSAtPiBib29sOg0KICAgICIiIg0KICAgIFZhbGlkYXRlIElDQyBjb25maWd1cmF0aW9uIHN0cnVjdHVyZSBhbmQgcmVxdWlyZWQgcGFyYW1ldGVycw0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGNvbmZpZyAoRGljdFtzdHIsIEFueV0pOiBJQ0MgY29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5DQogICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgYm9vbDogV2hldGhlciBjb25maWd1cmF0aW9uIGlzIHZhbGlkDQogICAgICAgIA0KICAgIFJhaXNlczoNCiAgICAgICAgVmFsdWVFcnJvcjogSWYgY29uZmlndXJhdGlvbiBpcyBpbnZhbGlkDQogICAgIiIiDQogICAgIyBEZWZpbmUgcmVxdWlyZWQgdG9wLWxldmVsIGtleXMNCiAgICByZXF1aXJlZF9rZXlzID0gWyJpbnB1dCIsICJvdXRwdXQiXQ0KICAgIHZhbGlkYXRlX2NvbmZpZyhjb25maWcsIHJlcXVpcmVkX2tleXMpDQogICAgDQogICAgIyBWYWxpZGF0ZSBpbnB1dCBjb25maWd1cmF0aW9uDQogICAgaWYgInR5cGUiIG5vdCBpbiBjb25maWdbImlucHV0Il06DQogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoIklucHV0IGNvbmZpZ3VyYXRpb24gbXVzdCBjb250YWluICd0eXBlJyBmaWVsZCAoJ2ZpbGVzJyBvciAnZGlyZWN0b3JpZXMnKSIpDQogICAgDQogICAgaWYgY29uZmlnWyJpbnB1dCJdWyJ0eXBlIl0gbm90IGluIFsiZmlsZXMiLCAiZGlyZWN0b3JpZXMiXToNCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiSW5wdXQgdHlwZSBtdXN0IGJlIGVpdGhlciAnZmlsZXMnIG9yICdkaXJlY3RvcmllcyciKQ0KICAgIA0KICAgIGlmIGNvbmZpZ1siaW5wdXQiXVsidHlwZSJdID09ICJmaWxlcyIgYW5kICJmaWxlX2dyb3VwcyIgbm90IGluIGNvbmZpZ1siaW5wdXQiXToNCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiSW5wdXQgY29uZmlndXJhdGlvbiB3aXRoIHR5cGUgJ2ZpbGVzJyBtdXN0IGNvbnRhaW4gJ2ZpbGVfZ3JvdXBzJyBmaWVsZCIpDQogICAgDQogICAgaWYgY29uZmlnWyJpbnB1dCJdWyJ0eXBlIl0gPT0gImRpcmVjdG9yaWVzIiBhbmQgImRpcl9saXN0IiBub3QgaW4gY29uZmlnWyJpbnB1dCJdOg0KICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJJbnB1dCBjb25maWd1cmF0aW9uIHdpdGggdHlwZSAnZGlyZWN0b3JpZXMnIG11c3QgY29udGFpbiAnZGlyX2xpc3QnIGZpZWxkIikNCiAgICANCiAgICAjIFZhbGlkYXRlIG91dHB1dCBjb25maWd1cmF0aW9uDQogICAgaWYgInBhdGgiIG5vdCBpbiBjb25maWdbIm91dHB1dCJdOg0KICAgICAgICByYWlzZSBWYWx1ZUVycm9yKCJPdXRwdXQgY29uZmlndXJhdGlvbiBtdXN0IGNvbnRhaW4gJ3BhdGgnIGZpZWxkIikNCiAgICANCiAgICByZXR1cm4gVHJ1ZQ0KDQpkZWYgcGFyc2VfaWNjX2NvbmZpZ19maWxlcyhjb25maWc6IERpY3Rbc3RyLCBBbnldKSAtPiBMaXN0W0xpc3Rbc3RyXV06DQogICAgIiIiDQogICAgUGFyc2UgZmlsZSBncm91cHMgZnJvbSBJQ0MgY29uZmlndXJhdGlvbg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGNvbmZpZyAoRGljdFtzdHIsIEFueV0pOiBJQ0MgY29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5DQogICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgTGlzdFtMaXN0W3N0cl1dOiBMaXN0IG9mIGZpbGUgZ3JvdXBzDQogICAgIiIiDQogICAgaWYgY29uZmlnWyJpbnB1dCJdWyJ0eXBlIl0gIT0gImZpbGVzIjoNCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiQ2Fubm90IHBhcnNlIGZpbGUgZ3JvdXBzIGZyb20gbm9uLWZpbGUgaW5wdXQgdHlwZSIpDQogICAgDQogICAgZmlsZV9ncm91cHMgPSBbXQ0KICAgIGZvciBncm91cCBpbiBjb25maWdbImlucHV0Il1bImZpbGVfZ3JvdXBzIl06DQogICAgICAgIGlmIGlzaW5zdGFuY2UoZ3JvdXAsIGxpc3QpOg0KICAgICAgICAgICAgZmlsZV9ncm91cHMuYXBwZW5kKGdyb3VwKQ0KICAgICAgICBlbHNlOg0KICAgICAgICAgICAgIyBJZiBhIHNpbmdsZSBzdHJpbmcgaXMgcHJvdmlkZWQsIHRyZWF0IGl0IGFzIGEgb25lLWVsZW1lbnQgZ3JvdXANCiAgICAgICAgICAgIGZpbGVfZ3JvdXBzLmFwcGVuZChbZ3JvdXBdKQ0KICAgIA0KICAgIHJldHVybiBmaWxlX2dyb3Vwcw0KDQpkZWYgcGFyc2VfaWNjX2NvbmZpZ19kaXJlY3Rvcmllcyhjb25maWc6IERpY3Rbc3RyLCBBbnldKSAtPiBMaXN0W3N0cl06DQogICAgIiIiDQogICAgUGFyc2UgZGlyZWN0b3J5IGxpc3QgZnJvbSBJQ0MgY29uZmlndXJhdGlvbg0KICAgIA0KICAgIEFyZ3M6DQogICAgICAgIGNvbmZpZyAoRGljdFtzdHIsIEFueV0pOiBJQ0MgY29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5DQogICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgTGlzdFtzdHJdOiBMaXN0IG9mIGRpcmVjdG9yaWVzDQogICAgIiIiDQogICAgaWYgY29uZmlnWyJpbnB1dCJdWyJ0eXBlIl0gIT0gImRpcmVjdG9yaWVzIjoNCiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiQ2Fubm90IHBhcnNlIGRpcmVjdG9yeSBsaXN0IGZyb20gbm9uLWRpcmVjdG9yeSBpbnB1dCB0eXBlIikNCiAgICANCiAgICByZXR1cm4gY29uZmlnWyJpbnB1dCJdWyJkaXJfbGlzdCJdDQoNCmRlZiBnZXRfaWNjX2NvbmZpZ19vdXRwdXRfcGF0aChjb25maWc6IERpY3Rbc3RyLCBBbnldKSAtPiBzdHI6DQogICAgIiIiDQogICAgR2V0IG91dHB1dCBwYXRoIGZyb20gSUNDIGNvbmZpZ3VyYXRpb24NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBjb25maWcgKERpY3Rbc3RyLCBBbnldKTogSUNDIGNvbmZpZ3VyYXRpb24gZGljdGlvbmFyeQ0KICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIHN0cjogT3V0cHV0IGZpbGUgcGF0aA0KICAgICIiIg0KICAgIHJldHVybiBjb25maWdbIm91dHB1dCJdWyJwYXRoIl0NCg0KZGVmIGdldF9pY2NfY29uZmlnX3Byb2Nlc3Nlcyhjb25maWc6IERpY3Rbc3RyLCBBbnldKSAtPiBPcHRpb25hbFtpbnRdOg0KICAgICIiIg0KICAgIEdldCBudW1iZXIgb2YgcHJvY2Vzc2VzIGZyb20gSUNDIGNvbmZpZ3VyYXRpb24NCiAgICANCiAgICBBcmdzOg0KICAgICAgICBjb25maWcgKERpY3Rbc3RyLCBBbnldKTogSUNDIGNvbmZpZ3VyYXRpb24gZGljdGlvbmFyeQ0KICAgIA0KICAgIFJldHVybnM6DQogICAgICAgIE9wdGlvbmFsW2ludF06IE51bWJlciBvZiBwcm9jZXNzZXMgb3IgTm9uZSBmb3IgZGVmYXVsdA0KICAgICIiIg0KICAgIHJldHVybiBjb25maWcuZ2V0KCJwcm9jZXNzZXMiLCBOb25lKQ0KDQpkZWYgY3JlYXRlX2RlZmF1bHRfaWNjX2NvbmZpZygpIC0+IERpY3Rbc3RyLCBBbnldOg0KICAgICIiIg0KICAgIENyZWF0ZSBkZWZhdWx0IElDQyBjb25maWd1cmF0aW9uDQogICAgDQogICAgUmV0dXJuczoNCiAgICAgICAgRGljdFtzdHIsIEFueV06IERlZmF1bHQgY29uZmlndXJhdGlvbiBkaWN0aW9uYXJ5DQogICAgIiIiDQogICAgcmV0dXJuIHsNCiAgICAgICAgImlucHV0Ijogew0KICAgICAgICAgICAgInR5cGUiOiAiZmlsZXMiLA0KICAgICAgICAgICAgImZpbGVfZ3JvdXBzIjogWw0KICAgICAgICAgICAgICAgIFsicGF0aC90by9maWxlMS5jc3YiLCAicGF0aC90by9maWxlMi5jc3YiLCAicGF0aC90by9maWxlMy5jc3YiXSwNCiAgICAgICAgICAgICAgICBbInBhdGgvdG8vZmlsZTQuY3N2IiwgInBhdGgvdG8vZmlsZTUuY3N2IiwgInBhdGgvdG8vZmlsZTYuY3N2Il0NCiAgICAgICAgICAgIF0NCiAgICAgICAgfSwNCiAgICAgICAgIm91dHB1dCI6IHsNCiAgICAgICAgICAgICJwYXRoIjogImljY19yZXN1bHRzLmpzb24iDQogICAgICAgIH0sDQogICAgICAgICJwcm9jZXNzZXMiOiBOb25lLA0KICAgICAgICAiZGVidWciOiBGYWxzZQ0KICAgIH0NCg0KZGVmIHNhdmVfZGVmYXVsdF9pY2NfY29uZmlnKG91dHB1dF9wYXRoOiBzdHIpIC0+IE5vbmU6DQogICAgIiIiDQogICAgU2F2ZSBkZWZhdWx0IElDQyBjb25maWd1cmF0aW9uIHRvIGZpbGUNCiAgICANCiAgICBBcmdzOg0KICAgICAgICBvdXRwdXRfcGF0aCAoc3RyKTogT3V0cHV0IGZpbGUgcGF0aA0KICAgICIiIg0KICAgIGRlZmF1bHRfY29uZmlnID0gY3JlYXRlX2RlZmF1bHRfaWNjX2NvbmZpZygpDQogICAgDQogICAgIyBDcmVhdGUgZGlyZWN0b3J5IGlmIGl0IGRvZXNuJ3QgZXhpc3QNCiAgICBvcy5tYWtlZGlycyhvcy5wYXRoLmRpcm5hbWUob3MucGF0aC5hYnNwYXRoKG91dHB1dF9wYXRoKSksIGV4aXN0X29rPVRydWUpDQogICAgDQogICAgd2l0aCBvcGVuKG91dHB1dF9wYXRoLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6DQogICAgICAgIHlhbWwuZHVtcChkZWZhdWx0X2NvbmZpZywgZiwgZGVmYXVsdF9mbG93X3N0eWxlPUZhbHNlLCBzb3J0X2tleXM9RmFsc2UpIA==').decode())
+import os
+from typing import Dict, Any, List, Union, Optional
+import yaml
+from habit.utils.config_utils import load_config, validate_config
+
+def load_icc_config(config_path: str) -> Dict[str, Any]:
+    """
+    Load ICC analysis configuration from YAML file
+    
+    Args:
+        config_path (str): Path to ICC configuration file (YAML)
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary
+    """
+    config = load_config(config_path)
+    validate_icc_config(config)
+    return config
+
+def validate_icc_config(config: Dict[str, Any]) -> bool:
+    """
+    Validate ICC configuration structure and required parameters
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        bool: Whether configuration is valid
+        
+    Raises:
+        ValueError: If configuration is invalid
+    """
+    # Define required top-level keys
+    required_keys = ["input", "output"]
+    validate_config(config, required_keys)
+    
+    # Validate input configuration
+    if "type" not in config["input"]:
+        raise ValueError("Input configuration must contain 'type' field ('files' or 'directories')")
+    
+    if config["input"]["type"] not in ["files", "directories"]:
+        raise ValueError("Input type must be either 'files' or 'directories'")
+    
+    if config["input"]["type"] == "files" and "file_groups" not in config["input"]:
+        raise ValueError("Input configuration with type 'files' must contain 'file_groups' field")
+    
+    if config["input"]["type"] == "directories" and "dir_list" not in config["input"]:
+        raise ValueError("Input configuration with type 'directories' must contain 'dir_list' field")
+    
+    # Validate output configuration
+    if "path" not in config["output"]:
+        raise ValueError("Output configuration must contain 'path' field")
+    
+    return True
+
+def parse_icc_config_files(config: Dict[str, Any]) -> List[List[str]]:
+    """
+    Parse file groups from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        List[List[str]]: List of file groups
+    """
+    if config["input"]["type"] != "files":
+        raise ValueError("Cannot parse file groups from non-file input type")
+    
+    file_groups = []
+    for group in config["input"]["file_groups"]:
+        if isinstance(group, list):
+            file_groups.append(group)
+        else:
+            # If a single string is provided, treat it as a one-element group
+            file_groups.append([group])
+    
+    return file_groups
+
+def parse_icc_config_directories(config: Dict[str, Any]) -> List[str]:
+    """
+    Parse directory list from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        List[str]: List of directories
+    """
+    if config["input"]["type"] != "directories":
+        raise ValueError("Cannot parse directory list from non-directory input type")
+    
+    return config["input"]["dir_list"]
+
+def get_icc_config_output_path(config: Dict[str, Any]) -> str:
+    """
+    Get output path from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        str: Output file path
+    """
+    return config["output"]["path"]
+
+def get_icc_config_processes(config: Dict[str, Any]) -> Optional[int]:
+    """
+    Get number of processes from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        Optional[int]: Number of processes or None for default
+    """
+    return config.get("processes", None)
+
+def create_default_icc_config() -> Dict[str, Any]:
+    """
+    Create default ICC configuration
+    
+    Returns:
+        Dict[str, Any]: Default configuration dictionary
+    """
+    return {
+        "input": {
+            "type": "files",
+            "file_groups": [
+                ["path/to/file1.csv", "path/to/file2.csv", "path/to/file3.csv"],
+                ["path/to/file4.csv", "path/to/file5.csv", "path/to/file6.csv"]
+            ]
+        },
+        "output": {
+            "path": "icc_results.json"
+        },
+        "processes": None,
+        "debug": False
+    }
+
+def save_default_icc_config(output_path: str) -> None:
+    """
+    Save default ICC configuration to file
+    
+    Args:
+        output_path (str): Output file path
+    """
+    default_config = create_default_icc_config()
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        yaml.dump(default_config, f, default_flow_style=False, sort_keys=False) 

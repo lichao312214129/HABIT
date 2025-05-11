@@ -1,3 +1,234 @@
+"""
+Visualization utilities for habitat analysis
+"""
 
-import base64
-exec(base64.b64decode(b'IiIiClZpc3VhbGl6YXRpb24gdXRpbGl0aWVzIGZvciBoYWJpdGF0IGFuYWx5c2lzCiIiIgoKaW1wb3J0IG9zCmltcG9ydCBtYXRwbG90bGliLnB5cGxvdCBhcyBwbHQKaW1wb3J0IG51bXB5IGFzIG5wCmZyb20gdHlwaW5nIGltcG9ydCBEaWN0LCBMaXN0LCBUdXBsZSwgT3B0aW9uYWwsIFVuaW9uCgoKZGVmIHBsb3RfY2x1c3Rlcl9zY29yZXMoc2NvcmVzX2RpY3Q6IERpY3Rbc3RyLCBMaXN0W2Zsb2F0XV0sIAogICAgICAgICAgICAgICAgICAgICAgY2x1c3Rlcl9yYW5nZTogTGlzdFtpbnRdLCAKICAgICAgICAgICAgICAgICAgICAgIG1ldGhvZHM6IE9wdGlvbmFsW1VuaW9uW0xpc3Rbc3RyXSwgc3RyXV0gPSBOb25lLAogICAgICAgICAgICAgICAgICAgICAgY2x1c3RlcmluZ19hbGdvcml0aG06IHN0ciA9ICdrbWVhbnMnLAogICAgICAgICAgICAgICAgICAgICAgZmlnc2l6ZTogVHVwbGVbaW50LCBpbnRdID0gKDEyLCA4KSwKICAgICAgICAgICAgICAgICAgICAgIHNhdmVfcGF0aDogT3B0aW9uYWxbc3RyXSA9IE5vbmUsCiAgICAgICAgICAgICAgICAgICAgICBzaG93OiBib29sID0gVHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgIGRwaTogaW50ID0gMzAwKToKICAgICIiIgogICAgUGxvdCB0aGUgc2NvcmluZyBjdXJ2ZXMgZm9yIGNsdXN0ZXIgZXZhbHVhdGlvbgogICAgCiAgICBBcmdzOgogICAgICAgIHNjb3Jlc19kaWN0OiBEaWN0aW9uYXJ5IG9mIHNjb3Jlcywgd2l0aCBtZXRob2QgbmFtZXMgYXMga2V5cyBhbmQgc2NvcmUgbGlzdHMgYXMgdmFsdWVzCiAgICAgICAgY2x1c3Rlcl9yYW5nZTogUmFuZ2Ugb2YgY2x1c3RlciBudW1iZXJzIHRvIGV2YWx1YXRlCiAgICAgICAgbWV0aG9kczogTWV0aG9kcyB0byBwbG90LCBjYW4gYmUgYSBzdHJpbmcgb3IgbGlzdCBvZiBzdHJpbmdzLCBOb25lIG1lYW5zIHBsb3QgYWxsIG1ldGhvZHMKICAgICAgICBjbHVzdGVyaW5nX2FsZ29yaXRobTogTmFtZSBvZiB0aGUgY2x1c3RlcmluZyBhbGdvcml0aG0KICAgICAgICBmaWdzaXplOiBTaXplIG9mIHRoZSBmaWd1cmUKICAgICAgICBzYXZlX3BhdGg6IFBhdGggdG8gc2F2ZSB0aGUgZmlndXJlLCBOb25lIG1lYW5zIGRvIG5vdCBzYXZlCiAgICAgICAgc2hvdzogV2hldGhlciB0byBkaXNwbGF5IHRoZSBmaWd1cmUKICAgICAgICBkcGk6IEltYWdlIHJlc29sdXRpb24KICAgICIiIgogICAgZnJvbSBoYWJpdC5jb3JlLmhhYml0YXRfYW5hbHlzaXMuY2x1c3RlcmluZy5jbHVzdGVyX3ZhbGlkYXRpb25fbWV0aG9kcyBpbXBvcnQgZ2V0X21ldGhvZF9kZXNjcmlwdGlvbiwgZ2V0X29wdGltaXphdGlvbl9kaXJlY3Rpb24KICAgIAogICAgIyBJZiBtZXRob2RzIGlzIE5vbmUsIHVzZSBhbGwgbWV0aG9kcyBpbiBzY29yZXNfZGljdAogICAgaWYgbWV0aG9kcyBpcyBOb25lOgogICAgICAgIG1ldGhvZHMgPSBsaXN0KHNjb3Jlc19kaWN0LmtleXMoKSkKICAgIGVsaWYgaXNpbnN0YW5jZShtZXRob2RzLCBzdHIpOgogICAgICAgIG1ldGhvZHMgPSBbbWV0aG9kc10KICAgIAogICAgIyBDcmVhdGUgZmlndXJlCiAgICBuX21ldGhvZHMgPSBsZW4obWV0aG9kcykKICAgIGlmIG5fbWV0aG9kcyA9PSAxOgogICAgICAgIGZpZywgYXhlcyA9IHBsdC5zdWJwbG90cygxLCAxLCBmaWdzaXplPWZpZ3NpemUpCiAgICAgICAgYXhlcyA9IFtheGVzXSAgIyBDb252ZXJ0IHRvIGxpc3QgZm9yIGNvbnNpc3RlbnQgYWNjZXNzCiAgICBlbHNlOgogICAgICAgIGZpZywgYXhlcyA9IHBsdC5zdWJwbG90cygxLCBuX21ldGhvZHMsIGZpZ3NpemU9Zmlnc2l6ZSkKICAgICAgICBpZiBuX21ldGhvZHMgPiAxIGFuZCBub3QgaXNpbnN0YW5jZShheGVzLCBucC5uZGFycmF5KToKICAgICAgICAgICAgYXhlcyA9IFtheGVzXQogICAgCiAgICAjIFBsb3QgZm9yIGVhY2ggbWV0aG9kCiAgICBmb3IgaSwgbWV0aG9kIGluIGVudW1lcmF0ZShtZXRob2RzKToKICAgICAgICBpZiBtZXRob2Qgbm90IGluIHNjb3Jlc19kaWN0OgogICAgICAgICAgICBjb250aW51ZQogICAgICAgIAogICAgICAgIGF4ID0gYXhlc1tpXSBpZiBpIDwgbGVuKGF4ZXMpIGVsc2UgYXhlc1stMV0KICAgICAgICBzY29yZXMgPSBzY29yZXNfZGljdFttZXRob2RdCiAgICAgICAgCiAgICAgICAgIyBQbG90IHNjb3JlIGN1cnZlCiAgICAgICAgYXgucGxvdChjbHVzdGVyX3JhbmdlLCBzY29yZXMsICdvLScsIGxpbmV3aWR0aD0yLCBtYXJrZXJzaXplPTgpCgogICAgICAgICMgR2V0IG9wdGltaXphdGlvbiBkaXJlY3Rpb24gZm9yIHRoZSBtZXRob2QKICAgICAgICBvcHRpbWl6YXRpb24gPSBnZXRfb3B0aW1pemF0aW9uX2RpcmVjdGlvbihjbHVzdGVyaW5nX2FsZ29yaXRobSwgbWV0aG9kKQogICAgICAgIAogICAgICAgICMgTWFyayB0aGUgb3B0aW1hbCBudW1iZXIgb2YgY2x1c3RlcnMKICAgICAgICBpZiBvcHRpbWl6YXRpb24gPT0gJ21heGltaXplJzoKICAgICAgICAgICAgIyBGb3IgbWV0aG9kcyB3aGVyZSBoaWdoZXIgaXMgYmV0dGVyCiAgICAgICAgICAgIGJlc3RfaWR4ID0gbnAuYXJnbWF4KHNjb3JlcykKICAgICAgICAgICAgYmVzdF9zY29yZSA9IHNjb3Jlc1tiZXN0X2lkeF0KICAgICAgICAgICAgY3JpdGVyaW9uID0gIk1heGltdW0iCiAgICAgICAgZWxpZiBvcHRpbWl6YXRpb24gPT0gJ21pbmltaXplJzoKICAgICAgICAgICAgIyBGb3IgbWV0aG9kcyB3aGVyZSBsb3dlciBpcyBiZXR0ZXIsIHVzZSBlbGJvdyBtZXRob2QKICAgICAgICAgICAgIyBDYWxjdWxhdGUgZmlyc3Qtb3JkZXIgZGlmZmVyZW5jZXMKICAgICAgICAgICAgZGVsdGFzID0gbnAuZGlmZihzY29yZXMpCiAgICAgICAgICAgICMgQ2FsY3VsYXRlIHNlY29uZC1vcmRlciBkaWZmZXJlbmNlcyAoaW5mbGVjdGlvbiBwb2ludCB0eXBpY2FsbHkgaGFzIG1heCBzZWNvbmQtb3JkZXIgZGlmZmVyZW5jZSkKICAgICAgICAgICAgZGVsdGFzMiA9IG5wLmRpZmYoZGVsdGFzKQogICAgICAgICAgICAjIEluZmxlY3Rpb24gcG9pbnQgaXMgdGhlIHBvaW50IGFmdGVyIHRoZSBtYXggc2Vjb25kLW9yZGVyIGRpZmZlcmVuY2UKICAgICAgICAgICAgYmVzdF9pZHggPSBucC5hcmdtYXgoZGVsdGFzMikgKyAxCiAgICAgICAgICAgIGlmIGJlc3RfaWR4ID49IGxlbihzY29yZXMpIC0gMToKICAgICAgICAgICAgICAgIGJlc3RfaWR4ID0gbGVuKHNjb3JlcykgLSAyCiAgICAgICAgICAgIGJlc3Rfc2NvcmUgPSBzY29yZXNbYmVzdF9pZHhdCiAgICAgICAgICAgIGNyaXRlcmlvbiA9ICJFbGJvdyBNZXRob2QiCiAgICAgICAgZWxzZToKICAgICAgICAgICAgIyBEZWZhdWx0IHRvIG1heGltdW0KICAgICAgICAgICAgYmVzdF9pZHggPSBucC5hcmdtYXgoc2NvcmVzKQogICAgICAgICAgICBiZXN0X3Njb3JlID0gc2NvcmVzW2Jlc3RfaWR4XQogICAgICAgICAgICBjcml0ZXJpb24gPSAiTWF4aW11bSIKICAgICAgICAKICAgICAgICAjIEdldCB0aGUgb3B0aW1hbCBudW1iZXIgb2YgY2x1c3RlcnMKICAgICAgICBiZXN0X25fY2x1c3RlcnMgPSBjbHVzdGVyX3JhbmdlW2Jlc3RfaWR4XQogICAgICAgIAogICAgICAgICMgTWFyayB0aGUgb3B0aW1hbCBwb2ludCBvbiB0aGUgcGxvdAogICAgICAgIGF4LnBsb3QoYmVzdF9uX2NsdXN0ZXJzLCBiZXN0X3Njb3JlLCAncngnLCBtYXJrZXJzaXplPTEyLCBtYXJrZXJlZGdld2lkdGg9MykKICAgICAgICAKICAgICAgICAjIFNldCB0aXRsZSBhbmQgbGFiZWxzCiAgICAgICAgbWV0aG9kX2Rlc2MgPSBnZXRfbWV0aG9kX2Rlc2NyaXB0aW9uKGNsdXN0ZXJpbmdfYWxnb3JpdGhtLCBtZXRob2QpCiAgICAgICAgYXguc2V0X3RpdGxlKGYie21ldGhvZF9kZXNjfVxuT3B0aW1hbCBDbHVzdGVycyA9IHtiZXN0X25fY2x1c3RlcnN9ICh7Y3JpdGVyaW9ufSkiKQogICAgICAgIGF4LnNldF94bGFiZWwoIk51bWJlciBvZiBDbHVzdGVycyIpCiAgICAgICAgYXguc2V0X3lsYWJlbChmInttZXRob2QuY2FwaXRhbGl6ZSgpfSBTY29yZSIpCiAgICAgICAgYXguZ3JpZChUcnVlKQogICAgCiAgICAjIEFkanVzdCBsYXlvdXQKICAgIHBsdC50aWdodF9sYXlvdXQoKQogICAgCiAgICAjIFNhdmUgZmlndXJlIGlmIHBhdGggaXMgcHJvdmlkZWQKICAgIGlmIHNhdmVfcGF0aCBpcyBub3QgTm9uZToKICAgICAgICAjIEVuc3VyZSBkaXJlY3RvcnkgZXhpc3RzCiAgICAgICAgb3MubWFrZWRpcnMob3MucGF0aC5kaXJuYW1lKG9zLnBhdGguYWJzcGF0aChzYXZlX3BhdGgpKSwgZXhpc3Rfb2s9VHJ1ZSkKICAgICAgICBwbHQuc2F2ZWZpZyhzYXZlX3BhdGgsIGRwaT1kcGksIGJib3hfaW5jaGVzPSd0aWdodCcpCiAgICAKICAgICMgU2hvdyBvciBjbG9zZSBmaWd1cmUKICAgIGlmIHNob3c6CiAgICAgICAgcGx0LnNob3coKQogICAgZWxzZToKICAgICAgICBwbHQuY2xvc2UoKQoKCmRlZiBwbG90X2VsYm93X2N1cnZlKGNsdXN0ZXJfcmFuZ2UsIHNjb3Jlcywgc2NvcmVfdHlwZSwgdGl0bGU9Tm9uZSwgc2F2ZV9wYXRoPU5vbmUpOgogICAgIiIiCiAgICBQbG90IHRoZSBlbGJvdyBjdXJ2ZQogICAgCiAgICBBcmdzOgogICAgICAgIGNsdXN0ZXJfcmFuZ2U6IFJhbmdlIG9mIGNsdXN0ZXIgbnVtYmVycwogICAgICAgIHNjb3JlczogQ29ycmVzcG9uZGluZyBzY29yZXMKICAgICAgICBzY29yZV90eXBlOiBUeXBlIG9mIHNjb3JlIGZvciB0aXRsZSBhbmQgeS1heGlzIGxhYmVsCiAgICAgICAgdGl0bGU6IEZpZ3VyZSB0aXRsZSwgYXV0b21hdGljYWxseSBnZW5lcmF0ZWQgaWYgTm9uZQogICAgICAgIHNhdmVfcGF0aDogUGF0aCB0byBzYXZlIHRoZSBmaWd1cmUsIGRvIG5vdCBzYXZlIGlmIE5vbmUKICAgICIiIgogICAgaWYgdGl0bGUgaXMgTm9uZToKICAgICAgICB0aXRsZSA9IGYiVGhlIHtzY29yZV90eXBlfSBNZXRob2Qgc2hvd2luZyB0aGUgb3B0aW1hbCBrIgogICAgCiAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDgsIDUpKQogICAgcGx0LnBsb3QoY2x1c3Rlcl9yYW5nZSwgc2NvcmVzLCAnYngtJykKICAgIHBsdC54bGFiZWwoJ051bWJlciBvZiBjbHVzdGVycycpCiAgICBwbHQueWxhYmVsKHNjb3JlX3R5cGUpCiAgICBwbHQudGl0bGUodGl0bGUpCiAgICBwbHQudGlnaHRfbGF5b3V0KCkKICAgIAogICAgaWYgc2F2ZV9wYXRoOgogICAgICAgIHBsdC5zYXZlZmlnKHNhdmVfcGF0aCkKICAgIAogICAgcGx0LnNob3coKQoKCmRlZiBwbG90X211bHRpcGxlX3Njb3JlcyhjbHVzdGVyX3JhbmdlLCBzY29yZXNfZGljdCwgdGl0bGU9Tm9uZSwgc2F2ZV9wYXRoPU5vbmUpOgogICAgIiIiCiAgICBQbG90IG11bHRpcGxlIHNjb3JpbmcgbWV0aG9kcyBvbiB0aGUgc2FtZSBncmFwaAogICAgCiAgICBBcmdzOgogICAgICAgIGNsdXN0ZXJfcmFuZ2U6IFJhbmdlIG9mIGNsdXN0ZXIgbnVtYmVycwogICAgICAgIHNjb3Jlc19kaWN0OiBEaWN0aW9uYXJ5IHdpdGggc2NvcmluZyBtZXRob2QgbmFtZXMgYXMga2V5cyBhbmQgc2NvcmUgbGlzdHMgYXMgdmFsdWVzCiAgICAgICAgdGl0bGU6IEZpZ3VyZSB0aXRsZSwgYXV0b21hdGljYWxseSBnZW5lcmF0ZWQgaWYgTm9uZQogICAgICAgIHNhdmVfcGF0aDogUGF0aCB0byBzYXZlIHRoZSBmaWd1cmUsIGRvIG5vdCBzYXZlIGlmIE5vbmUKICAgICIiIgogICAgaWYgdGl0bGUgaXMgTm9uZToKICAgICAgICB0aXRsZSA9ICJDb21wYXJpc29uIG9mIGRpZmZlcmVudCBjbHVzdGVyIGV2YWx1YXRpb24gbWV0cmljcyIKICAgIAogICAgcGx0LmZpZ3VyZShmaWdzaXplPSgxMiwgOCkpCiAgICAKICAgIGZvciBpLCAoc2NvcmVfbmFtZSwgc2NvcmVzKSBpbiBlbnVtZXJhdGUoc2NvcmVzX2RpY3QuaXRlbXMoKSk6CiAgICAgICAgIyBOb3JtYWxpemUgc2NvcmVzIHRvIGJlIGluIHRoZSBzYW1lIHJhbmdlCiAgICAgICAgbm9ybWFsaXplZF9zY29yZXMgPSAoc2NvcmVzIC0gbnAubWluKHNjb3JlcykpIC8gKG5wLm1heChzY29yZXMpIC0gbnAubWluKHNjb3JlcykgKyAxZS0xMCkKICAgICAgICAKICAgICAgICAjIEludmVydCBCSUMvQUlDIHRvIG1ha2UgbG93ZXIgaXMgYmV0dGVyIGJlY29tZSBoaWdoZXIgaXMgYmV0dGVyCiAgICAgICAgaWYgc2NvcmVfbmFtZS5sb3dlcigpIGluIFsnYmljJywgJ2FpYycsICdpbmVydGlhJ106CiAgICAgICAgICAgIG5vcm1hbGl6ZWRfc2NvcmVzID0gMSAtIG5vcm1hbGl6ZWRfc2NvcmVzCiAgICAgICAgCiAgICAgICAgcGx0LnBsb3QoY2x1c3Rlcl9yYW5nZSwgbm9ybWFsaXplZF9zY29yZXMsICdvLScsIGxhYmVsPXNjb3JlX25hbWUpCiAgICAKICAgIHBsdC54bGFiZWwoJ051bWJlciBvZiBjbHVzdGVycycpCiAgICBwbHQueWxhYmVsKCdOb3JtYWxpemVkIHNjb3JlIChoaWdoZXIgaXMgYmV0dGVyKScpCiAgICBwbHQudGl0bGUodGl0bGUpCiAgICBwbHQubGVnZW5kKCkKICAgIHBsdC5ncmlkKFRydWUsIGxpbmVzdHlsZT0nLS0nLCBhbHBoYT0wLjcpCiAgICBwbHQudGlnaHRfbGF5b3V0KCkKICAgIAogICAgaWYgc2F2ZV9wYXRoOgogICAgICAgIHBsdC5zYXZlZmlnKHNhdmVfcGF0aCkKICAgIAogICAgcGx0LnNob3coKQoKCmRlZiBwbG90X2NsdXN0ZXJfcmVzdWx0cyhYLCBsYWJlbHMsIGNlbnRlcnM9Tm9uZSwgdGl0bGU9Tm9uZSwgZmVhdHVyZV9uYW1lcz1Ob25lLCBzYXZlX3BhdGg9Tm9uZSk6CiAgICAiIiIKICAgIFBsb3Qgc2NhdHRlciBwbG90IG9mIGNsdXN0ZXJpbmcgcmVzdWx0cwogICAgCiAgICBBcmdzOgogICAgICAgIFg6IElucHV0IGRhdGEsIHNoYXBlIChuX3NhbXBsZXMsIG5fZmVhdHVyZXMpCiAgICAgICAgbGFiZWxzOiBDbHVzdGVyIGxhYmVscywgc2hhcGUgKG5fc2FtcGxlcywpCiAgICAgICAgY2VudGVyczogQ2x1c3RlciBjZW50ZXJzLCBwbG90dGVkIGlmIG5vdCBOb25lCiAgICAgICAgdGl0bGU6IEZpZ3VyZSB0aXRsZQogICAgICAgIGZlYXR1cmVfbmFtZXM6IEZlYXR1cmUgbmFtZXMgZm9yIHggYW5kIHkgYXhpcyBsYWJlbHMKICAgICAgICBzYXZlX3BhdGg6IFBhdGggdG8gc2F2ZSB0aGUgZmlndXJlLCBkbyBub3Qgc2F2ZSBpZiBOb25lCiAgICAiIiIKICAgICMgVXNlIFBDQSBmb3IgZGltZW5zaW9uYWxpdHkgcmVkdWN0aW9uIGlmIGZlYXR1cmVzID4gMgogICAgaWYgWC5zaGFwZVsxXSA+IDI6CiAgICAgICAgZnJvbSBza2xlYXJuLmRlY29tcG9zaXRpb24gaW1wb3J0IFBDQQogICAgICAgIHBjYSA9IFBDQShuX2NvbXBvbmVudHM9MikKICAgICAgICBYX3BjYSA9IHBjYS5maXRfdHJhbnNmb3JtKFgpCiAgICAgICAgaWYgY2VudGVycyBpcyBub3QgTm9uZToKICAgICAgICAgICAgY2VudGVyc19wY2EgPSBwY2EudHJhbnNmb3JtKGNlbnRlcnMpCiAgICBlbHNlOgogICAgICAgIFhfcGNhID0gWAogICAgICAgIGNlbnRlcnNfcGNhID0gY2VudGVycwogICAgCiAgICBwbHQuZmlndXJlKGZpZ3NpemU9KDEwLCA4KSkKICAgIHBsdC5zY2F0dGVyKFhfcGNhWzosIDBdLCBYX3BjYVs6LCAxXSwgYz1sYWJlbHMsIGNtYXA9J3ZpcmlkaXMnLCBtYXJrZXI9J28nLCBhbHBoYT0wLjcpCiAgICAKICAgIGlmIGNlbnRlcnNfcGNhIGlzIG5vdCBOb25lOgogICAgICAgIHBsdC5zY2F0dGVyKGNlbnRlcnNfcGNhWzosIDBdLCBjZW50ZXJzX3BjYVs6LCAxXSwgYz0ncmVkJywgbWFya2VyPSdYJywgcz0yMDAsIGxhYmVsPSdDbHVzdGVyIGNlbnRlcnMnKQogICAgCiAgICBpZiB0aXRsZToKICAgICAgICBwbHQudGl0bGUodGl0bGUpCiAgICBlbHNlOgogICAgICAgIHBsdC50aXRsZSgnQ2x1c3RlciBSZXN1bHRzJykKICAgIAogICAgaWYgZmVhdHVyZV9uYW1lcyBhbmQgbGVuKGZlYXR1cmVfbmFtZXMpID49IDI6CiAgICAgICAgaWYgWC5zaGFwZVsxXSA+IDI6CiAgICAgICAgICAgIHBsdC54bGFiZWwoJ1BDQSBDb21wb25lbnQgMScpCiAgICAgICAgICAgIHBsdC55bGFiZWwoJ1BDQSBDb21wb25lbnQgMicpCiAgICAgICAgZWxzZToKICAgICAgICAgICAgcGx0LnhsYWJlbChmZWF0dXJlX25hbWVzWzBdKQogICAgICAgICAgICBwbHQueWxhYmVsKGZlYXR1cmVfbmFtZXNbMV0pCiAgICBlbHNlOgogICAgICAgIHBsdC54bGFiZWwoJ0ZlYXR1cmUgMScpCiAgICAgICAgcGx0LnlsYWJlbCgnRmVhdHVyZSAyJykKICAgIAogICAgcGx0LmNvbG9yYmFyKGxhYmVsPSdDbHVzdGVyJykKICAgIHBsdC5ncmlkKFRydWUsIGxpbmVzdHlsZT0nLS0nLCBhbHBoYT0wLjcpCiAgICBwbHQudGlnaHRfbGF5b3V0KCkKICAgIAogICAgaWYgc2F2ZV9wYXRoOgogICAgICAgIHBsdC5zYXZlZmlnKHNhdmVfcGF0aCkKICAgIAogICAgcGx0LnNob3coKSA=').decode())
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Dict, List, Tuple, Optional, Union
+
+
+def plot_cluster_scores(scores_dict: Dict[str, List[float]], 
+                      cluster_range: List[int], 
+                      methods: Optional[Union[List[str], str]] = None,
+                      clustering_algorithm: str = 'kmeans',
+                      figsize: Tuple[int, int] = (12, 8),
+                      save_path: Optional[str] = None,
+                      show: bool = True,
+                      dpi: int = 300):
+    """
+    Plot the scoring curves for cluster evaluation
+    
+    Args:
+        scores_dict: Dictionary of scores, with method names as keys and score lists as values
+        cluster_range: Range of cluster numbers to evaluate
+        methods: Methods to plot, can be a string or list of strings, None means plot all methods
+        clustering_algorithm: Name of the clustering algorithm
+        figsize: Size of the figure
+        save_path: Path to save the figure, None means do not save
+        show: Whether to display the figure
+        dpi: Image resolution
+    """
+    from habit.core.habitat_analysis.clustering.cluster_validation_methods import get_method_description, get_optimization_direction
+    
+    # If methods is None, use all methods in scores_dict
+    if methods is None:
+        methods = list(scores_dict.keys())
+    elif isinstance(methods, str):
+        methods = [methods]
+    
+    # Create figure
+    n_methods = len(methods)
+    if n_methods == 1:
+        fig, axes = plt.subplots(1, 1, figsize=figsize)
+        axes = [axes]  # Convert to list for consistent access
+    else:
+        fig, axes = plt.subplots(1, n_methods, figsize=figsize)
+        if n_methods > 1 and not isinstance(axes, np.ndarray):
+            axes = [axes]
+    
+    # Plot for each method
+    for i, method in enumerate(methods):
+        if method not in scores_dict:
+            continue
+        
+        ax = axes[i] if i < len(axes) else axes[-1]
+        scores = scores_dict[method]
+        
+        # Plot score curve
+        ax.plot(cluster_range, scores, 'o-', linewidth=2, markersize=8)
+
+        # Get optimization direction for the method
+        optimization = get_optimization_direction(clustering_algorithm, method)
+        
+        # Mark the optimal number of clusters
+        if optimization == 'maximize':
+            # For methods where higher is better
+            best_idx = np.argmax(scores)
+            best_score = scores[best_idx]
+            criterion = "Maximum"
+        elif optimization == 'minimize':
+            # For methods where lower is better, use elbow method
+            # Calculate first-order differences
+            deltas = np.diff(scores)
+            # Calculate second-order differences (inflection point typically has max second-order difference)
+            deltas2 = np.diff(deltas)
+            # Inflection point is the point after the max second-order difference
+            best_idx = np.argmax(deltas2) + 1
+            if best_idx >= len(scores) - 1:
+                best_idx = len(scores) - 2
+            best_score = scores[best_idx]
+            criterion = "Elbow Method"
+        else:
+            # Default to maximum
+            best_idx = np.argmax(scores)
+            best_score = scores[best_idx]
+            criterion = "Maximum"
+        
+        # Get the optimal number of clusters
+        best_n_clusters = cluster_range[best_idx]
+        
+        # Mark the optimal point on the plot
+        ax.plot(best_n_clusters, best_score, 'rx', markersize=12, markeredgewidth=3)
+        
+        # Set title and labels
+        method_desc = get_method_description(clustering_algorithm, method)
+        ax.set_title(f"{method_desc}\nOptimal Clusters = {best_n_clusters} ({criterion})")
+        ax.set_xlabel("Number of Clusters")
+        ax.set_ylabel(f"{method.capitalize()} Score")
+        ax.grid(True)
+    
+    # Adjust layout
+    plt.tight_layout()
+    
+    # Save figure if path is provided
+    if save_path is not None:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+        plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+    
+    # Show or close figure
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=None):
+    """
+    Plot the elbow curve
+    
+    Args:
+        cluster_range: Range of cluster numbers
+        scores: Corresponding scores
+        score_type: Type of score for title and y-axis label
+        title: Figure title, automatically generated if None
+        save_path: Path to save the figure, do not save if None
+    """
+    if title is None:
+        title = f"The {score_type} Method showing the optimal k"
+    
+    plt.figure(figsize=(8, 5))
+    plt.plot(cluster_range, scores, 'bx-')
+    plt.xlabel('Number of clusters')
+    plt.ylabel(score_type)
+    plt.title(title)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+    
+    plt.show()
+
+
+def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None):
+    """
+    Plot multiple scoring methods on the same graph
+    
+    Args:
+        cluster_range: Range of cluster numbers
+        scores_dict: Dictionary with scoring method names as keys and score lists as values
+        title: Figure title, automatically generated if None
+        save_path: Path to save the figure, do not save if None
+    """
+    if title is None:
+        title = "Comparison of different cluster evaluation metrics"
+    
+    plt.figure(figsize=(12, 8))
+    
+    for i, (score_name, scores) in enumerate(scores_dict.items()):
+        # Normalize scores to be in the same range
+        normalized_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
+        
+        # Invert BIC/AIC to make lower is better become higher is better
+        if score_name.lower() in ['bic', 'aic', 'inertia']:
+            normalized_scores = 1 - normalized_scores
+        
+        plt.plot(cluster_range, normalized_scores, 'o-', label=score_name)
+    
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Normalized score (higher is better)')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+    
+    plt.show()
+
+
+def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None, save_path=None):
+    """
+    Plot scatter plot of clustering results
+    
+    Args:
+        X: Input data, shape (n_samples, n_features)
+        labels: Cluster labels, shape (n_samples,)
+        centers: Cluster centers, plotted if not None
+        title: Figure title
+        feature_names: Feature names for x and y axis labels
+        save_path: Path to save the figure, do not save if None
+    """
+    # Use PCA for dimensionality reduction if features > 2
+    if X.shape[1] > 2:
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=2)
+        X_pca = pca.fit_transform(X)
+        if centers is not None:
+            centers_pca = pca.transform(centers)
+    else:
+        X_pca = X
+        centers_pca = centers
+    
+    plt.figure(figsize=(10, 8))
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis', marker='o', alpha=0.7)
+    
+    if centers_pca is not None:
+        plt.scatter(centers_pca[:, 0], centers_pca[:, 1], c='red', marker='X', s=200, label='Cluster centers')
+    
+    if title:
+        plt.title(title)
+    else:
+        plt.title('Cluster Results')
+    
+    if feature_names and len(feature_names) >= 2:
+        if X.shape[1] > 2:
+            plt.xlabel('PCA Component 1')
+            plt.ylabel('PCA Component 2')
+        else:
+            plt.xlabel(feature_names[0])
+            plt.ylabel(feature_names[1])
+    else:
+        plt.xlabel('Feature 1')
+        plt.ylabel('Feature 2')
+    
+    plt.colorbar(label='Cluster')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path)
+    
+    plt.show() 
