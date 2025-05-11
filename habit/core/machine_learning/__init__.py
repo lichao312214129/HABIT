@@ -1,7 +1,3 @@
-"""
-Machine Learning module for HABIT package.
-"""
 
-from .machine_learning import Modeling
-
-__all__ = ["MachineLearningModel"]
+import base64
+exec(base64.b64decode(b'IiIiDQpNYWNoaW5lIExlYXJuaW5nIG1vZHVsZSBmb3IgSEFCSVQgcGFja2FnZS4NCiIiIg0KDQpmcm9tIC5tYWNoaW5lX2xlYXJuaW5nIGltcG9ydCBNb2RlbGluZw0KDQpfX2FsbF9fID0gWyJNYWNoaW5lTGVhcm5pbmdNb2RlbCJd').decode())
