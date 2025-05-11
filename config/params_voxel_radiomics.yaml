@@ -26,11 +26,11 @@ featureClass:
   # enabled by specifying individual feature names (as is done for glcm) and including them in the list.
   # shape:
   firstorder:
-  glcm: 
-  glrlm:
-  glszm:
-  ngtdm:
-  gldm:
+  # glcm: 
+  # glrlm:
+  # glszm:
+  # ngtdm:
+  # gldm:
 
 setting:
   # Normalization:
@@ -64,7 +64,7 @@ setting:
   # first order specific settings:
   # When normalizing, gray values below the mean will be negative. Shifting by 300 (3 StdDevs * 100) ensures that the
   # majority of voxels is positive (only outliers >3 SD lower than the mean will be negative).
-  # voxelArrayShift: 300
+  voxelArrayShift: 300
 
   # Misc:
   # default label value. Labels can also be defined in the call to featureextractor.execute, as a commandline argument,

@@ -157,8 +157,8 @@ is_save_model: <是否保存训练好的模型>
 ### 逐步特征选择方法
 - `method: 'stepwise'`: 使用AIC/BIC准则进行逐步特征选择
 - 参数:
-  - `Rhome`: R安装路径（逐步选择需要）
   - `direction`: 逐步选择方向：'forward'(前向)、'backward'(后向)或'both'(双向)
+  - `criterion`: 选择准则：'aic'(AIC)、'bic'(BIC)或'pvalue'(p值)
 
 ## 支持的机器学习模型
 

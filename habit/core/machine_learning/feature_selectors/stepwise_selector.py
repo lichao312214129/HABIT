@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple, Dict, Union
 from tqdm import tqdm
 from pathlib import Path
 
-from . import register_selector
+from .selector_registry import register_selector
 
 def _set_r_environment(Rhome: Optional[str]) -> None:
     """
@@ -150,7 +150,7 @@ def load_data(input_data: Union[str, pd.DataFrame],
     
     return X, y
 
-@register_selector('stepwise')
+@register_selector('stepwise_r')
 def stepwise_selector(X: pd.DataFrame, 
                      y: pd.Series,
                      direction: str = 'backward',

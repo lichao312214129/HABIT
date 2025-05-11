@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple, Dict, Union
 from sklearn.linear_model import LassoCV, lasso_path
 from sklearn.preprocessing import StandardScaler
-from . import register_selector
+from .selector_registry import register_selector
 
 @register_selector('lasso')
 def lasso_selector(X: pd.DataFrame, 

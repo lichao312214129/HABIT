@@ -464,6 +464,8 @@ out_dir/
 5. The pipeline supports parallel processing for faster execution
 
 ## TODO list
-- * 用于聚类的特征提取增加一个计算体素的熵的方法
+- * 用于聚类的特征提取增加一个计算体素的熵的方法 FIXED
 - * 逐个调试讲课需要用到的图像预处理方法、特征提取方法、聚类方法、机器学习方法
+- * 用纯python实现逐步回归特征筛选. FIXED
 - 聚类的时候能否保存聚类模型，以便下次使用？
+- ** 解决了habitat_analysis.py中特征提取构造错误问题。以前create时只考虑了image,所以会导致这个情况出错：concat(raw(t1), local_entropy(t1))。因为image只有t1，所以最后只有一个特征。现在key改为method-image形式。

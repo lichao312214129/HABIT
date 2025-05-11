@@ -19,12 +19,11 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
     using PyRadiomics' voxel-based extraction
     """
     
-    def __init__(self, params_file: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize voxel-level radiomics feature extractor
         
         Args:
-            params_file: Path to PyRadiomics parameter file
             **kwargs: Additional parameters
         """
         super().__init__(**kwargs)
@@ -46,6 +45,9 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
         Args:
             image_data: Path to image file or SimpleITK image object
             mask_data: Path to mask file or SimpleITK mask object
+            **kwargs: Additional parameters
+                subj: subject name
+                img_name: Name of the image to append to feature names
             
         Returns:
             pd.DataFrame: Extracted voxel-level radiomics features
@@ -58,6 +60,11 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
                 raise FileNotFoundError(f"Image file not found: {image_data}")
         else:
             image = image_data
+
+        # Get image name
+        image_name = kwargs.get('img_name', None)
+        if image_name is None:
+            image_name = os.path.basename(image_data)
             
         # Load mask
         if isinstance(mask_data, str):
@@ -96,29 +103,14 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
             
             for key, val in six.iteritems(result):
                 if isinstance(val, sitk.Image):  # Feature map
-                    feature_names.append(key)
+                    # Append image name to feature name
+                    feature_name = f"{key}-{image_name}" if image_name else key
+                    feature_names.append(feature_name)
                     feature_array = sitk.GetArrayFromImage(val)
                     # Extract values none zero voxels
                     values = feature_array[feature_array > 0]
                     feature_matrix.append(values)
-            
-                # # 创建一个空image
-                # empty_image = sitk.Image(image.GetSize(), sitk.sitkFloat64)
-                # # 设置spacing
-                # empty_image.SetSpacing(image.GetSpacing())
-                # # 设置origin
-                # empty_image.SetOrigin(image.GetOrigin())
-
-                # # 设置array
-                # empty_image_array = sitk.GetArrayFromImage(empty_image)
-                # # 将values的值填充到empty_image中
-                # empty_image_array[mask_array > 0] = values
-                # # 将empty_image_array转换为sitk.Image
-                # empty_image = sitk.GetImageFromArray(empty_image_array)
-                # # 保存empty_image
-                # sitk.WriteImage(empty_image, "empty_image.nii.gz")
-            
-            
+        
             # Store feature names
             self.feature_names = feature_names
             

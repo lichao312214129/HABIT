@@ -20,25 +20,23 @@ Preprocessing:
 # Feature extraction settings
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     params:
-      params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
-      kernelRadius: 2
-      timestamps: F:\\work\\research\\radiomics_TLSs\\data\\scan_time_of_phases.xlsx
+      params_file: ./config/params_voxel_radiomics.yaml
+      kernelRadius: 3  # if voxel_radiomics is used, you can set another kernelRadius value
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    # method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file), supervoxel_radiomics(PVP, params_file), supervoxel_radiomics(delay_3min, params_file))
-    method: mean_voxel_features()
+    method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file))
     params:
-      params_file: ./config/parameter.yaml
+      params_file: ./config/params_supervoxel_radiomics.yaml
 
-  preprocessing:
+  preprocessing:  # Current only for voxel_level features, and populating the missing values with the mean of the feature
     methods:
-      - method: minmax
-        global_normalize: true
       - method: winsorize
         winsor_limits: [0.05, 0.05]
+        global_normalize: true
+      - method: minmax
         global_normalize: true
 
 # Habitat segmentation settings

@@ -18,7 +18,7 @@ except ImportError:
     print("Warning: scikit-feature package not available. mRMR selection will not be available.")
     print("You can install scikit-feature from GitHub: https://github.com/jundongl/scikit-feature")
 
-from . import register_selector
+from .selector_registry import register_selector
 
 @register_selector('mrmr')
 def mrmr_selector(

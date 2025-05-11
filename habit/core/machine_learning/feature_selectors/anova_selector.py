@@ -13,7 +13,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from . import register_selector
+from .selector_registry import register_selector
 
 @register_selector('anova')
 def anova_selector(

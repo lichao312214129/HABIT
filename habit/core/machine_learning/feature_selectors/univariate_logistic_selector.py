@@ -10,7 +10,8 @@ from typing import List, Dict, Tuple, Optional, Union
 import statsmodels.formula.api as smf
 from tqdm import tqdm
 from pathlib import Path
-from . import register_selector
+
+from .selector_registry import register_selector
 
 def detect_file_type(input_path: str) -> Optional[str]:
     """

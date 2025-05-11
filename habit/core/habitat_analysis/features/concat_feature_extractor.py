@@ -30,12 +30,13 @@ class ConcatImageFeatureExtractor(BaseFeatureExtractor):
         self.feature_extractor_name = feature_extractor_name
         self.feature_names = []
 
-    def extract_features(self, image_data: Dict[str, np.ndarray], **kwargs) -> pd.DataFrame:
+    def extract_features(self, image_data: List[Union[np.ndarray, pd.DataFrame]], **kwargs) -> pd.DataFrame:
         """
         Extract features from multiple images and concatenate them
         
         Args:
-            image_data: Dictionary of image data with keys as image names and values as 2D arrays [n_voxels, n_features]
+            image_data: List of image data, each element can be a numpy array [n_voxels, n_features] 
+                       or pandas DataFrame
             **kwargs: Additional parameters for feature extraction
             
         Returns:
@@ -44,15 +45,17 @@ class ConcatImageFeatureExtractor(BaseFeatureExtractor):
         if not image_data:
             raise ValueError("At least one image is required")
             
-        # Convert image_data dictionary to DataFrame
-        # Each key in the dictionary becomes a column in the DataFrame
+        # Convert image_data list to DataFrame
         image_df = pd.DataFrame()
-        for key, values in image_data.items():
+        for i, values in enumerate(image_data):
+            # Generate a key for naming features
+            key = f"img{i+1}"
+            
             # If values is already a DataFrame, use its column names
             if isinstance(values, pd.DataFrame):
                 # Add prefix to column names to identify the image source
-                renamed_cols = {col: f"{key}_{col}" for col in values.columns}
-                values = values.rename(columns=renamed_cols)
+                # renamed_cols = {col: f"{key}_{col}" for col in values.columns}
+                # values = values.rename(columns=renamed_cols)
                 image_df = pd.concat([image_df, values], axis=1)
             else:
                 # If values is a numpy array, convert to DataFrame with prefixed column name
@@ -63,13 +66,13 @@ class ConcatImageFeatureExtractor(BaseFeatureExtractor):
                 else:
                     # For 2D arrays, create multiple columns with prefixed names
                     n_cols = values.shape[1]
-                    col_names = [f"feature{i+1}_{key}" for i in range(n_cols)]
+                    col_names = [f"feature{j+1}_{key}" for j in range(n_cols)]
                     df = pd.DataFrame(values, columns=col_names)
                 image_df = pd.concat([image_df, df], axis=1)
         
         # Check if all images have the same number of voxels
         if image_df.empty:
-            raise ValueError("No valid data found in input dictionary")
+            raise ValueError("No valid data found in input list")
             
         # Update feature names
         self.feature_names = list(image_df.columns)

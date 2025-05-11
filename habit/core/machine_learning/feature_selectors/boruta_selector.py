@@ -21,7 +21,7 @@ except ImportError:
     print("Warning: Boruta package not available. Boruta selection will not be available.")
     print("You can install Boruta with: pip install Boruta")
 
-from . import register_selector
+from .selector_registry import register_selector
 
 @register_selector('boruta')
 def boruta_selector(

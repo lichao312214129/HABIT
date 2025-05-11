@@ -10,7 +10,7 @@ import seaborn as sns
 import os
 import json
 from typing import List, Optional, Tuple, Dict, Union
-from . import register_selector
+from .selector_registry import register_selector
 
 @register_selector('correlation')
 def correlation_selector(data: pd.DataFrame, 

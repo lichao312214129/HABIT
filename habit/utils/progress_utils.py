@@ -5,7 +5,6 @@ import os
 import sys
 import threading
 import time
-from contextlib import contextmanager
 
 class CustomTqdm:
     """
@@ -65,55 +64,3 @@ class CustomTqdm:
             if self.n >= self.total:
                 sys.stdout.write("\n")
                 sys.stdout.flush()
-
-def tqdm_with_message(iterable, desc: str = "Progress", total: int = None, unit: str = "it"):
-    """
-    Progress bar wrapper with message, returns a CustomTqdm instance
-    
-    Args:
-        iterable: Iterable object
-        desc (str): Progress bar description
-        total (int, optional): Total number of iterations, if None will be obtained from iterable
-        unit (str): Unit label
-        
-    Returns:
-        Iterator with progress bar
-    """
-    if total is None:
-        try:
-            total = len(iterable)
-        except (TypeError, AttributeError):
-            total = None
-            
-    progress_bar = CustomTqdm(total=total, desc=desc)
-    
-    for item in iterable:
-        yield item
-        progress_bar.update(1)
-
-@contextmanager
-def tqdm_context(total: int = None, desc: str = "Progress"):
-    """
-    Context manager for progress bar
-    
-    Usage:
-        with tqdm_context(total=10, desc="Processing") as pbar:
-            for i in range(10):
-                # do something
-                pbar.update(1)
-                
-    Args:
-        total (int, optional): Total number of iterations
-        desc (str): Progress bar description
-        
-    Returns:
-        CustomTqdm: Progress bar instance
-    """
-    progress_bar = CustomTqdm(total=total, desc=desc)
-    try:
-        yield progress_bar
-    finally:
-        # 确保进度条显示完整
-        if progress_bar.n < progress_bar.total:
-            progress_bar.n = progress_bar.total
-            progress_bar._print_progress() 

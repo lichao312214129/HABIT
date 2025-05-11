@@ -57,9 +57,15 @@ class SupervoxelRadiomicsExtractor(BaseFeatureExtractor):
         # Use config_file if provided, otherwise use the one from constructor
         params_file = config_file or self.params_file
         
+        # Get image name from kwargs or extract from path
+        img_name = kwargs.get('image', '')
+        if not img_name and isinstance(image_data, str):
+            img_name = os.path.basename(image_data).split('.')[0]
+        
         # 打印调试信息
         print(f"SupervoxelRadiomicsExtractor.extract_features called with:")
         print(f"  - params_file: {params_file}")
+        print(f"  - img_name: {img_name}")
         if isinstance(image_data, str):
             print(f"  - image_data: {image_data}")
         else:
@@ -134,6 +140,8 @@ class SupervoxelRadiomicsExtractor(BaseFeatureExtractor):
             
         # Initialize feature data storage
         feature_data = []
+        # Reset feature names to track the new names
+        self.feature_names = []
         
         # Extract features for each supervoxel
         for sv_idx, sv_label in enumerate(sv_labels):
@@ -154,10 +162,14 @@ class SupervoxelRadiomicsExtractor(BaseFeatureExtractor):
                 
                 for feature_name, feature_value in features.items():
                     if not feature_name.startswith('diagnostics_'):
+                        # Add image name to feature name
+                        new_feature_name = f"{feature_name}-{img_name}" if img_name else feature_name
+                        
                         # Add to feature names list on first iteration
-                        if sv_idx == 0 and feature_name not in self.feature_names:
-                            self.feature_names.append(feature_name)
-                        feature_row[feature_name] = feature_value
+                        if sv_idx == 0 and new_feature_name not in self.feature_names:
+                            self.feature_names.append(new_feature_name)
+                        
+                        feature_row[new_feature_name] = feature_value
                 
                 # Add row to data
                 feature_data.append(feature_row)

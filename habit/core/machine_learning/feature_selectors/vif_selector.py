@@ -10,7 +10,8 @@ import seaborn as sns
 import os
 from typing import List, Optional, Tuple, Dict, Union
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from . import register_selector
+
+from .selector_registry import register_selector
 
 @register_selector('vif')
 def vif_selector(X: pd.DataFrame, 

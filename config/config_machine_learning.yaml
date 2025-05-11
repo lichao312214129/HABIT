@@ -91,8 +91,9 @@ feature_selection_methods:
   # Stepwise Feature Selection method
   - method: 'stepwise'  # Performs step-by-step feature selection using AIC/BIC criteria
     params:
+      criterion: 'aic'  # Criterion for selection: 'aic', 'bic', or 'pvalue'
+      direction: 'forward'  # Direction of stepwise selection: 'forward', 'backward', or 'both'
       Rhome: 'E:/software/R'  # Path to R installation (required for stepwise selection)
-      direction: 'backward'  # Direction of stepwise selection: 'forward', 'backward', or 'both'
 
 # Model Configuration
 # Multiple models can be defined and will all be trained and evaluated

@@ -137,7 +137,38 @@ params:
 - 灰度大小区域矩阵(GLSZM)特征
 - 等等
 
-#### 3. concat - 特征连接
+#### 3. local_entropy - 局部熵特征
+
+计算每个体素周围区域的局部熵，作为组织异质性的度量。
+
+```yaml
+method: local_entropy(raw(image_name))
+params:
+  kernel_size: <局部区域大小>
+  bins: <直方图分箱数>
+```
+
+**参数说明：**
+- `kernel_size`: 局部区域的大小，表示体素周围的立方体边长（默认为3）
+- `bins`: 计算熵时使用的直方图分箱数（默认为32）
+
+**输出特征：**
+- `local_entropy`: 每个体素的局部熵值
+
+**示例：**
+```yaml
+method: concat(local_entropy(raw(PVP)), voxel_radiomics(raw(PVP)))
+params:
+  kernel_size: 5
+  bins: 32
+```
+
+**应用场景：**
+- 肿瘤异质性量化
+- 微环境复杂度分析
+- 组织边界和过渡区识别
+
+#### 4. concat - 特征连接
 
 连接多个特征提取方法的结果。
 
@@ -150,7 +181,7 @@ method: concat(method1(params), method2(params), ...)
 method: concat(voxel_radiomics(raw(pre_contrast)), voxel_radiomics(raw(PVP)))
 ```
 
-#### 4. raw - 原始图像数据
+#### 5. raw - 原始图像数据
 
 提取原始图像数据，通常作为其他方法的输入。
 
@@ -249,11 +280,13 @@ out_dir: your_output_dir
 # 特征提取设置
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: concat(kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps), local_entropy(raw(PVP)))
     params:
       params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
       kernelRadius: 2
       timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
+      kernel_size: 5
+      bins: 32
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'

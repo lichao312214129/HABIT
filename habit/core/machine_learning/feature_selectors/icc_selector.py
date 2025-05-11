@@ -13,7 +13,7 @@ import logging
 import argparse
 from itertools import product
 from typing import Dict, List, Tuple, Any, Union
-from . import register_selector
+from .selector_registry import register_selector
 
 # Logger configuration will be set in the main function to use the output path
 

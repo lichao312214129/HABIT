@@ -32,7 +32,7 @@ class RawFeatureExtractor(BaseFeatureExtractor):
 
     def extract_features(self, image_data: Union[str, sitk.Image],
                          mask_data: Union[str, sitk.Image],
-                         **_) -> np.ndarray:
+                         **kwargs) -> np.ndarray:
         """
         Extract raw voxel values from image within mask region
 
@@ -78,9 +78,9 @@ class RawFeatureExtractor(BaseFeatureExtractor):
             voxel_values = voxel_values.reshape(-1, 1)
 
         # to df
-        voxel_values = pd.DataFrame(voxel_values, columns=['raw_intensity'])
+        voxel_values = pd.DataFrame(voxel_values, columns=[f'raw-{kwargs["image"]}'])
 
-        self.feature_names = ['raw_intensity']  # 设置特征名称为 'raw_intensity'，表示提取的原始强度值
+        self.feature_names = [f'raw-{kwargs["image"]}']  # 设置特征名称为 'raw_intensity'，表示提取的原始强度值
         return voxel_values
     
     def get_feature_names(self) -> List[str]:
