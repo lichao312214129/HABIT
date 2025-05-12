@@ -275,7 +275,7 @@ out_dir: your_output_dir
 # 特征提取设置
 FeatureConstruction:
   voxel_level:
-    method: concat(kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps), local_entropy(raw(PVP)))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     params:
       params_voxel_radiomics: ./config/params_voxel_radiomics.yaml
       kernelRadius: 2
