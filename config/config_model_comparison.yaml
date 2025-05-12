@@ -2,40 +2,40 @@
 # This file configures the model comparison pipeline for evaluating and comparing multiple predictive models
 
 # Output Directory Configuration
-output_dir: "./results/model_comparison"  # Directory where all comparison results will be saved
+output_dir: ./results/model_comparison  # Directory where all comparison results will be saved
 
 # Model Prediction Files Configuration
 # Each entry defines a model's prediction file to be included in the comparison
 files_config:
-  - path: "F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml_clinical/all_prediction_results.csv"  # Path to CSV file containing model predictions
-    model_name: "ModelA"                        # Display name for the model in plots and reports
-    subject_id_col: "subjid"              # Column name containing subject identifiers
-    label_col: "true_label"               # Column name containing true outcome labels (0/1)
-    prob_col: "LogisticRegression_prob"   # Column name containing prediction probabilities
-    pred_col: "LogisticRegression_pred"  # 添加离散预测列
-    split_col: "split"                    # Column name indicating data split (e.g., "train" or "test")
+  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml_clinical/all_prediction_results.csv  # Path to CSV file containing model predictions
+    model_name: ModelA                        # Display name for the model in plots and reports
+    subject_id_col: subjid              # Column name containing subject identifiers
+    label_col: true_label               # Column name containing true outcome labels (0/1)
+    prob_col: LogisticRegression_prob   # Column name containing prediction probabilities
+    pred_col: LogisticRegression_pred  # 添加离散预测列
+    split_col: split                    # Column name indicating data split (e.g., train or test)
   
-  - path: "F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv"  # Path to CSV file containing model predictions
-    model_name: "ModelB"                        # Display name for the model in plots and reports
-    subject_id_col: "subjID"              # Column name containing subject identifiers
-    label_col: "true_label"               # Column name containing true outcome labels (0/1)
-    prob_col: "SVC_prob"                  # Column name containing prediction probabilities
-    pred_col: "SVC_pred"  # 添加离散预测列
-    split_col: "split"                    # Column name indicating data split (e.g., "train" or "test")
+  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv  # Path to CSV file containing model predictions
+    model_name: ModelB                        # Display name for the model in plots and reports
+    subject_id_col: subjID              # Column name containing subject identifiers
+    label_col: true_label               # Column name containing true outcome labels (0/1)
+    prob_col: SVC_prob                  # Column name containing prediction probabilities
+    pred_col: SVC_pred  # 添加离散预测列
+    split_col: split                    # Column name indicating data split (e.g., train or test)
   
-  - path: "F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv"  # Path to CSV file containing model predictions
-    model_name: "ModelC"                        # Display name for the model in plots and reports
-    subject_id_col: "subjID"              # Column name containing subject identifiers
-    label_col: "true_label"               # Column name containing true outcome labels (0/1)
-    prob_col: "XGBoost_prob"               # Column name containing prediction probabilities
-    pred_col: "XGBoost_pred"  # 添加离散预测列
-    split_col: "split"                    # Column name indicating data split (e.g., "train" or "test")
+  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv  # Path to CSV file containing model predictions
+    model_name: ModelC                        # Display name for the model in plots and reports
+    subject_id_col: subjID              # Column name containing subject identifiers
+    label_col: true_label               # Column name containing true outcome labels (0/1)
+    prob_col: XGBoost_prob               # Column name containing prediction probabilities
+    pred_col: XGBoost_pred  # 添加离散预测列
+    split_col: split                    # Column name indicating data split (e.g., train or test)
 
 # Merged Data Configuration
 # Controls how prediction data from different models is combined
 merged_data:
   enabled: true                           # Whether to merge predictions from different models into a single dataset
-  save_name: "combined_predictions.csv"   # Filename for the merged dataset if saved
+  save_name: combined_predictions.csv   # Filename for the merged dataset if saved
   
 # Split Configuration
 # Controls whether to analyze training and test sets separately
@@ -48,45 +48,45 @@ visualization:
   # ROC (Receiver Operating Characteristic) Curve Configuration
   roc:
     enabled: true                         # Whether to generate ROC curve plots
-    save_name: "roc_curves.pdf"           # Filename for the saved ROC curve plot
-    title: "ROC Curves Comparison"        # Title displayed on the ROC curve plot
+    save_name: roc_curves.pdf           # Filename for the saved ROC curve plot
+    title: ROC Curves Comparison        # Title displayed on the ROC curve plot
   
   # DCA (Decision Curve Analysis) Configuration
   dca:
     enabled: true                         # Whether to generate decision curve analysis plots
-    save_name: "decision_curves.pdf"      # Filename for the saved decision curve plot
-    title: "Decision Curve Analysis"      # Title displayed on the decision curve plot
+    save_name: decision_curves.pdf      # Filename for the saved decision curve plot
+    title: Decision Curve Analysis      # Title displayed on the decision curve plot
   
   # Calibration Curve Configuration
   calibration:
     enabled: true                         # Whether to generate calibration curve plots
-    save_name: "calibration_curves.pdf"   # Filename for the saved calibration plot
+    save_name: calibration_curves.pdf   # Filename for the saved calibration plot
     n_bins: 10                            # Number of bins to use for calibration curve calculation
-    title: "Calibration Curves"           # Title displayed on the calibration curve plot
+    title: Calibration Curves           # Title displayed on the calibration curve plot
   
   # Precision-Recall Curve Configuration
   pr_curve:
     enabled: true                         # Whether to generate precision-recall curve plots
-    save_name: "precision_recall_curves.pdf"  # Filename for the saved precision-recall curve plot
-    title: "Precision-Recall Curves"      # Title displayed on the precision-recall curve plot
+    save_name: precision_recall_curves.pdf  # Filename for the saved precision-recall curve plot
+    title: Precision-Recall Curves      # Title displayed on the precision-recall curve plot
 
 # DeLong Test Configuration
 # Controls statistical comparison between ROC curves using DeLong's test
 delong_test:
   enabled: true                           # Whether to perform DeLong's test for comparing AUCs
-  save_name: "delong_results.json"        # Filename for saving DeLong test results
+  save_name: delong_results.json        # Filename for saving DeLong test results
 
 # Metrics Configuration
 metrics:
   # Basic Metrics Configuration
   basic_metrics:
     enabled: true                           # Whether to calculate basic metrics
-    save_name: "basic_metrics.json"         # Filename for saving basic metrics
+    save_name: basic_metrics.json         # Filename for saving basic metrics
   
   # Youden Index Metrics Configuration
   youden_metrics:
     enabled: true                           # Whether to calculate Youden index metrics
-    save_name: "youden_metrics.json"         # Filename for saving Youden index metrics
+    save_name: youden_metrics.json         # Filename for saving Youden index metrics
   
   # Target Metrics Configuration
   target_metrics:
@@ -94,4 +94,4 @@ metrics:
     targets:                              # Target metrics to calculate
       sensitivity: 0.80                      # Sensitivity target
       specificity: 0.80                      # Specificity target
-    save_name: "target_metrics.json"         # Filename for saving target metrics
+    save_name: target_metrics.json         # Filename for saving target metrics
