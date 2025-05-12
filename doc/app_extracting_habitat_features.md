@@ -7,7 +7,7 @@
 ## 用法
 
 ```bash
-python scripts/app_extracting_habitat_features.py --config <config_file_path> [--debug]
+python scripts/app_extracting_habitat_features.py --config <config_file_path>
 ```
 
 ## 配置文件格式

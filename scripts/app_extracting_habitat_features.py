@@ -224,3 +224,5 @@ if __name__ == "__main__":
             '--config', './config/config_extract_features.yaml'
         ])
     main()
+
+    # python scripts/app_extracting_habitat_features.py --config ./config/config_extract_features.yaml

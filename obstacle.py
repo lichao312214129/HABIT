@@ -42,4 +42,4 @@ def simple_obfuscate_directory(source_dir, target_dir):
                 print(f"已复制: {source_file} -> {target_file}")
 
 # 使用示例
-simple_obfuscate_directory('habit_copy', 'habit_')
+simple_obfuscate_directory('habit', 'habit_dist')

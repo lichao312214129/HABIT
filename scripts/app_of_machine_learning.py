@@ -123,8 +123,7 @@ if __name__ == "__main__":
         #                  '--output', './results/'
         #                  ])
 
-    
     main()
     # Example command:
-    # python app_of_machine_learning.py --config config_machine_learning.yaml --mode predict --model ./results/model_package.pkl --data F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv --output ./results/
+    # python scripts/app_of_machine_learning.py --config ./config/config_machine_learning.yaml
 

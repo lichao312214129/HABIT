@@ -7,10 +7,10 @@
 ## 用法
 
 ```bash
-python scripts/app_image_preprocessing.py
+ython scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
 ```
 
-该脚本默认使用 `./config/config_kmeans.yaml` 作为配置文件。
+该脚本默认使用 `./config/config_image_preprocessing.yaml` 作为配置文件。
 
 ## 配置文件格式
 

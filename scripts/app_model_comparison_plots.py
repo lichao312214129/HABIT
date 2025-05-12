@@ -18,3 +18,5 @@ if __name__ == "__main__":
     args = parse_args()
     mc = ModelComparison(args.config)
     mc.run() 
+
+    # python scripts/app_model_comparison_plots.py --config ./config/config_model_comparison.yaml

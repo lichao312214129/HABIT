@@ -83,3 +83,5 @@ if __name__ == "__main__":
         else:
             config_path = sys.argv[1]
     main(config_path)
+
+    # python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml

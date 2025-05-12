@@ -7,14 +7,9 @@
 ## 用法
 
 ```bash
-python scripts/app_getting_habitat_map.py --config <config_file_path> [--debug]
+python scripts/app_getting_habitat_map.py --config <config_file_path>
 ```
 
-或者不指定参数，将弹出图形界面让用户选择配置文件：
-
-```bash
-python scripts/app_getting_habitat_map.py
-```
 
 ## 命令行参数
 
