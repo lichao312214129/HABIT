@@ -1,0 +1,109 @@
+2025-05-12 19:06:34,270 - ModelComparison - INFO - 成功添加split列到合并数据中: ['split']
+2025-05-12 19:06:34,270 - ModelComparison - INFO - 按照 split 列进行分组，识别到的分组：['train', 'test']
+2025-05-12 19:06:34,392 - ModelComparison - INFO - 成功添加split列到合并数据中: ['split']
+2025-05-12 19:06:34,393 - ModelComparison - INFO - 按照 split 列进行分组，识别到的分组：['train', 'test']
+2025-05-12 19:06:34,519 - ModelComparison - INFO - 成功添加split列到合并数据中: ['split']
+2025-05-12 19:06:34,522 - ModelComparison - INFO - 按照 split 列进行分组，识别到的分组：['train', 'test']
+2025-05-12 19:06:34,945 - ModelComparison - INFO - train组 ROC曲线已保存到 ./results/model_comparison\train\roc_curves.pdf
+2025-05-12 19:06:35,243 - ModelComparison - INFO - train组 决策曲线已保存到 ./results/model_comparison\train\decision_curves.pdf
+2025-05-12 19:06:35,488 - ModelComparison - INFO - train组 校准曲线已保存到 ./results/model_comparison\train\calibration_curves.pdf
+2025-05-12 19:06:35,735 - ModelComparison - INFO - train组 精确率-召回率曲线已保存到 ./results/model_comparison\train\precision_recall_curves.pdf
+2025-05-12 19:06:35,767 - ModelComparison - INFO - train组 DeLong检验结果已保存到 ./results/model_comparison\train\delong_results.json
+2025-05-12 19:06:35,767 - ModelComparison - INFO - 开始计算Youden指标...
+2025-05-12 19:06:35,767 - ModelComparison - INFO - 根据 split 分组计算Youden指数...
+2025-05-12 19:06:35,767 - ModelComparison - INFO - 使用训练集确定Youden指数最优阈值...
+2025-05-12 19:06:35,770 - ModelComparison - INFO - ModelA 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:35,770 - ModelComparison - INFO - 模型 ModelA Youden指数最优阈值: 0.464765327
+2025-05-12 19:06:35,777 - ModelComparison - INFO - ModelB 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:35,777 - ModelComparison - INFO - 模型 ModelB Youden指数最优阈值: 0.4790648065371409
+2025-05-12 19:06:35,777 - ModelComparison - INFO - ModelC 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:35,777 - ModelComparison - INFO - 模型 ModelC Youden指数最优阈值: 0.8287150859832764
+2025-05-12 19:06:35,777 - ModelComparison - INFO - 将Youden指数最优阈值应用到 train 数据集...
+2025-05-12 19:06:35,787 - ModelComparison - INFO - ModelA 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:35,791 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:35,796 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:35,797 - ModelComparison - INFO - 将Youden指数最优阈值应用到 test 数据集...
+2025-05-12 19:06:35,800 - ModelComparison - INFO - ModelA 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:35,805 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:35,808 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:35,811 - ModelComparison - INFO - 所有数据集的Youden指数评估完成
+2025-05-12 19:06:35,812 - ModelComparison - INFO - 开始计算目标指标...
+2025-05-12 19:06:35,812 - ModelComparison - INFO - 根据 split 分组计算目标指标阈值...
+2025-05-12 19:06:35,812 - ModelComparison - INFO - 使用训练集确定目标指标阈值...
+2025-05-12 19:06:35,840 - ModelComparison - INFO - ModelA 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:35,840 - ModelComparison - WARNING - 警告: ModelA 没有找到同时满足所有目标的阈值
+2025-05-12 19:06:35,859 - ModelComparison - INFO - ModelB 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:35,860 - ModelComparison - INFO - 模型 ModelB 同时满足所有目标的阈值: 0.6587576166740102
+2025-05-12 19:06:35,865 - ModelComparison - INFO - ModelC 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:35,866 - ModelComparison - INFO - 模型 ModelC 同时满足所有目标的阈值: 0.8287150859832764
+2025-05-12 19:06:35,866 - ModelComparison - INFO - 将目标指标阈值应用到 train 数据集...
+2025-05-12 19:06:35,866 - ModelComparison - WARNING - 警告: ModelA 测试集评估失败，没有找到训练集阈值
+2025-05-12 19:06:35,869 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:35,869 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:35,874 - ModelComparison - INFO - 将目标指标阈值应用到 test 数据集...
+2025-05-12 19:06:35,874 - ModelComparison - WARNING - 警告: ModelA 测试集评估失败，没有找到训练集阈值
+2025-05-12 19:06:35,878 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:35,881 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:35,881 - ModelComparison - INFO - 所有数据集的目标指标评估完成
+2025-05-12 19:06:36,124 - ModelComparison - INFO - test组 ROC曲线已保存到 ./results/model_comparison\test\roc_curves.pdf
+2025-05-12 19:06:36,384 - ModelComparison - INFO - test组 决策曲线已保存到 ./results/model_comparison\test\decision_curves.pdf
+2025-05-12 19:06:36,636 - ModelComparison - INFO - test组 校准曲线已保存到 ./results/model_comparison\test\calibration_curves.pdf
+2025-05-12 19:06:36,922 - ModelComparison - INFO - test组 精确率-召回率曲线已保存到 ./results/model_comparison\test\precision_recall_curves.pdf
+2025-05-12 19:06:36,949 - ModelComparison - INFO - test组 DeLong检验结果已保存到 ./results/model_comparison\test\delong_results.json
+2025-05-12 19:06:36,949 - ModelComparison - INFO - 开始计算Youden指标...
+2025-05-12 19:06:36,949 - ModelComparison - INFO - 根据 split 分组计算Youden指数...
+2025-05-12 19:06:36,950 - ModelComparison - INFO - 使用训练集确定Youden指数最优阈值...
+2025-05-12 19:06:36,954 - ModelComparison - INFO - ModelA 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:36,954 - ModelComparison - INFO - 模型 ModelA Youden指数最优阈值: 0.464765327
+2025-05-12 19:06:36,959 - ModelComparison - INFO - ModelB 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:36,959 - ModelComparison - INFO - 模型 ModelB Youden指数最优阈值: 0.4790648065371409
+2025-05-12 19:06:36,962 - ModelComparison - INFO - ModelC 训练集计算Youden指数，有效样本数: 300
+2025-05-12 19:06:36,963 - ModelComparison - INFO - 模型 ModelC Youden指数最优阈值: 0.8287150859832764
+2025-05-12 19:06:36,963 - ModelComparison - INFO - 将Youden指数最优阈值应用到 train 数据集...
+2025-05-12 19:06:36,966 - ModelComparison - INFO - ModelA 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:36,973 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:36,975 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:36,978 - ModelComparison - INFO - 将Youden指数最优阈值应用到 test 数据集...
+2025-05-12 19:06:36,983 - ModelComparison - INFO - ModelA 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:36,986 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:36,993 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:36,993 - ModelComparison - INFO - 所有数据集的Youden指数评估完成
+2025-05-12 19:06:36,993 - ModelComparison - INFO - 开始计算目标指标...
+2025-05-12 19:06:36,994 - ModelComparison - INFO - 根据 split 分组计算目标指标阈值...
+2025-05-12 19:06:36,994 - ModelComparison - INFO - 使用训练集确定目标指标阈值...
+2025-05-12 19:06:37,020 - ModelComparison - INFO - ModelA 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:37,020 - ModelComparison - WARNING - 警告: ModelA 没有找到同时满足所有目标的阈值
+2025-05-12 19:06:37,034 - ModelComparison - INFO - ModelB 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:37,034 - ModelComparison - INFO - 模型 ModelB 同时满足所有目标的阈值: 0.6587576166740102
+2025-05-12 19:06:37,039 - ModelComparison - INFO - ModelC 训练集计算目标指标，有效样本数: 300
+2025-05-12 19:06:37,039 - ModelComparison - INFO - 模型 ModelC 同时满足所有目标的阈值: 0.8287150859832764
+2025-05-12 19:06:37,040 - ModelComparison - INFO - 将目标指标阈值应用到 train 数据集...
+2025-05-12 19:06:37,040 - ModelComparison - WARNING - 警告: ModelA 测试集评估失败，没有找到训练集阈值
+2025-05-12 19:06:37,044 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:37,046 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 300
+2025-05-12 19:06:37,047 - ModelComparison - INFO - 将目标指标阈值应用到 test 数据集...
+2025-05-12 19:06:37,047 - ModelComparison - WARNING - 警告: ModelA 测试集评估失败，没有找到训练集阈值
+2025-05-12 19:06:37,049 - ModelComparison - INFO - ModelB 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:37,051 - ModelComparison - INFO - ModelC 测试集应用训练集阈值评估完成，有效样本数: 269
+2025-05-12 19:06:37,051 - ModelComparison - INFO - 所有数据集的目标指标评估完成
+2025-05-12 19:06:37,051 - ModelComparison - INFO - 开始计算所有数据集的基本指标...
+2025-05-12 19:06:37,051 - ModelComparison - INFO - 计算 train 数据集的基本指标...
+2025-05-12 19:06:37,057 - ModelComparison - INFO - ModelA (train组) 计算基本指标，有效样本数: 300
+2025-05-12 19:06:37,060 - ModelComparison - INFO - ModelB (train组) 计算基本指标，有效样本数: 300
+2025-05-12 19:06:37,064 - ModelComparison - INFO - ModelC (train组) 计算基本指标，有效样本数: 300
+2025-05-12 19:06:37,064 - ModelComparison - INFO - 计算 test 数据集的基本指标...
+2025-05-12 19:06:37,064 - ModelComparison - INFO - ModelA (test组) 计算基本指标，有效样本数: 269
+2025-05-12 19:06:37,071 - ModelComparison - INFO - ModelB (test组) 计算基本指标，有效样本数: 269
+2025-05-12 19:06:37,075 - ModelComparison - INFO - ModelC (test组) 计算基本指标，有效样本数: 269
+2025-05-12 19:06:37,075 - ModelComparison - INFO - 所有数据集的基本指标计算完成
+2025-05-12 19:06:37,077 - ModelComparison - INFO - 所有指标已保存到 ./results/model_comparison\metrics\metrics.json
+2025-05-12 19:06:37,078 - ModelComparison - INFO - 保存的指标分组数量: 2
+2025-05-12 19:06:37,078 - ModelComparison - INFO - 分组 train 中的模型数量: 3
+2025-05-12 19:06:37,078 - ModelComparison - INFO -   模型 ModelA 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
+2025-05-12 19:06:37,078 - ModelComparison - INFO -   模型 ModelB 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
+2025-05-12 19:06:37,079 - ModelComparison - INFO -   模型 ModelC 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
+2025-05-12 19:06:37,079 - ModelComparison - INFO - 分组 test 中的模型数量: 3
+2025-05-12 19:06:37,079 - ModelComparison - INFO -   模型 ModelA 的指标类型: youden_metrics, thresholds, basic_metrics
+2025-05-12 19:06:37,079 - ModelComparison - INFO -   模型 ModelB 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
+2025-05-12 19:06:37,080 - ModelComparison - INFO -   模型 ModelC 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
+2025-05-12 19:06:37,080 - ModelComparison - INFO - 评估完成！所有结果已保存到./results/model_comparison

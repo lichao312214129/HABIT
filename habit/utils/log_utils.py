@@ -26,10 +26,10 @@ class HABITLogger:
         log_dir = os.path.join(out_dir, "logs")
         os.makedirs(log_dir, exist_ok=True)
 
-        # Create file handler
+        # Create file handler with UTF-8 encoding
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = os.path.join(log_dir, f"habit_{timestamp}.log")
-        file_handler = logging.FileHandler(log_file)
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
         file_handler.setLevel(logging.INFO)
 
         # Create console handler

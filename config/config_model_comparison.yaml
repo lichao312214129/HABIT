@@ -92,6 +92,6 @@ metrics:
   target_metrics:
     enabled: true                           # Whether to calculate target metrics
     targets:                              # Target metrics to calculate
-      sensitivity: 0.9                      # Sensitivity target
-      specificity: 0.8                      # Specificity target
+      sensitivity: 0.80                      # Sensitivity target
+      specificity: 0.80                      # Specificity target
     save_name: "target_metrics.json"         # Filename for saving target metrics

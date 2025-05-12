@@ -115,3 +115,66 @@ def plot_feature_scores(feature_names: list, feature_scores: list, figsize: tupl
     plt.tight_layout()
     
     return fig, ax 
+
+def format_shap_data(X: np.ndarray, decimal_places: int = 2) -> np.ndarray:
+    """
+    Format SHAP feature data to reduce decimal places
+    
+    Args:
+        X (np.ndarray): Feature data, either a single instance or multiple instances
+        decimal_places (int): Number of decimal places to round to
+    
+    Returns:
+        np.ndarray: Formatted data with reduced decimal places
+    """
+    # Handle different input types
+    if isinstance(X, np.ndarray):
+        # Round numpy array
+        return np.round(X, decimal_places)
+    elif hasattr(X, 'values') and isinstance(X.values, np.ndarray):
+        # Handle pandas DataFrame
+        X.values = np.round(X.values, decimal_places)
+        return X
+    elif isinstance(X, list):
+        # Handle list of arrays
+        return [np.round(arr, decimal_places) if isinstance(arr, np.ndarray) else arr for arr in X]
+    
+    # Return original data if we don't know how to process it
+    return X
+
+def process_shap_explanation(shap_values, decimal_places: int = 2):
+    """
+    Process SHAP Explanation object to reduce decimal places in the display
+    
+    Args:
+        shap_values: SHAP values object, either from old or new API
+        decimal_places (int): Number of decimal places to round to
+    
+    Returns:
+        Processed SHAP values with reduced decimal places
+    """
+    # Handle different SHAP object types
+    try:
+        # Check if it's a newer Explanation object
+        if hasattr(shap_values, 'data') and isinstance(shap_values.data, np.ndarray):
+            # Use a manual deep copy approach instead of copy method
+            # Since Explanation object in newer versions might not have copy method
+            import copy
+            processed_values = copy.deepcopy(shap_values)
+            processed_values.data = np.round(processed_values.data, decimal_places)
+            if hasattr(processed_values, 'values') and isinstance(processed_values.values, np.ndarray):
+                processed_values.values = np.round(processed_values.values, decimal_places)
+            return processed_values
+        elif isinstance(shap_values, list):
+            # Handle list of arrays (common in older SHAP versions)
+            return [np.round(arr, decimal_places) if isinstance(arr, np.ndarray) else arr 
+                   for arr in shap_values]
+        elif isinstance(shap_values, np.ndarray):
+            # Handle numpy array directly
+            return np.round(shap_values, decimal_places)
+        else:
+            # If we can't process it, return the original
+            return shap_values
+    except Exception as e:
+        print(f"Warning: Failed to process SHAP values: {str(e)}")
+        return shap_values 

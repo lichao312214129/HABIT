@@ -85,43 +85,101 @@ def lasso_selector(X: pd.DataFrame,
     if visualize and outdir:
         os.makedirs(outdir, exist_ok=True)
         
+        # Set larger font sizes for all plots
+        plt.rcParams.update({'font.size': 14, 
+                             'axes.titlesize': 16, 
+                             'axes.labelsize': 14,
+                             'xtick.labelsize': 12,
+                             'ytick.labelsize': 12,
+                             'legend.fontsize': 12})
+        
         # Create Lasso path plot
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
         
         # First subplot: MSE path
         alphas = lasso_cv.alphas_
         mse_path = lasso_cv.mse_path_.mean(axis=1)
 
-        ax1.plot(alphas, mse_path, '-', label='Mean Squared Error')
-        ax1.axvline(best_alpha, color='r', linestyle='--', label=f'Optimal alpha = {best_alpha:.6f}')
+        ax1.plot(alphas, mse_path, '-', linewidth=2, label='Mean Squared Error')
+        ax1.axvline(best_alpha, color='r', linestyle='--', linewidth=2, label=f'Optimal alpha = {best_alpha:.6f}')
         ax1.set_xscale('log')
-        ax1.set_xlabel('alpha')
-        ax1.set_ylabel('Mean Squared Error')
-        ax1.set_title('Cross-validation MSE vs alpha')
-        ax1.legend()
+        ax1.set_xlabel('Alpha', fontsize=14)
+        ax1.set_ylabel('Mean Squared Error', fontsize=14)
+        ax1.set_title('Cross-validation MSE vs Alpha', fontsize=16)
+        ax1.legend(fontsize=12)
         ax1.grid(True)
         
         # Second subplot: Coefficient path
+        # Plot all features but with thin lines and no labels first
         for i, feature in enumerate(selected_features):
-            ax2.plot(alphas_path, coefs_path[i], label=feature if feature in selected else None)
+            ax2.plot(alphas_path, coefs_path[i], linewidth=0.7, alpha=0.4, color='gray')
         
-        # Highlight selected features
+        # Calculate feature importance at optimal alpha point
+        # Find the closest alpha in the path to our optimal alpha
+        optimal_idx = np.argmin(np.abs(alphas_path - best_alpha))
+        coefs_at_optimal = coefs_path[:, optimal_idx]
+        
+        # Create a dataframe with features and their importance
+        feature_importance_at_alpha = pd.DataFrame({
+            'feature': selected_features,
+            'coefficient': coefs_at_optimal
+        })
+        
+        # Sort by absolute coefficient value
+        feature_importance_at_alpha = feature_importance_at_alpha.reindex(
+            feature_importance_at_alpha['coefficient'].abs().sort_values(ascending=False).index
+        )
+        
+        # Get top N features to label (adjust this number based on your preference)
+        num_features_to_label = min(10, len(selected))  # Show at most 10 features
+        top_features = feature_importance_at_alpha['feature'].head(num_features_to_label).tolist()
+        
+        # Highlight and label selected top features
         for i, feature in enumerate(selected_features):
-            if feature in selected:
-                ax2.plot(alphas_path, coefs_path[i], linewidth=2)
+            if feature in top_features:
+                line, = ax2.plot(alphas_path, coefs_path[i], linewidth=2, label=feature)
         
-        ax2.axvline(best_alpha, color='r', linestyle='--')
+        # Add a legend for the number of features shown vs total
+        if len(selected) > num_features_to_label:
+            ax2.text(
+                0.02, 0.02, 
+                f'Showing top {num_features_to_label} of {len(selected)} selected features', 
+                transform=ax2.transAxes, 
+                fontsize=10, 
+                bbox=dict(facecolor='white', alpha=0.7)
+            )
+        
+        ax2.axvline(best_alpha, color='r', linestyle='--', linewidth=2)
         ax2.set_xscale('log')
-        ax2.set_xlabel('alpha')
-        ax2.set_ylabel('Coefficient')
-        ax2.set_title('Lasso Coefficient Path')
+        ax2.set_xlabel('Alpha', fontsize=14)
+        ax2.set_ylabel('Coefficient', fontsize=14)
+        ax2.set_title('Lasso Coefficient Path', fontsize=16)
         ax2.grid(True)
         
-        # Adjust layout
-        plt.tight_layout()
+        # Optimize legend layout
+        # Calculate number of columns based on number of features
+        n_cols = min(5, len(top_features))  # Maximum 5 columns
+        n_rows = (len(top_features) + n_cols - 1) // n_cols  # Ceiling division
+        
+        # Adjust figure size to accommodate legend
+        fig.set_size_inches(12, 12 + n_rows * 0.5)  # Increase height based on number of rows
+        
+        # Place legend at the bottom of the plot
+        ax2.legend(
+            bbox_to_anchor=(0.5, -0.15 - n_rows * 0.05),  # Position below the plot
+            loc='upper center',
+            borderaxespad=0.,
+            ncol=n_cols,
+            fontsize=10,
+            frameon=True,
+            framealpha=0.8
+        )
+        
+        # Adjust layout to make room for legend
+        plt.tight_layout(rect=[0, 0.1 + n_rows * 0.05, 1, 1])  # Leave space at bottom for legend
         
         # Save plot
-        plt.savefig(os.path.join(outdir, 'lasso_path.pdf'), bbox_inches='tight')
+        plt.savefig(os.path.join(outdir, 'lasso_path.pdf'), bbox_inches='tight', dpi=300)
         plt.close()
         
         # Save feature importance
@@ -129,7 +187,7 @@ def lasso_selector(X: pd.DataFrame,
         feature_importance.to_csv(os.path.join(outdir, 'lasso_feature_importance.csv'), index=False)
         
         # Create feature importance bar plot
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(14, 10))
         
         # Only show features with non-zero coefficients
         nonzero_features = feature_importance[feature_importance['coefficient'] != 0]
@@ -141,13 +199,66 @@ def lasso_selector(X: pd.DataFrame,
         colors = ['red' if c < 0 else 'blue' for c in nonzero_features['coefficient']]
         
         # Draw bar plot
-        plt.barh(nonzero_features['feature'], nonzero_features['coefficient'], color=colors)
+        bars = plt.barh(nonzero_features['feature'], nonzero_features['coefficient'], color=colors, height=0.7)
         plt.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
-        plt.xlabel('Coefficient')
-        plt.ylabel('Feature')
-        plt.title('Lasso Feature Importance (Red: negative coefficients, Blue: positive coefficients)')
-        plt.tight_layout()
+        plt.xlabel('Coefficient', fontsize=14)
+        plt.ylabel('Feature', fontsize=14)
+        plt.title('Lasso Feature Importance', fontsize=16)
+        
+        # Add a note about colors
+        plt.figtext(0.5, 0.01, 'Red: negative coefficients, Blue: positive coefficients', 
+                   ha='center', fontsize=12)
+        
+        # Adjust layout to ensure all feature names are visible
+        plt.tight_layout(rect=[0, 0.03, 1, 0.97])
+        
+        # Save with high resolution
         plt.savefig(os.path.join(outdir, 'lasso_feature_importance.png'), dpi=300, bbox_inches='tight')
         plt.close()
+        
+        # Create an additional interactive HTML plot for coefficient paths when there are many features
+        if len(selected) > 20:  # For datasets with many features
+            try:
+                import plotly.graph_objects as go
+                from plotly.subplots import make_subplots
+                
+                # Create plotly figure
+                fig = make_subplots(rows=1, cols=1)
+                
+                # Add traces for each feature
+                for i, feature in enumerate(selected_features):
+                    if feature in selected:  # Only plot selected features
+                        fig.add_trace(
+                            go.Scatter(
+                                x=alphas_path, 
+                                y=coefs_path[i], 
+                                name=feature,
+                                mode='lines',
+                                line=dict(width=2) if feature in top_features else dict(width=1, dash='dot')
+                            )
+                        )
+                
+                # Add vertical line for optimal alpha
+                fig.add_vline(x=best_alpha, line_dash="dash", line_color="red", 
+                             annotation_text=f"Optimal alpha = {best_alpha:.6f}",
+                             annotation_position="top right")
+                
+                # Update layout
+                fig.update_layout(
+                    title='Interactive Lasso Coefficient Path',
+                    xaxis_title='Alpha',
+                    yaxis_title='Coefficient',
+                    xaxis_type='log',
+                    legend_title='Features',
+                    hovermode='closest',
+                    width=1000,
+                    height=600
+                )
+                
+                # Save to HTML
+                fig.write_html(os.path.join(outdir, 'lasso_path_interactive.html'))
+                print(f"Created interactive coefficient path plot: {os.path.join(outdir, 'lasso_path_interactive.html')}")
+            except ImportError:
+                print("Plotly not installed. Skipping interactive plot creation.")
     
     return selected, best_alpha, alphas_path, coefs_path 

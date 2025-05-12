@@ -497,7 +497,7 @@ class Modeling:
                 print(f"Feature importance: {feature_importance}")
             
             # Plot SHAP values for each model
-            self.plotter.plot_shap(model, X_test, self.selected_features, save_name=os.path.join(self.output_dir, f'{model_name}_SHAP.pdf'))
+            self.plotter.plot_shap(model, X_test, self.selected_features, save_name=f'{model_name}_SHAP.pdf')  # save_name not used, only use .pdf suffix
         
         # Print performance table
         evaluator._print_performance_table(self.results)
