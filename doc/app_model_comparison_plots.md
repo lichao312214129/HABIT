@@ -39,6 +39,22 @@ files_config:
     prob_col: "prediction_probability"       # 包含预测概率的列名
     pred_col: "prediction_class"             # 包含离散预测的列名(可选)
     split_col: "split"                       # 指示数据分割的列名(例如"train"或"test")
+
+  - path: "path/to/model_b_predictions.csv"  # 包含模型预测的CSV文件路径
+    model_name: "ModelB"                     # 模型的显示名称
+    subject_id_col: "subjid"                 # 包含受试者标识符的列名
+    label_col: "true_label"                  # 包含真实结果标签的列名(0/1)
+    prob_col: "prediction_probability"       # 包含预测概率的列名
+    pred_col: "prediction_class"             # 包含离散预测的列名(可选)
+    split_col: "split"                       # 指示数据分割的列名(例如"train"或"test")
+
+  - path: "path/to/model_c_predictions.csv"  # 包含模型预测的CSV文件路径
+    model_name: "ModelC"                     # 模型的显示名称
+    subject_id_col: "subjid"                 # 包含受试者标识符的列名
+    label_col: "true_label"                  # 包含真实结果标签的列名(0/1)
+    prob_col: "prediction_probability"       # 包含预测概率的列名
+    pred_col: "prediction_class"             # 包含离散预测的列名(可选)
+    split_col: "split"                       # 指示数据分割的列名(例如"train"或"test")
 ```
 
 ### 合并数据配置
@@ -117,6 +133,7 @@ metrics:
     targets:                              # 要计算的目标指标
       sensitivity: 0.9                    # 敏感性目标
       specificity: 0.8                    # 特异性目标
+    save_name: "target_metrics.json"      # 保存目标指标的文件名
 ```
 
 ## 功能模块
