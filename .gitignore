@@ -1,0 +1,9 @@
+# Ignore specific file types
+*.csv
+*.pdf
+*.nii.gz
+*.nrrd
+obstacle.py
+
+# Ignore specific directories
+results/ 
