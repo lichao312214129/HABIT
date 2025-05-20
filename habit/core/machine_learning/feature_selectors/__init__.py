@@ -19,6 +19,7 @@ from .icc_selector import *
 from .lasso_selector import *
 from .mrmr_selector import *
 from .python_stepwise_selector import *
+from .rfecv_selector import *
 
 try:
     from .stepwise_selector import *

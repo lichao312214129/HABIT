@@ -9,14 +9,13 @@ input:
   # Each inner list represents a group of files to be analyzed together
   file_groups:
     - ["./results/all_prediction_results.csv", "./results/all_prediction_results.csv"]
-    - ["./results/all_prediction_results1.csv", "./results/all_prediction_results1.csv"]
   
   # Directory list configuration (used when type is 'directories')
   # The system will match same-named files across directories
-  dir_list:
-    - "path/to/dir1"
-    - "path/to/dir2"
-    - "path/to/dir3"
+  # dir_list:
+  #   - "path/to/dir1"
+  #   - "path/to/dir2"
+  #   - "path/to/dir3"
 
 # Output configuration
 output:
