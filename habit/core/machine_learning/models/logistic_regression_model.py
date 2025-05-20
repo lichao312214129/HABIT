@@ -14,6 +14,16 @@ from .factory import ModelFactory
 class LogisticRegressionModel(BaseModel):
     """Wrapper for sklearn's LogisticRegression model"""
     
+    @property
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+        
+        Returns:
+            str: Model type ('linear' for Logistic Regression)
+        """
+        return 'linear'
+    
     def __init__(self, config: Dict[str, Any]):
         """
         Initialize the model

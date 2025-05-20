@@ -5,18 +5,37 @@ import traceback
 import logging
 import multiprocessing
 import argparse
+import yaml
 from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
-# 设置日志记录
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("preprocessing_debug.log", mode='w'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("app_preprocessing")
+def setup_logging(config_path):
+    """
+    Setup logging configuration
+    
+    Args:
+        config_path (str): Path to the configuration file
+    """
+    # Read config file to get output directory
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    out_dir = config.get('out_dir', os.getcwd())
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(out_dir, exist_ok=True)
+    
+    # Setup logging
+    log_file = os.path.join(out_dir, "preprocessing_debug.log")
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, mode='w'),
+            logging.StreamHandler()
+        ]
+    )
+    logger = logging.getLogger("app_preprocessing")
+    logger.info(f"Log file saved to: {log_file}")
+    return logger
 
 def parse_args():
     """
@@ -34,6 +53,9 @@ def parse_args():
 
 def main(config_path):
     try:
+        # Setup logging
+        logger = setup_logging(config_path)
+        
         # 记录系统信息
         logger.info(f"Python version: {sys.version}")
         logger.info(f"Platform: {platform.platform()}")

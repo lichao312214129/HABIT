@@ -9,6 +9,7 @@ from .logistic_regression_model import LogisticRegressionModel
 from .random_forest_model import RandomForestModel
 from .svm_model import SVMModel
 from .xgboost_model import XGBoostModel
+# from .autogluon_model import AutoGluonTabularModel
 
 __all__ = [
     'BaseModel',
@@ -16,5 +17,6 @@ __all__ = [
     'LogisticRegressionModel',
     'RandomForestModel',
     'SVMModel',
-    'XGBoostModel'
+    'XGBoostModel',
+    # 'AutoGluonTabularModel'
 ]

@@ -5,10 +5,12 @@ supervoxel clustering, and habitat clustering. It supports various feature extra
 and clustering algorithms for comprehensive habitat analysis.
 """
 
-
 import sys  
 import tkinter as tk
 import argparse
+import logging
+from datetime import datetime
+from pathlib import Path
 from tkinter import filedialog, messagebox, BooleanVar, Checkbutton
 from habit.core.habitat_analysis import HabitatAnalysis
 from habit.utils.io_utils import load_config
@@ -131,6 +133,58 @@ def show_config_dialog(config_file):
     return result["config"], result["debug"]
 
 
+def setup_logger(name: str, log_dir: str = None, level: int = logging.INFO) -> logging.Logger:
+    """
+    Set up and configure a logger instance.
+    
+    Args:
+        name (str): Name of the logger
+        log_dir (str, optional): Directory to store log files. If None, logs will only be printed to console
+        level (int, optional): Logging level. Defaults to logging.INFO
+        
+    Returns:
+        logging.Logger: Configured logger instance
+    """
+    # Create logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    
+    # Clear any existing handlers
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    # Create formatters
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler (if log_dir is provided)
+    if log_dir:
+        # Create log directory if it doesn't exist
+        log_path = Path(log_dir)
+        log_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create log file with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = log_path / f"{name}_{timestamp}.log"
+        
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+    
+    return logger
+
 def main() -> None:
     """
     Main function to run habitat analysis pipeline
@@ -148,17 +202,24 @@ def main() -> None:
     config_file = args.config
     debug_mode = args.debug
     
+    # Initialize logger
+    logger = setup_logger(
+        name="habitat_analysis",
+        log_dir="./logs" if not debug_mode else None,
+        level=logging.DEBUG if debug_mode else logging.INFO
+    )
+    
     # If no configuration file specified in command line, use GUI selection
     if not config_file:
         config_file = select_config_file()
         if not config_file:
-            print("No configuration file selected, program exiting")
+            logger.error("No configuration file selected, program exiting")
             return
         
         # If configuration file selected via GUI, confirm configuration through GUI
         config, gui_debug_mode = show_config_dialog(config_file)
         if not config:
-            print("Configuration cancelled, program exiting")
+            logger.error("Configuration cancelled, program exiting")
             return
         # If debug mode not specified in command line, use GUI setting
         if not debug_mode:
@@ -168,12 +229,12 @@ def main() -> None:
         try:
             config = load_config(config_file)
         except Exception as e:
-            print(f"Configuration load error: {str(e)}")
+            logger.error(f"Configuration load error: {str(e)}")
             return
     
     # Display registered feature extractors and clustering algorithms
-    print("Registered feature extractors:", get_available_feature_extractors())
-    print("Registered clustering algorithms:", get_available_clustering_algorithms())
+    logger.info("Registered feature extractors: %s", get_available_feature_extractors())
+    logger.info("Registered clustering algorithms: %s", get_available_clustering_algorithms())
     
     # Set basic parameters
     data_dir = config.get('data_dir')
@@ -204,24 +265,27 @@ def main() -> None:
     if best_n_clusters is not None and str(best_n_clusters).isdigit():
         best_n_clusters = int(best_n_clusters)
     
+    # Get mode parameter - either 'training' or 'testing'
+    mode = habitat_config.get('mode', 'training')
     
-    # Print parameters
-    print("==== Habitat Clustering Parameters ====")
-    print(f"Config file: {config_file}")
-    print(f"Data directory: {data_dir}")
-    print(f"Output folder: {out_dir}")
-    print(f"Feature configuration: {feature_config}")
-    print(f"Supervoxel method: {supervoxel_method}")
-    print(f"Supervoxel clusters: {n_clusters_supervoxel}")
-    print(f"Habitat method: {habitat_method}")
-    print(f"Maximum habitat clusters: {n_clusters_habitats_max}")
-    print(f"Habitat cluster selection method: {habitat_cluster_selection_method}")
-    print(f"Best number of clusters (if specified): {best_n_clusters}")
-    print(f"Number of processes: {n_processes}")
-    print(f"Generate plots: {plot_curves}")
-    print(f"Random seed: {random_state}")
-    print(f"Debug mode: {debug_mode}")
-    print("=========================")
+    # Log parameters
+    logger.info("==== Habitat Clustering Parameters ====")
+    logger.info("Config file: %s", config_file)
+    logger.info("Data directory: %s", data_dir)
+    logger.info("Output folder: %s", out_dir)
+    logger.info("Feature configuration: %s", feature_config)
+    logger.info("Supervoxel method: %s", supervoxel_method)
+    logger.info("Supervoxel clusters: %d", n_clusters_supervoxel)
+    logger.info("Habitat method: %s", habitat_method)
+    logger.info("Maximum habitat clusters: %d", n_clusters_habitats_max)
+    logger.info("Habitat cluster selection method: %s", habitat_cluster_selection_method)
+    logger.info("Best number of clusters (if specified): %s", best_n_clusters)
+    logger.info("Mode: %s", mode)
+    logger.info("Number of processes: %d", n_processes)
+    logger.info("Generate plots: %s", plot_curves)
+    logger.info("Random seed: %d", random_state)
+    logger.info("Debug mode: %s", debug_mode)
+    logger.info("=========================")
     
     # Create and run HabitatAnalysis
     habitat_analysis = HabitatAnalysis(
@@ -235,27 +299,34 @@ def main() -> None:
         n_clusters_habitats_min=n_clusters_habitats_min,
         habitat_cluster_selection_method=habitat_cluster_selection_method,
         best_n_clusters=best_n_clusters,
+        mode=mode,
         n_processes=n_processes,
         plot_curves=plot_curves,
         random_state=random_state
     )
     
-    habitat_analysis.run()
+    try:
+        habitat_analysis.run()
+        logger.info("Habitat analysis completed successfully")
+    except Exception as e:
+        logger.error("Error during habitat analysis: %s", str(e))
+        raise
 
 
 if __name__ == "__main__":
     # 如果没有命令行参数，添加默认的调试用参数
-    # if len(sys.argv) == 1:
-    #     # 添加默认的配置文件路径，方便调试
-    #     sys.argv.extend(["--config", "./config/config_getting_habitat.yaml", "--debug"])
-    #     print(f"调试模式：使用默认配置文件 'config_getting_habitat.yaml'")
+    if len(sys.argv) == 1:
+        # 添加默认的配置文件路径，方便调试
+        sys.argv.extend(["--config", "./config/config_getting_habitat.yaml", "--debug"])
+        print(f"调试模式：使用默认配置文件 'config_getting_habitat.yaml'")
     
     try:
         main()
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger = setup_logger("habitat_analysis", level=logging.ERROR)
+        logger.error("Fatal error: %s", str(e))
         import traceback
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
         sys.exit(1) 
 
     # python scripts/app_getting_habitat_map.py --config ./config/config_getting_habitat.yaml

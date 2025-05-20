@@ -48,7 +48,7 @@ class ImageConverter:
         """Convert torch tensor to numpy array.
         
         Args:
-            tensor (torch.Tensor): Input tensor (MONAI format: [C,Z,Y,X] or [C,H,W]).
+            tensor (torch.Tensor): Input tensor in format [C,Z,Y,X] or [C,H,W].
             
         Returns:
             np.ndarray: Numpy array with channel dimension removed if single channel.

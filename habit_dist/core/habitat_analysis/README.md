@@ -42,6 +42,41 @@ habitat_analysis/
     └── config_utils.py     # 配置工具函数
 ```
 
+## 接受的数据结构
+```
+The data structure is as follows:
+dataset/
+├── images/
+│   ├── subj001/
+│   │   ├── img1
+|   |   |   ├── img.nii.gz (OR img.nrrd)
+│   │   ├── img2
+|   |   |   ├── img.nii.gz (OR img.nrrd)
+│   ├── subj002/
+│   │   ├── img1
+|   |   |   ├── img.nii.gz (OR img.nrrd)
+│   │   ├── img2
+|   |   |   ├── img.nii.gz (OR img.nrrd)
+├── masks/
+│   ├── subj001/
+│   │   ├── img1
+|   |   |   ├── mask.nii.gz (OR mask.nrrd)
+│   │   ├── img2
+|   |   |   ├── mask.nii.gz (OR mask.nrrd)
+│   ├── subj002/
+│   │   ├── img1
+|   |   |   ├── mask.nii.gz (OR mask.nrrd)
+│   │   ├── img2
+|   |   |   ├── mask.nii.gz (OR mask.nrrd)
+```
+
+## 输出数据结构
+```
+habitats_map/
+├──subj001_habitats.nrrd
+├──subj002_habitats.nrrd
+```
+
 ## 使用方法
 
 ### 命令行使用

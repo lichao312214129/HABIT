@@ -1,18 +1,30 @@
 """
 SVM Model
 
-Wrapper for sklearn's SVC model
+Wrapper for sklearn's LinearSVC model for faster training
 """
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
+from sklearn.calibration import CalibratedClassifierCV
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
 from .base import BaseModel
 from .factory import ModelFactory
+from scipy.special import expit  # sigmoid function
 
 @ModelFactory.register('SVM')
 class SVMModel(BaseModel):
-    """Wrapper for sklearn's SVC model"""
+    """Wrapper for sklearn's LinearSVC model with probability calibration"""
+    
+    @property
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+        
+        Returns:
+            str: Model type ('linear' for Linear SVM)
+        """
+        return 'linear'
     
     def __init__(self, config: Dict[str, Any]):
         """
@@ -26,17 +38,15 @@ class SVMModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', {})
         
-        # Create model with parameters
-        self.model = SVC(
+        # Create base model with parameters
+        self.model = LinearSVC(
             C=params.get('C', 1.0),
-            kernel=params.get('kernel', 'rbf'),
-            degree=params.get('degree', 3),
-            gamma=params.get('gamma', 'scale'),
-            probability=params.get('probability', True),
-            random_state=params.get('random_state', 42),
             class_weight=params.get('class_weight', None),
-            **{k: v for k, v in params.items() if k not in ['C', 'kernel', 'degree', 'gamma', 'probability', 'random_state', 'class_weight']}
+            random_state=params.get('random_state', 42),
+            max_iter=params.get('max_iter', 1000),
+            **{k: v for k, v in params.items() if k not in ['C', 'class_weight', 'random_state', 'max_iter']}
         )
+        
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
              y: Union[pd.Series, np.ndarray]) -> None:
@@ -54,6 +64,9 @@ class SVMModel(BaseModel):
         # Train the model
         self.model.fit(X, y)
         
+        # Store classes
+        self.classes_ = np.unique(y)
+        
     def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
         Make predictions
@@ -70,24 +83,31 @@ class SVMModel(BaseModel):
         
     def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
-        Get prediction probabilities
+        Get prediction probabilities using the decision function values
         
         Args:
             X: Features
             
         Returns:
-            np.ndarray: Predicted probabilities for positive class
+            np.ndarray: Predicted probabilities for each class
         """
         if self.model is None:
             raise ValueError("Model not trained. Call train() first.")
-            
-        # Check if probability=True was set during initialization
-        if not hasattr(self.model, 'predict_proba'):
-            # Use decision function and convert to probability
-            decision_values = self.model.decision_function(X)
-            return 1 / (1 + np.exp(-decision_values))
-            
-        return self.model.predict_proba(X)
+        
+        # Get decision function values
+        decision_values = self.model.decision_function(X)
+        
+        # For binary classification
+        if len(self.classes_) == 2:
+            # Convert to probabilities using sigmoid function
+            proba = expit(decision_values)
+            # Return probabilities for both classes
+            return np.vstack([1 - proba, proba]).T
+        else:
+            # For multi-class, use softmax on decision values
+            # Subtract max for numerical stability
+            exp_decision = np.exp(decision_values - np.max(decision_values, axis=1, keepdims=True))
+            return exp_decision / np.sum(exp_decision, axis=1, keepdims=True)
         
     def get_feature_importance(self) -> Dict[str, float]:
         """
@@ -99,17 +119,19 @@ class SVMModel(BaseModel):
         if self.model is None:
             raise ValueError("Model not trained. Call train() first.")
             
-        # For linear SVM, coefficients can be used as feature importance
-        if hasattr(self.model, 'coef_') and self.model.kernel == 'linear':
-            # Get feature names
-            feature_names = self.feature_names or [f"feature_{i}" for i in range(self.model.coef_.shape[1])]
+        try:
+            # Get coefficients from the model
+            if len(self.classes_) == 2:
+                coef = self.model.coef_[0]
+            else:
+                # For multiclass, average the coefficients across classes
+                coef = np.mean(self.model.coef_, axis=0)
             
-            # Get coefficients
-            coef = self.model.coef_[0]
+            # Get feature names
+            feature_names = self.feature_names or [f"feature_{i}" for i in range(len(coef))]
             
             # Return as dictionary
             return dict(zip(feature_names, coef))
-        
-        # For non-linear SVM, there's no direct feature importance
-        # We could implement permutation importance or other methods here
-        return {} 
+        except AttributeError:
+            # If we can't get coefficients, return empty dict
+            return {} 

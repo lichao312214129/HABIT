@@ -18,6 +18,16 @@ class RandomForestModel(BaseModel):
     This class implements a Random Forest classifier with configurable parameters
     """
     
+    @property
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+        
+        Returns:
+            str: Model type ('tree' for Random Forest)
+        """
+        return 'tree'
+    
     def __init__(self, config: Dict[str, Any] = None):
         """
         Initialize Random Forest model

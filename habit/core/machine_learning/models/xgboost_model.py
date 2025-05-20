@@ -14,6 +14,16 @@ from .factory import ModelFactory
 class XGBoostModel(BaseModel):
     """Wrapper for XGBoost model"""
     
+    @property
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+        
+        Returns:
+            str: Model type ('tree' for XGBoost)
+        """
+        return 'tree'
+    
     def __init__(self, config: Dict[str, Any]):
         """
         Initialize the model

@@ -4,33 +4,33 @@
 # Data Input Configuration
 # Multiple input files can be specified for model ensemble or feature combination
 input:
-  - path: ./ml_data/breast_cancer_dataset.csv  # Path to the input data file (CSV format)
+  - path: ./ml_data/merged_data.csv  # Path to the input data file (CSV format)
     name:   # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
     subject_id_col: subjID  # Column name containing subject identifiers (must be unique for each subject)
     label_col: label  # Column name containing target labels (0/1 for binary classification)
     features: # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
   
-  # Example of additional input file configuration (commented out)
-  - path: ./ml_data/clinical_feature.csv
-    name: clinical_  # Prefix clinical_ will be added to all features from this file
-    subject_id_col: subjID  # Column name for subject ID in this file
-    label_col: label  # Column name for the target variable in this file
-    features: [AFP,PLT,BMI]  # Only use the LogisticRegression_prob column as a feature
+  # # Example of additional input file configuration (commented out)
+  # - path: ./ml_data/clinical_feature.csv
+  #   name: clinical_  # Prefix clinical_ will be added to all features from this file
+  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   label_col: label  # Column name for the target variable in this file
+  #   features: [AFP,PLT,BMI]  # Only use the LogisticRegression_prob column as a feature
 
 # Output Directory Configuration
 output: results  # Directory where all results will be saved (models, plots, statistics)
 
 # Data Splitting Configuration
 # Options: random (completely random split), stratified (preserves class distribution), custom (user-defined splits)
-split_method: custom  # Method used to split data into training and testing sets
+split_method: stratified  # Method used to split data into training and testing sets
 
 # The following parameters are used when split_method is random or stratified (currently commented out)
-# test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
-# random_state: 42  # Seed for random number generator to ensure reproducible splits
+test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
+random_state: 42  # Seed for random number generator to ensure reproducible splits
 
 # The following parameters are used when split_method is custom
-train_ids_file: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/train_ids.txt  # File containing IDs for training set (one ID per line)
-test_ids_file: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
+# train_ids_file: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/train_ids.txt  # File containing IDs for training set (one ID per line)
+# test_ids_file: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
 
 # Feature Selection Configuration
 # Multiple feature selection methods can be applied sequentially
@@ -43,10 +43,10 @@ feature_selection_methods:
   #     threshold: 0.75  # Minimum ICC value required to retain a feature (0.0-1.0)
 
   # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
-  # - method: vif  # Removes features with high multicollinearity
-  #   params:
-  #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
-  #     visualize: false  # Whether to generate visualization of VIF values
+  - method: vif  # Removes features with high multicollinearity
+    params:
+      max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
+      visualize: false  # Whether to generate visualization of VIF values
 
   # Correlation method - removes highly correlated features
   - method: correlation
@@ -62,12 +62,12 @@ feature_selection_methods:
   #     plot_importance: true  # Whether to plot feature importance
 
   # LASSO (L1 regularization) method - selects features using L1 regularization
-  - method: lasso  # Selects features using L1 regularization
-    params:
-      cv: 5  # Number of cross-validation folds for selecting optimal alpha
-      n_alphas: 100  # Number of alpha values to try
-      random_state: 42  # Random seed for reproducibility
-      visualize: true  # Whether to generate visualization of feature coefficients
+  # - method: lasso  # Selects features using L1 regularization
+  #   params:
+  #     cv: 5  # Number of cross-validation folds for selecting optimal alpha
+  #     n_alphas: 100  # Number of alpha values to try
+  #     random_state: 42  # Random seed for reproducibility
+  #     visualize: true  # Whether to generate visualization of feature coefficients
 
   # Boruta method - all-relevant feature selection based on Random Forest importance
   # - method: boruta
@@ -93,7 +93,6 @@ feature_selection_methods:
     params:
       criterion: aic  # Criterion for selection: aic, bic, or pvalue
       direction: forward  # Direction of stepwise selection: forward, backward, or both
-      Rhome: E:/software/R  # Path to R installation (required for stepwise selection)
 
 # Model Configuration
 # Multiple models can be defined and will all be trained and evaluated
@@ -108,25 +107,21 @@ models:
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   
   # Support Vector Machine configuration
-  # SVM:  # Model type: Support Vector Machine classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     probability: true  # Whether to enable probability estimates (required for ROC curves)
-  #     kernel: "linear"  # Kernel type: linear, poly, rbf, sigmoid
-  #     C: 1.0  # Regularization parameter (larger values = less regularization)
-  #     gamma: "scale"  # Kernel coefficient for rbf, poly and sigmoid kernels
-  
+  SVM:  # Model type: Support Vector Machine classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+
   # XGBoost configuration
-  # XGBoost:  # Model type: Gradient Boosting classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 100  # Number of boosting stages/trees to build
-  #     max_depth: 3  # Maximum tree depth
-  #     learning_rate: 0.1  # Boosting learning rate
-  #     subsample: 0.8  # Fraction of samples used for fitting trees
-  #     colsample_bytree: 0.8  # Fraction of features used per tree
-  #     objective: "binary:logistic"  # Objective function for optimization
-  #     eval_metric: "logloss"  # Evaluation metric during training
+  XGBoost:  # Model type: Gradient Boosting classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+      n_estimators: 100  # Number of boosting stages/trees to build
+      max_depth: 3  # Maximum tree depth
+      learning_rate: 0.1  # Boosting learning rate
+      subsample: 0.8  # Fraction of samples used for fitting trees
+      colsample_bytree: 0.8  # Fraction of features used per tree
+      objective: "binary:logistic"  # Objective function for optimization
+      eval_metric: "logloss"  # Evaluation metric during training
 
 # Visualization and Saving Configuration
 is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)

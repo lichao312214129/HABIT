@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Union, List
 import torch
-from monai.transforms import Transform
 
-class BasePreprocessor(Transform, ABC):
+class BasePreprocessor(ABC):
     """Base class for all image preprocessors in HABIT.
     
     This class defines the basic interface that all preprocessors must implement.
-    It inherits from MONAI's Transform to ensure compatibility with MONAI's Compose.
     """
     
     def __init__(self, keys: Union[str, List[str]], allow_missing_keys: bool = False):
@@ -17,7 +15,6 @@ class BasePreprocessor(Transform, ABC):
             keys (Union[str, List[str]]): Keys of the corresponding items to be transformed.
             allow_missing_keys (bool): If True, allows missing keys in the input data.
         """
-        super().__init__()
         self.keys = [keys] if isinstance(keys, str) else keys
         self.allow_missing_keys = allow_missing_keys
 

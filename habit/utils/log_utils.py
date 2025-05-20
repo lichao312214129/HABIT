@@ -1,75 +1,81 @@
 """
-Logging utility module for HABIT
+Logging utility module for HABIT project.
+This module provides centralized logging configuration and utilities.
 """
 
-import os
 import logging
+import os
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
 
-class HABITLogger:
+def setup_logger(name: str, log_dir: str = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Custom logger for HABIT project
-    """
-    def __init__(self, out_dir: str, name: str = "HABIT"):
-        """
-        Initialize logger
-
-        Args:
-            out_dir (str): Output directory for log files
-            name (str): Logger name
-        """
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.INFO)
-
-        # Create logs directory if it doesn't exist
-        log_dir = os.path.join(out_dir, "logs")
-        os.makedirs(log_dir, exist_ok=True)
-
-        # Create file handler with UTF-8 encoding
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = os.path.join(log_dir, f"habit_{timestamp}.log")
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
-        file_handler.setLevel(logging.INFO)
-
-        # Create console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
-
-        # Add handlers to logger
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
-
-    def info(self, message: str):
-        """Log info message"""
-        self.logger.info(message)
-
-    def warning(self, message: str):
-        """Log warning message"""
-        self.logger.warning(message)
-
-    def error(self, message: str):
-        """Log error message"""
-        self.logger.error(message)
-
-    def debug(self, message: str):
-        """Log debug message"""
-        self.logger.debug(message)
-
-def get_logger(out_dir: str, name: Optional[str] = None) -> HABITLogger:
-    """
-    Get or create a logger instance
-
+    Set up and configure a logger instance.
+    
     Args:
-        out_dir (str): Output directory for log files
-        name (str, optional): Logger name. If None, uses default name "HABIT"
-
+        name (str): Name of the logger
+        log_dir (str, optional): Directory to store log files. If None, logs will only be printed to console
+        level (int, optional): Logging level. Defaults to logging.INFO
+        
     Returns:
-        HABITLogger: Logger instance
+        logging.Logger: Configured logger instance
     """
-    return HABITLogger(out_dir, name or "HABIT") 
+    # Create logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    
+    # Clear any existing handlers
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    # Create formatters
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler (if log_dir is provided)
+    if log_dir:
+        # Create log directory if it doesn't exist
+        log_path = Path(log_dir)
+        log_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create log file with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = log_path / f"{name}_{timestamp}.log"
+        
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+    
+    return logger 
+
+def setup_output_logger(output_dir: str, name: str, level: int = logging.INFO) -> logging.Logger:
+    """
+    Set up and configure a logger instance for output results.
+    This logger will save log files to a 'logs' subdirectory in the specified output directory.
+    
+    Args:
+        output_dir (str): Directory where results are being saved
+        name (str): Name of the logger
+        level (int, optional): Logging level. Defaults to logging.INFO
+        
+    Returns:
+        logging.Logger: Configured logger instance
+    """
+    # Create logs directory within output directory
+    logs_dir = os.path.join(output_dir, 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
+    
+    # Use the existing setup_logger function with the logs directory
+    return setup_logger(name, log_dir=logs_dir, level=level) 

@@ -17,7 +17,7 @@ from habit.core.machine_learning.evaluation.metrics import (
     apply_youden_threshold,
     apply_target_threshold
 )
-from habit.utils.log_utils import get_logger
+from habit.utils.log_utils import setup_output_logger
 
 class ModelComparison:
     """
@@ -39,7 +39,7 @@ class ModelComparison:
         os.makedirs(self.output_dir, exist_ok=True)
         
         # 初始化logger
-        self.logger = get_logger(self.output_dir, "ModelComparison")
+        self.logger = setup_output_logger(self.output_dir, "ModelComparison")
         
         # 初始化评估器
         self.evaluator = MultifileEvaluator(output_dir=self.output_dir)

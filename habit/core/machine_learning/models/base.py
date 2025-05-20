@@ -11,6 +11,17 @@ import pandas as pd
 class BaseModel(ABC):
     """Abstract base class for all models"""
     
+    @property
+    @abstractmethod
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+        
+        Returns:
+            str: Model type ('tree', 'linear', or other)
+        """
+        pass
+    
     def __init__(self, config: Dict[str, Any]):
         """
         Initialize the model with configuration

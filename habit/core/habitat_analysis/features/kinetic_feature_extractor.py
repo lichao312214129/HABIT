@@ -61,11 +61,7 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         # to df
         # Convert image_data dictionary to DataFrame 
         # header =  key_name
-        image_df = pd.DataFrame()
-        for k, v in image_data.items():
-            image_df = pd.concat([image_df, pd.DataFrame(v)], axis=1)
-        image_df.columns = image_data.keys()
-        
+        image_df = pd.concat(image_data, axis=1)        
         # Calculate features
         features = self._compute_kinetic_features(image_df, self.time_dict.loc[subject])
         return features
@@ -100,9 +96,9 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         delta_t3 = (image_timestamp['delay_3min'] - image_timestamp['PVP']).total_seconds()
         
         # Calculate relative intensity differences with epsilon to avoid division by zero
-        lap_precontrast = image_array.loc[:, 'LAP'] - image_array.loc[:, 'pre_contrast']
-        pvp_lap = image_array.loc[:, 'PVP'] - image_array.loc[:, 'LAP']
-        delay_pvp = image_array.loc[:, 'delay_3min'] - image_array.loc[:, 'PVP']
+        lap_precontrast = image_array.loc[:, 'raw-LAP'] - image_array.loc[:, 'raw-pre_contrast']
+        pvp_lap = image_array.loc[:, 'raw-PVP'] - image_array.loc[:, 'raw-LAP']
+        delay_pvp = image_array.loc[:, 'raw-delay_3min'] - image_array.loc[:, 'raw-PVP']
         
         # Set negative enhancement values to 0
         lap_precontrast[lap_precontrast < 0] = 0

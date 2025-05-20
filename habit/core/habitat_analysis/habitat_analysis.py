@@ -4,12 +4,13 @@ Habitat Clustering Analysis Module
 
 import os
 import json
+import logging
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
+import pickle
 import warnings
 import multiprocessing
-import matplotlib.pyplot as plt
 from glob import glob
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
 
@@ -18,8 +19,11 @@ from habit.utils.io_utils import (get_image_and_mask_paths,
                             check_data_structure,
                             save_habitat_image)
 
+from .features.feature_expression_parser import FeatureExpressionParser
+from .features.feature_extractor_factory import create_feature_extractor
+from .features.feature_extractor_factory import create_feature_extractor
+
 from habit.utils.visualization import plot_cluster_scores
-from habit.utils.log_utils import get_logger
 
 from habit.core.habitat_analysis.clustering.base_clustering import get_clustering_algorithm
 from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
@@ -49,6 +53,7 @@ class HabitatAnalysis:
                  feature_config: Optional[Dict[str, Any]] = None,
                  supervoxel_clustering_method: str = "kmeans",
                  habitat_clustering_method: str = "kmeans",
+                 mode: str = "training",
                  n_clusters_supervoxel: int = 50,
                  n_clusters_habitats_max: int = 10,
                  n_clusters_habitats_min: int = 2,
@@ -62,7 +67,8 @@ class HabitatAnalysis:
                  plot_curves: bool = True,
                  progress_callback: Optional[Callable] = None,
                  save_intermediate_results: bool = False,
-                 config_file: Optional[str] = None):
+                 config_file: Optional[str] = None,
+                 log_level: str = "INFO"):
         """
         Initialize HabitatAnalysis class
 
@@ -76,6 +82,7 @@ class HabitatAnalysis:
                 - preprocessing (dict): Feature preprocessing parameters
             supervoxel_clustering_method (str, optional): Supervoxel clustering method, default is kmeans
             habitat_clustering_method (str, optional): Habitat clustering method, default is kmeans
+            mode (str, optional): Analysis mode, either 'training' or 'testing', default is training
             n_clusters_supervoxel (int, optional): Number of supervoxel clusters, default is 50
             n_clusters_habitats_max (int, optional): Maximum number of habitat clusters, default is 10
             n_clusters_habitats_min (int, optional): Minimum number of habitat clusters, default is 2
@@ -95,13 +102,12 @@ class HabitatAnalysis:
         self.data_dir = os.path.abspath(root_folder)
         self.out_dir = os.path.abspath(out_folder or os.path.join(self.data_dir, "habitats_output"))
         self.config_file = config_file  # 保存原始配置文件路径
-
-        # Initialize logger
-        self.logger = get_logger(self.out_dir, "HabitatAnalysis")
+        self._setup_logging(log_level)
 
         # Clustering parameters
         self.supervoxel_method = supervoxel_clustering_method
         self.habitat_method = habitat_clustering_method
+        self.mode = mode
         self.n_clusters_supervoxel = n_clusters_supervoxel
         self.n_clusters_habitats_max = n_clusters_habitats_max
         self.n_clusters_habitats_min = n_clusters_habitats_min
@@ -211,13 +217,13 @@ class HabitatAnalysis:
         self._init_feature_extractor()
 
         # Initialize clustering algorithms
-        self.supervoxel_clustering = get_clustering_algorithm(
+        self.voxel2supervoxel_clustering = get_clustering_algorithm(
             self.supervoxel_method,
             n_clusters=self.n_clusters_supervoxel,
             random_state=self.random_state
         )
 
-        self.habitat_clustering = get_clustering_algorithm(
+        self.supervoxel2habitat_clustering = get_clustering_algorithm(
             self.habitat_method,
             n_clusters=self.n_clusters_habitats_max,
             random_state=self.random_state
@@ -236,11 +242,41 @@ class HabitatAnalysis:
                                voxel_config['image_names'], None)
         else:
             raise ValueError("voxel_level configuration must contain 'image_names' field")
+    
+    def _setup_logging(self, log_level: str) -> None:
+        """Setup logging configuration.
+        
+        Args:
+            log_level (str): Logging level.
+        """
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
+        # Setup logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(getattr(logging, log_level.upper()))
+        
+        # Clear any existing handlers
+        self.logger.handlers = []
+        
+        # Add console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        self.logger.addHandler(console_handler)
+        
+        # Add file handler
+        log_dir = os.path.join(self.out_dir, "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        log_file = os.path.join(log_dir, "habitat_analysis.log")
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        
+        self.logger.info(f"Logging initialized. Log file: {log_file}")
 
     def _init_feature_extractor(self):
         """Initialize feature extractor based on configuration"""
-        # 使用表达式解析器
-        from .features.feature_expression_parser import FeatureExpressionParser
+
 
         # 创建表达式解析器实例
         self.expression_parser = FeatureExpressionParser()
@@ -291,7 +327,7 @@ class HabitatAnalysis:
                     
         self.cross_image_kwargs = cross_image_kwargs
 
-    def _process_subject(self, subject: str) -> Tuple[str, pd.DataFrame]:
+    def _voxel2supervoxel_clustering(self, subject: str) -> Tuple[str, Union[Tuple[str, pd.DataFrame], Exception]]:
         """
         Process a single subject
 
@@ -299,89 +335,99 @@ class HabitatAnalysis:
             subject (str): Subject ID to process
 
         Returns:
-            Tuple[str, pd.DataFrame]: Tuple containing subject ID and processed data
+            Tuple[str, Union[Tuple[str, pd.DataFrame], Exception]]: Tuple containing:
+                - subject ID
+                - Either a tuple of (subject ID, mean_features_df) or an Exception
         """
-        # Extract features
-        _, feature_df, raw_df, mask_info = self.extract_voxel_features(subject)
-
-        # Apply preprocessing if enabled
-        if self.feature_config.get('preprocessing', False):
-            # 检查是否使用新的多方法串联机制
-            if 'methods' in self.feature_config['preprocessing']:
-                # 使用多方法串联
-                X_subj_ = preprocess_features(
-                    feature_df.values,
-                    methods=self.feature_config['preprocessing']['methods']
-                )
-                feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
-            else:
-                # 使用单一方法（向后兼容）
-                X_subj_ = preprocess_features(feature_df.values, **self.feature_config['preprocessing'])
-                feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
-
-        # Perform supervoxel clustering for each subject individually
         try:
-            self.supervoxel_clustering.fit(feature_df.values)
-            supervoxel_labels = self.supervoxel_clustering.predict(feature_df.values)
-            supervoxel_labels += 1  # Start numbering from 1
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            raise ValueError(f"Error performing supervoxel clustering for subject {subject}")
+            # log add subject
+            self.logger.info(f"_voxel2supervoxel_clustering subject: {subject}")
+            print(f"_voxel2supervoxel_clustering subject: {subject}")
+            # Extract features
+            _, feature_df, raw_df, mask_info = self.extract_voxel_features(subject)
+            
+            # Apply preprocessing if enabled
+            if self.feature_config.get('preprocessing', False):
+                # 检查是否使用新的多方法串联机制
+                if 'methods' in self.feature_config['preprocessing']:
+                    # 使用多方法串联
+                    X_subj_ = preprocess_features(
+                        feature_df.values,
+                        methods=self.feature_config['preprocessing']['methods']
+                    )
+                    feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
+                else:
+                    # 使用单一方法（向后兼容）
+                    X_subj_ = preprocess_features(feature_df.values, **self.feature_config['preprocessing'])
+                    feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
 
-        # Get feature names
-        feature_names = feature_df.columns.tolist()
+            # Perform clustering for voxel to supervoxel
+            try:
+                self.voxel2supervoxel_clustering.fit(feature_df.values)
+                supervoxel_labels = self.voxel2supervoxel_clustering.predict(feature_df.values)
+                supervoxel_labels += 1  # Start numbering from 1
+            except Exception as e:
+                self.logger.error(f"Error performing supervoxel clustering for subject {subject}: {str(e)}")
+                raise
 
-        # Get original feature names (image names)
-        original_feature_names = raw_df.columns.tolist()
+            # Get feature names
+            feature_names = feature_df.columns.tolist()
 
-        # Calculate average features for each supervoxel
-        unique_labels = np.arange(1, self.n_clusters_supervoxel + 1)
-        data_rows = []
-        for i in unique_labels:
-            indices = supervoxel_labels == i
-            if np.any(indices):
-                # Calculate average features for current supervoxel
-                mean_features = np.mean(feature_df[indices], axis=0)
-                mean_original_features = np.mean(raw_df.values[indices], axis=0)
-                count = np.sum(indices)
-                # Create data row
-                data_row = {
-                    "Subject": subject,
-                    "Supervoxel": i,
-                    "Count": count,
-                }
-                # Add feature means
-                for j, name in enumerate(feature_names):
-                    data_row[name] = mean_features[j]
+            # Get original feature names (image names)
+            original_feature_names = raw_df.columns.tolist()
 
-                # Add original feature means
-                for j, name in enumerate(original_feature_names):
-                    data_row[f"{name}-original"] = mean_original_features[j]
+            # Calculate average features for each supervoxel
+            unique_labels = np.arange(1, self.n_clusters_supervoxel + 1)
+            data_rows = []
+            for i in unique_labels:
+                indices = supervoxel_labels == i
+                if np.any(indices):
+                    # Calculate average features for current supervoxel
+                    mean_features = np.mean(feature_df[indices], axis=0)
+                    mean_original_features = np.mean(raw_df.values[indices], axis=0)
+                    count = np.sum(indices)
+                    # Create data row
+                    data_row = {
+                        "Subject": subject,
+                        "Supervoxel": i,
+                        "Count": count,
+                    }
+                    # Add feature means
+                    for j, name in enumerate(feature_names):
+                        data_row[name] = mean_features[j]
 
-                data_rows.append(data_row)
-        mean_features_df = pd.DataFrame(data_rows)
+                    # Add original feature means
+                    for j, name in enumerate(original_feature_names):
+                        data_row[f"{name}-original"] = mean_original_features[j]
 
-        # Save supervoxel image
-        if isinstance(mask_info, dict) and 'mask_array' in mask_info and 'mask' in mask_info:
-            # Create supervoxel map
-            supervoxel_map = np.zeros_like(mask_info['mask_array'])
-            mask_indices = mask_info['mask_array'] > 0
-            supervoxel_map[mask_indices] = supervoxel_labels
+                    data_rows.append(data_row)
+            mean_features_df = pd.DataFrame(data_rows)
 
-            # Convert to SimpleITK image and save
-            supervoxel_img = sitk.GetImageFromArray(supervoxel_map)
-            supervoxel_img.CopyInformation(mask_info['mask'])
+            # Save supervoxel image
+            if isinstance(mask_info, dict) and 'mask_array' in mask_info and 'mask' in mask_info:
+                # Create supervoxel map
+                supervoxel_map = np.zeros_like(mask_info['mask_array'])
+                mask_indices = mask_info['mask_array'] > 0
+                supervoxel_map[mask_indices] = supervoxel_labels
 
-            # Save as nrrd file
-            sitk.WriteImage(supervoxel_img, os.path.join(self.out_dir, f"{subject}_supervoxel.nrrd"))
+                # Convert to SimpleITK image and save
+                supervoxel_img = sitk.GetImageFromArray(supervoxel_map)
+                supervoxel_img.CopyInformation(mask_info['mask'])
+
+                # Save as nrrd file
+                sitk.WriteImage(supervoxel_img, os.path.join(self.out_dir, f"{subject}_supervoxel.nrrd"))
+
+                # Clean up memory
+                del supervoxel_map, mask_indices
 
             # Clean up memory
-            del supervoxel_map, mask_indices
+            del feature_df, raw_df, supervoxel_labels
 
-        # Clean up memory
-        del feature_df, raw_df, supervoxel_labels
-
-        return subject, mean_features_df
+            return subject, mean_features_df
+        except Exception as e:
+            # 记录错误并返回异常对象
+            self.logger.error(f"Error in _voxel2supervoxel_clustering for subject {subject}: {str(e)}")
+            return subject, Exception(str(e))
 
     def run(self, subjects: Optional[List[str]] = None, save_results_csv: bool = True) -> pd.DataFrame:
         """
@@ -403,6 +449,7 @@ class HabitatAnalysis:
 
         # Results storage
         mean_features_all = pd.DataFrame()
+        failed_subjects = []  # Track failed subjects
 
         # Use multiprocessing to process subjects
         if self.n_processes > 1 and len(subjects) > 1:
@@ -412,23 +459,42 @@ class HabitatAnalysis:
             with multiprocessing.Pool(processes=self.n_processes) as pool:
                 if self.verbose:
                     self.logger.info("Starting parallel processing of all subjects...")
-                results_iter = pool.imap_unordered(self._process_subject, subjects)
+                results_iter = pool.imap_unordered(self._voxel2supervoxel_clustering, subjects)
 
                 # 使用自定义进度条显示进度
                 progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
-                for subject, mean_features_df in results_iter:
-                    mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+                for result in results_iter:
+                    if isinstance(result[1], Exception):
+                        # 如果结果是异常，记录错误并继续
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error processing subject {result[0]}: {str(result[1])}")
+                    else:
+                        subject, mean_features_df = result
+                        mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+
                     progress_bar.update(1)
 
                 if self.verbose:
+                    if failed_subjects:
+                        self.logger.warning(f"Failed to process {len(failed_subjects)}")
                     self.logger.info(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
         else:
             # Single process processing, use custom progress bar
             progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
             for subject in subjects:
-                _, mean_features_df = self._process_subject(subject)
-                mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+                if isinstance(result[1], Exception):
+                    failed_subjects.append(subject)
+                    if self.verbose:
+                        self.logger.error(f"Error processing subject {subject}: {str(result[1])}")
+                else:
+                    subject, mean_features_df = result
+                    mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+                
                 progress_bar.update(1)
+
+            if self.verbose and failed_subjects:
+                self.logger.warning(f"Failed to process {len(failed_subjects)}")
 
         # Check if there is enough data for clustering
         if len(mean_features_all) == 0:
@@ -438,8 +504,8 @@ class HabitatAnalysis:
         # Prepare features for population-level clustering
         # feature_names = mean_features_all中不以-original结尾的列
         feature_names = [col for col in mean_features_all.columns if not col.endswith('-original')]
-        feature_names = feature_names[3:]
-        features_for_clustering = mean_features_all[feature_names]
+        feature_names = feature_names[3:]  # 去掉Subject, Supervoxel, Count FIXME: 需要根据实际情况调整
+        features_of_all_subjects = mean_features_all[feature_names]
         supervoxel_file_keyword = self.feature_config['supervoxel_level'].get('supervoxel_file_keyword', '*_supervoxel.nrrd')
         supervoxel_files = glob(os.path.join(self.out_dir, supervoxel_file_keyword))
         # if subject in subjects, then add to supervoxel_file_keyword_dict
@@ -450,7 +516,9 @@ class HabitatAnalysis:
                     self.supervoxel_file_dict[subject] = supervoxel_file
                     break
             else:
-                raise ValueError(f"No supervoxel file found for subject {subject}")
+                if subject not in failed_subjects:  # Only warn for non-failed subjects
+                    if self.verbose:
+                        self.logger.warning(f"No supervoxel file found for subject {subject}")
 
         if not self.supervoxel_file_dict:
             raise ValueError(f"No supervoxel files found in {self.out_dir}")
@@ -471,125 +539,180 @@ class HabitatAnalysis:
                     results_iter = pool.imap_unordered(self.extract_supervoxel_features, subjects)
 
                     # Collect features from all subjects
-                    features_for_clustering = []
+                    features_of_all_subjects = []
                     progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
-                    for features in results_iter:
-                        features_for_clustering.append(features)
+                    for result in results_iter:
+                        if isinstance(result[1], Exception):
+                            failed_subjects.append(result[0])
+                            if self.verbose:
+                                self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
+                        else:
+                            features_of_all_subjects.append(result[1])
                         progress_bar.update(1)
 
+                    if self.verbose and failed_subjects:
+                        self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
+
                     # concat
-                    features_for_clustering = pd.concat(features_for_clustering, ignore_index=True)
+                    if features_of_all_subjects:
+                        features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
+                    else:
+                        raise ValueError("No valid supervoxel features extracted")
             else:
                 # Single process processing
-                features_for_clustering = []
+                features_of_all_subjects = []
                 progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
                 for subject in subjects:
-                    features = self.extract_supervoxel_features(subject)
-                    features_for_clustering.append(features)
+                    if isinstance(result[1], Exception):
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
+                    else:
+                        features_of_all_subjects.append(result[1])
                     progress_bar.update(1)
 
-                # Convert to numpy array
-                features_for_clustering = pd.concat(features_for_clustering, ignore_index=True)
+                if self.verbose and failed_subjects:
+                    self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
 
+                # concat
+                if features_of_all_subjects:
+                    features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
+                else:
+                    raise ValueError("No valid supervoxel features extracted")
 
         # ===============================================
         #  TODO: perform group level feature preprocessing, perform here
         # Current only support mean filling
-        features_for_clustering = features_for_clustering.apply(lambda x: pd.to_numeric(x, errors='coerce'))
-        features_for_clustering = features_for_clustering.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
-        features_for_clustering = features_for_clustering.replace([np.inf, -np.inf], np.nan)
-        features_for_clustering = features_for_clustering.fillna(features_for_clustering.mean())
-        # ===============================================
-
-        # Determine optimal number of clusters
-        if self.best_n_clusters is not None:
-            # If best number of clusters is already specified, use it directly
-            optimal_n_clusters = self.best_n_clusters
-            scores = None
-            if self.verbose:
-                self.logger.info(f"Using specified best number of clusters: {optimal_n_clusters}")
+        features_of_all_subjects = features_of_all_subjects.apply(lambda x: pd.to_numeric(x, errors='coerce'))
+        features_of_all_subjects = features_of_all_subjects.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
+        features_of_all_subjects = features_of_all_subjects.replace([np.inf, -np.inf], np.nan)
+        features_of_all_subjects = features_of_all_subjects.fillna(features_of_all_subjects.mean())
+        
+        #  Save mean values for unseen test subjects if is training model  FIXME: 需要根据实际情况调整
+        if self.mode == 'training':
+            mean_values = features_of_all_subjects.mean()
+            mean_values.name = 'mean_values'
+            mean_values.to_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'), index=True, header=True)
+        elif self.mode == 'testing':
+            #  Load mean values for unseen test subjects
+            mean_values = pd.read_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'))
+            features_of_all_subjects = features_of_all_subjects.fillna(mean_values)
         else:
-            # Otherwise find optimal number of clusters
-            if self.verbose:
-                self.logger.info("Finding optimal number of clusters...")
-
-            try:
-                # Ensure cluster number range is reasonable
-                min_clusters = max(2, self.n_clusters_habitats_min)
-                max_clusters = min(self.n_clusters_habitats_max, len(features_for_clustering) - 1)
-
-                if max_clusters <= min_clusters:
-                    # If range is invalid, use default minimum value
-                    if self.verbose:
-                        self.logger.warning(f"Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
-                    optimal_n_clusters = min_clusters
-                    scores = None
-                else:
-                    # Try to find optimal number of clusters
-                    try:
-                        cluster_for_best_n = get_clustering_algorithm(self.habitat_method)
-                        optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
-                            features_for_clustering,
-                            min_clusters=min_clusters,
-                            max_clusters=max_clusters,
-                            methods=self.habitat_cluster_selection_method,
-                            show_progress=True
-                        )
-
-                        # If plotting is needed, plot score graphs
-                        if self.plot_curves and scores is not None:
-                            try:
-                                # 确保输出目录存在
-                                os.makedirs(self.out_dir, exist_ok=True)
-
-                                # 构造保存路径
-                                save_path = os.path.join(self.out_dir, 'habitat_clustering_scores.png')
-
-                                # 使用新的可视化函数绘图
-                                plot_cluster_scores(
-                                    scores_dict=scores,
-                                    cluster_range=cluster_for_best_n.cluster_range,
-                                    methods=self.habitat_cluster_selection_method,
-                                    clustering_algorithm=self.habitat_method,
-                                    figsize=(12, 8),
-                                    save_path=save_path,
-                                    show=False
-                                )
-
-                                if self.verbose:
-                                    self.logger.info(f"聚类评分图已保存至 {save_path}")
-                            except Exception as e:
-                                # 捕获绘图过程中的错误
-                                if self.verbose:
-                                    self.logger.error(f"绘制聚类评分图时出错: {str(e)}")
-                                    self.logger.info("继续执行其他流程...")
-                    except Exception as e:
-                        # If optimal number of clusters cannot be found, use default value and warn user
-                        if self.verbose:
-                            self.logger.warning(f"Failed to find optimal number of clusters: {str(e)}")
-                            self.logger.info("Using default number of clusters")
-                        optimal_n_clusters = min(3, max_clusters)  # Use a reasonable default value
-                        scores = None
-            except Exception as e:
-                # Catch all exceptions, use default value
-                if self.verbose:
-                    self.logger.error(f"Exception occurred when determining optimal number of clusters: {str(e)}")
-                    self.logger.info("Using default number of clusters")
-                optimal_n_clusters = 3  # Default to 3 clusters
+            raise ValueError(f"Invalid mode: {self.mode}")
+        # ===============================================
+        
+        if self.mode == 'training':
+            # Determine optimal number of clusters
+            if self.best_n_clusters is not None:
+                # If best number of clusters is already specified, use it directly
+                optimal_n_clusters = self.best_n_clusters
                 scores = None
+                if self.verbose:
+                    self.logger.info(f"Using specified best number of clusters: {optimal_n_clusters}")
+            else:
+                # Otherwise find optimal number of clusters
+                if self.verbose:
+                    self.logger.info("Finding optimal number of clusters...")
 
+                try:
+                    # Ensure cluster number range is reasonable
+                    min_clusters = max(2, self.n_clusters_habitats_min)
+                    max_clusters = min(self.n_clusters_habitats_max, len(features_of_all_subjects) - 1)
+
+                    if max_clusters <= min_clusters:
+                        # If range is invalid, use default minimum value
+                        if self.verbose:
+                            self.logger.warning(f"Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
+                        optimal_n_clusters = min_clusters
+                        scores = None
+                    else:
+                        # Try to find optimal number of clusters
+                        try:
+                            cluster_for_best_n = get_clustering_algorithm(self.habitat_method)
+                            optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
+                                features_of_all_subjects,
+                                min_clusters=min_clusters,
+                                max_clusters=max_clusters,
+                                methods=self.habitat_cluster_selection_method,
+                                show_progress=True
+                            )
+
+                            # If plotting is needed, plot score graphs
+                            if self.plot_curves and scores is not None:
+                                try:
+                                    # 确保输出目录存在
+                                    os.makedirs(self.out_dir, exist_ok=True)
+
+                                    # 构造保存路径
+                                    save_path = os.path.join(self.out_dir, 'habitat_clustering_scores.png')
+
+                                    # 使用新的可视化函数绘图
+                                    plot_cluster_scores(
+                                        scores_dict=scores,
+                                        cluster_range=cluster_for_best_n.cluster_range,
+                                        methods=self.habitat_cluster_selection_method,
+                                        clustering_algorithm=self.habitat_method,
+                                        figsize=(12, 8),
+                                        save_path=save_path,
+                                        show=False
+                                    )
+
+                                    if self.verbose:
+                                        self.logger.info(f"聚类评分图已保存至 {save_path}")
+                                except Exception as e:
+                                    # 捕获绘图过程中的错误
+                                    if self.verbose:
+                                        self.logger.error(f"绘制聚类评分图时出错: {str(e)}")
+                                        self.logger.info("继续执行其他流程...")
+                        except Exception as e:
+                            # If optimal number of clusters cannot be found, use default value and warn user
+                            if self.verbose:
+                                self.logger.warning(f"Failed to find optimal number of clusters: {str(e)}")
+                                self.logger.info("Using default number of clusters")
+                            optimal_n_clusters = min(3, max_clusters)  # Use a reasonable default value
+                            scores = None
+                except Exception as e:
+                    # Catch all exceptions, use default value
+                    if self.verbose:
+                        self.logger.error(f"Exception occurred when determining optimal number of clusters: {str(e)}")
+                        self.logger.info("Using default number of clusters")
+                    optimal_n_clusters = 3  # Default to 3 clusters
+                    scores = None
+
+                if self.verbose:
+                    self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
+
+                # Perform population-level clustering using optimal number of clusters
+                if self.verbose:
+                    self.logger.info("Performing population-level clustering...")
+
+            # Reinitialize clustering algorithm with optimal number of clusters
+            self.supervoxel2habitat_clustering.n_clusters = optimal_n_clusters
+            self.supervoxel2habitat_clustering.fit(features_of_all_subjects)
+            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
+
+            # Save clustering model of supervoxel to habitat
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            with open(model_path, 'wb') as f:
+                pickle.dump(self.supervoxel2habitat_clustering, f)
+
+        elif self.mode == 'testing':
+            # Load clustering model from config file
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            if os.path.exists(model_path):
+                with open(model_path, 'rb') as f:
+                    self.supervoxel2habitat_clustering = pickle.load(f)
+            else:
+                raise ValueError(f"No clustering model found at {model_path}")
+            
             if self.verbose:
-                self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
+                self.logger.info(f"Performing population-level clustering using already trained model{model_path}...")
 
-        # Perform population-level clustering using optimal number of clusters
-        if self.verbose:
-            self.logger.info("Performing population-level clustering...")
+            # Perform population-level clustering using already trained model
+            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
 
-
-        # Reinitialize clustering algorithm with optimal number of clusters
-        self.habitat_clustering.n_clusters = optimal_n_clusters
-        self.habitat_clustering.fit(features_for_clustering)
-        habitat_labels = self.habitat_clustering.predict(features_for_clustering) + 1  # Start numbering from 1
+        else:
+            raise ValueError(f"Invalid mode: {self.mode}")
 
         # Add habitat labels to results
         mean_features_all['Habitats'] = habitat_labels
@@ -624,6 +747,7 @@ class HabitatAnalysis:
                     'feature_config': self.feature_config,
                     'supervoxel_clustering_method': self.supervoxel_method,
                     'habitat_clustering_method': self.habitat_method,
+                    'mode': self.mode,
                     'n_clusters_supervoxel': self.n_clusters_supervoxel,
                     'n_clusters_habitats_max': self.n_clusters_habitats_max,
                     'n_clusters_habitats_min': self.n_clusters_habitats_min,
@@ -649,33 +773,28 @@ class HabitatAnalysis:
             # Save habitat images for each subject
             # Set Subject as index
             self.results_df.set_index('Subject', inplace=True)
+            
+            # 创建参数列表
+            args_list = list(set(self.results_df.index))
 
             # 使用多进程保存所有主体的栖息地图像
             with multiprocessing.Pool(processes=self.n_processes) as pool:
-                # 创建参数列表
-                args_list = [(i, subject) for i, subject in enumerate(subjects)]
-
-                # 使用imap_unordered并配合自定义进度条
-                progress_bar = CustomTqdm(total=len(subjects), desc="Save habitat images")
-                for _ in pool.imap_unordered(self._save_habitat_for_subject, args_list):
-                    progress_bar.update(1)
+                # 使用imap_unordered并配合自定义进度条，添加容错机制
+                progress_bar = CustomTqdm(total=len(args_list), desc="Save habitat images")
+                failed_subjects = []
+                results_iter = pool.imap_unordered(self._save_habitat_for_subject, args_list)
+                for result in results_iter:
+                    if isinstance(result[1], Exception):
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error saving habitat image for subject {result[0]}: {str(result[1])}")
+                    else:
+                        progress_bar.update(1)
+                
+                if failed_subjects and self.verbose:
+                    self.logger.warning(f"Failed to save habitat images for {len(failed_subjects)}")
 
         return self.results_df
-
-    def _save_habitat_for_subject(self, args):
-        """
-        保存单个主体的栖息地图像
-
-        Args:
-            args (tuple): 包含主体索引和名称的元组 (i, subject)
-
-        Returns:
-            int: 主体索引
-        """
-        i, subject = args
-        supervoxel_path = os.path.join(self.out_dir, f"{subject}_supervoxel.nrrd")
-        save_habitat_image(subject, self.results_df, supervoxel_path, self.out_dir)
-        return i
 
     def extract_voxel_features(self, subject: str) -> Tuple[str, pd.DataFrame, pd.DataFrame, np.ndarray, dict]:
         """
@@ -692,7 +811,6 @@ class HabitatAnalysis:
                 - mask array
                 - dictionary with image information
         """
-        from .features.feature_extractor_factory import create_feature_extractor
         
         # Get image and mask paths
         img_paths = self.images_paths[subject]
@@ -723,13 +841,6 @@ class HabitatAnalysis:
             processed_df = extractor.extract_features(img_paths.get(img_name), mask_paths.get(img_name), **step_params)
             processed_images.append(processed_df)
 
-            # # 查看mask有多少不为0的值
-            # mask_img = sitk.ReadImage(mask_paths.get(img_name))
-            # mask_array = sitk.GetArrayFromImage(mask_img)
-            # mask_nonzero = np.sum(mask_array != 0)
-            # unique_values = np.unique(mask_array)
-            # print(f"{img_name} mask has {mask_nonzero} non-zero values, unique values: {unique_values}")
-
         # 按需创建跨图像特征提取器
         cross_image_kwargs = self.cross_image_kwargs.copy()
         cross_image_kwargs.update({'subject': subject})
@@ -754,45 +865,68 @@ class HabitatAnalysis:
 
         return subject, features, raw_df, mask_info
 
-    def extract_supervoxel_features(self, subject: str) -> np.ndarray:
+    def extract_supervoxel_features(self, subject: str) -> Tuple[str, np.ndarray]:
         """
         Extract supervoxel-level features from supervoxel maps and original images
 
         Returns:
             np.ndarray: Supervoxel features for clustering
         """
-        from .features.feature_extractor_factory import create_feature_extractor
+        try:
+            # log and print
+            self.logger.info(f"Extracting supervoxel-level features for subject {subject}...")
+            print(f"Extracting supervoxel-level features for subject {subject}...")
 
-        # Get image and mask paths
-        img_paths = self.images_paths[subject]
-        mask_path = self.supervoxel_file_dict[subject]
+            # Get image and mask paths
+            img_paths = self.images_paths[subject]
+            mask_path = self.supervoxel_file_dict[subject]
 
-        # 获取outdir中的所有supervoxel文件
-        if self.verbose:
-            self.logger.info("Extracting supervoxel-level features...")
+            # 获取outdir中的所有supervoxel文件
+            if self.verbose:
+                self.logger.info("Extracting supervoxel-level features...")
 
-        # 先处理单图像
-        processed_images = []
-        # 遍历处理步骤，处理每个单图像
-        for step in self.supervoxel_processing_steps:
-            method = step['method']
-            img_name = step['image']
-            step_params = step['params'].copy()  # 复制参数，避免修改原始参数
+            # 先处理单图像
+            processed_images = []
+            # 遍历处理步骤，处理每个单图像
+            for step in self.supervoxel_processing_steps:
+                method = step['method']
+                img_name = step['image']
+                step_params = step['params'].copy()  # 复制参数，避免修改原始参数
 
-            # 使用单图像特征提取器处理图像
-            step_params.update({'subject': subject, 'image': img_name})
-            # 按需创建单图像特征提取器
-            single_image_extractor = create_feature_extractor(method, **step_params)
-            processed_df = single_image_extractor.extract_features(img_paths.get(img_name), mask_path, **step_params)
-            processed_images.append(processed_df)
+                # 使用单图像特征提取器处理图像
+                step_params.update({'subject': subject, 'image': img_name})
+                # 按需创建单图像特征提取器
+                single_image_extractor = create_feature_extractor(method, **step_params)
+                processed_df = single_image_extractor.extract_features(img_paths.get(img_name), mask_path, **step_params)
+                processed_images.append(processed_df)
 
-        # 按需创建跨图像特征提取器
-        supervoxel_params = self.supervoxel_params.copy()
-        cross_image_extractor = create_feature_extractor(self.supervoxel_method_name, **supervoxel_params)
-        features = cross_image_extractor.extract_features(processed_images, **supervoxel_params)
+            # 按需创建跨图像特征提取器
+            supervoxel_params = self.supervoxel_params.copy()
+            cross_image_extractor = create_feature_extractor(self.supervoxel_method_name, **supervoxel_params)
+            features = cross_image_extractor.extract_features(processed_images, **supervoxel_params)
 
-        return features
+            return subject, features
+        
+        except Exception as e:
+            return subject, Exception(str(e))
 
+    def _save_habitat_for_subject(self, subject):
+        """
+        保存单个主体的栖息地图像
+
+        Args:
+            args (tuple): 包含主体索引和名称的元组 (i, subject)
+
+        Returns:
+            int: 主体索引
+        """
+        try:
+            supervoxel_path = os.path.join(self.out_dir, f"{subject}_supervoxel.nrrd")
+            save_habitat_image(subject, self.results_df, supervoxel_path, self.out_dir)
+            return subject, None
+        
+        except Exception as e:
+            return subject, Exception(str(e))
 
 
 

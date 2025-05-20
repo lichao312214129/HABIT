@@ -354,243 +354,95 @@ class Plotter:
         
         plt.close()
              
-    def plot_shap(self, model: Any, X: np.ndarray, feature_names: List[str], save_name: str = 'SHAP.pdf', 
-                 n_samples_to_plot: int = 5) -> None:
+    def plot_shap(self, model: Any, X: np.ndarray, feature_names: List[str], save_name: str = 'SHAP.pdf') -> None:
         """
-        Plot SHAP values with multiple visualization types
+        Plot SHAP values with bar and beeswarm plots
         
         Args:
             model (Any): Trained model
             X (np.ndarray): Feature data
             feature_names (List[str]): List of feature names
             save_name (str): Name of the file to save the plot
-            n_samples_to_plot (int): Number of individual samples to plot for force and waterfall plots
         """
-        # Create SHAP explainer
-        try:
-            shap.initjs()
-            import matplotlib
-            matplotlib.use('Agg')  # Use non-interactive backend for saving figures
-            
-            # First check if model has get_model method (custom model wrapper)
-            if hasattr(model, 'get_model'):
-                # Get the underlying model
-                base_model = model.get_model()
-                if hasattr(base_model, 'feature_importances_'):
-                    # Tree model
-                    explainer = shap.TreeExplainer(base_model)
-                elif hasattr(base_model, 'coef_'):
-                    # Linear model
-                    explainer = shap.LinearExplainer(base_model, X)
-                else:
-                    # Other models - use KernelExplainer
-                    explainer = shap.KernelExplainer(model.predict_proba, X)
-            elif hasattr(model, 'feature_importances_'):
-                # Tree model
+        # Get model type - if not available, try to infer from model object
+        model_type = getattr(model, 'model_type', None)
+        
+        # Calculate SHAP values based on model type
+        if model_type == 'linear':
+            # For custom linear models, try to access the underlying sklearn model
+            if hasattr(model, 'model'):
+                # Access the internal sklearn model
+                sklearn_model = model.model
+                explainer = shap.LinearExplainer(sklearn_model, X)
+            elif hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
+                # If model has coefficients and intercept directly
+                explainer = shap.LinearExplainer((model.coef_, model.intercept_), X)
+            else:
+                # Fallback to KernelExplainer if we can't access the model structure
+                explainer = shap.KernelExplainer(model.predict_proba, X)
+        elif model_type == 'tree':
+            # For tree-based models
+            if hasattr(model, 'model'):
+                # Access the internal sklearn model
+                sklearn_model = model.model
+                explainer = shap.TreeExplainer(sklearn_model)
+            else:
+                # Try to use the model directly
                 explainer = shap.TreeExplainer(model)
-            elif hasattr(model, 'coef_'):
-                # Linear model
-                explainer = shap.LinearExplainer(model, X)
-            else:
-                # Other models
-                explainer = shap.KernelExplainer(model.predict, X)
-            
-            # Create Explanation object for the newer SHAP API if possible
-            try:
-                # For newer SHAP versions
-                shap_values = explainer(X)
-                use_new_api = True
-            except Exception:
-                # For older SHAP versions
-                shap_values = explainer.shap_values(X)
-                use_new_api = False
-                
-                # For classification problems, shap_values may be a list containing SHAP values for each class
-                if isinstance(shap_values, list):
-                    shap_values = shap_values[1]  # Take SHAP values for positive class
-            
-            # Ensure feature names list matches the number of features
-            if len(feature_names) != X.shape[1]:
-                print(f"Warning: Feature names list length ({len(feature_names)}) does not match number of features ({X.shape[1]})")
-                feature_names = [f"Feature {i}" for i in range(X.shape[1])]
-            
-            # 1. Beeswarm Plot (Summary Plot)
-            plt.figure(figsize=(10, 6))
-            if use_new_api:
-                shap.plots.beeswarm(shap_values, show=False)
-            else:
-                shap.summary_plot(shap_values, X, feature_names=feature_names, show=False)
-            plt.title('Feature Importance (SHAP)')
-            
-            # Save beeswarm plot
-            beeswarm_save_name = save_name.replace(os.path.splitext(save_name)[1], f'_beeswarm{os.path.splitext(save_name)[1]}')
-            file_ext = os.path.splitext(beeswarm_save_name)[1].lower()
-            if file_ext == '.pdf':
-                plt.savefig(os.path.join(self.output_dir, beeswarm_save_name), bbox_inches='tight')
-            elif file_ext in ['.tif', '.tiff']:
-                plt.savefig(os.path.join(self.output_dir, beeswarm_save_name), bbox_inches='tight', 
-                            dpi=self.dpi, format='tif', compression='tiff_lzw')
-            else:
-                plt.savefig(os.path.join(self.output_dir, beeswarm_save_name), bbox_inches='tight', 
-                            dpi=self.dpi)
-            plt.close()
-            
-            # 2. Bar Plot with improved saturation
-            plt.figure(figsize=(10, 6))
-            if use_new_api:
-                try:
-                    # First try the direct bar plot function in newer versions
-                    shap.plots.bar(shap_values, show=False)
-                except Exception:
-                    # Fallback to using summary plot with bar plot_type
-                    if hasattr(shap_values, 'values'):
-                        # Extract values from Explanation object if available
-                        vals = shap_values.values
-                        if vals.ndim > 2:  # Multi-class case
-                            vals = vals[:, :, 1]  # Take positive class values
-                        # Calculate mean absolute value for each feature
-                        feature_importance = np.abs(vals).mean(0)
-                        # Sort features by importance
-                        sorted_idx = np.argsort(feature_importance)
-                        # Create a bar plot manually with better colors
-                        plt.figure(figsize=(10, 6))
-                        barlist = plt.barh(range(len(sorted_idx)), feature_importance[sorted_idx])
-                        # Set a more saturated color
-                        for bar in barlist:
-                            bar.set_color('#1f77b4')  # A more saturated blue
-                        plt.yticks(range(len(sorted_idx)), 
-                                 [feature_names[i] if hasattr(shap_values, 'feature_names') else f"Feature {i}" 
-                                  for i in sorted_idx])
-                    else:
-                        # Use summary plot with bar plot_type for older versions
-                        shap.summary_plot(shap_values, X, feature_names=feature_names, plot_type="bar", show=False, 
-                                         color='#1f77b4')  # Use more saturated color
-            else:
-                # Use a more saturated color palette for older API
-                current_cmap = plt.cm.get_cmap('Blues')  # Get the 'Blues' colormap
-                saturated_cmap = plt.cm.colors.LinearSegmentedColormap.from_list(
-                    'saturated_blues', [current_cmap(0.3), current_cmap(1.0)], N=256)
-                shap.summary_plot(shap_values, X, feature_names=feature_names, plot_type="bar", 
-                                 show=False, cmap=saturated_cmap)
-            plt.title('Feature Importance (SHAP Bar Plot)')
-            
-            # Save bar plot
-            # Dynamically replace the file extension with '_bar' while preserving the original extension
-            bar_save_name = save_name.replace(os.path.splitext(save_name)[1], f'_bar{os.path.splitext(save_name)[1]}')
-            file_ext = os.path.splitext(bar_save_name)[1].lower()
-            if file_ext == '.pdf':
-                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight')
-            elif file_ext in ['.tif', '.tiff']:
-                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight', 
-                            dpi=self.dpi, format='tif', compression='tiff_lzw')
-            else:
-                plt.savefig(os.path.join(self.output_dir, bar_save_name), bbox_inches='tight', 
-                            dpi=self.dpi)
-            plt.close()
-            
-            # ================================================
-            # 3. Force Plots
-            # Generate force plots for non-notebook environments
-            
-            # Process SHAP values to limit decimal places to 3
-            formatted_shap_values = process_shap_explanation(shap_values, decimal_places=3)
-            # Process X values to ensure feature display values also have only 3 decimal places
-            formatted_X = np.round(X, 3)
-            
-            # Generate individual force plots for each sample
-            for i in range(min(n_samples_to_plot, X.shape[0])):
-                try:
-                    # Create force plot for a single sample
-                    force_plot_name = save_name.replace('.pdf', f'_force_sample_{i+1}.pdf')
-                    force_plot_path = os.path.join(self.output_dir, force_plot_name)
-                    
-                    if use_new_api:
-                        # Individual force plot using new API
-                        shap_values_instance = formatted_shap_values[i]
-                        
-                        # Create force plot with explicit figure size and DPI
-                        plt.figure(figsize=(20, 3))
-                        shap.plots.force(shap_values_instance, matplotlib=True, show=False)
-                        plt.title(f'SHAP Force Plot for Sample {i+1}')
-                        
-                        # Save force plot with high DPI
-                        plt.savefig(force_plot_path, bbox_inches='tight', dpi=300)
-                        plt.close()
-                        
-                except Exception as e:
-                    print(f"Warning: Failed to plot force plot for sample {i+1}: {str(e)}")
-            
-            # ================================================
-            # 4. Waterfall Plot for first n_samples_to_plot samples
-            if use_new_api:
-                for i in range(min(n_samples_to_plot, X.shape[0])):
-                    try:
-                        plt.figure(figsize=(10, 6))
-                        shap.plots.waterfall(shap_values[i], show=False)
-                        plt.title(f'SHAP Waterfall Plot for Sample {i+1}')
-                        
-                        # Save waterfall plot
-                        waterfall_save_name = save_name.replace('.pdf', f'_waterfall_sample_{i+1}.pdf')
-                        file_ext = os.path.splitext(waterfall_save_name)[1].lower()
-                        if file_ext == '.pdf':
-                            plt.savefig(os.path.join(self.output_dir, waterfall_save_name), bbox_inches='tight')
-                        elif file_ext in ['.tif', '.tiff']:
-                            plt.savefig(os.path.join(self.output_dir, waterfall_save_name), bbox_inches='tight', 
-                                       dpi=self.dpi, format='tif', compression='tiff_lzw')
-                        else:
-                            plt.savefig(os.path.join(self.output_dir, waterfall_save_name), bbox_inches='tight', 
-                                       dpi=self.dpi)
-                        plt.close()
-                    except Exception as e:
-                        print(f"Warning: Failed to plot waterfall for sample {i+1}: {str(e)}")
-            
-            # 5. Feature importance heatmap for new API or dependence plots for old API
-            try:
-                if use_new_api:
-                    # Heatmap
-                    plt.figure(figsize=(12, 8))
-                    shap.plots.heatmap(shap_values, show=False)
-                    plt.title('SHAP Feature Importance Heatmap')
-                    
-                    # Save heatmap
-                    heatmap_save_name = save_name.replace('.pdf', '_heatmap.pdf')
-                    file_ext = os.path.splitext(heatmap_save_name)[1].lower()
-                    if file_ext == '.pdf':
-                        plt.savefig(os.path.join(self.output_dir, heatmap_save_name), bbox_inches='tight')
-                    elif file_ext in ['.tif', '.tiff']:
-                        plt.savefig(os.path.join(self.output_dir, heatmap_save_name), bbox_inches='tight', 
-                                   dpi=self.dpi, format='tif', compression='tiff_lzw')
-                    else:
-                        plt.savefig(os.path.join(self.output_dir, heatmap_save_name), bbox_inches='tight', 
-                                   dpi=self.dpi)
-                    plt.close()
-                else:
-                    # Get feature importance scores
-                    feature_importance = np.abs(shap_values).mean(0)
-                    top_features_idx = np.argsort(feature_importance)[-3:][::-1]
-                    
-                    for idx in top_features_idx:
-                        plt.figure(figsize=(10, 6))
-                        shap.dependence_plot(idx, shap_values, X, feature_names=feature_names, show=False)
-                        plt.title(f'SHAP Dependence Plot for {feature_names[idx]}')
-                        
-                        # Save dependence plot
-                        dep_save_name = save_name.replace('.pdf', f'_dependence_{feature_names[idx]}.pdf')
-                        file_ext = os.path.splitext(dep_save_name)[1].lower()
-                        if file_ext == '.pdf':
-                            plt.savefig(os.path.join(self.output_dir, dep_save_name), bbox_inches='tight')
-                        elif file_ext in ['.tif', '.tiff']:
-                            plt.savefig(os.path.join(self.output_dir, dep_save_name), bbox_inches='tight', 
-                                       dpi=self.dpi, format='tif', compression='tiff_lzw')
-                        else:
-                            plt.savefig(os.path.join(self.output_dir, dep_save_name), bbox_inches='tight', 
-                                       dpi=self.dpi)
-                        plt.close()
-            except Exception as e:
-                print(f"Warning: Failed to plot additional visualizations: {str(e)}")
-            
-        except Exception as e:
-            print(f"Warning: Failed to plot SHAP values: {str(e)}")
+        else:
+            # Default to KernelExplainer for other model types
+            explainer = shap.KernelExplainer(model.predict_proba, X)
+        
+        # Get SHAP values
+        shap_values = explainer.shap_values(X)
+        
+        # Process SHAP explanation for consistency
+        shap_values = process_shap_explanation(shap_values)
+        
+        # Plot 1: Feature importance bar plot
+        plt.figure(figsize=(10, 8))
+        plt.title('Feature Importance', fontsize=14)
+        shap.summary_plot(
+            shap_values, 
+            X,
+            feature_names=feature_names,
+            plot_type="bar",
+            show=False
+        )
+        plt.tight_layout()
+        bar_filename = os.path.splitext(save_name)[0] + '_bar' + os.path.splitext(save_name)[1]
+        self._save_figure(bar_filename)
+        plt.close()
+        
+        # Plot 2: Beeswarm plot
+        plt.figure(figsize=(10, 8))
+        plt.title('Feature Impact Distribution', fontsize=14)
+        shap.summary_plot(
+            shap_values, 
+            X,
+            feature_names=feature_names,
+            show=False
+        )
+        plt.tight_layout()
+        self._save_figure(save_name)
+        plt.close()
+    
+    def _save_figure(self, save_name: str) -> None:
+        """
+        Helper method to save figures with appropriate format and DPI
+        
+        Args:
+            save_name (str): Name of the file to save
+        """
+        file_ext = os.path.splitext(save_name)[1].lower()
+        if file_ext == '.pdf':
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight')
+        elif file_ext in ['.tif', '.tiff']:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi, format='tif', compression='tiff_lzw')
+        else:
+            plt.savefig(os.path.join(self.output_dir, save_name), bbox_inches='tight', 
+                        dpi=self.dpi)
     
     def plot_pr_curve(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], 
                   save_name: str = 'PR_curve.pdf', 

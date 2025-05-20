@@ -7,28 +7,20 @@ output_dir: ./results/model_comparison  # Directory where all comparison results
 # Model Prediction Files Configuration
 # Each entry defines a model's prediction file to be included in the comparison
 files_config:
-  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml_clinical/all_prediction_results.csv  # Path to CSV file containing model predictions
+  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results1.csv # Path to CSV file containing model predictions
     model_name: ModelA                        # Display name for the model in plots and reports
-    subject_id_col: subjid              # Column name containing subject identifiers
+    subject_id_col: subjID            # Column name containing subject identifiers
     label_col: true_label               # Column name containing true outcome labels (0/1)
     prob_col: LogisticRegression_prob   # Column name containing prediction probabilities
     pred_col: LogisticRegression_pred  # 添加离散预测列
     split_col: split                    # Column name indicating data split (e.g., train or test)
   
-  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv  # Path to CSV file containing model predictions
-    model_name: ModelB                        # Display name for the model in plots and reports
-    subject_id_col: subjID              # Column name containing subject identifiers
-    label_col: true_label               # Column name containing true outcome labels (0/1)
-    prob_col: SVC_prob                  # Column name containing prediction probabilities
-    pred_col: SVC_pred  # 添加离散预测列
-    split_col: split                    # Column name indicating data split (e.g., train or test)
-  
-  - path: F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/results/ml/all_prediction_results.csv  # Path to CSV file containing model predictions
+  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results.csv  # Path to CSV file containing model predictions
     model_name: ModelC                        # Display name for the model in plots and reports
     subject_id_col: subjID              # Column name containing subject identifiers
     label_col: true_label               # Column name containing true outcome labels (0/1)
     prob_col: XGBoost_prob               # Column name containing prediction probabilities
-    pred_col: XGBoost_pred  # 添加离散预测列
+    pred_col: XGBoost_pred              # 添加离散预测列
     split_col: split                    # Column name indicating data split (e.g., train or test)
 
 # Merged Data Configuration

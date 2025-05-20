@@ -21,6 +21,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         num_fitting_levels: int = 4,
         num_iterations: List[int] = None,
         convergence_threshold: float = 0.001,
+        shrink_factor: int = 4,
         allow_missing_keys: bool = False,
         **kwargs
     ):
@@ -34,6 +35,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
             num_iterations (List[int]): Number of iterations at each fitting level.
                 If None, will use [50] * num_fitting_levels.
             convergence_threshold (float): Convergence threshold for the correction.
+            shrink_factor (int): Shrink factor to accelerate computation (default 4).
             allow_missing_keys (bool): If True, allows missing keys in the input data.
             **kwargs: Additional parameters for N4 correction.
         """
@@ -54,6 +56,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         self.num_fitting_levels = num_fitting_levels
         self.num_iterations = num_iterations if num_iterations is not None else [50] * num_fitting_levels
         self.convergence_threshold = convergence_threshold
+        self.shrink_factor = shrink_factor
         
     def _apply_n4_correction(self, 
                            sitk_image: sitk.Image,
@@ -67,20 +70,35 @@ class N4BiasFieldCorrection(BasePreprocessor):
         Returns:
             sitk.Image: Corrected SimpleITK image
         """
-        # Create N4 bias field correction filter
-        n4_filter = sitk.N4BiasFieldCorrectionImageFilter()
+        # Cast image to float32
+        sitk_image = sitk.Cast(sitk_image, sitk.sitkFloat32)
         
-        # Set parameters
-        n4_filter.SetMaximumNumberOfIterations(self.num_iterations)
-        n4_filter.SetConvergenceThreshold(self.convergence_threshold)
-        n4_filter.SetNumberOfFittingLevels(self.num_fitting_levels)
+        # Create original image copy for full resolution correction
+        original_image = sitk_image
         
-        # Apply correction
+        # Apply shrinking to speed up computation if shrink_factor > 1
+        if self.shrink_factor > 1:
+            sitk_image = sitk.Shrink(original_image, [self.shrink_factor] * original_image.GetDimension())
+            if sitk_mask is not None:
+                sitk_mask = sitk.Shrink(sitk_mask, [self.shrink_factor] * original_image.GetDimension())
+        
+        # Create and configure N4 corrector
+        corrector = sitk.N4BiasFieldCorrectionImageFilter()
+        corrector.SetMaximumNumberOfIterations(self.num_iterations)
+        corrector.SetConvergenceThreshold(self.convergence_threshold)
+        
+        # Execute the correction
         if sitk_mask is not None:
-            corrected_image = n4_filter.Execute(sitk_image, sitk_mask)
+            corrected_image = corrector.Execute(sitk_image, sitk_mask)
         else:
-            corrected_image = n4_filter.Execute(sitk_image)
-            
+            corrected_image = corrector.Execute(sitk_image)
+        
+        # If we used shrinking, apply correction to the full resolution image
+        if self.shrink_factor > 1:
+            # Get the log bias field and apply to full resolution image
+            log_bias_field = corrector.GetLogBiasFieldAsImage(original_image)
+            corrected_image = original_image / sitk.Exp(log_bias_field)
+        
         return corrected_image
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
