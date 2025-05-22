@@ -20,21 +20,10 @@ Preprocessing:
     # mask_keys: [mask]  # 可选，用于计算统计量的区域
     clip_values: [-3, 3]  # 可选，标准化后截断极端值的范围
 
-  # # 直方图标准化 - 训练模式（生成参考直方图）
+  # 直方图标准化 - 简化版  FIXME 调试版本
   histogram_standardization:
-    images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
-    mask_keys: [mask]  # 可选，用于计算统计量的区域
-    output_range: [0, 1]  # 输出强度范围
-    train_mode: true  # 训练模式，计算参考直方图
-    output_histogram_path: ./output_histogram.pkl  # 保存参考直方图的路径
-
-  # 直方图标准化 - 推理模式（使用预先计算的参考直方图）
-  # histogram_standardization:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   mask_keys: [mask]
-  #   reference_path: ./output_histogram.pkl  # 预先计算的参考直方图路径
-  #   output_range: [0, 1]
-  #   train_mode: false  # 推理模式
+    images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
+    reference_key: PVP  # 参考图像的键名
 
   # registration:
   #   images: [pre_contrast, LAP, PVP, delay_3min]

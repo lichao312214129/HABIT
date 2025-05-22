@@ -161,57 +161,35 @@ Preprocessing:
 
 ### 5. 直方图标准化预处理器 (`histogram_standardization`)
 
-通过将输入图像的直方图映射到参考直方图来标准化图像强度。这对于标准化来自不同扫描仪或采集协议的图像很有用。
+通过将输入图像的直方图映射到参考图像来标准化图像强度。这对于标准化来自不同扫描仪或采集协议的图像很有用。
 
 **参数**:
 - `keys`: 要处理的图像键
-- `reference_path`: 参考直方图地标pickle文件的路径
-- `mask_keys`: 用于计算地标的掩码键（可选）
-- `quantile_landmarks`: 用于标准化的分位数地标列表
-- `output_range`: 输出强度的范围，默认为(0, 1)
-- `train_mode`: 是否从输入图像计算地标
-- `output_histogram_path`: 训练模式下保存地标的路径
+- `reference_key`: 数据字典中参考图像的键名
 - `allow_missing_keys`: 是否允许缺少键，默认为False
+
+**内部实现**：
+- 使用SimpleITK的HistogramMatchingImageFilter
+- 默认使用256个直方图级别
+- 默认使用100个匹配点
+- 默认在均值处进行阈值化
 
 **示例**:
 ```python
-# 训练模式 - 计算并保存地标
-hist_processor_train = PreprocessorFactory.create(
+# 使用数据字典中的参考图像
+hist_matcher = PreprocessorFactory.create(
     "histogram_standardization",
-    keys=["t1", "t2"],
-    mask_keys=["brain_mask"],
-    train_mode=True,
-    output_histogram_path="./reference_histograms.pkl"
-)
-
-# 推理模式 - 使用预计算的地标
-hist_processor_inference = PreprocessorFactory.create(
-    "histogram_standardization",
-    keys=["t1", "t2"],
-    reference_path="./reference_histograms.pkl",
-    mask_keys=["brain_mask"],
-    output_range=(0, 1)
+    keys=["t1", "t2", "flair"],
+    reference_key="t1_atlas"
 )
 ```
 
 **配置文件示例**:
 ```yaml
-# 训练模式
 Preprocessing:
   histogram_standardization:
-    images: [t1, t2, flair]
-    train_mode: true
-    output_histogram_path: ./reference_histograms.pkl
-    mask_keys: [brain_mask]
-    output_range: [0, 1]
-
-# 推理模式
-Preprocessing:
-  histogram_standardization:
-    images: [t1, t2, flair]
-    reference_path: ./reference_histograms.pkl
-    mask_keys: [brain_mask]
-    output_range: [0, 1]
+    images: [pre_contrast, LAP, delay_3min]
+    reference_key: PVP
 ```
 
 ## 自定义预处理器

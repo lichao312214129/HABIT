@@ -3,7 +3,6 @@ import numpy as np
 import SimpleITK as sitk
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
-from ...utils.image_converter import ImageConverter
 from ...utils.progress_utils import CustomTqdm
 
 @PreprocessorFactory.register("histogram_standardization")
@@ -17,24 +16,14 @@ class HistogramStandardization(BasePreprocessor):
     def __init__(
         self,
         keys: Union[str, List[str]],
-        reference_key: Optional[str] = None,
-        reference_image: Optional[sitk.Image] = None,
-        num_histogram_bins: int = 256,
-        num_match_points: int = 100,
-        threshold_mean_intensity: bool = True,
+        reference_key: str,
         allow_missing_keys: bool = False,
     ):
         """Initialize the histogram standardization preprocessor.
         
         Args:
             keys (Union[str, List[str]]): Keys of the images to be standardized.
-            reference_key (Optional[str]): Key of the reference image in the data dictionary.
-                If None, reference_image must be provided.
-            reference_image (Optional[sitk.Image]): Reference SimpleITK image for standardization.
-                If None, reference_key must be provided.
-            num_histogram_bins (int): Number of histogram bins.
-            num_match_points (int): Number of match points.
-            threshold_mean_intensity (bool): If True, threshold at mean intensity.
+            reference_key (str): Key of the reference image in the data dictionary.
             allow_missing_keys (bool): If True, allows missing keys in the input data.
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
@@ -44,18 +33,8 @@ class HistogramStandardization(BasePreprocessor):
             keys = [keys]
         self.keys = keys
         
-        # Set reference info
+        # Set reference key
         self.reference_key = reference_key
-        self.reference_image = reference_image
-        
-        # Check that at least one reference source is provided
-        if reference_key is None and reference_image is None:
-            raise ValueError("Either reference_key or reference_image must be provided")
-        
-        # Set histogram matching parameters
-        self.num_histogram_bins = num_histogram_bins
-        self.num_match_points = num_match_points
-        self.threshold_mean_intensity = threshold_mean_intensity
         
     def _apply_histogram_matching(self, 
                                  input_image: sitk.Image,
@@ -73,11 +52,11 @@ class HistogramStandardization(BasePreprocessor):
         input_image = sitk.Cast(input_image, sitk.sitkFloat32)
         reference_image = sitk.Cast(reference_image, sitk.sitkFloat32)
         
-        # Create histogram matching filter
+        # Create histogram matching filter with default parameters
         matcher = sitk.HistogramMatchingImageFilter()
-        matcher.SetNumberOfHistogramLevels(self.num_histogram_bins)
-        matcher.SetNumberOfMatchPoints(self.num_match_points)
-        matcher.SetThresholdAtMeanIntensity(self.threshold_mean_intensity)
+        matcher.SetNumberOfHistogramLevels(256)  # 默认值
+        matcher.SetNumberOfMatchPoints(100)  # 默认值
+        matcher.SetThresholdAtMeanIntensity(True)  # 默认值
         
         # Apply histogram matching
         matched_image = matcher.Execute(input_image, reference_image)
@@ -96,20 +75,17 @@ class HistogramStandardization(BasePreprocessor):
         self._check_keys(data)
         
         # Get reference image
-        reference_image = None
-        if self.reference_image is not None:
-            reference_image = self.reference_image
-        elif self.reference_key is not None and self.reference_key in data:
-            reference_image = data[self.reference_key]
-            if not isinstance(reference_image, sitk.Image):
-                raise TypeError(f"Reference key {self.reference_key} is not a SimpleITK Image object")
-        else:
+        if self.reference_key not in data:
             if not self.allow_missing_keys:
                 raise KeyError(f"Reference key {self.reference_key} not found in data dictionary")
             return data
+            
+        reference_image = data[self.reference_key]
+        if not isinstance(reference_image, sitk.Image):
+            raise TypeError(f"Reference key {self.reference_key} is not a SimpleITK Image object")
         
         # Initialize progress bar
-        progress_bar = CustomTqdm(total=len(self.keys), desc="Histogram Standardization")
+        progress_bar = CustomTqdm(total=len(self.keys), desc="直方图标准化")
         
         # Process each image
         for key in self.keys:
@@ -139,7 +115,7 @@ class HistogramStandardization(BasePreprocessor):
                 if meta_key not in data:
                     data[meta_key] = {}
                 data[meta_key]["histogram_standardized"] = True
-                data[meta_key]["reference_key"] = self.reference_key if self.reference_key else "external_reference"
+                data[meta_key]["reference_key"] = self.reference_key
                 
             except Exception as e:
                 print(f"Error applying histogram standardization to {key}: {e}")

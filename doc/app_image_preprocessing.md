@@ -129,6 +129,25 @@ Preprocessing:
 | num_iterations | List[int] | 每层迭代次数 | [50] * num_fitting_levels |
 | convergence_threshold | float | 收敛阈值 | 0.001 |
 
+### 4. 直方图标准化
+
+将图像的直方图与参考图像的直方图匹配，使得不同图像之间的强度分布更加一致。这对于跨扫描仪或跨采集序列的图像标准化非常有用。
+
+#### 参数
+
+| 参数 | 类型 | 描述 | 默认值 |
+|-----|-----|-----|-----|
+| images | List[str] | 要标准化的图像列表 | 必需 |
+| reference_key | str | 参考图像的键名 | 必需 |
+
+#### 配置示例
+
+```yaml
+histogram_standardization:
+  images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
+  reference_key: PVP  # 参考图像的键名
+```
+
 ## 完整配置示例
 
 ```yaml
@@ -154,6 +173,10 @@ Preprocessing:
     num_fitting_levels: 4
     num_iterations: [50, 50, 50, 50]
     convergence_threshold: 0.001
+    
+  histogram_standardization:
+    images: [pre_contrast, LAP, delay_3min]
+    reference_key: PVP
 ```
 
 ## 执行流程
