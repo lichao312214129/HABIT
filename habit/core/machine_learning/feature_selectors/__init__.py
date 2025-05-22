@@ -13,13 +13,16 @@ from .selector_registry import (
 )
 
 # 导入各个选择器模块
-from .anova_selector import *
 from .correlation_selector import *
 from .icc_selector import *
 from .lasso_selector import *
 from .mrmr_selector import *
 from .python_stepwise_selector import *
 from .rfecv_selector import *
+from .anova_selector import *
+from .chi2_selector import *
+from .variance_selector import *
+from .statistical_test_selector import *
 
 try:
     from .stepwise_selector import *

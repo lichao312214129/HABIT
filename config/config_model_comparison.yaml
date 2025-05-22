@@ -1,89 +1,97 @@
 # Model Comparison Configuration File
-# This file configures the model comparison pipeline for evaluating and comparing multiple predictive models
+# This configuration file defines the settings for comparing multiple predictive models' performance
+# It includes settings for data input, visualization, statistical analysis, and performance metrics
 
 # Output Directory Configuration
-output_dir: ./results/model_comparison  # Directory where all comparison results will be saved
+# Specifies where all comparison results, plots, and metrics will be saved
+output_dir: ./results/model_comparison  # Base directory for all comparison outputs
 
 # Model Prediction Files Configuration
-# Each entry defines a model's prediction file to be included in the comparison
+# Define the prediction files for each model to be compared
+# Each entry represents a different model's predictions
 files_config:
-  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results1.csv # Path to CSV file containing model predictions
-    model_name: ModelA                        # Display name for the model in plots and reports
-    subject_id_col: subjID            # Column name containing subject identifiers
-    label_col: true_label               # Column name containing true outcome labels (0/1)
-    prob_col: LogisticRegression_prob   # Column name containing prediction probabilities
-    pred_col: LogisticRegression_pred  # 添加离散预测列
-    split_col: split                    # Column name indicating data split (e.g., train or test)
+  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results1.csv 
+    model_name: ModelA                        # Name used to identify this model in plots and reports
+    subject_id_col: subjID            # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: LogisticRegression_prob   # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
+    split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
-  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results.csv  # Path to CSV file containing model predictions
-    model_name: ModelC                        # Display name for the model in plots and reports
-    subject_id_col: subjID              # Column name containing subject identifiers
-    label_col: true_label               # Column name containing true outcome labels (0/1)
-    prob_col: XGBoost_prob               # Column name containing prediction probabilities
-    pred_col: XGBoost_pred              # 添加离散预测列
-    split_col: split                    # Column name indicating data split (e.g., train or test)
+  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results.csv  
+    model_name: ModelC                        # Name used to identify this model in plots and reports
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: XGBoost_prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: XGBoost_pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
 
 # Merged Data Configuration
-# Controls how prediction data from different models is combined
+# Settings for combining predictions from multiple models into a single dataset
 merged_data:
-  enabled: true                           # Whether to merge predictions from different models into a single dataset
-  save_name: combined_predictions.csv   # Filename for the merged dataset if saved
+  enabled: true                           # Whether to create a combined dataset from all models
+  save_name: combined_predictions.csv   # Output filename for the merged dataset
   
 # Split Configuration
-# Controls whether to analyze training and test sets separately
+# Controls whether to analyze different data splits separately
 split:
-  enabled: true                           # Whether to generate separate analyses for different data splits (e.g., train vs. test)
+  enabled: true                           # Whether to generate separate analyses for different data splits
 
 # Visualization Configuration
-# Controls which performance plots to generate and their properties
+# Settings for generating various performance visualization plots
 visualization:
   # ROC (Receiver Operating Characteristic) Curve Configuration
+  # Plots true positive rate vs false positive rate at various thresholds
   roc:
     enabled: true                         # Whether to generate ROC curve plots
-    save_name: roc_curves.pdf           # Filename for the saved ROC curve plot
-    title: ROC Curves Comparison        # Title displayed on the ROC curve plot
+    save_name: roc_curves.pdf           # Output filename for ROC curve plot
+    title: ROC Curves Comparison        # Plot title
   
   # DCA (Decision Curve Analysis) Configuration
+  # Evaluates clinical utility of models across different threshold probabilities
   dca:
-    enabled: true                         # Whether to generate decision curve analysis plots
-    save_name: decision_curves.pdf      # Filename for the saved decision curve plot
-    title: Decision Curve Analysis      # Title displayed on the decision curve plot
+    enabled: true                         # Whether to generate decision curve analysis
+    save_name: decision_curves.pdf      # Output filename for decision curve plot
+    title: Decision Curve Analysis      # Plot title
   
   # Calibration Curve Configuration
+  # Shows how well predicted probabilities match actual probabilities
   calibration:
-    enabled: true                         # Whether to generate calibration curve plots
-    save_name: calibration_curves.pdf   # Filename for the saved calibration plot
-    n_bins: 10                            # Number of bins to use for calibration curve calculation
-    title: Calibration Curves           # Title displayed on the calibration curve plot
+    enabled: true                         # Whether to generate calibration curves
+    save_name: calibration_curves.pdf   # Output filename for calibration plot
+    n_bins: 10                            # Number of probability bins for calibration analysis
+    title: Calibration Curves           # Plot title
   
   # Precision-Recall Curve Configuration
+  # Plots precision vs recall at various thresholds
   pr_curve:
-    enabled: true                         # Whether to generate precision-recall curve plots
-    save_name: precision_recall_curves.pdf  # Filename for the saved precision-recall curve plot
-    title: Precision-Recall Curves      # Title displayed on the precision-recall curve plot
+    enabled: true                         # Whether to generate precision-recall curves
+    save_name: precision_recall_curves.pdf  # Output filename for PR curve plot
+    title: Precision-Recall Curves      # Plot title
 
 # DeLong Test Configuration
-# Controls statistical comparison between ROC curves using DeLong's test
+# Statistical test for comparing ROC curves between models
 delong_test:
-  enabled: true                           # Whether to perform DeLong's test for comparing AUCs
-  save_name: delong_results.json        # Filename for saving DeLong test results
+  enabled: true                           # Whether to perform DeLong's test for AUC comparison
+  save_name: delong_results.json        # Output filename for DeLong test results
 
-# Metrics Configuration
+# Performance Metrics Configuration
+# Settings for calculating various model performance metrics
 metrics:
-  # Basic Metrics Configuration
+  # Basic Performance Metrics
+  # Includes accuracy, sensitivity, specificity, etc.
   basic_metrics:
-    enabled: true                           # Whether to calculate basic metrics
-    save_name: basic_metrics.json         # Filename for saving basic metrics
+    enabled: true                           # Whether to calculate basic performance metrics
   
-  # Youden Index Metrics Configuration
+  # Youden Index Metrics
+  # Optimal threshold based on sensitivity + specificity - 1
   youden_metrics:
     enabled: true                           # Whether to calculate Youden index metrics
-    save_name: youden_metrics.json         # Filename for saving Youden index metrics
   
-  # Target Metrics Configuration
+  # Target Performance Metrics
+  # Metrics calculated at specific sensitivity/specificity targets
   target_metrics:
-    enabled: true                           # Whether to calculate target metrics
-    targets:                              # Target metrics to calculate
-      sensitivity: 0.80                      # Sensitivity target
-      specificity: 0.80                      # Specificity target
-    save_name: target_metrics.json         # Filename for saving target metrics
+    enabled: true                           # Whether to calculate target-based metrics
+    targets:                              # Target values for sensitivity and specificity
+      sensitivity: 0.80                      # Target sensitivity value
+      specificity: 0.80                      # Target specificity value

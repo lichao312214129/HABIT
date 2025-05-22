@@ -1,112 +1,135 @@
 """
-RFECV Feature Selector
+RFECV (Recursive Feature Elimination with Cross-Validation) Feature Selector
 
-Implementation of Recursive Feature Elimination with Cross-Validation (RFECV) for feature selection
+Uses scikit-learn's RFECV to select features based on model performance with cross-validation.
+Supports both classification and regression tasks with various estimators.
 """
-
-import numpy as np
 import pandas as pd
-from typing import List, Union, Tuple, Optional, Dict, Any
+import numpy as np
+from typing import List, Optional, Union, Dict, Any
 from sklearn.feature_selection import RFECV
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.model_selection import StratifiedKFold, KFold
-
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
+from sklearn.svm import SVC, SVR
+import xgboost as xgb
+import matplotlib.pyplot as plt
 from .selector_registry import register_selector
-from habit.utils.progress_utils import CustomTqdm
 
-@register_selector("rfecv")
-def rfecv_selector(X: pd.DataFrame, 
-                  y: pd.Series, 
-                  selected_features: Optional[List[str]] = None,
-                  estimator: str = "random_forest",
-                  task_type: str = "classification",
+# Dictionary mapping estimator names to their classes
+ESTIMATOR_MAP = {
+    # Classification estimators
+    'LogisticRegression': LogisticRegression,
+    'RandomForestClassifier': RandomForestClassifier,
+    'SVC': SVC,
+    'GradientBoostingClassifier': GradientBoostingClassifier,
+    'XGBClassifier': xgb.XGBClassifier,
+    
+    # Regression estimators
+    'LinearRegression': LinearRegression,
+    'RandomForestRegressor': RandomForestRegressor,
+    'SVR': SVR,
+    'GradientBoostingRegressor': GradientBoostingRegressor,
+    'XGBRegressor': xgb.XGBRegressor,
+}
+
+@register_selector('rfecv')
+def rfecv_selector(data: pd.DataFrame,
+                  target: Union[str, pd.Series],
+                  estimator: str = 'RandomForestClassifier',
+                  step: int = 1,
                   cv: int = 5,
-                  step: Union[int, float] = 1,
+                  scoring: str = 'roc_auc',
                   min_features_to_select: int = 1,
-                  scoring: Optional[str] = None,
                   n_jobs: int = -1,
-                  verbose: int = 0,
+                  random_state: Optional[int] = None,
+                  visualize: bool = False,
+                  outdir: Optional[str] = None,
+                  selected_features: Optional[List[str]] = None,
                   **estimator_params) -> List[str]:
     """
-    Recursive Feature Elimination with Cross-Validation (RFECV) for feature selection.
+    Select features using Recursive Feature Elimination with Cross-Validation (RFECV)
     
     Args:
-        X (pd.DataFrame): Feature dataframe
-        y (pd.Series): Target variable
-        selected_features (List[str], optional): List of features to consider. If None, all features are used.
-        estimator (str, optional): Estimator to use. Options: "random_forest", "linear_regression", "logistic_regression". Default: "random_forest"
-        task_type (str, optional): Task type, either "classification" or "regression". Default: "classification"
-        cv (int, optional): Number of cross-validation folds. Default: 5
-        step (Union[int, float], optional): If int, number of features to remove at each iteration. 
-                                           If float, percentage of features to remove at each iteration. Default: 1
-        min_features_to_select (int, optional): Minimum number of features to be selected. Default: 1
-        scoring (str, optional): Scoring method for cross-validation. Default: None (uses estimator's default scorer)
-        n_jobs (int, optional): Number of parallel jobs. Default: -1 (all processors)
-        verbose (int, optional): Verbosity level. Default: 0
+        data: Feature data as pandas DataFrame
+        target: Target variable, can be either a column name (str) or a pandas Series
+        estimator: Name of the estimator to use (must be one of the supported estimators)
+        step: Number of features to remove at each iteration
+        cv: Number of cross-validation folds
+        scoring: Scoring metric to use
+        min_features_to_select: Minimum number of features to select
+        n_jobs: Number of jobs to run in parallel
+        random_state: Random state for reproducibility
+        visualize: Whether to generate visualization plots
+        outdir: Output directory for visualization plots
+        selected_features: List of already selected features, if None use all columns of data
         **estimator_params: Additional parameters to pass to the estimator
         
     Returns:
         List[str]: List of selected features
+        
+    Raises:
+        ValueError: If estimator name is not supported
+        TypeError: If input data is not a pandas DataFrame
+        ValueError: If target column is not found in data (when target is str)
     """
+    # Input validation
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Input data must be a pandas DataFrame")
+    
+    if estimator not in ESTIMATOR_MAP:
+        raise ValueError(f"Unsupported estimator: {estimator}. Must be one of {list(ESTIMATOR_MAP.keys())}")
+    
+    # Prepare data
     if selected_features is None:
-        selected_features = X.columns.tolist()
-    
-    X_work = X[selected_features].copy()
-    
-    # Set up cross-validation strategy
-    if task_type == "classification":
-        cv_strategy = StratifiedKFold(n_splits=cv, shuffle=True, random_state=42)
-    else:
-        cv_strategy = KFold(n_splits=cv, shuffle=True, random_state=42)
-    
-    # Create estimator
-    if estimator == "random_forest":
-        if task_type == "classification":
-            base_estimator = RandomForestClassifier(random_state=42, **estimator_params)
+        if isinstance(target, str):
+            selected_features = [col for col in data.columns if col != target]
         else:
-            base_estimator = RandomForestRegressor(random_state=42, **estimator_params)
-    elif estimator == "linear_regression":
-        if task_type == "classification":
-            base_estimator = LogisticRegression(random_state=42, **estimator_params)
-        else:
-            base_estimator = LinearRegression(**estimator_params)
-    else:
-        raise ValueError(f"Unsupported estimator: {estimator}")
+            selected_features = data.columns.tolist()
     
-    # Create progress bar if verbose
-    progress_bar = None
-    if verbose > 0:
-        progress_bar = CustomTqdm(desc="RFECV Feature Selection")
+    X = data[selected_features]
+    y = data[target] if isinstance(target, str) else target
     
-    # Create and fit selector
-    selector = RFECV(
-        estimator=base_estimator,
+    # Initialize estimator
+    estimator_class = ESTIMATOR_MAP[estimator]
+    estimator_instance = estimator_class(random_state=random_state, **estimator_params)
+    
+    # Initialize RFECV
+    rfecv = RFECV(
+        estimator=estimator_instance,
         step=step,
-        min_features_to_select=min_features_to_select,
-        cv=cv_strategy,
+        cv=cv,
         scoring=scoring,
-        n_jobs=n_jobs,
-        verbose=verbose
+        min_features_to_select=min_features_to_select,
+        n_jobs=n_jobs
     )
     
-    selector.fit(X_work, y)
-    
-    # Get selected features
-    selected_mask = selector.support_
-    selected_feature_names = X_work.columns[selected_mask].tolist()
-    
-    if verbose > 0:
-        # Print ranking and optimal number of features
-        print(f"Optimal number of features: {selector.n_features_}")
+    try:
+        # Fit RFECV
+        rfecv.fit(X, y)
         
-        # Get feature importance ranking
-        ranking_with_names = list(zip(X_work.columns, selector.ranking_))
-        ranking_with_names.sort(key=lambda x: x[1])
+        # Get selected features
+        selected = [selected_features[i] for i in range(len(selected_features)) if rfecv.support_[i]]
         
-        print("Feature ranking (lower is better):")
-        for feature, rank in ranking_with_names:
-            selection_status = "Selected" if feature in selected_feature_names else "Rejected"
-            print(f"  {feature}: {rank} ({selection_status})")
-    
-    return selected_feature_names 
+        # Generate visualization if requested
+        if visualize:
+            plt.figure(figsize=(10, 6))
+            plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+            plt.xlabel('Number of Features Selected')
+            plt.ylabel('Cross-validation Score')
+            plt.title('RFECV Feature Selection')
+            plt.grid(True)
+            
+            if outdir:
+                import os
+                os.makedirs(outdir, exist_ok=True)
+                plt.savefig(os.path.join(outdir, 'rfecv_selection.png'), dpi=300, bbox_inches='tight')
+                plt.close()
+            else:
+                plt.show()
+        
+        print(f"RFECV selection: Selected {len(selected)} features from {len(selected_features)} features")
+        return selected
+        
+    except Exception as e:
+        print(f"Error in RFECV selection: {e}")
+        return [] 

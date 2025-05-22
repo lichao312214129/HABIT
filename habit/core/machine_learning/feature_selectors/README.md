@@ -203,29 +203,45 @@ selected_features = run_selector(
 )
 ```
 
-### 8. ANOVA选择器 (`anova`)
+### 8. ANOVA选择器 (`anova`)基于方差分析的F值特征选择。**参数**:- `p_threshold`: P值阈值，默认为0.05（选择p值小于阈值的特征）- `n_features_to_select`: 可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）- `plot_importance`: 是否绘制特征重要性图，默认为True- `outdir`: 输出目录**示例**:```pythonselected_features = run_selector(    'anova',    X,    y,    selected_features,    p_threshold=0.05,    plot_importance=True,    outdir='./output/anova_selection')```也可以选择基于数量的选择方式：```pythonselected_features = run_selector(    'anova',    X,    y,    selected_features,    n_features_to_select=20,  # 覆盖p_threshold    plot_importance=True,    outdir='./output/anova_selection')```
 
-基于方差分析的F值特征选择。
+### 9. Chi2选择器 (`chi2`)
+
+基于卡方统计量的特征选择，适用于非负特征的分类问题。
 
 **参数**:
-- `n_features_to_select`: 要选择的特征数量，默认为20
+- `p_threshold`: P值阈值，默认为0.05（选择p值小于阈值的特征）
+- `n_features_to_select`: 可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）
 - `plot_importance`: 是否绘制特征重要性图，默认为True
 - `outdir`: 输出目录
 
 **示例**:
 ```python
 selected_features = run_selector(
-    'anova',
+    'chi2',
     X,
     y,
     selected_features,
-    n_features_to_select=20,
+    p_threshold=0.05,
     plot_importance=True,
-    outdir='./output/anova_selection'
+    outdir='./output/chi2_selection'
 )
 ```
 
-### 9. Boruta选择器 (`boruta`)
+也可以选择基于数量的选择方式：
+```python
+selected_features = run_selector(
+    'chi2',
+    X,
+    y,
+    selected_features,
+    n_features_to_select=20,  # 覆盖p_threshold
+    plot_importance=True,
+    outdir='./output/chi2_selection'
+)
+```
+
+### 10. Boruta选择器 (`boruta`)
 
 基于随机森林的Boruta算法进行特征选择。
 
@@ -253,60 +269,118 @@ selected_features = run_selector(
 )
 ```
 
-## 自定义特征选择器
+### 11. 方差选择器 (`variance`)
 
-您可以通过编写自己的特征选择器函数并使用`@register_selector`装饰器注册来扩展功能。以下是一个简单示例：
+基于特征方差的选择，移除低方差特征。方差低的特征通常包含较少的信息，可能对模型的预测能力贡献不大。
 
+**参数**:
+- `threshold`: 方差阈值，默认为0.0，特征方差必须大于此阈值才会被保留
+- `plot_variances`: 是否绘制特征方差图，默认为True
+- `outdir`: 输出目录
+
+**示例**:
 ```python
-# my_selector.py
-from feature_selectors import register_selector
-import numpy as np
-import pandas as pd
-from typing import List
-
-@register_selector('my_custom_selector')
-def my_custom_selector(
-        X: pd.DataFrame,
-        y: pd.Series,
-        selected_features: List[str],
-        my_param: float = 0.5,
-        outdir: str = None,
-        **kwargs
-    ) -> List[str]:
-    """
-    自定义特征选择器
-    
-    Args:
-        X: 特征数据
-        y: 目标变量
-        selected_features: 预选特征列表
-        my_param: 自定义参数
-        outdir: 输出目录
-        **kwargs: 其他参数
-        
-    Returns:
-        List[str]: 选择的特征名列表
-    """
-    # 实现自定义的特征选择逻辑
-    # ...
-    
-    # 返回选择的特征名列表
-    return selected_features_subset
+selected_features = run_selector(
+    'variance',
+    X,
+    y,
+    selected_features,
+    threshold=0.01,
+    plot_variances=True,
+    outdir='./output/variance_selection'
+)
 ```
 
-然后在您的代码中导入这个模块，即可自动注册：
+**配置文件示例**:
+```yaml
+feature_selection_methods:
+  - method: variance
+    params:
+      threshold: 0.01
+      plot_variances: true
+      outdir: "./output/variance_selection"
+```
+
+### 12. 统计检验选择器 (`statistical_test`)
+
+基于统计检验的特征选择，可以自动选择适当的统计检验方法（t检验或Mann-Whitney U检验），根据数据分布情况。适用于二分类问题。
+
+**参数**:
+- `p_threshold`: P值阈值，默认为0.05（选择p值小于阈值的特征）
+- `n_features_to_select`: 可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）
+- `normality_test_threshold`: 正态性检验的阈值，默认为0.05
+- `plot_importance`: 是否绘制特征重要性图，默认为True
+- `force_test`: 可选参数，强制使用特定的检验方法（'ttest'或'mannwhitney'）
+- `outdir`: 输出目录
+
+**示例**:
+```python
+selected_features = run_selector(
+    'statistical_test',
+    X,
+    y,
+    selected_features,
+    p_threshold=0.05,
+    plot_importance=True,
+    outdir='./output/statistical_test_selection'
+)
+```
+
+也可以选择基于数量的选择方式：
+```python
+selected_features = run_selector(
+    'statistical_test',
+    X,
+    y,
+    selected_features,
+    n_features_to_select=20,  # 覆盖p_threshold
+    plot_importance=True,
+    outdir='./output/statistical_test_selection'
+)
+```
+
+强制使用特定检验方法：
+```python
+selected_features = run_selector(
+    'statistical_test',
+    X,
+    y,
+    selected_features,
+    p_threshold=0.05,
+    force_test='ttest',  # 强制使用t检验
+    outdir='./output/statistical_test_selection'
+)
+```
+
+**配置文件示例**:
+```yaml
+feature_selection_methods:
+  - method: statistical_test
+    params:
+      p_threshold: 0.05
+      normality_test_threshold: 0.05
+      plot_importance: true
+      outdir: "./output/statistical_test_selection"
+```
+
+## 自定义特征选择器
+
+您可以通过以下步骤添加自定义特征选择器：
+
+1. 创建一个新的Python文件，定义您的特征选择函数
+2. 使用`@register_selector`装饰器注册该函数
+3. 在`__init__.py`中导入您的模块
+
+示例：
 
 ```python
-# 导入自定义选择器
-import my_selector
+from .selector_registry import register_selector
 
-# 查看可用选择器（现在应该包含'my_custom_selector'）
-from feature_selectors import get_available_selectors
-print(get_available_selectors())
-
-# 使用自定义选择器
-from feature_selectors import run_selector
-selected = run_selector('my_custom_selector', X, y, features, my_param=0.7)
+@register_selector('my_custom_selector')
+def my_custom_selector(X, y, selected_features, **kwargs):
+    # 实现您的特征选择逻辑
+    # ...
+    return selected_features_result
 ```
 
 ## 完整工作流程示例

@@ -1,7 +1,8 @@
 """
-ANOVA Feature Selector
+Chi2 Feature Selector
 
-Implementation of ANOVA F-value based feature selection for classification problems.
+Implementation of chi-square test based feature selection for classification problems.
+Only works with non-negative features.
 """
 
 import numpy as np
@@ -9,14 +10,14 @@ import pandas as pd
 from typing import List, Tuple, Any, Dict, Optional, Union
 import os
 import json
-from sklearn.feature_selection import f_classif
+from sklearn.feature_selection import chi2, f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from .selector_registry import register_selector
 
-@register_selector('anova')
-def anova_selector(
+@register_selector('chi2')
+def chi2_selector(
         X: pd.DataFrame,
         y: pd.Series,
         selected_features: List[str],
@@ -27,11 +28,12 @@ def anova_selector(
         **kwargs
     ) -> List[str]:
     """
-    Apply ANOVA F-value based feature selection using p-value threshold
+    Apply Chi2 test based feature selection using p-value threshold.
+    Only works with non-negative features for classification problems.
     
     Args:
-        X: Feature data
-        y: Target variable
+        X: Feature data (must be non-negative)
+        y: Target variable (categorical)
         selected_features: List of features to select from
         p_threshold: P-value threshold for feature selection (default: 0.05)
         n_features_to_select: Optional number of features to select (if specified, overrides p_threshold)
@@ -45,13 +47,18 @@ def anova_selector(
     # Get feature subset
     X_subset = X[selected_features]
     
-    # Apply ANOVA F-test
-    F_values, p_values = f_classif(X_subset, y)
+    # Check for negative values
+    if (X_subset < 0).any().any():
+        print("Warning: Chi2 test requires non-negative features. Converting negative values to zero.")
+        X_subset = X_subset.clip(lower=0)
+    
+    # Apply Chi2 test
+    chi2_values, p_values = chi2(X_subset, y)
     
     # Create feature ranking
     feature_ranking = pd.DataFrame({
         'feature': selected_features,
-        'score': F_values,
+        'score': chi2_values,
         'pvalue': p_values
     })
     
@@ -81,7 +88,7 @@ def anova_selector(
         os.makedirs(outdir, exist_ok=True)
         
         # Save selected features
-        result_file = os.path.join(outdir, 'anova_selected_features.json')
+        result_file = os.path.join(outdir, 'chi2_selected_features.json')
         with open(result_file, 'w', encoding='utf-8') as f:
             json.dump({
                 'selected_features': selected_features_result,
@@ -91,16 +98,16 @@ def anova_selector(
             }, f, ensure_ascii=False, indent=4)
             
         # Save feature ranking
-        ranking_file = os.path.join(outdir, 'anova_feature_ranking.csv')
+        ranking_file = os.path.join(outdir, 'chi2_feature_ranking.csv')
         feature_ranking.to_csv(ranking_file, index=False)
         
         # Plot feature importance
         if plot_importance:
             plt.figure(figsize=(12, 8))
             sns.barplot(x='score', y='feature', data=feature_ranking.head(min(20, len(selected_features))))
-            plt.title('ANOVA F-Score Feature Importance')
+            plt.title('Chi2 Score Feature Importance')
             plt.tight_layout()
-            plt.savefig(os.path.join(outdir, 'anova_feature_importance.pdf'))
+            plt.savefig(os.path.join(outdir, 'chi2_feature_importance.pdf'))
             plt.close()
             
             # Plot feature importance with p-values
@@ -121,9 +128,9 @@ def anova_selector(
                 ax.text(top_features.loc[top_features['feature'] == feature, 'score'].values[0] + 0.5, 
                         i, stars, ha='left', va='center')
             
-            plt.title('ANOVA F-Score Feature Importance with P-values (* p<0.05, ** p<0.01, *** p<0.001)')
+            plt.title('Chi2 Score Feature Importance with P-values (* p<0.05, ** p<0.01, *** p<0.001)')
             plt.tight_layout()
-            plt.savefig(os.path.join(outdir, 'anova_feature_importance_with_pvalues.pdf'))
+            plt.savefig(os.path.join(outdir, 'chi2_feature_importance_with_pvalues.pdf'))
             plt.close()
         
     return selected_features_result 

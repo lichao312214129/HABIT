@@ -1,89 +1,81 @@
 """
-mRMR Feature Selector
+MRMR (Minimum Redundancy Maximum Relevance) Feature Selector
 
-Implementation of Minimum Redundancy Maximum Relevance algorithm for feature selection.
-REF: "Feature selection based on mutual information: criteria of max-dependency, max-relevance, and min-redundancy"
+Uses the mrmr package to select features based on mutual information criteria.
+This implementation is optimized for both classification and regression tasks.
 """
-
-import numpy as np
 import pandas as pd
-from typing import List, Tuple, Any, Dict, Optional, Union
-import os
-import json
-try:
-    from skfeature.function.information_theoretical_based import MRMR
-    SKFEATURE_AVAILABLE = True
-except ImportError:
-    SKFEATURE_AVAILABLE = False
-    print("Warning: scikit-feature package not available. mRMR selection will not be available.")
-    print("You can install scikit-feature from GitHub: https://github.com/jundongl/scikit-feature")
-
+import numpy as np
+from typing import List, Optional, Union
+from mrmr import mrmr_classif, mrmr_regression
 from .selector_registry import register_selector
 
 @register_selector('mrmr')
-def mrmr_selector(
-        X: pd.DataFrame,
-        y: pd.Series,
-        selected_features: List[str],
-        n_features_to_select: int = 20,
-        outdir: Optional[str] = None,
-        **kwargs
-    ) -> List[str]:
+def mrmr_selector(data: pd.DataFrame,
+                 target: Union[str, pd.Series],
+                 n_features: int = 10,
+                 task_type: str = 'classification',
+                 selected_features: Optional[List[str]] = None) -> List[str]:
     """
-    Apply mRMR algorithm to select the most relevant features
+    Select features using MRMR (Minimum Redundancy Maximum Relevance)
     
     Args:
-        X: Feature data
-        y: Target variable
-        selected_features: List of features to select from
-        n_features_to_select: Number of features to select
-        outdir: Output directory for results
-        **kwargs: Additional arguments
+        data: Feature data as pandas DataFrame
+        target: Target variable, can be either a column name (str) or a pandas Series
+        n_features: Number of features to select
+        task_type: Type of task, either 'classification' or 'regression'
+        selected_features: List of already selected features, if None use all columns of data
         
     Returns:
-        List[str]: Selected feature names
+        List[str]: List of selected features
         
     Raises:
-        ImportError: If scikit-feature package is not available
+        ValueError: If task_type is not 'classification' or 'regression'
+        TypeError: If input data is not a pandas DataFrame
+        ValueError: If target column is not found in data (when target is str)
+        TypeError: If target is not a string or pandas Series
     """
-    if not SKFEATURE_AVAILABLE:
-        raise ImportError("scikit-feature package is required for mRMR selection")
+    # Input validation
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Input data must be a pandas DataFrame")
     
-    # Ensure n_features_to_select is valid
-    n_features_to_select = min(n_features_to_select, len(selected_features))
+    if not isinstance(target, (str, pd.Series)):
+        raise TypeError("target must be either a string (column name) or a pandas Series")
     
-    # Convert data to numpy arrays
-    X_data = X[selected_features].values
-    y_data = y.values
+    if isinstance(target, str):
+        if target not in data.columns:
+            raise ValueError(f"Target column '{target}' not found in data")
+        y = data[target]
+    else:
+        y = target
+        if len(y) != len(data):
+            raise ValueError("Length of target Series must match the number of rows in data")
     
-    # Apply the mRMR algorithm to select features
-    selected_indices = MRMR.mrmr(X_data, y_data, n_selected_features=n_features_to_select)
+    if task_type not in ['classification', 'regression']:
+        raise ValueError("task_type must be either 'classification' or 'regression'")
     
-    # Get the selected feature names
-    selected_features_result = [selected_features[i] for i in selected_indices]
-
-    print(f"mRMR selection: Selected {n_features_to_select} features from {len(selected_features)} features")
+    if n_features <= 0:
+        raise ValueError("n_features must be positive")
     
-    # Save results if output directory specified
-    if outdir:
-        os.makedirs(outdir, exist_ok=True)
-        
-        # Save selected features
-        result_file = os.path.join(outdir, 'mrmr_selected_features.json')
-        with open(result_file, 'w', encoding='utf-8') as f:
-            json.dump({
-                'selected_features': selected_features_result,
-                'selected_indices': selected_indices.tolist(),
-                'n_features_selected': len(selected_features_result),
-                'original_feature_count': len(selected_features)
-            }, f, ensure_ascii=False, indent=4)
+    # Prepare data
+    if selected_features is None:
+        if isinstance(target, str):
+            selected_features = [col for col in data.columns if col != target]
+        else:
+            selected_features = data.columns.tolist()
+    
+    X = data[selected_features]
+    
+    try:
+        # Select features based on task type
+        if task_type == 'classification':
+            selected = mrmr_classif(X=X, y=y, K=n_features)
+        else:
+            selected = mrmr_regression(X=X, y=y, K=n_features)
             
-        # Save feature ranking
-        ranking_data = pd.DataFrame({
-            'feature': [selected_features[i] for i in selected_indices],
-            'rank': range(1, len(selected_indices) + 1)
-        })
-        ranking_file = os.path.join(outdir, 'mrmr_feature_ranking.csv')
-        ranking_data.to_csv(ranking_file, index=False)
+        print(f"MRMR selection: Selected {len(selected)} features from {len(selected_features)} features")
+        return selected
         
-    return selected_features_result[:n_features_to_select]
+    except Exception as e:
+        print(f"Error in MRMR selection: {e}")
+        return []

@@ -1,19 +1,40 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: H:\Registration_ICC_structured_test
-out_dir: F:\\work\\research\\radiomics_TLSs\\data\\results_420
+data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets
+out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results\preprocessed
 
 # Preprocessing settings
 Preprocessing:
-  n4_correction:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    num_fitting_levels: 2
-
+  # n4_correction:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   num_fitting_levels: 2
 
   # resample:
   #   images: [pre_contrast, LAP, PVP, delay_3min]
   #   target_spacing: [2.0, 2.0, 2.0]  # Target voxel spacing in x, y, z
+
+  # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
+  zscore_normalization:
+    images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
+    # mask_keys: [mask]  # 可选，用于计算统计量的区域
+    clip_values: [-3, 3]  # 可选，标准化后截断极端值的范围
+
+  # # 直方图标准化 - 训练模式（生成参考直方图）
+  histogram_standardization:
+    images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
+    mask_keys: [mask]  # 可选，用于计算统计量的区域
+    output_range: [0, 1]  # 输出强度范围
+    train_mode: true  # 训练模式，计算参考直方图
+    output_histogram_path: ./output_histogram.pkl  # 保存参考直方图的路径
+
+  # 直方图标准化 - 推理模式（使用预先计算的参考直方图）
+  # histogram_standardization:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   mask_keys: [mask]
+  #   reference_path: ./output_histogram.pkl  # 预先计算的参考直方图路径
+  #   output_range: [0, 1]
+  #   train_mode: false  # 推理模式
 
   # registration:
   #   images: [pre_contrast, LAP, PVP, delay_3min]

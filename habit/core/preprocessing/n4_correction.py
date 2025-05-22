@@ -1,5 +1,4 @@
 from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
-import torch
 import numpy as np
 import SimpleITK as sitk
 from .base_preprocessor import BasePreprocessor

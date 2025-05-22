@@ -66,6 +66,7 @@ def main() -> None:
         model.read_data()\
              .preprocess_data()\
              ._split_data()\
+             .feature_selection_before_normalization()\
              .normalization()\
              .feature_selection()\
              .modeling()\

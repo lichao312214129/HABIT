@@ -1,5 +1,5 @@
-SimpleITK
-antspyx
+SimpleITK==2.2.1
+antspyx==0.4.2
 opencv-python
 numpy
 matplotlib
@@ -10,12 +10,14 @@ pandas
 tqdm
 pyradiomics
 scikit-learn
+mrmr_selection
 pingouin
 statsmodels
 xgboost
 seaborn
 shap
 pyyaml
+torch
 
 
 

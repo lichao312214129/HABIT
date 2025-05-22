@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Union, List
-import torch
 
 class BasePreprocessor(ABC):
     """Base class for all image preprocessors in HABIT.
