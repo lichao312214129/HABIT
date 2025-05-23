@@ -106,7 +106,6 @@ class RegistrationPreprocessor(BasePreprocessor):
         
         # Prepare registration parameters
         reg_params = {
-            'type_of_transform': self.type_of_transform,
             'metric': self.metric,
             'optimizer': self.optimizer,
             **self.reg_params
@@ -122,6 +121,7 @@ class RegistrationPreprocessor(BasePreprocessor):
         reg_result = ants.registration(
             fixed=fixed_image,
             moving=moving_image,
+            type_of_transform=self.type_of_transform,
             **reg_params
         )
         
@@ -192,7 +192,7 @@ class RegistrationPreprocessor(BasePreprocessor):
                 
                 # Convert ANTs image to SimpleITK image
                 registered_sitk = ImageConverter.ants_2_itk(registered_image)
-                sitk.GetArrayFromImage(registered_sitk)
+                # sitk.GetArrayFromImage(registered_sitk)
                 
                 # Store the registered image
                 data[key] = registered_sitk
@@ -304,3 +304,4 @@ class RegistrationPreprocessor(BasePreprocessor):
                 print(f"Error applying transform to mask {mask_key}: {e}")
                 # Continue even if error occurs for one mask
         
+        print(f"Registration completed for {self.keys}.")

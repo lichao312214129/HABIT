@@ -10,19 +10,20 @@
 
 # Image Types Configuration
 # Defines the image preprocessing filters to apply before feature extraction
-imageType:
+
+imageType: 
   Original: {}                       # Extract features from the original image without filtering
-  # LoG:                            # Laplacian of Gaussian filter - enhances edges in images
-  #   # If using sigma values >5, increase padDistance. With resampling to (2, 2, 2), 
-  #   # sigma values < 2 mm are not recommended.
-    # sigma: [2.0, 3.0, 4.0, 5.0, 6.0]  # Sigma values control the scale of the filter (larger = more smoothing)
-  # Wavelet: {}                     # Wavelet decomposition - captures frequency information at different scales
-  # Square: {}                      # Square filter - enhances intensity differences
-  # SquareRoot: {}                  # Square root filter - reduces intensity differences
-  # Logarithm: {}                   # Logarithm filter - enhances low intensity details
-  # Exponential: {}                 # Exponential filter - enhances high intensity details
-  # Gradient: {}                    # Gradient filter - enhances edges and boundaries
-  # LBP3D: {}                       # Local Binary Pattern features - captures texture patterns
+  LoG:                            # Laplacian of Gaussian filter - enhances edges in images
+    # If using sigma values >5, increase padDistance. With resampling to (2, 2, 2), 
+    # sigma values < 2 mm are not recommended.
+    sigma: [2.0, 3.0, 4.0, 5.0, 6.0]  # Sigma values control the scale of the filter (larger = more smoothing)
+  Wavelet: {}                     # Wavelet decomposition - captures frequency information at different scales
+  Square: {}                      # Square filter - enhances intensity differences
+  SquareRoot: {}                  # Square root filter - reduces intensity differences
+  Logarithm: {}                   # Logarithm filter - enhances low intensity details
+  Exponential: {}                 # Exponential filter - enhances high intensity details
+  Gradient: {}                    # Gradient filter - enhances edges and boundaries
+  LBP3D: {}                       # Local Binary Pattern features - captures texture patterns
 
 # Feature Classes Configuration
 # Defines which feature classes to extract
@@ -67,7 +68,7 @@ setting:
   # First Order Specific Settings
   # When normalizing, gray values below the mean will be negative
   # Shifting by 300 (3 StdDevs * 100) ensures most voxels are positive
-  voxelArrayShift: 300              # Value to add to gray levels after normalization
+  voxelArrayShift: 1000              # Value to add to gray levels after normalization
 
   # Miscellaneous Settings
   # Default label value for segmentation masks
