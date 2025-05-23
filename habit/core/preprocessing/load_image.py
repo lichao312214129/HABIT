@@ -17,7 +17,7 @@ class LoadImagePreprocessor(BasePreprocessor):
     def __init__(
         self,
         keys: Union[str, List[str]],
-        allow_missing_keys: bool = False,
+        allow_missing_keys: bool = True,
         **kwargs
     ):
         """Initialize the LoadImage preprocessor.

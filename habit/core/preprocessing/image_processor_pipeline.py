@@ -146,6 +146,8 @@ class BatchProcessor:
                 )
                 transforms.append(processor)
             
+            self.logger.info(f"Processing subject: {subject_data['subj']}")
+
             # Run pipeline
             for transform in transforms:
                 transform(subject_data)
@@ -260,8 +262,9 @@ class BatchProcessor:
             has_mask = any(key.startswith("mask_") for key in data_entry.keys())
             
             # 将生成的数据条目加入到列表中
+            subject_data_list.append(data_entry)
             if has_mask:  # 确保至少有一个mask才添加
-                subject_data_list.append(data_entry)
+                self.logger.info(f"有mask的样本: {subject}")
             else:
                 self.logger.warning(f"No mask found for subject {subject}, skipping")
             

@@ -14,9 +14,9 @@ from datetime import datetime
 
 
 
-def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
+def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
     """
-    Get paths for all image and mask files
+    Scan folder structure for image and mask paths (internal function)
     
     Args:
         root_folder (str): Root directory
@@ -52,9 +52,13 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
     # Get mask paths
     mask_paths = {}
     masks_root = os.path.join(root_folder, keyword_of_mask_folder)
+
+    # if no masks folder, return empty mask_paths
+    if not os.path.exists(masks_root):
+        return images_paths, {}
+    
     # Filter out .DS_Store and other hidden files
     subjects = [f for f in os.listdir(masks_root) if not f.startswith('.')]
-    
     for subj in subjects:
         mask_paths[subj] = {}
         subj_path = os.path.join(masks_root, subj)
@@ -73,6 +77,70 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
                 mask_paths[subj][mask_subfolder] = os.path.join(mask_subfolder_path, mask_file)
     
     return images_paths, mask_paths
+
+def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
+    """
+    Get paths for all image and mask files
+    
+    Args:
+        root_folder (str): Root directory or path to YAML configuration file
+        keyword_of_raw_folder (str, optional): Name of the images folder (only used when root_folder is a directory)
+        keyword_of_mask_folder (str, optional): Name of the masks folder (only used when root_folder is a directory)
+    
+    Returns:
+        tuple: Dictionary of image paths and dictionary of mask paths
+        
+    Note:
+        If root_folder is a YAML file, it should contain the following structure:
+        ```yaml
+        images:
+          subject1:
+            image_type1: /path/to/image1
+            image_type2: /path/to/image2
+          subject2:
+            image_type1: /path/to/image1
+        masks:
+          subject1:
+            image_type1: /path/to/mask1
+            image_type2: /path/to/mask2
+          subject2:
+            image_type1: /path/to/mask1
+        ```
+    """
+    # Check if input is a YAML configuration file
+    if os.path.isfile(root_folder) and root_folder.lower().endswith(('.yaml', '.yml')):
+        # Load configuration from YAML file
+        config = load_config(root_folder)
+        
+        # Extract images and masks paths from config
+        images_paths = config.get('images', {})
+        mask_paths = config.get('masks', {})
+        
+        # Validate that all paths exist
+        for subject, img_dict in images_paths.items():
+            for img_type, img_path in img_dict.items():
+                if not os.path.exists(img_path):
+                    print(f"Warning: Image file not found: {img_path} for {subject}/{img_type}")
+        
+        for subject, mask_dict in mask_paths.items():
+            for mask_type, mask_path in mask_dict.items():
+                if not os.path.exists(mask_path):
+                    print(f"Warning: Mask file not found: {mask_path} for {subject}/{mask_type}")
+
+        # if is dir then get the first file in the dir
+        for subject, img_dict in images_paths.items():
+            for img_type, img_path in img_dict.items():
+                if os.path.isdir(img_path):
+                    img_dict[img_type] = os.path.join(img_path, os.listdir(img_path)[0])
+        
+        for subject, mask_dict in mask_paths.items():
+            for mask_type, mask_path in mask_dict.items():
+                if os.path.isdir(mask_path):
+                    mask_dict[mask_type] = os.path.join(mask_path, os.listdir(mask_path)[0])
+        return images_paths, mask_paths
+    
+    # Use folder scanning logic
+    return _scan_folder_for_paths(root_folder, keyword_of_raw_folder, keyword_of_mask_folder)
 
 def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
     """
@@ -347,3 +415,26 @@ def setup_logging(out_dir: str, debug: bool = False) -> None:
             logging.StreamHandler()
         ]
     ) 
+
+def export_paths_to_yaml(root_folder: str, output_yaml_path: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> None:
+    """
+    Export folder structure to YAML configuration file
+    
+    Args:
+        root_folder (str): Root directory to scan
+        output_yaml_path (str): Path to save the YAML configuration file
+        keyword_of_raw_folder (str, optional): Name of the images folder
+        keyword_of_mask_folder (str, optional): Name of the masks folder
+    """
+    # Get paths using the folder scanning method
+    images_paths, mask_paths = _scan_folder_for_paths(root_folder, keyword_of_raw_folder, keyword_of_mask_folder)
+    
+    # Create configuration dictionary
+    config = {
+        'images': images_paths,
+        'masks': mask_paths
+    }
+    
+    # Save to YAML file
+    save_config(config, output_yaml_path)
+    print(f"Paths configuration exported to {output_yaml_path}") 

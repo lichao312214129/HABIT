@@ -184,7 +184,7 @@ class RegistrationPreprocessor(BasePreprocessor):
                     moving_mask = sitk.Cast(moving_mask, sitk.sitkUInt8)
                     moving_mask = ImageConverter.itk_2_ants(moving_mask)
             
-            try:
+            try:             
                 # Register image
                 registered_image, transform_files = self._register_image(
                     fixed_image, moving_image, fixed_mask, moving_mask
@@ -304,4 +304,3 @@ class RegistrationPreprocessor(BasePreprocessor):
                 print(f"Error applying transform to mask {mask_key}: {e}")
                 # Continue even if error occurs for one mask
         
-        print(f"Registration completed for {self.keys}.")

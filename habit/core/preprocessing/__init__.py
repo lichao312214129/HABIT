@@ -6,6 +6,7 @@ from .registration import RegistrationPreprocessor
 from .custom_preprocessor_template import CustomPreprocessor
 from .zscore_normalization import ZScoreNormalization
 from .histogram_standardization import HistogramStandardization
+from .dcm2niix_converter import Dcm2niixConverter, batch_convert_dicom_directories
 
 __all__ = [
     "BasePreprocessor",
@@ -16,4 +17,6 @@ __all__ = [
     "CustomPreprocessor",
     "ZScoreNormalization",
     "HistogramStandardization",
+    "Dcm2niixConverter",
+    "batch_convert_dicom_directories",
 ] 

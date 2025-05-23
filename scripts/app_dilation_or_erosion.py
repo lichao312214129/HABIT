@@ -74,10 +74,14 @@ def apply_morphological_operations(mask: np.ndarray,
         processed = binary_dilation(mask, structure=structure)
         # 获取差值（外环）
         result = processed & ~mask
+        # give 2 to true
+        # result[result == True] = 2
     elif operation == 'erosion':
         processed = binary_erosion(mask, structure=structure)
         # 获取差值（内环）
         result = mask & ~processed
+        # give 2 to true
+        # result[result == True] = 2
     else:
         raise ValueError(f"不支持的操作: {operation}")
     
@@ -246,9 +250,9 @@ if __name__ == "__main__":
         sys.argv.extend([
             '--masks_root', '../demo_data/datasets',
             '--output_dir', '../demo_data/results/dilation',
-            '--voxel_size', '5',
-            '--operation', 'dilation',
-            '--n_processes', '6'
+            '--voxel_size', '5',  # 膨胀或腐蚀的像素大小
+            '--operation', 'dilation',  # 膨胀或腐蚀
+            '--n_processes', '4'  # 进程数
         ])
     
     main()

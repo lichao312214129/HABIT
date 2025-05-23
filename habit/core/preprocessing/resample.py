@@ -2,8 +2,12 @@ from typing import Dict, Any, Optional, Sequence, Union, List, Tuple
 import numpy as np
 import SimpleITK as sitk
 import os
+import logging
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
+
+# 配置日志记录器
+logger = logging.getLogger(__name__)
 
 @PreprocessorFactory.register("resample")
 class ResamplePreprocessor(BasePreprocessor):
@@ -75,28 +79,39 @@ class ResamplePreprocessor(BasePreprocessor):
     def _resample_image(self, 
                        sitk_image: sitk.Image, 
                        target_spacing: Sequence[float],
-                       interpolator) -> Tuple[np.ndarray, Sequence[float]]:
+                       interpolator,
+                       subj: Optional[str] = None,
+                       key: Optional[str] = None) -> Tuple[np.ndarray, Sequence[float]]:
         """Resample a SimpleITK image.
         
         Args:
             sitk_image (sitk.Image): SimpleITK image object to resample
             target_spacing (Sequence[float]): Target spacing to resample to
             interpolator: SimpleITK interpolator object (e.g., sitk.sitkLinear)
+            subj (Optional[str]): Subject identifier for logging
+            key (Optional[str]): Image key for logging
             
         Returns:
             Tuple[np.ndarray, Sequence[float]]: 
                 - Resampled array in original format
                 - Original spacing of the image
         """
+        subj_info = f"[{subj}] " if subj else ""
+        key_info = f"({key}) " if key else ""
+        
         # Get original spacing from the image
         original_spacing = sitk_image.GetSpacing()
         
         # Get image size
         size = sitk_image.GetSize()
         
+        logger.info(f"{subj_info}{key_info}Original spacing: {original_spacing}, size: {size}")
+        
         # Calculate the new size after resampling
         zoom_factor = [orig_sz / target_sz for orig_sz, target_sz in zip(original_spacing, target_spacing)]
         new_size = [int(round(sz * factor)) for sz, factor in zip(size, zoom_factor)]
+        
+        logger.info(f"{subj_info}{key_info}Target spacing: {target_spacing}, new size: {new_size}")
         
         # Create reference image with target spacing
         reference_image = sitk.Image(new_size, sitk_image.GetPixelID())
@@ -108,7 +123,10 @@ class ResamplePreprocessor(BasePreprocessor):
         resampler = sitk.ResampleImageFilter()
         resampler.SetReferenceImage(reference_image)
         resampler.SetInterpolator(interpolator)
-        resampled_sitk = resampler.Execute(sitk_image)        
+        resampled_sitk = resampler.Execute(sitk_image)
+        
+        logger.info(f"{subj_info}{key_info}Resampling completed")
+        
         return resampled_sitk, original_spacing
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -121,8 +139,11 @@ class ResamplePreprocessor(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with resampled images and masks.
         """
-        print(f"Resampling images to {self.target_spacing}...")
+        logger.info(f"Resampling images to {self.target_spacing}...")
         self._check_keys(data)
+        
+        subj = data.get('subj', 'unknown')
+        logger.info(f"Processing subject: {subj}")
         
         # Process images
         for key in self.img_keys:
@@ -133,39 +154,46 @@ class ResamplePreprocessor(BasePreprocessor):
             
             # Ensure we have a SimpleITK image object
             if not isinstance(sitk_image, sitk.Image):
-                print(f"Warning: {key} is not a SimpleITK Image object. Skipping.")
+                logger.warning(f"[{subj}] Warning: {key} is not a SimpleITK Image object. Skipping.")
                 continue
             
             # Perform resampling with SimpleITK
             resampled_img, original_spacing = self._resample_image(
                 sitk_image=sitk_image,
                 target_spacing=self.target_spacing,
-                interpolator=self.img_interp
+                interpolator=self.img_interp,
+                subj=subj,
+                key=key
             )
 
             # Store the resampled array in the data
             data[key] = resampled_img
+            logger.info(f"[{subj}] Successfully resampled image {key}")
                     
         # Process masks with nearest neighbor interpolation
         for mask_key in self.mask_keys:
             if mask_key not in data:
                 continue
                 
-            
             # Get SimpleITK mask from data
             sitk_mask = data[mask_key]
             
             # Ensure we have a SimpleITK image object
             if not isinstance(sitk_mask, sitk.Image):
-                print(f"Warning: {mask_key} is not a SimpleITK Image object. Skipping.")
+                logger.warning(f"[{subj}] Warning: {mask_key} is not a SimpleITK Image object. Skipping.")
                 continue
             
             # Perform resampling with SimpleITK using nearest neighbor for masks
             resampled_img, original_spacing = self._resample_image(
                 sitk_image=sitk_mask,
                 target_spacing=self.target_spacing,
-                interpolator=sitk.sitkNearestNeighbor
+                interpolator=sitk.sitkNearestNeighbor,
+                subj=subj,
+                key=mask_key
             )
             
             # Store the resampled array in the data
             data[mask_key] = resampled_img
+            logger.info(f"[{subj}] Successfully resampled mask {mask_key}")
+            
+        return data

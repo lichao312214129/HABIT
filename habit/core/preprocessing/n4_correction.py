@@ -1,9 +1,13 @@
 from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
 import numpy as np
 import SimpleITK as sitk
+import logging
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
 from ...utils.image_converter import ImageConverter
+
+# 配置日志记录器
+logger = logging.getLogger(__name__)
 
 @PreprocessorFactory.register("n4_correction")
 class N4BiasFieldCorrection(BasePreprocessor):
@@ -59,16 +63,20 @@ class N4BiasFieldCorrection(BasePreprocessor):
         
     def _apply_n4_correction(self, 
                            sitk_image: sitk.Image,
-                           sitk_mask: Optional[sitk.Image] = None) -> sitk.Image:
+                           sitk_mask: Optional[sitk.Image] = None,
+                           subj: Optional[str] = None) -> sitk.Image:
         """Apply N4 bias field correction to a SimpleITK image.
         
         Args:
             sitk_image (sitk.Image): Input SimpleITK image to correct
             sitk_mask (Optional[sitk.Image]): Optional mask for the correction
+            subj (Optional[str]): Subject identifier for logging
             
         Returns:
             sitk.Image: Corrected SimpleITK image
         """
+        subj_info = f"[{subj}] " if subj else ""
+        
         # Cast image to float32
         sitk_image = sitk.Cast(sitk_image, sitk.sitkFloat32)
         
@@ -77,6 +85,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         
         # Apply shrinking to speed up computation if shrink_factor > 1
         if self.shrink_factor > 1:
+            logger.info(f"{subj_info}Applying shrinking with factor {self.shrink_factor} to speed up computation")
             sitk_image = sitk.Shrink(original_image, [self.shrink_factor] * original_image.GetDimension())
             if sitk_mask is not None:
                 sitk_mask = sitk.Shrink(sitk_mask, [self.shrink_factor] * original_image.GetDimension())
@@ -86,6 +95,8 @@ class N4BiasFieldCorrection(BasePreprocessor):
         corrector.SetMaximumNumberOfIterations(self.num_iterations)
         corrector.SetConvergenceThreshold(self.convergence_threshold)
         
+        logger.info(f"{subj_info}Executing N4 correction with {self.num_fitting_levels} fitting levels")
+        
         # Execute the correction
         if sitk_mask is not None:
             corrected_image = corrector.Execute(sitk_image, sitk_mask)
@@ -94,6 +105,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         
         # If we used shrinking, apply correction to the full resolution image
         if self.shrink_factor > 1:
+            logger.info(f"{subj_info}Applying correction to full resolution image")
             # Get the log bias field and apply to full resolution image
             log_bias_field = corrector.GetLogBiasFieldAsImage(original_image)
             corrected_image = original_image / sitk.Exp(log_bias_field)
@@ -109,8 +121,11 @@ class N4BiasFieldCorrection(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with corrected images.
         """
-        print("Applying N4 bias field correction...")
+        logger.info("Applying N4 bias field correction...")
         self._check_keys(data)
+        
+        subj = data.get('subj', 'unknown')
+        logger.info(f"Processing subject: {subj}")
         
         # Process each image
         for key in self.keys:
@@ -119,7 +134,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
             
             # Ensure we have a SimpleITK image object
             if not isinstance(sitk_image, sitk.Image):
-                print(f"Warning: {key} is not a SimpleITK Image object. Skipping.")
+                logger.warning(f"[{subj}] Warning: {key} is not a SimpleITK Image object. Skipping.")
                 continue
             
             # Get corresponding mask if specified
@@ -129,12 +144,12 @@ class N4BiasFieldCorrection(BasePreprocessor):
                 if mask_key in data:
                     sitk_mask = data[mask_key]
                     if not isinstance(sitk_mask, sitk.Image):
-                        print(f"Warning: {mask_key} is not a SimpleITK Image object. Using no mask.")
+                        logger.warning(f"[{subj}] Warning: {mask_key} is not a SimpleITK Image object. Using no mask.")
                         sitk_mask = None
             
             try:
                 # Apply N4 correction
-                corrected_image = self._apply_n4_correction(sitk_image, sitk_mask)
+                corrected_image = self._apply_n4_correction(sitk_image, sitk_mask, subj)
                 
                 # Store the corrected image
                 data[key] = corrected_image
@@ -145,8 +160,10 @@ class N4BiasFieldCorrection(BasePreprocessor):
                     data[meta_key] = {}
                 data[meta_key]["n4_corrected"] = True
                 
+                logger.info(f"[{subj}] Successfully applied N4 correction to {key}")
+                
             except Exception as e:
-                print(f"Error applying N4 correction to {key}: {e}")
+                logger.error(f"[{subj}] Error applying N4 correction to {key}: {e}")
                 if not self.allow_missing_keys:
                     raise
         
