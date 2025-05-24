@@ -1,0 +1,42 @@
+{
+    "selected_features": [
+        "worst radius",
+        "worst texture"
+    ],
+    "feature_selection_methods": [
+        {
+            "method": "icc",
+            "params": {
+                "icc_results": "../demo_data/results/icc_results.json",
+                "keys": [
+                    "breast_cancer_dataset_v2_vs_breast_cancer_dataset"
+                ],
+                "threshold": 0.8,
+                "before_z_score": false,
+                "outdir": "./ml_data/ml/rad_clinical"
+            }
+        },
+        {
+            "method": "correlation",
+            "params": {
+                "threshold": 0.75,
+                "method": "spearman",
+                "visualize": false,
+                "before_z_score": false,
+                "outdir": "./ml_data/ml/rad_clinical"
+            }
+        }
+    ],
+    "selected_features_of_each_method": {
+        "icc": [
+            "worst radius",
+            "worst perimeter",
+            "worst texture",
+            "worst area"
+        ],
+        "correlation": [
+            "worst radius",
+            "worst texture"
+        ]
+    }
+}

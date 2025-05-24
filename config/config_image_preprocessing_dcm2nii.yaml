@@ -8,7 +8,7 @@ out_dir: ../demo_data/results/preprocessed1
 Preprocessing:
   dcm2nii:
     images: [AxT1FLAIR, AxT2FRFSE, AxT2fsFLAIR, SagT2FRFSE]
-    dcm2niix_executable: ../software/dcm2nii/dcm2niix.exe
+    dcm2niix_path: ../software/dcm2nii/dcm2niix.exe
     compress: true
     anonymize: false
     

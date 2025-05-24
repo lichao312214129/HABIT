@@ -10,7 +10,7 @@ output_dir: ./results/model_comparison  # Base directory for all comparison outp
 # Define the prediction files for each model to be compared
 # Each entry represents a different model's predictions
 files_config:
-  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results1.csv 
+  - path: ./ml_data/ml/rad/all_prediction_results.csv 
     model_name: ModelA                        # Name used to identify this model in plots and reports
     subject_id_col: subjID            # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
@@ -18,13 +18,14 @@ files_config:
     pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
     split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
-  - path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504/demo_data/results/all_prediction_results.csv  
+  - path: ./ml_data/ml/rad_clinical/all_prediction_results.csv  
     model_name: ModelC                        # Name used to identify this model in plots and reports
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
-    prob_col: XGBoost_prob               # Column containing predicted probabilities (continuous: 0-1)
-    pred_col: XGBoost_pred              # Column containing predicted class labels (binary: 0/1)
-    split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
+    prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+
 
 # Merged Data Configuration
 # Settings for combining predictions from multiple models into a single dataset
@@ -93,5 +94,5 @@ metrics:
   target_metrics:
     enabled: true                           # Whether to calculate target-based metrics
     targets:                              # Target values for sensitivity and specificity
-      sensitivity: 0.80                      # Target sensitivity value
-      specificity: 0.80                      # Target specificity value
+      sensitivity: 0.90                      # Target sensitivity value
+      specificity: 0.50                      # Target specificity value

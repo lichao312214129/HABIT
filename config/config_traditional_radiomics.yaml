@@ -8,7 +8,7 @@ paths:
   
   # Default path to the image dataset
   # Structure should include images/ and masks/ subdirectories
-  images_folder: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets
+  images_folder: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_icc
   
  # Default output directory for results
   out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results

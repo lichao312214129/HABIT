@@ -12,8 +12,6 @@ import yaml
 import logging
 from datetime import datetime
 
-
-
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
     """
     Scan folder structure for image and mask paths (internal function)

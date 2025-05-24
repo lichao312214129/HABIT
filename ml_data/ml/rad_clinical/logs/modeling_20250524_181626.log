@@ -1,0 +1,101 @@
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:65 - Initializing modeling with config: {'input': [{'path': './ml_data/breast_cancer_dataset.csv', 'name': None, 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}, {'path': './ml_data/clinical_feature.csv', 'name': 'clinical_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': ['AFP', 'PLT', 'BMI']}], 'output': './ml_data/ml/rad_clinical', 'split_method': 'custom', 'test_size': 0.3, 'random_state': 42, 'train_ids_file': './ml_data/train_ids.txt', 'test_ids_file': './ml_data/test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'icc', 'params': {'icc_results': '../demo_data/results/icc_results.json', 'keys': ['breast_cancer_dataset_v2_vs_breast_cancer_dataset'], 'threshold': 0.8, 'before_z_score': False}}, {'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2}}, {'method': 'correlation', 'params': {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}}, 'is_visualize': True, 'is_save_model': True}
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:80 - Available feature selectors: ['correlation', 'icc', 'lasso', 'mrmr', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:88 - Modeling initialization completed
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:101 - Reading data from multiple files: 2 files
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/breast_cancer_dataset.csv, Dataset name: None
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 14)
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:158 - Using label column: label
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:164 - Using subject ID column: subjID
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:210 - Created initial merged dataframe with shape: (569, 12)
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/clinical_feature.csv, Dataset name: clinical_
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 8)
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:219 - Merged dataframe updated, new shape: (569, 15)
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:226 - Adding unified label column: label
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:231 - Final merged dataframe shape: (569, 16) with 15 features
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:249 - Converting data to numeric types
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:251 - Data converted to numeric types
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:255 - Missing values: label                      0
+compactness error          0
+concavity error            0
+concave points error       0
+symmetry error             0
+fractal dimension error    0
+worst radius               0
+worst texture              0
+worst perimeter            0
+worst area                 0
+worst smoothness           0
+worst compactness          0
+worst fractal dimension    0
+clinical_AFP               0
+clinical_PLT               0
+clinical_BMI               0
+dtype: int64
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:258 - Starting data preprocessing
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:259 - Sample size before removing missing values: 569
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:261 - Sample size after removing missing values: 569
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:264 - Data preprocessing completed
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:274 - Splitting data using method: custom
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:312 - Reading custom train IDs from ./ml_data/train_ids.txt
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/train_ids.txt
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:418 - Parsed 300 subject IDs from line-by-line format
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:314 - Read 300 train subject IDs
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:316 - Reading custom test IDs from ./ml_data/test_ids.txt
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/test_ids.txt
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:418 - Parsed 269 subject IDs from line-by-line format
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:318 - Read 269 test subject IDs
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:354 - Custom split completed: train=300, test=269
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:371 - Extracted features and labels: 15 features
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:429 - Saving train/test split information
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:443 - Split information saved to: ./ml_data/ml/rad_clinical\split_info.json
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:375 - Split information saved
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:464 - Checking for feature selection methods to run before normalization
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:489 - Running 1 feature selection methods before normalization
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:493 - Starting with 15 features
+2025-05-24 18:16:26 - modeling - INFO - machine_learning.py:501 - Executing variance feature selection before normalization with params: {'before_z_score': True, 'threshold': 0.2}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:522 - variance selected 4 features, removed 11 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:540 - Pre-normalization feature selection completed. Selected 4 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:562 - Starting data normalization using method: z_score
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:570 - Using StandardScaler (Z-score normalization)
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:611 - Fitting scaler on training data with shape: (300, 4)
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:613 - Transforming test data with shape: (269, 4)
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:622 - Data normalization completed using z_score method
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:641 - Starting feature selection
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:653 - Starting with 4 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:662 - Executing icc feature selection with params: {'icc_results': '../demo_data/results/icc_results.json', 'keys': ['breast_cancer_dataset_v2_vs_breast_cancer_dataset'], 'threshold': 0.8, 'before_z_score': False}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:687 - icc selected 4 features, removed 0 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:662 - Executing correlation feature selection with params: {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:687 - correlation selected 2 features, removed 2 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:706 - Feature selection completed. Final number of selected features: 2
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:720 - Feature selection results saved to: ./ml_data/ml/rad_clinical\feature_selection_results.json
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:731 - Starting model training
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:742 - Training 1 models: ['LogisticRegression']
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:746 - Training model: LogisticRegression with config: {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:760 - Overlap features: ['worst radius', 'worst texture']
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:764 - Training model with 2 features
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:769 - Model LogisticRegression trained successfully
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:782 - Model training completed. Trained 1 models successfully
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:793 - Starting model evaluation
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:805 - Evaluating model: LogisticRegression
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:809 - Evaluating LogisticRegression on training set
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:812 - Training set metrics: {'accuracy': 0.9366666666666666, 'sensitivity': 0.9545454545454546, 'specificity': 0.9178082191780822, 'ppv': 0.9245283018867925, 'npv': 0.950354609929078, 'auc': 0.9837217576943604}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:815 - Evaluating LogisticRegression on test set
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:818 - Test set metrics: {'accuracy': 0.9256505576208178, 'sensitivity': 0.9064039408866995, 'specificity': 0.9848484848484849, 'ppv': 0.9945945945945946, 'npv': 0.7738095238095238, 'auc': 0.9915659053590088}
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:824 - Feature importance calculated for LogisticRegression
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:829 - Plotting SHAP values for LogisticRegression
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:831 - SHAP plot saved for LogisticRegression
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:843 - Performance table generated
+2025-05-24 18:16:27 - modeling - INFO - machine_learning.py:851 - Generating visualization plots
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:853 - Visualization plots saved
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:860 - Saving detailed prediction results
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:884 - Saving detailed prediction results
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:912 - Saved complete prediction results to: ./ml_data/ml/rad_clinical\all_prediction_results.csv
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:862 - Prediction results saved
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:870 - Saving trained models and preprocessing information
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:918 - Saving trained models and preprocessing information
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:943 - Saved complete model package to: ./ml_data/ml/rad_clinical\model_package.pkl
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:1040 - Saved model usage instructions to: ./ml_data/ml/rad_clinical\model_usage_instructions.txt
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:872 - Models and preprocessing information saved
+2025-05-24 18:16:29 - modeling - INFO - machine_learning.py:877 - Model evaluation completed

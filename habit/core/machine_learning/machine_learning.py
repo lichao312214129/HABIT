@@ -187,7 +187,10 @@ class Modeling:
                     for col in df.columns:
                         if col != subject_id_col and col != label_col:
                             columns_to_keep.append(col)
-                            feature_columns[col] = f"{name}{col}"
+                            if name is not None:
+                                feature_columns[col] = f"{name}{col}"
+                            else:
+                                feature_columns[col] = col
                 
                 # 只保留需要的列
                 df = df[columns_to_keep]
@@ -670,6 +673,13 @@ class Modeling:
                     selected_features,
                     **params
                 )
+
+                # selected_features和selected交集  TODO
+                # 因为如果设置方差筛选和如ICC筛选时，用于方差筛选在zscore前
+                # 导致方差筛选后，特征剩下的1，2，3，而ICC后剩下的可能是1，2，3，4
+                # 这样x_train以及没有了4，但是selected还有4
+                # 在后续x_train[selected]时，会报错,所以需要取交集
+                selected = list(set(selected_features) & set(selected))
                 
                 # Update feature set
                 selected_features = selected
@@ -749,7 +759,6 @@ class Modeling:
                 print(error_msg)
                 continue
             
-            # Get feature data
             X_train = self.x_train[self.selected_features]
             X_test = self.x_test[self.selected_features]
             self.logger.info(f"Training model with {len(self.selected_features)} features")
@@ -834,6 +843,14 @@ class Modeling:
             self.logger.info("Performance table generated")
         except Exception as e:
             warning_msg = f"Failed to print performance table: {e}"
+            self.logger.warning(warning_msg)
+        
+        # Save performance table
+        try:
+            evaluator._save_performance_table(self.results)
+            self.logger.info("Performance table saved")
+        except Exception as e:
+            warning_msg = f"Failed to save performance table: {e}"
             self.logger.warning(warning_msg)
         
         # Plot evaluation results
@@ -1344,6 +1361,13 @@ class Modeling:
                 logger.info("Performance table generated")
             except Exception as e:
                 logger.warning(f"Failed to print performance table: {e}")
+            
+            # Save performance table
+            try:
+                evaluator._save_performance_table(results)
+                logger.info("Performance table saved")
+            except Exception as e:
+                logger.warning(f"Failed to save performance table: {e}")
             
             # Plot evaluation results
             try:

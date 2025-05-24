@@ -8,7 +8,7 @@ input:
   # File groups configuration (used when type is 'files')
   # Each inner list represents a group of files to be analyzed together
   file_groups:
-    - ["./results/all_prediction_results.csv", "./results/all_prediction_results.csv"]
+    - ["../demo_data/breast_cancer_dataset_v2.csv", "../demo_data/breast_cancer_dataset.csv"]
   
   # Directory list configuration (used when type is 'directories')
   # The system will match same-named files across directories
@@ -20,11 +20,11 @@ input:
 # Output configuration
 output:
   # Path to output JSON file
-  path: "./results/icc_results.json"
+  path: "../demo_data/results/icc_results.json"
 
 # Processing configuration
 # Number of processes to use (null/None for using all available CPU cores)
-processes: null
+processes: 4
 
 # Debug mode (enables additional logging)
 debug: false 

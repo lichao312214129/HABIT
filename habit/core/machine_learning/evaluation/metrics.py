@@ -4,11 +4,14 @@ Provides functions for calculating various evaluation metrics
 """
 
 import numpy as np
+import pandas as pd
 from typing import Dict, Tuple, Union, List
 from sklearn import metrics
 from sklearn.metrics import roc_auc_score, accuracy_score, roc_curve
 from scipy import stats
 from habit.core.machine_learning.statistics.delong_test import delong_roc_variance, delong_roc_test
+from habit.core.machine_learning.statistics.hosmer_lemeshow_test import hosmer_lemeshow_test
+from habit.core.machine_learning.statistics.spiegelhalter_z_test import spiegelhalter_z_test
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.ndarray) -> Dict[str, float]:
     """
@@ -31,14 +34,38 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.n
         # Use y_pred as is (already binary)
         cm = metrics.confusion_matrix(y_true, y_pred)
     
+    # Calculate basic metrics
     metrics_dict = {
         'accuracy': accuracy_score(y_true, y_pred if not np.array_equal(y_pred, y_pred_proba) else (y_pred_proba >= 0.5).astype(int)),
         'sensitivity': cm[1, 1] / (cm[1, 1] + cm[1, 0]),
         'specificity': cm[0, 0] / (cm[0, 0] + cm[0, 1]),
         'ppv': cm[1, 1] / (cm[1, 1] + cm[0, 1]),
         'npv': cm[0, 0] / (cm[0, 0] + cm[1, 0]),
-        'auc': roc_auc_score(y_true, y_pred_proba)
+        'auc': roc_auc_score(y_true, y_pred_proba),
+        'auc_ci': delong_roc_ci(y_true, y_pred_proba)
     }
+    
+    # Add Hosmer-Lemeshow test results
+    try:
+        df = pd.DataFrame({'y_true': y_true, 'y_pred_proba': y_pred_proba})
+        hl_chi2, hl_p_value = hosmer_lemeshow_test(df)
+        metrics_dict['hosmer_lemeshow_chi2'] = hl_chi2
+        metrics_dict['hosmer_lemeshow_p_value'] = hl_p_value
+    except Exception as e:
+        print(f"Warning: Failed to calculate Hosmer-Lemeshow test: {e}")
+        metrics_dict['hosmer_lemeshow_chi2'] = np.nan
+        metrics_dict['hosmer_lemeshow_p_value'] = np.nan
+    
+    # Add Spiegelhalter Z-test results
+    try:
+        spiegelhalter_z, spiegelhalter_p = spiegelhalter_z_test(y_true, y_pred_proba)
+        metrics_dict['spiegelhalter_z_statistic'] = spiegelhalter_z
+        metrics_dict['spiegelhalter_z_p_value'] = spiegelhalter_p
+    except Exception as e:
+        print(f"Warning: Failed to calculate Spiegelhalter Z-test: {e}")
+        metrics_dict['spiegelhalter_z_statistic'] = np.nan
+        metrics_dict['spiegelhalter_z_p_value'] = np.nan
+    
     return metrics_dict
 
 def apply_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, threshold: float) -> Dict[str, float]:
@@ -360,24 +387,6 @@ def calculate_net_benefit(y_true, y_pred_proba, threshold):
         
     return benefit
 
-def spiegelhalter_z_test(y_true: np.ndarray, y_pred_proba: np.ndarray) -> Tuple[float, float]:
-    """
-    Perform Spiegelhalter Z-test for calibration
-    
-    Args:
-        y_true (np.ndarray): True labels
-        y_pred_proba (np.ndarray): Predicted probabilities
-        
-    Returns:
-        Tuple[float, float]: (z-score, p-value)
-    """
-    n = len(y_true)
-    o_minus_e = y_true - y_pred_proba
-    var = y_pred_proba * (1 - y_pred_proba)
-    z = np.sum(o_minus_e) / np.sqrt(np.sum(var))
-    p_value = 2 * (1 - stats.norm.cdf(abs(z)))
-    return z, p_value
-
 def delong_roc_ci(y_true: np.ndarray, y_pred_proba: np.ndarray, alpha: float = 0.95) -> Tuple[float, np.ndarray]:
     """
     Calculate DeLong confidence intervals for ROC curve
@@ -395,4 +404,4 @@ def delong_roc_ci(y_true: np.ndarray, y_pred_proba: np.ndarray, alpha: float = 0
     lower_upper_q = np.abs(np.array([0, 1]) - (1 - alpha) / 2)
     ci = stats.norm.ppf(lower_upper_q, loc=aucs, scale=auc_std)
     ci[ci > 1] = 1
-    return aucs, ci 
+    return aucs, ci

@@ -1,0 +1,12 @@
+{
+    "selected_features": [
+        "worst radius",
+        "worst texture",
+        "worst perimeter",
+        "worst area"
+    ],
+    "n_features_selected": 4,
+    "original_feature_count": 15,
+    "selection_method": "threshold",
+    "selection_value": 0.2
+}

@@ -41,7 +41,7 @@ def main() -> None:
     parser.add_argument('--data', type=str, help='Path to data file (.csv) for prediction')
     parser.add_argument('--output', type=str, help='Path to save prediction results')
     parser.add_argument('--model_name', type=str, help='Name of specific model to use for prediction')
-    parser.add_argument('--evaluate', action='store_true', help='Whether to evaluate model performance and generate plots')
+    parser.add_argument('--evaluate', action='store_true', default=True, help='Whether to evaluate model performance and generate plots')
     
     args = parser.parse_args()
     
@@ -116,13 +116,13 @@ if __name__ == "__main__":
         sys.argv.extend(['--config', './config/config_machine_learning.yaml',
                          '--mode', 'train'])
         
-        # 预测新数据
-        # sys.argv.extend(['--config', './config/config_machine_learning.yaml',
-        #                  '--mode', 'predict',
-        #                  '--model', './results/model_package.pkl',
-        #                  '--data', 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv',
-        #                  '--output', './results/'
-        #                  ])
+    # # 预测新数据
+    # sys.argv.extend(['--config', './config/config_machine_learning.yaml',
+    #                     '--mode', 'predict',
+    #                     '--model', './results/model_package.pkl',
+    #                     '--data', 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv',
+    #                     '--output', './results/'
+    #                     ])
 
     main()
     # Example command:
