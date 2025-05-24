@@ -8,6 +8,7 @@ input:
   # File groups configuration (used when type is 'files')
   # Each inner list represents a group of files to be analyzed together
   file_groups:
+    # FIXME 切记：label列不能参与icc计算，如果参与了计算要从json中删除
     - ["../demo_data/breast_cancer_dataset_v2.csv", "../demo_data/breast_cancer_dataset.csv"]
   
   # Directory list configuration (used when type is 'directories')
