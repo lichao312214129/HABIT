@@ -1348,7 +1348,7 @@ class Modeling:
             
             for name in models_to_use:
                 results['test'][name] = {
-                    'metrics': calculate_metrics(y_true, result_df[f'{name}_pred'], result_df[f'{name}_prob']),
+                    'metrics': calculate_metrics(y_true.values, result_df[f'{name}_pred'].values, result_df[f'{name}_prob'].values),
                     'y_true': y_true.tolist(),
                     'y_pred': result_df[f'{name}_pred'].tolist(),
                     'y_pred_proba': result_df[f'{name}_prob'].tolist()

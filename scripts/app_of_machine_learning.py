@@ -112,17 +112,18 @@ def main() -> None:
 
 if __name__ == "__main__":
     # Use default config file if no arguments provided
-    if len(sys.argv) == 1:
-        sys.argv.extend(['--config', './config/config_machine_learning.yaml',
-                         '--mode', 'train'])
+    # if len(sys.argv) == 1:
+    #     sys.argv.extend(['--config', './config/config_machine_learning.yaml',
+    #                      '--mode', 'train'])
         
-    # # 预测新数据
-    # sys.argv.extend(['--config', './config/config_machine_learning.yaml',
-    #                     '--mode', 'predict',
-    #                     '--model', './results/model_package.pkl',
-    #                     '--data', 'F:/work/workstation_b/dingHuYingXiang/_the_third_training_202504/demo_data/breast_cancer_dataset.csv',
-    #                     '--output', './results/'
-    #                     ])
+    # 预测新数据
+    sys.argv.extend(['--config', './config/config_machine_learning.yaml',
+                        '--mode', 'predict',
+                        '--model', './ml_data/ml/rad/model_package.pkl',
+                        '--data', './ml_data/breast_cancer_dataset.csv',
+                        '--output', './ml_data/ml/rad_new/',
+                        '--evaluate'
+                        ])
 
     main()
     # Example command:
