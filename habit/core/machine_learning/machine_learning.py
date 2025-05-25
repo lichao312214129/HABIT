@@ -257,7 +257,7 @@ class Modeling:
         # Remove missing values
         self.logger.info("Starting data preprocessing")
         self.logger.info(f"Sample size before removing missing values: {self.data.shape[0]}")
-        self.data = self.data.dropna()
+        self.data = self.data.fillna(self.data.mean)
         self.logger.info(f"Sample size after removing missing values: {self.data.shape[0]}")
 
         # Data exploration

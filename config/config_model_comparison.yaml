@@ -4,22 +4,22 @@
 
 # Output Directory Configuration
 # Specifies where all comparison results, plots, and metrics will be saved
-output_dir: ./results/model_comparison  # Base directory for all comparison outputs
+output_dir: ./ml_data/results/model_comparison  # Base directory for all comparison outputs
 
 # Model Prediction Files Configuration
 # Define the prediction files for each model to be compared
 # Each entry represents a different model's predictions
 files_config:
   - path: ./ml_data/ml/rad/all_prediction_results.csv 
-    model_name: ModelA                        # Name used to identify this model in plots and reports
+    model_name: rad                       # Name used to identify this model in plots and reports
     subject_id_col: subjID            # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob   # Column containing predicted probabilities (continuous: 0-1)
     pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
     split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
-  - path: ./ml_data/ml/rad_clinical/all_prediction_results.csv  
-    model_name: ModelC                        # Name used to identify this model in plots and reports
+  - path: ./ml_data/ml/cli/all_prediction_results.csv  
+    model_name: cli                        # Name used to identify this model in plots and reports
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)

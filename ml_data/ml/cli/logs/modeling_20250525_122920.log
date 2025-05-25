@@ -1,0 +1,92 @@
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:65 - Initializing modeling with config: {'input': [{'path': './ml_data/clinical_feature.csv', 'name': None, 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': './ml_data/ml/cli', 'split_method': 'custom', 'test_size': 0.3, 'random_state': 42, 'train_ids_file': './ml_data/train_ids.txt', 'test_ids_file': './ml_data/test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'icc', 'params': {'icc_results': '../demo_data/results/icc_results.json', 'keys': ['breast_cancer_dataset_v2_vs_breast_cancer_dataset'], 'threshold': 0.8, 'before_z_score': False}}, {'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2}}, {'method': 'correlation', 'params': {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'SVM': {'params': {'random_state': 42}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}}, 'is_visualize': True, 'is_save_model': True}
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:80 - Available feature selectors: ['correlation', 'icc', 'lasso', 'mrmr', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:88 - Modeling initialization completed
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:101 - Reading data from multiple files: 1 files
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/clinical_feature.csv, Dataset name: None
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 8)
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:158 - Using label column: label
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:164 - Using subject ID column: subjID
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:210 - Created initial merged dataframe with shape: (569, 6)
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:226 - Adding unified label column: label
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:231 - Final merged dataframe shape: (569, 7) with 6 features
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:249 - Converting data to numeric types
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:251 - Data converted to numeric types
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:255 - Missing values: label    0
+AFP      0
+PLT      0
+BMI      0
+X        0
+Y        0
+Z        0
+dtype: int64
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:258 - Starting data preprocessing
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:259 - Sample size before removing missing values: 569
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:261 - Sample size after removing missing values: 569
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:264 - Data preprocessing completed
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:274 - Splitting data using method: custom
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:312 - Reading custom train IDs from ./ml_data/train_ids.txt
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/train_ids.txt
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:418 - Parsed 300 subject IDs from line-by-line format
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:314 - Read 300 train subject IDs
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:316 - Reading custom test IDs from ./ml_data/test_ids.txt
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/test_ids.txt
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:418 - Parsed 269 subject IDs from line-by-line format
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:318 - Read 269 test subject IDs
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:354 - Custom split completed: train=300, test=269
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:371 - Extracted features and labels: 6 features
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:429 - Saving train/test split information
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:443 - Split information saved to: ./ml_data/ml/cli\split_info.json
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:375 - Split information saved
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:464 - Checking for feature selection methods to run before normalization
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:489 - Running 1 feature selection methods before normalization
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:493 - Starting with 6 features
+2025-05-25 12:29:20 - modeling - INFO - machine_learning.py:501 - Executing variance feature selection before normalization with params: {'before_z_score': True, 'threshold': 0.2}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:522 - variance selected 1 features, removed 5 features
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:540 - Pre-normalization feature selection completed. Selected 1 features
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:562 - Starting data normalization using method: z_score
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:570 - Using StandardScaler (Z-score normalization)
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:611 - Fitting scaler on training data with shape: (300, 1)
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:613 - Transforming test data with shape: (269, 1)
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:622 - Data normalization completed using z_score method
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:641 - Starting feature selection
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:653 - Starting with 1 features
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:662 - Executing icc feature selection with params: {'icc_results': '../demo_data/results/icc_results.json', 'keys': ['breast_cancer_dataset_v2_vs_breast_cancer_dataset'], 'threshold': 0.8, 'before_z_score': False}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:691 - icc selected 0 features, removed 1 features
+2025-05-25 12:29:21 - modeling - ERROR - machine_learning.py:697 - No features remaining after icc selection, please check settings
+2025-05-25 12:29:21 - modeling - WARNING - machine_learning.py:703 - Warning: icc selection failed: No features remaining after icc selection, please check settings
+2025-05-25 12:29:21 - modeling - WARNING - machine_learning.py:704 - Skipping this method, continuing with current feature set: 0 features
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:662 - Executing correlation feature selection with params: {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:691 - correlation selected 0 features, removed 1 features
+2025-05-25 12:29:21 - modeling - ERROR - machine_learning.py:697 - No features remaining after correlation selection, please check settings
+2025-05-25 12:29:21 - modeling - WARNING - machine_learning.py:703 - Warning: correlation selection failed: No features remaining after correlation selection, please check settings
+2025-05-25 12:29:21 - modeling - WARNING - machine_learning.py:704 - Skipping this method, continuing with current feature set: 0 features
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:710 - Feature selection completed. Final number of selected features: 0
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:724 - Feature selection results saved to: ./ml_data/ml/cli\feature_selection_results.json
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:735 - Starting model training
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:746 - Training 3 models: ['LogisticRegression', 'SVM', 'XGBoost']
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:750 - Training model: LogisticRegression with config: {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:764 - Training model with 0 features
+2025-05-25 12:29:21 - modeling - ERROR - machine_learning.py:772 - Failed to train model LogisticRegression: at least one array or dtype is required
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:750 - Training model: SVM with config: {'params': {'random_state': 42}}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:764 - Training model with 0 features
+2025-05-25 12:29:21 - modeling - ERROR - machine_learning.py:772 - Failed to train model SVM: at least one array or dtype is required
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:750 - Training model: XGBoost with config: {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:764 - Training model with 0 features
+2025-05-25 12:29:21 - modeling - ERROR - machine_learning.py:772 - Failed to train model XGBoost: list index out of range
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:782 - Model training completed. Trained 0 models successfully
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:793 - Starting model evaluation
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:843 - Performance table generated
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:851 - Performance table saved
+2025-05-25 12:29:21 - modeling - INFO - machine_learning.py:859 - Generating visualization plots
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:861 - Visualization plots saved
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:868 - Saving detailed prediction results
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:892 - Saving detailed prediction results
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:920 - Saved complete prediction results to: ./ml_data/ml/cli\all_prediction_results.csv
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:870 - Prediction results saved
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:878 - Saving trained models and preprocessing information
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:926 - Saving trained models and preprocessing information
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:951 - Saved complete model package to: ./ml_data/ml/cli\model_package.pkl
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:1048 - Saved model usage instructions to: ./ml_data/ml/cli\model_usage_instructions.txt
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:880 - Models and preprocessing information saved
+2025-05-25 12:29:22 - modeling - INFO - machine_learning.py:885 - Model evaluation completed

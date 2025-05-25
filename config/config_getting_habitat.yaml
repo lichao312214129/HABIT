@@ -1,40 +1,39 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: H:\Registration_ICC_structured_test
-out_dir: F:\\work\\research\\radiomics_TLSs\\data\\results_420
+data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets
+out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results\habitats
 
 # Feature extraction settings
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: concat(raw(PVP), local_entropy(PVP, kernel_size))
     params:
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
-      # params_file: ./config/params_voxel_radiomics.yaml
+      kernel_size: 3
       # kernelRadius: 3  # if voxel_radiomics is used, you can set another kernelRadius value
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: mean_voxel_features()  
+    method: mean_voxel_features()
     params:
-      params_file: ./config/params_supervoxel_radiomics.yaml
+      abc: ./config/params_supervoxel_radiomics.yaml
 
-  preprocessing:  # Current only for voxel_level features, and populating the missing values with the mean of the feature
-    # methods:
-      # - method: winsorize
-      #   winsor_limits: [0.05, 0.05]
-      #   global_normalize: true
-      # - method: minmax
-      #   global_normalize: true
-      # - method: log
-        # global_normalize: true
+  # preprocessing:  # Current only for voxel_level features, and populating the missing values with the mean of the feature
+  #   methods:
+  #     - method: winsorize
+  #       winsor_limits: [0.05, 0.05]
+  #       global_normalize: true
+  #     - method: minmax
+  #       global_normalize: true
+  #     - method: log
+  #       global_normalize: true
 
 # Habitat segmentation settings
 HabitatsSegmention:
   # Supervoxel clustering settings
   supervoxel:
     algorithm: kmeans
-    n_clusters: 50
+    n_clusters: 40
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -47,8 +46,8 @@ HabitatsSegmention:
     mode: training  # training or testing  
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
-    habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
-    best_n_clusters: 4  # Set to null for automatic selection
+    habitat_cluster_selection_method: calinski_harabasz  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
+    best_n_clusters:   # Set to null for automatic selection
     random_state: 42
     max_iter: 300
     n_init: 10

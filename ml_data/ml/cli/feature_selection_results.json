@@ -1,7 +1,6 @@
 {
     "selected_features": [
-        "worst radius",
-        "worst texture"
+        "X"
     ],
     "feature_selection_methods": [
         {
@@ -11,14 +10,13 @@
                 "method": "spearman",
                 "visualize": false,
                 "before_z_score": false,
-                "outdir": "./ml_data/ml/rad"
+                "outdir": "./ml_data/ml/cli"
             }
         }
     ],
     "selected_features_of_each_method": {
         "correlation": [
-            "worst radius",
-            "worst texture"
+            "X"
         ]
     }
 }

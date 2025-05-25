@@ -1,14 +1,27 @@
 images:
   subj003:
-    AxT1FLAIR: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\AxT1FLAIR
-    AxT2FRFSE: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\AxT2FRFSE
-    AxT2fsFLAIR: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\AxT2fsFLAIR
-    SagT2FRFSE: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\SagT2FRFSE
+    T1: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T1
+    T2: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T2
+    DWI: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\DWI
+    ADC: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\ADC
 
   subj004:
-    AxT1FLAIR: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\AxT1FLAIR
-    AxT2FRFSE: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\AxT2FRFSE
-    AxT2fsFLAIR: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\AxT2fsFLAIR
-    SagT2FRFSE: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\SagT2FRFSE
+    T1: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\T1
+    T2: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\T2
+    DWI: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\DWI
+    ADC: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\ADC
+
+masks:
+  subj003:
+    T1: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T1_mask
+    T2: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T1_mask
+    DWI: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T1_mask
+    ADC: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\T1_mask
+
+  subj004:
+    T1: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\T1
+    T2: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\T2
+    DWI: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\DWI
+    ADC: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj004\ADC
 
 

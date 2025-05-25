@@ -1,0 +1,31 @@
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:65 - Initializing modeling with config: {'input': [{'path': './ml_data/clinical_feature.csv', 'name': None, 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}, {'path': './ml_data/clinical_feature.csv', 'name': 'clinical_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': ['AFP', 'PLT', 'BMI']}], 'output': './ml_data/ml/cli', 'split_method': 'custom', 'test_size': 0.3, 'random_state': 42, 'train_ids_file': './ml_data/train_ids.txt', 'test_ids_file': './ml_data/test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'correlation', 'params': {'threshold': 0.9, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}, {'method': 'univariate_logistic', 'params': {'threshold': 0.1, 'before_z_score': False}}, {'method': 'lasso', 'params': {'cv': 10, 'n_alphas': 100, 'random_state': 42, 'visualize': True, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}}, 'is_visualize': True, 'is_save_model': True}
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:80 - Available feature selectors: ['correlation', 'icc', 'lasso', 'mrmr', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:88 - Modeling initialization completed
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:101 - Reading data from multiple files: 2 files
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/clinical_feature.csv, Dataset name: None
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 8)
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:158 - Using label column: label
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:164 - Using subject ID column: subjID
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:210 - Created initial merged dataframe with shape: (569, 6)
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/clinical_feature.csv, Dataset name: clinical_
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 8)
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:219 - Merged dataframe updated, new shape: (569, 9)
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:226 - Adding unified label column: label
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:231 - Final merged dataframe shape: (569, 10) with 9 features
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:249 - Converting data to numeric types
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:251 - Data converted to numeric types
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:255 - Missing values: label           0
+AFP             0
+PLT             0
+BMI             0
+X               0
+Y               0
+Z               0
+clinical_AFP    0
+clinical_PLT    0
+clinical_BMI    0
+dtype: int64
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:258 - Starting data preprocessing
+2025-05-25 16:27:45 - modeling - INFO - machine_learning.py:259 - Sample size before removing missing values: 569

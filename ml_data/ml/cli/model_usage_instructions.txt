@@ -72,10 +72,12 @@
 
         5. Available models:
         - LogisticRegression
+- SVM
+- XGBoost
 
         6. Command-line prediction:
         You can also use the command-line interface for predictions:
         ```
-        python day_10_whole_code.py --mode predict --model ./ml_data/ml/rad_clinical\model_package.pkl --data your_data.csv
+        python day_10_whole_code.py --mode predict --model ./ml_data/ml/cli\model_package.pkl --data your_data.csv
         ```
         

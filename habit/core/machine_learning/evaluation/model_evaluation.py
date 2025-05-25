@@ -147,11 +147,6 @@ class ModelEvaluator:
             test_data (Dict[str, Tuple[List, List]]): Test data dictionary, keys are model names, 
                                                      values are (y_true, y_pred_proba) tuples
         """
-        try:
-            from delong_test import delong_roc_test
-        except ImportError:
-            print("Warning: delong_test module not found. Cannot perform DeLong test.")
-            return
             
         print("\n" + "="*80)
         print(" "*30 + "Model AUC Comparison (DeLong test)")

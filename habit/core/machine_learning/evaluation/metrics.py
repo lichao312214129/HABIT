@@ -42,7 +42,8 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.n
         'ppv': cm[1, 1] / (cm[1, 1] + cm[0, 1]),
         'npv': cm[0, 0] / (cm[0, 0] + cm[1, 0]),
         'auc': roc_auc_score(y_true, y_pred_proba),
-        'auc_ci': delong_roc_ci(y_true, y_pred_proba)
+        'auc_ci_lower': delong_roc_ci(y_true, y_pred_proba)[1][0],
+        'auc_ci_high': delong_roc_ci(y_true, y_pred_proba)[1][1]
     }
     
     # Add Hosmer-Lemeshow test results

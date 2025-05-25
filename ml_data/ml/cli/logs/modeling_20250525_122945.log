@@ -1,0 +1,108 @@
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:65 - Initializing modeling with config: {'input': [{'path': './ml_data/clinical_feature.csv', 'name': None, 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': './ml_data/ml/cli', 'split_method': 'custom', 'test_size': 0.3, 'random_state': 42, 'train_ids_file': './ml_data/train_ids.txt', 'test_ids_file': './ml_data/test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2}}, {'method': 'correlation', 'params': {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'SVM': {'params': {'random_state': 42}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}}, 'is_visualize': True, 'is_save_model': True}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:80 - Available feature selectors: ['correlation', 'icc', 'lasso', 'mrmr', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:88 - Modeling initialization completed
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:101 - Reading data from multiple files: 1 files
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:132 - Reading file: ./ml_data/clinical_feature.csv, Dataset name: None
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:133 - Subject ID column: subjID, Label column: label
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:138 - File loaded with shape: (569, 8)
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:158 - Using label column: label
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:164 - Using subject ID column: subjID
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:210 - Created initial merged dataframe with shape: (569, 6)
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:226 - Adding unified label column: label
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:231 - Final merged dataframe shape: (569, 7) with 6 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:249 - Converting data to numeric types
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:251 - Data converted to numeric types
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:255 - Missing values: label    0
+AFP      0
+PLT      0
+BMI      0
+X        0
+Y        0
+Z        0
+dtype: int64
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:258 - Starting data preprocessing
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:259 - Sample size before removing missing values: 569
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:261 - Sample size after removing missing values: 569
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:264 - Data preprocessing completed
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:274 - Splitting data using method: custom
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:312 - Reading custom train IDs from ./ml_data/train_ids.txt
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/train_ids.txt
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:418 - Parsed 300 subject IDs from line-by-line format
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:314 - Read 300 train subject IDs
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:316 - Reading custom test IDs from ./ml_data/test_ids.txt
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:389 - Reading subject IDs from file: ./ml_data/test_ids.txt
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:418 - Parsed 269 subject IDs from line-by-line format
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:318 - Read 269 test subject IDs
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:354 - Custom split completed: train=300, test=269
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:371 - Extracted features and labels: 6 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:429 - Saving train/test split information
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:443 - Split information saved to: ./ml_data/ml/cli\split_info.json
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:375 - Split information saved
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:464 - Checking for feature selection methods to run before normalization
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:489 - Running 1 feature selection methods before normalization
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:493 - Starting with 6 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:501 - Executing variance feature selection before normalization with params: {'before_z_score': True, 'threshold': 0.2}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:522 - variance selected 1 features, removed 5 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:540 - Pre-normalization feature selection completed. Selected 1 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:562 - Starting data normalization using method: z_score
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:570 - Using StandardScaler (Z-score normalization)
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:611 - Fitting scaler on training data with shape: (300, 1)
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:613 - Transforming test data with shape: (269, 1)
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:622 - Data normalization completed using z_score method
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:641 - Starting feature selection
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:653 - Starting with 1 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:662 - Executing correlation feature selection with params: {'threshold': 0.75, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:691 - correlation selected 1 features, removed 0 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:710 - Feature selection completed. Final number of selected features: 1
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:724 - Feature selection results saved to: ./ml_data/ml/cli\feature_selection_results.json
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:735 - Starting model training
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:746 - Training 3 models: ['LogisticRegression', 'SVM', 'XGBoost']
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:750 - Training model: LogisticRegression with config: {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:764 - Training model with 1 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:769 - Model LogisticRegression trained successfully
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:750 - Training model: SVM with config: {'params': {'random_state': 42}}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:764 - Training model with 1 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:769 - Model SVM trained successfully
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:750 - Training model: XGBoost with config: {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:764 - Training model with 1 features
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:769 - Model XGBoost trained successfully
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:782 - Model training completed. Trained 3 models successfully
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:793 - Starting model evaluation
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:805 - Evaluating model: LogisticRegression
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:809 - Evaluating LogisticRegression on training set
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:812 - Training set metrics: {'accuracy': 0.8366666666666667, 'sensitivity': 0.8766233766233766, 'specificity': 0.7945205479452054, 'ppv': 0.8181818181818182, 'npv': 0.8592592592592593, 'auc': 0.9302615193026151, 'auc_ci': (0.9302615, array([0.90296979, 0.9575532 ])), 'hosmer_lemeshow_chi2': 3.714104077749469, 'hosmer_lemeshow_p_value': 0.8819531311239012, 'spiegelhalter_z_statistic': -1.0301702111081234e-05, 'spiegelhalter_z_p_value': 0.9999917804309357}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:815 - Evaluating LogisticRegression on test set
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:818 - Test set metrics: {'accuracy': 0.8884758364312267, 'sensitivity': 0.8719211822660099, 'specificity': 0.9393939393939394, 'ppv': 0.9779005524861878, 'npv': 0.7045454545454546, 'auc': 0.9699582027168234, 'auc_ci': (0.9699583, array([0.94335278, 0.99656383])), 'hosmer_lemeshow_chi2': 54.03619005753038, 'hosmer_lemeshow_p_value': 6.792831630519913e-09, 'spiegelhalter_z_statistic': 7.276858743494296, 'spiegelhalter_z_p_value': 3.417266469796232e-13}
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:824 - Feature importance calculated for LogisticRegression
+2025-05-25 12:29:45 - modeling - INFO - machine_learning.py:829 - Plotting SHAP values for LogisticRegression
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:831 - SHAP plot saved for LogisticRegression
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:805 - Evaluating model: SVM
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:809 - Evaluating SVM on training set
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:812 - Training set metrics: {'accuracy': 0.8366666666666667, 'sensitivity': 0.8766233766233766, 'specificity': 0.7945205479452054, 'ppv': 0.8181818181818182, 'npv': 0.8592592592592593, 'auc': 0.9302615193026151, 'auc_ci': (0.9302615, array([0.90296979, 0.9575532 ])), 'hosmer_lemeshow_chi2': 42.96500936990799, 'hosmer_lemeshow_p_value': 8.918576570593473e-07, 'spiegelhalter_z_statistic': 1.3823201658683346, 'spiegelhalter_z_p_value': 0.1668734167759891}
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:815 - Evaluating SVM on test set
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:818 - Test set metrics: {'accuracy': 0.8884758364312267, 'sensitivity': 0.8719211822660099, 'specificity': 0.9393939393939394, 'ppv': 0.9779005524861878, 'npv': 0.7045454545454546, 'auc': 0.9699582027168234, 'auc_ci': (0.9699583, array([0.94335278, 0.99656383])), 'hosmer_lemeshow_chi2': 94.1445271861793, 'hosmer_lemeshow_p_value': 1.1102230246251565e-16, 'spiegelhalter_z_statistic': 8.313545296736297, 'spiegelhalter_z_p_value': 0.0}
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:824 - Feature importance calculated for SVM
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:829 - Plotting SHAP values for SVM
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:831 - SHAP plot saved for SVM
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:805 - Evaluating model: XGBoost
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:809 - Evaluating XGBoost on training set
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:812 - Training set metrics: {'accuracy': 0.9033333333333333, 'sensitivity': 0.935064935064935, 'specificity': 0.8698630136986302, 'ppv': 0.8834355828220859, 'npv': 0.927007299270073, 'auc': 0.9727139299057108, 'auc_ci': (0.97271395, array([0.95805297, 0.98737493])), 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': -0.042173960715200284, 'spiegelhalter_z_p_value': 0.9663600204250697}
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:815 - Evaluating XGBoost on test set
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:818 - Test set metrics: {'accuracy': 0.8215613382899628, 'sensitivity': 0.7881773399014779, 'specificity': 0.9242424242424242, 'ppv': 0.9696969696969697, 'npv': 0.5865384615384616, 'auc': 0.9582400358262428, 'auc_ci': (0.95824003, array([0.92715636, 0.9893237 ])), 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': 8.32363298987851, 'spiegelhalter_z_p_value': 0.0}
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:824 - Feature importance calculated for XGBoost
+2025-05-25 12:29:46 - modeling - INFO - machine_learning.py:829 - Plotting SHAP values for XGBoost
+2025-05-25 12:29:47 - modeling - INFO - machine_learning.py:831 - SHAP plot saved for XGBoost
+2025-05-25 12:29:47 - modeling - INFO - machine_learning.py:843 - Performance table generated
+2025-05-25 12:29:47 - modeling - INFO - machine_learning.py:851 - Performance table saved
+2025-05-25 12:29:47 - modeling - INFO - machine_learning.py:859 - Generating visualization plots
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:861 - Visualization plots saved
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:868 - Saving detailed prediction results
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:892 - Saving detailed prediction results
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:920 - Saved complete prediction results to: ./ml_data/ml/cli\all_prediction_results.csv
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:870 - Prediction results saved
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:878 - Saving trained models and preprocessing information
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:926 - Saving trained models and preprocessing information
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:951 - Saved complete model package to: ./ml_data/ml/cli\model_package.pkl
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:1048 - Saved model usage instructions to: ./ml_data/ml/cli\model_usage_instructions.txt
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:880 - Models and preprocessing information saved
+2025-05-25 12:29:49 - modeling - INFO - machine_learning.py:885 - Model evaluation completed
