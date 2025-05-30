@@ -40,7 +40,7 @@ def process_features_pipeline(
 def preprocess_features(
     features: np.ndarray,
     method: Literal['minmax', 'zscore', 'robust', 'binning', 'global_minmax', 'global_zscore', 'winsorize', 'log'] = 'minmax',
-    bin_count: int = 10,
+    n_bins: int = 10,
     bin_strategy: str = 'uniform',
     global_normalize: bool = False,
     winsor_limits: tuple = (0.05, 0.05),
@@ -61,7 +61,7 @@ def preprocess_features(
             - 'global_zscore': Global Z-score standardization across all features
             - 'winsorize': Limit extreme values to specified percentiles
             - 'log': Apply log transformation (log(x + 1))
-        bin_count (int): Number of bins for binning method
+        n_bins (int): Number of bins for binning method
         bin_strategy (str): Strategy for binning ('uniform', 'quantile', 'kmeans')
         global_normalize (bool): Whether to normalize across all features
         winsor_limits (tuple): Lower and upper percentiles for winsorizing
@@ -127,7 +127,7 @@ def preprocess_features(
             
             if discretizer is None:
                 discretizer = KBinsDiscretizer(
-                    n_bins=bin_count,
+                    n_bins=n_bins,
                     encode='ordinal',  # Return bin indices
                     strategy=bin_strategy
                 )
@@ -141,7 +141,7 @@ def preprocess_features(
             # Per-feature binning
             if discretizer is None:
                 discretizer = KBinsDiscretizer(
-                    n_bins=bin_count,
+                    n_bins=n_bins,
                     encode='ordinal',  # Return bin indices
                     strategy=bin_strategy
                 )
@@ -149,8 +149,7 @@ def preprocess_features(
             else:
                 binned_features = discretizer.transform(features)
             
-        # Normalize to [0, 1] range
-        return binned_features / (bin_count - 1)
+        return binned_features
     
     elif method == 'winsorize':
         if global_normalize:
@@ -237,19 +236,19 @@ def handle_extreme_values(features: np.ndarray, strategy: str = 'mean_replacemen
     
     return features_clean
 
-def create_discretizer(bin_count: int = 10, bin_strategy: str = 'uniform') -> KBinsDiscretizer:
+def create_discretizer(n_bins: int = 10, bin_strategy: str = 'uniform') -> KBinsDiscretizer:
     """
     Create a KBinsDiscretizer for feature binning
     
     Args:
-        bin_count (int): Number of bins
+        n_bins (int): Number of bins
         bin_strategy (str): Binning strategy ('uniform', 'quantile', 'kmeans')
         
     Returns:
         KBinsDiscretizer: Configured discretizer
     """
     return KBinsDiscretizer(
-        n_bins=bin_count,
+        n_bins=n_bins,
         encode='ordinal',  # Return bin indices
         strategy=bin_strategy
     ) 

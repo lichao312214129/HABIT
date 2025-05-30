@@ -2,23 +2,22 @@
 
 # Data paths
 data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets
-out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results\habitats
+out_dir: H:\results_test
 
 # Feature extraction settings
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(PVP), local_entropy(PVP, kernel_size))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     params:
-      kernel_size: 3
-      # kernelRadius: 3  # if voxel_radiomics is used, you can set another kernelRadius value
+      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: mean_voxel_features()
+    method: concat(supervoxel_radiomics(pre_contrast, params_file))
     params:
-      abc: ./config/params_supervoxel_radiomics.yaml
+      params_file: ./config/params_supervoxel_radiomics.yaml
 
-  # preprocessing:  # Current only for voxel_level features, and populating the missing values with the mean of the feature
+  # preprocessing_for_subject_level: 
   #   methods:
   #     - method: winsorize
   #       winsor_limits: [0.05, 0.05]
@@ -28,12 +27,20 @@ FeatureConstruction:
   #     - method: log
   #       global_normalize: true
 
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+
 # Habitat segmentation settings
 HabitatsSegmention:
   # Supervoxel clustering settings
   supervoxel:
     algorithm: kmeans
-    n_clusters: 40
+    n_clusters: 50
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -46,14 +53,14 @@ HabitatsSegmention:
     mode: training  # training or testing  
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
-    habitat_cluster_selection_method: calinski_harabasz  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
-    best_n_clusters:   # Set to null for automatic selection
+    habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
+    best_n_clusters: 4   # Set to null for automatic selection
     random_state: 42
     max_iter: 300
     n_init: 10
 
 # General settings
-processes: 3  # Number of parallel processes
+processes: 2  # Number of parallel processes
 plot_curves: true  # Whether to generate and save plots
 random_state: 42  # Random seed for reproducibility
 debug: false  # Enable debug mode for detailed logging 

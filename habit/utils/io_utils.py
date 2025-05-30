@@ -232,7 +232,6 @@ def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path:
     supervoxel = sitk.ReadImage(supervoxel_path)
     supervoxel_array = sitk.GetArrayFromImage(supervoxel)
     
-
     # Create habitat image
     habitats_array = np.zeros_like(supervoxel_array)
     habitats_subj = habitats_df.loc[subject]

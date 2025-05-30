@@ -107,8 +107,8 @@ class KineticFeatureExtractor(BaseFeatureExtractor):
         wash_in_slope = lap_precontrast / (delta_t1 + epsilon)
         wash_out_slope_of_lap_and_pvp = pvp_lap / (delta_t2 + epsilon)
         wash_out_slope_of_pvp_and_dp = delay_pvp / (delta_t3 + epsilon)
-        
-        # Combine features
+
+        # Combine features  
         metrics = np.array([
             wash_in_slope,
             wash_out_slope_of_lap_and_pvp,

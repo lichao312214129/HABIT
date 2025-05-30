@@ -10,6 +10,7 @@ import pandas as pd
 import SimpleITK as sitk
 import pickle
 import warnings
+from sklearn.preprocessing import KBinsDiscretizer
 import multiprocessing
 from glob import glob
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
@@ -347,18 +348,13 @@ class HabitatAnalysis:
             _, feature_df, raw_df, mask_info = self.extract_voxel_features(subject)
             
             # Apply preprocessing if enabled
-            if self.feature_config.get('preprocessing', False):
+            if self.feature_config.get('preprocessing_for_subject_level', False):
                 # 检查是否使用新的多方法串联机制
-                if 'methods' in self.feature_config['preprocessing']:
-                    # 使用多方法串联
+                if 'methods' in self.feature_config['preprocessing_for_subject_level']:
                     X_subj_ = preprocess_features(
                         feature_df.values,
-                        methods=self.feature_config['preprocessing']['methods']
+                        methods=self.feature_config['preprocessing_for_subject_level']['methods']
                     )
-                    feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
-                else:
-                    # 使用单一方法（向后兼容）
-                    X_subj_ = preprocess_features(feature_df.values, **self.feature_config['preprocessing'])
                     feature_df = pd.DataFrame(X_subj_, columns=feature_df.columns)
 
             # Perform clustering for voxel to supervoxel
@@ -368,7 +364,7 @@ class HabitatAnalysis:
                 supervoxel_labels += 1  # Start numbering from 1
             except Exception as e:
                 self.logger.error(f"Error performing supervoxel clustering for subject {subject}: {str(e)}")
-                raise
+                raise e
 
             # Get feature names
             feature_names = feature_df.columns.tolist()
@@ -482,6 +478,10 @@ class HabitatAnalysis:
         else:
             # Single process processing, use custom progress bar
             progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
+            results = []
+            for subject in subjects:
+                result = self._voxel2supervoxel_clustering(subject)
+                results.append(result)
             for subject in subjects:
                 if isinstance(result[1], Exception):
                     failed_subjects.append(subject)
@@ -563,6 +563,7 @@ class HabitatAnalysis:
                 features_of_all_subjects = []
                 progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
                 for subject in subjects:
+                    result = self.extract_supervoxel_features(subject)
                     if isinstance(result[1], Exception):
                         failed_subjects.append(result[0])
                         if self.verbose:
@@ -581,13 +582,24 @@ class HabitatAnalysis:
                     raise ValueError("No valid supervoxel features extracted")
 
         # ===============================================
-        #  TODO: perform group level feature preprocessing, perform here
-        # Current only support mean filling
+        #  TODO: 把mean fill也整合到preprocess_features中
+        #  TODO: 且preprocess_features要返回model，方便测试集使用
         features_of_all_subjects = features_of_all_subjects.apply(lambda x: pd.to_numeric(x, errors='coerce'))
         features_of_all_subjects = features_of_all_subjects.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
         features_of_all_subjects = features_of_all_subjects.replace([np.inf, -np.inf], np.nan)
         features_of_all_subjects = features_of_all_subjects.fillna(features_of_all_subjects.mean())
-        
+
+        # Apply preprocessing if enabled
+        if self.feature_config.get('preprocessing_for_group_level', False):
+            # 检查是否使用新的多方法串联机制
+            if 'methods' in self.feature_config['preprocessing_for_group_level']:
+                # 使用多方法串联
+                farray = preprocess_features(
+                    features_of_all_subjects.values,
+                    methods=self.feature_config['preprocessing_for_group_level']['methods']
+                )
+                features_of_all_subjects = pd.DataFrame(farray, columns=features_of_all_subjects.columns)
+
         #  Save mean values for unseen test subjects if is training model  FIXME: 需要根据实际情况调整
         if self.mode == 'training':
             mean_values = features_of_all_subjects.mean()

@@ -151,7 +151,7 @@ class SupervoxelRadiomicsExtractor(BaseFeatureExtractor):
             
             # Convert to SimpleITK image
             sv_mask_img = sitk.GetImageFromArray(sv_mask)
-            sv_mask_img.CopyInformation(sv_map)
+            sv_mask_img.CopyInformation(image)
             
             try:
                 # Extract features for this supervoxel

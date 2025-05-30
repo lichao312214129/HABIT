@@ -193,7 +193,7 @@ method: raw(image_name)
 为每个超体素提取影像组学特征。
 
 ```yaml
-method: supervoxel_radiomics(image_name)
+method: supervoxel_radiomics(image_name, params_file)
 params:
   params_file: <参数文件路径>
 ```
@@ -240,6 +240,39 @@ global_normalize: <是否全局归一化>
 method: winsorize
 winsor_limits: [<下限>, <上限>]
 global_normalize: <是否全局归一化>
+```
+
+#### 5. binning - 分箱离散化
+
+将连续特征值离散化为指定数量的分箱，有助于减少噪声和异常值的影响。
+
+```yaml
+method: binning
+n_bins: <分箱数量>
+strategy: <分箱策略>
+global_normalize: <是否全局归一化>
+```
+
+**参数说明：**
+- `n_bins`: 分箱数量，默认为5
+- `strategy`: 分箱策略，支持以下选项：
+  - `uniform`: 等宽分箱（默认）
+  - `quantile`: 等频分箱（分位数分箱）
+  - `kmeans`: 基于K-均值聚类的分箱
+- `global_normalize`: 是否在所有样本上进行全局分箱，默认为true
+
+**应用场景：**
+- 减少特征噪声
+- 处理异常值
+- 简化特征分布
+- 提高模型稳定性
+
+**示例：**
+```yaml
+method: binning
+n_bins: 8
+strategy: quantile
+global_normalize: true
 ```
 
 ## 支持的聚类算法
@@ -295,6 +328,10 @@ FeatureConstruction:
         global_normalize: true
       - method: winsorize
         winsor_limits: [0.05, 0.05]
+        global_normalize: true
+      - method: binning
+        n_bins: 8
+        strategy: quantile
         global_normalize: true
 
 # 生境分割设置
