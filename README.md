@@ -39,6 +39,8 @@ habit_project/
 
 详细安装步骤请参考 [INSTALL.md](INSTALL.md)
 
+**🚀 新用户推荐**: 安装完成后，请查看 [快速开始指南](QUICKSTART.md) 快速上手使用！
+
 ### 快速安装
 ```bash
 # 克隆仓库
@@ -138,6 +140,7 @@ results = ml_model.train_and_evaluate()
 ## 📚 文档
 
 - [安装指南](INSTALL.md)
+- [快速开始指南](QUICKSTART.md) ⭐
 - [应用文档](doc/)
 - [预处理模块说明](habit/core/preprocessing/README.md)
 
