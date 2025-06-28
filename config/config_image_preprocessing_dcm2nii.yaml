@@ -2,13 +2,13 @@
 
 # Data paths
 data_dir: ./config/image_files.yaml
-out_dir: ../demo_data/results/preprocessed1
+out_dir: ../demo_data/results/preprocessed
 
 # Preprocessing settings
 Preprocessing:
   dcm2nii:
-    images: [AxT1FLAIR, AxT2FRFSE, AxT2fsFLAIR, SagT2FRFSE]
-    dcm2niix_path: ../software/dcm2nii/dcm2niix.exe
+    images: [T1, T2, DWI, ADC]
+    dcm2niix_path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\software\dcm2nii\dcm2niix.exe
     compress: true
     anonymize: false
     

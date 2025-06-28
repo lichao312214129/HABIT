@@ -45,7 +45,13 @@ import numpy as np
 import os
 from pathlib import Path
 import SimpleITK as sitk
-from radiomics import featureextractor
+
+# pyradiomics need python3.8
+try:
+    from radiomics import featureextractor
+except ImportError:
+    raise ImportError("Radiomics is not installed. Install it using: pip install pyradiomics")
+
 import warnings
 import multiprocessing
 from functools import partial

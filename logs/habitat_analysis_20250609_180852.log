@@ -1,0 +1,20 @@
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:236 - Registered feature extractors: ['radiomics', 'statistical', 'texture', 'wavelet']
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:237 - Registered clustering algorithms: ['kmeans', 'gmm', 'spectral', 'hierarchical']
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:272 - ==== Habitat Clustering Parameters ====
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:273 - Config file: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\users\config_getting_habitat.yaml
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:274 - Data directory: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\users\demo_data
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:275 - Output folder: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\users\results
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:276 - Feature configuration: {'voxel_level': {'method': 'concat(raw(pet))', 'params': {'params_file': 'C:\\Users\\zhang\\Desktop\\sys\\habit_project0606\\config\\params_voxel_radiomics.yaml', 'timestamps': 'C:\\Users\\zhang\\Desktop\\sys\\results\\scan_time_of_phases.xlsx'}}, 'supervoxel_level': {'supervoxel_file_keyword': '*_supervoxel.nrrd', 'method': 'mean_voxel_features()', 'params': {'params_file': 'C:\\Users\\zhang\\Desktop\\sys\\habit_project0606\\config\\params_supervoxel_radiomics.yaml'}}}
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:277 - Supervoxel method: kmeans
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:278 - Supervoxel clusters: 50
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:279 - Habitat method: kmeans
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:280 - Maximum habitat clusters: 10
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:281 - Habitat cluster selection method: inertia
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:282 - Best number of clusters (if specified): None
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:283 - Mode: training
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:284 - Number of processes: 1
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:285 - Generate plots: True
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:286 - Random seed: 42
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:287 - Debug mode: False
+2025-06-09 18:08:52 - habitat_analysis - INFO - app_getting_habitat_map.py:288 - =========================
+2025-06-09 18:11:06 - habitat_analysis - INFO - app_getting_habitat_map.py:310 - Habitat analysis completed successfully

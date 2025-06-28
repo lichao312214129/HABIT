@@ -1,19 +1,19 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: ../demo_data/datasets
-out_dir: ../demo_data/results/preprocessed
+data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\DATA_2
+out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data
 
 # Preprocessing settings
 Preprocessing:
    
-  n4_correction:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    num_fitting_levels: 2
+  # n4_correction:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   num_fitting_levels: 2
 
-  resample:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in x, y, z
+  # resample:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   # zscore_normalization:
@@ -27,10 +27,10 @@ Preprocessing:
   #   reference_key: PVP  # 参考图像的键名
 
   registration:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    fixed_image: PVP
-    moving_images: [pre_contrast, LAP, delay_3min]
-    type_of_transform: SyN  # support all ants registration methods
+    images: [T2WI, ADC]
+    fixed_image: T2WI
+    moving_images: [ADC]
+    type_of_transform: SyNRA  # support all ants registration methods
     use_mask: false
 
 # General settings

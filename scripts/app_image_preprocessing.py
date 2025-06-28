@@ -125,7 +125,7 @@ def main(config_path):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        config_path = "./config/config_image_preprocessing_dcm2nii.yaml"
+        config_path = "./config/config_image_preprocessing.yaml"
     else:
         # 检查是否使用了argparse格式的参数
         if sys.argv[1].startswith('-'):

@@ -329,4 +329,4 @@ if __name__ == "__main__":
         logger.error(traceback.format_exc())
         sys.exit(1) 
 
-    # python scripts/app_getting_habitat_map.py --config ./config/config_getting_habitat.yaml
+    # python scripts/app_getting_habitat_map.py --config F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\users\config_getting_habitat.yaml
