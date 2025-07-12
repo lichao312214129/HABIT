@@ -9,7 +9,6 @@ This tool provides functionality for extracting features from habitat maps:
 5. ITH (Intratumoral Heterogeneity) scores from habitat maps
 """
 
-import time
 import logging
 import numpy as np
 import os
@@ -27,6 +26,7 @@ from .habitat_radiomics import HabitatRadiomicsExtractor
 from .msi_features import MSIFeatureExtractor
 from .ith_features import ITHFeatureExtractor
 from .feature_utils import FeatureUtils
+from habit.utils.io_utils import setup_logging
 
 # Disable warnings
 warnings.filterwarnings('ignore')
@@ -94,26 +94,14 @@ class HabitatFeatureExtractor:
 
     def _setup_logging(self):
         """Configure logging settings"""
-        # Get timestamp
-        data = time.time()
-        timeArray = time.localtime(data)
-        timestr = time.strftime('%Y_%m_%d %H_%M_%S', timeArray)
-        
-        # Create output directory
+        # Create output directory if it doesn't exist
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
-        log_file = os.path.join(self.out_dir, f'habitat_analysis_{timestr}.log')
-        # Configure logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler(log_file)
-            ]
-        )
         
-        logging.info(f"Log file will be saved to: {log_file}")
+        # Use the setup_logging function from io_utils
+        setup_logging(self.out_dir, debug=False)
+        
+        logging.info("Logging setup completed")
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""
@@ -271,6 +259,10 @@ class HabitatFeatureExtractor:
         images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
         feature_data = self.extract_features(images_paths, habitat_paths, mask_paths, feature_types)
         
+        # Log feature extraction results to screen and log file
+        logging.info(f"Feature extraction completed for {len(feature_data)} subjects")
+        logging.info(f"Feature data keys: {feature_data.keys()}")
+
         # 直接生成CSV (如果未指定特征类型则不生成)
         if feature_types:
             # 如果未指定n_habitats则自动检测
@@ -284,19 +276,24 @@ class HabitatFeatureExtractor:
             # 根据指定的特征类型生成CSV
             if 'traditional' in feature_types:
                 self._extract_traditional_radiomics()
+                logging.info(f"Traditional radiomics features saved to {os.path.join(self.out_dir, 'raw_image_radiomics.csv')}")
                 
             if 'non_radiomics' in feature_types:
                 self._extract_non_radiomics_features(n_habitats)
-                
+                logging.info(f"Basic habitat features saved to {os.path.join(self.out_dir, 'habitat_basic_features.csv')}")
+            
             if 'whole_habitat' in feature_types:
                 self._extract_radiomics_features_for_whole_habitat_map()
-                
+                logging.info(f"Whole habitat radiomics features saved to {os.path.join(self.out_dir, 'whole_habitat_radiomics.csv')}")
+            
             if 'each_habitat' in feature_types:
                 self._extract_radiomics_features_from_each_habitat(n_habitats)
-                
+                logging.info(f"Radiomics features from each habitat saved to {os.path.join(self.out_dir, 'habitat_radiomics.csv')}")
+            
             if 'msi' in feature_types:
                 self._extract_msi_features()
-                
+                logging.info(f"MSI features saved to {os.path.join(self.out_dir, 'msi_features.csv')}")
+            
             if 'ith_score' in feature_types:
                 self._extract_ith_features()
             

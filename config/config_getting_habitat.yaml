@@ -1,7 +1,7 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets
+data_dir: H:\Registration_ZSSY_1mm_structured
 out_dir: H:\results_test
 
 # Feature extraction settings
@@ -13,7 +13,7 @@ FeatureConstruction:
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: concat(supervoxel_radiomics(pre_contrast, params_file))
+    method: mean_voxel_features()
     params:
       params_file: ./config/params_supervoxel_radiomics.yaml
 

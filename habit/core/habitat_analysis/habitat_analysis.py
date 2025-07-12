@@ -10,7 +10,6 @@ import pandas as pd
 import SimpleITK as sitk
 import pickle
 import warnings
-from sklearn.preprocessing import KBinsDiscretizer
 import multiprocessing
 from glob import glob
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
@@ -22,10 +21,7 @@ from habit.utils.io_utils import (get_image_and_mask_paths,
 
 from .features.feature_expression_parser import FeatureExpressionParser
 from .features.feature_extractor_factory import create_feature_extractor
-from .features.feature_extractor_factory import create_feature_extractor
-
 from habit.utils.visualization import plot_cluster_scores
-
 from habit.core.habitat_analysis.clustering.base_clustering import get_clustering_algorithm
 from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_validation_methods,
@@ -33,7 +29,7 @@ from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_default_methods
 )
 from habit.core.habitat_analysis.features.feature_preprocessing import preprocess_features
-from .features.feature_extractor_factory import create_feature_extractor
+
 # Ignore warnings
 warnings.simplefilter('ignore')
 
@@ -425,389 +421,6 @@ class HabitatAnalysis:
             self.logger.error(f"Error in _voxel2supervoxel_clustering for subject {subject}: {str(e)}")
             return subject, Exception(str(e))
 
-    def run(self, subjects: Optional[List[str]] = None, save_results_csv: bool = True) -> pd.DataFrame:
-        """
-        Run the habitat clustering pipeline
-
-        Args:
-            subjects (Optional[List[str]], optional): List of subjects to process. If None, all subjects will be processed.
-            save_results_csv (bool, optional): Whether to save results as CSV files. Defaults to True.
-
-        Returns:
-            pd.DataFrame: Habitat clustering results
-        """
-        if subjects is None:
-            subjects = list(self.images_paths.keys())
-
-        # Extract features and perform supervoxel clustering for each subject
-        if self.verbose:
-            self.logger.info("Extracting features and performing supervoxel clustering...")
-
-        # Results storage
-        mean_features_all = pd.DataFrame()
-        failed_subjects = []  # Track failed subjects
-
-        # Use multiprocessing to process subjects
-        if self.n_processes > 1 and len(subjects) > 1:
-            if self.verbose:
-                self.logger.info(f"Using {self.n_processes} processes for parallel processing...")
-
-            with multiprocessing.Pool(processes=self.n_processes) as pool:
-                if self.verbose:
-                    self.logger.info("Starting parallel processing of all subjects...")
-                results_iter = pool.imap_unordered(self._voxel2supervoxel_clustering, subjects)
-
-                # 使用自定义进度条显示进度
-                progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
-                for result in results_iter:
-                    if isinstance(result[1], Exception):
-                        # 如果结果是异常，记录错误并继续
-                        failed_subjects.append(result[0])
-                        if self.verbose:
-                            self.logger.error(f"Error processing subject {result[0]}: {str(result[1])}")
-                    else:
-                        subject, mean_features_df = result
-                        mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
-
-                    progress_bar.update(1)
-
-                if self.verbose:
-                    if failed_subjects:
-                        self.logger.warning(f"Failed to process {len(failed_subjects)}")
-                    self.logger.info(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
-        else:
-            # Single process processing, use custom progress bar
-            progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
-            results = []
-            for subject in subjects:
-                result = self._voxel2supervoxel_clustering(subject)
-                results.append(result)
-            for subject in subjects:
-                if isinstance(result[1], Exception):
-                    failed_subjects.append(subject)
-                    if self.verbose:
-                        self.logger.error(f"Error processing subject {subject}: {str(result[1])}")
-                else:
-                    subject, mean_features_df = result
-                    mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
-                
-                progress_bar.update(1)
-
-            if self.verbose and failed_subjects:
-                self.logger.warning(f"Failed to process {len(failed_subjects)}")
-
-        # Check if there is enough data for clustering
-        if len(mean_features_all) == 0:
-            raise ValueError("No valid features for analysis")
-
-        # ===============================================
-        # Prepare features for population-level clustering
-        # feature_names = mean_features_all中不以-original结尾的列
-        feature_names = [col for col in mean_features_all.columns if not col.endswith('-original')]
-        feature_names = feature_names[3:]  # 去掉Subject, Supervoxel, Count FIXME: 需要根据实际情况调整
-        features_of_all_subjects = mean_features_all[feature_names]
-        supervoxel_file_keyword = self.feature_config['supervoxel_level'].get('supervoxel_file_keyword', '*_supervoxel.nrrd')
-        supervoxel_files = glob(os.path.join(self.out_dir, supervoxel_file_keyword))
-        # if subject in subjects, then add to supervoxel_file_keyword_dict
-        self.supervoxel_file_dict = {}
-        for subject in subjects:
-            for supervoxel_file in supervoxel_files:
-                if subject in supervoxel_file:
-                    self.supervoxel_file_dict[subject] = supervoxel_file
-                    break
-            else:
-                if subject not in failed_subjects:  # Only warn for non-failed subjects
-                    if self.verbose:
-                        self.logger.warning(f"No supervoxel file found for subject {subject}")
-
-        if not self.supervoxel_file_dict:
-            raise ValueError(f"No supervoxel files found in {self.out_dir}")
-
-        # 检查是否使用mean_voxel_features
-        is_mean_voxel_features = 'mean_voxel_features' in self.feature_config['supervoxel_level']['method']
-        if not is_mean_voxel_features:
-            # Use multiprocessing to extract supervoxel features for all subjects
-            if self.n_processes > 1 and len(subjects) > 1:
-                if self.verbose:
-                    self.logger.info(f"Using {self.n_processes} processes for supervoxel feature extraction...")
-
-                with multiprocessing.Pool(processes=self.n_processes) as pool:
-                    if self.verbose:
-                        self.logger.info("Starting parallel supervoxel feature extraction...")
-
-                    # Use imap_unordered to process subjects in parallel
-                    results_iter = pool.imap_unordered(self.extract_supervoxel_features, subjects)
-
-                    # Collect features from all subjects
-                    features_of_all_subjects = []
-                    progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
-                    for result in results_iter:
-                        if isinstance(result[1], Exception):
-                            failed_subjects.append(result[0])
-                            if self.verbose:
-                                self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
-                        else:
-                            features_of_all_subjects.append(result[1])
-                        progress_bar.update(1)
-
-                    if self.verbose and failed_subjects:
-                        self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
-
-                    # concat
-                    if features_of_all_subjects:
-                        features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
-                    else:
-                        raise ValueError("No valid supervoxel features extracted")
-            else:
-                # Single process processing
-                features_of_all_subjects = []
-                progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
-                for subject in subjects:
-                    result = self.extract_supervoxel_features(subject)
-                    if isinstance(result[1], Exception):
-                        failed_subjects.append(result[0])
-                        if self.verbose:
-                            self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
-                    else:
-                        features_of_all_subjects.append(result[1])
-                    progress_bar.update(1)
-
-                if self.verbose and failed_subjects:
-                    self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
-
-                # concat
-                if features_of_all_subjects:
-                    features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
-                else:
-                    raise ValueError("No valid supervoxel features extracted")
-
-        # ===============================================
-        #  TODO: 把mean fill也整合到preprocess_features中
-        #  TODO: 且preprocess_features要返回model，方便测试集使用
-        features_of_all_subjects = features_of_all_subjects.apply(lambda x: pd.to_numeric(x, errors='coerce'))
-        features_of_all_subjects = features_of_all_subjects.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
-        features_of_all_subjects = features_of_all_subjects.replace([np.inf, -np.inf], np.nan)
-        features_of_all_subjects = features_of_all_subjects.fillna(features_of_all_subjects.mean())
-
-        # Apply preprocessing if enabled
-        if self.feature_config.get('preprocessing_for_group_level', False):
-            # 检查是否使用新的多方法串联机制
-            if 'methods' in self.feature_config['preprocessing_for_group_level']:
-                # 使用多方法串联
-                farray = preprocess_features(
-                    features_of_all_subjects.values,
-                    methods=self.feature_config['preprocessing_for_group_level']['methods']
-                )
-                features_of_all_subjects = pd.DataFrame(farray, columns=features_of_all_subjects.columns)
-
-        #  Save mean values for unseen test subjects if is training model  FIXME: 需要根据实际情况调整
-        if self.mode == 'training':
-            mean_values = features_of_all_subjects.mean()
-            mean_values.name = 'mean_values'
-            mean_values.to_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'), index=True, header=True)
-        elif self.mode == 'testing':
-            #  Load mean values for unseen test subjects
-            mean_values = pd.read_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'))
-            features_of_all_subjects = features_of_all_subjects.fillna(mean_values)
-        else:
-            raise ValueError(f"Invalid mode: {self.mode}")
-        # ===============================================
-        
-        if self.mode == 'training':
-            # Determine optimal number of clusters
-            if self.best_n_clusters is not None:
-                # If best number of clusters is already specified, use it directly
-                optimal_n_clusters = self.best_n_clusters
-                scores = None
-                if self.verbose:
-                    self.logger.info(f"Using specified best number of clusters: {optimal_n_clusters}")
-            else:
-                # Otherwise find optimal number of clusters
-                if self.verbose:
-                    self.logger.info("Finding optimal number of clusters...")
-
-                try:
-                    # Ensure cluster number range is reasonable
-                    min_clusters = max(2, self.n_clusters_habitats_min)
-                    max_clusters = min(self.n_clusters_habitats_max, len(features_of_all_subjects) - 1)
-
-                    if max_clusters <= min_clusters:
-                        # If range is invalid, use default minimum value
-                        if self.verbose:
-                            self.logger.warning(f"Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
-                        optimal_n_clusters = min_clusters
-                        scores = None
-                    else:
-                        # Try to find optimal number of clusters
-                        try:
-                            cluster_for_best_n = get_clustering_algorithm(self.habitat_method)
-                            optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
-                                features_of_all_subjects,
-                                min_clusters=min_clusters,
-                                max_clusters=max_clusters,
-                                methods=self.habitat_cluster_selection_method,
-                                show_progress=True
-                            )
-
-                            # If plotting is needed, plot score graphs
-                            if self.plot_curves and scores is not None:
-                                try:
-                                    # 确保输出目录存在
-                                    os.makedirs(self.out_dir, exist_ok=True)
-
-                                    # 构造保存路径
-                                    save_path = os.path.join(self.out_dir, 'habitat_clustering_scores.png')
-
-                                    # 使用新的可视化函数绘图
-                                    plot_cluster_scores(
-                                        scores_dict=scores,
-                                        cluster_range=cluster_for_best_n.cluster_range,
-                                        methods=self.habitat_cluster_selection_method,
-                                        clustering_algorithm=self.habitat_method,
-                                        figsize=(12, 8),
-                                        save_path=save_path,
-                                        show=False
-                                    )
-
-                                    if self.verbose:
-                                        self.logger.info(f"聚类评分图已保存至 {save_path}")
-                                except Exception as e:
-                                    # 捕获绘图过程中的错误
-                                    if self.verbose:
-                                        self.logger.error(f"绘制聚类评分图时出错: {str(e)}")
-                                        self.logger.info("继续执行其他流程...")
-                        except Exception as e:
-                            # If optimal number of clusters cannot be found, use default value and warn user
-                            if self.verbose:
-                                self.logger.warning(f"Failed to find optimal number of clusters: {str(e)}")
-                                self.logger.info("Using default number of clusters")
-                            optimal_n_clusters = min(3, max_clusters)  # Use a reasonable default value
-                            scores = None
-                except Exception as e:
-                    # Catch all exceptions, use default value
-                    if self.verbose:
-                        self.logger.error(f"Exception occurred when determining optimal number of clusters: {str(e)}")
-                        self.logger.info("Using default number of clusters")
-                    optimal_n_clusters = 3  # Default to 3 clusters
-                    scores = None
-
-                if self.verbose:
-                    self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
-
-                # Perform population-level clustering using optimal number of clusters
-                if self.verbose:
-                    self.logger.info("Performing population-level clustering...")
-
-            # Reinitialize clustering algorithm with optimal number of clusters
-            self.supervoxel2habitat_clustering.n_clusters = optimal_n_clusters
-            self.supervoxel2habitat_clustering.fit(features_of_all_subjects)
-            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
-
-            # Save clustering model of supervoxel to habitat
-            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
-            with open(model_path, 'wb') as f:
-                pickle.dump(self.supervoxel2habitat_clustering, f)
-
-        elif self.mode == 'testing':
-            # Load clustering model from config file
-            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
-            if os.path.exists(model_path):
-                with open(model_path, 'rb') as f:
-                    self.supervoxel2habitat_clustering = pickle.load(f)
-            else:
-                raise ValueError(f"No clustering model found at {model_path}")
-            
-            if self.verbose:
-                self.logger.info(f"Performing population-level clustering using already trained model{model_path}...")
-
-            # Perform population-level clustering using already trained model
-            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
-
-        else:
-            raise ValueError(f"Invalid mode: {self.mode}")
-
-        # Add habitat labels to results
-        mean_features_all['Habitats'] = habitat_labels
-
-        # Create results DataFrame
-        self.results_df = mean_features_all.copy()
-
-        # Save results
-        if save_results_csv:
-            if self.verbose:
-                self.logger.info("Saving results...")
-
-            # 确保目录存在
-            os.makedirs(self.out_dir, exist_ok=True)
-
-            # 如果有原始配置文件，则直接复制到输出目录
-            if self.config_file and os.path.exists(self.config_file):
-                import shutil
-                config_out_path = os.path.join(self.out_dir, 'config.yaml')
-                shutil.copy2(self.config_file, config_out_path)
-                if self.verbose:
-                    self.logger.info(f"原始配置文件已复制到: {config_out_path}")
-            else:
-                # 没有原始配置文件时，仍然保存当前配置为JSON
-                if self.verbose:
-                    self.logger.info("未提供原始配置文件路径，将以JSON格式保存当前配置")
-                
-                # 创建包含当前分析参数的配置字典
-                config = {
-                    'data_dir': self.data_dir,
-                    'out_folder': self.out_dir,
-                    'feature_config': self.feature_config,
-                    'supervoxel_clustering_method': self.supervoxel_method,
-                    'habitat_clustering_method': self.habitat_method,
-                    'mode': self.mode,
-                    'n_clusters_supervoxel': self.n_clusters_supervoxel,
-                    'n_clusters_habitats_max': self.n_clusters_habitats_max,
-                    'n_clusters_habitats_min': self.n_clusters_habitats_min,
-                    'habitat_cluster_selection_method': self.habitat_cluster_selection_method,
-                    'best_n_clusters': self.best_n_clusters,
-                    'n_processes': self.n_processes,
-                    'random_state': self.random_state,
-                    'verbose': self.verbose,
-                    'images_dir': self.images_dir,
-                    'masks_dir': self.masks_dir,
-                    'plot_curves': self.plot_curves,
-                    'save_intermediate_results': self.save_intermediate_results,
-                    'optimal_n_clusters_habitat': int(optimal_n_clusters)
-                }
-
-                # 保存配置
-                with open(os.path.join(self.out_dir, 'config.json'), 'w') as f:
-                    json.dump(config, f, indent=4)
-
-            # Save CSV
-            self.results_df.to_csv(os.path.join(self.out_dir, 'habitats.csv'), index=False)
-
-            # Save habitat images for each subject
-            # Set Subject as index
-            self.results_df.set_index('Subject', inplace=True)
-            
-            # 创建参数列表
-            args_list = list(set(self.results_df.index))
-
-            # 使用多进程保存所有主体的栖息地图像
-            with multiprocessing.Pool(processes=self.n_processes) as pool:
-                # 使用imap_unordered并配合自定义进度条，添加容错机制
-                progress_bar = CustomTqdm(total=len(args_list), desc="Save habitat images")
-                failed_subjects = []
-                results_iter = pool.imap_unordered(self._save_habitat_for_subject, args_list)
-                for result in results_iter:
-                    if isinstance(result[1], Exception):
-                        failed_subjects.append(result[0])
-                        if self.verbose:
-                            self.logger.error(f"Error saving habitat image for subject {result[0]}: {str(result[1])}")
-                    else:
-                        progress_bar.update(1)
-                
-                if failed_subjects and self.verbose:
-                    self.logger.warning(f"Failed to save habitat images for {len(failed_subjects)}")
-
-        return self.results_df
-
     def extract_voxel_features(self, subject: str) -> Tuple[str, pd.DataFrame, pd.DataFrame, np.ndarray, dict]:
         """
         Extract features for a single subject
@@ -940,5 +553,387 @@ class HabitatAnalysis:
         except Exception as e:
             return subject, Exception(str(e))
 
+    def run(self, subjects: Optional[List[str]] = None, save_results_csv: bool = True) -> pd.DataFrame:
+        """
+        Run the habitat clustering pipeline
 
+        Args:
+            subjects (Optional[List[str]], optional): List of subjects to process. If None, all subjects will be processed.
+            save_results_csv (bool, optional): Whether to save results as CSV files. Defaults to True.
+
+        Returns:
+            pd.DataFrame: Habitat clustering results
+        """
+        if subjects is None:
+            subjects = list(self.images_paths.keys())
+
+        # Extract features and perform supervoxel clustering for each subject
+        if self.verbose:
+            self.logger.info("Extracting features and performing supervoxel clustering...")
+
+        # Results storage
+        mean_features_all = pd.DataFrame()
+        failed_subjects = []  # Track failed subjects
+
+        # Use multiprocessing to process subjects
+        if self.n_processes > 1 and len(subjects) > 1:
+            if self.verbose:
+                self.logger.info(f"Using {self.n_processes} processes for parallel processing...")
+
+            with multiprocessing.Pool(processes=self.n_processes) as pool:
+                if self.verbose:
+                    self.logger.info("Starting parallel processing of all subjects...")
+                results_iter = pool.imap_unordered(self._voxel2supervoxel_clustering, subjects)
+
+                # 使用自定义进度条显示进度
+                progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
+                for result in results_iter:
+                    if isinstance(result[1], Exception):
+                        # 如果结果是异常，记录错误并继续
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error processing subject {result[0]}: {str(result[1])}")
+                    else:
+                        subject, mean_features_df = result
+                        mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+
+                    progress_bar.update(1)
+
+                if self.verbose:
+                    if failed_subjects:
+                        self.logger.warning(f"Failed to process {len(failed_subjects)}")
+                    self.logger.info(f"\nAll {len(subjects)} subjects have been processed. Proceeding to clustering...")
+        
+        # Single process processing, use custom progress bar
+        else:
+            progress_bar = CustomTqdm(total=len(subjects), desc="Processing subjects")
+            results = []
+            for subject in subjects:
+                result = self._voxel2supervoxel_clustering(subject)
+                results.append(result)
+            for subject in subjects:
+                if isinstance(result[1], Exception):
+                    failed_subjects.append(subject)
+                    if self.verbose:
+                        self.logger.error(f"Error processing subject {subject}: {str(result[1])}")
+                else:
+                    subject, mean_features_df = result
+                    mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
+                
+                progress_bar.update(1)
+
+            if self.verbose and failed_subjects:
+                self.logger.warning(f"Failed to process {len(failed_subjects)}")
+
+        # Check if there is enough data for clustering
+        if len(mean_features_all) == 0:
+            raise ValueError("No valid features for analysis")
+
+        # ===============================================
+        # Prepare features for population-level clustering
+        # feature_names = mean_features_all中不以-original结尾的列
+        feature_names = [col for col in mean_features_all.columns if not col.endswith('-original')]
+        feature_names = feature_names[3:]  # 去掉Subject, Supervoxel, Count FIXME: 需要根据实际情况调整
+        features_of_all_subjects = mean_features_all[feature_names]
+        supervoxel_file_keyword = self.feature_config['supervoxel_level'].get('supervoxel_file_keyword', '*_supervoxel.nrrd')
+        supervoxel_files = glob(os.path.join(self.out_dir, supervoxel_file_keyword))
+        # if subject in subjects, then add to supervoxel_file_keyword_dict
+        self.supervoxel_file_dict = {}
+        for subject in subjects:
+            for supervoxel_file in supervoxel_files:
+                if subject in supervoxel_file:
+                    self.supervoxel_file_dict[subject] = supervoxel_file
+                    break
+            else:
+                if subject not in failed_subjects:  # Only warn for non-failed subjects
+                    if self.verbose:
+                        self.logger.warning(f"No supervoxel file found for subject {subject}")
+
+        if not self.supervoxel_file_dict:
+            raise ValueError(f"No supervoxel files found in {self.out_dir}")
+
+        # 检查是否使用mean_voxel_features()
+        is_mean_voxel_features = 'mean_voxel_features' in self.feature_config['supervoxel_level']['method']
+        if not is_mean_voxel_features:
+            # Use multiprocessing to extract supervoxel features for all subjects
+            if self.n_processes > 1 and len(subjects) > 1:
+                if self.verbose:
+                    self.logger.info(f"Using {self.n_processes} processes for supervoxel feature extraction...")
+
+                with multiprocessing.Pool(processes=self.n_processes) as pool:
+                    if self.verbose:
+                        self.logger.info("Starting parallel supervoxel feature extraction...")
+
+                    # Use imap_unordered to process subjects in parallel
+                    results_iter = pool.imap_unordered(self.extract_supervoxel_features, subjects)
+
+                    # Collect features from all subjects
+                    features_of_all_subjects = []
+                    progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
+                    for result in results_iter:
+                        if isinstance(result[1], Exception):
+                            failed_subjects.append(result[0])
+                            if self.verbose:
+                                self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
+                        else:
+                            features_of_all_subjects.append(result[1])
+                        progress_bar.update(1)
+
+                    if self.verbose and failed_subjects:
+                        self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
+
+                    # concat
+                    if features_of_all_subjects:
+                        features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
+                    else:
+                        raise ValueError("No valid supervoxel features extracted")
+            else:
+                # Single process processing
+                features_of_all_subjects = []
+                progress_bar = CustomTqdm(total=len(subjects), desc="Extracting supervoxel features")
+                for subject in subjects:
+                    result = self.extract_supervoxel_features(subject)
+                    if isinstance(result[1], Exception):
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error extracting supervoxel features for subject {result[0]}: {str(result[1])}")
+                    else:
+                        features_of_all_subjects.append(result[1])
+                    progress_bar.update(1)
+
+                if self.verbose and failed_subjects:
+                    self.logger.warning(f"Failed to extract supervoxel features for {len(failed_subjects)}")
+
+                # concat
+                if features_of_all_subjects:
+                    features_of_all_subjects = pd.concat(features_of_all_subjects, ignore_index=True)
+                else:
+                    raise ValueError("No valid supervoxel features extracted")
+
+        # ===============================================
+        #  TODO: 把mean fill也整合到preprocess_features中
+        #  TODO: 且preprocess_features要返回model，方便测试集使用
+        features_of_all_subjects = features_of_all_subjects.apply(lambda x: pd.to_numeric(x, errors='coerce'))
+        features_of_all_subjects = features_of_all_subjects.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
+        features_of_all_subjects = features_of_all_subjects.replace([np.inf, -np.inf], np.nan)
+        features_of_all_subjects = features_of_all_subjects.fillna(features_of_all_subjects.mean())
+
+        # Apply preprocessing if enabled
+        if self.feature_config.get('preprocessing_for_group_level', False):
+            # 检查是否使用新的多方法串联机制
+            if 'methods' in self.feature_config['preprocessing_for_group_level']:
+                # 兼容多方法串联机制
+                farray = preprocess_features(
+                    features_of_all_subjects.values,
+                    methods=self.feature_config['preprocessing_for_group_level']['methods']
+                )
+                features_of_all_subjects = pd.DataFrame(farray, columns=features_of_all_subjects.columns)
+
+        #  Save mean values for unseen test subjects if is training model  FIXME: 需要根据实际情况调整
+        if self.mode == 'training':
+            mean_values = features_of_all_subjects.mean()
+            mean_values.name = 'mean_values'
+            mean_values.to_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'), index=True, header=True)
+        elif self.mode == 'testing':
+            #  Load mean values for unseen test subjects
+            mean_values = pd.read_csv(os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv'))
+            features_of_all_subjects = features_of_all_subjects.fillna(mean_values)
+        else:
+            raise ValueError(f"Invalid mode: {self.mode}")
+        # ===============================================
+        
+        if self.mode == 'training':
+            # Determine optimal number of clusters
+            if self.best_n_clusters is not None:
+                # If best number of clusters is already specified, use it directly
+                optimal_n_clusters = self.best_n_clusters
+                scores = None
+                if self.verbose:
+                    self.logger.info(f"Using specified best number of clusters: {optimal_n_clusters}")
+            else:
+                # Otherwise find optimal number of clusters
+                if self.verbose:
+                    self.logger.info("Finding optimal number of clusters...")
+
+                try:
+                    # Ensure cluster number range is reasonable
+                    min_clusters = max(2, self.n_clusters_habitats_min)
+                    max_clusters = min(self.n_clusters_habitats_max, len(features_of_all_subjects) - 1)
+
+                    if max_clusters <= min_clusters:
+                        # If range is invalid, use default minimum value
+                        if self.verbose:
+                            self.logger.warning(f"Invalid cluster number range [{min_clusters}, {max_clusters}], using default value")
+                        optimal_n_clusters = min_clusters
+                        scores = None
+                    else:
+                        # Try to find optimal number of clusters
+                        try:
+                            cluster_for_best_n = get_clustering_algorithm(self.habitat_method)
+                            optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
+                                features_of_all_subjects,
+                                min_clusters=min_clusters,
+                                max_clusters=max_clusters,
+                                methods=self.habitat_cluster_selection_method,
+                                show_progress=True
+                            )
+
+                            # If plotting is needed, plot score graphs
+                            if self.plot_curves and scores is not None:
+                                try:
+                                    # 确保输出目录存在
+                                    os.makedirs(self.out_dir, exist_ok=True)
+
+                                    # 构造保存路径
+                                    save_path = os.path.join(self.out_dir, 'habitat_clustering_scores.png')
+
+                                    # 使用新的可视化函数绘图
+                                    plot_cluster_scores(
+                                        scores_dict=scores,
+                                        cluster_range=cluster_for_best_n.cluster_range,
+                                        methods=self.habitat_cluster_selection_method,
+                                        clustering_algorithm=self.habitat_method,
+                                        figsize=(12, 8),
+                                        save_path=save_path,
+                                        show=False
+                                    )
+
+                                    if self.verbose:
+                                        self.logger.info(f"聚类评分图已保存至 {save_path}")
+                                except Exception as e:
+                                    # 捕获绘图过程中的错误
+                                    if self.verbose:
+                                        self.logger.error(f"绘制聚类评分图时出错: {str(e)}")
+                                        self.logger.info("继续执行其他流程...")
+                        except Exception as e:
+                            # If optimal number of clusters cannot be found, use default value and warn user
+                            if self.verbose:
+                                self.logger.warning(f"Failed to find optimal number of clusters: {str(e)}")
+                                self.logger.info("Using default number of clusters")
+                            optimal_n_clusters = min(3, max_clusters)  # Use a reasonable default value
+                            scores = None
+                except Exception as e:
+                    # Catch all exceptions, use default value
+                    if self.verbose:
+                        self.logger.error(f"Exception occurred when determining optimal number of clusters: {str(e)}")
+                        self.logger.info("Using default number of clusters")
+                    optimal_n_clusters = 3  # Default to 3 clusters
+                    scores = None
+
+                if self.verbose:
+                    self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
+
+                # Perform population-level clustering using optimal number of clusters
+                if self.verbose:
+                    self.logger.info("Performing population-level clustering...")
+
+            # Reinitialize clustering algorithm with optimal number of clusters
+            self.supervoxel2habitat_clustering.n_clusters = optimal_n_clusters
+            self.supervoxel2habitat_clustering.fit(features_of_all_subjects)
+            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
+
+            # Save clustering model of supervoxel to habitat
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            with open(model_path, 'wb') as f:
+                pickle.dump(self.supervoxel2habitat_clustering, f)
+
+        elif self.mode == 'testing':
+            # Load clustering model from config file FIXME: 需要根据实际情况调整
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            if os.path.exists(model_path):
+                with open(model_path, 'rb') as f:
+                    self.supervoxel2habitat_clustering = pickle.load(f)
+            else:
+                raise ValueError(f"No clustering model found at {model_path}")
+            
+            if self.verbose:
+                self.logger.info(f"Performing population-level clustering using already trained model{model_path}...")
+
+            # Perform population-level clustering using already trained model
+            habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
+
+        else:
+            raise ValueError(f"Invalid mode: {self.mode}")
+
+        # Add habitat labels to results
+        mean_features_all['Habitats'] = habitat_labels
+
+        # Create results DataFrame
+        self.results_df = mean_features_all.copy()
+
+        # Save results
+        if save_results_csv:
+            if self.verbose:
+                self.logger.info("Saving results...")
+
+            # 确保目录存在
+            os.makedirs(self.out_dir, exist_ok=True)
+
+            # 如果有原始配置文件，则直接复制到输出目录
+            if self.config_file and os.path.exists(self.config_file):
+                import shutil
+                config_out_path = os.path.join(self.out_dir, 'config.yaml')
+                shutil.copy2(self.config_file, config_out_path)
+                if self.verbose:
+                    self.logger.info(f"原始配置文件已复制到: {config_out_path}")
+            else:
+                # 没有原始配置文件时，仍然保存当前配置为JSON
+                if self.verbose:
+                    self.logger.info("未提供原始配置文件路径，将以JSON格式保存当前配置")
+                
+                # 创建包含当前分析参数的配置字典
+                config = {
+                    'data_dir': self.data_dir,
+                    'out_folder': self.out_dir,
+                    'feature_config': self.feature_config,
+                    'supervoxel_clustering_method': self.supervoxel_method,
+                    'habitat_clustering_method': self.habitat_method,
+                    'mode': self.mode,
+                    'n_clusters_supervoxel': self.n_clusters_supervoxel,
+                    'n_clusters_habitats_max': self.n_clusters_habitats_max,
+                    'n_clusters_habitats_min': self.n_clusters_habitats_min,
+                    'habitat_cluster_selection_method': self.habitat_cluster_selection_method,
+                    'best_n_clusters': self.best_n_clusters,
+                    'n_processes': self.n_processes,
+                    'random_state': self.random_state,
+                    'verbose': self.verbose,
+                    'images_dir': self.images_dir,
+                    'masks_dir': self.masks_dir,
+                    'plot_curves': self.plot_curves,
+                    'save_intermediate_results': self.save_intermediate_results,
+                    'optimal_n_clusters_habitat': int(optimal_n_clusters)
+                }
+
+                # 保存配置
+                with open(os.path.join(self.out_dir, 'config.json'), 'w') as f:
+                    json.dump(config, f, indent=4)
+
+            # Save CSV
+            self.results_df.to_csv(os.path.join(self.out_dir, 'habitats.csv'), index=False)
+
+            # Save habitat images for each subject
+            # Set Subject as index
+            self.results_df.set_index('Subject', inplace=True)
+            
+            # 创建参数列表
+            args_list = list(set(self.results_df.index))
+
+            # 使用多进程保存所有主体的栖息地图像
+            with multiprocessing.Pool(processes=self.n_processes) as pool:
+                # 使用imap_unordered并配合自定义进度条，添加容错机制
+                progress_bar = CustomTqdm(total=len(args_list), desc="Save habitat images")
+                failed_subjects = []
+                results_iter = pool.imap_unordered(self._save_habitat_for_subject, args_list)
+                for result in results_iter:
+                    if isinstance(result[1], Exception):
+                        failed_subjects.append(result[0])
+                        if self.verbose:
+                            self.logger.error(f"Error saving habitat image for subject {result[0]}: {str(result[1])}")
+                    else:
+                        progress_bar.update(1)
+                
+                if failed_subjects and self.verbose:
+                    self.logger.warning(f"Failed to save habitat images for {len(failed_subjects)}")
+
+        return self.results_df
 

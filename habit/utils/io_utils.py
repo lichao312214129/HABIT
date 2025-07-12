@@ -408,8 +408,8 @@ def setup_logging(out_dir: str, debug: bool = False) -> None:
         level=log_level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
+            logging.FileHandler(log_file),  # save to file
+            logging.StreamHandler()  # print to console
         ]
     ) 
 

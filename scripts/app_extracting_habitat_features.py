@@ -32,7 +32,6 @@ def parse_args() -> argparse.Namespace:
     
     return parser.parse_args()
 
-
 def validate_config(config: dict) -> bool:
     """
     Validate configuration parameters
@@ -94,7 +93,6 @@ def validate_config(config: dict) -> bool:
     
     return True
 
-
 def print_config_summary(config: dict) -> None:
     """
     Print a summary of the configuration
@@ -120,7 +118,6 @@ def print_config_summary(config: dict) -> None:
     logging.info(f"调试模式: {config.get('debug', False)}")
     logging.info("=========================")
 
-
 def run_extractor(config: dict) -> bool:
     """
     Run the habitat feature extractor with the provided configuration
@@ -134,7 +131,6 @@ def run_extractor(config: dict) -> bool:
     try:
         # Create feature extractor instance
         logging.info("正在创建特征提取器实例...")
-        print("正在创建特征提取器实例...")
         
         extractor = HabitatFeatureExtractor(
             params_file_of_non_habitat=config['params_file_of_non_habitat'],
@@ -148,7 +144,6 @@ def run_extractor(config: dict) -> bool:
         
         # Run feature extractor
         logging.info("开始执行特征提取...")
-        print("开始执行特征提取...")
         
         start_time = time.time()
         extractor.run(
@@ -160,7 +155,6 @@ def run_extractor(config: dict) -> bool:
         # Report execution time
         execution_time = end_time - start_time
         logging.info(f"特征提取完成，总耗时: {execution_time:.2f} 秒")
-        print(f"特征提取完成，总耗时: {execution_time:.2f} 秒")
             
         return True
         
@@ -173,7 +167,6 @@ def run_extractor(config: dict) -> bool:
             import traceback
             traceback.print_exc()
         return False
-
 
 def main() -> None:
     """Main function to run habitat feature extraction"""
@@ -189,9 +182,9 @@ def main() -> None:
             config['debug'] = True
             
     except Exception as e:
-        print(f"配置文件加载错误: {str(e)}")
-        print("请提供有效的YAML配置文件, 例如:")
-        print("python app_extracting_habitat_features.py --config config/extract_features_config.yaml")
+        logging.error(f"配置文件加载错误: {str(e)}")
+        logging.error("请提供有效的YAML配置文件, 例如:")
+        logging.error("python app_extracting_habitat_features.py --config config/extract_features_config.yaml")
         return
     
     # Set up logging
@@ -210,10 +203,8 @@ def main() -> None:
     
     if success:
         logging.info("生境特征提取已完成")
-        print("生境特征提取已完成")
     else:
         logging.error("生境特征提取失败")
-        print("生境特征提取失败")
 
 
 if __name__ == "__main__":
