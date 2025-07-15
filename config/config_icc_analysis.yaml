@@ -9,19 +9,23 @@ input:
   # Each inner list represents a group of files to be analyzed together
   file_groups:
     # FIXME 切记：label列不能参与icc计算，如果参与了计算要从json中删除
-    - ["../demo_data/breast_cancer_dataset_v2.csv", "../demo_data/breast_cancer_dataset.csv"]
+    - [H:\results\ith_scores.csv, H:\results_icc_testing\ith_scores.csv]
+    - [H:\results\msi_features.csv, H:\results_icc_testing\msi_features.csv]
+    - [H:\results\whole_habitat_radiomics.csv, H:\results_icc_testing\whole_habitat_radiomics.csv]
+    - [H:\results\habitat_basic_features.csv, H:\results_icc_testing\habitat_basic_features.csv]
+    - [H:\results\raw_image_radiomics.csv, H:\results_icc_testing\raw_image_radiomics.csv]
   
   # Directory list configuration (used when type is 'directories')
   # The system will match same-named files across directories
   # dir_list:
-  #   - "path/to/dir1"
-  #   - "path/to/dir2"
-  #   - "path/to/dir3"
+  #   - path/to/dir1
+  #   - path/to/dir2
+  #   - path/to/dir3
 
 # Output configuration
 output:
   # Path to output JSON file
-  path: "../demo_data/results/icc_results.json"
+  path: H:\results\icc_results_testing.json
 
 # Processing configuration
 # Number of processes to use (null/None for using all available CPU cores)

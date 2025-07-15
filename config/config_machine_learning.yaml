@@ -5,33 +5,33 @@
 # Data Input Configuration
 # Multiple input files can be specified for model ensemble or feature combination
 input:
-  - path: ./ml_data/clinical_feature.csv # Path to the input data file (CSV format)
+  - path: H:\results\features\habitat_features.csv # Path to the input data file (CSV format)
     name: # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
-    subject_id_col: subjID  # Column name containing subject identifiers (must be unique for each subject)
-    label_col: label  # Column name containing target labels (0/1 for binary classification)
+    subject_id_col: index  # Column name containing subject identifiers (must be unique for each subject)
+    label_col: TLSs  # Column name containing target labels (0/1 for binary classification)
     features:   # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
   
-  # # Example of additional input file configuration (commented out)
-  - path: ./ml_data/clinical_feature.csv
-    name: clinical_  # Prefix clinical_ will be added to all features from this file
-    subject_id_col: subjID  # Column name for subject ID in this file
-    label_col: label  # Column name for the target variable in this file
-    features: [AFP,PLT,BMI]  # Only use the LogisticRegression_prob column as a feature
+  # # # Example of additional input file configuration (commented out)
+  # - path: ./ml_data/clinical_feature.csv
+  #   name: clinical_  # Prefix clinical_ will be added to all features from this file
+  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   label_col: label  # Column name for the target variable in this file
+  #   features: [AFP,PLT,BMI]  # Only use the LogisticRegression_prob column as a feature
 
 #%%================================================================================
 # Output Directory Configuration
-output: ./ml_data/ml/cli  # Directory where all results will be saved (models, plots, statistics)
+output: H:\results\ml_results  # Directory where all results will be saved (models, plots, statistics)
 
 #%%================================================================================
 # Data Splitting Configuration
 # Options: random (completely random split), stratified (preserves class distribution), custom (user-defined splits)
-split_method: custom  # Method used to split data into training and testing sets
+split_method: stratified  # Method used to split data into training and testing sets
 # The following parameters are used when split_method is random or stratified (currently commented out)
 test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
 random_state: 42  # Seed for random number generator to ensure reproducible splits
 # The following parameters are used when split_method is custom
-train_ids_file: ./ml_data/train_ids.txt  # File containing IDs for training set (one ID per line)
-test_ids_file: ./ml_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
+# train_ids_file: ./ml_data/train_ids.txt  # File containing IDs for training set (one ID per line)
+# test_ids_file: ./ml_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
 
 #%%================================================================================
 # Normalization Configuration
@@ -71,25 +71,17 @@ feature_selection_methods:
   # # ICC (Intraclass Correlation Coefficient) method
   - method: icc  # Selects features based on their reproducibility
     params:
-      icc_results: ../demo_data/results/icc_results.json  # Path to pre-computed ICC results
-      keys: [breast_cancer_dataset_v2_vs_breast_cancer_dataset]  # Key(s) in the ICC results file to use
-      threshold: 0.8  # Minimum ICC value required to retain a feature (0.0-1.0)
+      icc_results: H:\results\icc_results_testing.json  # Path to pre-computed ICC results
+      keys: [msi_features_vs_msi_features,habitat_basic_features_vs_habitat_basic_features]  # Key(s) in the ICC results file to use
+      threshold: 0.5  # Minimum ICC value required to retain a feature (0.0-1.0)
       before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
   
-  # # ICC (Intraclass Correlation Coefficient) method
-  - method: icc  # Selects features based on their reproducibility
-    params:
-      icc_results: ../demo_data/results/icc_results.json  # Path to pre-computed ICC results
-      keys: [breast_cancer_dataset_v2_vs_breast_cancer_dataset]  # Key(s) in the ICC results file to use
-      threshold: 0.8  # Minimum ICC value required to retain a feature (0.0-1.0)
-      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-
   # 方差选择器 - 移除低方差特征
-  # - method: variance
-  #   params:
-  #     before_z_score: true  # 是否在Z-score标准化之前执行（推荐为true，因为标准化后所有特征方差均为1）
-  #     threshold: 0.2  # 方差阈值（特征方差必须大于此值才会被保留）
-      # plot_variances: true  # 是否生成方差可视化图表
+  - method: variance
+    params:
+      before_z_score: true  # 是否在Z-score标准化之前执行（推荐为true，因为标准化后所有特征方差均为1）
+      threshold: 0.2  # 方差阈值（特征方差必须大于此值才会被保留）
+      plot_variances: true  # 是否生成方差可视化图表
 
   # # 统计检验选择器 - 自动选择t检验或Mann-Whitney U检验
   # - method: statistical_test
@@ -154,20 +146,20 @@ feature_selection_methods:
       before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # # LASSO (L1 regularization) method - selects features using L1 regularization
-  - method: lasso  # Selects features using L1 regularization
-    params:
-      cv: 10  # Number of cross-validation folds for selecting optimal alpha
-      n_alphas: 100  # Number of alpha values to try
-      random_state: 42  # Random seed for reproducibility
-      visualize: true  # Whether to generate visualization of feature coefficients
-      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  # - method: lasso  # Selects features using L1 regularization
+  #   params:
+  #     cv: 10  # Number of cross-validation folds for selecting optimal alpha
+  #     n_alphas: 100  # Number of alpha values to try
+  #     random_state: 42  # Random seed for reproducibility
+  #     visualize: true  # Whether to generate visualization of feature coefficients
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # # Stepwise Feature Selection method
-  # - method: stepwise  # Performs step-by-step feature selection using AIC/BIC criteria
-  #   params:
-  #     criterion: aic  # Criterion for selection: aic, bic
-  #     direction: forward  # Direction of stepwise selection: forward, backward, or both
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  - method: stepwise  # Performs step-by-step feature selection using AIC/BIC criteria
+    params:
+      criterion: aic  # Criterion for selection: aic, bic
+      direction: forward  # Direction of stepwise selection: forward, backward, or both
+      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
 #%%================================================================================
 # Model Configuration
@@ -183,21 +175,21 @@ models:
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   
   # Support Vector Machine configuration
-  # SVM:  # Model type: Support Vector Machine classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
+  SVM:  # Model type: Support Vector Machine classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
 
   # # XGBoost configuration
-  # XGBoost:  # Model type: Gradient Boosting classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 100  # Number of boosting stages/trees to build
-  #     max_depth: 3  # Maximum tree depth
-  #     learning_rate: 0.1  # Boosting learning rate
-  #     subsample: 0.8  # Fraction of samples used for fitting trees
-  #     colsample_bytree: 0.8  # Fraction of features used per tree
-  #     objective: "binary:logistic"  # Objective function for optimization
-  #     eval_metric: "logloss"  # Evaluation metric during training
+  XGBoost:  # Model type: Gradient Boosting classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+      n_estimators: 100  # Number of boosting stages/trees to build
+      max_depth: 3  # Maximum tree depth
+      learning_rate: 0.1  # Boosting learning rate
+      subsample: 0.8  # Fraction of samples used for fitting trees
+      colsample_bytree: 0.8  # Fraction of features used per tree
+      objective: "binary:logistic"  # Objective function for optimization
+      eval_metric: "logloss"  # Evaluation metric during training
 
 #%%================================================================================  
 # Visualization and Saving Configuration

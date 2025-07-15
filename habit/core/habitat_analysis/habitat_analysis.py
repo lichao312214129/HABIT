@@ -847,11 +847,11 @@ class HabitatAnalysis:
                 raise ValueError(f"No clustering model found at {model_path}")
             
             if self.verbose:
-                self.logger.info(f"Performing population-level clustering using already trained model{model_path}...")
+                self.logger.info(f"Performing population-level clustering using already trained model: {model_path}...")
 
             # Perform population-level clustering using already trained model
             habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
-
+            optimal_n_clusters = self.supervoxel2habitat_clustering.n_clusters
         else:
             raise ValueError(f"Invalid mode: {self.mode}")
 

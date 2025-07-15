@@ -247,7 +247,7 @@ class Modeling:
         """
         # Convert to numeric
         self.logger.info("Converting data to numeric types")
-        self.data = self.data.apply(pd.to_numeric)
+        self.data = self.data.apply(lambda x: pd.to_numeric(x, errors='coerce'))
         self.logger.info("Data converted to numeric types")
        
         # Check for missing values
@@ -257,8 +257,17 @@ class Modeling:
         # Remove missing values
         self.logger.info("Starting data preprocessing")
         self.logger.info(f"Sample size before removing missing values: {self.data.shape[0]}")
-        self.data = self.data.fillna(self.data.mean)
+        # Fill missing values for features with mean, but keep label column as is
+        feature_columns = [col for col in self.data.columns if col != self.label_col]
+        self.data[feature_columns] = self.data[feature_columns].fillna(self.data[feature_columns].mean())
         self.logger.info(f"Sample size after removing missing values: {self.data.shape[0]}")
+
+        # If have nan in label column, using sklearn中的imputer的kmeans来填充nan,但最后要binarize
+        print(self.data[self.label_col].apply(type).value_counts())
+        from sklearn.impute import KNNImputer
+        imputer = KNNImputer(n_neighbors=5, weights='uniform')
+        self.data[self.label_col] = imputer.fit_transform(self.data[self.label_col].values.reshape(-1, 1))
+        self.data[self.label_col] = (self.data[self.label_col] > 0.5).astype(int)
 
         # Data exploration
         self.logger.info("Data preprocessing completed")
@@ -297,7 +306,9 @@ class Modeling:
                 random_state=self.SEED, 
                 stratify=self.data[self.label_col]
             )
+
             print(f"Data split using stratified method (test size: {self.test_size})")
+            
             self.logger.info(f"Stratified split completed: train={len(self.data_train)}, test={len(self.data_test)}")
             
         elif self.split_method == 'custom':
@@ -654,6 +665,7 @@ class Modeling:
         
         # Execute feature selection methods in sequence
         selected_features_of_each_method = {}
+        current_length_of_selected_features = len(selected_features)
         for selection_config in self.feature_selection_methods:
             method_name = selection_config['method']
             params = selection_config.get('params', {})
@@ -686,10 +698,10 @@ class Modeling:
                 selected_features_of_each_method[method_name] = selected_features
 
                 # print selected features and removed features
-                print(f"Selected features: {selected_features}")
-                removed_count = len(self.x_train.columns) - len(selected_features)
+                removed_count = current_length_of_selected_features - len(selected_features)
                 self.logger.info(f"{method_name} selected {len(selected_features)} features, removed {removed_count} features")
-                self.logger.debug(f"Selected features: {selected_features}")
+                current_length_of_selected_features = len(selected_features)
+                self.logger.info(f"Selected features: {selected_features}")
                 
                 # Warn if no features selected
                 if not selected_features:

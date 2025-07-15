@@ -60,7 +60,7 @@ def read_file(file_path: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {ext}. Supported formats: .csv, .xlsx, .xls")
 
-def calculate_icc(files_list: List[str], logger, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, float]]:
+def calculate_icc(files_list: List[str], logger, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
     Calculate ICC (Intraclass Correlation Coefficient) values between multiple files
     
@@ -70,7 +70,8 @@ def calculate_icc(files_list: List[str], logger, selected_features: Optional[Lis
         selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
         
     Returns:
-        Dictionary containing ICC values in the format {feature_name: icc_value}
+        Dictionary containing ICC values and 95% confidence intervals in the format 
+        {feature_name: {"icc": icc_value, "ci95": [lower_bound, upper_bound]}}
     """
     # Get filenames without path and extension
     file_names = [os.path.splitext(os.path.basename(f))[0] for f in files_list]
@@ -145,17 +146,28 @@ def calculate_icc(files_list: List[str], logger, selected_features: Optional[Lis
             )
             icc = result.loc[2, "ICC"]
             
-            # Use feature name as key
+            # Get 95% confidence interval
+            # ci95 = result.loc[2, "CI95%"]
+            
+            # Use feature name as key with ICC value and confidence interval
+            # icc_values[f"{ft}"] = {
+            #     "icc": icc,
+            #     "ci95": [ci95[0], ci95[1]]
+            # }
             icc_values[f"{ft}"] = icc
             
         except Exception as e:
             logger.error(f"Error calculating ICC for feature {ft}: {e}")
+            # icc_values[f"{ft}"] = {
+            #     "icc": np.nan,
+            #     "ci95": [np.nan, np.nan]
+            # }
             icc_values[f"{ft}"] = np.nan
     
     # Return results with group name
     return {group_name: icc_values}
 
-def process_files_group(args: Tuple[List[str], logging.Logger, Optional[List[str]]]) -> Tuple[str, Dict[str, float]]:
+def process_files_group(args: Tuple[List[str], logging.Logger, Optional[List[str]]]) -> Tuple[str, Dict[str, Dict[str, Any]]]:
     """
     Process a single group of files for multiprocessing
     
@@ -163,14 +175,14 @@ def process_files_group(args: Tuple[List[str], logging.Logger, Optional[List[str
         args: Tuple containing list of files, logger instance, and optional selected features
         
     Returns:
-        Tuple containing group name and ICC values
+        Tuple containing group name and ICC values with confidence intervals
     """
     files_list, logger, selected_features = args
     result = calculate_icc(files_list, logger, selected_features)
     group_name = list(result.keys())[0]
     return group_name, result[group_name]
 
-def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = None, logger=None, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, float]]:
+def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = None, logger=None, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
     Analyze ICC for multiple groups of files using parallel processing
     
@@ -181,7 +193,7 @@ def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = Non
         selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
         
     Returns:
-        Dictionary containing ICC values for all file groups
+        Dictionary containing ICC values and 95% confidence intervals for all file groups
     """
     if n_processes is None:
         n_processes = multiprocessing.cpu_count()

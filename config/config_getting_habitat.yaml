@@ -1,13 +1,13 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: H:\Registration_ZSSY_1mm_structured
-out_dir: H:\results_test
+data_dir: H:\Registration_ICC_structured
+out_dir: H:\results_icc_testing
 
 # Feature extraction settings
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     params:
       timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
 
@@ -50,7 +50,7 @@ HabitatsSegmention:
     # training if you want to train a new model, testing if you want to use a pre-trained model, 
     # default feature preprocessing parameters are in os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv')
     # default pre-trained model is os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
-    mode: training  # training or testing  
+    mode: testing  # training or testing  
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
     habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
