@@ -6,13 +6,17 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
+from .font_config import setup_publication_font, get_font_config
+
+# Setup publication-quality Arial font
+setup_publication_font()
 
 
 def plot_cluster_scores(scores_dict: Dict[str, List[float]], 
                       cluster_range: List[int], 
                       methods: Optional[Union[List[str], str]] = None,
                       clustering_algorithm: str = 'kmeans',
-                      figsize: Tuple[int, int] = (12, 8),
+                      figsize: Tuple[int, int] = (8, 6),
                       save_path: Optional[str] = None,
                       show: bool = True,
                       dpi: int = 300):
@@ -93,9 +97,9 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         
         # Set title and labels
         method_desc = get_method_description(clustering_algorithm, method)
-        ax.set_title(f"{method_desc}\nOptimal Clusters = {best_n_clusters} ({criterion})")
-        ax.set_xlabel("Number of Clusters")
-        ax.set_ylabel(f"{method.capitalize()} Score")
+        ax.set_title(f"{method_desc}\nOptimal Clusters = {best_n_clusters} ({criterion})", fontfamily='Arial')
+        ax.set_xlabel("Number of Clusters", fontfamily='Arial')
+        ax.set_ylabel(f"{method.capitalize()} Score", fontfamily='Arial')
         ax.grid(True)
     
     # Adjust layout
@@ -128,11 +132,11 @@ def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=No
     if title is None:
         title = f"The {score_type} Method showing the optimal k"
     
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(6, 4))
     plt.plot(cluster_range, scores, 'bx-')
-    plt.xlabel('Number of clusters')
-    plt.ylabel(score_type)
-    plt.title(title)
+    plt.xlabel('Number of clusters', fontfamily='Arial')
+    plt.ylabel(score_type, fontfamily='Arial')
+    plt.title(title, fontfamily='Arial')
     plt.tight_layout()
     
     if save_path:
@@ -154,7 +158,7 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
     if title is None:
         title = "Comparison of different cluster evaluation metrics"
     
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(8, 6))
     
     for i, (score_name, scores) in enumerate(scores_dict.items()):
         # Normalize scores to be in the same range
@@ -166,9 +170,9 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
         
         plt.plot(cluster_range, normalized_scores, 'o-', label=score_name)
     
-    plt.xlabel('Number of clusters')
-    plt.ylabel('Normalized score (higher is better)')
-    plt.title(title)
+    plt.xlabel('Number of clusters', fontfamily='Arial')
+    plt.ylabel('Normalized score (higher is better)', fontfamily='Arial')
+    plt.title(title, fontfamily='Arial')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
@@ -202,27 +206,27 @@ def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None
         X_pca = X
         centers_pca = centers
     
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(6, 5))
     plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis', marker='o', alpha=0.7)
     
     if centers_pca is not None:
         plt.scatter(centers_pca[:, 0], centers_pca[:, 1], c='red', marker='X', s=200, label='Cluster centers')
     
     if title:
-        plt.title(title)
+        plt.title(title, fontfamily='Arial')
     else:
-        plt.title('Cluster Results')
+        plt.title('Cluster Results', fontfamily='Arial')
     
     if feature_names and len(feature_names) >= 2:
         if X.shape[1] > 2:
-            plt.xlabel('PCA Component 1')
-            plt.ylabel('PCA Component 2')
+            plt.xlabel('PCA Component 1', fontfamily='Arial')
+            plt.ylabel('PCA Component 2', fontfamily='Arial')
         else:
-            plt.xlabel(feature_names[0])
-            plt.ylabel(feature_names[1])
+            plt.xlabel(feature_names[0], fontfamily='Arial')
+            plt.ylabel(feature_names[1], fontfamily='Arial')
     else:
-        plt.xlabel('Feature 1')
-        plt.ylabel('Feature 2')
+        plt.xlabel('Feature 1', fontfamily='Arial')
+        plt.ylabel('Feature 2', fontfamily='Arial')
     
     plt.colorbar(label='Cluster')
     plt.grid(True, linestyle='--', alpha=0.7)

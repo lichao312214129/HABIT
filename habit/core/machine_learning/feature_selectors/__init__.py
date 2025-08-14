@@ -16,7 +16,11 @@ from .selector_registry import (
 from .correlation_selector import *
 from .icc_selector import *
 from .lasso_selector import *
-from .mrmr_selector import *
+try:
+    from .mrmr_selector import *
+except Exception as e:
+    print(f"Error importing mrmr_selector: {e}")
+    pass
 from .python_stepwise_selector import *
 from .rfecv_selector import *
 from .anova_selector import *

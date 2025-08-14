@@ -9,10 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
-from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix
+from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix, auc
 from sklearn.calibration import calibration_curve  # Calibration curve related
 from ..evaluation.metrics import calculate_net_benefit
 from ....utils.visualization_utils import process_shap_explanation
+from ....utils.font_config import setup_publication_font
 
 class Plotter:
     def __init__(self, output_dir: str, dpi: int = 600) -> None:
@@ -27,7 +28,8 @@ class Plotter:
         self.dpi = dpi
         os.makedirs(output_dir, exist_ok=True)
         
-        # Set plotting style
+        # Set plotting style with Arial font for publication quality
+        setup_publication_font()
         # plt.style.use('seaborn')
         # sns.set_context("paper", font_scale=1.2)
         
@@ -40,8 +42,8 @@ class Plotter:
             save_name: Name of the file to save the plot
             title: Data type for title display ('train' or 'test')
         """
-        # Create figure
-        plt.figure(figsize=(8, 8))
+        # Create figure - optimized for SCI journal requirements (single column)
+        plt.figure(figsize=(5, 5))
         
         # Plot ROC curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
@@ -53,16 +55,15 @@ class Plotter:
         plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5)
         plt.xlim([-0.02, 1.02])
         plt.ylim([-0.02, 1.02])
-        plt.xlabel('False Positive Rate', fontsize=12)
-        plt.ylabel('True Positive Rate', fontsize=12)
+        plt.xlabel('False Positive Rate', fontsize=10, fontfamily='Arial')
+        plt.ylabel('True Positive Rate', fontsize=10, fontfamily='Arial')
         
         # Set title based on data type
-        title = f"{title} Set ROC Curves"
-        plt.title(title, fontsize=14)
-        plt.legend(loc="lower right")
+        plt.title(title, fontsize=11, fontfamily='Arial')
+        plt.legend(loc="lower right", fontsize=9)
         
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.gca().set_facecolor('#f8f9fa')
+        # plt.gca().set_facecolor('white')
         
         # Only show left and bottom spines and set their width to 1.5
         ax = plt.gca()
@@ -98,7 +99,8 @@ class Plotter:
             save_name: Name of the file to save the plot
             title: Data type for title display ('train' or 'test')
         """
-        plt.figure(figsize=(8, 8))
+        # Create figure - optimized for SCI journal requirements (single column)
+        plt.figure(figsize=(5, 5))
         
         # Define threshold range
         thresholds = np.linspace(0, 1, 100)
@@ -130,13 +132,12 @@ class Plotter:
             plt.plot(thresholds, net_benefits, '-', linewidth=1.5, label=model_name)
         
         # Beautify the plot
-        plt.xlabel('Threshold Probability', fontsize=12)
-        plt.ylabel('Net Benefit', fontsize=12)
-        title = f"{'Training' if title.lower() == 'train' else 'Testing'} Set Decision Curve Analysis"
-        plt.title(title, fontsize=14)
+        plt.xlabel('Threshold Probability', fontsize=10, fontfamily='Arial')
+        plt.ylabel('Net Benefit', fontsize=10, fontfamily='Arial')
+        plt.title(title, fontsize=11, fontfamily='Arial')
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.gca().set_facecolor('#f8f9fa')
-        plt.legend(loc='best')
+        # plt.gca().set_facecolor('#f8f9fa')
+        plt.legend(loc='best', fontsize=9)
         
         # Only show left and bottom spines and set their width to 1.5
         ax = plt.gca()
@@ -217,16 +218,16 @@ class Plotter:
         else:
             fmt = 'd'
         
-        # Create figure and plot confusion matrix
-        plt.figure(figsize=(8, 6))
+        # Create figure and plot confusion matrix - optimized for SCI journal
+        plt.figure(figsize=(5, 4))
         sns.heatmap(cm, annot=True, fmt=fmt, cmap=cmap, 
                    xticklabels=class_names, yticklabels=class_names,
                    cbar=True, square=True, linewidths=0.5)
         
         # Add labels and title
-        plt.xlabel('Predicted Label', fontsize=12)
-        plt.ylabel('True Label', fontsize=12)
-        plt.title(title, fontsize=14)
+        plt.xlabel('Predicted Label', fontsize=10, fontfamily='Arial')
+        plt.ylabel('True Label', fontsize=10, fontfamily='Arial')
+        plt.title(title, fontsize=11, fontfamily='Arial')
         
         # Calculate and add metrics to the plot
         tn, fp, fn, tp = cm.ravel()
@@ -236,7 +237,7 @@ class Plotter:
         
         plt.figtext(0.5, 0.01, 
                   f'Accuracy: {accuracy:.3f}, Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}',
-                  ha='center', fontsize=10, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+                  ha='center', fontsize=8, fontfamily='Arial', bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
         
         # Adjust plot aesthetics
         plt.tight_layout(rect=[0, 0.05, 1, 0.95])
@@ -301,7 +302,8 @@ class Plotter:
             n_bins: Number of bins to use for calibration curve
             title: Data type for title display ('train' or 'test')
         """
-        plt.figure(figsize=(8, 8))
+        # Create figure - optimized for SCI journal requirements (single column)
+        plt.figure(figsize=(5, 5))
         
         # Plot calibration curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
@@ -310,20 +312,22 @@ class Plotter:
             
             # Calculate calibration curve
             prob_true, prob_pred = calibration_curve(y_true, y_pred_normalized, n_bins=n_bins, strategy='quantile')
-            plt.plot(prob_pred, prob_true, 's-', linewidth=1.5, markersize=8, label=model_name)
+            # Use different marker styles for each model for better distinction
+            # Common matplotlib markers: 'o' (circle), '^' (triangle_up), 'D' (diamond), 'v' (triangle_down), '*' (star), 'x' (x), '+' (plus), 'p' (pentagon), etc.
+            # Here, as an example, use 'o' (circle) marker instead of 's' (square)
+            plt.plot(prob_pred, prob_true, '.-', linewidth=1.5, markersize=8, label=model_name)
         
         # Add ideal calibration line and beautify the plot
         plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5, label='Perfectly Calibrated')
-        plt.xlabel('Mean Predicted Probability', fontsize=12)
-        plt.ylabel('Positive Sample Proportion', fontsize=12)
+        plt.xlabel('Mean Predicted Probability', fontsize=10, fontfamily='Arial')
+        plt.ylabel('Positive Sample Proportion', fontsize=10, fontfamily='Arial')
         
         # Set title based on data type
-        title = f"{'Training' if title.lower() == 'train' else 'Testing'} Set Calibration Curves"
-        plt.title(title, fontsize=14)
+        plt.title(title, fontsize=11, fontfamily='Arial')
         
-        plt.legend(loc='best', frameon=True, facecolor='white', framealpha=0.9)
+        plt.legend(loc='best', frameon=True, facecolor='white', framealpha=0.9, fontsize=9)
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.gca().set_facecolor('#f8f9fa')
+        # plt.gca().set_facecolor('#f8f9fa')
         
         # Only show left and bottom spines and set their width to 1.5
         ax = plt.gca()
@@ -399,9 +403,9 @@ class Plotter:
         # Process SHAP explanation for consistency
         shap_values = process_shap_explanation(shap_values)
         
-        # Plot 1: Feature importance bar plot
-        plt.figure(figsize=(10, 8))
-        plt.title('Feature Importance', fontsize=14)
+        # Plot 1: Feature importance bar plot - optimized for SCI journal
+        plt.figure(figsize=(6, 5))
+        plt.title('Feature Importance', fontsize=11, fontfamily='Arial')
         shap.summary_plot(
             shap_values, 
             X,
@@ -414,9 +418,9 @@ class Plotter:
         self._save_figure(bar_filename)
         plt.close()
         
-        # Plot 2: Beeswarm plot
-        plt.figure(figsize=(10, 8))
-        plt.title('Feature Impact Distribution', fontsize=14)
+        # Plot 2: Beeswarm plot - optimized for SCI journal
+        plt.figure(figsize=(6, 5))
+        plt.title('Feature Impact Distribution', fontsize=11, fontfamily='Arial')
         shap.summary_plot(
             shap_values, 
             X,
@@ -456,21 +460,22 @@ class Plotter:
             title: Data type for title display ('train', 'test', or 'evaluation')
 
         """
-        plt.figure(figsize=(6, 6))
+        # Create figure - optimized for SCI journal requirements (single column)
+        plt.figure(figsize=(5, 5))
         # Plot PR curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
-            precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+            precision, recall, _ = precision_recall_curve(y_true, y_pred_proba, drop_intermediate=True)
+
             # Calculate average precision score
-            ap = np.trapz(precision, recall)
-            # 关键修改：绘制时交换x和y轴，使图形从左下到右上
-            plt.plot(1 - precision, recall, linewidth=2, label=f'{model_name} (AP = {ap:.3f})')
+            AUPRC = auc(recall, precision)
+            plt.plot(recall, precision, linewidth=1.5, label=f'{model_name} (AUPRC = {AUPRC:.3f})')
         
         # Beautify the plot
-        plt.xlabel('1 - Precision')  # 修改X轴标签
+        plt.xlabel('Recall', fontsize=10, fontfamily='Arial')  # 修改X轴标签
 
-        plt.ylabel('Recall')
-        plt.title(f'Modified Precision-Recall Curve ({title.capitalize()})')
-        plt.legend(loc='best')
+        plt.ylabel('Precision', fontsize=10, fontfamily='Arial')
+        plt.title(f'{title}', fontsize=11, fontfamily='Arial')
+        plt.legend(loc='best', fontsize=9)
         plt.grid(True, linestyle='--', alpha=0.7)
         # Set axis limits for left-to-right, bottom-to-top direction
         plt.xlim([-0.02, 1.02])

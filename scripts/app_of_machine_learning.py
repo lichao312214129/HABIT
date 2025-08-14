@@ -9,7 +9,7 @@ import sys
 import os
 import yaml
 import pandas as pd
-from habit.core.machine_learning import Modeling
+from habit.core.machine_learning.machine_learning import Modeling
 import argparse
 
 

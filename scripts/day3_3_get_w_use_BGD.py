@@ -8,9 +8,12 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-# 兼容中文
-plt.rcParams['font.sans-serif'] = ['SimHei']
+# 设置字体为Arial，符合顶级期刊要求
+plt.rcParams['font.family'] = ['Arial']
+plt.rcParams['font.sans-serif'] = ['Arial']
 plt.rcParams['axes.unicode_minus'] = False
+plt.rcParams['pdf.fonttype'] = 42  # embed TrueType fonts
+plt.rcParams['ps.fonttype'] = 42
 
 class GradientDescentVisualizer:
     def __init__(self, root):

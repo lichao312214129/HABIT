@@ -924,7 +924,7 @@ class Modeling:
         # Save all-in-one results with both training and testing data
         all_df = pd.concat([train_df, test_df])
         # Add a column to distinguish train and test samples
-        all_df['split'] = ['train'] * len(train_df) + ['test'] * len(test_df)
+        all_df['split'] = ['Training set'] * len(train_df) + ['Test set'] * len(test_df)
         
         all_results_path = os.path.join(self.output_dir, 'all_prediction_results.csv')
         all_df.to_csv(all_results_path, index=False)

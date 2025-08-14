@@ -164,7 +164,7 @@ def main():
         epilog="""
 Examples:
   # Merge specific CSV files
-  python merge_csv_files.py -i "H:/results/features" -n "habitat_basic_features.csv,msi_features.csv,file3" -o "merged_output.csv"
+  python ./habit/scipts/merge_csv_files.py -i "H:/results/features" -n "habitat_basic_features,msi_features,ith_scores" -o "merged_output.csv"
   
   # Merge with custom index column
   python merge_csv_files.py -i "H:/results/features" -n "file1,file2" -o "merged.csv" --index-col "subject_id"

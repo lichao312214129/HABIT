@@ -4,28 +4,67 @@
 
 # Output Directory Configuration
 # Specifies where all comparison results, plots, and metrics will be saved
-output_dir: ./ml_data/results/model_comparison  # Base directory for all comparison outputs
+output_dir: H:\results\ml_results\compare  # Base directory for all comparison outputs
 
 # Model Prediction Files Configuration
 # Define the prediction files for each model to be compared
 # Each entry represents a different model's predictions
 files_config:
-  - path: ./ml_data/ml/rad/all_prediction_results.csv 
-    model_name: rad                       # Name used to identify this model in plots and reports
+  - path: H:\results\ml_results\autogluon_habitat\autogluon_habitat_pred_full.csv
+    model_name: Habitat model                        # Name used to identify this model in plots and reports
     subject_id_col: subjID            # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
-    prob_col: LogisticRegression_prob   # Column containing predicted probabilities (continuous: 0-1)
-    pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
+    prob_col: prob   # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred  # Column containing predicted class labels (binary: 0/1)
     split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
-  - path: ./ml_data/ml/cli/all_prediction_results.csv  
-    model_name: cli                        # Name used to identify this model in plots and reports
+  - path: H:\results\ml_results\autogluon_radiomics\autogluon_radiomics_pred_full.csv
+    model_name: Radiomics model                        # Name used to identify this model in plots and reports
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+  
+  - path: H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv
+    model_name: Clinical model                        # Name used to identify this model in plots and reports
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+
+  - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
+    model_name: Clinical-Radiomics model                        # Name used to identify this model in plots and reports
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
     pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
     split_col: split   
+  
+  # - path: H:\results\ml_results\merged_clinicalPlusHabitat\all_prediction_results.csv
+  #   model_name: Clinical+Habitat                      # Name used to identify this model in plots and reports
+  #   subject_id_col: subjID              # Column containing unique subject identifiers
+  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+  #   split_col: split  
 
+  # - path: H:\results\ml_results\merged_HabitatPlusRadiomics\all_prediction_results.csv
+  #   model_name: Radiomics+Habitat                        # Name used to identify this model in plots and reports
+  #   subject_id_col: subjID              # Column containing unique subject identifiers
+  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+  #   split_col: split  
+
+  - path: H:\results\ml_results\merged_all\all_prediction_results.csv
+    model_name: Hybrid model                        # Name used to identify this model in plots and reports
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
 
 # Merged Data Configuration
 # Settings for combining predictions from multiple models into a single dataset
@@ -46,21 +85,21 @@ visualization:
   roc:
     enabled: true                         # Whether to generate ROC curve plots
     save_name: roc_curves.pdf           # Output filename for ROC curve plot
-    title: ROC Curves Comparison        # Plot title
+    title: ROC Curves        # Plot title
   
   # DCA (Decision Curve Analysis) Configuration
   # Evaluates clinical utility of models across different threshold probabilities
   dca:
     enabled: true                         # Whether to generate decision curve analysis
     save_name: decision_curves.pdf      # Output filename for decision curve plot
-    title: Decision Curve Analysis      # Plot title
+    title: Decision Curves      # Plot title
   
   # Calibration Curve Configuration
   # Shows how well predicted probabilities match actual probabilities
   calibration:
     enabled: true                         # Whether to generate calibration curves
     save_name: calibration_curves.pdf   # Output filename for calibration plot
-    n_bins: 10                            # Number of probability bins for calibration analysis
+    n_bins: 5                            # Number of probability bins for calibration analysis
     title: Calibration Curves           # Plot title
   
   # Precision-Recall Curve Configuration
@@ -94,5 +133,5 @@ metrics:
   target_metrics:
     enabled: true                           # Whether to calculate target-based metrics
     targets:                              # Target values for sensitivity and specificity
-      sensitivity: 0.90                      # Target sensitivity value
-      specificity: 0.50                      # Target specificity value
+      sensitivity: 0.80                     # Target sensitivity value
+      specificity: 0.7                      # Target specificity value

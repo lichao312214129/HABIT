@@ -7,6 +7,13 @@ import sys
 import os
 import json
 
+# Add project root to path to import habit modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from habit.utils.font_config import setup_publication_font
+
+# Set Arial font for publication quality
+setup_publication_font()
+
 def generate_synthetic_data(num_samples=100, num_features=10):
     """
     生成合成数据用于示例
@@ -176,12 +183,12 @@ def visualize_correlation(data, remaining_features, outdir=None, threshold=0.9):
     # 绘制移除特征前的相关性热图
     corr_matrix = data.corr()
     sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax[0])
-    ax[0].set_title("Before removing highly correlated features")
+    ax[0].set_title("Before removing highly correlated features", fontfamily='Arial')
     
     # 绘制移除特征后的相关性热图
     corr_matrix_after = data[remaining_features].corr()
     sns.heatmap(corr_matrix_after, annot=True, cmap="coolwarm", fmt=".2f", ax=ax[1])
-    ax[1].set_title("After removing highly correlated features")
+    ax[1].set_title("After removing highly correlated features", fontfamily='Arial')
     
     # 设置旋转
     for axis in ax:

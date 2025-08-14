@@ -460,120 +460,89 @@ class MultifileEvaluator:
         Returns:
             MultifileEvaluator: 自身实例，用于方法链式调用
         """
-        merged_df = None
-        all_labels = {}  # 存储所有样本的标签值
-        first_subject_id_col = None  # 记录第一个subject_id_col
-        first_label_col = None  # 记录第一个标签列名
-        
+        # Simple and clear data fusion approach
         print(f"Reading data from multiple files: {len(files_config)} files")
+        
+        # Step 1: Read and standardize all files
+        standardized_dfs = []
+        original_subject_id_col = None
+        original_label_col = None
         
         for idx, file_config in enumerate(files_config):
             file_path = file_config['path']
-            name = file_config.get('model_name', file_config.get('name', f"model{idx+1}")) # 兼容老格式
+            model_name = file_config.get('model_name', file_config.get('name', f"model{idx+1}"))
             subject_id_col = file_config.get('subject_id_col')
             label_col = file_config.get('label_col')
             prob_col = file_config.get('prob_col')
-            pred_col = file_config.get('pred_col')  # 获取预测列名称（可选）
+            pred_col = file_config.get('pred_col')
             
-            # 检查必要参数
-            if subject_id_col is None:
-                raise ValueError(f"Subject ID column must be specified for file {file_path}")
-            if label_col is None:
-                raise ValueError(f"Label column must be specified for file {file_path}")
-            if prob_col is None:
-                raise ValueError(f"Probability column must be specified for file {file_path}")
+            # Check required parameters
+            if not all([subject_id_col, label_col, prob_col]):
+                raise ValueError(f"Missing required columns for file {file_path}")
+            
+            # Store original column names from first file
+            if idx == 0:
+                original_subject_id_col = subject_id_col
+                original_label_col = label_col
             
             print(f"  Reading file: {file_path}")
-            print(f"  Model name: {name}")
-            print(f"  Subject ID column: {subject_id_col}")
-            print(f"  Label column: {label_col}")
-            print(f"  Probability column: {prob_col}")
-            if pred_col:
-                print(f"  Prediction column: {pred_col}")
+            print(f"  Model name: {model_name}, Subject ID: {subject_id_col}, Label: {label_col}, Prob: {prob_col}")
             
-            # 读取文件
+            # Read file and check columns exist
             df = pd.read_csv(file_path)
-            
-            # 检查列是否存在
             required_cols = [subject_id_col, label_col, prob_col]
-            for col in required_cols:
-                if col not in df.columns:
-                    raise ValueError(f"Column '{col}' not found in {file_path}")
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                raise ValueError(f"Missing columns {missing_cols} in file {file_path}")
             
-            # 如果指定了预测列，检查是否存在
-            if pred_col and pred_col not in df.columns:
-                print(f"Warning: Prediction column '{pred_col}' not found in {file_path}, it will be ignored")
-                pred_col = None
+            # Standardize dataframe: use consistent column names for merging
+            standardized_df = pd.DataFrame({
+                'subject_id': df[subject_id_col].astype(str),
+                'label': df[label_col],
+                f'{model_name}_prob': df[prob_col]
+            })
             
-            # 将subject ID转换为字符串以便一致合并
-            df[subject_id_col] = df[subject_id_col].astype(str)
+            # Add prediction column if specified and exists
+            if pred_col and pred_col in df.columns:
+                standardized_df[f'{model_name}_pred'] = df[pred_col]
             
-            # 记录第一个文件的标签列名作为最终标签列名
-            if first_label_col is None:
-                first_label_col = label_col
-                self.label_col = first_label_col
-                label_values = df[label_col]
-            
-            # 记录第一个文件的subject_id_col作为最终subject_id_col
-            if first_subject_id_col is None:
-                first_subject_id_col = subject_id_col
-                self.subject_id_col = first_subject_id_col
-            
-            # 提取并保存标签数据
-            all_labels[file_path] = df.loc[:, [subject_id_col, label_col]]
-            all_labels[file_path].set_index(subject_id_col, inplace=True)
-            
-            # 为模型结果创建新的列名
-            prob_column_name = f"{name}_prob"
-            pred_column_name = f"{name}_{pred_col}" if pred_col else None
-            
-            # 选择要保留的列
-            if pred_col:
-                df_subset = df[[subject_id_col, prob_col, pred_col]].copy()
-                df_subset.rename(columns={prob_col: prob_column_name, pred_col: pred_column_name}, inplace=True)
-            else:
-                df_subset = df[[subject_id_col, prob_col]].copy()
-                df_subset.rename(columns={prob_col: prob_column_name}, inplace=True)
-            
-            # 首次处理初始化合并数据框
+            standardized_dfs.append((model_name, standardized_df))
+        
+        # Step 2: Merge all dataframes using standardized column names
+        print("Merging all datasets...")
+        merged_df = None
+        
+        for model_name, df in standardized_dfs:
             if merged_df is None:
-                merged_df = df_subset
-                # 设置索引用于后续合并
-                merged_df.set_index(subject_id_col, inplace=True)
-                # 索引转为字符串
-                merged_df.index = merged_df.index.astype(str)
+                # First dataframe becomes the base, set original column names
+                merged_df = df.copy()
+                self.subject_id_col = original_subject_id_col
+                self.label_col = original_label_col
             else:
-                # 为合并设置临时索引
-                df_subset.set_index(subject_id_col, inplace=True)
-                # 索引转为字符串
-                df_subset.index = df_subset.index.astype(str)
-                
-                # 与现有数据合并
-                merged_df = merged_df.join(df_subset, how='outer')
-                
-                # 更新索引名称
-                merged_df.index.name = self.subject_id_col
+                # Merge subsequent dataframes on standardized column names
+                merge_cols = ['subject_id', 'label']
+                prob_cols = [col for col in df.columns if col.endswith('_prob') or col.endswith('_pred')]
+                df_to_merge = df[merge_cols + prob_cols]
+                merged_df = merged_df.merge(df_to_merge, on=merge_cols, how='outer')
         
-        # 将标签数据添加回合并后的数据框
-        print(f"Adding unified label column: {self.label_col}")
-        merged_df[self.label_col] = label_values.values
+        # Step 3: Set subject_id as index and save data
+        merged_df.set_index('subject_id', inplace=True)
         
-        # 重排列，把标签放到最前面
-        cols = [self.label_col] + [col for col in merged_df.columns if col != self.label_col]
-        merged_df = merged_df[cols]
+        # Reorder columns: label first, then all model columns
+        label_col_list = ['label']
+        model_cols = [col for col in merged_df.columns if col != 'label']
+        merged_df = merged_df[label_col_list + model_cols]
         
-        # 保存合并后的数据
         self.data = merged_df
         
-        # 准备plotting模块所需的models_data字典
-        # 键是模型名称，值是(y_true, y_pred_proba)元组
-        for idx, file_config in enumerate(files_config):
-            name = file_config.get('model_name', file_config.get('name', f"model{idx+1}"))
-            prob_column_name = f"{name}_prob"
+        # Prepare models_data dictionary for plotting module
+        # Keys are model names, values are (y_true, y_pred_proba) tuples  
+        for model_name, _ in standardized_dfs:
+            prob_column_name = f"{model_name}_prob"
             
             if prob_column_name in self.data.columns:
-                self.models_data[name] = (
-                    self.data[self.label_col].values,
+                self.models_data[model_name] = (
+                    self.data['label'].values,
                     self.data[prob_column_name].values
                 )
         
@@ -685,8 +654,7 @@ class MultifileEvaluator:
         model_names = list(self.models_data.keys())
         
         # 获取真实标签
-        y_true = self.data[self.label_col].values
-        
+        y_true = self.data['label'].values
         # 执行成对比较
         for i in range(len(model_names)):
             for j in range(i + 1, len(model_names)):

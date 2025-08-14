@@ -5,9 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.colors import ListedColormap
+from .font_config import setup_publication_font, get_font_config
+
+# Setup publication-quality Arial font
+setup_publication_font()
 
 def plot_habitats(habitat_labels: np.ndarray, feature_data: np.ndarray, coords: np.ndarray = None, 
-                  figsize: tuple = (10, 10), cmap: str = 'viridis', title: str = 'Habitat Distribution', 
+                  figsize: tuple = (6, 6), cmap: str = 'viridis', title: str = 'Habitat Distribution', 
                   alpha: float = 0.8, s: int = 50, legend: bool = True, **kwargs) -> tuple:
     """
     Plot habitat distribution
@@ -58,12 +62,12 @@ def plot_habitats(habitat_labels: np.ndarray, feature_data: np.ndarray, coords: 
     if legend:
         ax.legend(loc='best')
     
-    ax.set_title(title)
+    ax.set_title(title, fontfamily='Arial')
     ax.grid(True, linestyle='--', alpha=0.7)
     
     return fig, ax
 
-def plot_feature_scores(feature_names: list, feature_scores: list, figsize: tuple = (12, 8), top_n: int = None, 
+def plot_feature_scores(feature_names: list, feature_scores: list, figsize: tuple = (8, 6), top_n: int = None, 
                         title: str = 'Feature Importance Scores', color: str = 'skyblue', 
                         sort: bool = True, **kwargs) -> tuple:
     """
@@ -101,9 +105,9 @@ def plot_feature_scores(feature_names: list, feature_scores: list, figsize: tupl
     ax.bar(df['feature'], df['score'], color=color, **kwargs)
     
     # Set title and labels
-    ax.set_title(title)
-    ax.set_xlabel('Feature Name')
-    ax.set_ylabel('Importance Score')
+    ax.set_title(title, fontfamily='Arial')
+    ax.set_xlabel('Feature Name', fontfamily='Arial')
+    ax.set_ylabel('Importance Score', fontfamily='Arial')
     
     # Rotate x-axis labels to prevent overlap
     plt.xticks(rotation=45, ha='right')

@@ -80,4 +80,15 @@ def main() -> None:
         sys.exit(1)
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:  # If no command line arguments are provided
+        # Default arguments for debugging
+        sys.argv.extend([
+            '--test-habitat-table', 'H:\\results\\habitats.csv',
+            '--retest-habitat-table', 'H:\\results_icc\\habitats.csv',
+            '--input-dir', 'H:\\results_icc',
+            '--out-dir', 'H:\\results_icc',
+            '--processes', '8'
+        ])
     main() 
+
+    # python app_habitat_test_retest_mapper.py --test-habitat-table H:\results\habitats.csv --retest-habitat-table H:\results_icc\habitats.csv --similarity-method spearman --input-dir H:\results_icc --out-dir H:\results_icc --processes 8
