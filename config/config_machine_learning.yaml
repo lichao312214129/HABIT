@@ -5,21 +5,21 @@
 # Data Input Configuration
 # Multiple input files can be specified for model ensemble or feature combination
 input:
-  - path: H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv # Path to the input data file (CSV format)
+  - path: ./ml_data/breast_cancer_dataset.csv # Path to the input data file (CSV format)
     name: clinical_  # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
     subject_id_col: subjID  # Column name containing subject identifiers (must be unique for each subject)
-    label_col: true_label  # Column name containing target labels (0/1 for binary classification)
-    features: [prob]   # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
+    label_col: label  # Column name containing target labels (0/1 for binary classification)
+    features:    # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
   
   # # Example of additional input file configuration (commented out)
-  - path: H:\results\ml_results\autogluon_habitat\autogluon_habitat_pred_full.csv
-    name: habitat_  # Prefix clinical_ will be added to all features from this file
-    subject_id_col: subjID  # Column name for subject ID in this file
-    label_col: true_label  # Column name for the target variable in this file
-    features: [prob]  # Only use the LogisticRegression_prob column as a feature
+  # - path: H:\results\ml_data\autogluon_habitat\autogluon_habitat_pred_full.csv
+  #   name: habitat_  # Prefix clinical_ will be added to all features from this file
+  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   label_col: true_label  # Column name for the target variable in this file
+  #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
 
   # # # # Example of additional input file configuration (commented out)
-  # - path: H:\results\ml_results\autogluon_radiomics\autogluon_radiomics_pred_full.csv
+  # - path: H:\results\ml_data\autogluon_radiomics\autogluon_radiomics_pred_full.csv
   #   name: radiomics_  # Prefix clinical_ will be added to all features from this file
   #   subject_id_col: subjID  # Column name for subject ID in this file
   #   label_col: true_label  # Column name for the target variable in this file
@@ -27,7 +27,7 @@ input:
 
 #%%================================================================================
 # Output Directory Configuration
-output: H:\results\ml_results\merged_clinicalPlusHabitat  # Directory where all results will be saved (models, plots, statistics)
+output: ./ml_data  # Directory where all results will be saved (models, plots, statistics)
 
 #%%================================================================================
 # Data Splitting Configuration
@@ -37,8 +37,8 @@ split_method: custom  # Method used to split data into training and testing sets
 # test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
 # random_state: 42  # Seed for random number generator to ensure reproducible splits
 # The following parameters are used when split_method is custom
-train_ids_file: H:\results\ml_results\train_ids.txt  # File containing IDs for training set (one ID per line)
-test_ids_file: H:\results\ml_results\test_ids.txt  # File containing IDs for testing set (one ID per line)
+train_ids_file: ./ml_data/train_ids.txt  # File containing IDs for training set (one ID per line)
+test_ids_file: ./ml_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
 
 #%%================================================================================
 # Normalization Configuration
@@ -108,12 +108,12 @@ feature_selection_methods:
   #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # # Correlation method - removes highly correlated features
-  # - method: correlation
-  #   params:
-  #     threshold: 0.80  # Correlation threshold (features with correlation above this value will be removed)
-  #     method: spearman  # Correlation method: pearson, spearman, or kendall
-  #     visualize: false  # Whether to generate correlation heatmap
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  - method: correlation
+    params:
+      threshold: 0.80  # Correlation threshold (features with correlation above this value will be removed)
+      method: spearman  # Correlation method: pearson, spearman, or kendall
+      visualize: false  # Whether to generate correlation heatmap
+      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # # ANOVA method - selects features based on ANOVA F-value
   # - method: anova
@@ -173,7 +173,7 @@ feature_selection_methods:
 # Model Configuration
 # Multiple models can be defined and will all be trained and evaluated
 models:
-  # Logistic Regression model configuration
+  # # Logistic Regression model configuration
   LogisticRegression:  # Model type: Standard logistic regression classifier
     params:
       random_state: 42  # Random seed for reproducibility
@@ -183,13 +183,15 @@ models:
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   
   # # AutoGluonTabular model configuration
-  # AutoGluonTabular:  # Model type: AutoGluonTabular classifier
-  #   params:
-  #     time_limit: 60
-  #     random_state: 42  # Random seed for reproducibility
-  #     presets: "high_quality"  # Preset for AutoGluonTabular
-  #     verbosity: 4  # Verbosity level for AutoGluonTabular
-  #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
+  AutoGluonTabular:  # Model type: AutoGluonTabular classifier
+    params:
+      path: ./ml_data/autogluon_models
+      label: label
+      time_limit: 30
+      random_state: 42  # Random seed for reproducibility
+      presets: "high_quality"  # Preset for AutoGluonTabular
+      verbosity: 4  # Verbosity level for AutoGluonTabular
+      eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
   # # Support Vector Machine configuration
   # SVM:  # Model type: Support Vector Machine classifier
   #   params:
@@ -209,6 +211,6 @@ models:
 
 #%%================================================================================  
 # Visualization and Saving Configuration
-is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
+is_visualize: false  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
 is_save_model: true  # Whether to save trained models to disk for future use
 

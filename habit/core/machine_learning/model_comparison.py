@@ -521,7 +521,6 @@ class ModelComparison:
             
             # 为每个模型计算Youden指数阈值
             train_thresholds = {}
-            
             for model_name, (y_true, y_pred_proba) in train_models_data.items():
                 # 创建DataFrame以便处理可能的NaN值
                 temp_df = pd.DataFrame({

@@ -99,7 +99,6 @@ class AutoGluonTabularModel(BaseModel):
 
         # Save the leaderboard after model training for later analysis
         # The leaderboard provides a summary of all models trained by AutoGluon, including their performance metrics
-        import os
         leaderboard_path = os.path.join(self.path if self.path else "./", "leaderboard.csv")
         leaderboard_df = self.model.leaderboard(silent=True)
         print(leaderboard_df)

@@ -7,10 +7,16 @@
 ## 用法
 
 ```bash
-ython scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
+python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
 ```
 
-该脚本默认使用 `./config/config_image_preprocessing.yaml` 作为配置文件。
+或者简写为：
+
+```bash
+python scripts/app_image_preprocessing.py -c ./config/config_image_preprocessing.yaml 
+```
+
+如果不指定配置文件，脚本将使用默认配置文件 `./config/config_image_preprocessing.yaml`。
 
 ## 配置文件格式
 
@@ -45,9 +51,7 @@ Preprocessing:
     images: [<图像1>, <图像2>, ...]  # 要配准的图像列表
     fixed_image: <参考图像>  # 静态参考图像
     moving_images: [<图像1>, <图像2>, ...]  # 要移动的图像列表
-    type_of_transform: <变换类型>  # 例如Rigid, Affine, SyN等
-    metric: <相似度度量>  # 可选，默认为MI
-    optimizer: <优化器>  # 可选，默认为gradient_descent
+    type_of_transform: <变换类型>  # 例如Rigid, Affine, SyNRA等
     use_mask: <是否使用掩码>  # 可选，默认为false
 
   # N4偏置场校正配置
@@ -108,13 +112,17 @@ Preprocessing:
 
 1. **Rigid**: 仅平移和旋转
 2. **Affine**: 平移、旋转、缩放和剪切
-3. **SyN**: 对称归一化（可变形）
-4. **SyNRA**: SyN + Rigid + Affine
+3. **SyN**: 对称归一化（可变形配准）
+4. **SyNRA**: SyN + Rigid + Affine（最常用）
 5. **SyNOnly**: 不带初始刚性/仿射的SyN
 6. **TRSAA**: 平移 + 旋转 + 缩放 + 仿射
 7. **Elastic**: 弹性变换
 8. **SyNCC**: 带交叉相关度量的SyN
 9. **SyNabp**: 带互信息度量的SyN
+10. **SyNBold**: 针对BOLD图像优化的SyN
+11. **SyNBoldAff**: SyN + Affine for BOLD图像
+12. **SyNAggro**: 使用激进优化的SyN
+13. **TVMSQ**: 时变微分同胚与均方度量
 
 ### 3. N4偏置场校正
 
@@ -153,30 +161,41 @@ histogram_standardization:
 ```yaml
 # 数据路径
 data_dir: F:\work\research\radiomics_TLSs\data\raw_data
-out_dir: F:\work\research\radiomics_TLSs\data\results_420
+out_dir: F:\work\research\radiomics_TLSs\data\results
 
 # 预处理设置
 Preprocessing:
+  # 重采样（可选）
   resample:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    target_spacing: [2.0, 2.0, 2.0]
+    images: [T2WI, ADC]
+    target_spacing: [1.0, 1.0, 1.0]
 
+  # 配准（可选）
   registration:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    fixed_image: PVP
-    moving_images: [pre_contrast, LAP, delay_3min]
-    type_of_transform: Rigid
-    use_mask: true
+    images: [T2WI, ADC]
+    fixed_image: T2WI
+    moving_images: [ADC]
+    type_of_transform: SyNRA  # 支持所有ANTs配准方法
+    use_mask: false
 
-  n4_correction:
-    images: [pre_contrast, LAP, PVP, delay_3min]
-    num_fitting_levels: 4
-    num_iterations: [50, 50, 50, 50]
-    convergence_threshold: 0.001
+  # N4偏置场校正（可选）
+  # n4_correction:
+  #   images: [T2WI, ADC]
+  #   num_fitting_levels: 2
     
-  histogram_standardization:
-    images: [pre_contrast, LAP, delay_3min]
-    reference_key: PVP
+  # Z-Score标准化（可选）
+  # zscore_normalization:
+  #   images: [T2WI, ADC]
+  #   only_inmask: false
+    
+  # 直方图标准化（可选）
+  # histogram_standardization:
+  #   images: [T2WI]
+  #   reference_key: ADC
+
+# 一般设置
+processes: 1  # 并行进程数
+random_state: 42  # 随机种子
 ```
 
 ## 执行流程

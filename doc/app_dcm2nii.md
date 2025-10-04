@@ -2,7 +2,9 @@
 
 ## Overview
 
-本模块提供了使用dcm2niix工具将DICOM文件批量转换为NIfTI格式的功能。该模块集成到HABIT的预处理流水线中，支持单个和批量转换操作。
+本模块提供了使用dcm2niix工具将DICOM文件批量转换为NIfTI格式的功能。该模块已集成到HABIT的预处理流水线中，通过`Dcm2niixConverter`类实现，支持单个和批量转换操作。
+
+**注意**: 此功能不是独立的应用脚本，而是作为预处理流水线的一部分使用。如需使用，请参考`app_image_preprocessing.py`。
 
 ## Requirements
 
@@ -202,10 +204,11 @@ data = {
 
 ## Examples
 
-### Example 1: 基本转换
-```python
-# 参考scripts/example_dcm2niix_batch_conversion.py
-python scripts/example_dcm2niix_batch_conversion.py
+### Example 1: 作为预处理流水线的一部分使用
+```bash
+# 在配置文件中配置dcm2niix转换步骤
+# 参考 config/config_image_preprocessing.yaml
+python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml
 ```
 
 ### Example 2: 自定义参数

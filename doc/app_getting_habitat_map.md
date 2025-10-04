@@ -75,10 +75,12 @@ HabitatsSegmention:
   
   # 生境聚类设置
   habitat:
+    mode: <模式>  # training或testing
     algorithm: <聚类算法>
     max_clusters: <最大生境数量>
+    min_clusters: <最小生境数量>  # 可选，默认为2
     habitat_cluster_selection_method: <聚类数量选择方法>
-    best_n_clusters: <生境数量>
+    best_n_clusters: <生境数量>  # 设置为null进行自动选择
     random_state: <随机种子>
     max_iter: <最大迭代次数>
     n_init: <初始化次数>
@@ -280,23 +282,26 @@ global_normalize: true
 ### 超体素聚类 (supervoxel)
 
 - `kmeans`: K-均值聚类
+- `gmm`: 高斯混合模型
 - `spectral`: 谱聚类
 - `hierarchical`: 层次聚类
-- `gmm`: 高斯混合模型
+- `mean_shift`: Mean Shift聚类
+- `dbscan`: DBSCAN密度聚类
+- `affinity_propagation`: 亲和传播聚类
 
 ### 生境聚类 (habitat)
 
-- `kmeans`: K-均值聚类
-- `spectral`: 谱聚类
-- `hierarchical`: 层次聚类
+- `kmeans`: K-均值聚类（最常用）
 - `gmm`: 高斯混合模型
 
 ### 聚类数量选择方法 (habitat_cluster_selection_method)
 
-- `inertia`: 惯性（K-均值和GMM）
-- `silhouette`: 轮廓系数（所有算法）
-- `calinski_harabasz`: Calinski-Harabasz指数（所有算法）
-- `davies_bouldin`: Davies-Bouldin指数（所有算法）
+- `inertia`: 惯性（适用于K-均值）
+- `aic`: Akaike信息准则（适用于GMM）
+- `bic`: 贝叶斯信息准则（适用于GMM）
+- `silhouette`: 轮廓系数（适用于所有算法）
+- `calinski_harabasz`: Calinski-Harabasz指数（适用于所有算法）
+- `davies_bouldin`: Davies-Bouldin指数（适用于所有算法）
 
 ## 完整配置示例
 
@@ -344,10 +349,12 @@ HabitatsSegmention:
     n_init: 10
   
   habitat:
+    mode: training  # training或testing，training表示训练新模型，testing表示使用已有模型
     algorithm: kmeans
     max_clusters: 10
+    min_clusters: 2  # 可选，最小聚类数量，默认为2
     habitat_cluster_selection_method: inertia
-    best_n_clusters: null
+    best_n_clusters: null  # 设置为具体数字可指定聚类数，设置为null则自动选择
     random_state: 42
     max_iter: 300
     n_init: 10

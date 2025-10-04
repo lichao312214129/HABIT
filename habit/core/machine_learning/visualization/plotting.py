@@ -49,7 +49,7 @@ class Plotter:
         for model_name, (y_true, y_pred_proba) in models_data.items():
             fpr, tpr, _ = roc_curve(y_true, y_pred_proba)
             auc = np.trapz(tpr, fpr)
-            plt.plot(fpr, tpr, label=f'{model_name} (AUC = {auc:.3f})', linewidth=1.5)
+            plt.plot(fpr, tpr, label=f'{model_name} (AUC = {auc:.2f})', linewidth=1.5)
         
         # Add diagonal line
         plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5)
@@ -236,7 +236,7 @@ class Plotter:
         accuracy = (tp + tn) / (tp + tn + fp + fn)
         
         plt.figtext(0.5, 0.01, 
-                  f'Accuracy: {accuracy:.3f}, Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}',
+                  f'Accuracy: {accuracy:.2f}, Sensitivity: {sensitivity:.2f}, Specificity: {specificity:.2f}',
                   ha='center', fontsize=8, fontfamily='Arial', bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
         
         # Adjust plot aesthetics
@@ -468,7 +468,7 @@ class Plotter:
 
             # Calculate average precision score
             AUPRC = auc(recall, precision)
-            plt.plot(recall, precision, linewidth=1.5, label=f'{model_name} (AUPRC = {AUPRC:.3f})')
+            plt.plot(recall, precision, linewidth=1.5, label=f'{model_name} (AUPRC = {AUPRC:.2f})')
         
         # Beautify the plot
         plt.xlabel('Recall', fontsize=10, fontfamily='Arial')  # 修改X轴标签

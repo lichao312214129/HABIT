@@ -133,5 +133,5 @@ metrics:
   target_metrics:
     enabled: true                           # Whether to calculate target-based metrics
     targets:                              # Target values for sensitivity and specificity
-      sensitivity: 0.80                     # Target sensitivity value
+      sensitivity: 0.7                    # Target sensitivity value
       specificity: 0.7                      # Target specificity value

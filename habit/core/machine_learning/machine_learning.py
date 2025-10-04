@@ -837,13 +837,14 @@ class Modeling:
                     self.logger.debug(f"Feature importance: {feature_importance}")
                 
                 # Plot SHAP values for each model
-                try:
-                    self.logger.info(f"Plotting SHAP values for {model_name}")
-                    self.plotter.plot_shap(model, X_test, self.selected_features, save_name=f'{model_name}_SHAP.pdf')
-                    self.logger.info(f"SHAP plot saved for {model_name}")
-                except Exception as e:
-                    warning_msg = f"Failed to plot SHAP values for {model_name}: {e}"
-                    self.logger.warning(warning_msg)
+                if self.is_visualize:   
+                    try:
+                        self.logger.info(f"Plotting SHAP values for {model_name}")
+                        self.plotter.plot_shap(model, X_test, self.selected_features, save_name=f'{model_name}_SHAP.pdf')
+                        self.logger.info(f"SHAP plot saved for {model_name}")
+                    except Exception as e:
+                        warning_msg = f"Failed to plot SHAP values for {model_name}: {e}"
+                        self.logger.warning(warning_msg)
             except Exception as e:
                 error_msg = f"Error evaluating model {model_name}: {e}"
                 self.logger.error(error_msg)
