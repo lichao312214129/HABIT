@@ -1,173 +1,175 @@
-# HABIT - Habitat Analysis Tool for Medical Images
+# Habitat Analysis: Biomedical Imaging Toolkit (HABIT)
 
-HABIT (Habitat Analysis Tool) 是一个专为医学影像设计的综合性肿瘤微环境分析工具，专注于基于影像组学特征和机器学习技术的肿瘤栖息地分析。
+<p align="center">
+  <img src="https://www.imagilys.com/wp-content/uploads/2018/09/radiomics-illustration-500x500.png" alt="Radiomics" width="200"/>
+</p>
+
+<p align="center">
+    <a href="https://github.com/your-repo/habit_project/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Status-Active-green.svg"></a>
+</p>
+
+**HABIT (Habitat Analysis: Biomedical Imaging Toolkit)** 是一个专为医学影像设计的、基于Python的综合性肿瘤“生境”分析工具包。它提供从影像预处理到机器学习的端到端解决方案，使研究人员能够通过影像组学和高级分析方法深入探究肿瘤的异质性。
+
+---
+
+## 📖 核心工作流
+
+HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚区，即“生境”。这一目标通过一个多阶段的流水线实现：
+
+<p align="center">
+  <b>影像 → 体素特征 → 超体素 → 生境 → 生境特征 → 预测模型</b>
+</p>
+
+1.  **体素级特征提取**: 为肿瘤内的每一个体素提取丰富的特征（如信号强度、纹理、动态增强特征等）。
+2.  **超体素聚类**: 将空间上相邻且特征相似的体素分组，形成“超体素”。这一过分割步骤在简化图像的同时保留了局部边界信息。
+3.  **生境聚类**: 在整个患者队列中对超体素进行聚类，以识别共通的、反复出现的模式，从而形成最终的“生境”。
+4.  **特征工程**: 从这些生境中提取高阶特征，如它们的大小、形状、空间关系（MSI特征）和异质性（ITH分数）。
+5.  **机器学习**: 使用工程化的生境特征来训练预测模型，用于如患者生存期、治疗反应或疾病诊断等临床终点的预测。
+
+---
+
+## 🔬 完整研究流程
+
+一个典型的基于HABIT的影像组学研究项目包含以下步骤。HABIT工具包为其中标记为 `[HABIT]` 的步骤提供了强大支持。
+
+1.  **数据采集与下载**:
+    *   从医院PACS系统或公开数据集中获取原始影像数据（通常为DICOM格式）。
+    *   *此步骤为项目前期准备，在HABIT工具包外部完成。*
+
+2.  **数据整理与匿名化**:
+    *   将数据按 `患者/序列/文件` 的结构进行整理。
+    *   对患者隐私信息进行匿名化处理。
+    *   `[HABIT]` `dcm2niix_converter` 模块支持在转换格式时进行匿名化。
+
+3.  **格式转换 (DICOM to NIfTI)**:
+    *   `[HABIT]` 使用 `dcm2niix_converter` 模块或 `app_image_preprocessing.py` 脚本将DICOM序列转换为NIfTI格式（`.nii.gz`）。
+
+4.  **感兴趣区域 (ROI) 分割**:
+    *   由放射科医生或研究人员使用ITK-SNAP, 3D Slicer等专业软件手动勾画肿瘤区域（ROI），并保存为mask文件（如 `mask.nii.gz`）。
+    *   *此步骤通常在HABIT工具包外部完成，生成后续步骤所需的`mask`文件。*
+
+5.  **影像预处理**:
+    *   `[HABIT]` 使用 `app_image_preprocessing.py` 脚本进行一系列预处理，包括：
+        *   **配准**: 将不同序列或模态的影像对齐到同一空间。
+        *   **重采样**: 将所有影像统一到相同的体素间距。
+        *   **强度标准化**: 如Z-Score标准化。
+        *   **N4偏置场校正**: 校正MRI的信号不均匀性。
+
+6.  **生境分析与特征提取**:
+    *   `[HABIT]` 运行核心脚本 `app_getting_habitat_map.py` 来识别肿瘤生境。
+    *   `[HABIT]` 运行 `app_extracting_habitat_features.py` 从生境中提取高级特征（如MSI, ITH分数等）。
+
+7.  **构建与评估预测模型**:
+    *   `[HABIT]` 使用 `app_of_machine_learning.py` 进行特征选择、模型训练和内部验证。
+    *   `[HABIT]` 使用 `app_model_comparison_plots.py` 对不同模型进行性能比较和可视化。
+
+8.  **结果分析与论文撰写**:
+    *   解释模型的发现，并撰写研究论文。
+    *   *此步骤在HABIT工具包外部完成。*
 
 ## 🚀 主要功能
 
-### 核心分析模块
-- **医学影像预处理** - 支持DICOM转换、重采样、配准、标准化等预处理步骤
-- **栖息地分析** - 两阶段聚类分析：个体级supervoxel聚类和群体级habitat聚类  
-- **影像组学特征提取** - 支持传统影像组学、纹理特征、小波特征等多种特征提取方法
-- **机器学习建模** - 集成多种机器学习算法进行预测建模和模型比较
-- **特征选择** - 包含多种特征选择方法如mRMR、统计学方法等
-- **模型评估与可视化** - 全面的模型评估指标和可视化工具
-
-### 支持的功能模块
-- 🔬 **影像预处理管道** - 完整的医学影像预处理流程
-- 🧮 **统计分析** - ICC分析、相关性分析等
-- 📊 **数据可视化** - 丰富的图表和可视化工具
-- 🤖 **AutoML支持** - 自动化机器学习流程
-- 📈 **模型比较** - 多模型性能对比分析
+| 类别 | 功能 | 描述 |
+| :--- | :--- | :--- |
+| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准和标准化的端到端工具。 |
+| | **N4偏置场校正** | 校正MRI扫描中的信号强度不均匀性。 |
+| | **直方图标准化** | 在不同患者或扫描仪之间标准化信号强度值。 |
+| 🧬 **生境分析** | **多层级聚类** | 稳健的两阶段过程（超体素 → 生境）来定义肿瘤亚区。 |
+| | **灵活的特征输入** | 支持多种体素级特征，包括原始信号强度、动态增强和影像组学特征。 |
+| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、非影像组学统计、整体生境、独立生境、多区域空间交互（`msi`）和肿瘤内异质性（`ith_score`）等特征。 |
+| | **可配置引擎** | 使用PyRadiomics和可定制的参数文件进行定制化特征提取。 |
+| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估。 |
+| | **丰富的算法支持** | 支持多种模型（逻辑回归、SVM、随机森林、XGBoost）和众多特征选择方法（ICC、VIF、mRMR、LASSO、RFE）。 |
+| | **模型比较** | 提供生成ROC曲线、决策曲线分析（DCA）和执行DeLong检验的工具。 |
+| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测（Test-Retest）和组内相关系数（ICC）分析工具。 |
+| | **模块化与可配置** | 所有步骤均通过易于编辑的YAML配置文件控制。 |
+| | **稳健的导入系统** | 确保即使缺少某些可选依赖，工具包仍能正常运行。 |
 
 ## 📁 项目结构
 
 ```
 habit_project/
-├── habit/                      # 核心代码包
-│   ├── core/                   # 核心功能模块
-│   │   ├── habitat_analysis/   # 栖息地分析
-│   │   ├── machine_learning/   # 机器学习
-│   │   └── preprocessing/      # 影像预处理
-│   └── utils/                  # 工具函数
-├── scripts/                    # 应用脚本
-├── doc/                        # 文档
-├── config/                     # 配置文件
-└── requirements.txt            # 依赖包列表
+├── habit/                      # 核心Python源代码包
+│   ├── core/                   # 主要分析模块
+│   │   ├── habitat_analysis/   # 生境识别逻辑
+│   │   ├── machine_learning/   # 机器学习建模与评估
+│   │   └── preprocessing/      # 影像处理功能
+│   └── utils/                  # 辅助工具（I/O、日志等）
+├── scripts/                    # 用于运行分析的入口脚本
+├── config/                     # 所有脚本的YAML配置文件
+├── doc/                        # 每个模块的详细文档
+├── requirements.txt            # Python依赖
+├── INSTALL.md                  # 详细的安装指南
+└── QUICKSTART.md               # 5分钟新用户入门教程
 ```
 
-## 🛠️ 安装指南
+## 🛠️ 安装
 
-详细安装步骤请参考 [INSTALL.md](INSTALL.md)
+详细指南请参见 [**INSTALL.md**](INSTALL.md)。
 
-**🚀 新用户推荐**: 安装完成后，请查看 [快速开始指南](QUICKSTART.md) 快速上手使用！
-
-### 快速安装
+快速设置步骤：
 ```bash
-# 克隆仓库
+# 1. 克隆仓库
 git clone <repository_url>
 cd habit_project
 
-# 创建虚拟环境
-conda create -n habit python=3.8.16
+# 2. 创建并激活Conda环境
+conda create -n habit python=3.8
 conda activate habit
 
-# 安装依赖
+# 3. 安装依赖
 pip install -r requirements.txt
 
-# 安装包
+# 4. 以可编辑模式安装HABIT包
 pip install -e .
 ```
 
-## 📖 使用指南
+## 📖 快速入门
 
-### 主要应用脚本
-
-| 脚本名称 | 功能描述 | 文档链接 |
-|---------|---------|----------|
-| `app_getting_habitat_map.py` | 栖息地分析与映射 | [详细文档](doc/app_getting_habitat_map.md) |
-| `app_image_preprocessing.py` | 医学影像预处理 | [详细文档](doc/app_image_preprocessing.md) |
-| `app_traditional_radiomics_extractor.py` | 传统影像组学特征提取 | - |
-| `app_extracting_habitat_features.py` | 栖息地特征提取 | [详细文档](doc/app_extracting_habitat_features.md) |
-| `app_of_machine_learning.py` | 机器学习建模 | [详细文档](doc/app_of_machine_learning.md) |
-| `app_model_comparison_plots.py` | 模型比较可视化 | [详细文档](doc/app_model_comparison_plots.md) |
-| `app_icc_analysis.py` | ICC 一致性分析 | [详细文档](doc/app_icc_analysis.md) |
+HABIT新手？请跟随我们的 [**QUICKSTART.md**](QUICKSTART.md) 指南，在几分钟内运行您的第一次生境分析！
 
 ### 基本使用示例
 
-#### 1. 栖息地分析
+HABIT中的所有工作流都通过运行 `scripts/` 目录下的脚本并指定 `config/` 目录中的相应配置文件来驱动。
+
+**1. 运行生境分析：**
 ```bash
-python scripts/app_getting_habitat_map.py --config config/habitat_config.yaml
+python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
 ```
 
-#### 2. 影像预处理
+**2. 提取生境特征：**
 ```bash
-python scripts/app_image_preprocessing.py --config config/preprocess_config.yaml
+python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
 ```
 
-#### 3. 机器学习建模
+**3. 训练机器学习模型：**
 ```bash
-python scripts/app_of_machine_learning.py --config config/ml_config.yaml
+python scripts/app_of_machine_learning.py --config config/config_machine_learning.yaml
 ```
 
-### Python API 使用示例
+## 🤝 贡献
 
-```python
-from habit.core.habitat_analysis import HabitatAnalysis
-from habit.core.machine_learning import Modeling
+欢迎各种形式的贡献！请参考贡献指南（待添加）或开启一个Issue来讨论您的想法。
 
-# 栖息地分析
-habitat_analyzer = HabitatAnalysis(
-    root_folder="path/to/data",
-    out_folder="path/to/output",
-    feature_config=config
-)
-habitat_analyzer.run()
-
-# 机器学习建模
-ml_model = Modeling(
-    data_path="path/to/features.csv",
-    target_column="target"
-)
-results = ml_model.train_and_evaluate()
-```
-
-## 📋 依赖要求
-
-主要依赖包：
-- Python 3.8.16
-- SimpleITK 2.2.1
-- antspyx 0.4.2
-- scikit-learn
-- pandas
-- numpy
-- matplotlib
-- pyradiomics
-- xgboost
-- torch
-
-完整依赖列表请查看 [requirements.txt](requirements.txt)
-
-## 🔧 配置文件
-
-项目使用YAML格式的配置文件来管理各种参数。配置文件示例可在 `habit/utils/example_paths_config.yaml` 中找到。
-
-### 主要配置项：
-- **数据路径配置** - 指定输入数据和输出目录
-- **特征提取配置** - 设置特征提取方法和参数
-- **聚类配置** - 配置supervoxel和habitat聚类参数
-- **机器学习配置** - 设置模型类型、特征选择等参数
-
-## 📚 文档
-
-- [安装指南](INSTALL.md)
-- [快速开始指南](QUICKSTART.md) ⭐
-- [应用文档](doc/)
-- [预处理模块说明](habit/core/preprocessing/README.md)
-
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+1.  Fork 本仓库。
+2.  创建您的特性分支 (`git checkout -b feature/AmazingFeature`)。
+3.  提交您的更改 (`git commit -m 'Add some AmazingFeature'`)。
+4.  推送到分支 (`git push origin feature/AmazingFeature`)。
+5.  开启一个 Pull Request。
 
 ## 📄 许可证
 
-本项目采用 [MIT License](LICENSE) 许可证。
+本项目采用 MIT 许可证 - 详情请见 [LICENSE](LICENSE) 文件。
 
-## 🙋‍♀️ 支持与反馈
+## 🔬 引用
 
-如果您在使用过程中遇到问题或有改进建议，请：
-1. 查看 [文档](doc/) 获取详细使用说明
-2. 提交 [Issue](../../issues) 报告问题
-3. 联系项目维护者
+如果您在研究中使用了 HABIT，请考虑引用：
+> [引用信息待添加]
 
-## 🔬 研究引用
+## 🙋‍♀️ 支持
 
-如果您在研究中使用了 HABIT 工具，请考虑引用相关论文（待添加）。
-
----
-
-**版本**: 0.1.0  
-**更新日期**: 2025年
+如果您遇到任何问题或有改进建议，请：
+1.  阅读 `doc/` 文件夹中的详细文档。
+2.  在 GitHub 上提交一个 [Issue](https://github.com/your-repo/habit_project/issues)。

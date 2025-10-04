@@ -1,341 +1,116 @@
 # HABIT 安装指南
 
-## 📋 系统要求
-
-### 操作系统支持
-- Windows 10/11
-- Linux (Ubuntu 18.04+, CentOS 7+)
-- macOS 10.14+
-
-### 硬件要求
-- **CPU**: 多核处理器 (推荐 8 核以上)
-- **内存**: 最小 16GB RAM (推荐 32GB 或更多)
-- **存储**: 至少 10GB 可用磁盘空间
-- **GPU**: 可选，支持CUDA的NVIDIA GPU (用于深度学习加速)
-
-### 软件依赖
-- **Python**: 3.8或更高版本（推荐3.8-3.10）
-- **Conda**: Anaconda 或 Miniconda（推荐）
-- **Git**: 用于克隆仓库
-- **R语言**（可选）：部分特征选择方法（如逐步回归）需要R环境
-
-## 🚀 快速安装
-
-### 方法一：使用 Conda (推荐)
-
-```bash
-# 1. 克隆仓库
-git clone <repository_url>
-cd habit_project
-
-# 2. 创建并激活Conda虚拟环境
-conda create -n habit python=3.8
-conda activate habit
-
-# 3. 安装依赖包
-pip install -r requirements.txt
-
-# 4. 安装HABIT包（开发模式）
-pip install -e .
-```
-
-**注意**：`pip install -e .` 会以开发模式安装HABIT包，这样您可以直接修改代码而无需重新安装。
-
-### 方法二：使用 pip 和 venv
-
-```bash
-# 1. 克隆仓库
-git clone <repository_url>
-cd habit_project
-
-# 2. 创建虚拟环境
-python -m venv habit_env
-
-# 3. 激活虚拟环境
-# Windows
-habit_env\Scripts\activate
-# Linux/macOS
-source habit_env/bin/activate
-
-# 4. 升级pip
-pip install --upgrade pip
-
-# 5. 安装依赖包
-pip install -r requirements.txt
-
-# 6. 安装HABIT包
-pip install -e .
-```
-
-## 📦 详细依赖说明
-
-### 核心依赖包
-
-| 包名 | 版本要求 | 用途 |
-|------|---------|------|
-| SimpleITK | 2.2.1 | 医学影像处理和格式转换 |
-| antspyx | 0.4.2 | 高级影像配准和处理 |
-| numpy | - | 数值计算 |
-| pandas | - | 数据处理和分析 |
-| scikit-learn | - | 机器学习算法 |
-| pyradiomics | - | 影像组学特征提取 |
-| xgboost | - | 梯度提升算法 |
-| matplotlib | - | 数据可视化 |
-| seaborn | - | 统计可视化 |
-| scipy | - | 科学计算 |
-| statsmodels | - | 统计模型 |
-| PyYAML | - | YAML配置文件解析 |
-| tqdm | - | 进度条显示 |
-| openpyxl | - | Excel文件处理 |
-| mrmr_selection | - | mRMR特征选择 |
-| pingouin | - | 统计分析 |
-| shap | - | 模型解释 |
-| lifelines | - | 生存分析 |
-| opencv-python | - | 图像处理 |
-| trimesh | - | 网格处理 |
-| torch | - | 深度学习框架 |
-
-### 可选依赖
-
-```bash
-# AutoGluon自动机器学习 (可选，用于高级建模)
-pip install autogluon
-
-# Jupyter notebook 支持 (可选)
-pip install jupyter ipykernel
-python -m ipykernel install --user --name habit --display-name "HABIT"
-
-# R语言接口 (可选，用于某些特征选择方法)
-pip install rpy2
-
-# 开发工具 (可选)
-pip install black pytest mypy pylint pre-commit
-```
-
-**注意**：
-- AutoGluon较大且安装时间较长，仅在需要使用AutoGluon模型时安装
-- R语言接口（rpy2）需要先安装R语言环境
-- torch已包含在requirements.txt中，如需GPU支持请根据CUDA版本安装对应版本
-
-## ✅ 验证安装
-
-### 基本验证
-```bash
-# 激活环境
-conda activate habit
-
-# 验证Python包导入
-python -c "import habit; print('HABIT installed successfully!')"
-
-# 检查核心模块
-python -c "from habit.core.habitat_analysis import HabitatAnalysis; print('Core modules OK!')"
-python -c "from habit.core.machine_learning.machine_learning import Modeling; print('ML modules OK!')"
-```
-
-### 功能验证
-```bash
-# 查看各应用脚本帮助信息
-python scripts/app_getting_habitat_map.py --help
-python scripts/app_image_preprocessing.py --help
-python scripts/app_of_machine_learning.py --help
-
-# 检查配置文件加载
-python -c "from habit.utils.io_utils import load_config; config = load_config('./config/config_getting_habitat.yaml'); print('Config file loaded successfully!')"
-```
-
-## 🔧 环境配置
-
-### 设置环境变量 (可选)
-```bash
-# Linux/macOS
-export HABIT_DATA_DIR="/path/to/your/data"
-export HABIT_OUTPUT_DIR="/path/to/output"
-
-# Windows (PowerShell)
-$env:HABIT_DATA_DIR="C:\path\to\your\data"
-$env:HABIT_OUTPUT_DIR="C:\path\to\output"
-```
-
-### 配置文件设置
-修改`config`文件夹下的相应配置文件：
-
-```yaml
-# 示例：config/config_getting_habitat.yaml
-data_dir: "/path/to/your/data"
-out_dir: "/path/to/output"
-processes: 4  # 根据您的CPU核心数调整
-# 其他配置项...
-```
-
-## 🔍 故障排除
-
-### 常见问题
-
-#### 1. SimpleITK 安装失败
-```bash
-# 解决方案：使用conda安装
-conda activate habit
-conda install -c conda-forge simpleitk=2.2.1
-```
-
-#### 2. antspyx 安装失败
-```bash
-# 解决方案：确保编译工具可用
-# Windows: 安装 Visual Studio Build Tools
-# Linux: sudo apt-get install build-essential
-# macOS: xcode-select --install
-
-# 或使用预编译版本
-conda install -c conda-forge antspyx
-```
-
-#### 3. 内存错误
-```bash
-# 解决方案：增加虚拟内存或使用较小的数据集
-# 在配置文件中设置较小的batch size或并行进程数
-```
-
-#### 4. CUDA相关错误 (使用GPU时)
-```bash
-# 检查CUDA版本兼容性
-nvidia-smi
-python -c "import torch; print(torch.cuda.is_available())"
-
-# 安装对应CUDA版本的PyTorch
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-```
-
-#### 5. 权限问题
-```bash
-# Linux/macOS: 使用用户目录安装
-pip install --user -r requirements.txt
-
-# Windows: 以管理员身份运行命令提示符
-```
-
-#### 6. R语言相关错误（使用逐步特征选择时）
-```bash
-# 确保已安装R语言
-# Windows: 从 https://cran.r-project.org/bin/windows/base/ 下载安装
-# Linux: sudo apt-get install r-base
-# macOS: brew install r
-
-# 安装rpy2
-pip install rpy2
-
-# 在配置文件中指定R路径（Windows示例）
-# feature_selection_methods:
-#   - method: stepwise
-#     params:
-#       Rhome: 'C:/Program Files/R/R-4.3.0'  # 根据实际安装路径调整
-```
-
-### 依赖版本冲突
-如果遇到依赖版本冲突，可以尝试：
-
-```bash
-# 1. 清理环境
-conda deactivate
-conda remove -n habit --all
-
-# 2. 重新创建环境
-conda create -n habit python=3.8
-conda activate habit
-
-# 3. 分步安装核心依赖
-pip install numpy pandas matplotlib
-pip install SimpleITK==2.2.1
-pip install antspyx==0.4.2
-pip install scikit-learn
-pip install -r requirements.txt
-```
-
-## 📝 开发环境设置
-
-如果您计划为 HABIT 项目贡献代码：
-
-```bash
-# 1. Fork 并克隆仓库
-git clone https://github.com/yourusername/habit_project.git
-cd habit_project
-
-# 2. 创建开发环境
-conda create -n habit-dev python=3.8
-conda activate habit-dev
-
-# 3. 安装开发依赖
-pip install -r requirements.txt
-
-# 4. 以开发模式安装
-pip install -e .
-
-# 5. 安装pre-commit hooks（可选）
-pip install pre-commit
-pre-commit install
-
-# 6. 运行测试（如果有）
-pytest tests/
-```
-
-## 🐳 Docker 安装 (高级)
-
-如果您熟悉 Docker，可以使用容器化部署：
-
-```dockerfile
-# Dockerfile 示例
-FROM python:3.8-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-RUN pip install -e .
-
-CMD ["python", "scripts/app_getting_habitat_map.py"]
-```
-
-```bash
-# 构建和运行
-docker build -t habit .
-docker run -v /path/to/data:/app/data habit
-```
-
-## 📞 获取帮助
-
-如果安装过程中遇到问题：
-
-1. **查看错误日志**: 仔细阅读错误信息
-2. **检查系统要求**: 确保满足最低硬件和软件要求
-3. **更新系统**: 确保系统包管理器是最新的
-4. **清理缓存**: 
-   ```bash
-   pip cache purge
-   conda clean --all
-   ```
-5. **重新创建环境**: 删除环境后重新安装
-6. **查看文档**: 参考doc文件夹下的应用文档
-7. **提交Issue**: 在项目GitHub页面提交详细的问题报告
-
-## 🔄 卸载
-
-```bash
-# 删除conda环境
-conda deactivate
-conda remove -n habit --all
-
-# 或删除pip虚拟环境
-deactivate
-rm -rf habit_env/  # Linux/macOS
-rmdir /s habit_env  # Windows
-```
+本指南提供安装 HABIT 工具包及其所有依赖项的详细说明。
 
 ---
 
-**注意**: 建议定期更新依赖包以获得最新功能和安全修复：
+## 1. 系统要求
+
+-   **操作系统**: Windows 10/11, Linux (Ubuntu 18.04+), 或 macOS 10.15+。
+-   **Python 版本**: 推荐使用 3.8, 3.9, 或 3.10。
+-   **内存 (RAM)**: 最低 16 GB，**强烈推荐 32 GB 或更多**，以便处理大型数据集。
+-   **存储空间**: 至少 10 GB 可用磁盘空间。
+
+## 2. 外部依赖
+
+在安装 Python 包之前，您必须先安装以下外部工具：
+
+### A. Conda
+
+**强烈推荐**使用 `conda` (来自 Anaconda 或 Miniconda) 进行环境管理。
+-   下载并安装 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 或 [Anaconda](https://www.anaconda.com/products/distribution)。
+
+### B. Git
+
+用于克隆本项目的代码仓库。
+-   从 [Git 官网](https://git-scm.com/downloads) 安装 `git`。
+
+### C. dcm2niix (DICOM 转换需要)
+
+如果您计划将 DICOM 影像转换为 NIfTI 格式，则必须安装 `dcm2niix`。
+1.  前往 [dcm2niix 的 GitHub 发布页面](https://github.com/rordenlab/dcm2niix/releases)。
+2.  下载适用于您操作系统的预编译版本。
+3.  解压可执行文件（在 Windows 上是 `dcm2niix.exe`），并将其所在位置添加到系统的 **PATH 环境变量**中。
+4.  打开一个新的终端并运行 `dcm2niix --version` 来验证安装。
+
+### D. R 语言 (可选)
+
+**仅当您计划在机器学习流程中使用 `stepwise` (逐步回归) 特征选择方法时**，才需要安装 R。
+1.  从 [R 项目官网](https://cran.r-project.org/)下载并安装 R。
+2.  在安装过程中，请记下安装路径。
+3.  您可能需要在机器学习的配置文件中指定此路径。
+
+## 3. 安装步骤
+
+推荐使用 Conda 进行安装。
+
+### 第一步：克隆代码仓库
+
+打开终端（或在 Windows 上打开 Anaconda Prompt）并运行：
 ```bash
-conda activate habit
-pip install --upgrade -r requirements.txt
+git clone <repository_url>
+cd habit_project
 ```
 
-**下一步**: 安装完成后，请参考`QUICKSTART.md`快速开始使用，或查看`doc`文件夹下的详细文档了解各功能模块的使用方法。
+### 第二步：创建并激活 Conda 环境
+
+为 HABIT 创建一个独立的环境以避免依赖冲突。
+```bash
+# 创建一个名为 'habit' 的环境，使用 Python 3.8
+conda create -n habit python=3.8
+
+# 激活新环境
+conda activate habit
+```
+
+### 第三步：安装 Python 依赖
+
+使用 `requirements.txt` 文件安装所有必需的 Python 包。
+```bash
+pip install -r requirements.txt
+```
+
+### 第四步：安装 HABIT 包
+
+最后，以“可编辑”模式安装 HABIT 工具包。这使您可以在修改源代码后无需重新安装。
+```bash
+pip install -e .
+```
+
+## 4. 验证安装
+
+为确保一切设置正确，请在终端中（已激活 `habit` 环境）运行以下检查。
+
+1.  **检查基础包导入：**
+    ```bash
+    python -c "import habit; print(f'HABIT version {habit.__version__} installed successfully!')"
+    ```
+
+2.  **检查核心模块可用性：**
+    ```bash
+    python -c "from habit.utils.import_utils import check_dependencies; check_dependencies(['SimpleITK', 'antspyx', 'torch', 'sklearn', 'pyradiomics'])"
+    ```
+    此命令应报告所有列出的模块都可用。
+
+3.  **检查脚本入口点：**
+    ```bash
+    python scripts/app_getting_habitat_map.py --help
+    ```
+    此命令应显示主分析脚本的帮助菜单。
+
+## 5. 故障排除
+
+-   **`antspyx` 或 `SimpleITK` 安装失败**：这些包有时可能存在编译问题。在运行 `pip install -r requirements.txt` 之前，尝试使用 `conda` 单独安装它们：
+    ```bash
+    conda install -c conda-forge antspyx simpleitk -y
+    ```
+
+-   **与 R 相关的 `stepwise` 选择错误**：如果您看到与 `rpy2` 或 R 相关的错误，请确保 R 已正确安装，并且如果需要，您的配置文件（例如 `config/config_machine_learning.yaml`）中的 `Rhome` 路径指向了正确的 R 安装目录。
+
+-   **内存错误**：如果在分析过程中遇到 `MemoryError`，请尝试在您的 YAML 配置文件中减少 `processes` 的数量。
+
+-   **CUDA/GPU 错误**：如果您有兼容的 NVIDIA GPU 并希望使用它，请确保已安装正确的 NVIDIA 驱动和 CUDA 工具包。然后，按照 [PyTorch 官网](https://pytorch.org/get-started/locally/)的说明安装支持 GPU 的 PyTorch 版本。
+
+---
+
+您的安装现已完成。请继续阅读 [**QUICKSTART.md**](QUICKSTART.md) 指南来运行您的第一次分析。
