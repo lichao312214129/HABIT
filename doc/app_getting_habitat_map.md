@@ -139,7 +139,7 @@ params:
 计算每个体素周围区域的局部熵，作为组织异质性的度量。
 
 ```yaml
-method: local_entropy(raw(image_name))
+method: local_entropy(image_name)
 params:
   kernel_size: <局部区域大小>
   bins: <直方图分箱数>
@@ -154,7 +154,7 @@ params:
 
 **示例：**
 ```yaml
-method: concat(local_entropy(raw(PVP)), voxel_radiomics(raw(PVP)))
+method: concat(local_entropy(PVP), voxel_radiomics(PVP))
 params:
   kernel_size: 5
   bins: 32
@@ -175,7 +175,7 @@ method: concat(method1(params), method2(params), ...)
 
 **示例：**
 ```yaml
-method: concat(voxel_radiomics(raw(pre_contrast)), voxel_radiomics(raw(PVP)))
+method: concat(voxel_radiomics(pre_contrast), voxel_radiomics(PVP))
 ```
 
 #### 5. raw - 原始图像数据
