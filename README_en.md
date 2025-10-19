@@ -5,12 +5,19 @@
 </p>
 
 <p align="center">
+  <strong>📖 Language / 语言</strong><br>
+  <a href="README_en.md">🇬🇧 English</a> | <a href="README.md">🇨🇳 简体中文</a>
+</p>
+
+<p align="center">
     <a href="https://github.com/your-repo/habit_project/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
     <a href="#"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg"></a>
     <a href="#"><img src="https://img.shields.io/badge/Status-Active-green.svg"></a>
 </p>
 
 **HABIT** is a comprehensive, Python-based toolkit for tumor habitat analysis in medical imaging. It provides an end-to-end solution, from image preprocessing to machine learning, enabling researchers to investigate tumor heterogeneity through radiomics and advanced analytics.
+
+> 🎯 **New Feature**: HABIT now supports a unified command-line interface (CLI)! After installation, simply use the `habit` command to access all features. See the [Quick Start](#-quick-start) section for details.
 
 ---
 
@@ -59,6 +66,9 @@ A typical radiomics research project using HABIT involves the following steps. T
 
 6.  **Habitat Analysis and Feature Extraction**:
     *   `[HABIT]` Run the core script `app_getting_habitat_map.py` to identify tumor habitats.
+        *   **Two Clustering Modes Supported**:
+            *   **One-Step**: Individual-level clustering for each tumor with automatic cluster selection, suitable for personalized heterogeneity analysis
+            *   **Two-Step**: Supervoxel generation followed by population-level clustering to identify common habitats across patients, suitable for cohort studies
     *   `[HABIT]` Run `app_extracting_habitat_features.py` to extract high-level features (e.g., MSI, ITH score) from the habitats.
 
 7.  **Building and Evaluating Predictive Models**:
@@ -76,7 +86,8 @@ A typical radiomics research project using HABIT involves the following steps. T
 | 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, and normalization. |
 | | **N4 Bias Field Correction** | Corrects for intensity non-uniformity in MRI scans. |
 | | **Histogram Standardization** | Standardizes intensity values across different patients or scanners. |
-| 🧬 **Habitat Analysis** | **Multi-level Clustering** | A robust two-stage process (Supervoxel -> Habitat) to define tumor sub-regions. |
+| 🧬 **Habitat Analysis** | **One-Step Clustering** | Individual-level clustering with automatic cluster selection for personalized heterogeneity analysis. |
+| | **Two-Step Clustering** | A robust two-stage process (Supervoxel → Habitat) to identify common habitats across patients for cohort studies. |
 | | **Flexible Feature Input** | Supports various voxel-level features, including raw intensity, kinetic, and radiomics. |
 | 🔬 **Feature Extraction** | **Advanced Feature Sets** | Extracts traditional radiomics, `non_radiomics` stats, `whole_habitat` features, `each_habitat` features, Multiregional Spatial Interaction (`msi`), and Intratumoral Heterogeneity (`ith_score`). |
 | | **Configurable Engine** | Uses PyRadiomics with customizable parameter files for tailored feature extraction. |
@@ -130,58 +141,103 @@ pip install -e .
 
 New to HABIT? Follow our [**QUICKSTART.md**](QUICKSTART.md) guide to run your first habitat analysis in minutes!
 
-### 🎯 Unified Command Line Interface (CLI)
+### 🎯 Unified Command Line Interface (CLI) - **Recommended Usage**
 
-**HABIT now provides a unified command-line interface!** After installation, you can use the `habit` command directly to access all functionality:
+**HABIT provides a unified, streamlined command-line interface!** ✨
+
+Using a CLI system built with **Click**, you only need the `habit` command to access all functionality—no need to remember complex script paths.
+
+#### Ready to Use After Installation
+
+After completing `pip install -e .`, the `habit` command is globally available in your environment:
 
 ```bash
 # View all available commands
 habit --help
 
-# Image preprocessing
+# Get help for specific commands
+habit ml --help
+habit kfold --help
+```
+
+#### Core Command Examples
+
+```bash
+# 1️⃣ Image Preprocessing - Resampling, registration, normalization
 habit preprocess --config config/config_image_preprocessing.yaml
 
-# Generate Habitat maps
+# 2️⃣ Generate Habitat Maps - Identify tumor sub-regions
+# Supports one-step (personalized) or two-step (cohort study) mode
 habit habitat --config config/config_getting_habitat.yaml
 
-# Extract Habitat features
+# 3️⃣ Extract Habitat Features - MSI, ITH, and other advanced features
 habit extract-features --config config/config_extract_features.yaml
 
-# Train machine learning models
+# 4️⃣ Machine Learning - Train predictive models
 habit ml --config config/config_machine_learning.yaml --mode train
 
-# Make predictions with trained model
-habit ml --config config/config_machine_learning.yaml \
-  --mode predict \
-  --model ./model_package.pkl \
+# 5️⃣ Model Prediction - Use trained models
+habit ml --mode predict \
+  --model ./ml_data/model_package.pkl \
   --data ./new_data.csv \
   --output ./predictions/
 
-# K-fold cross-validation
+# 6️⃣ K-Fold Cross-Validation - Robust model evaluation
 habit kfold --config config/config_machine_learning_kfold.yaml
 
-# Model comparison
+# 7️⃣ Model Comparison - ROC, DCA, calibration curves visualization
 habit compare --config config/config_model_comparison.yaml
+
+# 8️⃣ ICC Analysis - Feature reproducibility assessment
+habit icc --config config/config_icc_analysis.yaml
+
+# 9️⃣ Traditional Radiomics Feature Extraction
+habit radiomics --config config/config_traditional_radiomics.yaml
+
+# 🔟 Test-Retest Habitat Mapping
+habit test-retest --config config/config_habitat_test_retest.yaml
 ```
 
-📚 **Complete CLI Guide**: See [**HABIT_CLI.md**](HABIT_CLI.md) for complete command-line usage documentation.
+#### Quick Reference Table
 
-### Basic Usage Example (Traditional Script Method)
+| Command | Function | Config File |
+|---------|----------|-------------|
+| `habit preprocess` | Image preprocessing | `config_image_preprocessing.yaml` |
+| `habit habitat` | Generate Habitat maps | `config_getting_habitat.yaml` |
+| `habit extract-features` | Extract Habitat features | `config_extract_features.yaml` |
+| `habit ml` | ML training/prediction | `config_machine_learning.yaml` |
+| `habit kfold` | K-fold cross-validation | `config_machine_learning_kfold.yaml` |
+| `habit compare` | Model comparison & viz | `config_model_comparison.yaml` |
+| `habit icc` | ICC reproducibility | `config_icc_analysis.yaml` |
+| `habit radiomics` | Traditional radiomics | `config_traditional_radiomics.yaml` |
+| `habit test-retest` | Test-retest mapping | `config_habitat_test_retest.yaml` |
 
-All workflows in HABIT can also be run by executing a script from the `scripts/` directory with a corresponding configuration file from the `config/` directory.
+#### Advantages
 
-**1. Run Habitat Analysis:**
+✅ **Unified & Clean** - All features accessible via `habit` command  
+✅ **Ready to Use** - No path configuration needed after installation  
+✅ **Built-in Help** - Every command has a `--help` option  
+✅ **Colored Output** - Clear success/error messages  
+✅ **Parameter Validation** - Automatic checking of required parameters  
+
+📚 **Complete CLI Guide**: See [**HABIT_CLI.md**](HABIT_CLI.md) for comprehensive command-line documentation, including installation instructions, troubleshooting, and advanced usage.
+
+---
+
+### Traditional Script Method (Legacy Compatible)
+
+> ⚠️ **Note**: The CLI commands above are recommended. The script method is still available but the CLI provides a better user experience.
+
+If you prefer running Python scripts directly:
+
 ```bash
+# Run habitat analysis
 python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
-```
 
-**2. Extract Habitat Features:**
-```bash
+# Extract habitat features
 python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
-```
 
-**3. Train a Machine Learning Model:**
-```bash
+# Train machine learning model
 python scripts/app_of_machine_learning.py --config config/config_machine_learning.yaml
 ```
 
@@ -207,5 +263,13 @@ If you use HABIT in your research, please consider citing:
 ## 🙋‍♀️ Support
 
 If you encounter any problems or have suggestions, please:
-1.  Read the detailed documentation in the `doc/` folder.
+1.  Read the detailed documentation in the `doc_en/` folder.
 2.  Open an [Issue](https://github.com/your-repo/habit_project/issues) on GitHub.
+
+### 📖 Multilingual Documentation
+
+HABIT provides complete bilingual documentation in Chinese and English:
+- **Chinese Documentation**: Located in `doc/` directory
+- **English Documentation**: Located in `doc_en/` directory
+
+💡 **Language Switch**: Click the "🇬🇧 English" or "🇨🇳 简体中文" link at the top of the page to quickly switch languages.

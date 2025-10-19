@@ -249,10 +249,16 @@ def main() -> None:
     # Extract habitat segmentation configuration
     habitats_config = config.get('HabitatsSegmention', {})
     
+    # Get clustering mode (one_step or two_step)
+    clustering_mode = habitats_config.get('clustering_mode', 'two_step')
+    
     # Extract supervoxel method configuration
     supervoxel_config = habitats_config.get('supervoxel', {})
     supervoxel_method = supervoxel_config.get('algorithm', 'kmeans')
     n_clusters_supervoxel = supervoxel_config.get('n_clusters', 50)
+    
+    # Extract one-step settings (for one_step mode)
+    one_step_settings = supervoxel_config.get('one_step_settings', None)
 
     # Extract habitat method configuration
     habitat_config = habitats_config.get('habitat', {})
@@ -274,8 +280,11 @@ def main() -> None:
     logger.info("Data directory: %s", data_dir)
     logger.info("Output folder: %s", out_dir)
     logger.info("Feature configuration: %s", feature_config)
+    logger.info("Clustering mode: %s", clustering_mode)
     logger.info("Supervoxel method: %s", supervoxel_method)
     logger.info("Supervoxel clusters: %d", n_clusters_supervoxel)
+    if clustering_mode == 'one_step' and one_step_settings:
+        logger.info("One-step settings: %s", one_step_settings)
     logger.info("Habitat method: %s", habitat_method)
     logger.info("Maximum habitat clusters: %d", n_clusters_habitats_max)
     logger.info("Habitat cluster selection method: %s", habitat_cluster_selection_method)
@@ -292,6 +301,7 @@ def main() -> None:
         root_folder=data_dir,
         out_folder=out_dir,
         feature_config=feature_config,
+        clustering_mode=clustering_mode,
         supervoxel_clustering_method=supervoxel_method,
         n_clusters_supervoxel=n_clusters_supervoxel,
         habitat_clustering_method=habitat_method,
@@ -299,6 +309,7 @@ def main() -> None:
         n_clusters_habitats_min=n_clusters_habitats_min,
         habitat_cluster_selection_method=habitat_cluster_selection_method,
         best_n_clusters=best_n_clusters,
+        one_step_settings=one_step_settings,
         mode=mode,
         n_processes=n_processes,
         plot_curves=plot_curves,

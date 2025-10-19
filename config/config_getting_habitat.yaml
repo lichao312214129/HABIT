@@ -37,15 +37,27 @@ FeatureConstruction:
 
 # Habitat segmentation settings
 HabitatsSegmention:
-  # Supervoxel clustering settings
+  # Clustering strategy: "one_step" or "two_step"
+  # - one_step: Individual-level only (voxel-to-habitat clustering for each tumor)
+  # - two_step: Individual-level + Population-level (voxel-to-supervoxel, then supervoxel-to-habitat across patients)
+  clustering_mode: two_step  # one_step or two_step
+  
+  # Supervoxel clustering settings (Step 1: Individual-level clustering)
   supervoxel:
     algorithm: kmeans
-    n_clusters: 50
+    n_clusters: 50  # Used in two_step mode, or as max for one_step mode
     random_state: 42
     max_iter: 300
     n_init: 10
+    
+    # Settings for one_step mode: automatic cluster number selection for each tumor
+    one_step_settings:
+      min_clusters: 2           # Minimum number of clusters to test
+      max_clusters: 10          # Maximum number of clusters to test
+      selection_method: silhouette  # Method to determine optimal clusters: silhouette, calinski_harabasz, davies_bouldin, inertia
+      plot_validation_curves: true  # Plot validation curves for each tumor
   
-  # Habitat clustering settings
+  # Habitat clustering settings (Step 2: Population-level clustering, only used in two_step mode)
   habitat:
     # training if you want to train a new model, testing if you want to use a pre-trained model, 
     # default feature preprocessing parameters are in os.path.join(self.out_dir, 'mean_values_of_all_supervoxels_features.csv')
