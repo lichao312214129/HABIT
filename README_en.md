@@ -67,8 +67,8 @@ A typical radiomics research project using HABIT involves the following steps. T
 6.  **Habitat Analysis and Feature Extraction**:
     *   `[HABIT]` Run the core script `app_getting_habitat_map.py` to identify tumor habitats.
         *   **Two Clustering Modes Supported**:
-            *   **One-Step**: Individual-level clustering for each tumor with automatic cluster selection, suitable for personalized heterogeneity analysis
-            *   **Two-Step**: Supervoxel generation followed by population-level clustering to identify common habitats across patients, suitable for cohort studies
+            *   **One-Step**: Direct voxel-to-habitat clustering, optimal cluster count auto-determined per tumor, independent habitat labels
+            *   **Two-Step**: Individual-level supervoxel clustering followed by population-level habitat clustering, unified habitat labels across all patients
     *   `[HABIT]` Run `app_extracting_habitat_features.py` to extract high-level features (e.g., MSI, ITH score) from the habitats.
 
 7.  **Building and Evaluating Predictive Models**:
@@ -86,8 +86,8 @@ A typical radiomics research project using HABIT involves the following steps. T
 | 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, and normalization. | [📖](doc_en/app_image_preprocessing.md) |
 | | **N4 Bias Field Correction** | Corrects for intensity non-uniformity in MRI scans. | [📖](doc_en/app_image_preprocessing.md) |
 | | **Histogram Standardization** | Standardizes intensity values across different patients or scanners. | [📖](doc_en/app_image_preprocessing.md) |
-| 🧬 **Habitat Analysis** | **One-Step Clustering** | Individual-level clustering with automatic cluster selection for personalized heterogeneity analysis. | [📖](doc_en/app_habitat_analysis.md) |
-| | **Two-Step Clustering** | A robust two-stage process (Supervoxel → Habitat) to identify common habitats across patients for cohort studies. | [📖](doc_en/app_habitat_analysis.md) |
+| 🧬 **Habitat Analysis** | **One-Step Clustering** | Direct clustering to habitats, cluster count determined per tumor, independent habitat labels. | [📖](doc_en/app_habitat_analysis.md) |
+| | **Two-Step Clustering** | Two-stage clustering (individual supervoxels → population habitats), unified habitat labeling system. | [📖](doc_en/app_habitat_analysis.md) |
 | | **Flexible Feature Input** | Supports various voxel-level features, including raw intensity, kinetic, and radiomics. | [📖](doc_en/app_habitat_analysis.md) |
 | 🔬 **Feature Extraction** | **Advanced Feature Sets** | Extracts traditional radiomics, `non_radiomics` stats, `whole_habitat` features, `each_habitat` features, Multiregional Spatial Interaction (`msi`), and Intratumoral Heterogeneity (`ith_score`). | [📖](doc_en/app_extracting_habitat_features.md) |
 | | **Configurable Engine** | Uses PyRadiomics with customizable parameter files for tailored feature extraction. | [📖](doc_en/app_extracting_habitat_features.md) |

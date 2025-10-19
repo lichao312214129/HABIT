@@ -8,11 +8,13 @@ The Habitat Analysis module identifies and characterizes tumor sub-regions with 
 
 | Feature | One-Step | Two-Step |
 |---------|----------|----------|
-| **Clustering Level** | Individual only | Individual + Population |
-| **Use Case** | Personalized tumor analysis | Cross-patient habitat identification |
-| **Cluster Number** | Auto-determined per tumor | Unified across population |
-| **Result Consistency** | May vary per patient | Same habitats for all patients |
-| **Literature** | Recent personalized studies | Classic Habitat method |
+| **Clustering Process** | Direct voxel-to-habitat clustering | First cluster to supervoxels, then to habitats |
+| **Clustering Hierarchy** | Single-level (individual) | Two-level (individual + population) |
+| **Cluster Numbers** | Optimal number auto-determined per tumor | Fixed supervoxel count, optimizable habitat count |
+| **Habitat Labels** | Independent labels per patient | Unified habitat labeling across all patients |
+| **Cross-Patient Comparison** | Requires additional correspondence analysis | Direct comparison of same-numbered habitats |
+| **Computational Cost** | Lower (individual clustering only) | Higher (individual + population clustering) |
+| **Use Cases** | Individual heterogeneity analysis, small studies | Cohort studies, cross-patient habitat pattern recognition |
 
 ---
 
@@ -38,6 +40,11 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 ---
 
 ## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 🇬🇧 [Detailed English Configuration](../config/config_getting_habitat_EN.yaml) - Complete English comments and instructions
+- 🇨🇳 [详细中文配置](../config/config_getting_habitat_CN.yaml) - Includes complete Chinese comments and instructions
+- 📄 [Current Configuration](../config/config_getting_habitat.yaml) - Actual configuration file in use
 
 ### Key Configuration Items
 

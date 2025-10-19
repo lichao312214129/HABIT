@@ -67,8 +67,8 @@ HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚
 6.  **生境分析与特征提取**:
     *   `[HABIT]` 运行核心脚本 `app_getting_habitat_map.py` 来识别肿瘤生境。
         *   **支持两种聚类模式**：
-            *   **一步法** (One-Step): 在个体水平对每个肿瘤单独聚类，自动确定最佳聚类数，适合个性化异质性分析
-            *   **二步法** (Two-Step): 先生成supervoxels再进行群体聚类，识别跨患者的共通生境，适合队列研究
+            *   **一步法** (One-Step): 直接从体素聚类到生境，每个肿瘤自动确定最佳聚类数，生境标签独立
+            *   **二步法** (Two-Step): 先个体聚类生成supervoxels，再群体聚类识别habitats，所有患者共享统一生境标签
     *   `[HABIT]` 运行 `app_extracting_habitat_features.py` 从生境中提取高级特征（如MSI, ITH分数等）。
 
 7.  **构建与评估预测模型**:
@@ -86,8 +86,8 @@ HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚
 | 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准和标准化的端到端工具。 | [📖](doc/app_image_preprocessing.md) |
 | | **N4偏置场校正** | 校正MRI扫描中的信号强度不均匀性。 | [📖](doc/app_image_preprocessing.md) |
 | | **直方图标准化** | 在不同患者或扫描仪之间标准化信号强度值。 | [📖](doc/app_image_preprocessing.md) |
-| 🧬 **生境分析** | **一步法聚类** | 个体水平聚类，自动确定最佳聚类数，适合个性化异质性分析。 | [📖](doc/app_habitat_analysis.md) |
-| | **二步法聚类** | 稳健的两阶段过程（超体素 → 生境），识别跨患者共通生境，适合队列研究。 | [📖](doc/app_habitat_analysis.md) |
+| 🧬 **生境分析** | **一步法聚类** | 直接聚类到生境，每个肿瘤独立确定聚类数，生境标签不统一。 | [📖](doc/app_habitat_analysis.md) |
+| | **二步法聚类** | 两阶段聚类（个体supervoxels → 群体habitats），统一生境标签体系。 | [📖](doc/app_habitat_analysis.md) |
 | | **灵活的特征输入** | 支持多种体素级特征，包括原始信号强度、动态增强和影像组学特征。 | [📖](doc/app_habitat_analysis.md) |
 | 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、非影像组学统计、整体生境、独立生境、多区域空间交互（`msi`）和肿瘤内异质性（`ith_score`）等特征。 | [📖](doc/app_extracting_habitat_features.md) |
 | | **可配置引擎** | 使用PyRadiomics和可定制的参数文件进行定制化特征提取。 | [📖](doc/app_extracting_habitat_features.md) |
