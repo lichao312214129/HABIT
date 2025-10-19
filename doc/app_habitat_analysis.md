@@ -42,9 +42,8 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 ## 📋 配置文件说明
 
 **📖 配置文件链接**：
-- 🇨🇳 [详细中文配置](../config/config_getting_habitat_CN.yaml) - 包含完整的中文注释和使用说明
-- 🇬🇧 [详细英文配置](../config/config_getting_habitat_EN.yaml) - Complete English comments and instructions
-- 📄 [当前配置文件](../config/config_getting_habitat.yaml) - 实际使用的配置文件
+- 📄 [当前配置文件](../config/config_getting_habitat.yaml) - 实际使用的精简配置
+- 📖 [详细注释版](../config/config_getting_habitat_annotated.yaml) - 包含完整中英文双语注释和使用说明
 
 ### 关键配置项
 
@@ -266,11 +265,9 @@ FeatureConstruction:
 
 **二步法（经典Habitat方法）**:
 - Wu J, et al. "Intratumoral spatial heterogeneity at perfusion MR imaging predicts recurrence-free survival in locally advanced breast cancer treated with neoadjuvant chemotherapy." Radiology, 2018.
-- Zhou M, et al. "Radiomics in Brain Tumor: Image Assessment, Quantitative Feature Descriptors, and Machine-Learning Approaches." AJNR, 2018.
 
 **一步法（个性化分析）**:
-- 近期多项研究采用基于个体的聚类方法进行肿瘤异质性分析
-- 适用于精准医疗和个性化治疗研究
+- Nomogram for Predicting Neoadjuvant Chemotherapy  Response in Breast Cancer Using MRI-based Intratumoral  Heterogeneity Quantification
 
 ---
 

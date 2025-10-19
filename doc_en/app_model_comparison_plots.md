@@ -34,11 +34,10 @@ python scripts/app_model_comparison_plots.py --config <config_file_path>
 ## 📋 Configuration File
 
 **📖 Configuration File Links**:
-- 📄 [Current Configuration](../config/config_model_comparison.yaml) - Actual configuration file in use
-- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
-- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+- 📄 [Current Configuration](../config/config_model_comparison.yaml) - Concise configuration for actual use
+- 📖 Annotated Version (Coming Soon) - Complete detailed comments `config_model_comparison_annotated.yaml`
 
-> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+> 💡 **Tip**: Annotated config files are being prepared. See [Habitat config example](../config/config_getting_habitat_annotated.yaml) for reference format.
 
 ## Configuration File Format
 

@@ -1,0 +1,369 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Model Comparison Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   CLI:    habit compare --config config/config_model_comparison.yaml
+#   Script: python scripts/app_model_comparison_plots.py --config config/config_model_comparison.yaml
+#
+# 📚 Documentation:
+#   - Chinese: doc/app_model_comparison_plots.md
+#   - English: doc_en/app_model_comparison_plots.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📁 Output Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# All comparison results will be saved here:
+# - Plots (ROC, DCA, calibration, PR curves)
+# - Merged predictions CSV
+# - Statistical test results (DeLong test)
+# - Performance metrics tables
+#
+output_dir: ./ml_results/comparison
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Model Prediction Files Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Specify prediction files for each model to compare
+# Each model must have the same subjects (matched by subject_id)
+#
+# Required columns in each file:
+# - subject_id_col: Unique identifier for each subject
+# - label_col: True labels (0/1 for binary classification)
+# - prob_col: Predicted probabilities (0-1 continuous)
+# - pred_col: Predicted class labels (0/1)
+# - split_col: Data split identifier (e.g., "train", "test", "validation")
+#
+files_config:
+  # Model 1
+  - path: ./ml_results/model1/all_prediction_results.csv
+    model_name: Clinical Model              # Display name in plots and tables
+    subject_id_col: subjID                  # Column name for subject IDs
+    label_col: true_label                   # Column name for true labels
+    prob_col: prob                          # Column name for predicted probabilities
+    pred_col: pred                          # Column name for predicted classes
+    split_col: split                        # Column name for data split indicator
+  
+  # Model 2
+  - path: ./ml_results/model2/all_prediction_results.csv
+    model_name: Radiomics Model
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: LogisticRegression_prob       # Note: column name may vary by model
+    pred_col: LogisticRegression_pred
+    split_col: split
+  
+  # Model 3
+  - path: ./ml_results/model3/all_prediction_results.csv
+    model_name: Hybrid Model
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: XGBoost_prob
+    pred_col: XGBoost_pred
+    split_col: split
+  
+  # Add more models as needed
+  # - path: ./ml_results/model4/predictions.csv
+  #   model_name: Deep Learning Model
+  #   subject_id_col: PatientID            # Column names can differ between files
+  #   label_col: outcome
+  #   prob_col: probability
+  #   pred_col: prediction
+  #   split_col: dataset
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🔗 Merged Data Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Combines predictions from all models into a single CSV file
+# Useful for:
+# - External analysis
+# - Creating ensemble models
+# - Stacking multiple models
+#
+merged_data:
+  enabled: true                             # Whether to create merged file
+  save_name: combined_predictions.csv       # Output filename
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📈 Split Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Generate separate analyses for different data splits
+# Example: Compare model performance on train vs test sets
+#
+split:
+  enabled: true     # If true, generates separate plots for each split
+                    # If false, analyzes all data together
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Visualization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Controls which plots are generated and their settings
+#
+visualization:
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # ROC (Receiver Operating Characteristic) Curves
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Plots sensitivity vs (1 - specificity)
+  # - Shows trade-off between true positive and false positive rates
+  # - AUC (Area Under Curve) summarizes overall performance
+  # - AUC = 0.5: Random classifier
+  # - AUC = 1.0: Perfect classifier
+  # - AUC > 0.7: Generally acceptable
+  # - AUC > 0.8: Good performance
+  # - AUC > 0.9: Excellent performance
+  #
+  roc:
+    enabled: true                           # Generate ROC curves
+    save_name: roc_curves.pdf               # Output filename
+    title: ROC Curves                       # Plot title
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # DCA (Decision Curve Analysis)
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Evaluates clinical utility at different decision thresholds
+  # - Shows net benefit compared to "treat all" or "treat none" strategies
+  # - Helps determine optimal decision threshold for clinical use
+  # - Higher curves indicate better clinical value
+  # - X-axis: Threshold probability
+  # - Y-axis: Net benefit (true positives - weighted false positives)
+  #
+  dca:
+    enabled: true                           # Generate DCA curves
+    save_name: decision_curves.pdf          # Output filename
+    title: Decision Curves                  # Plot title
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Calibration Curves
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Shows how well predicted probabilities match actual outcomes
+  # - Perfect calibration: diagonal line (predicted = observed)
+  # - Above diagonal: Model underestimates risk
+  # - Below diagonal: Model overestimates risk
+  # - Important for clinical decision-making
+  #
+  calibration:
+    enabled: true                           # Generate calibration curves
+    save_name: calibration_curves.pdf       # Output filename
+    n_bins: 5                               # Number of probability bins (5-10 typical)
+    title: Calibration Curves               # Plot title
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Precision-Recall Curves
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Plots precision vs recall at various thresholds
+  # - Especially useful for imbalanced datasets
+  # - Precision: Of predicted positives, how many are truly positive
+  # - Recall: Of actual positives, how many are detected
+  # - AP (Average Precision) summarizes curve
+  #
+  pr_curve:
+    enabled: true                           # Generate PR curves
+    save_name: precision_recall_curves.pdf  # Output filename
+    title: Precision-Recall Curves          # Plot title
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Statistical Testing Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════════════
+# DeLong Test
+# ═══════════════════════════════════════════════════════════════════════
+# - Statistical test for comparing ROC curves (AUCs)
+# - Determines if difference in AUC is statistically significant
+# - Pairwise comparison between all models
+# - P < 0.05: Significant difference in AUC
+# - Accounts for correlation (same subjects tested on different models)
+#
+delong_test:
+  enabled: true                             # Perform DeLong test
+  save_name: delong_results.json            # Output filename (JSON format)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📈 Performance Metrics Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Calculate various performance metrics for model comparison
+#
+metrics:
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Basic Performance Metrics
+  # ═══════════════════════════════════════════════════════════════════════
+  # Calculates standard classification metrics:
+  # - Accuracy: Overall correctness
+  # - Sensitivity (Recall): True positive rate
+  # - Specificity: True negative rate
+  # - Precision (PPV): Positive predictive value
+  # - NPV: Negative predictive value
+  # - F1-score: Harmonic mean of precision and recall
+  # - AUC: Area under ROC curve
+  #
+  basic_metrics:
+    enabled: true
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Youden Index Metrics
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Finds optimal threshold using Youden's J statistic
+  # - Formula: J = Sensitivity + Specificity - 1
+  # - Maximizes sum of sensitivity and specificity
+  # - Calculates metrics at this optimal threshold
+  # - Good when sensitivity and specificity are equally important
+  #
+  youden_metrics:
+    enabled: true
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Target Performance Metrics
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Calculates metrics at user-specified sensitivity or specificity
+  # - Useful when clinical requirements prioritize one metric
+  # - Example: Find threshold where sensitivity >= 0.9
+  # - Then report corresponding specificity and other metrics
+  #
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.7      # Target sensitivity (0.0-1.0)
+                            # Finds threshold closest to this sensitivity
+      specificity: 0.7      # Target specificity (0.0-1.0)
+                            # Finds threshold closest to this specificity
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Compare two models
+#   files_config:
+#     - path: ./model1/predictions.csv
+#       model_name: Model A
+#       ...
+#     - path: ./model2/predictions.csv
+#       model_name: Model B
+#       ...
+#
+# Example 2: Compare models across train/test splits
+#   split:
+#     enabled: true
+#   # Generates separate comparisons for train and test sets
+#
+# Example 3: Focus on specific visualizations
+#   visualization:
+#     roc:
+#       enabled: true
+#     dca:
+#       enabled: false     # Skip DCA
+#     calibration:
+#       enabled: true
+#
+# Example 4: Compare clinical utility at specific targets
+#   metrics:
+#     target_metrics:
+#       enabled: true
+#       targets:
+#         sensitivity: 0.9  # High sensitivity for screening
+#         specificity: 0.9  # High specificity for confirmation
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📊 Expected Input Format
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Each prediction CSV file should have at minimum:
+#
+# subjID,true_label,prob,pred,split
+# patient_001,1,0.85,1,train
+# patient_002,0,0.23,0,train
+# patient_003,1,0.67,1,test
+# patient_004,0,0.15,0,test
+# ...
+#
+# Where:
+# - subjID: Unique patient identifier
+# - true_label: Actual outcome (0 or 1)
+# - prob: Predicted probability (0.0 to 1.0)
+# - pred: Predicted class (0 or 1)
+# - split: Dataset split (train, test, validation, etc.)
+#
+# ⚠️ Important:
+# - All files must contain the same subjects (matched by subject_id)
+# - Subject IDs must be identical across files
+# - Missing subjects will be excluded from comparison
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  Best Practices
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Model Selection:
+#    - Compare models trained on same data
+#    - Use consistent preprocessing across models
+#    - Include baseline model (e.g., LogisticRegression)
+#
+# 2. Statistical Significance:
+#    - Don't rely solely on AUC values
+#    - Use DeLong test to assess significance
+#    - Consider clinical significance vs statistical significance
+#
+# 3. Clinical Utility:
+#    - DCA curves show real-world value
+#    - Higher AUC doesn't always mean better clinical utility
+#    - Consider cost of false positives vs false negatives
+#
+# 4. Calibration:
+#    - Well-calibrated probabilities are crucial for clinical use
+#    - Recalibration may be needed even for high-AUC models
+#    - Check calibration curves before deployment
+#
+# 5. Split Analysis:
+#    - Compare train vs test performance
+#    - Large discrepancy indicates overfitting
+#    - Test set performance is what matters for deployment
+#
+# 6. Threshold Selection:
+#    - Youden index: Equal weight to sensitivity and specificity
+#    - Target metrics: When one metric is more important
+#    - Consider clinical context and costs
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit compare --help
+#
+# Documentation:
+#   - Chinese: doc/app_model_comparison_plots.md
+#   - English: doc_en/app_model_comparison_plots.md
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

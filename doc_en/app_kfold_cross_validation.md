@@ -48,11 +48,10 @@ python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yam
 ## 📋 Configuration File
 
 **📖 Configuration File Links**:
-- 📄 [Current Configuration](../config/config_machine_learning_kfold.yaml) - Actual configuration file in use
-- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
-- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+- 📄 [Current Configuration](../config/config_machine_learning_kfold.yaml) - Concise configuration for actual use
+- 📖 Annotated Version (Coming Soon) - Complete detailed comments `config_machine_learning_kfold_annotated.yaml`
 
-> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+> 💡 **Tip**: Annotated config files are being prepared. See [Habitat config example](../config/config_getting_habitat_annotated.yaml) for reference format.
 
 K-Fold cross-validation uses a dedicated configuration file: `config_machine_learning_kfold.yaml`.
 

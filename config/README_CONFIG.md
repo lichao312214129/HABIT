@@ -1,46 +1,68 @@
-# 配置文件说明 / Configuration Files Guide
+# Configuration Files Guide
 
-## 📋 可用配置文件 / Available Configuration Files
+## Overview
 
-| 配置文件 | 功能 | 中文详解 | English Guide |
-|---------|------|---------|---------------|
-| `config_getting_habitat.yaml` | Habitat分析 | [📖 中文](config_getting_habitat_CN.yaml) | [📖 EN](config_getting_habitat_EN.yaml) |
-| `config_machine_learning.yaml` | 机器学习 | [📖 中文](config_machine_learning_CN.yaml) | [📖 EN](config_machine_learning_EN.yaml) |
-| `config_machine_learning_kfold.yaml` | K折交叉验证 | [📖 中文](config_machine_learning_kfold_CN.yaml) | [📖 EN](config_machine_learning_kfold_EN.yaml) |
-| `config_image_preprocessing.yaml` | 图像预处理 | [📖 中文](config_image_preprocessing_CN.yaml) | [📖 EN](config_image_preprocessing_EN.yaml) |
-| `config_extract_features.yaml` | 特征提取 | [📖 中文](config_extract_features_CN.yaml) | [📖 EN](config_extract_features_EN.yaml) |
-| `config_model_comparison.yaml` | 模型比较 | [📖 中文](config_model_comparison_CN.yaml) | [📖 EN](config_model_comparison_EN.yaml) |
-| `config_icc_analysis.yaml` | ICC分析 | [📖 中文](config_icc_analysis_CN.yaml) | [📖 EN](config_icc_analysis_EN.yaml) |
+HABIT toolkit uses YAML configuration files to control all functionalities. Each module has **two versions**:
 
-## ⚠️ 重要提示 / Important Notes
+1. **Standard Version** (`config_xxx.yaml`) - Concise configuration for daily use
+2. **Annotated Version** (`config_xxx_annotated.yaml`) - Detailed English comments explaining all parameters
 
-### YAML格式规范
+## 📂 Available Configuration Files
 
-1. **缩进**：
-   - ✅ 使用**2个空格**进行缩进
-   - ❌ **不要使用Tab键**
-   - 保持层级关系清晰
+| Config File | Annotated Version | Module | Status |
+|-------------|-------------------|--------|--------|
+| `config_getting_habitat.yaml` | [`config_getting_habitat_annotated.yaml`](config_getting_habitat_annotated.yaml) | Habitat Analysis | ✅ Complete |
+| `config_extract_features.yaml` | [`config_extract_features_annotated.yaml`](config_extract_features_annotated.yaml) | Feature Extraction | ✅ Complete |
+| `config_machine_learning.yaml` | [`config_machine_learning_annotated.yaml`](config_machine_learning_annotated.yaml) | Machine Learning | ✅ Complete |
+| `config_machine_learning_kfold.yaml` | [`config_machine_learning_kfold_annotated.yaml`](config_machine_learning_kfold_annotated.yaml) | K-Fold Cross-Validation | ✅ Complete |
+| `config_model_comparison.yaml` | [`config_model_comparison_annotated.yaml`](config_model_comparison_annotated.yaml) | Model Comparison | ✅ Complete |
+| `config_icc_analysis.yaml` | [`config_icc_analysis_annotated.yaml`](config_icc_analysis_annotated.yaml) | ICC Analysis | ✅ Complete |
+| `config_image_preprocessing.yaml` | [`config_image_preprocessing_annotated.yaml`](config_image_preprocessing_annotated.yaml) | Image Preprocessing | ✅ Complete |
+| `config_traditional_radiomics.yaml` | [`config_traditional_radiomics_annotated.yaml`](config_traditional_radiomics_annotated.yaml) | Traditional Radiomics | ✅ Complete |
+| `config_habitat_test_retest.yaml` | `config_habitat_test_retest_annotated.yaml` | Test-Retest Mapping | 🔄 Coming Soon |
+| `config_image_preprocessing_dcm2nii.yaml` | `config_image_preprocessing_dcm2nii_annotated.yaml` | DICOM Conversion | 🔄 Coming Soon |
 
-2. **冒号**：
-   - 冒号后面**必须有空格**: `key: value`
-   - 如果值为空，可以不写或写 `null`
+## 💡 How to Use
 
-3. **列表**：
-   - 使用 `-` 开头
-   - `-` 后面**必须有空格**
+### For Quick Start
+Use the **standard version** (e.g., `config_getting_habitat.yaml`) for quick execution.
 
-4. **注释**：
-   - 使用 `#` 开头
-   - 可以单独一行或在行尾
+### For Learning & Customization
+Refer to the **annotated version** (e.g., `config_getting_habitat_annotated.yaml`) to:
+- Understand each parameter's purpose and options
+- See usage examples and recommendations
+- Learn valid value ranges and default settings
+- Get tips on parameter tuning
 
-5. **字符串**：
-   - 一般不需要引号
-   - 包含特殊字符时使用引号
+## ⚠️ YAML Format Specification
 
-### 示例 / Examples
+**Important formatting rules**:
+
+1. **Indentation**:
+   - ✅ Use **2 spaces** (DO NOT use Tab)
+   - ❌ Never use Tab key
+   - Keep hierarchy clear
+
+2. **Colon**:
+   - Space **required** after colon: `key: value`
+   - Empty values can be omitted or set to `null`
+
+3. **Lists**:
+   - Start with `-` symbol
+   - Space **required** after `-`
+
+4. **Comments**:
+   - Start with `#` symbol
+   - Can be on separate line or at line end
+
+5. **Strings**:
+   - Usually no quotes needed
+   - Use quotes when containing special characters
+
+### Example
 
 ```yaml
-# ✅ 正确格式 / Correct Format
+# ✅ Correct Format
 data_dir: ./data
 output: ./results
 settings:
@@ -50,42 +72,57 @@ settings:
     - item1
     - item2
 
-# ❌ 错误格式 / Wrong Format
-data_dir:./data                 # 冒号后缺少空格
+# ❌ Wrong Format
+data_dir:./data                 # Missing space after colon
 output: ./results
 settings:
-    key1: value1                # 缩进用了4个空格（应该是2个）
-  key2: value2                  # 缩进不一致
+    key1: value1                # Wrong indentation (4 spaces instead of 2)
+  key2: value2                  # Inconsistent indentation
     list:
-    -item1                      # 连字符后缺少空格
+    -item1                      # Missing space after dash
 ```
 
-## 🔧 配置文件使用 / Configuration Usage
+## 🔧 Configuration Usage
 
-### CLI方式 / Using CLI
+### Using CLI (Recommended)
 
 ```bash
-# 使用默认配置
+# Use default configuration
 habit habitat
 
-# 使用指定配置文件
+# Use specified configuration file
 habit habitat --config config/config_getting_habitat.yaml
 
-# 简写
+# Short form
 habit habitat -c config/config_getting_habitat.yaml
 ```
 
-### 脚本方式 / Using Scripts
+### Using Scripts (Legacy)
 
 ```bash
 python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
 ```
 
-## 📝 配置文件模板 / Configuration Templates
+## 📝 Creating New Annotated Files
 
-详细的配置文件模板请参考带 `_CN` 或 `_EN` 后缀的文件。
+When creating new annotated configuration files:
+
+1. **Use Template**: Refer to [`config_getting_habitat_annotated.yaml`](config_getting_habitat_annotated.yaml) as template
+2. **Follow Structure**: Include headers, sections with clear dividers, detailed comments
+3. **Document Parameters**: For each parameter, include:
+   - Purpose and function
+   - Valid options/values
+   - Default values
+   - Usage examples
+   - Tips and warnings
+4. **Update This File**: Add entry to the table above after completion
+
+## 📚 Related Documentation
+
+- **Main README**: [README.md](../README.md) / [README_en.md](../README_en.md)
+- **Habitat Analysis**: [doc/app_habitat_analysis.md](../doc/app_habitat_analysis.md) / [doc_en/app_habitat_analysis.md](../doc_en/app_habitat_analysis.md)
+- **Machine Learning**: [doc/app_of_machine_learning.md](../doc/app_of_machine_learning.md) / [doc_en/app_of_machine_learning.md](../doc_en/app_of_machine_learning.md)
 
 ---
 
-*最后更新 / Last Updated: 2025-10-19*
-
+*Last Updated: 2025-10-19*

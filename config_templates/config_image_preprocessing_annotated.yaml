@@ -1,0 +1,373 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Image Preprocessing Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   CLI:    habit preprocess --config config/config_image_preprocessing.yaml
+#   Script: python scripts/app_image_preprocessing.py --config config/config_image_preprocessing.yaml
+#
+# 📚 Documentation:
+#   - Chinese: doc/app_image_preprocessing.md
+#   - English: doc_en/app_image_preprocessing.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📂 Data Paths
+# ─────────────────────────────────────────────────────────────────────────
+
+# Raw data directory containing original images
+# Expected structure:
+#   data_dir/
+#     ├── subject_001/
+#     │   ├── image1.nrrd
+#     │   ├── image2.nrrd
+#     │   ├── mask.nrrd
+#     │   └── ...
+#     ├── subject_002/
+#     │   └── ...
+data_dir: ./data/raw_images
+
+# Output directory for preprocessed images
+# Creates same structure as input:
+#   out_dir/
+#     ├── subject_001/
+#     │   ├── image1_preprocessed.nrrd
+#     │   ├── image2_preprocessed.nrrd
+#     │   └── ...
+out_dir: ./data/preprocessed_images
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🔧 Preprocessing Pipeline
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Preprocessing steps are applied in the order specified below
+# Comment out (add #) any step you don't want to apply
+#
+Preprocessing:
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # N4 Bias Field Correction
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Corrects intensity non-uniformity in MRI images
+  # - Removes low-frequency intensity artifacts
+  # - Essential for quantitative MRI analysis
+  # - Uses N4ITK algorithm (improved N3)
+  #
+  # When to use:
+  #   - MRI images (T1, T2, FLAIR, etc.)
+  #   - Before normalization
+  #   - Before intensity-based analysis
+  #
+  # When to skip:
+  #   - CT images (no bias field)
+  #   - Already corrected images
+  #   - PET images
+  #
+  # n4_correction:
+  #   images: [T1, T2, FLAIR]              # Images to correct
+  #   num_fitting_levels: 4                # Number of fitting levels (2-4 typical)
+  #                                        # More levels = slower but more accurate
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Resampling
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Standardizes voxel spacing across subjects
+  # - Interpolates image to new resolution
+  # - Essential for comparing features across subjects
+  # - Uses linear interpolation for images, nearest neighbor for masks
+  #
+  # Target spacing:
+  #   - Isotropic (e.g., [1.0, 1.0, 1.0]): Same resolution in all directions
+  #   - Anisotropic (e.g., [1.0, 1.0, 3.0]): Different z-resolution
+  #   - Smaller values = higher resolution = more memory
+  #   - Larger values = lower resolution = less detail
+  #
+  # Typical values:
+  #   - High-res: [0.5, 0.5, 0.5] mm
+  #   - Standard: [1.0, 1.0, 1.0] mm
+  #   - Low-res: [2.0, 2.0, 2.0] mm
+  #
+  # resample:
+  #   images: [T1, T2, DWI, ADC]           # Images to resample
+  #   target_spacing: [1.0, 1.0, 1.0]      # Target voxel spacing [x, y, z] in mm
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Z-Score Normalization
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Standardizes intensity distribution
+  # - Formula: (x - mean) / std
+  # - Centers data to mean=0, std=1
+  # - Makes intensities comparable across subjects
+  #
+  # Options:
+  #   - only_inmask: false → Uses whole image statistics
+  #   - only_inmask: true → Uses only masked region statistics
+  #
+  # When to use:
+  #   - MRI images (arbitrary intensity scales)
+  #   - Before machine learning
+  #   - For comparing intensity-based features
+  #
+  # When to skip:
+  #   - CT images (use window/level instead)
+  #   - After histogram standardization
+  #   - If absolute intensities are meaningful
+  #
+  # zscore_normalization:
+  #   images: [T1, T2, DWI]               # Images to normalize
+  #   only_inmask: false                  # Use whole image or masked region
+  #   # mask_key: tumor_mask              # Mask name if only_inmask: true
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Histogram Standardization
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Matches intensity distributions across subjects
+  # - Aligns histograms to a reference image
+  # - More sophisticated than z-score
+  # - Preserves relative intensity relationships
+  #
+  # Process:
+  #   1. Build reference histogram from one subject
+  #   2. Map other subjects' histograms to match reference
+  #   3. Ensures consistent intensity meaning across subjects
+  #
+  # When to use:
+  #   - Multi-center studies
+  #   - Different scanner protocols
+  #   - Longitudinal studies
+  #
+  # histogram_standardization:
+  #   images: [T1, T2, FLAIR]             # Images to standardize
+  #   reference_key: T1                   # Reference image for histogram matching
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Image Registration
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Aligns multiple images to same coordinate space
+  # - Corrects patient motion between scans
+  # - Enables multi-modal analysis
+  # - Uses ANTs (Advanced Normalization Tools)
+  #
+  # Components:
+  #   - Fixed image: Target space (doesn't move)
+  #   - Moving images: Images to be aligned to fixed image
+  #   - Transform type: Registration algorithm
+  #   - Mask: Optional mask to focus registration
+  #
+  # Transform types (ANTs):
+  #   - Rigid: Translation + rotation (6 DOF)
+  #   - Affine: Rigid + scaling + shearing (12 DOF)
+  #   - SyN: Symmetric diffeomorphic (deformable)
+  #   - SyNRA: SyN with Rigid + Affine initialization (recommended)
+  #   - SyNAggro: Aggressive SyN (for large deformations)
+  #
+  # When to use:
+  #   - Multi-modal imaging (T1 + T2 + DWI)
+  #   - Time-series analysis
+  #   - Before radiomics extraction
+  #
+  registration:
+    images: [T2, ADC]                     # All images involved in registration
+    fixed_image: T2                       # Reference image (stays still)
+    moving_images: [ADC]                  # Images to align to fixed_image
+    type_of_transform: SyNRA              # Registration method
+    use_mask: false                       # Use mask to guide registration
+    # mask_key: tumor_mask                # Mask name if use_mask: true
+  
+  # Additional transform options:
+  #   - Translation: Only translational alignment
+  #   - Rigid: Translation + rotation
+  #   - Affine: Linear transformations
+  #   - SyN: Deformable (slow, high accuracy)
+  #   - SyNRA: Deformable with rigid initialization (recommended)
+  #   - BSplineSyN: B-spline deformable
+  #   - SyNCC: SyN with cross-correlation metric
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# ⚙️ General Settings
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+# - 1: Sequential processing (easier debugging)
+# - N: Process N subjects in parallel
+# - Recommendation: Number of CPU cores / 2
+# - Warning: Registration is memory-intensive
+processes: 4
+
+# Random seed for reproducibility
+# - Ensures deterministic results
+# - Important for registration algorithms
+random_state: 42
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Minimal preprocessing (resample + normalize)
+#   Preprocessing:
+#     resample:
+#       images: [T1, T2]
+#       target_spacing: [1.0, 1.0, 1.0]
+#     zscore_normalization:
+#       images: [T1, T2]
+#       only_inmask: false
+#
+# Example 2: Full MRI preprocessing pipeline
+#   Preprocessing:
+#     n4_correction:
+#       images: [T1, T2, FLAIR]
+#       num_fitting_levels: 4
+#     resample:
+#       images: [T1, T2, FLAIR]
+#       target_spacing: [1.0, 1.0, 1.0]
+#     registration:
+#       images: [T1, T2, FLAIR]
+#       fixed_image: T1
+#       moving_images: [T2, FLAIR]
+#       type_of_transform: SyNRA
+#     zscore_normalization:
+#       images: [T1, T2, FLAIR]
+#       only_inmask: false
+#
+# Example 3: Multi-modal registration only
+#   Preprocessing:
+#     registration:
+#       images: [T1, T2, DWI, ADC]
+#       fixed_image: T1
+#       moving_images: [T2, DWI, ADC]
+#       type_of_transform: Affine  # Faster than SyN
+#
+# Example 4: Mask-guided preprocessing
+#   Preprocessing:
+#     n4_correction:
+#       images: [T1]
+#       num_fitting_levels: 4
+#     resample:
+#       images: [T1, tumor_mask]
+#       target_spacing: [1.0, 1.0, 1.0]
+#     zscore_normalization:
+#       images: [T1]
+#       only_inmask: true
+#       mask_key: tumor_mask
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📊 Recommended Preprocessing Pipelines
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# For Brain MRI:
+#   1. N4 bias correction
+#   2. Registration to template
+#   3. Skull stripping
+#   4. Intensity normalization
+#
+# For Body MRI:
+#   1. N4 bias correction (optional)
+#   2. Resampling to isotropic voxels
+#   3. Multi-sequence registration
+#   4. Z-score normalization within ROI
+#
+# For CT:
+#   1. Resampling to standard resolution
+#   2. Registration if multiple phases
+#   3. Window/level adjustment (not z-score)
+#
+# For PET:
+#   1. Resampling
+#   2. SUV normalization
+#   3. Registration to anatomical image (CT/MRI)
+#
+# For Multi-modal (PET/CT or PET/MRI):
+#   1. Preprocess each modality separately
+#   2. Register PET to anatomical
+#   3. Resample to common space
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  Best Practices
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Pipeline Order Matters:
+#    Recommended order:
+#    a) N4 correction (if needed)
+#    b) Resampling
+#    c) Registration
+#    d) Normalization (last step)
+#
+# 2. Resampling:
+#    - Resample all images to same spacing
+#    - Do this BEFORE registration for faster processing
+#    - Match target spacing to original resolution (don't upscale too much)
+#    - Isotropic voxels preferred for 3D analysis
+#
+# 3. Registration:
+#    - Choose appropriate transform type:
+#      * Rigid/Affine for intra-subject, same modality
+#      * SyN/SyNRA for inter-subject or different modalities
+#    - SyNRA is good default (rigid + deformable)
+#    - Use masks to focus on region of interest
+#    - Verify registration quality visually
+#
+# 4. Normalization:
+#    - Always normalize AFTER other preprocessing
+#    - Z-score for MRI
+#    - Histogram standardization for multi-center studies
+#    - Normalize within mask for tumor-specific features
+#
+# 5. Quality Control:
+#    - Visually inspect preprocessed images
+#    - Check for artifacts or failed registrations
+#    - Verify intensity distributions are reasonable
+#    - Save preprocessing parameters with results
+#
+# 6. Computational Resources:
+#    - Registration is most expensive step
+#    - Start with processes=1 to test
+#    - Increase based on available RAM
+#    - Each registration may need 4-8 GB RAM
+#
+# 7. File Formats:
+#    - NIfTI (.nii, .nii.gz) or NRRD (.nrrd) recommended
+#    - Ensure consistent orientation
+#    - Preserve metadata (spacing, origin, direction)
+#
+# 8. Common Pitfalls:
+#    - Normalizing before registration (intensities change)
+#    - Resampling masks with linear interpolation (use nearest neighbor)
+#    - Inconsistent spacing across subjects (always resample)
+#    - Not checking registration quality
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit preprocess --help
+#
+# Documentation:
+#   - Chinese: doc/app_image_preprocessing.md
+#   - English: doc_en/app_image_preprocessing.md
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# ANTs documentation:
+#   http://stnava.github.io/ANTs/
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

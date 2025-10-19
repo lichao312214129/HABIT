@@ -42,9 +42,8 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 ## 📋 Configuration File
 
 **📖 Configuration File Links**:
-- 🇬🇧 [Detailed English Configuration](../config/config_getting_habitat_EN.yaml) - Complete English comments and instructions
-- 🇨🇳 [详细中文配置](../config/config_getting_habitat_CN.yaml) - Includes complete Chinese comments and instructions
-- 📄 [Current Configuration](../config/config_getting_habitat.yaml) - Actual configuration file in use
+- 📄 [Current Configuration](../config/config_getting_habitat.yaml) - Concise configuration for actual use
+- 📖 [Annotated Version](../config/config_getting_habitat_annotated.yaml) - Complete bilingual (EN/CN) comments and instructions
 
 ### Key Configuration Items
 
@@ -266,11 +265,9 @@ FeatureConstruction:
 
 **Two-Step Method (Classic Habitat)**:
 - Wu J, et al. "Intratumoral spatial heterogeneity at perfusion MR imaging predicts recurrence-free survival in locally advanced breast cancer treated with neoadjuvant chemotherapy." Radiology, 2018.
-- Zhou M, et al. "Radiomics in Brain Tumor: Image Assessment, Quantitative Feature Descriptors, and Machine-Learning Approaches." AJNR, 2018.
 
 **One-Step Method (Personalized Analysis)**:
-- Recent studies adopt individual-based clustering for tumor heterogeneity analysis
-- Suitable for precision medicine and personalized treatment research
+- Nomogram for Predicting Neoadjuvant Chemotherapy  Response in Breast Cancer Using MRI-based Intratumoral  Heterogeneity Quantification
 
 ---
 

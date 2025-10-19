@@ -1,0 +1,338 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# K-Fold Cross-Validation Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   CLI:    habit kfold --config config/config_machine_learning_kfold.yaml
+#   Script: python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yaml
+#
+# 📚 Documentation:
+#   - Chinese: doc/app_kfold_cross_validation.md
+#   - English: doc_en/app_kfold_cross_validation.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📂 Data Input Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Same format as standard machine learning config
+# Multiple files can be merged for feature fusion
+#
+input:
+  - path: ./ml_data/breast_cancer_dataset.csv  # Path to CSV file
+    name: clinical_                             # Feature name prefix
+    subject_id_col: subjID                      # Subject ID column
+    label_col: label                            # Target label column (0/1)
+    features:                                   # Optional: specify features to use
+                                                # Empty list = use all features
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📁 Output Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Directory structure created:
+#   output/
+#     ├── fold_0/
+#     │   ├── predictions.csv
+#     │   ├── feature_importance.csv
+#     │   └── model.pkl (if is_save_model: true)
+#     ├── fold_1/
+#     │   └── ...
+#     ├── aggregated_results.json
+#     ├── all_prediction_results.csv
+#     ├── kfold_roc_curves.pdf
+#     ├── kfold_calibration_curves.pdf
+#     ├── kfold_dca_curves.pdf
+#     └── confusion_matrix_*.pdf
+#
+output: ./ml_data/kfold_results
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🔄 K-Fold Cross-Validation Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# K-Fold splits data into K equal folds:
+# - Each fold serves as test set once
+# - Remaining K-1 folds serve as training set
+# - Results are averaged across all folds
+#
+# Benefits:
+# - More reliable performance estimate
+# - Uses all data for both training and testing
+# - Reduces bias from single train-test split
+# - Essential for small datasets
+#
+# Drawbacks:
+# - K times more computation
+# - Can be slow for large datasets or complex models
+#
+
+# Number of folds
+# - Typical values: 5, 10
+# - Higher K: More data for training per fold, but more computation
+# - Lower K: Faster, but higher variance in estimates
+# - K = N: Leave-One-Out CV (LOOCV, only for small datasets)
+# - Recommendation: 5-10 for most cases
+n_splits: 5
+
+# Stratified K-Fold
+# - true: Maintains class distribution in each fold
+# - false: Random split without considering class balance
+# - Recommendation: Always use true for classification tasks
+stratified: true
+
+# Random seed
+# - Ensures reproducible fold splits
+# - Change to get different random splits
+random_state: 42
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Normalization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ Important: Normalization is fitted on training folds only
+# - Training folds: fit_transform()
+# - Test fold: transform() using training statistics
+# - Prevents data leakage
+#
+# See config_machine_learning_annotated.yaml for all normalization options
+#
+normalization:
+  method: z_score  # Recommended: z_score standardization
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🔍 Feature Selection Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ Critical: Feature selection is performed WITHIN each fold
+# - Fitted on training folds only
+# - Applied to test fold using training parameters
+# - Prevents data leakage
+# - Each fold may select slightly different features
+#
+# See config_machine_learning_annotated.yaml for all feature selection methods
+#
+feature_selection_methods:
+  - method: correlation
+    params:
+      threshold: 0.80
+      method: spearman       # Options: pearson, spearman, kendall
+      visualize: false       # Set true to generate correlation heatmaps per fold
+      before_z_score: false
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Visualization and Saving Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# is_visualize: Generate performance plots
+# - true: Creates ROC, calibration, DCA curves, and confusion matrices
+# - false: Skips visualization (faster, saves disk space)
+# - Visualizations aggregate predictions from all folds
+#
+is_visualize: true
+
+# is_save_model: Save trained models from each fold
+# - true: Saves K models (one per fold) as .pkl files
+# - false: Only saves predictions and metrics (recommended)
+# - Warning: Saving all fold models can use significant disk space
+# - Use case: If you need to apply specific fold models later
+#
+is_save_model: false
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🤖 Model Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Multiple models can be trained in parallel
+# Each model is trained K times (once per fold)
+#
+# See config_machine_learning_annotated.yaml for detailed model parameters
+#
+models:
+  
+  # Logistic Regression
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: "l2"
+      solver: "lbfgs"
+  
+  # Random Forest
+  RandomForest:
+    params:
+      random_state: 42
+      n_estimators: 100      # Number of trees
+      max_depth: null        # Unlimited depth (may overfit on small folds)
+      max_features: "sqrt"   # sqrt(n_features) per split
+  
+  # XGBoost
+  XGBoost:
+    params:
+      random_state: 42
+      n_estimators: 100
+      max_depth: 3
+      learning_rate: 0.1
+  
+  # K-Nearest Neighbors
+  # KNN:
+  #   params:
+  #     n_neighbors: 5
+  #     weights: "uniform"
+  
+  # Multi-layer Perceptron
+  # MLP:
+  #   params:
+  #     random_state: 42
+  #     hidden_layer_sizes: [100, 50]
+  #     max_iter: 200
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📈 Additional Visualization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Fine-grained control over visualization outputs
+# Only applies if is_visualize: true
+#
+visualization:
+  enabled: true
+  
+  # Plot types to generate
+  plot_types:
+    - roc            # ROC curves comparing all models
+    - calibration    # Calibration curves
+    - confusion      # Confusion matrix for each model
+    - dca            # Decision curve analysis
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Standard 5-fold CV
+#   n_splits: 5
+#   stratified: true
+#   models:
+#     LogisticRegression: {...}
+#
+# Example 2: 10-fold CV for more robust estimates
+#   n_splits: 10
+#   stratified: true
+#
+# Example 3: Compare multiple models
+#   models:
+#     LogisticRegression: {...}
+#     RandomForest: {...}
+#     XGBoost: {...}
+#     SVM: {...}
+#
+# Example 4: Leave-One-Out CV (only for small datasets, N < 100)
+#   n_splits: 100  # Set to number of samples
+#   stratified: false
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📊 Output Files Explained
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. aggregated_results.json
+#    - Mean ± std metrics across all folds
+#    - Per-fold metrics
+#    - Model comparison statistics
+#
+# 2. all_prediction_results.csv
+#    - Combined predictions from all folds
+#    - Columns: subjID, true_label, <model>_prob, <model>_pred, split
+#    - Compatible with model comparison tool
+#
+# 3. kfold_roc_curves.pdf
+#    - ROC curves for all models
+#    - Mean AUC displayed in legend
+#
+# 4. kfold_calibration_curves.pdf
+#    - Calibration plots for all models
+#    - Shows prediction reliability
+#
+# 5. kfold_dca_curves.pdf
+#    - Decision curve analysis
+#    - Evaluates clinical utility
+#
+# 6. confusion_matrix_<model>.pdf
+#    - Confusion matrix for each model
+#    - Aggregated across all folds
+#
+# 7. fold_*/
+#    - Per-fold results
+#    - Useful for analyzing fold-specific performance
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  Best Practices
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Data Leakage Prevention:
+#    - Feature selection MUST be inside CV loop
+#    - Normalization MUST be fitted on training folds only
+#    - Never use test fold information for training
+#
+# 2. Computational Efficiency:
+#    - Start with n_splits=5 for initial experiments
+#    - Use n_splits=10 for final evaluation
+#    - Set is_save_model=false to save disk space
+#
+# 3. Model Selection:
+#    - Compare multiple models simultaneously
+#    - Check if performance is consistent across folds
+#    - High variance across folds may indicate overfitting
+#
+# 4. Small Datasets (N < 100):
+#    - Consider using stratified k-fold
+#    - May need to reduce model complexity
+#    - Consider simpler models (LogisticRegression, GaussianNB)
+#
+# 5. Imbalanced Data:
+#    - Always use stratified=true
+#    - Monitor precision/recall balance
+#    - Consider class_weight="balanced" in models
+#
+# 6. Interpreting Results:
+#    - Check std across folds (high std = unstable model)
+#    - Compare mean metrics, not just best fold
+#    - All folds should show consistent performance
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit kfold --help
+#
+# Documentation:
+#   - Chinese: doc/app_kfold_cross_validation.md
+#   - English: doc_en/app_kfold_cross_validation.md
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

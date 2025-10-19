@@ -1,0 +1,309 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# ICC Analysis Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   CLI:    habit icc --config config/config_icc_analysis.yaml
+#   Script: python scripts/app_icc_analysis.py --config config/config_icc_analysis.yaml
+#
+# 📚 Documentation:
+#   - Chinese: doc/app_icc_analysis.md
+#   - English: doc_en/app_icc_analysis.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📥 Input Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# ICC (Intraclass Correlation Coefficient) Analysis
+# - Measures test-retest reliability
+# - Assesses inter-rater agreement
+# - Evaluates feature reproducibility
+# - Values range from 0 (no agreement) to 1 (perfect agreement)
+#
+# ICC Interpretation:
+# - ICC < 0.40: Poor reliability
+# - ICC 0.40-0.59: Fair reliability
+# - ICC 0.60-0.74: Good reliability
+# - ICC 0.75-1.00: Excellent reliability
+#
+input:
+  # Input type
+  # - "files": Specify exact file pairs/groups to compare
+  # - "directories": Auto-match files across directories by filename
+  type: "files"  # Options: files, directories
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # File Groups Configuration (when type = "files")
+  # ═══════════════════════════════════════════════════════════════════════
+  # Each inner list represents a group of files to compare
+  # - 2 files: Test-retest reliability (same raters, different times)
+  # - 3+ files: Inter-rater reliability (different raters/methods)
+  #
+  # File format requirements:
+  # - CSV format
+  # - First column: Subject IDs (must match across files)
+  # - Other columns: Features to analyze
+  # - Column names must match across files
+  #
+  # ⚠️ Important:
+  # - Exclude non-numeric columns (labels, categories)
+  # - Exclude identifier columns
+  # - All files in a group must have same subjects
+  #
+  file_groups:
+    # Group 1: Compare ITH scores
+    # Example: Original scan vs rescan
+    - [./features/scan1_ith_scores.csv, ./features/scan2_ith_scores.csv]
+    
+    # Group 2: Compare MSI features
+    - [./features/scan1_msi_features.csv, ./features/scan2_msi_features.csv]
+    
+    # Group 3: Compare habitat radiomics
+    - [./features/scan1_habitat_radiomics.csv, ./features/scan2_habitat_radiomics.csv]
+    
+    # Group 4: Compare basic features
+    - [./features/scan1_habitat_basic_features.csv, ./features/scan2_habitat_basic_features.csv]
+    
+    # Group 5: Compare raw image radiomics
+    - [./features/scan1_raw_image_radiomics.csv, ./features/scan2_raw_image_radiomics.csv]
+    
+    # Example: Three-way comparison (e.g., three different preprocessing methods)
+    # - [./features/method1_features.csv, ./features/method2_features.csv, ./features/method3_features.csv]
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Directory List Configuration (when type = "directories")
+  # ═══════════════════════════════════════════════════════════════════════
+  # System automatically matches files with same names across directories
+  #
+  # Example structure:
+  #   dir1/
+  #     ├── ith_scores.csv
+  #     ├── msi_features.csv
+  #     └── radiomics.csv
+  #   dir2/
+  #     ├── ith_scores.csv
+  #     ├── msi_features.csv
+  #     └── radiomics.csv
+  #
+  # Result: Three comparisons (one per filename)
+  #
+  # dir_list:
+  #   - ./results/scan1_features
+  #   - ./results/scan2_features
+  #   - ./results/scan3_features  # Optional: for 3-way comparison
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📤 Output Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Output JSON file contains:
+# - ICC values for each feature
+# - 95% confidence intervals
+# - Feature reliability classification
+# - Summary statistics
+#
+# JSON structure:
+# {
+#   "group1_comparison": {
+#     "feature1": {
+#       "icc": 0.85,
+#       "ci_lower": 0.75,
+#       "ci_upper": 0.92,
+#       "reliability": "excellent"
+#     },
+#     ...
+#   },
+#   ...
+# }
+#
+output:
+  path: ./results/icc_results.json  # Output file path
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# ⚙️ Processing Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+# - null or None: Use all available CPU cores
+# - 1: Sequential processing (easier debugging)
+# - N: Use N parallel processes
+# - Recommendation: Leave as null for maximum speed
+processes: 6  # Set to desired number or null for all cores
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🐛 Debug Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Enable debug mode
+# - true: Detailed logging, intermediate results
+# - false: Standard logging
+debug: false
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Test-retest reliability (2 scans)
+#   input:
+#     type: "files"
+#     file_groups:
+#       - [./scan1/features.csv, ./scan2/features.csv]
+#
+# Example 2: Inter-rater reliability (3 raters)
+#   input:
+#     type: "files"
+#     file_groups:
+#       - [./rater1/features.csv, ./rater2/features.csv, ./rater3/features.csv]
+#
+# Example 3: Auto-match files across directories
+#   input:
+#     type: "directories"
+#     dir_list:
+#       - ./experiment1
+#       - ./experiment2
+#
+# Example 4: Multiple feature sets
+#   input:
+#     type: "files"
+#     file_groups:
+#       - [./scan1/radiomics.csv, ./scan2/radiomics.csv]
+#       - [./scan1/clinical.csv, ./scan2/clinical.csv]
+#       - [./scan1/deep_features.csv, ./scan2/deep_features.csv]
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📊 ICC Calculation Details
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# ICC Type Used: ICC(3,1) - Two-way mixed effects, single rater/measurement
+# - Suitable for test-retest reliability
+# - Assumes systematic differences between raters/methods
+# - Focuses on absolute agreement
+#
+# Formula:
+#   ICC(3,1) = (MS_subjects - MS_error) / (MS_subjects + (k-1)*MS_error)
+#
+# Where:
+#   - MS_subjects: Mean square between subjects
+#   - MS_error: Mean square error
+#   - k: Number of raters/measurements
+#
+# Confidence Intervals:
+#   - Calculated using F-distribution
+#   - Default: 95% CI
+#   - Wider CIs indicate more uncertainty
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  Best Practices
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Data Preparation:
+#    - Ensure subject IDs match exactly across files
+#    - Remove non-numeric columns (except first column with IDs)
+#    - Exclude label/outcome columns
+#    - Handle missing values before ICC analysis
+#
+# 2. Sample Size:
+#    - Minimum: 10-15 subjects
+#    - Recommended: 30+ subjects for stable estimates
+#    - More subjects → narrower confidence intervals
+#
+# 3. Feature Selection:
+#    - Use ICC results to filter unreliable features
+#    - Threshold: ICC ≥ 0.75 for excellent reliability
+#    - Threshold: ICC ≥ 0.60 for acceptable reliability
+#    - Remove features with ICC < 0.40 (poor reliability)
+#
+# 4. Interpretation:
+#    - Don't rely solely on ICC value
+#    - Check confidence intervals (CI width indicates precision)
+#    - Wide CIs suggest small sample size or high variability
+#    - Consider clinical relevance alongside statistical metrics
+#
+# 5. Multiple Comparisons:
+#    - Analyze multiple feature sets separately
+#    - Compare ICC values across feature types
+#    - Higher ICC for simple features is expected
+#    - Texture features typically have lower ICC than shape features
+#
+# 6. Quality Control:
+#    - Verify same preprocessing applied to all scans
+#    - Check for systematic differences (bias)
+#    - Investigate features with unexpectedly low ICC
+#    - May indicate preprocessing issues or true biological variation
+#
+# 7. Reporting:
+#    - Report ICC values with 95% CIs
+#    - Specify ICC type used: ICC(3,1)
+#    - Report number of subjects
+#    - Describe any excluded features
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📖 Use Cases
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Test-Retest Reliability Study:
+#    - Same patients scanned twice
+#    - Assess feature reproducibility over time
+#    - Identify stable biomarkers
+#
+# 2. Inter-Scanner Reliability:
+#    - Same patients scanned on different scanners
+#    - Assess cross-scanner generalizability
+#    - Important for multi-center studies
+#
+# 3. Inter-Rater Reliability:
+#    - Multiple raters segment same images
+#    - Assess segmentation consistency
+#    - Quality control for manual segmentation
+#
+# 4. Preprocessing Method Comparison:
+#    - Same data with different preprocessing
+#    - Assess impact of preprocessing choices
+#    - Select robust preprocessing pipeline
+#
+# 5. Feature Engineering Validation:
+#    - Compare original vs derived features
+#    - Assess if new features are reliable
+#    - Validate custom feature calculations
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit icc --help
+#
+# Documentation:
+#   - Chinese: doc/app_icc_analysis.md
+#   - English: doc_en/app_icc_analysis.md
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# ICC Reference:
+#   Shrout PE, Fleiss JL. Intraclass correlations: uses in assessing rater reliability.
+#   Psychol Bull. 1979;86(2):420-428.
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

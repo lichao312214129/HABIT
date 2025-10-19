@@ -1,0 +1,327 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Traditional Radiomics Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   CLI:    habit radiomics --config config/config_traditional_radiomics.yaml
+#   Script: python scripts/app_traditional_radiomics_extractor.py --config config/config_traditional_radiomics.yaml
+#
+# 📚 Documentation:
+#   - PyRadiomics: https://pyradiomics.readthedocs.io/
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📂 Path Settings
+# ─────────────────────────────────────────────────────────────────────────
+paths:
+  # PyRadiomics parameter file
+  # - Defines which features to extract
+  # - Specifies image preprocessing settings
+  # - Controls bin width, sigma values, etc.
+  # - See PyRadiomics documentation for details
+  params_file: './config/parameter.yaml'
+  
+  # Image dataset directory
+  # Expected structure:
+  #   images_folder/
+  #     ├── subject_001/
+  #     │   ├── images/
+  #     │   │   ├── T1.nrrd
+  #     │   │   ├── T2.nrrd
+  #     │   │   └── ...
+  #     │   └── masks/
+  #     │       └── tumor.nrrd
+  #     ├── subject_002/
+  #     │   └── ...
+  images_folder: ./data/preprocessed_images
+  
+  # Output directory for results
+  # Creates subdirectories for different export formats
+  #   out_dir/
+  #     ├── radiomics_features_T1_20250119_143022.csv
+  #     ├── radiomics_features_T2_20250119_143022.csv
+  #     ├── radiomics_features_combined_20250119_143022.csv
+  #     └── extraction.log
+  out_dir: ./results/radiomics
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# ⚙️ Processing Settings
+# ─────────────────────────────────────────────────────────────────────────
+processing:
+  # Number of CPU processes
+  # - 0: Auto-detects and uses half of available cores
+  # - 1: Sequential processing (easier debugging)
+  # - N: Use N parallel processes
+  # - Note: More processes = more memory usage
+  n_processes: 4
+  
+  # Save frequency
+  # - Saves intermediate results every N files
+  # - Prevents data loss if extraction crashes
+  # - Set lower for unstable systems
+  # - Set higher for faster processing
+  save_every_n_files: 5
+  
+  # Image types to process
+  # - Only images matching these names will be processed
+  # - Must match image filenames (without extension)
+  # - Case-sensitive
+  # - Empty list = process all images found
+  process_image_types:
+    - T1                    # T1-weighted MRI
+    - T2                    # T2-weighted MRI
+    - ADC                   # Apparent Diffusion Coefficient
+    - DWI                   # Diffusion Weighted Imaging
+  
+  # Example: CT imaging
+  # process_image_types:
+  #   - pre_contrast
+  #   - arterial_phase
+  #   - venous_phase
+  #   - delayed_phase
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Feature Export Settings
+# ─────────────────────────────────────────────────────────────────────────
+export:
+  # Export by image type
+  # - true: Creates separate CSV for each image type
+  # - false: No per-image-type files
+  # - Useful for analyzing specific sequences
+  export_by_image_type: true
+  
+  # Export combined file
+  # - true: Creates single CSV with all features
+  # - false: Only per-image-type files
+  # - Combined file has columns: <image_type>_<feature_name>
+  # - Recommended: true for downstream machine learning
+  export_combined: true
+  
+  # Export format
+  # - 'csv': Comma-separated values (recommended)
+  # - 'json': JSON format (for hierarchical data)
+  # - 'pickle': Python pickle (preserves Python objects)
+  # - Note: CSV is most compatible with other tools
+  export_format: 'csv'  # Options: csv, json, pickle
+  
+  # Add timestamp to filenames
+  # - true: Appends timestamp (e.g., _20250119_143022)
+  # - false: Uses simple names
+  # - Prevents overwriting previous extractions
+  # - Useful for tracking different extraction runs
+  add_timestamp: true
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📝 Logging Settings
+# ─────────────────────────────────────────────────────────────────────────
+logging:
+  # Log level
+  # - 'DEBUG': Very detailed logs (for troubleshooting)
+  # - 'INFO': Standard informational logs (recommended)
+  # - 'WARNING': Only warnings and errors
+  # - 'ERROR': Only errors
+  # - 'CRITICAL': Only critical errors
+  level: 'INFO'  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  
+  # Console output
+  # - true: Print logs to terminal
+  # - false: Silent console
+  console_output: true
+  
+  # File output
+  # - true: Save logs to file (extraction.log)
+  # - false: No log file
+  # - Recommended: true for troubleshooting
+  file_output: true
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Quick extraction with defaults
+#   paths:
+#     images_folder: ./data
+#     out_dir: ./results
+#   processing:
+#     n_processes: 0  # Auto-detect
+#   export:
+#     export_combined: true
+#
+# Example 2: Process only specific sequences
+#   processing:
+#     process_image_types:
+#       - T1
+#       - T2
+#
+# Example 3: Maximum speed (careful with memory)
+#   processing:
+#     n_processes: 16  # Use many cores
+#     save_every_n_files: 20  # Save less frequently
+#
+# Example 4: Debug mode for troubleshooting
+#   processing:
+#     n_processes: 1  # Sequential
+#   logging:
+#     level: 'DEBUG'
+#   export:
+#     add_timestamp: true
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📊 PyRadiomics Feature Classes
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Shape Features (from mask only, image-independent):
+#   - Volume, Surface Area, Sphericity
+#   - Compactness, Maximum 2D Diameter
+#   - ~14 features
+#
+# First-Order Statistics (intensity distribution):
+#   - Mean, Median, Standard Deviation
+#   - Skewness, Kurtosis, Entropy
+#   - Min, Max, Range, Percentiles
+#   - ~18 features
+#
+# Gray Level Co-occurrence Matrix (GLCM):
+#   - Texture features based on pixel pair relationships
+#   - Autocorrelation, Contrast, Correlation
+#   - Energy, Homogeneity, Entropy
+#   - ~24 features
+#
+# Gray Level Run Length Matrix (GLRLM):
+#   - Measures consecutive pixels with same intensity
+#   - Short/Long Run Emphasis, Gray Level Non-Uniformity
+#   - Run Percentage, Run Variance
+#   - ~16 features
+#
+# Gray Level Size Zone Matrix (GLSZM):
+#   - Connected regions of same intensity
+#   - Small/Large Area Emphasis, Zone Percentage
+#   - Gray Level Variance, Zone Variance
+#   - ~16 features
+#
+# Gray Level Dependence Matrix (GLDM):
+#   - Number of connected voxels within distance
+#   - Dependence Entropy, Non-Uniformity
+#   - ~14 features
+#
+# Neighboring Gray Tone Difference Matrix (NGTDM):
+#   - Difference between voxel and neighborhood average
+#   - Coarseness, Contrast, Busyness
+#   - Complexity, Strength
+#   - ~5 features
+#
+# Total: ~107 features per image per filter
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  Best Practices
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Data Preparation:
+#    - Preprocess images before extraction (resample, register, normalize)
+#    - Use consistent image formats (NIfTI, NRRD recommended)
+#    - Ensure masks are binary (0 and 1 only)
+#    - Verify image-mask alignment
+#
+# 2. Parameter File (params_file):
+#    - Define bin width for discretization
+#    - Specify image filters (wavelet, LoG, etc.)
+#    - Enable/disable feature classes
+#    - See PyRadiomics docs for options
+#
+# 3. Computational Efficiency:
+#    - Start with n_processes=1 to verify setup
+#    - Gradually increase based on memory availability
+#    - Monitor system resources during extraction
+#    - Consider processing image types separately for very large datasets
+#
+# 4. Quality Control:
+#    - Check logs for extraction errors
+#    - Verify all subjects have features extracted
+#    - Look for NaN values (may indicate issues)
+#    - Compare feature distributions across subjects
+#
+# 5. Feature Selection:
+#    - Radiomics generates many features (100+)
+#    - Apply feature selection before modeling
+#    - Remove highly correlated features
+#    - Consider ICC for reproducibility
+#
+# 6. File Organization:
+#    - Keep consistent directory structure
+#    - Use descriptive image type names
+#    - Save parameter files with results
+#    - Document any preprocessing steps
+#
+# 7. Common Issues:
+#    - Empty masks → No shape features
+#    - Small ROIs → Some texture features may be NaN
+#    - Different image sizes → Ensure resampling
+#    - Intensity scale variations → Apply normalization
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📖 Recommended Workflows
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Workflow 1: Single-sequence analysis
+#   1. Extract features from one image type
+#   2. Apply feature selection
+#   3. Train model
+#   4. Validate on held-out set
+#
+# Workflow 2: Multi-sequence fusion
+#   1. Extract features from all sequences
+#   2. Use export_combined: true
+#   3. Combine with clinical features
+#   4. Apply feature selection across all modalities
+#   5. Train ensemble model
+#
+# Workflow 3: Reproducibility study
+#   1. Extract from test and retest scans
+#   2. Calculate ICC for each feature
+#   3. Filter features with ICC < 0.75
+#   4. Use only reproducible features for modeling
+#
+# Workflow 4: Large cohort processing
+#   1. Set n_processes to max available
+#   2. Set save_every_n_files to small number (5-10)
+#   3. Process in batches if needed
+#   4. Monitor disk space for results
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit radiomics --help
+#
+# PyRadiomics Documentation:
+#   https://pyradiomics.readthedocs.io/
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# Feature definitions:
+#   https://pyradiomics.readthedocs.io/en/latest/features.html
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

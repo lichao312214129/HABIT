@@ -1,0 +1,648 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Machine Learning Configuration - Detailed Annotations
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 📖 Instructions:
+#   - YAML format requirements:
+#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
+#     ✓ Space required after colon
+#     ✓ List items start with "- " (note the space)
+#     ✓ Comments start with "#"
+#
+# 🚀 Quick Start:
+#   Training:   habit ml --config config/config_machine_learning.yaml --mode train
+#   Prediction: habit ml --mode predict --model ./model.pkl --data ./data.csv
+#
+# 📚 Documentation:
+#   - Chinese: doc/app_of_machine_learning.md
+#   - English: doc_en/app_of_machine_learning.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📂 Data Input Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Multiple input files can be specified for:
+# - Model ensemble
+# - Feature combination from different sources
+# - Multi-modal learning
+#
+input:
+  # Primary dataset
+  - path: ./ml_data/breast_cancer_dataset.csv  # Path to CSV file containing features and labels
+    name: clinical_                             # Prefix added to all feature names from this file (prevents conflicts)
+    subject_id_col: subjID                      # Column name for unique subject identifiers
+    label_col: label                            # Column name for target labels (0/1 for binary classification)
+    features:                                   # Optional: specific features to use
+                                                # If empty, all columns (except ID and label) will be used
+  
+  # Example: Additional dataset for feature fusion
+  # - path: ./ml_data/radiomics_features.csv
+  #   name: radiomics_                          # Prefix prevents name conflicts with clinical features
+  #   subject_id_col: PatientID                 # Can use different column name
+  #   label_col: outcome                        # Can use different label column
+  #   features: [texture_mean, intensity_std]   # Select specific features only
+  
+  # Example: Predictions from another model as features
+  # - path: ./ml_data/pretrained_predictions.csv
+  #   name: pretrained_
+  #   subject_id_col: subjID
+  #   label_col: true_label
+  #   features: [prob, confidence_score]        # Use probability predictions as features
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📁 Output Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# All results will be saved to this directory:
+# - Trained models (*.pkl)
+# - Prediction results (*.csv)
+# - Performance metrics (*.json)
+# - Visualization plots (*.pdf)
+# - Feature importance (*.csv)
+#
+output: ./ml_data
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# ✂️ Data Splitting Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Three splitting methods available:
+#
+# 🔹 random: Completely random split
+#   - Quick and simple
+#   - May not preserve class distribution
+#   - Good for large balanced datasets
+#
+# 🔹 stratified: Maintains class distribution
+#   - Recommended for most cases
+#   - Ensures both train and test sets have similar class ratios
+#   - Essential for imbalanced datasets
+#
+# 🔹 custom: User-defined splits
+#   - Full control over train/test assignment
+#   - Useful for time-series data
+#   - Ensures specific subjects in specific splits
+#   - Required for external validation
+#
+split_method: custom  # Options: random, stratified, custom
+
+# For random or stratified splits (currently commented out)
+# test_size: 0.3      # Proportion of data for testing (0.0-1.0)
+# random_state: 42    # Seed for reproducibility
+
+# For custom splits
+train_ids_file: ./ml_data/train_ids.txt  # Text file with one subject ID per line
+test_ids_file: ./ml_data/test_ids.txt    # Text file with one subject ID per line
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Normalization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Normalization is crucial for:
+# - Algorithms sensitive to feature scales (SVM, KNN, Neural Networks)
+# - Faster convergence in gradient-based methods
+# - Better feature importance interpretation
+#
+normalization:
+  # Z-Score Standardization (Recommended for most cases)
+  # - Centers data to mean=0, scales to std=1
+  # - Preserves distribution shape
+  # - Robust to linear transformations
+  method: z_score
+  
+  # Min-Max Scaling
+  # - Scales features to a fixed range
+  # - Useful when you need bounded values
+  # - Sensitive to outliers
+  # method: min_max
+  # params:
+  #   feature_range: [0, 1]  # Output range [min, max]
+  
+  # Robust Scaler
+  # - Uses median and IQR instead of mean and std
+  # - Robust to outliers
+  # - Good for data with extreme values
+  # method: robust
+  # params:
+  #   quantile_range: [25.0, 75.0]  # Percentile range for IQR
+  #   with_centering: true           # Center data to median
+  #   with_scaling: true             # Scale by IQR
+  
+  # Max Abs Scaler
+  # - Scales by maximum absolute value
+  # - Preserves sparsity (doesn't break zero values)
+  # - Range: [-1, 1]
+  # method: max_abs
+  
+  # Normalizer
+  # - Scales individual samples to unit norm
+  # - Useful for text classification, similarity metrics
+  # method: normalizer
+  # params:
+  #   norm: l2  # Options: l1, l2, max
+  
+  # Quantile Transformer
+  # - Non-linear transformation to uniform or normal distribution
+  # - Reduces impact of outliers
+  # - Can distort linear correlations
+  # method: quantile
+  # params:
+  #   n_quantiles: 1000              # Number of quantiles
+  #   output_distribution: uniform   # Options: uniform, normal
+  
+  # Power Transformer
+  # - Makes data more Gaussian-like
+  # - Stabilizes variance
+  # - Useful for heteroscedastic data
+  # method: power
+  # params:
+  #   method: yeo-johnson  # Options: yeo-johnson (any data), box-cox (positive only)
+  #   standardize: true    # Apply z-score after transformation
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🔍 Feature Selection Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Feature selection methods are applied sequentially in the order listed.
+# Each method reduces the feature set for the next method.
+#
+# ⚠️ Execution Order:
+#   1. Methods with before_z_score: true run first (on raw features)
+#   2. Z-score normalization is applied
+#   3. Methods with before_z_score: false run last (on normalized features)
+#
+feature_selection_methods:
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # ICC (Intraclass Correlation Coefficient)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Filters features based on test-retest reproducibility
+  # - Requires pre-computed ICC results from reliability study
+  # - Higher ICC = more reproducible feature
+  # - Recommendation: threshold >= 0.75 for good reproducibility
+  #
+  # - method: icc
+  #   params:
+  #     icc_results: ./results/icc_results.json  # Path to ICC JSON file
+  #     keys: [test_retest_comparison]           # Keys in JSON to use
+  #     threshold: 0.8                           # Minimum ICC to retain feature
+  #     before_z_score: false                    # Run after normalization
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Variance Threshold
+  # ───────────────────────────────────────────────────────────────────────
+  # - Removes low-variance (near-constant) features
+  # - Important: Run BEFORE z-score (z-score makes all variances = 1)
+  # - Higher threshold = more aggressive filtering
+  # - Typical range: 0.1 - 0.5
+  #
+  # - method: variance
+  #   params:
+  #     before_z_score: true      # MUST be true (run before normalization)
+  #     threshold: 0.2            # Minimum variance to retain
+  #     plot_variances: true      # Generate variance distribution plot
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Statistical Test (t-test or Mann-Whitney U)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Tests if feature distributions differ between classes
+  # - Automatically chooses test based on normality
+  # - P < threshold = feature is discriminative
+  # - Can specify n_features instead of p_threshold
+  #
+  # - method: statistical_test
+  #   params:
+  #     p_threshold: 0.05                # Maximum p-value to retain
+  #     # n_features_to_select: 20       # Alternative: select top N features
+  #     normality_test_threshold: 0.05   # Threshold for normality test
+  #     plot_importance: true            # Generate importance plot
+  #     before_z_score: false            # Run after normalization
+  #     # force_test: "ttest"            # Optional: force specific test
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # VIF (Variance Inflation Factor)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Detects and removes multicollinearity
+  # - VIF > 10: severe multicollinearity
+  # - VIF > 5: moderate multicollinearity
+  # - Iteratively removes highest VIF features
+  # - Can be slow for many features
+  #
+  # - method: vif
+  #   params:
+  #     max_vif: 10           # Maximum allowed VIF
+  #     visualize: false      # Generate VIF plot
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Correlation Threshold (RECOMMENDED)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Removes highly correlated feature pairs
+  # - Faster than VIF for large feature sets
+  # - Keeps feature with higher variance when removing
+  # - Spearman: better for non-linear relationships
+  #
+  - method: correlation
+    params:
+      threshold: 0.80        # Correlation threshold (remove if |corr| > threshold)
+      method: spearman       # Options: pearson, spearman, kendall
+      visualize: false       # Generate correlation heatmap
+      before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # ANOVA F-test
+  # ───────────────────────────────────────────────────────────────────────
+  # - Univariate feature selection based on ANOVA
+  # - Assumes normal distribution
+  # - Good for linear relationships
+  # - Fast for large feature sets
+  #
+  # - method: anova
+  #   params:
+  #     p_threshold: 0.05          # Maximum p-value to retain
+  #     # n_features_to_select: 20 # Alternative: select top N
+  #     plot_importance: true
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Chi-Square Test
+  # ───────────────────────────────────────────────────────────────────────
+  # - For categorical or count features only
+  # - Requires non-negative feature values
+  # - Tests independence between features and labels
+  #
+  # - method: chi2
+  #   params:
+  #     p_threshold: 0.05
+  #     # n_features_to_select: 20
+  #     plot_importance: true
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # RFECV (Recursive Feature Elimination with Cross-Validation)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Recursive backward selection
+  # - Cross-validates optimal number of features
+  # - Very thorough but computationally expensive
+  # - Best used after initial filtering
+  #
+  # - method: rfecv
+  #   params:
+  #     estimator: LogisticRegression  # Model to use for importance
+  #     cv: 10                         # Number of CV folds
+  #     step: 1                        # Features to remove per iteration
+  #     min_features_to_select: 1      # Minimum features to keep
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # mRMR (Minimum Redundancy Maximum Relevance)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Selects features with high relevance and low redundancy
+  # - Balances information gain and feature independence
+  # - Good for reducing multicollinearity
+  # - Requires mrmr package installation
+  #
+  # - method: mrmr
+  #   params:
+  #     n_features: 5       # Number of features to select
+  #     visualize: false    # Generate selection plot
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # LASSO (L1 Regularization)
+  # ───────────────────────────────────────────────────────────────────────
+  # - Embedded method with automatic feature selection
+  # - Shrinks coefficients to zero
+  # - Cross-validates optimal regularization strength
+  # - Good for high-dimensional data
+  #
+  # - method: lasso
+  #   params:
+  #     cv: 10                               # CV folds for alpha selection
+  #     n_alphas: 100                        # Number of alphas to try
+  #     # alphas: [0.01, 0.1, 1.0, 10, 100] # Or specify exact alphas
+  #     random_state: 42
+  #     visualize: true                      # Plot coefficient paths
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Univariate Logistic Regression
+  # ───────────────────────────────────────────────────────────────────────
+  # - Tests each feature independently with logistic regression
+  # - P-value based selection
+  # - Fast for many features
+  #
+  # - method: univariate_logistic
+  #   params:
+  #     threshold: 0.1       # Maximum p-value
+  #     before_z_score: false
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Stepwise Selection
+  # ───────────────────────────────────────────────────────────────────────
+  # - Forward, backward, or bidirectional selection
+  # - Uses AIC or BIC criterion
+  # - Balances model fit and complexity
+  # - Can be slow for many features
+  #
+  # - method: stepwise
+  #   params:
+  #     criterion: aic       # Options: aic, bic
+  #     direction: forward   # Options: forward, backward, both
+  #     before_z_score: false
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 🤖 Model Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Multiple models can be defined and will all be trained and evaluated.
+# Each model section defines:
+# - Model type (key name)
+# - Hyperparameters (params)
+#
+models:
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Logistic Regression (Recommended for interpretability)
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Linear model for binary classification
+  # - Fast training and prediction
+  # - Interpretable coefficients
+  # - Good baseline model
+  #
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000        # Increase if convergence warning appears
+      C: 1.0                # Inverse regularization strength (smaller = stronger)
+      penalty: "l2"         # Regularization: l1 (Lasso), l2 (Ridge), elasticnet, none
+      solver: "lbfgs"       # Algorithm: lbfgs, liblinear, newton-cg, sag, saga
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # AutoGluon Tabular (Automatic ML)
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Automatically trains and ensembles multiple models
+  # - Handles feature engineering
+  # - Often achieves best performance
+  # - Requires more computational resources
+  #
+  # AutoGluonTabular:
+  #   params:
+  #     path: ./ml_data/autogluon_models  # Directory for model storage
+  #     label: label                       # Label column name
+  #     time_limit: 30                     # Training time limit in seconds
+  #     random_state: 42
+  #     presets: "high_quality"            # Options: best_quality, high_quality, good_quality, medium_quality, fast
+  #     verbosity: 4                       # 0-4, higher = more output
+  #     eval_metric: "roc_auc"             # Metric to optimize
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Support Vector Machine
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Powerful for non-linear boundaries
+  # - Works well in high dimensions
+  # - Sensitive to feature scaling (normalize first!)
+  # - Can be slow for large datasets
+  #
+  # SVM:
+  #   params:
+  #     random_state: 42
+  #     C: 1.0                # Regularization parameter
+  #     kernel: "rbf"         # Options: linear, poly, rbf, sigmoid
+  #     gamma: "scale"        # Kernel coefficient: scale, auto, or float
+  #     probability: true     # Enable probability estimates (required for some metrics)
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Random Forest
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Ensemble of decision trees
+  # - Handles non-linear relationships
+  # - Robust to outliers
+  # - Provides feature importance
+  # - Less interpretable than single tree
+  #
+  # RandomForest:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100        # Number of trees (more = better but slower)
+  #     max_depth: null          # Max tree depth (null = unlimited)
+  #     min_samples_split: 2     # Min samples to split node
+  #     min_samples_leaf: 1      # Min samples at leaf
+  #     max_features: "sqrt"     # Features per split: sqrt, log2, int, float
+  #     class_weight: "balanced" # Handle imbalanced data
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # XGBoost (Gradient Boosting)
+  # ═══════════════════════════════════════════════════════════════════════
+  # - State-of-the-art boosting algorithm
+  # - Often wins ML competitions
+  # - Fast training with parallel processing
+  # - Handles missing values
+  # - Requires careful tuning
+  #
+  # XGBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100         # Number of boosting rounds
+  #     max_depth: 3              # Tree depth (3-10 typical)
+  #     learning_rate: 0.1        # Step size (0.01-0.3 typical)
+  #     subsample: 0.8            # Row sampling rate
+  #     colsample_bytree: 0.8     # Column sampling rate
+  #     objective: "binary:logistic"
+  #     eval_metric: "logloss"
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # K-Nearest Neighbors
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Instance-based learning
+  # - No training phase (lazy learning)
+  # - Sensitive to feature scaling
+  # - Slow prediction for large datasets
+  # - Good for small, low-dimensional data
+  #
+  # KNN:
+  #   params:
+  #     n_neighbors: 5         # Number of neighbors
+  #     weights: "uniform"     # Options: uniform, distance
+  #     algorithm: "auto"      # Options: auto, ball_tree, kd_tree, brute
+  #     metric: "minkowski"    # Distance metric
+  #     p: 2                   # Power for Minkowski (p=2 is Euclidean)
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Multi-layer Perceptron (Neural Network)
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Feed-forward neural network
+  # - Learns complex non-linear patterns
+  # - Requires more data than other methods
+  # - Sensitive to feature scaling
+  # - Longer training time
+  #
+  # MLP:
+  #   params:
+  #     random_state: 42
+  #     hidden_layer_sizes: [100, 50]  # Neurons per hidden layer
+  #     activation: "relu"              # Options: relu, tanh, logistic, identity
+  #     solver: "adam"                  # Options: lbfgs, sgd, adam
+  #     alpha: 0.0001                   # L2 regularization
+  #     learning_rate: "constant"       # Options: constant, invscaling, adaptive
+  #     learning_rate_init: 0.001       # Initial learning rate
+  #     max_iter: 200                   # Max iterations
+  #     early_stopping: false           # Stop if validation score doesn't improve
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Gaussian Naive Bayes
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Assumes features are independent
+  # - Assumes Gaussian distribution
+  # - Very fast training and prediction
+  # - Works well with small datasets
+  # - Good baseline for comparison
+  #
+  # GaussianNB:
+  #   params:
+  #     var_smoothing: 1.0e-9  # Variance smoothing for stability
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Gradient Boosting
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Sequential ensemble of weak learners
+  # - Often achieves high accuracy
+  # - Less prone to overfitting than single tree
+  # - Slower training than Random Forest
+  #
+  # GradientBoosting:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100      # Number of boosting stages
+  #     learning_rate: 0.1     # Contribution of each tree
+  #     max_depth: 3           # Tree depth
+  #     subsample: 1.0         # Fraction of samples per tree
+  #     min_samples_split: 2
+  #     min_samples_leaf: 1
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # AdaBoost
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Adaptive boosting algorithm
+  # - Focuses on misclassified samples
+  # - Less prone to overfitting
+  # - Good for binary classification
+  #
+  # AdaBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 50       # Number of weak learners
+  #     learning_rate: 1.0     # Weight of each classifier
+  #     algorithm: "SAMME.R"   # Options: SAMME, SAMME.R
+  
+  # ═══════════════════════════════════════════════════════════════════════
+  # Decision Tree
+  # ═══════════════════════════════════════════════════════════════════════
+  # - Single tree model
+  # - Highly interpretable
+  # - Can visualize decision rules
+  # - Prone to overfitting (use pruning)
+  # - Good for feature interaction analysis
+  #
+  # DecisionTree:
+  #   params:
+  #     random_state: 42
+  #     criterion: "gini"         # Options: gini, entropy
+  #     splitter: "best"          # Options: best, random
+  #     max_depth: null           # Tree depth (null = unlimited, use 3-10 to prevent overfit)
+  #     min_samples_split: 2      # Min samples to split
+  #     min_samples_leaf: 1       # Min samples at leaf
+  #     class_weight: "balanced"  # Handle imbalanced data
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 📊 Visualization and Saving Configuration
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Control what outputs are generated
+#
+# is_visualize: Generate performance plots
+# - ROC curves
+# - Calibration curves  
+# - Decision curve analysis (DCA)
+# - Confusion matrices
+# - Feature importance plots
+#
+is_visualize: false  # Set to true to generate plots
+
+# is_save_model: Save trained models to disk
+# - Saves as .pkl files
+# - Can be loaded later for predictions
+# - Required for deployment
+# - File size depends on model complexity
+#
+is_save_model: true  # Set to false to save disk space
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 💡 Usage Examples
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Example 1: Train a single model with minimal config
+#   input:
+#     - path: ./data.csv
+#       subject_id_col: ID
+#       label_col: outcome
+#   output: ./results
+#   split_method: stratified
+#   test_size: 0.3
+#   models:
+#     LogisticRegression:
+#       params:
+#         random_state: 42
+#
+# Example 2: Train multiple models with feature selection
+#   feature_selection_methods:
+#     - method: correlation
+#       params:
+#         threshold: 0.8
+#     - method: lasso
+#       params:
+#         cv: 5
+#   models:
+#     LogisticRegression: {...}
+#     RandomForest: {...}
+#     XGBoost: {...}
+#
+# Example 3: Feature fusion from multiple sources
+#   input:
+#     - path: ./clinical.csv
+#       name: clinical_
+#       ...
+#     - path: ./imaging.csv
+#       name: imaging_
+#       ...
+#     - path: ./genetic.csv
+#       name: genetic_
+#       ...
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 📞 Get Help
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Command-line help:
+#   habit ml --help
+#
+# Documentation:
+#   - Chinese: doc/app_of_machine_learning.md
+#   - English: doc_en/app_of_machine_learning.md
+#
+# Configuration index:
+#   config/README_CONFIG.md
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
