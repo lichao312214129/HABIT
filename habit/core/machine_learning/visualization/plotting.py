@@ -255,43 +255,6 @@ class Plotter:
         
         plt.close()
     
-    def calculate_net_benefit(self, y_true, y_pred_proba, threshold):
-        """
-        Calculate the net benefit at a given threshold for decision curve analysis.
-        
-        Args:
-            y_true (np.ndarray): True binary labels (0 or 1)
-            y_pred_proba (np.ndarray): Predicted probabilities
-            threshold (float): Decision threshold for classification
-            
-        Returns:
-            float: Net benefit value at the given threshold
-        """
-        # Handle boundary cases
-        if threshold >= 0.999:  # Prevent division by values close to zero
-            return 0.0
-            
-        # Convert to binary prediction based on threshold
-        y_pred = (y_pred_proba >= threshold).astype(int)
-        
-        # Calculate true positives and false positives
-        TP = np.sum((y_pred == 1) & (y_true == 1))
-        FP = np.sum((y_pred == 1) & (y_true == 0))
-        
-        # Total sample count
-        n = len(y_true)
-        
-        # Calculate net benefit
-        if TP + FP == 0:
-            return 0
-        else:
-            benefit = (TP / n) - (FP / n) * (threshold / (1 - threshold))
-            
-            # Ensure returned value is finite
-            if not np.isfinite(benefit):
-                return 0.0
-            return benefit
-    
     def plot_calibration_v2(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], save_name: str = 'Calibration.pdf', n_bins: int = 5, title: str = 'test') -> None:
         """
         Plot calibration curves for a single dataset (optimized version)

@@ -192,10 +192,26 @@ models:
       presets: "high_quality"  # Preset for AutoGluonTabular
       verbosity: 4  # Verbosity level for AutoGluonTabular
       eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
+  
   # # Support Vector Machine configuration
   # SVM:  # Model type: Support Vector Machine classifier
   #   params:
   #     random_state: 42  # Random seed for reproducibility
+  #     C: 1.0  # Regularization parameter
+  #     kernel: "rbf"  # Kernel type: linear, poly, rbf, sigmoid
+  #     gamma: "scale"  # Kernel coefficient
+  #     probability: true  # Enable probability estimates
+
+  # # Random Forest configuration
+  # RandomForest:  # Model type: Random Forest classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of trees in the forest
+  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+  #     max_features: "sqrt"  # Number of features to consider for best split
+  #     class_weight: "balanced"  # Handle imbalanced classes
 
   # # XGBoost configuration
   # XGBoost:  # Model type: Gradient Boosting classifier
@@ -208,6 +224,76 @@ models:
   #     colsample_bytree: 0.8  # Fraction of features used per tree
   #     objective: "binary:logistic"  # Objective function for optimization
   #     eval_metric: "logloss"  # Evaluation metric during training
+
+  # # K-Nearest Neighbors configuration
+  # KNN:  # Model type: K-Nearest Neighbors classifier
+  #   params:
+  #     n_neighbors: 5  # Number of neighbors to use
+  #     weights: "uniform"  # Weight function: uniform or distance
+  #     algorithm: "auto"  # Algorithm to compute nearest neighbors: auto, ball_tree, kd_tree, brute
+  #     metric: "minkowski"  # Distance metric
+  #     p: 2  # Power parameter for Minkowski metric (p=2 is Euclidean distance)
+
+  # # Multi-layer Perceptron (Neural Network) configuration
+  # MLP:  # Model type: Multi-layer Perceptron classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     hidden_layer_sizes: [100, 50]  # Sizes of hidden layers
+  #     activation: "relu"  # Activation function: identity, logistic, tanh, relu
+  #     solver: "adam"  # Weight optimization solver: lbfgs, sgd, adam
+  #     alpha: 0.0001  # L2 penalty parameter
+  #     learning_rate: "constant"  # Learning rate schedule: constant, invscaling, adaptive
+  #     learning_rate_init: 0.001  # Initial learning rate
+  #     max_iter: 200  # Maximum number of iterations
+  #     early_stopping: false  # Whether to use early stopping
+
+  # # Gaussian Naive Bayes configuration
+  # GaussianNB:  # Model type: Gaussian Naive Bayes classifier
+  #   params:
+  #     var_smoothing: 1.0e-9  # Portion of the largest variance added to variances for stability
+
+  # # Multinomial Naive Bayes configuration (requires non-negative features)
+  # MultinomialNB:  # Model type: Multinomial Naive Bayes classifier
+  #   params:
+  #     alpha: 1.0  # Additive smoothing parameter
+  #     fit_prior: true  # Whether to learn class prior probabilities
+
+  # # Bernoulli Naive Bayes configuration (for binary/boolean features)
+  # BernoulliNB:  # Model type: Bernoulli Naive Bayes classifier
+  #   params:
+  #     alpha: 1.0  # Additive smoothing parameter
+  #     binarize: 0.0  # Threshold for binarizing features (null means pre-binarized)
+  #     fit_prior: true  # Whether to learn class prior probabilities
+
+  # # Gradient Boosting configuration
+  # GradientBoosting:  # Model type: Gradient Boosting classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of boosting stages
+  #     learning_rate: 0.1  # Learning rate shrinks the contribution of each tree
+  #     max_depth: 3  # Maximum depth of the individual trees
+  #     subsample: 1.0  # Fraction of samples to be used for fitting the trees
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+
+  # # AdaBoost configuration
+  # AdaBoost:  # Model type: AdaBoost classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 50  # Maximum number of estimators
+  #     learning_rate: 1.0  # Weight applied to each classifier
+  #     algorithm: "SAMME.R"  # Boosting algorithm: SAMME or SAMME.R
+
+  # # Decision Tree configuration
+  # DecisionTree:  # Model type: Decision Tree classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     criterion: "gini"  # Function to measure split quality: gini or entropy
+  #     splitter: "best"  # Strategy to choose split: best or random
+  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+  #     class_weight: "balanced"  # Handle imbalanced classes
 
 #%%================================================================================  
 # Visualization and Saving Configuration

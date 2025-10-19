@@ -130,9 +130,45 @@ pip install -e .
 
 New to HABIT? Follow our [**QUICKSTART.md**](QUICKSTART.md) guide to run your first habitat analysis in minutes!
 
-### Basic Usage Example
+### 🎯 Unified Command Line Interface (CLI)
 
-All workflows in HABIT are driven by running a script from the `scripts/` directory with a corresponding configuration file from the `config/` directory.
+**HABIT now provides a unified command-line interface!** After installation, you can use the `habit` command directly to access all functionality:
+
+```bash
+# View all available commands
+habit --help
+
+# Image preprocessing
+habit preprocess --config config/config_image_preprocessing.yaml
+
+# Generate Habitat maps
+habit habitat --config config/config_getting_habitat.yaml
+
+# Extract Habitat features
+habit extract-features --config config/config_extract_features.yaml
+
+# Train machine learning models
+habit ml --config config/config_machine_learning.yaml --mode train
+
+# Make predictions with trained model
+habit ml --config config/config_machine_learning.yaml \
+  --mode predict \
+  --model ./model_package.pkl \
+  --data ./new_data.csv \
+  --output ./predictions/
+
+# K-fold cross-validation
+habit kfold --config config/config_machine_learning_kfold.yaml
+
+# Model comparison
+habit compare --config config/config_model_comparison.yaml
+```
+
+📚 **Complete CLI Guide**: See [**HABIT_CLI.md**](HABIT_CLI.md) for complete command-line usage documentation.
+
+### Basic Usage Example (Traditional Script Method)
+
+All workflows in HABIT can also be run by executing a script from the `scripts/` directory with a corresponding configuration file from the `config/` directory.
 
 **1. Run Habitat Analysis:**
 ```bash

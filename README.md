@@ -130,9 +130,45 @@ pip install -e .
 
 HABIT新手？请跟随我们的 [**QUICKSTART.md**](QUICKSTART.md) 指南，在几分钟内运行您的第一次生境分析！
 
-### 基本使用示例
+### 🎯 统一命令行界面 (CLI)
 
-HABIT中的所有工作流都通过运行 `scripts/` 目录下的脚本并指定 `config/` 目录中的相应配置文件来驱动。
+**HABIT 现在提供统一的命令行界面！** 安装后，您可以直接使用 `habit` 命令访问所有功能：
+
+```bash
+# 查看所有可用命令
+habit --help
+
+# 图像预处理
+habit preprocess --config config/config_image_preprocessing.yaml
+
+# 生成 Habitat 地图
+habit habitat --config config/config_getting_habitat.yaml
+
+# 提取 Habitat 特征
+habit extract-features --config config/config_extract_features.yaml
+
+# 训练机器学习模型
+habit ml --config config/config_machine_learning.yaml --mode train
+
+# 使用模型进行预测
+habit ml --config config/config_machine_learning.yaml \
+  --mode predict \
+  --model ./model_package.pkl \
+  --data ./new_data.csv \
+  --output ./predictions/
+
+# K折交叉验证
+habit kfold --config config/config_machine_learning_kfold.yaml
+
+# 模型比较
+habit compare --config config/config_model_comparison.yaml
+```
+
+📚 **完整 CLI 文档**: 请参阅 [**HABIT_CLI.md**](HABIT_CLI.md) 获取完整的命令行使用指南。
+
+### 基本使用示例（传统脚本方式）
+
+HABIT中的所有工作流也可以通过运行 `scripts/` 目录下的脚本并指定 `config/` 目录中的相应配置文件来驱动。
 
 **1. 运行生境分析：**
 ```bash

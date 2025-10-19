@@ -1,0 +1,20 @@
+{
+    "removed_features": [
+        "clinical_concavity error",
+        "clinical_worst compactness",
+        "clinical_worst perimeter",
+        "clinical_worst area"
+    ],
+    "selected_features": [
+        "clinical_compactness error",
+        "clinical_concave points error",
+        "clinical_symmetry error",
+        "clinical_fractal dimension error",
+        "clinical_worst radius",
+        "clinical_worst texture",
+        "clinical_worst smoothness",
+        "clinical_worst fractal dimension"
+    ],
+    "threshold": 0.8,
+    "method": "spearman"
+}

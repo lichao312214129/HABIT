@@ -45,21 +45,24 @@ class RandomForestModel(BaseModel):
         Returns:
             RandomForestClassifier: Configured model instance
         """
+        # Get parameters from config['params'] if it exists, otherwise from config directly
+        config_params = self.config.get('params', self.config)
+        
         # Get parameters from config or use defaults
         params = {
-            'n_estimators': self.config.get('n_estimators', 100),
-            'max_depth': self.config.get('max_depth', None),
-            'min_samples_split': self.config.get('min_samples_split', 2),
-            'min_samples_leaf': self.config.get('min_samples_leaf', 1),
-            'max_features': self.config.get('max_features', 'sqrt'),
-            'bootstrap': self.config.get('bootstrap', True),
-            'class_weight': self.config.get('class_weight', None),
-            'random_state': self.config.get('random_state', 42)
+            'n_estimators': config_params.get('n_estimators', 100),
+            'max_depth': config_params.get('max_depth', None),
+            'min_samples_split': config_params.get('min_samples_split', 2),
+            'min_samples_leaf': config_params.get('min_samples_leaf', 1),
+            'max_features': config_params.get('max_features', 'sqrt'),
+            'bootstrap': config_params.get('bootstrap', True),
+            'class_weight': config_params.get('class_weight', None),
+            'random_state': config_params.get('random_state', 42)
         }
         
-        # Add any additional parameters from config
-        params.update({k: v for k, v in self.config.items() 
-                      if k not in params and not k.startswith('_')})
+        # Add any additional parameters from config_params (excluding 'params' key itself)
+        params.update({k: v for k, v in config_params.items() 
+                      if k not in params and k != 'params' and not k.startswith('_')})
         
         return RandomForestClassifier(**params)
     

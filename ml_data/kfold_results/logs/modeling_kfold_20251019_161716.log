@@ -1,0 +1,86 @@
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:62 - Initializing k-fold modeling with config: {'input': [{'path': './ml_data/breast_cancer_dataset.csv', 'name': 'clinical_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': './ml_data/kfold_results', 'n_splits': 5, 'stratified': True, 'random_state': 42, 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'RandomForest': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': None, 'max_features': 'sqrt'}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1}}}, 'is_visualize': False, 'is_save_model': False}
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:72 - Available feature selectors: ['correlation', 'icc', 'lasso', 'mrmr', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:80 - K-fold modeling initialization completed
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:92 - Reading data from multiple files: 1 files
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:122 - Reading file: ./ml_data/breast_cancer_dataset.csv, Dataset name: clinical_
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:123 - Subject ID column: subjID, Label column: label
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:127 - File loaded with shape: (569, 14)
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:147 - Using label column: label
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:153 - Using subject ID column: subjID
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:190 - Created initial merged dataframe with shape: (569, 12)
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:200 - Adding unified label column: label
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:204 - Final merged dataframe shape: (569, 13) with 12 features
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:222 - Converting data to numeric types
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:224 - Data converted to numeric types
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:228 - Missing values: label                               0
+clinical_compactness error          0
+clinical_concavity error            0
+clinical_concave points error       0
+clinical_symmetry error             0
+clinical_fractal dimension error    0
+clinical_worst radius               0
+clinical_worst texture              0
+clinical_worst perimeter            0
+clinical_worst area                 0
+clinical_worst smoothness           0
+clinical_worst compactness          0
+clinical_worst fractal dimension    0
+dtype: int64
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:231 - Starting data preprocessing
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:232 - Sample size before removing missing values: 569
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:237 - Sample size after removing missing values: 569
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:245 - Data preprocessing completed
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:255 - Creating 5-fold cross-validation splits
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:265 - Using Stratified K-Fold with 5 splits
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:279 - Fold 1: train=455, val=114
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:279 - Fold 2: train=455, val=114
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:279 - Fold 3: train=455, val=114
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:279 - Fold 4: train=455, val=114
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:279 - Fold 5: train=456, val=113
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:401 - Starting k-fold cross-validation
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:420 - Processing Fold 1/5
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:437 - Selected 9 features for fold 1
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training LogisticRegression on fold 1
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:472 - LogisticRegression fold 1 - Val AUC: 0.9990, Acc: 0.9737
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training RandomForest on fold 1
+2025-10-19 16:17:16 - modeling_kfold - ERROR - machine_learning_kfold.py:477 - Error training RandomForest on fold 1: RandomForestClassifier.__init__() got an unexpected keyword argument 'params'
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training XGBoost on fold 1
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:472 - XGBoost fold 1 - Val AUC: 0.9967, Acc: 0.9912
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:420 - Processing Fold 2/5
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:437 - Selected 9 features for fold 2
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training LogisticRegression on fold 2
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:472 - LogisticRegression fold 2 - Val AUC: 0.9925, Acc: 0.9386
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training RandomForest on fold 2
+2025-10-19 16:17:16 - modeling_kfold - ERROR - machine_learning_kfold.py:477 - Error training RandomForest on fold 2: RandomForestClassifier.__init__() got an unexpected keyword argument 'params'
+2025-10-19 16:17:16 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training XGBoost on fold 2
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - XGBoost fold 2 - Val AUC: 0.9885, Acc: 0.9386
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:420 - Processing Fold 3/5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:437 - Selected 9 features for fold 3
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training LogisticRegression on fold 3
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - LogisticRegression fold 3 - Val AUC: 0.9848, Acc: 0.9474
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training RandomForest on fold 3
+2025-10-19 16:17:17 - modeling_kfold - ERROR - machine_learning_kfold.py:477 - Error training RandomForest on fold 3: RandomForestClassifier.__init__() got an unexpected keyword argument 'params'
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training XGBoost on fold 3
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - XGBoost fold 3 - Val AUC: 0.9884, Acc: 0.9561
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:420 - Processing Fold 4/5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:437 - Selected 8 features for fold 4
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training LogisticRegression on fold 4
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - LogisticRegression fold 4 - Val AUC: 1.0000, Acc: 0.9912
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training RandomForest on fold 4
+2025-10-19 16:17:17 - modeling_kfold - ERROR - machine_learning_kfold.py:477 - Error training RandomForest on fold 4: RandomForestClassifier.__init__() got an unexpected keyword argument 'params'
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training XGBoost on fold 4
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - XGBoost fold 4 - Val AUC: 1.0000, Acc: 0.9737
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:420 - Processing Fold 5/5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:437 - Selected 9 features for fold 5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training LogisticRegression on fold 5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - LogisticRegression fold 5 - Val AUC: 0.9977, Acc: 0.9735
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training RandomForest on fold 5
+2025-10-19 16:17:17 - modeling_kfold - ERROR - machine_learning_kfold.py:477 - Error training RandomForest on fold 5: RandomForestClassifier.__init__() got an unexpected keyword argument 'params'
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:448 - Training XGBoost on fold 5
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:472 - XGBoost fold 5 - Val AUC: 0.9933, Acc: 0.9646
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:490 - Aggregating results across folds
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:538 - LogisticRegression - Overall AUC: 0.9934 ± 0.0056
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:538 - XGBoost - Overall AUC: 0.9922 ± 0.0045
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:547 - Saving cross-validation results
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:563 - Saved k-fold CV results to: ./ml_data/kfold_results\kfold_cv_results.json
+2025-10-19 16:17:17 - modeling_kfold - INFO - machine_learning_kfold.py:600 - Saved performance summary to: ./ml_data/kfold_results\kfold_performance_summary.csv
