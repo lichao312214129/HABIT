@@ -51,9 +51,7 @@ python scripts/app_of_machine_learning.py --config <config_file_path> --mode pre
 
 **📖 Configuration File Links**:
 - 📄 [Current Configuration](../config/config_machine_learning.yaml) - Concise configuration for actual use
-- 📖 Annotated Version (Coming Soon) - Complete bilingual (EN/CN) version `config_machine_learning_annotated.yaml`
-
-> 💡 **Tip**: Annotated config files are being prepared. See [Habitat config example](../config/config_getting_habitat_annotated.yaml) for reference format.
+- 📖 [Annotated Template](../config_templates/config_machine_learning_annotated.yaml) - Complete English comments and instructions
 
 ## Configuration File Format
 

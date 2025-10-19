@@ -43,7 +43,7 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 
 **📖 配置文件链接**：
 - 📄 [当前配置文件](../config/config_getting_habitat.yaml) - 实际使用的精简配置
-- 📖 [详细注释版](../config/config_getting_habitat_annotated.yaml) - 包含完整中英文双语注释和使用说明
+- 📖 [详细注释模板](../config_templates/config_getting_habitat_annotated.yaml) - 包含完整英文注释和使用说明
 
 ### 关键配置项
 

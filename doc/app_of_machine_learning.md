@@ -51,9 +51,7 @@ python scripts/app_of_machine_learning.py --config <config_file_path> --mode pre
 
 **📖 配置文件链接**：
 - 📄 [当前配置文件](../config/config_machine_learning.yaml) - 实际使用的精简配置
-- 📖 详细注释版（待创建）- 完整中英文双语注释版 `config_machine_learning_annotated.yaml`
-
-> 💡 **提示**: 详细注释版配置文件正在准备中。可参考 [Habitat配置注释版](../config/config_getting_habitat_annotated.yaml) 的格式。
+- 📖 [详细注释模板](../config_templates/config_machine_learning_annotated.yaml) - 完整英文注释和使用说明
 
 ## 配置文件格式
 

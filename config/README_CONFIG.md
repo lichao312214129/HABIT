@@ -7,18 +7,22 @@ HABIT toolkit uses YAML configuration files to control all functionalities. Each
 1. **Standard Version** (`config_xxx.yaml`) - Concise configuration for daily use
 2. **Annotated Version** (`config_xxx_annotated.yaml`) - Detailed English comments explaining all parameters
 
-## 📂 Available Configuration Files
+## 📂 Configuration Files Overview
 
-| Config File | Annotated Version | Module | Status |
+All annotated templates are located in the [`config_templates/`](../config_templates/) directory.
+
+## Available Configuration Files
+
+| Config File | Annotated Template | Module | Status |
 |-------------|-------------------|--------|--------|
-| `config_getting_habitat.yaml` | [`config_getting_habitat_annotated.yaml`](config_getting_habitat_annotated.yaml) | Habitat Analysis | ✅ Complete |
-| `config_extract_features.yaml` | [`config_extract_features_annotated.yaml`](config_extract_features_annotated.yaml) | Feature Extraction | ✅ Complete |
-| `config_machine_learning.yaml` | [`config_machine_learning_annotated.yaml`](config_machine_learning_annotated.yaml) | Machine Learning | ✅ Complete |
-| `config_machine_learning_kfold.yaml` | [`config_machine_learning_kfold_annotated.yaml`](config_machine_learning_kfold_annotated.yaml) | K-Fold Cross-Validation | ✅ Complete |
-| `config_model_comparison.yaml` | [`config_model_comparison_annotated.yaml`](config_model_comparison_annotated.yaml) | Model Comparison | ✅ Complete |
-| `config_icc_analysis.yaml` | [`config_icc_analysis_annotated.yaml`](config_icc_analysis_annotated.yaml) | ICC Analysis | ✅ Complete |
-| `config_image_preprocessing.yaml` | [`config_image_preprocessing_annotated.yaml`](config_image_preprocessing_annotated.yaml) | Image Preprocessing | ✅ Complete |
-| `config_traditional_radiomics.yaml` | [`config_traditional_radiomics_annotated.yaml`](config_traditional_radiomics_annotated.yaml) | Traditional Radiomics | ✅ Complete |
+| `config_getting_habitat.yaml` | [`config_getting_habitat_annotated.yaml`](../config_templates/config_getting_habitat_annotated.yaml) | Habitat Analysis | ✅ Complete |
+| `config_extract_features.yaml` | [`config_extract_features_annotated.yaml`](../config_templates/config_extract_features_annotated.yaml) | Feature Extraction | ✅ Complete |
+| `config_machine_learning.yaml` | [`config_machine_learning_annotated.yaml`](../config_templates/config_machine_learning_annotated.yaml) | Machine Learning | ✅ Complete |
+| `config_machine_learning_kfold.yaml` | [`config_machine_learning_kfold_annotated.yaml`](../config_templates/config_machine_learning_kfold_annotated.yaml) | K-Fold Cross-Validation | ✅ Complete |
+| `config_model_comparison.yaml` | [`config_model_comparison_annotated.yaml`](../config_templates/config_model_comparison_annotated.yaml) | Model Comparison | ✅ Complete |
+| `config_icc_analysis.yaml` | [`config_icc_analysis_annotated.yaml`](../config_templates/config_icc_analysis_annotated.yaml) | ICC Analysis | ✅ Complete |
+| `config_image_preprocessing.yaml` | [`config_image_preprocessing_annotated.yaml`](../config_templates/config_image_preprocessing_annotated.yaml) | Image Preprocessing | ✅ Complete |
+| `config_traditional_radiomics.yaml` | [`config_traditional_radiomics_annotated.yaml`](../config_templates/config_traditional_radiomics_annotated.yaml) | Traditional Radiomics | ✅ Complete |
 | `config_habitat_test_retest.yaml` | `config_habitat_test_retest_annotated.yaml` | Test-Retest Mapping | 🔄 Coming Soon |
 | `config_image_preprocessing_dcm2nii.yaml` | `config_image_preprocessing_dcm2nii_annotated.yaml` | DICOM Conversion | 🔄 Coming Soon |
 
@@ -28,7 +32,7 @@ HABIT toolkit uses YAML configuration files to control all functionalities. Each
 Use the **standard version** (e.g., `config_getting_habitat.yaml`) for quick execution.
 
 ### For Learning & Customization
-Refer to the **annotated version** (e.g., `config_getting_habitat_annotated.yaml`) to:
+Refer to the **annotated template** in `config_templates/` (e.g., `config_templates/config_getting_habitat_annotated.yaml`) to:
 - Understand each parameter's purpose and options
 - See usage examples and recommendations
 - Learn valid value ranges and default settings
@@ -107,7 +111,7 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 
 When creating new annotated configuration files:
 
-1. **Use Template**: Refer to [`config_getting_habitat_annotated.yaml`](config_getting_habitat_annotated.yaml) as template
+1. **Use Template**: Refer to [`config_templates/config_getting_habitat_annotated.yaml`](../config_templates/config_getting_habitat_annotated.yaml) as template
 2. **Follow Structure**: Include headers, sections with clear dividers, detailed comments
 3. **Document Parameters**: For each parameter, include:
    - Purpose and function

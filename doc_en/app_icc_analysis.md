@@ -35,9 +35,7 @@ python scripts/app_icc_analysis.py --config <config_file_path>
 
 **📖 Configuration File Links**:
 - 📄 [Current Configuration](../config/config_icc_analysis.yaml) - Concise configuration for actual use
-- 📖 Annotated Version (Coming Soon) - Complete detailed comments `config_icc_analysis_annotated.yaml`
-
-> 💡 **Tip**: Annotated config files are being prepared. See [Habitat config example](../config/config_getting_habitat_annotated.yaml) for reference format.
+- 📖 [Annotated Template](../config_templates/config_icc_analysis_annotated.yaml) - Complete English comments and instructions
 
 ## Configuration File Format
 

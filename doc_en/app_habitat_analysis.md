@@ -43,7 +43,7 @@ python scripts/app_getting_habitat_map.py --config config/config_getting_habitat
 
 **📖 Configuration File Links**:
 - 📄 [Current Configuration](../config/config_getting_habitat.yaml) - Concise configuration for actual use
-- 📖 [Annotated Version](../config/config_getting_habitat_annotated.yaml) - Complete bilingual (EN/CN) comments and instructions
+- 📖 [Annotated Template](../config_templates/config_getting_habitat_annotated.yaml) - Complete English comments and instructions
 
 ### Key Configuration Items
 

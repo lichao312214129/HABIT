@@ -29,9 +29,7 @@ python scripts/app_extracting_habitat_features.py --config <config_file_path>
 
 **📖 Configuration File Links**:
 - 📄 [Current Configuration](../config/config_extract_features.yaml) - Concise configuration for actual use
-- 📖 Annotated Version (Coming Soon) - Complete detailed comments `config_extract_features_annotated.yaml`
-
-> 💡 **Tip**: Annotated config files are being prepared. See [Habitat config example](../config/config_getting_habitat_annotated.yaml) for reference format.
+- 📖 [Annotated Template](../config_templates/config_extract_features_annotated.yaml) - Complete English comments and instructions
 
 ## Configuration File Format
 
