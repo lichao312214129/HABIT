@@ -32,6 +32,15 @@ python scripts/app_image_preprocessing.py -c ./config/config_image_preprocessing
 python scripts/app_image_preprocessing.py
 ```
 
+## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 📄 [Current Configuration](../config/config_image_preprocessing.yaml) - Actual configuration file in use
+- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
+- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+
+> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+
 ## Configuration File Format
 
 `app_image_preprocessing.py` uses a YAML configuration file with the following main sections:

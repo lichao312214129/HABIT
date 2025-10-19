@@ -45,7 +45,14 @@ python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yam
 | Use cases | Large datasets, rapid prototyping | Small datasets, reliable evaluation |
 | Computation time | Fast | Slow (K times) |
 
-## Configuration File
+## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 📄 [Current Configuration](../config/config_machine_learning_kfold.yaml) - Actual configuration file in use
+- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
+- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+
+> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
 
 K-Fold cross-validation uses a dedicated configuration file: `config_machine_learning_kfold.yaml`.
 

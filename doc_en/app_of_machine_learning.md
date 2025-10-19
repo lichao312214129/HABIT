@@ -47,6 +47,15 @@ python scripts/app_of_machine_learning.py --config <config_file_path> --mode pre
 | `--model_name` | Specific model name to use for prediction |
 | `--evaluate` | Whether to evaluate model performance and generate plots |
 
+## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 📄 [Current Configuration](../config/config_machine_learning.yaml) - Actual configuration file in use
+- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
+- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+
+> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+
 ## Configuration File Format
 
 `app_of_machine_learning.py` uses a YAML configuration file with the following main sections:

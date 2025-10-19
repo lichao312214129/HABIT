@@ -31,6 +31,15 @@ python scripts/app_icc_analysis.py --config <config_file_path>
 |---|---|
 | `--config` | Path to the YAML configuration file (required) |
 
+## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 📄 [Current Configuration](../config/config_icc_analysis.yaml) - Actual configuration file in use
+- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
+- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+
+> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+
 ## Configuration File Format
 
 `app_icc_analysis.py` uses a YAML configuration file with the following main sections:

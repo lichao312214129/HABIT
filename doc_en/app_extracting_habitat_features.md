@@ -25,6 +25,15 @@ habit extract-features -c config/config_extract_features.yaml
 python scripts/app_extracting_habitat_features.py --config <config_file_path>
 ```
 
+## 📋 Configuration File
+
+**📖 Configuration File Links**:
+- 📄 [Current Configuration](../config/config_extract_features.yaml) - Actual configuration file in use
+- 🇬🇧 Detailed English Configuration (Coming Soon) - Complete English comments and instructions
+- 🇨🇳 详细中文配置 (Coming Soon) - Includes complete Chinese comments and instructions
+
+> 💡 **Tip**: Detailed annotated configuration files are being prepared. Please refer to the configuration instructions below for now.
+
 ## Configuration File Format
 
 `app_extracting_habitat_features.py` uses a YAML configuration file with the following main sections:

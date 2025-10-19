@@ -45,7 +45,14 @@ python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yam
 | 适用场景 | 数据量大、需要快速原型 | 数据量小、需要可靠评估 |
 | 计算时间 | 快 | 慢（K倍） |
 
-## 配置文件
+## 📋 配置文件
+
+**📖 配置文件链接**：
+- 📄 [当前配置文件](../config/config_machine_learning_kfold.yaml) - 实际使用的配置文件
+- 🇨🇳 详细中文配置（待创建）- 包含完整的中文注释和使用说明
+- 🇬🇧 详细英文配置（待创建）- Complete English comments and instructions
+
+> 💡 **提示**: 详细注释版配置文件正在准备中。目前请参考下方的配置说明。
 
 K-Fold交叉验证使用专门的配置文件 `config_machine_learning_kfold.yaml`。
 
