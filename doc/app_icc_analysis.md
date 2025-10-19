@@ -1,10 +1,25 @@
-# app_icc_analysis.py 功能文档
+# ICC分析模块使用文档
 
 ## 功能概述
 
-`app_icc_analysis.py` 是HABIT工具包中用于计算组内相关系数（Intraclass Correlation Coefficient，ICC）的专用工具。该模块支持对生境特征的测试-重测一致性、观察者间一致性和各种可靠性评估进行分析。ICC是评估定量测量可靠性的标准统计方法，在放射组学研究中具有重要意义。
+ICC分析模块用于计算组内相关系数（Intraclass Correlation Coefficient，ICC）。该模块支持对生境特征的测试-重测一致性、观察者间一致性和各种可靠性评估进行分析。ICC是评估定量测量可靠性的标准统计方法，在放射组学研究中具有重要意义。
 
-## 用法
+## 🚀 快速开始
+
+### 使用CLI（推荐）✨
+
+```bash
+# 使用默认配置
+habit icc
+
+# 使用指定配置文件
+habit icc --config config/config_icc_analysis.yaml
+
+# 简写形式
+habit icc -c config/config_icc_analysis.yaml
+```
+
+### 使用传统脚本（兼容旧版）
 
 ```bash
 python scripts/app_icc_analysis.py --config <config_file_path>

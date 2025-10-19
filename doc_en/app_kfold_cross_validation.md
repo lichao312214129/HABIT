@@ -1,10 +1,31 @@
 # K-Fold Cross-Validation Guide
 
-This document describes how to use the K-Fold cross-validation functionality in the habit package for model evaluation and training.
+This document describes how to use the K-Fold cross-validation functionality in the HABIT package for model evaluation and training.
 
 ## Overview
 
 K-Fold cross-validation is a widely used model evaluation method that divides the dataset into K subsets (folds). In each iteration, K-1 subsets are used for training and the remaining subset is used for validation. This process repeats K times, with each subset serving as the validation set once.
+
+## 🚀 Quick Start
+
+### Using CLI (Recommended) ✨
+
+```bash
+# Use default configuration
+habit kfold
+
+# Use specified configuration file
+habit kfold --config config/config_machine_learning_kfold.yaml
+
+# Short form
+habit kfold -c config/config_machine_learning_kfold.yaml
+```
+
+### Using Traditional Scripts (Legacy Compatible)
+
+```bash
+python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yaml
+```
 
 ### Advantages of K-Fold Cross-Validation
 

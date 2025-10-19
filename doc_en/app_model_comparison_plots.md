@@ -1,10 +1,25 @@
-# Documentation for app_model_comparison_plots.py
+# Model Comparison and Visualization Module User Guide
 
 ## Overview
 
-`app_model_comparison_plots.py` is a dedicated tool in the HABIT toolkit for comparing and evaluating the performance of multiple machine learning models. It can read the prediction results from multiple models, merge the evaluation data, generate various performance evaluation charts and metrics, and supports analysis grouped by dataset (e.g., training set, test set).
+The Model Comparison module is a dedicated tool for comparing and evaluating the performance of multiple machine learning models. It can read the prediction results from multiple models, merge the evaluation data, generate various performance evaluation charts and metrics, and supports analysis grouped by dataset (e.g., training set, test set).
 
-## Usage
+## 🚀 Quick Start
+
+### Using CLI (Recommended) ✨
+
+```bash
+# Use default configuration
+habit compare
+
+# Use specified configuration file
+habit compare --config config/config_model_comparison.yaml
+
+# Short form
+habit compare -c config/config_model_comparison.yaml
+```
+
+### Using Traditional Scripts (Legacy Compatible)
 
 ```bash
 python scripts/app_model_comparison_plots.py --config <config_file_path>

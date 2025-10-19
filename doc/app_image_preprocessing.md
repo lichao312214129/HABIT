@@ -1,22 +1,36 @@
-# app_image_preprocessing.py 功能文档
+# 图像预处理模块使用文档
 
 ## 功能概述
 
-`app_image_preprocessing.py` 是HABIT工具包中用于医学图像预处理的入口程序。该模块实现了一系列图像预处理步骤，包括重采样、配准和N4偏置场校正等，为后续的生境分析提供标准化和优化的图像数据。
+图像预处理模块实现了一系列医学图像预处理步骤，包括重采样、配准和N4偏置场校正等，为后续的生境分析提供标准化和优化的图像数据。
 
-## 用法
+## 🚀 快速开始
+
+### 使用CLI（推荐）✨
 
 ```bash
+# 使用默认配置
+habit preprocess
+
+# 使用指定配置文件
+habit preprocess --config config/config_image_preprocessing.yaml
+
+# 简写形式
+habit preprocess -c config/config_image_preprocessing.yaml
+```
+
+### 使用传统脚本（兼容旧版）
+
+```bash
+# 使用指定配置文件
 python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
-```
 
-或者简写为：
-
-```bash
+# 简写形式
 python scripts/app_image_preprocessing.py -c ./config/config_image_preprocessing.yaml 
-```
 
-如果不指定配置文件，脚本将使用默认配置文件 `./config/config_image_preprocessing.yaml`。
+# 如果不指定配置文件，脚本将使用默认配置文件
+python scripts/app_image_preprocessing.py
+```
 
 ## 配置文件格式
 

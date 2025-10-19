@@ -1,20 +1,37 @@
-# Documentation for app_of_machine_learning.py
+# Machine Learning Module User Guide
 
 ## Overview
 
-`app_of_machine_learning.py` is the entry point in the HABIT toolkit for radiomics modeling and prediction. This module provides a complete machine learning workflow, including data preprocessing, feature selection, model training, performance evaluation, and prediction on new data. It supports various machine learning algorithms for classification and regression tasks on radiomics features.
+The Machine Learning module provides a complete machine learning workflow, including data preprocessing, feature selection, model training, performance evaluation, and prediction on new data. It supports various machine learning algorithms for classification and regression tasks on radiomics features.
 
-## Usage
+## 🚀 Quick Start
 
-### Training Mode
+### Using CLI (Recommended) ✨
 
 ```bash
-python scripts/app_of_machine_learning.py --config <config_file_path> --mode train
+# Training mode
+habit ml --config config/config_machine_learning.yaml --mode train
+
+# Prediction mode
+habit ml --mode predict \
+  --model ./ml_data/model_package.pkl \
+  --data ./new_data.csv \
+  --output ./predictions/
+
+# Prediction with evaluation
+habit ml --mode predict \
+  --model ./ml_data/model_package.pkl \
+  --data ./test_data.csv \
+  --evaluate
 ```
 
-### Prediction Mode
+### Using Traditional Scripts (Legacy Compatible)
 
 ```bash
+# Training mode
+python scripts/app_of_machine_learning.py --config <config_file_path> --mode train
+
+# Prediction mode
 python scripts/app_of_machine_learning.py --config <config_file_path> --mode predict --model <model_file_path> --data <data_file_path> [--output <output_dir>] [--model_name <model_name>] [--evaluate]
 ```
 

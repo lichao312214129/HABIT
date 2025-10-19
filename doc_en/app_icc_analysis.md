@@ -1,10 +1,25 @@
-# Documentation for app_icc_analysis.py
+# ICC Analysis Module User Guide
 
 ## Overview
 
-`app_icc_analysis.py` is a dedicated tool in the HABIT toolkit for calculating the Intraclass Correlation Coefficient (ICC). This module supports the analysis of test-retest reliability, inter-observer agreement, and various other reliability assessments for habitat features. ICC is a standard statistical method for evaluating the reliability of quantitative measurements and is of great importance in radiomics research.
+The ICC Analysis module is a dedicated tool for calculating the Intraclass Correlation Coefficient (ICC). This module supports the analysis of test-retest reliability, inter-observer agreement, and various other reliability assessments for habitat features. ICC is a standard statistical method for evaluating the reliability of quantitative measurements and is of great importance in radiomics research.
 
-## Usage
+## 🚀 Quick Start
+
+### Using CLI (Recommended) ✨
+
+```bash
+# Use default configuration
+habit icc
+
+# Use specified configuration file
+habit icc --config config/config_icc_analysis.yaml
+
+# Short form
+habit icc -c config/config_icc_analysis.yaml
+```
+
+### Using Traditional Scripts (Legacy Compatible)
 
 ```bash
 python scripts/app_icc_analysis.py --config <config_file_path>

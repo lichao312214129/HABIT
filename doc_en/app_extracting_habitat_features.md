@@ -1,10 +1,25 @@
-# Documentation for app_extracting_habitat_features.py
+# Habitat Feature Extraction Module User Guide
 
 ## Overview
 
-`app_extracting_habitat_features.py` is the entry point in the HABIT toolkit for extracting features from segmented habitat maps. This script supports the extraction of various feature types from medical images, including traditional radiomics features, non-radiomics features, whole habitat features, individual habitat features, multiregional spatial interaction (MSI) features, and the Intratumoral Heterogeneity Index (IHI index).
+The Habitat Feature Extraction module extracts features from segmented habitat maps. This module supports the extraction of various feature types from medical images, including traditional radiomics features, non-radiomics features, whole habitat features, individual habitat features, multiregional spatial interaction (MSI) features, and the Intratumoral Heterogeneity Index (IHI index).
 
-## Usage
+## 🚀 Quick Start
+
+### Using CLI (Recommended) ✨
+
+```bash
+# Use default configuration
+habit extract-features
+
+# Use specified configuration file
+habit extract-features --config config/config_extract_features.yaml
+
+# Short form
+habit extract-features -c config/config_extract_features.yaml
+```
+
+### Using Traditional Scripts (Legacy Compatible)
 
 ```bash
 python scripts/app_extracting_habitat_features.py --config <config_file_path>

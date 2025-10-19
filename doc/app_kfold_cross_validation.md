@@ -1,10 +1,31 @@
 # K-Fold交叉验证使用指南
 
-本文档介绍如何使用habit软件包中的K-Fold交叉验证功能进行模型评估和训练。
+本文档介绍如何使用HABIT软件包中的K-Fold交叉验证功能进行模型评估和训练。
 
 ## 概述
 
 K-Fold交叉验证是一种常用的模型评估方法，它将数据集分成K个子集（fold），每次使用其中K-1个子集进行训练，剩余1个子集进行验证，这样重复K次，每个子集都会被用作验证集一次。
+
+## 🚀 快速开始
+
+### 使用CLI（推荐）✨
+
+```bash
+# 使用默认配置
+habit kfold
+
+# 使用指定配置文件
+habit kfold --config config/config_machine_learning_kfold.yaml
+
+# 简写形式
+habit kfold -c config/config_machine_learning_kfold.yaml
+```
+
+### 使用传统脚本（兼容旧版）
+
+```bash
+python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yaml
+```
 
 ### K-Fold交叉验证的优势
 

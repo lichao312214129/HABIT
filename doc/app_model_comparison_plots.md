@@ -1,10 +1,25 @@
-# app_model_comparison_plots.py 功能文档
+# 模型比较与可视化模块使用文档
 
 ## 功能概述
 
-`app_model_comparison_plots.py` 是HABIT工具包中用于比较和评估多个机器学习模型性能的专用工具。它能读取多个模型的预测结果，合并评估数据，生成多种性能评估图表和指标，并支持按数据集分组进行分析（如训练集、测试集）。
+模型比较模块用于比较和评估多个机器学习模型的性能。它能读取多个模型的预测结果，合并评估数据，生成多种性能评估图表和指标，并支持按数据集分组进行分析（如训练集、测试集）。
 
-## 用法
+## 🚀 快速开始
+
+### 使用CLI（推荐）✨
+
+```bash
+# 使用默认配置
+habit compare
+
+# 使用指定配置文件
+habit compare --config config/config_model_comparison.yaml
+
+# 简写形式
+habit compare -c config/config_model_comparison.yaml
+```
+
+### 使用传统脚本（兼容旧版）
 
 ```bash
 python scripts/app_model_comparison_plots.py --config <config_file_path>

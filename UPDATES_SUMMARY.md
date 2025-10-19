@@ -16,7 +16,7 @@
 - 🇨🇳 简体中文 | 🇬🇧 English
 - 一键切换，方便用户查看不同语言版本
 
-### 2. 🧬 生境分析支持两种模式 / Habitat Analysis Two Modes
+### 3. 🧬 生境分析支持两种模式 / Habitat Analysis Two Modes
 
 **一步法 (One-Step)**:
 - 个体水平聚类
@@ -34,7 +34,7 @@ HabitatsSegmention:
   clustering_mode: one_step  # 或 two_step
 ```
 
-### 3. 🎯 CLI统一命令行界面 / Unified CLI
+### 4. 🎯 CLI统一命令行界面 / Unified CLI
 
 所有功能通过 `habit` 命令访问：
 ```bash

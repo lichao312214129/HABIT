@@ -1,22 +1,36 @@
-# Documentation for app_image_preprocessing.py
+# Image Preprocessing Module User Guide
 
 ## Overview
 
-`app_image_preprocessing.py` is the entry point in the HABIT toolkit for medical image preprocessing. This module implements a series of image preprocessing steps, including resampling, registration, and N4 bias field correction, to provide standardized and optimized image data for subsequent habitat analysis.
+The Image Preprocessing module implements a series of medical image preprocessing steps, including resampling, registration, and N4 bias field correction, to provide standardized and optimized image data for subsequent habitat analysis.
 
-## Usage
+## 🚀 Quick Start
+
+### Using CLI (Recommended) ✨
 
 ```bash
+# Use default configuration
+habit preprocess
+
+# Use specified configuration file
+habit preprocess --config config/config_image_preprocessing.yaml
+
+# Short form
+habit preprocess -c config/config_image_preprocessing.yaml
+```
+
+### Using Traditional Scripts (Legacy Compatible)
+
+```bash
+# Use specified configuration file
 python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
-```
 
-Or in short form:
-
-```bash
+# Short form
 python scripts/app_image_preprocessing.py -c ./config/config_image_preprocessing.yaml 
-```
 
-If no configuration file is specified, the script will use the default configuration file `./config/config_image_preprocessing.yaml`.
+# If no configuration file is specified, the default will be used
+python scripts/app_image_preprocessing.py
+```
 
 ## Configuration File Format
 

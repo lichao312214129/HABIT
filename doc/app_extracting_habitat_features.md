@@ -1,10 +1,25 @@
-# app_extracting_habitat_features.py 功能文档
+# Habitat特征提取模块使用文档
 
 ## 功能概述
 
-`app_extracting_habitat_features.py` 是HABIT工具包用于从已分割的生境图中提取特征的入口程序。这个脚本支持从医学图像中提取多种类型的特征，包括传统放射组学特征、非放射组学特征、整体生境特征、单个生境特征、空间交互矩阵(multiregional spatial interaction (MSI))特征以及肿瘤内异质性指数(Intratumoral Heterogeneity Index, IHI index)。
+Habitat特征提取模块用于从已分割的生境图中提取特征。该模块支持从医学图像中提取多种类型的特征，包括传统放射组学特征、非放射组学特征、整体生境特征、单个生境特征、空间交互矩阵(multiregional spatial interaction (MSI))特征以及肿瘤内异质性指数(Intratumoral Heterogeneity Index, IHI index)。
 
-## 用法
+## 🚀 快速开始
+
+### 使用CLI（推荐）✨
+
+```bash
+# 使用默认配置
+habit extract-features
+
+# 使用指定配置文件
+habit extract-features --config config/config_extract_features.yaml
+
+# 简写形式
+habit extract-features -c config/config_extract_features.yaml
+```
+
+### 使用传统脚本（兼容旧版）
 
 ```bash
 python scripts/app_extracting_habitat_features.py --config <config_file_path>

@@ -1,20 +1,37 @@
-# app_of_machine_learning.py 功能文档
+# 机器学习模块使用文档
 
 ## 功能概述
 
-`app_of_machine_learning.py` 是HABIT工具包中用于放射组学建模和预测的入口程序。该模块提供了完整的机器学习流程，包括数据预处理、特征选择、模型训练、性能评估和新数据预测。支持多种机器学习算法，可用于放射组学特征的分类和回归任务。
+机器学习模块提供了完整的机器学习流程，包括数据预处理、特征选择、模型训练、性能评估和新数据预测。支持多种机器学习算法，可用于放射组学特征的分类和回归任务。
 
-## 用法
+## 🚀 快速开始
 
-### 训练模式
+### 使用CLI（推荐）✨
 
 ```bash
-python scripts/app_of_machine_learning.py --config <config_file_path> --mode train
+# 训练模式
+habit ml --config config/config_machine_learning.yaml --mode train
+
+# 预测模式
+habit ml --mode predict \
+  --model ./ml_data/model_package.pkl \
+  --data ./new_data.csv \
+  --output ./predictions/
+
+# 预测并评估
+habit ml --mode predict \
+  --model ./ml_data/model_package.pkl \
+  --data ./test_data.csv \
+  --evaluate
 ```
 
-### 预测模式
+### 使用传统脚本（兼容旧版）
 
 ```bash
+# 训练模式
+python scripts/app_of_machine_learning.py --config <config_file_path> --mode train
+
+# 预测模式
 python scripts/app_of_machine_learning.py --config <config_file_path> --mode predict --model <model_file_path> --data <data_file_path> [--output <output_dir>] [--model_name <model_name>] [--evaluate]
 ```
 
