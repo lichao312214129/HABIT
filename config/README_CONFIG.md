@@ -22,9 +22,8 @@ All annotated templates are located in the [`config_templates/`](../config_templ
 | `config_model_comparison.yaml` | [`config_model_comparison_annotated.yaml`](../config_templates/config_model_comparison_annotated.yaml) | Model Comparison | ✅ Complete |
 | `config_icc_analysis.yaml` | [`config_icc_analysis_annotated.yaml`](../config_templates/config_icc_analysis_annotated.yaml) | ICC Analysis | ✅ Complete |
 | `config_image_preprocessing.yaml` | [`config_image_preprocessing_annotated.yaml`](../config_templates/config_image_preprocessing_annotated.yaml) | Image Preprocessing | ✅ Complete |
+| `config_image_preprocessing_dcm2nii.yaml` | [`config_image_preprocessing_dcm2nii_annotated.yaml`](../config_templates/config_image_preprocessing_dcm2nii_annotated.yaml) | DICOM Conversion | ✅ Complete |
 | `config_traditional_radiomics.yaml` | [`config_traditional_radiomics_annotated.yaml`](../config_templates/config_traditional_radiomics_annotated.yaml) | Traditional Radiomics | ✅ Complete |
-| `config_habitat_test_retest.yaml` | `config_habitat_test_retest_annotated.yaml` | Test-Retest Mapping | 🔄 Coming Soon |
-| `config_image_preprocessing_dcm2nii.yaml` | `config_image_preprocessing_dcm2nii_annotated.yaml` | DICOM Conversion | 🔄 Coming Soon |
 
 ## 💡 How to Use
 

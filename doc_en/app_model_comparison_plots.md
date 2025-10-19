@@ -153,13 +153,15 @@ metrics:
 
 ### 1. Data Merging and Grouping
 
-The tool can read model predictions from multiple files, merge them into a single dataset, and optionally group them for analysis based on a specified split column (e.g., train/test).
+This tool can read model predictions from multiple files, merge them into a single dataset, and optionally group the analysis by a specified split column (e.g., train/test).
 
 **Core Functions**:
-- Read multiple model prediction files.
-- Merge predictions from different models into a unified dataset.
-- Group data by the `split` column (e.g., training set vs. test set).
-- Save the merged dataset for further analysis.
+- Read multiple model prediction files
+- Merge predictions from different models into a unified dataset
+- Group data by the split column (e.g., training set vs. test set)
+- Save the merged dataset for further analysis
+
+**Note**: The `split_col` column supports any number of custom group names (e.g., "train", "test", "validation", "external_cohort_1"). The tool will automatically generate a separate analysis for each group.
 
 ### 2. Generating Visualizations
 
@@ -181,7 +183,7 @@ Generates the following visualizations for each model and each data split (if en
 - Shows the trade-off between precision and recall for each model at different thresholds.
 - Suitable for handling imbalanced datasets.
 
-### 3. Calculating Performance Metrics
+### 3. Calculate Performance Metrics
 
 Calculates and compares various performance metrics, supporting calculations at different thresholds:
 
@@ -191,13 +193,27 @@ Calculates and compares various performance metrics, supporting calculations at 
 - AUC, log loss, etc.
 
 **Youden's Index Metrics**:
-- Calculates metrics at the threshold that maximizes Youden's index (Sensitivity + Specificity - 1).
-- For train/test analysis, the threshold determined from the training set is applied to all datasets.
+- Calculates metrics at the threshold that maximizes the Youden's Index (Sensitivity + Specificity - 1)
+- For train/test split analysis, the threshold is determined on the training set and applied to all datasets
 
 **Target Metrics**:
-- Calculates the optimal threshold based on user-specified sensitivity/specificity targets.
-- Computes comprehensive performance metrics at the threshold that meets the target.
-- Supports searching for a threshold that satisfies multiple targets simultaneously.
+- Calculates the optimal threshold based on user-specified sensitivity/specificity targets
+- Computes comprehensive performance metrics at the threshold that meets the target
+- Supports searching for a threshold that satisfies multiple targets simultaneously
+
+#### Thresholding Logic
+
+Understanding how thresholds are determined and applied for different metrics is crucial for interpreting the results:
+
+- **Basic Metrics**: Unless otherwise specified, all basic metrics (Accuracy, Precision, F1-score, etc.) are calculated at a fixed probability threshold of **0.5**.
+
+- **Youden's Index Metrics**:
+  - **If splitting is disabled**: The optimal threshold that maximizes the Youden's Index (Sensitivity + Specificity - 1) is found on the entire dataset, and metrics are calculated at this threshold.
+  - **If splitting is enabled** (e.g., into `train` and `test` groups): The optimal threshold is **determined on the `train` group only**. This threshold is then **applied to all groups** (including `train`, `test`, etc.) to calculate their performance metrics. This simulates the real-world scenario of evaluating a finalized model on validation or test sets.
+
+- **Target Metrics**:
+  - The logic is similar to the Youden's Index. When splitting is enabled, the tool finds the optimal threshold that meets the specified target (e.g., `sensitivity: 0.9`) **on the `train` group only**.
+  - This threshold, derived from the training set, is then **applied to all groups** to evaluate the model's performance under those conditions.
 
 ### 4. Model Comparison
 

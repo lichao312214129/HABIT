@@ -1,12 +1,12 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# Image Preprocessing Configuration Template
+# DICOM to NIfTI Conversion Configuration Template
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# Based on actual code: habit/core/preprocessing/
+# Based on actual code: habit/utils/image_converter.py
 #
 # Quick Start:
-#   CLI:    habit preprocess --config config/config_image_preprocessing.yaml
-#   Script: python scripts/app_image_preprocessing.py --config config/config_image_preprocessing.yaml
+#   CLI:    habit preprocess --config config/config_image_preprocessing_dcm2nii.yaml
+#   Script: python scripts/app_image_preprocessing.py --config config/config_image_preprocessing_dcm2nii.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -14,12 +14,12 @@
 # Data Paths
 # ─────────────────────────────────────────────────────────────────────────
 
-# Input data directory
-# Expected structure: data_dir/subject_id/images/ and masks/
-data_dir: ./data/raw_images
+# Input configuration
+# Can be a YAML file listing DICOM directories or a directory path
+data_dir: ./config/image_files.yaml
 
 # Output directory
-out_dir: ./data/preprocessed_images
+out_dir: ./data/converted_nifti
 
 # ─────────────────────────────────────────────────────────────────────────
 # Preprocessing Pipeline
@@ -27,35 +27,38 @@ out_dir: ./data/preprocessed_images
 
 Preprocessing:
   
-  # N4 Bias Field Correction (for MRI)
-  # n4_correction:
-  #   images: [T1, T2, FLAIR]
-  #   num_fitting_levels: 4  # Number of fitting levels (2-4 typical)
+  # DICOM to NIfTI conversion
+  dcm2nii:
+    # Images to convert
+    images: [T1, T2, DWI, ADC]
+    
+    # Path to dcm2niix executable
+    # Download from: https://github.com/rordenlab/dcm2niix/releases
+    dcm2niix_path: ./software/dcm2niix/dcm2niix.exe
+    
+    # Compress output (gzip)
+    compress: true
+    
+    # Anonymize output (remove patient info)
+    anonymize: false
   
-  # Resampling
+  # Optional: Additional preprocessing steps after conversion
+  # Can include any preprocessing methods from config_image_preprocessing.yaml
+  
+  # n4_correction:
+  #   images: [T1, T2]
+  #   num_fitting_levels: 4
+  
   # resample:
   #   images: [T1, T2, DWI, ADC]
-  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing [x, y, z] in mm
+  #   target_spacing: [1.0, 1.0, 1.0]
   
-  # Z-Score Normalization
-  # zscore_normalization:
-  #   images: [T1, T2]
-  #   only_inmask: false  # Use whole image or masked region only
-  #   # mask_key: tumor_mask  # Mask name if only_inmask: true
-  
-  # Histogram Standardization
-  # histogram_standardization:
-  #   images: [T1, T2, FLAIR]
-  #   reference_key: T1  # Reference image for histogram matching
-  
-  # Image Registration
-  registration:
-    images: [T2, ADC]  # All images involved
-    fixed_image: T2  # Reference image (stays fixed)
-    moving_images: [ADC]  # Images to align to fixed_image
-    type_of_transform: SyNRA  # ANTs transform type
-    use_mask: false  # Use mask to guide registration
-    # mask_key: tumor_mask  # Mask name if use_mask: true
+  # registration:
+  #   images: [T1, T2, DWI, ADC]
+  #   fixed_image: T1
+  #   moving_images: [T2, DWI, ADC]
+  #   type_of_transform: SyNRA
+  #   use_mask: false
 
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings
@@ -68,29 +71,22 @@ processes: 1
 random_state: 42
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Available Preprocessing Methods
+# Notes
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# n4_correction:
-#   - For MRI bias field correction
-#   - Parameters: images, num_fitting_levels
+# dcm2niix is required for DICOM conversion
+# Download from: https://github.com/rordenlab/dcm2niix/releases
 #
-# resample:
-#   - Standardize voxel spacing
-#   - Parameters: images, target_spacing
+# Expected input structure (if data_dir is a directory):
+#   data_dir/
+#     ├── subject_001/
+#     │   ├── T1_DICOM/
+#     │   ├── T2_DICOM/
+#     │   └── ...
+#     └── subject_002/
+#         └── ...
 #
-# zscore_normalization:
-#   - Standardize intensity distribution
-#   - Parameters: images, only_inmask, mask_key
-#
-# histogram_standardization:
-#   - Match intensity distributions across subjects
-#   - Parameters: images, reference_key
-#
-# registration:
-#   - Align multiple images to same space
-#   - Parameters: images, fixed_image, moving_images, type_of_transform, use_mask, mask_key
-#   - Transform types: Translation, Rigid, Affine, SyN, SyNRA, SyNAggro, BSplineSyN
+# Or use a YAML file (image_files.yaml) to specify exact DICOM directories
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

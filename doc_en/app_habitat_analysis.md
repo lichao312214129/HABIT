@@ -191,20 +191,99 @@ processes: 4  # Use 4 processes for parallel processing
 
 ### Custom Feature Extraction
 
+`HABIT` provides a flexible feature extraction framework, allowing you to combine multiple features at the voxel level for subsequent habitat clustering analysis. All feature-related configurations are done in the `FeatureConstruction` section of the configuration file.
+
+### Syntax Introduction
+
+The feature extraction syntax is designed as an expression with the format `method(arguments)`.
+
+- **Single Feature**: Directly use one method, e.g., `raw(pre_contrast)`.
+- **Multi-feature Combination**: Use multiple features as input to another extractor (like `concat`), for example, `concat(raw(pre_contrast), gabor(pre_contrast))`.
+- **Cross-modality Features**: Some feature extractors (like `kinetic`) can accept multiple images from different modalities as input.
+
+All parameters used in a method (like `timestamps` or `params_file`) must be defined in the `params` field.
+
+### Voxel-level Features (`voxel_level`)
+
+This is the first step of habitat analysis, used to extract one or more feature values for each voxel from the original images, forming a feature vector.
+
+The following are all available voxel-level feature extraction methods:
+
+| Method (`method`) | Description | Key Parameters |
+| :--- | :--- | :--- |
+| `raw` | **Raw Intensity**<br>Directly extracts the original signal intensity value of each voxel in the specified image. This is the most basic and direct feature. | None |
+| `kinetic` | **Kinetic Features**<br>Calculates kinetic features, such as wash-in/wash-out slope, from a time-series of images (e.g., multi-phase contrast-enhanced scans). | `timestamps`: A path to an `.xlsx` file that maps each subject to the scan times of the multi-phase images. |
+| `voxel_radiomics` | **Voxel-level Radiomics**<br>Uses PyRadiomics to calculate radiomics features in the local neighborhood of each voxel. Can extract various advanced features like texture (e.g., GLCM, Gabor) and intensity distribution. | `params_file`: A path to a PyRadiomics `.yaml` parameter file, used to precisely control the feature classes, filters, and settings to be extracted. |
+| `local_entropy` | **Local Entropy**<br>Calculates the local information entropy within the neighborhood of each voxel. This is a measure of local texture complexity and randomness. | `kernel_size`: (Optional, default: 3) Defines the size of the neighborhood for entropy calculation, e.g., `3` for a 3x3x3 cube.<br>`bins`: (Optional, default: 32) The number of bins for histogram calculation. |
+
+---
+
+### Configuration Examples
+
+Here are some specific `yaml` configuration examples showing how to use these methods.
+
+#### Example 1: Using Single Raw Image Intensity
+
+This is the simplest configuration, using only the raw pixel values from the `pre_contrast` image as features.
+
 ```yaml
 FeatureConstruction:
   voxel_level:
-    # Use kinetic features
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), timestamps)
+    method: 'raw(pre_contrast)'
+    image_names: ['pre_contrast']
+    params: {}
+```
+
+#### Example 2: Combining Multiple Raw Image Intensities
+
+You can concatenate the raw intensity values from multiple modalities into a single feature vector. Here, we use the `concat` method to combine images from three different phases.
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'concat(raw(pre_contrast), raw(LAP), raw(PVP))'
+    image_names: ['pre_contrast', 'LAP', 'PVP']
+    params: {}
+```
+
+#### Example 3: Calculating Kinetic Features
+
+Using the `kinetic` method requires providing a `timestamps` file. The method automatically processes multiple images wrapped in `raw()`.
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)'
+    image_names: ['pre_contrast', 'LAP', 'PVP', 'delay_3min']
     params:
-      timestamps: ./scan_times.xlsx
-  
-  # Individual-level preprocessing (optional)
-  preprocessing_for_subject_level:
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-      - method: minmax
+      timestamps: './config/scan_times.xlsx' # Path to your timestamps file
+```
+
+#### Example 4: Extracting Voxel-level Radiomics Features
+
+Using `voxel_radiomics` requires providing a PyRadiomics parameter file.
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'voxel_radiomics(pre_contrast, radiomics_params)'
+    image_names: ['pre_contrast']
+    params:
+      radiomics_params: './config/radiomics_params.yaml' # Path to your radiomics parameter file
+```
+
+#### Example 5: Extracting Local Entropy Features
+
+Using `local_entropy` with custom neighborhood size and bin count.
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'local_entropy(pre_contrast, kernel_size, bins)'
+    image_names: ['pre_contrast']
+    params:
+      kernel_size: 5
+      bins: 64
 ```
 
 ---

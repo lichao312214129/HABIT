@@ -189,22 +189,101 @@ habitat:
 processes: 4  # 使用4个进程并行处理
 ```
 
-### 自定义特征提取
+### 自定义特征提取 (Custom Feature Extraction)
+
+`HABIT` 提供了一个灵活的特征提取框架，允许您在体素（Voxel）层面组合使用多种特征，用于后续的生境（Habitat）聚类分析。所有特征相关的配置都在配置文件的 `FeatureConstruction` 部分完成。
+
+### 语法简介
+
+特征提取的语法被设计为一种表达式，格式为 `method(arguments)`。
+
+- **单特征**: 直接使用一种方法，如 `raw(pre_contrast)`。
+- **多特征组合**: 将多种特征作为另一个特征提取器（如 `concat`）的输入，例如 `concat(raw(pre_contrast), gabor(pre_contrast))`。
+- **跨模态特征**: 一些特征提取器（如 `kinetic`）可以接受多个不同模态的图像作为输入。
+
+所有在方法中使用的参数（如 `timestamps` 或 `params_file`）都必须在 `params` 字段中定义。
+
+### 体素级特征 (`voxel_level`)
+
+这是生境分析的第一步，用于从原始图像中为每个体素提取一个或多个特征值，形成特征向量。
+
+以下是所有可用的体素级特征提取方法：
+
+| 方法 (`method`) | 功能描述 | 主要参数 |
+| :--- | :--- | :--- |
+| `raw` | **原始强度 (Raw Intensity)**<br>直接提取每个体素在指定图像中的原始信号强度值。这是最基础、最直接的特征。 | 无 |
+| `kinetic` | **动力学特征 (Kinetic Features)**<br>从一个时间序列的图像（如多期相增强扫描）中计算动力学特征，例如灌注速率（wash-in/wash-out slope）。 | `timestamps`: 一个指向 `.xlsx` 文件的路径。该文件需包含每个受试者 (subject) 对应的多期相扫描的时间点。 |
+| `voxel_radiomics` | **体素级组学 (Voxel-level Radiomics)**<br>使用 PyRadiomics 在每个体素的局部邻域内计算影像组学特征。可提取纹理（如GLCM, Gabor）、强度分布等多种高级特征。 | `params_file`: 指向一个 PyRadiomics 的 `.yaml` 参数文件，用于精确控制要提取的特征类别、滤波器及相关设置。 |
+| `local_entropy` | **局部熵 (Local Entropy)**<br>计算每个体素邻域内的局部信息熵。这是一个衡量局部区域纹理复杂度和随机性的指标。 | `kernel_size`: (可选, 默认值: 3) 定义计算熵的邻域大小，如 `3` 代表 3x3x3 的立方体。<br>`bins`: (可选, 默认值: 32) 计算直方图时的分箱数。 |
+
+---
+
+### 示例配置
+
+下面是一些具体的 `yaml` 配置示例，展示了如何使用这些方法。
+
+#### 示例 1: 使用单一原始图像强度
+
+这是最简单的配置，仅使用 `pre_contrast` 图像的原始像素值作为特征。
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    # 使用动力学特征
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), timestamps)
+    method: 'raw(pre_contrast)'
+    image_names: ['pre_contrast']
+    params: {}
+```
+
+#### 示例 2: 组合使用多种原始图像强度
+
+您可以将多个模态的原始强度值拼接成一个特征向量。这里我们使用 `concat` 方法来组合三个不同期相的图像。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'concat(raw(pre_contrast), raw(LAP), raw(PVP))'
+    image_names: ['pre_contrast', 'LAP', 'PVP']
+    params: {}
+```
+
+#### 示例 3: 计算动力学特征
+
+使用 `kinetic` 方法需要提供一个 `timestamps` 文件。该方法会自动处理 `raw()` 包装的多个图像。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)'
+    image_names: ['pre_contrast', 'LAP', 'PVP', 'delay_3min']
     params:
-      timestamps: ./scan_times.xlsx
-  
-  # 个体水平预处理（可选）
-  preprocessing_for_subject_level:
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-      - method: minmax
+      timestamps: './config/scan_times.xlsx' # 指向您的时间戳文件
+```
+
+#### 示例 4: 提取体素级组学特征
+
+使用 `voxel_radiomics` 需要提供一个 PyRadiomics 参数文件。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'voxel_radiomics(pre_contrast, radiomics_params)'
+    image_names: ['pre_contrast']
+    params:
+      radiomics_params: './config/radiomics_params.yaml' # 指向您的组学参数文件
+```
+
+#### 示例 5: 提取局部熵特征
+
+使用 `local_entropy` 并自定义邻域大小和分箱数。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: 'local_entropy(pre_contrast, kernel_size, bins)'
+    image_names: ['pre_contrast']
+    params:
+      kernel_size: 5
+      bins: 64
 ```
 
 ---

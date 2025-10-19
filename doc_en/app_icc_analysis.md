@@ -1,279 +1,148 @@
 # ICC Analysis Module User Guide
 
-## Overview
+## 1. Overview
 
-The ICC Analysis module is a dedicated tool for calculating the Intraclass Correlation Coefficient (ICC). This module supports the analysis of test-retest reliability, inter-observer agreement, and various other reliability assessments for habitat features. ICC is a standard statistical method for evaluating the reliability of quantitative measurements and is of great importance in radiomics research.
+The ICC (Intraclass Correlation Coefficient) Analysis module is a specialized tool for evaluating the reliability of quantitative measurements. In research fields like radiomics, it is commonly used for:
 
-## 🚀 Quick Start
+- **Test-Retest Reliability**: To assess the consistency of features extracted from the same subjects scanned or processed at different time points.
+- **Inter-Observer Agreement**: To evaluate the consistency of features extracted from the same subjects but delineated or analyzed by different observers (or different software, or with different parameters).
+
+By calculating the ICC value for each feature, this tool helps users filter for stable and reliable features, providing a high-quality data foundation for subsequent model building.
+
+## 2. Quick Start
 
 ### Using CLI (Recommended) ✨
 
 ```bash
-# Use default configuration
-habit icc
-
-# Use specified configuration file
+# Run ICC analysis using a configuration file
 habit icc --config config/config_icc_analysis.yaml
-
-# Short form
-habit icc -c config/config_icc_analysis.yaml
 ```
 
-### Using Traditional Scripts (Legacy Compatible)
+### Using Traditional Script
 
 ```bash
-python scripts/app_icc_analysis.py --config <config_file_path>
+python scripts/app_icc_analysis.py --config config/config_icc_analysis.yaml
 ```
 
-## Command-Line Arguments
+## 3. Input Data Preparation
 
-| Argument | Description |
-|---|---|
-| `--config` | Path to the YAML configuration file (required) |
+Correctly preparing the input data is key to a successful analysis.
 
-## 📋 Configuration File
+- **File Format**: Supports `.csv` and `.xlsx` formats.
+- **Data Structure**:
+    - The **first column must be the subject ID** and serves as the index.
+    - Each subsequent column represents an individual feature.
+    - Each row represents a subject.
+- **Data Alignment**:
+    - The tool automatically identifies **common subject IDs** and **common feature columns** across all files within a group.
+    - The ICC analysis will **only be performed on this intersection** of common subjects and features.
+    - Therefore, please ensure that subject IDs are named consistently across the files you wish to compare.
 
-**📖 Configuration File Links**:
-- 📄 [Current Configuration](../config/config_icc_analysis.yaml) - Concise configuration for actual use
-- 📖 [Annotated Template](../config_templates/config_icc_analysis_annotated.yaml) - Complete English comments and instructions
+**Example `test.csv`**:
+```csv
+SubjectID,feature_A,feature_B,feature_C
+Patient_01,10.5,0.98,150
+Patient_02,11.2,0.95,165
+Patient_03,9.8,0.99,140
+```
 
-## Configuration File Format
+**Example `retest.csv`**:
+```csv
+SubjectID,feature_A,feature_B,feature_D
+Patient_01,10.8,0.97,5.5
+Patient_02,11.1,0.96,5.8
+Patient_04,12.0,0.92,6.1
+```
+> In this example, the tool will only calculate ICC values for `feature_A` and `feature_B` on subjects `Patient_01` and `Patient_02`.
 
-`app_icc_analysis.py` uses a YAML configuration file with the following main sections:
+## 4. Configuration (`config.yaml`) Explained
 
-### Basic Configuration
+The tool's behavior is driven by a YAML configuration file.
 
+### Complete Configuration Example
 ```yaml
-# Data path
+# Input Configuration
 input:
-  type: <input_type>  # "files" or "directory"
-  path: <input_path>  # List of files or a directory
-  pattern: <file_matching_pattern>  # Used when type is "directory"
-
-# Output configuration
-output:
-  dir: <output_directory>
-  report_name: <report_name>
-
-# ICC analysis configuration
-icc:
-  type: <icc_type>
-  confidence_level: <confidence_level>
-  outlier_removal: <outlier_handling_method>
-```
-
-### ICC Analysis Type Configuration
-
-```yaml
-icc:
-  # ICC type, one of the following:
-  # - "test_retest": Test-retest reliability
-  # - "inter_observer": Inter-observer agreement
-  # - "intra_observer": Intra-observer agreement
-  # - "multi_reader": Multi-reader multi-case
-  type: "test_retest"
-  
-  # ICC model configuration
-  model: <model_type>  # "oneway", "twoway"
-  unit: <unit>  # "single", "average"
-  effect: <effect>  # "random", "fixed", "mixed"
-  
-  # Consistency/absolute agreement configuration
-  definition: <definition>  # "consistency", "absolute_agreement"
-  
-  # Confidence level
-  confidence_level: 0.95
-  
-  # Outlier removal
-  outlier_removal:
-    method: <method>  # "none", "zscore", "iqr", "modified_zscore"
-    threshold: <threshold>  # Method-specific threshold value
-```
-
-### Grouping and Feature Configuration
-
-```yaml
-# Data grouping configuration
-grouping:
-  method: <grouping_method>  # "filename_pattern", "explicit_mapping", "column"
-  pattern: <filename_pattern>  # For filename_pattern method
-  mapping_file: <mapping_file>  # For explicit_mapping method
-  id_column: <id_column_name>  # For column method
-  group_column: <group_column_name>  # For column method
-
-# Feature configuration
-features:
-  # Feature columns to include
-  include: <list_of_features_to_include>  # Can be a list or "*" for all
-  
-  # Feature columns to exclude
-  exclude: <list_of_features_to_exclude>
-  
-  # Feature categorization
-  categories:
-    - name: <category_1>
-      features: <list_of_features_in_category_1>
-    - name: <category_2>
-      features: <list_of_features_in_category_2>
-```
-
-## Supported ICC Types
-
-The ICC analysis supports the following types:
-
-1.  **Test-Retest Reliability (test_retest)**: Assesses the consistency of measurements on the same subject at different time points.
-2.  **Inter-Observer Agreement (inter_observer)**: Assesses the consistency of measurements of the same object by different observers.
-3.  **Intra-Observer Agreement (intra_observer)**: Assesses the consistency of measurements of the same object by the same observer at different time points.
-4.  **Multi-Reader Multi-Case (multi_reader)**: Agreement analysis for multiple readers evaluating multiple cases.
-
-## ICC Model Parameters
-
-### Model Type (model)
-
--   **oneway**: One-way random-effects model, suitable for situations where each subject is rated by a different set of raters.
--   **twoway**: Two-way model, suitable for situations where the same set of raters evaluates all subjects.
-
-### Unit (unit)
-
--   **single**: Assesses the reliability of a single rating.
--   **average**: Assesses the reliability of an average rating.
-
-### Effect (effect)
-
--   **random**: Raters are considered a random sample.
--   **fixed**: Raters are considered a fixed factor.
--   **mixed**: Mixed-effects model.
-
-### Definition (definition)
-
--   **consistency**: Assesses the relative consistency of ratings.
--   **absolute_agreement**: Assesses the absolute agreement of ratings.
-
-## Outlier Handling Methods
-
--   **none**: No outlier handling.
--   **zscore**: Identifies and handles outliers based on Z-scores.
--   **iqr**: Identifies and handles outliers based on the interquartile range.
--   **modified_zscore**: Uses the modified Z-score method.
-
-## Execution Flow
-
-1.  Load the configuration file.
-2.  Read the input data.
-3.  Group the data according to the configured grouping method.
-4.  Calculate ICC for the selected features.
-5.  Generate an ICC analysis report and visualization results.
-6.  Save the results to the output directory.
-
-## Output
-
-After execution, the script will generate the following in the specified output directory:
-
-1.  `icc_results.csv`: ICC values and their confidence intervals for all features.
-2.  `icc_summary.csv`: ICC results summarized by feature category.
-3.  `icc_plots/`: ICC visualization charts, including:
-    -   ICC bar plots
-    -   Bland-Altman plots
-    -   Scatter correlation plots
-    -   Heatmaps
-4.  `icc_report.pdf`: A complete ICC analysis report.
-
-## Complete Configuration Examples
-
-### Test-Retest ICC Analysis
-
-```yaml
-# Basic configuration
-input:
-  type: "directory"
-  path: "./data/test_retest_features"
-  pattern: "*.csv"
-
-output:
-  dir: "./results/icc_analysis"
-  report_name: "test_retest_icc_report"
-
-# ICC analysis configuration
-icc:
-  type: "test_retest"
-  model: "twoway"
-  unit: "single"
-  effect: "random"
-  definition: "absolute_agreement"
-  confidence_level: 0.95
-  outlier_removal:
-    method: "iqr"
-    threshold: 1.5
-
-# Grouping configuration
-grouping:
-  method: "filename_pattern"
-  pattern: "features_{subject_id}_{timepoint}.csv"
-
-# Feature configuration
-features:
-  include: "*"
-  exclude: ["patient_id", "scan_date", "study_id"]
-  categories:
-    - name: "Shape Features"
-      features: ["shape_volume", "shape_surface_area", "shape_sphericity"]
-    - name: "First-Order Features"
-      features: ["firstorder_mean", "firstorder_std", "firstorder_entropy"]
-    - name: "Texture Features"
-      features: ["glcm_*", "glrlm_*", "glszm_*"]
-```
-
-### Inter-Observer ICC Analysis
-
-```yaml
-# Basic configuration
-input:
+  # Input mode: "files" or "directories"
   type: "files"
-  path: 
-    - "./data/observer1/features.csv"
-    - "./data/observer2/features.csv"
-    - "./data/observer3/features.csv"
 
+  # File Groups: Used when type is "files"
+  # Each sub-list is an independent comparison group, typically containing 2 or more files.
+  file_groups:
+    - [/path/to/test_features.csv, /path/to/retest_features.csv]
+    - [/path/to/observer1_features.csv, /path/to/observer2_features.csv]
+
+  # Directory List: Used when type is "directories"
+  # The tool will automatically match files with the same name in these directories and group them for comparison.
+  # dir_list:
+  #   - /path/to/test_data_dir
+  #   - /path/to/retest_data_dir
+
+# Output Configuration
 output:
-  dir: "./results/inter_observer_icc"
-  report_name: "inter_observer_icc_report"
+  # Full path for the output JSON file
+  path: ./results/icc_analysis/icc_results.json
 
-# ICC analysis configuration
-icc:
-  type: "inter_observer"
-  model: "twoway"
-  unit: "single"
-  effect: "random"
-  definition: "absolute_agreement"
-  confidence_level: 0.95
-  outlier_removal:
-    method: "none"
+# Number of parallel processes (null uses all available CPU cores)
+processes: 6
 
-# Grouping configuration
-grouping:
-  method: "column"
-  id_column: "patient_id"
-  group_column: "observer"
-
-# Feature configuration
-features:
-  include: ["intensity_*", "texture_*", "shape_*"]
-  exclude: []
+# Debug mode (True/False), enables more detailed logging
+debug: false
 ```
 
-## Interpretation of Results
+### Parameter Descriptions
 
-The interpretation of ICC values typically follows these standards:
+- **`input.type`**: Defines the input mode.
+  - `files`: Directly specify the groups of files to compare. This is more flexible and is the recommended method.
+  - `directories`: Specify multiple directories. The tool will automatically find and pair files with the same name within these directories for comparison. This is suitable for highly structured file organizations.
 
--   **< 0.50**: Poor reliability
--   **0.50-0.75**: Moderate reliability
--   **0.75-0.90**: Good reliability
--   **> 0.90**: Excellent reliability
+- **`input.file_groups`**: Used when `type` is `files`. This is a list where each element is another list, representing an independent comparison group. For example, you can perform a test-retest analysis and an inter-observer analysis at the same time.
 
-## Notes
+- **`input.dir_list`**: Used when `type` is `directories`. Provide a list of directory paths.
 
-1.  Ensure the data format is correct, especially the pairing of test-retest or observer data.
-2.  Choose the ICC type and model parameters that are appropriate for your study design.
-3.  For datasets with a large number of features, consider analyzing them by feature category.
-4.  ICC analysis results should be interpreted in the context of clinical significance and research objectives.
-5.  When severe outliers are present, using an appropriate outlier handling method can improve the reliability of the results.
+- **`output.path`**: Defines the result output path. The analysis results will be saved here in JSON format.
+
+- **`processes`**: Sets the number of CPU cores to use for parallel computation. If set to `null` or omitted, it will default to using all available cores.
+
+- **`debug`**: If set to `true`, enables debug mode, which will log more details for troubleshooting.
+
+## 5. Interpreting the Output
+
+### JSON Output File
+
+The analysis result is a JSON file with the following structure:
+
+```json
+{
+    "test_features_vs_retest_features": {
+        "feature_A": 0.92,
+        "feature_B": 0.85,
+        ...
+    },
+    "observer1_features_vs_observer2_features": {
+        "feature_A": 0.78,
+        "feature_B": 0.88,
+        ...
+    }
+}
+```
+- The main keys of the JSON are group names automatically generated from the filenames of the comparison groups.
+- Under each group name is a dictionary containing the ICC values for all common features within that group.
+
+### ICC Model Note
+
+- This tool exclusively uses the **ICC3** model for calculations. This corresponds to a **Two-Way Random effects model assessing Absolute Agreement**. This is a common and strict standard for evaluating reliability across different time points or observers.
+
+### ICC Value Interpretation Standard
+
+ICC values range from 0 to 1 and can generally be interpreted according to the following standards:
+- **< 0.50**: Poor
+- **0.50 - 0.75**: Moderate
+- **0.75 - 0.90**: Good
+- **> 0.90**: Excellent
+
+When performing feature selection, it is common practice to select features with an ICC value greater than 0.75 for subsequent modeling.
+
+### Console Summary
+
+After the script finishes, a summary will be printed to the console. It reports the average ICC for each group and the count and percentage of features that meet the "Good" standard (ICC >= 0.75), helping you to quickly assess overall consistency.

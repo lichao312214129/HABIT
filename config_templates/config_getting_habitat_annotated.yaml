@@ -1,347 +1,243 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# Habitat Analysis Configuration - Detailed Annotations
+# Habitat Analysis Configuration Template
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# 📖 Instructions:
-#   - YAML format requirements:
-#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
-#     ✓ Space required after colon
-#     ✓ List items start with "- " (note the space)
-#     ✓ Comments start with "#"
+# This template is based on actual code implementation
+# All parameters listed here are supported by the code
 #
-# 🚀 Quick Start:
+# Quick Start:
 #   CLI:    habit habitat --config config/config_getting_habitat.yaml
 #   Script: python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
 #
-# 📚 Documentation:
-#   - Chinese: doc/app_habitat_analysis.md
-#   - English: doc_en/app_habitat_analysis.md
-#
 # ═══════════════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────────────────────────────────
-# 📂 Data Paths
+# Data Paths (Required)
 # ─────────────────────────────────────────────────────────────────────────
 
-# Raw data directory
-# - Contains imaging data for all patients
-# - Format: Absolute or relative path
-# - Example: H:\Registration_ICC_structured or ./data/raw_images
-data_dir: H:\Registration_ICC_structured
+# Root directory containing subject data
+# Expected structure: data_dir/subject_id/images/ and data_dir/subject_id/masks/
+data_dir: ./data/raw_images
 
-# Output directory
-# - All analysis results will be saved here
-# - Subdirectories will be auto-created
-# - Example: H:\results_icc_testing or ./results/habitat_analysis
-out_dir: H:\results_icc_testing
+# Output directory for results
+# Will be created if it doesn't exist
+out_dir: ./results/habitat_analysis
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# 🔬 Feature Construction
+# Feature Construction Configuration
 # ─────────────────────────────────────────────────────────────────────────
 
 FeatureConstruction:
   
-  # ───────────────────────────────────────────────────────────────────────
-  # Voxel-Level Features
-  # ───────────────────────────────────────────────────────────────────────
+  # Voxel-level feature extraction
   voxel_level:
-    # Feature extraction method
-    # Format: method_name(image1, image2, ..., params)
+    # Feature extraction method expression
     # 
-    # Available methods:
-    #   - kinetic(): Kinetic features from multi-phase images
-    #                Example: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
-    #
-    #   - raw(): Raw signal intensity
-    #            Example: raw(T1), raw(T2), raw(ADC)
-    #
-    #   - radiomics(): PyRadiomics features
-    #                  Example: radiomics(T1, mask, params_file)
-    #
+    # Supported methods (can be nested):
+    #   - raw(image_name): Raw intensity values from single image
+    #   - kinetic(raw(img1), raw(img2), ..., timestamps): Kinetic features from multi-phase images
+    #   - voxel_radiomics(image_name): PyRadiomics features at voxel level
+    #   - concat(raw(img1), raw(img2), ...): Concatenate multiple image intensities
+    #   - local_entropy(image_name): Local entropy features
+    #   - mean_voxel_features(): Mean of voxel features (used in supervoxel aggregation)
+    #   - custom: User-defined feature extractors (see features/README.md)
+    # 
+    # Examples:
+    #   Single image:    raw(T1)
+    #   Multiple images: concat(raw(T1), raw(T2), raw(DWI))
+    #   Kinetic (DCE):   kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    #   Radiomics:       voxel_radiomics(T2)
     method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     
+    # Parameters for feature extraction
     params:
-      # Timestamps file
-      # - Excel file recording scan time for each phase
-      # - Format: First column = patient ID, other columns = phase times
-      # - Required if using kinetic method
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
-  
-  # ───────────────────────────────────────────────────────────────────────
-  # Supervoxel-Level Features
-  # ───────────────────────────────────────────────────────────────────────
+      # Path to Excel file with timestamps (required for kinetic method)
+      # File should contain patient IDs and scan times for each phase
+      timestamps: ./data/scan_time_of_phases.xlsx
+      
+      # PyRadiomics parameter file (required for voxel_radiomics method)
+      # params_file: ./config/params_voxel_radiomics.yaml
+      
+      # Window size for local_entropy method
+      # window_size: [3, 3, 3]
+
+  # Supervoxel-level feature aggregation
   supervoxel_level:
-    # Supervoxel file matching pattern
-    # - Use wildcard "*"
-    # - Example: '*_supervoxel.nrrd' matches all files ending with _supervoxel.nrrd
+    # Pattern to match supervoxel files in subject directories
+    # Uses glob pattern matching
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     
-    # Feature aggregation method
-    # Available options:
+    # Aggregation method for supervoxel features
+    # Supported methods:
     #   - mean_voxel_features(): Mean of voxel features within each supervoxel
-    #   - median_voxel_features(): Median aggregation
-    #   - std_voxel_features(): Standard deviation
-    #   - radiomics(): Extract radiomics features from supervoxel regions
+    #   - supervoxel_radiomics(image_name): PyRadiomics features from supervoxel regions
+    # 
+    # Examples:
+    #   Mean features:  mean_voxel_features()
+    #   Radiomics:      supervoxel_radiomics(T2)
     method: mean_voxel_features()
     
+    # Parameters for aggregation
     params:
-      # PyRadiomics parameter file (only if using radiomics features)
-      params_file: ./config/params_supervoxel_radiomics.yaml
-  
-  # ───────────────────────────────────────────────────────────────────────
-  # Individual-Level Preprocessing (Optional)
-  # ───────────────────────────────────────────────────────────────────────
-  # Applied to features from individual subjects before clustering
-  # Useful for one-step mode or first stage of two-step mode
-  #
-  # preprocessing_for_subject_level: 
-  #   methods:
-  #     # Winsorize normalization - handle extreme values
-  #     - method: winsorize
-  #       winsor_limits: [0.05, 0.05]  # Trim top and bottom 5%
-  #       global_normalize: true        # Apply global normalization
-  #
-  #     # Min-Max normalization - scale to [0,1]
-  #     - method: minmax
-  #       global_normalize: true
-  #
-  #     # Log transformation - handle skewed distributions
-  #     - method: log
-  #       global_normalize: true
+      # PyRadiomics parameter file (required if method is supervoxel_radiomics)
+      # params_file: ./config/params_supervoxel_radiomics.yaml
 
-  # ───────────────────────────────────────────────────────────────────────
-  # Population-Level Preprocessing
-  # ───────────────────────────────────────────────────────────────────────
-  # Applied to aggregated features from all subjects
-  # Used in second stage of two-step mode (habitat clustering)
-  #
+  # Feature preprocessing at individual subject level (Optional)
+  # Applied before clustering, within each subject
+  # preprocessing_for_subject_level:
+  #   methods:
+  #     - method: winsorize  # Limit extreme values to specified percentiles
+  #       winsor_limits: [0.05, 0.05]  # Lower and upper percentiles to clip
+  #       global_normalize: false  # Whether to apply globally or per-feature
+  #     
+  #     - method: minmax  # Min-max scaling to [0, 1]
+  #       global_normalize: false
+  #     
+  #     - method: zscore  # Z-score standardization
+  #       global_normalize: false
+  #     
+  #     - method: robust  # Robust scaling using IQR
+  #       global_normalize: false
+  #     
+  #     - method: log  # Log transformation (log(x + 1))
+  #       global_normalize: false
+
+  # Feature preprocessing at population level (Optional)
+  # Applied to aggregated supervoxel features from all subjects
   preprocessing_for_group_level:
     methods:
-      # Binning - discretize continuous features
-      - method: binning
-        n_bins: 10              # Number of bins
-        bin_strategy: uniform   # Strategy: uniform, quantile, kmeans
-        global_normalize: false # Apply global normalization
+      - method: binning  # Discretization of continuous features
+        n_bins: 10  # Number of bins
+        bin_strategy: uniform  # Binning strategy: uniform, quantile, kmeans
+        global_normalize: false  # Whether to apply global normalization
+      
+      # Other available methods (same as subject_level):
+      # - method: minmax
+      # - method: zscore
+      # - method: robust
+      # - method: winsorize
+      # - method: log
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# 🧬 Habitat Segmentation
+# Habitat Segmentation Configuration
 # ─────────────────────────────────────────────────────────────────────────
 
 HabitatsSegmention:
   
-  # ═══════════════════════════════════════════════════════════════════════
-  # Clustering Strategy
-  # ═══════════════════════════════════════════════════════════════════════
-  #
-  # clustering_mode: Choose clustering strategy
-  #
-  #   🔹 one_step:
-  #     - Direct voxel-to-habitat clustering
-  #     - Optimal cluster count auto-determined per tumor
-  #     - Independent habitat labels (not unified across patients)
-  #     - Lower computational cost
-  #     - Best for: Individual heterogeneity analysis, small studies
-  #
-  #   🔹 two_step:
-  #     - Two-stage process:
-  #       1) Individual clustering: voxels → supervoxels
-  #       2) Population clustering: supervoxels → habitats
-  #     - Unified habitat labels across all patients
-  #     - Higher computational cost
-  #     - Best for: Cohort studies, cross-patient pattern recognition
-  #
-  # ─────────────────────────────────────────────────────────────────────
-  clustering_mode: two_step  # Options: one_step or two_step
+  # Clustering mode
+  # Options:
+  #   - two_step: Individual-level (voxel→supervoxel) + Population-level (supervoxel→habitat)
+  #   - one_step: Individual-level only (voxel→habitat for each tumor independently)
+  clustering_mode: two_step
   
-  # ═══════════════════════════════════════════════════════════════════════
-  # Supervoxel Clustering (Step 1: Individual-level)
-  # ═══════════════════════════════════════════════════════════════════════
+  # ───────────────────────────────────────────────────────────────────────
+  # Supervoxel Clustering (Step 1 for two_step, or final step for one_step)
+  # ───────────────────────────────────────────────────────────────────────
   supervoxel:
     # Clustering algorithm
-    # Options:
-    #   - kmeans: K-means (fast, suitable for large datasets)
-    #   - gmm: Gaussian Mixture Model (probabilistic, considers uncertainty)
-    #   - hierarchical: Hierarchical clustering (preserves tree structure)
+    # Options: kmeans, gmm
     algorithm: kmeans
     
     # Number of clusters
-    # - two_step mode: Fixed count for all subjects
-    # - one_step mode: Used as default max_clusters if not specified
+    # - For two_step: fixed number of supervoxels per subject
+    # - For one_step: maximum number to test (actual number determined automatically)
     n_clusters: 50
     
-    # Random seed
-    # - Ensures reproducibility of results
+    # Random seed for reproducibility
     random_state: 42
     
-    # Maximum iterations
-    # - Maximum number of iterations for convergence
+    # Maximum iterations for clustering algorithm
     max_iter: 300
     
-    # Number of initializations
-    # - Algorithm runs n_init times with different seeds, picks best result
-    # - Higher values improve robustness but increase computation time
+    # Number of initializations (only for kmeans)
     n_init: 10
     
-    # ───────────────────────────────────────────────────────────────────────
-    # One-Step Mode Settings
-    # ───────────────────────────────────────────────────────────────────────
-    # 
-    # ⚠️ Note: Only effective when clustering_mode: one_step
-    #
+    # Settings for one_step mode only
     one_step_settings:
-      # Minimum clusters
-      # - Starting point for optimal cluster selection
-      # - Recommendation: >= 2
+      # Minimum number of clusters to test
       min_clusters: 2
       
-      # Maximum clusters
-      # - Upper limit for optimal cluster selection
-      # - Recommendation: 5-15 based on data complexity
-      # - Higher values increase computation time
+      # Maximum number of clusters to test
       max_clusters: 10
       
-      # Optimal cluster selection method
-      # Options:
-      #   - silhouette: Silhouette coefficient (higher is better, range -1 to 1)
-      #   - calinski_harabasz: Calinski-Harabasz index (higher is better)
-      #   - davies_bouldin: Davies-Bouldin index (lower is better)
-      #   - inertia: Within-cluster sum of squares (lower is better, use elbow method)
+      # Method to select optimal number of clusters
+      # Options: silhouette, calinski_harabasz, davies_bouldin, inertia
       selection_method: silhouette
       
-      # Plot validation curves
-      # - true: Generate plots showing metrics vs. cluster count for each tumor
-      # - false: No plots (saves time and disk space)
+      # Whether to plot validation curves for each tumor
       plot_validation_curves: true
   
-  # ═══════════════════════════════════════════════════════════════════════
-  # Habitat Clustering (Step 2: Population-level)
-  # ═══════════════════════════════════════════════════════════════════════
-  #
-  # ⚠️ Note: Only effective when clustering_mode: two_step
-  #
+  # ───────────────────────────────────────────────────────────────────────
+  # Habitat Clustering (Step 2, only for two_step mode)
+  # ───────────────────────────────────────────────────────────────────────
   habitat:
-    # Operation mode
+    # Mode
     # Options:
-    #   - training:
-    #     * Train clustering model on current data
-    #     * Save model and preprocessing parameters
-    #     * Generate validation curves for cluster selection
-    #
-    #   - testing:
-    #     * Load pre-trained model
-    #     * Use saved preprocessing parameters
-    #     * Ensures consistent habitat labels on new data
-    #
-    # 📁 Default paths:
-    #   - Preprocessing params: {out_dir}/mean_values_of_all_supervoxels_features.csv
-    #   - Model: {out_dir}/supervoxel2habitat_clustering_model.pkl
-    mode: testing  # Options: training or testing
+    #   - training: Train new habitat clustering model
+    #   - testing: Use pre-trained model
+    # Default model path: {out_dir}/supervoxel2habitat_clustering_model.pkl
+    # Default preprocessing: {out_dir}/mean_values_of_all_supervoxels_features.csv
+    mode: testing
     
     # Clustering algorithm
     # Options: kmeans, gmm
     algorithm: kmeans
     
-    # Maximum clusters
-    # - Upper limit for automatic cluster selection
-    # - Only used when best_n_clusters is null
+    # Maximum number of habitat clusters to test
     max_clusters: 10
     
-    # Cluster selection method
-    # For kmeans:
-    #   - inertia: Within-cluster sum of squares (common choice)
-    #   - silhouette: Silhouette coefficient
-    #   - calinski_harabasz: Calinski-Harabasz index
-    #   - davies_bouldin: Davies-Bouldin index
-    # For gmm:
-    #   - aic: Akaike Information Criterion
-    #   - bic: Bayesian Information Criterion (recommended for GMM)
+    # Minimum number of habitat clusters to test (optional)
+    # min_clusters: 2
+    
+    # Method to select optimal number of clusters
+    # For kmeans: inertia, silhouette, calinski_harabasz
+    # For gmm: aic, bic, silhouette, calinski_harabasz
     habitat_cluster_selection_method: inertia
     
-    # Optimal number of clusters
-    # - Set a number: Force use this specific count
-    # - Set null: Automatically select optimal count
-    # Example: best_n_clusters: 4  or  best_n_clusters: null
+    # Fixed number of clusters (optional)
+    # If specified, automatic selection is skipped
+    # Set to null or omit for automatic selection
     best_n_clusters: 4
     
-    # Random seed
+    # Random seed for reproducibility
     random_state: 42
     
-    # Maximum iterations
+    # Maximum iterations for clustering algorithm
     max_iter: 300
     
-    # Number of initializations
+    # Number of initializations (only for kmeans)
     n_init: 10
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# ⚙️  General Settings
+# General Settings
 # ─────────────────────────────────────────────────────────────────────────
 
 # Number of parallel processes
-# - Set to CPU core count for maximum speed
-# - Set to 1 for serial processing (easier debugging)
-# - Recommendation: Half of available CPU cores
+# Set to 1 for sequential processing
 processes: 2
 
-# Generate plots
-# - true: Generate validation curves, distribution plots, etc.
-# - false: No plots (saves time and disk space)
+# Whether to generate and save plots
+# Includes cluster validation curves, habitat distributions, etc.
 plot_curves: true
 
-# Global random seed
-# - Ensures reproducibility across all random operations
+# Random seed for reproducibility
 random_state: 42
 
-# Debug mode
-# - true: Output detailed logging information
-# - false: Output only key information
+# Debug mode (enables detailed logging)
 debug: false
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 💡 Usage Examples
+# Notes
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# Example 1: Train with two-step clustering
-#   clustering_mode: two_step
-#   habitat:
-#     mode: training
-#     best_n_clusters: null  # Auto-select optimal count
-#
-# Example 2: Test with two-step clustering
-#   clustering_mode: two_step
-#   habitat:
-#     mode: testing
-#     best_n_clusters: 4  # Use pre-determined count
-#
-# Example 3: Use one-step clustering
-#   clustering_mode: one_step
-#   supervoxel:
-#     one_step_settings:
-#       min_clusters: 3
-#       max_clusters: 8
-#       selection_method: silhouette
-#       plot_validation_curves: true
+# 1. All paths can be absolute or relative
+# 2. YAML format: use 2 spaces for indentation (no tabs)
+# 3. Null values can be expressed as: null or by omitting the value
+# 4. For list of methods, use "- method:" syntax
 #
 # ═══════════════════════════════════════════════════════════════════════════
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 📞 Get Help
-# ═══════════════════════════════════════════════════════════════════════════
-#
-# Command-line help:
-#   habit habitat --help
-#
-# Documentation:
-#   - Chinese: doc/app_habitat_analysis.md
-#   - English: doc_en/app_habitat_analysis.md
-#
-# Configuration index:
-#   config/README_CONFIG.md
-#
-# GitHub Issues:
-#   https://github.com/your-repo/habit_project/issues
-#
-# ═══════════════════════════════════════════════════════════════════════════

@@ -1,350 +1,79 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# Habitat Feature Extraction Configuration - Detailed Annotations
+# Habitat Feature Extraction Configuration Template
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# 📖 Instructions:
-#   - YAML format requirements:
-#     ✓ Use 2 spaces for indentation (DO NOT use Tab)
-#     ✓ Space required after colon
-#     ✓ List items start with "- " (note the space)
-#     ✓ Comments start with "#"
+# Based on actual code: scripts/app_extracting_habitat_features.py
 #
-# 🚀 Quick Start:
+# Quick Start:
 #   CLI:    habit extract-features --config config/config_extract_features.yaml
 #   Script: python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
 #
-# 📚 Documentation:
-#   - Chinese: doc/app_extracting_habitat_features.md
-#   - English: doc_en/app_extracting_habitat_features.md
-#
 # ═══════════════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────────────────────────────────
-# 📋 Parameter Files
+# PyRadiomics Parameter Files
 # ─────────────────────────────────────────────────────────────────────────
-#
-# PyRadiomics parameter files define which features to extract
-# Separate files for different extraction contexts
-#
 
 # Parameter file for traditional radiomics from original images
-# - Extracts features from full ROI
-# - Uses original image intensities
-# - Standard radiomics features (shape, intensity, texture)
 params_file_of_non_habitat: ./config/parameter.yaml
 
-# Parameter file for habitat-specific radiomics
-# - Extracts features from each habitat region
-# - Habitat maps have discrete integer labels
-# - Different feature settings may be appropriate
+# Parameter file for radiomics from habitat maps
 params_file_of_habitat: ./config/parameter_habitat.yaml
 
-
 # ─────────────────────────────────────────────────────────────────────────
-# 📂 Data Directories
+# Data Directories
 # ─────────────────────────────────────────────────────────────────────────
 
 # Root directory containing original images
-# Expected structure:
-#   raw_img_folder/
-#     ├── subject_001/
-#     │   ├── image.nrrd
-#     │   ├── mask.nrrd
-#     │   └── ...
-#     ├── subject_002/
-#     │   └── ...
-raw_img_folder: ./data/preprocessed_images
+# Expected structure: raw_img_folder/subject_id/images/ and masks/
+raw_img_folder: ./data/raw_images
 
 # Root directory containing habitat maps
-# Expected structure:
-#   habitats_map_folder/
-#     ├── subject_001/
-#     │   ├── *_habitats_remapped.nrrd
-#     │   └── ...
-#     ├── subject_002/
-#     │   └── ...
+# Expected structure: habitats_map_folder/subject_id/*_habitats.nrrd
 habitats_map_folder: ./results/habitat_maps
 
 # Output directory for extracted features
-# Creates subdirectories for different feature types:
-#   out_dir/
-#     ├── raw_image_radiomics.csv
-#     ├── whole_habitat_radiomics.csv
-#     ├── habitat_basic_features.csv
-#     ├── msi_features.csv
-#     ├── ith_scores.csv
-#     └── ...
 out_dir: ./results/features
 
-
 # ─────────────────────────────────────────────────────────────────────────
-# ⚙️ Processing Configuration
+# Feature Extraction Parameters
 # ─────────────────────────────────────────────────────────────────────────
 
 # Number of parallel processes
-# - Set to 1 for sequential processing (easier debugging)
-# - Set to N for N parallel processes (faster)
-# - Recommendation: Number of CPU cores / 2
-# - Note: Each process may use significant memory
 n_processes: 3
 
-# Pattern for matching habitat map files
-# - Uses glob pattern matching
-# - Example: '*_habitats_remapped.nrrd' matches all remapped habitat files
-# - Example: '*_habitats.nrrd' matches original habitat files
-# - Can use wildcards: *, ?, [abc]
+# Pattern for matching habitat files
+# Uses glob pattern
 habitat_pattern: '*_habitats_remapped.nrrd'
 
-
-# ─────────────────────────────────────────────────────────────────────────
-# 🔬 Feature Types Configuration
-# ─────────────────────────────────────────────────────────────────────────
-#
-# Select which feature types to extract
-# Multiple types can be enabled simultaneously
-#
+# Feature types to extract
+# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score
 feature_types:
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # Traditional Radiomics (from original images)
-  # ═══════════════════════════════════════════════════════════════════════
-  # - Extracts PyRadiomics features from original images
-  # - Uses full ROI defined by mask
-  # - Features: shape, first-order, texture (GLCM, GLRLM, GLSZM, etc.)
-  # - Output: raw_image_radiomics.csv
-  #
-  - traditional
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # Non-Radiomics Features
-  # ═══════════════════════════════════════════════════════════════════════
-  # - Basic quantitative features not from PyRadiomics
-  # - May include clinical features, simple statistics
-  # - Custom feature calculations
-  # - Output: habitat_basic_features.csv
-  #
-  - non_radiomics
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # Whole Habitat Radiomics
-  # ═══════════════════════════════════════════════════════════════════════
-  # - PyRadiomics features from entire habitat map
-  # - Treats all habitats as single ROI
-  # - Characterizes overall heterogeneity pattern
-  # - Output: whole_habitat_radiomics.csv
-  #
-  - whole_habitat
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # Individual Habitat Radiomics
-  # ═══════════════════════════════════════════════════════════════════════
-  # - PyRadiomics features from each habitat separately
-  # - If N habitats, extracts N × M features (M features per habitat)
-  # - Characterizes each habitat's properties
-  # - Output: each_habitat_radiomics.csv
-  # - Note: Can generate many features (may need feature selection)
-  #
-  # - each_habitat
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # MSI (Most Significant Intensity) Features
-  # ═══════════════════════════════════════════════════════════════════════
-  # - Habitat-based heterogeneity features
-  # - Analyzes intensity patterns across habitats
-  # - Includes:
-  #   * Number of habitats
-  #   * Dominant habitat proportion
-  #   * Habitat distribution statistics
-  #   * Spatial arrangement metrics
-  # - Output: msi_features.csv
-  #
-  - msi
-  
-  # ═══════════════════════════════════════════════════════════════════════
-  # ITH (Intra-Tumor Heterogeneity) Score
-  # ═══════════════════════════════════════════════════════════════════════
-  # - Quantifies tumor heterogeneity based on habitat diversity
-  # - Metrics:
-  #   * Shannon entropy: Higher = more diverse
-  #   * Habitat evenness: How evenly distributed
-  #   * Habitat richness: Number of distinct habitats
-  #   * Spatial heterogeneity: Habitat fragmentation
-  # - Output: ith_scores.csv
-  # - Key for predicting treatment response and prognosis
-  #
-  - ith_score
+  - traditional  # Traditional radiomics from original images
+  - non_radiomics  # Basic quantitative features
+  - whole_habitat  # Radiomics from entire habitat map
+  # - each_habitat  # Radiomics from each individual habitat (generates many features)
+  - msi  # Most Significant Intensity features
+  - ith_score  # Intra-Tumor Heterogeneity scores
 
+# Number of habitats
+# Empty = auto-detect from habitat maps
+n_habitats:
 
-# ─────────────────────────────────────────────────────────────────────────
-# 🗺️ Habitat Configuration
-# ─────────────────────────────────────────────────────────────────────────
-
-# Number of habitats in the habitat maps
-# - Leave empty for automatic detection
-# - Set to specific number if known
-# - Automatic detection: Finds max label in all habitat maps
-# - Example: n_habitats: 4 (if you know there are 4 habitats)
-n_habitats:   # Empty = auto-detect
-
-
-# ─────────────────────────────────────────────────────────────────────────
-# 🐛 Debug Configuration
-# ─────────────────────────────────────────────────────────────────────────
-
-# Enable debug mode
-# - true: Outputs detailed logging, intermediate files
-# - false: Standard logging only
-# - Use for troubleshooting feature extraction issues
+# Debug mode
 debug: false
 
-
 # ═══════════════════════════════════════════════════════════════════════════
-# 💡 Usage Examples
-# ═══════════════════════════════════════════════════════════════════════════
-#
-# Example 1: Extract all feature types
-#   feature_types:
-#     - traditional
-#     - non_radiomics
-#     - whole_habitat
-#     - each_habitat
-#     - msi
-#     - ith_score
-#
-# Example 2: Extract only heterogeneity features
-#   feature_types:
-#     - msi
-#     - ith_score
-#
-# Example 3: Extract habitat-specific radiomics
-#   feature_types:
-#     - whole_habitat
-#     - each_habitat
-#
-# Example 4: Fast extraction with parallel processing
-#   n_processes: 8  # Use 8 CPU cores
-#   feature_types:
-#     - traditional
-#     - msi
-#
-# ═══════════════════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════════════════
-# 📊 Output Files Explained
+# Output Files Generated
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# 1. raw_image_radiomics.csv (if 'traditional' enabled)
-#    - Traditional PyRadiomics features from original images
-#    - Columns: subjID, feature1, feature2, ..., featureN
-#    - One row per subject
-#
-# 2. habitat_basic_features.csv (if 'non_radiomics' enabled)
-#    - Basic quantitative features
-#    - May include volume, mean intensity, etc.
-#
-# 3. whole_habitat_radiomics.csv (if 'whole_habitat' enabled)
-#    - PyRadiomics features from entire habitat map
-#    - Characterizes overall spatial pattern
-#
-# 4. each_habitat_radiomics.csv (if 'each_habitat' enabled)
-#    - Features from each individual habitat
-#    - Column names: habitat1_feature1, habitat2_feature1, ...
-#    - High-dimensional (many features)
-#
-# 5. msi_features.csv (if 'msi' enabled)
-#    - Habitat-based heterogeneity metrics
-#    - Features describe habitat distribution and composition
-#
-# 6. ith_scores.csv (if 'ith_score' enabled)
-#    - Intra-tumor heterogeneity scores
-#    - Shannon entropy, habitat diversity metrics
-#
-# ═══════════════════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════════════════
-# ⚠️  Best Practices
-# ═══════════════════════════════════════════════════════════════════════════
-#
-# 1. Feature Selection:
-#    - Start with core feature types (traditional, msi, ith_score)
-#    - Add each_habitat only if needed (generates many features)
-#    - More features ≠ better performance (risk of overfitting)
-#
-# 2. Computational Resources:
-#    - Radiomics extraction can be memory-intensive
-#    - Start with n_processes=1 to test
-#    - Gradually increase if system can handle it
-#    - Monitor memory usage
-#
-# 3. Data Organization:
-#    - Ensure consistent file naming across subjects
-#    - Verify habitat maps are in correct directory
-#    - Check that subject IDs match between raw and habitat folders
-#
-# 4. Quality Control:
-#    - Check output CSVs for missing values
-#    - Verify number of subjects matches expected
-#    - Review log files for extraction errors
-#    - Some features may be NaN for small regions (expected)
-#
-# 5. Parameter Files:
-#    - Use different parameters for images vs habitat maps
-#    - Habitat maps may need special bin settings
-#    - Test parameters on few subjects first
-#
-# 6. Downstream Analysis:
-#    - Combine extracted features with clinical data
-#    - Apply feature selection before modeling
-#    - Normalize features appropriately
-#    - Handle missing values (imputation or exclusion)
-#
-# ═══════════════════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════════════════
-# 📖 Feature Type Recommendations by Use Case
-# ═══════════════════════════════════════════════════════════════════════════
-#
-# Survival Prediction:
-#   - traditional
-#   - msi
-#   - ith_score
-#   Rationale: Heterogeneity strongly associated with prognosis
-#
-# Treatment Response:
-#   - whole_habitat
-#   - msi
-#   - ith_score
-#   Rationale: Spatial patterns indicate treatment resistance
-#
-# Subtype Classification:
-#   - traditional
-#   - whole_habitat
-#   - each_habitat (if N_subjects large)
-#   Rationale: Detailed texture for subtype discrimination
-#
-# Baseline Exploratory Analysis:
-#   - traditional
-#   - msi
-#   Rationale: Standard features with heterogeneity metrics
-#
-# ═══════════════════════════════════════════════════════════════════════════
-
-# ═══════════════════════════════════════════════════════════════════════════
-# 📞 Get Help
-# ═══════════════════════════════════════════════════════════════════════════
-#
-# Command-line help:
-#   habit extract-features --help
-#
-# Documentation:
-#   - Chinese: doc/app_extracting_habitat_features.md
-#   - English: doc_en/app_extracting_habitat_features.md
-#
-# Configuration index:
-#   config/README_CONFIG.md
-#
-# PyRadiomics documentation:
-#   https://pyradiomics.readthedocs.io/
+# Based on feature_types selected:
+# - raw_image_radiomics.csv (traditional)
+# - habitat_basic_features.csv (non_radiomics)
+# - whole_habitat_radiomics.csv (whole_habitat)
+# - each_habitat_radiomics.csv (each_habitat)
+# - msi_features.csv (msi)
+# - ith_scores.csv (ith_score)
 #
 # ═══════════════════════════════════════════════════════════════════════════
 
