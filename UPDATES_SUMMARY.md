@@ -2,7 +2,15 @@
 
 ## ✨ 主要更新 / Key Updates
 
-### 1. 🌏 多语言支持 / Multilingual Support
+### 1. 📚 文档链接集成 / Documentation Links Integration
+
+**所有功能都添加了文档链接**：
+- ✅ 主要功能表格：每个功能旁边有 📖 文档链接
+- ✅ 核心命令示例：每个命令后都有详细文档路径
+- ✅ 快速参考表：新增"文档"列，一键跳转
+- 点击 📖 图标即可直接跳转到对应的详细文档
+
+### 2. 🌏 多语言支持 / Multilingual Support
 
 **README顶部添加语言切换**：
 - 🇨🇳 简体中文 | 🇬🇧 English

@@ -81,22 +81,23 @@ A typical radiomics research project using HABIT involves the following steps. T
 
 ## 🚀 Key Features
 
-| Category | Feature | Description |
-| :--- | :--- | :--- |
-| 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, and normalization. |
-| | **N4 Bias Field Correction** | Corrects for intensity non-uniformity in MRI scans. |
-| | **Histogram Standardization** | Standardizes intensity values across different patients or scanners. |
-| 🧬 **Habitat Analysis** | **One-Step Clustering** | Individual-level clustering with automatic cluster selection for personalized heterogeneity analysis. |
-| | **Two-Step Clustering** | A robust two-stage process (Supervoxel → Habitat) to identify common habitats across patients for cohort studies. |
-| | **Flexible Feature Input** | Supports various voxel-level features, including raw intensity, kinetic, and radiomics. |
-| 🔬 **Feature Extraction** | **Advanced Feature Sets** | Extracts traditional radiomics, `non_radiomics` stats, `whole_habitat` features, `each_habitat` features, Multiregional Spatial Interaction (`msi`), and Intratumoral Heterogeneity (`ith_score`). |
-| | **Configurable Engine** | Uses PyRadiomics with customizable parameter files for tailored feature extraction. |
-| 🤖 **Machine Learning** | **Complete Workflow** | Includes data splitting, feature selection, model training, and evaluation. |
-| | **Rich Algorithm Support** | Supports various models (Logistic Regression, SVM, RandomForest, XGBoost) and numerous feature selection methods (ICC, VIF, mRMR, LASSO, RFE). |
-| | **Model Comparison** | Tools to generate ROC curves, Decision Curve Analysis (DCA), and perform DeLong tests. |
-| 📊 **Validation & Utilities** | **Reproducibility Analysis** | Includes tools for Test-Retest and Inter-Class Correlation (ICC) analysis. |
-| | **Modular & Configurable** | All steps are controlled via easy-to-edit YAML configuration files. |
-| | **Robust Import System** | Ensures the toolkit remains operational even if some optional dependencies are missing. |
+| Category | Feature | Description | Docs |
+| :--- | :--- | :--- | :---: |
+| 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, and normalization. | [📖](doc_en/app_image_preprocessing.md) |
+| | **N4 Bias Field Correction** | Corrects for intensity non-uniformity in MRI scans. | [📖](doc_en/app_image_preprocessing.md) |
+| | **Histogram Standardization** | Standardizes intensity values across different patients or scanners. | [📖](doc_en/app_image_preprocessing.md) |
+| 🧬 **Habitat Analysis** | **One-Step Clustering** | Individual-level clustering with automatic cluster selection for personalized heterogeneity analysis. | [📖](doc_en/app_habitat_analysis.md) |
+| | **Two-Step Clustering** | A robust two-stage process (Supervoxel → Habitat) to identify common habitats across patients for cohort studies. | [📖](doc_en/app_habitat_analysis.md) |
+| | **Flexible Feature Input** | Supports various voxel-level features, including raw intensity, kinetic, and radiomics. | [📖](doc_en/app_habitat_analysis.md) |
+| 🔬 **Feature Extraction** | **Advanced Feature Sets** | Extracts traditional radiomics, `non_radiomics` stats, `whole_habitat` features, `each_habitat` features, Multiregional Spatial Interaction (`msi`), and Intratumoral Heterogeneity (`ith_score`). | [📖](doc_en/app_extracting_habitat_features.md) |
+| | **Configurable Engine** | Uses PyRadiomics with customizable parameter files for tailored feature extraction. | [📖](doc_en/app_extracting_habitat_features.md) |
+| 🤖 **Machine Learning** | **Complete Workflow** | Includes data splitting, feature selection, model training, and evaluation. | [📖](doc_en/app_of_machine_learning.md) |
+| | **Rich Algorithm Support** | Supports various models (Logistic Regression, SVM, RandomForest, XGBoost) and numerous feature selection methods (ICC, VIF, mRMR, LASSO, RFE). | [📖](doc_en/app_of_machine_learning.md) |
+| | **K-Fold Cross-Validation** | Comprehensive K-fold cross-validation with multi-model evaluation and visualization. | [📖](doc_en/app_kfold_cross_validation.md) |
+| | **Model Comparison** | Tools to generate ROC curves, Decision Curve Analysis (DCA), and perform DeLong tests. | [📖](doc_en/app_model_comparison_plots.md) |
+| 📊 **Validation & Utilities** | **Reproducibility Analysis** | Includes tools for Test-Retest and Inter-Class Correlation (ICC) analysis. | [📖](doc_en/app_icc_analysis.md) |
+| | **DICOM Conversion** | DICOM to NIfTI format conversion tools. | [📖](doc_en/app_dcm2nii.md) |
+| | **Modular & Configurable** | All steps are controlled via easy-to-edit YAML configuration files. | [📖](HABIT_CLI.md) |
 
 ## 📁 Project Structure
 
@@ -165,31 +166,39 @@ habit kfold --help
 ```bash
 # 1️⃣ Image Preprocessing - Resampling, registration, normalization
 habit preprocess --config config/config_image_preprocessing.yaml
+# 📖 Documentation: doc_en/app_image_preprocessing.md
 
 # 2️⃣ Generate Habitat Maps - Identify tumor sub-regions
 # Supports one-step (personalized) or two-step (cohort study) mode
 habit habitat --config config/config_getting_habitat.yaml
+# 📖 Documentation: doc_en/app_habitat_analysis.md
 
 # 3️⃣ Extract Habitat Features - MSI, ITH, and other advanced features
 habit extract-features --config config/config_extract_features.yaml
+# 📖 Documentation: doc_en/app_extracting_habitat_features.md
 
 # 4️⃣ Machine Learning - Train predictive models
 habit ml --config config/config_machine_learning.yaml --mode train
+# 📖 Documentation: doc_en/app_of_machine_learning.md
 
 # 5️⃣ Model Prediction - Use trained models
 habit ml --mode predict \
   --model ./ml_data/model_package.pkl \
   --data ./new_data.csv \
   --output ./predictions/
+# 📖 Documentation: doc_en/app_of_machine_learning.md
 
 # 6️⃣ K-Fold Cross-Validation - Robust model evaluation
 habit kfold --config config/config_machine_learning_kfold.yaml
+# 📖 Documentation: doc_en/app_kfold_cross_validation.md
 
 # 7️⃣ Model Comparison - ROC, DCA, calibration curves visualization
 habit compare --config config/config_model_comparison.yaml
+# 📖 Documentation: doc_en/app_model_comparison_plots.md
 
 # 8️⃣ ICC Analysis - Feature reproducibility assessment
 habit icc --config config/config_icc_analysis.yaml
+# 📖 Documentation: doc_en/app_icc_analysis.md
 
 # 9️⃣ Traditional Radiomics Feature Extraction
 habit radiomics --config config/config_traditional_radiomics.yaml
@@ -200,17 +209,17 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 
 #### Quick Reference Table
 
-| Command | Function | Config File |
-|---------|----------|-------------|
-| `habit preprocess` | Image preprocessing | `config_image_preprocessing.yaml` |
-| `habit habitat` | Generate Habitat maps | `config_getting_habitat.yaml` |
-| `habit extract-features` | Extract Habitat features | `config_extract_features.yaml` |
-| `habit ml` | ML training/prediction | `config_machine_learning.yaml` |
-| `habit kfold` | K-fold cross-validation | `config_machine_learning_kfold.yaml` |
-| `habit compare` | Model comparison & viz | `config_model_comparison.yaml` |
-| `habit icc` | ICC reproducibility | `config_icc_analysis.yaml` |
-| `habit radiomics` | Traditional radiomics | `config_traditional_radiomics.yaml` |
-| `habit test-retest` | Test-retest mapping | `config_habitat_test_retest.yaml` |
+| Command | Function | Config File | Docs |
+|---------|----------|-------------|:---:|
+| `habit preprocess` | Image preprocessing | `config_image_preprocessing.yaml` | [📖](doc_en/app_image_preprocessing.md) |
+| `habit habitat` | Generate Habitat maps | `config_getting_habitat.yaml` | [📖](doc_en/app_habitat_analysis.md) |
+| `habit extract-features` | Extract Habitat features | `config_extract_features.yaml` | [📖](doc_en/app_extracting_habitat_features.md) |
+| `habit ml` | ML training/prediction | `config_machine_learning.yaml` | [📖](doc_en/app_of_machine_learning.md) |
+| `habit kfold` | K-fold cross-validation | `config_machine_learning_kfold.yaml` | [📖](doc_en/app_kfold_cross_validation.md) |
+| `habit compare` | Model comparison & viz | `config_model_comparison.yaml` | [📖](doc_en/app_model_comparison_plots.md) |
+| `habit icc` | ICC reproducibility | `config_icc_analysis.yaml` | [📖](doc_en/app_icc_analysis.md) |
+| `habit radiomics` | Traditional radiomics | `config_traditional_radiomics.yaml` | [📖](HABIT_CLI.md) |
+| `habit test-retest` | Test-retest mapping | `config_habitat_test_retest.yaml` | [📖](doc_en/app_habitat_test_retest.md) |
 
 #### Advantages
 

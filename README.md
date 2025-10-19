@@ -81,22 +81,23 @@ HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚
 
 ## 🚀 主要功能
 
-| 类别 | 功能 | 描述 |
-| :--- | :--- | :--- |
-| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准和标准化的端到端工具。 |
-| | **N4偏置场校正** | 校正MRI扫描中的信号强度不均匀性。 |
-| | **直方图标准化** | 在不同患者或扫描仪之间标准化信号强度值。 |
-| 🧬 **生境分析** | **一步法聚类** | 个体水平聚类，自动确定最佳聚类数，适合个性化异质性分析。 |
-| | **二步法聚类** | 稳健的两阶段过程（超体素 → 生境），识别跨患者共通生境，适合队列研究。 |
-| | **灵活的特征输入** | 支持多种体素级特征，包括原始信号强度、动态增强和影像组学特征。 |
-| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、非影像组学统计、整体生境、独立生境、多区域空间交互（`msi`）和肿瘤内异质性（`ith_score`）等特征。 |
-| | **可配置引擎** | 使用PyRadiomics和可定制的参数文件进行定制化特征提取。 |
-| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估。 |
-| | **丰富的算法支持** | 支持多种模型（逻辑回归、SVM、随机森林、XGBoost）和众多特征选择方法（ICC、VIF、mRMR、LASSO、RFE）。 |
-| | **模型比较** | 提供生成ROC曲线、决策曲线分析（DCA）和执行DeLong检验的工具。 |
-| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测（Test-Retest）和组内相关系数（ICC）分析工具。 |
-| | **模块化与可配置** | 所有步骤均通过易于编辑的YAML配置文件控制。 |
-| | **稳健的导入系统** | 确保即使缺少某些可选依赖，工具包仍能正常运行。 |
+| 类别 | 功能 | 描述 | 文档 |
+| :--- | :--- | :--- | :---: |
+| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准和标准化的端到端工具。 | [📖](doc/app_image_preprocessing.md) |
+| | **N4偏置场校正** | 校正MRI扫描中的信号强度不均匀性。 | [📖](doc/app_image_preprocessing.md) |
+| | **直方图标准化** | 在不同患者或扫描仪之间标准化信号强度值。 | [📖](doc/app_image_preprocessing.md) |
+| 🧬 **生境分析** | **一步法聚类** | 个体水平聚类，自动确定最佳聚类数，适合个性化异质性分析。 | [📖](doc/app_habitat_analysis.md) |
+| | **二步法聚类** | 稳健的两阶段过程（超体素 → 生境），识别跨患者共通生境，适合队列研究。 | [📖](doc/app_habitat_analysis.md) |
+| | **灵活的特征输入** | 支持多种体素级特征，包括原始信号强度、动态增强和影像组学特征。 | [📖](doc/app_habitat_analysis.md) |
+| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、非影像组学统计、整体生境、独立生境、多区域空间交互（`msi`）和肿瘤内异质性（`ith_score`）等特征。 | [📖](doc/app_extracting_habitat_features.md) |
+| | **可配置引擎** | 使用PyRadiomics和可定制的参数文件进行定制化特征提取。 | [📖](doc/app_extracting_habitat_features.md) |
+| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估。 | [📖](doc/app_of_machine_learning.md) |
+| | **丰富的算法支持** | 支持多种模型（逻辑回归、SVM、随机森林、XGBoost）和众多特征选择方法（ICC、VIF、mRMR、LASSO、RFE）。 | [📖](doc/app_of_machine_learning.md) |
+| | **K折交叉验证** | 完善的K折交叉验证流程，支持多模型评估和可视化。 | [📖](doc/app_kfold_cross_validation.md) |
+| | **模型比较** | 提供生成ROC曲线、决策曲线分析（DCA）和执行DeLong检验的工具。 | [📖](doc/app_model_comparison_plots.md) |
+| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测（Test-Retest）和组内相关系数（ICC）分析工具。 | [📖](doc/app_icc_analysis.md) |
+| | **DICOM转换** | DICOM格式到NIfTI格式的转换工具。 | [📖](doc/app_dcm2nii.md) |
+| | **模块化与可配置** | 所有步骤均通过易于编辑的YAML配置文件控制。 | [📖](HABIT_CLI.md) |
 
 ## 📁 项目结构
 
@@ -165,31 +166,39 @@ habit kfold --help
 ```bash
 # 1️⃣ 图像预处理 - 重采样、配准、标准化
 habit preprocess --config config/config_image_preprocessing.yaml
+# 📖 详细文档: doc/app_image_preprocessing.md
 
 # 2️⃣ 生成 Habitat 地图 - 识别肿瘤亚区
 # 支持一步法（个性化）或二步法（队列研究）
 habit habitat --config config/config_getting_habitat.yaml
+# 📖 详细文档: doc/app_habitat_analysis.md
 
 # 3️⃣ 提取 Habitat 特征 - MSI, ITH等高级特征
 habit extract-features --config config/config_extract_features.yaml
+# 📖 详细文档: doc/app_extracting_habitat_features.md
 
 # 4️⃣ 机器学习 - 训练预测模型
 habit ml --config config/config_machine_learning.yaml --mode train
+# 📖 详细文档: doc/app_of_machine_learning.md
 
 # 5️⃣ 模型预测 - 使用训练好的模型
 habit ml --mode predict \
   --model ./ml_data/model_package.pkl \
   --data ./new_data.csv \
   --output ./predictions/
+# 📖 详细文档: doc/app_of_machine_learning.md
 
 # 6️⃣ K折交叉验证 - 更稳健的模型评估
 habit kfold --config config/config_machine_learning_kfold.yaml
+# 📖 详细文档: doc/app_kfold_cross_validation.md
 
 # 7️⃣ 模型比较 - ROC, DCA, 校准曲线等可视化
 habit compare --config config/config_model_comparison.yaml
+# 📖 详细文档: doc/app_model_comparison_plots.md
 
 # 8️⃣ ICC分析 - 特征可重复性评估
 habit icc --config config/config_icc_analysis.yaml
+# 📖 详细文档: doc/app_icc_analysis.md
 
 # 9️⃣ 传统影像组学特征提取
 habit radiomics --config config/config_traditional_radiomics.yaml
@@ -200,17 +209,17 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 
 #### 快速参考表
 
-| 命令 | 功能 | 配置文件 |
-|------|------|----------|
-| `habit preprocess` | 图像预处理 | `config_image_preprocessing.yaml` |
-| `habit habitat` | 生成Habitat地图 | `config_getting_habitat.yaml` |
-| `habit extract-features` | 提取Habitat特征 | `config_extract_features.yaml` |
-| `habit ml` | 机器学习训练/预测 | `config_machine_learning.yaml` |
-| `habit kfold` | K折交叉验证 | `config_machine_learning_kfold.yaml` |
-| `habit compare` | 模型比较与可视化 | `config_model_comparison.yaml` |
-| `habit icc` | ICC可重复性分析 | `config_icc_analysis.yaml` |
-| `habit radiomics` | 传统影像组学特征 | `config_traditional_radiomics.yaml` |
-| `habit test-retest` | 测试-重测映射 | `config_habitat_test_retest.yaml` |
+| 命令 | 功能 | 配置文件 | 文档 |
+|------|------|----------|:---:|
+| `habit preprocess` | 图像预处理 | `config_image_preprocessing.yaml` | [📖](doc/app_image_preprocessing.md) |
+| `habit habitat` | 生成Habitat地图 | `config_getting_habitat.yaml` | [📖](doc/app_habitat_analysis.md) |
+| `habit extract-features` | 提取Habitat特征 | `config_extract_features.yaml` | [📖](doc/app_extracting_habitat_features.md) |
+| `habit ml` | 机器学习训练/预测 | `config_machine_learning.yaml` | [📖](doc/app_of_machine_learning.md) |
+| `habit kfold` | K折交叉验证 | `config_machine_learning_kfold.yaml` | [📖](doc/app_kfold_cross_validation.md) |
+| `habit compare` | 模型比较与可视化 | `config_model_comparison.yaml` | [📖](doc/app_model_comparison_plots.md) |
+| `habit icc` | ICC可重复性分析 | `config_icc_analysis.yaml` | [📖](doc/app_icc_analysis.md) |
+| `habit radiomics` | 传统影像组学特征 | `config_traditional_radiomics.yaml` | [📖](HABIT_CLI.md) |
+| `habit test-retest` | 测试-重测映射 | `config_habitat_test_retest.yaml` | [📖](doc/app_habitat_test_retest.md) |
 
 #### 优势
 
