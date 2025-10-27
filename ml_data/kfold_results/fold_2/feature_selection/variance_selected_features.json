@@ -1,0 +1,17 @@
+{
+    "selected_features": [
+        "clinical_worst texture",
+        "clinical_symmetry error",
+        "clinical_compactness error",
+        "clinical_concave points error",
+        "clinical_worst smoothness",
+        "clinical_worst fractal dimension",
+        "clinical_worst compactness",
+        "clinical_worst radius",
+        "clinical_fractal dimension error"
+    ],
+    "n_features_selected": 9,
+    "original_feature_count": 9,
+    "selection_method": "top_k",
+    "selection_value": 9.0
+}

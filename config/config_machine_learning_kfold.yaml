@@ -35,6 +35,12 @@ feature_selection_methods:
       method: spearman
       visualize: false
       before_z_score: false
+  
+  - method: variance
+    params:
+      before_z_score: true
+      top_k: 20
+      plot_variances: true
 
 #%%================================================================================
 # Visualization and Saving Configuration
