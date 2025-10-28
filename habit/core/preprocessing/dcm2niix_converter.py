@@ -37,9 +37,10 @@ class Dcm2niixConverter(BasePreprocessor):
         dcm2niix_path: Optional[str] = None,
         filename_format: Optional[str] = None,
         compress: bool = True,
-        anonymize: bool = True,
-        ignore_derived: bool = True,
-        crop_images: bool = True,
+        anonymize: bool = False,
+        ignore_derived: bool = False,
+        crop_images: bool = False,
+        generate_json: bool = False,
         verbose: bool = False,
         batch_mode: bool = True,
         allow_missing_keys: bool = False,
@@ -53,9 +54,10 @@ class Dcm2niixConverter(BasePreprocessor):
             dcm2niix_path (Optional[str]): Full path to dcm2niix executable or directory containing it
             filename_format (Optional[str]): Output filename format (default: uses subject name)
             compress (bool): Compress output files (default: True)
-            anonymize (bool): Anonymize filenames (default: True)
-            ignore_derived (bool): Ignore derived images (default: True)
-            crop_images (bool): Crop images (default: True)
+            anonymize (bool): Anonymize filenames (default: False)
+            ignore_derived (bool): Ignore derived images (default: False)
+            crop_images (bool): Crop images (default: False)
+            generate_json (bool): Generate BIDS JSON sidecar files (default: False)
             verbose (bool): Verbose output (default: False)
             batch_mode (bool): Enable batch mode (default: True)
             allow_missing_keys (bool): Allow missing keys (default: False)
@@ -74,6 +76,7 @@ class Dcm2niixConverter(BasePreprocessor):
         self.anonymize = anonymize
         self.ignore_derived = ignore_derived
         self.crop_images = crop_images
+        self.generate_json = generate_json
         self.verbose = verbose
         self.batch_mode = batch_mode
         
@@ -166,6 +169,12 @@ class Dcm2niixConverter(BasePreprocessor):
         if filename_format:
             cmd.extend(["-f", filename_format])
         
+        # Control JSON generation (BIDS sidecar)
+        if self.generate_json:
+            cmd.extend(["-b", "y"])
+        else:
+            cmd.extend(["-b", "n"])
+        
         # Add boolean options
         if self.ignore_derived:
             cmd.extend(["-i", "y"])
@@ -197,7 +206,8 @@ class Dcm2niixConverter(BasePreprocessor):
         self, 
         input_dir: str, 
         subject_id: str,
-        sequence_name: Optional[str] = None
+        sequence_name: Optional[str] = None,
+        output_dir: Optional[str] = None
     ) -> Dict[str, sitk.Image]:
         """
         Convert a single DICOM directory to NIfTI format and return as SimpleITK Image objects.
@@ -206,6 +216,7 @@ class Dcm2niixConverter(BasePreprocessor):
             input_dir (str): Input DICOM directory path
             subject_id (str): Subject identifier
             sequence_name (Optional[str]): Sequence name for filename formatting
+            output_dir (Optional[str]): Output directory for converted files. If None, uses temporary directory
             
         Returns:
             Dict[str, sitk.Image]: Dictionary containing SimpleITK Image objects
@@ -221,9 +232,19 @@ class Dcm2niixConverter(BasePreprocessor):
         if not input_path.is_dir():
             raise ValueError(f"Input path is not a directory: {input_dir}")
         
-        # Create temporary directory for conversion
-        temp_dir = tempfile.mkdtemp(prefix=f"dcm2niix_{subject_id}_")
-        subject_output_dir = Path(temp_dir)
+        # Determine output directory
+        if output_dir:
+            # Use provided output directory
+            subject_output_dir = Path(output_dir)
+            safe_mkdir(str(subject_output_dir))
+            use_temp_dir = False
+            self.logger.info(f"[{subject_id}] Using output directory: {subject_output_dir}")
+        else:
+            # Create temporary directory for conversion
+            temp_dir = tempfile.mkdtemp(prefix=f"dcm2niix_{subject_id}_")
+            subject_output_dir = Path(temp_dir)
+            use_temp_dir = True
+            self.logger.debug(f"[{subject_id}] Using temporary directory: {subject_output_dir}")
         
         try:
             # Determine filename format
@@ -277,6 +298,9 @@ class Dcm2niixConverter(BasePreprocessor):
                         converted_images[key] = sitk_image
                         self.logger.debug(f"[{subject_id}] Loaded {nifti_file} as SimpleITK Image")
                         
+                        # Store the output file path
+                        converted_images[f"{key}_output_path"] = str(nifti_file)
+                        
                         # Find corresponding JSON file
                         json_file = nifti_file.with_suffix('.json')
                         if json_file.exists():
@@ -294,10 +318,11 @@ class Dcm2niixConverter(BasePreprocessor):
                     except Exception as e:
                         self.logger.error(f"[{subject_id}] Failed to load {nifti_file} as SimpleITK Image: {e}")
                         raise RuntimeError(f"Failed to load converted NIfTI file: {e}")
+            
             if not converted_images:
                 raise RuntimeError(f"No NIfTI files were created for {input_dir}")
             
-            self.logger.info(f"[{subject_id}] Successfully converted {len(converted_images)} files")
+            self.logger.info(f"[{subject_id}] Successfully converted and saved to {subject_output_dir}")
             return converted_images
             
         except subprocess.CalledProcessError as e:
@@ -305,12 +330,13 @@ class Dcm2niixConverter(BasePreprocessor):
             self.logger.error(error_msg)
             raise RuntimeError(error_msg)
         finally:
-            # Clean up temporary directory
-            try:
-                shutil.rmtree(str(subject_output_dir))
-                self.logger.debug(f"[{subject_id}] Cleaned up temporary directory: {subject_output_dir}")
-            except Exception as e:
-                self.logger.warning(f"[{subject_id}] Failed to clean up temporary directory {subject_output_dir}: {e}")
+            # Clean up temporary directory only if using temp directory
+            if use_temp_dir:
+                try:
+                    shutil.rmtree(str(subject_output_dir))
+                    self.logger.debug(f"[{subject_id}] Cleaned up temporary directory: {subject_output_dir}")
+                except Exception as e:
+                    self.logger.warning(f"[{subject_id}] Failed to clean up temporary directory {subject_output_dir}: {e}")
     
     def batch_convert_subjects(
         self, 
@@ -386,27 +412,70 @@ class Dcm2niixConverter(BasePreprocessor):
                 else:
                     raise KeyError(f"Key {key} not found in data dictionary")
             
-            dicom_dir = data.get(f"{key}_meta_dict").get("image_path")
-            # get folder name from dicom_dir
-            dicom_dir = os.path.dirname(dicom_dir)
+            # Get the value from data[key]
+            value = data[key]
             
-            # Skip if not a string (not a directory path)
-            if not isinstance(dicom_dir, str):
+            # Case 1: If already a SimpleITK Image, skip (already processed)
+            if isinstance(value, sitk.Image):
+                self.logger.info(f"[{subject_id}] Key {key} is already a SimpleITK Image, skipping dcm2niix conversion")
+                continue
+            
+            # Case 2: If not a string, skip (invalid type)
+            if not isinstance(value, str):
+                self.logger.warning(f"[{subject_id}] Key {key} has invalid type {type(value)}, expected str or sitk.Image")
+                continue
+            
+            # Case 3: value is a string path (file or directory)
+            dicom_path = value
+            
+            # Determine if it's a file or directory
+            if os.path.isfile(dicom_path):
+                # If it's a file, get its parent directory as the DICOM directory
+                dicom_dir = os.path.dirname(dicom_path)
+                self.logger.debug(f"[{subject_id}] {key} is a file, using parent directory: {dicom_dir}")
+            elif os.path.isdir(dicom_path):
+                # If it's a directory, use it directly as the DICOM directory
+                dicom_dir = dicom_path
+                self.logger.debug(f"[{subject_id}] {key} is a directory, using it directly: {dicom_dir}")
+            else:
+                self.logger.warning(f"[{subject_id}] Path {dicom_path} does not exist, skipping")
+                if not self.allow_missing_keys:
+                    raise FileNotFoundError(f"Path {dicom_path} does not exist")
                 continue
             
             try:
+                # Get output directory from data if available
+                output_dir = None
+                if 'output_dirs' in data and key in data['output_dirs']:
+                    output_dir = data['output_dirs'][key]
+                    self.logger.debug(f"[{subject_id}] Using output directory for {key}: {output_dir}")
+                
                 # Convert single DICOM directory
                 converted_images = self._convert_single_dicom_dir(
                     dicom_dir, 
                     subject_id, 
-                    key
+                    key,
+                    output_dir=output_dir
                 )
                 
                 # Update data with SimpleITK Image objects
                 for seq_name, sitk_image in converted_images.items():
+                    # Skip metadata entries and output path entries
+                    if seq_name.endswith('_meta_dict') or seq_name.endswith('_output_path'):
+                        continue
+                    
                     # Use the original key name for consistency with other preprocessors
                     data[key] = sitk_image
                     self.logger.info(f"[{subject_id}] Converted {key} to SimpleITK Image")
+                    
+                    # Store output file path if available
+                    output_path_key = f"{seq_name}_output_path"
+                    if output_path_key in converted_images:
+                        meta_key = f"{key}_meta_dict"
+                        if meta_key not in data:
+                            data[meta_key] = {}
+                        data[meta_key]["output_file_path"] = converted_images[output_path_key]
+                    
                     break  # Only use the first image if multiple found
                 
                 # Store conversion metadata
@@ -415,13 +484,22 @@ class Dcm2niixConverter(BasePreprocessor):
                     data[meta_key] = {}
                 data[meta_key]["dcm2niix_converted"] = True
                 data[meta_key]["original_dicom_dir"] = dicom_dir
-                data[meta_key]["converted_files"] = len(converted_images)
+                data[meta_key]["original_path"] = dicom_path
+                data[meta_key]["converted_files"] = len([k for k in converted_images.keys() 
+                                                        if not k.endswith('_meta_dict') 
+                                                        and not k.endswith('_output_path')])
                 data[meta_key]["conversion_params"] = {
                     'compress': self.compress,
                     'anonymize': self.anonymize,
                     'ignore_derived': self.ignore_derived,
-                    'crop_images': self.crop_images
+                    'crop_images': self.crop_images,
+                    'generate_json': self.generate_json
                 }
+                
+                # Merge JSON metadata if available
+                json_meta_key = f"{key}_meta_dict"
+                if json_meta_key in converted_images:
+                    data[meta_key].update(converted_images[json_meta_key])
                 
             except Exception as e:
                 self.logger.error(f"[{subject_id}] Error converting DICOM directory for key {key}: {e}")

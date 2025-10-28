@@ -1,0 +1,43 @@
+# Habitat Analysis Configuration
+
+# Data paths
+data_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\files.yaml
+out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\nii
+
+# Preprocessing settings
+Preprocessing:
+  dcm2nii:
+    images: [delay2, delay3, delay5]
+    dcm2niix_path: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\dcm2niix.exe
+    compress: true
+    anonymize: false
+    
+  # n4_correction:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   num_fitting_levels: 2
+
+  # resample:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   target_spacing: [3.0, 3.0, 3.0]  # Target voxel spacing in x, y, z
+
+  # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
+  # zscore_normalization:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
+  #   only_inmask: false  # 是否仅在掩码内计算统计量
+  #   # mask_key: mask  # 当only_inmask为true时使用的掩码名称
+
+  # # 直方图标准化 - 简化版  FIXME 调试版本
+  # # histogram_standardization:
+  # #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
+  # #   reference_key: PVP  # 参考图像的键名
+
+  # registration:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   fixed_image: PVP
+  #   moving_images: [pre_contrast, LAP, delay_3min]
+  #   type_of_transform: SyNRA  # support all ants registration methods
+  #   use_mask: false
+
+# General settings
+processes: 1  # Number of parallel processes
+random_state: 42  # Random seed for reproducibility
