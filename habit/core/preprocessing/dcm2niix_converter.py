@@ -6,6 +6,7 @@ using the dcm2niix tool, with integration into the HABIT preprocessing pipeline.
 """
 
 import os
+from re import T
 import subprocess
 import shutil
 from typing import Dict, Any, Optional, Union, List
@@ -14,6 +15,8 @@ import tempfile
 import logging
 import SimpleITK as sitk
 import json
+
+from click.core import F
 
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
@@ -33,17 +36,20 @@ class Dcm2niixConverter(BasePreprocessor):
     
     def __init__(
         self,
-        keys: Union[str, List[str]],
-        dcm2niix_path: Optional[str] = None,
-        filename_format: Optional[str] = None,
-        compress: bool = True,
-        anonymize: bool = False,
-        ignore_derived: bool = False,
-        crop_images: bool = False,
-        generate_json: bool = False,
-        verbose: bool = False,
-        batch_mode: bool = True,
-        allow_missing_keys: bool = False,
+        keys: Union[str, List[str]], # 默认不指定键
+        dcm2niix_path: Optional[str] = None, # 默认不指定dcm2niix可执行文件路径
+        filename_format: Optional[str] = None, # 默认不指定输出文件名格式
+        adjacent_dicoms: bool = True, # 默认相邻DICOMs在同一文件夹
+        compress: bool = True, # 默认压缩输出文件
+        anonymize: bool = False, # 默认不匿名化文件名
+        ignore_derived: bool = False, # 默认不忽略衍生图像
+        crop_images: bool = False, # 默认裁剪图像
+        generate_json: bool = False, # 默认不生成JSON文件
+        verbose: bool = True, # 默认输出详细信息
+        batch_mode: bool = True, # 默认启用批处理模式
+        merge_slices: Optional[str] = "2", # 合并模式: "y"/"1"=默认, "2"=按序列, "n"/"0"=不合并, None=不指定
+        single_file_mode: Optional[bool] = None, # 单文件模式: True=强制单文件(-s y), False=允许多文件(-s n), None=不指定(推荐)
+        allow_missing_keys: bool = False, # 默认不允许缺失键
         **kwargs
     ):
         """
@@ -60,6 +66,10 @@ class Dcm2niixConverter(BasePreprocessor):
             generate_json (bool): Generate BIDS JSON sidecar files (default: False)
             verbose (bool): Verbose output (default: False)
             batch_mode (bool): Enable batch mode (default: True)
+            merge_slices (Optional[str]): Merge mode - "y"/"1"=default merge, "2"=merge by series, 
+                                         "n"/"0"=no merge, None=don't specify (default: "2")
+            single_file_mode (Optional[bool]): Single file mode - True=force single file (-s y), 
+                                              False=allow multiple (-s n), None=don't specify/use default (default: None)
             allow_missing_keys (bool): Allow missing keys (default: False)
             **kwargs: Additional parameters
         """
@@ -73,12 +83,15 @@ class Dcm2niixConverter(BasePreprocessor):
         
         self.filename_format = filename_format
         self.compress = compress
+        self.adjacent_dicoms = adjacent_dicoms
         self.anonymize = anonymize
         self.ignore_derived = ignore_derived
         self.crop_images = crop_images
         self.generate_json = generate_json
         self.verbose = verbose
         self.batch_mode = batch_mode
+        self.merge_slices = merge_slices
+        self.single_file_mode = single_file_mode
         
         # Verify dcm2niix is available
         self._verify_dcm2niix()
@@ -169,6 +182,13 @@ class Dcm2niixConverter(BasePreprocessor):
         if filename_format:
             cmd.extend(["-f", filename_format])
         
+        # -a  adjacent DICOMs (images from same series always in same folder) for faster conversion (n/y, default n)
+
+        if self.adjacent_dicoms:
+            cmd.extend(["-a", "y"])
+        else:
+            cmd.extend(["-a", "n"])
+
         # Control JSON generation (BIDS sidecar)
         if self.generate_json:
             cmd.extend(["-b", "y"])
@@ -182,8 +202,26 @@ class Dcm2niixConverter(BasePreprocessor):
         if self.batch_mode:
             cmd.extend(["-l", "y"])
         
+        # Merge 2D slices into 3D volumes
+        # Note: -m parameter controls slice merging behavior
+        # -m 0 or -m n: no merging
+        # -m 1 or -m y: merge 2D slices (default)
+        # -m 2: merge based on series (more aggressive)
+        # None: don't specify, use dcm2niix default
+        if self.merge_slices is not None:
+            cmd.extend(["-m", str(self.merge_slices)])
+        
         if self.anonymize:
             cmd.extend(["-p", "y"])
+        
+        # Single file mode
+        # Note: -s y may force 4D structure, -s n splits volumes
+        # For 3D output, it's often best to NOT specify this parameter
+        if self.single_file_mode is not None:
+            if self.single_file_mode:
+                cmd.extend(["-s", "y"])
+            else:
+                cmd.extend(["-s", "n"])
         
         if self.crop_images:
             cmd.extend(["-x", "y"])
@@ -255,25 +293,91 @@ class Dcm2niixConverter(BasePreprocessor):
                 else:
                     filename_format = subject_id
             
-            # Build and execute dcm2niix command
-            cmd = self._build_dcm2niix_command(
+            # Build dcm2niix command as list
+            cmd_list = self._build_dcm2niix_command(
                 str(input_path), 
                 str(subject_output_dir), 
                 filename_format
             )
             
+            # Convert command list to string for os.system()
+            # Need to quote paths that may contain spaces
+            cmd_parts = []
+            for i, part in enumerate(cmd_list):
+                # Quote the executable path and directory paths
+                if i == 0 or part in [str(input_path), str(subject_output_dir)]:
+                    # Check if path contains spaces
+                    if ' ' in part:
+                        cmd_parts.append(f'"{part}"')
+                    else:
+                        cmd_parts.append(part)
+                else:
+                    cmd_parts.append(part)
+            
+            cmd_string = ' '.join(cmd_parts)
+            
             self.logger.info(f"[{subject_id}] Converting DICOM directory: {input_dir}")
-            self.logger.debug(f"[{subject_id}] Command: {' '.join(cmd)}")
+            self.logger.info(f"[{subject_id}] Executing command:")
+            self.logger.info(f"    {cmd_string}")
+            print(f"\n{'='*80}")
+            print(f"[DEBUG] Executing dcm2niix command:")
+            print(f"    {cmd_string}")
+            print(f"{'='*80}\n")
+
+            # Select execution method
+            # Different methods may produce different results with dcm2niix
+            # Try "os.system" if subprocess methods give unexpected 4D output
+            execution_method = "subprocess.Popen"  # Options: "os.system", "subprocess.run", "subprocess.Popen"
             
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            if execution_method == "os.system":
+                # Method 1: os.system() - Most similar to terminal behavior
+                # This is the closest to typing the command directly in terminal
+                # Recommended for dcm2niix to avoid 3D/4D conversion issues
+                print(f"[Execution Method: os.system]")
+                exit_code = os.system(cmd_string)
+                # os.system returns the exit status in platform-specific format
+                # On Windows, it's the actual exit code; on Unix, it may be shifted
+                if exit_code != 0:
+                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
             
-            if self.verbose:
-                self.logger.info(f"[{subject_id}] dcm2niix output: {result.stdout}")
+            elif execution_method == "subprocess.run":
+                # Method 2: subprocess.run() with shell=True
+                print(f"[Execution Method: subprocess.run]")
+                result = subprocess.run(
+                    cmd_string,
+                    shell=True,
+                    capture_output=False,
+                    text=True,
+                    check=True
+                )
+                exit_code = result.returncode
+                if exit_code != 0:
+                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
+            
+            elif execution_method == "subprocess.Popen":
+                # Method 3: subprocess.Popen() - Real-time output
+                print(f"[Execution Method: subprocess.Popen]")
+                process = subprocess.Popen(
+                    cmd_string,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1 # 实时输出
+                )
+                
+                # Print output in real-time
+                if process.stdout:
+                    for line in process.stdout:
+                        print(line, end='')
+                
+                process.wait()
+                exit_code = process.returncode
+                if exit_code != 0:
+                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
+            
+            else:
+                raise ValueError(f"Unknown execution method: {execution_method}")
             
             # Find converted files and load as SimpleITK Image objects
             converted_images = {}
@@ -325,8 +429,11 @@ class Dcm2niixConverter(BasePreprocessor):
             self.logger.info(f"[{subject_id}] Successfully converted and saved to {subject_output_dir}")
             return converted_images
             
-        except subprocess.CalledProcessError as e:
-            error_msg = f"[{subject_id}] dcm2niix conversion failed for {input_dir}: {e.stderr}"
+        except RuntimeError:
+            # Re-raise RuntimeError as is
+            raise
+        except Exception as e:
+            error_msg = f"[{subject_id}] dcm2niix conversion failed for {input_dir}: {str(e)}"
             self.logger.error(error_msg)
             raise RuntimeError(error_msg)
         finally:
@@ -428,21 +535,6 @@ class Dcm2niixConverter(BasePreprocessor):
             # Case 3: value is a string path (file or directory)
             dicom_path = value
             
-            # Determine if it's a file or directory
-            if os.path.isfile(dicom_path):
-                # If it's a file, get its parent directory as the DICOM directory
-                dicom_dir = os.path.dirname(dicom_path)
-                self.logger.debug(f"[{subject_id}] {key} is a file, using parent directory: {dicom_dir}")
-            elif os.path.isdir(dicom_path):
-                # If it's a directory, use it directly as the DICOM directory
-                dicom_dir = dicom_path
-                self.logger.debug(f"[{subject_id}] {key} is a directory, using it directly: {dicom_dir}")
-            else:
-                self.logger.warning(f"[{subject_id}] Path {dicom_path} does not exist, skipping")
-                if not self.allow_missing_keys:
-                    raise FileNotFoundError(f"Path {dicom_path} does not exist")
-                continue
-            
             try:
                 # Get output directory from data if available
                 output_dir = None
@@ -452,7 +544,7 @@ class Dcm2niixConverter(BasePreprocessor):
                 
                 # Convert single DICOM directory
                 converted_images = self._convert_single_dicom_dir(
-                    dicom_dir, 
+                    dicom_path, 
                     subject_id, 
                     key,
                     output_dir=output_dir
@@ -483,7 +575,7 @@ class Dcm2niixConverter(BasePreprocessor):
                 if meta_key not in data:
                     data[meta_key] = {}
                 data[meta_key]["dcm2niix_converted"] = True
-                data[meta_key]["original_dicom_dir"] = dicom_dir
+                data[meta_key]["original_dicom_dir"] = dicom_path
                 data[meta_key]["original_path"] = dicom_path
                 data[meta_key]["converted_files"] = len([k for k in converted_images.keys() 
                                                         if not k.endswith('_meta_dict') 

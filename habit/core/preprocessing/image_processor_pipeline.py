@@ -233,37 +233,9 @@ class BatchProcessor:
         masks_dir.mkdir(parents=True, exist_ok=True)
         
         # 获取所有图像和mask路径
-        images_paths, mask_paths = get_image_and_mask_paths(self.config["data_dir"])
-
-        # 由于是dcm2nii任务 需要获取倒数第二层文件夹（如果路径是文件则取其父目录）
-        # Get parent directory (second to last level folder) for dcm2nii task
-        processed_images = {}
-        for subject, img_dict in images_paths.items():
-            processed_img_dict = {}
-            for img_type, img_path in img_dict.items():
-                # If it's a file, get its parent directory; if it's already a directory, get its parent
-                if os.path.isfile(img_path):
-                    processed_img_dict[img_type] = os.path.dirname(img_path)
-                elif os.path.isdir(img_path):
-                    processed_img_dict[img_type] = os.path.dirname(img_path)
-                else:
-                    processed_img_dict[img_type] = img_path
-            processed_images[subject] = processed_img_dict
-        images_paths = processed_images
-        
-        processed_masks = {}
-        for subject, mask_dict in mask_paths.items():
-            processed_mask_dict = {}
-            for mask_type, mask_path in mask_dict.items():
-                # If it's a file, get its parent directory; if it's already a directory, get its parent
-                if os.path.isfile(mask_path):
-                    processed_mask_dict[mask_type] = os.path.dirname(mask_path)
-                elif os.path.isdir(mask_path):
-                    processed_mask_dict[mask_type] = os.path.dirname(mask_path)
-                else:
-                    processed_mask_dict[mask_type] = mask_path
-            processed_masks[subject] = processed_mask_dict
-        mask_paths = processed_masks
+        # 如果配置文件中没有指定 auto_select_first_file，则使用默认值 True
+        auto_select = self.config.get("auto_select_first_file", True)
+        images_paths, mask_paths = get_image_and_mask_paths(self.config["data_dir"], auto_select_first_file=auto_select)
         
         subject_data_list = []
         

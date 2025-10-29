@@ -21,7 +21,7 @@ class RegistrationPreprocessor(BasePreprocessor):
         mask_keys: Optional[Union[str, List[str]]] = None,
         type_of_transform: str = "SyN",
         metric: str = "MI",
-        optimizer: str = "gradient_descent",
+        optimizer: Optional[str] = None,
         use_mask: bool = False,
         allow_missing_keys: bool = False,
         replace_by_fixed_image_mask: bool = True,

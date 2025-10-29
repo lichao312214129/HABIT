@@ -4,6 +4,12 @@
 data_dir: ./config/image_files.yaml
 out_dir: ../demo_data/results/preprocessed
 
+# 控制是否自动读取目录中的第一个文件
+# true: 自动读取目录中的第一个文件 (适用于已转换的nii文件等场景)
+# false: 保持目录路径不变 (适用于dcm2nii等需要整个文件夹的任务)
+# 对于dcm2nii任务，必须设置为false
+auto_select_first_file: false
+
 # Preprocessing settings
 Preprocessing:
   dcm2nii:
@@ -11,6 +17,8 @@ Preprocessing:
     dcm2niix_path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\software\dcm2nii\dcm2niix.exe
     compress: true
     anonymize: false
+    merge_slices: "2"  # "y"=default, "2"=by series, "n"=no merge
+    single_file_mode: null  # null=don't specify (recommended for 3D)
     
   # n4_correction:
   #   images: [pre_contrast, LAP, PVP, delay_3min]

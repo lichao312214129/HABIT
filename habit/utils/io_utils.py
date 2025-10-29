@@ -76,7 +76,7 @@ def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "image
     
     return images_paths, mask_paths
 
-def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
+def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks", auto_select_first_file: bool = True) -> tuple:
     """
     Get paths for all image and mask files
     
@@ -84,6 +84,8 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
         root_folder (str): Root directory or path to YAML configuration file
         keyword_of_raw_folder (str, optional): Name of the images folder (only used when root_folder is a directory)
         keyword_of_mask_folder (str, optional): Name of the masks folder (only used when root_folder is a directory)
+        auto_select_first_file (bool, optional): If True, automatically select the first file when path is a directory.
+                                                  If False, keep directory path as is. Defaults to True.
     
     Returns:
         tuple: Dictionary of image paths and dictionary of mask paths
@@ -103,12 +105,20 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
             image_type2: /path/to/mask2
           subject2:
             image_type1: /path/to/mask1
+        
+        # Optional: control whether to automatically select first file in directory
+        auto_select_first_file: true  # or false
         ```
     """
     # Check if input is a YAML configuration file
     if os.path.isfile(root_folder) and root_folder.lower().endswith(('.yaml', '.yml')):
         # Load configuration from YAML file
         config = load_config(root_folder)
+        
+        # Check if auto_select_first_file is specified in config file
+        # Config file takes precedence over function parameter
+        if 'auto_select_first_file' in config:
+            auto_select_first_file = config['auto_select_first_file']
         
         # Extract images and masks paths from config
         images_paths = config.get('images', {})
@@ -125,16 +135,22 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
                 if not os.path.exists(mask_path):
                     print(f"Warning: Mask file not found: {mask_path} for {subject}/{mask_type}")
 
-        # if is dir then get the first file in the dir
-        for subject, img_dict in images_paths.items():
-            for img_type, img_path in img_dict.items():
-                if os.path.isdir(img_path):
-                    img_dict[img_type] = os.path.join(img_path, os.listdir(img_path)[0])
+        # if is dir and auto_select_first_file is True, get the first file in the dir
+        if auto_select_first_file:
+            for subject, img_dict in images_paths.items():
+                for img_type, img_path in img_dict.items():
+                    if os.path.isdir(img_path):
+                        files = [f for f in os.listdir(img_path) if not f.startswith('.')]
+                        if files:
+                            img_dict[img_type] = os.path.join(img_path, files[0])
+            
+            for subject, mask_dict in mask_paths.items():
+                for mask_type, mask_path in mask_dict.items():
+                    if os.path.isdir(mask_path):
+                        files = [f for f in os.listdir(mask_path) if not f.startswith('.')]
+                        if files:
+                            mask_dict[mask_type] = os.path.join(mask_path, files[0])
         
-        for subject, mask_dict in mask_paths.items():
-            for mask_type, mask_path in mask_dict.items():
-                if os.path.isdir(mask_path):
-                    mask_dict[mask_type] = os.path.join(mask_path, os.listdir(mask_path)[0])
         return images_paths, mask_paths
     
     # Use folder scanning logic

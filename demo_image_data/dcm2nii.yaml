@@ -4,6 +4,12 @@
 data_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\files.yaml
 out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\nii
 
+# 控制是否自动读取目录中的第一个文件
+# true: 自动读取目录中的第一个文件 (适用于已转换的nii文件等场景)
+# false: 保持目录路径不变 (适用于dcm2nii等需要整个文件夹的任务)
+# 对于dcm2nii任务，必须设置为false
+auto_select_first_file: false
+
 # Preprocessing settings
 Preprocessing:
   dcm2nii:
@@ -11,6 +17,7 @@ Preprocessing:
     dcm2niix_path: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\dcm2niix.exe
     compress: true
     anonymize: false
+
     
   # n4_correction:
   #   images: [pre_contrast, LAP, PVP, delay_3min]

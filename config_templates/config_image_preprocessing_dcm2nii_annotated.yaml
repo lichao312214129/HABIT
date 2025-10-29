@@ -41,6 +41,23 @@ Preprocessing:
     
     # Anonymize output (remove patient info)
     anonymize: false
+    
+    # Merge slices into 3D volumes
+    # Options:
+    #   "y" or "1": Default merge behavior (merge 2D slices)
+    #   "2": Merge based on series (more aggressive, recommended for 3D output)
+    #   "n" or "0": No merging (keep original structure)
+    #   null: Don't specify, use dcm2niix default
+    # For getting 3D instead of 4D: Use "2" or null
+    merge_slices: "2"
+    
+    # Single file mode
+    # Options:
+    #   true: Force single file output (-s y) - may preserve 4D structure
+    #   false: Allow multiple output files (-s n) - may split volumes
+    #   null: Don't specify (recommended) - let dcm2niix decide best format
+    # For getting 3D instead of 4D: Use null (don't specify)
+    single_file_mode: null
   
   # Optional: Additional preprocessing steps after conversion
   # Can include any preprocessing methods from config_image_preprocessing.yaml
