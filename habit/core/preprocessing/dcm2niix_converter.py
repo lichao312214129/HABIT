@@ -76,7 +76,8 @@ class Dcm2niixConverter(BasePreprocessor):
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
         
         # Setup logging first
-        self.logger = logging.getLogger(__name__)
+        from habit.utils.log_utils import get_module_logger
+        self.logger = get_module_logger(__name__)
         
         # Setup dcm2niix path and environment
         self.dcm2niix_executable = self._setup_dcm2niix_environment(dcm2niix_path)

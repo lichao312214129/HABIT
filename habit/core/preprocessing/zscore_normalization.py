@@ -4,9 +4,10 @@ import numpy as np
 import logging
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
+from ...utils.log_utils import get_module_logger
 
-# 配置日志记录器
-logger = logging.getLogger(__name__)
+# Get module logger
+logger = get_module_logger(__name__)
 
 @PreprocessorFactory.register("zscore_normalization")
 class ZScoreNormalization(BasePreprocessor):

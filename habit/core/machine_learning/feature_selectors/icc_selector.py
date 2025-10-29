@@ -24,22 +24,19 @@ def configure_logger(output_path: str):
     Args:
         output_path: Output file path
     """
+    from habit.utils.log_utils import setup_logger
+    
     output_dir = os.path.dirname(os.path.abspath(output_path))
-    log_file = os.path.join(output_dir, "icc_analysis.log")
     
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
+    return setup_logger(
+        name='icc_selector',
+        output_dir=output_dir,
+        log_filename='icc_analysis.log',
+        level=logging.INFO
     )
-    
-    return logging.getLogger(__name__)
 
 def read_file(file_path: str, index_col=0) -> pd.DataFrame:
     """

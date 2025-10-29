@@ -127,21 +127,18 @@ class HabitatFeatureExtractor:
         timeArray = time.localtime(data)
         timestr = time.strftime('%Y_%m_%d %H_%M_%S', timeArray)
         
-        # Create output directory
+        # Create output directory and setup logging
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
-        log_file = os.path.join(self.out_dir, f'habitat_analysis_{timestr}.log')
-        # Configure logging
-        logging.basicConfig(
-            level=logging.ERROR,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler(log_file)
-            ]
-        )
         
-        logging.error(f"Log file will be saved to: {log_file}")
+        # Use centralized logging system
+        from habit.utils.log_utils import setup_logger
+        self.logger = setup_logger(
+            name='habitat.extractor',
+            output_dir=self.out_dir,
+            log_filename=f'habitat_analysis_{timestr}.log',
+            level=logging.INFO
+        )
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""

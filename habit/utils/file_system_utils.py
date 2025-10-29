@@ -7,8 +7,9 @@ import logging
 import shutil
 from pathlib import Path
 from typing import Union, Optional
+from habit.utils.log_utils import get_module_logger
 
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
 def safe_mkdir(path: Union[str, Path], exist_ok: bool = True) -> bool:
     """

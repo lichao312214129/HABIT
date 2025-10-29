@@ -4,9 +4,10 @@ Feature extractors module for habitat analysis.
 
 import logging
 from typing import Dict, Type, Optional
+from habit.utils.log_utils import get_module_logger
 
 # Set up logging for import errors
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
 # Base feature extractor - this should always be available
 try:

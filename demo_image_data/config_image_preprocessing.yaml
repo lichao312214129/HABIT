@@ -19,7 +19,7 @@ Preprocessing:
 
   resample:
     images: [delay2, delay3, delay5]
-    target_spacing: [2.0, 2.0, 2.0]  # Target voxel spacing in x, y, z
+    target_spacing: [3.0, 3.0, 3.0]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   # zscore_normalization:

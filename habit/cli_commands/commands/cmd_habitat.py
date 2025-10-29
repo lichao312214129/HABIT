@@ -20,65 +20,11 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
     """
     from habit.core.habitat_analysis import HabitatAnalysis
     from habit.utils.io_utils import load_config
+    from habit.utils.log_utils import get_module_logger
     
-    def setup_logger(name: str, log_dir: str = None, level: int = logging.INFO) -> logging.Logger:
-        """
-        Set up and configure a logger instance.
-        
-        Args:
-            name (str): Name of the logger
-            log_dir (str, optional): Directory to store log files
-            level (int, optional): Logging level
-            
-        Returns:
-            logging.Logger: Configured logger instance
-        """
-        # Create logger
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
-        
-        # Clear any existing handlers
-        if logger.handlers:
-            logger.handlers.clear()
-        
-        # Create formatters
-        console_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        
-        file_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
-        
-        # File handler (if log_dir is provided)
-        if log_dir:
-            # Create log directory if it doesn't exist
-            log_path = Path(log_dir)
-            log_path.mkdir(parents=True, exist_ok=True)
-            
-            # Create log file with timestamp
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            log_file = log_path / f"{name}_{timestamp}.log"
-            
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
-            file_handler.setFormatter(file_formatter)
-            logger.addHandler(file_handler)
-        
-        return logger
-    
-    # Initialize logger
-    logger = setup_logger(
-        name="habitat_analysis",
-        log_dir="./logs" if not debug_mode else None,
-        level=logging.DEBUG if debug_mode else logging.INFO
-    )
+    # Initialize module logger for CLI command
+    logger = get_module_logger('cli.habitat')
+    logger.setLevel(logging.DEBUG if debug_mode else logging.INFO)
     
     # Check if config file is provided
     if not config_file:

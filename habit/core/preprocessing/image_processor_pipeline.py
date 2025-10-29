@@ -20,6 +20,7 @@ from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.config_utils import load_config
+from habit.utils.log_utils import setup_logger, get_module_logger
 import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
@@ -75,35 +76,18 @@ class BatchProcessor:
         self.logger.info(f"Using {self.num_workers} worker processes.")
             
     def _setup_logging(self, log_level: str) -> None:
-        """Setup logging configuration.
+        """Setup logging configuration using centralized log system.
         
         Args:
             log_level (str): Logging level.
         """
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        # Setup logger
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(getattr(logging, log_level.upper()))
-        
-        # Clear any existing handlers
-        self.logger.handlers = []
-        
-        # Add console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
-        
-        # Add file handler
-        log_dir = self.output_root / "logs"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        log_file = log_dir / "processing.log"
-        file_handler = logging.FileHandler(str(log_file), encoding='utf-8')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        
-        self.logger.info(f"Logging initialized. Log file: {log_file}")
+        # Use centralized logging system
+        self.logger = setup_logger(
+            name='preprocessing',
+            output_dir=self.output_root,
+            log_filename='processing.log',
+            level=getattr(logging, log_level.upper())
+        )
         
     def _process_single_subject(self, subject_data):
         """处理单个样本的数据。

@@ -18,6 +18,7 @@ from habit.utils.io_utils import (get_image_and_mask_paths,
                             detect_image_names,
                             check_data_structure,
                             save_habitat_image)
+from habit.utils.log_utils import setup_logger
 
 from .features.feature_expression_parser import FeatureExpressionParser
 from .features.feature_extractor_factory import create_feature_extractor
@@ -281,30 +282,13 @@ class HabitatAnalysis:
         Args:
             log_level (str): Logging level.
         """
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        # Setup logger
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(getattr(logging, log_level.upper()))
-        
-        # Clear any existing handlers
-        self.logger.handlers = []
-        
-        # Add console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
-        
-        # Add file handler
-        log_dir = os.path.join(self.out_dir, "logs")
-        os.makedirs(log_dir, exist_ok=True)
-        log_file = os.path.join(log_dir, "habitat_analysis.log")
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        
-        self.logger.info(f"Logging initialized. Log file: {log_file}")
+        # Use centralized logging system
+        self.logger = setup_logger(
+            name='habitat',
+            output_dir=self.out_dir,
+            log_filename='habitat_analysis.log',
+            level=getattr(logging, log_level.upper())
+        )
 
     def _init_feature_extractor(self):
         """Initialize feature extractor based on configuration"""

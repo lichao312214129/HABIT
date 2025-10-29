@@ -402,31 +402,29 @@ def validate_config(config: Dict[str, Any], required_keys: Optional[List[str]] =
     
     return True 
 
-def setup_logging(out_dir: str, debug: bool = False) -> None:
+def setup_logging(out_dir: str, debug: bool = False) -> logging.Logger:
     """
-    Set up logging configuration
+    Set up logging configuration using centralized log system.
+    
+    NOTE: This is a legacy function for backward compatibility.
+    New code should use habit.utils.log_utils.setup_logger() directly.
     
     Args:
         out_dir (str): Output directory for log files
         debug (bool, optional): Whether to enable debug mode. Defaults to False.
+        
+    Returns:
+        logging.Logger: Configured logger instance
     """
-    # Create logs directory if it doesn't exist
-    log_dir = os.path.join(out_dir, "logs")
-    os.makedirs(log_dir, exist_ok=True)
+    from habit.utils.log_utils import setup_logger
     
-    # Set up logging configuration
     log_level = logging.DEBUG if debug else logging.INFO
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(log_dir, f"habit_{timestamp}.log")
     
-    # Configure logging
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),  # save to file
-            logging.StreamHandler()  # print to console
-        ]
+    return setup_logger(
+        name='habit',
+        output_dir=out_dir,
+        log_filename='processing.log',
+        level=log_level
     ) 
 
 def export_paths_to_yaml(root_folder: str, output_yaml_path: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> None:
