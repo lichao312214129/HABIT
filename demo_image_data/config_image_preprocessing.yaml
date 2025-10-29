@@ -19,7 +19,7 @@ Preprocessing:
 
   resample:
     images: [delay2, delay3, delay5]
-    target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in x, y, z
+    target_spacing: [2.0, 2.0, 2.0]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   # zscore_normalization:
@@ -36,7 +36,7 @@ Preprocessing:
     images: [delay2, delay3, delay5]
     fixed_image: delay3
     moving_images: [delay2, delay5]
-    type_of_transform: SyN  # support all ants registration methods
+    type_of_transform: SyNRA  # support all ants registration methods
     use_mask: false
 
 # General settings
