@@ -36,8 +36,26 @@ class ITHFeatureExtractor:
             elif not isinstance(habitat_img, sitk.Image):
                 raise ValueError("habitat_img must be a SimpleITK image or a file path.")
             
+            # Ensure image is in the correct pixel type (uint32 or int32)
+            # to avoid threshold issues with float or other types
+            if habitat_img.GetPixelID() != sitk.sitkUInt32 and habitat_img.GetPixelID() != sitk.sitkInt32:
+                habitat_img = sitk.Cast(habitat_img, sitk.sitkUInt32)
+            
+            # Get the actual range of pixel values in the image
+            stats = sitk.StatisticsImageFilter()
+            stats.Execute(habitat_img)
+            min_val = int(stats.GetMinimum())
+            max_val = int(stats.GetMaximum())
+            
             # Calculate total area using SimpleITK
-            binary_mask = sitk.BinaryThreshold(habitat_img, 1, 100000, 1, 0)  # large upper bound
+            # Use the actual max value instead of hardcoded 100000
+            binary_mask = sitk.BinaryThreshold(
+                image1=habitat_img, 
+                lowerThreshold=1, 
+                upperThreshold=max_val if max_val > 0 else 100000,
+                insideValue=1, 
+                outsideValue=0
+            )
             stat_filter = sitk.StatisticsImageFilter()
             stat_filter.Execute(binary_mask)
             total_area = stat_filter.GetSum()
@@ -47,7 +65,7 @@ class ITHFeatureExtractor:
             
             # Get unique habitats using SimpleITK
             label_stats = sitk.LabelIntensityStatisticsImageFilter()
-            mask = sitk.BinaryThreshold(habitat_img, 1, 100000, 1, 0)  # large upper bound
+            mask = sitk.BinaryThreshold(habitat_img, 1, max_val if max_val > 0 else 100000, 1, 0)
             label_stats.Execute(habitat_img, habitat_img)  # Using the image itself as both inputs
             
             # Get all labels (habitats) excluding background

@@ -83,6 +83,9 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
         try:
             # Initialize PyRadiomics feature extractor
             extractor = featureextractor.RadiomicsFeatureExtractor(self.params_file)
+            # kernelRadius controls the size of the local neighborhood (in voxels) 
+            # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
+            # centered on each voxel, radius of 2 means 5×5×5, etc.
             kernelRadius = kwargs.get('kernelRadius', 1)
             extractor.settings.update({'kernelRadius': kernelRadius})
             
