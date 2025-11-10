@@ -49,7 +49,7 @@ class HabitatAnalysis:
                  root_folder: str,
                  out_folder: Optional[str] = None,
                  feature_config: Optional[Dict[str, Any]] = None,
-                 clustering_mode: str = "two_step",
+                 clustering_strategy: str = "two_step",
                  supervoxel_clustering_method: str = "kmeans",
                  habitat_clustering_method: str = "kmeans",
                  mode: str = "training",
@@ -80,7 +80,7 @@ class HabitatAnalysis:
                 - extractor (str or dict): Feature extractor name or configuration
                 - params (dict): Feature extractor parameters, used when extractor is a string
                 - preprocessing (dict): Feature preprocessing parameters
-            clustering_mode (str, optional): Clustering strategy, either 'one_step' or 'two_step', default is two_step
+            clustering_strategy (str, optional): Clustering strategy, either 'one_step' or 'two_step', default is two_step
                 - one_step: Individual-level clustering only (each tumor gets its own habitats)
                 - two_step: Individual + Population clustering (supervoxels then habitats across patients)
             supervoxel_clustering_method (str, optional): Supervoxel clustering method, default is kmeans
@@ -111,11 +111,12 @@ class HabitatAnalysis:
         self.out_dir = os.path.abspath(out_folder or os.path.join(self.data_dir, "habitats_output"))
         self.config_file = config_file  # 保存原始配置文件路径
         self._setup_logging(log_level)
+        self.verbose = verbose
 
         # Clustering mode: one_step or two_step
-        self.clustering_mode = clustering_mode.lower()
-        if self.clustering_mode not in ['one_step', 'two_step']:
-            raise ValueError(f"clustering_mode must be 'one_step' or 'two_step', got '{clustering_mode}'")
+        self.clustering_strategy = clustering_strategy.lower()
+        if self.clustering_strategy not in ['one_step', 'two_step']:
+            raise ValueError(f"clustering_strategy must be 'one_step' or 'two_step', got '{clustering_strategy}'")
         
         # Clustering parameters
         self.supervoxel_method = supervoxel_clustering_method
@@ -125,84 +126,11 @@ class HabitatAnalysis:
         self.n_clusters_habitats_max = n_clusters_habitats_max
         self.n_clusters_habitats_min = n_clusters_habitats_min
 
-        # One-step mode settings
-        if self.clustering_mode == 'one_step':
-            default_one_step_settings = {
-                'min_clusters': 2,
-                'max_clusters': 10,
-                'selection_method': 'silhouette',
-                'plot_validation_curves': True
-            }
-            if one_step_settings is None:
-                self.one_step_settings = default_one_step_settings
-            else:
-                self.one_step_settings = {**default_one_step_settings, **one_step_settings}
-            
-            if self.verbose:
-                self.logger.info(f"One-step clustering mode enabled")
-                self.logger.info(f"  Cluster range: [{self.one_step_settings['min_clusters']}, {self.one_step_settings['max_clusters']}]")
-                self.logger.info(f"  Selection method: {self.one_step_settings['selection_method']}")
-        else:
-            self.one_step_settings = None
-
-        self.verbose = verbose
-
-        # Get validation methods supported by the clustering method using cluster_validation_methods module
-        validation_info = get_validation_methods(habitat_clustering_method)
-        valid_selection_methods = list(validation_info['methods'].keys())
-        default_methods = get_default_methods(habitat_clustering_method)
-
-        if self.verbose:
-            self.logger.info(f"Validation methods supported by clustering method '{habitat_clustering_method}': {', '.join(valid_selection_methods)}")
-            self.logger.info(f"Default validation methods: {', '.join(default_methods)}")
-
-        # Check validity of habitat_cluster_selection_method parameter
-        if habitat_cluster_selection_method is None:
-            # Use default methods
-            self.habitat_cluster_selection_method = default_methods
-            if self.verbose:
-                self.logger.info(f"No clustering evaluation method specified, using default methods: {', '.join(default_methods)}")
-        elif isinstance(habitat_cluster_selection_method, str):
-            # Check if single method is valid
-            if is_valid_method_for_algorithm(habitat_clustering_method, habitat_cluster_selection_method.lower()):
-                self.habitat_cluster_selection_method = habitat_cluster_selection_method.lower()
-            else:
-                # If specified method is invalid for current clustering algorithm, use default methods
-                original_method = habitat_cluster_selection_method
-                self.habitat_cluster_selection_method = default_methods
-                if self.verbose:
-                    self.logger.warning(f"Validation method '{original_method}' is invalid for clustering method '{habitat_clustering_method}'")
-                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
-                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
-        elif isinstance(habitat_cluster_selection_method, list):
-            # Check if multiple methods are valid
-            valid_methods = []
-            invalid_methods = []
-
-            for method in habitat_cluster_selection_method:
-                if is_valid_method_for_algorithm(habitat_clustering_method, method.lower()):
-                    valid_methods.append(method.lower())
-                else:
-                    invalid_methods.append(method)
-
-            if valid_methods:
-                self.habitat_cluster_selection_method = valid_methods
-                if invalid_methods and self.verbose:
-                    self.logger.warning(f"The following validation methods are invalid for clustering method '{habitat_clustering_method}': {', '.join(invalid_methods)}")
-                    self.logger.info(f"Only using valid methods: {', '.join(valid_methods)}")
-            else:
-                # If no valid methods, use default methods
-                self.habitat_cluster_selection_method = default_methods
-                if self.verbose:
-                    self.logger.warning(f"All specified validation methods are invalid for clustering method '{habitat_clustering_method}'")
-                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
-                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
-        else:
-            # Parameter type error, use default methods
-            self.habitat_cluster_selection_method = default_methods
-            if self.verbose:
-                self.logger.warning("Clustering evaluation method parameter type error, should be string or list")
-                self.logger.info(f"Using default methods: {', '.join(default_methods)}")
+        # Initialize one-step settings
+        self._init_one_step_settings(one_step_settings)
+        
+        # Initialize habitat cluster selection methods
+        self._init_habitat_selection_methods(habitat_cluster_selection_method)
 
 
         # Parameters
@@ -290,6 +218,103 @@ class HabitatAnalysis:
             level=getattr(logging, log_level.upper())
         )
 
+    def _init_one_step_settings(self, one_step_settings: Optional[Dict[str, Any]]) -> None:
+        """Initialize one-step clustering settings.
+        
+        Args:
+            one_step_settings (dict, optional): Custom one-step settings
+                - best_n_clusters: If specified, use this fixed number (skip optimal search)
+                - min_clusters: Minimum number of clusters to test (only used if best_n_clusters is None)
+                - max_clusters: Maximum number of clusters to test (only used if best_n_clusters is None)
+                - selection_method: Method to determine optimal clusters (only used if best_n_clusters is None)
+                - plot_validation_curves: Whether to plot validation curves (only used if best_n_clusters is None)
+        """
+        if self.clustering_strategy == 'one_step':
+            default_one_step_settings = {
+                'best_n_clusters': None,  # If specified, skip optimal search
+                'min_clusters': 2,
+                'max_clusters': 10,
+                'selection_method': 'silhouette',
+                'plot_validation_curves': True
+            }
+            if one_step_settings is None:
+                self.one_step_settings = default_one_step_settings
+            else:
+                self.one_step_settings = {**default_one_step_settings, **one_step_settings}
+            
+            if self.verbose:
+                self.logger.info(f"One-step clustering mode enabled")
+                if self.one_step_settings['best_n_clusters'] is not None:
+                    self.logger.info(f"  Using fixed cluster number: {self.one_step_settings['best_n_clusters']}")
+                else:
+                    self.logger.info(f"  Cluster range: [{self.one_step_settings['min_clusters']}, {self.one_step_settings['max_clusters']}]")
+                    self.logger.info(f"  Selection method: {self.one_step_settings['selection_method']}")
+        else:
+            self.one_step_settings = None
+
+    def _init_habitat_selection_methods(self, habitat_cluster_selection_method: Optional[Union[str, List[str]]]) -> None:
+        """Initialize habitat cluster selection methods.
+        
+        Args:
+            habitat_cluster_selection_method (str or list, optional): Clustering evaluation methods
+        """
+        # Get validation methods supported by the clustering method
+        validation_info = get_validation_methods(self.habitat_method)
+        valid_selection_methods = list(validation_info['methods'].keys())
+        default_methods = get_default_methods(self.habitat_method)
+
+        if self.verbose:
+            self.logger.info(f"Validation methods supported by clustering method '{self.habitat_method}': {', '.join(valid_selection_methods)}")
+            self.logger.info(f"Default validation methods: {', '.join(default_methods)}")
+
+        # Check validity of habitat_cluster_selection_method parameter
+        if habitat_cluster_selection_method is None:
+            # Use default methods
+            self.habitat_cluster_selection_method = default_methods
+            if self.verbose:
+                self.logger.info(f"No clustering evaluation method specified, using default methods: {', '.join(default_methods)}")
+        elif isinstance(habitat_cluster_selection_method, str):
+            # Check if single method is valid
+            if is_valid_method_for_algorithm(self.habitat_method, habitat_cluster_selection_method.lower()):
+                self.habitat_cluster_selection_method = habitat_cluster_selection_method.lower()
+            else:
+                # If specified method is invalid for current clustering algorithm, use default methods
+                original_method = habitat_cluster_selection_method
+                self.habitat_cluster_selection_method = default_methods
+                if self.verbose:
+                    self.logger.warning(f"Validation method '{original_method}' is invalid for clustering method '{self.habitat_method}'")
+                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
+                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
+        elif isinstance(habitat_cluster_selection_method, list):
+            # Check if multiple methods are valid
+            valid_methods = []
+            invalid_methods = []
+
+            for method in habitat_cluster_selection_method:
+                if is_valid_method_for_algorithm(self.habitat_method, method.lower()):
+                    valid_methods.append(method.lower())
+                else:
+                    invalid_methods.append(method)
+
+            if valid_methods:
+                self.habitat_cluster_selection_method = valid_methods
+                if invalid_methods and self.verbose:
+                    self.logger.warning(f"The following validation methods are invalid for clustering method '{self.habitat_method}': {', '.join(invalid_methods)}")
+                    self.logger.info(f"Only using valid methods: {', '.join(valid_methods)}")
+            else:
+                # If no valid methods, use default methods
+                self.habitat_cluster_selection_method = default_methods
+                if self.verbose:
+                    self.logger.warning(f"All specified validation methods are invalid for clustering method '{self.habitat_method}'")
+                    self.logger.info(f"Available validation methods: {', '.join(valid_selection_methods)}")
+                    self.logger.info(f"Using default methods: {', '.join(default_methods)}")
+        else:
+            # Parameter type error, use default methods
+            self.habitat_cluster_selection_method = default_methods
+            if self.verbose:
+                self.logger.warning("Clustering evaluation method parameter type error, should be string or list")
+                self.logger.info(f"Using default methods: {', '.join(default_methods)}")
+
     def _init_feature_extractor(self):
         """Initialize feature extractor based on configuration"""
 
@@ -343,104 +368,6 @@ class HabitatAnalysis:
                     
         self.cross_image_kwargs = cross_image_kwargs
 
-    def _determine_optimal_clusters_for_subject(self, subject: str, features: np.ndarray, settings: Dict[str, Any]) -> int:
-        """
-        Determine optimal number of clusters for a single subject using validation methods
-        
-        Args:
-            subject (str): Subject ID
-            features (np.ndarray): Feature matrix for the subject
-            settings (dict): One-step settings containing min_clusters, max_clusters, selection_method, etc.
-            
-        Returns:
-            int: Optimal number of clusters
-        """
-        min_k = settings['min_clusters']
-        max_k = settings['max_clusters']
-        selection_method = settings['selection_method']
-        plot_curves = settings.get('plot_validation_curves', False)
-        
-        self.logger.info(f"Determining optimal clusters for {subject} using {selection_method}")
-        
-        # Test different numbers of clusters
-        cluster_range = range(min_k, max_k + 1)
-        scores = []
-        
-        from .clustering.base_clustering import get_clustering_algorithm
-        from .clustering.cluster_validation_methods import get_validation_methods
-        
-        for n_clusters in cluster_range:
-            try:
-                # Create clustering algorithm
-                clusterer = get_clustering_algorithm(
-                    self.supervoxel_method,
-                    n_clusters=n_clusters,
-                    random_state=self.random_state
-                )
-                
-                # Fit and predict
-                clusterer.fit(features)
-                labels = clusterer.predict(features)
-                
-                # Calculate validation score
-                validation_info = get_validation_methods(self.supervoxel_method)
-                validation_func = validation_info['methods'][selection_method]['function']
-                
-                if selection_method in ['aic', 'bic']:
-                    # For model-based methods that need the model
-                    score = validation_func(clusterer.model, features, labels)
-                else:
-                    # For distance/density-based methods
-                    score = validation_func(features, labels)
-                
-                scores.append(score)
-                
-            except Exception as e:
-                self.logger.warning(f"Failed to evaluate {n_clusters} clusters for {subject}: {e}")
-                scores.append(np.nan)
-        
-        # Determine optimal number of clusters based on selection method
-        scores = np.array(scores)
-        valid_indices = ~np.isnan(scores)
-        
-        if not np.any(valid_indices):
-            self.logger.warning(f"All validation scores failed for {subject}, using default min_clusters={min_k}")
-            return min_k
-        
-        # Different methods have different optimization directions
-        validation_info = get_validation_methods(self.supervoxel_method)
-        higher_is_better = validation_info['methods'][selection_method]['higher_is_better']
-        
-        if higher_is_better:
-            # For silhouette, calinski_harabasz: higher is better
-            optimal_idx = np.nanargmax(scores)
-        else:
-            # For davies_bouldin, inertia, aic, bic: lower is better
-            optimal_idx = np.nanargmin(scores)
-        
-        optimal_n_clusters = cluster_range[optimal_idx]
-        
-        # Plot validation curves if requested
-        if plot_curves:
-            try:
-                subject_plot_dir = os.path.join(self.out_dir, f"{subject}_validation_plots")
-                os.makedirs(subject_plot_dir, exist_ok=True)
-                
-                plot_data = {selection_method: (list(cluster_range), scores.tolist())}
-                plot_file = os.path.join(subject_plot_dir, f"{subject}_cluster_validation.png")
-                
-                plot_cluster_scores(
-                    plot_data,
-                    save_path=plot_file,
-                    title=f"{subject} - Cluster Validation ({selection_method})"
-                )
-                
-                self.logger.info(f"Validation plot saved to: {plot_file}")
-            except Exception as e:
-                self.logger.warning(f"Failed to plot validation curves for {subject}: {e}")
-        
-        return optimal_n_clusters
-    
     def _voxel2supervoxel_clustering(self, subject: str) -> Tuple[str, Union[Tuple[str, pd.DataFrame], Exception]]:
         """
         Process a single subject
@@ -472,18 +399,61 @@ class HabitatAnalysis:
 
             # Perform clustering for voxel to supervoxel
             try:
-                if self.clustering_mode == 'one_step':
+                if self.clustering_strategy == 'one_step':
                     # One-step mode: determine optimal number of clusters for this individual tumor
-                    optimal_n_clusters = self._determine_optimal_clusters_for_subject(
-                        subject, 
-                        feature_df.values,
-                        self.one_step_settings
-                    )
+                    # Check if best_n_clusters is explicitly specified
+                    if self.one_step_settings.get('best_n_clusters') is not None:
+                        # Use fixed cluster number directly
+                        optimal_n_clusters = self.one_step_settings['best_n_clusters']
+                        self.logger.info(f"Subject {subject}: Using fixed cluster number {optimal_n_clusters}")
+                        print(f"Subject {subject}: Using fixed cluster number {optimal_n_clusters}")
+                    else:
+                        # Find optimal clusters using validation methods
+                        self.logger.info(f"Determining optimal clusters for {subject} using {self.one_step_settings['selection_method']}")
+                        
+                        # Get clustering algorithm instance for optimization
+                        clusterer = get_clustering_algorithm(
+                            self.supervoxel_method,
+                            n_clusters=self.one_step_settings['max_clusters'],
+                            random_state=self.random_state
+                        )
+                        
+                        # Use the built-in method to find optimal clusters
+                        optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
+                            X=feature_df.values,
+                            min_clusters=self.one_step_settings['min_clusters'],
+                            max_clusters=self.one_step_settings['max_clusters'],
+                            methods=[self.one_step_settings['selection_method']],
+                            show_progress=False
+                        )
+                        
+                        # Plot validation curves if requested
+                        if self.one_step_settings.get('plot_validation_curves', False) and self.plot_curves:
+                            try:
+                                from habit.utils.visualization import plot_cluster_scores
+                                
+                                viz_dir = os.path.join(self.out_dir, 'visualizations', 'optimal_clusters')
+                                os.makedirs(viz_dir, exist_ok=True)
+                                
+                                plot_file = os.path.join(viz_dir, f'{subject}_cluster_validation.png')
+                                plot_cluster_scores(
+                                    scores_dict=scores_dict,
+                                    cluster_range=clusterer.cluster_range,
+                                    methods=[self.one_step_settings['selection_method']],
+                                    clustering_algorithm=self.supervoxel_method,
+                                    figsize=(8, 6),
+                                    save_path=plot_file,
+                                    show=False,
+                                    dpi=300
+                                )
+                                self.logger.info(f"Validation plot saved to: {plot_file}")
+                            except Exception as e:
+                                self.logger.warning(f"Failed to plot validation curves for {subject}: {e}")
+                    
                     self.logger.info(f"Subject {subject}: optimal clusters = {optimal_n_clusters}")
                     print(f"Subject {subject}: optimal clusters = {optimal_n_clusters}")
                     
                     # Update clustering algorithm with optimal number of clusters
-                    from .clustering.base_clustering import get_clustering_algorithm
                     self.voxel2supervoxel_clustering = get_clustering_algorithm(
                         self.supervoxel_method,
                         n_clusters=optimal_n_clusters,
@@ -493,6 +463,53 @@ class HabitatAnalysis:
                 self.voxel2supervoxel_clustering.fit(feature_df.values)
                 supervoxel_labels = self.voxel2supervoxel_clustering.predict(feature_df.values)
                 supervoxel_labels += 1  # Start numbering from 1
+                
+                # Visualize supervoxel clustering results if plot_curves is enabled
+                if self.plot_curves:
+                    try:
+                        from habit.utils.visualization import plot_cluster_results
+                        
+                        # Create visualization directory for this subject
+                        viz_dir = os.path.join(self.out_dir, 'visualizations', 'supervoxel_clustering')
+                        os.makedirs(viz_dir, exist_ok=True)
+                        
+                        # Get cluster centers if available
+                        centers = None
+                        if hasattr(self.voxel2supervoxel_clustering, 'cluster_centers_'):
+                            centers = self.voxel2supervoxel_clustering.cluster_centers_
+                        
+                        # Plot 2D scatter
+                        save_path_2d = os.path.join(viz_dir, f'{subject}_supervoxel_clustering_2D.png')
+                        plot_cluster_results(
+                            X=feature_df.values,
+                            labels=supervoxel_labels,
+                            centers=centers,
+                            title=f'Supervoxel Clustering: {subject}\n(n_clusters={self.n_clusters_supervoxel})',
+                            save_path=save_path_2d,
+                            show=False,
+                            dpi=300,
+                            plot_3d=False
+                        )
+                        
+                        # Plot 3D scatter
+                        save_path_3d = os.path.join(viz_dir, f'{subject}_supervoxel_clustering_3D.png')
+                        plot_cluster_results(
+                            X=feature_df.values,
+                            labels=supervoxel_labels,
+                            centers=centers,
+                            title=f'Supervoxel Clustering: {subject}\n(n_clusters={self.n_clusters_supervoxel})',
+                            save_path=save_path_3d,
+                            show=False,
+                            dpi=300,
+                            plot_3d=True
+                        )
+                        
+                        if self.verbose:
+                            self.logger.info(f"Saved supervoxel clustering visualizations to {viz_dir}")
+                    except Exception as viz_e:
+                        if self.verbose:
+                            self.logger.warning(f"Failed to create visualization for {subject}: {str(viz_e)}")
+                
             except Exception as e:
                 self.logger.error(f"Error performing supervoxel clustering for subject {subject}: {str(e)}")
                 raise e
@@ -746,15 +763,14 @@ class HabitatAnalysis:
             for subject in subjects:
                 result = self._voxel2supervoxel_clustering(subject)
                 results.append(result)
-            for subject in subjects:
+            for result in results:
                 if isinstance(result[1], Exception):
-                    failed_subjects.append(subject)
+                    failed_subjects.append(result[0])
                     if self.verbose:
-                        self.logger.error(f"Error processing subject {subject}: {str(result[1])}")
+                        self.logger.error(f"Error processing subject {result[0]}: {str(result[1])}")
                 else:
                     subject, mean_features_df = result
                     mean_features_all = pd.concat([mean_features_all, mean_features_df], ignore_index=True)
-                
                 progress_bar.update(1)
 
             if self.verbose and failed_subjects:
@@ -878,7 +894,7 @@ class HabitatAnalysis:
         # ===============================================
         
         # For one_step mode, skip population-level clustering
-        if self.clustering_mode == 'one_step':
+        if self.clustering_strategy == 'one_step':
             if self.verbose:
                 self.logger.info("One-step clustering mode: skipping population-level clustering")
                 self.logger.info("Using individual-level clusters as final habitats")
@@ -896,24 +912,11 @@ class HabitatAnalysis:
                 os.makedirs(self.out_dir, exist_ok=True)
                 
                 # Save main results
-                results_path = os.path.join(self.out_dir, 'results_all_samples.csv')
+                results_path = os.path.join(self.out_dir, 'habitats.csv')
                 self.results_df.to_csv(results_path, index=False)
                 if self.verbose:
                     self.logger.info(f"Results saved to {results_path}")
-                
-                # Save summary statistics
-                summary = self.results_df.groupby('Subject')['Habitats'].agg(['nunique', 'count'])
-                summary.columns = ['Num_Habitats', 'Total_Voxels']
-                summary_path = os.path.join(self.out_dir, 'clustering_summary.csv')
-                summary.to_csv(summary_path)
-                if self.verbose:
-                    self.logger.info(f"Summary saved to {summary_path}")
-            
-            # In one-step mode, supervoxel images already represent final habitats
-            # No need to generate separate habitat images
-            if self.verbose:
-                self.logger.info("Habitat images (supervoxel maps) already saved during Step 1")
-            
+                    
             return self.results_df
         
         # For two_step mode, continue with population-level clustering
@@ -1007,14 +1010,59 @@ class HabitatAnalysis:
             self.supervoxel2habitat_clustering.fit(features_of_all_subjects)
             habitat_labels = self.supervoxel2habitat_clustering.predict(features_of_all_subjects) + 1  # Start numbering from 1
 
+            # Visualize habitat clustering results if plot_curves is enabled
+            if self.plot_curves:
+                try:
+                    from habit.utils.visualization import plot_cluster_results
+                    
+                    viz_dir = os.path.join(self.out_dir, 'visualizations', 'habitat_clustering')
+                    os.makedirs(viz_dir, exist_ok=True)
+                    
+                    # Get cluster centers if available
+                    centers = None
+                    if hasattr(self.supervoxel2habitat_clustering, 'cluster_centers_'):
+                        centers = self.supervoxel2habitat_clustering.cluster_centers_
+                    
+                    # Plot 2D scatter for habitat clustering
+                    save_path_2d = os.path.join(viz_dir, 'habitat_clustering_2D.png')
+                    plot_cluster_results(
+                        X=features_of_all_subjects,
+                        labels=habitat_labels,
+                        centers=centers,
+                        title=f'Habitat Clustering (Population Level)\n(n_clusters={optimal_n_clusters})',
+                        save_path=save_path_2d,
+                        show=False,
+                        dpi=300,
+                        plot_3d=False
+                    )
+                    
+                    # Plot 3D scatter for habitat clustering
+                    save_path_3d = os.path.join(viz_dir, 'habitat_clustering_3D.png')
+                    plot_cluster_results(
+                        X=features_of_all_subjects,
+                        labels=habitat_labels,
+                        centers=centers,
+                        title=f'Habitat Clustering (Population Level)\n(n_clusters={optimal_n_clusters})',
+                        save_path=save_path_3d,
+                        show=False,
+                        dpi=300,
+                        plot_3d=True
+                    )
+                    
+                    if self.verbose:
+                        self.logger.info(f"Saved habitat clustering visualizations to {viz_dir}")
+                except Exception as viz_e:
+                    if self.verbose:
+                        self.logger.warning(f"Failed to create habitat clustering visualization: {str(viz_e)}")
+
             # Save clustering model of supervoxel to habitat
-            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_strategyl.pkl')
             with open(model_path, 'wb') as f:
                 pickle.dump(self.supervoxel2habitat_clustering, f)
 
         elif self.mode == 'testing':
             # Load clustering model from config file FIXME: 需要根据实际情况调整
-            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_model.pkl')
+            model_path = os.path.join(self.out_dir, 'supervoxel2habitat_clustering_strategyl.pkl')
             if os.path.exists(model_path):
                 with open(model_path, 'rb') as f:
                     self.supervoxel2habitat_clustering = pickle.load(f)
@@ -1044,7 +1092,7 @@ class HabitatAnalysis:
             # 确保目录存在
             os.makedirs(self.out_dir, exist_ok=True)
 
-            # 如果有原始配置文件，则直接复制到输出目录
+            # 如果有原始配置文件，则直接复制r到输出目录
             if self.config_file and os.path.exists(self.config_file):
                 import shutil
                 config_out_path = os.path.join(self.out_dir, 'config.yaml')

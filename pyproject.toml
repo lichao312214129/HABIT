@@ -2,7 +2,7 @@
 name = "HABIT"
 version = "0.1.0"
 description = "Habitat Analysis: Biomedical Imaging Toolkit"
-authors = ["lichao19870617@163.com"]
+authors = ["Li Chao <lichao19870617@163.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]

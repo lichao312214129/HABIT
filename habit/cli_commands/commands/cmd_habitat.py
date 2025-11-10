@@ -52,6 +52,7 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
     
     # Extract habitat segmentation configuration
     habitats_config = config.get('HabitatsSegmention', {})
+    clustering_strategy = habitats_config.get('clustering_strategy', 'two_step')
     
     # Extract supervoxel method configuration
     supervoxel_config = habitats_config.get('supervoxel', {})
@@ -73,18 +74,28 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
     # Get mode parameter - either 'training' or 'testing'
     mode = habitat_config.get('mode', 'training')
     
+    # Extract one_step_settings if clustering_strategy is 'one_step'
+    one_step_settings = None
+    if clustering_strategy == 'one_step':
+        one_step_settings = habitats_config.get('one_step_settings', None)
+        if one_step_settings is None:
+            # Try to get from supervoxel config for backward compatibility
+            one_step_settings = supervoxel_config.get('one_step_settings', None)
+    
     # Log parameters
     logger.info("==== Habitat Clustering Parameters ====")
     logger.info("Config file: %s", config_file)
     logger.info("Data directory: %s", data_dir)
     logger.info("Output folder: %s", out_dir)
     logger.info("Feature configuration: %s", feature_config)
+    logger.info("Clustering strategy: %s", clustering_strategy)
     logger.info("Supervoxel method: %s", supervoxel_method)
     logger.info("Supervoxel clusters: %d", n_clusters_supervoxel)
     logger.info("Habitat method: %s", habitat_method)
     logger.info("Maximum habitat clusters: %d", n_clusters_habitats_max)
     logger.info("Habitat cluster selection method: %s", habitat_cluster_selection_method)
     logger.info("Best number of clusters (if specified): %s", best_n_clusters)
+    logger.info("One-step settings: %s", one_step_settings)
     logger.info("Mode: %s", mode)
     logger.info("Number of processes: %d", n_processes)
     logger.info("Generate plots: %s", plot_curves)
@@ -102,6 +113,7 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
         root_folder=data_dir,
         out_folder=out_dir,
         feature_config=feature_config,
+        clustering_strategy=clustering_strategy,
         supervoxel_clustering_method=supervoxel_method,
         n_clusters_supervoxel=n_clusters_supervoxel,
         habitat_clustering_method=habitat_method,
@@ -109,10 +121,12 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
         n_clusters_habitats_min=n_clusters_habitats_min,
         habitat_cluster_selection_method=habitat_cluster_selection_method,
         best_n_clusters=best_n_clusters,
+        one_step_settings=one_step_settings,
         mode=mode,
         n_processes=n_processes,
         plot_curves=plot_curves,
-        random_state=random_state
+        random_state=random_state,
+        config_file=config_file
     )
     
     try:

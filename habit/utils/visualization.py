@@ -183,9 +183,10 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
     plt.show()
 
 
-def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None, save_path=None):
+def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None, save_path=None, 
+                        show=False, dpi=300, plot_3d=False, explained_variance=None):
     """
-    Plot scatter plot of clustering results
+    Plot scatter plot of clustering results (2D or 3D)
     
     Args:
         X: Input data, shape (n_samples, n_features)
@@ -194,45 +195,103 @@ def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None
         title: Figure title
         feature_names: Feature names for x and y axis labels
         save_path: Path to save the figure, do not save if None
+        show: Whether to display the figure (default False for batch processing)
+        dpi: Image resolution (default 300)
+        plot_3d: Whether to plot 3D scatter plot (default False)
+        explained_variance: Explained variance ratio from PCA (for title)
     """
     # Use PCA for dimensionality reduction if features > 2
-    if X.shape[1] > 2:
+    n_components = 3 if plot_3d else 2
+    
+    if X.shape[1] > n_components:
         from sklearn.decomposition import PCA
-        pca = PCA(n_components=2)
-        X_pca = pca.fit_transform(X)
+        pca = PCA(n_components=n_components)
+        X_reduced = pca.fit_transform(X)
         if centers is not None:
-            centers_pca = pca.transform(centers)
+            centers_reduced = pca.transform(centers)
+        explained_var = pca.explained_variance_ratio_
     else:
-        X_pca = X
-        centers_pca = centers
+        X_reduced = X
+        centers_reduced = centers
+        explained_var = explained_variance
     
-    plt.figure(figsize=(6, 5))
-    plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis', marker='o', alpha=0.7)
-    
-    if centers_pca is not None:
-        plt.scatter(centers_pca[:, 0], centers_pca[:, 1], c='red', marker='X', s=200, label='Cluster centers')
-    
-    if title:
-        plt.title(title, fontfamily='Arial')
-    else:
-        plt.title('Cluster Results', fontfamily='Arial')
-    
-    if feature_names and len(feature_names) >= 2:
-        if X.shape[1] > 2:
-            plt.xlabel('PCA Component 1', fontfamily='Arial')
-            plt.ylabel('PCA Component 2', fontfamily='Arial')
+    # Create figure
+    if plot_3d:
+        from mpl_toolkits.mplot3d import Axes3D
+        fig = plt.figure(figsize=(10, 8))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Get unique labels for color mapping
+        unique_labels = np.unique(labels)
+        colors = plt.cm.viridis(np.linspace(0, 1, len(unique_labels)))
+        
+        # Plot each cluster with different color
+        for idx, label in enumerate(unique_labels):
+            mask = labels == label
+            ax.scatter(X_reduced[mask, 0], X_reduced[mask, 1], X_reduced[mask, 2], 
+                      c=[colors[idx]], label=f'Cluster {label}', alpha=0.6, s=20)
+        
+        # Plot cluster centers
+        if centers_reduced is not None:
+            ax.scatter(centers_reduced[:, 0], centers_reduced[:, 1], centers_reduced[:, 2], 
+                      c='red', marker='X', s=50, label='Centers', edgecolors='black', linewidths=2)
+        
+        # Set labels with explained variance if available
+        if X.shape[1] > 3:
+            ax.set_xlabel(f'PC1 ({explained_var[0]*100:.1f}%)', fontfamily='Arial')
+            ax.set_ylabel(f'PC2 ({explained_var[1]*100:.1f}%)', fontfamily='Arial')
+            ax.set_zlabel(f'PC3 ({explained_var[2]*100:.1f}%)', fontfamily='Arial')
         else:
-            plt.xlabel(feature_names[0], fontfamily='Arial')
-            plt.ylabel(feature_names[1], fontfamily='Arial')
+            ax.set_xlabel('Feature 1', fontfamily='Arial')
+            ax.set_ylabel('Feature 2', fontfamily='Arial')
+            ax.set_zlabel('Feature 3', fontfamily='Arial')
+        
+        ax.legend(loc='best')
     else:
-        plt.xlabel('Feature 1', fontfamily='Arial')
-        plt.ylabel('Feature 2', fontfamily='Arial')
+        # 2D plot
+        fig, ax = plt.subplots(figsize=(8, 6))
+        scatter = ax.scatter(X_reduced[:, 0], X_reduced[:, 1], c=labels, cmap='viridis', 
+                           marker='o', alpha=0.6, s=20)
+        
+        # Plot cluster centers
+        if centers_reduced is not None:
+            ax.scatter(centers_reduced[:, 0], centers_reduced[:, 1], 
+                      c='red', marker='o', s=300, label='Centers', 
+                      edgecolors='black', linewidths=2)
+            ax.legend()
+        
+        # Set labels with explained variance if available
+        if X.shape[1] > 2:
+            ax.set_xlabel(f'PC1 ({explained_var[0]*100:.1f}%)', fontfamily='Arial')
+            ax.set_ylabel(f'PC2 ({explained_var[1]*100:.1f}%)', fontfamily='Arial')
+        elif feature_names and len(feature_names) >= 2:
+            ax.set_xlabel(feature_names[0], fontfamily='Arial')
+            ax.set_ylabel(feature_names[1], fontfamily='Arial')
+        else:
+            ax.set_xlabel('Feature 1', fontfamily='Arial')
+            ax.set_ylabel('Feature 2', fontfamily='Arial')
+        
+        # Add colorbar
+        cbar = plt.colorbar(scatter, ax=ax)
+        cbar.set_label('Cluster Label', fontfamily='Arial')
+        ax.grid(True, linestyle='--', alpha=0.3)
     
-    plt.colorbar(label='Cluster')
-    plt.grid(True, linestyle='--', alpha=0.7)
+    # Set title
+    if title:
+        plt.title(title, fontfamily='Arial', fontsize=12)
+    else:
+        n_clusters = len(np.unique(labels))
+        plt.title(f'Clustering Results (n_clusters={n_clusters})', fontfamily='Arial', fontsize=12)
+    
     plt.tight_layout()
     
+    # Save figure if path is provided
     if save_path:
-        plt.savefig(save_path)
+        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+        plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
     
-    plt.show() 
+    # Show or close figure
+    if show:
+        plt.show()
+    else:
+        plt.close() 
