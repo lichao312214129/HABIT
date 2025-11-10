@@ -234,7 +234,7 @@ def plot_cluster_results(X, labels, centers=None, title=None, feature_names=None
         # Plot cluster centers
         if centers_reduced is not None:
             ax.scatter(centers_reduced[:, 0], centers_reduced[:, 1], centers_reduced[:, 2], 
-                      c='red', marker='X', s=50, label='Centers', edgecolors='black', linewidths=2)
+                      c='red', marker='X', s=10, label='Centers', edgecolors='black', linewidths=2)
         
         # Set labels with explained variance if available
         if X.shape[1] > 3:
