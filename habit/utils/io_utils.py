@@ -41,6 +41,10 @@ def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "image
             if os.path.isdir(img_subfolder_path):
                 # Filter out .DS_Store and other hidden files
                 img_files = [f for f in os.listdir(img_subfolder_path) if not f.startswith('.')]
+                # Check if no files found
+                if len(img_files) == 0:
+                    print(f"Warning: No image files found in {subj}/{img_subfolder}, skipping")
+                    continue
                 # Warning if multiple files
                 if len(img_files) > 1:
                     print(f"Warning: Multiple image files in {subj}/{img_subfolder}")
@@ -68,6 +72,10 @@ def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "image
             if os.path.isdir(mask_subfolder_path):
                 # Filter out .DS_Store and other hidden files
                 mask_files = [f for f in os.listdir(mask_subfolder_path) if not f.startswith('.')]
+                # Check if no files found
+                if len(mask_files) == 0:
+                    print(f"Warning: No mask files found in {subj}/{mask_subfolder}, skipping")
+                    continue
                 # Warning if multiple files
                 if len(mask_files) > 1:
                     print(f"Warning: Multiple mask files in {subj}/{mask_subfolder}")
