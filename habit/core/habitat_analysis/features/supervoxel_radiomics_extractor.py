@@ -60,7 +60,7 @@ class SupervoxelRadiomicsExtractor(BaseFeatureExtractor):
         # Get image name from kwargs or extract from path
         img_name = kwargs.get('image', '')
         if not img_name and isinstance(image_data, str):
-            img_name = os.path.basename(image_data).split('.')[0]
+            img_name = os.path.basename(os.path.dirname(image_data))
         
         # 打印调试信息
         print(f"SupervoxelRadiomicsExtractor.extract_features called with:")

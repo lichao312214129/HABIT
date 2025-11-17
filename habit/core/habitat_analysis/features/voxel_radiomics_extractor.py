@@ -62,9 +62,9 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
             image = image_data
 
         # Get image name
-        image_name = kwargs.get('img_name', None)
+        image_name = kwargs.get('image', None)
         if image_name is None:
-            image_name = os.path.basename(image_data)
+            image_name = os.path.basename(os.path.dirname(image_data))
             
         # Load mask
         if isinstance(mask_data, str):
@@ -89,8 +89,12 @@ class VoxelRadiomicsExtractor(BaseFeatureExtractor):
             kernelRadius = kwargs.get('kernelRadius', 1)
             extractor.settings.update({'kernelRadius': kernelRadius})
             
-            # Extract voxel-based features
+            # Extract voxel-based features  计算GLCM时会报错，可能是由于局部太均质所致
             result = extractor.execute(image, mask, voxelBased=True)
+
+            # # mask中多少不为0的voxels
+            # num_non_zero_voxels = np.sum(mask_array > 0)
+            # logging.info(f"Mask has {num_non_zero_voxels} non-zero voxels")
 
             # Filter out diagnostic features
             result = {k: v for k, v in result.items() if not k.startswith('diagnostic')}
