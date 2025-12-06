@@ -198,42 +198,55 @@ processes: 4  # Use 4 processes for parallel processing
 
 ### Syntax Introduction
 
-The feature extraction syntax is designed as an expression with the format `method(arguments)`.
+The configuration for feature extraction uses nested function calls. The core logic is **"Single-modality Extraction -> Multi-modality Combination"**.
 
-- **Single Feature**: Directly use one method, e.g., `raw(pre_contrast)`.
-- **Multi-feature Combination**: Use multiple features as input to another extractor (like `concat`), for example, `concat(raw(pre_contrast), gabor(pre_contrast))`.
-- **Cross-modality Features**: Some feature extractors (like `kinetic`) can accept multiple images from different modalities as input.
+1.  **Single-modality Extractors**:
+    *   Purpose: Extract features from a single image modality.
+    *   Examples: `raw(...)`, `voxel_radiomics(...)`, `local_entropy(...)`.
+    *   **Note**: The output of these functions cannot be used directly as the final feature; it must be passed to a multi-modality combiner.
 
-All parameters used in a method (like `timestamps` or `params_file`) must be defined in the `params` field.
+2.  **Multi-modality Combiners**:
+    *   Purpose: Receive outputs from one or more single-modality extractors and integrate them into the final feature vector.
+    *   Examples: `concat(...)` (most common, direct concatenation), `kinetic(...)` (for time-series).
+    *   **Core Principle**: Even if extracting features from only one modality, it must be wrapped by a multi-modality combiner.
+
+**✨ Extensibility**: The `HABIT` framework supports custom single-modality extractors and multi-modality combiners, allowing you to write your own functions as needed.
 
 ### Voxel-level Features (`voxel_level`)
 
 This is the first step of habitat analysis, used to extract one or more feature values for each voxel from the original images, forming a feature vector.
 
-The following are all available voxel-level feature extraction methods:
+Here are the currently built-in functions:
 
-| Method (`method`) | Description | Key Parameters |
+**Single-modality Extractors**:
+
+| Method | Description | Key Parameters |
 | :--- | :--- | :--- |
-| `raw` | **Raw Intensity**<br>Directly extracts the original signal intensity value of each voxel in the specified image. This is the most basic and direct feature. | None |
-| `kinetic` | **Kinetic Features**<br>Calculates kinetic features, such as wash-in/wash-out slope, from a time-series of images (e.g., multi-phase contrast-enhanced scans). | `timestamps`: A path to an `.xlsx` file that maps each subject to the scan times of the multi-phase images. |
-| `voxel_radiomics` | **Voxel-level Radiomics**<br>Uses PyRadiomics to calculate radiomics features in the local neighborhood of each voxel. Can extract various advanced features like texture (e.g., GLCM, Gabor) and intensity distribution. | `params_file`: A path to a PyRadiomics `.yaml` parameter file, used to precisely control the feature classes, filters, and settings to be extracted. |
-| `local_entropy` | **Local Entropy**<br>Calculates the local information entropy within the neighborhood of each voxel. This is a measure of local texture complexity and randomness. | `kernel_size`: (Optional, default: 3) Defines the size of the neighborhood for entropy calculation, e.g., `3` for a 3x3x3 cube.<br>`bins`: (Optional, default: 32) The number of bins for histogram calculation. |
+| `raw` | **Raw Intensity**<br>Directly extracts the original signal intensity value of each voxel in the specified image. | None |
+| `voxel_radiomics` | **Voxel-level Radiomics**<br>Uses PyRadiomics to calculate radiomics features in the local neighborhood of each voxel. | `params_file`: Path to PyRadiomics parameter file |
+| `local_entropy` | **Local Entropy**<br>Calculates the local information entropy within the neighborhood of each voxel. | `kernel_size`: Neighborhood size<br>`bins`: Number of bins |
+
+**Multi-modality Combiners**:
+
+| Method | Description | Note |
+| :--- | :--- | :--- |
+| `concat` | **Concatenation**<br>Concatenates input features directly along the channel dimension. | Most generic combiner. Must be used even for a single input to establish feature format. |
+| `kinetic` | **Kinetic Features**<br>Specialized for multi-phase time-series data to calculate perfusion parameters. | **Note**: This is a specific example implementation (for reference only), showing how to handle time-series data. Requires `timestamps` parameter. |
 
 ---
 
 ### Configuration Examples
 
-Here are some specific `yaml` configuration examples showing how to use these methods.
+Here are some specific `yaml` configuration examples. Please note: **All results from single-modality feature extraction must be wrapped by a multi-modality combiner (like `concat`).**
 
 #### Example 1: Using Single Raw Image Intensity
 
-This is the simplest configuration, using only the raw pixel values from the `pre_contrast` image as features.
+This is the simplest configuration. Even for single modality, it needs to be wrapped by a combiner (using `concat` here).
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'raw(pre_contrast)'
-    image_names: ['pre_contrast']
+    method: concat(raw(pre_contrast))
     params: {}
 ```
 
@@ -244,46 +257,43 @@ You can concatenate the raw intensity values from multiple modalities into a sin
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'concat(raw(pre_contrast), raw(LAP), raw(PVP))'
-    image_names: ['pre_contrast', 'LAP', 'PVP']
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP))
     params: {}
 ```
 
 #### Example 3: Calculating Kinetic Features
 
 Using the `kinetic` method requires providing a `timestamps` file. The method automatically processes multiple images wrapped in `raw()`.
+**Note**: The `kinetic` function is provided as a **reference example** for hemodynamic feature processing, demonstrating the framework's capability to handle multi-modality time-series data. You can refer to its source code to implement your own specific logic.
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)'
-    image_names: ['pre_contrast', 'LAP', 'PVP', 'delay_3min']
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     params:
       timestamps: './config/scan_times.xlsx' # Path to your timestamps file
 ```
 
 #### Example 4: Extracting Voxel-level Radiomics Features
 
-Using `voxel_radiomics` requires providing a PyRadiomics parameter file.
+Using `voxel_radiomics` requires providing a PyRadiomics parameter file. Note: Even for a single feature extraction result, it must be wrapped by a multi-modality combiner (like `concat`).
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'voxel_radiomics(pre_contrast, radiomics_params)'
-    image_names: ['pre_contrast']
+    method: concat(voxel_radiomics(pre_contrast, radiomics_params))
     params:
       radiomics_params: './config/radiomics_params.yaml' # Path to your radiomics parameter file
 ```
 
 #### Example 5: Extracting Local Entropy Features
 
-Using `local_entropy` with custom neighborhood size and bin count.
+Using `local_entropy` with custom neighborhood size and bin count. Also requires wrapping by a combiner.
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'local_entropy(pre_contrast, kernel_size, bins)'
-    image_names: ['pre_contrast']
+    method: concat(local_entropy(pre_contrast, kernel_size, bins))
     params:
       kernel_size: 5
       bins: 64

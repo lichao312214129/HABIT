@@ -198,42 +198,55 @@ processes: 4  # 使用4个进程并行处理
 
 ### 语法简介
 
-特征提取的语法被设计为一种表达式，格式为 `method(arguments)`。
+特征提取的配置采用嵌套函数调用的形式，核心逻辑是 **"单模态提取 -> 多模态组合"**。
 
-- **单特征**: 直接使用一种方法，如 `raw(pre_contrast)`。
-- **多特征组合**: 将多种特征作为另一个特征提取器（如 `concat`）的输入，例如 `concat(raw(pre_contrast), gabor(pre_contrast))`。
-- **跨模态特征**: 一些特征提取器（如 `kinetic`）可以接受多个不同模态的图像作为输入。
+1.  **单模态特征提取函数 (Single-modality Extractors)**: 
+    *   作用：从单个图像模态中提取特征。
+    *   例如：`raw(...)`, `voxel_radiomics(...)`, `local_entropy(...)`。
+    *   **注意**：这些函数的输出不能直接作为最终特征，必须传递给多模态组合函数。
 
-所有在方法中使用的参数（如 `timestamps` 或 `params_file`）都必须在 `params` 字段中定义。
+2.  **多模态组合函数 (Multi-modality Combiners)**:
+    *   作用：接收一个或多个单模态提取器的输出，将其整合为最终的特征向量。
+    *   例如：`concat(...)` (最常用，直接拼接特征), `kinetic(...)` (处理时间序列)。
+    *   **核心原则**：即使只提取一个模态的特征，也必须使用多模态组合函数进行包裹。
+
+**✨ 可扩展性**：`HABIT` 框架支持自定义单模态提取器和多模态组合器，您可以根据研究需要编写自己的函数。
 
 ### 体素级特征 (`voxel_level`)
 
 这是生境分析的第一步，用于从原始图像中为每个体素提取一个或多个特征值，形成特征向量。
 
-以下是所有可用的体素级特征提取方法：
+以下是目前内置的函数：
 
-| 方法 (`method`) | 功能描述 | 主要参数 |
+**单模态特征提取函数**:
+
+| 方法 | 功能描述 | 主要参数 |
 | :--- | :--- | :--- |
-| `raw` | **原始强度 (Raw Intensity)**<br>直接提取每个体素在指定图像中的原始信号强度值。这是最基础、最直接的特征。 | 无 |
-| `kinetic` | **动力学特征 (Kinetic Features)**<br>从一个时间序列的图像（如多期相增强扫描）中计算动力学特征，例如灌注速率（wash-in/wash-out slope）。 | `timestamps`: 一个指向 `.xlsx` 文件的路径。该文件需包含每个受试者 (subject) 对应的多期相扫描的时间点。 |
-| `voxel_radiomics` | **体素级组学 (Voxel-level Radiomics)**<br>使用 PyRadiomics 在每个体素的局部邻域内计算影像组学特征。可提取纹理（如GLCM, Gabor）、强度分布等多种高级特征。 | `params_file`: 指向一个 PyRadiomics 的 `.yaml` 参数文件，用于精确控制要提取的特征类别、滤波器及相关设置。 |
-| `local_entropy` | **局部熵 (Local Entropy)**<br>计算每个体素邻域内的局部信息熵。这是一个衡量局部区域纹理复杂度和随机性的指标。 | `kernel_size`: (可选, 默认值: 3) 定义计算熵的邻域大小，如 `3` 代表 3x3x3 的立方体。<br>`bins`: (可选, 默认值: 32) 计算直方图时的分箱数。 |
+| `raw` | **原始强度 (Raw Intensity)**<br>直接提取每个体素在指定图像中的原始信号强度值。 | 无 |
+| `voxel_radiomics` | **体素级组学 (Voxel-level Radiomics)**<br>使用 PyRadiomics 在每个体素的局部邻域内计算影像组学特征。 | `params_file`: PyRadiomics 参数文件路径 |
+| `local_entropy` | **局部熵 (Local Entropy)**<br>计算每个体素邻域内的局部信息熵。 | `kernel_size`: 邻域大小<br>`bins`: 分箱数 |
+
+**多模态组合函数**:
+
+| 方法 | 功能描述 | 说明 |
+| :--- | :--- | :--- |
+| `concat` | **特征拼接 (Concatenation)**<br>将输入的特征在通道维度上直接拼接。 | 最通用的组合方式。即使只有一个输入，也需要使用它来确立特征格式。 |
+| `kinetic` | **动力学特征 (Kinetic Features)**<br>专门用于处理多期相时间序列数据，计算灌注参数。 | **注意**：这是一个特定业务场景的示例实现（仅供参考），展示如何处理时间序列数据。需提供 `timestamps` 参数。 |
 
 ---
 
 ### 示例配置
 
-下面是一些具体的 `yaml` 配置示例，展示了如何使用这些方法。
+下面是一些具体的 `yaml` 配置示例。请注意：**所有单模态特征提取的结果，都必须被多模态组合函数（如 `concat`）包裹。**
 
 #### 示例 1: 使用单一原始图像强度
 
-这是最简单的配置，仅使用 `pre_contrast` 图像的原始像素值作为特征。
+这是最简单的配置。即使是单模态，也需要使用组合函数（这里使用 `concat`）进行包裹。
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'raw(pre_contrast)'
-    image_names: ['pre_contrast']
+    method: concat(raw(pre_contrast))
     params: {}
 ```
 
@@ -244,46 +257,43 @@ FeatureConstruction:
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'concat(raw(pre_contrast), raw(LAP), raw(PVP))'
-    image_names: ['pre_contrast', 'LAP', 'PVP']
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP))
     params: {}
 ```
 
 #### 示例 3: 计算动力学特征
 
 使用 `kinetic` 方法需要提供一个 `timestamps` 文件。该方法会自动处理 `raw()` 包装的多个图像。
+**说明**：`kinetic` 函数仅作为一个处理血流动力学特征的**参考示例**，展示了框架处理多模态时间序列数据的能力。您可以参考其源码实现自己的特定逻辑。
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)'
-    image_names: ['pre_contrast', 'LAP', 'PVP', 'delay_3min']
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     params:
       timestamps: './config/scan_times.xlsx' # 指向您的时间戳文件
 ```
 
 #### 示例 4: 提取体素级组学特征
 
-使用 `voxel_radiomics` 需要提供一个 PyRadiomics 参数文件。
+使用 `voxel_radiomics` 需要提供一个 PyRadiomics 参数文件。注意：即使是单个特征提取结果，也需要使用多模态组合函数（如 `concat`）包裹。
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'voxel_radiomics(pre_contrast, radiomics_params)'
-    image_names: ['pre_contrast']
+    method: concat(voxel_radiomics(pre_contrast, radiomics_params))
     params:
       radiomics_params: './config/radiomics_params.yaml' # 指向您的组学参数文件
 ```
 
 #### 示例 5: 提取局部熵特征
 
-使用 `local_entropy` 并自定义邻域大小和分箱数。
+使用 `local_entropy` 并自定义邻域大小和分箱数。同样需要使用组合函数包裹。
 
 ```yaml
 FeatureConstruction:
   voxel_level:
-    method: 'local_entropy(pre_contrast, kernel_size, bins)'
-    image_names: ['pre_contrast']
+    method: concat(local_entropy(pre_contrast, kernel_size, bins))
     params:
       kernel_size: 5
       bins: 64
