@@ -96,6 +96,11 @@ The code employs different strategies to select the optimal number of clusters b
 | `bic` / `aic` | Information Criteria (GMM) | **Elbow Method**: Lower is better. Uses the same second-order difference logic to find the elbow point. |
 | `davies_bouldin` | Davies-Bouldin Index | **Min Principle**: Lower is better. |
 
+> **💡 Why use Elbow Method for Inertia but Min Principle for Davies-Bouldin?**
+>
+> *   **Inertia (SSE)**: Monotonically decreases as the number of clusters increases (reaching 0 when clusters = samples). Finding the absolute minimum leads to overfitting. Therefore, we look for the "elbow point" where the gain diminishes.
+> *   **Davies-Bouldin**: Considers both intra-cluster compactness (numerator) and inter-cluster separation (denominator). As clusters increase, while compactness improves, separation might decrease (smaller denominator). Thus, it typically has a distinct global minimum and does not require the Elbow Method.
+
 ### Output Files
 
 ```

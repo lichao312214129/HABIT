@@ -430,6 +430,9 @@ class BaseClustering(ABC):
             if method in ['silhouette', 'calinski_harabasz']:
                 # These methods are better with higher values
                 best_idx = np.argmax(scores)
+            elif method == 'davies_bouldin':
+                # Davies-Bouldin is better with lower values
+                best_idx = np.argmin(scores)
             elif method in ['inertia', 'bic', 'aic']:
                 # These methods are better with lower values, but need to use elbow method
                 # Calculate first-order differences
@@ -459,7 +462,7 @@ class BaseClustering(ABC):
                     # Calculate normalized rankings (higher is better)
                     norm_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
                     rankings += norm_scores
-                elif m in ['inertia', 'bic', 'aic']:
+                elif m in ['inertia', 'bic', 'aic', 'davies_bouldin']:
                     # Calculate normalized rankings (lower is better)
                     norm_scores = 1 - (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
                     rankings += norm_scores
