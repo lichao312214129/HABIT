@@ -84,14 +84,17 @@ HabitatsSegmention:
 3. **Auto Cluster Selection**: Use validation metrics (e.g., silhouette score) to determine optimal number
 4. **Generate Personalized Habitat Maps**: Each patient gets unique habitat segmentation
 
-### Cluster Selection Methods
+### Cluster Selection Strategy
 
-| Method | Description | Optimization |
-|--------|-------------|-------------|
-| `silhouette` | Silhouette coefficient, measures cluster cohesion and separation | Higher is better |
-| `calinski_harabasz` | Variance ratio, between/within cluster variance | Higher is better |
-| `davies_bouldin` | Average similarity between clusters | Lower is better |
-| `inertia` | Within-cluster sum of squares | Lower is better |
+The code employs different strategies to select the optimal number of clusters based on the evaluation metric:
+
+| Method | Description | Selection Logic |
+|--------|-------------|-----------------|
+| `silhouette` | Silhouette Coefficient | **Max Principle**: Higher is better. Selects the number of clusters with the highest score. |
+| `calinski_harabasz` | Variance Ratio | **Max Principle**: Higher is better. Selects the number of clusters with the highest score. |
+| `inertia` | Sum of Squared Errors (SSE) | **Elbow Method**: Lower is better. The code calculates the **second-order difference** of the score curve to find the "elbow point" (maximum curvature). |
+| `bic` / `aic` | Information Criteria (GMM) | **Elbow Method**: Lower is better. Uses the same second-order difference logic to find the elbow point. |
+| `davies_bouldin` | Davies-Bouldin Index | **Min Principle**: Lower is better. |
 
 ### Output Files
 

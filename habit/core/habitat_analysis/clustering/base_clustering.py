@@ -328,6 +328,9 @@ class BaseClustering(ABC):
                     print(f"Calculating {method}...")
                     
                 # Call the specific calculation method
+                # 这行代码的作用是：通过方法名字符串查找并获取当前类(self)中以"calculate_{method}_scores"命名的方法，
+                # 并将其赋值给变量calculation_method，以后可以像函数一样调用它来计算指定指标的聚类分数。
+                # 例如，如果method是"silhouette"，则会获取"calculate_silhouette_scores"方法。
                 calculation_method = getattr(self, f'calculate_{method}_scores')
                 self.scores[method] = calculation_method(X, self.cluster_range)
                 
