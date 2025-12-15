@@ -58,22 +58,22 @@ A typical radiomics research project using HABIT involves the following steps. T
     *   *This step is typically performed outside the HABIT toolkit and generates the `mask` file required for subsequent steps.*
 
 5.  **Image Preprocessing**:
-    *   `[HABIT]` Use the `app_image_preprocessing.py` script for a series of preprocessing steps, including:
+    *   `[HABIT]` Use the `habit preprocess` command (or `app_image_preprocessing.py` script) for a series of preprocessing steps, including:
         *   **Registration**: Aligning images from different sequences or modalities to the same space.
         *   **Resampling**: Standardizing all images to the same voxel spacing.
         *   **Intensity Normalization**: Such as Z-Score normalization.
         *   **N4 Bias Field Correction**: Correcting for signal inhomogeneity in MRI.
 
 6.  **Habitat Analysis and Feature Extraction**:
-    *   `[HABIT]` Run the core script `app_getting_habitat_map.py` to identify tumor habitats.
+    *   `[HABIT]` Run `habit get-habitat` (or the core script `app_getting_habitat_map.py`) to identify tumor habitats.
         *   **Two Clustering Modes Supported**:
             *   **One-Step**: Direct voxel-to-habitat clustering, optimal cluster count auto-determined per tumor, independent habitat labels
             *   **Two-Step**: Individual-level supervoxel clustering followed by population-level habitat clustering, unified habitat labels across all patients
-    *   `[HABIT]` Run `app_extracting_habitat_features.py` to extract high-level features (e.g., MSI, ITH score) from the habitats.
+    *   `[HABIT]` Run `habit extract` (or `app_extracting_habitat_features.py`) to extract high-level features (e.g., MSI, ITH score) from the habitats.
 
 7.  **Building and Evaluating Predictive Models**:
-    *   `[HABIT]` Use `app_of_machine_learning.py` for feature selection, model training, and internal validation.
-    *   `[HABIT]` Use `app_model_comparison_plots.py` to compare the performance of different models and visualize the results.
+    *   `[HABIT]` Use `habit model` (or `app_of_machine_learning.py`) for feature selection, model training, and internal validation.
+    *   `[HABIT]` Use `habit compare` (or `app_model_comparison_plots.py`) to compare the performance of different models and visualize the results.
 
 8.  **Result Analysis and Manuscript Writing**:
     *   Interpret the findings from the model and write the research paper.
@@ -157,8 +157,8 @@ After completing `pip install -e .`, the `habit` command is globally available i
 habit --help
 
 # Get help for specific commands
-habit ml --help
-habit kfold --help
+habit model --help
+habit cv --help
 ```
 
 #### Core Command Examples
@@ -170,26 +170,26 @@ habit preprocess --config config/config_image_preprocessing.yaml
 
 # 2️⃣ Generate Habitat Maps - Identify tumor sub-regions
 # Supports one-step (personalized) or two-step (cohort study) mode
-habit habitat --config config/config_getting_habitat.yaml
+habit get-habitat --config config/config_getting_habitat.yaml
 # 📖 Documentation: doc_en/app_habitat_analysis.md
 
 # 3️⃣ Extract Habitat Features - MSI, ITH, and other advanced features
-habit extract-features --config config/config_extract_features.yaml
+habit extract --config config/config_extract_features.yaml
 # 📖 Documentation: doc_en/app_extracting_habitat_features.md
 
 # 4️⃣ Machine Learning - Train predictive models
-habit ml --config config/config_machine_learning.yaml --mode train
+habit model --config config/config_machine_learning.yaml --mode train
 # 📖 Documentation: doc_en/app_of_machine_learning.md
 
 # 5️⃣ Model Prediction - Use trained models
-habit ml --mode predict \
+habit model --mode predict \
   --model ./ml_data/model_package.pkl \
   --data ./new_data.csv \
   --output ./predictions/
 # 📖 Documentation: doc_en/app_of_machine_learning.md
 
 # 6️⃣ K-Fold Cross-Validation - Robust model evaluation
-habit kfold --config config/config_machine_learning_kfold.yaml
+habit cv --config config/config_machine_learning_kfold.yaml
 # 📖 Documentation: doc_en/app_kfold_cross_validation.md
 
 # 7️⃣ Model Comparison - ROC, DCA, calibration curves visualization
@@ -204,7 +204,7 @@ habit icc --config config/config_icc_analysis.yaml
 habit radiomics --config config/config_traditional_radiomics.yaml
 
 # 🔟 Test-Retest Habitat Mapping
-habit test-retest --config config/config_habitat_test_retest.yaml
+habit retest --config config/config_habitat_test_retest.yaml
 ```
 
 #### Quick Reference Table
@@ -212,14 +212,14 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 | Command | Function | Config File | Docs |
 |---------|----------|-------------|:---:|
 | `habit preprocess` | Image preprocessing | `config_image_preprocessing.yaml` | [📖](doc_en/app_image_preprocessing.md) |
-| `habit habitat` | Generate Habitat maps | `config_getting_habitat.yaml` | [📖](doc_en/app_habitat_analysis.md) |
-| `habit extract-features` | Extract Habitat features | `config_extract_features.yaml` | [📖](doc_en/app_extracting_habitat_features.md) |
-| `habit ml` | ML training/prediction | `config_machine_learning.yaml` | [📖](doc_en/app_of_machine_learning.md) |
-| `habit kfold` | K-fold cross-validation | `config_machine_learning_kfold.yaml` | [📖](doc_en/app_kfold_cross_validation.md) |
+| `habit get-habitat` | Generate Habitat maps | `config_getting_habitat.yaml` | [📖](doc_en/app_habitat_analysis.md) |
+| `habit extract` | Extract Habitat features | `config_extract_features.yaml` | [📖](doc_en/app_extracting_habitat_features.md) |
+| `habit model` | ML training/prediction | `config_machine_learning.yaml` | [📖](doc_en/app_of_machine_learning.md) |
+| `habit cv` | K-fold cross-validation | `config_machine_learning_kfold.yaml` | [📖](doc_en/app_kfold_cross_validation.md) |
 | `habit compare` | Model comparison & viz | `config_model_comparison.yaml` | [📖](doc_en/app_model_comparison_plots.md) |
 | `habit icc` | ICC reproducibility | `config_icc_analysis.yaml` | [📖](doc_en/app_icc_analysis.md) |
 | `habit radiomics` | Traditional radiomics | `config_traditional_radiomics.yaml` | [📖](HABIT_CLI.md) |
-| `habit test-retest` | Test-retest mapping | `config_habitat_test_retest.yaml` | [📖](doc_en/app_habitat_test_retest.md) |
+| `habit retest` | Test-retest mapping | `config_habitat_test_retest.yaml` | [📖](doc_en/app_habitat_test_retest.md) |
 
 #### Advantages
 
@@ -233,22 +233,6 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 
 ---
 
-### Traditional Script Method (Legacy Compatible)
-
-> ⚠️ **Note**: The CLI commands above are recommended. The script method is still available but the CLI provides a better user experience.
-
-If you prefer running Python scripts directly:
-
-```bash
-# Run habitat analysis
-python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
-
-# Extract habitat features
-python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
-
-# Train machine learning model
-python scripts/app_of_machine_learning.py --config config/config_machine_learning.yaml
-```
 
 ## 🤝 Contributing
 
@@ -383,7 +367,7 @@ To ensure everything is set up correctly, run the following checks from your ter
 
 3.  **Check script entry points:**
     ```bash
-    python scripts/app_getting_habitat_map.py --help
+    habit get-habitat --help
     ```
     This should display the help menu for the main analysis script.
 

@@ -58,22 +58,22 @@ HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚
     *   *此步骤通常在HABIT工具包外部完成，生成后续步骤所需的`mask`文件。*
 
 5.  **影像预处理**:
-    *   `[HABIT]` 使用 `app_image_preprocessing.py` 脚本进行一系列预处理，包括：
+    *   `[HABIT]` 使用 `habit preprocess` 命令（或 `app_image_preprocessing.py` 脚本）进行一系列预处理，包括：
         *   **配准**: 将不同序列或模态的影像对齐到同一空间。
         *   **重采样**: 将所有影像统一到相同的体素间距。
         *   **强度标准化**: 如Z-Score标准化。
         *   **N4偏置场校正**: 校正MRI的信号不均匀性。
 
 6.  **生境分析与特征提取**:
-    *   `[HABIT]` 运行核心脚本 `app_getting_habitat_map.py` 来识别肿瘤生境。
+    *   `[HABIT]` 运行 `habit get-habitat` 命令（或 `app_getting_habitat_map.py` 脚本）来识别肿瘤生境。
         *   **支持两种聚类模式**：
             *   **一步法** (One-Step): 直接从体素聚类到生境，每个肿瘤自动确定最佳聚类数，生境标签独立
             *   **二步法** (Two-Step): 先个体聚类生成supervoxels，再群体聚类识别habitats，所有患者共享统一生境标签
-    *   `[HABIT]` 运行 `app_extracting_habitat_features.py` 从生境中提取高级特征（如MSI, ITH分数等）。
+    *   `[HABIT]` 运行 `habit extract` 命令（或 `app_extracting_habitat_features.py` 脚本）从生境中提取高级特征（如MSI, ITH分数等）。
 
 7.  **构建与评估预测模型**:
-    *   `[HABIT]` 使用 `app_of_machine_learning.py` 进行特征选择、模型训练和内部验证。
-    *   `[HABIT]` 使用 `app_model_comparison_plots.py` 对不同模型进行性能比较和可视化。
+    *   `[HABIT]` 使用 `habit model` 命令（或 `app_of_machine_learning.py` 脚本）进行特征选择、模型训练和内部验证。
+    *   `[HABIT]` 使用 `habit compare` 命令（或 `app_model_comparison_plots.py` 脚本）对不同模型进行性能比较和可视化。
 
 8.  **结果分析与论文撰写**:
     *   解释模型的发现，并撰写研究论文。
@@ -158,8 +158,8 @@ HABIT新手？请跟随我们的 [**QUICKSTART.md**](QUICKSTART.md) 指南，在
 habit --help
 
 # 查看特定命令的帮助信息
-habit ml --help
-habit kfold --help
+habit model --help
+habit cv --help
 ```
 
 #### 核心命令示例
@@ -171,26 +171,26 @@ habit preprocess --config config/config_image_preprocessing.yaml
 
 # 2️⃣ 生成 Habitat 地图 - 识别肿瘤亚区
 # 支持一步法（个性化）或二步法（队列研究）
-habit habitat --config config/config_getting_habitat.yaml
+habit get-habitat --config config/config_getting_habitat.yaml
 # 📖 详细文档: doc/app_habitat_analysis.md
 
 # 3️⃣ 提取 Habitat 特征 - MSI, ITH等高级特征
-habit extract-features --config config/config_extract_features.yaml
+habit extract --config config/config_extract_features.yaml
 # 📖 详细文档: doc/app_extracting_habitat_features.md
 
 # 4️⃣ 机器学习 - 训练预测模型
-habit ml --config config/config_machine_learning.yaml --mode train
+habit model --config config/config_machine_learning.yaml --mode train
 # 📖 详细文档: doc/app_of_machine_learning.md
 
 # 5️⃣ 模型预测 - 使用训练好的模型
-habit ml --mode predict \
+habit model --mode predict \
   --model ./ml_data/model_package.pkl \
   --data ./new_data.csv \
   --output ./predictions/
 # 📖 详细文档: doc/app_of_machine_learning.md
 
 # 6️⃣ K折交叉验证 - 更稳健的模型评估
-habit kfold --config config/config_machine_learning_kfold.yaml
+habit cv --config config/config_machine_learning_kfold.yaml
 # 📖 详细文档: doc/app_kfold_cross_validation.md
 
 # 7️⃣ 模型比较 - ROC, DCA, 校准曲线等可视化
@@ -205,7 +205,7 @@ habit icc --config config/config_icc_analysis.yaml
 habit radiomics --config config/config_traditional_radiomics.yaml
 
 # 🔟 测试-重测Habitat映射
-habit test-retest --config config/config_habitat_test_retest.yaml
+habit retest --config config/config_habitat_test_retest.yaml
 ```
 
 #### 快速参考表
@@ -213,14 +213,14 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 | 命令 | 功能 | 配置文件 | 文档 |
 |------|------|----------|:---:|
 | `habit preprocess` | 图像预处理 | `config_image_preprocessing.yaml` | [📖](doc/app_image_preprocessing.md) |
-| `habit habitat` | 生成Habitat地图 | `config_getting_habitat.yaml` | [📖](doc/app_habitat_analysis.md) |
-| `habit extract-features` | 提取Habitat特征 | `config_extract_features.yaml` | [📖](doc/app_extracting_habitat_features.md) |
-| `habit ml` | 机器学习训练/预测 | `config_machine_learning.yaml` | [📖](doc/app_of_machine_learning.md) |
-| `habit kfold` | K折交叉验证 | `config_machine_learning_kfold.yaml` | [📖](doc/app_kfold_cross_validation.md) |
+| `habit get-habitat` | 生成Habitat地图 | `config_getting_habitat.yaml` | [📖](doc/app_habitat_analysis.md) |
+| `habit extract` | 提取Habitat特征 | `config_extract_features.yaml` | [📖](doc/app_extracting_habitat_features.md) |
+| `habit model` | 机器学习训练/预测 | `config_machine_learning.yaml` | [📖](doc/app_of_machine_learning.md) |
+| `habit cv` | K折交叉验证 | `config_machine_learning_kfold.yaml` | [📖](doc/app_kfold_cross_validation.md) |
 | `habit compare` | 模型比较与可视化 | `config_model_comparison.yaml` | [📖](doc/app_model_comparison_plots.md) |
 | `habit icc` | ICC可重复性分析 | `config_icc_analysis.yaml` | [📖](doc/app_icc_analysis.md) |
 | `habit radiomics` | 传统影像组学特征 | `config_traditional_radiomics.yaml` | [📖](HABIT_CLI.md) |
-| `habit test-retest` | 测试-重测映射 | `config_habitat_test_retest.yaml` | [📖](doc/app_habitat_test_retest.md) |
+| `habit retest` | 测试-重测映射 | `config_habitat_test_retest.yaml` | [📖](doc/app_habitat_test_retest.md) |
 
 #### 优势
 
