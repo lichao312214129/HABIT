@@ -34,29 +34,29 @@ def preprocess(config):
     run_preprocess(config)
 
 
-@cli.command('habitat')
+@cli.command('get-habitat')
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               help='Path to configuration YAML file')
 @click.option('--debug', is_flag=True,
               help='Enable debug mode')
-def habitat(config, debug):
+def get_habitat(config, debug):
     """Generate habitat maps from medical images"""
     from habit.cli_commands.commands.cmd_habitat import run_habitat
     run_habitat(config, debug)
 
 
-@cli.command('extract-features')
+@cli.command('extract')
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               help='Path to configuration YAML file')
-def extract_features(config):
+def extract(config):
     """Extract habitat features from clustered images"""
     from habit.cli_commands.commands.cmd_extract_features import run_extract_features
     run_extract_features(config)
 
 
-@cli.command('ml')
+@cli.command('model')
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               required=True,
@@ -79,18 +79,18 @@ def extract_features(config):
 @click.option('--evaluate/--no-evaluate',
               default=True,
               help='Whether to evaluate model performance')
-def ml(config, mode, model, data, output, model_name, evaluate):
+def model(config, mode, model, data, output, model_name, evaluate):
     """Train or predict using machine learning models"""
     from habit.cli_commands.commands.cmd_ml import run_ml
     run_ml(config, mode, model, data, output, model_name, evaluate)
 
 
-@cli.command('kfold')
+@cli.command('cv')
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               required=True,
               help='Path to configuration YAML file')
-def kfold(config):
+def cv(config):
     """Run K-fold cross-validation for model evaluation"""
     from habit.cli_commands.commands.cmd_kfold import run_kfold
     run_kfold(config)
@@ -127,11 +127,11 @@ def radiomics(config):
     run_radiomics(config)
 
 
-@cli.command('test-retest')
+@cli.command('retest')
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               help='Path to configuration YAML file')
-def test_retest(config):
+def retest(config):
     """Perform test-retest reproducibility analysis"""
     from habit.cli_commands.commands.cmd_test_retest import run_test_retest
     run_test_retest(config)

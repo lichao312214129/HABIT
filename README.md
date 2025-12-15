@@ -232,24 +232,6 @@ habit test-retest --config config/config_habitat_test_retest.yaml
 
 📚 **完整 CLI 文档**: 请参阅 [**HABIT_CLI.md**](HABIT_CLI.md) 获取完整的命令行使用指南，包括安装说明、故障排除和高级用法。
 
----
-
-### 传统脚本方式（兼容旧版）
-
-> ⚠️ **注意**: 推荐使用上面的CLI命令。脚本方式仍然可用，但CLI提供了更好的用户体验。
-
-如果您更喜欢直接运行Python脚本：
-
-```bash
-# 运行生境分析
-python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
-
-# 提取生境特征
-python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
-
-# 训练机器学习模型
-python scripts/app_of_machine_learning.py --config config/config_machine_learning.yaml
-```
 
 ## 🤝 贡献
 
@@ -383,7 +365,7 @@ pip install -e .
 
 3.  **检查脚本入口点：**
     ```bash
-    python scripts/app_getting_habitat_map.py --help
+    habit get-habitat --help
     ```
     此命令应显示主分析脚本的帮助菜单。
 
@@ -512,7 +494,7 @@ All analyses in HABIT are controlled by YAML configuration files. Let's copy and
 Now, you can run the main analysis script using the configuration file you just created.
 
 ```bash
-python scripts/app_getting_habitat_map.py --config my_first_analysis.yaml
+habit get-habitat --config my_first_analysis.yaml
 ```
 
 This process will perform voxel feature extraction, supervoxel clustering, and habitat clustering. You will see progress bars for each stage.
@@ -537,14 +519,14 @@ With the habitats identified, you can now proceed to the next steps in the radio
 Use the generated habitat maps to extract advanced features like MSI (spatial relationships) and ITH (heterogeneity score).
 ```bash
 # First, configure `config/config_extract_features.yaml` with your paths
-python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
+habit extract --config config/config_extract_features.yaml
 ```
 
 **2. Train a Predictive Model:**
 Use the extracted features to train a machine learning model.
 ```bash
 # First, configure `config/config_machine_learning.yaml` with your feature files
-python scripts/app_of_machine_learning.py --config config/config_machine_learning.yaml
+habit model --config config/config_machine_learning.yaml
 ```
 
 ---
@@ -580,10 +562,10 @@ python scripts/app_of_machine_learning.py --config config/config_machine_learnin
 pip install -e .
 
 # 2. 测试
-python -m habit --help
+habit --help
 
 # 3. 使用
-python -m habit preprocess -c config/config_image_preprocessing.yaml
+habit preprocess -c config/config_image_preprocessing.yaml
 ```
 
 ---
@@ -615,7 +597,7 @@ pip install -e .
 habit --help
 
 # 方法 2: 使用 Python 模块（推荐，更可靠）
-python -m habit --help
+habit --help
 ```
 
 **✅ 看到命令列表说明安装成功！**
@@ -636,8 +618,8 @@ habit preprocess -c config.yaml
 #### 方式 2: Python 模块（推荐⭐）
 
 ```bash
-python -m habit --help
-python -m habit preprocess -c config.yaml
+habit --help
+habit preprocess -c config.yaml
 ```
 
 #### 方式 3: 直接运行脚本（开发调试）
@@ -664,22 +646,22 @@ habit <命令> [选项]
 
 ### 命令列表
 
-| 命令 | 说明 | 对应原脚本 |
-|------|------|-----------|
-| `preprocess` | 图像预处理 | `app_image_preprocessing.py` |
-| `habitat` | 生成 Habitat 地图 | `app_getting_habitat_map.py` |
-| `extract-features` | 提取 Habitat 特征 | `app_extracting_habitat_features.py` |
-| `ml` | 机器学习（训练/预测） | `app_of_machine_learning.py` |
-| `kfold` | K折交叉验证 | `app_kfold_cv.py` |
-| `compare` | 模型比较 | `app_model_comparison_plots.py` |
-| `icc` | ICC 分析 | `app_icc_analysis.py` |
-| `radiomics` | 传统影像组学 | `app_traditional_radiomics_extractor.py` |
-| `test-retest` | Test-Retest 分析 | `app_habitat_test_retest_mapper.py` |
+| 命令 | 说明 |
+|------|------|
+| `preprocess` | 图像预处理 |
+| `get-habitat` | 生成 Habitat 地图 |
+| `extract` | 提取 Habitat 特征 |
+| `model` | 机器学习（训练/预测） |
+| `cv` | K折交叉验证 |
+| `compare` | 模型比较 |
+| `icc` | ICC 分析 |
+| `radiomics` | 传统影像组学 |
+| `retest` | Test-Retest 分析 |
 
 ### 1. 图像预处理
 
 ```bash
-python -m habit preprocess -c config/config_image_preprocessing.yaml
+habit preprocess -c config/config_image_preprocessing.yaml
 ```
 
 **功能**: 对医学图像进行重采样、配准、标准化处理
@@ -687,10 +669,10 @@ python -m habit preprocess -c config/config_image_preprocessing.yaml
 ### 2. Habitat 分析
 
 ```bash
-python -m habit habitat -c config/config_getting_habitat.yaml
+habit get-habitat -c config/config_getting_habitat.yaml
 
 # 启用调试模式
-python -m habit habitat -c config/config_getting_habitat.yaml --debug
+habit get-habitat -c config/config_getting_habitat.yaml --debug
 ```
 
 **功能**: 通过聚类分析生成 Habitat 地图
@@ -790,7 +772,7 @@ HabitatsSegmention:
 ### 3. 提取特征
 
 ```bash
-python -m habit extract-features -c config/config_extract_features.yaml
+habit extract -c config/config_extract_features.yaml
 ```
 
 **功能**: 从聚类后的图像提取 Habitat 特征
@@ -800,13 +782,13 @@ python -m habit extract-features -c config/config_extract_features.yaml
 #### 训练模型
 
 ```bash
-python -m habit ml -c config/config_machine_learning.yaml -m train
+habit model -c config/config_machine_learning.yaml -m train
 ```
 
 #### 预测（使用训练好的模型）
 
 ```bash
-python -m habit \
+habit \
   -c config/config_machine_learning.yaml \
   -m predict \
   --model ./ml_data/ml/rad/model_package.pkl \
@@ -825,7 +807,7 @@ python -m habit \
 ### 5. K折交叉验证
 
 ```bash
-python -m habit kfold -c config/config_machine_learning_kfold.yaml
+habit cv -c config/config_machine_learning_kfold.yaml
 ```
 
 **功能**: 对模型进行 K 折交叉验证
@@ -852,7 +834,7 @@ is_visualize: true  # 在配置文件中启用可视化
 ### 6. 模型比较
 
 ```bash
-python -m habit compare -c config/config_model_comparison.yaml
+habit compare -c config/config_model_comparison.yaml
 ```
 
 **功能**: 生成多个模型的比较图表和统计数据
@@ -865,7 +847,7 @@ python -m habit compare -c config/config_model_comparison.yaml
 ### 7. ICC 分析
 
 ```bash
-python -m habit icc -c config/config_icc_analysis.yaml
+habit icc -c config/config_icc_analysis.yaml
 ```
 
 **功能**: 执行组内相关系数（ICC）分析
@@ -873,7 +855,7 @@ python -m habit icc -c config/config_icc_analysis.yaml
 ### 8. 传统影像组学
 
 ```bash
-python -m habit radiomics -c config/config_traditional_radiomics.yaml
+habit radiomics -c config/config_traditional_radiomics.yaml
 ```
 
 **功能**: 提取传统影像组学特征
@@ -881,7 +863,7 @@ python -m habit radiomics -c config/config_traditional_radiomics.yaml
 ### 9. Test-Retest 分析
 
 ```bash
-python -m habit test-retest -c config/config_habitat_test_retest.yaml
+habit retest -c config/config_habitat_test_retest.yaml
 ```
 
 **功能**: 执行 test-retest 重复性分析
@@ -897,7 +879,7 @@ python -m habit test-retest -c config/config_habitat_test_retest.yaml
 **解决方案**: 使用 Python 模块方式（更可靠）
 
 ```bash
-python -m habit --help
+habit --help
 ```
 
 ### Q2: ImportError 或模块找不到
@@ -921,23 +903,12 @@ pip install -e .
 
 ```bash
 # 相对路径（推荐在项目根目录运行）
-python -m habit preprocess -c ./config/config_image_preprocessing.yaml
+habit preprocess -c ./config/config_image_preprocessing.yaml
 
 # 绝对路径
-python -m habit preprocess -c F:/work/research/.../config.yaml
+habit preprocess -c F:/work/research/.../config.yaml
 ```
 
-### Q4: 原有脚本还能用吗？
-
-**答**: 完全可以！新 CLI 不影响原有脚本。
-
-```bash
-# 旧方式仍然可用
-python scripts/app_image_preprocessing.py --config config.yaml
-
-# 新方式（更简洁）
-python -m habit preprocess -c config.yaml
-```
 
 ---
 
@@ -947,24 +918,24 @@ python -m habit preprocess -c config.yaml
 
 ```bash
 # 步骤 1: 图像预处理
-python -m habit preprocess -c config/config_image_preprocessing.yaml
+habit preprocess -c config/config_image_preprocessing.yaml
 
 # 步骤 2: 生成 Habitat 地图
-python -m habit habitat -c config/config_getting_habitat.yaml
+habit get-habitat -c config/config_getting_habitat.yaml
 
 # 步骤 3: 提取 Habitat 特征
-python -m habit extract-features -c config/config_extract_features.yaml
+habit extract -c config/config_extract_features.yaml
 
 # 步骤 4: 训练机器学习模型（两种方式任选其一）
 
 ## 方式 A: 标准训练/测试集分割
-python -m habit ml -c config/config_machine_learning.yaml -m train
+habit model -c config/config_machine_learning.yaml -m train
 
 ## 方式 B: K折交叉验证（推荐用于小样本）
-python -m habit kfold -c config/config_machine_learning_kfold.yaml
+habit cv -c config/config_machine_learning_kfold.yaml
 
 # 步骤 5: 模型比较（支持两种方式的结果）
-python -m habit compare -c config/config_model_comparison.yaml
+habit compare -c config/config_model_comparison.yaml
 
 # 提示：compare 命令会自动读取 all_prediction_results.csv 文件
 # 无论是来自 ml 命令还是 kfold 命令，格式完全兼容
@@ -973,7 +944,7 @@ python -m habit compare -c config/config_model_comparison.yaml
 ### 使用训练好的模型预测新数据
 
 ```bash
-python -m habit \
+habit \
   -c config/config_machine_learning.yaml \
   -m predict \
   --model ./ml_data/ml/rad/model_package.pkl \
@@ -1000,34 +971,6 @@ python -m habit \
 - **安装指南**: `INSTALL.md`
 - **快速入门**: `QUICKSTART.md`
 
----
-
-## 🎓 新旧方式对比
-
-### 旧方式（脚本）
-
-```bash
-python scripts/app_image_preprocessing.py --config config.yaml
-python scripts/app_getting_habitat_map.py --config config.yaml --debug
-python scripts/app_of_machine_learning.py --config config.yaml --mode train
-python scripts/app_kfold_cv.py --config config.yaml
-```
-
-### 新方式（CLI）
-
-```bash
-python -m habit preprocess -c config.yaml
-python -m habit habitat -c config.yaml --debug
-python -m habit ml -c config.yaml -m train
-python -m habit kfold -c config.yaml
-```
-
-**优势**:
-- ✅ 更简洁、更直观
-- ✅ 统一的命令风格
-- ✅ 自动生成帮助文档
-- ✅ 参数验证和错误提示
-- ✅ 支持短选项（`-c` 代替 `--config`）
 
 ---
 
@@ -1037,38 +980,22 @@ python -m habit kfold -c config.yaml
 
 ```bash
 # --config 可以简写为 -c
-python -m habit preprocess -c config.yaml
+habit preprocess -c config.yaml
 
 # --mode 可以简写为 -m
-python -m habit ml -c config.yaml -m train
+habit model -c config.yaml -m train
 
 # --output 可以简写为 -o
-python -m habit ml -c config.yaml -m predict --model m.pkl --data d.csv -o ./out/
+habit model -c config.yaml -m predict --model m.pkl --data d.csv -o ./out/
 ```
 
 ### 2. 查看命令帮助
 
 ```bash
 # 每个命令都有详细帮助
-python -m habit --help              # 所有命令列表
-python -m habit preprocess --help   # 预处理命令帮助
-python -m habit ml --help           # 机器学习命令帮助
-```
-
-### 3. 推荐的命令别名
-
-如果你经常使用，可以在 PowerShell 配置文件中添加别名：
-
-```powershell
-# 编辑 PowerShell 配置文件
-notepad $PROFILE
-
-# 添加以下内容
-function habit { python -m habit $args }
-
-# 之后就可以直接使用
-habit --help
-habit preprocess -c config.yaml
+habit --help              # 所有命令列表
+habit preprocess --help   # 预处理命令帮助
+habit model --help           # 机器学习命令帮助
 ```
 
 ---
