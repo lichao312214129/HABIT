@@ -97,10 +97,13 @@ def cv(config):
 
 
 @cli.command('compare')
+# 该装饰器为命令行工具添加一个名为 --config 或 -c 的参数选项
+# 参数类型为存在的文件路径，且为必填项
+# 用于指定配置文件（YAML 格式）的路径
 @click.option('--config', '-c',
-              type=click.Path(exists=True),
-              required=True,
-              help='Path to configuration YAML file')
+              type=click.Path(exists=True),     # 参数类型为存在的文件路径
+              required=True,                    # 必须提供该参数
+              help='Path to configuration YAML file')  # 参数描述，会显示在帮助信息中
 def compare(config):
     """Generate model comparison plots and statistics"""
     from habit.cli_commands.commands.cmd_compare import run_compare

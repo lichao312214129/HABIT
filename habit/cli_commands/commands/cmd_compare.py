@@ -30,7 +30,7 @@ def run_compare(config_file: str) -> None:
         app_model_comparison_plots.main()
         
         sys.argv = old_argv
-        click.secho("✓ Model comparison completed successfully!", fg='green')
+        click.secho("Model comparison completed successfully!", fg='green')
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
