@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 """
 CSV Files Merger Script
-This script merges multiple CSV files horizontally based on their first column (index).
+This script merges multiple CSV/Excel files horizontally based on their index column.
+
+Note: The recommended way to use this functionality is through the habit CLI:
+    habit merge-csv file1.csv file2.csv -o merged.csv
 """
 
 import os
 import pandas as pd
-import argparse
+import click
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import sys
 
 # Add the habit package to the path
@@ -19,114 +22,114 @@ from habit.utils.log_utils import setup_logger
 
 
 def merge_csv_files(
-    input_folder: str,
-    csv_names: List[str],
+    input_files: Tuple[str, ...],
     output_file: str,
-    index_col: str = None,
+    index_cols: Optional[List[str]] = None,
     separator: str = ',',
-    encoding: str = 'utf-8'
+    encoding: str = 'utf-8',
+    join_type: str = 'inner'
 ) -> None:
     """
-    Merge multiple CSV files horizontally based on their first column (index).
+    Merge multiple CSV/Excel files horizontally based on index column.
     
     Parameters:
     -----------
-    input_folder : str
-        Path to the folder containing CSV files
-    csv_names : List[str]
-        List of CSV file names to merge (without .csv extension)
+    input_files : Tuple[str, ...]
+        Tuple of file paths to merge (CSV or Excel)
     output_file : str
         Path for the output merged CSV file
-    index_col : str, optional
-        Name of the index column. If None, uses the first column
+    index_cols : List[str], optional
+        List of index column names. Can be:
+        - None: use first column for all files
+        - Single element: use same column for all files
+        - Multiple elements: one per file (must match file count)
     separator : str, default=','
         CSV separator character
     encoding : str, default='utf-8'
         File encoding
+    join_type : str, default='inner'
+        Join type: 'inner' (only common rows) or 'outer' (all rows)
     """
     
     logger = setup_logger('csv_merger')
     logger.info(f"Starting CSV merge process...")
-    logger.info(f"Input folder: {input_folder}")
-    logger.info(f"CSV files to merge: {csv_names}")
+    logger.info(f"Input files: {input_files}")
     logger.info(f"Output file: {output_file}")
     
-    # Check if input folder exists
-    if not os.path.exists(input_folder):
-        raise FileNotFoundError(f"Input folder not found: {input_folder}")
+    if len(input_files) < 2:
+        raise ValueError("At least 2 input files are required for merging")
+    
+    # Validate and expand index_cols
+    if index_cols is not None and len(index_cols) > 1:
+        if len(index_cols) != len(input_files):
+            raise ValueError(f"Number of index columns ({len(index_cols)}) must match "
+                           f"number of input files ({len(input_files)}) or be 1")
     
     # Initialize merged dataframe
     merged_df = None
     processed_files = []
     
-    print(f"Starting to merge {len(csv_names)} CSV files...")
+    print(f"Starting to merge {len(input_files)} files...")
     
     try:
-        for i, csv_name in enumerate(csv_names):
-            print(f"Processing file {i+1}/{len(csv_names)}: {csv_name}")
+        for i, file_path in enumerate(input_files):
+            print(f"Processing file {i+1}/{len(input_files)}: {file_path}")
             
-            # 支持文件名带或不带扩展名
-            if csv_name.lower().endswith('.csv') or csv_name.lower().endswith('.xlsx'):
-                file_base = os.path.splitext(csv_name)[0]
+            # Determine which index column to use for this file
+            if index_cols is None:
+                current_index_col = None
+            elif len(index_cols) == 1:
+                current_index_col = index_cols[0]
             else:
-                file_base = csv_name
+                current_index_col = index_cols[i]
             
-            # 优先查找csv，其次xlsx
-            csv_path = os.path.join(input_folder, f"{file_base}.csv")
-            xlsx_path = os.path.join(input_folder, f"{file_base}.xlsx")
-            
-            if os.path.exists(csv_path):
-                file_path = csv_path
-                file_type = 'csv'
-            elif os.path.exists(xlsx_path):
-                file_path = xlsx_path
-                file_type = 'xlsx'
-            else:
-                logger.warning(f"File not found: {csv_path} or {xlsx_path}")
+            # Check if file exists
+            if not os.path.exists(file_path):
+                logger.warning(f"File not found: {file_path}")
+                print(f"  Warning: File not found: {file_path}")
                 continue
             
             logger.info(f"Reading file: {file_path}")
-            # 根据文件类型选择读取方法
-            if file_type == 'csv':
-                df = pd.read_csv(file_path, sep=separator, encoding=encoding)
-            else:
+            
+            # Determine file type and read
+            file_ext = os.path.splitext(file_path)[1].lower()
+            if file_ext == '.xlsx' or file_ext == '.xls':
                 df = pd.read_excel(file_path)
+            else:
+                # Default to CSV
+                df = pd.read_csv(file_path, sep=separator, encoding=encoding)
             
             if df.empty:
                 logger.warning(f"Empty file: {file_path}")
+                print(f"  Warning: Empty file: {file_path}")
                 continue
             
-            # 设置索引列
-            if index_col is None:
+            # Set index column
+            if current_index_col is None:
                 df.set_index(df.columns[0], inplace=True)
                 logger.info(f"Using first column '{df.index.name}' as index")
             else:
-                if index_col in df.columns:
-                    df.set_index(index_col, inplace=True)
-                    logger.info(f"Using column '{index_col}' as index")
+                if current_index_col in df.columns:
+                    df.set_index(current_index_col, inplace=True)
+                    logger.info(f"Using column '{current_index_col}' as index")
                 else:
-                    logger.warning(f"Index column '{index_col}' not found in {file_path}, using first column")
+                    logger.warning(f"Index column '{current_index_col}' not found in {file_path}, using first column")
                     df.set_index(df.columns[0], inplace=True)
             
-            # 列名前缀避免冲突（已去除，保持原始header不变）
-            # if len(csv_names) > 1:
-            #     df.columns = [f"{file_base}_{col}" for col in df.columns]
-            
-            # 合并
+            # Merge dataframes
             if merged_df is None:
                 merged_df = df
             else:
-                # 由outer join改为inner join，只保留所有文件共有的index（交集）
-                merged_df = merged_df.join(df, how='inner')
+                merged_df = merged_df.join(df, how=join_type)
             
-            processed_files.append(file_base)
-            print(f"Successfully processed: {file_base}")
+            processed_files.append(os.path.basename(file_path))
+            print(f"  Successfully processed: {os.path.basename(file_path)}")
         
-        print("All files processed successfully!")
+        print("All files processed!")
         
         if merged_df is None:
-            logger.error("No valid CSV files were processed")
-            return
+            logger.error("No valid files were processed")
+            raise ValueError("No valid files were processed")
         
         # Create output directory if it doesn't exist
         output_dir = os.path.dirname(output_file)
@@ -137,106 +140,88 @@ def merge_csv_files(
         # Save merged dataframe
         merged_df.to_csv(output_file, sep=separator, encoding=encoding)
         
-        logger.info(f"Successfully merged {len(processed_files)} CSV files")
+        logger.info(f"Successfully merged {len(processed_files)} files")
         logger.info(f"Output saved to: {output_file}")
         logger.info(f"Final dataframe shape: {merged_df.shape}")
-        logger.info(f"Processed files: {processed_files}")
         
         # Display summary
         print(f"\nMerge Summary:")
-        print(f"  Input folder: {input_folder}")
-        print(f"  Files processed: {len(processed_files)}/{len(csv_names)}")
+        print(f"  Files processed: {len(processed_files)}/{len(input_files)}")
         print(f"  Output file: {output_file}")
         print(f"  Final shape: {merged_df.shape}")
         print(f"  Index column: {merged_df.index.name}")
+        print(f"  Join type: {join_type}")
         
     except Exception as e:
         logger.error(f"Error during merge process: {str(e)}")
         raise
 
 
-def main():
-    """Main function to handle command line arguments and execute the merge."""
+@click.command()
+@click.argument('input_files', nargs=-1, type=click.Path(exists=True), required=True)
+@click.option('-o', '--output',
+              type=click.Path(),
+              required=True,
+              help='Path for the output merged CSV file')
+@click.option('--index-col', '-c',
+              type=str,
+              default=None,
+              help='Index column name(s). Single name for all files, or comma-separated (one per file)')
+@click.option('--separator',
+              type=str,
+              default=',',
+              show_default=True,
+              help='CSV separator character')
+@click.option('--encoding',
+              type=str,
+              default='utf-8',
+              show_default=True,
+              help='File encoding')
+@click.option('--join', 'join_type',
+              type=click.Choice(['inner', 'outer'], case_sensitive=False),
+              default='inner',
+              show_default=True,
+              help='Join type: inner (only common rows) or outer (all rows)')
+def main(input_files: Tuple[str, ...], output: str, index_col: Optional[str], 
+         separator: str, encoding: str, join_type: str):
+    """
+    Merge multiple CSV/Excel files horizontally based on index column.
     
-    parser = argparse.ArgumentParser(
-        description="Merge multiple CSV files horizontally based on their first column (index)",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Merge specific CSV files
-  python ./habit/scipts/merge_csv_files.py -i "H:/results/features" -n "habitat_basic_features,msi_features,ith_scores" -o "merged_output.csv"
-  
-  # Merge with custom index column
-  python merge_csv_files.py -i "H:/results/features" -n "file1,file2" -o "merged.csv" --index-col "subject_id"
-  
-  # Merge with different separator
-  python merge_csv_files.py -i "H:/results/features" -n "file1,file2" -o "merged.csv" --separator ";"
-        """
-    )
+    \b
+    INPUT_FILES: Two or more CSV/Excel files to merge
     
-    parser.add_argument(
-        '-i', '--input-folder',
-        type=str,
-        required=True,
-        help='Path to the folder containing CSV files'
-    )
+    \b
+    Examples:
+      # Same index column for all files
+      python merge_csv_files.py file1.csv file2.csv -o merged.csv --index-col subject_id
+      
+      # Different index column for each file
+      python merge_csv_files.py a.csv b.csv -o merged.csv --index-col "PatientID,subject_id"
     
-    parser.add_argument(
-        '-n', '--csv-names',
-        type=str,
-        required=True,
-        help='Comma-separated list of CSV file names (without .csv extension)'
-    )
+    \b
+    Note: The recommended way is to use the habit CLI:
+      habit merge-csv file1.csv file2.csv -o merged.csv
+    """
+    # Parse index columns if provided
+    index_cols = None
+    if index_col:
+        index_cols = [col.strip() for col in index_col.split(',')]
     
-    parser.add_argument(
-        '-o', '--output-file',
-        type=str,
-        required=True,
-        help='Path for the output merged CSV file'
-    )
-    
-    parser.add_argument(
-        '--index-col',
-        type=str,
-        default=None,
-        help='Name of the column to use as index. If not specified, uses the first column'
-    )
-    
-    parser.add_argument(
-        '--separator',
-        type=str,
-        default=',',
-        help='CSV separator character (default: comma)'
-    )
-    
-    parser.add_argument(
-        '--encoding',
-        type=str,
-        default='utf-8',
-        help='File encoding (default: utf-8)'
-    )
-    
-    args = parser.parse_args()
-    
-    # Parse CSV names
-    csv_names = [name.strip() for name in args.csv_names.split(',')]
-    
-    # Execute merge
     try:
         merge_csv_files(
-            input_folder=args.input_folder,
-            csv_names=csv_names,
-            output_file=args.output_file,
-            index_col=args.index_col,
-            separator=args.separator,
-            encoding=args.encoding
+            input_files=input_files,
+            output_file=output,
+            index_cols=index_cols,
+            separator=separator,
+            encoding=encoding,
+            join_type=join_type
         )
-        print("\nMerge completed successfully!")
+        click.secho("\nMerge completed successfully!", fg='green')
         
     except Exception as e:
-        print(f"\nError: {str(e)}")
+        click.secho(f"\nError: {str(e)}", fg='red', err=True)
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

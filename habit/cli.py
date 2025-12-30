@@ -140,6 +140,176 @@ def retest(config):
     run_test_retest(config)
 
 
+@cli.command('dice')
+@click.option('--input1', required=True, type=click.Path(exists=True), help='Path to first batch (root directory or config file)')
+@click.option('--input2', required=True, type=click.Path(exists=True), help='Path to second batch (root directory or config file)')
+@click.option('--output', default='dice_results.csv', show_default=True, help='Path to save results CSV')
+@click.option('--mask-keyword', default='masks', show_default=True, help='Keyword for mask folder (used if input is a directory)')
+@click.option('--label-id', default=1, show_default=True, help='Label ID to calculate Dice for')
+def dice(input1, input2, output, mask_keyword, label_id):
+    """Calculate Dice coefficient between two batches of images"""
+    from habit.utils.dice_calculator import run_dice_calculation
+    run_dice_calculation(input1, input2, output, mask_keyword, label_id)
+
+
+@cli.command('dicom-info')
+@click.option('--input', '-i', 
+              required=True,
+              type=click.Path(exists=True),
+              help='Path to DICOM directory, file, or YAML config file')
+@click.option('--tags', '-t',
+              help='Comma-separated list of DICOM tags to extract (e.g., "PatientName,StudyDate,Modality")')
+@click.option('--output', '-o',
+              type=click.Path(),
+              help='Path to save results (CSV, Excel, or JSON)')
+@click.option('--format', '-f',
+              type=click.Choice(['csv', 'excel', 'json'], case_sensitive=False),
+              default='csv',
+              show_default=True,
+              help='Output format for saved results')
+@click.option('--recursive/--no-recursive',
+              default=True,
+              show_default=True,
+              help='Search recursively in subdirectories')
+@click.option('--list-tags', is_flag=True,
+              help='List available tags instead of extracting information')
+@click.option('--num-samples',
+              type=int,
+              default=1,
+              show_default=True,
+              help='Number of files to sample when listing tags')
+@click.option('--group-by-series/--no-group-by-series',
+              default=True,
+              show_default=True,
+              help='Group files by SeriesInstanceUID and only read one file per series. '
+                   'If disabled, read all files individually.')
+@click.option('--one-file-per-folder', is_flag=True,
+              help='Only read one DICOM file per folder to speed up scanning. '
+                   'Useful when each folder contains exactly one series.')
+@click.option('--dicom-extensions',
+              type=str,
+              default=None,
+              help='Comma-separated list of DICOM file extensions to recognize '
+                   '(e.g., ".dcm,.dicom,.ima"). Only used with --one-file-per-folder. '
+                   'Default: .dcm,.dicom')
+@click.option('--include-no-extension', is_flag=True,
+              help='Also check files without extensions by reading DICOM magic bytes. '
+                   'Only used with --one-file-per-folder. Useful for some medical devices '
+                   'that produce DICOM files without file extensions.')
+@click.option('--num-workers', '-j',
+              type=int,
+              default=None,
+              help='Number of worker threads for parallel processing. '
+                   'Default: min(32, cpu_count + 4). Set to 1 to disable parallelism.')
+@click.option('--max-depth', '-d',
+              type=int,
+              default=None,
+              help='Maximum recursion depth for directory traversal. '
+                   'Only used with --one-file-per-folder. '
+                   '0=root only, 1=root+1 level, etc. Default: unlimited. '
+                   'Example: For DICOM structure patient/study/series/, use -d 3')
+def dicom_info(input, tags, output, format, recursive, list_tags, num_samples, 
+               group_by_series, one_file_per_folder, dicom_extensions, include_no_extension,
+               num_workers, max_depth):
+    """Extract and view DICOM file information"""
+    from habit.cli_commands.commands.cmd_dicom_info import run_dicom_info
+    
+    # Parse tags if provided
+    tag_list = None
+    if tags:
+        tag_list = [tag.strip() for tag in tags.split(',') if tag.strip()]
+    
+    # Parse DICOM extensions if provided
+    ext_set = None
+    if dicom_extensions:
+        ext_set = {ext.strip() for ext in dicom_extensions.split(',') if ext.strip()}
+    
+    # Warn about parameter conflicts
+    if not one_file_per_folder:
+        if max_depth is not None:
+            click.echo("Warning: --max-depth is only effective with --one-file-per-folder", err=True)
+        if dicom_extensions is not None:
+            click.echo("Warning: --dicom-extensions is only effective with --one-file-per-folder", err=True)
+        if include_no_extension:
+            click.echo("Warning: --include-no-extension is only effective with --one-file-per-folder", err=True)
+    
+    run_dicom_info(
+        input_path=input,
+        tags=tag_list,
+        recursive=recursive,
+        output=output,
+        output_format=format.lower(),
+        list_tags=list_tags,
+        num_samples=num_samples,
+        group_by_series=group_by_series,
+        one_file_per_folder=one_file_per_folder,
+        dicom_extensions=ext_set,
+        include_no_extension=include_no_extension,
+        num_workers=num_workers,
+        max_depth=max_depth
+    )
+
+
+@cli.command('merge-csv')
+@click.argument('input_files', nargs=-1, type=click.Path(exists=True), required=True)
+@click.option('-o', '--output',
+              type=click.Path(),
+              required=True,
+              help='Path for the output merged CSV file')
+@click.option('--index-col', '-c',
+              type=str,
+              default=None,
+              help='Index column name(s). Can be: single name for all files, '
+                   'or comma-separated names (one per file). Example: "id" or "PatientID,subject_id"')
+@click.option('--separator',
+              type=str,
+              default=',',
+              show_default=True,
+              help='CSV separator character')
+@click.option('--encoding',
+              type=str,
+              default='utf-8',
+              show_default=True,
+              help='File encoding')
+@click.option('--join', 'join_type',
+              type=click.Choice(['inner', 'outer'], case_sensitive=False),
+              default='inner',
+              show_default=True,
+              help='Join type: inner (only common rows) or outer (all rows)')
+def merge_csv(input_files, output, index_col, separator, encoding, join_type):
+    """
+    Merge multiple CSV/Excel files horizontally based on index column.
+    
+    \b
+    INPUT_FILES: Two or more CSV/Excel files to merge
+    
+    \b
+    Examples:
+      # Same index column for all files
+      habit merge-csv file1.csv file2.csv -o merged.csv --index-col subject_id
+      
+      # Different index column for each file
+      habit merge-csv a.csv b.csv -o merged.csv --index-col "PatientID,subject_id"
+      
+      # Use first column as index (default)
+      habit merge-csv file1.csv file2.csv -o merged.csv
+    """
+    from habit.cli_commands.commands.cmd_merge_csv import run_merge_csv
+    
+    # Parse index columns if provided
+    index_cols = None
+    if index_col:
+        index_cols = [col.strip() for col in index_col.split(',')]
+    
+    run_merge_csv(
+        input_files=input_files,
+        output_file=output,
+        index_cols=index_cols,
+        separator=separator,
+        encoding=encoding,
+        join_type=join_type
+    )
+
+
 if __name__ == '__main__':
     cli()
-

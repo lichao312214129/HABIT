@@ -5,10 +5,7 @@
 import os
 import sys
 
-# 添加项目根目录到系统路径
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from habitat_clustering.clustering.cluster_validation_methods import (
+from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     CLUSTERING_VALIDATION_METHODS,
     get_validation_methods,
     is_valid_method_for_algorithm,

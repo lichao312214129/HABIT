@@ -221,6 +221,7 @@ habit retest --config config/config_habitat_test_retest.yaml
 | `habit icc` | ICC可重复性分析 | `config_icc_analysis.yaml` | [📖](doc/app_icc_analysis.md) |
 | `habit radiomics` | 传统影像组学特征 | `config_traditional_radiomics.yaml` | [📖](HABIT_CLI.md) |
 | `habit retest` | 测试-重测映射 | `config_habitat_test_retest.yaml` | [📖](doc/app_habitat_test_retest.md) |
+| `habit dice` | Dice 系数计算 | 无需特定配置 (支持路径/YAML) | [📖](doc/app_dice_calculator.md) |
 
 #### 优势
 
@@ -657,6 +658,7 @@ habit <命令> [选项]
 | `icc` | ICC 分析 |
 | `radiomics` | 传统影像组学 |
 | `retest` | Test-Retest 分析 |
+| `dice` | Dice 系数计算 |
 
 ### 1. 图像预处理
 
@@ -867,6 +869,14 @@ habit retest -c config/config_habitat_test_retest.yaml
 ```
 
 **功能**: 执行 test-retest 重复性分析
+
+### 10. Dice 系数计算
+
+```bash
+habit dice --input1 batch1_folder --input2 batch2_folder
+```
+
+**功能**: 计算两批 Mask 图像之间的 Dice 系数，评估分割一致性
 
 ---
 
