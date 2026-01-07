@@ -1,0 +1,12 @@
+# 控制是否自动读取目录中的第一个文件
+# true: 自动读取目录中的第一个文件 (适用于已转换的nii文件等场景)
+# false: 保持目录路径不变 (适用于dcm2nii等需要整个文件夹的任务)
+auto_select_first_file: false
+
+images:
+  cao-mu-de:
+    a1: C:\Users\dongm\Desktop\liver cancer\cao-mu-de\A1
+    a2: C:\Users\dongm\Desktop\liver cancer\cao-mu-de\V\WQU5JWA3\U1CYDWNV
+  wu-lin-sheng:
+    a1: C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A1\HRPHZUTG\UPYYNDRS
+    a2: C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A2\HRPHZUTG\UPYYNDRS

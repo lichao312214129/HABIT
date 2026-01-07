@@ -43,10 +43,20 @@ Preprocessing:
   #   only_inmask: false  # Use whole image or masked region only
   #   # mask_key: tumor_mask  # Mask name if only_inmask: true
   
-  # Histogram Standardization
+  # Histogram Standardization (Nyúl method)
   # histogram_standardization:
   #   images: [T1, T2, FLAIR]
-  #   reference_key: T1  # Reference image for histogram matching
+  #   percentiles: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99]  # Percentile landmarks
+  #   target_min: 0.0  # Target minimum value
+  #   target_max: 100.0  # Target maximum value
+  #   mask_key: tumor_mask  # Optional: mask for percentile computation
+  
+  # Adaptive Histogram Equalization (CLAHE)
+  # adaptive_histogram_equalization:
+  #   images: [T1, T2]
+  #   alpha: 0.3  # Classical histogram equalization degree [0,1]
+  #   beta: 0.3   # Local adaptation degree [0,1]
+  #   radius: 5   # Local window radius in pixels
   
   # Image Registration
   registration:
@@ -56,6 +66,32 @@ Preprocessing:
     type_of_transform: SyNRA  # ANTs transform type
     use_mask: false  # Use mask to guide registration
     # mask_key: tumor_mask  # Mask name if use_mask: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# Save Options (Intermediate Results)
+# ─────────────────────────────────────────────────────────────────────────
+
+save_options:
+  # Whether to save intermediate results after each preprocessing step
+  save_intermediate: false
+  
+  # Which steps to save (empty list = save all steps)
+  # Example: [n4_correction, resample]  # Only save these steps
+  intermediate_steps: []
+
+# Output directory structure when save_intermediate: true
+# out_dir/
+# ├── n4_correction_01/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   │              └── T2/T2.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# │                └── T2/mask_T2.nii.gz
+# ├── resample_02/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# └── processed_images/  (final results, always saved)
+#     ├── images/sub001/T1/T1.nii.gz
+#     └── masks/sub001/T1/mask_T1.nii.gz
 
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings
@@ -84,8 +120,14 @@ random_state: 42
 #   - Parameters: images, only_inmask, mask_key
 #
 # histogram_standardization:
-#   - Match intensity distributions across subjects
-#   - Parameters: images, reference_key
+#   - Nyúl histogram standardization using percentile landmarks
+#   - Maps intensities to standard scale without reference image
+#   - Parameters: images, percentiles, target_min, target_max, mask_key
+#
+# adaptive_histogram_equalization:
+#   - CLAHE (Contrast Limited Adaptive Histogram Equalization)
+#   - Enhances local contrast while limiting noise amplification
+#   - Parameters: images, alpha, beta, radius
 #
 # registration:
 #   - Align multiple images to same space

@@ -1,38 +1,49 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\files-preprocessing.yaml
-out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\registered
+data_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\files.yaml
+out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\processed
 
 # Preprocessing settings
 Preprocessing:
-   
-  n4_correction:
-    images: [a1, a2]
-    num_fitting_levels: 2
 
-  # resample:
+  dcm2nii:
+    images: [delay2, delay3, delay5]
+    dcm2niix_path: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\dcm2niix.exe
+    compress: true
+    anonymize: false
+
+  # n4_correction:
   #   images: [delay2, delay3, delay5]
-  #   target_spacing: [3.0, 3.0, 3.0]  # Target voxel spacing in x, y, z
+  #   num_fitting_levels: 2
+
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [2.0, 2.0, 2.0]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
-  # zscore_normalization:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
-  #   only_inmask: false  # 是否仅在掩码内计算统计量
+  zscore_normalization:
+    images: [delay2, delay3, delay5]  # 要处理的图像序列
+    only_inmask: false  # 是否仅在掩码内计算统计量
     # mask_key: mask  # 当only_inmask为true时使用的掩码名称
 
   # 直方图标准化 - 简化版  FIXME 调试版本
-  # histogram_standardization:
-  #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
-  #   reference_key: PVP  # 参考图像的键名
+  # adaptive_histogram_equalization:
+  #   images: [delay2, delay3, delay5]  # 要处理的图像序列
 
-  registration:
-    images: [a1, a2]
-    fixed_image: a2
-    moving_images: [a1]
-    type_of_transform: SyNRA  # support all ants registration methods
-    use_mask: false
+  # registration:
+  #   images: [delay2, delay3, delay5]
+  #   fixed_image: a2
+  #   moving_images: [a1]
+  #   type_of_transform: SyNRA  # support all ants registration methods
+  #   use_mask: false
 
+# 保存选项
+save_options:
+  save_intermediate: true  # 开启中间结果保存
+  intermediate_steps: []   # 空列表=保存所有步骤
+  # intermediate_steps: [n4_correction, resample]  # 只保存指定步骤
+  
 # General settings
-processes: 1  # Number of parallel processes
+processes: 2  # Number of parallel processes
 random_state: 42  # Random seed for reproducibility

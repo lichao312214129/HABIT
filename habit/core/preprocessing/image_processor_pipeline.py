@@ -61,6 +61,9 @@ class BatchProcessor:
         self.verbose = verbose
         self._setup_logging(log_level)
         
+        # Parse save_options from config
+        self._parse_save_options()
+        
         # Use config value or default to 0 if not specified or invalid
         try:
             self.num_workers = int(self.config.get("processes", num_workers))
@@ -74,6 +77,115 @@ class BatchProcessor:
             self.num_workers = 1
 
         self.logger.info(f"Using {self.num_workers} worker processes.")
+    
+    def _parse_save_options(self) -> None:
+        """Parse save_options from configuration.
+        
+        Configures intermediate result saving behavior:
+        - save_intermediate: Whether to save intermediate results (default: False)
+        - intermediate_steps: List of step names to save, empty means save all steps
+        """
+        save_options = self.config.get("save_options", {})
+        
+        # Whether to save intermediate results
+        self.save_intermediate = save_options.get("save_intermediate", False)
+        
+        # Which steps to save (empty list means save all steps)
+        self.intermediate_steps = save_options.get("intermediate_steps", [])
+        
+        if self.save_intermediate:
+            if self.intermediate_steps:
+                self.logger.info(f"Intermediate results will be saved for steps: {self.intermediate_steps}")
+            else:
+                self.logger.info("Intermediate results will be saved for all steps")
+    
+    def _should_save_step(self, step_name: str) -> bool:
+        """Check if intermediate results should be saved for a given step.
+        
+        Args:
+            step_name (str): Name of the preprocessing step.
+            
+        Returns:
+            bool: True if results should be saved for this step.
+        """
+        if not self.save_intermediate:
+            return False
+        
+        # If intermediate_steps is empty, save all steps
+        if not self.intermediate_steps:
+            return True
+        
+        # Otherwise, only save specified steps
+        return step_name in self.intermediate_steps
+    
+    def _save_step_results(
+        self, 
+        subject_data: Dict, 
+        step_name: str, 
+        step_index: int,
+        modalities: List[str]
+    ) -> None:
+        """Save intermediate results after a preprocessing step.
+        
+        Output structure matches final output:
+        step_name_01/
+        ├── images/subject_id/modality/modality.nii.gz
+        └── masks/subject_id/modality/mask_modality.nii.gz
+        
+        Args:
+            subject_data (Dict): Subject data dictionary containing processed images.
+            step_name (str): Name of the preprocessing step.
+            step_index (int): Index of the step in the pipeline (1-based).
+            modalities (List[str]): List of modality keys that were processed.
+        """
+        subject_id = subject_data.get('subj', 'unknown')
+        
+        # Create step output directory: step_name_01/
+        step_dir_name = f"{step_name}_{step_index:02d}"
+        step_dir = self.output_root / step_dir_name
+        images_base = step_dir / "images" / subject_id
+        masks_base = step_dir / "masks" / subject_id
+        
+        try:
+            # Save processed images for this step
+            for mod in modalities:
+                # Create modality-specific directories (same structure as final output)
+                images_dir = images_base / mod
+                masks_dir = masks_base / mod
+                images_dir.mkdir(parents=True, exist_ok=True)
+                masks_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Save image
+                if mod in subject_data:
+                    image = subject_data[mod]
+                    if isinstance(image, sitk.Image):
+                        output_path = images_dir / f"{mod}.nii.gz"
+                        sitk.WriteImage(image, str(output_path))
+                        self.logger.debug(f"[{subject_id}] Saved {mod} to {output_path}")
+                    elif isinstance(image, np.ndarray):
+                        sitk_image = sitk.GetImageFromArray(image)
+                        output_path = images_dir / f"{mod}.nii.gz"
+                        sitk.WriteImage(sitk_image, str(output_path))
+                        self.logger.debug(f"[{subject_id}] Saved {mod} to {output_path}")
+                
+                # Save corresponding mask if exists
+                mask_key = f"mask_{mod}"
+                if mask_key in subject_data:
+                    mask = subject_data[mask_key]
+                    if isinstance(mask, sitk.Image):
+                        mask_path = masks_dir / f"{mask_key}.nii.gz"
+                        sitk.WriteImage(mask, str(mask_path))
+                        self.logger.debug(f"[{subject_id}] Saved {mask_key} to {mask_path}")
+                    elif isinstance(mask, np.ndarray):
+                        sitk_mask = sitk.GetImageFromArray(mask)
+                        mask_path = masks_dir / f"{mask_key}.nii.gz"
+                        sitk.WriteImage(sitk_mask, str(mask_path))
+                        self.logger.debug(f"[{subject_id}] Saved {mask_key} to {mask_path}")
+            
+            self.logger.info(f"[{subject_id}] Saved intermediate results for step: {step_name}")
+            
+        except Exception as e:
+            self.logger.error(f"[{subject_id}] Error saving intermediate results for {step_name}: {e}")
             
     def _setup_logging(self, log_level: str) -> None:
         """Setup logging configuration using centralized log system.
@@ -105,51 +217,84 @@ class BatchProcessor:
             )
         
     def _process_single_subject(self, subject_data):
-        """处理单个样本的数据。
+        """Process a single subject's data through the preprocessing pipeline.
         
         Args:
-            subject_data (Dict): 单个样本的数据字典，包含subject_id和输出目录信息
+            subject_data (Dict): Subject data dictionary containing subject_id and output directory info.
 
         Returns:
-            tuple: (subject_id, 处理结果消息)
+            tuple: (subject_id, processing result message)
         """
         try:
             subject_id = subject_data['subj']
-            # 创建单独的预处理管道实例
-            transforms = []  
-
-            # add load image
+            self.logger.info(f"Processing subject: {subject_id}")
+            
+            # Step 1: Load images first
             load_keys = [self.config["Preprocessing"].get(k).get("images", {}) for k in self.config["Preprocessing"].keys()]
             load_keys = [item for sublist in load_keys for item in sublist]
             load_keys = list(set(load_keys))
             mask_keys = [f"mask_{mod}" for mod in load_keys]
             load_keys.extend(mask_keys)
             load_image = LoadImagePreprocessor(keys=load_keys)
-            transforms.append(load_image)
+            load_image(subject_data)
 
-            # 处理配置中定义的每个预处理步骤
+            # Store original output_dirs for restoration after intermediate saves
+            original_output_dirs = subject_data.get('output_dirs', {}).copy()
+            
+            # Step 2: Process each preprocessing step defined in config
+            step_index = 0
             for step_name, params in self.config["Preprocessing"].items():
+                step_index += 1
+                
                 # Extract modalities from params
                 modalities = params.get("images", [])
                 if not modalities:
                     continue
                 
-                # 仅处理存在于当前subject_data中的modalities
+                # Only process modalities that exist in current subject_data
                 modalities = [mod for mod in modalities if mod in subject_data]
+                if not modalities:
+                    self.logger.warning(f"[{subject_id}] No valid modalities for step {step_name}, skipping")
+                    continue
                 
-                # 创建预处理器
+                # If saving intermediate results for this step, temporarily update output_dirs
+                # This allows preprocessors like dcm2niix to save directly to the intermediate directory
+                if self._should_save_step(step_name):
+                    step_dir_name = f"{step_name}_{step_index:02d}"
+                    step_output_dirs = {}
+                    for mod in modalities:
+                        # Create intermediate output directory path
+                        step_images_dir = self.output_root / step_dir_name / "images" / subject_id / mod
+                        step_images_dir.mkdir(parents=True, exist_ok=True)
+                        step_output_dirs[mod] = str(step_images_dir)
+                        
+                        # Also set mask output directory
+                        mask_key = f"mask_{mod}"
+                        if mask_key in subject_data:
+                            step_masks_dir = self.output_root / step_dir_name / "masks" / subject_id / mod
+                            step_masks_dir.mkdir(parents=True, exist_ok=True)
+                            step_output_dirs[mask_key] = str(step_masks_dir)
+                    
+                    subject_data['output_dirs'] = step_output_dirs
+                    self.logger.debug(f"[{subject_id}] Set intermediate output_dirs for step {step_name}")
+                
+                # Create and execute preprocessor
                 processor = PreprocessorFactory.create(
                     name=step_name,
                     keys=modalities,
                     **{k: v for k, v in params.items() if k != "images"}
                 )
-                transforms.append(processor)
-            
-            self.logger.info(f"Processing subject: {subject_data['subj']}")
-
-            # Run pipeline
-            for transform in transforms:
-                transform(subject_data)
+                processor(subject_data)
+                
+                # Save intermediate results if configured (for preprocessors that don't save directly)
+                # Skip _save_step_results for dcm2nii since it saves files directly to output_dirs
+                if self._should_save_step(step_name):
+                    if step_name != "dcm2nii":
+                        self._save_step_results(subject_data, step_name, step_index, modalities)
+                    else:
+                        self.logger.debug(f"[{subject_id}] Skipping _save_step_results for dcm2nii (already saved directly)")
+                    # Restore original output_dirs after saving
+                    subject_data['output_dirs'] = original_output_dirs.copy()
 
             return f"Success: {subject_id}", subject_data
         
@@ -179,10 +324,11 @@ class BatchProcessor:
                     meta_key = f"{key}_meta_dict"
                     if meta_key in subject_data:
                         meta_dict = subject_data[meta_key]
-                        if meta_dict.get("dcm2niix_converted", False) and "output_file_path" in meta_dict:
-                            # File was already saved by dcm2niix, skip saving
-                            self.logger.info(f"Skipping save for {key}: already saved by dcm2niix at {meta_dict['output_file_path']}")
-                            continue
+
+                        # if meta_dict.get("dcm2niix_converted", False) and "output_file_path" in meta_dict:
+                            # File was already saved by dcm2niix, but does not need to skip saving
+                            # self.logger.info(f"Skipping save for {key}: already saved by dcm2niix at {meta_dict['output_file_path']}")
+                            # pass
                     
                     output_path = Path(output_dirs[key])
                     output_path.mkdir(parents=True, exist_ok=True)
@@ -216,7 +362,10 @@ class BatchProcessor:
                         self.logger.debug(f"Saved {key} mask to {output_path}")
                         
         except Exception as e:
-            self.logger.error(f"Error saving processed images: {str(e)}")
+            # 报告错误的被试名
+            subject_id = subject_data.get('subj', 'unknown')
+            self.logger.error(f"Error saving processed images for subject {subject_id}: {str(e)}")
+
             # raise
 
     def process_batch(self) -> None:

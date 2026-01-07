@@ -538,6 +538,7 @@ class Dcm2niixConverter(BasePreprocessor):
             
             try:
                 # Get output directory from data if available
+                # The pipeline will set output_dirs to intermediate directory if save_intermediate is enabled
                 output_dir = None
                 if 'output_dirs' in data and key in data['output_dirs']:
                     output_dir = data['output_dirs'][key]

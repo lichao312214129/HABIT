@@ -1,7 +1,6 @@
 from typing import Dict, Any, Optional, Union, List, Tuple
 import SimpleITK as sitk
 import numpy as np
-import logging
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
 from ...utils.log_utils import get_module_logger
