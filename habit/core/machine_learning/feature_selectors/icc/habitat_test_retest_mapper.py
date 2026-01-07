@@ -57,11 +57,17 @@ import logging
 import glob
 import os
 import multiprocessing
+from pathlib import Path
 from functools import partial
 from typing import Dict, Tuple, List, Any
 import chardet
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import pearsonr, spearmanr, kendalltau
+
+from habit.utils.log_utils import setup_logger, get_module_logger
+
+# Module logger - will inherit configuration from root logger
+logger = get_module_logger(__name__)
 
 
 def calculate_similarity(x: np.ndarray, y: np.ndarray, method: str = 'pearson') -> float:
@@ -137,7 +143,7 @@ def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str,
     if features is None:
         all_columns = test_df.columns.tolist()
         features = all_columns[3:-1]
-        logging.info(f"Using default feature columns: {features}")
+        logger.info(f"Using default feature columns: {features}")
     else:
         # Verify all specified features exist in the data
         missing_features = [f for f in features if f not in test_df.columns or f not in retest_df.columns]
@@ -199,7 +205,7 @@ def change_habitat_label(retest_nrrd: str, habitat_mapping: Dict[int, int], out_
 
     # Apply habitat mapping
     for retest_label, test_label in habitat_mapping.items():
-        logging.debug(f"Mapping habitat {retest_label} to {test_label}")
+        logger.debug(f"Mapping habitat {retest_label} to {test_label}")
         retest_nrrd_array[(retest_nrrd_array-max_value) == retest_label] = test_label
 
     # Save processed NRRD file
@@ -211,18 +217,24 @@ def change_habitat_label(retest_nrrd: str, habitat_mapping: Dict[int, int], out_
     return os.path.basename(retest_nrrd)
 
 
-def setup_logger(debug: bool = False) -> None:
+def configure_logging(output_dir: Path = None, debug: bool = False) -> logging.Logger:
     """
-    Configure logging settings.
+    Configure logging settings using centralized logging system.
     
     Args:
+        output_dir: Directory to save log file. If None, only console logging.
         debug: If True, set logging level to DEBUG, otherwise INFO
+        
+    Returns:
+        Configured logger instance
     """
     level = logging.DEBUG if debug else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
+    
+    return setup_logger(
+        name='habitat_test_retest_mapper',
+        output_dir=output_dir,
+        log_filename='habitat_mapping.log',
+        level=level
     )
 
 
@@ -258,10 +270,10 @@ def batch_process_files(input_dir: str, habitat_mapping: Dict[int, int], out_dir
     # Find all NRRD files
     nrrd_files = glob.glob(os.path.join(input_dir, "*habitats.nrrd"))
     total = len(nrrd_files)
-    logging.info(f"Found {total} files to process")
+    logger.info(f"Found {total} files to process")
     
     if total == 0:
-        logging.warning(f"No files found in {input_dir} matching pattern *habitats.nrrd")
+        logger.warning(f"No files found in {input_dir} matching pattern *habitats.nrrd")
         return
     
     # Create processing function with fixed arguments
@@ -293,7 +305,7 @@ def batch_process_files(input_dir: str, habitat_mapping: Dict[int, int], out_dir
             sys.stdout.flush()
     
     print()  # New line after progress bar
-    logging.info(f"Processing complete. Success: {success_count}, Failed: {failure_count}")
+    logger.info(f"Processing complete. Success: {success_count}, Failed: {failure_count}")
 
 
 def detect_file_encoding(file_path: str) -> str:
@@ -376,27 +388,30 @@ def main():
                       help='启用调试日志')
     
     args = parser.parse_args()
-    setup_logger(args.debug)
+    
+    # Configure logging with output directory for log file
+    output_path = Path(args.out_dir)
+    configure_logging(output_dir=output_path, debug=args.debug)
     
     try:
         # 创建输出目录
         os.makedirs(args.out_dir, exist_ok=True)
         
         # 找到habitat映射
-        logging.info("计算测试和重测数据之间的habitat映射...")
+        logger.info("Calculating habitat mapping between test and retest data...")
         habitat_mapping = find_habitat_mapping(
             args.test_habitat_table, args.retest_habitat_table, 
             args.features, args.similarity_method)
-        logging.debug(f"Habitat映射: {habitat_mapping}")
+        logger.debug(f"Habitat mapping: {habitat_mapping}")
         
-        # 处理文件
-        logging.info(f"使用{args.processes}个进程开始批处理...")
+        # Process files
+        logger.info(f"Starting batch processing with {args.processes} processes...")
         batch_process_files(args.input_dir, habitat_mapping, args.out_dir, args.processes)
         
-        logging.info("处理完成")
+        logger.info("Processing complete")
         
     except Exception as e:
-        logging.error(f"发生错误: {str(e)}")
+        logger.error(f"Error occurred: {str(e)}")
         if args.debug:
             import traceback
             traceback.print_exc()

@@ -121,24 +121,37 @@ class HabitatFeatureExtractor:
         self.save_every_n_files = 5
 
     def _setup_logging(self):
-        """Configure logging settings"""
-        # Get timestamp
-        data = time.time()
-        timeArray = time.localtime(data)
-        timestr = time.strftime('%Y_%m_%d %H_%M_%S', timeArray)
+        """Configure logging settings.
         
-        # Create output directory and setup logging
+        If logging has already been configured by the CLI entry point,
+        this will simply get the existing logger. Otherwise, it will
+        set up a new logger with file output.
+        """
+        from habit.utils.log_utils import setup_logger, get_module_logger, LoggerManager
+        
+        # Create output directory
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
         
-        # Use centralized logging system
-        from habit.utils.log_utils import setup_logger
-        self.logger = setup_logger(
-            name='habitat.extractor',
-            output_dir=self.out_dir,
-            log_filename=f'habitat_analysis_{timestr}.log',
-            level=logging.INFO
-        )
+        manager = LoggerManager()
+        
+        # Check if root logger already has handlers (configured by CLI)
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('habitat.extractor')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct class usage)
+            # Get timestamp for log filename
+            timestr = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime())
+            
+            # Set up logging with file output
+            self.logger = setup_logger(
+                name='habitat.extractor',
+                output_dir=self.out_dir,
+                log_filename=f'habitat_analysis_{timestr}.log',
+                level=logging.INFO
+            )
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""

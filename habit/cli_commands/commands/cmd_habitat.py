@@ -20,29 +20,37 @@ def run_habitat(config_file: str, debug_mode: bool) -> None:
     """
     from habit.core.habitat_analysis import HabitatAnalysis
     from habit.utils.io_utils import load_config
-    from habit.utils.log_utils import get_module_logger
-    
-    # Initialize module logger for CLI command
-    logger = get_module_logger('cli.habitat')
-    logger.setLevel(logging.DEBUG if debug_mode else logging.INFO)
+    from habit.utils.log_utils import setup_logger
     
     # Check if config file is provided
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
         sys.exit(1)
     
-    # Load configuration
+    # Load configuration first to get output directory
     try:
         config = load_config(config_file)
         click.echo(f"Loaded configuration from: {config_file}")
     except Exception as e:
-        logger.error(f"Configuration load error: {str(e)}")
         click.echo(f"Error: Failed to load configuration: {e}", err=True)
         sys.exit(1)
     
     # Set basic parameters
     data_dir = config.get('data_dir')
     out_dir = config.get('out_dir')
+    
+    # Create output directory
+    output_path = Path(out_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Setup logging at CLI entry point - all subsequent module logs go to this file
+    log_level = logging.DEBUG if debug_mode else logging.INFO
+    logger = setup_logger(
+        name='cli.habitat',
+        output_dir=output_path,
+        log_filename='habitat_analysis.log',
+        level=log_level
+    )
     n_processes = config.get('processes', 4)
     plot_curves = config.get('plot_curves', True)
     random_state = config.get('random_state', 42)

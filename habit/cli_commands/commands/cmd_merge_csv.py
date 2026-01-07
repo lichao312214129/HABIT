@@ -5,13 +5,12 @@ Handles merging multiple CSV files horizontally based on index column
 
 import os
 import sys
+import logging
 import click
 import pandas as pd
 from pathlib import Path
 from typing import List, Optional, Tuple
-from habit.utils.log_utils import setup_logger, get_module_logger
-
-logger = get_module_logger('cli.merge_csv')
+from habit.utils.log_utils import setup_logger
 
 
 def run_merge_csv(
@@ -36,10 +35,20 @@ def run_merge_csv(
         encoding: File encoding
         join_type: Join type for merging ('inner' or 'outer')
     """
-    file_logger = setup_logger('csv_merger')
-    file_logger.info(f"Starting CSV merge process...")
-    file_logger.info(f"Input files: {input_files}")
-    file_logger.info(f"Output file: {output_file}")
+    # Setup logging at CLI entry point
+    output_dir = Path(output_file).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger = setup_logger(
+        name='cli.merge_csv',
+        output_dir=output_dir,
+        log_filename='merge_csv.log',
+        level=logging.INFO
+    )
+    
+    logger.info(f"Starting CSV merge process...")
+    logger.info(f"Input files: {input_files}")
+    logger.info(f"Output file: {output_file}")
     
     if len(input_files) < 2:
         click.secho("Error: At least 2 input files are required for merging", fg='red', err=True)
@@ -72,11 +81,11 @@ def run_merge_csv(
             
             # Check if file exists
             if not os.path.exists(file_path):
-                file_logger.warning(f"File not found: {file_path}")
+                logger.warning(f"File not found: {file_path}")
                 click.echo(f"  Warning: File not found: {file_path}", err=True)
                 continue
             
-            file_logger.info(f"Reading file: {file_path}")
+            logger.info(f"Reading file: {file_path}")
             
             # Determine file type and read
             file_ext = os.path.splitext(file_path)[1].lower()
@@ -87,20 +96,20 @@ def run_merge_csv(
                 df = pd.read_csv(file_path, sep=separator, encoding=encoding)
             
             if df.empty:
-                file_logger.warning(f"Empty file: {file_path}")
+                logger.warning(f"Empty file: {file_path}")
                 click.echo(f"  Warning: Empty file: {file_path}", err=True)
                 continue
             
             # Set index column
             if current_index_col is None:
                 df.set_index(df.columns[0], inplace=True)
-                file_logger.info(f"Using first column '{df.index.name}' as index")
+                logger.info(f"Using first column '{df.index.name}' as index")
             else:
                 if current_index_col in df.columns:
                     df.set_index(current_index_col, inplace=True)
-                    file_logger.info(f"Using column '{current_index_col}' as index")
+                    logger.info(f"Using column '{current_index_col}' as index")
                 else:
-                    file_logger.warning(f"Index column '{current_index_col}' not found in {file_path}, using first column")
+                    logger.warning(f"Index column '{current_index_col}' not found in {file_path}, using first column")
                     df.set_index(df.columns[0], inplace=True)
             
             # Merge dataframes
@@ -118,18 +127,12 @@ def run_merge_csv(
             click.secho("Error: No valid files were processed", fg='red', err=True)
             sys.exit(1)
         
-        # Create output directory if it doesn't exist
-        output_dir = os.path.dirname(output_file)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-            file_logger.info(f"Created output directory: {output_dir}")
-        
         # Save merged dataframe
         merged_df.to_csv(output_file, sep=separator, encoding=encoding)
         
-        file_logger.info(f"Successfully merged {len(processed_files)} files")
-        file_logger.info(f"Output saved to: {output_file}")
-        file_logger.info(f"Final dataframe shape: {merged_df.shape}")
+        logger.info(f"Successfully merged {len(processed_files)} files")
+        logger.info(f"Output saved to: {output_file}")
+        logger.info(f"Final dataframe shape: {merged_df.shape}")
         
         # Display summary
         click.echo(f"\n{'='*50}")
@@ -142,6 +145,6 @@ def run_merge_csv(
         click.secho(f"\n✓ Merge completed successfully!", fg='green')
         
     except Exception as e:
-        file_logger.error(f"Error during merge process: {str(e)}")
+        logger.error(f"Error during merge process: {str(e)}")
         click.secho(f"Error: {str(e)}", fg='red', err=True)
         sys.exit(1)

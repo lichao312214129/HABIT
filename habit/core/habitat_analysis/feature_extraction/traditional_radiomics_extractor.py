@@ -42,13 +42,20 @@ from functools import partial
 import argparse
 import sys
 import pandas as pd
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-# 禁用警告
+# Disable warnings
 warnings.filterwarnings('ignore')
 
-# 导入进度条工具
+# Import logging utilities from centralized logging system
+from habit.utils.log_utils import setup_logger, get_module_logger
+
+# Import progress bar utility
 from habit.core.habitat_analysis.utils.progress_utils import CustomTqdm
+
+# Module logger for static methods
+logger = get_module_logger(__name__)
 
 class TraditionalRadiomicsExtractor:
     """传统组学特征提取类"""
@@ -88,28 +95,40 @@ class TraditionalRadiomicsExtractor:
         self.save_every_n_files = 5
 
     def _setup_logging(self):
-        """设置日志配置"""
-        # 获取时间戳
-        data = time.time()
-        timeArray = time.localtime(data)
-        timestr = time.strftime('%Y_%m_%d %H_%M_%S', timeArray)
+        """
+        Setup logging configuration using centralized logging system.
+        
+        If logging has already been configured by the CLI entry point,
+        this will simply get the existing logger. Otherwise, it will
+        set up a new logger with file output.
+        """
+        from habit.utils.log_utils import LoggerManager
+        
+        # Create output directory if it doesn't exist
+        output_dir = Path(self.out_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        manager = LoggerManager()
+        
+        # Check if root logger already has handlers (configured by CLI)
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('radiomics_extractor')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct class usage)
+            # Get timestamp for log filename
+            timestr = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime())
+            log_filename = f'radiomics_extraction_{timestr}.log'
 
-        # 创建输出目录
-        if not os.path.exists(self.out_dir):
-            os.makedirs(self.out_dir)
-        log_file = os.path.join(self.out_dir, f'radiomics_extraction_{timestr}.log')
-
-        # 配置日志
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler(log_file)
-            ]
-        )
-
-        logging.info(f"日志文件将保存到: {log_file}")
+            # Use centralized logging system
+            self.logger = setup_logger(
+                name='radiomics_extractor',
+                output_dir=output_dir,
+                log_filename=log_filename,
+                level=logging.INFO
+            )
+            self.logger.info(f"Log file will be saved to: {output_dir / log_filename}")
 
     @staticmethod
     def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
@@ -122,15 +141,15 @@ class TraditionalRadiomicsExtractor:
 
             # 确保图像和掩码有相同的方向、原点和间距
             if raw_img.GetDirection() != mask_img.GetDirection():
-                logging.info(f"图像和掩码方向不同: {subject_id}")
+                logger.info(f"Image and mask direction mismatch: {subject_id}")
                 mask_img.SetDirection(raw_img.GetDirection())
 
             if raw_img.GetOrigin() != mask_img.GetOrigin():
-                logging.info(f"图像和掩码原点不同: {subject_id}")
+                logger.info(f"Image and mask origin mismatch: {subject_id}")
                 mask_img.SetOrigin(raw_img.GetOrigin())
 
             if raw_img.GetSpacing() != mask_img.GetSpacing():
-                logging.info(f"图像和掩码间距不同: {subject_id}")
+                logger.info(f"Image and mask spacing mismatch: {subject_id}")
                 mask_img.SetSpacing(raw_img.GetSpacing())
 
             # 使用label=1提取特征
@@ -140,8 +159,8 @@ class TraditionalRadiomicsExtractor:
                 label=1
             )
         except Exception as e:
-            logging.error(f"提取组学特征时出错: {str(e)}")
-            return {"error": f"特征提取错误: {str(e)}"}
+            logger.error(f"Error extracting radiomics features: {str(e)}")
+            return {"error": f"Feature extraction error: {str(e)}"}
 
     def get_image_and_mask_files(self):
         """获取所有影像和掩码文件路径"""
@@ -157,7 +176,7 @@ class TraditionalRadiomicsExtractor:
                 if os.path.isdir(img_subfolder_path):
                     img_files = os.listdir(img_subfolder_path)
                     if len(img_files) > 1:
-                        logging.warning(f"文件夹 {subj}/{img_subfolder} 中包含多个影像文件")
+                        logger.warning(f"Folder {subj}/{img_subfolder} contains multiple image files")
                     img_file = img_files[0]
                     images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
 
@@ -173,7 +192,7 @@ class TraditionalRadiomicsExtractor:
                 if os.path.isdir(mask_subfolder_path):
                     mask_files = os.listdir(mask_subfolder_path)
                     if len(mask_files) > 1:
-                        logging.warning(f"文件夹 {subj}/{mask_subfolder} 中包含多个掩码文件")
+                        logger.warning(f"Folder {subj}/{mask_subfolder} contains multiple mask files")
                     mask_file = mask_files[0]
                     masks_paths[subj][mask_subfolder] = os.path.join(mask_subfolder_path, mask_file)
 
@@ -187,7 +206,7 @@ class TraditionalRadiomicsExtractor:
         imgs = list(set(images_paths[subj].keys()) & set(masks_paths[subj].keys()))
 
         if not imgs:
-            logging.warning(f"受试者 {subj} 没有找到匹配的影像和掩码")
+            logger.warning(f"Subject {subj} has no matching images and masks")
             return subj, {}
 
         for img in imgs:
@@ -200,7 +219,7 @@ class TraditionalRadiomicsExtractor:
                 )
                 subject_features[img] = features
             except Exception as e:
-                logging.error(f"处理受试者 {subj} 的影像 {img} 时出错: {str(e)}")
+                logger.error(f"Error processing subject {subj} image {img}: {str(e)}")
                 subject_features[img] = {"error": str(e)}
 
         return subj, subject_features
@@ -214,7 +233,7 @@ class TraditionalRadiomicsExtractor:
         subjs = list(set(images_paths.keys()) & set(masks_paths.keys()))
 
         if not subjs:
-            logging.error("未在影像和掩码文件夹中找到匹配的受试者")
+            logger.error("No matching subjects found between images and masks folders")
             return self
 
         print(f"**************开始为 {len(subjs)} 个受试者提取组学特征，使用 {self.n_processes} 个进程**************")
@@ -295,7 +314,7 @@ class TraditionalRadiomicsExtractor:
             print(f"已将所有组学特征保存到 {out_file}")
 
         except Exception as e:
-            logging.error(f"转换特征为CSV时出错: {str(e)}")
+            logger.error(f"Error converting features to CSV: {str(e)}")
 
 def parse_arguments():
     """解析命令行参数"""

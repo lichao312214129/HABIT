@@ -93,15 +93,35 @@ class HabitatFeatureExtractor:
         self.save_every_n_files = 5
 
     def _setup_logging(self):
-        """Configure logging settings"""
+        """Configure logging settings.
+        
+        If logging has already been configured by the CLI entry point,
+        this will simply get the existing logger. Otherwise, it will
+        set up a new logger with file output.
+        """
+        from habit.utils.log_utils import setup_logger, get_module_logger, LoggerManager
+        
         # Create output directory if it doesn't exist
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
         
-        # Use the setup_logging function from io_utils
-        setup_logging(self.out_dir, debug=False)
+        manager = LoggerManager()
         
-        logging.info("Logging setup completed")
+        # Check if root logger already has handlers (configured by CLI)
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('habitat.new_extractor')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct class usage)
+            self.logger = setup_logger(
+                name='habitat.new_extractor',
+                output_dir=self.out_dir,
+                log_filename='feature_extraction.log',
+                level=logging.INFO
+            )
+        
+        self.logger.info("Logging setup completed")
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""

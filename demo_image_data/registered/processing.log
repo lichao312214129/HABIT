@@ -1,0 +1,33 @@
+2026-01-07 11:49:50 - habit - INFO - [log_utils.py:119] - Log file initialized: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\registered\processing.log
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:50] - Python version: 3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_image_data/config_image_preprocessing.yaml
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:60] - Set multiprocessing start method to 'spawn' on Windows
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:96] - Using existing logging configuration from CLI entry point
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:76] - Using 1 worker processes.
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:63] - Successfully initialized BatchProcessor
+2026-01-07 11:49:50 - habit.cli.preprocess - INFO - [cmd_preprocess.py:72] - Starting batch processing
+2026-01-07 11:49:50 - habit.preprocessing - WARNING - [image_processor_pipeline.py:279] - No mask found for subject cao-mu-de, skipping
+2026-01-07 11:49:50 - habit.preprocessing - WARNING - [image_processor_pipeline.py:279] - No mask found for subject wu-lin-sheng, skipping
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:285] - 将使用 1 个进程进行处理
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:287] - 共有 2 个样本需要处理
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:293] - 开始处理数据...
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:297] - 使用单进程模式...
+2026-01-07 11:49:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:148] - Processing subject: cao-mu-de
+2026-01-07 11:49:51 - habit.preprocessing - ERROR - [image_processor_pipeline.py:219] - Error saving processed images: 'NoneType' object is not subscriptable
+2026-01-07 11:49:51 - habit.preprocessing - ERROR - [image_processor_pipeline.py:305] - Error processing cao-mu-de: Exception thrown in SimpleITK Cast: D:\a\1\sitk\Code\BasicFilters\src\sitkCastImageFilter.cxx:95:
+sitk::ERROR: Filter does not support casting from casting 32-bit float to 32-bit float
+Traceback (most recent call last):
+  File "F:\work\research\radiomics_TLSs\habit_project\habit\core\preprocessing\image_processor_pipeline.py", line 152, in _process_single_subject
+    transform(subject_data)
+  File "F:\work\research\radiomics_TLSs\habit_project\habit\core\preprocessing\registration.py", line 167, in __call__
+    moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
+  File "e:\conda\mconda\envs\py38\lib\site-packages\SimpleITK\SimpleITK.py", line 9748, in Cast
+    return _SimpleITK.Cast(image, pixelID)
+RuntimeError: Exception thrown in SimpleITK Cast: D:\a\1\sitk\Code\BasicFilters\src\sitkCastImageFilter.cxx:95:
+sitk::ERROR: Filter does not support casting from casting 32-bit float to 32-bit float
+
+2026-01-07 11:49:51 - habit.preprocessing - INFO - [image_processor_pipeline.py:148] - Processing subject: wu-lin-sheng
+2026-01-07 11:51:52 - habit.preprocessing - INFO - [image_processor_pipeline.py:307] - 完成处理样本: Success: wu-lin-sheng (2/2)
+2026-01-07 11:51:52 - habit.preprocessing - INFO - [image_processor_pipeline.py:326] - 批处理完成
+2026-01-07 11:51:52 - habit.cli.preprocess - INFO - [cmd_preprocess.py:74] - Batch processing completed

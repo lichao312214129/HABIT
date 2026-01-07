@@ -78,16 +78,31 @@ class BatchProcessor:
     def _setup_logging(self, log_level: str) -> None:
         """Setup logging configuration using centralized log system.
         
+        If logging has already been configured by the CLI entry point,
+        this will simply get the existing logger. Otherwise, it will
+        set up a new logger with file output.
+        
         Args:
             log_level (str): Logging level.
         """
-        # Use centralized logging system
-        self.logger = setup_logger(
-            name='preprocessing',
-            output_dir=self.output_root,
-            log_filename='processing.log',
-            level=getattr(logging, log_level.upper())
-        )
+        from habit.utils.log_utils import LoggerManager
+        
+        manager = LoggerManager()
+        
+        # Check if root logger already has handlers (configured by CLI)
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('preprocessing')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct BatchProcessor usage)
+            # Set up logging with file output
+            self.logger = setup_logger(
+                name='preprocessing',
+                output_dir=self.output_root,
+                log_filename='processing.log',
+                level=getattr(logging, log_level.upper())
+            )
         
     def _process_single_subject(self, subject_data):
         """处理单个样本的数据。
@@ -202,7 +217,7 @@ class BatchProcessor:
                         
         except Exception as e:
             self.logger.error(f"Error saving processed images: {str(e)}")
-            raise
+            # raise
 
     def process_batch(self) -> None:
         """处理所有样本数据。

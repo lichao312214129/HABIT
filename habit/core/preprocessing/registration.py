@@ -143,38 +143,30 @@ class RegistrationPreprocessor(BasePreprocessor):
         if self.fixed_image not in data:
             raise KeyError(f"Reference key {self.fixed_image} not found in data dictionary")
         
-        fixed_image = data[self.fixed_image]
+        # Get and convert fixed image (only once, outside the loop)
+        fixed_image_sitk = data[self.fixed_image]
+        fixed_image_sitk = sitk.Cast(fixed_image_sitk, sitk.sitkFloat32)
+        fixed_image_ants = ImageConverter.itk_2_ants(fixed_image_sitk)
         
-        # to float32 for sitk
-        fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
-
-        # 将SimpleITK图像转换为ANTs图像
-        fixed_image = ImageConverter.itk_2_ants(fixed_image)
-        
-        # Get reference mask if specified
-        fixed_mask = None
+        # Get reference mask if specified (only once, outside the loop)
+        fixed_mask_ants = None
         if self.use_mask:
             mask_key = f"mask_{self.fixed_image}"
             if mask_key in data:
                 fixed_mask = data[mask_key]
                 fixed_mask = sitk.Cast(fixed_mask, sitk.sitkUInt8)
-                fixed_mask = ImageConverter.itk_2_ants(fixed_mask)
+                fixed_mask_ants = ImageConverter.itk_2_ants(fixed_mask)
         
         # Process each image
         for key in self.keys:
             if key == self.fixed_image:
                 continue
 
-            # Get fixed image
-            fixed_image = data[self.fixed_image]
-            fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
-            fixed_image = ImageConverter.itk_2_ants(fixed_image)
-
             # Get moving image
             moving_image = data[key]
             moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
             moving_image = ImageConverter.itk_2_ants(moving_image)
-                
+
             # Get moving mask if specified
             moving_mask = None
             if self.use_mask:
@@ -187,7 +179,7 @@ class RegistrationPreprocessor(BasePreprocessor):
             try:             
                 # Register image
                 registered_image, transform_files = self._register_image(
-                    fixed_image, moving_image, fixed_mask, moving_mask
+                    fixed_image_ants, moving_image, fixed_mask_ants, moving_mask
                 )
                 
                 # Convert ANTs image to SimpleITK image
@@ -259,11 +251,6 @@ class RegistrationPreprocessor(BasePreprocessor):
                 print(f"Warning: No transform files found for {key}. Skipping mask registration.")
                 continue
                 
-            # Get fixed image for transform application
-            fixed_image = data[self.fixed_image]
-            fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
-            fixed_image = ImageConverter.itk_2_ants(fixed_image)
-                
             # Get the mask image and convert to ANTs
             moving_mask = data[mask_key]
             moving_mask = sitk.Cast(moving_mask, sitk.sitkUInt8)
@@ -273,9 +260,9 @@ class RegistrationPreprocessor(BasePreprocessor):
             transform_files = data[transform_key]
             
             try:
-                # Apply the transform to the mask
+                # Apply the transform to the mask (reuse fixed_image_ants from above)
                 transformed_mask = ants.apply_transforms(
-                    fixed=fixed_image,
+                    fixed=fixed_image_ants,
                     moving=moving_mask_ants,
                     transformlist=transform_files,
                     interpolator="nearestNeighbor"  # Use nearest neighbor for masks

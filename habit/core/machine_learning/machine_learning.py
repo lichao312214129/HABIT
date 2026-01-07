@@ -60,8 +60,22 @@ class Modeling:
         # Normalization configuration
         self.normalization_config = config.get('normalization', {'method': 'z_score'})
         
-        # Setup logger
-        self.logger = setup_output_logger(self.output_dir, name="modeling", level=config.get('log_level', 20))
+        # Setup logger - check if CLI already configured logging
+        from habit.utils.log_utils import LoggerManager, get_module_logger
+        manager = LoggerManager()
+        
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('modeling')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct class usage)
+            self.logger = setup_logger(
+                name="modeling",
+                output_dir=self.output_dir,
+                log_filename='modeling.log',
+                level=config.get('log_level', 20)
+            )
         self.logger.info("Initializing modeling with config: %s", config)
         
         # Data split configuration

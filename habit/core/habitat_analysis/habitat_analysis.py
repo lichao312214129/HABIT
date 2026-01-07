@@ -18,7 +18,7 @@ from habit.utils.io_utils import (get_image_and_mask_paths,
                             detect_image_names,
                             check_data_structure,
                             save_habitat_image)
-from habit.utils.log_utils import setup_logger
+from habit.utils.log_utils import setup_logger, get_module_logger, LoggerManager
 
 from .features.feature_expression_parser import FeatureExpressionParser
 from .features.feature_extractor_factory import create_feature_extractor
@@ -207,16 +207,29 @@ class HabitatAnalysis:
     def _setup_logging(self, log_level: str) -> None:
         """Setup logging configuration.
         
+        If logging has already been configured by the CLI entry point,
+        this will simply get the existing logger. Otherwise, it will
+        set up a new logger with file output.
+        
         Args:
             log_level (str): Logging level.
         """
-        # Use centralized logging system
-        self.logger = setup_logger(
-            name='habitat',
-            output_dir=self.out_dir,
-            log_filename='habitat_analysis.log',
-            level=getattr(logging, log_level.upper())
-        )
+        manager = LoggerManager()
+        
+        # Check if root logger already has handlers (configured by CLI)
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('habitat')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct HabitatAnalysis usage)
+            # Set up logging with file output
+            self.logger = setup_logger(
+                name='habitat',
+                output_dir=self.out_dir,
+                log_filename='habitat_analysis.log',
+                level=getattr(logging, log_level.upper())
+            )
 
     def _init_one_step_settings(self, one_step_settings: Optional[Dict[str, Any]]) -> None:
         """Initialize one-step clustering settings.

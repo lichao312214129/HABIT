@@ -5,9 +5,11 @@ Handles model training and prediction
 
 import sys
 import os
+import logging
 import click
 import yaml
 import pandas as pd
+from pathlib import Path
 
 
 def run_ml(config_path: str, mode: str, model: str, data: str, 
@@ -25,6 +27,7 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
         evaluate (bool): Whether to evaluate model performance
     """
     from habit.core.machine_learning.machine_learning import Modeling
+    from habit.utils.log_utils import setup_logger
     
     # Training mode
     if mode == 'train':
@@ -38,7 +41,17 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
             sys.exit(1)
         
         # Create output directory
-        os.makedirs(config['output'], exist_ok=True)
+        output_dir = Path(config['output'])
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Setup logging at CLI entry point
+        logger = setup_logger(
+            name='cli.ml',
+            output_dir=output_dir,
+            log_filename='machine_learning.log',
+            level=logging.INFO
+        )
+        logger.info(f"Starting machine learning training with config: {config_path}")
         
         # Initialize modeling class with config
         click.echo("Initializing machine learning pipeline...")
@@ -67,9 +80,21 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
             click.echo("Error: --data argument is required for prediction mode", err=True)
             sys.exit(1)
         
+        # Setup logging for prediction mode
+        from habit.utils.log_utils import setup_logger
+        output_dir = Path(output) if output else Path('.')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        logger = setup_logger(
+            name='cli.ml.predict',
+            output_dir=output_dir,
+            log_filename='prediction.log',
+            level=logging.INFO
+        )
+        
         try:
             # Load data
             new_data = pd.read_csv(data)
+            logger.info(f"Loaded data from {data}: {new_data.shape[0]} rows, {new_data.shape[1]} columns")
             click.echo(f"Loaded data from {data}: {new_data.shape[0]} rows, {new_data.shape[1]} columns")
             
             # Make predictions with optional performance evaluation

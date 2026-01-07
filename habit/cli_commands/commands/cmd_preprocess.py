@@ -10,6 +10,7 @@ import traceback
 import logging
 import multiprocessing
 import click
+from pathlib import Path
 
 
 def run_preprocess(config_path: str) -> None:
@@ -20,18 +21,32 @@ def run_preprocess(config_path: str) -> None:
         config_path (str): Path to configuration YAML file
     """
     from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
-    from habit.utils.log_utils import get_module_logger
+    from habit.utils.log_utils import setup_logger
+    from habit.utils.config_utils import load_config
     
-    # Get module logger for CLI command logging
-    logger = get_module_logger('cli.preprocess')
+    # Check if config file exists first (before any logging setup)
+    if not os.path.exists(config_path):
+        click.echo(f"Error: Configuration file not found: {config_path}", err=True)
+        sys.exit(1)
+    
+    # Load config to get output directory for logging
+    try:
+        config = load_config(config_path)
+        output_dir = Path(config.get("out_dir", "."))
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        click.echo(f"Error: Failed to load configuration: {e}", err=True)
+        sys.exit(1)
+    
+    # Setup logging at CLI entry point - all subsequent module logs go to this file
+    logger = setup_logger(
+        name='cli.preprocess',
+        output_dir=output_dir,
+        log_filename='processing.log',
+        level=logging.INFO
+    )
     
     try:
-        # Check if config file exists
-        if not os.path.exists(config_path):
-            logger.error(f"Configuration file does not exist: {config_path}")
-            click.echo(f"Error: Configuration file not found: {config_path}", err=True)
-            sys.exit(1)
-        
         logger.info(f"Python version: {sys.version}")
         logger.info(f"Platform: {platform.platform()}")
         logger.info(f"Using configuration file: {config_path}")

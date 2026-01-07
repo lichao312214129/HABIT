@@ -1,0 +1,53 @@
+2026-01-07 09:48:19 - habit - INFO - [log_utils.py:119] - Log file initialized: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processing.log
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:50] - Python version: 3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_image_data/config-dcm2nii.yaml
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:60] - Set multiprocessing start method to 'spawn' on Windows
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:96] - Using existing logging configuration from CLI entry point
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:76] - Using 1 worker processes.
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:63] - Successfully initialized BatchProcessor
+2026-01-07 09:48:19 - habit.cli.preprocess - INFO - [cmd_preprocess.py:72] - Starting batch processing
+2026-01-07 09:48:19 - habit.preprocessing - WARNING - [image_processor_pipeline.py:279] - No mask found for subject cao-mu-de, skipping
+2026-01-07 09:48:19 - habit.preprocessing - WARNING - [image_processor_pipeline.py:279] - No mask found for subject wu-lin-sheng, skipping
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:285] - 将使用 1 个进程进行处理
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:287] - 共有 2 个样本需要处理
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:293] - 开始处理数据...
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:297] - 使用单进程模式...
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:137] - Added dcm2niix path to environment: F:\work\research\radiomics_TLSs\habit_project\demo_image_data
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:159] - dcm2niix executable verified: dcm2niix.exe
+2026-01-07 09:48:19 - habit.preprocessing - INFO - [image_processor_pipeline.py:148] - Processing subject: cao-mu-de
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:280] - [cao-mu-de] Using output directory: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a1
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:320] - [cao-mu-de] Converting DICOM directory: C:\Users\dongm\Desktop\liver cancer\cao-mu-de\A\WQU5JWA3\XZCMDWNV
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:321] - [cao-mu-de] Executing command:
+2026-01-07 09:48:19 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:322] -     dcm2niix.exe -f cao-mu-de_a1 -a y -b n -l y -m 2 -v y -z y -o F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a1 "C:\Users\dongm\Desktop\liver cancer\cao-mu-de\A\WQU5JWA3\XZCMDWNV"
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:430] - [cao-mu-de] Successfully converted and saved to F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a1
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:562] - [cao-mu-de] Converted a1 to SimpleITK Image
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:280] - [cao-mu-de] Using output directory: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a2
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:320] - [cao-mu-de] Converting DICOM directory: C:\Users\dongm\Desktop\liver cancer\cao-mu-de\D\WQU5JWA3\TMSW4ATT
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:321] - [cao-mu-de] Executing command:
+2026-01-07 09:48:23 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:322] -     dcm2niix.exe -f cao-mu-de_a2 -a y -b n -l y -m 2 -v y -z y -o F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a2 "C:\Users\dongm\Desktop\liver cancer\cao-mu-de\D\WQU5JWA3\TMSW4ATT"
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:430] - [cao-mu-de] Successfully converted and saved to F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a2
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:562] - [cao-mu-de] Converted a2 to SimpleITK Image
+2026-01-07 09:48:25 - habit.preprocessing - INFO - [image_processor_pipeline.py:184] - Skipping save for a1: already saved by dcm2niix at F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a1\cao-mu-de_a1.nii.gz
+2026-01-07 09:48:25 - habit.preprocessing - INFO - [image_processor_pipeline.py:184] - Skipping save for a2: already saved by dcm2niix at F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\cao-mu-de\a2\cao-mu-de_a2.nii.gz
+2026-01-07 09:48:25 - habit.preprocessing - INFO - [image_processor_pipeline.py:307] - 完成处理样本: Success: cao-mu-de (1/2)
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:139] - dcm2niix path already in environment: F:\work\research\radiomics_TLSs\habit_project\demo_image_data
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:159] - dcm2niix executable verified: dcm2niix.exe
+2026-01-07 09:48:25 - habit.preprocessing - INFO - [image_processor_pipeline.py:148] - Processing subject: wu-lin-sheng
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:280] - [wu-lin-sheng] Using output directory: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a1
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:320] - [wu-lin-sheng] Converting DICOM directory: C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A1\HRPHZUTG\UPYYNDRS
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:321] - [wu-lin-sheng] Executing command:
+2026-01-07 09:48:25 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:322] -     dcm2niix.exe -f wu-lin-sheng_a1 -a y -b n -l y -m 2 -v y -z y -o F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a1 "C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A1\HRPHZUTG\UPYYNDRS"
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:430] - [wu-lin-sheng] Successfully converted and saved to F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a1
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:562] - [wu-lin-sheng] Converted a1 to SimpleITK Image
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:280] - [wu-lin-sheng] Using output directory: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a2
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:320] - [wu-lin-sheng] Converting DICOM directory: C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A2\HRPHZUTG\UPYYNDRS
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:321] - [wu-lin-sheng] Executing command:
+2026-01-07 09:48:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:322] -     dcm2niix.exe -f wu-lin-sheng_a2 -a y -b n -l y -m 2 -v y -z y -o F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a2 "C:\Users\dongm\Desktop\liver cancer\wu-lin-sheng\A2\HRPHZUTG\UPYYNDRS"
+2026-01-07 09:48:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:430] - [wu-lin-sheng] Successfully converted and saved to F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a2
+2026-01-07 09:48:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:562] - [wu-lin-sheng] Converted a2 to SimpleITK Image
+2026-01-07 09:48:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:184] - Skipping save for a1: already saved by dcm2niix at F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a1\wu-lin-sheng_a1.nii.gz
+2026-01-07 09:48:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:184] - Skipping save for a2: already saved by dcm2niix at F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed\processed_images\images\wu-lin-sheng\a2\wu-lin-sheng_a2.nii.gz
+2026-01-07 09:48:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:307] - 完成处理样本: Success: wu-lin-sheng (2/2)
+2026-01-07 09:48:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:326] - 批处理完成
+2026-01-07 09:48:32 - habit.cli.preprocess - INFO - [cmd_preprocess.py:74] - Batch processing completed

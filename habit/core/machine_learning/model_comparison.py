@@ -17,7 +17,7 @@ from habit.core.machine_learning.evaluation.metrics import (
     apply_youden_threshold,
     apply_target_threshold
 )
-from habit.utils.log_utils import setup_output_logger
+from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_logger, LoggerManager
 
 class ModelComparison:
     """
@@ -38,8 +38,20 @@ class ModelComparison:
         self.output_dir = self.config.get('output_dir', './results/model_comparison')
         os.makedirs(self.output_dir, exist_ok=True)
         
-        # 初始化logger
-        self.logger = setup_output_logger(self.output_dir, "ModelComparison")
+        # Initialize logger - check if CLI already configured logging
+        manager = LoggerManager()
+        
+        if manager.get_log_file() is not None:
+            # Logging already configured by CLI, just get module logger
+            self.logger = get_module_logger('ModelComparison')
+            self.logger.info("Using existing logging configuration from CLI entry point")
+        else:
+            # Logging not configured yet (e.g., direct class usage)
+            self.logger = setup_logger(
+                name="ModelComparison",
+                output_dir=self.output_dir,
+                log_filename='model_comparison.log'
+            )
         
         # 初始化评估器
         self.evaluator = MultifileEvaluator(output_dir=self.output_dir)

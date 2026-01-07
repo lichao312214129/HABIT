@@ -2,18 +2,15 @@
 
 # Data paths
 data_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\files-preprocessing.yaml
-out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\registered
+out_dir: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\preprocessed
 
-# Preprocessing settings
+# Preprocessing settings   
 Preprocessing:
-   
-  n4_correction:
+  dcm2nii:
     images: [a1, a2]
-    num_fitting_levels: 2
-
-  # resample:
-  #   images: [delay2, delay3, delay5]
-  #   target_spacing: [3.0, 3.0, 3.0]  # Target voxel spacing in x, y, z
+    dcm2niix_path: F:\work\research\radiomics_TLSs\habit_project\demo_image_data\dcm2niix.exe
+    compress: true
+    anonymize: false
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   # zscore_normalization:
@@ -25,13 +22,6 @@ Preprocessing:
   # histogram_standardization:
   #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
   #   reference_key: PVP  # 参考图像的键名
-
-  registration:
-    images: [a1, a2]
-    fixed_image: a2
-    moving_images: [a1]
-    type_of_transform: SyNRA  # support all ants registration methods
-    use_mask: false
 
 # General settings
 processes: 1  # Number of parallel processes

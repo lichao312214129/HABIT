@@ -10,9 +10,7 @@ import logging
 from pathlib import Path
 from typing import Optional, List, Set
 from habit.utils.dicom_utils import batch_read_dicom_info, list_available_tags, PYDICOM_AVAILABLE
-from habit.utils.log_utils import get_module_logger
-
-logger = get_module_logger('cli.dicom_info')
+from habit.utils.log_utils import setup_logger, get_module_logger
 
 
 def run_dicom_info(input_path: str,
@@ -51,6 +49,20 @@ def run_dicom_info(input_path: str,
         max_depth: Maximum recursion depth for directory traversal.
                   Only used when one_file_per_folder=True.
     """
+    # Setup logging at CLI entry point
+    if output:
+        output_dir = Path(output).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        logger = setup_logger(
+            name='cli.dicom_info',
+            output_dir=output_dir,
+            log_filename='dicom_info.log',
+            level=logging.INFO
+        )
+    else:
+        # Console-only logging if no output specified
+        logger = get_module_logger('cli.dicom_info')
+    
     try:
         # Check if pydicom is available
         if not PYDICOM_AVAILABLE:

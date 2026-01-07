@@ -6,14 +6,20 @@ import os
 import multiprocessing
 import logging
 import argparse
+from pathlib import Path
 from itertools import product
 from typing import Dict, List, Tuple, Any, Optional, Set
 
-# Logger configuration will be set in the main function to use the output path
+from habit.utils.log_utils import setup_logger, get_module_logger
 
-def configure_logger(output_path: str):
+# Module logger for use throughout the file
+logger = get_module_logger(__name__)
+
+
+def configure_logger(output_path: str) -> logging.Logger:
     """
-    Configure the logger and save log files in the same directory as the output file
+    Configure the logger and save log files in the same directory as the output file.
+    Uses the centralized logging system from habit.utils.log_utils.
     
     Args:
         output_path: Path to the output file
@@ -21,22 +27,15 @@ def configure_logger(output_path: str):
     Returns:
         Configured logger instance
     """
-    output_dir = os.path.dirname(os.path.abspath(output_path))
-    log_file = os.path.join(output_dir, "icc_analysis.log")
+    output_dir = Path(output_path).parent.absolute()
     
-    # Ensure the output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
+    # Use the centralized logging system
+    return setup_logger(
+        name='icc',
+        output_dir=output_dir,
+        log_filename='icc_analysis.log',
+        level=logging.INFO
     )
-    
-    return logging.getLogger(__name__)
 
 def read_file(file_path: str) -> pd.DataFrame:
     """
