@@ -119,6 +119,52 @@ def get_icc_config_processes(config: Dict[str, Any]) -> Optional[int]:
     """
     return config.get("processes", None)
 
+
+def get_icc_config_metrics(config: Dict[str, Any]) -> Optional[List[str]]:
+    """
+    Get list of metrics to calculate from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        Optional[List[str]]: List of metric names or None for default (icc3)
+        
+    Available metrics:
+        - icc1, icc2, icc3, icc1k, icc2k, icc3k: Individual ICC types
+        - multi_icc: All 6 ICC types at once
+        - cohen_kappa, cohen: Cohen's Kappa (2 raters)
+        - fleiss_kappa, fleiss: Fleiss' Kappa (multiple raters)
+        - krippendorff: Krippendorff's Alpha
+    """
+    return config.get("metrics", None)
+
+
+def get_icc_config_full_results(config: Dict[str, Any]) -> bool:
+    """
+    Get whether to return full results (with CI and p-value) from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        bool: True if full results should be returned, False otherwise
+    """
+    return config.get("full_results", False)
+
+
+def get_icc_config_selected_features(config: Dict[str, Any]) -> Optional[List[str]]:
+    """
+    Get list of selected features from ICC configuration
+    
+    Args:
+        config (Dict[str, Any]): ICC configuration dictionary
+    
+    Returns:
+        Optional[List[str]]: List of feature names or None (analyze all features)
+    """
+    return config.get("selected_features", None)
+
 def create_default_icc_config() -> Dict[str, Any]:
     """
     Create default ICC configuration
@@ -137,6 +183,17 @@ def create_default_icc_config() -> Dict[str, Any]:
         "output": {
             "path": "icc_results.json"
         },
+        # Metrics to calculate. Options:
+        # - icc1, icc2, icc3, icc1k, icc2k, icc3k: Individual ICC types
+        # - multi_icc: All 6 ICC types at once
+        # - cohen_kappa, cohen: Cohen's Kappa (2 raters)
+        # - fleiss_kappa, fleiss: Fleiss' Kappa (multiple raters)
+        # - krippendorff: Krippendorff's Alpha
+        "metrics": ["icc3"],  # Default: ICC(3,1)
+        # Return full results with confidence intervals and p-values
+        "full_results": False,
+        # Selected features to analyze (None = all features)
+        "selected_features": None,
         "processes": None,
         "debug": False
     }

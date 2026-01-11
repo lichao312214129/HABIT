@@ -1,3 +1,20 @@
+"""
+Reliability Analysis Module
+
+This module calculates various reliability metrics (ICC, Kappa, Fleiss' Kappa, etc.)
+between multiple files (raters/measurements) for radiomics feature analysis.
+
+Supports:
+    - All 6 ICC types (ICC1, ICC2, ICC3, ICC1k, ICC2k, ICC3k)
+    - Cohen's Kappa (2 raters)
+    - Fleiss' Kappa (multiple raters)
+    - Krippendorff's Alpha
+    - Custom user-defined metrics
+
+Author: Li Chao
+Email: lich356@mail.sysu.edu.cn
+"""
+
 import pandas as pd
 import numpy as np
 import pingouin as pg
@@ -8,12 +25,30 @@ import logging
 import argparse
 from pathlib import Path
 from itertools import product
-from typing import Dict, List, Tuple, Any, Optional, Set
+from typing import Dict, List, Tuple, Any, Optional, Set, Union
 
 from habit.utils.log_utils import setup_logger, get_module_logger
+from .reliability_metrics import (
+    ICCType,
+    KappaType,
+    MetricResult,
+    BaseReliabilityMetric,
+    ICCMetric,
+    MultiICCMetric,
+    CohenKappaMetric,
+    FleissKappaMetric,
+    KrippendorffAlphaMetric,
+    create_metric,
+    calculate_reliability,
+    get_available_metrics
+)
 
 # Module logger for use throughout the file
 logger = get_module_logger(__name__)
+
+
+# Default metric configuration: ICC(3,1) for backward compatibility
+DEFAULT_METRICS = ["icc3"]
 
 
 def configure_logger(output_path: str) -> logging.Logger:
@@ -37,6 +72,7 @@ def configure_logger(output_path: str) -> logging.Logger:
         level=logging.INFO
     )
 
+
 def read_file(file_path: str) -> pd.DataFrame:
     """
     Read CSV or Excel file based on file extension
@@ -59,20 +95,98 @@ def read_file(file_path: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {ext}. Supported formats: .csv, .xlsx, .xls")
 
-def calculate_icc(files_list: List[str], logger, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, Dict[str, Any]]]:
+
+def prepare_long_format_data(
+    data_frames: List[pd.DataFrame],
+    feature_name: str,
+    common_index: List
+) -> pd.DataFrame:
     """
-    Calculate ICC (Intraclass Correlation Coefficient) values between multiple files
+    Prepare data in long format for reliability metric calculation.
     
     Args:
-        files_list: List of file paths to analyze
-        logger: Logger instance for recording progress and errors
-        selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
+        data_frames: List of DataFrames from different raters/measurements
+        feature_name: Name of the feature column to analyze
+        common_index: List of common indices across all DataFrames
         
     Returns:
-        Dictionary containing ICC values and 95% confidence intervals in the format 
-        {feature_name: {"icc": icc_value, "ci95": [lower_bound, upper_bound]}}
+        Long-format DataFrame with columns: [feature_name, 'reader', 'target']
     """
-    # Get filenames without path and extension
+    data_list = []
+    for reader_idx, df in enumerate(data_frames):
+        df_feature = pd.DataFrame(df.loc[common_index, feature_name])
+        df_feature["reader"] = np.ones(df_feature.shape[0]) * (reader_idx + 1)
+        df_feature["target"] = range(df_feature.shape[0])
+        data_list.append(df_feature)
+    
+    return pd.concat(data_list, axis=0)
+
+
+def calculate_reliability_metrics(
+    files_list: List[str],
+    logger: logging.Logger,
+    selected_features: Optional[List[str]] = None,
+    metrics: Optional[List[str]] = None,
+    return_full_results: bool = False,
+    **metric_kwargs
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Calculate reliability metrics (ICC, Kappa, etc.) between multiple files.
+    
+    This is the main function for calculating reliability metrics. It supports
+    multiple metric types and can return either simple values or full results
+    with confidence intervals.
+    
+    Args:
+        files_list: List of file paths to analyze (each file represents a rater/measurement)
+        logger: Logger instance for recording progress and errors
+        selected_features: Optional list of feature names to analyze 
+                          (if None, all common features will be analyzed)
+        metrics: List of metric types to calculate. Options include:
+                - "icc1", "icc2", "icc3", "icc1k", "icc2k", "icc3k" (ICC types)
+                - "multi_icc" (all ICC types at once)
+                - "cohen_kappa", "fleiss_kappa" (Kappa coefficients)
+                - "krippendorff" (Krippendorff's Alpha)
+                Default: ["icc3"] for backward compatibility
+        return_full_results: If True, return MetricResult objects with CI and p-value.
+                            If False, return simple float values (backward compatible)
+        **metric_kwargs: Additional parameters passed to metric calculators
+                        (e.g., nan_policy, weights for Kappa)
+        
+    Returns:
+        Dictionary in format:
+        {group_name: {feature_name: value or MetricResult, ...}, ...}
+        
+        If multiple metrics are requested and return_full_results=True:
+        {group_name: {feature_name: {metric_name: MetricResult, ...}, ...}, ...}
+        
+    Example:
+        >>> # Calculate ICC(3,1) - default behavior for backward compatibility
+        >>> results = calculate_reliability_metrics(
+        ...     ['rater1.csv', 'rater2.csv'],
+        ...     logger
+        ... )
+        
+        >>> # Calculate multiple ICC types
+        >>> results = calculate_reliability_metrics(
+        ...     ['rater1.csv', 'rater2.csv'],
+        ...     logger,
+        ...     metrics=['icc2', 'icc3', 'icc2k', 'icc3k'],
+        ...     return_full_results=True
+        ... )
+        
+        >>> # Calculate Fleiss' Kappa for categorical features
+        >>> results = calculate_reliability_metrics(
+        ...     ['rater1.csv', 'rater2.csv', 'rater3.csv'],
+        ...     logger,
+        ...     metrics=['fleiss_kappa']
+        ... )
+    """
+    # Use default metrics if not specified (backward compatibility)
+    if metrics is None:
+        metrics = DEFAULT_METRICS
+    
+    # Get filenames without path and extension for group naming
     file_names = [os.path.splitext(os.path.basename(f))[0] for f in files_list]
     group_name = "_vs_".join(file_names)
     
@@ -113,7 +227,6 @@ def calculate_icc(files_list: List[str], logger, selected_features: Optional[Lis
     
     # Filter features if selected_features is provided
     if selected_features:
-        # Find intersection between common_columns and selected_features
         target_columns = [col for col in common_columns if col in selected_features]
         if not target_columns:
             logger.warning(f"{group_name} has no selected features in common")
@@ -121,110 +234,226 @@ def calculate_icc(files_list: List[str], logger, selected_features: Optional[Lis
         common_columns = target_columns
         logger.info(f"Analyzing {len(common_columns)} selected features")
     
-    # Calculate ICC for each feature
-    icc_values = {}
+    # Create metric instances
+    metric_instances = []
+    for metric_name in metrics:
+        try:
+            metric = create_metric(metric_name, **metric_kwargs)
+            metric_instances.append((metric_name, metric))
+        except Exception as e:
+            logger.error(f"Error creating metric {metric_name}: {e}")
+    
+    if not metric_instances:
+        logger.error("No valid metrics to calculate")
+        return {group_name: {}}
+    
+    # Calculate metrics for each feature
+    feature_results = {}
     total = len(common_columns)
     
     for i, ft in enumerate(common_columns):
         try:
-            # Prepare data for ICC calculation
-            data_list = []
-            for reader_idx, df in enumerate(data_frames):
-                df_feature = pd.DataFrame(df[ft])
-                df_feature["reader"] = np.ones(df_feature.shape[0]) * (reader_idx + 1)
-                df_feature["target"] = range(df_feature.shape[0])
-                data_list.append(df_feature)
+            # Prepare long-format data for this feature
+            data = prepare_long_format_data(data_frames, ft, common_index)
             
-            data = pd.concat(data_list, axis=0)
-            result = pg.intraclass_corr(
-                data=data, 
-                targets='target', 
-                raters='reader', 
-                ratings=ft, 
-                nan_policy='omit'
-            )
-            icc = result.loc[2, "ICC"]
-            
-            # Get 95% confidence interval
-            # ci95 = result.loc[2, "CI95%"]
-            
-            # Use feature name as key with ICC value and confidence interval
-            # icc_values[f"{ft}"] = {
-            #     "icc": icc,
-            #     "ci95": [ci95[0], ci95[1]]
-            # }
-            icc_values[f"{ft}"] = icc
-            
+            # Calculate each metric
+            if len(metrics) == 1 and not return_full_results:
+                # Simple case: single metric, return just the value (backward compatible)
+                metric_name, metric = metric_instances[0]
+                result = metric.calculate(
+                    data=data,
+                    targets='target',
+                    raters='reader',
+                    ratings=ft
+                )
+                
+                # Handle MultiICCMetric which returns a dict
+                if isinstance(result, dict):
+                    # For multi_icc, use the first specified type or ICC3
+                    if hasattr(metric, 'icc_types') and metric.icc_types:
+                        feature_results[ft] = result[metric.icc_types[0].name].value
+                    else:
+                        feature_results[ft] = list(result.values())[0].value
+                else:
+                    feature_results[ft] = result.value
+            else:
+                # Multiple metrics or full results requested
+                ft_results = {}
+                for metric_name, metric in metric_instances:
+                    result = metric.calculate(
+                        data=data,
+                        targets='target',
+                        raters='reader',
+                        ratings=ft
+                    )
+                    
+                    if isinstance(result, dict):
+                        # MultiICCMetric returns a dict of results
+                        for key, val in result.items():
+                            if return_full_results:
+                                ft_results[key] = val.to_dict()
+                            else:
+                                ft_results[key] = val.value
+                    else:
+                        if return_full_results:
+                            ft_results[metric.name] = result.to_dict()
+                        else:
+                            ft_results[metric.name] = result.value
+                
+                feature_results[ft] = ft_results
+                
         except Exception as e:
-            logger.error(f"Error calculating ICC for feature {ft}: {e}")
-            # icc_values[f"{ft}"] = {
-            #     "icc": np.nan,
-            #     "ci95": [np.nan, np.nan]
-            # }
-            icc_values[f"{ft}"] = np.nan
+            logger.error(f"Error calculating metrics for feature {ft}: {e}")
+            if len(metrics) == 1 and not return_full_results:
+                feature_results[ft] = np.nan
+            else:
+                feature_results[ft] = {m: np.nan for m, _ in metric_instances}
     
-    # Return results with group name
-    return {group_name: icc_values}
+    return {group_name: feature_results}
 
-def process_files_group(args: Tuple[List[str], logging.Logger, Optional[List[str]]]) -> Tuple[str, Dict[str, Dict[str, Any]]]:
+
+def calculate_icc(
+    files_list: List[str],
+    logger: logging.Logger,
+    selected_features: Optional[List[str]] = None,
+    icc_type: str = "icc3"
+) -> Dict[str, Dict[str, float]]:
     """
-    Process a single group of files for multiprocessing
+    Calculate ICC (Intraclass Correlation Coefficient) values between multiple files.
+    
+    This function provides backward compatibility with the original ICC calculation.
+    For more flexibility, use calculate_reliability_metrics() instead.
     
     Args:
-        args: Tuple containing list of files, logger instance, and optional selected features
+        files_list: List of file paths to analyze
+        logger: Logger instance for recording progress and errors
+        selected_features: Optional list of feature names to analyze 
+                          (if None, all common features will be analyzed)
+        icc_type: Type of ICC to calculate. Options:
+                 - "icc1": Single raters, absolute agreement
+                 - "icc2": Single random raters, absolute agreement (default in some tools)
+                 - "icc3": Single fixed raters, consistency (most commonly used)
+                 - "icc1k": Average raters, absolute agreement
+                 - "icc2k": Average random raters
+                 - "icc3k": Average fixed raters
+                 Default: "icc3" for backward compatibility
         
     Returns:
-        Tuple containing group name and ICC values with confidence intervals
+        Dictionary containing ICC values in the format 
+        {group_name: {feature_name: icc_value, ...}}
+        
+    Example:
+        >>> results = calculate_icc(['file1.csv', 'file2.csv'], logger)
+        >>> results = calculate_icc(['file1.csv', 'file2.csv'], logger, icc_type="icc2")
     """
-    files_list, logger, selected_features = args
-    result = calculate_icc(files_list, logger, selected_features)
+    return calculate_reliability_metrics(
+        files_list=files_list,
+        logger=logger,
+        selected_features=selected_features,
+        metrics=[icc_type],
+        return_full_results=False
+    )
+
+
+def process_files_group(
+    args: Tuple[List[str], logging.Logger, Optional[List[str]], Optional[List[str]], bool, Dict]
+) -> Tuple[str, Dict[str, Any]]:
+    """
+    Process a single group of files for multiprocessing.
+    
+    Args:
+        args: Tuple containing:
+              - files_list: List of file paths
+              - logger: Logger instance
+              - selected_features: Optional list of features to analyze
+              - metrics: List of metric types to calculate
+              - return_full_results: Whether to return full MetricResult objects
+              - metric_kwargs: Additional keyword arguments for metrics
+        
+    Returns:
+        Tuple containing group name and metric values
+    """
+    files_list, logger, selected_features, metrics, return_full_results, metric_kwargs = args
+    result = calculate_reliability_metrics(
+        files_list, logger, selected_features, metrics, return_full_results, **metric_kwargs
+    )
     group_name = list(result.keys())[0]
     return group_name, result[group_name]
 
-def analyze_multiple_groups(file_groups: List[List[str]], n_processes: int = None, logger=None, selected_features: Optional[List[str]] = None) -> Dict[str, Dict[str, Dict[str, Any]]]:
+
+def analyze_multiple_groups(
+    file_groups: List[List[str]],
+    n_processes: Optional[int] = None,
+    logger: Optional[logging.Logger] = None,
+    selected_features: Optional[List[str]] = None,
+    metrics: Optional[List[str]] = None,
+    return_full_results: bool = False,
+    **metric_kwargs
+) -> Dict[str, Dict[str, Any]]:
     """
-    Analyze ICC for multiple groups of files using parallel processing
+    Analyze reliability metrics for multiple groups of files using parallel processing.
     
     Args:
         file_groups: List of file groups, where each group is a list of file paths
         n_processes: Number of processes to use (default: all available CPUs)
         logger: Logger instance for recording progress
-        selected_features: Optional list of feature names to analyze (if None, all common features will be analyzed)
+        selected_features: Optional list of feature names to analyze
+        metrics: List of metric types to calculate (default: ["icc3"])
+        return_full_results: Whether to return full MetricResult objects with CI
+        **metric_kwargs: Additional parameters for metric calculators
         
     Returns:
-        Dictionary containing ICC values and 95% confidence intervals for all file groups
+        Dictionary containing reliability metrics for all file groups
+        
+    Example:
+        >>> file_groups = [
+        ...     ['group1_rater1.csv', 'group1_rater2.csv'],
+        ...     ['group2_rater1.csv', 'group2_rater2.csv']
+        ... ]
+        >>> results = analyze_multiple_groups(
+        ...     file_groups,
+        ...     metrics=['icc2', 'icc3', 'fleiss_kappa'],
+        ...     return_full_results=True
+        ... )
     """
     if n_processes is None:
         n_processes = multiprocessing.cpu_count()
     
     n_processes = min(n_processes, len(file_groups))
     
+    # Use default metrics if not specified
+    if metrics is None:
+        metrics = DEFAULT_METRICS
+    
     all_results = {}
     total = len(file_groups)
     
     # Prepare arguments for multiprocessing
-    process_args = [(group, logger, selected_features) for group in file_groups]
+    process_args = [
+        (group, logger, selected_features, metrics, return_full_results, metric_kwargs) 
+        for group in file_groups
+    ]
     
     with multiprocessing.Pool(processes=n_processes) as pool:
-        # Use imap_unordered for faster results
         for i, (group_name, group_results) in enumerate(pool.imap_unordered(process_files_group, process_args)):
-            # Merge results
             all_results[group_name] = group_results
             
             # Create progress bar
-            progress = int((i + 1) / total * 50)  # 50 is the length of the progress bar
+            progress = int((i + 1) / total * 50)
             bar = "█" * progress + "-" * (50 - progress)
             percent = (i + 1) / total * 100
             logger.info(f"\r[{bar}] {percent:.2f}% ({i+1}/{total})")
     
     return all_results
 
+
 def parse_files_groups(files_input: str) -> List[List[str]]:
     """
-    Parse user input for file groups
+    Parse user input for file groups.
     
     Args:
-        files_input: String containing file groups in format "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"
+        files_input: String containing file groups in format 
+                    "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"
         
     Returns:
         List of file groups, where each group is a list of file paths
@@ -233,13 +462,14 @@ def parse_files_groups(files_input: str) -> List[List[str]]:
     for group_str in files_input.split(';'):
         if ',' in group_str:
             files = [f.strip() for f in group_str.split(',')]
-            if len(files) >= 2:  # Ensure at least two files for ICC calculation
+            if len(files) >= 2:
                 groups.append(files)
     return groups
 
+
 def is_data_file(filename: str) -> bool:
     """
-    Check if a file is in a supported data format
+    Check if a file is in a supported data format.
     
     Args:
         filename: Name of the file to check
@@ -250,29 +480,28 @@ def is_data_file(filename: str) -> bool:
     ext = os.path.splitext(filename)[1].lower()
     return ext in ['.csv', '.xlsx', '.xls']
 
+
 def parse_directories(dirs_input: str) -> List[List[str]]:
     """
-    Parse user input for directories and generate file groups
+    Parse user input for directories and generate file groups.
     
     Args:
         dirs_input: String containing directory paths in format "dir1,dir2,dir3"
         
     Returns:
-        List of file groups, where each group contains files with the same name from different directories
+        List of file groups, where each group contains files with the same name 
+        from different directories
     """
     all_groups = []
     
-    # Parse directory list
     dirs = [d.strip() for d in dirs_input.split(',')]
     if len(dirs) < 2:
-        return []  # At least two directories required for ICC calculation
+        return []
     
-    # Get data files from each directory
     dir_files = {}
     for dir_path in dirs:
         dir_files[dir_path] = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if is_data_file(f)]
     
-    # Group files by name (ignoring extension)
     filename_groups = {}
     for dir_path, files in dir_files.items():
         for file_path in files:
@@ -281,16 +510,16 @@ def parse_directories(dirs_input: str) -> List[List[str]]:
                 filename_groups[basename] = []
             filename_groups[basename].append(file_path)
     
-    # Only keep groups with files in at least two directories
     for basename, files in filename_groups.items():
         if len(files) >= 2:
             all_groups.append(files)
     
     return all_groups
 
+
 def parse_features(features_input: str) -> List[str]:
     """
-    Parse user input for feature names
+    Parse user input for feature names.
     
     Args:
         features_input: String containing feature names in format "feature1,feature2,feature3"
@@ -302,48 +531,152 @@ def parse_features(features_input: str) -> List[str]:
         return []
     return [f.strip() for f in features_input.split(',')]
 
+
+def parse_metrics(metrics_input: str) -> List[str]:
+    """
+    Parse user input for metric types.
+    
+    Args:
+        metrics_input: String containing metric types in format "icc3,fleiss_kappa"
+        
+    Returns:
+        List of metric type names
+    """
+    if not metrics_input:
+        return DEFAULT_METRICS
+    return [m.strip().lower() for m in metrics_input.split(',')]
+
+
 def main():
-    parser = argparse.ArgumentParser(description="对多个CSV/Excel文件计算ICC值")
+    parser = argparse.ArgumentParser(
+        description="Calculate reliability metrics (ICC, Kappa, etc.) for multiple CSV/Excel files",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Available Metrics:
+    ICC Types (Intraclass Correlation Coefficient):
+        icc1    - Single raters, absolute agreement, one-way random model
+        icc2    - Single random raters, absolute agreement, two-way random model
+        icc3    - Single fixed raters, consistency, two-way mixed model (default)
+        icc1k   - Average raters, absolute agreement
+        icc2k   - Average random raters, absolute agreement
+        icc3k   - Average fixed raters, consistency
+        multi_icc - Calculate all 6 ICC types at once
     
-    # 文件组或目录列表，二选一
+    Kappa Coefficients:
+        cohen_kappa  - Cohen's Kappa for 2 raters
+        fleiss_kappa - Fleiss' Kappa for multiple raters
+    
+    Other:
+        krippendorff - Krippendorff's Alpha
+
+Examples:
+    # Calculate ICC(3,1) - default behavior
+    python icc.py --files "rater1.csv,rater2.csv" --output results.json
+    
+    # Calculate multiple metrics
+    python icc.py --files "rater1.csv,rater2.csv" --metrics "icc2,icc3,fleiss_kappa" --output results.json
+    
+    # Calculate all ICC types with full results (including CI)
+    python icc.py --files "rater1.csv,rater2.csv" --metrics "multi_icc" --full --output results.json
+        """
+    )
+    
+    # File input options (mutually exclusive)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--files', type=str, help='文件列表，格式为 "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"')
-    group.add_argument('--dirs', type=str, help='目录列表，格式为 "dir1,dir2,dir3"，将匹配目录中同名的数据文件')
+    group.add_argument(
+        '--files', type=str, 
+        help='File list in format "file1.csv,file2.csv;file3.csv,file4.csv"'
+    )
+    group.add_argument(
+        '--dirs', type=str, 
+        help='Directory list in format "dir1,dir2", matches same-named files'
+    )
     
-    parser.add_argument('--features', type=str, help='要计算ICC的特征列名，格式为 "feature1,feature2,feature3"（不指定则计算所有共同特征）')
-    parser.add_argument('--processes', type=int, default=None, help='进程数，默认使用所有可用CPU')
-    parser.add_argument('--output', type=str, default='icc_results.json', help='输出结果的JSON文件路径')
+    # Feature selection
+    parser.add_argument(
+        '--features', type=str, 
+        help='Feature columns to analyze in format "feature1,feature2" (default: all common features)'
+    )
+    
+    # Metric selection
+    parser.add_argument(
+        '--metrics', type=str, 
+        default='icc3',
+        help='Metrics to calculate in format "icc3,fleiss_kappa" (default: icc3)'
+    )
+    
+    # Output options
+    parser.add_argument(
+        '--full', action='store_true',
+        help='Return full results with confidence intervals and p-values'
+    )
+    parser.add_argument(
+        '--processes', type=int, default=None, 
+        help='Number of processes (default: all CPUs)'
+    )
+    parser.add_argument(
+        '--output', type=str, default='reliability_results.json', 
+        help='Output JSON file path'
+    )
     
     args = parser.parse_args()
     
-    # 配置日志
+    # Configure logger
     logger = configure_logger(args.output)
     
-    # 解析特征列表
+    # Parse features
     selected_features = parse_features(args.features) if args.features else None
     if selected_features:
-        logger.info(f"将只计算以下特征的ICC值: {', '.join(selected_features)}")
+        logger.info(f"Will analyze features: {', '.join(selected_features)}")
     
-    # 解析文件组或目录列表
+    # Parse metrics
+    metrics = parse_metrics(args.metrics)
+    logger.info(f"Will calculate metrics: {', '.join(metrics)}")
+    
+    # Parse file groups
     if args.files:
         file_groups = parse_files_groups(args.files)
     else:
         file_groups = parse_directories(args.dirs)
     
     if not file_groups:
-        logger.error("没有有效的文件组可以分析")
+        logger.error("No valid file groups to analyze")
         return
     
-    logger.info(f"将分析 {len(file_groups)} 组文件")
+    logger.info(f"Will analyze {len(file_groups)} file groups")
     
-    # 执行分析
-    results = analyze_multiple_groups(file_groups, args.processes, logger, selected_features)
+    # Execute analysis
+    results = analyze_multiple_groups(
+        file_groups, 
+        args.processes, 
+        logger, 
+        selected_features,
+        metrics=metrics,
+        return_full_results=args.full
+    )
     
-    # 保存结果
+    # Convert numpy types for JSON serialization
+    def convert_to_serializable(obj):
+        if isinstance(obj, np.floating):
+            return float(obj) if not np.isnan(obj) else None
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {k: convert_to_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_serializable(i) for i in obj]
+        return obj
+    
+    results = convert_to_serializable(results)
+    
+    # Save results
     with open(args.output, 'w') as f:
         json.dump(results, f, indent=4)
     
-    logger.info(f"分析完成，结果已保存到 {args.output}")
+    logger.info(f"Analysis complete, results saved to {args.output}")
+
 
 if __name__ == "__main__":
     main()

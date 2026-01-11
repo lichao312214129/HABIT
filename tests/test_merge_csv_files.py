@@ -16,9 +16,9 @@ if __name__ == "__main__":
     sys.argv = [
         'habit',
         'merge-csv',
-        r'G:\DMS\intratumoral_heterogeneity\HCC-DCM\dicom_info.csv',
-        r'H:\results\features\clinicalDataClearedAddedLesionDescribe_HCV.csv',
-        '-o', r'G:\DMS\intratumoral_heterogeneity\HCC-DCM\merged_features.csv',
+        r'H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv',
+        r'H:\results\features\PathologyInfo_new_only_label.xlsx',
+        '-o', r'H:\results\features\merged_clinical_pathology.csv',
     ]
     
     # Import and run the CLI

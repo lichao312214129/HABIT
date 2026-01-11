@@ -33,7 +33,8 @@ def run_icc(config_file: str) -> None:
     try:
         with open(config_file, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
-        output_dir = Path(config.get('output_dir', config.get('output', '.')))
+        output = Path(config.get('output').get('path'))
+        output_dir = output.parent
         output_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         click.echo(f"Error: Failed to load configuration: {e}", err=True)

@@ -9,6 +9,17 @@ ICC (Intraclass Correlation Coefficient, 组内相关系数) 分析模块是一�
 
 本工具通过计算特征的ICC值，帮助用户筛选出在不同条件下稳定、可靠的特征，为后续的模型构建提供高质量的数据基础。
 
+### 支持的可靠性指标
+
+本模块不仅支持ICC，还支持多种可靠性评估指标：
+
+| 指标类型 | 说明 | 适用场景 |
+|---------|------|----------|
+| **ICC (6种类型)** | 组内相关系数 | 连续型数据的可靠性评估 |
+| **Cohen's Kappa** | Cohen's Kappa系数 | 2个评分者的分类一致性 |
+| **Fleiss' Kappa** | Fleiss' Kappa系数 | 多个评分者的分类一致性 |
+| **Krippendorff's Alpha** | Krippendorff's Alpha系数 | 通用可靠性指标，支持缺失数据 |
+
 ## 2. 快速开始
 
 ### 使用CLI（推荐）✨
@@ -131,7 +142,46 @@ debug: false
 
 ### ICC 模型说明
 
-- 本工具固定使用 **ICC3** 模型进行计算，它对应于**双向随机效应模型 (Two-Way Random) 和绝对一致性 (Absolute Agreement)**。这在评估不同时间点或不同观察者之间的可靠性时是一种常用且严格的标准。
+本工具默认使用 **ICC3 (即ICC(3,1))** 模型进行计算。现在支持全部6种ICC类型，用户可根据研究需求选择合适的类型。
+
+#### ICC 类型详解
+
+ICC有6种不同的类型，根据McGraw & Wong (1996)和Shrout & Fleiss (1979)的分类：
+
+| ICC类型 | 名称 | 模型 | 评估内容 | 适用场景 |
+|---------|------|------|----------|----------|
+| **ICC1** | ICC(1,1) | 单向随机 | 绝对一致性 | 每个目标由**不同的随机评分者**评分，评分者不可互换 |
+| **ICC2** | ICC(2,1) | 双向随机 | 绝对一致性 | 评分者是从**更大群体中随机抽取的样本**，关注绝对值 |
+| **ICC3** | ICC(3,1) | 双向混合 | 一致性 | 评分者是**固定的**，关注**相对排序**而非绝对值 |
+| **ICC1k** | ICC(1,k) | 单向随机（平均） | 绝对一致性 | 多个随机评分者的**平均值**的可靠性 |
+| **ICC2k** | ICC(2,k) | 双向随机（平均） | 绝对一致性 | 多个随机评分者**平均值**的可靠性 |
+| **ICC3k** | ICC(3,k) | 双向混合（平均） | 一致性 | 固定评分者**平均值**的可靠性 |
+
+#### 如何选择ICC类型？
+
+**推荐使用ICC3 (默认) 的情况：**
+- Test-retest可靠性分析（同一分割软件/医生进行两次测量）
+- 评分者是固定的，不是从更大群体中随机抽取
+- 关注特征值的相对排序是否稳定，而非绝对值是否完全相同
+
+**推荐使用ICC2的情况：**
+- 评分者是从更大群体（如所有放射科医生）中随机抽取的样本
+- 需要评估绝对一致性（值必须完全相同，不只是排序相同）
+- 研究结论需要推广到更大的评分者群体
+
+**推荐使用ICC1的情况：**
+- 每个目标由不同的评分者评分
+- 评分者之间不可互换
+
+**使用k类型（ICC1k, ICC2k, ICC3k）的情况：**
+- 当最终分析使用的是多个评分者的平均值时
+- 例如：3个医生勾画的ROI取平均后提取特征
+
+#### 一致性 vs 绝对一致性
+
+- **一致性 (Consistency)**: 关注评分的相对顺序是否一致。即使所有测量都有系统性偏移（如评分者A始终比评分者B高2分），只要排序一致，ICC值仍会很高。
+
+- **绝对一致性 (Absolute Agreement)**: 要求评分的绝对值一致。如果存在系统性偏移，ICC值会降低。
 
 ### ICC 值解读标准
 
@@ -145,4 +195,316 @@ ICC值介于0和1之间，通常可按以下标准解读其可靠性：
 
 ### 控制台总结
 
-脚本运行结束后，会在控制台打印一个总结信息，告知每个组别的平均ICC、以及达到“良好”标准（ICC >= 0.75）的特征数量和比例，帮助您快速评估整体的一致性。
+脚本运行结束后，会在控制台打印一个总结信息，告知每个组别的平均ICC、以及达到"良好"标准（ICC >= 0.75）的特征数量和比例，帮助您快速评估整体的一致性。
+
+## 6. 高级用法
+
+### 6.1 指定ICC类型
+
+可以通过配置文件或命令行参数指定要计算的ICC类型：
+
+**配置文件方式：**
+```yaml
+input:
+  type: "files"
+  file_groups:
+    - [test.csv, retest.csv]
+
+output:
+  path: ./results/icc_results.json
+
+# 指定要计算的指标类型
+metrics:
+  - icc2      # ICC(2,1) - 双向随机，绝对一致性
+  - icc3      # ICC(3,1) - 双向混合，一致性（默认）
+
+# 是否返回完整结果（包含置信区间和p值）
+full_results: true
+```
+
+**命令行方式：**
+```bash
+# 计算ICC(2,1)
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "test.csv,retest.csv" \
+    --metrics "icc2" \
+    --output results.json
+
+# 计算多种ICC类型
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "test.csv,retest.csv" \
+    --metrics "icc2,icc3,icc2k,icc3k" \
+    --full \
+    --output results.json
+
+# 计算所有6种ICC类型
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "test.csv,retest.csv" \
+    --metrics "multi_icc" \
+    --full \
+    --output results.json
+```
+
+### 6.2 计算Kappa系数
+
+对于分类数据（如分级、分期等），可以使用Kappa系数：
+
+```bash
+# Cohen's Kappa（2个评分者）
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "rater1.csv,rater2.csv" \
+    --metrics "cohen_kappa" \
+    --output kappa_results.json
+
+# Fleiss' Kappa（多个评分者）
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "rater1.csv,rater2.csv,rater3.csv" \
+    --metrics "fleiss_kappa" \
+    --output kappa_results.json
+```
+
+### 6.3 返回完整结果
+
+使用`--full`参数可以获取包含置信区间和p值的完整结果：
+
+```bash
+python -m habit.core.machine_learning.feature_selectors.icc.icc \
+    --files "test.csv,retest.csv" \
+    --metrics "icc3" \
+    --full \
+    --output results.json
+```
+
+输出格式：
+```json
+{
+    "test_vs_retest": {
+        "feature_A": {
+            "value": 0.92,
+            "metric_type": "ICC3",
+            "ci95": [0.85, 0.96],
+            "p_value": 0.0001,
+            "additional_info": {
+                "F": 24.5,
+                "df1": 49,
+                "df2": 49
+            }
+        }
+    }
+}
+```
+
+## 7. Python API 使用
+
+### 7.1 基本用法
+
+```python
+from habit.core.machine_learning.feature_selectors.icc import (
+    calculate_icc,
+    calculate_reliability_metrics,
+    configure_logger
+)
+
+# 配置日志
+logger = configure_logger('./output/results.json')
+
+# 基本ICC计算（默认ICC3，向后兼容）
+results = calculate_icc(
+    files_list=['rater1.csv', 'rater2.csv'],
+    logger=logger
+)
+
+# 指定ICC类型
+results = calculate_icc(
+    files_list=['rater1.csv', 'rater2.csv'],
+    logger=logger,
+    icc_type='icc2'  # 使用ICC(2,1)
+)
+```
+
+### 7.2 计算多种指标
+
+```python
+from habit.core.machine_learning.feature_selectors.icc import (
+    calculate_reliability_metrics,
+    configure_logger
+)
+
+logger = configure_logger('./output/results.json')
+
+# 计算多种指标，返回完整结果
+results = calculate_reliability_metrics(
+    files_list=['rater1.csv', 'rater2.csv'],
+    logger=logger,
+    metrics=['icc2', 'icc3', 'fleiss_kappa'],
+    return_full_results=True
+)
+
+# 遍历结果
+for group_name, features in results.items():
+    print(f"\n=== {group_name} ===")
+    for feature_name, metric_results in features.items():
+        print(f"\n{feature_name}:")
+        for metric_name, result in metric_results.items():
+            if isinstance(result, dict):
+                print(f"  {metric_name}: {result['value']:.3f}")
+                if 'ci95' in result:
+                    print(f"    95% CI: [{result['ci95'][0]:.3f}, {result['ci95'][1]:.3f}]")
+            else:
+                print(f"  {metric_name}: {result:.3f}")
+```
+
+### 7.3 直接使用指标类
+
+```python
+import pandas as pd
+from habit.core.machine_learning.feature_selectors.icc import (
+    ICCMetric,
+    ICCType,
+    MultiICCMetric,
+    CohenKappaMetric,
+    FleissKappaMetric,
+    create_metric
+)
+
+# 准备长格式数据
+# 数据结构: 每行包含 target(受试者), reader(评分者), rating(评分值)
+data = pd.DataFrame({
+    'target': [1, 1, 2, 2, 3, 3],
+    'reader': [1, 2, 1, 2, 1, 2],
+    'score': [4.5, 4.7, 3.2, 3.0, 5.1, 5.3]
+})
+
+# 方法1: 使用工厂函数
+metric = create_metric('icc3')
+result = metric.calculate(data, targets='target', raters='reader', ratings='score')
+print(f"ICC(3,1) = {result.value:.3f}")
+print(f"95% CI = [{result.ci95_lower:.3f}, {result.ci95_upper:.3f}]")
+print(f"p-value = {result.p_value:.4f}")
+
+# 方法2: 直接实例化指标类
+icc_metric = ICCMetric(icc_type=ICCType.ICC2)
+result = icc_metric.calculate(data, 'target', 'reader', 'score')
+
+# 方法3: 计算所有ICC类型
+multi_icc = MultiICCMetric()
+results = multi_icc.calculate(data, 'target', 'reader', 'score')
+for icc_type, result in results.items():
+    print(f"{icc_type}: {result.value:.3f}")
+
+# 方法4: Cohen's Kappa（用于分类数据）
+kappa_metric = CohenKappaMetric(weights='quadratic')  # 加权Kappa
+result = kappa_metric.calculate(data, 'target', 'reader', 'category')
+```
+
+### 7.4 自定义指标
+
+您可以通过继承`BaseReliabilityMetric`类来创建自定义指标：
+
+```python
+from habit.core.machine_learning.feature_selectors.icc import (
+    BaseReliabilityMetric,
+    MetricResult,
+    register_metric
+)
+import pandas as pd
+
+@register_metric("my_custom_metric")
+class MyCustomMetric(BaseReliabilityMetric):
+    """自定义可靠性指标"""
+    
+    @property
+    def name(self) -> str:
+        return "MyCustomMetric"
+    
+    def validate_data(self, data, targets, raters, ratings) -> bool:
+        # 验证数据格式
+        return True
+    
+    def calculate(self, data, targets, raters, ratings, **kwargs) -> MetricResult:
+        # 实现您的计算逻辑
+        value = 0.85  # 示例值
+        return MetricResult(
+            value=value,
+            ci95_lower=0.80,
+            ci95_upper=0.90,
+            metric_type=self.name
+        )
+
+# 使用自定义指标
+from habit.core.machine_learning.feature_selectors.icc import create_metric
+metric = create_metric("my_custom_metric")
+result = metric.calculate(data, 'target', 'reader', 'score')
+```
+
+## 8. 其他可靠性指标
+
+### 8.1 Cohen's Kappa
+
+**适用场景**: 2个评分者对分类数据的一致性评估
+
+**特点**:
+- 考虑了偶然一致性
+- 支持加权Kappa（用于有序分类）
+
+**解读标准**:
+| Kappa值 | 一致性程度 |
+|---------|----------|
+| < 0 | 差（低于偶然一致性） |
+| 0.01 - 0.20 | 轻微 |
+| 0.21 - 0.40 | 一般 |
+| 0.41 - 0.60 | 中等 |
+| 0.61 - 0.80 | 较好 |
+| 0.81 - 1.00 | 几乎完全一致 |
+
+### 8.2 Fleiss' Kappa
+
+**适用场景**: 多个（≥2）评分者对分类数据的一致性评估
+
+**特点**:
+- Cohen's Kappa的多评分者扩展
+- 假设每个目标由相同数量的评分者评分
+
+### 8.3 Krippendorff's Alpha
+
+**适用场景**: 通用可靠性指标
+
+**特点**:
+- 支持任意数量的评分者
+- 支持多种数据类型（名义、有序、区间、比率）
+- 可以处理缺失数据
+- 比ICC和Kappa更加通用
+
+```python
+from habit.core.machine_learning.feature_selectors.icc import create_metric
+
+# 创建Krippendorff's Alpha指标（区间数据）
+metric = create_metric('krippendorff', level_of_measurement='interval')
+result = metric.calculate(data, 'target', 'reader', 'score')
+```
+
+## 9. 常见问题
+
+### Q1: 应该选择哪种ICC类型？
+
+对于大多数影像组学研究，推荐使用：
+- **ICC3 (默认)**: 适用于test-retest可靠性分析，评分者固定
+- **ICC2**: 如果需要将结论推广到更大的评分者群体，或需要绝对一致性
+
+### Q2: ICC值为负数是什么意思？
+
+ICC值理论上范围是-1到1，但负值通常表示：
+- 评分者之间的一致性低于偶然水平
+- 数据可能存在问题（如录入错误）
+- 样本量太小
+
+### Q3: 如何处理缺失数据？
+
+本工具默认使用`nan_policy='omit'`策略，即忽略包含缺失值的数据对。如果缺失数据较多，建议使用Krippendorff's Alpha，它专门设计用于处理缺失数据。
+
+### Q4: 连续数据还是分类数据应该用什么指标？
+
+- **连续数据**: 使用ICC
+- **分类数据（2个评分者）**: 使用Cohen's Kappa
+- **分类数据（多个评分者）**: 使用Fleiss' Kappa
+- **有序分类数据**: 使用加权Kappa或Krippendorff's Alpha（ordinal）
