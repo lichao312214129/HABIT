@@ -1,5 +1,10 @@
 """
 Habitat Analysis module for HABIT package.
+
+This module provides:
+- HabitatAnalysis: Main class for habitat clustering analysis
+- Configuration classes: HabitatConfig, ClusteringConfig, IOConfig, RuntimeConfig
+- Pipeline classes: TrainingPipeline, TestingPipeline
 """
 
 # Import error handling for robust module loading
@@ -14,6 +19,41 @@ except ImportError as e:
     _import_errors['HabitatAnalysis'] = str(e)
     HabitatAnalysis = None
 
+# Try to import Configuration classes
+try:
+    from .config import (
+        HabitatConfig,
+        ClusteringConfig,
+        IOConfig,
+        RuntimeConfig,
+        OneStepConfig,
+        ResultColumns
+    )
+    _available_classes['HabitatConfig'] = HabitatConfig
+    _available_classes['ClusteringConfig'] = ClusteringConfig
+    _available_classes['IOConfig'] = IOConfig
+    _available_classes['RuntimeConfig'] = RuntimeConfig
+    _available_classes['OneStepConfig'] = OneStepConfig
+    _available_classes['ResultColumns'] = ResultColumns
+except ImportError as e:
+    _import_errors['Config'] = str(e)
+    HabitatConfig = ClusteringConfig = IOConfig = RuntimeConfig = OneStepConfig = ResultColumns = None
+
+# Try to import Pipeline classes
+try:
+    from .pipeline import (
+        BasePipeline,
+        TrainingPipeline,
+        TestingPipeline,
+        create_pipeline
+    )
+    _available_classes['BasePipeline'] = BasePipeline
+    _available_classes['TrainingPipeline'] = TrainingPipeline
+    _available_classes['TestingPipeline'] = TestingPipeline
+except ImportError as e:
+    _import_errors['Pipeline'] = str(e)
+    BasePipeline = TrainingPipeline = TestingPipeline = create_pipeline = None
+
 # Try to import HabitatFeatureExtractor
 try:
     from .feature_extraction import HabitatFeatureExtractor
@@ -22,7 +62,24 @@ except ImportError as e:
     _import_errors['HabitatFeatureExtractor'] = str(e)
     HabitatFeatureExtractor = None
 
-__all__ = ["HabitatAnalysis", "HabitatFeatureExtractor"]
+__all__ = [
+    # Main class
+    "HabitatAnalysis",
+    # Configuration classes
+    "HabitatConfig",
+    "ClusteringConfig",
+    "IOConfig",
+    "RuntimeConfig",
+    "OneStepConfig",
+    "ResultColumns",
+    # Pipeline classes
+    "BasePipeline",
+    "TrainingPipeline",
+    "TestingPipeline",
+    "create_pipeline",
+    # Feature extraction
+    "HabitatFeatureExtractor",
+]
 
 # Add utility functions for checking import status
 def get_import_errors():

@@ -1,0 +1,24 @@
+# 控制是否自动读取目录中的第一个文件
+# true: 自动读取目录中的第一个文件 (适用于已转换的nii文件等场景)
+# false: 保持目录路径不变 (适用于dcm2nii等需要整个文件夹的任务)
+auto_select_first_file: true
+
+images:
+  subj001:
+    delay2: ./preprocessed/zscore_normalization_04/images/subj001/delay2  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./preprocessed/zscore_normalization_04/images/subj001/delay3  # 注意路径和文件不能有空格和特殊字符
+    delay5: ./preprocessed/zscore_normalization_04/images/subj001/delay5  # 注意路径和文件不能有空格和特殊字符
+  subj002:
+    delay2: ./preprocessed/zscore_normalization_04/images/subj002/delay2  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./preprocessed/zscore_normalization_04/images/subj002/delay3  # 注意路径和文件不能有空格和特殊字符
+    delay5: ./preprocessed/zscore_normalization_04/images/subj002/delay5  # 注意路径和文件不能有空格和特殊字符
+
+masks:
+  subj001:
+    delay2: ./preprocessed/zscore_normalization_04/masks/subj001/delay2  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./preprocessed/zscore_normalization_04/masks/subj001/delay3  # 注意路径和文件不能有空格和特殊字符
+    delay5: ./preprocessed/zscore_normalization_04/masks/subj001/delay5  # 注意路径和文件不能有空格和特殊字符
+  subj002:
+    delay2: ./preprocessed/zscore_normalization_04/masks/subj002/delay2  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./preprocessed/zscore_normalization_04/masks/subj002/delay3  # 注意路径和文件不能有空格和特殊字符
+    delay5: ./preprocessed/zscore_normalization_04/masks/subj002/delay5  # 注意路径和文件不能有空格和特殊字符

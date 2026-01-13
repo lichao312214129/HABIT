@@ -12,15 +12,15 @@ Preprocessing:
     compress: true
     anonymize: true
 
-  # N4 Bias Field Correction:
-  n4_correction:
-    images: [delay2, delay3, delay5]
-    num_fitting_levels: 2
+  # # N4 Bias Field Correction:
+  # n4_correction:
+  #   images: [delay2, delay3, delay5]
+  #   num_fitting_levels: 2
 
   # Resample:
   resample:
     images: [delay2, delay3, delay5]
-    target_spacing: [2.0, 2.0, 2.0]
+    target_spacing: [1.0, 1.0, 1.0]
 
   registration:
     images: [delay2, delay3, delay5]
@@ -35,11 +35,11 @@ Preprocessing:
     only_inmask: false  # 是否仅在掩码内计算统计量
     mask_key: mask  # 当only_inmask为true时使用的掩码名称
 
-  adaptive_histogram_equalization:
-    images: [delay2, delay3, delay5]  # 要处理的图像序列
-    alpha: 0.3  # 全局对比度增强因子
-    beta: 0.3  # 局部对比度增强因子
-    radius: 5  # 局部窗口半径
+  # adaptive_histogram_equalization:
+  #   images: [delay2, delay3, delay5]  # 要处理的图像序列
+  #   alpha: 0.3  # 全局对比度增强因子
+  #   beta: 0.3  # 局部对比度增强因子
+  #   radius: 5  # 局部窗口半径
 
 save_options:
   save_intermediate: true

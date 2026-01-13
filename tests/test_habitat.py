@@ -4,6 +4,6 @@ from habit.cli import cli
 
 if __name__ == '__main__':
     # Simulate command line arguments for habitat analysis
-    sys.argv = ['habit', 'habitat', '-c', 'F:/work/research/radiomics_TLSs/test/config.yaml']
+    sys.argv = ['habit', 'get-habitat', '-c', './demo_data/config_habitat.yaml']
     cli()
 
