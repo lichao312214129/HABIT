@@ -133,7 +133,7 @@ Aligns images to a reference image using ANTs (Advanced Normalization Tools).
 1.  **Rigid**: Translation and rotation only
 2.  **Affine**: Translation, rotation, scaling, and shearing
 3.  **SyN**: Symmetric Normalization (deformable registration)
-4.  **SyNRA**: SyN + Rigid + Affine (most commonly used)
+4.  **SyNRA**: SyN + Rigid + Affine
 5.  **SyNOnly**: SyN without initial rigid/affine
 6.  **TRSAA**: Translation + Rotation + Scaling + Affine
 7.  **Elastic**: Elastic transformation

@@ -7,3 +7,8 @@ obstacle.py
 
 # Ignore specific directories
 results/ 
+processed/
+.vscode/
+.idea/
+.pytest_cache/
+.DS_Store

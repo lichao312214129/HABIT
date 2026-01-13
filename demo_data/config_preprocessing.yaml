@@ -1,0 +1,47 @@
+# Habitat Analysis Configuration
+
+# Data paths
+data_dir: ./files_preprocessing.yaml
+out_dir: ./preprocessed
+
+# Preprocessing settings   
+Preprocessing:
+  dcm2nii:
+    images: [delay2, delay3, delay5]
+    dcm2niix_path: ./dcm2niix.exe
+    compress: true
+    anonymize: true
+
+  # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
+  # zscore_normalization:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
+  #   only_inmask: false  # 是否仅在掩码内计算统计量
+    # mask_key: mask  # 当only_inmask为true时使用的掩码名称
+
+
+  # N4 Bias Field Correction:
+  n4_correction:
+    images: [delay2, delay3, delay5]
+    num_fitting_levels: 2
+
+  # Resample:
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [3.0, 3.0, 3.0]
+
+  # Registration:
+  # registration:
+  #   images: [delay2, delay3, delay5]
+  #   fixed_image: delay2
+  #   moving_images: [delay3, delay5]
+  #   type_of_transform: SyNabp
+  #   use_mask: false
+
+save_options:
+  save_intermediate: true
+  intermediate_steps: [dcm2nii, n4_correction, resample]
+
+
+# General settings
+processes: 2  # Number of parallel processes
+random_state: 42  # Random seed for reproducibility

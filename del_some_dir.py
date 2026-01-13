@@ -3,6 +3,10 @@ import shutil
 from typing import List, Set
 from pathlib import Path
 import pandas as pd
+import numpy as np
+
+
+data = pd.DataFrame(np.random.randn
 
 def check_and_delete_subjects(root_dir: str, required_dirs: List[str]) -> None:
     """

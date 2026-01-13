@@ -133,7 +133,7 @@ Preprocessing:
 1. **Rigid**: 仅平移和旋转
 2. **Affine**: 平移、旋转、缩放和剪切
 3. **SyN**: 对称归一化（可变形配准）
-4. **SyNRA**: SyN + Rigid + Affine（最常用）
+4. **SyNRA**: SyN + Rigid + Affine
 5. **SyNOnly**: 不带初始刚性/仿射的SyN
 6. **TRSAA**: 平移 + 旋转 + 缩放 + 仿射
 7. **Elastic**: 弹性变换

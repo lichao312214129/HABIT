@@ -6,17 +6,13 @@ using the dcm2niix tool, with integration into the HABIT preprocessing pipeline.
 """
 
 import os
-from re import T
 import subprocess
 import shutil
 from typing import Dict, Any, Optional, Union, List
 from pathlib import Path
 import tempfile
-import logging
 import SimpleITK as sitk
 import json
-
-from click.core import F
 
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
@@ -45,7 +41,7 @@ class Dcm2niixConverter(BasePreprocessor):
         ignore_derived: bool = False, # 默认不忽略衍生图像
         crop_images: bool = False, # 默认裁剪图像
         generate_json: bool = False, # 默认不生成JSON文件
-        verbose: bool = True, # 默认输出详细信息
+        verbose: bool = False, # 默认不输出详细信息
         batch_mode: bool = True, # 默认启用批处理模式
         merge_slices: Optional[str] = "2", # 合并模式: "y"/"1"=默认, "2"=按序列, "n"/"0"=不合并, None=不指定
         single_file_mode: Optional[bool] = None, # 单文件模式: True=强制单文件(-s y), False=允许多文件(-s n), None=不指定(推荐)

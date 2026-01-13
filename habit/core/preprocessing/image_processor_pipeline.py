@@ -21,6 +21,7 @@ from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.config_utils import load_config
 from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.utils.path_resolver import resolve_config_paths
 import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
@@ -54,7 +55,12 @@ class BatchProcessor:
             log_level (str): Logging level. Defaults to "INFO".
             verbose (bool): Whether to print verbose output. Defaults to True.
         """
-        self.config = load_config(config_path)
+        # Load config and resolve all relative paths to absolute paths
+        raw_config = load_config(config_path)
+
+        # config中可能有相对路径
+        self.config = resolve_config_paths(raw_config, config_path)
+        
         self.output_root = Path(self.config["out_dir"])
         self.output_root.mkdir(parents=True, exist_ok=True)
         # 不再创建全局预处理器，而是为每个样本单独创建
@@ -87,8 +93,8 @@ class BatchProcessor:
         """
         save_options = self.config.get("save_options", {})
         
-        # Whether to save intermediate results
-        self.save_intermediate = save_options.get("save_intermediate", False)
+        # Whether to save intermediate results (default: True to save all intermediate steps)
+        self.save_intermediate = save_options.get("save_intermediate", True)
         
         # Which steps to save (empty list means save all steps)
         self.intermediate_steps = save_options.get("intermediate_steps", [])

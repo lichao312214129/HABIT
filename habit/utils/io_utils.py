@@ -10,7 +10,8 @@ import numpy as np
 from typing import Dict, Any, Optional, List
 import yaml
 import logging
-from datetime import datetime
+
+from habit.utils.path_resolver import resolve_config_paths
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
     """
@@ -118,10 +119,14 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
         auto_select_first_file: true  # or false
         ```
     """
+
     # Check if input is a YAML configuration file
     if os.path.isfile(root_folder) and root_folder.lower().endswith(('.yaml', '.yml')):
         # Load configuration from YAML file
         config = load_config(root_folder)
+
+        # config中可能有相对路径
+        config = resolve_config_paths(config, root_folder)
         
         # Check if auto_select_first_file is specified in config file
         # Config file takes precedence over function parameter
