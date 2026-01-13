@@ -8,6 +8,7 @@ obstacle.py
 # Ignore specific directories
 results/ 
 processed/
+preprocessed/
 .vscode/
 .idea/
 .pytest_cache/
