@@ -98,6 +98,8 @@ class HabitatFeatureExtractor:
         If logging has already been configured by the CLI entry point,
         this will simply get the existing logger. Otherwise, it will
         set up a new logger with file output.
+        
+        Also stores log configuration for child processes (multiprocessing support).
         """
         from habit.utils.log_utils import setup_logger, get_module_logger, LoggerManager
         
@@ -112,6 +114,10 @@ class HabitatFeatureExtractor:
             # Logging already configured by CLI, just get module logger
             self.logger = get_module_logger('habitat.new_extractor')
             self.logger.info("Using existing logging configuration from CLI entry point")
+            
+            # Store log configuration for child processes (Windows spawn mode)
+            self._log_file_path = manager.get_log_file()
+            self._log_level = manager._root_logger.getEffectiveLevel() if manager._root_logger else logging.INFO
         else:
             # Logging not configured yet (e.g., direct class usage)
             self.logger = setup_logger(
@@ -120,8 +126,19 @@ class HabitatFeatureExtractor:
                 log_filename='feature_extraction.log',
                 level=logging.INFO
             )
+            
+            # Store log configuration for child processes
+            self._log_file_path = manager.get_log_file()
+            self._log_level = logging.INFO
         
         self.logger.info("Logging setup completed")
+    
+    def _ensure_logging_in_subprocess(self) -> None:
+        """Ensure logging is properly configured in child processes."""
+        from habit.utils.log_utils import restore_logging_in_subprocess
+        
+        if hasattr(self, '_log_file_path') and self._log_file_path:
+            restore_logging_in_subprocess(self._log_file_path, self._log_level)
 
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""
@@ -158,6 +175,9 @@ class HabitatFeatureExtractor:
 
     def process_subject(self, subj, images_paths, habitat_paths, mask_paths=None, feature_types=None):
         """Process a single subject for habitat feature extraction"""
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         subject_features = {}
         imgs = list(images_paths[subj].keys())
         

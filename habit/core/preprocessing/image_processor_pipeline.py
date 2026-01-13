@@ -21,7 +21,6 @@ from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.config_utils import load_config
 from habit.utils.log_utils import setup_logger, get_module_logger
-from habit.utils.path_resolver import resolve_config_paths
 import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
@@ -56,10 +55,7 @@ class BatchProcessor:
             verbose (bool): Whether to print verbose output. Defaults to True.
         """
         # Load config and resolve all relative paths to absolute paths
-        raw_config = load_config(config_path)
-
-        # config中可能有相对路径
-        self.config = resolve_config_paths(raw_config, config_path)
+        self.config = load_config(config_path)
         
         self.output_root = Path(self.config["out_dir"])
         self.output_root.mkdir(parents=True, exist_ok=True)
@@ -200,6 +196,8 @@ class BatchProcessor:
         this will simply get the existing logger. Otherwise, it will
         set up a new logger with file output.
         
+        Also stores log configuration for child processes (multiprocessing support).
+        
         Args:
             log_level (str): Logging level.
         """
@@ -212,15 +210,36 @@ class BatchProcessor:
             # Logging already configured by CLI, just get module logger
             self.logger = get_module_logger('preprocessing')
             self.logger.info("Using existing logging configuration from CLI entry point")
+            
+            # Store log configuration for child processes (Windows spawn mode)
+            self._log_file_path = manager.get_log_file()
+            self._log_level = manager._root_logger.getEffectiveLevel() if manager._root_logger else logging.INFO
         else:
             # Logging not configured yet (e.g., direct BatchProcessor usage)
             # Set up logging with file output
+            level = getattr(logging, log_level.upper())
             self.logger = setup_logger(
                 name='preprocessing',
                 output_dir=self.output_root,
                 log_filename='processing.log',
-                level=getattr(logging, log_level.upper())
+                level=level
             )
+            
+            # Store log configuration for child processes
+            self._log_file_path = manager.get_log_file()
+            self._log_level = level
+    
+    def _ensure_logging_in_subprocess(self) -> None:
+        """Ensure logging is properly configured in child processes.
+        
+        In Windows spawn mode (and forkserver), child processes don't inherit
+        the parent's logging configuration. This method restores it.
+        """
+        from habit.utils.log_utils import restore_logging_in_subprocess
+        
+        # Restore logging if we have stored config
+        if hasattr(self, '_log_file_path') and self._log_file_path:
+            restore_logging_in_subprocess(self._log_file_path, self._log_level)
         
     def _process_single_subject(self, subject_data):
         """Process a single subject's data through the preprocessing pipeline.
@@ -231,6 +250,9 @@ class BatchProcessor:
         Returns:
             tuple: (subject_id, processing result message)
         """
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         try:
             subject_id = subject_data['subj']
             self.logger.info(f"Processing subject: {subject_id}")

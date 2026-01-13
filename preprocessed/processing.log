@@ -1,20 +1,20 @@
-2026-01-13 12:05:13 - habit - INFO - [log_utils.py:119] - Log file initialized: preprocessed\processing.log
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:50] - Python version: 3.8.16 (default, Mar  2 2023, 03:18:16) [MSC v.1916 64 bit (AMD64)]
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_data/config_preprocessing.yaml
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:60] - Set multiprocessing start method to 'spawn' on Windows
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:214] - Using existing logging configuration from CLI entry point
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:104] - Intermediate results will be saved for steps: ['dcm2nii', 'n4_correction', 'resample']
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:85] - Using 2 worker processes.
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:63] - Successfully initialized BatchProcessor
-2026-01-13 12:05:13 - habit.cli.preprocess - INFO - [cmd_preprocess.py:72] - Starting batch processing
-2026-01-13 12:05:13 - habit.preprocessing - WARNING - [image_processor_pipeline.py:434] - No mask found for subject subj001, skipping
-2026-01-13 12:05:13 - habit.preprocessing - WARNING - [image_processor_pipeline.py:434] - No mask found for subject subj002, skipping
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:440] - 将使用 2 个进程进行处理
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:442] - 共有 2 个样本需要处理
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:448] - 开始处理数据...
-2026-01-13 12:05:13 - habit.preprocessing - INFO - [image_processor_pipeline.py:468] - 开始并行处理所有样本...
-2026-01-13 12:05:47 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 完成处理样本: Success: subj001 (0/2)
-2026-01-13 12:05:47 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 完成处理样本: Success: subj002 (1/2)
-2026-01-13 12:05:47 - habit.preprocessing - INFO - [image_processor_pipeline.py:481] - 批处理完成
-2026-01-13 12:05:47 - habit.cli.preprocess - INFO - [cmd_preprocess.py:74] - Batch processing completed
+2026-01-13 14:52:31 - habit - INFO - [log_utils.py:119] - Log file initialized: preprocessed\processing.log
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:50] - Python version: 3.8.16 (default, Mar  2 2023, 03:18:16) [MSC v.1916 64 bit (AMD64)]
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_data/config_preprocessing.yaml
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:60] - Set multiprocessing start method to 'spawn' on Windows
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:214] - Using existing logging configuration from CLI entry point
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:106] - Intermediate results will be saved for all steps
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:85] - Using 2 worker processes.
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:63] - Successfully initialized BatchProcessor
+2026-01-13 14:52:31 - habit.cli.preprocess - INFO - [cmd_preprocess.py:72] - Starting batch processing
+2026-01-13 14:52:31 - habit.preprocessing - WARNING - [image_processor_pipeline.py:434] - No mask found for subject subj001, skipping
+2026-01-13 14:52:31 - habit.preprocessing - WARNING - [image_processor_pipeline.py:434] - No mask found for subject subj002, skipping
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:440] - 将使用 2 个进程进行处理
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:442] - 共有 2 个样本需要处理
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:448] - 开始处理数据...
+2026-01-13 14:52:31 - habit.preprocessing - INFO - [image_processor_pipeline.py:468] - 开始并行处理所有样本...
+2026-01-13 14:55:07 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 完成处理样本: Success: subj001 (0/2)
+2026-01-13 14:55:16 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 完成处理样本: Success: subj002 (1/2)
+2026-01-13 14:55:17 - habit.preprocessing - INFO - [image_processor_pipeline.py:481] - 批处理完成
+2026-01-13 14:55:17 - habit.cli.preprocess - INFO - [cmd_preprocess.py:74] - Batch processing completed

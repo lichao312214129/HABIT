@@ -101,6 +101,8 @@ class TraditionalRadiomicsExtractor:
         If logging has already been configured by the CLI entry point,
         this will simply get the existing logger. Otherwise, it will
         set up a new logger with file output.
+        
+        Also stores log configuration for child processes (multiprocessing support).
         """
         from habit.utils.log_utils import LoggerManager
         
@@ -115,6 +117,10 @@ class TraditionalRadiomicsExtractor:
             # Logging already configured by CLI, just get module logger
             self.logger = get_module_logger('radiomics_extractor')
             self.logger.info("Using existing logging configuration from CLI entry point")
+            
+            # Store log configuration for child processes (Windows spawn mode)
+            self._log_file_path = manager.get_log_file()
+            self._log_level = manager._root_logger.getEffectiveLevel() if manager._root_logger else logging.INFO
         else:
             # Logging not configured yet (e.g., direct class usage)
             # Get timestamp for log filename
@@ -129,6 +135,17 @@ class TraditionalRadiomicsExtractor:
                 level=logging.INFO
             )
             self.logger.info(f"Log file will be saved to: {output_dir / log_filename}")
+            
+            # Store log configuration for child processes
+            self._log_file_path = manager.get_log_file()
+            self._log_level = logging.INFO
+    
+    def _ensure_logging_in_subprocess(self) -> None:
+        """Ensure logging is properly configured in child processes."""
+        from habit.utils.log_utils import restore_logging_in_subprocess
+        
+        if hasattr(self, '_log_file_path') and self._log_file_path:
+            restore_logging_in_subprocess(self._log_file_path, self._log_level)
 
     @staticmethod
     def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
@@ -200,6 +217,9 @@ class TraditionalRadiomicsExtractor:
 
     def process_subject(self, subj, images_paths, masks_paths):
         """处理单个受试者的特征提取"""
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         subject_features = {}
 
         # 获取所有影像类型

@@ -60,7 +60,8 @@ class LoggerManager:
         self, 
         log_file: Optional[Path] = None,
         level: int = logging.INFO,
-        console_level: Optional[int] = None
+        console_level: Optional[int] = None,
+        append_mode: bool = False
     ) -> logging.Logger:
         """
         Setup the root logger for HABIT project.
@@ -72,6 +73,8 @@ class LoggerManager:
             log_file: Path to the log file. If None, only console logging is enabled.
             level: Logging level for file output (default: INFO)
             console_level: Logging level for console output. If None, uses same as level.
+            append_mode: If True, append to existing log file instead of overwriting.
+                         Used by child processes in multiprocessing to avoid overwriting.
             
         Returns:
             logging.Logger: The root logger for HABIT project
@@ -102,9 +105,12 @@ class LoggerManager:
                 log_file = Path(log_file)
                 log_file.parent.mkdir(parents=True, exist_ok=True)
                 
+                # Use append mode for child processes, overwrite for main process
+                file_mode = 'a' if append_mode else 'w'
+                
                 file_handler = logging.FileHandler(
                     str(log_file), 
-                    mode='w',  # Overwrite mode for clean logs
+                    mode=file_mode,
                     encoding='utf-8'
                 )
                 file_handler.setLevel(level)
@@ -116,7 +122,9 @@ class LoggerManager:
                 root_logger.addHandler(file_handler)
                 
                 self._log_file = log_file
-                root_logger.info(f"Log file initialized: {log_file}")
+                self._log_level = level
+                if not append_mode:
+                    root_logger.info(f"Log file initialized: {log_file}")
             
             self._root_logger = root_logger
             return root_logger
@@ -252,6 +260,42 @@ def disable_external_loggers():
     
     for logger_name in external_loggers:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+
+def restore_logging_in_subprocess(
+    log_file_path: Optional[Path] = None,
+    log_level: int = logging.INFO
+) -> None:
+    """
+    Restore logging configuration in a child process.
+    
+    In Windows spawn mode (and forkserver), child processes don't inherit
+    the parent's logging configuration. This function should be called at
+    the beginning of any function that runs in a child process.
+    
+    Args:
+        log_file_path: Path to the log file (should be passed from parent process)
+        log_level: Logging level (should be passed from parent process)
+        
+    Example:
+        # In parent process, store the log config:
+        self._log_file_path = LoggerManager().get_log_file()
+        self._log_level = logging.INFO
+        
+        # In child process function:
+        def process_in_child(self, data):
+            restore_logging_in_subprocess(self._log_file_path, self._log_level)
+            # ... rest of processing
+    """
+    manager = LoggerManager()
+    
+    # Only restore if not already configured (we're in a child process)
+    if manager.get_log_file() is None and log_file_path:
+        manager.setup_root_logger(
+            log_file=log_file_path,
+            level=log_level,
+            append_mode=True  # Append to existing log file
+        )
 
 
 # Convenience function for backward compatibility

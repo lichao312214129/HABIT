@@ -211,6 +211,8 @@ class HabitatAnalysis:
         this will simply get the existing logger. Otherwise, it will
         set up a new logger with file output.
         
+        Also stores log configuration for child processes (multiprocessing support).
+        
         Args:
             log_level (str): Logging level.
         """
@@ -221,15 +223,35 @@ class HabitatAnalysis:
             # Logging already configured by CLI, just get module logger
             self.logger = get_module_logger('habitat')
             self.logger.info("Using existing logging configuration from CLI entry point")
+            
+            # Store log configuration for child processes (Windows spawn mode)
+            self._log_file_path = manager.get_log_file()
+            self._log_level = manager._root_logger.getEffectiveLevel() if manager._root_logger else logging.INFO
         else:
             # Logging not configured yet (e.g., direct HabitatAnalysis usage)
             # Set up logging with file output
+            level = getattr(logging, log_level.upper())
             self.logger = setup_logger(
                 name='habitat',
                 output_dir=self.out_dir,
                 log_filename='habitat_analysis.log',
-                level=getattr(logging, log_level.upper())
+                level=level
             )
+            
+            # Store log configuration for child processes
+            self._log_file_path = manager.get_log_file()
+            self._log_level = level
+    
+    def _ensure_logging_in_subprocess(self) -> None:
+        """Ensure logging is properly configured in child processes.
+        
+        In Windows spawn mode (and forkserver), child processes don't inherit
+        the parent's logging configuration. This method restores it.
+        """
+        from habit.utils.log_utils import restore_logging_in_subprocess
+        
+        if hasattr(self, '_log_file_path') and self._log_file_path:
+            restore_logging_in_subprocess(self._log_file_path, self._log_level)
 
     def _init_one_step_settings(self, one_step_settings: Optional[Dict[str, Any]]) -> None:
         """Initialize one-step clustering settings.
@@ -393,6 +415,9 @@ class HabitatAnalysis:
                 - subject ID
                 - Either a tuple of (subject ID, mean_features_df) or an Exception
         """
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         try:
             # log add subject
             self.logger.info(f"_voxel2supervoxel_clustering subject: {subject}")
@@ -662,6 +687,9 @@ class HabitatAnalysis:
         Returns:
             np.ndarray: Supervoxel features for clustering
         """
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         try:
             # log and print
             self.logger.info(f"Extracting supervoxel-level features for subject {subject}...")
@@ -710,6 +738,9 @@ class HabitatAnalysis:
         Returns:
             int: 主体索引
         """
+        # Restore logging configuration in child process (for multiprocessing)
+        self._ensure_logging_in_subprocess()
+        
         try:
             supervoxel_path = os.path.join(self.out_dir, f"{subject}_supervoxel.nrrd")
             save_habitat_image(subject, self.results_df, supervoxel_path, self.out_dir)

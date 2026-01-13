@@ -40,7 +40,7 @@ def run_preprocess(config_path: str) -> None:
     
     # Setup logging at CLI entry point - all subsequent module logs go to this file
     logger = setup_logger(
-        name='cli.preprocess',
+        name='cli.preprocessing',
         output_dir=output_dir,
         log_filename='processing.log',
         level=logging.INFO
@@ -50,7 +50,10 @@ def run_preprocess(config_path: str) -> None:
         logger.info(f"Python version: {sys.version}")
         logger.info(f"Platform: {platform.platform()}")
         logger.info(f"Using configuration file: {config_path}")
-        click.echo(f"Starting image preprocessing with config: {config_path}")
+        
+        msg = f"Starting image preprocessing with config: {config_path}"
+        logger.info(msg)
+        click.echo(msg)
         
         # Initialize processor
         try:
@@ -62,31 +65,36 @@ def run_preprocess(config_path: str) -> None:
             processor = BatchProcessor(config_path=config_path)
             logger.info("Successfully initialized BatchProcessor")
         except Exception as e:
-            logger.error(f"Failed to initialize BatchProcessor: {e}")
+            error_msg = f"Failed to initialize BatchProcessor: {e}"
+            logger.error(error_msg)
             logger.error(traceback.format_exc())
-            click.echo(f"Error: Failed to initialize processor: {e}", err=True)
+            click.echo(f"Error: {error_msg}", err=True)
             sys.exit(1)
         
         # Process data
         try:
             logger.info("Starting batch processing")
             processor.process_batch()
-            logger.info("Batch processing completed")
-            click.secho("✓ Image preprocessing completed successfully!", fg='green')
+            
+            success_msg = "Image preprocessing completed successfully!"
+            logger.info(success_msg)
+            click.secho(f"✓ {success_msg}", fg='green')
         except Exception as e:
-            logger.error(f"Error during batch processing: {e}")
+            error_msg = f"Error during batch processing: {e}"
+            logger.error(error_msg)
             logger.error(traceback.format_exc())
-            click.echo(f"Error during processing: {e}", err=True)
+            click.echo(error_msg, err=True)
             sys.exit(1)
             
     except Exception as e:
+        error_msg = f"Uncaught error during execution: {e}"
         # Use global logger to avoid UnboundLocalError
         if logger is not None:
-            logger.error(f"Uncaught error during execution: {e}")
+            logger.error(error_msg)
             logger.error(traceback.format_exc())
         else:
             # If logger hasn't been initialized yet
-            print(f"Uncaught error during execution: {e}")
+            print(error_msg)
             print(traceback.format_exc())
         click.echo(f"Fatal error: {e}", err=True)
         sys.exit(1)

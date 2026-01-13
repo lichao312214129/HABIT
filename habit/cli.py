@@ -22,11 +22,10 @@ def cli():
     """
     pass
 
-
 @cli.command('preprocess')
 @click.option('--config', '-c', 
               type=click.Path(exists=True),
-              default='./config/config_image_preprocessing.yaml',
+              default=None,
               help='Path to configuration YAML file')
 def preprocess(config):
     """Preprocess medical images (resampling, registration, normalization)"""

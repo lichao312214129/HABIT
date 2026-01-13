@@ -6,6 +6,11 @@ from habit.utils.image_converter import ImageConverter
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
 
+from ...utils.log_utils import get_module_logger
+
+# Get module logger
+logger = get_module_logger(__name__)
+
 @PreprocessorFactory.register("registration")
 class RegistrationPreprocessor(BasePreprocessor):
     """Register images to a reference image using ANTs.
@@ -136,7 +141,7 @@ class RegistrationPreprocessor(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with registered images.
         """
-        print(f"Registering images to {self.fixed_image}...")
+        logger.info(f"Registering images to {self.fixed_image}...")
         self._check_keys(data)
         
         # Get reference image
@@ -202,11 +207,12 @@ class RegistrationPreprocessor(BasePreprocessor):
                 data[meta_key]["type_of_transform"] = self.type_of_transform
                 data[meta_key]["metric"] = self.metric
                 data[meta_key]["optimizer"] = self.optimizer
+                
                 # Update the image path to indicate it's registered
-                data[meta_key]["image_path"] = data[meta_key]["image_path"].replace(".nii.gz", "_registered.nii.gz")
+                # data[meta_key]["image_path"] = data[meta_key]["image_path"].replace(".nii.gz", "_registered.nii.gz")
                 
             except Exception as e:
-                print(f"Error registering image {key}: {e}")
+                logger.error(f"Error registering image {key}: {e}")
                 if not self.allow_missing_keys:
                     raise
         
@@ -226,12 +232,12 @@ class RegistrationPreprocessor(BasePreprocessor):
                 
             # Skip if no mask for fixed image and replace option is enabled
             if self.replace_by_fixed_image_mask and fixed_mask_key not in data:
-                print(f"Warning: Cannot replace mask for {key} because fixed mask {fixed_mask_key} not found.")
+                logger.warning(f"Warning: Cannot replace mask for {key} because fixed mask {fixed_mask_key} not found.")
                 continue
                 
             # If user chose to replace moving mask with fixed mask
             if self.replace_by_fixed_image_mask:
-                print(f"Replacing mask for {key} with fixed image mask as requested.")
+                logger.info(f"Replacing mask for {key} with fixed image mask as requested.")
                 # Get the fixed mask and make a copy for the moving image
                 fixed_mask = data[fixed_mask_key]
                 data[mask_key] = sitk.Cast(fixed_mask, sitk.sitkUInt8)
@@ -248,7 +254,7 @@ class RegistrationPreprocessor(BasePreprocessor):
             # Normal mask registration process
             # Skip if no transform files (which means image registration failed)
             if transform_key not in data:
-                print(f"Warning: No transform files found for {key}. Skipping mask registration.")
+                logger.warning(f"Warning: No transform files found for {key}. Skipping mask registration.")
                 continue
                 
             # Get the mask image and convert to ANTs
@@ -288,6 +294,6 @@ class RegistrationPreprocessor(BasePreprocessor):
                 data[meta_key]["optimizer"] = self.optimizer
                 
             except Exception as e:
-                print(f"Error applying transform to mask {mask_key}: {e}")
+                logger.error(f"Error applying transform to mask {mask_key}: {e}")
                 # Continue even if error occurs for one mask
         
