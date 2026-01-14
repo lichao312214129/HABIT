@@ -1192,25 +1192,24 @@ class HabitatAnalysis:
             
         try:
             os.makedirs(self.config.io.out_folder, exist_ok=True)
-            save_path = os.path.join(
-                self.config.io.out_folder, 'habitat_clustering_scores.png'
-            )
             
-            # Get cluster range from the algorithm
-            cluster_for_plot = get_clustering_algorithm(self.config.clustering.habitat_method)
+            # Get cluster range from configuration
+            min_clusters = self.config.clustering.n_clusters_habitats_min
+            max_clusters = self.config.clustering.n_clusters_habitats_max
+            cluster_range = list(range(min_clusters, max_clusters + 1))
             
             plot_cluster_scores(
                 scores_dict=scores,
-                cluster_range=cluster_for_plot.cluster_range,
+                cluster_range=cluster_range,
                 methods=self.selection_methods,
                 clustering_algorithm=self.config.clustering.habitat_method,
-                figsize=(12, 8),
-                save_path=save_path,
+                figsize=(6, 6),
+                outdir=self.config.io.out_folder,
                 show=False
             )
             
             if self.config.runtime.verbose:
-                self.logger.info(f"Clustering scores plot saved to {save_path}")
+                self.logger.info(f"Clustering scores plot saved to {self.config.io.out_folder}")
                 
         except Exception as e:
             if self.config.runtime.verbose:

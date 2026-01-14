@@ -16,10 +16,10 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
                       cluster_range: List[int], 
                       methods: Optional[Union[List[str], str]] = None,
                       clustering_algorithm: str = 'kmeans',
-                      figsize: Tuple[int, int] = (8, 6),
-                      save_path: Optional[str] = None,
+                      figsize: Tuple[int, int] = (10, 10),
+                      outdir: Optional[str] = None,
                       show: bool = True,
-                      dpi: int = 300):
+                      dpi: int = 600):
     """
     Plot the scoring curves for cluster evaluation
     
@@ -29,7 +29,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         methods: Methods to plot, can be a string or list of strings, None means plot all methods
         clustering_algorithm: Name of the clustering algorithm
         figsize: Size of the figure
-        save_path: Path to save the figure, None means do not save
+        outdir: Path to save the figure, None means do not save
         show: Whether to display the figure
         dpi: Image resolution
     """
@@ -41,22 +41,15 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
     elif isinstance(methods, str):
         methods = [methods]
     
-    # Create figure
-    n_methods = len(methods)
-    if n_methods == 1:
-        fig, axes = plt.subplots(1, 1, figsize=figsize)
-        axes = [axes]  # Convert to list for consistent access
-    else:
-        fig, axes = plt.subplots(1, n_methods, figsize=figsize)
-        if n_methods > 1 and not isinstance(axes, np.ndarray):
-            axes = [axes]
-    
+    figdir = os.path.join(outdir, 'visualizations', 'habitat_clustering')
+    os.makedirs(figdir, exist_ok=True)
+
     # Plot for each method
     for i, method in enumerate(methods):
         if method not in scores_dict:
             continue
         
-        ax = axes[i] if i < len(axes) else axes[-1]
+        _, ax = plt.subplots(1, 1, figsize=figsize)
         scores = scores_dict[method]
         
         # Plot score curve
@@ -72,6 +65,11 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
             best_score = scores[best_idx]
             criterion = "Maximum"
         elif optimization == 'minimize':
+            # For methods where lower is better
+            best_idx = np.argmin(scores)
+            best_score = scores[best_idx]
+            criterion = "Minimum"
+        elif optimization == 'elbow':
             # For methods where lower is better, use elbow method
             # Calculate first-order differences
             deltas = np.diff(scores)
@@ -102,20 +100,16 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         ax.set_ylabel(f"{method.capitalize()} Score", fontfamily='Arial')
         ax.grid(True)
     
-    # Adjust layout
-    plt.tight_layout()
+        # Adjust layout
+        plt.tight_layout()
+        fig_path = os.path.join(figdir, f'{clustering_algorithm}_{method}_cluster_validation_scores.png')
+        plt.savefig(fig_path, dpi=dpi, bbox_inches='tight')
     
-    # Save figure if path is provided
-    if save_path is not None:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
-        plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-    
-    # Show or close figure
-    if show:
-        plt.show()
-    else:
-        plt.close()
+        # Show or close figure
+        if show:
+            plt.show()
+        else:
+            plt.close()
 
 
 def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=None):

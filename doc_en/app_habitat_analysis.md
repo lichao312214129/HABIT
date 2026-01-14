@@ -101,6 +101,25 @@ The code employs different strategies to select the optimal number of clusters b
 > *   **Inertia (SSE)**: Monotonically decreases as the number of clusters increases (reaching 0 when clusters = samples). Finding the absolute minimum leads to overfitting. Therefore, we look for the "elbow point" where the gain diminishes.
 > *   **Davies-Bouldin**: Considers both intra-cluster compactness (numerator) and inter-cluster separation (denominator). As clusters increase, while compactness improves, separation might decrease (smaller denominator). Thus, it typically has a distinct global minimum and does not require the Elbow Method.
 
+### Combined Methods: Voting System
+
+When using multiple evaluation methods in combination (e.g., `silhouette_calinski_harabasz_davies_bouldin`), the system employs a **voting system** to select the optimal number of clusters:
+
+1. **Independent Selection**: Each method independently selects its optimal cluster number based on its own selection logic (max, min, or elbow method)
+2. **Vote Counting**: Count the number of votes each cluster number receives
+3. **Majority Rule**: Select the cluster number with the most votes as the final result
+4. **Tie Breaking**: In case of a tie, select the smallest cluster number (more conservative choice)
+
+**Example**:
+- Using three methods: `silhouette_calinski_harabasz_davies_bouldin`
+- `silhouette` selects cluster number 5
+- `calinski_harabasz` selects cluster number 5
+- `davies_bouldin` selects cluster number 4
+- **Voting Result**: Cluster number 5 receives 2 votes, cluster number 4 receives 1 vote
+- **Final Selection**: Cluster number 5 (most votes)
+
+This voting system integrates opinions from multiple evaluation metrics, improving the robustness and reliability of the selection result.
+
 ### Output Files
 
 ```

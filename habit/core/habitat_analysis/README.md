@@ -221,12 +221,25 @@ supervoxel_level:
 
 Methods to determine optimal number of clusters:
 
-| Method | Description |
-|--------|-------------|
-| `silhouette` | Silhouette coefficient (-1 to 1, higher is better) |
-| `calinski_harabasz` | Variance ratio (higher is better) |
-| `davies_bouldin` | Cluster separation (lower is better) |
-| `gap_statistic` | Gap to random reference (higher is better) |
+| Method | Description | Selection Logic |
+|--------|-------------|-----------------|
+| `silhouette` | Silhouette coefficient (-1 to 1, higher is better) | **Max Principle**: Selects cluster number with highest score |
+| `calinski_harabasz` | Variance ratio (higher is better) | **Max Principle**: Selects cluster number with highest score |
+| `davies_bouldin` | Cluster separation (lower is better) | **Min Principle**: Selects cluster number with lowest score |
+| `inertia` | Sum of squared errors (lower is better) | **Elbow Method**: Uses second-order difference to find elbow point |
+| `bic` / `aic` | Information criteria for GMM (lower is better) | **Elbow Method**: Uses second-order difference to find elbow point |
+| `gap_statistic` | Gap to random reference (higher is better) | **Max Principle**: Selects cluster number with highest score |
+
+### Combined Methods: Voting System
+
+When multiple methods are combined (e.g., `silhouette_calinski_harabasz_davies_bouldin`), the system uses a **voting system**:
+
+1. Each method independently selects its optimal cluster number
+2. Votes are counted for each cluster number
+3. The cluster number with the most votes is selected
+4. In case of ties, the smallest cluster number is chosen (more conservative)
+
+**Example**: If `silhouette` and `calinski_harabasz` both select 5, and `davies_bouldin` selects 4, then 5 wins with 2 votes.
 
 ## Module Components
 

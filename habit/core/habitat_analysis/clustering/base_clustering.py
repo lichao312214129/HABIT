@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
-from sklearn.preprocessing import LabelEncoder
-import matplotlib.cm as cm
-from matplotlib.ticker import MaxNLocator
+import matplotlib.pyplot as plt
 import warnings
 import os
 import importlib
@@ -269,6 +267,108 @@ class BaseClustering(ABC):
         except Exception as e:
             raise ValueError(f"Error calculating AIC scores: {str(e)}")
     
+    def calculate_silhouette_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate silhouette scores for different numbers of clusters
+        
+        Args:
+            X (np.ndarray): Input data
+            cluster_range (List[int]): Range of cluster numbers
+            
+        Returns:
+            List[float]: List of silhouette scores
+        """
+        scores = []
+        for n_clusters in cluster_range:
+            # Create temporary model
+            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            temp_model.fit(X)
+            labels = temp_model.labels_
+            
+            # Calculate silhouette score
+            if len(np.unique(labels)) > 1:  # Need at least two clusters
+                score = silhouette_score(X, labels)
+            else:
+                score = 0
+            scores.append(score)
+        
+        return scores
+    
+    def calculate_calinski_harabasz_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate Calinski-Harabasz index for different numbers of clusters
+        
+        Args:
+            X (np.ndarray): Input data
+            cluster_range (List[int]): Range of cluster numbers
+            
+        Returns:
+            List[float]: List of Calinski-Harabasz indices
+        """
+        scores = []
+        for n_clusters in cluster_range:
+            # Create temporary model
+            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            temp_model.fit(X)
+            labels = temp_model.labels_
+            
+            # Calculate Calinski-Harabasz index
+            if len(np.unique(labels)) > 1:  # Need at least two clusters
+                score = calinski_harabasz_score(X, labels)
+            else:
+                score = 0
+            scores.append(score)
+        
+        return scores
+    
+    def calculate_davies_bouldin_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate Davies-Bouldin index for different numbers of clusters
+        
+        Args:
+            X (np.ndarray): Input data
+            cluster_range (List[int]): Range of cluster numbers
+        """
+        scores = []
+        for n_clusters in cluster_range:
+            # Create temporary model
+            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            temp_model.fit(X)
+            labels = temp_model.labels_
+            
+            # Calculate Davies-Bouldin index
+            if len(np.unique(labels)) > 1:  # Need at least two clusters
+                score = davies_bouldin_score(X, labels)
+            else:
+                score = 0
+            scores.append(score)
+        
+        return scores
+    
+    def calculate_gap_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate Gap statistic for different numbers of clusters
+        
+        Args:
+            X (np.ndarray): Input data
+            cluster_range (List[int]): Range of cluster numbers
+        """
+        scores = []
+        for n_clusters in cluster_range:
+            # Create temporary model
+            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            temp_model.fit(X)
+            labels = temp_model.labels_
+            
+            # Calculate Gap statistic
+            if len(np.unique(labels)) > 1:  # Need at least two clusters
+                score = gap_score(X, labels)
+            else:
+                score = 0
+            scores.append(score)
+        
+        return scores
+    
     def find_optimal_clusters(self, X: np.ndarray, min_clusters: int = 2, 
                               max_clusters: int = 10, 
                               methods: Optional[Union[List[str], str]] = None, 
@@ -354,59 +454,55 @@ class BaseClustering(ABC):
         
         return best_n_clusters, self.scores 
     
-    def calculate_silhouette_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+    @staticmethod
+    def _find_best_n_clusters_for_elbow_method(scores: List[float]) -> int:
         """
-        Calculate silhouette scores for different numbers of clusters
+        Find best cluster number using elbow method.
         
         Args:
-            X (np.ndarray): Input data
-            cluster_range (List[int]): Range of cluster numbers
+            scores: List of scores for different cluster numbers
             
         Returns:
-            List[float]: List of silhouette scores
+            int: Index of the best cluster number (0-based)
         """
-        scores = []
-        for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
-            temp_model.fit(X)
-            labels = temp_model.labels_
-            
-            # Calculate silhouette score
-            if len(np.unique(labels)) > 1:  # Need at least two clusters
-                score = silhouette_score(X, labels)
-            else:
-                score = 0
-            scores.append(score)
-        
-        return scores
-    
-    def calculate_calinski_harabasz_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        deltas = np.diff(scores)
+        deltas2 = np.diff(deltas)
+        best_idx = np.argmax(deltas2) + 1
+        if best_idx >= len(scores) - 1:
+            best_idx = len(scores) - 2  # Choose the second-to-last point
+        return best_idx
+
+    def _select_best_n_clusters_for_single_method(self, scores: List[float], method: str) -> int:
         """
-        Calculate Calinski-Harabasz index for different numbers of clusters
+        Select optimal number of clusters for a single method.
         
         Args:
-            X (np.ndarray): Input data
-            cluster_range (List[int]): Range of cluster numbers
+            scores: List of scores for different cluster numbers
+            method: Method name
             
         Returns:
-            List[float]: List of Calinski-Harabasz indices
+            int: Best number of clusters
         """
-        scores = []
-        for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
-            temp_model.fit(X)
-            labels = temp_model.labels_
-            
-            # Calculate Calinski-Harabasz index
-            if len(np.unique(labels)) > 1:  # Need at least two clusters
-                score = calinski_harabasz_score(X, labels)
-            else:
-                score = 0
-            scores.append(score)
+        # Get optimization direction for the method
+        algo_name = self.__class__.__name__.lower()
+        if algo_name.endswith('clustering'):
+            algo_name = algo_name[:-10]
+        optimization = get_optimization_direction(algo_name, method)
+
+        # Select best cluster index based on optimization direction
+        if optimization == 'maximize':
+            best_idx = np.argmax(scores)
+        elif optimization == 'minimize':
+            best_idx = np.argmin(scores)
+        elif optimization == 'elbow':
+            best_idx = self._find_best_n_clusters_for_elbow_method(scores)
+        else:
+            # Default to maximum value
+            best_idx = np.argmax(scores)
         
-        return scores
+        best_n_clusters = self.cluster_range[best_idx]
+
+        return best_n_clusters
     
     def auto_select_best_n_clusters(self, scores_dict: Dict[str, List[float]], method: str = 'silhouette') -> int:
         """
@@ -426,158 +522,35 @@ class BaseClustering(ABC):
         # If it's a single method
         if method in scores_dict:
             scores = scores_dict[method]
-            
-            if method in ['silhouette', 'calinski_harabasz']:
-                # These methods are better with higher values
-                best_idx = np.argmax(scores)
-            elif method == 'davies_bouldin':
-                # Davies-Bouldin is better with lower values
-                best_idx = np.argmin(scores)
-            elif method in ['inertia', 'bic', 'aic']:
-                # These methods are better with lower values, but need to use elbow method
-                # Calculate first-order differences
-                deltas = np.diff(scores)
-                # Calculate second-order differences (elbow is usually the point with maximum second-order difference)
-                deltas2 = np.diff(deltas)
-                # Elbow is the point after the maximum second-order difference
-                best_idx = np.argmax(deltas2) + 1
-                if best_idx >= len(scores) - 1:
-                    best_idx = len(scores) - 2  # Choose the second-to-last point
-            else:
-                # Default to using maximum value
-                best_idx = np.argmax(scores)
+            best_idx = self._select_best_n_clusters_for_single_method(scores, method)
         
-        # If it's a combination of methods
+        # If it's a combination of methods, use voting system
         else:
             methods = method.split('_')
-            rankings = np.zeros(len(list(scores_dict.values())[0]))
+            votes = {}  # Dictionary to store votes: {cluster_index: vote_count}
             
+            # Each method votes for its best cluster number
             for m in methods:
                 if m not in scores_dict:
                     continue
                 
                 scores = scores_dict[m]
+                # Select best cluster index for this method
+                best_n_clusters = self._select_best_n_clusters_for_single_method(scores, m)
                 
-                if m in ['silhouette', 'calinski_harabasz']:
-                    # Calculate normalized rankings (higher is better)
-                    norm_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
-                    rankings += norm_scores
-                elif m in ['inertia', 'bic', 'aic', 'davies_bouldin']:
-                    # Calculate normalized rankings (lower is better)
-                    norm_scores = 1 - (scores - np.min(scores)) / (np.max(scores) - np.min(scores) + 1e-10)
-                    rankings += norm_scores
+                # Count the vote
+                if best_n_clusters not in votes:
+                    votes[best_n_clusters] = 0
+                votes[best_n_clusters] += 1
             
-            # Choose the one with highest combined ranking
-            best_idx = np.argmax(rankings)
+            if len(votes) == 0:
+                raise ValueError("No valid methods found in the combination")
+            
+            # Find the cluster number with the most votes
+            # If there's a tie, choose the one with the smallest cluster number
+            max_votes = max(votes.values())
+            candidates = [idx for idx, count in votes.items() if count == max_votes]
+            best_n_clusters = min(candidates)  # In case of tie, choose the smallest cluster number
         
         # Add min_clusters offset
-        min_clusters = min(self.cluster_range)
-        best_n_clusters = best_idx + min_clusters
-        
         return best_n_clusters 
-    
-    def plot_scores(self, scores_dict: Optional[Dict[str, List[float]]] = None, methods: Optional[Union[List[str], str]] = None, 
-                   min_clusters: int = 2, max_clusters: int = 10, figsize: Tuple[int, int] = (12, 8), 
-                   save_path: Optional[str] = None, show: bool = True):
-        """
-        Plot the evaluation scores for different numbers of clusters
-        
-        Args:
-            scores_dict (Optional[Dict[str, List[float]]]): Dictionary of scores, keys are method names, values are score lists
-            methods (Optional[Union[List[str], str]]): Method(s) to plot
-            min_clusters (int): Minimum number of clusters
-            max_clusters (int): Maximum number of clusters
-            figsize (Tuple[int, int]): Figure size
-            save_path (Optional[str]): Path to save the figure
-            show (bool): Whether to show the figure
-        """
-        import matplotlib.pyplot as plt
-        from .cluster_validation_methods import get_method_description, get_optimization_direction
-        
-        # If scores_dict is not provided, use self.scores
-        if scores_dict is None:
-            scores_dict = self.scores
-        
-        # If methods is not provided or None, use all methods in scores_dict
-        if methods is None:
-            methods = list(scores_dict.keys())
-        elif isinstance(methods, str):
-            methods = [methods]
-        
-        # If cluster_range is not provided, use range(min_clusters, max_clusters + 1)
-        if self.cluster_range is None:
-            self.cluster_range = list(range(min_clusters, max_clusters + 1))
-        
-        # Create figure
-        n_methods = len(methods)
-        if n_methods == 1:
-            fig, axes = plt.subplots(1, 1, figsize=figsize)
-            axes = [axes]  # Make it into a list for consistent access
-        else:
-            fig, axes = plt.subplots(1, n_methods, figsize=figsize)
-        
-        # Get clustering algorithm name
-        algo_name = self.__class__.__name__.lower()
-        if algo_name.endswith('clustering'):
-            algo_name = algo_name[:-10]
-        
-        # Plot each method
-        for i, method in enumerate(methods):
-            if method not in scores_dict:
-                continue
-            
-            ax = axes[i]
-            scores = scores_dict[method]
-                        
-            # Plot score curve
-            ax.plot(self.cluster_range, scores, 'o-', linewidth=2, markersize=8)
-
-            # Get optimization direction for this method
-            optimization = get_optimization_direction(algo_name, method)
-            
-            # Mark optimal number of clusters
-            if optimization == 'maximize':
-                # For methods where higher is better
-                best_idx = np.argmax(scores)
-                best_score = scores[best_idx]
-                criterion = "Maximum Value"
-            elif optimization == 'minimize':
-                # For methods where lower is better, use elbow method
-                # Calculate first-order differences
-                deltas = np.diff(scores)
-                # Calculate second-order differences (elbow is usually the point with maximum second-order difference)
-                deltas2 = np.diff(deltas)
-                # Elbow is the point after the maximum second-order difference
-                best_idx = np.argmax(deltas2) + 1
-                if best_idx >= len(scores) - 1:
-                    best_idx = len(scores) - 2
-                best_score = scores[best_idx]
-                criterion = "Elbow Method"
-            else:
-                # Default to using maximum value
-                best_idx = np.argmax(scores)
-                best_score = scores[best_idx]
-                criterion = "Maximum Value"
-            
-            best_n_clusters = self.cluster_range[best_idx]
-            ax.plot(best_n_clusters, best_score, 'rx', markersize=12, markeredgewidth=3)
-            
-            # Set title and labels
-            method_desc = get_method_description(algo_name, method)
-            ax.set_title(f"{method_desc}\nBest n_clusters = {best_n_clusters} ({criterion})")
-            ax.set_xlabel("Number of clusters")
-            ax.set_ylabel(f"{method.capitalize()} Score")
-            ax.grid(True)
-        
-        # Adjust layout
-        plt.tight_layout()
-        
-        # Save figure if needed
-        if save_path is not None:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        
-        # Show figure if needed
-        if show:
-            plt.show()
-        else:
-            plt.close() 

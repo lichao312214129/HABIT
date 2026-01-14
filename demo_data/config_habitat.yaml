@@ -64,9 +64,17 @@ HabitatsSegmention:
     mode: training  # training or testing  
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
-    habitat_cluster_selection_method: inertia  # Selection Logic: 
-                                               # - 'silhouette', 'calinski_harabasz': Select max score (higher is better)
-                                               # - 'inertia', 'aic', 'bic': Select elbow point using 2nd derivative (lower is better)
+    # - 'silhouette', 'calinski_harabasz': Select max score (higher is better)
+    # - 'inertia', 'aic', 'bic': Select elbow point using 2nd derivative (lower is better)
+    habitat_cluster_selection_method: 
+      - inertia  # Selection Logic: 
+      # - silhouette
+      # - calinski_harabasz
+      # - aic
+      # - bic
+      - davies_bouldin
+
+                                               
     best_n_clusters:    # Set to null for automatic selection
     random_state: 42
     max_iter: 300

@@ -18,7 +18,7 @@ CLUSTERING_VALIDATION_METHODS = {
             },
             'inertia': {
                 'description': 'Inertia, sum of squared distances to the nearest cluster center, lower is better',
-                'optimization': 'minimize'
+                'optimization': 'elbow'
             },
             'gap': {
                 'description': 'Gap Statistic, higher is better',
