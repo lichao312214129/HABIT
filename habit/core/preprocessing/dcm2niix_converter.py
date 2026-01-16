@@ -151,10 +151,44 @@ class Dcm2niixConverter(BasePreprocessor):
                 check=False
             )
             if result.returncode != 0 and "dcm2niix" not in result.stderr.lower():
-                raise RuntimeError(f"dcm2niix executable not found: {self.dcm2niix_executable}")
+                raise RuntimeError(self._get_dcm2niix_not_found_message())
             self.logger.info(f"dcm2niix executable verified: {self.dcm2niix_executable}")
         except FileNotFoundError:
-            raise RuntimeError(f"dcm2niix executable not found: {self.dcm2niix_executable}")
+            raise RuntimeError(self._get_dcm2niix_not_found_message())
+    
+    def _get_dcm2niix_not_found_message(self) -> str:
+        """
+        Generate helpful error message with installation instructions when dcm2niix is not found.
+        
+        Returns:
+            str: Error message with installation instructions
+        """
+        return f"""dcm2niix executable not found: {self.dcm2niix_executable}
+
+Please install dcm2niix using one of the following methods:
+
+1. Using pip (recommended):
+   python -m pip install dcm2niix
+
+2. Using conda:
+   conda install -c conda-forge dcm2niix
+
+3. Using package manager:
+   - Debian/Ubuntu: sudo apt-get install dcm2niix
+   - MacOS Homebrew: brew install dcm2niix
+   - MacOS MacPorts: sudo port install dcm2niix
+
+4. Download pre-built binaries:
+   - Linux:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip
+   - MacOS:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/macos_dcm2niix.pkg
+   - Windows: curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_win.zip
+
+5. MRIcroGL includes dcm2niix:
+   - NITRC: https://www.nitrc.org/projects/mricrogl
+   - GitHub: https://github.com/rordenlab/MRIcroGL
+
+For more information, visit: https://github.com/rordenlab/dcm2niix
+"""
     
     def _build_dcm2niix_command(
         self, 

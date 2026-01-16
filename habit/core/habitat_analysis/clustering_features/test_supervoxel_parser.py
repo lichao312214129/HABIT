@@ -2,7 +2,7 @@
 Test the feature expression parser with supervoxel level configurations
 """
 
-from habit.core.habitat_analysis.features.feature_expression_parser import FeatureExpressionParser
+from habit.core.habitat_analysis.clustering_features.feature_expression_parser import FeatureExpressionParser
 
 def test_supervoxel_parser():
     """Test feature expression parser with supervoxel level configurations"""

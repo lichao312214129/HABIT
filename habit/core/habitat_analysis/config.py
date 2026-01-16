@@ -42,7 +42,7 @@ class ClusteringConfig:
     
     def __post_init__(self):
         """Validate clustering configuration after initialization."""
-        valid_strategies = ['one_step', 'two_step']
+        valid_strategies = ['one_step', 'two_step', 'direct_pooling']
         if self.strategy.lower() not in valid_strategies:
             raise ValueError(
                 f"clustering strategy must be one of {valid_strategies}, "

@@ -10,12 +10,15 @@ Habitat analysis divides tumors into distinct sub-regions (habitats) based on im
 
 ```
 habitat_analysis/
-├── habitat_analysis.py    # Main HabitatAnalysis class
-├── config.py              # Configuration dataclasses
-├── pipeline.py            # Training/Testing strategy classes
-├── clustering/            # Clustering algorithms
-├── features/              # Feature extractors (voxel-level)
-└── feature_extraction/    # Legacy feature extraction
+├── habitat_analysis.py           # Main HabitatAnalysis class
+├── config.py                     # Configuration dataclasses
+├── strategies/                   # Analysis strategies and pipelines
+│   ├── clustering_pipeline.py    # Training/Testing pipelines
+│   ├── base_strategy.py          # Base strategy interface
+│   └── ...
+├── clustering/                   # Clustering algorithms
+├── clustering_features/          # Feature extractors for clustering (voxel/supervoxel-level)
+└── habitat_feature_extraction/   # Feature extraction from habitat maps (for analysis)
 ```
 
 ## Pipeline Flow

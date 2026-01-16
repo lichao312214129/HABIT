@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-from .config import HabitatConfig, ResultColumns
+from ..config import HabitatConfig, ResultColumns
 
 
 class BasePipeline(ABC):

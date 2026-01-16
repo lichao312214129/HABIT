@@ -193,29 +193,34 @@ class BaseClustering(ABC):
         except Exception as e:
             raise ValueError(f"Error calculating inertia scores: {str(e)}")
 
-    def calculate_bic_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+    def calculate_bic_scores(self, X: np.ndarray, cluster_range: List[int]) -> Optional[List[float]]:
         """
-        Calculate BIC scores for different numbers of clusters (for GMM)
+        Calculate BIC scores for different numbers of clusters (for GMM only)
         
         Args:
             X (np.ndarray): Input data with shape (n_samples, n_features)
             cluster_range (List[int]): Range of cluster numbers to evaluate
             
         Returns:
-            List[float]: List of BIC scores
+            Optional[List[float]]: List of BIC scores, or None if not applicable to this algorithm
         """
+        # BIC is only applicable to GMM (probabilistic model with likelihood function)
+        if "gmm" not in self.__class__.__name__.lower():
+            warnings.warn(
+                f"BIC is only applicable to GMM algorithm. "
+                f"Skipping BIC calculation for {self.__class__.__name__}. "
+                f"Consider using silhouette, calinski_harabasz, or davies_bouldin instead."
+            )
+            return None
+        
         try:
             from sklearn.mixture import GaussianMixture
-            # 检查是否是GMM或其子类
-            if "gmm" not in self.__class__.__name__.lower():
-                warnings.warn(f"calculate_bic_scores is primarily for GMM algorithm, but was called on {self.__class__.__name__}")
             
             bic_scores = []
             for n_clusters in cluster_range:
                 gmm = GaussianMixture(
                     n_components=n_clusters,
                     random_state=self.random_state,
-                    # 尝试获取GMM特有的参数
                     covariance_type=getattr(self, 'covariance_type', 'full'),
                     n_init=getattr(self, 'n_init', 1),
                     max_iter=getattr(self, 'max_iter', 100),
@@ -230,29 +235,34 @@ class BaseClustering(ABC):
         except Exception as e:
             raise ValueError(f"Error calculating BIC scores: {str(e)}")
 
-    def calculate_aic_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+    def calculate_aic_scores(self, X: np.ndarray, cluster_range: List[int]) -> Optional[List[float]]:
         """
-        Calculate AIC scores for different numbers of clusters (for GMM)
+        Calculate AIC scores for different numbers of clusters (for GMM only)
         
         Args:
             X (np.ndarray): Input data with shape (n_samples, n_features)
             cluster_range (List[int]): Range of cluster numbers to evaluate
             
         Returns:
-            List[float]: List of AIC scores
+            Optional[List[float]]: List of AIC scores, or None if not applicable to this algorithm
         """
+        # AIC is only applicable to GMM (probabilistic model with likelihood function)
+        if "gmm" not in self.__class__.__name__.lower():
+            warnings.warn(
+                f"AIC is only applicable to GMM algorithm. "
+                f"Skipping AIC calculation for {self.__class__.__name__}. "
+                f"Consider using silhouette, calinski_harabasz, or davies_bouldin instead."
+            )
+            return None
+        
         try:
             from sklearn.mixture import GaussianMixture
-            # 检查是否是GMM或其子类
-            if "gmm" not in self.__class__.__name__.lower():
-                warnings.warn(f"calculate_aic_scores is primarily for GMM algorithm, but was called on {self.__class__.__name__}")
             
             aic_scores = []
             for n_clusters in cluster_range:
                 gmm = GaussianMixture(
                     n_components=n_clusters,
                     random_state=self.random_state,
-                    # 尝试获取GMM特有的参数
                     covariance_type=getattr(self, 'covariance_type', 'full'),
                     n_init=getattr(self, 'n_init', 1),
                     max_iter=getattr(self, 'max_iter', 100),
@@ -421,6 +431,9 @@ class BaseClustering(ABC):
         # Check and calculate each validation method
         if isinstance(methods, str):
             methods = [methods]
+        
+        # Track which methods were actually calculated
+        valid_methods = []
             
         for method in methods:
             if hasattr(self, f'calculate_{method}_scores'):
@@ -428,14 +441,33 @@ class BaseClustering(ABC):
                     print(f"Calculating {method}...")
                     
                 # Call the specific calculation method
-                # 这行代码的作用是：通过方法名字符串查找并获取当前类(self)中以"calculate_{method}_scores"命名的方法，
-                # 并将其赋值给变量calculation_method，以后可以像函数一样调用它来计算指定指标的聚类分数。
-                # 例如，如果method是"silhouette"，则会获取"calculate_silhouette_scores"方法。
+                # This dynamically gets the method named "calculate_{method}_scores" from the class
+                # For example, if method is "silhouette", it gets "calculate_silhouette_scores" method
                 calculation_method = getattr(self, f'calculate_{method}_scores')
-                self.scores[method] = calculation_method(X, self.cluster_range)
+                scores = calculation_method(X, self.cluster_range)
+                
+                # Skip if method returns None (e.g., AIC/BIC for non-GMM algorithms)
+                if scores is None:
+                    if show_progress:
+                        print(f"{method.capitalize()} skipped (not applicable to this algorithm)")
+                    continue
+                
+                self.scores[method] = scores
+                valid_methods.append(method)
                 
                 if show_progress:
                     print(f"{method.capitalize()} calculation completed!")
+        
+        # Update methods list to only include valid ones
+        methods = valid_methods
+        
+        # Check if any valid methods remain
+        if len(methods) == 0:
+            raise ValueError(
+                "No valid validation methods available for this clustering algorithm. "
+                f"Original methods requested: {methods}. "
+                "Please use appropriate methods for your algorithm."
+            )
         
         # Automatically select the best number of clusters
         if len(methods) == 1:
@@ -501,7 +533,7 @@ class BaseClustering(ABC):
             best_idx = np.argmax(scores)
         
         best_n_clusters = self.cluster_range[best_idx]
-
+        
         return best_n_clusters
     
     def auto_select_best_n_clusters(self, scores_dict: Dict[str, List[float]], method: str = 'silhouette') -> int:

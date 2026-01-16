@@ -9,7 +9,7 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(current_dir, '..', '..', '..'))
 
-from habit.core.habitat_analysis.features.feature_expression_parser import FeatureExpressionParser
+from habit.core.habitat_analysis.clustering_features.feature_expression_parser import FeatureExpressionParser
 
 def test_parser():
     """Test feature expression parser with different formats"""

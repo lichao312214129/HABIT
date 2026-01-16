@@ -52,7 +52,7 @@ ITH（Intratumoral Heterogeneity，肿瘤内部异质性）评分是量化肿瘤
 ### 使用新的实现
 
 ```python
-from habitat_analysis.feature_extraction.new_extractor import HabitatFeatureExtractor
+from habit.core.habitat_analysis.habitat_feature_extraction.new_extractor import HabitatFeatureExtractor
 
 # 创建特征提取器实例
 extractor = HabitatFeatureExtractor(
@@ -88,7 +88,7 @@ python new_extractor.py --params_file_of_non_habitat parameter.yaml --params_fil
 ### 单独使用ITH分数计算
 
 ```python
-from habitat_analysis.feature_extraction.ith_features import ITHFeatureExtractor
+from habit.core.habitat_analysis.habitat_feature_extraction.ith_features import ITHFeatureExtractor
 
 # 创建ITH特征提取器
 ith_extractor = ITHFeatureExtractor(
@@ -113,7 +113,7 @@ print(f"ITH Score: {ith_score}")
 ### 单独使用MSI特征提取
 
 ```python
-from habitat_analysis.feature_extraction.msi_features import MSIFeatureExtractor
+from habit.core.habitat_analysis.habitat_feature_extraction.msi_features import MSIFeatureExtractor
 
 msi_extractor = MSIFeatureExtractor()
 features = msi_extractor.extract_MSI_features('path/to/habitat.nrrd', n_habitats=4, subj='subject_id')

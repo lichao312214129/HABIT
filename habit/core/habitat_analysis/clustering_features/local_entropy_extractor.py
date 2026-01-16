@@ -7,7 +7,7 @@ in the local neighborhood of a voxel.
 
 Example usage:
     ```python
-    from habit.core.habitat_analysis.features import LocalEntropyExtractor
+    from habit.core.habitat_analysis.clustering_features import LocalEntropyExtractor
     
     # Initialize extractor with custom parameters
     extractor = LocalEntropyExtractor(

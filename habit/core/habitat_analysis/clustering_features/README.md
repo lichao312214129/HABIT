@@ -20,7 +20,7 @@
 ### 示例
 
 ```python
-from habitat_clustering.features.base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from habit.core.habitat_analysis.clustering_features.base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
 import numpy as np
 
 @register_feature_extractor('your_method')
@@ -62,7 +62,7 @@ FeatureConstruction:
 或者在代码中直接使用：
 
 ```python
-from habitat_clustering.features.feature_extractor_factory import create_feature_extractor
+from habit.core.habitat_analysis.clustering_features.feature_extractor_factory import create_feature_extractor
 
 # 创建您的特征提取器实例
 feature_extractor = create_feature_extractor('your_method', param1=value1)

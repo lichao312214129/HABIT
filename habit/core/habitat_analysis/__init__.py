@@ -41,7 +41,7 @@ except ImportError as e:
 
 # Try to import Pipeline classes
 try:
-    from .pipeline import (
+    from .strategies.clustering_pipeline import (
         BasePipeline,
         TrainingPipeline,
         TestingPipeline,
@@ -56,7 +56,7 @@ except ImportError as e:
 
 # Try to import HabitatFeatureExtractor
 try:
-    from .feature_extraction import HabitatFeatureExtractor
+    from .habitat_feature_extraction import HabitatFeatureExtractor
     _available_classes['HabitatFeatureExtractor'] = HabitatFeatureExtractor
 except ImportError as e:
     _import_errors['HabitatFeatureExtractor'] = str(e)

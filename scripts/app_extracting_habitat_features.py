@@ -10,7 +10,7 @@ import sys
 import argparse
 import logging
 import time
-from habit.core.habitat_analysis.feature_extraction.new_extractor import HabitatFeatureExtractor
+from habit.core.habitat_analysis.habitat_feature_extraction.new_extractor import HabitatFeatureExtractor
 from habit.utils.io_utils import load_config, setup_logging
 
 

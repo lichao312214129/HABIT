@@ -52,9 +52,9 @@ def get_feature_extractor(name: str, **kwargs) -> 'BaseFeatureExtractor':
     
     # If not found, try dynamic import
     try:
-        # Try to import module with specified name
-        module_name = f"habitat_clustering.features.{name}_feature_extractor"
-        module = importlib.import_module(module_name)
+        # Try to import module with specified name using relative import
+        module_name = f"{name}_feature_extractor"
+        module = importlib.import_module(f".{module_name}", package=__package__)
         
         # Find feature extractor class in the module
         for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
@@ -83,7 +83,7 @@ def get_available_feature_extractors() -> List[str]:
 
 def discover_feature_extractors() -> None:
     """
-    Automatically discover all feature extractors defined in the features directory
+    Automatically discover all feature extractors defined in the clustering_features directory
     """
     # Use the directory of the current file to avoid circular imports
     package_dir = os.path.dirname(os.path.abspath(__file__))
@@ -92,8 +92,8 @@ def discover_feature_extractors() -> None:
     for _, module_name, _ in pkgutil.iter_modules([package_dir]):
         if module_name.endswith('_feature_extractor') and module_name != 'base_feature_extractor':
             try:
-                # Dynamically import the module
-                module = importlib.import_module(f"habitat_clustering.features.{module_name}")
+                # Dynamically import the module using relative import
+                module = importlib.import_module(f".{module_name}", package=__package__)
                 
                 # Find and register feature extractors defined in the module
                 for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
