@@ -258,7 +258,7 @@ class PreprocessingState:
         
         # Always compute basic statistics for imputation and potential use
         self.means = df.mean()
-        self.stds = df.std().replace(0, 1.0)
+        self.stds = df.std().replace(0, 1.0)  # 解释：如果标准差为0，则替换为1.0 为什么这样做？因为如果标准差为0，则所有数据都相同，这样会导致除数为0，所以替换为1.0
         self.mins = df.min()
         self.maxs = df.max()
         
