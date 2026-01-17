@@ -11,10 +11,10 @@ if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
 
 
-class BaseHabitatStrategy(ABC):
+class BaseClusteringStrategy(ABC):
     """
     Abstract base class for habitat analysis strategies.
-
+    
     Each strategy should implement run() and return a results DataFrame.
     """
 

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Any
 import pandas as pd
 
 from habit.utils.parallel_utils import parallel_map
-from .base_strategy import BaseHabitatStrategy
+from .base_strategy import BaseClusteringStrategy
 from ..managers import FeatureManager, ClusteringManager, ResultManager
 from ..config import ResultColumns
 
@@ -107,7 +107,7 @@ def _process_subject_one_step(
         return subject, Exception(str(e))
 
 
-class OneStepStrategy(BaseHabitatStrategy):
+class OneStepStrategy(BaseClusteringStrategy):
     """
     One-step clustering strategy.
 
@@ -225,8 +225,8 @@ class OneStepStrategy(BaseHabitatStrategy):
         os.makedirs(self.config.io.out_folder, exist_ok=True)
         
         # Save configuration (no global optimal_n_clusters for One-Step)
-        if self.analysis.pipeline:
-            self.analysis.pipeline.save_config(optimal_n_clusters=None)
+        if self.analysis.mode_handler:
+            self.analysis.mode_handler.save_config(optimal_n_clusters=None)
         
         # Save results CSV
         csv_path = os.path.join(self.config.io.out_folder, 'habitats.csv')

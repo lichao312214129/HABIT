@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Any
 import pandas as pd
 
 from habit.utils.parallel_utils import parallel_map
-from .base_strategy import BaseHabitatStrategy
+from .base_strategy import BaseClusteringStrategy
 from ..managers import FeatureManager, ClusteringManager, ResultManager
 from ..config import ResultColumns
 
@@ -89,7 +89,7 @@ def _process_subject_supervoxels(
         return subject, Exception(str(e))
 
 
-class TwoStepStrategy(BaseHabitatStrategy):
+class TwoStepStrategy(BaseClusteringStrategy):
     """
     Two-step clustering strategy (default).
 
@@ -138,12 +138,12 @@ class TwoStepStrategy(BaseHabitatStrategy):
 
         # Step 4: Preprocess population-level supervoxel features
         features_for_clustering = self._prepare_population_features(
-            mean_features_all, subjects, failed_subjects, self.analysis.pipeline
+            mean_features_all, subjects, failed_subjects, self.analysis.mode_handler
         )
 
         # Step 5: Cluster supervoxel features to identify habitats (population-level)
         self.analysis.results_df = self._perform_population_clustering(
-            mean_features_all, features_for_clustering, self.analysis.pipeline
+            mean_features_all, features_for_clustering, self.analysis.mode_handler
         )
 
         # Step 6: Save results (CSV files and habitat images)
@@ -153,7 +153,7 @@ class TwoStepStrategy(BaseHabitatStrategy):
                 optimal_n_clusters = self.analysis.clustering_manager.supervoxel2habitat_clustering.n_clusters
             
             self._save_results(
-                subjects, failed_subjects, self.analysis.pipeline, optimal_n_clusters
+                subjects, failed_subjects, self.analysis.mode_handler, optimal_n_clusters
             )
 
         return self.analysis.results_df
@@ -215,7 +215,7 @@ class TwoStepStrategy(BaseHabitatStrategy):
         mean_features_all: pd.DataFrame,
         subjects: List[str],
         failed_subjects: List[str],
-        pipeline: Any = None
+        mode_handler: Any = None
     ) -> pd.DataFrame:
         """
         Prepare features for population-level clustering.
@@ -241,13 +241,17 @@ class TwoStepStrategy(BaseHabitatStrategy):
             # Extract supervoxel-level features in parallel
             features = self._extract_all_supervoxel_features(subjects, failed_subjects)
         
-        # Clean and preprocess features using Manager's atomic methods
+        # Clean features (handle inf, types)
         features = self.analysis.feature_manager.clean_features(features)
-        features = self.analysis.feature_manager.apply_preprocessing(features, level='group')
         
-        # Handle mean values for training/testing
-        if pipeline:
-            self.analysis.feature_manager.handle_mean_values(features, pipeline)
+        # Apply group-level preprocessing (delegates to mode_handler for stateful processing)
+        if mode_handler:
+            features = self.analysis.feature_manager.apply_preprocessing(
+                features, level='group', mode_handler=mode_handler
+            )
+        else:
+            # Fallback: just apply without state management
+            features = self.analysis.feature_manager.apply_preprocessing(features, level='subject')
         
         return features
     
@@ -299,7 +303,7 @@ class TwoStepStrategy(BaseHabitatStrategy):
         self,
         mean_features_all: pd.DataFrame,
         features: pd.DataFrame,
-        pipeline: Any
+        mode_handler: Any
     ) -> pd.DataFrame:
         """
         Perform population-level clustering to determine habitats.
@@ -308,13 +312,13 @@ class TwoStepStrategy(BaseHabitatStrategy):
         Args:
             mean_features_all: Original combined features with metadata
             features: Cleaned features for clustering
-            pipeline: Pipeline instance for clustering logic
+            mode_handler: Mode handler instance for clustering logic
             
         Returns:
             Results DataFrame with habitat labels
         """
         # Perform population-level clustering
-        habitat_labels, optimal_n_clusters, scores = pipeline.cluster_habitats(
+        habitat_labels, optimal_n_clusters, scores = mode_handler.cluster_habitats(
             features, self.analysis.clustering_manager.supervoxel2habitat_clustering
         )
         
@@ -330,7 +334,7 @@ class TwoStepStrategy(BaseHabitatStrategy):
         
         # Save model for training mode
         if self.config.runtime.mode == 'training':
-            pipeline.save_model(
+            mode_handler.save_model(
                 self.analysis.clustering_manager.supervoxel2habitat_clustering,
                 'supervoxel2habitat_clustering_strategy'
             )
@@ -344,7 +348,7 @@ class TwoStepStrategy(BaseHabitatStrategy):
         self, 
         subjects: List[str], 
         failed_subjects: List[str],
-        pipeline: Any,
+        mode_handler: Any,
         optimal_n_clusters: int
     ) -> None:
         """
@@ -358,8 +362,8 @@ class TwoStepStrategy(BaseHabitatStrategy):
         os.makedirs(self.config.io.out_folder, exist_ok=True)
         
         # Save configuration
-        if pipeline:
-            pipeline.save_config(optimal_n_clusters)
+        if mode_handler:
+            mode_handler.save_config(optimal_n_clusters)
         
         # Save results CSV
         csv_path = os.path.join(self.config.io.out_folder, 'habitats.csv')

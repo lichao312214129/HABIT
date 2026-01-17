@@ -10,8 +10,8 @@ import pandas as pd
 from typing import Dict, List, Any, Tuple, Optional, Union
 
 from ..config import HabitatConfig, ResultColumns
-from ..clustering.base_clustering import get_clustering_algorithm
-from ..clustering.cluster_validation_methods import (
+from ..algorithms.base_clustering import get_clustering_algorithm
+from ..algorithms.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
     get_default_methods

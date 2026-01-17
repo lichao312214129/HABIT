@@ -4,20 +4,22 @@ Strategy factory and exports for habitat analysis.
 
 from typing import Dict, Type
 
-from .base_strategy import BaseHabitatStrategy
+from .base_strategy import BaseClusteringStrategy
 from .one_step_strategy import OneStepStrategy
 from .two_step_strategy import TwoStepStrategy
 from .direct_pooling_strategy import DirectPoolingStrategy
 
+# Alias for backward compatibility
+BaseHabitatStrategy = BaseClusteringStrategy
 
-STRATEGY_REGISTRY: Dict[str, Type[BaseHabitatStrategy]] = {
+STRATEGY_REGISTRY: Dict[str, Type[BaseClusteringStrategy]] = {
     "one_step": OneStepStrategy,
     "two_step": TwoStepStrategy,
     "direct_pooling": DirectPoolingStrategy,
 }
 
 
-def get_strategy(strategy_name: str) -> Type[BaseHabitatStrategy]:
+def get_strategy(strategy_name: str) -> Type[BaseClusteringStrategy]:
     """
     Get strategy class by name.
 

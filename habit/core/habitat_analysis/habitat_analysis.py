@@ -28,7 +28,7 @@ from habit.utils.parallel_utils import parallel_map
 
 # Local imports
 from .config import HabitatConfig, ResultColumns, ClusteringConfig, IOConfig, RuntimeConfig
-from .strategies.clustering_pipeline import create_pipeline
+from .modes import create_mode
 from .strategies import get_strategy
 from .managers import FeatureManager, ClusteringManager, ResultManager
 
@@ -90,8 +90,8 @@ class HabitatAnalysis:
         # Setup Data
         self._setup_data_paths()
         
-        # Initialize Pipeline
-        self.pipeline = create_pipeline(self.config, self.logger)
+        # Initialize Mode Handler
+        self.mode_handler = create_mode(self.config, self.logger)
         
         # Pass logging info to managers for subprocesses
         self.feature_manager.set_logging_info(self._log_file_path, self._log_level)

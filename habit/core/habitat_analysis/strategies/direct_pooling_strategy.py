@@ -11,13 +11,13 @@ import SimpleITK as sitk
 
 from habit.utils.parallel_utils import parallel_map
 from habit.core.habitat_analysis.config import ResultColumns
-from .base_strategy import BaseHabitatStrategy
+from .base_strategy import BaseClusteringStrategy
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
 
 
-class DirectPoolingStrategy(BaseHabitatStrategy):
+class DirectPoolingStrategy(BaseClusteringStrategy):
     """
     Direct pooling strategy.
 
@@ -62,13 +62,16 @@ class DirectPoolingStrategy(BaseHabitatStrategy):
         if features_all.empty:
             raise ValueError("No valid voxel features for analysis")
 
-        # Clean and preprocess features
+        # Clean features (handle inf, types)
         features_all = self.analysis.feature_manager.clean_features(features_all)
-        features_all = self.analysis.feature_manager.apply_preprocessing(features_all, level='group')
-        self.analysis.feature_manager.handle_mean_values(features_all, self.analysis.pipeline)
+        
+        # Apply group-level preprocessing (delegates to mode_handler for stateful processing)
+        features_all = self.analysis.feature_manager.apply_preprocessing(
+            features_all, level='group', mode_handler=self.analysis.mode_handler
+        )
 
         # Perform clustering
-        habitat_labels, optimal_n_clusters, scores = self.analysis.pipeline.cluster_habitats(
+        habitat_labels, optimal_n_clusters, scores = self.analysis.mode_handler.cluster_habitats(
             features_all, self.analysis.clustering_manager.supervoxel2habitat_clustering
         )
 

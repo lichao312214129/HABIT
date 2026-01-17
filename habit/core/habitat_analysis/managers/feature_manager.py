@@ -13,9 +13,9 @@ from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
 from ..config import HabitatConfig, ResultColumns
-from ..clustering_features.feature_expression_parser import FeatureExpressionParser
-from ..clustering_features.feature_extractor_factory import create_feature_extractor
-from ..clustering_features.feature_preprocessing import preprocess_features
+from ..extractors.feature_expression_parser import FeatureExpressionParser
+from ..extractors.feature_extractor_factory import create_feature_extractor
+from ..utils.preprocessing_state import preprocess_features
 
 class FeatureManager:
     """
@@ -269,25 +269,39 @@ class FeatureManager:
         
         return feature_df
 
-    def apply_preprocessing(self, feature_df: pd.DataFrame, level: str) -> pd.DataFrame:
+    def apply_preprocessing(
+        self, 
+        feature_df: pd.DataFrame, 
+        level: str,
+        mode_handler: Any = None
+    ) -> pd.DataFrame:
         """
         Apply preprocessing based on level.
         
         Args:
             feature_df: DataFrame to preprocess
             level: 'subject' for individual level, 'group' for population level
+            mode_handler: Mode handler instance (required for group level)
             
         Returns:
             Preprocessed DataFrame
         """
         if level == 'subject':
-            config_key = 'preprocessing_for_subject_level'
+            return self._apply_preprocessing(feature_df, 'preprocessing_for_subject_level')
+            
         elif level == 'group':
+            if mode_handler is None:
+                raise ValueError("mode_handler is required for group-level preprocessing")
+                
             config_key = 'preprocessing_for_group_level'
+            preprocessing_config = self.config.feature_config.get(config_key, {})
+            methods = preprocessing_config.get('methods', []) if preprocessing_config else []
+            
+            # Delegate to mode handler which manages PreprocessingState
+            return mode_handler.process_features(feature_df, methods)
+            
         else:
             raise ValueError(f"Unknown preprocessing level: {level}")
-
-        return self._apply_preprocessing(feature_df, config_key)
 
     def calculate_supervoxel_means(
         self,
@@ -362,21 +376,17 @@ class FeatureManager:
     def clean_features(self, features: pd.DataFrame) -> pd.DataFrame:
         """Clean feature DataFrame: handle types, inf, nan values."""
         features = features.apply(lambda x: pd.to_numeric(x, errors='coerce'))
-        features = features.applymap(
-            lambda x: x.item() if hasattr(x, 'item') else x
-        )
+        # Replace inf with NaN first
         features = features.replace([np.inf, -np.inf], np.nan)
-        features = features.fillna(features.mean())
+        # Note: We don't fillna here anymore for group level, as PreprocessingState handles it
+        # But for intermediate cleaning it's safer to fill with 0 or mean to avoid crashes before that
+        # For robustness, we'll leave NaNs to be handled by PreprocessingState later
         return features
 
-    def handle_mean_values(self, features: pd.DataFrame, pipeline: Any) -> None:
-        """Handle mean values for training/testing mode."""
-        if self.config.runtime.mode == 'training':
-            # Save mean values for testing
-            if hasattr(pipeline, 'save_mean_values'):
-                pipeline.save_mean_values(features)
-        elif self.config.runtime.mode == 'testing':
-            # Load and apply mean values
-            if hasattr(pipeline, 'load_mean_values'):
-                mean_values = pipeline.load_mean_values()
-                features.fillna(mean_values, inplace=True)
+    # Deprecated: Logic moved to PreprocessingState via ModeHandler
+    def handle_mean_values(self, features: pd.DataFrame, mode_handler: Any) -> None:
+        """
+        Deprecated. Mean value handling is now integrated into PreprocessingState.
+        Kept for potential backward compatibility if needed, but should not be used in new flow.
+        """
+        pass
