@@ -24,7 +24,7 @@
 The core idea of HABIT is to identify and characterize sub-regions within a tumor, known as "habitats," which have distinct radiological phenotypes. This is achieved through a multi-stage pipeline:
 
 <p align="center">
-  <b>Image → Voxel Features → Supervoxels → Habitats → Habitat Features → Predictive Model</b>
+  <b>Image → Voxel Features → Supervoxels (Optional) → Habitats → Habitat Features → Predictive Model (Optional)</b>
 </p>
 
 ### Detailed Workflow
