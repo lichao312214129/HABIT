@@ -90,12 +90,10 @@ class Modeling:
         # Get available feature selectors
         try:
             self.available_selectors = get_available_selectors()
-            print(f"Available feature selectors: {self.available_selectors}")
             self.logger.info("Available feature selectors: %s", self.available_selectors)
         except Exception as e:
             self.available_selectors = []
             error_msg = f"Warning: Failed to get available feature selectors: {e}"
-            print(error_msg)
             self.logger.warning(error_msg)
     
         self.plotter = Plotter(self.output_dir)
@@ -111,7 +109,6 @@ class Modeling:
             
         if isinstance(self.data_file, list):
             # Multiple files case
-            print(f"Reading data from multiple files: {len(self.data_file)} files")
             self.logger.info("Reading data from multiple files: %d files", len(self.data_file))
             
             merged_df = None
@@ -136,16 +133,12 @@ class Modeling:
                     raise ValueError(error_msg)
                 
                 features = file_config.get('features', [])
-                
-                print(f"  Reading file: {file_path}")
-                print(f"  Dataset name: {name}")
-                print(f"  Subject ID column: {subject_id_col}")
-                print(f"  Label column: {label_col}")
-                print(f"  Features: {features}")
-                
-                self.logger.info("Reading file: %s, Dataset name: %s", file_path, name)
-                self.logger.info("Subject ID column: %s, Label column: %s", subject_id_col, label_col)
-                self.logger.debug("Features: %s", features)
+
+                self.logger.info("Reading file: %s", file_path)
+                self.logger.info("Dataset name: %s", name)
+                self.logger.info("Subject ID column: %s", subject_id_col)
+                self.logger.info("Label column: %s", label_col)
+                self.logger.info("Features: %s", features)
                 
                 # Read the file
                 df = pd.read_csv(file_path)
@@ -194,7 +187,6 @@ class Modeling:
                             feature_columns[feature] = f"{name}{feature}"
                         else:
                             warning_msg = f"Warning: Feature '{feature}' not found in {file_path}"
-                            print(warning_msg)
                             self.logger.warning(warning_msg)
                 else:
                     # 如果未指定特征，使用除ID和标签外的所有列
@@ -236,7 +228,6 @@ class Modeling:
                     merged_df.index.name = self.subject_id_col
 
             # 将标签数据添加回合并后的数据框
-            print(f"Adding unified label column: {self.label_col}")
             self.logger.info("Adding unified label column: %s", self.label_col)
             merged_df[self.label_col] = label_values.values
             # 把label放到第一列
@@ -277,7 +268,7 @@ class Modeling:
         self.logger.info(f"Sample size after removing missing values: {self.data.shape[0]}")
 
         # If have nan in label column, using sklearn中的imputer的kmeans来填充nan,但最后要binarize
-        print(self.data[self.label_col].apply(type).value_counts())
+        self.logger.debug("Label column types: %s", self.data[self.label_col].apply(type).value_counts())
         from sklearn.impute import KNNImputer
         imputer = KNNImputer(n_neighbors=5, weights='uniform')
         self.data[self.label_col] = imputer.fit_transform(self.data[self.label_col].values.reshape(-1, 1))
@@ -305,10 +296,10 @@ class Modeling:
             self.logger.info(f"Performing random split with test size: {self.test_size}")
             self.data_train, self.data_test = train_test_split(
                 self.data,
-                test_size=self.test_size, 
+                test_size=self.test_size,
                 random_state=self.SEED
             )
-            print(f"Data split using random method (test size: {self.test_size})")
+            self.logger.info("Data split using random method (test size: %s)", self.test_size)
             self.logger.info(f"Random split completed: train={len(self.data_train)}, test={len(self.data_test)}")
             
         elif self.split_method == 'stratified':
@@ -316,12 +307,12 @@ class Modeling:
             self.logger.info(f"Performing stratified split with test size: {self.test_size}")
             self.data_train, self.data_test = train_test_split(
                 self.data,
-                test_size=self.test_size, 
-                random_state=self.SEED, 
+                test_size=self.test_size,
+                random_state=self.SEED,
                 stratify=self.data[self.label_col]
             )
 
-            print(f"Data split using stratified method (test size: {self.test_size})")
+            self.logger.info("Data split using stratified method (test size: %s)", self.test_size)
             
             self.logger.info(f"Stratified split completed: train={len(self.data_train)}, test={len(self.data_test)}")
             
@@ -344,7 +335,6 @@ class Modeling:
                 
                 # Ensure DataFrame index is converted to string type
                 if not all(isinstance(idx, str) for idx in self.data.index):
-                    print("Converting DataFrame index to string type")
                     self.logger.info("Converting DataFrame index to string type")
                     self.data.index = self.data.index.astype(str)
                 
@@ -352,7 +342,6 @@ class Modeling:
                 overlap = set(train_ids).intersection(set(test_ids))
                 if overlap:
                     warning_msg = f"Warning: Found {len(overlap)} overlapping subject IDs between train and test sets"
-                    print(warning_msg)
                     self.logger.warning(warning_msg)
                 
                 # Create train and test datasets
@@ -365,17 +354,15 @@ class Modeling:
                 
                 if missing_train:
                     warning_msg = f"Warning: {len(missing_train)} train subject IDs not found in data"
-                    print(warning_msg)
                     self.logger.warning(warning_msg)
                     self.logger.debug(f"Missing train IDs: {list(missing_train)}")
-                    
+
                 if missing_test:
                     warning_msg = f"Warning: {len(missing_test)} test subject IDs not found in data"
-                    print(warning_msg)
                     self.logger.warning(warning_msg)
                     self.logger.debug(f"Missing test IDs: {list(missing_test)}")
-                
-                print(f"Data split using custom subject IDs (train: {len(self.data_train)}, test: {len(self.data_test)})")
+
+                self.logger.info("Data split using custom subject IDs (train: %d, test: %d)", len(self.data_train), len(self.data_test))
                 self.logger.info(f"Custom split completed: train={len(self.data_train)}, test={len(self.data_test)}")
                 
             except Exception as e:
@@ -521,9 +508,9 @@ class Modeling:
         for selection_config in before_zscore_methods:
             method_name = selection_config['method']
             params = selection_config.get('params', {})
-            
-            print(f"\nExecuting {method_name} feature selection BEFORE normalization...")
-            self.logger.info(f"Executing {method_name} feature selection before normalization with params: {params}")
+
+            self.logger.info("Executing %s feature selection BEFORE normalization...", method_name)
+            self.logger.info("Executing %s feature selection before normalization with params: %s", method_name, params)
             
             try:
                 # Add common parameters
@@ -540,9 +527,9 @@ class Modeling:
                 
                 # Update feature set
                 selected_features = selected
-                
+
                 # Print selected features and removed features
-                print(f"Selected features: {selected_features}")
+                self.logger.debug("Selected features: %s", selected_features)
                 removed_count = len(self.x_train.columns) - len(selected_features)
                 self.logger.info(f"{method_name} selected {len(selected_features)} features, removed {removed_count} features")
                 
@@ -554,16 +541,14 @@ class Modeling:
                 
             except Exception as e:
                 warning_msg = f"Warning: {method_name} selection failed: {e}"
-                print(warning_msg)
                 self.logger.warning(warning_msg)
-                print(f"Skipping this method, continuing with current feature set: {len(selected_features)} features")
+                self.logger.info("Skipping this method, continuing with current feature set: %d features", len(selected_features))
         
         # Update x_train and x_test to only include selected features
         self.x_train = self.x_train[selected_features]
         self.x_test = self.x_test[selected_features]
-        
-        self.logger.info(f"Pre-normalization feature selection completed. Selected {len(selected_features)} features")
-        print(f"Pre-normalization feature selection completed. Selected {len(selected_features)} features")
+
+        self.logger.info("Pre-normalization feature selection completed. Selected %d features", len(selected_features))
         
         return self
 
@@ -666,8 +651,7 @@ class Modeling:
         self.logger.info("Starting feature selection")
         
         # Check if feature selection methods are provided
-        if self.feature_selection_methods is None:
-            print("Warning: No feature selection methods provided, using original feature set")
+        if not self.feature_selection_methods:
             self.logger.warning("No feature selection methods provided, using original feature set")
             self.selected_features = list(self.x_train.columns)
             self.logger.info(f"Using all {len(self.selected_features)} features")
@@ -683,9 +667,9 @@ class Modeling:
         for selection_config in self.feature_selection_methods:
             method_name = selection_config['method']
             params = selection_config.get('params', {})
-            
-            print(f"\nExecuting {method_name} feature selection...")
-            self.logger.info(f"Executing {method_name} feature selection with params: {params}")
+
+            self.logger.info("Executing %s feature selection...", method_name)
+            self.logger.info("Executing %s feature selection with params: %s", method_name, params)
             
             try:
                 # Add common parameters
@@ -725,17 +709,14 @@ class Modeling:
                 
             except Exception as e:
                 warning_msg = f"Warning: {method_name} selection failed: {e}"
-                print(warning_msg)
                 self.logger.warning(warning_msg)
-                self.logger.warning(f"Skipping this method, continuing with current feature set: {len(selected_features)} features")
-                print(f"Skipping this method, continuing with current feature set: {len(selected_features)} features")
+                self.logger.info("Skipping this method, continuing with current feature set: %d features", len(selected_features))
         
         # Final selected features
         self.selected_features = selected_features
-        print(f"\nFinal number of selected features: {len(self.selected_features)}")
-        self.logger.info(f"Feature selection completed. Final number of selected features: {len(self.selected_features)}")
-        print(f"Selected features: {self.selected_features}")
-        self.logger.debug(f"Final selected features: {self.selected_features}")
+        self.logger.info("Final number of selected features: %d", len(self.selected_features))
+        self.logger.info("Feature selection completed. Final number of selected features: %d", len(self.selected_features))
+        self.logger.debug("Final selected features: %s", self.selected_features)
         
         # Save feature selection results
         results_dict = {
@@ -772,7 +753,7 @@ class Modeling:
         self.logger.info(f"Training {len(models_config)} models: {list(models_config.keys())}")
         
         for model_name, model_config in models_config.items():
-            print(f"\nTraining model: {model_name}")
+            self.logger.info("Training model: %s", model_name)
             self.logger.info(f"Training model: {model_name} with config: {model_config}")
             
             # Create model
@@ -782,7 +763,6 @@ class Modeling:
             except Exception as e:
                 error_msg = f"Failed to create model {model_name}: {e}"
                 self.logger.error(error_msg)
-                print(error_msg)
                 continue
             
             X_train = self.x_train[self.selected_features]
@@ -796,7 +776,6 @@ class Modeling:
             except Exception as e:
                 error_msg = f"Failed to train model {model_name}: {e}"
                 self.logger.error(error_msg)
-                print(error_msg)
                 continue
             
             # Save model object
@@ -827,7 +806,7 @@ class Modeling:
         
         # Evaluate each model
         for model_name, model in self.models.items():
-            print(f"\nEvaluating model: {model_name}")
+            self.logger.info("Evaluating model: %s", model_name)
             self.logger.info(f"Evaluating model: {model_name}")
             
             try:
@@ -846,9 +825,8 @@ class Modeling:
                 # Print feature importance (if available)
                 if hasattr(model, 'get_feature_importance'):
                     feature_importance = model.get_feature_importance()
-                    print(f"Feature importance: {feature_importance}")
+                    self.logger.debug("Feature importance: %s", feature_importance)
                     self.logger.info(f"Feature importance calculated for {model_name}")
-                    self.logger.debug(f"Feature importance: {feature_importance}")
                 
                 # Plot SHAP values for each model
                 if self.is_visualize:   
@@ -862,7 +840,6 @@ class Modeling:
             except Exception as e:
                 error_msg = f"Error evaluating model {model_name}: {e}"
                 self.logger.error(error_msg)
-                print(error_msg)
         
         # Print performance table
         try:
@@ -943,8 +920,7 @@ class Modeling:
         
         all_results_path = os.path.join(self.output_dir, 'all_prediction_results.csv')
         all_df.to_csv(all_results_path, index=False)
-        print(f"Saved complete prediction results to: {all_results_path}")
-        self.logger.info(f"Saved complete prediction results to: {all_results_path}")
+        self.logger.info("Saved complete prediction results to: %s", all_results_path)
     
     def _save_complete_models(self) -> None:
         """
@@ -973,12 +949,10 @@ class Modeling:
         try:
             with open(model_package_path, 'wb') as f:
                 pickle.dump(model_package, f)
-            
-            print(f"Saved complete model package to: {model_package_path}")
-            self.logger.info(f"Saved complete model package to: {model_package_path}")
+
+            self.logger.info("Saved complete model package to: %s", model_package_path)
         except Exception as e:
-            self.logger.error(f"Failed to save model package: {e}")
-            print(f"Error saving model package: {e}")
+            self.logger.error("Failed to save model package: %s", e)
             return
         
         # Prepare model names list for usage instructions
@@ -1111,7 +1085,6 @@ class Modeling:
         else:
             # Create numerical IDs
             warning_msg = f"Warning: Subject ID column '{self.subject_id_col}' not found. Using row numbers."
-            print(warning_msg)
             self.logger.warning(warning_msg)
             result_df = pd.DataFrame({self.subject_id_col: range(len(new_data))})
         
@@ -1132,7 +1105,6 @@ class Modeling:
             missing_cols = [col for col in self.scaler_feature_names if col not in data.columns]
             if missing_cols:
                 warning_msg = f"Warning: Missing columns in new data: {missing_cols}"
-                print(warning_msg)
                 self.logger.warning(warning_msg)
             
             # Transform only the columns that were present during fit
@@ -1145,7 +1117,6 @@ class Modeling:
                 return result
             else:
                 warning_msg = "No common columns found for transformation"
-                print(warning_msg)
                 self.logger.warning(warning_msg)
                 return data
         
@@ -1188,7 +1159,6 @@ class Modeling:
             except Exception as e:
                 error_msg = f"Error making predictions with model {name}: {e}"
                 self.logger.error(error_msg)
-                print(error_msg)
         
         self.logger.info(f"Prediction completed for {len(new_data)} samples")
         return result_df
@@ -1218,9 +1188,8 @@ class Modeling:
         try:
             with open(model_file_path, 'rb') as f:
                 model_package = pickle.load(f)
-                
-            print(f"Successfully loaded model package from {model_file_path}")
-            logger.info(f"Successfully loaded model package from {model_file_path}")
+
+            logger.info("Successfully loaded model package from %s", model_file_path)
         except Exception as e:
             error_msg = f"Failed to load model package: {e}"
             logger.error(error_msg)
@@ -1267,7 +1236,6 @@ class Modeling:
         else:
             # Create numerical IDs
             warning_msg = f"Warning: Subject ID column '{subject_id_col}' not found. Using row numbers."
-            print(warning_msg)
             logger.warning(warning_msg)
             result_df = pd.DataFrame({subject_id_col: range(len(new_data))})
         
@@ -1283,23 +1251,21 @@ class Modeling:
         def safe_transform(data, scaler, feature_names):
             if scaler is None:
                 warning_msg = "Warning: No scaler found in model package. Skipping scaling step."
-                print(warning_msg)
                 logger.warning(warning_msg)
                 return data
-                
+
             # Get common columns between data and scaler features
             common_cols = [col for col in feature_names if col in data.columns]
-            
+
             # Get missing columns
             missing_cols = [col for col in feature_names if col not in data.columns]
             if missing_cols:
                 warning_msg = f"Warning: Missing columns in new data: {missing_cols}"
-                print(warning_msg)
                 logger.warning(warning_msg)
-            
+
             # Transform only the columns that were present during fit
             if common_cols:
-                logger.info(f"Applying scaling to {len(common_cols)} common columns")
+                logger.info("Applying scaling to %d common columns", len(common_cols))
                 data_to_transform = data[common_cols].copy()
                 data_transformed = scaler.transform(data_to_transform)
                 result = data.copy()
@@ -1307,7 +1273,6 @@ class Modeling:
                 return result
             else:
                 warning_msg = "No common columns found for transformation"
-                print(warning_msg)
                 logger.warning(warning_msg)
                 return data
         
@@ -1347,7 +1312,6 @@ class Modeling:
             except Exception as e:
                 error_msg = f"Error making predictions with model {name}: {e}"
                 logger.error(error_msg)
-                print(error_msg)
         
         # If true labels are available and evaluation is requested
         if label_col in new_data.columns and evaluate:

@@ -1,0 +1,101 @@
+2026-01-18 19:14:55 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\kfold_results\kfold_cv.log
+2026-01-18 19:14:55 - habit.cli.kfold - INFO - [cmd_kfold.py:51] - Starting K-fold cross-validation with config: ./demo_data/config_machine_learning_kfold.yaml
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:67] - Using existing logging configuration from CLI entry point
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:76] - Initializing k-fold modeling with config: {'input': [{'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\breast_cancer_dataset.csv', 'name': 'radiomics_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': 'F:\\work\\habit_project\\demo_data\\ml_data\\kfold_results', 'n_splits': 5, 'stratified': True, 'random_state': 42, 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}, {'method': 'variance', 'params': {'before_z_score': True, 'top_k': 20, 'plot_variances': True}}], 'is_visualize': True, 'is_save_model': True, 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'RandomForest': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': None, 'max_features': 'sqrt'}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1}}}, 'visualization': {'enabled': True, 'plot_types': ['roc', 'calibration', 'confusion', 'dca']}}
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:85] - Available feature selectors: ['correlation', 'icc', 'lasso', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:92] - K-fold modeling initialization completed
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:735] - Starting K-Fold Cross-Validation Pipeline
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:103] - Reading data from multiple files: 1 files
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:128] - Reading file: F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv, Dataset name: radiomics_
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:129] - Subject ID column: subjID, Label column: label
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:133] - File loaded with shape: (569, 14)
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:153] - Using label column: label
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:159] - Using subject ID column: subjID
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:195] - Created initial merged dataframe with shape: (569, 12)
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:204] - Adding unified label column: label
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:208] - Final merged dataframe shape: (569, 13) with 12 features
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:226] - Converting data to numeric types
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:228] - Data converted to numeric types
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:232] - Missing values: label                                0
+radiomics_compactness error          0
+radiomics_concavity error            0
+radiomics_concave points error       0
+radiomics_symmetry error             0
+radiomics_fractal dimension error    0
+radiomics_worst radius               0
+radiomics_worst texture              0
+radiomics_worst perimeter            0
+radiomics_worst area                 0
+radiomics_worst smoothness           0
+radiomics_worst compactness          0
+radiomics_worst fractal dimension    0
+dtype: int64
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:235] - Starting data preprocessing
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:236] - Sample size before removing missing values: 569
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:241] - Sample size after removing missing values: 569
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:249] - Data preprocessing completed
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:259] - Creating 5-fold cross-validation splits
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:268] - Using Stratified K-Fold with 5 splits
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:281] - Fold 1: train=455, val=114
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:281] - Fold 2: train=455, val=114
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:281] - Fold 3: train=455, val=114
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:281] - Fold 4: train=455, val=114
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:281] - Fold 5: train=456, val=113
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:402] - Starting k-fold cross-validation
+2026-01-18 19:14:55 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:418] - Processing Fold 1/5
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:434] - Selected 9 features for fold 1
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training LogisticRegression on fold 1
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - LogisticRegression fold 1 - Val AUC: 0.9990, Acc: 0.9737
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training RandomForest on fold 1
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - RandomForest fold 1 - Val AUC: 0.9946, Acc: 0.9649
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training XGBoost on fold 1
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - XGBoost fold 1 - Val AUC: 0.9984, Acc: 0.9825
+2026-01-18 19:14:56 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:418] - Processing Fold 2/5
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:434] - Selected 9 features for fold 2
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training LogisticRegression on fold 2
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - LogisticRegression fold 2 - Val AUC: 0.9925, Acc: 0.9386
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training RandomForest on fold 2
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - RandomForest fold 2 - Val AUC: 0.9877, Acc: 0.9298
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training XGBoost on fold 2
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - XGBoost fold 2 - Val AUC: 0.9895, Acc: 0.9386
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:418] - Processing Fold 3/5
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:434] - Selected 9 features for fold 3
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training LogisticRegression on fold 3
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - LogisticRegression fold 3 - Val AUC: 0.9848, Acc: 0.9474
+2026-01-18 19:14:57 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training RandomForest on fold 3
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - RandomForest fold 3 - Val AUC: 0.9854, Acc: 0.9649
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training XGBoost on fold 3
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - XGBoost fold 3 - Val AUC: 0.9845, Acc: 0.9561
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:418] - Processing Fold 4/5
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:434] - Selected 8 features for fold 4
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training LogisticRegression on fold 4
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - LogisticRegression fold 4 - Val AUC: 1.0000, Acc: 0.9912
+2026-01-18 19:14:58 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training RandomForest on fold 4
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - RandomForest fold 4 - Val AUC: 0.9970, Acc: 0.9561
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training XGBoost on fold 4
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - XGBoost fold 4 - Val AUC: 0.9993, Acc: 0.9737
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:418] - Processing Fold 5/5
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:434] - Selected 9 features for fold 5
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training LogisticRegression on fold 5
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - LogisticRegression fold 5 - Val AUC: 0.9977, Acc: 0.9735
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training RandomForest on fold 5
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - RandomForest fold 5 - Val AUC: 0.9886, Acc: 0.9735
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:444] - Training XGBoost on fold 5
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:467] - XGBoost fold 5 - Val AUC: 0.9930, Acc: 0.9646
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:484] - Aggregating results across folds
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:531] - LogisticRegression - Overall AUC: 0.9933 ± 0.0056
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:531] - RandomForest - Overall AUC: 0.9891 ± 0.0044
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:531] - XGBoost - Overall AUC: 0.9914 ± 0.0055
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:540] - Saving cross-validation results
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:555] - Saved k-fold CV results to: F:\work\habit_project\demo_data\ml_data\kfold_results\kfold_cv_results.json
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:595] - Saved performance summary to: F:\work\habit_project\demo_data\ml_data\kfold_results\kfold_performance_summary.csv
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:604] - Saving predictions in comparison-compatible format
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:636] - Saved comparison-compatible predictions to: F:\work\habit_project\demo_data\ml_data\kfold_results\all_prediction_results.csv
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:649] - Generating visualization plots
+2026-01-18 19:14:59 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:666] - Generating ROC curves
+2026-01-18 19:15:00 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:678] - Generating calibration curves
+2026-01-18 19:15:01 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:690] - Generating DCA curves
+2026-01-18 19:15:01 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:702] - Generating confusion matrices
+2026-01-18 19:15:03 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:720] - All visualization plots generated successfully
+2026-01-18 19:15:03 - habit.modeling_kfold - INFO - [machine_learning_kfold.py:742] - K-Fold Cross-Validation Pipeline Completed
+2026-01-18 19:15:03 - habit.cli.kfold - INFO - [cmd_kfold.py:58] - K-fold cross-validation completed successfully

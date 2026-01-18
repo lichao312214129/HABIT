@@ -1,0 +1,14 @@
+{
+    "selected_features": [
+        "radiomics_worst perimeter",
+        "radiomics_worst radius",
+        "radiomics_worst area",
+        "radiomics_worst texture"
+    ],
+    "n_features_selected": 4,
+    "original_feature_count": 4,
+    "selection_method": "p-value < 0.05",
+    "tests_used": {
+        "ttest": 4
+    }
+}

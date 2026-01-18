@@ -31,8 +31,8 @@ def main():
     parser.add_argument(
         '--config',
         type=str,
-        default='config/config_machine_learning_kfold.yaml',
-        help='Path to configuration file (default: config/config_machine_learning_kfold.yaml)'
+        default=None,
+        help='Path to configuration file'
     )
     
     args = parser.parse_args()

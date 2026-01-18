@@ -1,0 +1,98 @@
+2026-01-18 16:30:09 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\clinical\machine_learning.log
+2026-01-18 16:30:09 - habit.cli.ml - INFO - [cmd_ml.py:54] - Starting machine learning training with config: ./demo_data/config_machine_learning_clinical.yaml
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:70] - Using existing logging configuration from CLI entry point
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:79] - Initializing modeling with config: {'input': [{'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\clinical_feature.csv', 'name': 'clinical_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': 'F:\\work\\habit_project\\demo_data\\ml_data\\clinical', 'split_method': 'custom', 'train_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\train_ids.txt', 'test_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}}, {'method': 'statistical_test', 'params': {'p_threshold': 0.05, 'normality_test_threshold': 0.05, 'plot_importance': True, 'before_z_score': False, 'force_test': 'ttest'}}, {'method': 'vif', 'params': {'max_vif': 10, 'visualize': False, 'before_z_score': False}}, {'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'AutoGluonTabular': {'params': {'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\autogluon_models', 'label': 'label', 'time_limit': 30, 'random_state': 42, 'presets': 'high_quality', 'verbosity': 4, 'eval_metric': 'roc_auc'}}}, 'is_visualize': True, 'is_save_model': True, 'visualization': {'enabled': True, 'plot_types': ['roc', 'calibration', 'confusion', 'dca']}}
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:94] - Available feature selectors: ['correlation', 'icc', 'lasso', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:102] - Modeling initialization completed
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:115] - Reading data from multiple files: 1 files
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:146] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical_feature.csv, Dataset name: clinical_
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:147] - Subject ID column: subjID, Label column: label
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:152] - File loaded with shape: (569, 8)
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:172] - Using label column: label
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:178] - Using subject ID column: subjID
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:224] - Created initial merged dataframe with shape: (569, 6)
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:240] - Adding unified label column: label
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:245] - Final merged dataframe shape: (569, 7) with 6 features
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:263] - Converting data to numeric types
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:265] - Data converted to numeric types
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:269] - Missing values: label           0
+clinical_AFP    0
+clinical_PLT    0
+clinical_BMI    0
+clinical_X      0
+clinical_Y      0
+clinical_Z      0
+dtype: int64
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:272] - Starting data preprocessing
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:273] - Sample size before removing missing values: 569
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:277] - Sample size after removing missing values: 569
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:287] - Data preprocessing completed
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:297] - Splitting data using method: custom
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:337] - Reading custom train IDs from F:\work\habit_project\demo_data\ml_data\train_ids.txt
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:414] - Reading subject IDs from file: F:\work\habit_project\demo_data\ml_data\train_ids.txt
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:443] - Parsed 300 subject IDs from line-by-line format
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:339] - Read 300 train subject IDs
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:341] - Reading custom test IDs from F:\work\habit_project\demo_data\ml_data\test_ids.txt
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:414] - Reading subject IDs from file: F:\work\habit_project\demo_data\ml_data\test_ids.txt
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:443] - Parsed 269 subject IDs from line-by-line format
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:343] - Read 269 test subject IDs
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:379] - Custom split completed: train=300, test=269
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:396] - Extracted features and labels: 6 features
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:454] - Saving train/test split information
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:468] - Split information saved to: F:\work\habit_project\demo_data\ml_data\clinical\split_info.json
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:400] - Split information saved
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:489] - Checking for feature selection methods to run before normalization
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:514] - Running 1 feature selection methods before normalization
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:518] - Starting with 6 features
+2026-01-18 16:30:09 - habit.modeling - INFO - [machine_learning.py:526] - Executing variance feature selection before normalization with params: {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:547] - variance selected 1 features, removed 5 features
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:565] - Pre-normalization feature selection completed. Selected 1 features
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:587] - Starting data normalization using method: z_score
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:595] - Using StandardScaler (Z-score normalization)
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:636] - Fitting scaler on training data with shape: (300, 1)
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:638] - Transforming test data with shape: (269, 1)
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:647] - Data normalization completed using z_score method
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:666] - Starting feature selection
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:678] - Starting with 1 features
+2026-01-18 16:30:10 - habit.modeling - INFO - [machine_learning.py:688] - Executing statistical_test feature selection with params: {'p_threshold': 0.05, 'normality_test_threshold': 0.05, 'plot_importance': True, 'before_z_score': False, 'force_test': 'ttest'}
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:716] - statistical_test selected 1 features, removed 0 features
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:718] - Selected features: ['clinical_X']
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:688] - Executing vif feature selection with params: {'max_vif': 10, 'visualize': False, 'before_z_score': False}
+2026-01-18 16:30:11 - habit.modeling - WARNING - [machine_learning.py:729] - Warning: vif selection failed: zero-size array to reduction operation maximum which has no identity
+2026-01-18 16:30:11 - habit.modeling - WARNING - [machine_learning.py:730] - Skipping this method, continuing with current feature set: 1 features
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:688] - Executing correlation feature selection with params: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:716] - correlation selected 1 features, removed 0 features
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:718] - Selected features: ['clinical_X']
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:736] - Feature selection completed. Final number of selected features: 1
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:750] - Feature selection results saved to: F:\work\habit_project\demo_data\ml_data\clinical\feature_selection_results.json
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:761] - Starting model training
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:772] - Training 2 models: ['LogisticRegression', 'AutoGluonTabular']
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:776] - Training model: LogisticRegression with config: {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:790] - Training model with 1 features
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:795] - Model LogisticRegression trained successfully
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:776] - Training model: AutoGluonTabular with config: {'params': {'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\autogluon_models', 'label': 'label', 'time_limit': 30, 'random_state': 42, 'presets': 'high_quality', 'verbosity': 4, 'eval_metric': 'roc_auc'}}
+2026-01-18 16:30:11 - habit.modeling - ERROR - [machine_learning.py:784] - Failed to create model AutoGluonTabular: Model 'AutoGluonTabular' not registered. Available models: ['LogisticRegression', 'RandomForest', 'SVM', 'XGBoost', 'AdaBoost', 'CustomEnsemble', 'DecisionTree', 'GradientBoosting', 'KNN', 'MLP', 'GaussianNB', 'MultinomialNB', 'BernoulliNB']
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:808] - Model training completed. Trained 1 models successfully
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:819] - Starting model evaluation
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:831] - Evaluating model: LogisticRegression
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:835] - Evaluating LogisticRegression on training set
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:838] - Training set metrics: {'accuracy': 0.8366666666666667, 'sensitivity': 0.8766233766233766, 'specificity': 0.7945205479452054, 'ppv': 0.8181818181818182, 'npv': 0.8592592592592593, 'auc': 0.9302615193026151, 'auc_ci_lower': 0.9029697894673098, 'auc_ci_high': 0.9575531959910643, 'hosmer_lemeshow_chi2': 3.714104077749469, 'hosmer_lemeshow_p_value': 0.8819531311239012, 'spiegelhalter_z_statistic': -1.0301702111081234e-05, 'spiegelhalter_z_p_value': 0.9999917804309357}
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:841] - Evaluating LogisticRegression on test set
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:844] - Test set metrics: {'accuracy': 0.8884758364312267, 'sensitivity': 0.8719211822660099, 'specificity': 0.9393939393939394, 'ppv': 0.9779005524861878, 'npv': 0.7045454545454546, 'auc': 0.9699582027168234, 'auc_ci_lower': 0.9433527785612911, 'auc_ci_high': 0.9965638321564824, 'hosmer_lemeshow_chi2': 54.036190057530376, 'hosmer_lemeshow_p_value': 6.792831630519913e-09, 'spiegelhalter_z_statistic': 7.276858743494298, 'spiegelhalter_z_p_value': 3.417266469796232e-13}
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:850] - Feature importance calculated for LogisticRegression
+2026-01-18 16:30:11 - habit.modeling - INFO - [machine_learning.py:856] - Plotting SHAP values for LogisticRegression
+2026-01-18 16:30:12 - habit.modeling - INFO - [machine_learning.py:858] - SHAP plot saved for LogisticRegression
+2026-01-18 16:30:12 - habit.modeling - INFO - [machine_learning.py:870] - Performance table generated
+2026-01-18 16:30:12 - habit.modeling - INFO - [machine_learning.py:878] - Performance table saved
+2026-01-18 16:30:12 - habit.modeling - INFO - [machine_learning.py:886] - Generating visualization plots
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:888] - Visualization plots saved
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:895] - Saving detailed prediction results
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:919] - Saving detailed prediction results
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:947] - Saved complete prediction results to: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:897] - Prediction results saved
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:905] - Saving trained models and preprocessing information
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:953] - Saving trained models and preprocessing information
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:978] - Saved complete model package to: F:\work\habit_project\demo_data\ml_data\clinical\model_package.pkl
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:1075] - Saved model usage instructions to: F:\work\habit_project\demo_data\ml_data\clinical\model_usage_instructions.txt
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:907] - Models and preprocessing information saved
+2026-01-18 16:30:16 - habit.modeling - INFO - [machine_learning.py:912] - Model evaluation completed

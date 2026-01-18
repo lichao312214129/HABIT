@@ -82,12 +82,10 @@ class ModelingKFold:
         # Get available feature selectors
         try:
             self.available_selectors = get_available_selectors()
-            print(f"Available feature selectors: {self.available_selectors}")
             self.logger.info("Available feature selectors: %s", self.available_selectors)
         except Exception as e:
             self.available_selectors = []
             error_msg = f"Warning: Failed to get available feature selectors: {e}"
-            print(error_msg)
             self.logger.warning(error_msg)
     
         self.plotter = Plotter(self.output_dir)
@@ -102,7 +100,6 @@ class ModelingKFold:
         """
         if isinstance(self.data_file, list):
             # Multiple files case
-            print(f"Reading data from multiple files: {len(self.data_file)} files")
             self.logger.info("Reading data from multiple files: %d files", len(self.data_file))
             
             merged_df = None
@@ -127,11 +124,6 @@ class ModelingKFold:
                     raise ValueError(error_msg)
                 
                 features = file_config.get('features', [])
-                
-                print(f"  Reading file: {file_path}")
-                print(f"  Dataset name: {name}")
-                print(f"  Subject ID column: {subject_id_col}")
-                print(f"  Label column: {label_col}")
                 
                 self.logger.info("Reading file: %s, Dataset name: %s", file_path, name)
                 self.logger.info("Subject ID column: %s, Label column: %s", subject_id_col, label_col)
@@ -181,7 +173,6 @@ class ModelingKFold:
                             feature_columns[feature] = f"{name}{feature}"
                         else:
                             warning_msg = f"Warning: Feature '{feature}' not found in {file_path}"
-                            print(warning_msg)
                             self.logger.warning(warning_msg)
                 else:
                     for col in df.columns:
@@ -210,7 +201,6 @@ class ModelingKFold:
                     merged_df.index.name = self.subject_id_col
 
             # Add label column back
-            print(f"Adding unified label column: {self.label_col}")
             self.logger.info("Adding unified label column: %s", self.label_col)
             merged_df[self.label_col] = label_values.values
             merged_df = merged_df[[self.label_col] + [col for col in merged_df.columns if col != self.subject_id_col and col != self.label_col]]
@@ -275,12 +265,10 @@ class ModelingKFold:
         # Create K-fold splitter
         if self.stratified:
             kfold = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.SEED)
-            print(f"Using Stratified K-Fold with {self.n_splits} splits")
-            self.logger.info(f"Using Stratified K-Fold with {self.n_splits} splits")
+            self.logger.info("Using Stratified K-Fold with %d splits", self.n_splits)
         else:
             kfold = KFold(n_splits=self.n_splits, shuffle=True, random_state=self.SEED)
-            print(f"Using K-Fold with {self.n_splits} splits")
-            self.logger.info(f"Using K-Fold with {self.n_splits} splits")
+            self.logger.info("Using K-Fold with %d splits", self.n_splits)
         
         # Store splits
         self.splits = []
@@ -400,7 +388,6 @@ class ModelingKFold:
                     
             except Exception as e:
                 warning_msg = f"Warning: {method_name} selection failed in fold {fold_idx}: {e}"
-                print(warning_msg)
                 self.logger.warning(warning_msg)
         
         return X_train[selected_features], X_val[selected_features], selected_features
@@ -428,10 +415,7 @@ class ModelingKFold:
             train_idx = split['train_idx']
             val_idx = split['val_idx']
             
-            print(f"\n{'='*80}")
-            print(f"Processing Fold {fold_idx}/{self.n_splits}")
-            print(f"{'='*80}")
-            self.logger.info(f"Processing Fold {fold_idx}/{self.n_splits}")
+            self.logger.info("Processing Fold %d/%d", fold_idx, self.n_splits)
             
             # Get train and validation data
             X_train = self.X.iloc[train_idx].copy()
@@ -447,8 +431,7 @@ class ModelingKFold:
                 X_train_norm, y_train, X_val_norm, fold_idx
             )
             
-            print(f"Selected {len(selected_features)} features for fold {fold_idx}")
-            self.logger.info(f"Selected {len(selected_features)} features for fold {fold_idx}")
+            self.logger.info("Selected %d features for fold %d", len(selected_features), fold_idx)
             
             # Train models
             fold_results = {
@@ -458,8 +441,7 @@ class ModelingKFold:
             }
             
             for model_name, model_config in models_config.items():
-                print(f"\nTraining {model_name} on fold {fold_idx}...")
-                self.logger.info(f"Training {model_name} on fold {fold_idx}")
+                self.logger.info("Training %s on fold %d", model_name, fold_idx)
                 
                 try:
                     # Create and train model
@@ -482,12 +464,10 @@ class ModelingKFold:
                         'y_pred_proba': y_val_proba.tolist()
                     }
                     
-                    print(f"{model_name} - Val AUC: {metrics['auc']:.4f}, Acc: {metrics['accuracy']:.4f}")
-                    self.logger.info(f"{model_name} fold {fold_idx} - Val AUC: {metrics['auc']:.4f}, Acc: {metrics['accuracy']:.4f}")
+                    self.logger.info("%s fold %d - Val AUC: %.4f, Acc: %.4f", model_name, fold_idx, metrics['auc'], metrics['accuracy'])
                     
                 except Exception as e:
                     error_msg = f"Error training {model_name} on fold {fold_idx}: {e}"
-                    print(error_msg)
                     self.logger.error(error_msg)
             
             self.cv_results['folds'].append(fold_results)
@@ -548,8 +528,7 @@ class ModelingKFold:
                 }
             }
             
-            print(f"\n{model_name} - Overall AUC: {overall_metrics['auc']:.4f} ± {aggregated['auc_std']:.4f}")
-            self.logger.info(f"{model_name} - Overall AUC: {overall_metrics['auc']:.4f} ± {aggregated['auc_std']:.4f}")
+            self.logger.info("%s - Overall AUC: %.4f ± %.4f", model_name, overall_metrics['auc'], aggregated['auc_std'])
         
         # Save results
         self._save_cv_results()
@@ -573,8 +552,7 @@ class ModelingKFold:
         with open(results_path, 'w', encoding='utf-8') as f:
             json.dump(results_to_save, f, ensure_ascii=False, indent=4)
         
-        print(f"\nSaved k-fold CV results to: {results_path}")
-        self.logger.info(f"Saved k-fold CV results to: {results_path}")
+        self.logger.info("Saved k-fold CV results to: %s", results_path)
         
         # Save performance summary table
         self._save_performance_summary()
@@ -614,11 +592,7 @@ class ModelingKFold:
         summary_path = os.path.join(self.output_dir, 'kfold_performance_summary.csv')
         summary_df.to_csv(summary_path, index=False)
         
-        print(f"Saved performance summary to: {summary_path}")
-        print("\nPerformance Summary:")
-        print(summary_df.to_string(index=False))
-        
-        self.logger.info(f"Saved performance summary to: {summary_path}")
+        self.logger.info("Saved performance summary to: %s", summary_path)
 
     def _save_predictions_for_comparison(self) -> None:
         """
@@ -659,13 +633,10 @@ class ModelingKFold:
             output_path = os.path.join(self.output_dir, 'all_prediction_results.csv')
             results_df.to_csv(output_path, index=False)
             
-            print(f"\n✓ Saved comparison-compatible predictions to: {output_path}")
-            print("  This file can be used directly with the 'compare' command")
-            self.logger.info(f"Saved comparison-compatible predictions to: {output_path}")
+            self.logger.info("Saved comparison-compatible predictions to: %s", output_path)
             
         except Exception as e:
             warning_msg = f"Warning: Failed to save comparison-compatible predictions: {e}"
-            print(warning_msg)
             self.logger.warning(warning_msg)
 
     def _generate_visualizations(self) -> None:
@@ -676,9 +647,6 @@ class ModelingKFold:
         for all models using the aggregated predictions across all folds.
         """
         self.logger.info("Generating visualization plots")
-        print("\n" + "="*80)
-        print("Generating Visualization Plots")
-        print("="*80)
         
         try:
             # Prepare data in the format expected by Plotter
@@ -695,7 +663,6 @@ class ModelingKFold:
                 )
             
             # Generate ROC curves
-            print("  Generating ROC curves...")
             self.logger.info("Generating ROC curves")
             try:
                 self.plotter.plot_roc_v2(
@@ -703,14 +670,11 @@ class ModelingKFold:
                     save_name='kfold_roc_curves.pdf',
                     title='K-Fold Cross-Validation ROC Curves'
                 )
-                print(f"  ✓ ROC curves saved to: {os.path.join(self.output_dir, 'kfold_roc_curves.pdf')}")
             except Exception as e:
-                warning_msg = f"  Warning: Failed to generate ROC curves: {e}"
-                print(warning_msg)
+                warning_msg = f"Warning: Failed to generate ROC curves: {e}"
                 self.logger.warning(warning_msg)
             
             # Generate calibration curves
-            print("  Generating calibration curves...")
             self.logger.info("Generating calibration curves")
             try:
                 self.plotter.plot_calibration_v2(
@@ -718,14 +682,11 @@ class ModelingKFold:
                     save_name='kfold_calibration_curves.pdf',
                     title='K-Fold Cross-Validation Calibration Curves'
                 )
-                print(f"  ✓ Calibration curves saved to: {os.path.join(self.output_dir, 'kfold_calibration_curves.pdf')}")
             except Exception as e:
-                warning_msg = f"  Warning: Failed to generate calibration curves: {e}"
-                print(warning_msg)
+                warning_msg = f"Warning: Failed to generate calibration curves: {e}"
                 self.logger.warning(warning_msg)
             
             # Generate DCA curves
-            print("  Generating decision curve analysis...")
             self.logger.info("Generating DCA curves")
             try:
                 self.plotter.plot_dca_v2(
@@ -733,14 +694,11 @@ class ModelingKFold:
                     save_name='kfold_dca_curves.pdf',
                     title='K-Fold Cross-Validation Decision Curve Analysis'
                 )
-                print(f"  ✓ DCA curves saved to: {os.path.join(self.output_dir, 'kfold_dca_curves.pdf')}")
             except Exception as e:
-                warning_msg = f"  Warning: Failed to generate DCA curves: {e}"
-                print(warning_msg)
+                warning_msg = f"Warning: Failed to generate DCA curves: {e}"
                 self.logger.warning(warning_msg)
             
             # Generate confusion matrices for each model
-            print("  Generating confusion matrices...")
             self.logger.info("Generating confusion matrices")
             for model_name, model_results in self.cv_results['aggregated'].items():
                 try:
@@ -755,19 +713,14 @@ class ModelingKFold:
                         save_name=f'kfold_confusion_matrix_{model_name}.pdf',
                         title=f'{model_name} - K-Fold CV Confusion Matrix'
                     )
-                    print(f"  ✓ Confusion matrix for {model_name} saved")
                 except Exception as e:
-                    warning_msg = f"  Warning: Failed to generate confusion matrix for {model_name}: {e}"
-                    print(warning_msg)
+                    warning_msg = f"Warning: Failed to generate confusion matrix for {model_name}: {e}"
                     self.logger.warning(warning_msg)
             
-            print("\n✓ All visualization plots generated successfully!")
-            print(f"  Plots saved to: {self.output_dir}")
             self.logger.info("All visualization plots generated successfully")
             
         except Exception as e:
             error_msg = f"Error generating visualizations: {e}"
-            print(f"✗ {error_msg}")
             self.logger.error(error_msg)
             import traceback
             self.logger.error(traceback.format_exc())
@@ -779,33 +732,15 @@ class ModelingKFold:
         Returns:
             ModelingKFold: Self instance for method chaining
         """
-        print("\n" + "="*80)
-        print("Starting K-Fold Cross-Validation Pipeline")
-        print("="*80)
+        self.logger.info("Starting K-Fold Cross-Validation Pipeline")
         
         self.read_data()
         self.preprocess_data()
         self._create_kfold_splits()
         self.run_kfold_cv()
         
-        print("\n" + "="*80)
-        print("K-Fold Cross-Validation Pipeline Completed")
-        print("="*80)
+        self.logger.info("K-Fold Cross-Validation Pipeline Completed")
         
         return self
 
-
-def run_kfold_modeling(config: Dict[str, Any]) -> ModelingKFold:
-    """
-    Convenience function to run k-fold cross-validation modeling
-    
-    Args:
-        config: Configuration dictionary
-        
-    Returns:
-        ModelingKFold: Completed modeling instance
-    """
-    modeling = ModelingKFold(config)
-    modeling.run_pipeline()
-    return modeling
 

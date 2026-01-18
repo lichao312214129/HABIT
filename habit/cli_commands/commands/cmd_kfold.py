@@ -18,7 +18,9 @@ def run_kfold(config_file: str) -> None:
     Args:
         config_file (str): Path to configuration YAML file
     """
+    from habit.utils.config_utils import load_config
     from habit.utils.log_utils import setup_logger
+    from habit.core.machine_learning.machine_learning_kfold import ModelingKFold
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
@@ -31,8 +33,7 @@ def run_kfold(config_file: str) -> None:
     
     # Load config to get output directory
     try:
-        with open(config_file, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
+        config = load_config(config_file)
         output_dir = Path(config.get('output', '.'))
         output_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
@@ -51,14 +52,9 @@ def run_kfold(config_file: str) -> None:
     click.echo(f"Starting K-fold cross-validation with config: {config_file}")
     
     try:
-        # Import and run the k-fold script
-        old_argv = sys.argv
-        sys.argv = ['app_kfold_cv.py', '--config', config_file]
-        
-        from scripts import app_kfold_cv
-        app_kfold_cv.main()
-        
-        sys.argv = old_argv
+        click.echo("Initializing machine learning pipeline...")
+        model_obj = ModelingKFold(config)
+        model_obj.run_pipeline()
         logger.info("K-fold cross-validation completed successfully")
         click.secho("✓ K-fold cross-validation completed successfully!", fg='green')
     except Exception as e:

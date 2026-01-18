@@ -27,14 +27,14 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
         evaluate (bool): Whether to evaluate model performance
     """
     from habit.core.machine_learning.machine_learning import Modeling
+    from habit.utils.config_utils import load_config
     from habit.utils.log_utils import setup_logger
     
     # Training mode
     if mode == 'train':
         # Load YAML config file
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config = yaml.safe_load(f)
+            config = load_config(config_path)
             click.echo(f"Loaded config file: {config_path}")
         except Exception as e:
             click.echo(f"Error: Failed to load config file: {e}", err=True)
@@ -48,7 +48,7 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
         logger = setup_logger(
             name='cli.ml',
             output_dir=output_dir,
-            log_filename='machine_learning.log',
+            log_filename='processing.log',
             level=logging.INFO
         )
         logger.info(f"Starting machine learning training with config: {config_path}")

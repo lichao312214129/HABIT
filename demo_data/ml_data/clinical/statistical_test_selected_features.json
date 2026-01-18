@@ -1,0 +1,11 @@
+{
+    "selected_features": [
+        "clinical_X"
+    ],
+    "n_features_selected": 1,
+    "original_feature_count": 1,
+    "selection_method": "p-value < 0.05",
+    "tests_used": {
+        "ttest": 1
+    }
+}

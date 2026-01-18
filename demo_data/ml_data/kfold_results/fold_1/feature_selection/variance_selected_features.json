@@ -1,0 +1,17 @@
+{
+    "selected_features": [
+        "radiomics_symmetry error",
+        "radiomics_worst fractal dimension",
+        "radiomics_concave points error",
+        "radiomics_worst radius",
+        "radiomics_compactness error",
+        "radiomics_worst smoothness",
+        "radiomics_fractal dimension error",
+        "radiomics_worst texture",
+        "radiomics_worst compactness"
+    ],
+    "n_features_selected": 9,
+    "original_feature_count": 9,
+    "selection_method": "top_k",
+    "selection_value": 9.0
+}
