@@ -1,0 +1,108 @@
+{
+    "breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated": {
+        "symmetry error": {
+            "icc2": 0.9999999999999997,
+            "icc3": 0.9999999999999997,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "worst radius": {
+            "icc2": 0.9653286785590919,
+            "icc3": 0.9663070257641622,
+            "cohen": null,
+            "error": "Data is continuous (51 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 0.9649695494878032
+        },
+        "worst fractal dimension": {
+            "icc2": -0.00029492218827862775,
+            "icc3": -0.00034926257549902856,
+            "cohen": null,
+            "error": "Data is continuous (61 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": -0.08374814816605292
+        },
+        "worst texture": {
+            "icc2": 0.9999999999999996,
+            "icc3": 0.9999999999999996,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "concave points error": {
+            "icc2": 1.0,
+            "icc3": 1.0,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "concavity error": {
+            "icc2": 1.0000000000000007,
+            "icc3": 1.0000000000000007,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "worst perimeter": {
+            "icc2": 0.20802263233023127,
+            "icc3": 0.2087414703986961,
+            "cohen": null,
+            "error": "Data is continuous (54 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 0.20499710205321187
+        },
+        "worst compactness": {
+            "icc2": 0.9999999999999997,
+            "icc3": 0.9999999999999997,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "fractal dimension error": {
+            "icc2": 1.0000000000000002,
+            "icc3": 1.0000000000000002,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "compactness error": {
+            "icc2": 0.13080747704783752,
+            "icc3": 0.13556250191502825,
+            "cohen": null,
+            "error": "Data is continuous (55 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 0.11425984720433224
+        },
+        "label": {
+            "icc2": 1.0,
+            "icc3": 1.0,
+            "cohen": 1.0,
+            "fleiss": null,
+            "error": "module 'pingouin' has no attribute 'fleiss_kappa'",
+            "krippendorff": 1.0
+        },
+        "worst area": {
+            "icc2": 0.9999999999999996,
+            "icc3": 0.9999999999999996,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 1.0
+        },
+        "worst smoothness": {
+            "icc2": 0.18615762210266884,
+            "icc3": 0.1905634297455,
+            "cohen": null,
+            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
+            "fleiss": null,
+            "krippendorff": 0.1751679196033269
+        }
+    }
+}

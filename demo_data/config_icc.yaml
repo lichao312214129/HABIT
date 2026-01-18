@@ -9,7 +9,7 @@ input:
   # Each inner list represents a group of files to be analyzed together
   file_groups:
     # FIXME 切记：label列不能参与icc计算，如果参与了计算要从json中删除
-    - [H:\results\features\tls1.csv, H:\results\features\tls2.csv]
+    - [./ml_data/breast_cancer_dataset.csv, ./ml_data/breast_cancer_dataset_retest_simulated.csv]
   
   # Directory list configuration (used when type is 'directories')
   # The system will match same-named files across directories
@@ -27,11 +27,11 @@ metrics:
 # Output configuration
 output:
   # Path to output JSON file
-  path: H:\results\features\icc_tls.json
+  path: ./ml_data/icc_radiomics.json
 
 # Processing configuration
 # Number of processes to use (null/None for using all available CPU cores)
-processes: 6
+processes: 1
 
 # Debug mode (enables additional logging)
 debug: false 

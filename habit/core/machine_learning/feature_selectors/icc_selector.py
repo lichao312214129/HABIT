@@ -58,7 +58,6 @@ def read_file(file_path: str, index_col=0) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {ext}. Supported formats: .csv, .xlsx, .xls")
 
-
 def calculate_icc(files_list: List[Union[str, pd.DataFrame]], logger, 
                  column_selection=None, index_col=0) -> Dict[str, Dict[str, float]]:
     """

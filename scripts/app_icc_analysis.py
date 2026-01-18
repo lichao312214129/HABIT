@@ -17,64 +17,39 @@ from habit.utils.icc_config import (
     get_icc_config_metrics, get_icc_config_full_results, get_icc_config_selected_features
 )
 
-def main() -> None:
+def run_analysis(
+    config: dict = None,
+    file_groups: list = None,
+    output_path: str = 'icc_results.json',
+    processes: int = None,
+    debug_mode: bool = False
+) -> None:
     """
-    Main function to run ICC analysis
+    Run ICC analysis with provided configuration or parameters
     
-    This function:
-    1. Parses command line arguments
-    2. Sets up logging
-    3. Parses file groups or directories
-    4. Analyzes ICC values between test and retest features
-    5. Saves results to JSON file
+    Args:
+        config (dict, optional): Configuration dictionary
+        file_groups (list, optional): List of file groups to analyze
+        output_path (str, optional): Path to save results
+        processes (int, optional): Number of processes
+        debug_mode (bool, optional): Whether to enable debug mode
     """
-    parser = argparse.ArgumentParser(description="计算特征之间的ICC值以评估重复性")
+    metrics = None
+    full_results = False
+    selected_features = None
     
-    # Create a mutually exclusive group for input methods
-    group = parser.add_mutually_exclusive_group(required=True)
-    
-    # Add config file option
-    group.add_argument('--config', type=str, 
-                    help='YAML配置文件路径')
-    
-    # Original options for backward compatibility
-    group.add_argument('--files', type=str, 
-                    help='文件列表，格式为 "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"')
-    group.add_argument('--dirs', type=str, 
-                    help='目录列表，格式为 "dir1,dir2,dir3"，将匹配目录中同名的数据文件')
-    
-    # Other parameters
-    parser.add_argument('--processes', type=int, default=None, 
-                    help='进程数，默认使用所有可用CPU')
-    parser.add_argument('--output', type=str, default='icc_results.json',
-                    help='输出结果的JSON文件路径')
-    parser.add_argument('--debug', action='store_true', 
-                    help='启用调试模式')
-    
-    args = parser.parse_args()
-    
-    # Initialize variables
-    file_groups = []
-    output_path = args.output
-    processes = args.processes
-    debug_mode = args.debug
-    metrics = None  # Default metrics (icc3)
-    full_results = False  # Default: simple values without CI
-    selected_features = None  # Default: analyze all features
-    
-    # Handle config file if provided
-    if args.config:
+    # Handle config if provided
+    if config:
         try:
-            config = load_icc_config(args.config)
-            
             # Get output path from config
-            output_path = get_icc_config_output_path(config)
+            if 'output' in config:
+                output_path = get_icc_config_output_path(config)
             
-            # Get processes from config if not specified in command line
+            # Get processes from config if not specified
             if processes is None:
                 processes = get_icc_config_processes(config)
             
-            # Get debug mode from config if not enabled in command line
+            # Get debug mode from config if not enabled
             if not debug_mode and config.get("debug", False):
                 debug_mode = True
             
@@ -87,23 +62,20 @@ def main() -> None:
             # Get selected_features configuration
             selected_features = get_icc_config_selected_features(config)
                 
-            # Parse input based on type
-            if config["input"]["type"] == "files":
-                file_groups = parse_icc_config_files(config)
-            else:  # directories
-                dir_list = parse_icc_config_directories(config)
-                file_groups = parse_directories(",".join(dir_list))
+            # Parse input based on type if file_groups not provided
+            if not file_groups:
+                if config["input"]["type"] == "files":
+                    file_groups = parse_icc_config_files(config)
+                else:  # directories
+                    dir_list = parse_icc_config_directories(config)
+                    file_groups = parse_directories(",".join(dir_list))
                 
         except Exception as e:
-            print(f"配置文件解析错误: {str(e)}")
-            sys.exit(1)
-    else:
-        # Use original methods for backward compatibility
-        if args.files:
-            file_groups = parse_files_groups(args.files)
-        elif args.dirs:
-            file_groups = parse_directories(args.dirs)
-    
+            print(f"配置解析错误: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return
+
     # Configure logger
     logger = configure_logger(output_path)
     
@@ -209,7 +181,62 @@ def main() -> None:
         if debug_mode:
             import traceback
             logger.error(traceback.format_exc())
-        sys.exit(1)
+        if __name__ == "__main__":
+            sys.exit(1)
+        else:
+            raise e
+
+def main() -> None:
+    """
+    Main function to run ICC analysis
+    """
+    parser = argparse.ArgumentParser(description="计算特征之间的ICC值以评估重复性")
+    
+    # Create a mutually exclusive group for input methods
+    group = parser.add_mutually_exclusive_group(required=True)
+    
+    # Add config file option
+    group.add_argument('--config', type=str, 
+                    help='YAML配置文件路径')
+    
+    # Original options for backward compatibility
+    group.add_argument('--files', type=str, 
+                    help='文件列表，格式为 "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"')
+    group.add_argument('--dirs', type=str, 
+                    help='目录列表，格式为 "dir1,dir2,dir3"，将匹配目录中同名的数据文件')
+    
+    # Other parameters
+    parser.add_argument('--processes', type=int, default=None, 
+                    help='进程数，默认使用所有可用CPU')
+    parser.add_argument('--output', type=str, default='icc_results.json',
+                    help='输出结果的JSON文件路径')
+    parser.add_argument('--debug', action='store_true', 
+                    help='启用调试模式')
+    
+    args = parser.parse_args()
+    
+    config = None
+    file_groups = []
+    
+    if args.config:
+        try:
+            config = load_icc_config(args.config)
+        except Exception as e:
+            print(f"配置文件解析错误: {str(e)}")
+            sys.exit(1)
+    else:
+        if args.files:
+            file_groups = parse_files_groups(args.files)
+        elif args.dirs:
+            file_groups = parse_directories(args.dirs)
+            
+    run_analysis(
+        config=config,
+        file_groups=file_groups,
+        output_path=args.output,
+        processes=args.processes,
+        debug_mode=args.debug
+    )
 
 def is_nan(value):
     """Check if a value is NaN"""

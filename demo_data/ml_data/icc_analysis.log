@@ -1,0 +1,28 @@
+2026-01-18 22:34:13 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\icc_analysis.log
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [cmd_icc.py:51] - Starting ICC analysis with config: ./demo_data/config_icc.yaml
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [cmd_icc.py:98] - 将分析 1 组文件
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [cmd_icc.py:102] - 组 1: breast_cancer_dataset.csv, breast_cancer_dataset_retest_simulated.csv
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [cmd_icc.py:105] - 将计算以下指标: icc2, icc3, cohen, fleiss, krippendorff
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [cmd_icc.py:114] - 
+组 1: breast_cancer_dataset.csv, breast_cancer_dataset_retest_simulated.csv
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [simple_icc_analyzer.py:84] - Loading 2 files...
+2026-01-18 22:34:13 - habit.core.machine_learning.feature_selectors.icc.data_processor - INFO - [data_processor.py:38] - Loaded F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv: shape (569, 13)
+2026-01-18 22:34:13 - habit.core.machine_learning.feature_selectors.icc.data_processor - INFO - [data_processor.py:38] - Loaded F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset_retest_simulated.csv: shape (50, 13)
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [simple_icc_analyzer.py:89] - Analyzing group: breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated
+2026-01-18 22:34:13 - habit.core.machine_learning.feature_selectors.icc.data_processor - INFO - [data_processor.py:68] - Found 50 common indices
+2026-01-18 22:34:13 - habit.core.machine_learning.feature_selectors.icc.data_processor - INFO - [data_processor.py:95] - Found 13 common columns
+2026-01-18 22:34:13 - habit.cli.icc - INFO - [simple_icc_analyzer.py:111] - Analyzing 13 common features
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:158] - Progress: 76.9% (10/13)
+2026-01-18 22:34:15 - habit.core.machine_learning.feature_selectors.icc.simple_icc_calculator - ERROR - [simple_icc_calculator.py:124] - Error calculating Fleiss' Kappa: module 'pingouin' has no attribute 'fleiss_kappa'
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:158] - Progress: 100.0% (13/13)
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:172] - Analysis complete: 13 features
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:201] - Results saved to F:\work\habit_project\demo_data\ml_data\icc_radiomics.json
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:220] - 
+Group: breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:229] - Total features: 13
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:230] - Features with valid results: 13
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:234] -   symmetry error: {'icc2': 0.9999999999999997, 'icc3': 0.9999999999999997, 'cohen': None, 'error': "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data", 'fleiss': None, 'krippendorff': 1.0}
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:234] -   worst radius: {'icc2': 0.9653286785590919, 'icc3': 0.9663070257641622, 'cohen': None, 'error': "Data is continuous (51 unique values), Fleiss' Kappa requires categorical data", 'fleiss': None, 'krippendorff': 0.9649695494878032}
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:234] -   worst fractal dimension: {'icc2': -0.00029492218827862775, 'icc3': -0.00034926257549902856, 'cohen': None, 'error': "Data is continuous (61 unique values), Fleiss' Kappa requires categorical data", 'fleiss': None, 'krippendorff': -0.08374814816605292}
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [simple_icc_analyzer.py:237] -   ... and 10 more features
+2026-01-18 22:34:15 - habit.cli.icc - INFO - [cmd_icc.py:139] - ICC analysis completed successfully

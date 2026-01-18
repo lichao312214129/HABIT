@@ -139,16 +139,26 @@ class MetricResult:
         Returns:
             Dictionary representation of the result
         """
+        def convert_value(val):
+            """Convert numpy types to Python native types"""
+            if isinstance(val, (np.integer, np.int64, np.int32)):
+                return int(val)
+            elif isinstance(val, (np.floating, np.float64, np.float32)):
+                return float(val) if not np.isnan(val) else None
+            elif isinstance(val, np.ndarray):
+                return val.tolist()
+            return val
+        
         result = {
-            "value": self.value,
+            "value": convert_value(self.value),
             "metric_type": self.metric_type
         }
         if self.ci95_lower is not None and self.ci95_upper is not None:
-            result["ci95"] = [self.ci95_lower, self.ci95_upper]
+            result["ci95"] = [convert_value(self.ci95_lower), convert_value(self.ci95_upper)]
         if self.p_value is not None:
-            result["p_value"] = self.p_value
+            result["p_value"] = convert_value(self.p_value)
         if self.additional_info:
-            result["additional_info"] = self.additional_info
+            result["additional_info"] = {k: convert_value(v) for k, v in self.additional_info.items()}
         return result
     
     def __repr__(self) -> str:
@@ -355,6 +365,34 @@ class ICCMetric(BaseReliabilityMetric):
         # Validate data
         self.validate_data(data, targets, raters, ratings)
         
+        # Log data info for debugging
+        logger.info(f"Calculating ICC with data shape: {data.shape}")
+        logger.info(f"Targets column: {targets}, unique values: {data[targets].nunique()}")
+        logger.info(f"Raters column: {raters}, unique values: {data[raters].nunique()}")
+        logger.info(f"Ratings column: {ratings}, type: {data[ratings].dtype}")
+        logger.info(f"Ratings range: [{data[ratings].min()}, {data[ratings].max()}]")
+        logger.info(f"NaN values in ratings: {data[ratings].isna().sum()}")
+        
+        # Additional diagnostic checks
+        logger.info(f"Rating variance per target:")
+        target_variances = data.groupby(targets)[ratings].var()
+        logger.info(f"Target variances: {target_variances}")
+        logger.info(f"Targets with zero variance: {(target_variances == 0).sum()}")
+        
+        logger.info(f"Number of ratings per target:")
+        ratings_per_target = data.groupby(targets)[ratings].count()
+        logger.info(f"Ratings per target - min: {ratings_per_target.min()}, max: {ratings_per_target.max()}, avg: {ratings_per_target.mean():.2f}")
+        
+        logger.info(f"Number of ratings per rater:")
+        ratings_per_rater = data.groupby(raters)[ratings].count()
+        logger.info(f"Ratings per rater - min: {ratings_per_rater.min()}, max: {ratings_per_rater.max()}, avg: {ratings_per_rater.mean():.2f}")
+        
+        # Check for balanced design
+        pivot_table = data.pivot_table(index=targets, columns=raters, values=ratings, aggfunc='first')
+        logger.info(f"Pivot table shape: {pivot_table.shape}")
+        missing_data_pct = (pivot_table.isna().sum().sum() / (pivot_table.shape[0] * pivot_table.shape[1])) * 100
+        logger.info(f"Missing data in pivot table: {missing_data_pct:.2f}%")
+        
         # Calculate ICC using pingouin
         icc_result = pg.intraclass_corr(
             data=data,
@@ -466,6 +504,34 @@ class MultiICCMetric(BaseReliabilityMetric):
             Dictionary mapping ICC type names to MetricResult objects
         """
         self.validate_data(data, targets, raters, ratings)
+        
+        # Log data info for debugging
+        logger.info(f"Calculating multiple ICC types with data shape: {data.shape}")
+        logger.info(f"Targets column: {targets}, unique values: {data[targets].nunique()}")
+        logger.info(f"Raters column: {raters}, unique values: {data[raters].nunique()}")
+        logger.info(f"Ratings column: {ratings}, type: {data[ratings].dtype}")
+        logger.info(f"Ratings range: [{data[ratings].min()}, {data[ratings].max()}]")
+        logger.info(f"NaN values in ratings: {data[ratings].isna().sum()}")
+        
+        # Additional diagnostic checks
+        logger.info(f"Rating variance per target:")
+        target_variances = data.groupby(targets)[ratings].var()
+        logger.info(f"Target variances: {target_variances}")
+        logger.info(f"Targets with zero variance: {(target_variances == 0).sum()}")
+        
+        logger.info(f"Number of ratings per target:")
+        ratings_per_target = data.groupby(targets)[ratings].count()
+        logger.info(f"Ratings per target - min: {ratings_per_target.min()}, max: {ratings_per_target.max()}, avg: {ratings_per_target.mean():.2f}")
+        
+        logger.info(f"Number of ratings per rater:")
+        ratings_per_rater = data.groupby(raters)[ratings].count()
+        logger.info(f"Ratings per rater - min: {ratings_per_rater.min()}, max: {ratings_per_rater.max()}, avg: {ratings_per_rater.mean():.2f}")
+        
+        # Check for balanced design
+        pivot_table = data.pivot_table(index=targets, columns=raters, values=ratings, aggfunc='first')
+        logger.info(f"Pivot table shape: {pivot_table.shape}")
+        missing_data_pct = (pivot_table.isna().sum().sum() / (pivot_table.shape[0] * pivot_table.shape[1])) * 100
+        logger.info(f"Missing data in pivot table: {missing_data_pct:.2f}%")
         
         # Calculate ICC once (pingouin returns all types)
         icc_result = pg.intraclass_corr(
@@ -635,6 +701,22 @@ class CohenKappaMetric(BaseReliabilityMetric):
         mask = ~(np.isnan(rater1) | np.isnan(rater2))
         r1_clean = rater1[mask]
         r2_clean = rater2[mask]
+        
+        # Check if data is categorical (required for Cohen's Kappa)
+        unique_r1 = len(np.unique(r1_clean))
+        unique_r2 = len(np.unique(r2_clean))
+        
+        # Cohen's Kappa requires categorical data
+        # If data has many unique values, it's likely continuous
+        if unique_r1 > 10 or unique_r2 > 10:
+            error_msg = (
+                f"Cohen's Kappa requires categorical (discrete) data. "
+                f"Found {unique_r1} unique values in rater1 and {unique_r2} unique values in rater2. "
+                f"Please discretize continuous data before calculating Cohen's Kappa, "
+                f"or use ICC for continuous data."
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
         
         # Calculate Kappa
         kappa = cohen_kappa_score(r1_clean, r2_clean, weights=self.weights)

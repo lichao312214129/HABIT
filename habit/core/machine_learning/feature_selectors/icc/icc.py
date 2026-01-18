@@ -286,19 +286,8 @@ def calculate_reliability_metrics(
                         raters='reader',
                         ratings=ft
                     )
-                    
-                    if isinstance(result, dict):
-                        # MultiICCMetric returns a dict of results
-                        for key, val in result.items():
-                            if return_full_results:
-                                ft_results[key] = val.to_dict()
-                            else:
-                                ft_results[key] = val.value
-                    else:
-                        if return_full_results:
-                            ft_results[metric.name] = result.to_dict()
-                        else:
-                            ft_results[metric.name] = result.value
+                    result = result.to_dict()
+                    ft_results[metric_name] = result
                 
                 feature_results[ft] = ft_results
                 

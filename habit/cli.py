@@ -111,7 +111,8 @@ def compare(config):
 
 @cli.command('icc')
 @click.option('--config', '-c',
-              type=click.Path(exists=True),
+              type=click.Path(exists=True),  # 参数类型为存在的文件路径
+              required=True,                 # 必须提供该参数
               help='Path to configuration YAML file')
 def icc(config):
     """Perform ICC (Intraclass Correlation Coefficient) analysis"""
