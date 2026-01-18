@@ -101,7 +101,7 @@ Calculates the Intratumoral Heterogeneity (ITH) Score, ranging from 0 to 1. A hi
 
 1. Parse command-line arguments or load the configuration file.
 2. Validate the configuration parameters.
-3. Create a `HabitatFeatureExtractor` instance.
+3. Create a `HabitatMapAnalyzer` instance.
 4. Execute feature extraction based on the specified mode and feature types:
    - If `mode` is 'extract' or 'both', extract features from images.
    - If `mode` is 'parse' or 'both', parse features and generate summaries.

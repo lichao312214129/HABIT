@@ -9,6 +9,9 @@ import numpy as np
 import SimpleITK as sitk
 from typing import Dict, Union
 import logging
+from habit.utils.log_utils import get_module_logger
+
+logger = get_module_logger(__name__)
 
 class ITHFeatureExtractor:
     """Extractor class for Intratumoral Heterogeneity (ITH) scores"""
@@ -134,5 +137,5 @@ class ITHFeatureExtractor:
             return result
             
         except Exception as e:
-            logging.error(f"Error calculating ITH score from habitat image: {str(e)}")
+            logger.error(f"Error calculating ITH score from habitat image: {str(e)}")
             return {"error": str(e), "ith_score": 0.0}

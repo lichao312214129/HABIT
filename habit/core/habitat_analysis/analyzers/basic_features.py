@@ -10,6 +10,9 @@ import logging
 import numpy as np
 import SimpleITK as sitk
 from typing import Dict
+from habit.utils.log_utils import get_module_logger
+
+logger = get_module_logger(__name__)
 
 class BasicFeatureExtractor:
     """Extractor class for basic habitat features"""
@@ -61,7 +64,7 @@ class BasicFeatureExtractor:
                         'volume_ratio': volume_ratio
                     }
                 except Exception as e:
-                    logging.error(f"Error processing habitat label {label}: {str(e)}")
+                    logger.error(f"Error processing habitat label {label}: {str(e)}")
                     results[label] = {
                         'num_regions': 0,
                         'volume_ratio': 0.0,
@@ -72,5 +75,5 @@ class BasicFeatureExtractor:
             
             return results
         except Exception as e:
-            logging.error(f"Error calculating basic habitat features: {str(e)}")
+            logger.error(f"Error calculating basic habitat features: {str(e)}")
             return {"error": str(e), "num_habitats": 0} 

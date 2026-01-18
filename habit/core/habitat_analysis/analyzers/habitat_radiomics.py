@@ -11,6 +11,9 @@ import SimpleITK as sitk
 import numpy as np
 from radiomics import featureextractor
 from typing import Dict, Optional
+from habit.utils.log_utils import get_module_logger
+
+logger = get_module_logger(__name__)
 
 class HabitatRadiomicsExtractor:
     """Extractor class for habitat radiomics features"""
@@ -55,7 +58,7 @@ class HabitatRadiomicsExtractor:
                 label=1
             )
         except Exception as e:
-            logging.error(f"Error extracting radiomics features from whole habitat: {str(e)}")
+            logger.error(f"Error extracting radiomics features from whole habitat: {str(e)}")
             return {"error": f"Feature extraction error: {str(e)}"}
     
     @staticmethod
@@ -80,15 +83,15 @@ class HabitatRadiomicsExtractor:
 
             # Check and adjust image metadata for consistency
             if raw_img.GetDirection() != habitat_img.GetDirection():
-                logging.info(f"Raw and mask direction is different: {subject_id}")
+                logger.info(f"Raw and mask direction is different: {subject_id}")
                 habitat_img.SetDirection(raw_img.GetDirection())
 
             if raw_img.GetOrigin() != habitat_img.GetOrigin():
-                logging.info(f"Raw and mask origin is different: {subject_id}")
+                logger.info(f"Raw and mask origin is different: {subject_id}")
                 habitat_img.SetOrigin(raw_img.GetOrigin())
 
             if raw_img.GetSpacing() != habitat_img.GetSpacing():
-                logging.info(f"Raw and mask spacing is different: {subject_id}")
+                logger.info(f"Raw and mask spacing is different: {subject_id}")
                 habitat_img.SetSpacing(raw_img.GetSpacing())
 
             label = sitk.LabelStatisticsImageFilter()
@@ -96,7 +99,7 @@ class HabitatRadiomicsExtractor:
             labels = label.GetLabels()
             labels = [int(label) for label in labels if label != 0]
         except Exception as e:
-            logging.error(f"Error preparing habitat image data: {str(e)}")
+            logger.error(f"Error preparing habitat image data: {str(e)}")
             return {}
 
         feature_vector = {}
@@ -108,7 +111,7 @@ class HabitatRadiomicsExtractor:
                     label=label
                 )
             except Exception as e:
-                logging.error(f"Error extracting radiomics features for habitat {label}: {str(e)}")
+                logger.error(f"Error extracting radiomics features for habitat {label}: {str(e)}")
                 feature_vector[label] = {}
                
         return feature_vector
@@ -135,15 +138,15 @@ class HabitatRadiomicsExtractor:
 
             # Check and adjust image metadata for consistency
             if raw_img.GetDirection() != habitat_img.GetDirection():
-                logging.info(f"Raw and mask direction is different: {subject_id}")
+                logger.info(f"Raw and mask direction is different: {subject_id}")
                 habitat_img.SetDirection(raw_img.GetDirection())
 
             if raw_img.GetOrigin() != habitat_img.GetOrigin():
-                logging.info(f"Raw and mask origin is different: {subject_id}")
+                logger.info(f"Raw and mask origin is different: {subject_id}")
                 habitat_img.SetOrigin(raw_img.GetOrigin())
 
             if raw_img.GetSpacing() != habitat_img.GetSpacing():
-                logging.info(f"Raw and mask spacing is different: {subject_id}")
+                logger.info(f"Raw and mask spacing is different: {subject_id}")
                 habitat_img.SetSpacing(raw_img.GetSpacing())
 
             label_filter = sitk.LabelStatisticsImageFilter()
@@ -165,5 +168,5 @@ class HabitatRadiomicsExtractor:
                 label=1
             )
         except Exception as e:
-            logging.error(f"Error extracting traditional radiomics features: {str(e)}")
+            logger.error(f"Error extracting traditional radiomics features: {str(e)}")
             return {"error": f"Feature extraction error: {str(e)}"} 

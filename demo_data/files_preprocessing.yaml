@@ -6,9 +6,9 @@ auto_select_first_file: false
 images:
   subj001:
     delay2: ./dicom/sub001/WATER_BHAxLAVA-Flex-2min_Series0012  # 注意路径和文件不能有空格和特殊字符
-    delay3: ./dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014  # 注意路径和文件不能有空格和特殊字符
-    delay5: ./dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014
+    delay5: ./dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
   subj002:
-    delay2: ./dicom/sub002/013_WATERBHAxLAVAFlex2min  # 注意路径和文件不能有空格和特殊字符
-    delay3: ./dicom/sub002/015_WATERBHAxLAVAFlex3min  # 注意路径和文件不能有空格和特殊字符
-    delay5: ./dicom/sub002/016_WATERWATERBHAxLAVAFlex5min  # 注意路径和文件不能有空格和特殊字符
+    delay2: ./dicom/sub002/013_WATERBHAxLAVAFlex2min
+    delay3: ./dicom/sub002/015_WATERBHAxLAVAFlex3min
+    delay5: ./dicom/sub002/016_WATERWATERBHAxLAVAFlex5min

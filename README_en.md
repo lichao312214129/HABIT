@@ -363,8 +363,7 @@ A typical radiomics research project using HABIT involves the following steps. T
 
 | Category | Feature | Description | Docs |
 | :--- | :--- | :--- | :---: |
-| 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, and normalization. | [📖](doc_en/app_image_preprocessing.md) |
-| | **N4 Bias Field Correction** | Corrects for intensity non-uniformity in MRI scans. | [📖](doc_en/app_image_preprocessing.md) |
+| 🖼️ **Image Processing** | **Preprocessing Pipeline** | End-to-end tools for DICOM conversion, resampling, registration, normalization, and N4 bias field correction. | [📖](doc_en/app_image_preprocessing.md) |
 | 🧬 **Habitat Analysis** | **One-Step Clustering** | Direct clustering to habitats, cluster count determined per tumor, independent habitat labels. | [📖](doc_en/app_habitat_analysis.md) |
 | | **Two-Step Clustering** | Two-stage clustering (individual supervoxels → population habitats), unified habitat labeling system. | [📖](doc_en/app_habitat_analysis.md) |
 | | **Direct Pooling** | Pool all voxels and cluster directly, skipping supervoxel step. | [📖](doc_en/app_habitat_analysis.md) |

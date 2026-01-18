@@ -11,6 +11,7 @@ from .selector_registry import (
     get_available_selectors,
     run_selector
 )
+import logging
 
 # 导入各个选择器模块
 from .correlation_selector import *
@@ -19,7 +20,7 @@ from .lasso_selector import *
 try:
     from .mrmr_selector import *
 except Exception as e:
-    print(f"Error importing mrmr_selector: {e}")
+    logging.warning(f"Error importing mrmr_selector: {e}")
     pass
 from .python_stepwise_selector import *
 from .rfecv_selector import *
@@ -31,7 +32,7 @@ from .statistical_test_selector import *
 try:
     from .stepwise_selector import *
 except Exception as e:
-    print(f"Error importing stepwise_selector: {e}")
+    logging.warning(f"Error importing stepwise_selector: {e}")
     pass
 
 from .univariate_logistic_selector import *

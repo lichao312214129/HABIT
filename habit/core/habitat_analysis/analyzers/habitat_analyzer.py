@@ -112,7 +112,7 @@ class HabitatMapAnalyzer:
         # Check if root logger already has handlers (configured by CLI)
         if manager.get_log_file() is not None:
             # Logging already configured by CLI, just get module logger
-            self.logger = get_module_logger('habitat.new_extractor')
+            self.logger = get_module_logger('habitat.analyzer')
             self.logger.info("Using existing logging configuration from CLI entry point")
             
             # Store log configuration for child processes (Windows spawn mode)
@@ -121,9 +121,9 @@ class HabitatMapAnalyzer:
         else:
             # Logging not configured yet (e.g., direct class usage)
             self.logger = setup_logger(
-                name='habitat.new_extractor',
+                name='habitat.analyzer',
                 output_dir=self.out_dir,
-                log_filename='feature_extraction.log',
+                log_filename='processing.log',
                 level=logging.INFO
             )
             
@@ -148,18 +148,18 @@ class HabitatMapAnalyzer:
             return n_habitats
         
         # If unable to read, prompt user for input
-        logging.warning("Unable to read number of habitats from habitats.csv, please enter manually")
+        self.logger.warning("Unable to read number of habitats from habitats.csv, please enter manually")
         while True:
             try:
                 user_input = input("Please enter the number of habitats (integer): ")
                 n_habitats = int(user_input.strip())
                 if n_habitats > 0:
-                    logging.info(f"User entered number of habitats: {n_habitats}")
+                    self.logger.info(f"User entered number of habitats: {n_habitats}")
                     return n_habitats
                 else:
-                    print("Please enter a positive integer")
+                    self.logger.warning("Please enter a positive integer")
             except ValueError:
-                print("Invalid input, please enter an integer")
+                self.logger.warning("Invalid input, please enter an integer")
 
     def get_mask_and_raw_files(self):
         """Get paths to all original images and habitat maps"""
@@ -178,6 +178,10 @@ class HabitatMapAnalyzer:
         # Restore logging configuration in child process (for multiprocessing)
         self._ensure_logging_in_subprocess()
         
+        # Get logger for subprocess (self.logger may not work correctly in child process)
+        from habit.utils.log_utils import get_module_logger
+        logger = get_module_logger('habitat.analyzer')
+        
         subject_features = {}
         imgs = list(images_paths[subj].keys())
         
@@ -191,7 +195,7 @@ class HabitatMapAnalyzer:
                 non_radiomics_features = self.basic_extractor.get_non_radiomics_features(habitat_paths[subj])
                 subject_features['non_radiomics_features'] = non_radiomics_features
             except Exception as e:
-                logging.error(f"Error processing basic features for subject {subj}: {str(e)}")
+                logger.error(f"Error processing basic features for subject {subj}: {str(e)}")
                 subject_features['non_radiomics_features'] = {"error": str(e)}
 
         # Extract traditional radiomics features from original images
@@ -207,7 +211,7 @@ class HabitatMapAnalyzer:
                         self.params_file_of_non_habitat
                     )
                 except Exception as e:
-                    logging.error(f"Error processing traditional radiomics features for subject {subj}, image {img}: {str(e)}")
+                    logger.error(f"Error processing traditional radiomics features for subject {subj}, image {img}: {str(e)}")
                     subject_features['tranditional_radiomics_features'][img] = {"error": str(e)}
 
         # Extract radiomics features from the whole habitat map
@@ -219,7 +223,7 @@ class HabitatMapAnalyzer:
                 )
                 subject_features['radiomics_features_of_whole_habitat_map'] = radiomics_features_of_whole_habitat
             except Exception as e:
-                logging.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
+                logger.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
                 subject_features['radiomics_features_of_whole_habitat_map'] = {"error": str(e)}
         
         # Extract radiomics features from each habitat
@@ -235,7 +239,7 @@ class HabitatMapAnalyzer:
                     )
                     subject_features['radiomics_features_from_each_habitat'][img] = habitat_features
                 except Exception as e:
-                    logging.error(f"Error processing radiomics features for subject {subj}, habitat {img}: {str(e)}")
+                    logger.error(f"Error processing radiomics features for subject {subj}, habitat {img}: {str(e)}")
                     subject_features['radiomics_features_from_each_habitat'][img] = {"error": str(e)}
                 
         # Extract MSI features
@@ -245,7 +249,7 @@ class HabitatMapAnalyzer:
                 msi_features = self.msi_extractor.extract_MSI_features(habitat_paths[subj], n_habitats, subj)
                 subject_features['msi_features'] = msi_features
             except Exception as e:
-                logging.error(f"Error processing MSI features for subject {subj}: {str(e)}")
+                logger.error(f"Error processing MSI features for subject {subj}: {str(e)}")
                 subject_features['msi_features'] = {"error": str(e)}
             
         # Extract ITH features if enabled and masks are available
@@ -256,7 +260,7 @@ class HabitatMapAnalyzer:
                 ith_features = self.ith_extractor.extract_ith_features(habitat_paths[subj])
                 subject_features['ith_features'] = ith_features
             except Exception as e:
-                logging.error(f"Error processing ITH features for subject {subj}: {str(e)}")
+                logger.error(f"Error processing ITH features for subject {subj}: {str(e)}")
                 subject_features['ith_features'] = {"error": str(e)}
 
         return subj, subject_features
@@ -267,10 +271,10 @@ class HabitatMapAnalyzer:
         subjs = list(set(images_paths.keys()) & set(habitat_paths.keys()))
         
         if not subjs:
-            logging.error("No matching subjects found between original images and habitat maps")
+            self.logger.error("No matching subjects found between original images and habitat maps")
             return features
             
-        print(f"**************Starting habitat feature extraction for {len(subjs)} subjects using {self.n_processes} processes**************")
+        self.logger.info(f"Starting habitat feature extraction for {len(subjs)} subjects using {self.n_processes} processes")
         
         with multiprocessing.Pool(processes=self.n_processes) as pool:
             process_func = partial(self.process_subject, images_paths=images_paths, 
@@ -300,8 +304,8 @@ class HabitatMapAnalyzer:
         feature_data = self.extract_features(images_paths, habitat_paths, mask_paths, feature_types)
         
         # Log feature extraction results to screen and log file
-        logging.info(f"Feature extraction completed for {len(feature_data)} subjects")
-        logging.info(f"Feature data keys: {feature_data.keys()}")
+        self.logger.info(f"Feature extraction completed for {len(feature_data)} subjects")
+        self.logger.info(f"Feature data keys: {feature_data.keys()}")
 
         # 直接生成CSV (如果未指定特征类型则不生成)
         if feature_types:
@@ -309,30 +313,30 @@ class HabitatMapAnalyzer:
             if n_habitats is None:
                 n_habitats = self._get_n_habitats_from_csv()
                 
-            logging.info(f"Using habitat count: {n_habitats}")
+            self.logger.info(f"Using habitat count: {n_habitats}")
             self.n_habitats = n_habitats
             self.data = feature_data
             
             # 根据指定的特征类型生成CSV
             if 'traditional' in feature_types:
                 self._extract_traditional_radiomics()
-                logging.info(f"Traditional radiomics features saved to {os.path.join(self.out_dir, 'raw_image_radiomics.csv')}")
+                self.logger.info(f"Traditional radiomics features saved to {os.path.join(self.out_dir, 'raw_image_radiomics.csv')}")
                 
             if 'non_radiomics' in feature_types:
                 self._extract_non_radiomics_features(n_habitats)
-                logging.info(f"Basic habitat features saved to {os.path.join(self.out_dir, 'habitat_basic_features.csv')}")
+                self.logger.info(f"Basic habitat features saved to {os.path.join(self.out_dir, 'habitat_basic_features.csv')}")
             
             if 'whole_habitat' in feature_types:
                 self._extract_radiomics_features_for_whole_habitat_map()
-                logging.info(f"Whole habitat radiomics features saved to {os.path.join(self.out_dir, 'whole_habitat_radiomics.csv')}")
+                self.logger.info(f"Whole habitat radiomics features saved to {os.path.join(self.out_dir, 'whole_habitat_radiomics.csv')}")
             
             if 'each_habitat' in feature_types:
                 self._extract_radiomics_features_from_each_habitat(n_habitats)
-                logging.info(f"Radiomics features from each habitat saved to {os.path.join(self.out_dir, 'habitat_radiomics.csv')}")
+                self.logger.info(f"Radiomics features from each habitat saved to {os.path.join(self.out_dir, 'habitat_radiomics.csv')}")
             
             if 'msi' in feature_types:
                 self._extract_msi_features()
-                logging.info(f"MSI features saved to {os.path.join(self.out_dir, 'msi_features.csv')}")
+                self.logger.info(f"MSI features saved to {os.path.join(self.out_dir, 'msi_features.csv')}")
             
             if 'ith_score' in feature_types:
                 self._extract_ith_features()
@@ -341,7 +345,7 @@ class HabitatMapAnalyzer:
 
     def _extract_traditional_radiomics(self):
         """Extract traditional radiomics features from original images"""
-        logging.info("Starting extraction of traditional radiomics features")
+        self.logger.info("Starting extraction of traditional radiomics features")
         subjs = list(self.data.keys())
         tranditional_radiomics = []
         total = len(subjs)
@@ -358,7 +362,7 @@ class HabitatMapAnalyzer:
                 dfs_reshaped = pd.DataFrame([dfs.values.flatten()], columns=new_columns)
                 tranditional_radiomics.append(dfs_reshaped)
             except Exception as e:
-                logging.error(f"Error processing traditional radiomics features for subject {subj}: {str(e)}")
+                self.logger.error(f"Error processing traditional radiomics features for subject {subj}: {str(e)}")
                 # Create an empty DataFrame with columns matching other subjects
                 if len(tranditional_radiomics) > 0:
                     empty_df = FeatureUtils.create_empty_dataframe_like(
@@ -373,15 +377,15 @@ class HabitatMapAnalyzer:
             
             out_file = os.path.join(self.out_dir, "raw_image_radiomics.csv")
             tranditional_radiomics.to_csv(out_file, index=True)
-            logging.info(f"Traditional radiomics features saved to {out_file}")
+            self.logger.info(f"Traditional radiomics features saved to {out_file}")
             return tranditional_radiomics
         else:
-            logging.error("Error processing traditional radiomics features, no valid results")
+            self.logger.error("Error processing traditional radiomics features, no valid results")
             return None
 
     def _extract_non_radiomics_features(self, n_habitats: int):
         """Extract basic habitat features (number of disconnected regions and volume ratio)"""
-        logging.info("Starting extraction of basic habitat features")
+        self.logger.info("Starting extraction of basic habitat features")
         subjs = list(self.data.keys())
         
         # 定义列名：num_habitats + 每个生境的区域数量和体积比例
@@ -417,19 +421,19 @@ class HabitatMapAnalyzer:
                     if volume_ratio_col in columns:
                         non_radiomics_features.loc[subj, volume_ratio_col] = habitat_data.get('volume_ratio', 0.0)
             except Exception as e:
-                logging.error(f"Error processing basic habitat features for subject {subj}: {str(e)}")
+                self.logger.error(f"Error processing basic habitat features for subject {subj}: {str(e)}")
                 # 设置所有特征为NaN
                 non_radiomics_features.loc[subj, :] = np.nan
 
         # 保存到CSV文件
         out_file = os.path.join(self.out_dir, "habitat_basic_features.csv")
         non_radiomics_features.to_csv(out_file, index=True)
-        logging.info(f"Basic habitat features saved to {out_file}")
+        self.logger.info(f"Basic habitat features saved to {out_file}")
         return non_radiomics_features
 
     def _extract_radiomics_features_for_whole_habitat_map(self):
         """Extract radiomics features from the whole habitat map"""
-        logging.info("Starting extraction of whole habitat radiomics features")
+        self.logger.info("Starting extraction of whole habitat radiomics features")
         subjs = list(self.data.keys())
         radiomics_of_whole_habitat = []
         total = len(subjs)
@@ -444,7 +448,7 @@ class HabitatMapAnalyzer:
                 features_df = features_df.loc[:, ~features_df.columns.str.contains('diagnostic')]
                 radiomics_of_whole_habitat.append(features_df)
             except Exception as e:
-                logging.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
+                self.logger.error(f"Error processing whole habitat radiomics features for subject {subj}: {str(e)}")
                 # Create an empty DataFrame with columns matching other subjects
                 if len(radiomics_of_whole_habitat) > 0:
                     empty_df = FeatureUtils.create_empty_dataframe_like(
@@ -459,15 +463,15 @@ class HabitatMapAnalyzer:
 
             out_file = os.path.join(self.out_dir, "whole_habitat_radiomics.csv")
             radiomics_of_whole_habitat.to_csv(out_file, index=True)
-            logging.info(f"Whole habitat radiomics features saved to {out_file}")
+            self.logger.info(f"Whole habitat radiomics features saved to {out_file}")
             return radiomics_of_whole_habitat
         else:
-            logging.error("Error processing whole habitat radiomics features, no valid results")
+            self.logger.error("Error processing whole habitat radiomics features, no valid results")
             return None
 
     def _extract_radiomics_features_from_each_habitat(self, n_habitats: int):
         """Extract radiomics features from each habitat"""
-        logging.info("Starting extraction of radiomics features from each habitat")
+        self.logger.info("Starting extraction of radiomics features from each habitat")
         subjs = list(self.data.keys())
         radiomics_of_each_habitat = {i+1: [] for i in range(n_habitats)}
         habitat_count = np.zeros((len(subjs), n_habitats))
@@ -502,7 +506,7 @@ class HabitatMapAnalyzer:
                         radiomics_of_habitat = pd.DataFrame([radiomics_of_habitat.values.flatten()], columns=new_columns, index=[subj])
                         radiomics_of_each_habitat[habitat_id].append(radiomics_of_habitat)
                 except Exception as e:
-                    logging.error(f"Error processing radiomics features for subject {subj}, habitat {habitat_id}: {str(e)}")
+                    self.logger.error(f"Error processing radiomics features for subject {subj}, habitat {habitat_id}: {str(e)}")
                     # Create an empty DataFrame if there are successful subjects
                     if len(radiomics_of_each_habitat[habitat_id]) > 0:
                         first_df = radiomics_of_each_habitat[habitat_id][0]
@@ -516,18 +520,18 @@ class HabitatMapAnalyzer:
                 radiomics_of_each_habitat[habitat_id] = pd.concat(radiomics_of_each_habitat[habitat_id])
                 out_file = os.path.join(self.out_dir, f"habitat_{habitat_id}_radiomics.csv")
                 radiomics_of_each_habitat[habitat_id].to_csv(out_file, index=True)
-                logging.info(f"Radiomics features for habitat {habitat_id} saved to {out_file}")
+                self.logger.info(f"Radiomics features for habitat {habitat_id} saved to {out_file}")
             else:
-                logging.error(f"No valid radiomics features data for habitat {habitat_id}")
+                self.logger.error(f"No valid radiomics features data for habitat {habitat_id}")
         
         habitat_count.columns = [f"has_habitat_{i}" for i in range(1, n_habitats+1)]
         habitat_count.to_csv(os.path.join(self.out_dir, "habitat_count.csv"), index=True)
-        logging.info("Habitat count information saved")
+        self.logger.info("Habitat count information saved")
         return radiomics_of_each_habitat
 
     def _extract_msi_features(self):
         """Extract MSI features and save as CSV file"""
-        logging.info("Starting extraction of MSI features")
+        self.logger.info("Starting extraction of MSI features")
         subjs = list(self.data.keys())
         msi_features_list = []
         total = len(subjs)
@@ -544,7 +548,7 @@ class HabitatMapAnalyzer:
                         features_df.index = [subj]
                         msi_features_list.append(features_df)
                     else:
-                        logging.error(f"Error extracting MSI features for subject {subj}: {features['error']}")
+                        self.logger.error(f"Error extracting MSI features for subject {subj}: {features['error']}")
                         # Create empty DataFrame if there are successful subjects
                         if len(msi_features_list) > 0:
                             empty_df = FeatureUtils.create_empty_dataframe_like(
@@ -553,9 +557,9 @@ class HabitatMapAnalyzer:
                             )
                             msi_features_list.append(empty_df)
                 else:
-                    logging.error(f"No MSI features data for subject {subj}")
+                    self.logger.error(f"No MSI features data for subject {subj}")
             except Exception as e:
-                logging.error(f"Error processing MSI features for subject {subj}: {str(e)}")
+                self.logger.error(f"Error processing MSI features for subject {subj}: {str(e)}")
                 # Create empty DataFrame if there are successful subjects
                 if len(msi_features_list) > 0:
                     empty_df = FeatureUtils.create_empty_dataframe_like(
@@ -568,15 +572,15 @@ class HabitatMapAnalyzer:
             msi_features_df = pd.concat(msi_features_list)
             out_file = os.path.join(self.out_dir, "msi_features.csv")
             msi_features_df.to_csv(out_file, index=True)
-            logging.info(f"MSI features saved to {out_file}")
+            self.logger.info(f"MSI features saved to {out_file}")
             return msi_features_df
         else:
-            logging.error("No valid MSI features data")
+            self.logger.error("No valid MSI features data")
             return None
 
     def _extract_ith_features(self):
         """Extract ITH features and save as CSV file"""
-        logging.info("Starting extraction of ITH features")
+        self.logger.info("Starting extraction of ITH features")
         subjs = list(self.data.keys())
         ith_features_list = {}
         total = len(subjs)
@@ -591,16 +595,16 @@ class HabitatMapAnalyzer:
                     value = self.data.get(subj).get('ith_features')
                     ith_features_list[subj] = value
             except Exception as e:
-                logging.error(f"Error processing ITH features for subject {subj}: {str(e)}")
+                self.logger.error(f"Error processing ITH features for subject {subj}: {str(e)}")
         
         if len(ith_features_list) > 0:
             ith_features_df = pd.DataFrame.from_dict(ith_features_list, orient='index')
             out_file = os.path.join(self.out_dir, "ith_scores.csv")
             ith_features_df.to_csv(out_file)
-            logging.info(f"ITH features saved to {out_file}")
+            self.logger.info(f"ITH features saved to {out_file}")
             
             
             return ith_features_df
         else:
-            logging.error("No valid ITH features data")
+            self.logger.error("No valid ITH features data")
             return None

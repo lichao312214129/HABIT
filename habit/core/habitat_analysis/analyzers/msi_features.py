@@ -8,6 +8,9 @@ import logging
 import numpy as np
 import SimpleITK as sitk
 from typing import Dict
+from habit.utils.log_utils import get_module_logger
+
+logger = get_module_logger(__name__)
 
 class MSIFeatureExtractor:
     """Extractor class for MSI features"""
@@ -36,7 +39,7 @@ class MSIFeatureExtractor:
         roi_z, roi_y, roi_x = np.where(habitat_array != 0)
         
         if len(roi_z) == 0:
-            logging.warning("No non-zero elements found in habitat array")
+            logger.warning("No non-zero elements found in habitat array")
             return np.zeros((unique_class, unique_class), dtype=np.int64)
             
         z_min, z_max = np.min(roi_z), np.max(roi_z)
@@ -115,7 +118,7 @@ class MSIFeatureExtractor:
         denominator = np.sum(denominator_mat)
         
         if denominator == 0:
-            logging.warning(f"MSI matrix denominator is 0 for {name}, cannot calculate normalized features")
+            logger.warning(f"MSI matrix denominator is 0 for {name}, cannot calculate normalized features")
             normal_msi_matrix = np.zeros_like(msi_matrix, dtype=float)
         else:
             normal_msi_matrix = msi_matrix / denominator
@@ -194,5 +197,5 @@ class MSIFeatureExtractor:
             
             return msi_feature
         except Exception as e:
-            logging.error(f"Error extracting MSI features for subject {subj}: {str(e)}")
+            logger.error(f"Error extracting MSI features for subject {subj}: {str(e)}")
             return {"error": str(e)} 

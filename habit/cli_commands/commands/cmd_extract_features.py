@@ -42,7 +42,7 @@ def run_extract_features(config_file: str) -> None:
     logger = setup_logger(
         name='cli.extract_features',
         output_dir=output_dir,
-        log_filename='feature_extraction.log',
+        log_filename='processing.log',
         level=logging.INFO
     )
     

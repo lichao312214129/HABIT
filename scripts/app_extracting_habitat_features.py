@@ -10,8 +10,9 @@ import sys
 import argparse
 import logging
 import time
-from habit.core.habitat_analysis.habitat_feature_extraction.new_extractor import HabitatFeatureExtractor
+from habit.core.habitat_analysis.analyzers.habitat_analyzer import HabitatMapAnalyzer
 from habit.utils.io_utils import load_config, setup_logging
+from habit.utils.log_utils import LoggerManager
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,7 +133,7 @@ def run_extractor(config: dict) -> bool:
         # Create feature extractor instance
         logging.info("正在创建特征提取器实例...")
         
-        extractor = HabitatFeatureExtractor(
+        extractor = HabitatMapAnalyzer(
             params_file_of_non_habitat=config['params_file_of_non_habitat'],
             params_file_of_habitat=config['params_file_of_habitat'],
             raw_img_folder=config['raw_img_folder'],
@@ -148,7 +149,7 @@ def run_extractor(config: dict) -> bool:
         start_time = time.time()
         extractor.run(
             feature_types=config['feature_types'],
-            n_habitats=config.get('n_habitats', 0)
+            n_habitats=config.get('n_habitats', None)
         )
         end_time = time.time()
         
@@ -187,8 +188,9 @@ def main() -> None:
         logging.error("python app_extracting_habitat_features.py --config config/extract_features_config.yaml")
         return
     
-    # Set up logging
-    setup_logging(config['out_dir'], debug=config.get('debug', False))
+    # Set up logging only if not already configured
+    if LoggerManager().get_log_file() is None:
+        setup_logging(config['out_dir'], debug=config.get('debug', False))
     
     # Validate configuration
     if not validate_config(config):

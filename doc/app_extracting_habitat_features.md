@@ -101,7 +101,7 @@ debug: <是否启用调试模式>
 
 1. 解析命令行参数或加载配置文件
 2. 验证配置参数有效性
-3. 创建HabitatFeatureExtractor实例
+3. 创建HabitatMapAnalyzer实例
 4. 根据指定的操作模式和特征类型执行特征提取：
    - 如果mode为'extract'或'both'，从图像中提取特征
    - 如果mode为'parse'或'both'，解析特征并生成摘要
