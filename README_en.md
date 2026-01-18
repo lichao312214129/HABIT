@@ -27,6 +27,26 @@ The core idea of HABIT is to identify and characterize sub-regions within a tumo
   <b>Image → Voxel Features → Supervoxels (Optional) → Habitats → Habitat Features → Predictive Model (Optional)</b>
 </p>
 
+### Core Concept Hierarchy
+*Abstraction process from micro-voxels to macro-habitats*
+
+```
+      [Tumor Image]          [Micro-Level]          [Meso-Level]          [Macro-Level]
+     +------------+         +------------+         +------------+         +------------+
+     |   Tumor    |         |   Voxels   |         | Supervoxels|         |  Habitats  |
+     |  (Region)  |         | (Features) |         | (Clusters) |         | (Patterns) |
+     +-----+------+         +-----+------+         +-----+------+         +-----+------+
+           |                      |                      |                      |
+           v                      v                      v                      v
+     +------------+         +------------+         +------------+         +------------+
+     |            |         | . . . . . .|         | AA BB CC DD|         | ## ** @@   |
+     |  (Image)   |  ---->  | . . . . . .|  ---->  | AA BB CC DD|  ---->  | ## ** @@   |
+     |            |         | . . . . . .|         | EE FF GG HH|         | $$ %% &&   |
+     +------------+         +------------+         +------------+         +------------+
+      Original Image        Voxel Features          Supervoxels           Habitat Map
+                                                  (Over-segmentation)    (Biological Meaning)
+```
+
 ### Detailed Workflow
 
 1. **Voxel-Level Feature Extraction**: Extracts rich features (e.g., intensity, texture, kinetic) for every single voxel within the tumor.
@@ -55,6 +75,117 @@ HABIT supports three different clustering strategies, each suitable for differen
 - **Process**: Concatenate all voxels from all patients → Direct population clustering
 - **Characteristics**: Skips supervoxel step, directly clusters all voxels at population level, all patients share unified labels
 - **Use Cases**: Moderate data size, need unified labels but don't need supervoxel intermediate step
+
+### 🔍 Visual Comparison of Clustering Strategies
+
+#### 1. One-Step Clustering (Personalized)
+*Independent clustering for each patient, suitable for individual heterogeneity.*
+
+```
+      Patient 1 (P1)              Patient 2 (P2)
+   +------------------+        +------------------+
+   |  P1 Tumor Image  |        |  P2 Tumor Image  |
+   +--------+---------+        +--------+---------+
+            |                           |
+            v (Extract Voxels)          v
+   +--------+---------+        +--------+---------+
+   | Voxels: . . . .  |        | Voxels: . . . .  |
+   +--------+---------+        +--------+---------+
+            |                           |
+            v (Cluster Individually)    v
+   +--------+---------+        +--------+---------+
+   | Habitats: # * @  |        | Habitats: & % $  |
+   +------------------+        +------------------+
+     Unique to P1                Unique to P2
+    (Labels Not Shared)         (Labels Not Shared)
+```
+
+#### 2. Two-Step Clustering (Cohort Study) ⭐ Recommended
+*Cluster voxels to supervoxels first, then cluster populations. Balances local detail with population consistency.*
+
+```
+      Patient 1 (P1)              Patient 2 (P2)
+   +------------------+        +------------------+
+   |  P1 Tumor Image  |        |  P2 Tumor Image  |
+   +--------+---------+        +--------+---------+
+            |                           |
+            v                           v
+   +--------+---------+        +--------+---------+
+   | Voxels: . . . .  |        | Voxels: . . . .  |
+   +--------+---------+        +--------+---------+
+            | (Local Clustering)        |
+            v                           v
+   +--------+---------+        +--------+---------+
+   | Supervoxels:     |        | Supervoxels:     |
+   | AA BB CC DD      |        | EE FF GG HH      |
+   +--------+---------+        +--------+---------+
+            \                         /
+             \  (Pool All Supervoxels) /
+              \                     /
+               v                   v
+           +---------------------------+
+           |   Population Clustering   |
+           |   (Cluster Supervoxels)   |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           |  Unified Habitats (Shared)|
+           |  Type 1: # (e.g. Necrosis)|
+           |  Type 2: * (e.g. Active)  |
+           |  Type 3: @ (e.g. Edema)   |
+           +---------------------------+
+             (Consistent Labels for Cohort)
+```
+
+#### 3. Direct Pooling
+*Skip supervoxels, directly cluster all voxels from population.*
+
+```
+      Patient 1 (P1)              Patient 2 (P2)
+   +------------------+        +------------------+
+   |  P1 Tumor Image  |        |  P2 Tumor Image  |
+   +--------+---------+        +--------+---------+
+            |                           |
+            v                           v
+   +--------+---------+        +--------+---------+
+   | Voxels: . . . .  |        | Voxels: . . . .  |
+   +--------+---------+        +--------+---------+
+             \                         /
+              \  (Pool All Voxels)    /
+               \                     /
+                v                   v
+           +---------------------------+
+           |   Population Clustering   |
+           |    (Cluster All Voxels)   |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           |  Unified Habitats (Shared)|
+           |     Type 1: #, 2: *, 3: @ |
+           +---------------------------+
+```
+
+
+### 📊 Strategy Selection Guide
+
+**Choose One-Step if:**
+- You want to analyze each tumor individually
+- Sample sizes vary greatly between patients
+- You're interested in personalized habitat patterns
+- Computational resources are limited
+
+**Choose Two-Step if:**
+- You're conducting a cohort study
+- You need comparable habitats across patients ⭐ **Most studies**
+- You want to balance computational efficiency with biological relevance
+- You need interpretable intermediate results (supervoxels)
+
+**Choose Direct Pooling if:**
+- You have moderate computational resources
+- You want unified habitats but don't need supervoxel intermediate step
+- You're working with datasets where voxel-level clustering is feasible
 
 **Comparison Table**:
 
