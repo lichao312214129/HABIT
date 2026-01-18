@@ -19,20 +19,18 @@ def run_compare(config_file: str) -> None:
         config_file (str): Path to configuration YAML file
     """
     from habit.utils.log_utils import setup_logger
-    
+    # load config
+    from habit.utils.config_utils import load_config
+    from habit.core.machine_learning.model_comparison import ModelComparison
+
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
         sys.exit(1)
     
-    # Check if config file exists
-    if not os.path.exists(config_file):
-        click.echo(f"Error: Configuration file not found: {config_file}", err=True)
-        sys.exit(1)
     
     # Load config to get output directory
     try:
-        with open(config_file, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
+        config = load_config(config_file)
         output_dir = Path(config.get('output_dir', config.get('output', '.')))
         output_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
@@ -43,7 +41,7 @@ def run_compare(config_file: str) -> None:
     logger = setup_logger(
         name='cli.compare',
         output_dir=output_dir,
-        log_filename='model_comparison.log',
+        log_filename='processing.log',
         level=logging.INFO
     )
     
@@ -51,14 +49,8 @@ def run_compare(config_file: str) -> None:
     click.echo(f"Starting model comparison with config: {config_file}")
     
     try:
-        # Import and run the comparison script
-        old_argv = sys.argv
-        sys.argv = ['app_model_comparison_plots.py', '--config', config_file]
-        
-        from scripts import app_model_comparison_plots
-        app_model_comparison_plots.main()
-        
-        sys.argv = old_argv
+        model_obj = ModelComparison(config)
+        model_obj.run()
         logger.info("Model comparison completed successfully")
         click.secho("Model comparison completed successfully!", fg='green')
     except Exception as e:

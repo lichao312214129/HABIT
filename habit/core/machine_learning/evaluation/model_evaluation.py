@@ -15,6 +15,7 @@ from sklearn.calibration import calibration_curve
 from .metrics import calculate_metrics, calculate_metrics_youden, delong_roc_ci
 from ..visualization.plotting import Plotter
 from ..statistics.delong_test import delong_roc_test, delong_roc_ci
+from habit.utils.log_utils import get_module_logger
 
 class ModelEvaluator:
     def __init__(self, output_dir: str):
@@ -26,6 +27,7 @@ class ModelEvaluator:
         """
         self.output_dir = output_dir
         self.plotter = Plotter(self.output_dir)
+        self.logger = get_module_logger('evaluation.model')
     
     def evaluate(self, model: Any, X: pd.DataFrame, y: pd.Series, 
                 dataset_name: str = "test") -> Dict[str, Any]:
@@ -148,9 +150,9 @@ class ModelEvaluator:
                                                      values are (y_true, y_pred_proba) tuples
         """
             
-        print("\n" + "="*80)
-        print(" "*30 + "Model AUC Comparison (DeLong test)")
-        print("="*80)
+        self.logger.info("="*80)
+        self.logger.info("Model AUC Comparison (DeLong test)")
+        self.logger.info("="*80)
         
         # Get list of model names
         model_names = list(test_data.keys())
@@ -196,18 +198,18 @@ class ModelEvaluator:
                 }
                 comparison_results.append(comparison_result)
                 
-                # Print results
-                print(f"Comparison: {model1} vs {model2}")
-                print(f"{model1} AUC: {auc1:.4f} (95% CI: {ci1[0]:.4f}-{ci1[1]:.4f})")
-                print(f"{model2} AUC: {auc2:.4f} (95% CI: {ci2[0]:.4f}-{ci2[1]:.4f})")
-                print(f"DeLong test p-value: {p_value:.4f}")
+                # Log results
+                self.logger.info(f"Comparison: {model1} vs {model2}")
+                self.logger.info(f"{model1} AUC: {auc1:.4f} (95% CI: {ci1[0]:.4f}-{ci1[1]:.4f})")
+                self.logger.info(f"{model2} AUC: {auc2:.4f} (95% CI: {ci2[0]:.4f}-{ci2[1]:.4f})")
+                self.logger.info(f"DeLong test p-value: {p_value:.4f}")
                 
                 if p_value < 0.05:
-                    print(f"Conclusion: Significant difference in AUC between {model1} and {model2} (p<0.05)")
+                    self.logger.info(f"Conclusion: Significant difference in AUC between {model1} and {model2} (p<0.05)")
                 else:
-                    print(f"Conclusion: No significant difference in AUC between {model1} and {model2} (p≥0.05)")
+                    self.logger.info(f"Conclusion: No significant difference in AUC between {model1} and {model2} (p≥0.05)")
                 
-                print("-"*80)
+                self.logger.info("-"*80)
         
         # Save comparison results
         comparison_file = os.path.join(self.output_dir, 'delong_comparison.json')
@@ -221,9 +223,9 @@ class ModelEvaluator:
         Args:
             results (Dict[str, Any]): Evaluation results dictionary
         """
-        print("\n" + "="*80)
-        print(" "*30 + "Model Performance Evaluation Table")
-        print("="*80)
+        self.logger.info("="*80)
+        self.logger.info("Model Performance Evaluation Table")
+        self.logger.info("="*80)
         
         # Define metric name mapping
         metric_names = {
@@ -247,10 +249,10 @@ class ModelEvaluator:
             available_models.update(results['test'].keys())
         
         if not available_models:
-            print("No model results available")
+            self.logger.warning("No model results available")
             return
             
-        # Print table header
+        # Log table header
         header = ["Metric"]
         for model_name in sorted(available_models):
             if 'train' in results:
@@ -258,10 +260,10 @@ class ModelEvaluator:
             if 'test' in results:
                 header.append(f"{model_name} (Test)")
         
-        print(" | ".join([f"{h:^15}" for h in header]))
-        print("-"*80)
+        self.logger.info(" | ".join([f"{h:^15}" for h in header]))
+        self.logger.info("-"*80)
         
-        # Print values for each metric
+        # Log values for each metric
         for metric in ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'auc', 
                       'hosmer_lemeshow_chi2', 'hosmer_lemeshow_p_value', 
                       'spiegelhalter_z_statistic', 'spiegelhalter_z_p_value']:
@@ -280,9 +282,9 @@ class ModelEvaluator:
                     test_value = test_metrics.get(metric, 'N/A')
                     row.append(f"{test_value:.4f}" if isinstance(test_value, (int, float)) else str(test_value))
             
-            print(" | ".join([f"{cell:^15}" for cell in row]))
+            self.logger.info(" | ".join([f"{cell:^15}" for cell in row]))
         
-        print("="*80)
+        self.logger.info("="*80)
 
     def _save_performance_table(self, results: Dict[str, Any], filename: str = "performance_table.csv") -> None:
         """
@@ -314,7 +316,7 @@ class ModelEvaluator:
             available_models.update(results['test'].keys())
         
         if not available_models:
-            print("No model results available for saving")
+            self.logger.warning("No model results available for saving")
             return
         
         # Create DataFrame for saving
@@ -354,7 +356,7 @@ class ModelEvaluator:
         output_path = os.path.join(self.output_dir, filename)
         df.to_csv(output_path, index=False)
         
-        print(f"Performance table saved to: {output_path}")
+        self.logger.info(f"Performance table saved to: {output_path}")
         
         # Also save a detailed summary with additional statistics
         detailed_filename = filename.replace('.csv', '_detailed.csv')
@@ -426,7 +428,7 @@ class ModelEvaluator:
         output_path = os.path.join(self.output_dir, filename)
         df_detailed.to_csv(output_path, index=False)
         
-        print(f"Detailed performance summary saved to: {output_path}")
+        self.logger.info(f"Detailed performance summary saved to: {output_path}")
 
 
 class MultifileEvaluator:
@@ -443,6 +445,7 @@ class MultifileEvaluator:
         self.models_data = {}
         self.label_col = None
         self.subject_id_col = None
+        self.logger = get_module_logger('evaluation.multifile')
         
     def read_prediction_files(self, files_config: List[Dict]) -> 'MultifileEvaluator':
         """
@@ -461,7 +464,7 @@ class MultifileEvaluator:
             MultifileEvaluator: 自身实例，用于方法链式调用
         """
         # Simple and clear data fusion approach
-        print(f"Reading data from multiple files: {len(files_config)} files")
+        self.logger.info(f"Reading data from multiple files: {len(files_config)} files")
         
         # Step 1: Read and standardize all files
         standardized_dfs = []
@@ -485,8 +488,8 @@ class MultifileEvaluator:
                 original_subject_id_col = subject_id_col
                 original_label_col = label_col
             
-            print(f"  Reading file: {file_path}")
-            print(f"  Model name: {model_name}, Subject ID: {subject_id_col}, Label: {label_col}, Prob: {prob_col}")
+            self.logger.info(f"Reading file: {file_path}")
+            self.logger.info(f"Model name: {model_name}, Subject ID: {subject_id_col}, Label: {label_col}, Prob: {prob_col}")
             
             # Read file and check columns exist
             df = pd.read_csv(file_path)
@@ -509,7 +512,7 @@ class MultifileEvaluator:
             standardized_dfs.append((model_name, standardized_df))
         
         # Step 2: Merge all dataframes using standardized column names
-        print("Merging all datasets...")
+        self.logger.info("Merging all datasets...")
         merged_df = None
         
         for model_name, df in standardized_dfs:
@@ -562,18 +565,18 @@ class MultifileEvaluator:
             
             # 打印列中NaN值的数量
             nan_counts = output_df.isna().sum()
-            print("\nNaN 值统计:")
+            self.logger.info("NaN value statistics:")
             for col, count in nan_counts.items():
                 if count > 0:
                     total = len(output_df)
                     percent = (count / total) * 100
-                    print(f"  {col}: {count}/{total} ({percent:.2f}%)")
+                    self.logger.info(f"  {col}: {count}/{total} ({percent:.2f}%)")
             
             output_path = os.path.join(self.output_dir, filename)
             output_df.to_csv(output_path, index=False)
-            print(f"Merged data saved to {output_path}")
+            self.logger.info(f"Merged data saved to {output_path}")
         else:
-            print("No data to save. Please read prediction files first.")
+            self.logger.warning("No data to save. Please read prediction files first.")
     
     def plot_roc(self, save_name: str = "ROC.pdf", title: str = "evaluation") -> None:
         """
@@ -584,11 +587,11 @@ class MultifileEvaluator:
             title (str): 图表标题
         """
         if not self.models_data:
-            print("No models data available. Please read prediction files first.")
+            self.logger.warning("No models data available. Please read prediction files first.")
             return
         
         self.plotter.plot_roc_v2(self.models_data, save_name=save_name, title=title)
-        print(f"ROC curve saved to {os.path.join(self.output_dir, save_name)}")
+        self.logger.info(f"ROC curve saved to {os.path.join(self.output_dir, save_name)}")
     
     def plot_dca(self, save_name: str = "DCA.pdf", title: str = "evaluation") -> None:
         """
@@ -599,11 +602,11 @@ class MultifileEvaluator:
             title (str): 图表标题
         """
         if not self.models_data:
-            print("No models data available. Please read prediction files first.")
+            self.logger.warning("No models data available. Please read prediction files first.")
             return
         
         self.plotter.plot_dca_v2(self.models_data, save_name=save_name, title=title)
-        print(f"DCA curve saved to {os.path.join(self.output_dir, save_name)}")
+        self.logger.info(f"DCA curve saved to {os.path.join(self.output_dir, save_name)}")
     
     def plot_calibration(self, save_name: str = "Calibration.pdf", n_bins: int = 5, title: str = "evaluation") -> None:
         """
@@ -615,11 +618,11 @@ class MultifileEvaluator:
             title (str): 图表标题
         """
         if not self.models_data:
-            print("No models data available. Please read prediction files first.")
+            self.logger.warning("No models data available. Please read prediction files first.")
             return
         
         self.plotter.plot_calibration_v2(self.models_data, save_name=save_name, n_bins=n_bins, title=title)
-        print(f"Calibration curve saved to {os.path.join(self.output_dir, save_name)}")
+        self.logger.info(f"Calibration curve saved to {os.path.join(self.output_dir, save_name)}")
     
     def plot_pr_curve(self, save_name: str = "PR_curve.pdf", title: str = "evaluation") -> None:
         """
@@ -630,11 +633,11 @@ class MultifileEvaluator:
             title (str): 图表标题
         """
         if not self.models_data:
-            print("No models data available. Please read prediction files first.")
+            self.logger.warning("No models data available. Please read prediction files first.")
             return
         
         self.plotter.plot_pr_curve(self.models_data, save_name=save_name, title=title)
-        print(f"PR curve saved to {os.path.join(self.output_dir, save_name)}")
+        self.logger.info(f"PR curve saved to {os.path.join(self.output_dir, save_name)}")
     
     def run_delong_test(self, output_json: Optional[str] = "delong_test_results.json") -> List[Dict]:
         """
@@ -647,7 +650,7 @@ class MultifileEvaluator:
             List[Dict]: DeLong检验结果列表
         """
         if not self.models_data or len(self.models_data) < 2:
-            print("Need at least two models for DeLong test.")
+            self.logger.warning("Need at least two models for DeLong test.")
             return []
         
         results = []
@@ -672,10 +675,10 @@ class MultifileEvaluator:
                 temp_df = temp_df.dropna()
                 
                 if len(temp_df) == 0:
-                    print(f"警告: {model1} 和 {model2} 没有足够的共同有效样本进行DeLong检验")
+                    self.logger.warning(f"{model1} 和 {model2} 没有足够的共同有效样本进行DeLong检验")
                     continue
                 
-                print(f"执行DeLong检验: {model1} vs {model2}，有效样本数: {len(temp_df)}")
+                self.logger.info(f"执行DeLong检验: {model1} vs {model2}，有效样本数: {len(temp_df)}")
                 
                 # 获取清理后的数据
                 clean_y_true = temp_df['y_true'].values
@@ -705,16 +708,16 @@ class MultifileEvaluator:
                 results.append(comparison_result)
         
         # 输出结果
-        print("\nDeLong Test Results:")
-        print("=" * 50)
+        self.logger.info("DeLong Test Results:")
+        self.logger.info("=" * 50)
         for result in results:
-            print(f"\n{result['comparison']}")
-            print(f"P-value: {result['p_value']:.4f}")
-            print(f"Conclusion: {result['conclusion']}")
-            print(f"AUCs with 95% CI:")
+            self.logger.info(f"{result['comparison']}")
+            self.logger.info(f"P-value: {result['p_value']:.4f}")
+            self.logger.info(f"Conclusion: {result['conclusion']}")
+            self.logger.info("AUCs with 95% CI:")
             model1, model2 = result['comparison'].split(" vs ")
-            print(f"{model1}: {result[f'{model1}_auc']:.3f} ({result[f'{model1}_ci_lower']:.3f}-{result[f'{model1}_ci_upper']:.3f})")
-            print(f"{model2}: {result[f'{model2}_auc']:.3f} ({result[f'{model2}_ci_lower']:.3f}-{result[f'{model2}_ci_upper']:.3f})")
+            self.logger.info(f"{model1}: {result[f'{model1}_auc']:.3f} ({result[f'{model1}_ci_lower']:.3f}-{result[f'{model1}_ci_upper']:.3f})")
+            self.logger.info(f"{model2}: {result[f'{model2}_auc']:.3f} ({result[f'{model2}_ci_lower']:.3f}-{result[f'{model2}_ci_upper']:.3f})")
         
         # 保存结果
         if output_json:
@@ -722,7 +725,7 @@ class MultifileEvaluator:
             output_path = os.path.join(self.output_dir, output_json)
             with open(output_path, 'w') as f:
                 json.dump(results, f, indent=4)
-            print(f"\nResults saved to {output_path}")
+            self.logger.info(f"Results saved to {output_path}")
         
         return results
     

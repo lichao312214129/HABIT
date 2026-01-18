@@ -23,17 +23,15 @@ class ModelComparison:
     """
     Tool for comparing and evaluating multiple machine learning models
     """
-    def __init__(self, config_path):
+    def __init__(self, config):
         """
         Initialize the model comparison tool
         
         Args:
             config_path (str): Path to configuration YAML file
         """
-        # 读取配置文件
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.config = yaml.safe_load(f)
-    
+        self.config = config
+
         # 设置输出目录
         self.output_dir = self.config.get('output_dir', './results/model_comparison')
         os.makedirs(self.output_dir, exist_ok=True)
@@ -43,14 +41,14 @@ class ModelComparison:
         
         if manager.get_log_file() is not None:
             # Logging already configured by CLI, just get module logger
-            self.logger = get_module_logger('ModelComparison')
+            self.logger = get_module_logger('model.comparison')
             self.logger.info("Using existing logging configuration from CLI entry point")
         else:
             # Logging not configured yet (e.g., direct class usage)
             self.logger = setup_logger(
-                name="ModelComparison",
+                name="model.comparison",
                 output_dir=self.output_dir,
-                log_filename='model_comparison.log'
+                log_filename='processing.log'
             )
         
         # 初始化评估器
@@ -246,7 +244,6 @@ class ModelComparison:
             
             # 重新获取当前dataset_value对应的数据框
             group_df = self.evaluator.data[self.evaluator.data[self.split_column] == dataset_group_name]
-            group_df.to_csv(r'H:\results\ml_results\data-group.csv')
             # 创建该分组的专用plotter
             group_plotter = Plotter(group_output_dir)
             
