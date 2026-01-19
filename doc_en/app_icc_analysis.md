@@ -22,14 +22,18 @@ This module supports not only ICC but also various reliability assessment metric
 
 ## 2. Quick Start
 
-### Using CLI (Recommended) ✨
+The primary way to run the analysis is via the `habit` command-line interface (CLI).
+
+### Using the `habit` CLI (Recommended) ✨
 
 ```bash
 # Run ICC analysis using a configuration file
 habit icc --config config/config_icc_analysis.yaml
 ```
 
-### Using Traditional Script
+### Using the Legacy Script Wrapper
+
+For backward compatibility, you can also use the `app_icc_analysis.py` script, which is now a simple wrapper around the main CLI command's logic.
 
 ```bash
 python scripts/app_icc_analysis.py --config config/config_icc_analysis.yaml
@@ -78,13 +82,12 @@ input:
   type: "files"
 
   # File Groups: Used when type is "files"
-  # Each sub-list is an independent comparison group, typically containing 2 or more files.
+  # Each sub-list is an independent comparison group.
   file_groups:
     - [/path/to/test_features.csv, /path/to/retest_features.csv]
     - [/path/to/observer1_features.csv, /path/to/observer2_features.csv]
 
   # Directory List: Used when type is "directories"
-  # The tool will automatically match files with the same name in these directories and group them for comparison.
   # dir_list:
   #   - /path/to/test_data_dir
   #   - /path/to/retest_data_dir
@@ -94,7 +97,14 @@ output:
   # Full path for the output JSON file
   path: ./results/icc_analysis/icc_results.json
 
+# Metrics to calculate (e.g., icc2, icc3, cohen, fleiss, krippendorff, all_icc)
+metrics:
+  - icc3
+  - fleiss_kappa
+
 # Number of parallel processes (null uses all available CPU cores)
+# Note: Parallel processing is currently handled by the higher-level application if needed.
+# This setting might be used in future versions.
 processes: 6
 
 # Debug mode (True/False), enables more detailed logging
@@ -197,13 +207,13 @@ When performing feature selection, it is common practice to select features with
 
 After the script finishes, a summary will be printed to the console. It reports the average ICC for each group and the count and percentage of features that meet the "Good" standard (ICC >= 0.75), helping you to quickly assess overall consistency.
 
-## 6. Advanced Usage
+## 6. Advanced Usage: Configuring Metrics
 
-### 6.1 Specifying ICC Type
+All advanced configuration, such as selecting which metrics to calculate, is now handled inside your `config.yaml` file. There are no extra command-line flags.
 
-You can specify the ICC type to calculate via configuration file or command-line arguments:
+Simply add a `metrics` list to your configuration file to specify all the metrics you want to run.
 
-**Configuration File:**
+**Configuration Example:**
 ```yaml
 input:
   type: "files"
@@ -213,82 +223,32 @@ input:
 output:
   path: ./results/icc_results.json
 
-# Specify metrics to calculate
+# Specify a list of metrics to calculate
 metrics:
   - icc2      # ICC(2,1) - Two-way Random, Absolute Agreement
-  - icc3      # ICC(3,1) - Two-way Mixed, Consistency (default)
-
-# Return full results (including CI and p-value)
-full_results: true
+  - icc3      # ICC(3,1) - Two-way Mixed, Consistency
+  - all_icc   # A shortcut to run all 6 ICC types
+  - cohen     # Cohen's Kappa (for 2 raters, categorical data)
+  - fleiss    # Fleiss' Kappa (for multiple raters, categorical data)
+  - krippendorff # Krippendorff's Alpha
 ```
 
-**Command Line:**
-```bash
-# Calculate ICC(2,1)
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "test.csv,retest.csv" \
-    --metrics "icc2" \
-    --output results.json
+The output JSON file will contain the results for all specified metrics. For example, if `metrics: [icc2, icc3]` is used, the output for a feature will look like this:
 
-# Calculate multiple ICC types
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "test.csv,retest.csv" \
-    --metrics "icc2,icc3,icc2k,icc3k" \
-    --full \
-    --output results.json
-
-# Calculate all 6 ICC types
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "test.csv,retest.csv" \
-    --metrics "multi_icc" \
-    --full \
-    --output results.json
-```
-
-### 6.2 Calculating Kappa Coefficients
-
-For categorical data (e.g., grading, staging), use Kappa coefficients:
-
-```bash
-# Cohen's Kappa (2 raters)
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "rater1.csv,rater2.csv" \
-    --metrics "cohen_kappa" \
-    --output kappa_results.json
-
-# Fleiss' Kappa (multiple raters)
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "rater1.csv,rater2.csv,rater3.csv" \
-    --metrics "fleiss_kappa" \
-    --output kappa_results.json
-```
-
-### 6.3 Returning Full Results
-
-Use the `--full` flag to get complete results including confidence intervals and p-values:
-
-```bash
-python -m habit.core.machine_learning.feature_selectors.icc.icc \
-    --files "test.csv,retest.csv" \
-    --metrics "icc3" \
-    --full \
-    --output results.json
-```
-
-Output format:
 ```json
 {
-    "test_vs_retest": {
-        "feature_A": {
+    "feature_A": {
+        "ICC2": {
+            "value": 0.91,
+            "metric_type": "ICC2",
+            "ci95": [0.83, 0.95],
+            ...
+        },
+        "ICC3": {
             "value": 0.92,
             "metric_type": "ICC3",
             "ci95": [0.85, 0.96],
-            "p_value": 0.0001,
-            "additional_info": {
-                "F": 24.5,
-                "df1": 49,
-                "df2": 49
-            }
+            ...
         }
     }
 }
@@ -296,145 +256,85 @@ Output format:
 
 ## 7. Python API Usage
 
-### 7.1 Basic Usage
+The `icc` module has been refactored into a clean, layered architecture. You can hook into different layers depending on your needs.
+
+### 7.1 High-Level API: Running from a Config
+
+This is the simplest way to run the entire analysis programmatically. It mimics the behavior of the `habit icc` command.
 
 ```python
-from habit.core.machine_learning.feature_selectors.icc import (
-    calculate_icc,
-    calculate_reliability_metrics,
-    configure_logger
-)
+from habit.utils.config_utils import load_config
+from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
 
-# Configure logger
-logger = configure_logger('./output/results.json')
+# 1. Load configuration from a YAML file
+config = load_config('path/to/your/config_icc_analysis.yaml')
 
-# Basic ICC calculation (default ICC3, backward compatible)
-results = calculate_icc(
-    files_list=['rater1.csv', 'rater2.csv'],
-    logger=logger
-)
-
-# Specify ICC type
-results = calculate_icc(
-    files_list=['rater1.csv', 'rater2.csv'],
-    logger=logger,
-    icc_type='icc2'  # Use ICC(2,1)
-)
+# 2. Run the analysis
+# This function handles everything: file parsing, calculation, and saving results.
+run_icc_analysis_from_config(config)
 ```
 
-### 7.2 Calculating Multiple Metrics
+### 7.2 Mid-Level API: Analyzing In-Memory Data
 
-```python
-from habit.core.machine_learning.feature_selectors.icc import (
-    calculate_reliability_metrics,
-    configure_logger
-)
-
-logger = configure_logger('./output/results.json')
-
-# Calculate multiple metrics with full results
-results = calculate_reliability_metrics(
-    files_list=['rater1.csv', 'rater2.csv'],
-    logger=logger,
-    metrics=['icc2', 'icc3', 'fleiss_kappa'],
-    return_full_results=True
-)
-
-# Iterate through results
-for group_name, features in results.items():
-    print(f"\n=== {group_name} ===")
-    for feature_name, metric_results in features.items():
-        print(f"\n{feature_name}:")
-        for metric_name, result in metric_results.items():
-            if isinstance(result, dict):
-                print(f"  {metric_name}: {result['value']:.3f}")
-                if 'ci95' in result:
-                    print(f"    95% CI: [{result['ci95'][0]:.3f}, {result['ci95'][1]:.3f}]")
-            else:
-                print(f"  {metric_name}: {result:.3f}")
-```
-
-### 7.3 Using Metric Classes Directly
+If you already have your data loaded as pandas DataFrames, you can use the `analyze_features` function directly.
 
 ```python
 import pandas as pd
-from habit.core.machine_learning.feature_selectors.icc import (
-    ICCMetric,
-    ICCType,
-    MultiICCMetric,
-    CohenKappaMetric,
-    FleissKappaMetric,
-    create_metric
+from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
+    analyze_features,
+    save_results
 )
 
-# Prepare long-format data
-# Structure: each row contains target (subject), reader (rater), rating (value)
+# Assume df1 and df2 are pandas DataFrames with matching indices and columns
+# df1 = pd.read_csv(...)
+# df2 = pd.read_csv(...)
+
+# 1. Provide the file paths (the function will load them)
+file_paths = ['path/to/rater1.csv', 'path/to/rater2.csv']
+
+# 2. Call analyze_features
+results = analyze_features(
+    file_paths=file_paths,
+    metrics=['icc2', 'icc3']
+)
+
+# 3. Save the results
+save_results(results, 'my_icc_results.json')
+```
+
+### 7.3 Low-Level API: Using Metric Classes Directly
+
+For maximum control, you can use the individual metric calculators on your own long-format DataFrame.
+
+```python
+import pandas as pd
+from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
+    create_metric,
+    ICCType
+)
+
+# Prepare a long-format DataFrame
+# Structure: each row must contain a subject ID, a rater ID, and a value.
 data = pd.DataFrame({
-    'target': [1, 1, 2, 2, 3, 3],
-    'reader': [1, 2, 1, 2, 1, 2],
+    'subject_id': [1, 1, 2, 2, 3, 3],
+    'rater_id': ['A', 'B', 'A', 'B', 'A', 'B'],
     'score': [4.5, 4.7, 3.2, 3.0, 5.1, 5.3]
 })
 
-# Method 1: Use factory function
+# Method 1: Use the factory function to create a metric calculator
 metric = create_metric('icc3')
-result = metric.calculate(data, targets='target', raters='reader', ratings='score')
+result = metric.calculate(data, targets='subject_id', raters='rater_id', ratings='score')
+
 print(f"ICC(3,1) = {result.value:.3f}")
 print(f"95% CI = [{result.ci95_lower:.3f}, {result.ci95_upper:.3f}]")
 print(f"p-value = {result.p_value:.4f}")
 
-# Method 2: Instantiate metric class directly
-icc_metric = ICCMetric(icc_type=ICCType.ICC2)
-result = icc_metric.calculate(data, 'target', 'reader', 'score')
+# Method 2: Calculate all ICC types at once
+multi_icc_metric = create_metric('all_icc')
+all_results = multi_icc_metric.calculate(data, targets='subject_id', raters='rater_id', ratings='score')
 
-# Method 3: Calculate all ICC types
-multi_icc = MultiICCMetric()
-results = multi_icc.calculate(data, 'target', 'reader', 'score')
-for icc_type, result in results.items():
+for icc_type, result in all_results.items():
     print(f"{icc_type}: {result.value:.3f}")
-
-# Method 4: Cohen's Kappa (for categorical data)
-kappa_metric = CohenKappaMetric(weights='quadratic')  # Weighted Kappa
-result = kappa_metric.calculate(data, 'target', 'reader', 'category')
-```
-
-### 7.4 Custom Metrics
-
-You can create custom metrics by extending the `BaseReliabilityMetric` class:
-
-```python
-from habit.core.machine_learning.feature_selectors.icc import (
-    BaseReliabilityMetric,
-    MetricResult,
-    register_metric
-)
-import pandas as pd
-
-@register_metric("my_custom_metric")
-class MyCustomMetric(BaseReliabilityMetric):
-    """Custom reliability metric"""
-    
-    @property
-    def name(self) -> str:
-        return "MyCustomMetric"
-    
-    def validate_data(self, data, targets, raters, ratings) -> bool:
-        # Validate data format
-        return True
-    
-    def calculate(self, data, targets, raters, ratings, **kwargs) -> MetricResult:
-        # Implement your calculation logic
-        value = 0.85  # Example value
-        return MetricResult(
-            value=value,
-            ci95_lower=0.80,
-            ci95_upper=0.90,
-            metric_type=self.name
-        )
-
-# Use custom metric
-from habit.core.machine_learning.feature_selectors.icc import create_metric
-metric = create_metric("my_custom_metric")
-result = metric.calculate(data, 'target', 'reader', 'score')
 ```
 
 ## 8. Other Reliability Metrics

@@ -10,10 +10,9 @@ import os
 import yaml
 from pathlib import Path
 
-from habit.core.machine_learning.feature_selectors.icc.simple_icc_analyzer import (
+from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
     analyze_features,
     save_results,
-    print_summary
 )
 from habit.utils.log_utils import setup_logger
 from habit.utils.config_utils import load_config
@@ -83,7 +82,6 @@ def run_analysis(config: dict) -> None:
             group_results = analyze_features(
                 file_paths=file_group,
                 metrics=metrics_config,
-                logger_instance=logger
             )
             
             # Merge results
@@ -102,10 +100,7 @@ def run_analysis(config: dict) -> None:
         print(f"Error: Failed to save results: {e}")
         return
     
-    # Print summary
-    print_summary(all_results, logger)
-    
-    # Calculate statistics
+    # _print_statistics provides a more detailed summary
     _print_statistics(all_results, logger)
     
     logger.info("分析完成")

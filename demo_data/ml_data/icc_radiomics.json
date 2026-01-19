@@ -1,108 +1,655 @@
 {
     "breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated": {
-        "symmetry error": {
-            "icc2": 0.9999999999999997,
-            "icc3": 0.9999999999999997,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
-        },
-        "worst radius": {
-            "icc2": 0.9653286785590919,
-            "icc3": 0.9663070257641622,
-            "cohen": null,
-            "error": "Data is continuous (51 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 0.9649695494878032
-        },
-        "worst fractal dimension": {
-            "icc2": -0.00029492218827862775,
-            "icc3": -0.00034926257549902856,
-            "cohen": null,
-            "error": "Data is continuous (61 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": -0.08374814816605292
-        },
-        "worst texture": {
-            "icc2": 0.9999999999999996,
-            "icc3": 0.9999999999999996,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
+        "compactness error": {
+            "ICC2": {
+                "value": 0.9403620326397929,
+                "metric_type": "ICC2",
+                "ci95": [
+                    0.9,
+                    0.97
+                ],
+                "p_value": 6.801910431461383e-25,
+                "additional_info": {
+                    "F": 32.53568353395093,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 0.9403620326397929,
+                "metric_type": "ICC3",
+                "ci95": [
+                    0.9,
+                    0.97
+                ],
+                "p_value": 6.801910431461383e-25,
+                "additional_info": {
+                    "F": 32.53568353395093,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 0.9795793342862977,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9402075833412356,
+                    1.01895108523136
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 48.765306320265154,
+                    "se": 0.02008762803319496
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 0.9397901227146511,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "concave points error": {
-            "icc2": 1.0,
-            "icc3": 1.0,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
+            "ICC2": {
+                "value": 1.0000000000000004,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -8208750996317516.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0000000000000004,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -8208750996317516.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "concavity error": {
-            "icc2": 1.0000000000000007,
-            "icc3": 1.0000000000000007,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
-        },
-        "worst perimeter": {
-            "icc2": 0.20802263233023127,
-            "icc3": 0.2087414703986961,
-            "cohen": null,
-            "error": "Data is continuous (54 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 0.20499710205321187
-        },
-        "worst compactness": {
-            "icc2": 0.9999999999999997,
-            "icc3": 0.9999999999999997,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
+            "ICC2": {
+                "value": 1.0,
+                "metric_type": "ICC2",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0,
+                "metric_type": "ICC3",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "fractal dimension error": {
-            "icc2": 1.0000000000000002,
-            "icc3": 1.0000000000000002,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
-        },
-        "compactness error": {
-            "icc2": 0.13080747704783752,
-            "icc3": 0.13556250191502825,
-            "cohen": null,
-            "error": "Data is continuous (55 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 0.11425984720433224
+            "ICC2": {
+                "value": 0.9999999999999997,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 4804016031124155.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 0.9999999999999997,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 4804016031124155.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "label": {
-            "icc2": 1.0,
-            "icc3": 1.0,
-            "cohen": 1.0,
-            "fleiss": null,
-            "error": "module 'pingouin' has no attribute 'fleiss_kappa'",
-            "krippendorff": 1.0
+            "ICC2": {
+                "value": 1.0000000000000007,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -3388958719596298.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0000000000000007,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -3388958719596298.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "CohenKappa": {
+                "value": 1.0,
+                "metric_type": "CohenKappa"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.8814838840514928,
+                    1.1185161159485073
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 16.537835249778006,
+                    "se": 0.06046740609617715
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "symmetry error": {
+            "ICC2": {
+                "value": 1.0000000000000002,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -5488016371761655.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0000000000000002,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -5488016371761655.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "worst area": {
-            "icc2": 0.9999999999999996,
-            "icc3": 0.9999999999999996,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 1.0
+            "ICC2": {
+                "value": 0.9999999999999996,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 7562759995276656.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 0.9999999999999996,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 7562759995276656.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9604416253680715,
+                    1.0395583746319284
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 49.54703064109314,
+                    "se": 0.020182844199963492
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "worst compactness": {
+            "ICC2": {
+                "value": 1.0,
+                "metric_type": "ICC2",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0,
+                "metric_type": "ICC3",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "worst fractal dimension": {
+            "ICC2": {
+                "value": 0.9999999999999998,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 5540354728345473.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 0.9999999999999998,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 5540354728345473.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "worst perimeter": {
+            "ICC2": {
+                "value": 1.0,
+                "metric_type": "ICC2",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0,
+                "metric_type": "ICC3",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9611939798484823,
+                    1.0388060201515177
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 50.50762722761053,
+                    "se": 0.019798989873223333
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "worst radius": {
+            "ICC2": {
+                "value": 0.9999999999999997,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 8390884911548757.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 0.9999999999999997,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": 8390884911548757.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.959704535465142,
+                    1.040295464534858
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 48.64070988198886,
+                    "se": 0.020558910476968374
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         },
         "worst smoothness": {
-            "icc2": 0.18615762210266884,
-            "icc3": 0.1905634297455,
-            "cohen": null,
-            "error": "Data is continuous (50 unique values), Fleiss' Kappa requires categorical data",
-            "fleiss": null,
-            "krippendorff": 0.1751679196033269
+            "ICC2": {
+                "value": 1.0,
+                "metric_type": "ICC2",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0,
+                "metric_type": "ICC3",
+                "ci95": [
+                    null,
+                    null
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "F": Infinity,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9604416253680715,
+                    1.0395583746319284
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 49.54703064109314,
+                    "se": 0.020182844199963492
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
+        },
+        "worst texture": {
+            "ICC2": {
+                "value": 1.0000000000000004,
+                "metric_type": "ICC2",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -7130685990097367.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "ICC3": {
+                "value": 1.0000000000000004,
+                "metric_type": "ICC3",
+                "ci95": [
+                    1.0,
+                    1.0
+                ],
+                "p_value": 1.0,
+                "additional_info": {
+                    "F": -7130685990097367.0,
+                    "df1": 49,
+                    "df2": 49
+                }
+            },
+            "cohen": {
+                "error": "continuous is not supported"
+            },
+            "FleissKappa": {
+                "value": 1.0,
+                "metric_type": "FleissKappa",
+                "ci95": [
+                    0.9589818872243006,
+                    1.0410181127756994
+                ],
+                "p_value": 0.0,
+                "additional_info": {
+                    "z_value": 47.783768373691984,
+                    "se": 0.020927608559030347
+                }
+            },
+            "KrippendorffAlpha_interval": {
+                "value": 1.0,
+                "metric_type": "KrippendorffAlpha_interval"
+            }
         }
     }
 }

@@ -10,10 +10,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from habit.core.machine_learning.feature_selectors.icc.simple_icc_analyzer import (
+from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
     analyze_features,
     save_results,
-    print_summary
 )
 from habit.utils.log_utils import setup_logger
 
@@ -45,12 +44,12 @@ try:
     # Analyze features
     results = analyze_features(
         file_paths=file_paths,
-        metrics=metrics,
-        logger_instance=logger
+        metrics=metrics
     )
     
-    # Print summary
-    print_summary(results, logger)
+    # The test's main purpose is to run the analysis and save results.
+    # A detailed summary is not required here.
+    # print_summary(results, logger)
     
     # Save results
     output_path = 'demo_data/ml_data/icc_results_simple.json'

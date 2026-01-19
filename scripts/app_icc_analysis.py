@@ -1,248 +1,79 @@
 """
-Command-line interface for calculating ICC values between test-retest features
-This module provides functionality for assessing feature reliability through
-intraclass correlation coefficient (ICC) analysis between test and retest data.
+Legacy entry point for ICC analysis.
+
+This script is a thin wrapper to maintain backward compatibility. It loads a
+configuration file and delegates the analysis to the centralized ICC handler.
+The primary entry point for this functionality is via the main `habit` CLI:
+`habit icc --config <path_to_config>`
 """
 
 import argparse
 import sys
-import os
-import json
-from habit.core.machine_learning.feature_selectors.icc.icc import (
-    configure_logger, parse_files_groups, parse_directories, analyze_multiple_groups
-)
-from habit.utils.icc_config import (
-    load_icc_config, parse_icc_config_files, parse_icc_config_directories,
-    get_icc_config_output_path, get_icc_config_processes,
-    get_icc_config_metrics, get_icc_config_full_results, get_icc_config_selected_features
-)
-
-def run_analysis(
-    config: dict = None,
-    file_groups: list = None,
-    output_path: str = 'icc_results.json',
-    processes: int = None,
-    debug_mode: bool = False
-) -> None:
-    """
-    Run ICC analysis with provided configuration or parameters
-    
-    Args:
-        config (dict, optional): Configuration dictionary
-        file_groups (list, optional): List of file groups to analyze
-        output_path (str, optional): Path to save results
-        processes (int, optional): Number of processes
-        debug_mode (bool, optional): Whether to enable debug mode
-    """
-    metrics = None
-    full_results = False
-    selected_features = None
-    
-    # Handle config if provided
-    if config:
-        try:
-            # Get output path from config
-            if 'output' in config:
-                output_path = get_icc_config_output_path(config)
-            
-            # Get processes from config if not specified
-            if processes is None:
-                processes = get_icc_config_processes(config)
-            
-            # Get debug mode from config if not enabled
-            if not debug_mode and config.get("debug", False):
-                debug_mode = True
-            
-            # Get metrics configuration
-            metrics = get_icc_config_metrics(config)
-            
-            # Get full_results configuration
-            full_results = get_icc_config_full_results(config)
-            
-            # Get selected_features configuration
-            selected_features = get_icc_config_selected_features(config)
-                
-            # Parse input based on type if file_groups not provided
-            if not file_groups:
-                if config["input"]["type"] == "files":
-                    file_groups = parse_icc_config_files(config)
-                else:  # directories
-                    dir_list = parse_icc_config_directories(config)
-                    file_groups = parse_directories(",".join(dir_list))
-                
-        except Exception as e:
-            print(f"配置解析错误: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return
-
-    # Configure logger
-    logger = configure_logger(output_path)
-    
-    # Log level
-    if debug_mode:
-        import logging
-        logger.setLevel(logging.DEBUG)
-    
-    try:
-        if not file_groups:
-            logger.error("没有有效的文件组可以分析")
-            return
-        
-        logger.info(f"将分析 {len(file_groups)} 组文件")
-        
-        # Print file groups
-        for i, group in enumerate(file_groups):
-            logger.info(f"组 {i+1}: {', '.join(os.path.basename(f) for f in group)}")
-        
-        # Log metrics configuration
-        if metrics:
-            logger.info(f"将计算以下指标: {', '.join(metrics)}")
-        else:
-            logger.info("将计算默认指标: icc3")
-        
-        if full_results:
-            logger.info("将返回完整结果（包含置信区间和p值）")
-        
-        if selected_features:
-            logger.info(f"将只分析以下特征: {', '.join(selected_features[:5])}{'...' if len(selected_features) > 5 else ''}")
-        
-        # Execute analysis with metrics parameters
-        results = analyze_multiple_groups(
-            file_groups, 
-            processes, 
-            logger,
-            selected_features=selected_features,
-            metrics=metrics,
-            return_full_results=full_results
-        )
-        
-        # Save results
-        output_dir = os.path.dirname(output_path)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
-            
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=4)
-        
-        logger.info(f"分析完成，结果已保存到 {output_path}")
-        
-        # Print summary
-        total_features = 0
-        total_values = 0
-        good_features = 0  # value >= 0.75
-        
-        for group_name, features in results.items():
-            # Handle different result formats based on metrics and full_results settings
-            feature_values = []
-            for feature_name, feature_result in features.items():
-                if isinstance(feature_result, (int, float)):
-                    # Simple value format (single metric, full_results=False)
-                    if not is_nan(feature_result):
-                        feature_values.append(feature_result)
-                elif isinstance(feature_result, dict):
-                    # Dict format: either full_results or multiple metrics
-                    if 'value' in feature_result:
-                        # Full result format for single metric
-                        val = feature_result['value']
-                        if val is not None and not is_nan(val):
-                            feature_values.append(val)
-                    else:
-                        # Multiple metrics format
-                        for metric_name, metric_result in feature_result.items():
-                            if isinstance(metric_result, dict) and 'value' in metric_result:
-                                val = metric_result['value']
-                                if val is not None and not is_nan(val):
-                                    feature_values.append(val)
-                            elif isinstance(metric_result, (int, float)) and not is_nan(metric_result):
-                                feature_values.append(metric_result)
-            
-            if feature_values:
-                avg_value = sum(feature_values) / len(feature_values)
-                good_count = sum(1 for v in feature_values if v >= 0.75)
-                
-                logger.info(f"组 {group_name}: {len(features)} 特征, 平均值: {avg_value:.3f}, "
-                           f"良好指标 (>= 0.75): {good_count} ({good_count/len(feature_values)*100:.1f}%)")
-                
-                total_features += len(features)
-                total_values += sum(feature_values)
-                good_features += good_count
-        
-        if total_features > 0 and total_values > 0:
-            # Calculate average based on number of values, not features (for multiple metrics)
-            n_values = sum(1 for g in results.values() for f in g.values() 
-                          if isinstance(f, (int, float)) and not is_nan(f))
-            if n_values == 0:
-                n_values = total_features  # Fallback
-            logger.info(f"分析完成: {total_features} 特征")
-            
-    except Exception as e:
-        logger.error(f"ICC分析失败: {str(e)}")
-        if debug_mode:
-            import traceback
-            logger.error(traceback.format_exc())
-        if __name__ == "__main__":
-            sys.exit(1)
-        else:
-            raise e
+import logging
+from pathlib import Path
 
 def main() -> None:
     """
-    Main function to run ICC analysis
+    Main function to run ICC analysis from a configuration file.
     """
-    parser = argparse.ArgumentParser(description="计算特征之间的ICC值以评估重复性")
-    
-    # Create a mutually exclusive group for input methods
-    group = parser.add_mutually_exclusive_group(required=True)
-    
-    # Add config file option
-    group.add_argument('--config', type=str, 
-                    help='YAML配置文件路径')
-    
-    # Original options for backward compatibility
-    group.add_argument('--files', type=str, 
-                    help='文件列表，格式为 "file1.csv,file2.csv,file3.csv;file4.csv,file5.csv,file6.csv"')
-    group.add_argument('--dirs', type=str, 
-                    help='目录列表，格式为 "dir1,dir2,dir3"，将匹配目录中同名的数据文件')
-    
-    # Other parameters
-    parser.add_argument('--processes', type=int, default=None, 
-                    help='进程数，默认使用所有可用CPU')
-    parser.add_argument('--output', type=str, default='icc_results.json',
-                    help='输出结果的JSON文件路径')
-    parser.add_argument('--debug', action='store_true', 
-                    help='启用调试模式')
-    
-    args = parser.parse_args()
-    
-    config = None
-    file_groups = []
-    
-    if args.config:
-        try:
-            config = load_icc_config(args.config)
-        except Exception as e:
-            print(f"配置文件解析错误: {str(e)}")
-            sys.exit(1)
-    else:
-        if args.files:
-            file_groups = parse_files_groups(args.files)
-        elif args.dirs:
-            file_groups = parse_directories(args.dirs)
-            
-    run_analysis(
-        config=config,
-        file_groups=file_groups,
-        output_path=args.output,
-        processes=args.processes,
-        debug_mode=args.debug
+    parser = argparse.ArgumentParser(
+        description="Calculate ICC values based on a configuration file."
     )
+    parser.add_argument(
+        '--config', 
+        type=str, 
+        required=True,
+        help='Path to the YAML configuration file for ICC analysis.'
+    )
+    args = parser.parse_args()
 
-def is_nan(value):
-    """Check if a value is NaN"""
-    return value != value
+    # Late import to avoid circular dependencies and keep startup fast
+    from habit.utils.config_utils import load_config
+    from habit.utils.log_utils import setup_logger
+    from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
+
+    try:
+        config = load_config(args.config)
+    except FileNotFoundError:
+        print(f"Error: Configuration file not found at {args.config}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error loading or parsing configuration file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Setup logger based on config
+    try:
+        output_path = Path(config.get('output', {}).get('path', 'icc_analysis.json'))
+        output_dir = output_path.parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        setup_logger(
+            name='habit.icc',
+            output_dir=output_dir,
+            log_filename='icc_analysis.log',
+            level=logging.DEBUG if config.get("debug") else logging.INFO
+        )
+    except Exception as e:
+        print(f"Error setting up logger based on output path in config: {e}", file=sys.stderr)
+        # Continue without file logging if logger setup fails
+        logging.basicConfig(level=logging.INFO)
+
+    # Run the analysis by delegating to the centralized handler
+    try:
+        print(f"Starting ICC analysis with config: {args.config}")
+        run_icc_analysis_from_config(config)
+        print("ICC analysis completed successfully.")
+    except Exception as e:
+        logging.getLogger().error(f"An unexpected error occurred during ICC analysis: {e}", exc_info=True)
+        print(f"An unexpected error occurred during analysis: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
+    # Example of how to run, assuming a default config exists
     if len(sys.argv) == 1:
-        sys.argv.extend(['--config', './config/config_icc_analysis.yaml'])
-    main() 
+        default_config = './config/config_icc_analysis.yaml'
+        print(f"No config file provided. Using default: {default_config}")
+        sys.argv.extend(['--config', default_config])
+    
+    main()
+ 
