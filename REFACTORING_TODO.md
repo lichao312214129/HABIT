@@ -22,12 +22,29 @@
 - [ ] Extend Pydantic validation to Habitat Analysis module
 - [ ] Create a `CommonConfig` base schema for shared parameters (paths, logging)
 
-## Phase 6: Model Comparison Refactoring (Current)
-- [ ] Decouple `ModelComparison` from monolithic implementation
-- [ ] Integrate `PredictionContainer` for data consistency
-- [ ] Implement `ThresholdManager` for cross-dataset threshold transfer
-- [ ] Move reporting logic to `ReportExporter`
-- [ ] Utilize `PlotManager` for unified visualization
+## Phase 6: Model Comparison Refactoring (Completed)
+- [x] Decouple `ModelComparison` from monolithic implementation
+- [x] Integrate `PredictionContainer` for data consistency
+- [x] Implement `ThresholdManager` for cross-dataset threshold transfer
+- [x] Move reporting logic to `ReportExporter`
+- [x] Utilize `PlotManager` for unified visualization
+
+### Phase 6 Optimization (2024-01-20)
+- **MetricsStore Class**: Introduced unified metrics storage manager
+  - Eliminates 50+ instances of direct `all_metrics` dictionary manipulation
+  - Provides clean `add_metrics()`, `add_threshold()`, `ensure_group()` methods
+  - Reduces nested dictionary access code throughout the codebase
+- **Code Reduction**: comparison_workflow.py reduced from ~966 lines to ~772 lines
+- **Simplified Methods**:
+  - `_calculate_all_basic_metrics`: 27 lines → 16 lines
+  - `_calculate_basic_metrics`: 52 lines → 19 lines
+  - `_calculate_youden_metrics`: 54 lines → 26 lines
+  - `_calculate_target_metrics`: 68 lines → 36 lines
+  - `_calculate_target_metrics_by_split`: 100 lines → 50 lines
+- **Benefits**:
+  - Single source of truth for metrics structure
+  - Easier to maintain and extend
+  - Better separation of concerns
 
 ## Phase 7: Global Robustness & Testing
 - [ ] Extend Pydantic validation to Preprocessing module
