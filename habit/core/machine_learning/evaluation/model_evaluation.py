@@ -234,6 +234,7 @@ class ModelEvaluator:
             'specificity': 'Specificity',
             'ppv': 'Positive Predictive Value',
             'npv': 'Negative Predictive Value',
+            'f1_score': 'F1-score',
             'auc': 'AUC',
             'hosmer_lemeshow_chi2': 'H-L Chi2',
             'hosmer_lemeshow_p_value': 'H-L P-value',
@@ -264,7 +265,7 @@ class ModelEvaluator:
         self.logger.info("-"*80)
         
         # Log values for each metric
-        for metric in ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'auc', 
+        for metric in ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'f1_score', 'auc', 
                       'hosmer_lemeshow_chi2', 'hosmer_lemeshow_p_value', 
                       'spiegelhalter_z_statistic', 'spiegelhalter_z_p_value']:
             row = [metric_names.get(metric, metric)]
@@ -301,6 +302,7 @@ class ModelEvaluator:
             'specificity': 'Specificity',
             'ppv': 'Positive Predictive Value',
             'npv': 'Negative Predictive Value',
+            'f1_score': 'F1-score',
             'auc': 'AUC',
             'hosmer_lemeshow_chi2': 'H-L Chi2',
             'hosmer_lemeshow_p_value': 'H-L P-value',
@@ -323,7 +325,7 @@ class ModelEvaluator:
         performance_data = []
         
         # Define all metrics to include
-        all_metrics = ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'auc', 
+        all_metrics = ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'f1_score', 'auc', 
                       'hosmer_lemeshow_chi2', 'hosmer_lemeshow_p_value', 
                       'spiegelhalter_z_statistic', 'spiegelhalter_z_p_value']
         
@@ -401,6 +403,7 @@ class ModelEvaluator:
                     'Specificity': metrics.get('specificity', np.nan),
                     'PPV': metrics.get('ppv', np.nan),
                     'NPV': metrics.get('npv', np.nan),
+                    'F1_Score': metrics.get('f1_score', np.nan),
                     'AUC': metrics.get('auc', np.nan),
                     'Hosmer_Lemeshow_Chi2': metrics.get('hosmer_lemeshow_chi2', np.nan),
                     'Hosmer_Lemeshow_P_Value': metrics.get('hosmer_lemeshow_p_value', np.nan),

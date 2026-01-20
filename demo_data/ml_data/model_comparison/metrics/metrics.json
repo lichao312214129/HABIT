@@ -1,193 +1,73 @@
 {
-    "Training set": {
+    "train": {
         "radiomics": {
-            "youden_metrics": {
-                "threshold": 0.5188767572811357,
-                "youden_index": 0.8792029887920298,
-                "metrics": {
-                    "threshold": 0.5188767572811357,
-                    "accuracy": 0.94,
-                    "sensitivity": 0.9545454545454546,
-                    "specificity": 0.9246575342465754,
-                    "ppv": 0.930379746835443,
-                    "npv": 0.9507042253521126,
-                    "f1_score": 0.9423076923076923,
-                    "auc": 0.9820761430350471
-                }
-            },
-            "thresholds": {
-                "youden": 0.5188767572811357,
-                "target": 0.742736651000969
-            },
-            "target_metrics": {
-                "threshold": 0.742736651000969,
-                "metrics": {
-                    "threshold": 0.742736651000969,
-                    "accuracy": 0.91,
-                    "sensitivity": 0.8441558441558441,
-                    "specificity": 0.9794520547945206,
-                    "ppv": 0.9774436090225563,
-                    "npv": 0.8562874251497006,
-                    "f1_score": 0.9059233449477351,
-                    "auc": 0.9820761430350471
-                }
-            },
             "basic_metrics": {
                 "accuracy": 0.9333333333333333,
                 "sensitivity": 0.9545454545454546,
                 "specificity": 0.910958904109589,
                 "ppv": 0.91875,
                 "npv": 0.95,
+                "f1_score": 0.9363057324840764,
                 "auc": 0.9820761430350471,
                 "auc_ci_lower": 0.9704840580214635,
                 "auc_ci_high": 0.9936682780991419,
-                "hosmer_lemeshow_chi2": 5.749218446711448,
-                "hosmer_lemeshow_p_value": 0.6752996204006112,
-                "spiegelhalter_z_statistic": -1.3753870546236052e-05,
-                "spiegelhalter_z_p_value": 0.9999890259990403
+                "hosmer_lemeshow_chi2": 5.749218446711453,
+                "hosmer_lemeshow_p_value": 0.6752996204006108,
+                "spiegelhalter_z_statistic": -1.3753870544960612e-05,
+                "spiegelhalter_z_p_value": 0.9999890259990412
             }
         },
         "clinical": {
-            "youden_metrics": {
-                "threshold": 0.4564486177141875,
-                "youden_index": 0.7097491549546344,
-                "metrics": {
-                    "threshold": 0.4564486177141875,
-                    "accuracy": 0.8566666666666667,
-                    "sensitivity": 0.922077922077922,
-                    "specificity": 0.7876712328767124,
-                    "ppv": 0.8208092485549133,
-                    "npv": 0.905511811023622,
-                    "f1_score": 0.8685015290519877,
-                    "auc": 0.9302615193026151
-                }
-            },
-            "thresholds": {
-                "youden": 0.4564486177141875,
-                "target": 0.6465267351992403
-            },
-            "target_metrics": {
-                "threshold": 0.6465267351992403,
-                "metrics": {
-                    "threshold": 0.6465267351992403,
-                    "accuracy": 0.8433333333333334,
-                    "sensitivity": 0.8051948051948052,
-                    "specificity": 0.8835616438356164,
-                    "ppv": 0.8794326241134752,
-                    "npv": 0.8113207547169812,
-                    "f1_score": 0.840677966101695,
-                    "auc": 0.9302615193026151
-                }
-            },
             "basic_metrics": {
-                "accuracy": 0.8366666666666667,
-                "sensitivity": 0.8766233766233766,
-                "specificity": 0.7945205479452054,
-                "ppv": 0.8181818181818182,
-                "npv": 0.8592592592592593,
-                "auc": 0.9302615193026151,
-                "auc_ci_lower": 0.9029697894673098,
-                "auc_ci_high": 0.9575531959910643,
-                "hosmer_lemeshow_chi2": 3.714104077749465,
-                "hosmer_lemeshow_p_value": 0.8819531311239015,
-                "spiegelhalter_z_statistic": -1.0301702110186495e-05,
-                "spiegelhalter_z_p_value": 0.9999917804309364
+                "accuracy": 0.9266666666666666,
+                "sensitivity": 0.9415584415584416,
+                "specificity": 0.910958904109589,
+                "ppv": 0.9177215189873418,
+                "npv": 0.9366197183098591,
+                "f1_score": 0.9294871794871796,
+                "auc": 0.9782067247820672,
+                "auc_ci_lower": 0.9640836509634961,
+                "auc_ci_high": 0.9923296180794726,
+                "hosmer_lemeshow_chi2": 4.833612592580004,
+                "hosmer_lemeshow_p_value": 0.7752028532624939,
+                "spiegelhalter_z_statistic": -1.2859266293016069e-05,
+                "spiegelhalter_z_p_value": 0.9999897397899618
             }
         }
     },
-    "Test set": {
+    "test": {
         "radiomics": {
-            "youden_metrics": {
-                "threshold": 0.5188767572811357,
-                "youden_index": 0.8764741006120316,
-                "metrics": {
-                    "threshold": 0.5188767572811357,
-                    "accuracy": 0.9144981412639405,
-                    "sensitivity": 0.8916256157635468,
-                    "specificity": 0.9848484848484849,
-                    "ppv": 0.9945054945054945,
-                    "npv": 0.7471264367816092,
-                    "f1_score": 0.9402597402597402,
-                    "auc": 0.9908195253022838
-                }
-            },
-            "thresholds": {
-                "youden": 0.5188767572811357,
-                "target": 0.742736651000969
-            },
-            "target_metrics": {
-                "threshold": 0.742736651000969,
-                "metrics": {
-                    "threshold": 0.742736651000969,
-                    "accuracy": 0.8141263940520446,
-                    "sensitivity": 0.7586206896551724,
-                    "specificity": 0.9848484848484849,
-                    "ppv": 0.9935483870967742,
-                    "npv": 0.5701754385964912,
-                    "f1_score": 0.8603351955307263,
-                    "auc": 0.9908195253022838
-                }
-            },
             "basic_metrics": {
                 "accuracy": 0.9219330855018587,
                 "sensitivity": 0.9014778325123153,
                 "specificity": 0.9848484848484849,
                 "ppv": 0.9945652173913043,
                 "npv": 0.7647058823529411,
+                "f1_score": 0.9457364341085271,
                 "auc": 0.9908195253022838,
                 "auc_ci_lower": 0.9821003308551982,
                 "auc_ci_high": 0.9995385775310323,
-                "hosmer_lemeshow_chi2": 42.51950649603461,
+                "hosmer_lemeshow_chi2": 42.51950649603463,
                 "hosmer_lemeshow_p_value": 1.0817229803006256e-06,
                 "spiegelhalter_z_statistic": 6.262778112497964,
                 "spiegelhalter_z_p_value": 3.7817859954714095e-10
             }
         },
         "clinical": {
-            "youden_metrics": {
-                "threshold": 0.4564486177141875,
-                "youden_index": 0.8010897148828184,
-                "metrics": {
-                    "threshold": 0.4564486177141875,
-                    "accuracy": 0.8884758364312267,
-                    "sensitivity": 0.8768472906403941,
-                    "specificity": 0.9242424242424242,
-                    "ppv": 0.9726775956284153,
-                    "npv": 0.7093023255813954,
-                    "f1_score": 0.9222797927461139,
-                    "auc": 0.9699582027168234
-                }
-            },
-            "thresholds": {
-                "youden": 0.4564486177141875,
-                "target": 0.6465267351992403
-            },
-            "target_metrics": {
-                "threshold": 0.6465267351992403,
-                "metrics": {
-                    "threshold": 0.6465267351992403,
-                    "accuracy": 0.8104089219330854,
-                    "sensitivity": 0.7586206896551724,
-                    "specificity": 0.9696969696969697,
-                    "ppv": 0.9871794871794872,
-                    "npv": 0.5663716814159292,
-                    "f1_score": 0.8579387186629527,
-                    "auc": 0.9699582027168234
-                }
-            },
             "basic_metrics": {
-                "accuracy": 0.8884758364312267,
-                "sensitivity": 0.8719211822660099,
-                "specificity": 0.9393939393939394,
-                "ppv": 0.9779005524861878,
-                "npv": 0.7045454545454546,
-                "auc": 0.9699582027168234,
-                "auc_ci_lower": 0.9433527785612911,
-                "auc_ci_high": 0.9965638321564824,
-                "hosmer_lemeshow_chi2": 54.03619005753039,
-                "hosmer_lemeshow_p_value": 6.792831630519913e-09,
-                "spiegelhalter_z_statistic": 7.276858743494298,
-                "spiegelhalter_z_p_value": 3.417266469796232e-13
+                "accuracy": 0.9442379182156134,
+                "sensitivity": 0.9408866995073891,
+                "specificity": 0.9545454545454546,
+                "ppv": 0.9845360824742269,
+                "npv": 0.84,
+                "f1_score": 0.9622166246851385,
+                "auc": 0.9942528735632183,
+                "auc_ci_lower": 0.9885103445718321,
+                "auc_ci_high": 0.9999954957296816,
+                "hosmer_lemeshow_chi2": 27.445613440603953,
+                "hosmer_lemeshow_p_value": 0.0005919965771296054,
+                "spiegelhalter_z_statistic": 5.097777417070956,
+                "spiegelhalter_z_p_value": 3.436645645837899e-07
             }
         }
     }

@@ -7,8 +7,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Union, Tuple
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator
 
-class BaseModel(ABC):
+class BaseModel(ABC, BaseEstimator):
     """Abstract base class for all models"""
     
     @property

@@ -1,9 +1,9 @@
 {
     "selected_features": [
-        "radiomics_worst radius",
-        "radiomics_worst texture",
-        "radiomics_worst perimeter",
-        "radiomics_worst area"
+        "worst radius",
+        "worst texture",
+        "worst perimeter",
+        "worst area"
     ],
     "n_features_selected": 4,
     "original_feature_count": 12,

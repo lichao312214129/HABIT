@@ -1,125 +1,77 @@
-2026-01-18 19:43:44 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\model_comparison\processing.log
-2026-01-18 19:43:44 - habit.cli.compare - INFO - [cmd_compare.py:48] - Starting model comparison with config: ./demo_data/config_model_comparison.yaml
-2026-01-18 19:43:44 - habit.model.comparison - INFO - [model_comparison.py:45] - Using existing logging configuration from CLI entry point
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:467] - Reading data from multiple files: 2 files
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:491] - Reading file: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results.csv
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:492] - Model name: radiomics, Subject ID: subjID, Label: true_label, Prob: LogisticRegression_prob
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:491] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:492] - Model name: clinical, Subject ID: subjID, Label: true_label, Prob: LogisticRegression_prob
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:515] - Merging all datasets...
-2026-01-18 19:43:45 - habit.model.comparison - INFO - [model_comparison.py:178] - 成功添加split列到合并数据中: ['split']
-2026-01-18 19:43:45 - habit.model.comparison - INFO - [model_comparison.py:192] - 按照 split 列进行分组，识别到的分组：['Training set', 'Test set']
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:467] - Reading data from multiple files: 2 files
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:491] - Reading file: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results.csv
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:492] - Model name: radiomics, Subject ID: subjID, Label: true_label, Prob: LogisticRegression_prob
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:491] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:492] - Model name: clinical, Subject ID: subjID, Label: true_label, Prob: LogisticRegression_prob
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:515] - Merging all datasets...
-2026-01-18 19:43:45 - habit.model.comparison - INFO - [model_comparison.py:178] - 成功添加split列到合并数据中: ['split']
-2026-01-18 19:43:45 - habit.model.comparison - INFO - [model_comparison.py:192] - 按照 split 列进行分组，识别到的分组：['Training set', 'Test set']
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:568] - NaN value statistics:
-2026-01-18 19:43:45 - habit.evaluation.multifile - INFO - [model_evaluation.py:577] - Merged data saved to F:\work\habit_project\demo_data\ml_data\model_comparison\combined_predictions.csv
-2026-01-18 19:43:45 - habit.model.comparison - INFO - [model_comparison.py:304] - Training set组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\roc_curves.pdf
-2026-01-18 19:43:46 - habit.model.comparison - INFO - [model_comparison.py:314] - Training set组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\decision_curves.pdf
-2026-01-18 19:43:46 - habit.model.comparison - INFO - [model_comparison.py:325] - Training set组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\calibration_curves.pdf
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:335] - Training set组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\precision_recall_curves.pdf
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:681] - 执行DeLong检验: radiomics vs clinical，有效样本数: 300
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:711] - DeLong Test Results:
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:712] - ==================================================
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:714] - radiomics vs clinical
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:715] - P-value: 0.0000
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:716] - Conclusion: radiomics and clinical have significantly different AUCs (p<0.05)
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:717] - AUCs with 95% CI:
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:719] - radiomics: 0.982 (0.970-0.994)
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:720] - clinical: 0.930 (0.903-0.958)
-2026-01-18 19:43:47 - habit.evaluation.multifile - INFO - [model_evaluation.py:728] - Results saved to F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\delong_results.json
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:360] - Training set组 DeLong检验结果已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Training set\delong_results.json
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:469] - 开始计算Youden指标...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:524] - 根据 split 分组计算Youden指数...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:529] - 使用训练集确定Youden指数最优阈值...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:549] - radiomics 训练集计算Youden指数，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:554] - 模型 radiomics Youden指数最优阈值: 0.5188767572811357
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:549] - clinical 训练集计算Youden指数，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:554] - 模型 clinical Youden指数最优阈值: 0.4564486177141875
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:580] - 将Youden指数最优阈值应用到 Training set 数据集...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:580] - 将Youden指数最优阈值应用到 Test set 数据集...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:605] - 所有数据集的Youden指数评估完成
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:621] - 开始计算目标指标...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:693] - 根据 split 分组计算目标指标阈值...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:698] - 使用训练集确定目标指标阈值...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:720] - radiomics 训练集计算目标指标，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:742] - 模型 radiomics 同时满足所有目标的阈值: 0.742736651000969
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:720] - clinical 训练集计算目标指标，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:742] - 模型 clinical 同时满足所有目标的阈值: 0.6465267351992403
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:761] - 将目标指标阈值应用到 Training set 数据集...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:761] - 将目标指标阈值应用到 Test set 数据集...
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:47 - habit.model.comparison - INFO - [model_comparison.py:786] - 所有数据集的目标指标评估完成
-2026-01-18 19:43:48 - habit.model.comparison - INFO - [model_comparison.py:304] - Test set组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\roc_curves.pdf
-2026-01-18 19:43:48 - habit.model.comparison - INFO - [model_comparison.py:314] - Test set组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\decision_curves.pdf
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:325] - Test set组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\calibration_curves.pdf
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:335] - Test set组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\precision_recall_curves.pdf
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:681] - 执行DeLong检验: radiomics vs clinical，有效样本数: 269
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:711] - DeLong Test Results:
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:712] - ==================================================
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:714] - radiomics vs clinical
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:715] - P-value: 0.0382
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:716] - Conclusion: radiomics and clinical have significantly different AUCs (p<0.05)
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:717] - AUCs with 95% CI:
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:719] - radiomics: 0.991 (0.982-1.000)
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:720] - clinical: 0.970 (0.943-0.997)
-2026-01-18 19:43:49 - habit.evaluation.multifile - INFO - [model_evaluation.py:728] - Results saved to F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\delong_results.json
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:360] - Test set组 DeLong检验结果已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\Test set\delong_results.json
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:469] - 开始计算Youden指标...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:524] - 根据 split 分组计算Youden指数...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:529] - 使用训练集确定Youden指数最优阈值...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:549] - radiomics 训练集计算Youden指数，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:554] - 模型 radiomics Youden指数最优阈值: 0.5188767572811357
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:549] - clinical 训练集计算Youden指数，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:554] - 模型 clinical Youden指数最优阈值: 0.4564486177141875
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:580] - 将Youden指数最优阈值应用到 Training set 数据集...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:580] - 将Youden指数最优阈值应用到 Test set 数据集...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:605] - 所有数据集的Youden指数评估完成
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:621] - 开始计算目标指标...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:693] - 根据 split 分组计算目标指标阈值...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:698] - 使用训练集确定目标指标阈值...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:720] - radiomics 训练集计算目标指标，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:742] - 模型 radiomics 同时满足所有目标的阈值: 0.742736651000969
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:720] - clinical 训练集计算目标指标，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:742] - 模型 clinical 同时满足所有目标的阈值: 0.6465267351992403
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:761] - 将目标指标阈值应用到 Training set 数据集...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:761] - 将目标指标阈值应用到 Test set 数据集...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - radiomics 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:837] - clinical 测试集应用训练集阈值评估完成，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:786] - 所有数据集的目标指标评估完成
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:370] - 开始计算所有数据集的基本指标...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:374] - 计算 Training set 数据集的基本指标...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:895] - radiomics (Training set组) 计算基本指标，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:895] - clinical (Training set组) 计算基本指标，有效样本数: 300
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:374] - 计算 Test set 数据集的基本指标...
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:895] - radiomics (Test set组) 计算基本指标，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:895] - clinical (Test set组) 计算基本指标，有效样本数: 269
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:392] - 所有数据集的基本指标计算完成
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:940] - 所有指标已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\metrics\metrics.json
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:943] - 保存的指标分组数量: 2
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:945] - 分组 Training set 中的模型数量: 2
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 radiomics 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 clinical 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:945] - 分组 Test set 中的模型数量: 2
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 radiomics 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 clinical 的指标类型: youden_metrics, thresholds, target_metrics, basic_metrics
-2026-01-18 19:43:49 - habit.model.comparison - INFO - [model_comparison.py:966] - 评估完成！所有结果已保存到F:\work\habit_project\demo_data\ml_data\model_comparison
-2026-01-18 19:43:49 - habit.cli.compare - INFO - [cmd_compare.py:54] - Model comparison completed successfully
+2026-01-20 10:46:15 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\model_comparison\processing.log
+2026-01-20 10:46:15 - habit.cli.compare - INFO - [cmd_compare.py:48] - Starting model comparison with config: ./demo_data/config_model_comparison.yaml
+2026-01-20 10:46:15 - habit.model.comparison - INFO - [model_comparison.py:45] - Using existing logging configuration from CLI entry point
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:470] - Reading data from multiple files: 2 files
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:494] - Reading file: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results.csv
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:495] - Model name: radiomics, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:494] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:495] - Model name: clinical, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:518] - Merging all datasets...
+2026-01-20 10:46:15 - habit.model.comparison - INFO - [model_comparison.py:178] - 成功添加split列到合并数据中: ['dataset']
+2026-01-20 10:46:15 - habit.model.comparison - INFO - [model_comparison.py:192] - 按照 dataset 列进行分组，识别到的分组：['train', 'test']
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:470] - Reading data from multiple files: 2 files
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:494] - Reading file: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results.csv
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:495] - Model name: radiomics, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:494] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:495] - Model name: clinical, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:518] - Merging all datasets...
+2026-01-20 10:46:15 - habit.model.comparison - INFO - [model_comparison.py:178] - 成功添加split列到合并数据中: ['dataset']
+2026-01-20 10:46:15 - habit.model.comparison - INFO - [model_comparison.py:192] - 按照 dataset 列进行分组，识别到的分组：['train', 'test']
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:571] - NaN value statistics:
+2026-01-20 10:46:15 - habit.evaluation.multifile - INFO - [model_evaluation.py:580] - Merged data saved to F:\work\habit_project\demo_data\ml_data\model_comparison\combined_predictions.csv
+2026-01-20 10:46:16 - habit.model.comparison - INFO - [model_comparison.py:304] - train组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\roc_curves.pdf
+2026-01-20 10:46:17 - habit.model.comparison - INFO - [model_comparison.py:314] - train组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\decision_curves.pdf
+2026-01-20 10:46:17 - habit.model.comparison - INFO - [model_comparison.py:325] - train组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\calibration_curves.pdf
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:335] - train组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\precision_recall_curves.pdf
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:684] - 执行DeLong检验: radiomics vs clinical，有效样本数: 300
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:714] - DeLong Test Results:
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:715] - ==================================================
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:717] - radiomics vs clinical
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:718] - P-value: 0.5495
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:719] - Conclusion: radiomics and clinical do not have significantly different AUCs (p≥0.05)
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:720] - AUCs with 95% CI:
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:722] - radiomics: 0.982 (0.970-0.994)
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:723] - clinical: 0.978 (0.964-0.992)
+2026-01-20 10:46:18 - habit.evaluation.multifile - INFO - [model_evaluation.py:731] - Results saved to F:\work\habit_project\demo_data\ml_data\model_comparison\train\delong_results.json
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:360] - train组 DeLong检验结果已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\delong_results.json
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:469] - 开始计算Youden指标...
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:524] - 根据 dataset 分组计算Youden指数...
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:621] - 开始计算目标指标...
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:693] - 根据 dataset 分组计算目标指标阈值...
+2026-01-20 10:46:18 - habit.model.comparison - INFO - [model_comparison.py:304] - test组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\roc_curves.pdf
+2026-01-20 10:46:19 - habit.model.comparison - INFO - [model_comparison.py:314] - test组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\decision_curves.pdf
+2026-01-20 10:46:19 - habit.model.comparison - INFO - [model_comparison.py:325] - test组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\calibration_curves.pdf
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:335] - test组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\precision_recall_curves.pdf
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:684] - 执行DeLong检验: radiomics vs clinical，有效样本数: 269
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:714] - DeLong Test Results:
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:715] - ==================================================
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:717] - radiomics vs clinical
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:718] - P-value: 0.4874
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:719] - Conclusion: radiomics and clinical do not have significantly different AUCs (p≥0.05)
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:720] - AUCs with 95% CI:
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:722] - radiomics: 0.991 (0.982-1.000)
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:723] - clinical: 0.994 (0.989-1.000)
+2026-01-20 10:46:20 - habit.evaluation.multifile - INFO - [model_evaluation.py:731] - Results saved to F:\work\habit_project\demo_data\ml_data\model_comparison\test\delong_results.json
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:360] - test组 DeLong检验结果已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\delong_results.json
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:469] - 开始计算Youden指标...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:524] - 根据 dataset 分组计算Youden指数...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:621] - 开始计算目标指标...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:693] - 根据 dataset 分组计算目标指标阈值...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:370] - 开始计算所有数据集的基本指标...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:374] - 计算 train 数据集的基本指标...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:895] - radiomics (train组) 计算基本指标，有效样本数: 300
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:895] - clinical (train组) 计算基本指标，有效样本数: 300
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:374] - 计算 test 数据集的基本指标...
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:895] - radiomics (test组) 计算基本指标，有效样本数: 269
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:895] - clinical (test组) 计算基本指标，有效样本数: 269
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:392] - 所有数据集的基本指标计算完成
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:940] - 所有指标已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\metrics\metrics.json
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:943] - 保存的指标分组数量: 2
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:945] - 分组 train 中的模型数量: 2
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 radiomics 的指标类型: basic_metrics
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 clinical 的指标类型: basic_metrics
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:945] - 分组 test 中的模型数量: 2
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 radiomics 的指标类型: basic_metrics
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:948] -   模型 clinical 的指标类型: basic_metrics
+2026-01-20 10:46:20 - habit.model.comparison - INFO - [model_comparison.py:966] - 评估完成！所有结果已保存到F:\work\habit_project\demo_data\ml_data\model_comparison
+2026-01-20 10:46:20 - habit.cli.compare - INFO - [cmd_compare.py:54] - Model comparison completed successfully

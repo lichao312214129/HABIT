@@ -12,24 +12,24 @@ output_dir: ./ml_data/model_comparison  # Base directory for all comparison outp
 files_config:
   - path: ./ml_data/radiomics/all_prediction_results.csv
     model_name: radiomics                        # Name used to identify this model in plots and reports
-    subject_id_col: subjID            # Column containing unique subject identifiers
-    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    subject_id_col: subject_id            # Column containing unique subject identifiers
+    label_col: label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob   # Column containing predicted probabilities (continuous: 0-1)
     pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
-    split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
+    split_col: dataset                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
   - path: ./ml_data/clinical/all_prediction_results.csv
     model_name: clinical                        # Name used to identify this model in plots and reports
-    subject_id_col: subjID              # Column containing unique subject identifiers
-    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    subject_id_col: subject_id              # Column containing unique subject identifiers
+    label_col: label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
     pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
-    split_col: split   
+    split_col: dataset   
 
   # - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
   #   model_name: Clinical-Radiomics model                        # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
   #   split_col: split   
@@ -37,7 +37,7 @@ files_config:
   # - path: H:\results\ml_results\merged_clinicalPlusHabitat\all_prediction_results.csv
   #   model_name: Clinical+Habitat                      # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
   #   split_col: split  
@@ -45,7 +45,7 @@ files_config:
   # - path: H:\results\ml_results\merged_HabitatPlusRadiomics\all_prediction_results.csv
   #   model_name: Radiomics+Habitat                        # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
   #   split_col: split  
@@ -53,7 +53,7 @@ files_config:
   # - path: H:\results\ml_results\merged_all\all_prediction_results.csv
   #   model_name: Hybrid model                        # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
   #   split_col: split   

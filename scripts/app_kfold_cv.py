@@ -18,7 +18,7 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from habit.core.machine_learning.machine_learning_kfold import run_kfold_modeling
+from habit.core.machine_learning.machine_learning_kfold import MachineLearningKFoldWorkflow
 
 def main():
     """
@@ -38,7 +38,7 @@ def main():
     args = parser.parse_args()
     
     # Check if config file exists
-    if not os.path.exists(args.config):
+    if args.config is None or not os.path.exists(args.config):
         print(f"Error: Configuration file not found: {args.config}")
         sys.exit(1)
     
@@ -53,7 +53,8 @@ def main():
     print("="*80)
     
     try:
-        modeling = run_kfold_modeling(config)
+        workflow = MachineLearningKFoldWorkflow(config)
+        workflow.run_pipeline()
         
         print("\n" + "="*80)
         print("K-Fold Cross-Validation Completed Successfully!")
@@ -61,16 +62,15 @@ def main():
         
         # Print summary
         print("\nPerformance Summary:")
-        for model_name, results in modeling.cv_results['aggregated'].items():
-            overall = results['overall_metrics']
-            fold = results['fold_metrics']
+        for model_name, res in workflow.results['aggregated'].items():
+            overall = res['overall_metrics']
             print(f"\n{model_name}:")
-            print(f"  AUC:       {overall['auc']:.4f} (mean: {fold['auc_mean']:.4f} ± {fold['auc_std']:.4f})")
-            print(f"  Accuracy:  {overall['accuracy']:.4f} (mean: {fold['accuracy_mean']:.4f} ± {fold['accuracy_std']:.4f})")
+            print(f"  AUC:       {overall['auc']:.4f} (mean: {res['auc_mean']:.4f} ± {res['auc_std']:.4f})")
+            print(f"  Accuracy:  {overall['accuracy']:.4f}")
             print(f"  Sensitivity: {overall['sensitivity']:.4f}")
             print(f"  Specificity: {overall['specificity']:.4f}")
         
-        print(f"\nResults saved to: {config['output']}")
+        print(f"\nResults saved to: {workflow.output_dir}")
         
     except Exception as e:
         print(f"\nError during k-fold cross-validation: {e}")

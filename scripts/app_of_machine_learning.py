@@ -9,39 +9,24 @@ import sys
 import os
 import yaml
 import pandas as pd
-from habit.core.machine_learning.machine_learning import Modeling
+import joblib
+from habit.core.machine_learning.machine_learning import MachineLearningWorkflow
 import argparse
 
 
 def main() -> None:
     """
     Main function to run the radiomics modeling pipeline
-    
-    This function:
-    1. Parses command line arguments
-    2. Loads configuration from YAML file
-    3. Creates output directory
-    4. Initializes modeling class
-    5. Runs the modeling pipeline (training or prediction)
-    
-    Command line arguments:
-        --config: Path to YAML config file (required)
-        --mode: Operation mode ('train' or 'predict', default: 'train')
-        --model: Path to model package file (.pkl) for prediction
-        --data: Path to data file (.csv) for prediction
-        --output: Path to save prediction results
-        --model_name: Name of specific model to use for prediction
-        --evaluate: Whether to evaluate model performance and generate plots
     """
     parser = argparse.ArgumentParser(description='Radiomics Modeling Tool')
     parser.add_argument('--config', type=str, required=True, help='Path to YAML config file')
     parser.add_argument('--mode', type=str, choices=['train', 'predict'], default='train',
                         help='Operation mode: train (default) or predict')
-    parser.add_argument('--model', type=str, help='Path to model package file (.pkl) for prediction')
+    parser.add_argument('--model', type=str, help='Path to model pipeline file (.pkl) for prediction')
     parser.add_argument('--data', type=str, help='Path to data file (.csv) for prediction')
     parser.add_argument('--output', type=str, help='Path to save prediction results')
     parser.add_argument('--model_name', type=str, help='Name of specific model to use for prediction')
-    parser.add_argument('--evaluate', action='store_true', default=True, help='Whether to evaluate model performance and generate plots')
+    parser.add_argument('--evaluate', action='store_true', default=True, help='Whether to evaluate model performance')
     
     args = parser.parse_args()
     
@@ -56,23 +41,18 @@ def main() -> None:
             print(f"Error: Failed to load config file: {e}")
             sys.exit(1)
         
-        # Create output directory
-        os.makedirs(config['output'], exist_ok=True)
-        
-        # Initialize modeling class with config
-        model = Modeling(config)
+        # Initialize workflow class with config
+        workflow = MachineLearningWorkflow(config)
         
         # Run modeling pipeline
-        model.read_data()\
-             .preprocess_data()\
-             ._split_data()\
-             .feature_selection_before_normalization()\
-             .normalization()\
-             .feature_selection()\
-             .modeling()\
-             .evaluate_models()
-
-        print("Training completed successfully")
+        try:
+            workflow.run_pipeline()
+            print("Training completed successfully")
+        except Exception as e:
+            print(f"Error during training: {e}")
+            import traceback
+            print(traceback.format_exc())
+            sys.exit(1)
     
     # If in prediction mode, load model and make predictions
     elif args.mode == 'predict':
@@ -89,25 +69,31 @@ def main() -> None:
             new_data = pd.read_csv(args.data)
             print(f"Loaded data from {args.data}: {new_data.shape[0]} rows, {new_data.shape[1]} columns")
             
-            # Make predictions with optional performance evaluation
-            results = Modeling.load_and_predict(
-                args.model, 
-                new_data, 
-                args.model_name,
-                args.output,
-                args.evaluate
-            )
+            # Make predictions
+            print(f"Loading pipeline from {args.model}...")
+            pipeline = joblib.load(args.model)
+            
+            print("Making predictions...")
+            probs = pipeline.predict_proba(new_data)
+            if probs.ndim > 1:
+                probs = probs[:, 1]
+            preds = pipeline.predict(new_data)
+            
+            # Combine results
+            results = new_data.copy()
+            results['predicted_label'] = preds
+            results['predicted_probability'] = probs
             
             # Save results
-            output_path = os.path.join(args.output, 'prediction_results_of_new_data.csv') if args.output else 'prediction_results.csv'
+            os.makedirs(args.output, exist_ok=True) if args.output else None
+            output_path = os.path.join(args.output, 'prediction_results.csv') if args.output else 'prediction_results.csv'
             results.to_csv(output_path, index=False)
             print(f"Saved prediction results to {output_path}")
+            print("Prediction completed successfully")
             
         except Exception as e:
             print(f"Error during prediction: {e}")
             sys.exit(1)
-            
-        print("Prediction completed successfully")
 
 
 if __name__ == "__main__":

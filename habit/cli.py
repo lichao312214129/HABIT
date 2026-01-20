@@ -91,7 +91,7 @@ def model(config, mode, model, data, output, model_name, evaluate):
               help='Path to configuration YAML file')
 def cv(config):
     """Run K-fold cross-validation for model evaluation"""
-    from habit.cli_commands.commands.cmd_kfold import run_kfold
+    from habit.cli_commands.commands.cmd_ml import run_kfold
     run_kfold(config)
 
 

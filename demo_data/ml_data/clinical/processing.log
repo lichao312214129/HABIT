@@ -1,0 +1,58 @@
+2026-01-20 10:35:40 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\clinical\processing.log
+2026-01-20 10:35:40 - habit.cli.ml - INFO - [cmd_ml.py:53] - Starting machine learning training with config: ./demo_data/config_machine_learning_clinical.yaml
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [machine_learning.py:26] - Starting Standard ML Pipeline with Pipeline support...
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [base_workflow.py:39] - Loading and preparing data...
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [data_manager.py:30] - Loading data from 1 files
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [data_manager.py:46] - Reading F:\work\habit_project\demo_data\ml_data\clinical_feature.csv (Subject: subjID, Label: label)
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [data_manager.py:94] - Data loaded: (569, 7)
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [data_manager.py:146] - Split results: Train=300, Test=269
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [machine_learning.py:39] - Training Model: LogisticRegression
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:64] - ================================================================================
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:65] - Feature Selection Stage: Before Normalization
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:66] - ================================================================================
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:67] - Initial number of features: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:68] - Initial features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:69] - --------------------------------------------------------------------------------
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:123] - 
+Feature Selection Summary (Before Normalization):
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:124] -   Total steps executed: 0
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:125] -   Initial features: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:126] -   Final features: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:127] -   Total features removed: 0
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:128] -   Retention rate: 100.00%
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:129] -   Final selected features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:130] - ================================================================================
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:64] - ================================================================================
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:65] - Feature Selection Stage: After Normalization
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:66] - ================================================================================
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:67] - Initial number of features: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:68] - Initial features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:69] - --------------------------------------------------------------------------------
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:93] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:94] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:95] -   Features before this step: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:111] -   Features after this step: 4
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:112] -   Number of features removed: 2
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:115] -   Removed features: ['PLT', 'Z']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:119] -   Retained features: ['AFP', 'BMI', 'X', 'Y']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:120] - --------------------------------------------------------------------------------
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:123] - 
+Feature Selection Summary (After Normalization):
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:124] -   Total steps executed: 1
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:125] -   Initial features: 6
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:126] -   Final features: 4
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:127] -   Total features removed: 2
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:128] -   Retention rate: 66.67%
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:129] -   Final selected features: ['AFP', 'BMI', 'X', 'Y']
+2026-01-20 10:35:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:130] - ================================================================================
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [machine_learning.py:195] - Prediction results saved to CSV files.
+2026-01-20 10:35:40 - habit.ml_standard - INFO - [machine_learning.py:135] - Generating plots for training set...
+2026-01-20 10:35:40 - habit.evaluation.plot_manager - INFO - [plot_manager.py:41] - Generating evaluation plots for standard_train_ workflow (train set)...
+2026-01-20 10:35:43 - habit.evaluation.plot_manager - INFO - [plot_manager.py:113] - Generating SHAP plot for LogisticRegression...
+2026-01-20 10:35:44 - habit.evaluation.plot_manager - INFO - [plot_manager.py:145] - SHAP plot saved: standard_train_LogisticRegression_shap.pdf
+2026-01-20 10:35:44 - habit.ml_standard - INFO - [machine_learning.py:144] - Generating plots for test set...
+2026-01-20 10:35:44 - habit.evaluation.plot_manager - INFO - [plot_manager.py:41] - Generating evaluation plots for standard_test_ workflow (test set)...
+2026-01-20 10:35:47 - habit.evaluation.plot_manager - INFO - [plot_manager.py:113] - Generating SHAP plot for LogisticRegression...
+2026-01-20 10:35:48 - habit.evaluation.plot_manager - WARNING - [plot_manager.py:148] - Could not generate SHAP for LogisticRegression: [Errno 13] Permission denied: 'F:\\work\\habit_project\\demo_data\\ml_data\\clinical\\standard_test_LogisticRegression_shap.pdf'
+2026-01-20 10:35:48 - habit.ml_standard - INFO - [machine_learning.py:152] - Standard ML workflow completed. Models saved to F:\work\habit_project\demo_data\ml_data\clinical

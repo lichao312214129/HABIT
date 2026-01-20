@@ -35,12 +35,17 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.n
         cm = metrics.confusion_matrix(y_true, y_pred)
     
     # Calculate basic metrics
+    precision = cm[1, 1] / (cm[1, 1] + cm[0, 1]) if (cm[1, 1] + cm[0, 1]) > 0 else 0
+    recall = cm[1, 1] / (cm[1, 1] + cm[1, 0]) if (cm[1, 1] + cm[1, 0]) > 0 else 0
+    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
     metrics_dict = {
         'accuracy': accuracy_score(y_true, y_pred if not np.array_equal(y_pred, y_pred_proba) else (y_pred_proba >= 0.5).astype(int)),
-        'sensitivity': cm[1, 1] / (cm[1, 1] + cm[1, 0]),
-        'specificity': cm[0, 0] / (cm[0, 0] + cm[0, 1]),
-        'ppv': cm[1, 1] / (cm[1, 1] + cm[0, 1]),
-        'npv': cm[0, 0] / (cm[0, 0] + cm[1, 0]),
+        'sensitivity': recall,
+        'specificity': cm[0, 0] / (cm[0, 0] + cm[0, 1]) if (cm[0, 0] + cm[0, 1]) > 0 else 0,
+        'ppv': precision,
+        'npv': cm[0, 0] / (cm[0, 0] + cm[1, 0]) if (cm[0, 0] + cm[1, 0]) > 0 else 0,
+        'f1_score': f1_score,
         'auc': roc_auc_score(y_true, y_pred_proba),
         'auc_ci_lower': delong_roc_ci(y_true, y_pred_proba)[1][0],
         'auc_ci_high': delong_roc_ci(y_true, y_pred_proba)[1][1]

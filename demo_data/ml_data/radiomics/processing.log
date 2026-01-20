@@ -1,240 +1,81 @@
-2026-01-18 19:18:02 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\radiomics\processing.log
-2026-01-18 19:18:02 - habit.cli.ml - INFO - [cmd_ml.py:54] - Starting machine learning training with config: ./demo_data/config_machine_learning_radiomics.yaml
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:70] - Using existing logging configuration from CLI entry point
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:79] - Initializing modeling with config: {'input': [{'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\breast_cancer_dataset.csv', 'name': 'radiomics_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None}], 'output': 'F:\\work\\habit_project\\demo_data\\ml_data\\radiomics', 'split_method': 'custom', 'train_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\train_ids.txt', 'test_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\test_ids.txt', 'normalization': {'method': 'z_score'}, 'feature_selection_methods': [{'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}}, {'method': 'statistical_test', 'params': {'p_threshold': 0.05, 'normality_test_threshold': 0.05, 'plot_importance': True, 'before_z_score': False, 'force_test': 'ttest'}}, {'method': 'vif', 'params': {'max_vif': 10, 'visualize': False, 'before_z_score': False}}, {'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'AutoGluonTabular': {'params': {'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\autogluon_models', 'label': 'label', 'time_limit': 30, 'random_state': 42, 'presets': 'high_quality', 'verbosity': 4, 'eval_metric': 'roc_auc'}}, 'SVM': {'params': {'random_state': 42, 'C': 1.0, 'kernel': 'rbf', 'gamma': 'scale', 'probability': True}}, 'RandomForest': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': None, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'class_weight': 'balanced'}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}, 'KNN': {'params': {'n_neighbors': 5, 'weights': 'uniform', 'algorithm': 'auto', 'metric': 'minkowski', 'p': 2}}, 'MLP': {'params': {'random_state': 42, 'hidden_layer_sizes': [100, 50], 'activation': 'relu', 'solver': 'adam', 'alpha': 0.0001, 'learning_rate': 'constant', 'learning_rate_init': 0.001, 'max_iter': 200, 'early_stopping': False}}, 'GaussianNB': {'params': {'var_smoothing': 1e-09}}, 'MultinomialNB': {'params': {'alpha': 1.0, 'fit_prior': True}}, 'BernoulliNB': {'params': {'alpha': 1.0, 'binarize': 0.0, 'fit_prior': True}}, 'GradientBoosting': {'params': {'random_state': 42, 'n_estimators': 100, 'learning_rate': 0.1, 'max_depth': 3, 'subsample': 1.0, 'min_samples_split': 2, 'min_samples_leaf': 1}}, 'AdaBoost': {'params': {'random_state': 42, 'n_estimators': 50, 'learning_rate': 1.0, 'algorithm': 'SAMME.R'}}, 'DecisionTree': {'params': {'random_state': 42, 'criterion': 'gini', 'splitter': 'best', 'max_depth': None, 'min_samples_split': 2, 'min_samples_leaf': 1, 'class_weight': 'balanced'}}}, 'is_visualize': True, 'is_save_model': True, 'visualization': {'enabled': True, 'plot_types': ['roc', 'calibration', 'confusion', 'dca']}}
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:93] - Available feature selectors: ['correlation', 'icc', 'lasso', 'stepwise', 'rfecv', 'anova', 'chi2', 'variance', 'statistical_test', 'stepwise_r', 'univariate_logistic', 'vif']
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:100] - Modeling initialization completed
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:112] - Reading data from multiple files: 1 files
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:137] - Reading file: F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:138] - Dataset name: radiomics_
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:139] - Subject ID column: subjID
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:140] - Label column: label
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:141] - Features: None
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:145] - File loaded with shape: (569, 14)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:165] - Using label column: label
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:171] - Using subject ID column: subjID
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:216] - Created initial merged dataframe with shape: (569, 12)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:231] - Adding unified label column: label
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:236] - Final merged dataframe shape: (569, 13) with 12 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:254] - Converting data to numeric types
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:256] - Data converted to numeric types
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:260] - Missing values: label                                0
-radiomics_compactness error          0
-radiomics_concavity error            0
-radiomics_concave points error       0
-radiomics_symmetry error             0
-radiomics_fractal dimension error    0
-radiomics_worst radius               0
-radiomics_worst texture              0
-radiomics_worst perimeter            0
-radiomics_worst area                 0
-radiomics_worst smoothness           0
-radiomics_worst compactness          0
-radiomics_worst fractal dimension    0
-dtype: int64
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:263] - Starting data preprocessing
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:264] - Sample size before removing missing values: 569
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:268] - Sample size after removing missing values: 569
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:278] - Data preprocessing completed
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:288] - Splitting data using method: custom
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:328] - Reading custom train IDs from F:\work\habit_project\demo_data\ml_data\train_ids.txt
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:401] - Reading subject IDs from file: F:\work\habit_project\demo_data\ml_data\train_ids.txt
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:430] - Parsed 300 subject IDs from line-by-line format
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:330] - Read 300 train subject IDs
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:332] - Reading custom test IDs from F:\work\habit_project\demo_data\ml_data\test_ids.txt
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:401] - Reading subject IDs from file: F:\work\habit_project\demo_data\ml_data\test_ids.txt
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:430] - Parsed 269 subject IDs from line-by-line format
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:334] - Read 269 test subject IDs
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:365] - Data split using custom subject IDs (train: 300, test: 269)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:366] - Custom split completed: train=300, test=269
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:383] - Extracted features and labels: 12 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:441] - Saving train/test split information
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:455] - Split information saved to: F:\work\habit_project\demo_data\ml_data\radiomics\split_info.json
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:387] - Split information saved
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:476] - Checking for feature selection methods to run before normalization
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:501] - Running 1 feature selection methods before normalization
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:505] - Starting with 12 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:512] - Executing variance feature selection BEFORE normalization...
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:513] - Executing variance feature selection before normalization with params: {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:534] - variance selected 4 features, removed 8 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:551] - Pre-normalization feature selection completed. Selected 4 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:572] - Starting data normalization using method: z_score
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:580] - Using StandardScaler (Z-score normalization)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:621] - Fitting scaler on training data with shape: (300, 4)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:623] - Transforming test data with shape: (269, 4)
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:632] - Data normalization completed using z_score method
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:651] - Starting feature selection
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:662] - Starting with 4 features
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:671] - Executing statistical_test feature selection...
-2026-01-18 19:18:02 - habit.modeling - INFO - [machine_learning.py:672] - Executing statistical_test feature selection with params: {'p_threshold': 0.05, 'normality_test_threshold': 0.05, 'plot_importance': True, 'before_z_score': False, 'force_test': 'ttest'}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:700] - statistical_test selected 4 features, removed 0 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:702] - Selected features: ['radiomics_worst area', 'radiomics_worst radius', 'radiomics_worst perimeter', 'radiomics_worst texture']
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:671] - Executing vif feature selection...
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:672] - Executing vif feature selection with params: {'max_vif': 10, 'visualize': False, 'before_z_score': False}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:700] - vif selected 2 features, removed 2 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:702] - Selected features: ['radiomics_worst area', 'radiomics_worst texture']
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:671] - Executing correlation feature selection...
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:672] - Executing correlation feature selection with params: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:700] - correlation selected 2 features, removed 0 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:702] - Selected features: ['radiomics_worst area', 'radiomics_worst texture']
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:717] - Final number of selected features: 2
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:718] - Feature selection completed. Final number of selected features: 2
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:731] - Feature selection results saved to: F:\work\habit_project\demo_data\ml_data\radiomics\feature_selection_results.json
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:742] - Starting model training
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:753] - Training 13 models: ['LogisticRegression', 'AutoGluonTabular', 'SVM', 'RandomForest', 'XGBoost', 'KNN', 'MLP', 'GaussianNB', 'MultinomialNB', 'BernoulliNB', 'GradientBoosting', 'AdaBoost', 'DecisionTree']
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: LogisticRegression
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: LogisticRegression with config: {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:775] - Model LogisticRegression trained successfully
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: AutoGluonTabular
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: AutoGluonTabular with config: {'params': {'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\autogluon_models', 'label': 'label', 'time_limit': 30, 'random_state': 42, 'presets': 'high_quality', 'verbosity': 4, 'eval_metric': 'roc_auc'}}
-2026-01-18 19:18:04 - habit.modeling - ERROR - [machine_learning.py:765] - Failed to create model AutoGluonTabular: Model 'AutoGluonTabular' not registered. Available models: ['LogisticRegression', 'RandomForest', 'SVM', 'XGBoost', 'AdaBoost', 'CustomEnsemble', 'DecisionTree', 'GradientBoosting', 'KNN', 'MLP', 'GaussianNB', 'MultinomialNB', 'BernoulliNB']
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: SVM
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: SVM with config: {'params': {'random_state': 42, 'C': 1.0, 'kernel': 'rbf', 'gamma': 'scale', 'probability': True}}
-2026-01-18 19:18:04 - habit.modeling - ERROR - [machine_learning.py:765] - Failed to create model SVM: __init__() got an unexpected keyword argument 'kernel'
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: RandomForest
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: RandomForest with config: {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': None, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'sqrt', 'class_weight': 'balanced'}}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:775] - Model RandomForest trained successfully
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: XGBoost
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: XGBoost with config: {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic', 'eval_metric': 'logloss'}}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:775] - Model XGBoost trained successfully
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: KNN
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: KNN with config: {'params': {'n_neighbors': 5, 'weights': 'uniform', 'algorithm': 'auto', 'metric': 'minkowski', 'p': 2}}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:775] - Model KNN trained successfully
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:756] - Training model: MLP
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:757] - Training model: MLP with config: {'params': {'random_state': 42, 'hidden_layer_sizes': [100, 50], 'activation': 'relu', 'solver': 'adam', 'alpha': 0.0001, 'learning_rate': 'constant', 'learning_rate_init': 0.001, 'max_iter': 200, 'early_stopping': False}}
-2026-01-18 19:18:04 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model MLP trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: GaussianNB
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: GaussianNB with config: {'params': {'var_smoothing': 1e-09}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model GaussianNB trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: MultinomialNB
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: MultinomialNB with config: {'params': {'alpha': 1.0, 'fit_prior': True}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - ERROR - [machine_learning.py:778] - Failed to train model MultinomialNB: Negative values in data passed to MultinomialNB (input X)
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: BernoulliNB
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: BernoulliNB with config: {'params': {'alpha': 1.0, 'binarize': 0.0, 'fit_prior': True}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model BernoulliNB trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: GradientBoosting
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: GradientBoosting with config: {'params': {'random_state': 42, 'n_estimators': 100, 'learning_rate': 0.1, 'max_depth': 3, 'subsample': 1.0, 'min_samples_split': 2, 'min_samples_leaf': 1}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model GradientBoosting trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: AdaBoost
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: AdaBoost with config: {'params': {'random_state': 42, 'n_estimators': 50, 'learning_rate': 1.0, 'algorithm': 'SAMME.R'}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model AdaBoost trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:756] - Training model: DecisionTree
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:757] - Training model: DecisionTree with config: {'params': {'random_state': 42, 'criterion': 'gini', 'splitter': 'best', 'max_depth': None, 'min_samples_split': 2, 'min_samples_leaf': 1, 'class_weight': 'balanced'}}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:770] - Training model with 2 features
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:775] - Model DecisionTree trained successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:787] - Model training completed. Trained 10 models successfully
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:798] - Starting model evaluation
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: LogisticRegression
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: LogisticRegression
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating LogisticRegression on training set
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.9333333333333333, 'sensitivity': 0.9545454545454546, 'specificity': 0.910958904109589, 'ppv': 0.91875, 'npv': 0.95, 'auc': 0.9820761430350471, 'auc_ci_lower': 0.9704840580214635, 'auc_ci_high': 0.9936682780991419, 'hosmer_lemeshow_chi2': 5.7492184467114535, 'hosmer_lemeshow_p_value': 0.6752996204006105, 'spiegelhalter_z_statistic': -1.3753870547329284e-05, 'spiegelhalter_z_p_value': 0.9999890259990394}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating LogisticRegression on test set
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9219330855018587, 'sensitivity': 0.9014778325123153, 'specificity': 0.9848484848484849, 'ppv': 0.9945652173913043, 'npv': 0.7647058823529411, 'auc': 0.9908195253022838, 'auc_ci_lower': 0.9821003308551982, 'auc_ci_high': 0.9995385775310323, 'hosmer_lemeshow_chi2': 42.519506496034616, 'hosmer_lemeshow_p_value': 1.0817229803006256e-06, 'spiegelhalter_z_statistic': 6.262778112497963, 'spiegelhalter_z_p_value': 3.7817859954714095e-10}
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for LogisticRegression
-2026-01-18 19:18:05 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for LogisticRegression
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for LogisticRegression
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: RandomForest
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: RandomForest
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating RandomForest on training set
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 1.0, 'sensitivity': 1.0, 'specificity': 1.0, 'ppv': 1.0, 'npv': 1.0, 'auc': 1.0, 'auc_ci_lower': nan, 'auc_ci_high': nan, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': -0.2737154693211157, 'spiegelhalter_z_p_value': 0.7843032888046442}
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating RandomForest on test set
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9070631970260223, 'sensitivity': 0.8817733990147784, 'specificity': 0.9848484848484849, 'ppv': 0.9944444444444445, 'npv': 0.7303370786516854, 'auc': 0.9865651589789521, 'auc_ci_lower': 0.9743821471191637, 'auc_ci_high': 0.9987480790160902, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': 6.992422019607801, 'spiegelhalter_z_p_value': 2.701838752727781e-12}
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for RandomForest
-2026-01-18 19:18:06 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for RandomForest
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for RandomForest
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: XGBoost
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: XGBoost
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating XGBoost on training set
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.9733333333333334, 'sensitivity': 0.9805194805194806, 'specificity': 0.9657534246575342, 'ppv': 0.967948717948718, 'npv': 0.9791666666666666, 'auc': 0.9957747731720334, 'auc_ci_lower': 0.9911804083849215, 'auc_ci_high': 1.0, 'hosmer_lemeshow_chi2': 8.995256911508353, 'hosmer_lemeshow_p_value': 0.342696235900964, 'spiegelhalter_z_statistic': 0.03794431440057472, 'spiegelhalter_z_p_value': 0.9697320806891392}
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating XGBoost on test set
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9107806691449815, 'sensitivity': 0.8866995073891626, 'specificity': 0.9848484848484849, 'ppv': 0.994475138121547, 'npv': 0.7386363636363636, 'auc': 0.9898119122257053, 'auc_ci_lower': 0.9774567853992467, 'auc_ci_high': 1.0, 'hosmer_lemeshow_chi2': 59.49643600784989, 'hosmer_lemeshow_p_value': 5.85096304739352e-10, 'spiegelhalter_z_statistic': 6.877037712214687, 'spiegelhalter_z_p_value': 6.110889572141787e-12}
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for XGBoost
-2026-01-18 19:18:07 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for XGBoost
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for XGBoost
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: KNN
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: KNN
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating KNN on training set
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.9433333333333334, 'sensitivity': 0.9675324675324676, 'specificity': 0.9178082191780822, 'ppv': 0.9254658385093167, 'npv': 0.9640287769784173, 'auc': 0.9899928838285003, 'auc_ci_lower': 0.9833651022930023, 'auc_ci_high': 0.9966206116657379, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': -0.44582257006028253, 'spiegelhalter_z_p_value': 0.6557254170190965}
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating KNN on test set
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.8921933085501859, 'sensitivity': 0.8620689655172413, 'specificity': 0.9848484848484849, 'ppv': 0.9943181818181818, 'npv': 0.6989247311827957, 'auc': 0.9760785191819674, 'auc_ci_lower': 0.9605854952930143, 'auc_ci_high': 0.9915720021129916, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': 7.408111564971489, 'spiegelhalter_z_p_value': 1.2811973704174306e-13}
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for KNN
-2026-01-18 19:18:08 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for KNN
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for KNN
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: MLP
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: MLP
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating MLP on training set
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.9366666666666666, 'sensitivity': 0.9415584415584416, 'specificity': 0.9315068493150684, 'ppv': 0.9354838709677419, 'npv': 0.9379310344827586, 'auc': 0.9854563244974204, 'auc_ci_lower': 0.9754585290457471, 'auc_ci_high': 0.995453927466704, 'hosmer_lemeshow_chi2': 1.625296983481949, 'hosmer_lemeshow_p_value': 0.9904266928887254, 'spiegelhalter_z_statistic': 0.02582069862842253, 'spiegelhalter_z_p_value': 0.9794003522339687}
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating MLP on test set
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9219330855018587, 'sensitivity': 0.9014778325123153, 'specificity': 0.9848484848484849, 'ppv': 0.9945652173913043, 'npv': 0.7647058823529411, 'auc': 0.9917898193760263, 'auc_ci_lower': 0.9826147471269012, 'auc_ci_high': 1.0, 'hosmer_lemeshow_chi2': 53.509620778597345, 'hosmer_lemeshow_p_value': 8.592618727654155e-09, 'spiegelhalter_z_statistic': 6.7200573422423435, 'spiegelhalter_z_p_value': 1.8165247084311886e-11}
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for MLP
-2026-01-18 19:18:18 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for MLP
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for MLP
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: GaussianNB
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: GaussianNB
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating GaussianNB on training set
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.9233333333333333, 'sensitivity': 0.974025974025974, 'specificity': 0.8698630136986302, 'ppv': 0.8875739644970414, 'npv': 0.9694656488549618, 'auc': 0.9779843444227005, 'auc_ci_lower': 0.9646187057814335, 'auc_ci_high': 0.9913501510300899, 'hosmer_lemeshow_chi2': 4.627754790252069, 'hosmer_lemeshow_p_value': 0.796519747441723, 'spiegelhalter_z_statistic': -0.09133979024636779, 'spiegelhalter_z_p_value': 0.9272226020696792}
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating GaussianNB on test set
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9033457249070632, 'sensitivity': 0.8768472906403941, 'specificity': 0.9848484848484849, 'ppv': 0.994413407821229, 'npv': 0.7222222222222222, 'auc': 0.9896253172115241, 'auc_ci_lower': 0.9810980571191759, 'auc_ci_high': 0.9981528507787734, 'hosmer_lemeshow_chi2': 66.22704896594779, 'hosmer_lemeshow_p_value': 2.7589708295749915e-11, 'spiegelhalter_z_statistic': 6.781816263922403, 'spiegelhalter_z_p_value': 1.1867395954823223e-11}
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for GaussianNB
-2026-01-18 19:18:23 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for GaussianNB
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for GaussianNB
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: BernoulliNB
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: BernoulliNB
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating BernoulliNB on training set
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.87, 'sensitivity': 0.9935064935064936, 'specificity': 0.7397260273972602, 'ppv': 0.8010471204188482, 'npv': 0.9908256880733946, 'auc': 0.9358877423945917, 'auc_ci_lower': 0.9093111344720035, 'auc_ci_high': 0.962464492664227, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': -0.03021794180664924, 'spiegelhalter_z_p_value': 0.9758932395726685}
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating BernoulliNB on test set
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.9442379182156134, 'sensitivity': 0.9852216748768473, 'specificity': 0.8181818181818182, 'ppv': 0.9433962264150944, 'npv': 0.9473684210526315, 'auc': 0.9520450813554261, 'auc_ci_lower': 0.9208328426422658, 'auc_ci_high': 0.9832575618682322, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': 5.959074322446602, 'spiegelhalter_z_p_value': 2.536707288669504e-09}
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for BernoulliNB
-2026-01-18 19:18:29 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for BernoulliNB
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for BernoulliNB
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: GradientBoosting
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: GradientBoosting
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating GradientBoosting on training set
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 1.0, 'sensitivity': 1.0, 'specificity': 1.0, 'ppv': 1.0, 'npv': 1.0, 'auc': 1.0, 'auc_ci_lower': nan, 'auc_ci_high': nan, 'hosmer_lemeshow_chi2': 5.107114792079492, 'hosmer_lemeshow_p_value': 0.7460686271396602, 'spiegelhalter_z_statistic': -0.0005519624699230588, 'spiegelhalter_z_p_value': 0.9995595976894682}
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating GradientBoosting on test set
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.8884758364312267, 'sensitivity': 0.8571428571428571, 'specificity': 0.9848484848484849, 'ppv': 0.9942857142857143, 'npv': 0.6914893617021277, 'auc': 0.9841394237945963, 'auc_ci_lower': 0.9711377764804744, 'auc_ci_high': 0.9971411084072209, 'hosmer_lemeshow_chi2': 219.80838389661855, 'hosmer_lemeshow_p_value': 0.0, 'spiegelhalter_z_statistic': 10.10583315880695, 'spiegelhalter_z_p_value': 0.0}
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for GradientBoosting
-2026-01-18 19:18:34 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for GradientBoosting
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for GradientBoosting
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: AdaBoost
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: AdaBoost
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating AdaBoost on training set
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 0.99, 'sensitivity': 0.9935064935064936, 'specificity': 0.9863013698630136, 'ppv': 0.9870967741935484, 'npv': 0.993103448275862, 'auc': 0.9996219533890767, 'auc_ci_lower': 0.9989880495754159, 'auc_ci_high': 1.0, 'hosmer_lemeshow_chi2': 197.80448864345016, 'hosmer_lemeshow_p_value': 0.0, 'spiegelhalter_z_statistic': 0.4555052140208514, 'spiegelhalter_z_p_value': 0.6487458173372254}
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating AdaBoost on test set
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.8884758364312267, 'sensitivity': 0.8571428571428571, 'specificity': 0.9848484848484849, 'ppv': 0.9942857142857143, 'npv': 0.6914893617021277, 'auc': 0.9844752948201223, 'auc_ci_lower': 0.964807009627777, 'auc_ci_high': 1.0, 'hosmer_lemeshow_chi2': 166.14341548831644, 'hosmer_lemeshow_p_value': 0.0, 'spiegelhalter_z_statistic': 7.51678357329962, 'spiegelhalter_z_p_value': 5.617728504603292e-14}
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for AdaBoost
-2026-01-18 19:18:35 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for AdaBoost
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for AdaBoost
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:809] - Evaluating model: DecisionTree
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:810] - Evaluating model: DecisionTree
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:814] - Evaluating DecisionTree on training set
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:817] - Training set metrics: {'accuracy': 1.0, 'sensitivity': 1.0, 'specificity': 1.0, 'ppv': 1.0, 'npv': 1.0, 'auc': 1.0, 'auc_ci_lower': nan, 'auc_ci_high': nan, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': nan, 'spiegelhalter_z_p_value': nan}
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:820] - Evaluating DecisionTree on test set
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:823] - Test set metrics: {'accuracy': 0.862453531598513, 'sensitivity': 0.8226600985221675, 'specificity': 0.9848484848484849, 'ppv': 0.9940476190476191, 'npv': 0.6435643564356436, 'auc': 0.9037542916853262, 'auc_ci_lower': 0.8735205841102208, 'auc_ci_high': 0.9339878845177089, 'hosmer_lemeshow_chi2': nan, 'hosmer_lemeshow_p_value': nan, 'spiegelhalter_z_statistic': inf, 'spiegelhalter_z_p_value': 0.0}
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:829] - Feature importance calculated for DecisionTree
-2026-01-18 19:18:45 - habit.modeling - INFO - [machine_learning.py:834] - Plotting SHAP values for DecisionTree
-2026-01-18 19:18:46 - habit.modeling - INFO - [machine_learning.py:836] - SHAP plot saved for DecisionTree
-2026-01-18 19:18:46 - habit.modeling - INFO - [machine_learning.py:847] - Performance table generated
-2026-01-18 19:18:46 - habit.modeling - INFO - [machine_learning.py:855] - Performance table saved
-2026-01-18 19:18:46 - habit.modeling - INFO - [machine_learning.py:863] - Generating visualization plots
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:865] - Visualization plots saved
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:872] - Saving detailed prediction results
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:896] - Saving detailed prediction results
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:923] - Saved complete prediction results to: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results.csv
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:874] - Prediction results saved
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:882] - Saving trained models and preprocessing information
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:929] - Saving trained models and preprocessing information
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:953] - Saved complete model package to: F:\work\habit_project\demo_data\ml_data\radiomics\model_package.pkl
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:1049] - Saved model usage instructions to: F:\work\habit_project\demo_data\ml_data\radiomics\model_usage_instructions.txt
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:884] - Models and preprocessing information saved
-2026-01-18 19:18:50 - habit.modeling - INFO - [machine_learning.py:889] - Model evaluation completed
+2026-01-20 10:16:09 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\radiomics\processing.log
+2026-01-20 10:16:09 - habit.cli.ml - INFO - [cmd_ml.py:53] - Starting machine learning training with config: ./demo_data/config_machine_learning_radiomics.yaml
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [machine_learning.py:26] - Starting Standard ML Pipeline with Pipeline support...
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [base_workflow.py:39] - Loading and preparing data...
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [data_manager.py:30] - Loading data from 1 files
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [data_manager.py:46] - Reading F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv (Subject: subjID, Label: label)
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [data_manager.py:94] - Data loaded: (569, 13)
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [data_manager.py:146] - Split results: Train=300, Test=269
+2026-01-20 10:16:09 - habit.ml_standard - INFO - [machine_learning.py:39] - Training Model: LogisticRegression
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:64] - ================================================================================
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:65] - Feature Selection Stage: Before Normalization
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:66] - ================================================================================
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:67] - Initial number of features: 12
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:68] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:69] - --------------------------------------------------------------------------------
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:93] - 
+Step 1: Applying 'variance' feature selection
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:94] -   Parameters: {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}
+2026-01-20 10:16:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:95] -   Features before this step: 12
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:111] -   Features after this step: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:112] -   Number of features removed: 8
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:115] -   Removed features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:119] -   Retained features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:120] - --------------------------------------------------------------------------------
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:123] - 
+Feature Selection Summary (Before Normalization):
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:124] -   Total steps executed: 1
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:125] -   Initial features: 12
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:126] -   Final features: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:127] -   Total features removed: 8
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:128] -   Retention rate: 33.33%
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:129] -   Final selected features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:130] - ================================================================================
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:64] - ================================================================================
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:65] - Feature Selection Stage: After Normalization
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:66] - ================================================================================
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:67] - Initial number of features: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:68] - Initial features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:69] - --------------------------------------------------------------------------------
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:93] - 
+Step 1: Applying 'icc' feature selection
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:94] -   Parameters: {'icc_results': 'F:\\work\\habit_project\\demo_data\\ml_data\\icc_radiomics.json', 'keys': ['breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated'], 'metric': 'ICC2', 'threshold': 0.8}
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:95] -   Features before this step: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:111] -   Features after this step: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:112] -   Number of features removed: 0
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:117] -   No features removed in this step
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:119] -   Retained features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:120] - --------------------------------------------------------------------------------
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:93] - 
+Step 2: Applying 'vif' feature selection
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:94] -   Parameters: {'max_vif': 10, 'visualize': False, 'before_z_score': False}
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:95] -   Features before this step: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:111] -   Features after this step: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:112] -   Number of features removed: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:115] -   Removed features: ['worst radius', 'worst perimeter']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:119] -   Retained features: ['worst texture', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:120] - --------------------------------------------------------------------------------
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:93] - 
+Step 3: Applying 'correlation' feature selection
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:94] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:95] -   Features before this step: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:111] -   Features after this step: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:112] -   Number of features removed: 0
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:117] -   No features removed in this step
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:119] -   Retained features: ['worst texture', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:120] - --------------------------------------------------------------------------------
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:123] - 
+Feature Selection Summary (After Normalization):
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:124] -   Total steps executed: 3
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:125] -   Initial features: 4
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:126] -   Final features: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:127] -   Total features removed: 2
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:128] -   Retention rate: 50.00%
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:129] -   Final selected features: ['worst texture', 'worst area']
+2026-01-20 10:16:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:130] - ================================================================================
+2026-01-20 10:16:10 - habit.ml_standard - INFO - [machine_learning.py:195] - Prediction results saved to CSV files.
+2026-01-20 10:16:10 - habit.ml_standard - INFO - [machine_learning.py:135] - Generating plots for training set...
+2026-01-20 10:16:10 - habit.evaluation.plot_manager - INFO - [plot_manager.py:38] - Visualization is disabled in config.
+2026-01-20 10:16:10 - habit.ml_standard - INFO - [machine_learning.py:144] - Generating plots for test set...
+2026-01-20 10:16:10 - habit.evaluation.plot_manager - INFO - [plot_manager.py:38] - Visualization is disabled in config.
+2026-01-20 10:16:10 - habit.ml_standard - INFO - [machine_learning.py:152] - Standard ML workflow completed. Models saved to F:\work\habit_project\demo_data\ml_data\radiomics

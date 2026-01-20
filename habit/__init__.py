@@ -30,9 +30,9 @@ except ImportError as e:
     _import_errors['HabitatFeatureExtractor'] = str(e)
     HabitatFeatureExtractor = None
 
-# Try to import Modeling
+# Try to import MachineLearningWorkflow
 try:
-    from .core.machine_learning import Modeling
+    from .core.machine_learning import MachineLearningWorkflow as Modeling
     _available_modules['Modeling'] = Modeling
 except ImportError as e:
     _import_errors['Modeling'] = str(e)

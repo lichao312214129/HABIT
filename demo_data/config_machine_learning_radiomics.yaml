@@ -75,13 +75,13 @@ normalization:
 # Feature Selection Configuration
 # Multiple feature selection methods can be applied sequentially
 feature_selection_methods:
-  # # ICC (Intraclass Correlation Coefficient) method
-  # - method: icc  # Selects features based on their reproducibility
-  #   params:
-  #     icc_results: H:\results\icc_results.json  # Path to pre-computed ICC results
-  #     keys: [raw_image_radiomics_vs_raw_image_radiomics]  # Key(s) in the ICC results file to use
-  #     threshold: 0.8  # Minimum ICC value required to retain a feature (0.0-1.0)
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  # ICC (Intraclass Correlation Coefficient) method
+  - method: icc  # Selects features based on their reproducibility
+    params:
+      icc_results: ./ml_data/icc_radiomics.json  # Path to pre-computed ICC results
+      keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
+      metric: ICC2 # Metrics to use
+      threshold: 0.8
   
   ## 方差选择器 - 移除低方差特征
   - method: variance
@@ -90,15 +90,15 @@ feature_selection_methods:
       threshold: 0.2  # 方差阈值（特征方差必须大于此值才会被保留）
       plot_variances: true  # 是否生成方差可视化图表
 
-  # 统计检验选择器 - 自动选择t检验或Mann-Whitney U检验
-  - method: statistical_test
-    params:
-      p_threshold: 0.05  # P值阈值（特征P值必须小于此值才会被保留）
-      # n_features_to_select: 20  # 可选：要选择的特征数量（如果指定，则覆盖p_threshold）
-      normality_test_threshold: 0.05  # 正态性检验的阈值
-      plot_importance: true  # 是否生成特征重要性图表
-      before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
-      force_test: "ttest"  # 可选：强制使用特定检验方法（"ttest"或"mannwhitney"）
+  # # 统计检验选择器 - 自动选择t检验或Mann-Whitney U检验
+  # - method: statistical_test
+  #   params:
+  #     p_threshold: 0.05  # P值阈值（特征P值必须小于此值才会被保留）
+  #     # n_features_to_select: 20  # 可选：要选择的特征数量（如果指定，则覆盖p_threshold）
+  #     normality_test_threshold: 0.05  # 正态性检验的阈值
+  #     plot_importance: true  # 是否生成特征重要性图表
+  #     before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
+  #     force_test: "ttest"  # 可选：强制使用特定检验方法（"ttest"或"mannwhitney"）
 
   # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
   - method: vif  # Removes features with high multicollinearity
@@ -183,15 +183,15 @@ models:
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   
   # # AutoGluonTabular model configuration
-  AutoGluonTabular:  # Model type: AutoGluonTabular classifier
-    params:
-      path: ./ml_data/autogluon_models
-      label: label
-      time_limit: 30
-      random_state: 42  # Random seed for reproducibility
-      presets: "high_quality"  # Preset for AutoGluonTabular
-      verbosity: 4  # Verbosity level for AutoGluonTabular
-      eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
+  # AutoGluonTabular:  # Model type: AutoGluonTabular classifier
+  #   params:
+  #     path: ./ml_data/autogluon_models
+  #     label: label
+  #     time_limit: 30
+  #     random_state: 42  # Random seed for reproducibility
+  #     # presets: "high_quality"  # Preset for AutoGluonTabular
+  #     verbosity: 4  # Verbosity level for AutoGluonTabular
+  #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
   
   # # Support Vector Machine configuration
   # SVM:  # Model type: Support Vector Machine classifier
@@ -297,7 +297,7 @@ models:
 
 #%%================================================================================  
 # Visualization and Saving Configuration
-is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
+is_visualize: false  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
 is_save_model: true  # Whether to save trained models to disk for future use
 
 visualization:

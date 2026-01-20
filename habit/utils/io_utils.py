@@ -279,6 +279,17 @@ def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path:
     
     return output_path
 
+def save_json(data: Any, file_path: str) -> None:
+    """Saves data to a JSON file."""
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def save_csv(df: pd.DataFrame, file_path: str) -> None:
+    """Saves DataFrame to a CSV file."""
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    df.to_csv(file_path, index=False)
+
 def detect_image_names(images_paths: dict) -> list:
     """
     Automatically detect image names

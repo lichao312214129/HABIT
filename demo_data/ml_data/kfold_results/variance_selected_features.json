@@ -1,0 +1,20 @@
+{
+    "selected_features": [
+        "worst area",
+        "worst perimeter",
+        "worst texture",
+        "worst radius",
+        "worst compactness",
+        "concavity error",
+        "worst smoothness",
+        "worst fractal dimension",
+        "compactness error",
+        "symmetry error",
+        "concave points error",
+        "fractal dimension error"
+    ],
+    "n_features_selected": 12,
+    "original_feature_count": 12,
+    "selection_method": "top_k",
+    "selection_value": 12.0
+}
