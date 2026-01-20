@@ -9,11 +9,7 @@
                 "npv": 0.95,
                 "f1_score": 0.9363057324840764,
                 "auc": 0.9820761430350471,
-                "auc_ci_lower": 0.9704840580214635,
-                "auc_ci_high": 0.9936682780991419,
-                "hosmer_lemeshow_chi2": 5.749218446711453,
                 "hosmer_lemeshow_p_value": 0.6752996204006108,
-                "spiegelhalter_z_statistic": -1.3753870544960612e-05,
                 "spiegelhalter_z_p_value": 0.9999890259990412
             }
         },
@@ -26,11 +22,7 @@
                 "npv": 0.9366197183098591,
                 "f1_score": 0.9294871794871796,
                 "auc": 0.9782067247820672,
-                "auc_ci_lower": 0.9640836509634961,
-                "auc_ci_high": 0.9923296180794726,
-                "hosmer_lemeshow_chi2": 4.833612592580004,
                 "hosmer_lemeshow_p_value": 0.7752028532624939,
-                "spiegelhalter_z_statistic": -1.2859266293016069e-05,
                 "spiegelhalter_z_p_value": 0.9999897397899618
             }
         }
@@ -38,36 +30,56 @@
     "test": {
         "radiomics": {
             "basic_metrics": {
-                "accuracy": 0.9219330855018587,
-                "sensitivity": 0.9014778325123153,
-                "specificity": 0.9848484848484849,
-                "ppv": 0.9945652173913043,
-                "npv": 0.7647058823529411,
-                "f1_score": 0.9457364341085271,
-                "auc": 0.9908195253022838,
-                "auc_ci_lower": 0.9821003308551982,
-                "auc_ci_high": 0.9995385775310323,
-                "hosmer_lemeshow_chi2": 42.51950649603463,
-                "hosmer_lemeshow_p_value": 1.0817229803006256e-06,
-                "spiegelhalter_z_statistic": 6.262778112497964,
-                "spiegelhalter_z_p_value": 3.7817859954714095e-10
+                "accuracy": 0.9274193548387096,
+                "sensitivity": 0.9095744680851063,
+                "specificity": 0.9833333333333333,
+                "ppv": 0.9941860465116279,
+                "npv": 0.7763157894736842,
+                "f1_score": 0.95,
+                "auc": 0.9898936170212767,
+                "hosmer_lemeshow_p_value": 3.1675068523306926e-05,
+                "spiegelhalter_z_p_value": 5.9399360985423755e-09
             }
         },
         "clinical": {
             "basic_metrics": {
-                "accuracy": 0.9442379182156134,
-                "sensitivity": 0.9408866995073891,
-                "specificity": 0.9545454545454546,
-                "ppv": 0.9845360824742269,
-                "npv": 0.84,
-                "f1_score": 0.9622166246851385,
-                "auc": 0.9942528735632183,
-                "auc_ci_lower": 0.9885103445718321,
-                "auc_ci_high": 0.9999954957296816,
-                "hosmer_lemeshow_chi2": 27.445613440603953,
-                "hosmer_lemeshow_p_value": 0.0005919965771296054,
-                "spiegelhalter_z_statistic": 5.097777417070956,
-                "spiegelhalter_z_p_value": 3.436645645837899e-07
+                "accuracy": 0.9395161290322581,
+                "sensitivity": 0.9361702127659575,
+                "specificity": 0.95,
+                "ppv": 0.9832402234636871,
+                "npv": 0.8260869565217391,
+                "f1_score": 0.9591280653950954,
+                "auc": 0.9934397163120567,
+                "hosmer_lemeshow_p_value": 0.00048479026143932735,
+                "spiegelhalter_z_p_value": 3.452297048234243e-07
+            }
+        }
+    },
+    "externaltest": {
+        "radiomics": {
+            "basic_metrics": {
+                "accuracy": 0.8571428571428571,
+                "sensitivity": 0.8,
+                "specificity": 1.0,
+                "ppv": 1.0,
+                "npv": 0.6666666666666666,
+                "f1_score": 0.888888888888889,
+                "auc": 1.0,
+                "hosmer_lemeshow_p_value": 0.652900724569484,
+                "spiegelhalter_z_p_value": 0.01674125205450494
+            }
+        },
+        "clinical": {
+            "basic_metrics": {
+                "accuracy": 1.0,
+                "sensitivity": 1.0,
+                "specificity": 1.0,
+                "ppv": 1.0,
+                "npv": 1.0,
+                "f1_score": 1.0,
+                "auc": 1.0,
+                "hosmer_lemeshow_p_value": 0.999929355286923,
+                "spiegelhalter_z_p_value": 0.6107439593679347
             }
         }
     }

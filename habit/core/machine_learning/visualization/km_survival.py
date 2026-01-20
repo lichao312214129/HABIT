@@ -34,9 +34,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from lifelines import KaplanMeierFitter, CoxPHFitter
-from lifelines.statistics import logrank_test, multivariate_logrank_test
-from lifelines.plotting import add_at_risk_counts
+
+# from lifelines import KaplanMeierFitter, CoxPHFitter
+# from lifelines.statistics import logrank_test, multivariate_logrank_test
+# from lifelines.plotting import add_at_risk_counts
 from matplotlib.lines import Line2D
 
 

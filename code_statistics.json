@@ -1,69 +1,102 @@
 {
   "summary": {
-    "total_files": 166,
-    "total_lines": 34765,
-    "total_code_lines": 23374,
-    "total_comment_lines": 5346
+    "total_files": 298,
+    "total_lines": 84730,
+    "total_code_lines": 65884,
+    "total_comment_lines": 9175
   },
   "file_types": {
     "code": {
-      "files": 127,
-      "total_lines": 27169,
-      "code_lines": 18227,
-      "comment_lines": 4132
+      "files": 188,
+      "total_lines": 34143,
+      "code_lines": 23012,
+      "comment_lines": 5095
     },
     "config": {
-      "files": 16,
-      "total_lines": 2107,
-      "code_lines": 1439,
-      "comment_lines": 520
+      "files": 61,
+      "total_lines": 37433,
+      "code_lines": 34495,
+      "comment_lines": 2343
     },
     "docs": {
-      "files": 23,
-      "total_lines": 5489,
-      "code_lines": 3708,
-      "comment_lines": 694
+      "files": 49,
+      "total_lines": 13154,
+      "code_lines": 8377,
+      "comment_lines": 1737
     }
   },
   "directories": {
     "root": {
-      "files": 9,
-      "total_lines": 2387,
-      "code_lines": 1875,
-      "comment_lines": 242
+      "files": 12,
+      "total_lines": 4548,
+      "code_lines": 3908,
+      "comment_lines": 259
     },
     "config": {
-      "files": 13,
-      "total_lines": 924,
-      "code_lines": 273,
-      "comment_lines": 516
+      "files": 15,
+      "total_lines": 1261,
+      "code_lines": 415,
+      "comment_lines": 650
+    },
+    "config_templates": {
+      "files": 11,
+      "total_lines": 1488,
+      "code_lines": 349,
+      "comment_lines": 882
+    },
+    "demo_data": {
+      "files": 35,
+      "total_lines": 32654,
+      "code_lines": 31645,
+      "comment_lines": 826
     },
     "doc": {
-      "files": 10,
-      "total_lines": 2736,
-      "code_lines": 1739,
-      "comment_lines": 379
+      "files": 14,
+      "total_lines": 4425,
+      "code_lines": 2704,
+      "comment_lines": 636
+    },
+    "doc_en": {
+      "files": 13,
+      "total_lines": 4006,
+      "code_lines": 2392,
+      "comment_lines": 603
     },
     "habit": {
-      "files": 114,
-      "total_lines": 24305,
-      "code_lines": 16347,
-      "comment_lines": 3626
+      "files": 160,
+      "total_lines": 31721,
+      "code_lines": 21434,
+      "comment_lines": 4593
     },
     "ml_data": {
-      "files": 2,
-      "total_lines": 569,
-      "code_lines": 569,
+      "files": 0,
+      "total_lines": 0,
+      "code_lines": 0,
       "comment_lines": 0
     },
     "scripts": {
+      "files": 20,
+      "total_lines": 4004,
+      "code_lines": 2685,
+      "comment_lines": 597
+    },
+    "tests": {
       "files": 18,
-      "total_lines": 3844,
-      "code_lines": 2571,
-      "comment_lines": 583
+      "total_lines": 623,
+      "code_lines": 352,
+      "comment_lines": 129
     }
   },
   "files_detail": {
+    "code_statistics.json": {
+      "file_type": "config",
+      "directory": "root",
+      "extension": ".json",
+      "total_lines": 1566,
+      "code_lines": 1566,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
     "count_lines.py": {
       "file_type": "code",
       "directory": "root",
@@ -77,73 +110,91 @@
       "file_type": "code",
       "directory": "root",
       "extension": ".py",
-      "total_lines": 100,
-      "code_lines": 60,
+      "total_lines": 104,
+      "code_lines": 62,
       "comment_lines": 21,
-      "empty_lines": 19
+      "empty_lines": 21
     },
     "files_summary.json": {
       "file_type": "config",
       "directory": "root",
       "extension": ".json",
-      "total_lines": 1108,
-      "code_lines": 1108,
+      "total_lines": 1164,
+      "code_lines": 1164,
       "comment_lines": 0,
       "empty_lines": 0
     },
-    "INSTALL.md": {
+    "GEMINI.md": {
       "file_type": "docs",
       "directory": "root",
       "extension": ".md",
-      "total_lines": 285,
-      "code_lines": 141,
-      "comment_lines": 75,
-      "empty_lines": 69
+      "total_lines": 98,
+      "code_lines": 68,
+      "comment_lines": 14,
+      "empty_lines": 16
     },
-    "obstacle.py": {
-      "file_type": "code",
+    "ML_IMPROVEMENTS.md": {
+      "file_type": "docs",
       "directory": "root",
-      "extension": ".py",
-      "total_lines": 45,
-      "code_lines": 31,
+      "extension": ".md",
+      "total_lines": 42,
+      "code_lines": 28,
       "comment_lines": 7,
       "empty_lines": 7
+    },
+    "MODEL_COMPARISON_ANALYSIS.md": {
+      "file_type": "docs",
+      "directory": "root",
+      "extension": ".md",
+      "total_lines": 103,
+      "code_lines": 56,
+      "comment_lines": 23,
+      "empty_lines": 24
     },
     "pyproject.toml": {
       "file_type": "config",
       "directory": "root",
       "extension": ".toml",
-      "total_lines": 39,
-      "code_lines": 32,
+      "total_lines": 44,
+      "code_lines": 36,
       "comment_lines": 0,
-      "empty_lines": 7
-    },
-    "QUICKSTART.md": {
-      "file_type": "docs",
-      "directory": "root",
-      "extension": ".md",
-      "total_lines": 205,
-      "code_lines": 104,
-      "comment_lines": 53,
-      "empty_lines": 48
+      "empty_lines": 8
     },
     "README.md": {
       "file_type": "docs",
       "directory": "root",
       "extension": ".md",
-      "total_lines": 173,
-      "code_lines": 103,
-      "comment_lines": 28,
-      "empty_lines": 42
+      "total_lines": 473,
+      "code_lines": 291,
+      "comment_lines": 68,
+      "empty_lines": 114
+    },
+    "README_en.md": {
+      "file_type": "docs",
+      "directory": "root",
+      "extension": ".md",
+      "total_lines": 471,
+      "code_lines": 291,
+      "comment_lines": 66,
+      "empty_lines": 114
     },
     "requirements.txt": {
       "file_type": "docs",
       "directory": "root",
       "extension": ".txt",
-      "total_lines": 25,
-      "code_lines": 21,
+      "total_lines": 23,
+      "code_lines": 23,
       "comment_lines": 0,
-      "empty_lines": 4
+      "empty_lines": 0
+    },
+    "setup.py": {
+      "file_type": "code",
+      "directory": "root",
+      "extension": ".py",
+      "total_lines": 53,
+      "code_lines": 48,
+      "comment_lines": 2,
+      "empty_lines": 3
     },
     "config\\config_extract_features.yaml": {
       "file_type": "config",
@@ -158,10 +209,10 @@
       "file_type": "config",
       "directory": "config",
       "extension": ".yaml",
-      "total_lines": 66,
-      "code_lines": 38,
-      "comment_lines": 19,
-      "empty_lines": 9
+      "total_lines": 80,
+      "code_lines": 44,
+      "comment_lines": 25,
+      "empty_lines": 11
     },
     "config\\config_icc_analysis.yaml": {
       "file_type": "config",
@@ -185,19 +236,28 @@
       "file_type": "config",
       "directory": "config",
       "extension": ".yaml",
-      "total_lines": 43,
-      "code_lines": 10,
-      "comment_lines": 25,
-      "empty_lines": 8
+      "total_lines": 51,
+      "code_lines": 13,
+      "comment_lines": 29,
+      "empty_lines": 9
     },
     "config\\config_machine_learning.yaml": {
       "file_type": "config",
       "directory": "config",
       "extension": ".yaml",
-      "total_lines": 216,
+      "total_lines": 302,
       "code_lines": 38,
-      "comment_lines": 150,
-      "empty_lines": 28
+      "comment_lines": 226,
+      "empty_lines": 38
+    },
+    "config\\config_machine_learning_kfold.yaml": {
+      "file_type": "config",
+      "directory": "config",
+      "extension": ".yaml",
+      "total_lines": 98,
+      "code_lines": 55,
+      "comment_lines": 29,
+      "empty_lines": 14
     },
     "config\\config_model_comparison.yaml": {
       "file_type": "config",
@@ -262,32 +322,473 @@
       "comment_lines": 55,
       "empty_lines": 9
     },
+    "config\\README_CONFIG.md": {
+      "file_type": "docs",
+      "directory": "config",
+      "extension": ".md",
+      "total_lines": 131,
+      "code_lines": 78,
+      "comment_lines": 19,
+      "empty_lines": 34
+    },
+    "config_templates\\config_extract_features_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 79,
+      "code_lines": 15,
+      "comment_lines": 49,
+      "empty_lines": 15
+    },
+    "config_templates\\config_getting_habitat_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 243,
+      "code_lines": 43,
+      "comment_lines": 153,
+      "empty_lines": 47
+    },
+    "config_templates\\config_habitat_one_step_example.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 56,
+      "code_lines": 27,
+      "comment_lines": 18,
+      "empty_lines": 11
+    },
+    "config_templates\\config_icc_analysis_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 70,
+      "code_lines": 10,
+      "comment_lines": 51,
+      "empty_lines": 9
+    },
+    "config_templates\\config_image_preprocessing_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 138,
+      "code_lines": 14,
+      "comment_lines": 104,
+      "empty_lines": 20
+    },
+    "config_templates\\config_image_preprocessing_dcm2nii_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 109,
+      "code_lines": 12,
+      "comment_lines": 77,
+      "empty_lines": 20
+    },
+    "config_templates\\config_machine_learning_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 339,
+      "code_lines": 29,
+      "comment_lines": 254,
+      "empty_lines": 56
+    },
+    "config_templates\\config_machine_learning_kfold_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 123,
+      "code_lines": 48,
+      "comment_lines": 57,
+      "empty_lines": 18
+    },
+    "config_templates\\config_model_comparison_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 116,
+      "code_lines": 52,
+      "comment_lines": 47,
+      "empty_lines": 17
+    },
+    "config_templates\\config_traditional_radiomics_annotated.yaml": {
+      "file_type": "config",
+      "directory": "config_templates",
+      "extension": ".yaml",
+      "total_lines": 88,
+      "code_lines": 21,
+      "comment_lines": 52,
+      "empty_lines": 15
+    },
+    "config_templates\\README.md": {
+      "file_type": "docs",
+      "directory": "config_templates",
+      "extension": ".md",
+      "total_lines": 127,
+      "code_lines": 78,
+      "comment_lines": 20,
+      "empty_lines": 29
+    },
+    "demo_data\\config_extract_features.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 28,
+      "code_lines": 15,
+      "comment_lines": 7,
+      "empty_lines": 6
+    },
+    "demo_data\\config_habitat.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 87,
+      "code_lines": 48,
+      "comment_lines": 26,
+      "empty_lines": 13
+    },
+    "demo_data\\config_icc.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 37,
+      "code_lines": 14,
+      "comment_lines": 17,
+      "empty_lines": 6
+    },
+    "demo_data\\config_machine_learning_clinical.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 311,
+      "code_lines": 38,
+      "comment_lines": 235,
+      "empty_lines": 38
+    },
+    "demo_data\\config_machine_learning_kfold.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 98,
+      "code_lines": 55,
+      "comment_lines": 29,
+      "empty_lines": 14
+    },
+    "demo_data\\config_machine_learning_radiomics.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 309,
+      "code_lines": 52,
+      "comment_lines": 219,
+      "empty_lines": 38
+    },
+    "demo_data\\config_model_comparison.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 129,
+      "code_lines": 52,
+      "comment_lines": 60,
+      "empty_lines": 17
+    },
+    "demo_data\\config_preprocessing.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 51,
+      "code_lines": 25,
+      "comment_lines": 16,
+      "empty_lines": 10
+    },
+    "demo_data\\files_preprocessing.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 14,
+      "code_lines": 10,
+      "comment_lines": 3,
+      "empty_lines": 1
+    },
+    "demo_data\\file_habitat.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 24,
+      "code_lines": 19,
+      "comment_lines": 3,
+      "empty_lines": 2
+    },
+    "demo_data\\parameter.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 76,
+      "code_lines": 15,
+      "comment_lines": 51,
+      "empty_lines": 10
+    },
+    "demo_data\\parameter_habitat.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 73,
+      "code_lines": 12,
+      "comment_lines": 51,
+      "empty_lines": 10
+    },
+    "demo_data\\params_supervoxel_radiomics.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 72,
+      "code_lines": 9,
+      "comment_lines": 54,
+      "empty_lines": 9
+    },
+    "demo_data\\params_voxel_radiomics.yaml": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".yaml",
+      "total_lines": 72,
+      "code_lines": 8,
+      "comment_lines": 55,
+      "empty_lines": 9
+    },
+    "demo_data\\dicom\\sub002\\016_WATERWATERBHAxLAVAFlex5min\\00080_dcm_Label.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 9894,
+      "code_lines": 9894,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\icc_radiomics.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 655,
+      "code_lines": 655,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\test_ids.txt": {
+      "file_type": "docs",
+      "directory": "demo_data",
+      "extension": ".txt",
+      "total_lines": 269,
+      "code_lines": 269,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\train_ids.txt": {
+      "file_type": "docs",
+      "directory": "demo_data",
+      "extension": ".txt",
+      "total_lines": 300,
+      "code_lines": 300,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\autogluon_models\\metadata.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 396,
+      "code_lines": 396,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\autogluon_models\\version.txt": {
+      "file_type": "docs",
+      "directory": "demo_data",
+      "extension": ".txt",
+      "total_lines": 1,
+      "code_lines": 1,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\clinical\\standard_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 1763,
+      "code_lines": 1763,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\kfold_cv_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 5277,
+      "code_lines": 5277,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\kfold_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 10681,
+      "code_lines": 10681,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 20,
+      "code_lines": 20,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\fold_1\\feature_selection\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 17,
+      "code_lines": 17,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\fold_2\\feature_selection\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 17,
+      "code_lines": 17,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\fold_3\\feature_selection\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 17,
+      "code_lines": 17,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\fold_4\\feature_selection\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 16,
+      "code_lines": 16,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\kfold_results\\fold_5\\feature_selection\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 17,
+      "code_lines": 17,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\model_comparison\\externaltest\\delong_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 14,
+      "code_lines": 14,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\model_comparison\\metrics\\metrics.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 110,
+      "code_lines": 110,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\model_comparison\\test\\delong_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 14,
+      "code_lines": 14,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\model_comparison\\train\\delong_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 14,
+      "code_lines": 14,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\radiomics\\standard_results.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 1769,
+      "code_lines": 1769,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
+    "demo_data\\ml_data\\radiomics\\variance_selected_features.json": {
+      "file_type": "config",
+      "directory": "demo_data",
+      "extension": ".json",
+      "total_lines": 12,
+      "code_lines": 12,
+      "comment_lines": 0,
+      "empty_lines": 0
+    },
     "doc\\app_dcm2nii.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 279,
-      "code_lines": 185,
-      "comment_lines": 39,
-      "empty_lines": 55
+      "total_lines": 282,
+      "code_lines": 186,
+      "comment_lines": 40,
+      "empty_lines": 56
+    },
+    "doc\\app_dice_calculator.md": {
+      "file_type": "docs",
+      "directory": "doc",
+      "extension": ".md",
+      "total_lines": 107,
+      "code_lines": 66,
+      "comment_lines": 11,
+      "empty_lines": 30
+    },
+    "doc\\app_dicom_info.md": {
+      "file_type": "docs",
+      "directory": "doc",
+      "extension": ".md",
+      "total_lines": 248,
+      "code_lines": 143,
+      "comment_lines": 33,
+      "empty_lines": 72
     },
     "doc\\app_extracting_habitat_features.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 175,
-      "code_lines": 100,
-      "comment_lines": 28,
-      "empty_lines": 47
+      "total_lines": 205,
+      "code_lines": 114,
+      "comment_lines": 35,
+      "empty_lines": 56
     },
-    "doc\\app_getting_habitat_map.md": {
+    "doc\\app_habitat_analysis.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 386,
-      "code_lines": 252,
-      "comment_lines": 40,
-      "empty_lines": 94
+      "total_lines": 391,
+      "code_lines": 230,
+      "comment_lines": 48,
+      "empty_lines": 113
     },
     "doc\\app_habitat_test_retest.md": {
       "file_type": "docs",
@@ -302,46 +803,55 @@
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 258,
-      "code_lines": 151,
-      "comment_lines": 47,
-      "empty_lines": 60
+      "total_lines": 510,
+      "code_lines": 317,
+      "comment_lines": 73,
+      "empty_lines": 120
     },
     "doc\\app_image_preprocessing.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 269,
-      "code_lines": 175,
-      "comment_lines": 33,
-      "empty_lines": 61
+      "total_lines": 308,
+      "code_lines": 180,
+      "comment_lines": 57,
+      "empty_lines": 71
+    },
+    "doc\\app_kfold_cross_validation.md": {
+      "file_type": "docs",
+      "directory": "doc",
+      "extension": ".md",
+      "total_lines": 557,
+      "code_lines": 334,
+      "comment_lines": 88,
+      "empty_lines": 135
     },
     "doc\\app_model_comparison_plots.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 233,
-      "code_lines": 145,
-      "comment_lines": 34,
-      "empty_lines": 54
+      "total_lines": 270,
+      "code_lines": 162,
+      "comment_lines": 41,
+      "empty_lines": 67
     },
     "doc\\app_of_machine_learning.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 552,
-      "code_lines": 388,
-      "comment_lines": 66,
-      "empty_lines": 98
+      "total_lines": 575,
+      "code_lines": 400,
+      "comment_lines": 72,
+      "empty_lines": 103
     },
-    "doc\\FONT_CONFIGURATION.md": {
+    "doc\\dcm2nii_3d_vs_4d_issue.md": {
       "file_type": "docs",
       "directory": "doc",
       "extension": ".md",
-      "total_lines": 114,
-      "code_lines": 62,
-      "comment_lines": 23,
-      "empty_lines": 29
+      "total_lines": 188,
+      "code_lines": 97,
+      "comment_lines": 36,
+      "empty_lines": 55
     },
     "doc\\import_robustness_guide.md": {
       "file_type": "docs",
@@ -352,6 +862,141 @@
       "comment_lines": 42,
       "empty_lines": 79
     },
+    "doc\\python_subprocess_methods.md": {
+      "file_type": "docs",
+      "directory": "doc",
+      "extension": ".md",
+      "total_lines": 314,
+      "code_lines": 194,
+      "comment_lines": 33,
+      "empty_lines": 87
+    },
+    "doc_en\\app_dcm2nii.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 282,
+      "code_lines": 186,
+      "comment_lines": 40,
+      "empty_lines": 56
+    },
+    "doc_en\\app_dicom_info.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 248,
+      "code_lines": 143,
+      "comment_lines": 33,
+      "empty_lines": 72
+    },
+    "doc_en\\app_extracting_habitat_features.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 205,
+      "code_lines": 115,
+      "comment_lines": 35,
+      "empty_lines": 55
+    },
+    "doc_en\\app_habitat_analysis.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 391,
+      "code_lines": 230,
+      "comment_lines": 48,
+      "empty_lines": 113
+    },
+    "doc_en\\app_habitat_test_retest.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 181,
+      "code_lines": 113,
+      "comment_lines": 27,
+      "empty_lines": 41
+    },
+    "doc_en\\app_icc_analysis.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 410,
+      "code_lines": 238,
+      "comment_lines": 63,
+      "empty_lines": 109
+    },
+    "doc_en\\app_image_preprocessing.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 308,
+      "code_lines": 180,
+      "comment_lines": 57,
+      "empty_lines": 71
+    },
+    "doc_en\\app_kfold_cross_validation.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 557,
+      "code_lines": 334,
+      "comment_lines": 88,
+      "empty_lines": 135
+    },
+    "doc_en\\app_model_comparison_plots.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 262,
+      "code_lines": 152,
+      "comment_lines": 43,
+      "empty_lines": 67
+    },
+    "doc_en\\app_of_machine_learning.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 371,
+      "code_lines": 242,
+      "comment_lines": 58,
+      "empty_lines": 71
+    },
+    "doc_en\\dcm2nii_3d_vs_4d_issue.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 188,
+      "code_lines": 97,
+      "comment_lines": 36,
+      "empty_lines": 55
+    },
+    "doc_en\\import_robustness_guide.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 289,
+      "code_lines": 168,
+      "comment_lines": 42,
+      "empty_lines": 79
+    },
+    "doc_en\\python_subprocess_methods.md": {
+      "file_type": "docs",
+      "directory": "doc_en",
+      "extension": ".md",
+      "total_lines": 314,
+      "code_lines": 194,
+      "comment_lines": 33,
+      "empty_lines": 87
+    },
+    "habit\\cli.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 315,
+      "code_lines": 249,
+      "comment_lines": 27,
+      "empty_lines": 39
+    },
     "habit\\__init__.py": {
       "file_type": "code",
       "directory": "habit",
@@ -360,6 +1005,123 @@
       "code_lines": 49,
       "comment_lines": 18,
       "empty_lines": 17
+    },
+    "habit\\__main__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 10,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 3
+    },
+    "habit\\cli_commands\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 8,
+      "code_lines": 2,
+      "comment_lines": 4,
+      "empty_lines": 2
+    },
+    "habit\\cli_commands\\commands\\cmd_compare.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 60,
+      "code_lines": 42,
+      "comment_lines": 7,
+      "empty_lines": 11
+    },
+    "habit\\cli_commands\\commands\\cmd_dicom_info.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 162,
+      "code_lines": 127,
+      "comment_lines": 15,
+      "empty_lines": 20
+    },
+    "habit\\cli_commands\\commands\\cmd_extract_features.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 67,
+      "code_lines": 46,
+      "comment_lines": 8,
+      "empty_lines": 13
+    },
+    "habit\\cli_commands\\commands\\cmd_habitat.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 148,
+      "code_lines": 108,
+      "comment_lines": 19,
+      "empty_lines": 21
+    },
+    "habit\\cli_commands\\commands\\cmd_icc.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 61,
+      "code_lines": 42,
+      "comment_lines": 7,
+      "empty_lines": 12
+    },
+    "habit\\cli_commands\\commands\\cmd_merge_csv.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 150,
+      "code_lines": 110,
+      "comment_lines": 15,
+      "empty_lines": 25
+    },
+    "habit\\cli_commands\\commands\\cmd_ml.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 170,
+      "code_lines": 118,
+      "comment_lines": 24,
+      "empty_lines": 28
+    },
+    "habit\\cli_commands\\commands\\cmd_preprocess.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 101,
+      "code_lines": 74,
+      "comment_lines": 12,
+      "empty_lines": 15
+    },
+    "habit\\cli_commands\\commands\\cmd_radiomics.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 68,
+      "code_lines": 47,
+      "comment_lines": 8,
+      "empty_lines": 13
+    },
+    "habit\\cli_commands\\commands\\cmd_test_retest.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 68,
+      "code_lines": 47,
+      "comment_lines": 8,
+      "empty_lines": 13
+    },
+    "habit\\cli_commands\\commands\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 5,
+      "code_lines": 2,
+      "comment_lines": 2,
+      "empty_lines": 1
     },
     "habit\\core\\__init__.py": {
       "file_type": "code",
@@ -370,25 +1132,43 @@
       "comment_lines": 2,
       "empty_lines": 2
     },
+    "habit\\core\\habitat_analysis\\config.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 315,
+      "code_lines": 235,
+      "comment_lines": 33,
+      "empty_lines": 47
+    },
     "habit\\core\\habitat_analysis\\habitat_analysis.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 939,
-      "code_lines": 636,
-      "comment_lines": 158,
-      "empty_lines": 145
+      "total_lines": 241,
+      "code_lines": 174,
+      "comment_lines": 36,
+      "empty_lines": 31
+    },
+    "habit\\core\\habitat_analysis\\README.md": {
+      "file_type": "docs",
+      "directory": "habit",
+      "extension": ".md",
+      "total_lines": 308,
+      "code_lines": 224,
+      "comment_lines": 27,
+      "empty_lines": 57
     },
     "habit\\core\\habitat_analysis\\__init__.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 67,
-      "code_lines": 40,
-      "comment_lines": 14,
-      "empty_lines": 13
+      "total_lines": 144,
+      "code_lines": 101,
+      "comment_lines": 24,
+      "empty_lines": 19
     },
-    "habit\\core\\habitat_analysis\\clustering\\affinity_propagation.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\affinity_propagation.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -397,16 +1177,16 @@
       "comment_lines": 12,
       "empty_lines": 21
     },
-    "habit\\core\\habitat_analysis\\clustering\\base_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\base_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 577,
-      "code_lines": 376,
-      "comment_lines": 101,
-      "empty_lines": 100
+      "total_lines": 588,
+      "code_lines": 387,
+      "comment_lines": 95,
+      "empty_lines": 106
     },
-    "habit\\core\\habitat_analysis\\clustering\\cluster_validation_methods.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\cluster_validation_methods.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -415,7 +1195,7 @@
       "comment_lines": 25,
       "empty_lines": 24
     },
-    "habit\\core\\habitat_analysis\\clustering\\custom_clustering_template.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\custom_clustering_template.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -424,7 +1204,7 @@
       "comment_lines": 32,
       "empty_lines": 30
     },
-    "habit\\core\\habitat_analysis\\clustering\\dbscan_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\dbscan_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -433,7 +1213,7 @@
       "comment_lines": 20,
       "empty_lines": 34
     },
-    "habit\\core\\habitat_analysis\\clustering\\gmm_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\gmm_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -442,7 +1222,7 @@
       "comment_lines": 10,
       "empty_lines": 14
     },
-    "habit\\core\\habitat_analysis\\clustering\\hierarchical_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\hierarchical_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -451,7 +1231,7 @@
       "comment_lines": 18,
       "empty_lines": 34
     },
-    "habit\\core\\habitat_analysis\\clustering\\kmeans_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\kmeans_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -460,7 +1240,7 @@
       "comment_lines": 10,
       "empty_lines": 14
     },
-    "habit\\core\\habitat_analysis\\clustering\\mean_shift_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\mean_shift_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -469,7 +1249,7 @@
       "comment_lines": 23,
       "empty_lines": 39
     },
-    "habit\\core\\habitat_analysis\\clustering\\spectral_clustering.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\spectral_clustering.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -478,16 +1258,16 @@
       "comment_lines": 20,
       "empty_lines": 40
     },
-    "habit\\core\\habitat_analysis\\clustering\\test_validation_methods.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\test_validation_methods.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 132,
-      "code_lines": 76,
-      "comment_lines": 20,
-      "empty_lines": 36
+      "total_lines": 129,
+      "code_lines": 75,
+      "comment_lines": 19,
+      "empty_lines": 35
     },
-    "habit\\core\\habitat_analysis\\clustering\\__init__.py": {
+    "habit\\core\\habitat_analysis\\algorithms\\__init__.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -496,178 +1276,16 @@
       "comment_lines": 6,
       "empty_lines": 5
     },
-    "habit\\core\\habitat_analysis\\features\\base_feature_extractor.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\basic_features.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 166,
-      "code_lines": 97,
-      "comment_lines": 35,
-      "empty_lines": 34
-    },
-    "habit\\core\\habitat_analysis\\features\\concat_feature_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 89,
-      "code_lines": 51,
-      "comment_lines": 21,
-      "empty_lines": 17
-    },
-    "habit\\core\\habitat_analysis\\features\\custom_feature_extractor_template.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 73,
-      "code_lines": 42,
-      "comment_lines": 14,
-      "empty_lines": 17
-    },
-    "habit\\core\\habitat_analysis\\features\\feature_expression_parser.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 276,
-      "code_lines": 182,
-      "comment_lines": 47,
-      "empty_lines": 47
-    },
-    "habit\\core\\habitat_analysis\\features\\feature_extractor_factory.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 224,
-      "code_lines": 134,
-      "comment_lines": 41,
-      "empty_lines": 49
-    },
-    "habit\\core\\habitat_analysis\\features\\feature_preprocessing.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 254,
-      "code_lines": 188,
-      "comment_lines": 31,
-      "empty_lines": 35
-    },
-    "habit\\core\\habitat_analysis\\features\\kinetic_feature_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 130,
-      "code_lines": 76,
-      "comment_lines": 29,
-      "empty_lines": 25
-    },
-    "habit\\core\\habitat_analysis\\features\\local_entropy_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 191,
-      "code_lines": 120,
-      "comment_lines": 34,
-      "empty_lines": 37
-    },
-    "habit\\core\\habitat_analysis\\features\\mean_voxel_features_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 158,
-      "code_lines": 89,
-      "comment_lines": 35,
-      "empty_lines": 34
-    },
-    "habit\\core\\habitat_analysis\\features\\my_feature_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 78,
-      "code_lines": 45,
-      "comment_lines": 19,
-      "empty_lines": 14
-    },
-    "habit\\core\\habitat_analysis\\features\\raw_feature_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 93,
-      "code_lines": 58,
-      "comment_lines": 17,
-      "empty_lines": 18
-    },
-    "habit\\core\\habitat_analysis\\features\\README.md": {
-      "file_type": "docs",
-      "directory": "habit",
-      "extension": ".md",
-      "total_lines": 69,
-      "code_lines": 31,
-      "comment_lines": 15,
-      "empty_lines": 23
-    },
-    "habit\\core\\habitat_analysis\\features\\supervoxel_radiomics_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 198,
-      "code_lines": 133,
-      "comment_lines": 34,
-      "empty_lines": 31
-    },
-    "habit\\core\\habitat_analysis\\features\\test_parser.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 64,
-      "code_lines": 40,
-      "comment_lines": 10,
-      "empty_lines": 14
-    },
-    "habit\\core\\habitat_analysis\\features\\test_supervoxel_parser.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 51,
-      "code_lines": 33,
-      "comment_lines": 8,
-      "empty_lines": 10
-    },
-    "habit\\core\\habitat_analysis\\features\\voxel_radiomics_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 136,
-      "code_lines": 87,
-      "comment_lines": 26,
-      "empty_lines": 23
-    },
-    "habit\\core\\habitat_analysis\\features\\__init__.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 128,
-      "code_lines": 89,
-      "comment_lines": 14,
-      "empty_lines": 25
-    },
-    "habit\\core\\habitat_analysis\\feature_extraction\\basic_features.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 76,
-      "code_lines": 55,
+      "total_lines": 79,
+      "code_lines": 57,
       "comment_lines": 7,
-      "empty_lines": 14
+      "empty_lines": 15
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 922,
-      "code_lines": 690,
-      "comment_lines": 81,
-      "empty_lines": 151
-    },
-    "habit\\core\\habitat_analysis\\feature_extraction\\feature_utils.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\feature_utils.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -676,7 +1294,7 @@
       "comment_lines": 11,
       "empty_lines": 14
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\get_msi_features.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\get_msi_features.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -685,43 +1303,43 @@
       "comment_lines": 72,
       "empty_lines": 53
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\habitat_radiomics.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\habitat_analyzer.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 169,
-      "code_lines": 127,
+      "total_lines": 610,
+      "code_lines": 449,
+      "comment_lines": 65,
+      "empty_lines": 96
+    },
+    "habit\\core\\habitat_analysis\\analyzers\\habitat_radiomics.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 172,
+      "code_lines": 129,
       "comment_lines": 13,
-      "empty_lines": 29
+      "empty_lines": 30
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\ith_features.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\ith_features.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 120,
-      "code_lines": 72,
-      "comment_lines": 23,
-      "empty_lines": 25
+      "total_lines": 141,
+      "code_lines": 86,
+      "comment_lines": 27,
+      "empty_lines": 28
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\msi_features.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\msi_features.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 198,
-      "code_lines": 119,
+      "total_lines": 201,
+      "code_lines": 121,
       "comment_lines": 34,
-      "empty_lines": 45
+      "empty_lines": 46
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\new_extractor.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 566,
-      "code_lines": 423,
-      "comment_lines": 57,
-      "empty_lines": 86
-    },
-    "habit\\core\\habitat_analysis\\feature_extraction\\README.md": {
+    "habit\\core\\habitat_analysis\\analyzers\\README.md": {
       "file_type": "docs",
       "directory": "habit",
       "extension": ".md",
@@ -730,16 +1348,16 @@
       "comment_lines": 16,
       "empty_lines": 28
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\traditional_radiomics_extractor.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\traditional_radiomics_extractor.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 342,
-      "code_lines": 241,
-      "comment_lines": 46,
-      "empty_lines": 55
+      "total_lines": 381,
+      "code_lines": 260,
+      "comment_lines": 56,
+      "empty_lines": 65
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\utils.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\utils.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
@@ -748,41 +1366,338 @@
       "comment_lines": 9,
       "empty_lines": 8
     },
-    "habit\\core\\habitat_analysis\\feature_extraction\\__init__.py": {
+    "habit\\core\\habitat_analysis\\analyzers\\__init__.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 10,
+      "total_lines": 13,
+      "code_lines": 6,
+      "comment_lines": 3,
+      "empty_lines": 4
+    },
+    "habit\\core\\habitat_analysis\\extractors\\base_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 180,
+      "code_lines": 106,
+      "comment_lines": 37,
+      "empty_lines": 37
+    },
+    "habit\\core\\habitat_analysis\\extractors\\concat_feature_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 89,
+      "code_lines": 51,
+      "comment_lines": 21,
+      "empty_lines": 17
+    },
+    "habit\\core\\habitat_analysis\\extractors\\custom_feature_extractor_template.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 73,
+      "code_lines": 42,
+      "comment_lines": 14,
+      "empty_lines": 17
+    },
+    "habit\\core\\habitat_analysis\\extractors\\feature_expression_parser.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 276,
+      "code_lines": 182,
+      "comment_lines": 47,
+      "empty_lines": 47
+    },
+    "habit\\core\\habitat_analysis\\extractors\\feature_extractor_factory.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 224,
+      "code_lines": 134,
+      "comment_lines": 41,
+      "empty_lines": 49
+    },
+    "habit\\core\\habitat_analysis\\extractors\\kinetic_feature_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 130,
+      "code_lines": 76,
+      "comment_lines": 29,
+      "empty_lines": 25
+    },
+    "habit\\core\\habitat_analysis\\extractors\\local_entropy_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 191,
+      "code_lines": 120,
+      "comment_lines": 34,
+      "empty_lines": 37
+    },
+    "habit\\core\\habitat_analysis\\extractors\\mean_voxel_features_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 158,
+      "code_lines": 89,
+      "comment_lines": 35,
+      "empty_lines": 34
+    },
+    "habit\\core\\habitat_analysis\\extractors\\my_feature_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 78,
+      "code_lines": 45,
+      "comment_lines": 19,
+      "empty_lines": 14
+    },
+    "habit\\core\\habitat_analysis\\extractors\\raw_feature_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 93,
+      "code_lines": 58,
+      "comment_lines": 17,
+      "empty_lines": 18
+    },
+    "habit\\core\\habitat_analysis\\extractors\\README.md": {
+      "file_type": "docs",
+      "directory": "habit",
+      "extension": ".md",
+      "total_lines": 69,
+      "code_lines": 31,
+      "comment_lines": 15,
+      "empty_lines": 23
+    },
+    "habit\\core\\habitat_analysis\\extractors\\supervoxel_radiomics_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 198,
+      "code_lines": 133,
+      "comment_lines": 34,
+      "empty_lines": 31
+    },
+    "habit\\core\\habitat_analysis\\extractors\\test_parser.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 64,
+      "code_lines": 40,
+      "comment_lines": 10,
+      "empty_lines": 14
+    },
+    "habit\\core\\habitat_analysis\\extractors\\test_supervoxel_parser.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 51,
+      "code_lines": 33,
+      "comment_lines": 8,
+      "empty_lines": 10
+    },
+    "habit\\core\\habitat_analysis\\extractors\\voxel_radiomics_extractor.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 143,
+      "code_lines": 87,
+      "comment_lines": 32,
+      "empty_lines": 24
+    },
+    "habit\\core\\habitat_analysis\\extractors\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 128,
+      "code_lines": 87,
+      "comment_lines": 20,
+      "empty_lines": 21
+    },
+    "habit\\core\\habitat_analysis\\managers\\clustering_manager.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 394,
+      "code_lines": 315,
+      "comment_lines": 26,
+      "empty_lines": 53
+    },
+    "habit\\core\\habitat_analysis\\managers\\feature_manager.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 392,
+      "code_lines": 271,
+      "comment_lines": 50,
+      "empty_lines": 71
+    },
+    "habit\\core\\habitat_analysis\\managers\\result_manager.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 140,
+      "code_lines": 93,
+      "comment_lines": 23,
+      "empty_lines": 24
+    },
+    "habit\\core\\habitat_analysis\\managers\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 8,
       "code_lines": 5,
       "comment_lines": 2,
-      "empty_lines": 3
+      "empty_lines": 1
+    },
+    "habit\\core\\habitat_analysis\\modes\\base_mode.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 128,
+      "code_lines": 88,
+      "comment_lines": 18,
+      "empty_lines": 22
+    },
+    "habit\\core\\habitat_analysis\\modes\\testing_mode.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 135,
+      "code_lines": 87,
+      "comment_lines": 19,
+      "empty_lines": 29
+    },
+    "habit\\core\\habitat_analysis\\modes\\training_mode.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 175,
+      "code_lines": 122,
+      "comment_lines": 23,
+      "empty_lines": 30
+    },
+    "habit\\core\\habitat_analysis\\modes\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 33,
+      "code_lines": 24,
+      "comment_lines": 4,
+      "empty_lines": 5
+    },
+    "habit\\core\\habitat_analysis\\strategies\\base_strategy.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 48,
+      "code_lines": 29,
+      "comment_lines": 8,
+      "empty_lines": 11
+    },
+    "habit\\core\\habitat_analysis\\strategies\\direct_pooling_strategy.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 256,
+      "code_lines": 179,
+      "comment_lines": 26,
+      "empty_lines": 51
+    },
+    "habit\\core\\habitat_analysis\\strategies\\one_step_strategy.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 243,
+      "code_lines": 158,
+      "comment_lines": 39,
+      "empty_lines": 46
+    },
+    "habit\\core\\habitat_analysis\\strategies\\two_step_strategy.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 377,
+      "code_lines": 252,
+      "comment_lines": 58,
+      "empty_lines": 67
+    },
+    "habit\\core\\habitat_analysis\\strategies\\__init__.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 37,
+      "code_lines": 24,
+      "comment_lines": 5,
+      "empty_lines": 8
+    },
+    "habit\\core\\habitat_analysis\\utils\\preprocessing_state.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 453,
+      "code_lines": 336,
+      "comment_lines": 47,
+      "empty_lines": 70
+    },
+    "habit\\core\\machine_learning\\base_workflow.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 53,
+      "code_lines": 37,
+      "comment_lines": 8,
+      "empty_lines": 8
+    },
+    "habit\\core\\machine_learning\\data_manager.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 156,
+      "code_lines": 108,
+      "comment_lines": 18,
+      "empty_lines": 30
     },
     "habit\\core\\machine_learning\\machine_learning.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 1394,
-      "code_lines": 954,
-      "comment_lines": 211,
-      "empty_lines": 229
+      "total_lines": 212,
+      "code_lines": 144,
+      "comment_lines": 34,
+      "empty_lines": 34
+    },
+    "habit\\core\\machine_learning\\machine_learning_kfold.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 164,
+      "code_lines": 115,
+      "comment_lines": 20,
+      "empty_lines": 29
     },
     "habit\\core\\machine_learning\\model_comparison.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 957,
-      "code_lines": 597,
-      "comment_lines": 195,
-      "empty_lines": 165
+      "total_lines": 966,
+      "code_lines": 604,
+      "comment_lines": 196,
+      "empty_lines": 166
     },
-    "habit\\core\\machine_learning\\test.py": {
+    "habit\\core\\machine_learning\\pipeline_utils.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 219,
-      "code_lines": 141,
-      "comment_lines": 28,
-      "empty_lines": 50
+      "total_lines": 141,
+      "code_lines": 97,
+      "comment_lines": 24,
+      "empty_lines": 20
     },
     "habit\\core\\machine_learning\\__init__.py": {
       "file_type": "code",
@@ -797,17 +1712,17 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 408,
-      "code_lines": 274,
+      "total_lines": 413,
+      "code_lines": 278,
       "comment_lines": 65,
-      "empty_lines": 69
+      "empty_lines": 70
     },
     "habit\\core\\machine_learning\\evaluation\\model_evaluation.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 728,
-      "code_lines": 493,
+      "total_lines": 734,
+      "code_lines": 499,
       "comment_lines": 102,
       "empty_lines": 133
     },
@@ -842,10 +1757,10 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 453,
-      "code_lines": 309,
-      "comment_lines": 60,
-      "empty_lines": 84
+      "total_lines": 128,
+      "code_lines": 95,
+      "comment_lines": 12,
+      "empty_lines": 21
     },
     "habit\\core\\machine_learning\\feature_selectors\\lasso_selector.py": {
       "file_type": "code",
@@ -919,6 +1834,15 @@
       "comment_lines": 26,
       "empty_lines": 34
     },
+    "habit\\core\\machine_learning\\feature_selectors\\transformer.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 112,
+      "code_lines": 56,
+      "comment_lines": 37,
+      "empty_lines": 19
+    },
     "habit\\core\\machine_learning\\feature_selectors\\univariate_logistic_selector.py": {
       "file_type": "code",
       "directory": "habit",
@@ -950,28 +1874,46 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 51,
-      "code_lines": 35,
+      "total_lines": 52,
+      "code_lines": 36,
       "comment_lines": 5,
       "empty_lines": 11
+    },
+    "habit\\core\\machine_learning\\feature_selectors\\icc\\config.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 214,
+      "code_lines": 129,
+      "comment_lines": 37,
+      "empty_lines": 48
     },
     "habit\\core\\machine_learning\\feature_selectors\\icc\\habitat_test_retest_mapper.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 418,
-      "code_lines": 299,
-      "comment_lines": 49,
-      "empty_lines": 70
+      "total_lines": 433,
+      "code_lines": 307,
+      "comment_lines": 51,
+      "empty_lines": 75
     },
     "habit\\core\\machine_learning\\feature_selectors\\icc\\icc.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 350,
-      "code_lines": 222,
-      "comment_lines": 55,
-      "empty_lines": 73
+      "total_lines": 111,
+      "code_lines": 78,
+      "comment_lines": 12,
+      "empty_lines": 21
+    },
+    "habit\\core\\machine_learning\\feature_selectors\\icc\\icc_analyzer.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 591,
+      "code_lines": 425,
+      "comment_lines": 44,
+      "empty_lines": 122
     },
     "habit\\core\\machine_learning\\feature_selectors\\icc\\README.md": {
       "file_type": "docs",
@@ -986,10 +1928,19 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 0,
-      "code_lines": 0,
-      "comment_lines": 0,
-      "empty_lines": 0
+      "total_lines": 71,
+      "code_lines": 51,
+      "comment_lines": 11,
+      "empty_lines": 9
+    },
+    "habit\\core\\machine_learning\\models\\adaboost_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 112,
+      "code_lines": 68,
+      "comment_lines": 21,
+      "empty_lines": 23
     },
     "habit\\core\\machine_learning\\models\\autogluon_model.py": {
       "file_type": "code",
@@ -1004,8 +1955,8 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 117,
-      "code_lines": 73,
+      "total_lines": 118,
+      "code_lines": 74,
       "comment_lines": 21,
       "empty_lines": 23
     },
@@ -1018,6 +1969,15 @@
       "comment_lines": 17,
       "empty_lines": 15
     },
+    "habit\\core\\machine_learning\\models\\decision_tree_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 117,
+      "code_lines": 73,
+      "comment_lines": 21,
+      "empty_lines": 23
+    },
     "habit\\core\\machine_learning\\models\\factory.py": {
       "file_type": "code",
       "directory": "habit",
@@ -1026,6 +1986,24 @@
       "code_lines": 60,
       "comment_lines": 19,
       "empty_lines": 16
+    },
+    "habit\\core\\machine_learning\\models\\gradient_boosting_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 119,
+      "code_lines": 75,
+      "comment_lines": 21,
+      "empty_lines": 23
+    },
+    "habit\\core\\machine_learning\\models\\knn_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 108,
+      "code_lines": 66,
+      "comment_lines": 21,
+      "empty_lines": 21
     },
     "habit\\core\\machine_learning\\models\\logistic_regression_model.py": {
       "file_type": "code",
@@ -1036,23 +2014,41 @@
       "comment_lines": 22,
       "empty_lines": 23
     },
-    "habit\\core\\machine_learning\\models\\random_forest_model.py": {
+    "habit\\core\\machine_learning\\models\\mlp_model.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
       "total_lines": 117,
-      "code_lines": 76,
-      "comment_lines": 20,
+      "code_lines": 75,
+      "comment_lines": 21,
       "empty_lines": 21
+    },
+    "habit\\core\\machine_learning\\models\\naive_bayes_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 287,
+      "code_lines": 170,
+      "comment_lines": 56,
+      "empty_lines": 61
+    },
+    "habit\\core\\machine_learning\\models\\random_forest_model.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 120,
+      "code_lines": 77,
+      "comment_lines": 21,
+      "empty_lines": 22
     },
     "habit\\core\\machine_learning\\models\\README.md": {
       "file_type": "docs",
       "directory": "habit",
       "extension": ".md",
-      "total_lines": 372,
-      "code_lines": 262,
-      "comment_lines": 41,
-      "empty_lines": 69
+      "total_lines": 694,
+      "code_lines": 487,
+      "comment_lines": 47,
+      "empty_lines": 160
     },
     "habit\\core\\machine_learning\\models\\svm_model.py": {
       "file_type": "code",
@@ -1130,10 +2126,19 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 506,
-      "code_lines": 330,
-      "comment_lines": 95,
-      "empty_lines": 81
+      "total_lines": 469,
+      "code_lines": 309,
+      "comment_lines": 87,
+      "empty_lines": 73
+    },
+    "habit\\core\\machine_learning\\visualization\\plot_manager.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 149,
+      "code_lines": 104,
+      "comment_lines": 21,
+      "empty_lines": 24
     },
     "habit\\core\\machine_learning\\visualization\\__init__.py": {
       "file_type": "code",
@@ -1143,6 +2148,15 @@
       "code_lines": 3,
       "comment_lines": 0,
       "empty_lines": 2
+    },
+    "habit\\core\\preprocessing\\adaptive_histogram_equalization.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 183,
+      "code_lines": 123,
+      "comment_lines": 24,
+      "empty_lines": 36
     },
     "habit\\core\\preprocessing\\base_preprocessor.py": {
       "file_type": "code",
@@ -1166,28 +2180,28 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 474,
-      "code_lines": 335,
-      "comment_lines": 53,
-      "empty_lines": 86
+      "total_lines": 676,
+      "code_lines": 467,
+      "comment_lines": 93,
+      "empty_lines": 116
     },
     "habit\\core\\preprocessing\\histogram_standardization.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 149,
-      "code_lines": 92,
-      "comment_lines": 23,
-      "empty_lines": 34
+      "total_lines": 313,
+      "code_lines": 204,
+      "comment_lines": 51,
+      "empty_lines": 58
     },
     "habit\\core\\preprocessing\\image_processor_pipeline.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 316,
-      "code_lines": 204,
-      "comment_lines": 54,
-      "empty_lines": 58
+      "total_lines": 503,
+      "code_lines": 322,
+      "comment_lines": 90,
+      "empty_lines": 91
     },
     "habit\\core\\preprocessing\\load_image.py": {
       "file_type": "code",
@@ -1202,8 +2216,8 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 170,
-      "code_lines": 112,
+      "total_lines": 171,
+      "code_lines": 113,
       "comment_lines": 26,
       "empty_lines": 32
     },
@@ -1229,17 +2243,17 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 306,
-      "code_lines": 208,
-      "comment_lines": 48,
-      "empty_lines": 50
+      "total_lines": 299,
+      "code_lines": 203,
+      "comment_lines": 47,
+      "empty_lines": 49
     },
     "habit\\core\\preprocessing\\resample.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 199,
-      "code_lines": 133,
+      "total_lines": 200,
+      "code_lines": 134,
       "comment_lines": 29,
       "empty_lines": 37
     },
@@ -1256,8 +2270,8 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 22,
-      "code_lines": 21,
+      "total_lines": 24,
+      "code_lines": 23,
       "comment_lines": 0,
       "empty_lines": 1
     },
@@ -1265,10 +2279,28 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 91,
-      "code_lines": 58,
-      "comment_lines": 11,
-      "empty_lines": 22
+      "total_lines": 553,
+      "code_lines": 354,
+      "comment_lines": 89,
+      "empty_lines": 110
+    },
+    "habit\\utils\\dice_calculator.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 160,
+      "code_lines": 109,
+      "comment_lines": 19,
+      "empty_lines": 32
+    },
+    "habit\\utils\\dicom_utils.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 884,
+      "code_lines": 641,
+      "comment_lines": 97,
+      "empty_lines": 146
     },
     "habit\\utils\\example_paths_config.yaml": {
       "file_type": "config",
@@ -1283,8 +2315,8 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 149,
-      "code_lines": 107,
+      "total_lines": 150,
+      "code_lines": 108,
       "comment_lines": 17,
       "empty_lines": 25
     },
@@ -1296,15 +2328,6 @@
       "code_lines": 53,
       "comment_lines": 16,
       "empty_lines": 12
-    },
-    "habit\\utils\\icc_config.py": {
-      "file_type": "code",
-      "directory": "habit",
-      "extension": ".py",
-      "total_lines": 157,
-      "code_lines": 99,
-      "comment_lines": 23,
-      "empty_lines": 35
     },
     "habit\\utils\\image_converter.py": {
       "file_type": "code",
@@ -1328,19 +2351,46 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 437,
-      "code_lines": 283,
-      "comment_lines": 71,
-      "empty_lines": 83
+      "total_lines": 393,
+      "code_lines": 252,
+      "comment_lines": 67,
+      "empty_lines": 74
+    },
+    "habit\\utils\\logging_usage_examples.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 281,
+      "code_lines": 134,
+      "comment_lines": 89,
+      "empty_lines": 58
+    },
+    "habit\\utils\\LOG_SYSTEM_README.md": {
+      "file_type": "docs",
+      "directory": "habit",
+      "extension": ".md",
+      "total_lines": 270,
+      "code_lines": 152,
+      "comment_lines": 40,
+      "empty_lines": 78
     },
     "habit\\utils\\log_utils.py": {
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 81,
-      "code_lines": 50,
-      "comment_lines": 15,
-      "empty_lines": 16
+      "total_lines": 318,
+      "code_lines": 209,
+      "comment_lines": 46,
+      "empty_lines": 63
+    },
+    "habit\\utils\\parallel_utils.py": {
+      "file_type": "code",
+      "directory": "habit",
+      "extension": ".py",
+      "total_lines": 363,
+      "code_lines": 266,
+      "comment_lines": 33,
+      "empty_lines": 64
     },
     "habit\\utils\\progress_utils.py": {
       "file_type": "code",
@@ -1355,10 +2405,10 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 238,
-      "code_lines": 161,
-      "comment_lines": 33,
-      "empty_lines": 44
+      "total_lines": 386,
+      "code_lines": 280,
+      "comment_lines": 52,
+      "empty_lines": 54
     },
     "habit\\utils\\visualization_utils.py": {
       "file_type": "code",
@@ -1373,28 +2423,10 @@
       "file_type": "code",
       "directory": "habit",
       "extension": ".py",
-      "total_lines": 0,
-      "code_lines": 0,
-      "comment_lines": 0,
-      "empty_lines": 0
-    },
-    "ml_data\\test_ids.txt": {
-      "file_type": "docs",
-      "directory": "ml_data",
-      "extension": ".txt",
-      "total_lines": 269,
-      "code_lines": 269,
-      "comment_lines": 0,
-      "empty_lines": 0
-    },
-    "ml_data\\train_ids.txt": {
-      "file_type": "docs",
-      "directory": "ml_data",
-      "extension": ".txt",
-      "total_lines": 300,
-      "code_lines": 300,
-      "comment_lines": 0,
-      "empty_lines": 0
+      "total_lines": 24,
+      "code_lines": 19,
+      "comment_lines": 2,
+      "empty_lines": 3
     },
     "scripts\\app_dilation_or_erosion.py": {
       "file_type": "code",
@@ -1409,8 +2441,8 @@
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 219,
-      "code_lines": 147,
+      "total_lines": 221,
+      "code_lines": 149,
       "comment_lines": 28,
       "empty_lines": 44
     },
@@ -1418,10 +2450,10 @@
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 332,
-      "code_lines": 223,
-      "comment_lines": 49,
-      "empty_lines": 60
+      "total_lines": 343,
+      "code_lines": 230,
+      "comment_lines": 51,
+      "empty_lines": 62
     },
     "scripts\\app_habitat_test_retest_mapper.py": {
       "file_type": "code",
@@ -1436,19 +2468,37 @@
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 163,
-      "code_lines": 108,
-      "comment_lines": 22,
-      "empty_lines": 33
+      "total_lines": 79,
+      "code_lines": 59,
+      "comment_lines": 9,
+      "empty_lines": 11
+    },
+    "scripts\\app_icc_analysis_simple.py": {
+      "file_type": "code",
+      "directory": "scripts",
+      "extension": ".py",
+      "total_lines": 232,
+      "code_lines": 153,
+      "comment_lines": 29,
+      "empty_lines": 50
     },
     "scripts\\app_image_preprocessing.py": {
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 138,
-      "code_lines": 100,
-      "comment_lines": 19,
-      "empty_lines": 19
+      "total_lines": 80,
+      "code_lines": 59,
+      "comment_lines": 10,
+      "empty_lines": 11
+    },
+    "scripts\\app_kfold_cv.py": {
+      "file_type": "code",
+      "directory": "scripts",
+      "extension": ".py",
+      "total_lines": 83,
+      "code_lines": 55,
+      "comment_lines": 10,
+      "empty_lines": 18
     },
     "scripts\\app_km_survival.py": {
       "file_type": "code",
@@ -1463,19 +2513,19 @@
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 22,
-      "code_lines": 15,
+      "total_lines": 25,
+      "code_lines": 17,
       "comment_lines": 4,
-      "empty_lines": 3
+      "empty_lines": 4
     },
     "scripts\\app_of_machine_learning.py": {
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 131,
-      "code_lines": 84,
+      "total_lines": 117,
+      "code_lines": 73,
       "comment_lines": 25,
-      "empty_lines": 22
+      "empty_lines": 19
     },
     "scripts\\app_traditional_radiomics_extractor.py": {
       "file_type": "code",
@@ -1526,10 +2576,10 @@
       "file_type": "code",
       "directory": "scripts",
       "extension": ".py",
-      "total_lines": 242,
-      "code_lines": 170,
-      "comment_lines": 28,
-      "empty_lines": 44
+      "total_lines": 227,
+      "code_lines": 166,
+      "comment_lines": 23,
+      "empty_lines": 38
     },
     "scripts\\organize_image_data.py": {
       "file_type": "code",
@@ -1557,10 +2607,172 @@
       "code_lines": 103,
       "comment_lines": 26,
       "empty_lines": 40
+    },
+    "tests\\pytest.ini": {
+      "file_type": "config",
+      "directory": "tests",
+      "extension": ".ini",
+      "total_lines": 48,
+      "code_lines": 20,
+      "comment_lines": 20,
+      "empty_lines": 8
+    },
+    "tests\\QUICKSTART.md": {
+      "file_type": "docs",
+      "directory": "tests",
+      "extension": ".md",
+      "total_lines": 201,
+      "code_lines": 113,
+      "comment_lines": 34,
+      "empty_lines": 54
+    },
+    "tests\\README.md": {
+      "file_type": "docs",
+      "directory": "tests",
+      "extension": ".md",
+      "total_lines": 88,
+      "code_lines": 53,
+      "comment_lines": 15,
+      "empty_lines": 20
+    },
+    "tests\\test_cli.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 90,
+      "code_lines": 48,
+      "comment_lines": 20,
+      "empty_lines": 22
+    },
+    "tests\\test_compare.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_dice_calculator.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 11,
+      "code_lines": 5,
+      "comment_lines": 3,
+      "empty_lines": 3
+    },
+    "tests\\test_dicom_utils.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 13,
+      "code_lines": 12,
+      "comment_lines": 0,
+      "empty_lines": 1
+    },
+    "tests\\test_extract_features.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_habitat.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 8,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 1
+    },
+    "tests\\test_icc.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 8,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 1
+    },
+    "tests\\test_icc_analyzer.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 65,
+      "code_lines": 41,
+      "comment_lines": 11,
+      "empty_lines": 13
+    },
+    "tests\\test_kfold.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_merge_csv_files.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 26,
+      "code_lines": 15,
+      "comment_lines": 7,
+      "empty_lines": 4
+    },
+    "tests\\test_ml.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_preprocess.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_radiomics.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\test_test_retest.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 9,
+      "code_lines": 5,
+      "comment_lines": 2,
+      "empty_lines": 2
+    },
+    "tests\\__init__.py": {
+      "file_type": "code",
+      "directory": "tests",
+      "extension": ".py",
+      "total_lines": 2,
+      "code_lines": 0,
+      "comment_lines": 1,
+      "empty_lines": 1
     }
   },
   "metadata": {
-    "scan_time": "F:\\work\\research\\radiomics_TLSs\\habit_project",
-    "total_scanned_files": 166
+    "scan_time": "F:\\work\\habit_project",
+    "total_scanned_files": 298
   }
 }

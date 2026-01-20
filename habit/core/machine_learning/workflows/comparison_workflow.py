@@ -8,9 +8,9 @@ import yaml
 import pandas as pd
 import json
 import numpy as np
-from habit.core.machine_learning.evaluation.model_evaluation import MultifileEvaluator
-from habit.core.machine_learning.visualization.plotting import Plotter
-from habit.core.machine_learning.evaluation.metrics import (
+from ..evaluation.model_evaluation import MultifileEvaluator
+from ..visualization.plotting import Plotter
+from ..evaluation.metrics import (
     calculate_metrics, 
     calculate_metrics_youden, 
     calculate_metrics_at_target,

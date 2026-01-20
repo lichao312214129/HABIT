@@ -25,7 +25,7 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
         model_name (str): Name of specific model to use
         evaluate (bool): Whether to evaluate model performance
     """
-    from habit.core.machine_learning.machine_learning import MachineLearningWorkflow
+    from habit.core.machine_learning.workflows.holdout_workflow import MachineLearningWorkflow
     from habit.utils.config_utils import load_config
     from habit.utils.log_utils import setup_logger
     
@@ -127,7 +127,7 @@ def run_kfold(config_file: str) -> None:
     """
     from habit.utils.config_utils import load_config
     from habit.utils.log_utils import setup_logger
-    from habit.core.machine_learning.machine_learning_kfold import MachineLearningKFoldWorkflow
+    from habit.core.machine_learning.workflows.kfold_workflow import MachineLearningKFoldWorkflow
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)

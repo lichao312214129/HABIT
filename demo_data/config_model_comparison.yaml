@@ -10,7 +10,7 @@ output_dir: ./ml_data/model_comparison  # Base directory for all comparison outp
 # Define the prediction files for each model to be compared
 # Each entry represents a different model's predictions
 files_config:
-  - path: ./ml_data/radiomics/all_prediction_results.csv
+  - path: ./ml_data/radiomics/all_prediction_results - 副本.csv
     model_name: radiomics                        # Name used to identify this model in plots and reports
     subject_id_col: subject_id            # Column containing unique subject identifiers
     label_col: label               # Column containing actual outcome labels (binary: 0/1)
@@ -18,7 +18,7 @@ files_config:
     pred_col: LogisticRegression_pred  # Column containing predicted class labels (binary: 0/1)
     split_col: dataset                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
-  - path: ./ml_data/clinical/all_prediction_results.csv
+  - path: ./ml_data/clinical/all_prediction_results - 副本.csv
     model_name: clinical                        # Name used to identify this model in plots and reports
     subject_id_col: subject_id              # Column containing unique subject identifiers
     label_col: label               # Column containing actual outcome labels (binary: 0/1)

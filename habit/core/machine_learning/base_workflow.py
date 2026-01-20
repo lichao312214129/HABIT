@@ -1,11 +1,16 @@
 import os
-import logging
 import pandas as pd
 from typing import Dict, Any, List, Tuple
 from abc import ABC, abstractmethod
 
 from .data_manager import DataManager
 from .visualization.plot_manager import PlotManager
+from .pipeline_utils import PipelineBuilder
+from .config_schemas import validate_config
+from .callbacks.base import CallbackList
+from .callbacks.model_checkpoint import ModelCheckpoint
+from .callbacks.visualization_callback import VisualizationCallback
+from .callbacks.report_callback import ReportCallback
 from habit.utils.log_utils import get_module_logger, setup_logger, LoggerManager
 from habit.utils.io_utils import save_json, save_csv
 
@@ -15,8 +20,16 @@ class BaseWorkflow(ABC):
     Handles infrastructure like logging, data loading, and basic results persistence.
     """
     def __init__(self, config: Dict[str, Any], module_name: str):
-        self.config = config
-        self.output_dir = config.get('output', f'./results/{module_name}')
+        self.module_name = module_name
+        # Validate configuration early
+        try:
+            self.config_obj = validate_config(config)
+            self.config = self.config_obj.model_dump()
+        except Exception as e:
+            self.config = config
+            print(f"Warning: Configuration validation failed: {e}")
+            
+        self.output_dir = self.config.get('output', f'./results/{module_name}')
         os.makedirs(self.output_dir, exist_ok=True)
         
         # Initialize Logging
@@ -29,7 +42,15 @@ class BaseWorkflow(ABC):
         # Common Components
         self.data_manager = DataManager(config, self.logger)
         self.plot_manager = PlotManager(config, self.output_dir)
+        self.pipeline_builder = PipelineBuilder(config, self.output_dir)
         self.random_state = config.get('random_state', 42)
+        
+        # Callbacks
+        self.callbacks = CallbackList([
+            ModelCheckpoint(),
+            ReportCallback(),
+            VisualizationCallback()
+        ], workflow=self)
         
         # Results storage
         self.results = {}

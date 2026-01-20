@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 class DataManager:
     """
-    Handles data loading, merging, basic cleaning, and splitting.
+    Handles data loading, merging, and splitting.
     """
     def __init__(self, config: Dict[str, Any], logger: logging.Logger = None):
         self.config = config

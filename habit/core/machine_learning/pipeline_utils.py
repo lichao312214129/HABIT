@@ -2,8 +2,60 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from typing import List, Dict, Any
 import pandas as pd
 import numpy as np
-from .feature_selectors import run_selector
+from .feature_selectors.selector_registry import run_selector, get_selector_info
 from habit.utils.log_utils import get_module_logger
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from .models.factory import ModelFactory
+
+class PipelineBuilder:
+    """
+    Centralized builder for creating sklearn Pipelines with HABIT components.
+    Ensures consistency across different workflows (holdout, k-fold, etc.).
+    """
+    def __init__(self, config: Dict[str, Any], output_dir: str = None):
+        self.config = config
+        self.output_dir = output_dir
+
+    def get_scaler(self):
+        """Returns the configured scaler instance."""
+        norm_config = self.config.get('normalization', {})
+        method = norm_config.get('method', 'z_score')
+        params = norm_config.get('params', {})
+        
+        scalers = {
+            'z_score': StandardScaler,
+            'min_max': MinMaxScaler,
+            'robust': RobustScaler
+        }
+        
+        scaler_class = scalers.get(method, StandardScaler)
+        return scaler_class(**params)
+
+    def build(self, model_name: str, model_params: Dict[str, Any], feature_names: List[str] = None) -> Pipeline:
+        """
+        Build a complete pipeline: 
+        Selection (Pre-scaling) -> Scaling -> Selection (Post-scaling) -> Model
+        """
+        selection_methods = self.config.get('feature_selection_methods', [])
+        
+        return Pipeline([
+            ('selector_before', FeatureSelectTransformer(
+                selection_methods,
+                feature_names=feature_names,
+                before_z_score_only=True,
+                outdir=self.output_dir
+            )),
+            ('scaler', self.get_scaler()),
+            ('selector_after', FeatureSelectTransformer(
+                selection_methods,
+                feature_names=feature_names,
+                after_z_score_only=True,
+                outdir=self.output_dir
+            )),
+            ('model', ModelFactory.create_model(model_name, model_params))
+        ])
 
 class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
     """
@@ -73,17 +125,21 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
             method = conf['method']
             params = conf.get('params', {}).copy()
             
-            # Check if we should execute this method based on before_z_score flag
-            # 具体解释：before_z_score_only和after_z_score_only是两个标志位，用于控制是否在标准化之前或之后进行特征选择。
-            # 如果before_z_score_only为True，则只会在标准化之前进行特征选择。
-            # 如果after_z_score_only为True，则只会在标准化之后进行特征选择。
-            # 如果before_z_score_only和after_z_score_only都为False，则会在标准化之前和之后都进行特征选择。
-            before_z_score = params.get('before_z_score', False)
-            if self.before_z_score_only and not before_z_score:
-                self.logger.debug(f"Skipping method '{method}' (before_z_score={before_z_score}, but before_z_score_only=True)")
+            # Determine selection timing:
+            # 1. Check user override in config params
+            # 2. Check registry metadata defaults
+            try:
+                info = get_selector_info(method)
+                is_before_z_score_method = params.get('before_z_score', info['default_before_z_score'])
+            except (ValueError, KeyError):
+                # Fallback for unregistered selectors
+                is_before_z_score_method = params.get('before_z_score', False)
+
+            if self.before_z_score_only and not is_before_z_score_method:
+                self.logger.debug(f"Skipping method '{method}' (is_before_z_score={is_before_z_score_method}, but before_z_score_only=True)")
                 continue
-            if self.after_z_score_only and before_z_score:
-                self.logger.debug(f"Skipping method '{method}' (before_z_score={before_z_score}, but after_z_score_only=True)")
+            if self.after_z_score_only and is_before_z_score_method:
+                self.logger.debug(f"Skipping method '{method}' (is_before_z_score={is_before_z_score_method}, but after_z_score_only=True)")
                 continue
 
             step_count += 1
@@ -98,7 +154,7 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
             if self.outdir:
                 params['outdir'] = self.outdir
 
-            # Execute existing HABIT selector logic
+            # Execute selector logic
             selected = run_selector(method, X_df, y, current_features, **params)
             
             # Maintain intersection
@@ -118,6 +174,19 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
                 
             self.logger.info(f"  Retained features: {current_features}")
             self.logger.info("-" * 80)
+        
+        # Log final summary
+        self.logger.info(f"\nFeature Selection Summary ({stage}):")
+        self.logger.info(f"  Total steps executed: {step_count}")
+        self.logger.info(f"  Initial features: {len(self.fitted_feature_names_)}")
+        self.logger.info(f"  Final features: {len(current_features)}")
+        self.logger.info(f"  Total features removed: {len(self.fitted_feature_names_) - len(current_features)}")
+        self.logger.info(f"  Retention rate: {len(current_features) / len(self.fitted_feature_names_) * 100:.2f}%")
+        self.logger.info(f"  Final selected features: {current_features}")
+        self.logger.info("=" * 80)
+        
+        self.selected_features_ = current_features
+        return self
         
         # Log final summary
         self.logger.info(f"\nFeature Selection Summary ({stage}):")

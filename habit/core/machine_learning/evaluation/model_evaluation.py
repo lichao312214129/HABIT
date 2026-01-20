@@ -8,9 +8,6 @@ import json
 from typing import Dict, List, Tuple, Union, Any, Optional, Literal
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, precision_recall_curve
-from sklearn.calibration import calibration_curve
 
 from .metrics import calculate_metrics, calculate_metrics_youden, delong_roc_ci
 from ..visualization.plotting import Plotter
@@ -218,70 +215,43 @@ class ModelEvaluator:
 
     def _print_performance_table(self, results: Dict[str, Any]) -> None:
         """
-        Print model performance table
-        
-        Args:
-            results (Dict[str, Any]): Evaluation results dictionary
+        Print model performance table using dynamically registered metrics.
         """
+        from .metrics import METRIC_REGISTRY
+        
         self.logger.info("="*80)
         self.logger.info("Model Performance Evaluation Table")
         self.logger.info("="*80)
         
-        # Define metric name mapping
-        metric_names = {
-            'accuracy': 'Accuracy',
-            'sensitivity': 'Sensitivity',
-            'specificity': 'Specificity',
-            'ppv': 'Positive Predictive Value',
-            'npv': 'Negative Predictive Value',
-            'f1_score': 'F1-score',
-            'auc': 'AUC',
-            'hosmer_lemeshow_chi2': 'H-L Chi2',
-            'hosmer_lemeshow_p_value': 'H-L P-value',
-            'spiegelhalter_z_statistic': 'Spiegelhalter Z',
-            'spiegelhalter_z_p_value': 'Spiegelhalter P-value'
-        }
-        
-        # Get available model names from either train or test results
+        # Get available model names
         available_models = set()
-        if 'train' in results:
-            available_models.update(results['train'].keys())
-        if 'test' in results:
-            available_models.update(results['test'].keys())
+        if 'train' in results: available_models.update(results['train'].keys())
+        if 'test' in results: available_models.update(results['test'].keys())
         
         if not available_models:
             self.logger.warning("No model results available")
             return
             
-        # Log table header
         header = ["Metric"]
         for model_name in sorted(available_models):
-            if 'train' in results:
-                header.append(f"{model_name} (Train)")
-            if 'test' in results:
-                header.append(f"{model_name} (Test)")
+            if 'train' in results: header.append(f"{model_name} (Train)")
+            if 'test' in results: header.append(f"{model_name} (Test)")
         
         self.logger.info(" | ".join([f"{h:^15}" for h in header]))
         self.logger.info("-"*80)
         
-        # Log values for each metric
-        for metric in ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'f1_score', 'auc', 
-                      'hosmer_lemeshow_chi2', 'hosmer_lemeshow_p_value', 
-                      'spiegelhalter_z_statistic', 'spiegelhalter_z_p_value']:
-            row = [metric_names.get(metric, metric)]
+        # Dynamically iterate through all registered metrics
+        for m_id, info in METRIC_REGISTRY.items():
+            row = [info['display_name']]
             
             for model_name in sorted(available_models):
-                # Get train metrics if available
                 if 'train' in results:
-                    train_metrics = results['train'].get(model_name, {}).get('metrics', {})
-                    train_value = train_metrics.get(metric, 'N/A')
-                    row.append(f"{train_value:.4f}" if isinstance(train_value, (int, float)) else str(train_value))
+                    val = results['train'].get(model_name, {}).get('metrics', {}).get(m_id, 'N/A')
+                    row.append(f"{val:.4f}" if isinstance(val, (int, float)) and not np.isnan(val) else str(val))
                 
-                # Get test metrics if available
                 if 'test' in results:
-                    test_metrics = results['test'].get(model_name, {}).get('metrics', {})
-                    test_value = test_metrics.get(metric, 'N/A')
-                    row.append(f"{test_value:.4f}" if isinstance(test_value, (int, float)) else str(test_value))
+                    val = results['test'].get(model_name, {}).get('metrics', {}).get(m_id, 'N/A')
+                    row.append(f"{val:.4f}" if isinstance(val, (int, float)) and not np.isnan(val) else str(val))
             
             self.logger.info(" | ".join([f"{cell:^15}" for cell in row]))
         
@@ -289,75 +259,37 @@ class ModelEvaluator:
 
     def _save_performance_table(self, results: Dict[str, Any], filename: str = "performance_table.csv") -> None:
         """
-        Save model performance table to CSV file
-        
-        Args:
-            results (Dict[str, Any]): Evaluation results dictionary
-            filename (str): Output filename for the CSV file
+        Save model performance table to CSV file using registered metrics.
         """
-        # Define metric name mapping
-        metric_names = {
-            'accuracy': 'Accuracy',
-            'sensitivity': 'Sensitivity',
-            'specificity': 'Specificity',
-            'ppv': 'Positive Predictive Value',
-            'npv': 'Negative Predictive Value',
-            'f1_score': 'F1-score',
-            'auc': 'AUC',
-            'hosmer_lemeshow_chi2': 'H-L Chi2',
-            'hosmer_lemeshow_p_value': 'H-L P-value',
-            'spiegelhalter_z_statistic': 'Spiegelhalter Z',
-            'spiegelhalter_z_p_value': 'Spiegelhalter P-value'
-        }
+        from .metrics import METRIC_REGISTRY
         
-        # Get available model names from either train or test results
+        # Get available model names
         available_models = set()
-        if 'train' in results:
-            available_models.update(results['train'].keys())
-        if 'test' in results:
-            available_models.update(results['test'].keys())
+        if 'train' in results: available_models.update(results['train'].keys())
+        if 'test' in results: available_models.update(results['test'].keys())
         
         if not available_models:
             self.logger.warning("No model results available for saving")
             return
         
-        # Create DataFrame for saving
         performance_data = []
-        
-        # Define all metrics to include
-        all_metrics = ['accuracy', 'sensitivity', 'specificity', 'ppv', 'npv', 'f1_score', 'auc', 
-                      'hosmer_lemeshow_chi2', 'hosmer_lemeshow_p_value', 
-                      'spiegelhalter_z_statistic', 'spiegelhalter_z_p_value']
-        
-        # Create row for each metric
-        for metric in all_metrics:
+        for m_id, info in METRIC_REGISTRY.items():
             row_data = {
-                'Metric': metric_names.get(metric, metric),
-                'Metric_Code': metric
+                'Metric': info['display_name'],
+                'Metric_Code': m_id
             }
             
             for model_name in sorted(available_models):
-                # Get train metrics if available
                 if 'train' in results:
-                    train_metrics = results['train'].get(model_name, {}).get('metrics', {})
-                    train_value = train_metrics.get(metric, np.nan)
-                    row_data[f"{model_name}_Train"] = train_value
-                
-                # Get test metrics if available
+                    row_data[f"{model_name}_Train"] = results['train'].get(model_name, {}).get('metrics', {}).get(m_id, np.nan)
                 if 'test' in results:
-                    test_metrics = results['test'].get(model_name, {}).get('metrics', {})
-                    test_value = test_metrics.get(metric, np.nan)
-                    row_data[f"{model_name}_Test"] = test_value
+                    row_data[f"{model_name}_Test"] = results['test'].get(model_name, {}).get('metrics', {}).get(m_id, np.nan)
             
             performance_data.append(row_data)
         
-        # Create DataFrame and save to CSV
         df = pd.DataFrame(performance_data)
-        
-        # Save to output directory
         output_path = os.path.join(self.output_dir, filename)
         df.to_csv(output_path, index=False)
-        
         self.logger.info(f"Performance table saved to: {output_path}")
         
         # Also save a detailed summary with additional statistics
@@ -366,71 +298,44 @@ class ModelEvaluator:
     
     def _save_detailed_performance_summary(self, results: Dict[str, Any], filename: str = "performance_detailed.csv") -> None:
         """
-        Save detailed performance summary including statistical test interpretations
-        
-        Args:
-            results (Dict[str, Any]): Evaluation results dictionary
-            filename (str): Output filename for the detailed CSV file
+        Save detailed performance summary with dynamic metrics.
         """
-        # Get available model names
-        available_models = set()
-        if 'train' in results:
-            available_models.update(results['train'].keys())
-        if 'test' in results:
-            available_models.update(results['test'].keys())
+        from .metrics import METRIC_REGISTRY
         
-        if not available_models:
-            return
+        available_models = set()
+        if 'train' in results: available_models.update(results['train'].keys())
+        if 'test' in results: available_models.update(results['test'].keys())
+        
+        if not available_models: return
         
         detailed_data = []
-        
         for dataset_type in ['train', 'test']:
-            if dataset_type not in results:
-                continue
+            if dataset_type not in results: continue
                 
             for model_name in sorted(available_models):
-                if model_name not in results[dataset_type]:
-                    continue
+                if model_name not in results[dataset_type]: continue
                     
                 metrics = results[dataset_type][model_name].get('metrics', {})
+                row = {'Model': model_name, 'Dataset': dataset_type.capitalize()}
                 
-                # Create detailed row for this model-dataset combination
-                row = {
-                    'Model': model_name,
-                    'Dataset': dataset_type.capitalize(),
-                    'Accuracy': metrics.get('accuracy', np.nan),
-                    'Sensitivity': metrics.get('sensitivity', np.nan),
-                    'Specificity': metrics.get('specificity', np.nan),
-                    'PPV': metrics.get('ppv', np.nan),
-                    'NPV': metrics.get('npv', np.nan),
-                    'F1_Score': metrics.get('f1_score', np.nan),
-                    'AUC': metrics.get('auc', np.nan),
-                    'Hosmer_Lemeshow_Chi2': metrics.get('hosmer_lemeshow_chi2', np.nan),
-                    'Hosmer_Lemeshow_P_Value': metrics.get('hosmer_lemeshow_p_value', np.nan),
-                    'Spiegelhalter_Z_Statistic': metrics.get('spiegelhalter_z_statistic', np.nan),
-                    'Spiegelhalter_Z_P_Value': metrics.get('spiegelhalter_z_p_value', np.nan)
-                }
+                # Add all registered metrics
+                for m_id, info in METRIC_REGISTRY.items():
+                    row[info['display_name'].replace(' ', '_')] = metrics.get(m_id, np.nan)
                 
-                # Add interpretations for statistical tests
+                # Add specialized interpretations
                 hl_p = metrics.get('hosmer_lemeshow_p_value', np.nan)
                 if not np.isnan(hl_p):
                     row['Hosmer_Lemeshow_Interpretation'] = "Good calibration (p≥0.05)" if hl_p >= 0.05 else "Poor calibration (p<0.05)"
-                else:
-                    row['Hosmer_Lemeshow_Interpretation'] = "N/A"
                 
                 sp_p = metrics.get('spiegelhalter_z_p_value', np.nan)
                 if not np.isnan(sp_p):
                     row['Spiegelhalter_Z_Interpretation'] = "Good calibration (p≥0.05)" if sp_p >= 0.05 else "Poor calibration (p<0.05)"
-                else:
-                    row['Spiegelhalter_Z_Interpretation'] = "N/A"
                 
                 detailed_data.append(row)
         
-        # Create DataFrame and save
         df_detailed = pd.DataFrame(detailed_data)
         output_path = os.path.join(self.output_dir, filename)
         df_detailed.to_csv(output_path, index=False)
-        
         self.logger.info(f"Detailed performance summary saved to: {output_path}")
 
 
