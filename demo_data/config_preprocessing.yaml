@@ -22,12 +22,12 @@ Preprocessing:
     images: [delay2, delay3, delay5]
     target_spacing: [1.0, 1.0, 1.0]
 
-  registration:
-    images: [delay2, delay3, delay5]
-    fixed_image: delay2
-    moving_images: [delay3, delay5]
-    type_of_transform: SyNRA
-    use_mask: false
+  # registration:
+  #   images: [delay2, delay3, delay5]
+  #   fixed_image: delay2
+  #   moving_images: [delay3, delay5]
+  #   type_of_transform: SyNRA
+  #   use_mask: false
 
   # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   zscore_normalization:

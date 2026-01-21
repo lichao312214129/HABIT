@@ -162,7 +162,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
         """
         Execute parallel processing for supervoxel generation.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Extracting features and performing supervoxel clustering...")
         
         # Create a partial function with all the fixed arguments
@@ -171,8 +171,8 @@ class TwoStepStrategy(BaseClusteringStrategy):
             feature_manager=self.analysis.feature_manager,
             clustering_manager=self.analysis.clustering_manager,
             result_manager=self.analysis.result_manager,
-            n_clusters_supervoxel=self.config.clustering.n_clusters_supervoxel,
-            plot_curves=self.config.runtime.plot_curves,
+            n_clusters_supervoxel=self.config.HabitatsSegmention.supervoxel.n_clusters,
+            plot_curves=self.config.plot_curves,
             logger=None  # Worker uses local logger config
         )
         
@@ -180,7 +180,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
         results, failed_subjects = parallel_map(
             func=worker_func,
             items=subjects,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Processing subjects",
             logger=self.logger,
             show_progress=True,
@@ -200,7 +200,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
                     ignore_index=True
                 )
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             if failed_subjects:
                 self.logger.warning(f"Failed to process {len(failed_subjects)} subject(s)")
             self.logger.info(
@@ -230,11 +230,11 @@ class TwoStepStrategy(BaseClusteringStrategy):
         
         # Setup supervoxel file dictionary (file discovery)
         self.analysis.feature_manager.setup_supervoxel_files(
-            subjects, failed_subjects, self.config.io.out_folder
+            subjects, failed_subjects, self.config.out_dir
         )
         
         # Check if we need to extract supervoxel-level features (Two-Step specific)
-        method = self.config.feature_config['supervoxel_level']['method']
+        method = self.config.FeatureConstruction.supervoxel_level.method
         should_extract = 'mean_voxel_features' not in method
         
         if should_extract:
@@ -264,7 +264,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
         Extract supervoxel-level features for all subjects (batch operation).
         Strategy-level orchestration of parallel extraction.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Extracting supervoxel-level features...")
         
         from habit.utils.parallel_utils import parallel_map
@@ -277,7 +277,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
         results, new_failed = parallel_map(
             func=extract_func,
             items=subjects,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Extracting supervoxel features",
             logger=self.logger,
             show_progress=True,
@@ -287,7 +287,7 @@ class TwoStepStrategy(BaseClusteringStrategy):
         
         failed_subjects.extend(new_failed)
         
-        if self.config.runtime.verbose and new_failed:
+        if self.config.verbose and new_failed:
             self.logger.warning(
                 f"Failed to extract supervoxel features for {len(new_failed)} subject(s)"
             )
@@ -323,17 +323,17 @@ class TwoStepStrategy(BaseClusteringStrategy):
         )
         
         # Plot scores if available
-        if scores and self.config.runtime.plot_curves:
+        if scores and self.config.plot_curves:
             self.analysis.clustering_manager.plot_habitat_scores(scores, optimal_n_clusters)
         
         # Visualize clustering results
-        if self.config.runtime.plot_curves:
+        if self.config.plot_curves:
             self.analysis.clustering_manager.visualize_habitat_clustering(
                 features, habitat_labels, optimal_n_clusters
             )
         
         # Save model for training mode
-        if self.config.runtime.mode == 'training':
+        if self.config.HabitatsSegmention.habitat.mode == 'training':
             mode_handler.save_model(
                 self.analysis.clustering_manager.supervoxel2habitat_clustering,
                 'supervoxel2habitat_clustering_strategy'
@@ -355,20 +355,20 @@ class TwoStepStrategy(BaseClusteringStrategy):
         Save all results including config, CSV, and habitat images.
         Strategy-specific save logic.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Saving results...")
         
         import os
-        os.makedirs(self.config.io.out_folder, exist_ok=True)
+        os.makedirs(self.config.out_dir, exist_ok=True)
         
         # Save configuration
         if mode_handler:
             mode_handler.save_config(optimal_n_clusters)
         
         # Save results CSV
-        csv_path = os.path.join(self.config.io.out_folder, 'habitats.csv')
+        csv_path = os.path.join(self.config.out_dir, 'habitats.csv')
         self.analysis.results_df.to_csv(csv_path, index=False)
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         
         # Save habitat images for each subject

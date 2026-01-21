@@ -165,10 +165,10 @@ class OneStepStrategy(BaseClusteringStrategy):
         """
         Execute parallel processing for One-Step clustering.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Executing One-Step clustering (per-subject optimal)...")
         
-        one_step_config = self.config.one_step
+        one_step_config = self.config.HabitatsSegmention.supervoxel.one_step_settings
 
         # Create a partial function with all the fixed arguments
         worker_func = partial(
@@ -187,7 +187,7 @@ class OneStepStrategy(BaseClusteringStrategy):
         results, failed_subjects = parallel_map(
             func=worker_func,
             items=subjects,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Processing One-Step",
             logger=self.logger,
             show_progress=True,
@@ -204,7 +204,7 @@ class OneStepStrategy(BaseClusteringStrategy):
                 df = result.result
                 all_results = pd.concat([all_results, df], ignore_index=True)
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             if failed_subjects:
                 self.logger.warning(f"Failed to process {len(failed_subjects)} subject(s)")
             self.logger.info(f"One-Step processing complete.")
@@ -219,24 +219,24 @@ class OneStepStrategy(BaseClusteringStrategy):
         """
         Save results for One-Step strategy.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Saving results...")
         
-        os.makedirs(self.config.io.out_folder, exist_ok=True)
+        os.makedirs(self.config.out_dir, exist_ok=True)
         
         # Save configuration (no global optimal_n_clusters for One-Step)
         if self.analysis.mode_handler:
             self.analysis.mode_handler.save_config(optimal_n_clusters=None)
         
         # Save results CSV
-        csv_path = os.path.join(self.config.io.out_folder, 'habitats.csv')
+        csv_path = os.path.join(self.config.out_dir, 'habitats.csv')
         self.analysis.results_df.to_csv(csv_path, index=False)
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         
         # Note: In One-Step, supervoxel images already represent habitats
         # No need to save separate habitat images
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(
                 "One-Step mode: supervoxel images are the final habitat maps "
                 "(no separate habitat images needed)"

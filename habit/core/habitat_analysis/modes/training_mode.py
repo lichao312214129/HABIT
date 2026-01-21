@@ -36,22 +36,22 @@ class TrainingMode(BaseMode):
         scores = None
         
         # Check if best_n_clusters is already specified
-        if self.config.clustering.best_n_clusters is not None:
-            optimal_n_clusters = self.config.clustering.best_n_clusters
-            if self.config.runtime.verbose:
+        if self.config.HabitatsSegmention.habitat.best_n_clusters is not None:
+            optimal_n_clusters = self.config.HabitatsSegmention.habitat.best_n_clusters
+            if self.config.verbose:
                 self.logger.info(
                     f"Using specified best number of clusters: {optimal_n_clusters}"
                 )
         else:
             # Find optimal number of clusters
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info("Finding optimal number of clusters...")
             
             optimal_n_clusters, scores = self._find_optimal_clusters(
                 features, clustering_algorithm
             )
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Optimal number of clusters: {optimal_n_clusters}")
             self.logger.info("Performing population-level clustering...")
         
@@ -74,14 +74,14 @@ class TrainingMode(BaseMode):
         )
         
         try:
-            min_clusters = max(2, self.config.clustering.n_clusters_habitats_min)
+            min_clusters = max(2, self.config.HabitatsSegmention.habitat.min_clusters or 2)
             max_clusters = min(
-                self.config.clustering.n_clusters_habitats_max,
+                self.config.HabitatsSegmention.habitat.max_clusters,
                 len(features) - 1
             )
             
             if max_clusters <= min_clusters:
-                if self.config.runtime.verbose:
+                if self.config.verbose:
                     self.logger.warning(
                         f"Invalid cluster range [{min_clusters}, {max_clusters}], "
                         "using default value"
@@ -90,21 +90,21 @@ class TrainingMode(BaseMode):
             
             # Create new clustering algorithm for optimization
             cluster_for_best_n = get_clustering_algorithm(
-                self.config.clustering.habitat_method
+                self.config.HabitatsSegmention.habitat.algorithm
             )
             
             optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
                 features,
                 min_clusters=min_clusters,
                 max_clusters=max_clusters,
-                methods=self.config.clustering.selection_methods,
+                methods=self.config.HabitatsSegmention.habitat.habitat_cluster_selection_method,
                 show_progress=True
             )
             
             return optimal_n_clusters, scores
             
         except Exception as e:
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.error(
                     f"Exception when determining optimal clusters: {e}"
                 )
@@ -126,7 +126,7 @@ class TrainingMode(BaseMode):
         Returns:
             Processed DataFrame
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Computing and applying group-level preprocessing...")
             
         # Fit state and transform data
@@ -153,7 +153,7 @@ class TrainingMode(BaseMode):
         with open(bundle_path, 'wb') as f:
             pickle.dump(training_bundle, f)
             
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Training bundle (model + preprocessing state) saved to: {bundle_path}")
     
     def load_model(self, model_name: str = 'habitat_model') -> Any:

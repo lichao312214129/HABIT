@@ -5,11 +5,11 @@ Modes module for habitat analysis.
 from .base_mode import BaseMode
 from .training_mode import TrainingMode
 from .testing_mode import TestingMode
-from ..config import HabitatConfig
+from ..config_schemas import HabitatAnalysisConfig
 import logging
 
 def create_mode(
-    config: HabitatConfig,
+    config: HabitatAnalysisConfig,
     logger: logging.Logger,
 ) -> BaseMode:
     """
@@ -25,9 +25,9 @@ def create_mode(
     Raises:
         ValueError: If mode is invalid
     """
-    if config.runtime.mode == 'training':
+    if config.HabitatsSegmention.habitat.mode == 'training':
         return TrainingMode(config, logger)
-    elif config.runtime.mode == 'testing':
+    elif config.HabitatsSegmention.habitat.mode == 'testing':
         return TestingMode(config, logger)
     else:
-        raise ValueError(f"Invalid mode: {config.runtime.mode}")
+        raise ValueError(f"Invalid mode: {config.HabitatsSegmention.habitat.mode}")

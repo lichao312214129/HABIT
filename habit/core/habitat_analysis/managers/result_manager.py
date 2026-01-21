@@ -12,14 +12,15 @@ from typing import List, Optional, Tuple, Dict, Any
 
 from habit.utils.io_utils import save_habitat_image
 from habit.utils.parallel_utils import parallel_map
-from ..config import HabitatConfig, ResultColumns
+from ..config import ResultColumns
+from ..config_schemas import HabitatAnalysisConfig
 
 class ResultManager:
     """
     Manages result storage and output for habitat analysis.
     """
     
-    def __init__(self, config: HabitatConfig, logger: logging.Logger):
+    def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
         Initialize ResultManager.
         
@@ -73,7 +74,7 @@ class ResultManager:
         supervoxel_img.CopyInformation(mask_info['mask'])
         
         output_path = os.path.join(
-            self.config.io.out_folder, f"{subject}_supervoxel.nrrd"
+            self.config.out_dir, f"{subject}_supervoxel.nrrd"
         )
         sitk.WriteImage(supervoxel_img, output_path)
 
@@ -102,10 +103,10 @@ class ResultManager:
             # Here we assume self.results_df is available in the instance state.
             
             supervoxel_path = os.path.join(
-                self.config.io.out_folder, f"{subject}_supervoxel.nrrd"
+                self.config.out_dir, f"{subject}_supervoxel.nrrd"
             )
             save_habitat_image(
-                subject, self.results_df, supervoxel_path, self.config.io.out_folder
+                subject, self.results_df, supervoxel_path, self.config.out_dir
             )
             return subject, None
         except Exception as e:
@@ -120,13 +121,13 @@ class ResultManager:
         # Get unique subjects
         subjects_to_save = list(set(self.results_df.index))
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Saving habitat images for {len(subjects_to_save)} subjects...")
         
         results, failed = parallel_map(
             func=self.save_habitat_for_subject,
             items=subjects_to_save,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Saving habitat images",
             logger=self.logger,
             show_progress=True,
@@ -134,7 +135,7 @@ class ResultManager:
             log_level=self._log_level,
         )
         
-        if failed and self.config.runtime.verbose:
+        if failed and self.config.verbose:
             self.logger.warning(
                 f"Failed to save habitat images for {len(failed)} subject(s)"
             )

@@ -5,20 +5,20 @@ auto_select_first_file: true
 
 images:
   subj001:
-    delay2: ./preprocessed/zscore_normalization_04/images/subj001/delay2  # 注意路径和文件不能有空格和特殊字符
-    delay3: ./preprocessed/zscore_normalization_04/images/subj001/delay3
-    delay5: ./preprocessed/zscore_normalization_04/images/subj001/delay5
+    delay2: ./preprocessed/processed_images/images/subj001/delay2  # 注意路径和文件不能有空格和特殊字符
+    delay3: ./preprocessed/processed_images/images/subj001/delay3
+    delay5: ./preprocessed/processed_images/images/subj001/delay5
   subj002:
-    delay2: ./preprocessed/zscore_normalization_04/images/subj002/delay2
-    delay3: ./preprocessed/zscore_normalization_04/images/subj002/delay3
-    delay5: ./preprocessed/zscore_normalization_04/images/subj002/delay5
+    delay2: ./preprocessed/processed_images/images/subj002/delay2
+    delay3: ./preprocessed/processed_images/images/subj002/delay3
+    delay5: ./preprocessed/processed_images/images/subj002/delay5
 
 masks:
   subj001:
-    delay2: ./preprocessed/zscore_normalization_04/masks/subj001/delay2
-    delay3: ./preprocessed/zscore_normalization_04/masks/subj001/delay3
-    delay5: ./preprocessed/zscore_normalization_04/masks/subj001/delay5
+    delay2: ./preprocessed/processed_images/masks/subj001/delay2
+    delay3: ./preprocessed/processed_images/masks/subj001/delay3
+    delay5: ./preprocessed/processed_images/masks/subj001/delay5
   subj002:
-    delay2: ./preprocessed/zscore_normalization_04/masks/subj002/delay2
-    delay3: ./preprocessed/zscore_normalization_04/masks/subj002/delay3
-    delay5: ./preprocessed/zscore_normalization_04/masks/subj002/delay5
+    delay2: ./preprocessed/processed_images/masks/subj002/delay2
+    delay3: ./preprocessed/processed_images/masks/subj002/delay3
+    delay5: ./preprocessed/processed_images/masks/subj002/delay5

@@ -38,7 +38,7 @@ class TestingMode(BaseMode):
         # Load pre-trained model (and preprocessing state)
         model = self.load_model('supervoxel2habitat_clustering_strategy')
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             bundle_path = os.path.join(
                 self.out_dir, 'supervoxel2habitat_clustering_strategy_bundle.pkl'
             )
@@ -69,14 +69,14 @@ class TestingMode(BaseMode):
         """
         # Auto-load preprocessing state if not already loaded
         if self.preprocessing_state is None:
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info(
                     "Preprocessing state not loaded yet, loading from training bundle..."
                 )
             # Load the bundle to get preprocessing state
             self._load_preprocessing_state()
             
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Applying group-level preprocessing from training state...")
             
         return self.preprocessing_state.transform(features)
@@ -101,7 +101,7 @@ class TestingMode(BaseMode):
         # Load only preprocessing state
         self.preprocessing_state = bundle['preprocessing_state']
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Loaded preprocessing state from: {bundle_path}")
     
     def save_model(self, model: Any, model_name: str = 'habitat_model') -> None:
@@ -129,7 +129,7 @@ class TestingMode(BaseMode):
         # Load preprocessing state into instance
         self.preprocessing_state = bundle['preprocessing_state']
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Loaded training bundle from: {bundle_path}")
         
         return bundle['clustering_model']

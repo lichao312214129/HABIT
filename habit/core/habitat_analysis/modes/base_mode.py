@@ -11,7 +11,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Tuple
 
-from ..config import HabitatConfig
+from ..config_schemas import HabitatAnalysisConfig
 
 class BaseMode(ABC):
     """
@@ -23,7 +23,7 @@ class BaseMode(ABC):
     
     def __init__(
         self,
-        config: HabitatConfig,
+        config: HabitatAnalysisConfig,
         logger: logging.Logger,
     ):
         """
@@ -35,7 +35,7 @@ class BaseMode(ABC):
         """
         self.config = config
         self.logger = logger
-        self.out_dir = config.io.out_folder
+        self.out_dir = config.out_dir
     
     @abstractmethod
     def cluster_habitats(
@@ -107,19 +107,19 @@ class BaseMode(ABC):
         os.makedirs(self.out_dir, exist_ok=True)
         
         # If original config file exists, copy it
-        if self.config.io.config_file and os.path.exists(self.config.io.config_file):
+        if self.config.config_file and os.path.exists(self.config.config_file):
             config_out_path = os.path.join(self.out_dir, 'config.yaml')
-            shutil.copy2(self.config.io.config_file, config_out_path)
-            if self.config.runtime.verbose:
+            shutil.copy2(self.config.config_file, config_out_path)
+            if self.config.verbose:
                 self.logger.info(f"Original config file copied to: {config_out_path}")
         else:
             # Save current config as JSON
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info(
                     "No original config file provided, saving current config as JSON"
                 )
             
-            config_dict = self.config.to_dict()
+            config_dict = self.config.model_dump()
             if optimal_n_clusters is not None:
                 config_dict['optimal_n_clusters_habitat'] = int(optimal_n_clusters)
             

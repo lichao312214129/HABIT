@@ -470,4 +470,238 @@ HABIT提供完整的中英文双语文档：
 
 ---
 
+## 📦 包结构 (Package Structure)
+
+HABIT 包采用模块化设计，主要包含以下目录结构：
+
+```
+habit/
+├── __init__.py                 # Package initialization and public API
+├── __main__.py                 # Entry point for python -m habit
+├── cli.py                      # Main CLI entry point (Click-based)
+│
+├── cli_commands/               # Command-line interface commands
+│   ├── __init__.py
+│   └── commands/               # Individual command implementations
+│       ├── cmd_preprocess.py   # Image preprocessing command
+│       ├── cmd_habitat.py      # Habitat analysis command
+│       ├── cmd_extract_features.py  # Feature extraction command
+│       ├── cmd_ml.py           # Machine learning command
+│       ├── cmd_kfold.py        # K-fold cross-validation command
+│       ├── cmd_compare.py      # Model comparison command
+│       ├── cmd_icc.py          # ICC analysis command
+│       ├── cmd_radiomics.py   # Traditional radiomics command
+│       ├── cmd_test_retest.py # Test-retest analysis command
+│       ├── cmd_dicom_info.py  # DICOM information extraction
+│       └── cmd_merge_csv.py   # CSV file merging utility
+│
+├── core/                       # Core functionality modules
+│   ├── __init__.py             # Core module initialization
+│   │
+│   ├── habitat_analysis/       # Habitat analysis core module
+│   │   ├── __init__.py
+│   │   ├── habitat_analysis.py # Main habitat analysis class
+│   │   ├── config_schemas.py   # Configuration schemas
+│   │   │
+│   │   ├── algorithms/         # Clustering algorithms
+│   │   │   ├── base_clustering.py      # Base clustering interface
+│   │   │   ├── kmeans_clustering.py    # K-means clustering
+│   │   │   ├── gmm_clustering.py      # Gaussian Mixture Model
+│   │   │   ├── hierarchical_clustering.py  # Hierarchical clustering
+│   │   │   ├── dbscan_clustering.py   # DBSCAN clustering
+│   │   │   ├── spectral_clustering.py # Spectral clustering
+│   │   │   ├── affinity_propagation.py # Affinity propagation
+│   │   │   ├── mean_shift_clustering.py # Mean shift clustering
+│   │   │   ├── cluster_validation_methods.py # Cluster validation
+│   │   │   └── custom_clustering_template.py # Template for custom algorithms
+│   │   │
+│   │   ├── extractors/         # Feature extractors
+│   │   │   ├── base_extractor.py      # Base extractor interface
+│   │   │   ├── raw_feature_extractor.py # Raw voxel features
+│   │   │   ├── voxel_radiomics_extractor.py # Voxel-level radiomics
+│   │   │   ├── supervoxel_radiomics_extractor.py # Supervoxel radiomics
+│   │   │   ├── kinetic_feature_extractor.py # Kinetic features (DCE-MRI)
+│   │   │   ├── local_entropy_extractor.py # Local entropy features
+│   │   │   ├── mean_voxel_features_extractor.py # Mean voxel features
+│   │   │   ├── concat_feature_extractor.py # Feature concatenation
+│   │   │   ├── feature_extractor_factory.py # Factory pattern
+│   │   │   ├── feature_expression_parser.py # Feature expression parser
+│   │   │   └── custom_feature_extractor_template.py # Custom extractor template
+│   │   │
+│   │   ├── analyzers/          # Feature analyzers
+│   │   │   ├── habitat_analyzer.py    # Main habitat analyzer
+│   │   │   ├── habitat_radiomics.py   # Habitat radiomics features
+│   │   │   ├── basic_features.py      # Basic habitat features
+│   │   │   ├── msi_features.py        # Multi-region Spatial Interaction (MSI)
+│   │   │   ├── ith_features.py        # Intra-tumor Heterogeneity (ITH)
+│   │   │   ├── traditional_radiomics_extractor.py # Traditional radiomics
+│   │   │   └── feature_utils.py      # Feature utility functions
+│   │   │
+│   │   ├── managers/            # Management classes
+│   │   │   ├── clustering_manager.py  # Clustering process management
+│   │   │   ├── feature_manager.py    # Feature extraction management
+│   │   │   └── result_manager.py      # Result saving and loading
+│   │   │
+│   │   ├── modes/              # Analysis modes
+│   │   │   ├── base_mode.py          # Base mode interface
+│   │   │   ├── training_mode.py      # Training mode (fit clustering)
+│   │   │   └── testing_mode.py       # Testing mode (apply clustering)
+│   │   │
+│   │   ├── strategies/         # Clustering strategies
+│   │   │   ├── base_strategy.py      # Base strategy interface
+│   │   │   ├── one_step_strategy.py  # One-step clustering strategy
+│   │   │   ├── two_step_strategy.py # Two-step clustering strategy
+│   │   │   └── direct_pooling_strategy.py # Direct pooling strategy
+│   │   │
+│   │   └── utils/              # Habitat analysis utilities
+│   │       └── preprocessing_state.py # Preprocessing state management
+│   │
+│   ├── machine_learning/       # Machine learning module
+│   │   ├── __init__.py
+│   │   ├── base_workflow.py    # Base workflow interface
+│   │   ├── machine_learning.py # Main ML workflow
+│   │   ├── machine_learning_kfold.py # K-fold cross-validation
+│   │   ├── data_manager.py     # Data loading and management
+│   │   ├── config_schemas.py   # ML configuration schemas
+│   │   ├── pipeline_utils.py   # Pipeline utilities
+│   │   │
+│   │   ├── models/             # Machine learning models
+│   │   │   ├── base.py         # Base model interface
+│   │   │   ├── factory.py      # Model factory
+│   │   │   ├── logistic_regression_model.py
+│   │   │   ├── random_forest_model.py
+│   │   │   ├── svm_model.py
+│   │   │   ├── xgboost_model.py
+│   │   │   ├── gradient_boosting_model.py
+│   │   │   ├── decision_tree_model.py
+│   │   │   ├── knn_model.py
+│   │   │   ├── naive_bayes_model.py
+│   │   │   ├── adaboost_model.py
+│   │   │   ├── mlp_model.py
+│   │   │   ├── autogluon_model.py
+│   │   │   └── custom_model_example.py
+│   │   │
+│   │   ├── feature_selectors/  # Feature selection methods
+│   │   │   ├── selector_registry.py # Feature selector registry
+│   │   │   ├── variance_selector.py # Variance-based selection
+│   │   │   ├── correlation_selector.py # Correlation-based selection
+│   │   │   ├── univariate_logistic_selector.py # Univariate logistic
+│   │   │   ├── lasso_selector.py # LASSO selection
+│   │   │   ├── rfecv_selector.py # Recursive feature elimination
+│   │   │   ├── mrmr_selector.py # Minimum Redundancy Maximum Relevance
+│   │   │   ├── stepwise_selector.py # Stepwise selection
+│   │   │   ├── anova_selector.py # ANOVA F-test
+│   │   │   ├── chi2_selector.py # Chi-square test
+│   │   │   ├── statistical_test_selector.py # Statistical tests
+│   │   │   ├── vif_selector.py # Variance Inflation Factor
+│   │   │   ├── icc_selector.py # ICC-based selection
+│   │   │   └── icc/            # ICC analysis submodule
+│   │   │
+│   │   ├── workflows/          # ML workflows
+│   │   │   ├── holdout_workflow.py # Holdout validation workflow
+│   │   │   ├── kfold_workflow.py # K-fold cross-validation workflow
+│   │   │   └── comparison_workflow.py # Model comparison workflow
+│   │   │
+│   │   ├── evaluation/         # Model evaluation
+│   │   │   ├── metrics.py      # Evaluation metrics
+│   │   │   ├── model_evaluation.py # Model evaluation logic
+│   │   │   ├── prediction_container.py # Prediction storage
+│   │   │   └── threshold_manager.py # Threshold optimization
+│   │   │
+│   │   ├── callbacks/          # Training callbacks
+│   │   │   ├── base.py         # Base callback interface
+│   │   │   ├── model_checkpoint.py # Model checkpointing
+│   │   │   ├── report_callback.py # Report generation
+│   │   │   └── visualization_callback.py # Visualization callbacks
+│   │   │
+│   │   ├── visualization/      # Visualization tools
+│   │   │   ├── plotting.py     # Main plotting functions
+│   │   │   ├── plot_manager.py # Plot management
+│   │   │   └── km_survival.py  # Kaplan-Meier survival curves
+│   │   │
+│   │   ├── reporting/          # Report generation
+│   │   │   └── report_exporter.py # Export reports
+│   │   │
+│   │   └── statistics/         # Statistical analysis
+│   │       └── (statistical analysis utilities)
+│   │
+│   └── preprocessing/          # Image preprocessing module
+│       ├── __init__.py
+│       ├── image_processor_pipeline.py # Main preprocessing pipeline
+│       ├── config_schemas.py   # Preprocessing config schemas
+│       ├── base_preprocessor.py # Base preprocessor interface
+│       ├── preprocessor_factory.py # Preprocessor factory
+│       ├── load_image.py       # Image loading utilities
+│       ├── dcm2niix_converter.py # DICOM to NIfTI conversion
+│       ├── resample.py         # Image resampling
+│       ├── registration.py    # Image registration
+│       ├── zscore_normalization.py # Z-score normalization
+│       ├── histogram_standardization.py # Histogram standardization
+│       ├── n4_correction.py    # N4 bias field correction
+│       ├── adaptive_histogram_equalization.py # Adaptive histogram equalization
+│       └── custom_preprocessor_template.py # Custom preprocessor template
+│
+└── utils/                      # Utility functions
+    ├── __init__.py
+    ├── config_utils.py         # Configuration file utilities
+    ├── io_utils.py             # I/O utilities
+    ├── file_system_utils.py    # File system operations
+    ├── log_utils.py            # Logging utilities
+    ├── progress_utils.py       # Progress bar utilities (unified)
+    ├── parallel_utils.py       # Parallel processing utilities
+    ├── dicom_utils.py          # DICOM file utilities
+    ├── image_converter.py      # Image format conversion
+    ├── visualization_utils.py # Visualization utilities
+    ├── visualization.py       # Visualization functions
+    ├── font_config.py         # Font configuration for plots
+    ├── dice_calculator.py      # Dice coefficient calculation
+    ├── path_resolver.py       # Path resolution utilities
+    ├── icc_config.py          # ICC analysis configuration
+    └── import_utils.py        # Import utilities
+```
+
+### 主要模块说明
+
+#### 1. **CLI 命令模块** (`cli_commands/`)
+- 提供统一的命令行接口
+- 每个命令对应一个独立的实现文件
+- 支持配置文件驱动的操作模式
+
+#### 2. **核心功能模块** (`core/`)
+
+**2.1 生境分析模块** (`habitat_analysis/`)
+- **算法** (`algorithms/`): 实现多种聚类算法（K-means, GMM, 层次聚类等）
+- **提取器** (`extractors/`): 从影像中提取体素级特征（影像组学、动力学特征等）
+- **分析器** (`analyzers/`): 从生境中提取高级特征（MSI, ITH等）
+- **管理器** (`managers/`): 管理聚类、特征提取和结果保存流程
+- **模式** (`modes/`): 训练模式和测试模式
+- **策略** (`strategies/`): 三种聚类策略（一步法、二步法、直接拼接法）
+
+**2.2 机器学习模块** (`machine_learning/`)
+- **模型** (`models/`): 多种机器学习模型实现
+- **特征选择** (`feature_selectors/`): 多种特征选择方法
+- **工作流** (`workflows/`): 训练、验证、比较工作流
+- **评估** (`evaluation/`): 模型性能评估指标和工具
+- **可视化** (`visualization/`): 结果可视化工具
+
+**2.3 预处理模块** (`preprocessing/`)
+- 提供完整的影像预处理流水线
+- 支持DICOM转换、重采样、配准、标准化等操作
+
+#### 3. **工具函数模块** (`utils/`)
+- 提供通用的工具函数
+- 统一的进度条、日志、并行处理等工具
+- 所有工具函数集中管理，便于维护
+
+### 设计特点
+
+1. **模块化设计**: 各功能模块独立，便于维护和扩展
+2. **策略模式**: 支持多种聚类策略和特征提取方法
+3. **工厂模式**: 使用工厂模式创建模型、提取器等对象
+4. **统一接口**: 各模块遵循统一的接口规范
+5. **配置驱动**: 通过YAML配置文件控制所有操作
+6. **可扩展性**: 提供模板文件，便于添加自定义算法和功能
+
+---
+
 **祝使用愉快！** 🎉

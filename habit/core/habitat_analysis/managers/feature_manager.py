@@ -12,17 +12,18 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
-from ..config import HabitatConfig, ResultColumns
+from ..config import ResultColumns
+from ..config_schemas import HabitatAnalysisConfig
 from ..extractors.feature_expression_parser import FeatureExpressionParser
 from ..extractors.feature_extractor_factory import create_feature_extractor
-from ..utils.preprocessing_state import preprocess_features
+from ..utils.preprocessing_state import process_features_pipeline
 
 class FeatureManager:
     """
     Manages feature extraction and preprocessing for habitat analysis.
     """
     
-    def __init__(self, config: HabitatConfig, logger: logging.Logger):
+    def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
         Initialize FeatureManager.
         
@@ -34,7 +35,7 @@ class FeatureManager:
         self.logger = logger
         self.expression_parser = FeatureExpressionParser()
         
-        self._validate_feature_config()
+        self._validate_FeatureConstruction()
         self._init_feature_extractor()
         
         # Will be set by set_data_paths
@@ -65,21 +66,22 @@ class FeatureManager:
         if self._log_file_path:
             restore_logging_in_subprocess(self._log_file_path, self._log_level)
 
-    def _validate_feature_config(self) -> None:
+    def _validate_FeatureConstruction(self) -> None:
         """Validate feature configuration."""
-        if 'voxel_level' not in self.config.feature_config:
+        if not self.config.FeatureConstruction or not self.config.FeatureConstruction.voxel_level:
             raise ValueError("voxel_level configuration is required")
         
-        if 'supervoxel_level' in self.config.feature_config and self.config.runtime.verbose:
+        if self.config.FeatureConstruction.supervoxel_level and self.config.verbose:
             self.logger.info(
                 "Note: supervoxel_level feature configuration detected."
             )
 
     def _init_feature_extractor(self) -> None:
         """Initialize feature extractor based on configuration."""
-        voxel_config = self.config.feature_config['voxel_level']
-        if not isinstance(voxel_config, dict) or 'method' not in voxel_config:
-            raise ValueError("voxel_level must be a dictionary with 'method' field")
+        voxel_config = {
+            "method": self.config.FeatureConstruction.voxel_level.method,
+            "params": self.config.FeatureConstruction.voxel_level.params
+        }
         
         # Parse voxel_level expression
         (self.voxel_method, 
@@ -87,14 +89,12 @@ class FeatureManager:
          self.voxel_processing_steps) = self.expression_parser.parse(voxel_config)
         
         # Check for supervoxel_level configuration
-        self.has_supervoxel_config = 'supervoxel_level' in self.config.feature_config
+        self.has_supervoxel_config = self.config.FeatureConstruction.supervoxel_level is not None
         if self.has_supervoxel_config:
-            supervoxel_config = self.config.feature_config['supervoxel_level']
-            if not isinstance(supervoxel_config, dict) or 'method' not in supervoxel_config:
-                raise ValueError(
-                    "supervoxel_level must be a dictionary with 'method' field"
-                )
-            
+            supervoxel_config = {
+                "method": self.config.FeatureConstruction.supervoxel_level.method,
+                "params": self.config.FeatureConstruction.supervoxel_level.params
+            }
             (self.supervoxel_method_name,
              self.supervoxel_params,
              self.supervoxel_processing_steps) = self.expression_parser.parse(supervoxel_config)
@@ -112,7 +112,7 @@ class FeatureManager:
         cross_image_kwargs = {}
         
         if self.voxel_params:
-            voxel_params = self.config.feature_config['voxel_level'].get('params', {})
+            voxel_params = self.config.FeatureConstruction.voxel_level.params
             for param_name, param_value in self.voxel_params.items():
                 if param_value == param_name and param_name in voxel_params:
                     cross_image_kwargs[param_name] = voxel_params[param_name]
@@ -151,7 +151,7 @@ class FeatureManager:
             
             # Resolve parameter values
             if step_params:
-                voxel_params = self.config.feature_config['voxel_level'].get('params', {})
+                voxel_params = self.config.FeatureConstruction.voxel_level.params
                 for param_name, param_value in list(step_params.items()):
                     if param_value == param_name and param_name in voxel_params:
                         step_params[param_name] = voxel_params[param_name]
@@ -247,6 +247,20 @@ class FeatureManager:
         except Exception as e:
             return subject, Exception(str(e))
 
+    def _serialize_preprocessing_methods(
+        self,
+        preprocessing_config: Optional[Any]
+    ) -> List[Dict[str, Any]]:
+        methods: List[Dict[str, Any]] = []
+        if not preprocessing_config:
+            return methods
+        for method in preprocessing_config.methods:
+            if hasattr(method, "model_dump"):
+                methods.append(method.model_dump())
+            else:
+                methods.append(method.dict())
+        return methods
+
     def _apply_preprocessing(self, feature_df: pd.DataFrame, config_key: str) -> pd.DataFrame:
         """
         Apply preprocessing based on configuration key.
@@ -258,13 +272,14 @@ class FeatureManager:
         Returns:
             Preprocessed DataFrame
         """
-        preprocessing_config = self.config.feature_config.get(config_key, False)
-        
-        if preprocessing_config and 'methods' in preprocessing_config:
-            processed = preprocess_features(
-                feature_df.values,
-                methods=preprocessing_config['methods']
-            )
+        if config_key == 'preprocessing_for_subject_level':
+            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_subject_level
+        else:
+            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_group_level
+
+        methods = self._serialize_preprocessing_methods(preprocessing_config)
+        if methods:
+            processed = process_features_pipeline(feature_df.values, methods=methods)
             return pd.DataFrame(processed, columns=feature_df.columns)
         
         return feature_df
@@ -293,9 +308,8 @@ class FeatureManager:
             if mode_handler is None:
                 raise ValueError("mode_handler is required for group-level preprocessing")
                 
-            config_key = 'preprocessing_for_group_level'
-            preprocessing_config = self.config.feature_config.get(config_key, {})
-            methods = preprocessing_config.get('methods', []) if preprocessing_config else []
+            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_group_level
+            methods = self._serialize_preprocessing_methods(preprocessing_config)
             
             # Delegate to mode handler which manages PreprocessingState
             return mode_handler.process_features(feature_df, methods)
@@ -352,9 +366,7 @@ class FeatureManager:
         out_folder: str
     ) -> None:
         """Setup dictionary mapping subjects to supervoxel files."""
-        supervoxel_keyword = self.config.feature_config['supervoxel_level'].get(
-            'supervoxel_file_keyword', '*_supervoxel.nrrd'
-        )
+        supervoxel_keyword = self.config.FeatureConstruction.supervoxel_level.supervoxel_file_keyword
         supervoxel_files = glob(
             os.path.join(out_folder, supervoxel_keyword)
         )
@@ -366,7 +378,7 @@ class FeatureManager:
                     self.supervoxel_file_dict[subject] = supervoxel_file
                     break
             else:
-                if subject not in failed_subjects and self.config.runtime.verbose:
+                if subject not in failed_subjects and self.config.verbose:
                     self.logger.warning(f"No supervoxel file found for subject {subject}")
         
         if not self.supervoxel_file_dict:

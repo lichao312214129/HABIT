@@ -4,7 +4,7 @@ Uses Pydantic for robust validation and type safety.
 """
 
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, validator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class SaveOptionsConfig(BaseModel):
@@ -21,8 +21,8 @@ class PreprocessingStepConfig(BaseModel):
 
     images: List[str] = Field(default_factory=list)
 
-    @validator("images")
-    def images_required(cls, v):
+    @field_validator("images")
+    def images_required(cls, v: List[str]) -> List[str]:
         if not v:
             raise ValueError("images must not be empty")
         return v
@@ -41,14 +41,14 @@ class PreprocessingConfig(BaseModel):
     random_state: int = 42
     auto_select_first_file: bool = True
 
-    @validator("data_dir", "out_dir")
-    def path_required(cls, v, field):
+    @field_validator("data_dir", "out_dir")
+    def path_required(cls, v: str, info) -> str:
         if not v or not str(v).strip():
-            raise ValueError(f"{field.name} is required and cannot be empty")
+            raise ValueError(f"{info.field_name} is required and cannot be empty")
         return v
 
-    @validator("processes")
-    def processes_non_negative(cls, v):
+    @field_validator("processes")
+    def processes_non_negative(cls, v: Optional[int]) -> int:
         if v is None:
             return 1
         if int(v) < 1:

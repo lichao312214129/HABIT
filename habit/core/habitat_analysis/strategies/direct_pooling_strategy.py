@@ -76,11 +76,11 @@ class DirectPoolingStrategy(BaseClusteringStrategy):
         )
 
         # Plot scores if available
-        if scores and self.config.runtime.plot_curves:
+        if scores and self.config.plot_curves:
             self.analysis.clustering_manager.plot_habitat_scores(scores, optimal_n_clusters)
 
         # Visualize clustering results
-        if self.config.runtime.plot_curves:
+        if self.config.plot_curves:
             self.analysis.clustering_manager.visualize_habitat_clustering(
                 features_all, habitat_labels, optimal_n_clusters
             )
@@ -110,13 +110,13 @@ class DirectPoolingStrategy(BaseClusteringStrategy):
             subject_meta: List of metadata dicts for each subject slice
             failed_subjects: List of failed subject IDs
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Extracting voxel features for direct pooling...")
 
         results, failed_subjects = parallel_map(
             func=self.analysis.feature_manager.extract_voxel_features,
             items=subjects,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Extracting voxel features",
             logger=self.logger,
             show_progress=True,
@@ -201,12 +201,12 @@ class DirectPoolingStrategy(BaseClusteringStrategy):
             results_df: Results DataFrame
             subject_meta: Subject metadata list
         """
-        os.makedirs(self.config.io.out_folder, exist_ok=True)
+        os.makedirs(self.config.out_dir, exist_ok=True)
 
         # Save results CSV
-        csv_path = os.path.join(self.config.io.out_folder, "habitats.csv")
+        csv_path = os.path.join(self.config.out_dir, "habitats.csv")
         results_df.to_csv(csv_path, index=False)
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
 
         # Save habitat maps
@@ -252,5 +252,5 @@ class DirectPoolingStrategy(BaseClusteringStrategy):
         habitat_img = sitk.GetImageFromArray(habitat_map)
         habitat_img.CopyInformation(mask_info["mask"])
 
-        output_path = os.path.join(self.config.io.out_folder, f"{subject}_habitat.nrrd")
+        output_path = os.path.join(self.config.out_dir, f"{subject}_habitat.nrrd")
         sitk.WriteImage(habitat_img, output_path)

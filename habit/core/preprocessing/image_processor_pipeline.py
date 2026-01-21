@@ -10,7 +10,7 @@ Example:
     >>> processor.process_batch()
 """
 
-from typing import Dict, List, Optional, Union, Callable
+from typing import Dict, List, Optional, Union, Callable, Any
 import logging
 from pathlib import Path
 import SimpleITK as sitk
@@ -24,6 +24,7 @@ from habit.utils.log_utils import setup_logger, get_module_logger
 import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
+from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
 
 class BatchProcessor:
@@ -54,10 +55,11 @@ class BatchProcessor:
             log_level (str): Logging level. Defaults to "INFO".
             verbose (bool): Whether to print verbose output. Defaults to True.
         """
-        # Load config and resolve all relative paths to absolute paths
-        self.config = load_config(config_path)
+        # Load and validate config with schema to catch errors early
+        raw_config = load_config(config_path)
+        self.config_obj = PreprocessingConfig(**raw_config)
         
-        self.output_root = Path(self.config["out_dir"])
+        self.output_root = Path(self.config_obj.out_dir)
         self.output_root.mkdir(parents=True, exist_ok=True)
         # 不再创建全局预处理器，而是为每个样本单独创建
         self.verbose = verbose
@@ -68,7 +70,7 @@ class BatchProcessor:
         
         # Use config value or default to 0 if not specified or invalid
         try:
-            self.num_workers = int(self.config.get("processes", num_workers))
+            self.num_workers = int(self.config_obj.processes if self.config_obj.processes is not None else num_workers)
             self.num_workers = min(self.num_workers, multiprocessing.cpu_count() - 2)
             # 确保最小为1个进程，即使设置为0也使用1个
             if self.num_workers <= 0:
@@ -87,13 +89,13 @@ class BatchProcessor:
         - save_intermediate: Whether to save intermediate results (default: False)
         - intermediate_steps: List of step names to save, empty means save all steps
         """
-        save_options = self.config.get("save_options", {})
+        save_options = self.config_obj.save_options
         
         # Whether to save intermediate results (default: True to save all intermediate steps)
-        self.save_intermediate = save_options.get("save_intermediate", True)
+        self.save_intermediate = save_options.save_intermediate
         
         # Which steps to save (empty list means save all steps)
-        self.intermediate_steps = save_options.get("intermediate_steps", [])
+        self.intermediate_steps = save_options.intermediate_steps
         
         if self.save_intermediate:
             if self.intermediate_steps:
@@ -258,7 +260,7 @@ class BatchProcessor:
             self.logger.info(f"Processing subject: {subject_id}")
             
             # Step 1: Load images first
-            load_keys = [self.config["Preprocessing"].get(k).get("images", {}) for k in self.config["Preprocessing"].keys()]
+            load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
             load_keys = [item for sublist in load_keys for item in sublist]
             load_keys = list(set(load_keys))
             mask_keys = [f"mask_{mod}" for mod in load_keys]
@@ -271,11 +273,11 @@ class BatchProcessor:
             
             # Step 2: Process each preprocessing step defined in config
             step_index = 0
-            for step_name, params in self.config["Preprocessing"].items():
+            for step_name, step_config in self.config_obj.Preprocessing.items():
                 step_index += 1
                 
                 # Extract modalities from params
-                modalities = params.get("images", [])
+                modalities = step_config.images
                 if not modalities:
                     continue
                 
@@ -307,6 +309,7 @@ class BatchProcessor:
                     self.logger.debug(f"[{subject_id}] Set intermediate output_dirs for step {step_name}")
                 
                 # Create and execute preprocessor
+                params = self._model_to_dict(step_config)
                 processor = PreprocessorFactory.create(
                     name=step_name,
                     keys=modalities,
@@ -410,8 +413,8 @@ class BatchProcessor:
         
         # 获取所有图像和mask路径
         # 如果配置文件中没有指定 auto_select_first_file，则使用默认值 True
-        auto_select = self.config.get("auto_select_first_file", True)
-        images_paths, mask_paths = get_image_and_mask_paths(self.config["data_dir"], auto_select_first_file=auto_select)
+        auto_select = self.config_obj.auto_select_first_file
+        images_paths, mask_paths = get_image_and_mask_paths(self.config_obj.data_dir, auto_select_first_file=auto_select)
         
         subject_data_list = []
         
@@ -501,3 +504,17 @@ class BatchProcessor:
                 self.logger.info("尝试降级到单进程模式...")
         
         self.logger.info("批处理完成") 
+
+    def _model_to_dict(self, model: Any) -> Dict[str, Any]:
+        """
+        Convert pydantic model to a plain dict with v1/v2 compatibility.
+
+        Args:
+            model (Any): Pydantic model instance.
+
+        Returns:
+            Dict[str, Any]: Serialized model data.
+        """
+        if hasattr(model, "model_dump"):
+            return model.model_dump()
+        return model.dict()

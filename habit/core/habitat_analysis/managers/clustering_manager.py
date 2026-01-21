@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Tuple, Optional, Union
 
-from ..config import HabitatConfig, ResultColumns
+from ..config import ResultColumns
+from ..config_schemas import HabitatAnalysisConfig
 from ..algorithms.base_clustering import get_clustering_algorithm
 from ..algorithms.cluster_validation_methods import (
     get_validation_methods,
@@ -29,7 +30,7 @@ class ClusteringManager:
     Manages clustering operations for habitat analysis.
     """
     
-    def __init__(self, config: HabitatConfig, logger: logging.Logger):
+    def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
         Initialize ClusteringManager.
         
@@ -49,79 +50,82 @@ class ClusteringManager:
 
     def _init_clustering_algorithms(self) -> None:
         """Initialize clustering algorithm instances."""
+        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+        habitat_cfg = self.config.HabitatsSegmention.habitat
         self.voxel2supervoxel_clustering = get_clustering_algorithm(
-            self.config.clustering.supervoxel_method,
-            n_clusters=self.config.clustering.n_clusters_supervoxel,
-            random_state=self.config.clustering.random_state
+            supervoxel_cfg.algorithm,
+            n_clusters=supervoxel_cfg.n_clusters,
+            random_state=supervoxel_cfg.random_state
         )
         
         self.supervoxel2habitat_clustering = get_clustering_algorithm(
-            self.config.clustering.habitat_method,
-            n_clusters=self.config.clustering.n_clusters_habitats_max,
-            random_state=self.config.clustering.random_state
+            habitat_cfg.algorithm,
+            n_clusters=habitat_cfg.max_clusters,
+            random_state=habitat_cfg.random_state
         )
 
     def _init_selection_methods(self) -> None:
         """Initialize and validate cluster selection methods."""
-        validation_info = get_validation_methods(self.config.clustering.habitat_method)
+        habitat_cfg = self.config.HabitatsSegmention.habitat
+        validation_info = get_validation_methods(habitat_cfg.algorithm)
         valid_methods = list(validation_info['methods'].keys())
-        default_methods = get_default_methods(self.config.clustering.habitat_method)
+        default_methods = get_default_methods(habitat_cfg.algorithm)
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(
-                f"Validation methods supported by '{self.config.clustering.habitat_method}': "
+                f"Validation methods supported by '{habitat_cfg.algorithm}': "
                 f"{', '.join(valid_methods)}"
             )
             self.logger.info(f"Default validation methods: {', '.join(default_methods)}")
         
         # Validate and set selection methods
-        selection_methods = self.config.clustering.selection_methods
+        selection_methods = habitat_cfg.habitat_cluster_selection_method
         
         if selection_methods is None:
             self.selection_methods = default_methods
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info(
                     f"No clustering evaluation method specified, "
                     f"using defaults: {', '.join(default_methods)}"
                 )
         elif isinstance(selection_methods, str):
             if is_valid_method_for_algorithm(
-                self.config.clustering.habitat_method, 
+                habitat_cfg.algorithm,
                 selection_methods.lower()
             ):
                 self.selection_methods = selection_methods.lower()
             else:
                 self.selection_methods = default_methods
-                if self.config.runtime.verbose:
+                if self.config.verbose:
                     self.logger.warning(
                         f"Validation method '{selection_methods}' is invalid for "
-                        f"'{self.config.clustering.habitat_method}'"
+                        f"'{habitat_cfg.algorithm}'"
                     )
                     self.logger.info(f"Using default methods: {', '.join(default_methods)}")
         elif isinstance(selection_methods, list):
             valid = [
                 m.lower() for m in selection_methods 
                 if is_valid_method_for_algorithm(
-                    self.config.clustering.habitat_method, m.lower()
+                    habitat_cfg.algorithm, m.lower()
                 )
             ]
             invalid = [
                 m for m in selection_methods 
                 if not is_valid_method_for_algorithm(
-                    self.config.clustering.habitat_method, m.lower()
+                    habitat_cfg.algorithm, m.lower()
                 )
             ]
             
             if valid:
                 self.selection_methods = valid
-                if invalid and self.config.runtime.verbose:
+                if invalid and self.config.verbose:
                     self.logger.warning(
-                        f"Invalid methods for '{self.config.clustering.habitat_method}': "
+                        f"Invalid methods for '{habitat_cfg.algorithm}': "
                         f"{', '.join(invalid)}"
                     )
             else:
                 self.selection_methods = default_methods
-                if self.config.runtime.verbose:
+                if self.config.verbose:
                     self.logger.warning("All specified methods are invalid")
                     self.logger.info(f"Using default methods: {', '.join(default_methods)}")
         else:
@@ -147,10 +151,11 @@ class ClusteringManager:
         try:
             if n_clusters is not None:
                 # Custom number of clusters (e.g., for one-step optimal clusters)
+                supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
                 clusterer = get_clustering_algorithm(
-                    self.config.clustering.supervoxel_method,
+                    supervoxel_cfg.algorithm,
                     n_clusters=n_clusters,
-                    random_state=self.config.clustering.random_state
+                    random_state=supervoxel_cfg.random_state
                 )
                 clusterer.fit(feature_df.values)
                 supervoxel_labels = clusterer.predict(feature_df.values)
@@ -196,10 +201,11 @@ class ClusteringManager:
             f"Determining optimal clusters for {subject} using {selection_method}"
         )
         
+        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
         clusterer = get_clustering_algorithm(
-            self.config.clustering.supervoxel_method,
+            supervoxel_cfg.algorithm,
             n_clusters=max_clusters,
-            random_state=self.config.clustering.random_state
+            random_state=supervoxel_cfg.random_state
         )
         
         optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
@@ -211,7 +217,7 @@ class ClusteringManager:
         )
         
         # Plot validation curves if requested
-        if plot_validation and self.config.runtime.plot_curves:
+        if plot_validation and self.config.plot_curves:
             self.plot_one_step_validation(subject, scores_dict, clusterer, selection_method)
         
         self.logger.info(f"Subject {subject}: optimal clusters = {optimal_n_clusters}")
@@ -231,7 +237,7 @@ class ClusteringManager:
             
         try:
             viz_dir = os.path.join(
-                self.config.io.out_folder, 'visualizations', 'optimal_clusters'
+                self.config.out_dir, 'visualizations', 'optimal_clusters'
             )
             os.makedirs(viz_dir, exist_ok=True)
             
@@ -240,7 +246,7 @@ class ClusteringManager:
                 scores_dict=scores_dict,
                 cluster_range=clusterer.cluster_range,
                 methods=[selection_method],
-                clustering_algorithm=self.config.clustering.supervoxel_method,
+                clustering_algorithm=self.config.HabitatsSegmention.supervoxel.algorithm,
                 figsize=(8, 6),
                 save_path=plot_file,
                 show=False,
@@ -256,28 +262,28 @@ class ClusteringManager:
             return
             
         try:
-            os.makedirs(self.config.io.out_folder, exist_ok=True)
+            os.makedirs(self.config.out_dir, exist_ok=True)
             
             # Get cluster range from configuration
-            min_clusters = self.config.clustering.n_clusters_habitats_min
-            max_clusters = self.config.clustering.n_clusters_habitats_max
+            min_clusters = self.config.HabitatsSegmention.habitat.min_clusters or 2
+            max_clusters = self.config.HabitatsSegmention.habitat.max_clusters
             cluster_range = list(range(min_clusters, max_clusters + 1))
             
             plot_cluster_scores(
                 scores_dict=scores,
                 cluster_range=cluster_range,
                 methods=self.selection_methods,
-                clustering_algorithm=self.config.clustering.habitat_method,
+                clustering_algorithm=self.config.HabitatsSegmention.habitat.algorithm,
                 figsize=(6, 6),
-                outdir=self.config.io.out_folder,
+                outdir=self.config.out_dir,
                 show=False
             )
             
-            if self.config.runtime.verbose:
-                self.logger.info(f"Clustering scores plot saved to {self.config.io.out_folder}")
+            if self.config.verbose:
+                self.logger.info(f"Clustering scores plot saved to {self.config.out_dir}")
                 
         except Exception as e:
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.error(f"Error plotting clustering scores: {e}")
                 self.logger.info("Continuing with other processes...")
 
@@ -293,7 +299,7 @@ class ClusteringManager:
             
         try:
             viz_dir = os.path.join(
-                self.config.io.out_folder, 'visualizations', 'supervoxel_clustering'
+                self.config.out_dir, 'visualizations', 'supervoxel_clustering'
             )
             os.makedirs(viz_dir, exist_ok=True)
             
@@ -303,7 +309,7 @@ class ClusteringManager:
             
             title = (
                 f'Supervoxel Clustering: {subject}\n'
-                f'(n_clusters={self.config.clustering.n_clusters_supervoxel})'
+                f'(n_clusters={self.config.HabitatsSegmention.supervoxel.n_clusters})'
             )
             
             # 2D scatter
@@ -330,11 +336,11 @@ class ClusteringManager:
                 plot_3d=True
             )
             
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info(f"Saved supervoxel clustering visualizations to {viz_dir}")
                 
         except Exception as e:
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.warning(f"Failed to create visualization for {subject}: {e}")
 
     def visualize_habitat_clustering(
@@ -349,7 +355,7 @@ class ClusteringManager:
             
         try:
             viz_dir = os.path.join(
-                self.config.io.out_folder, 'visualizations', 'habitat_clustering'
+                self.config.out_dir, 'visualizations', 'habitat_clustering'
             )
             os.makedirs(viz_dir, exist_ok=True)
             
@@ -386,9 +392,9 @@ class ClusteringManager:
                 plot_3d=True
             )
             
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.info(f"Saved habitat clustering visualizations to {viz_dir}")
                 
         except Exception as e:
-            if self.config.runtime.verbose:
+            if self.config.verbose:
                 self.logger.warning(f"Failed to create habitat clustering visualization: {e}")
