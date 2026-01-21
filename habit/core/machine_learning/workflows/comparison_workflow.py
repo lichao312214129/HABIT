@@ -8,6 +8,7 @@ import yaml
 import pandas as pd
 import json
 import numpy as np
+from typing import Dict, Any, Optional, List, Union
 from ..evaluation.model_evaluation import MultifileEvaluator
 from ..visualization.plotting import Plotter
 from ..evaluation.metrics import (
@@ -21,23 +22,27 @@ from ..evaluation.prediction_container import PredictionContainer
 from ..evaluation.threshold_manager import ThresholdManager
 from ..reporting.report_exporter import ReportExporter, MetricsStore
 from ..visualization.plot_manager import PlotManager
+from ..config_schemas import ModelComparisonConfig
 from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_logger, LoggerManager
 
 class ModelComparison:
     """
     Tool for comparing and evaluating multiple machine learning models
     """
-    def __init__(self, config):
+    def __init__(self, config: Union[Dict[str, Any], ModelComparisonConfig]) -> None:
         """
         Initialize the model comparison tool
         
         Args:
-            config_path (str): Path to configuration YAML file
+            config (Dict[str, Any] or ModelComparisonConfig): Parsed config dict or validated config object
         """
-        self.config = config
+        if isinstance(config, ModelComparisonConfig):
+            self.config = config
+        else:
+            self.config = ModelComparisonConfig(**config)
 
         # 设置输出目录
-        self.output_dir = self.config.get('output_dir', './results/model_comparison')
+        self.output_dir = self.config.output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         
         # Initialize logger - check if CLI already configured logging
@@ -65,7 +70,7 @@ class ModelComparison:
         self.threshold_manager = ThresholdManager()
 
         # 初始化绘图管理器
-        self.plot_manager = PlotManager(config=self.config, output_dir=self.output_dir)
+        self.plot_manager = PlotManager(config=self._model_to_dict(self.config), output_dir=self.output_dir)
 
         # 初始化指标存储
         self.metrics_store = MetricsStore()
@@ -77,12 +82,12 @@ class ModelComparison:
         # 用于存储离散预测列的映射
         self.pred_col_mapping = {}
     
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup the tool by reading prediction files and preparing data
         """
         # 配置多个预测文件
-        files_config = self.config.get('files_config', [])
+        files_config = [self._model_to_dict(file_config) for file_config in self.config.files_config]
     
         # 读取所有预测文件并获取split列信息
         split_cols = []
@@ -101,8 +106,8 @@ class ModelComparison:
                     self.pred_col_mapping[model_name] = pred_col
             
             # 获取split配置
-            split_config = self.config.get('split', {})
-            use_split = split_config.get('enabled', False)
+            split_config = self.config.split
+            use_split = split_config.enabled
             
             # 选择要使用的分组列
             # 检查所有split列是否存在于数据中，如果存在则使用第一个
@@ -115,13 +120,13 @@ class ModelComparison:
             if use_split and self.split_column:
                 self._create_split_groups()
     
-    def _add_split_columns(self, files_config, split_cols):
+    def _add_split_columns(self, files_config: List[Dict[str, Any]], split_cols: List[str]) -> None:
         """
         Add split columns from original data to merged data
         
         Args:
-            files_config (list): List of file configurations
-            split_cols (list): List of split column names
+            files_config (List[Dict[str, Any]]): List of file configurations
+            split_cols (List[str]): List of split column names
         """
         # 需要保存的原始数据，包含split列
         original_data_frames = []
@@ -190,7 +195,7 @@ class ModelComparison:
             if existing_split_cols:
                 self.logger.info(f"成功添加split列到合并数据中: {existing_split_cols}")
     
-    def _create_split_groups(self):
+    def _create_split_groups(self) -> None:
         """
         Create data groups based on split column
         """
@@ -211,32 +216,40 @@ class ModelComparison:
             if not group_df.empty:
                 group_models_data = {}
                 
-                for model_name in self.evaluator.models_data.keys():
+                for model_name, data_tuple in self.evaluator.models_data.items():
                     prob_column_name = f"{model_name}_prob"
+                    pred_column_name = f"{model_name}_pred"
                     
                     if prob_column_name in group_df.columns:
-                        group_models_data[model_name] = (
-                            group_df['label'].values,
-                            group_df[prob_column_name].values
-                        )
+                        # Always have true labels and probabilities
+                        y_true = group_df['label'].values
+                        y_pred_proba = group_df[prob_column_name].values
+                        
+                        # Check for prediction labels
+                        if pred_column_name in group_df.columns:
+                            y_pred = group_df[pred_column_name].values
+                            group_models_data[model_name] = (y_true, y_pred_proba, y_pred)
+                        else:
+                            # Fallback to tuple with None for y_pred
+                            group_models_data[model_name] = (y_true, y_pred_proba, None)
                 
                 self.split_groups[dataset_group_name] = group_models_data
     
-    def save_merged_data(self):
+    def save_merged_data(self) -> None:
         """
         Save merged data to a file
         """
-        merged_data_config = self.config.get('merged_data', {})
-        if merged_data_config.get('enabled', True):
-            self.evaluator.save_merged_data(merged_data_config.get('save_name', 'combined_predictions.csv'))
+        merged_data_config = self.config.merged_data
+        if merged_data_config.enabled:
+            self.evaluator.save_merged_data(merged_data_config.save_name)
     
-    def run_evaluation(self):
+    def run_evaluation(self) -> None:
         """
         Run the entire evaluation process
         """
         # 获取split配置
-        split_config = self.config.get('split', {})
-        use_split = split_config.get('enabled', False)
+        split_config = self.config.split
+        use_split = split_config.enabled
         
         # 根据是否有分组分别处理
         if use_split and self.split_column and self.split_groups:
@@ -246,7 +259,7 @@ class ModelComparison:
             # 不分组，处理所有数据
             self._run_evaluation_all_data()
     
-    def _run_evaluation_by_group(self):
+    def _run_evaluation_by_group(self) -> None:
         """
         Run evaluation for each data group
         """
@@ -275,7 +288,7 @@ class ModelComparison:
         # 集中计算所有分组的基本指标并保存
         self._calculate_all_basic_metrics()
     
-    def _run_evaluation_all_data(self):
+    def _run_evaluation_all_data(self) -> None:
         """
         Run evaluation for all data without grouping
         """
@@ -294,7 +307,7 @@ class ModelComparison:
         # 计算目标指标
         self._calculate_target_metrics()
 
-    def _convert_models_data_for_plotting(self, models_data: dict) -> dict:
+    def _convert_models_data_for_plotting(self, models_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Convert models_data from tuple format to dict format for plotting.
 
@@ -305,11 +318,31 @@ class ModelComparison:
             Dict mapping model_name -> (y_true_array, y_prob_array)
         """
         plotting_data = {}
-        for model_name, (y_true, y_prob) in models_data.items():
+        for model_name, (y_true, y_prob, *_) in models_data.items():
             plotting_data[model_name] = (np.array(y_true), np.array(y_prob))
         return plotting_data
 
-    def _generate_visualizations(self, plotter, models_data, output_dir, dataset_group_name=None):
+    def _model_to_dict(self, model: Any) -> Dict[str, Any]:
+        """
+        Convert a pydantic model to a plain dict with compatibility for v1/v2.
+
+        Args:
+            model (Any): Pydantic model instance to convert
+
+        Returns:
+            Dict[str, Any]: Serialized model data as a dictionary
+        """
+        if hasattr(model, "model_dump"):
+            return model.model_dump()
+        return model.dict()
+
+    def _generate_visualizations(
+        self,
+        plotter: Plotter,
+        models_data: Dict[str, Any],
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
         """
         Generate visualization plots using PlotManager
 
@@ -319,39 +352,45 @@ class ModelComparison:
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for title. Defaults to None.
         """
-        viz_config = self.config.get('visualization', {})
+        viz_config = self.config.visualization
 
         plotting_data = self._convert_models_data_for_plotting(models_data)
 
         title_suffix = f"{dataset_group_name}组 " if dataset_group_name else ""
         prefix = f"{dataset_group_name}_" if dataset_group_name else ""
 
-        if viz_config.get('roc', {}).get('enabled', True):
-            save_name = viz_config.get('roc', {}).get('save_name', f'{prefix}roc_curves.pdf')
-            title = viz_config.get('roc', {}).get('title', f'{title_suffix}ROC Curves Comparison')
+        if viz_config.roc.enabled:
+            save_name = viz_config.roc.save_name or f'{prefix}roc_curves.pdf'
+            title = viz_config.roc.title or f'{title_suffix}ROC Curves Comparison'
             plotter.plot_roc_v2(plotting_data, save_name=save_name, title=title)
             self.logger.info(f"{title_suffix}ROC曲线已保存到 {os.path.join(output_dir, save_name)}")
 
-        if viz_config.get('dca', {}).get('enabled', True):
-            save_name = viz_config.get('dca', {}).get('save_name', f'{prefix}decision_curves.pdf')
-            title = viz_config.get('dca', {}).get('title', f'{title_suffix}Decision Curve')
+        if viz_config.dca.enabled:
+            save_name = viz_config.dca.save_name or f'{prefix}decision_curves.pdf'
+            title = viz_config.dca.title or f'{title_suffix}Decision Curve'
             plotter.plot_dca_v2(plotting_data, save_name=save_name, title=title)
             self.logger.info(f"{title_suffix}决策曲线已保存到 {os.path.join(output_dir, save_name)}")
 
-        if viz_config.get('calibration', {}).get('enabled', True):
-            save_name = viz_config.get('calibration', {}).get('save_name', f'{prefix}calibration_curves.pdf')
-            title = viz_config.get('calibration', {}).get('title', f'{title_suffix}Calibration Curves')
-            n_bins = viz_config.get('calibration', {}).get('n_bins', 10)
+        if viz_config.calibration.enabled:
+            save_name = viz_config.calibration.save_name or f'{prefix}calibration_curves.pdf'
+            title = viz_config.calibration.title or f'{title_suffix}Calibration Curves'
+            n_bins = viz_config.calibration.n_bins or 10
             plotter.plot_calibration_v2(plotting_data, save_name=save_name, n_bins=n_bins, title=title)
             self.logger.info(f"{title_suffix}校准曲线已保存到 {os.path.join(output_dir, save_name)}")
 
-        if viz_config.get('pr_curve', {}).get('enabled', True):
-            save_name = viz_config.get('pr_curve', {}).get('save_name', f'{prefix}precision_recall_curves.pdf')
-            title = viz_config.get('pr_curve', {}).get('title', f'{title_suffix}Precision-Recall Curves')
+        if viz_config.pr_curve.enabled:
+            save_name = viz_config.pr_curve.save_name or f'{prefix}precision_recall_curves.pdf'
+            title = viz_config.pr_curve.title or f'{title_suffix}Precision-Recall Curves'
             plotter.plot_pr_curve(plotting_data, save_name=save_name, title=title)
             self.logger.info(f"{title_suffix}精确率-召回率曲线已保存到 {os.path.join(output_dir, save_name)}")
     
-    def _run_delong_test(self, models_data, data_df, output_dir, dataset_group_name=None):
+    def _run_delong_test(
+        self,
+        models_data: Dict[str, Any],
+        data_df: pd.DataFrame,
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
         """
         Run DeLong test for comparing AUCs
         
@@ -361,9 +400,9 @@ class ModelComparison:
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
         """
-        delong_config = self.config.get('delong_test', {})
-        if delong_config.get('enabled', True) and len(models_data) >= 2:
-            save_name = delong_config.get('save_name', 'delong_results.json')
+        delong_config = self.config.delong_test
+        if delong_config.enabled and len(models_data) >= 2:
+            save_name = delong_config.save_name
             
             # 创建临时评估器
             temp_evaluator = MultifileEvaluator(output_dir=output_dir)
@@ -376,12 +415,12 @@ class ModelComparison:
             temp_evaluator.run_delong_test(save_name)
             self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}DeLong检验结果已保存到 {os.path.join(output_dir, save_name)}")
     
-    def _calculate_all_basic_metrics(self):
+    def _calculate_all_basic_metrics(self) -> None:
         """
         Calculate and save basic metrics for all datasets in a single file
         """
-        basic_metrics_config = self.config.get('metrics', {}).get('basic_metrics', {})
-        if not basic_metrics_config.get('enabled', False):
+        basic_metrics_config = self.config.metrics.basic_metrics
+        if not basic_metrics_config.enabled:
             return
 
         self.logger.info("开始计算所有数据集的基本指标...")
@@ -390,14 +429,20 @@ class ModelComparison:
             self.logger.info(f"计算 {dataset_group_name} 数据集的基本指标...")
             group_df = self.evaluator.data[self.evaluator.data[self.split_column] == dataset_group_name]
 
-            for model_name, (y_true, y_pred_proba) in dataset_models_data.items():
-                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, group_df, dataset_group_name)
+            for model_name, (y_true, y_pred_proba, y_pred) in dataset_models_data.items():
+                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, group_df, dataset_group_name, y_pred)
                 if model_metrics:
                     self.metrics_store.add_metrics(dataset_group_name, model_name, 'basic_metrics', model_metrics)
 
         self.logger.info("所有数据集的基本指标计算完成")
     
-    def _calculate_basic_metrics(self, models_data: dict, data_df: pd.DataFrame, output_dir: str, dataset_group_name: str = None):
+    def _calculate_basic_metrics(
+        self,
+        models_data: Dict[str, Any],
+        data_df: pd.DataFrame,
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
         """
         Calculate basic metrics for each model
 
@@ -407,16 +452,17 @@ class ModelComparison:
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
         """
-        basic_metrics_config = self.config.get('metrics', {}).get('basic_metrics', {})
-        if not basic_metrics_config.get('enabled', False):
+        basic_metrics_config = self.config.metrics.basic_metrics
+        if not basic_metrics_config.enabled:
             self.logger.info("基本指标计算未启用，跳过计算")
             return
 
         self.logger.info("开始计算基本指标...")
         group = dataset_group_name or 'all'
 
-        for model_name, (y_true, y_pred_proba) in models_data.items():
-            model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, data_df, dataset_group_name)
+        for model_name, data_tuple in models_data.items():
+            y_true, y_pred_proba, y_pred = data_tuple if len(data_tuple) == 3 else (data_tuple[0], data_tuple[1], None)
+            model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, data_df, dataset_group_name, y_pred)
             if model_metrics:
                 self.metrics_store.add_metrics(group, model_name, 'basic_metrics', model_metrics)
                 self.logger.info(f"{model_name} 基本指标计算完成")
@@ -425,15 +471,15 @@ class ModelComparison:
 
         self.logger.info(f"{group}组基本指标计算完成")
     
-    def _calculate_youden_metrics(self, dataset_group_name=None):
+    def _calculate_youden_metrics(self, dataset_group_name: Optional[str] = None) -> None:
         """
         Calculate Youden metrics
 
         Args:
             dataset_group_name (str, optional): Split value. Defaults to None.
         """
-        youden_config = self.config.get('metrics', {}).get('youden_metrics', {})
-        if not youden_config.get('enabled', False):
+        youden_config = self.config.metrics.youden_metrics
+        if not youden_config.enabled:
             self.logger.info("Youden指标计算未启用，跳过计算")
             return
 
@@ -460,7 +506,7 @@ class ModelComparison:
 
             self.logger.info("Youden指标计算完成")
     
-    def _calculate_youden_metrics_by_split(self):
+    def _calculate_youden_metrics_by_split(self) -> None:
         """
         Calculate Youden metrics for train/test split scenario using ThresholdManager and MetricsStore
         """
@@ -505,21 +551,21 @@ class ModelComparison:
 
         self.logger.info("所有数据集的Youden指数评估完成")
     
-    def _calculate_target_metrics(self, dataset_group_name=None):
+    def _calculate_target_metrics(self, dataset_group_name: Optional[str] = None) -> None:
         """
         Calculate metrics based on target sensitivity/specificity
 
         Args:
             dataset_group_name (str, optional): Split value. Defaults to None.
         """
-        target_metrics_config = self.config.get('metrics', {}).get('target_metrics', {})
-        if not target_metrics_config.get('enabled', False):
+        target_metrics_config = self.config.metrics.target_metrics
+        if not target_metrics_config.enabled:
             self.logger.info("目标指标计算未启用，跳过计算")
             return
 
         self.logger.info("开始计算目标指标...")
 
-        targets = target_metrics_config.get('targets', {})
+        targets = target_metrics_config.targets
         if not targets:
             self.logger.warning("目标指标配置为空，跳过目标指标计算")
             return
@@ -550,7 +596,7 @@ class ModelComparison:
 
             self.logger.info("目标指标计算完成")
     
-    def _calculate_target_metrics_by_split(self, targets):
+    def _calculate_target_metrics_by_split(self, targets: Dict[str, float]) -> None:
         """
         Calculate target metrics for train/test split scenario
 
@@ -600,7 +646,12 @@ class ModelComparison:
 
         self.logger.info("所有数据集的目标指标评估完成")
 
-    def _apply_thresholds_to_test(self, test_models_data, train_thresholds, apply_function_name):
+    def _apply_thresholds_to_test(
+        self,
+        test_models_data: Dict[str, Any],
+        train_thresholds: Dict[str, float],
+        apply_function_name: str
+    ) -> Dict[str, Any]:
         """
         Apply thresholds from training set to test set
         
@@ -682,18 +733,19 @@ class ModelComparison:
             y_prob=temp_df['y_pred_proba'].values
         )
 
-    def _compute_model_metrics(self, model_name: str, y_true: np.ndarray, y_pred_proba: np.ndarray, 
-                             data_df: pd.DataFrame, dataset_group_name: str = None) -> dict:
+    def _compute_model_metrics(self, model_name: str, y_true: np.ndarray, y_pred_proba: np.ndarray,
+                             data_df: pd.DataFrame, dataset_group_name: str = None, y_pred: np.ndarray = None) -> dict:
         """
         Compute basic metrics for a single model
-        
+
         Args:
             model_name (str): Name of the model
             y_true (np.ndarray): True labels
             y_pred_proba (np.ndarray): Predicted probabilities
             data_df (pd.DataFrame): Data DataFrame
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
-            
+            y_pred (np.ndarray, optional): Predicted labels. If None, will be generated from probabilities.
+
         Returns:
             dict: Dictionary containing basic metrics
         """
@@ -703,17 +755,31 @@ class ModelComparison:
                 'y_true': y_true,
                 'y_pred_proba': y_pred_proba
             })
+
+            # Add predictions if available
+            if y_pred is not None:
+                temp_df['y_pred'] = y_pred
+
             # Remove any rows containing NaN
             temp_df = temp_df.dropna()
-            
+
             if len(temp_df) > 0:
                 # Calculate basic metrics using the metrics module
                 # 确保y_true和y_pred_proba都是numpy数组
                 y_true_array = temp_df['y_true'].values
                 y_pred_proba_array = temp_df['y_pred_proba'].values
-                
-                # 计算预测标签（使用0.5作为阈值）
-                y_pred_array = (y_pred_proba_array >= 0.5).astype(int)
+
+                # Use provided prediction labels if available, otherwise compute from probability
+                if 'y_pred' in temp_df.columns and temp_df['y_pred'].notna().any():
+                    y_pred_array = temp_df['y_pred'].values.astype(int)
+                    self.logger.debug(f"Using provided prediction labels for model '{model_name}'.")
+                else:
+                    self.logger.warning(
+                        f"Prediction labels for model '{model_name}' not found or are all NaN. "
+                        f"Falling back to generating labels from probabilities using a 0.5 threshold. "
+                        f"This may not accurately reflect the model's original predictions."
+                    )
+                    y_pred_array = (y_pred_proba_array >= 0.5).astype(int)
                 
                 # 打印调试信息
                 self.logger.debug(f"调试信息 - {model_name}:")
@@ -740,7 +806,7 @@ class ModelComparison:
             self.logger.warning(f"警告: {model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标时出错: {str(e)}")
             return None
 
-    def save_all_metrics(self):
+    def save_all_metrics(self) -> None:
         """
         Save all metrics to a single JSON file
         """
@@ -754,7 +820,7 @@ class ModelComparison:
                 metric_types = list(metrics.keys())
                 self.logger.info(f"  模型 {model_name} 的指标类型: {', '.join(metric_types)}")
 
-    def run(self):    
+    def run(self) -> None:    
         
         # 读取和准备数据
         self.setup()

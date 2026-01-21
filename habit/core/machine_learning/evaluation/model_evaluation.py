@@ -447,15 +447,22 @@ class MultifileEvaluator:
         self.data = merged_df
         
         # Prepare models_data dictionary for plotting module
-        # Keys are model names, values are (y_true, y_pred_proba) tuples  
+        # Keys are model names, values are (y_true, y_pred_proba, y_pred) tuples
         for model_name, _ in standardized_dfs:
             prob_column_name = f"{model_name}_prob"
-            
+            pred_column_name = f"{model_name}_pred"
+
             if prob_column_name in self.data.columns:
-                self.models_data[model_name] = (
-                    self.data['label'].values,
-                    self.data[prob_column_name].values
-                )
+                y_true = self.data['label'].values
+                y_pred_proba = self.data[prob_column_name].values
+
+                # Check if prediction column exists
+                if pred_column_name in self.data.columns:
+                    y_pred = self.data[pred_column_name].values
+                    self.models_data[model_name] = (y_true, y_pred_proba, y_pred)
+                else:
+                    # Fallback to tuple without y_pred
+                    self.models_data[model_name] = (y_true, y_pred_proba)
         
         return self
     
