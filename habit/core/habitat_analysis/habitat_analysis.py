@@ -37,17 +37,26 @@ class HabitatAnalysis:
     Habitat Analysis class for performing clustering analysis on medical images.
     
     Acts as a coordinator for FeatureManager, ClusteringManager, and ResultManager.
+    Supports dependency injection for better testability and flexibility.
     """
 
     def __init__(
         self,
         config: Union[Dict[str, Any], HabitatAnalysisConfig],
+        feature_manager: Optional[FeatureManager] = None,
+        clustering_manager: Optional[ClusteringManager] = None,
+        result_manager: Optional[ResultManager] = None,
+        logger: Optional[Any] = None,
     ):
         """
         Initialize HabitatAnalysis from a configuration dictionary or a Pydantic model.
         
         Args:
             config: A dictionary conforming to HabitatAnalysisConfig schema or an instance of it.
+            feature_manager: Optional FeatureManager instance (will be created if not provided)
+            clustering_manager: Optional ClusteringManager instance (will be created if not provided)
+            result_manager: Optional ResultManager instance (will be created if not provided)
+            logger: Optional logger instance (will be created if not provided)
         """
         if isinstance(config, HabitatAnalysisConfig):
             self.config = config
@@ -56,12 +65,12 @@ class HabitatAnalysis:
         else:
             raise TypeError("config must be a dict or HabitatAnalysisConfig")
 
-        self._setup_logging()
+        self._setup_logging(logger)
         
-        # Initialize Managers
-        self.feature_manager = FeatureManager(self.config, self.logger)
-        self.clustering_manager = ClusteringManager(self.config, self.logger)
-        self.result_manager = ResultManager(self.config, self.logger)
+        # Initialize Managers - use injected instances or create new ones
+        self.feature_manager = feature_manager or FeatureManager(self.config, self.logger)
+        self.clustering_manager = clustering_manager or ClusteringManager(self.config, self.logger)
+        self.result_manager = result_manager or ResultManager(self.config, self.logger)
         
         # Setup Data
         self._setup_data_paths()
@@ -74,8 +83,15 @@ class HabitatAnalysis:
         self.result_manager.set_logging_info(self._log_file_path, self._log_level)
 
     
-    def _setup_logging(self) -> None:
+    def _setup_logging(self, logger: Optional[Any] = None) -> None:
         """Setup logging configuration."""
+        if logger is not None:
+            self.logger = logger
+            manager = LoggerManager()
+            self._log_file_path = manager.get_log_file()
+            self._log_level = logging.INFO
+            return
+
         manager = LoggerManager()
         
         if manager.get_log_file() is not None:

@@ -6,6 +6,8 @@ Uses Pydantic for robust validation and type safety.
 from typing import List, Dict, Any, Optional, Union, Literal
 from pydantic import BaseModel, Field, validator, ConfigDict
 
+from habit.core.common.config_base import BaseConfig
+
 class InputFileConfig(BaseModel):
     path: str
     name: str = ""
@@ -105,7 +107,7 @@ class MetricsConfig(BaseModel):
     youden_metrics: YoudenMetricsConfig = Field(default_factory=YoudenMetricsConfig)
     target_metrics: TargetMetricsConfig = Field(default_factory=TargetMetricsConfig)
 
-class ModelComparisonConfig(BaseModel):
+class ModelComparisonConfig(BaseConfig):
     model_config = ConfigDict(extra='allow')
 
     output_dir: str
@@ -122,7 +124,7 @@ class ModelComparisonConfig(BaseModel):
             raise ValueError("output_dir is required and cannot be empty")
         return v
 
-class MLConfig(BaseModel):
+class MLConfig(BaseConfig):
     model_config = ConfigDict(extra='allow') # Allow extra fields for backward compatibility during migration
 
     input: List[InputFileConfig]

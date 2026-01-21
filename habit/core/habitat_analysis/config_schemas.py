@@ -6,11 +6,13 @@ Uses Pydantic for robust validation and type safety.
 from typing import List, Dict, Any, Optional, Union, Literal
 from pydantic import BaseModel, Field
 
+from habit.core.common.config_base import BaseConfig
+
 # -----------------------------------------------------------------------------
 # General/Root Configuration
 # -----------------------------------------------------------------------------
 
-class HabitatAnalysisConfig(BaseModel):
+class HabitatAnalysisConfig(BaseConfig):
     """Root model for the entire habitat analysis configuration."""
     data_dir: str = Field(..., description="Path to the input data directory or a file list YAML.")
     out_dir: str = Field(..., description="Path to the output directory for results.")

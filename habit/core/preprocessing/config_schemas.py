@@ -6,6 +6,8 @@ Uses Pydantic for robust validation and type safety.
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
+from habit.core.common.config_base import BaseConfig
+
 
 class SaveOptionsConfig(BaseModel):
     """Options for saving intermediate preprocessing results."""
@@ -28,7 +30,7 @@ class PreprocessingStepConfig(BaseModel):
         return v
 
 
-class PreprocessingConfig(BaseModel):
+class PreprocessingConfig(BaseConfig):
     """Top-level preprocessing configuration."""
 
     model_config = ConfigDict(extra="allow")

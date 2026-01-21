@@ -18,7 +18,13 @@ from ..evaluation.metrics import (
     apply_youden_threshold,
     apply_target_threshold
 )
-from ..evaluation.prediction_container import PredictionContainer
+from ..evaluation.prediction_container import (
+    PredictionContainer,
+    create_prediction_container,
+    from_tuple,
+    convert_models_data_to_containers,
+    convert_containers_to_models_data
+)
 from ..evaluation.threshold_manager import ThresholdManager
 from ..reporting.report_exporter import ReportExporter, MetricsStore
 from ..visualization.plot_manager import PlotManager
@@ -28,13 +34,30 @@ from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_
 class ModelComparison:
     """
     Tool for comparing and evaluating multiple machine learning models
+    
+    Supports dependency injection for better testability and flexibility.
     """
-    def __init__(self, config: Union[Dict[str, Any], ModelComparisonConfig]) -> None:
+    def __init__(
+        self, 
+        config: Union[Dict[str, Any], ModelComparisonConfig],
+        evaluator: Optional[MultifileEvaluator] = None,
+        reporter: Optional[ReportExporter] = None,
+        threshold_manager: Optional[ThresholdManager] = None,
+        plot_manager: Optional[PlotManager] = None,
+        metrics_store: Optional[MetricsStore] = None,
+        logger: Optional[Any] = None
+    ) -> None:
         """
-        Initialize the model comparison tool
+        Initialize the model comparison tool with optional dependency injection
         
         Args:
             config (Dict[str, Any] or ModelComparisonConfig): Parsed config dict or validated config object
+            evaluator (Optional[MultifileEvaluator]): Evaluator instance (will be created if not provided)
+            reporter (Optional[ReportExporter]): Report exporter instance (will be created if not provided)
+            threshold_manager (Optional[ThresholdManager]): Threshold manager instance (will be created if not provided)
+            plot_manager (Optional[PlotManager]): Plot manager instance (will be created if not provided)
+            metrics_store (Optional[MetricsStore]): Metrics store instance (will be created if not provided)
+            logger (Optional[Any]): Logger instance (will be created if not provided)
         """
         if isinstance(config, ModelComparisonConfig):
             self.config = config
@@ -46,34 +69,37 @@ class ModelComparison:
         os.makedirs(self.output_dir, exist_ok=True)
         
         # Initialize logger - check if CLI already configured logging
-        manager = LoggerManager()
-        
-        if manager.get_log_file() is not None:
-            # Logging already configured by CLI, just get module logger
-            self.logger = get_module_logger('model.comparison')
-            self.logger.info("Using existing logging configuration from CLI entry point")
+        if logger is not None:
+            self.logger = logger
         else:
-            # Logging not configured yet (e.g., direct class usage)
-            self.logger = setup_logger(
-                name="model.comparison",
-                output_dir=self.output_dir,
-                log_filename='processing.log'
-            )
+            manager = LoggerManager()
+            
+            if manager.get_log_file() is not None:
+                # Logging already configured by CLI, just get module logger
+                self.logger = get_module_logger('model.comparison')
+                self.logger.info("Using existing logging configuration from CLI entry point")
+            else:
+                # Logging not configured yet (e.g., direct class usage)
+                self.logger = setup_logger(
+                    name="model.comparison",
+                    output_dir=self.output_dir,
+                    log_filename='processing.log'
+                )
         
-        # 初始化评估器
-        self.evaluator = MultifileEvaluator(output_dir=self.output_dir)
+        # 初始化评估器 - 使用注入的实例或创建新实例
+        self.evaluator = evaluator or MultifileEvaluator(output_dir=self.output_dir)
 
-        # 初始化报告导出器
-        self.reporter = ReportExporter(output_dir=self.output_dir, logger=self.logger)
+        # 初始化报告导出器 - 使用注入的实例或创建新实例
+        self.reporter = reporter or ReportExporter(output_dir=self.output_dir, logger=self.logger)
 
-        # 初始化阈值管理器
-        self.threshold_manager = ThresholdManager()
+        # 初始化阈值管理器 - 使用注入的实例或创建新实例
+        self.threshold_manager = threshold_manager or ThresholdManager()
 
-        # 初始化绘图管理器
-        self.plot_manager = PlotManager(config=self._model_to_dict(self.config), output_dir=self.output_dir)
+        # 初始化绘图管理器 - 使用注入的实例或创建新实例
+        self.plot_manager = plot_manager or PlotManager(config=self._model_to_dict(self.config), output_dir=self.output_dir)
 
-        # 初始化指标存储
-        self.metrics_store = MetricsStore()
+        # 初始化指标存储 - 使用注入的实例或创建新实例
+        self.metrics_store = metrics_store or MetricsStore()
 
         # 初始化分组数据存储
         self.split_groups = {}
@@ -668,15 +694,10 @@ class ModelComparison:
         for model_name, (y_true, y_pred_proba) in test_models_data.items():
             # 检查是否有该模型的训练集阈值
             if model_name in train_thresholds:
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
+                # Clean data using PredictionContainer
+                container = create_prediction_container(y_true, y_pred_proba)
                 
-                if len(temp_df) > 0:
+                if len(container) > 0:
                     # 使用训练集确定的阈值评估测试集
                     threshold = train_thresholds[model_name]
                     
@@ -684,21 +705,21 @@ class ModelComparison:
                         # 根据函数名动态选择应用阈值的函数
                         if apply_function_name == 'apply_youden_threshold':
                             test_metrics = apply_youden_threshold(
-                                temp_df['y_true'].values,
-                                temp_df['y_pred_proba'].values,
+                                container.y_true,
+                                container.get_eval_probs(),
                                 threshold
                             )
                         elif apply_function_name == 'apply_target_threshold':
                             test_metrics = apply_target_threshold(
-                                temp_df['y_true'].values,
-                                temp_df['y_pred_proba'].values,
+                                container.y_true,
+                                container.get_eval_probs(),
                                 threshold
                             )
                         else:
                             raise ValueError(f"未知的应用阈值函数: {apply_function_name}")
                         
                         test_results[model_name] = test_metrics
-                        self.logger.info(f"{model_name} 测试集应用训练集阈值评估完成，有效样本数: {len(temp_df)}")
+                        self.logger.info(f"{model_name} 测试集应用训练集阈值评估完成，有效样本数: {len(container)}")
                     except Exception as e:
                         self.logger.warning(f"警告: {model_name} 测试集应用阈值时出错: {str(e)}")
                 else:
@@ -719,19 +740,7 @@ class ModelComparison:
         Returns:
             PredictionContainer instance
         """
-        temp_df = pd.DataFrame({
-            'y_true': y_true,
-            'y_pred_proba': y_pred_proba
-        })
-        temp_df = temp_df.dropna()
-
-        if len(temp_df) == 0:
-            raise ValueError("No valid data after removing NaN values")
-
-        return PredictionContainer(
-            y_true=temp_df['y_true'].values,
-            y_prob=temp_df['y_pred_proba'].values
-        )
+        return create_prediction_container(y_true, y_pred_proba)
 
     def _compute_model_metrics(self, model_name: str, y_true: np.ndarray, y_pred_proba: np.ndarray,
                              data_df: pd.DataFrame, dataset_group_name: str = None, y_pred: np.ndarray = None) -> dict:
@@ -750,57 +759,39 @@ class ModelComparison:
             dict: Dictionary containing basic metrics
         """
         try:
-            # Create a temporary DataFrame to handle NaN values
-            temp_df = pd.DataFrame({
-                'y_true': y_true,
-                'y_pred_proba': y_pred_proba
-            })
-
-            # Add predictions if available
-            if y_pred is not None:
-                temp_df['y_pred'] = y_pred
-
-            # Remove any rows containing NaN
-            temp_df = temp_df.dropna()
-
-            if len(temp_df) > 0:
-                # Calculate basic metrics using the metrics module
-                # 确保y_true和y_pred_proba都是numpy数组
-                y_true_array = temp_df['y_true'].values
-                y_pred_proba_array = temp_df['y_pred_proba'].values
-
-                # Use provided prediction labels if available, otherwise compute from probability
-                if 'y_pred' in temp_df.columns and temp_df['y_pred'].notna().any():
-                    y_pred_array = temp_df['y_pred'].values.astype(int)
-                    self.logger.debug(f"Using provided prediction labels for model '{model_name}'.")
-                else:
-                    self.logger.warning(
-                        f"Prediction labels for model '{model_name}' not found or are all NaN. "
-                        f"Falling back to generating labels from probabilities using a 0.5 threshold. "
-                        f"This may not accurately reflect the model's original predictions."
-                    )
-                    y_pred_array = (y_pred_proba_array >= 0.5).astype(int)
-                
-                # 打印调试信息
-                self.logger.debug(f"调试信息 - {model_name}:")
-                self.logger.debug(f"y_true shape: {y_true_array.shape}")
-                self.logger.debug(f"y_pred_proba shape: {y_pred_proba_array.shape}")
-                self.logger.debug(f"y_pred shape: {y_pred_array.shape}")
-                self.logger.debug(f"y_true unique values: {np.unique(y_true_array)}")
-                self.logger.debug(f"y_pred unique values: {np.unique(y_pred_array)}")
-                self.logger.debug(f"y_pred_proba range: [{np.min(y_pred_proba_array)}, {np.max(y_pred_proba_array)}]")
-                
-                metrics = calculate_metrics(
-                    y_true=y_true_array,
-                    y_pred_proba=y_pred_proba_array,
-                    y_pred=y_pred_array
-                )
-                
-                self.logger.info(f"{model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标，有效样本数: {len(temp_df)}")
-                return metrics
-            else:
+            container = create_prediction_container(y_true, y_pred_proba, y_pred)
+            
+            if len(container) == 0:
                 self.logger.warning(f"警告: {model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}没有有效的预测数据")
                 return None
+            
+            # Use provided prediction labels if available, otherwise compute from probability
+            if y_pred is not None:
+                self.logger.debug(f"Using provided prediction labels for model '{model_name}'.")
+            else:
+                self.logger.warning(
+                    f"Prediction labels for model '{model_name}' not found. "
+                    f"Falling back to generating labels from probabilities using a 0.5 threshold. "
+                    f"This may not accurately reflect of model's original predictions."
+                )
+            
+            # 打印调试信息
+            self.logger.debug(f"调试信息 - {model_name}:")
+            self.logger.debug(f"y_true shape: {container.y_true.shape}")
+            self.logger.debug(f"y_pred_proba shape: {container.get_eval_probs().shape}")
+            self.logger.debug(f"y_pred shape: {container.y_pred.shape}")
+            self.logger.debug(f"y_true unique values: {np.unique(container.y_true)}")
+            self.logger.debug(f"y_pred unique values: {np.unique(container.y_pred)}")
+            self.logger.debug(f"y_pred_proba range: [{np.min(container.get_eval_probs())}, {np.max(container.get_eval_probs())}]")
+            
+            metrics = calculate_metrics(
+                y_true=container.y_true,
+                y_pred_proba=container.get_eval_probs(),
+                y_pred=container.y_pred
+            )
+            
+            self.logger.info(f"{model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标，有效样本数: {len(container)}")
+            return metrics
                 
         except Exception as e:
             self.logger.warning(f"警告: {model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标时出错: {str(e)}")
