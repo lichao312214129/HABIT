@@ -1,17 +1,15 @@
 """
 Direct pooling strategy: concatenate all voxel features across subjects and cluster once.
+Refactored to use HabitatPipeline.
 """
 
-import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
-
-import numpy as np
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Optional
 import pandas as pd
-import SimpleITK as sitk
 
-from habit.utils.parallel_utils import parallel_map
-from habit.core.habitat_analysis.config import ResultColumns
 from .base_strategy import BaseClusteringStrategy
+from ..pipelines.pipeline_builder import build_habitat_pipeline
+from ..pipelines.base_pipeline import HabitatPipeline
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
@@ -19,15 +17,14 @@ if TYPE_CHECKING:
 
 class DirectPoolingStrategy(BaseClusteringStrategy):
     """
-    Direct pooling strategy.
+    Direct pooling strategy using HabitatPipeline.
 
     Flow:
-    1) Extract voxel features for all subjects
-    2) Concatenate all voxel features across subjects (e.g., 50 subjects × 100 voxels = 5000 rows)
-    3) Cluster all voxels directly to identify habitats (single population-level clustering)
-    4) Assign habitat labels back to each subject's voxels
-
-    This strategy skips supervoxel generation entirely and works with raw voxel features.
+    1) Voxel feature extraction (Pipeline Step 1)
+    2) Subject-level preprocessing (Pipeline Step 2)
+    3) Concatenate all voxels (Pipeline Step 3)
+    4) Group-level preprocessing (Pipeline Step 4)
+    5) Population clustering (all voxels -> habitat) (Pipeline Step 5)
     """
 
     def __init__(self, analysis: "HabitatAnalysis"):
@@ -38,219 +35,147 @@ class DirectPoolingStrategy(BaseClusteringStrategy):
             analysis: HabitatAnalysis instance with shared utilities
         """
         super().__init__(analysis)
+        self.pipeline: Optional[HabitatPipeline] = None
 
     def run(
         self,
         subjects: Optional[List[str]] = None,
-        save_results_csv: bool = True
+        save_results_csv: Optional[bool] = None,
+        load_from: Optional[str] = None
     ) -> pd.DataFrame:
         """
-        Execute direct pooling clustering.
+        Execute direct pooling clustering using Pipeline.
 
         Args:
             subjects: List of subjects to process (None means all subjects)
-            save_results_csv: Whether to save results to CSV
+            save_results_csv: Whether to save results to CSV (defaults to config.save_results_csv)
+            load_from: Optional path to a saved pipeline. If provided, the pipeline
+                is loaded and only transform() is executed.
 
         Returns:
             Results DataFrame
         """
-        if subjects is None:
-            subjects = list(self.analysis.images_paths.keys())
+        # Use config value if parameter not provided, allowing runtime override
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+        subjects = self._prepare_subjects(subjects)
 
-        features_all, subject_meta, failed_subjects = self._extract_all_voxel_features(subjects)
+        # Prepare input data for pipeline
+        X = self._build_input(subjects)
 
-        if features_all.empty:
-            raise ValueError("No valid voxel features for analysis")
-
-        # Clean features (handle inf, types)
-        features_all = self.analysis.feature_manager.clean_features(features_all)
+        pipeline_path = self._resolve_pipeline_path(load_from)
         
-        # Apply group-level preprocessing (delegates to mode_handler for stateful processing)
-        features_all = self.analysis.feature_manager.apply_preprocessing(
-            features_all, level='group', mode_handler=self.analysis.mode_handler
-        )
+        # Ensure output directory exists
+        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
-        # Perform clustering
-        habitat_labels, optimal_n_clusters, scores = self.analysis.mode_handler.cluster_habitats(
-            features_all, self.analysis.clustering_manager.supervoxel2habitat_clustering
-        )
-
-        # Plot scores if available
-        if scores and self.config.plot_curves:
-            self.analysis.clustering_manager.plot_habitat_scores(scores, optimal_n_clusters)
-
-        # Visualize clustering results
-        if self.config.plot_curves:
-            self.analysis.clustering_manager.visualize_habitat_clustering(
-                features_all, habitat_labels, optimal_n_clusters
+        if load_from:
+            if self.config.verbose:
+                self.logger.info("Loading and running Direct Pooling pipeline...")
+                
+            if not pipeline_path.exists():
+                raise FileNotFoundError(
+                    f"Saved pipeline not found at {pipeline_path}. "
+                    "Provide a valid load_from path or run without load_from to train."
+                )
+            
+            # Load pipeline
+            self.pipeline = HabitatPipeline.load(str(pipeline_path))
+            
+            # Update references in loaded pipeline to use current analysis instances.
+            # This ensures that config changes (like out_dir, plot_curves) are reflected in all steps.
+            self._update_pipeline_references(self.pipeline)
+            
+            # Disable image outputs and plots for prediction runs to avoid unnecessary I/O.
+            self.pipeline.config.plot_curves = False
+            
+            # Transform
+            self.analysis.results_df = self.pipeline.transform(X)
+        else:
+            if self.config.verbose:
+                self.logger.info("Building and fitting Direct Pooling pipeline...")
+                
+            # Build new pipeline
+            self.pipeline = build_habitat_pipeline(
+                config=self.config,
+                feature_manager=self.analysis.feature_manager,
+                clustering_manager=self.analysis.clustering_manager,
+                result_manager=self.analysis.result_manager
             )
+            
+            # Fit and transform
+            self.analysis.results_df = self.pipeline.fit_transform(X)
+            
+            # Save pipeline
+            if self.config.verbose:
+                self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
+            self.pipeline.save(str(pipeline_path))
 
-        # Build results DataFrame
-        results_df = self._build_results_df(subject_meta, habitat_labels)
-        self.analysis.result_manager.results_df = results_df
+        # Update ResultManager with new results
+        self.analysis.result_manager.results_df = self.analysis.results_df
 
         # Save results
         if save_results_csv:
-            self._save_direct_pooling_results(results_df, subject_meta, habitat_labels)
+            self._save_results()
 
-        return results_df
+        return self.analysis.results_df
 
-    def _extract_all_voxel_features(
-        self,
-        subjects: List[str]
-    ) -> Tuple[pd.DataFrame, List[Dict[str, Any]], List[str]]:
+    def _save_results(self) -> None:
         """
-        Extract voxel features for all subjects and concatenate.
+        Save results for Direct Pooling strategy.
+        """
+        if self.config.verbose:
+            self.logger.info("Saving results...")
+        
+        # Save results CSV
+        csv_path = Path(self.config.out_dir) / "habitats.csv"
+        self.analysis.results_df.to_csv(str(csv_path), index=False)
+        if self.config.verbose:
+            self.logger.info(f"Results saved to {csv_path}")
+        
+        # Save habitat images for each subject
+        # ResultManager.save_all_habitat_images handles voxel-level data
+        self.analysis.result_manager.save_all_habitat_images(failed_subjects=[])
+
+    def _prepare_subjects(self, subjects: Optional[List[str]]) -> List[str]:
+        """
+        Normalize subject list and validate it is not empty.
+
+        Args:
+            subjects: Optional list of subject IDs
+
+        Returns:
+            List of subject IDs
+        """
+        if subjects is None:
+            subjects = list(self.analysis.images_paths.keys())
+
+        if not subjects:
+            raise ValueError("No subjects provided for direct pooling strategy.")
+
+        return list(subjects)
+
+    def _build_input(self, subjects: List[str]) -> Dict[str, Dict]:
+        """
+        Build input dict for the pipeline.
 
         Args:
             subjects: List of subject IDs
 
         Returns:
-            features_all: Concatenated feature DataFrame
-            subject_meta: List of metadata dicts for each subject slice
-            failed_subjects: List of failed subject IDs
+            Dict of subject_id -> empty dict (pipeline will populate data)
         """
-        if self.config.verbose:
-            self.logger.info("Extracting voxel features for direct pooling...")
+        return {subject: {} for subject in subjects}
 
-        results, failed_subjects = parallel_map(
-            func=self.analysis.feature_manager.extract_voxel_features,
-            items=subjects,
-            n_processes=self.config.processes,
-            desc="Extracting voxel features",
-            logger=self.logger,
-            show_progress=True,
-            log_file_path=self.analysis._log_file_path,
-            log_level=self.analysis._log_level,
-        )
-
-        features_list = []
-        subject_meta: List[Dict[str, Any]] = []
-        current_start = 0
-
-        for result in results:
-            if not result.success or result.result is None:
-                continue
-
-            subject, features, _, mask_info = result.result
-
-            # Apply subject-level preprocessing if configured
-            features = self.analysis.feature_manager.apply_preprocessing(features, level='subject')
-
-            n_voxels = len(features)
-            if n_voxels == 0:
-                failed_subjects.append(subject)
-                continue
-
-            features_list.append(features)
-            subject_meta.append({
-                "subject": subject,
-                "start_idx": current_start,
-                "end_idx": current_start + n_voxels,
-                "mask_info": mask_info,
-            })
-            current_start += n_voxels
-
-        if not features_list:
-            return pd.DataFrame(), subject_meta, failed_subjects
-
-        features_all = pd.concat(features_list, ignore_index=True)
-        return features_all, subject_meta, failed_subjects
-
-    def _build_results_df(
-        self,
-        subject_meta: List[Dict[str, Any]],
-        habitat_labels: np.ndarray
-    ) -> pd.DataFrame:
+    def _resolve_pipeline_path(self, load_from: Optional[str]) -> Path:
         """
-        Build results DataFrame with voxel-level habitat assignments.
+        Resolve pipeline path for saving or loading.
 
         Args:
-            subject_meta: Subject metadata list
-            habitat_labels: Cluster labels for all voxels
+            load_from: Optional path to a saved pipeline
 
         Returns:
-            Results DataFrame
+            Path to pipeline file
         """
-        rows = []
-        for meta in subject_meta:
-            subject = meta["subject"]
-            start_idx = meta["start_idx"]
-            end_idx = meta["end_idx"]
-            labels_slice = habitat_labels[start_idx:end_idx]
-
-            for voxel_idx, label in enumerate(labels_slice):
-                rows.append({
-                    ResultColumns.SUBJECT: subject,
-                    "VoxelIndex": voxel_idx,
-                    ResultColumns.HABITATS: int(label),
-                })
-
-        return pd.DataFrame(rows)
-
-    def _save_direct_pooling_results(
-        self,
-        results_df: pd.DataFrame,
-        subject_meta: List[Dict[str, Any]],
-        habitat_labels: np.ndarray
-    ) -> None:
-        """
-        Save voxel-level results and habitat maps.
-
-        Args:
-            results_df: Results DataFrame
-            subject_meta: Subject metadata list
-        """
-        os.makedirs(self.config.out_dir, exist_ok=True)
-
-        # Save results CSV
-        csv_path = os.path.join(self.config.out_dir, "habitats.csv")
-        results_df.to_csv(csv_path, index=False)
-        if self.config.verbose:
-            self.logger.info(f"Results saved to {csv_path}")
-
-        # Save habitat maps
-        for meta in subject_meta:
-            subject = meta["subject"]
-            start_idx = meta["start_idx"]
-            end_idx = meta["end_idx"]
-            mask_info = meta["mask_info"]
-
-            labels_slice = habitat_labels[start_idx:end_idx]
-            self._save_direct_habitat_image(subject, labels_slice, mask_info)
-
-    def _save_direct_habitat_image(
-        self,
-        subject: str,
-        labels: np.ndarray,
-        mask_info: Dict[str, Any]
-    ) -> None:
-        """
-        Save habitat image for a single subject using voxel-level labels.
-
-        Args:
-            subject: Subject ID
-            labels: Habitat labels for voxels
-            mask_info: Mask information dict with mask and mask_array
-        """
-        if not isinstance(mask_info, dict):
-            return
-        if "mask_array" not in mask_info or "mask" not in mask_info:
-            return
-
-        mask_array = mask_info["mask_array"]
-        mask_indices = mask_array > 0
-        if np.sum(mask_indices) != len(labels):
-            self.logger.warning(
-                f"Subject {subject}: voxel count mismatch "
-                f"(mask voxels={np.sum(mask_indices)}, labels={len(labels)})"
-            )
-
-        habitat_map = np.zeros_like(mask_array)
-        habitat_map[mask_indices] = labels[:np.sum(mask_indices)]
-
-        habitat_img = sitk.GetImageFromArray(habitat_map)
-        habitat_img.CopyInformation(mask_info["mask"])
-
-        output_path = os.path.join(self.config.out_dir, f"{subject}_habitat.nrrd")
-        sitk.WriteImage(habitat_img, output_path)
+        if load_from:
+            return Path(load_from)
+        return Path(self.config.out_dir) / "habitat_pipeline.pkl"

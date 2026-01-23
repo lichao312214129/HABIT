@@ -1,0 +1,43 @@
+# Habitat Analysis Configuration (One-Step Strategy)
+
+# Run mode and pipeline settings (check these first!)
+run_mode: train  # train (if you want to train a new model, set to train) or predict(if you want to use a pre-trained model, set to predict)
+pipeline_path:   # Path to trained pipeline for predict mode (required for predict mode)
+
+# Data paths
+data_dir: ./file_habitat.yaml
+out_dir: ./results/habitat_one_step
+
+# Feature extraction settings (only needed for train mode)
+FeatureConstruction:
+  voxel_level:
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    params: {}
+
+
+# Habitat segmentation settings (only needed for train mode)
+HabitatsSegmention:
+  # Clustering strategy: "one_step", "two_step", or "direct_pooling"
+  clustering_mode: one_step
+  
+  # Supervoxel clustering settings (used as habitat clustering in one_step mode)
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+    
+    # Settings for one_step mode: automatic cluster number selection for each tumor
+    one_step_settings:
+      min_clusters: 2
+      max_clusters: 10
+      selection_method: inertia
+      plot_validation_curves: true
+  
+# General settings
+processes: 2  # Number of parallel processes
+plot_curves: true  # Whether to generate and save plots
+save_results_csv: true  # Whether to save results as CSV files
+random_state: 42  # Random seed for reproducibility
+debug: false  # Enable debug mode for detailed logging

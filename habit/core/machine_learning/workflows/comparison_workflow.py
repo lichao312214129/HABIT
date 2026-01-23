@@ -33,79 +33,49 @@ from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_
 
 class ModelComparison:
     """
-    Tool for comparing and evaluating multiple machine learning models
+    Tool for comparing and evaluating multiple machine learning models.
     
-    Supports dependency injection for better testability and flexibility.
+    Note: Dependencies should be provided via ServiceConfigurator or explicitly.
     """
     def __init__(
         self, 
         config: Union[Dict[str, Any], ModelComparisonConfig],
-        evaluator: Optional[MultifileEvaluator] = None,
-        reporter: Optional[ReportExporter] = None,
-        threshold_manager: Optional[ThresholdManager] = None,
-        plot_manager: Optional[PlotManager] = None,
-        metrics_store: Optional[MetricsStore] = None,
-        logger: Optional[Any] = None
+        evaluator: MultifileEvaluator,
+        reporter: ReportExporter,
+        threshold_manager: ThresholdManager,
+        plot_manager: PlotManager,
+        metrics_store: MetricsStore,
+        logger: Any,
     ) -> None:
         """
-        Initialize the model comparison tool with optional dependency injection
+        Initialize the model comparison tool.
         
         Args:
-            config (Dict[str, Any] or ModelComparisonConfig): Parsed config dict or validated config object
-            evaluator (Optional[MultifileEvaluator]): Evaluator instance (will be created if not provided)
-            reporter (Optional[ReportExporter]): Report exporter instance (will be created if not provided)
-            threshold_manager (Optional[ThresholdManager]): Threshold manager instance (will be created if not provided)
-            plot_manager (Optional[PlotManager]): Plot manager instance (will be created if not provided)
-            metrics_store (Optional[MetricsStore]): Metrics store instance (will be created if not provided)
-            logger (Optional[Any]): Logger instance (will be created if not provided)
+            config: Parsed config dict or validated config object.
+            evaluator: MultifileEvaluator instance (required).
+            reporter: ReportExporter instance (required).
+            threshold_manager: ThresholdManager instance (required).
+            plot_manager: PlotManager instance (required).
+            metrics_store: MetricsStore instance (required).
+            logger: Logger instance (required).
         """
         if isinstance(config, ModelComparisonConfig):
             self.config = config
         else:
             self.config = ModelComparisonConfig(**config)
 
-        # 设置输出目录
         self.output_dir = self.config.output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         
-        # Initialize logger - check if CLI already configured logging
-        if logger is not None:
-            self.logger = logger
-        else:
-            manager = LoggerManager()
-            
-            if manager.get_log_file() is not None:
-                # Logging already configured by CLI, just get module logger
-                self.logger = get_module_logger('model.comparison')
-                self.logger.info("Using existing logging configuration from CLI entry point")
-            else:
-                # Logging not configured yet (e.g., direct class usage)
-                self.logger = setup_logger(
-                    name="model.comparison",
-                    output_dir=self.output_dir,
-                    log_filename='processing.log'
-                )
-        
-        # 初始化评估器 - 使用注入的实例或创建新实例
-        self.evaluator = evaluator or MultifileEvaluator(output_dir=self.output_dir)
+        self.evaluator = evaluator
+        self.reporter = reporter
+        self.threshold_manager = threshold_manager
+        self.plot_manager = plot_manager
+        self.metrics_store = metrics_store
+        self.logger = logger
 
-        # 初始化报告导出器 - 使用注入的实例或创建新实例
-        self.reporter = reporter or ReportExporter(output_dir=self.output_dir, logger=self.logger)
-
-        # 初始化阈值管理器 - 使用注入的实例或创建新实例
-        self.threshold_manager = threshold_manager or ThresholdManager()
-
-        # 初始化绘图管理器 - 使用注入的实例或创建新实例
-        self.plot_manager = plot_manager or PlotManager(config=self._model_to_dict(self.config), output_dir=self.output_dir)
-
-        # 初始化指标存储 - 使用注入的实例或创建新实例
-        self.metrics_store = metrics_store or MetricsStore()
-
-        # 初始化分组数据存储
         self.split_groups = {}
         self.split_column = None
-
-        # 用于存储离散预测列的映射
         self.pred_col_mapping = {}
     
     def setup(self) -> None:

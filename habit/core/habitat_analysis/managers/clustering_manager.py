@@ -9,8 +9,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Tuple, Optional, Union
 
-from ..config import ResultColumns
-from ..config_schemas import HabitatAnalysisConfig
+from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 from ..algorithms.base_clustering import get_clustering_algorithm
 from ..algorithms.cluster_validation_methods import (
     get_validation_methods,
@@ -347,16 +346,35 @@ class ClusteringManager:
         self,
         features: pd.DataFrame,
         habitat_labels: np.ndarray,
-        optimal_n_clusters: int
+        optimal_n_clusters: int,
+        subject: Optional[str] = None,
+        output_dir: Optional[str] = None
     ) -> None:
-        """Create visualizations for habitat clustering results."""
+        """
+        Create visualizations for habitat clustering results.
+
+        Args:
+            features: Feature matrix used for clustering
+            habitat_labels: Cluster labels for habitats
+            optimal_n_clusters: Selected number of clusters
+            subject: Optional subject ID for one-step clustering visualization
+            output_dir: Optional override for output directory
+        """
         if not HAS_VISUALIZATION:
             return
             
         try:
-            viz_dir = os.path.join(
-                self.config.out_dir, 'visualizations', 'habitat_clustering'
-            )
+            base_out_dir = output_dir or self.config.out_dir
+            if subject:
+                viz_dir = os.path.join(
+                    base_out_dir, 'visualizations', 'one_step_clustering'
+                )
+                file_prefix = f"{subject}_habitat_clustering"
+            else:
+                viz_dir = os.path.join(
+                    base_out_dir, 'visualizations', 'habitat_clustering'
+                )
+                file_prefix = "habitat_clustering"
             os.makedirs(viz_dir, exist_ok=True)
             
             centers = None
@@ -374,7 +392,7 @@ class ClusteringManager:
                 labels=habitat_labels,
                 centers=centers,
                 title=title,
-                save_path=os.path.join(viz_dir, 'habitat_clustering_2D.png'),
+                save_path=os.path.join(viz_dir, f'{file_prefix}_2D.png'),
                 show=False,
                 dpi=600,
                 plot_3d=False
@@ -386,7 +404,7 @@ class ClusteringManager:
                 labels=habitat_labels,
                 centers=centers,
                 title=title,
-                save_path=os.path.join(viz_dir, 'habitat_clustering_3D.png'),
+                save_path=os.path.join(viz_dir, f'{file_prefix}_3D.png'),
                 show=False,
                 dpi=600,
                 plot_3d=True

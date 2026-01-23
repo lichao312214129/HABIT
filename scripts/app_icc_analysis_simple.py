@@ -15,7 +15,7 @@ from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
     save_results,
 )
 from habit.utils.log_utils import setup_logger
-from habit.utils.config_utils import load_config
+from habit.core.common.config_loader import load_config
 
 
 def run_analysis(config: dict) -> None:

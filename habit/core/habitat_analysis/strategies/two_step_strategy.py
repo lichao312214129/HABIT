@@ -1,106 +1,32 @@
 """
 Two-step strategy: voxel -> supervoxel -> habitat clustering.
+Refactored to use HabitatPipeline.
 """
 
-import logging
-from functools import partial
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Any
-
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Optional
 import pandas as pd
 
-from habit.utils.parallel_utils import parallel_map
 from .base_strategy import BaseClusteringStrategy
-from ..managers import FeatureManager, ClusteringManager, ResultManager
-from ..config import ResultColumns
+from ..pipelines.pipeline_builder import build_habitat_pipeline
+from ..pipelines.base_pipeline import HabitatPipeline
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
 
 
-# -----------------------------------------------------------------------------
-# Module-level worker function (Pure function, Picklable)
-# -----------------------------------------------------------------------------
-def _process_subject_supervoxels(
-    subject: str,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
-    result_manager: ResultManager,
-    n_clusters_supervoxel: int,
-    plot_curves: bool = False,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[str, Union[pd.DataFrame, Exception]]:
-    """
-    Process a single subject: extract features and cluster to supervoxels.
-    
-    This is a module-level function to ensure picklability for multiprocessing.
-    It contains logic specific to the Two-Step strategy (supervoxel generation).
-    
-    Args:
-        subject: Subject ID
-        feature_manager: FeatureManager instance
-        clustering_manager: ClusteringManager instance
-        result_manager: ResultManager instance
-        n_clusters_supervoxel: Number of supervoxel clusters
-        plot_curves: Whether to create visualization plots
-        logger: Logger instance (optional)
-        
-    Returns:
-        Tuple of (subject, mean_features_df or Exception)
-    """
-    # Ensure logging in subprocess
-    feature_manager._ensure_logging_in_subprocess()
-    
-    if logger:
-        logger.info(f"Processing subject: {subject}")
-    
-    try:
-        # 1. Extract features
-        _, feature_df, raw_df, mask_info = feature_manager.extract_voxel_features(subject)
-        
-        # 2. Apply preprocessing
-        feature_df = feature_manager.apply_preprocessing(feature_df, level='subject')
-        
-        # 3. Perform clustering
-        supervoxel_labels = clustering_manager.cluster_subject_voxels(subject, feature_df)
-        
-        # 4. Calculate supervoxel means
-        mean_features_df = feature_manager.calculate_supervoxel_means(
-            subject, feature_df, raw_df, supervoxel_labels, 
-            n_clusters_supervoxel
-        )
-        
-        # 5. Save supervoxel image
-        result_manager.save_supervoxel_image(subject, supervoxel_labels, mask_info)
-        
-        # 6. Visualize
-        if plot_curves:
-            clustering_manager.visualize_supervoxel_clustering(
-                subject, feature_df, supervoxel_labels
-            )
-        
-        # Cleanup
-        del feature_df, raw_df, supervoxel_labels
-        
-        return subject, mean_features_df
-        
-    except Exception as e:
-        if logger:
-            logger.error(f"Error in process_single_subject for subject {subject}: {e}")
-        return subject, Exception(str(e))
-
-
 class TwoStepStrategy(BaseClusteringStrategy):
     """
-    Two-step clustering strategy (default).
+    Two-step clustering strategy using HabitatPipeline.
 
     Flow:
-    1) Extract voxel features for each subject.
-    2) Cluster voxels to form supervoxels (per-subject).
-    3) Calculate supervoxel-level feature means (Baseline for CSV output).
-    4) Prepare features for population clustering (Step 4):
-       - If configured, extract advanced supervoxel features (e.g., radiomics).
-       - Otherwise, use the mean features from Step 3.
-    5) Cluster supervoxels to identify habitats (population-level).
+    1) Voxel feature extraction (Pipeline Step 1)
+    2) Subject-level preprocessing (Pipeline Step 2)
+    3) Individual clustering (voxel -> supervoxel) (Pipeline Step 3)
+    4) Supervoxel feature extraction (conditional) (Pipeline Step 4)
+    5) Supervoxel feature aggregation (Pipeline Step 5)
+    6) Group-level preprocessing (Pipeline Step 6)
+    7) Population clustering (supervoxel -> habitat) (Pipeline Step 7)
     """
 
     def __init__(self, analysis: "HabitatAnalysis"):
@@ -111,267 +37,163 @@ class TwoStepStrategy(BaseClusteringStrategy):
             analysis: HabitatAnalysis instance with shared utilities
         """
         super().__init__(analysis)
+        self.pipeline: Optional[HabitatPipeline] = None
 
     def run(
         self,
         subjects: Optional[List[str]] = None,
-        save_results_csv: bool = True
+        save_results_csv: Optional[bool] = None,
+        load_from: Optional[str] = None
     ) -> pd.DataFrame:
         """
-        Execute two-step clustering.
+        Execute two-step clustering using Pipeline.
 
         Args:
             subjects: List of subjects to process (None means all subjects)
-            save_results_csv: Whether to save results to CSV
+            save_results_csv: Whether to save results to CSV (defaults to config.save_results_csv)
+            load_from: Optional path to a saved pipeline. If provided, the pipeline
+                is loaded and only transform() is executed.
 
         Returns:
             Results DataFrame
         """
-        if subjects is None:
-            subjects = list(self.analysis.images_paths.keys())
+        # Use config value if parameter not provided, allowing runtime override
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+        subjects = self._prepare_subjects(subjects)
 
-        # Step 1-3: Process all subjects (Extract -> Supervoxel Cluster -> Mean Features)
-        mean_features_all, failed_subjects = self._batch_process_supervoxels(subjects)
-
-        if len(mean_features_all) == 0:
-            raise ValueError("No valid features for analysis")
-
-        # Step 4: Preprocess population-level supervoxel features
-        features_for_clustering = self._prepare_population_features(
-            mean_features_all, subjects, failed_subjects, self.analysis.mode_handler
-        )
-
-        # Step 5: Cluster supervoxel features to identify habitats (population-level)
-        self.analysis.results_df = self._perform_population_clustering(
-            mean_features_all, features_for_clustering, self.analysis.mode_handler
-        )
-
-        # Step 6: Save results (CSV files and habitat images)
-        if save_results_csv:
-            optimal_n_clusters = None
-            if hasattr(self.analysis.clustering_manager.supervoxel2habitat_clustering, 'n_clusters'):
-                optimal_n_clusters = self.analysis.clustering_manager.supervoxel2habitat_clustering.n_clusters
-            
-            self._save_results(
-                subjects, failed_subjects, self.analysis.mode_handler, optimal_n_clusters
+        # Prepare input data for pipeline (Dict of subject_id -> empty dict).
+        # The pipeline steps (VoxelFeatureExtractor) will use feature_manager to get paths.
+        X = self._build_input(subjects)
+        if not X:
+            raise ValueError(
+                "Prediction/training input is empty. "
+                "Verify data_dir contains valid images and masks, "
+                "or pass an explicit non-empty subjects list."
             )
+
+        pipeline_path = self._resolve_pipeline_path(load_from)
+        
+        # Ensure output directory exists
+        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
+
+        if load_from:
+            if self.config.verbose:
+                self.logger.info("Loading and running Two-Step pipeline...")
+            
+            if not pipeline_path.exists():
+                raise FileNotFoundError(
+                    f"Saved pipeline not found at {pipeline_path}. "
+                    "Provide a valid load_from path or run without load_from to train."
+                )
+            
+            # Load pipeline
+            # Note: We load the pipeline structure and state from file.
+            # If managers include environment-specific paths, ensure they match the current environment.
+            self.pipeline = HabitatPipeline.load(str(pipeline_path))
+            
+            # Update references in loaded pipeline to use current analysis instances.
+            # This ensures that config changes (like out_dir, plot_curves) are reflected in all steps.
+            self._update_pipeline_references(self.pipeline)
+            
+            # Disable image outputs and plots for prediction runs to avoid unnecessary I/O.
+            self.pipeline.config.plot_curves = False
+
+            # Transform
+            self.analysis.results_df = self.pipeline.transform(X)
+
+            if save_results_csv:
+                self._save_results()
+        else:
+            if self.config.verbose:
+                self.logger.info("Building and fitting Two-Step pipeline...")
+            
+            # Build new pipeline
+            self.pipeline = build_habitat_pipeline(
+                config=self.config,
+                feature_manager=self.analysis.feature_manager,
+                clustering_manager=self.analysis.clustering_manager,
+                result_manager=self.analysis.result_manager
+            )
+            
+            # Fit and transform
+            # fit_transform will execute all steps, training stateful steps (6 & 7)
+            self.analysis.results_df = self.pipeline.fit_transform(X)
+            
+            # Save pipeline (including trained models)
+            if self.config.verbose:
+                self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
+            self.pipeline.save(str(pipeline_path))
+
+        # Update ResultManager with new results
+        self.analysis.result_manager.results_df = self.analysis.results_df
+
+        # Save results (CSV files and habitat images)
+        if save_results_csv:
+            self._save_results()
 
         return self.analysis.results_df
 
-    def _batch_process_supervoxels(self, subjects: List[str]) -> Tuple[pd.DataFrame, List[str]]:
-        """
-        Execute parallel processing for supervoxel generation.
-        """
-        if self.config.verbose:
-            self.logger.info("Extracting features and performing supervoxel clustering...")
-        
-        # Create a partial function with all the fixed arguments
-        worker_func = partial(
-            _process_subject_supervoxels,
-            feature_manager=self.analysis.feature_manager,
-            clustering_manager=self.analysis.clustering_manager,
-            result_manager=self.analysis.result_manager,
-            n_clusters_supervoxel=self.config.HabitatsSegmention.supervoxel.n_clusters,
-            plot_curves=self.config.plot_curves,
-            logger=None  # Worker uses local logger config
-        )
-        
-        # Call the module-level worker function
-        results, failed_subjects = parallel_map(
-            func=worker_func,
-            items=subjects,
-            n_processes=self.config.processes,
-            desc="Processing subjects",
-            logger=self.logger,
-            show_progress=True,
-            log_file_path=self.analysis._log_file_path,
-            log_level=self.analysis._log_level,
-        )
-        
-        # Combine results
-        mean_features_all = pd.DataFrame()
-        for result in results:
-            if result.success and result.result is not None:
-                # result.result is already the DataFrame (unpacked by _worker_wrapper)
-                # result.item_id contains the subject ID
-                df = result.result
-                mean_features_all = pd.concat(
-                    [mean_features_all, df], 
-                    ignore_index=True
-                )
-        
-        if self.config.verbose:
-            if failed_subjects:
-                self.logger.warning(f"Failed to process {len(failed_subjects)} subject(s)")
-            self.logger.info(
-                f"All {len(subjects)} subjects have been processed. "
-                "Proceeding to clustering..."
-            )
-        
-        return mean_features_all, failed_subjects
-
-    def _prepare_population_features(
-        self,
-        mean_features_all: pd.DataFrame,
-        subjects: List[str],
-        failed_subjects: List[str],
-        mode_handler: Any = None
-    ) -> pd.DataFrame:
-        """
-        Prepare features for population-level clustering.
-        Strategy-specific logic for Two-Step approach.
-        """
-        # Get feature columns (exclude metadata columns)
-        feature_columns = [
-            col for col in mean_features_all.columns 
-            if ResultColumns.is_feature_column(col)
-        ]
-        features = mean_features_all[feature_columns]
-        
-        # Setup supervoxel file dictionary (file discovery)
-        self.analysis.feature_manager.setup_supervoxel_files(
-            subjects, failed_subjects, self.config.out_dir
-        )
-        
-        # Check if we need to extract supervoxel-level features (Two-Step specific)
-        method = self.config.FeatureConstruction.supervoxel_level.method
-        should_extract = 'mean_voxel_features' not in method
-        
-        if should_extract:
-            # Extract supervoxel-level features in parallel
-            features = self._extract_all_supervoxel_features(subjects, failed_subjects)
-        
-        # Clean features (handle inf, types)
-        features = self.analysis.feature_manager.clean_features(features)
-        
-        # Apply group-level preprocessing (delegates to mode_handler for stateful processing)
-        if mode_handler:
-            features = self.analysis.feature_manager.apply_preprocessing(
-                features, level='group', mode_handler=mode_handler
-            )
-        else:
-            # Fallback: just apply without state management
-            features = self.analysis.feature_manager.apply_preprocessing(features, level='subject')
-        
-        return features
-    
-    def _extract_all_supervoxel_features(
-        self,
-        subjects: List[str],
-        failed_subjects: List[str]
-    ) -> pd.DataFrame:
-        """
-        Extract supervoxel-level features for all subjects (batch operation).
-        Strategy-level orchestration of parallel extraction.
-        """
-        if self.config.verbose:
-            self.logger.info("Extracting supervoxel-level features...")
-        
-        from habit.utils.parallel_utils import parallel_map
-        
-        # Create a partial function for supervoxel feature extraction
-        extract_func = partial(
-            self.analysis.feature_manager.extract_supervoxel_features
-        )
-        
-        results, new_failed = parallel_map(
-            func=extract_func,
-            items=subjects,
-            n_processes=self.config.processes,
-            desc="Extracting supervoxel features",
-            logger=self.logger,
-            show_progress=True,
-            log_file_path=self.analysis._log_file_path,
-            log_level=self.analysis._log_level,
-        )
-        
-        failed_subjects.extend(new_failed)
-        
-        if self.config.verbose and new_failed:
-            self.logger.warning(
-                f"Failed to extract supervoxel features for {len(new_failed)} subject(s)"
-            )
-        
-        # Combine results
-        features_list = [r.result for r in results if r.success and r.result is not None]
-        if features_list:
-            return pd.concat(features_list, ignore_index=True)
-        else:
-            raise ValueError("No valid supervoxel features extracted")
-    
-    def _perform_population_clustering(
-        self,
-        mean_features_all: pd.DataFrame,
-        features: pd.DataFrame,
-        mode_handler: Any
-    ) -> pd.DataFrame:
-        """
-        Perform population-level clustering to determine habitats.
-        Strategy-specific logic for Two-Step approach.
-        
-        Args:
-            mean_features_all: Original combined features with metadata
-            features: Cleaned features for clustering
-            mode_handler: Mode handler instance for clustering logic
-            
-        Returns:
-            Results DataFrame with habitat labels
-        """
-        # Perform population-level clustering
-        habitat_labels, optimal_n_clusters, scores = mode_handler.cluster_habitats(
-            features, self.analysis.clustering_manager.supervoxel2habitat_clustering
-        )
-        
-        # Plot scores if available
-        if scores and self.config.plot_curves:
-            self.analysis.clustering_manager.plot_habitat_scores(scores, optimal_n_clusters)
-        
-        # Visualize clustering results
-        if self.config.plot_curves:
-            self.analysis.clustering_manager.visualize_habitat_clustering(
-                features, habitat_labels, optimal_n_clusters
-            )
-        
-        # Save model for training mode
-        if self.config.HabitatsSegmention.habitat.mode == 'training':
-            mode_handler.save_model(
-                self.analysis.clustering_manager.supervoxel2habitat_clustering,
-                'supervoxel2habitat_clustering_strategy'
-            )
-        
-        # Add habitat labels to results
-        mean_features_all[ResultColumns.HABITATS] = habitat_labels
-        
-        return mean_features_all.copy()
-    
-    def _save_results(
-        self, 
-        subjects: List[str], 
-        failed_subjects: List[str],
-        mode_handler: Any,
-        optimal_n_clusters: int
-    ) -> None:
+    def _save_results(self) -> None:
         """
         Save all results including config, CSV, and habitat images.
-        Strategy-specific save logic.
         """
         if self.config.verbose:
             self.logger.info("Saving results...")
         
-        import os
-        os.makedirs(self.config.out_dir, exist_ok=True)
-        
-        # Save configuration
-        if mode_handler:
-            mode_handler.save_config(optimal_n_clusters)
-        
         # Save results CSV
-        csv_path = os.path.join(self.config.out_dir, 'habitats.csv')
-        self.analysis.results_df.to_csv(csv_path, index=False)
+        csv_path = Path(self.config.out_dir) / "habitats.csv"
+        self.analysis.results_df.to_csv(str(csv_path), index=False)
         if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         
-        # Save habitat images for each subject
-        # Ensure ResultManager has the latest results_df
-        self.analysis.result_manager.results_df = self.analysis.results_df
-        self.analysis.result_manager.save_all_habitat_images(failed_subjects)
+        if self.config.save_images:
+            # Save habitat images for each subject.
+            # Note: Pipeline generated the 'Habitats' column in results_df.
+            # We need to map these back to images.
+            # This assumes supervoxel maps were saved during IndividualClusteringStep (Step 3).
+            self.analysis.result_manager.save_all_habitat_images(failed_subjects=[])
+
+    def _prepare_subjects(self, subjects: Optional[List[str]]) -> List[str]:
+        """
+        Normalize subject list and validate it is not empty.
+
+        Args:
+            subjects: Optional list of subject IDs
+
+        Returns:
+            List of subject IDs
+        """
+        if subjects is None:
+            subjects = list(self.analysis.images_paths.keys())
+
+        if not subjects:
+            raise ValueError("No subjects provided for two-step strategy.")
+
+        return list(subjects)
+
+    def _build_input(self, subjects: List[str]) -> Dict[str, Dict]:
+        """
+        Build input dict for the pipeline.
+
+        Args:
+            subjects: List of subject IDs
+
+        Returns:
+            Dict of subject_id -> empty dict (pipeline will populate data)
+        """
+        return {subject: {} for subject in subjects}
+
+    def _resolve_pipeline_path(self, load_from: Optional[str]) -> Path:
+        """
+        Resolve pipeline path for saving or loading.
+
+        Args:
+            load_from: Optional path to a saved pipeline
+
+        Returns:
+            Path to pipeline file
+        """
+        if load_from:
+            return Path(load_from)
+        return Path(self.config.out_dir) / "habitat_pipeline.pkl"

@@ -11,17 +11,31 @@ from .plotting import Plotter
 from habit.utils.log_utils import get_module_logger
 
 class PlotManager:
-    def __init__(self, config: Dict[str, Any], output_dir: str):
+    def __init__(self, config: Any, output_dir: str):
+        """
+        Initialize PlotManager.
+        
+        Args:
+            config: MLConfig object.
+            output_dir: Output directory path.
+        """
         self.config = config
         self.output_dir = output_dir
         self.plotter = Plotter(output_dir)
         self.logger = get_module_logger('evaluation.plot_manager')
         
-        # Parse visualization config
-        self.viz_config = config.get('visualization', {})
-        self.is_visualize = config.get('is_visualize', True)
+        # Use direct attribute access (Expects Pydantic MLConfig)
+        self.viz_config = config.visualization
+        self.is_visualize = getattr(config, 'is_visualize', True)
+        
+        # Default plots
         self.default_plots = ['roc', 'dca', 'calibration', 'pr', 'confusion']
-        self.plot_types = self.viz_config.get('plot_types', self.default_plots)
+        
+        # Get plot_types from Pydantic object
+        if hasattr(self.viz_config, 'plot_types'):
+            self.plot_types = self.viz_config.plot_types
+        else:
+            self.plot_types = self.default_plots
 
     def run_workflow_plots(self, results: Dict[str, Any], prefix: str = "", 
                           X_test: Optional[pd.DataFrame] = None, dataset_type: str = 'test'):

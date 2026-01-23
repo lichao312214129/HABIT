@@ -8,15 +8,26 @@ from sklearn.model_selection import train_test_split
 class DataManager:
     """
     Handles data loading, merging, and splitting.
+    Expects a Pydantic MLConfig object.
     """
-    def __init__(self, config: Dict[str, Any], logger: logging.Logger = None):
+    def __init__(self, config: Any, logger: logging.Logger = None):
+        """
+        Initialize DataManager.
+        
+        Args:
+            config: MLConfig object.
+            logger: Logger instance.
+        """
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        self.input_config = config['input']
-        self.split_method = config.get('split_method', 'stratified')
-        self.test_size = config.get('test_size', 0.3)
-        self.seed = config.get('random_state', 42)
+        # Strictly use object attributes
+        self.input_config = config.input
+        self.split_method = getattr(config, 'split_method', 'stratified')
+        self.test_size = getattr(config, 'test_size', 0.3)
+        self.seed = getattr(config, 'random_state', 42)
+        self.train_ids_file = getattr(config, 'train_ids_file', None)
+        self.test_ids_file = getattr(config, 'test_ids_file', None)
         
         self.data = None
         self.subject_id_col = None
@@ -33,12 +44,14 @@ class DataManager:
         label_values = None
         
         for file_config in self.input_config:
-            path = file_config['path']
-            name = file_config.get('name', '')
-            subj_col = file_config.get('subject_id_col')
-            lbl_col = file_config.get('label_col')
-            features = file_config.get('features', [])
-            add_prefix = file_config.get('add_prefix', False)
+            # Use Pydantic object attributes
+            path = file_config.path
+            name = getattr(file_config, 'name', '')
+            subj_col = getattr(file_config, 'subject_id_col', None)
+            lbl_col = getattr(file_config, 'label_col', None)
+            features = getattr(file_config, 'features', [])
+            # 'add_prefix' is not in current InputFileConfig schema, assuming extra='allow' or removed
+            add_prefix = getattr(file_config, 'add_prefix', False)
             
             if not subj_col or not lbl_col:
                 raise ValueError(f"subject_id_col and label_col are required for {path}")
@@ -86,9 +99,10 @@ class DataManager:
         # Ensure we only keep samples that have labels (from the first file's perspective usually, 
         # or we intersection. For now, assuming first file drives the cohort)
         # Using the index of the merged dataframe to align labels
-        common_indices = merged_df.index.intersection(label_values.index)
-        merged_df = merged_df.loc[common_indices]
-        merged_df[self.label_col] = label_values.loc[common_indices]
+        if label_values is not None:
+            common_indices = merged_df.index.intersection(label_values.index)
+            merged_df = merged_df.loc[common_indices]
+            merged_df[self.label_col] = label_values.loc[common_indices]
         
         self.data = merged_df
         self.logger.info(f"Data loaded: {self.data.shape}")
@@ -116,8 +130,9 @@ class DataManager:
         y = self.data[self.label_col]
         
         if self.split_method == 'custom':
-            train_path = self.config.get('train_ids_file')
-            test_path = self.config.get('test_ids_file')
+            # Use stored attributes (already extracted in __init__)
+            train_path = self.train_ids_file
+            test_path = self.test_ids_file
             
             if not train_path or not test_path:
                 raise ValueError("Custom split requires train_ids_file and test_ids_file")

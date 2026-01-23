@@ -19,7 +19,7 @@ def run_icc(config_file: str) -> None:
         config_file (str): Path to the configuration YAML file.
     """
     from habit.utils.log_utils import setup_logger
-    from habit.utils.config_utils import load_config
+    from habit.core.common.config_loader import load_config
     from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
 
     if not config_file:

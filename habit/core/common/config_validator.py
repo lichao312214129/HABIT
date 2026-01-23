@@ -10,7 +10,7 @@ import logging
 from pydantic import ValidationError
 
 from .config_base import BaseConfig, ConfigValidationError, ConfigAccessor
-from habit.utils.config_utils import load_config, resolve_config_paths
+from habit.core.common.config_loader import load_config, resolve_config_paths
 
 logger = logging.getLogger(__name__)
 

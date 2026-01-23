@@ -132,7 +132,7 @@ class BaseConfig(BaseModel, ABC):
             FileNotFoundError: If configuration file not found
             ConfigValidationError: If validation fails
         """
-        from habit.utils.config_utils import load_config
+        from habit.core.common.config_loader import load_config
         
         config_path = Path(config_path)
         if not config_path.exists():

@@ -11,10 +11,46 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Any, Union, Literal
 from sklearn.preprocessing import KBinsDiscretizer
+from pydantic import BaseModel
+
+# Import ResultColumns to identify metadata columns
+from ..config_schemas import ResultColumns
 
 # =============================================================================
 # Utility Functions (Stateless)
 # =============================================================================
+
+def _get_method_attr(method_config: Union[Dict[str, Any], BaseModel], attr: str, default: Any = None) -> Any:
+    """
+    Get attribute from method_config, supporting both dict and Pydantic model.
+    
+    Priority: Try attribute access first (for Pydantic models), then fall back to .get() (for dicts).
+    This maintains backward compatibility with dict-based configs.
+    
+    Args:
+        method_config: Either a dict or a Pydantic model (PreprocessingMethod)
+        attr: Attribute name to get
+        default: Default value if attribute is missing or None
+        
+    Returns:
+        Attribute value or default
+    """
+    # Try attribute access first (for Pydantic models and objects with attributes)
+    if hasattr(method_config, attr):
+        try:
+            value = getattr(method_config, attr)
+            return value if value is not None else default
+        except (AttributeError, TypeError):
+            pass
+    
+    # Fall back to dict .get() method (for dicts and backward compatibility)
+    if isinstance(method_config, dict):
+        return method_config.get(attr, default)
+    elif hasattr(method_config, 'get') and callable(getattr(method_config, 'get')):
+        # Support objects that have a .get() method (like dict-like objects)
+        return method_config.get(attr, default)
+    
+    return default
 
 def handle_extreme_values(features: np.ndarray, strategy: str = 'mean_replacement') -> np.ndarray:
     """
@@ -92,14 +128,15 @@ def create_discretizer(n_bins: int = 10, bin_strategy: str = 'uniform') -> KBins
 
 def process_features_pipeline(
     features: np.ndarray,
-    methods: List[Dict[str, Any]]
+    methods: List[Union[Dict[str, Any], BaseModel]]
 ) -> np.ndarray:
     """
     Apply a pipeline of preprocessing methods to features (Stateless)
     
     Args:
         features (np.ndarray): Feature matrix to preprocess
-        methods (List[Dict[str, Any]]): List of preprocessing methods configs
+        methods (List[Union[Dict[str, Any], BaseModel]]): List of preprocessing methods configs
+            Can be either dict or PreprocessingMethod objects
     
     Returns:
         np.ndarray: Preprocessed feature matrix
@@ -107,10 +144,19 @@ def process_features_pipeline(
     processed_features = features.copy()
     
     for method_config in methods:
-        method_name = method_config.get('method', 'minmax')
-        config = method_config.copy()
-        if 'method' in config:
-            del config['method']
+        method_name = _get_method_attr(method_config, 'method', 'minmax')
+        
+        # Extract config parameters
+        if isinstance(method_config, dict):
+            config = method_config.copy()
+            if 'method' in config:
+                del config['method']
+        else:
+            # Pydantic model - convert to dict for **kwargs
+            config = method_config.model_dump(exclude={'method'})
+            # Remove None values to use defaults
+            config = {k: v for k, v in config.items() if v is not None}
+        
         processed_features = preprocess_features(processed_features, method=method_name, **config)
     
     return processed_features
@@ -248,27 +294,37 @@ class PreprocessingState:
         self.global_params: Dict[str, Any] = {}
         
         # Methods configuration
-        self.methods_config: List[Dict] = []
+        self.methods_config: List[Union[Dict[str, Any], BaseModel]] = []
         
-    def fit(self, df: pd.DataFrame, methods: List[Dict[str, Any]]) -> None:
+    def fit(self, df: pd.DataFrame, methods: List[Union[Dict[str, Any], BaseModel]]) -> None:
         """
         Calculate and store parameters from training data.
+        
+        Args:
+            df: DataFrame with features. Non-numeric columns (like Subject ID) will be automatically excluded.
+            methods: List of preprocessing method configurations
         """
         self.methods_config = methods
         
+        # Filter out non-numeric columns (metadata columns like Subject ID)
+        numeric_df = self._get_numeric_columns(df)
+        
+        if numeric_df.empty:
+            raise ValueError("No numeric columns found in DataFrame. Cannot perform preprocessing.")
+        
         # Always compute basic statistics for imputation and potential use
-        self.means = df.mean()
-        self.stds = df.std().replace(0, 1.0)  # 解释：如果标准差为0，则替换为1.0 为什么这样做？因为如果标准差为0，则所有数据都相同，这样会导致除数为0，所以替换为1.0
-        self.mins = df.min()
-        self.maxs = df.max()
+        self.means = numeric_df.mean()
+        self.stds = numeric_df.std().replace(0, 1.0)  # 解释：如果标准差为0，则替换为1.0 为什么这样做？因为如果标准差为0，则所有数据都相同，这样会导致除数为0，所以替换为1.0
+        self.mins = numeric_df.min()
+        self.maxs = numeric_df.max()
         
         # Impute NaN first to get clean data for subsequent parameter estimation
-        temp_df = df.fillna(self.means)
+        temp_df = numeric_df.fillna(self.means)
         
         # Compute parameters for each method
         for method_config in methods:
-            method_name = method_config.get('method', 'minmax')
-            global_normalize = method_config.get('global_normalize', False)
+            method_name = _get_method_attr(method_config, 'method', 'minmax')
+            global_normalize = _get_method_attr(method_config, 'global_normalize', False)
             
             if method_name in ['z_score', 'zscore', 'standardization']:
                 if global_normalize:
@@ -300,8 +356,8 @@ class PreprocessingState:
                     self.q3s = temp_df.quantile(0.75)
                     
             elif method_name == 'binning':
-                n_bins = method_config.get('n_bins', 10)
-                bin_strategy = method_config.get('bin_strategy', 'uniform')
+                n_bins = _get_method_attr(method_config, 'n_bins', 10)
+                bin_strategy = _get_method_attr(method_config, 'bin_strategy', 'uniform')
                 
                 if global_normalize:
                     # Global binning
@@ -316,7 +372,13 @@ class PreprocessingState:
                     self.discretizers['per_feature'] = discretizer
                     
             elif method_name == 'winsorize':
-                winsor_limits = method_config.get('winsor_limits', (0.05, 0.05))
+                winsor_limits_raw = _get_method_attr(method_config, 'winsor_limits', None)
+                if winsor_limits_raw is None:
+                    winsor_limits = (0.05, 0.05)
+                elif isinstance(winsor_limits_raw, list):
+                    winsor_limits = tuple(winsor_limits_raw)
+                else:
+                    winsor_limits = winsor_limits_raw
                 
                 if global_normalize:
                     flat_values = temp_df.values.flatten()
@@ -337,11 +399,25 @@ class PreprocessingState:
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Apply stored parameters to transform data (Training or Testing).
+        
+        Args:
+            df: DataFrame with features. Non-numeric columns will be preserved but not transformed.
+            
+        Returns:
+            DataFrame with transformed numeric columns and preserved metadata columns
         """
         if self.means is None:
             raise ValueError("PreprocessingState has not been fitted. Call fit() first.")
-            
-        df_transformed = df.copy()
+        
+        # Separate numeric and non-numeric columns
+        numeric_df = self._get_numeric_columns(df)
+        metadata_df = df[[col for col in df.columns if not ResultColumns.is_feature_column(col)]]
+        
+        if numeric_df.empty:
+            # No numeric columns to transform, return original
+            return df.copy()
+        
+        df_transformed = numeric_df.copy()
         
         # 1. Imputation (Always apply first to handle NaN)
         df_transformed = df_transformed.fillna(self.means)
@@ -352,8 +428,8 @@ class PreprocessingState:
         
         # 3. Apply methods in order
         for method_config in self.methods_config:
-            method_name = method_config.get('method', 'minmax')
-            global_normalize = method_config.get('global_normalize', False)
+            method_name = _get_method_attr(method_config, 'method', 'minmax')
+            global_normalize = _get_method_attr(method_config, 'global_normalize', False)
             
             df_transformed = self._apply_method(
                 df_transformed, 
@@ -361,15 +437,44 @@ class PreprocessingState:
                 global_normalize,
                 method_config
             )
-                
+        
+        # 4. Merge transformed numeric columns with metadata columns
+        if not metadata_df.empty:
+            # Ensure index alignment
+            df_transformed = pd.concat([metadata_df, df_transformed], axis=1)
+            # Reorder columns to match original order
+            original_order = [col for col in df.columns if col in df_transformed.columns]
+            df_transformed = df_transformed[original_order]
+        
         return df_transformed
+    
+    def _get_numeric_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Extract only numeric columns from DataFrame, excluding metadata columns.
+        
+        Args:
+            df: Input DataFrame
+            
+        Returns:
+            DataFrame containing only numeric feature columns
+        """
+        # Get numeric columns
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        # Filter out metadata columns
+        feature_cols = [col for col in numeric_cols if ResultColumns.is_feature_column(col)]
+        
+        if not feature_cols:
+            return pd.DataFrame()
+        
+        return df[feature_cols]
     
     def _apply_method(
         self, 
         df: pd.DataFrame, 
         method_name: str,
         global_normalize: bool,
-        method_config: Dict[str, Any]
+        method_config: Union[Dict[str, Any], BaseModel]
     ) -> pd.DataFrame:
         """Apply a single preprocessing method using stored parameters."""
         

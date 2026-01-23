@@ -12,8 +12,7 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
-from ..config import ResultColumns
-from ..config_schemas import HabitatAnalysisConfig
+from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 from ..extractors.feature_expression_parser import FeatureExpressionParser
 from ..extractors.feature_extractor_factory import create_feature_extractor
 from ..utils.preprocessing_state import process_features_pipeline
@@ -247,19 +246,22 @@ class FeatureManager:
         except Exception as e:
             return subject, Exception(str(e))
 
-    def _serialize_preprocessing_methods(
+    def _get_preprocessing_methods(
         self,
         preprocessing_config: Optional[Any]
-    ) -> List[Dict[str, Any]]:
-        methods: List[Dict[str, Any]] = []
-        if not preprocessing_config:
-            return methods
-        for method in preprocessing_config.methods:
-            if hasattr(method, "model_dump"):
-                methods.append(method.model_dump())
-            else:
-                methods.append(method.dict())
-        return methods
+    ) -> List[Any]:
+        """
+        Get preprocessing methods from config, returning PreprocessingMethod objects directly.
+        
+        Args:
+            preprocessing_config: PreprocessingConfig object or None
+            
+        Returns:
+            List of PreprocessingMethod objects
+        """
+        if not preprocessing_config or not hasattr(preprocessing_config, 'methods'):
+            return []
+        return list(preprocessing_config.methods)
 
     def _apply_preprocessing(self, feature_df: pd.DataFrame, config_key: str) -> pd.DataFrame:
         """
@@ -277,7 +279,7 @@ class FeatureManager:
         else:
             preprocessing_config = self.config.FeatureConstruction.preprocessing_for_group_level
 
-        methods = self._serialize_preprocessing_methods(preprocessing_config)
+        methods = self._get_preprocessing_methods(preprocessing_config)
         if methods:
             processed = process_features_pipeline(feature_df.values, methods=methods)
             return pd.DataFrame(processed, columns=feature_df.columns)
@@ -287,8 +289,7 @@ class FeatureManager:
     def apply_preprocessing(
         self, 
         feature_df: pd.DataFrame, 
-        level: str,
-        mode_handler: Any = None
+        level: str
     ) -> pd.DataFrame:
         """
         Apply preprocessing based on level.
@@ -296,26 +297,17 @@ class FeatureManager:
         Args:
             feature_df: DataFrame to preprocess
             level: 'subject' for individual level, 'group' for population level
-            mode_handler: Mode handler instance (required for group level)
             
         Returns:
             Preprocessed DataFrame
         """
         if level == 'subject':
             return self._apply_preprocessing(feature_df, 'preprocessing_for_subject_level')
-            
-        elif level == 'group':
-            if mode_handler is None:
-                raise ValueError("mode_handler is required for group-level preprocessing")
-                
-            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_group_level
-            methods = self._serialize_preprocessing_methods(preprocessing_config)
-            
-            # Delegate to mode handler which manages PreprocessingState
-            return mode_handler.process_features(feature_df, methods)
-            
-        else:
-            raise ValueError(f"Unknown preprocessing level: {level}")
+
+        raise ValueError(
+            f"Unsupported preprocessing level: {level}. "
+            "Group-level preprocessing is handled by Pipeline steps."
+        )
 
     def calculate_supervoxel_means(
         self,
@@ -395,10 +387,3 @@ class FeatureManager:
         # For robustness, we'll leave NaNs to be handled by PreprocessingState later
         return features
 
-    # Deprecated: Logic moved to PreprocessingState via ModeHandler
-    def handle_mean_values(self, features: pd.DataFrame, mode_handler: Any) -> None:
-        """
-        Deprecated. Mean value handling is now integrated into PreprocessingState.
-        Kept for potential backward compatibility if needed, but should not be used in new flow.
-        """
-        pass

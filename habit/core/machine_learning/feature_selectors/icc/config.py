@@ -5,7 +5,7 @@ ICC configuration utilities for loading and validating ICC analysis config
 import os
 from typing import Dict, Any, List, Union, Optional
 import yaml
-from habit.utils.config_utils import load_config, validate_config
+from habit.core.common.config_loader import load_config, validate_config
 
 def load_icc_config(config_path: str) -> Dict[str, Any]:
     """

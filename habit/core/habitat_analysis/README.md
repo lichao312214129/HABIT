@@ -13,7 +13,6 @@ habitat_analysis/
 ├── habitat_analysis.py           # Main HabitatAnalysis class
 ├── config.py                     # Configuration dataclasses
 ├── strategies/                   # Analysis strategies and pipelines
-│   ├── clustering_pipeline.py    # Training/Testing pipelines
 │   ├── base_strategy.py          # Base strategy interface
 │   └── ...
 ├── clustering/                   # Clustering algorithms
@@ -119,7 +118,6 @@ config = HabitatConfig(
         masks_dir='masks'
     ),
     runtime=RuntimeConfig(
-        mode='training',               # 'training' or 'testing'
         n_processes=4,                 # Parallel processing
         verbose=True,
         plot_curves=True
@@ -137,21 +135,6 @@ config = HabitatConfig(
 )
 
 analyzer = HabitatAnalysis(config=config)
-results = analyzer.run()
-```
-
-### Using Legacy Parameters (Backward Compatible)
-
-```python
-analyzer = HabitatAnalysis(
-    root_folder='/path/to/data',
-    out_folder='/path/to/output',
-    feature_config={...},
-    clustering_strategy='two_step',
-    n_clusters_supervoxel=50,
-    n_processes=4,
-    verbose=True
-)
 results = analyzer.run()
 ```
 
@@ -194,19 +177,18 @@ supervoxel_level:
 | `mean_values_of_all_supervoxels_features.csv` | Feature statistics |
 | `visualizations/` | Clustering visualizations |
 
-## Training vs Testing Mode
+## Training vs Inference (sklearn-style)
 
-### Training Mode
+### Training (fit/fit_transform)
 1. Extract features and cluster supervoxels
 2. Find optimal number of habitats
 3. Save clustering model and statistics
 4. Generate habitat maps
 
-### Testing Mode
-1. Extract features and cluster supervoxels
-2. Load pre-trained clustering model
-3. Apply model to get habitat labels
-4. Generate habitat maps
+### Inference (load + transform)
+1. Load a saved pipeline
+2. Apply the fitted model to new data
+3. Generate habitat maps
 
 ## Supported Clustering Algorithms
 
@@ -255,12 +237,11 @@ When multiple methods are combined (e.g., `silhouette_calinski_harabasz_davies_b
 - `OneStepConfig`: One-step mode settings
 - `ResultColumns`: Column name constants
 
-### `pipeline.py` - Strategy Pattern
+### `pipelines/` - Pipeline Core
 
-- `BasePipeline`: Abstract interface
-- `TrainingPipeline`: Training mode logic
-- `TestingPipeline`: Testing mode logic
-- `create_pipeline()`: Factory function
+- `HabitatPipeline`: sklearn-style pipeline
+- `BasePipelineStep`: step interface
+- `build_habitat_pipeline()`: pipeline builder
 
 ### `habitat_analysis.py` - Main Class
 
@@ -286,7 +267,6 @@ clustering:
   n_clusters_habitats_max: 10
 
 runtime:
-  mode: training
   n_processes: 4
   verbose: true
   plot_curves: true

@@ -28,7 +28,6 @@ from habit.utils.parallel_utils import parallel_map
 
 # Local imports
 from .config_schemas import HabitatAnalysisConfig
-from .modes import create_mode
 from .strategies import get_strategy
 from .managers import FeatureManager, ClusteringManager, ResultManager
 
@@ -37,26 +36,27 @@ class HabitatAnalysis:
     Habitat Analysis class for performing clustering analysis on medical images.
     
     Acts as a coordinator for FeatureManager, ClusteringManager, and ResultManager.
-    Supports dependency injection for better testability and flexibility.
+    
+    Note: Dependencies should be provided via ServiceConfigurator or explicitly.
     """
 
     def __init__(
         self,
         config: Union[Dict[str, Any], HabitatAnalysisConfig],
-        feature_manager: Optional[FeatureManager] = None,
-        clustering_manager: Optional[ClusteringManager] = None,
-        result_manager: Optional[ResultManager] = None,
-        logger: Optional[Any] = None,
+        feature_manager: FeatureManager,
+        clustering_manager: ClusteringManager,
+        result_manager: ResultManager,
+        logger: Any,
     ):
         """
-        Initialize HabitatAnalysis from a configuration dictionary or a Pydantic model.
+        Initialize HabitatAnalysis.
         
         Args:
-            config: A dictionary conforming to HabitatAnalysisConfig schema or an instance of it.
-            feature_manager: Optional FeatureManager instance (will be created if not provided)
-            clustering_manager: Optional ClusteringManager instance (will be created if not provided)
-            result_manager: Optional ResultManager instance (will be created if not provided)
-            logger: Optional logger instance (will be created if not provided)
+            config: Configuration dictionary or HabitatAnalysisConfig instance.
+            feature_manager: FeatureManager instance (required).
+            clustering_manager: ClusteringManager instance (required).
+            result_manager: ResultManager instance (required).
+            logger: Logger instance (required).
         """
         if isinstance(config, HabitatAnalysisConfig):
             self.config = config
@@ -65,55 +65,33 @@ class HabitatAnalysis:
         else:
             raise TypeError("config must be a dict or HabitatAnalysisConfig")
 
-        self._setup_logging(logger)
+        self.feature_manager = feature_manager
+        self.clustering_manager = clustering_manager
+        self.result_manager = result_manager
+        self.logger = logger
         
-        # Initialize Managers - use injected instances or create new ones
-        self.feature_manager = feature_manager or FeatureManager(self.config, self.logger)
-        self.clustering_manager = clustering_manager or ClusteringManager(self.config, self.logger)
-        self.result_manager = result_manager or ResultManager(self.config, self.logger)
-        
-        # Setup Data
+        self._setup_logging_info()
         self._setup_data_paths()
         
-        # Initialize Mode Handler
-        self.mode_handler = create_mode(self.config, self.logger)
-        
-        # Pass logging info to managers for subprocesses
         self.feature_manager.set_logging_info(self._log_file_path, self._log_level)
         self.result_manager.set_logging_info(self._log_file_path, self._log_level)
 
-    
-    def _setup_logging(self, logger: Optional[Any] = None) -> None:
-        """Setup logging configuration."""
-        if logger is not None:
-            self.logger = logger
-            manager = LoggerManager()
-            self._log_file_path = manager.get_log_file()
-            self._log_level = logging.INFO
-            return
-
+    def _setup_logging_info(self) -> None:
+        """Get logging info from injected logger or create defaults."""
         manager = LoggerManager()
         
-        if manager.get_log_file() is not None:
-            # Logging already configured by CLI
-            self.logger = get_module_logger('habitat')
-            self.logger.info("Using existing logging configuration from CLI entry point")
-            self._log_file_path = manager.get_log_file()
-            self._log_level = (
-                manager._root_logger.getEffectiveLevel() 
-                if manager._root_logger else logging.INFO
-            )
+        log_file = manager.get_log_file()
+        if log_file:
+            self._log_file_path = log_file
+        elif hasattr(self.logger, 'log_file'):
+            self._log_file_path = self.logger.log_file
         else:
-            # Setup new logging
-            level = logging.DEBUG if self.config.debug else logging.INFO
-            self.logger = setup_logger(
-                name='habitat',
-                output_dir=self.config.out_dir,
-                log_filename='habitat_analysis.log',
-                level=level
-            )
-            self._log_file_path = manager.get_log_file()
-            self._log_level = level
+            self._log_file_path = os.path.join(self.config.out_dir, 'habitat_analysis.log')
+        
+        if manager._root_logger:
+            self._log_level = manager._root_logger.getEffectiveLevel()
+        else:
+            self._log_level = logging.INFO
     
     def _setup_data_paths(self) -> None:
         """Setup data paths and create output directory."""
@@ -135,18 +113,22 @@ class HabitatAnalysis:
     def run(
         self, 
         subjects: Optional[List[str]] = None, 
-        save_results_csv: bool = True
+        save_results_csv: Optional[bool] = None
     ) -> pd.DataFrame:
         """
         Run the habitat clustering pipeline.
         
         Args:
             subjects: List of subjects to process (None = all subjects)
-            save_results_csv: Whether to save results as CSV files
+            save_results_csv: Whether to save results as CSV files (defaults to config.save_results_csv)
             
         Returns:
             DataFrame with habitat clustering results
         """
+        # Use config value if parameter not provided, allowing runtime override
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+        
         strategy_class = get_strategy(self.config.HabitatsSegmention.clustering_mode)
         strategy = strategy_class(self)
         return strategy.run(subjects=subjects, save_results_csv=save_results_csv)

@@ -19,7 +19,7 @@ import os
 from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
-from habit.utils.config_utils import load_config
+from habit.core.common.config_loader import load_config
 from habit.utils.log_utils import setup_logger, get_module_logger
 import multiprocessing
 import traceback

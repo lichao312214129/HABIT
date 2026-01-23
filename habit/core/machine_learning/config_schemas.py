@@ -159,6 +159,36 @@ class MLConfig(BaseConfig):
             raise ValueError('test_size must be between 0 and 1')
         return v
 
+class PredictionConfig(BaseConfig):
+    """Configuration for Model Prediction."""
+    model_config = ConfigDict(extra='allow')
+
+    model_path: str
+    data_path: str
+    output_dir: str
+    model_name: Optional[str] = None
+    evaluate: bool = False
+    
+    # Column configuration
+    label_col: Optional[str] = None  # Ground truth label column name (for evaluation)
+    label_col_candidates: List[str] = Field(
+        default_factory=lambda: ['label', 'Target', 'class', 'diagnosis', 'outcome', 'y']
+    )  # Fallback candidates if label_col not specified
+    
+    # Output column names
+    output_label_col: str = 'predicted_label'  # Column name for predicted labels in output
+    output_prob_col: str = 'predicted_probability'  # Column name for predicted probabilities in output
+    
+    # Probability extraction configuration
+    probability_class_index: Optional[int] = None  # For multiclass: which class index to extract (None = all)
+    binary_positive_class_index: int = 1  # For binary classification: which index is positive class (default: 1)
+
+    @validator('output_dir')
+    def output_dir_required(cls, v):
+        if not v or not str(v).strip():
+            raise ValueError("output_dir is required and cannot be empty")
+        return v
+
 def validate_config(config_dict: Dict[str, Any]) -> MLConfig:
     """Validate raw dictionary against the schema."""
     return MLConfig(**config_dict)

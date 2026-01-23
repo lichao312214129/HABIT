@@ -5,7 +5,9 @@ from .base import Callback
 class ModelCheckpoint(Callback):
     """Saves model pipelines to disk."""
     def on_model_end(self, model_name, logs=None):
-        if not self.workflow.config.get('is_save_model', True):
+        # Use config_accessor for unified access
+        is_save_model = self.workflow.config_accessor.get('is_save_model', True)
+        if not is_save_model:
             return
             
         model_dir = os.path.join(self.workflow.output_dir, 'models')

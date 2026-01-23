@@ -5,6 +5,7 @@ Main entry point for all HABIT (Habitat Analysis: Biomedical Imaging Toolkit) co
 
 import click
 from pathlib import Path
+from typing import Optional
 
 
 @click.group()
@@ -37,12 +38,25 @@ def preprocess(config):
 @click.option('--config', '-c',
               type=click.Path(exists=True),
               help='Path to configuration YAML file')
+@click.option('--mode', '-m',
+              type=click.Choice(['train', 'predict']),
+              default=None,
+              help='Override run mode in the YAML (train or predict)')
+@click.option('--pipeline',
+              default=None,
+              type=click.Path(exists=True),
+              help='Override pipeline path for predict mode')
 @click.option('--debug', is_flag=True,
               help='Enable debug mode')
-def get_habitat(config, debug):
+def get_habitat(
+    config: str,
+    mode: Optional[str],
+    pipeline: Optional[str],
+    debug: bool
+) -> None:
     """Generate habitat maps from medical images"""
     from habit.cli_commands.commands.cmd_habitat import run_habitat
-    run_habitat(config, debug)
+    run_habitat(config, debug, mode, pipeline)
 
 
 @cli.command('extract')
@@ -64,24 +78,15 @@ def extract(config):
               type=click.Choice(['train', 'predict']),
               default='train',
               help='Operation mode: train or predict')
-@click.option('--model',
-              type=click.Path(exists=True),
-              help='Path to model package file (.pkl) for prediction')
-@click.option('--data',
-              type=click.Path(exists=True),
-              help='Path to data file (.csv) for prediction')
-@click.option('--output', '-o',
-              type=click.Path(),
-              help='Path to save prediction results')
-@click.option('--model-name',
-              help='Name of specific model to use for prediction')
-@click.option('--evaluate/--no-evaluate',
-              default=True,
-              help='Whether to evaluate model performance')
-def model(config, mode, model, data, output, model_name, evaluate):
-    """Train or predict using machine learning models"""
+def model(config, mode):
+    """
+    Train or predict using machine learning models.
+    
+    All parameters (including model path, data path, output directory) 
+    must be specified in the configuration file.
+    """
     from habit.cli_commands.commands.cmd_ml import run_ml
-    run_ml(config, mode, model, data, output, model_name, evaluate)
+    run_ml(config, mode)
 
 
 @cli.command('cv')
