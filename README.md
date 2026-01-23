@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/your-repo/habit_project/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+    <a href="https://github.com/lichao312214129/HABIT/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
     <a href="#"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg"></a>
     <a href="#"><img src="https://img.shields.io/badge/Status-Active-green.svg"></a>
 </p>
@@ -458,7 +458,7 @@ habit --help
 
 如果您遇到任何问题或有改进建议，请：
 1. 阅读 `doc/` 文件夹中的详细文档
-2. 在 GitHub 上提交一个 [Issue](https://github.com/your-repo/habit_project/issues)
+2. 在 GitHub 上提交一个 [Issue](https://github.com/lichao312214129/HABIT/issues)
 
 ### 📖 多语言文档
 

@@ -456,7 +456,7 @@ If you use HABIT in your research, please consider citing:
 
 If you encounter any problems or have suggestions, please:
 1. Read the detailed documentation in the `doc_en/` folder
-2. Open an [Issue](https://github.com/your-repo/habit_project/issues) on GitHub
+2. Open an [Issue](https://github.com/lichao312214129/HABIT/issues) on GitHub
 
 ### 📖 Multilingual Documentation
 

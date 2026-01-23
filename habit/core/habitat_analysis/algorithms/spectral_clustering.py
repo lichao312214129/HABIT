@@ -11,32 +11,36 @@ from ..algorithms.base_clustering import BaseClustering, register_clustering
 @register_clustering('spectral')
 class SpectralClustering(BaseClustering):
     """
-    Spectral Clustering implementation
-    
-    Parameters:
-    -----------
-    n_clusters : int, optional (default=None)
-        The number of clusters to find. If None, it will be determined by find_optimal_clusters method
-        
-    affinity : str, optional (default='rbf')
-        How to construct the affinity matrix
+    Spectral Clustering implementation.
+
+    Parameters
+    ----------
+    n_clusters : int, optional
+        The number of clusters to find. If None, it will be determined by
+        find_optimal_clusters method.
+
+    affinity : str, optional, default='rbf'
+        How to construct the affinity matrix.
+
         - 'nearest_neighbors': construct the affinity matrix by computing a
-          graph of nearest neighbors
-        - 'rbf': construct the affinity matrix using a radial basis function (RBF) kernel
-        - 'precomputed': interpret X as a precomputed affinity matrix
-        - 'precomputed_nearest_neighbors': interpret X as a sparse graph of precomputed distances
-        
-    gamma : float, optional (default=1.0)
-        Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels
-        
-    n_neighbors : int, optional (default=10)
+          graph of nearest neighbors.
+        - 'rbf': construct the affinity matrix using a radial basis function
+          (RBF) kernel.
+        - 'precomputed': interpret X as a precomputed affinity matrix.
+        - 'precomputed_nearest_neighbors': interpret X as a sparse graph of
+          precomputed distances.
+
+    gamma : float, optional, default=1.0
+        Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels.
+
+    n_neighbors : int, optional, default=10
         Number of neighbors to use when constructing the affinity matrix using
-        the nearest neighbors method
-        
-    eigen_solver : str, optional (default='arpack')
+        the nearest neighbors method.
+
+    eigen_solver : str, optional, default='arpack'
         The eigenvalue decomposition strategy to use. ARPACK can handle both
-        sparse and dense problems, while 'lobpcg' is recommended for very large
-        and sparse problems
+        sparse and dense problems, while 'lobpcg' is recommended for very
+        large and sparse problems.
     """
     
     def __init__(self, n_clusters: int = None, affinity: str = 'rbf',
