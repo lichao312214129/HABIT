@@ -1,0 +1,243 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Habitat Analysis Configuration Template
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# This template is based on actual code implementation
+# All parameters listed here are supported by the code
+#
+# Quick Start:
+#   CLI:    habit habitat --config config/config_getting_habitat.yaml
+#   Script: python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# Data Paths (Required)
+# ─────────────────────────────────────────────────────────────────────────
+
+# Root directory containing subject data
+# Expected structure: data_dir/subject_id/images/ and data_dir/subject_id/masks/
+data_dir: ./data/raw_images
+
+# Output directory for results
+# Will be created if it doesn't exist
+out_dir: ./results/habitat_analysis
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Feature Construction Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+FeatureConstruction:
+  
+  # Voxel-level feature extraction
+  voxel_level:
+    # Feature extraction method expression
+    # 
+    # Supported methods (can be nested):
+    #   - raw(image_name): Raw intensity values from single image
+    #   - kinetic(raw(img1), raw(img2), ..., timestamps): Kinetic features from multi-phase images
+    #   - voxel_radiomics(image_name): PyRadiomics features at voxel level
+    #   - concat(raw(img1), raw(img2), ...): Concatenate multiple image intensities
+    #   - local_entropy(image_name): Local entropy features
+    #   - mean_voxel_features(): Mean of voxel features (used in supervoxel aggregation)
+    #   - custom: User-defined feature extractors (see features/README.md)
+    # 
+    # Examples:
+    #   Single image:    raw(T1)
+    #   Multiple images: concat(raw(T1), raw(T2), raw(DWI))
+    #   Kinetic (DCE):   kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    #   Radiomics:       voxel_radiomics(T2)
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    
+    # Parameters for feature extraction
+    params:
+      # Path to Excel file with timestamps (required for kinetic method)
+      # File should contain patient IDs and scan times for each phase
+      timestamps: ./data/scan_time_of_phases.xlsx
+      
+      # PyRadiomics parameter file (required for voxel_radiomics method)
+      # params_file: ./config/params_voxel_radiomics.yaml
+      
+      # Window size for local_entropy method
+      # window_size: [3, 3, 3]
+
+  # Supervoxel-level feature aggregation
+  supervoxel_level:
+    # Pattern to match supervoxel files in subject directories
+    # Uses glob pattern matching
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    
+    # Aggregation method for supervoxel features
+    # Supported methods:
+    #   - mean_voxel_features(): Mean of voxel features within each supervoxel
+    #   - supervoxel_radiomics(image_name): PyRadiomics features from supervoxel regions
+    # 
+    # Examples:
+    #   Mean features:  mean_voxel_features()
+    #   Radiomics:      supervoxel_radiomics(T2)
+    method: mean_voxel_features()
+    
+    # Parameters for aggregation
+    params:
+      # PyRadiomics parameter file (required if method is supervoxel_radiomics)
+      # params_file: ./config/params_supervoxel_radiomics.yaml
+
+  # Feature preprocessing at individual subject level (Optional)
+  # Applied before clustering, within each subject
+  # preprocessing_for_subject_level:
+  #   methods:
+  #     - method: winsorize  # Limit extreme values to specified percentiles
+  #       winsor_limits: [0.05, 0.05]  # Lower and upper percentiles to clip
+  #       global_normalize: false  # Whether to apply globally or per-feature
+  #     
+  #     - method: minmax  # Min-max scaling to [0, 1]
+  #       global_normalize: false
+  #     
+  #     - method: zscore  # Z-score standardization
+  #       global_normalize: false
+  #     
+  #     - method: robust  # Robust scaling using IQR
+  #       global_normalize: false
+  #     
+  #     - method: log  # Log transformation (log(x + 1))
+  #       global_normalize: false
+
+  # Feature preprocessing at population level (Optional)
+  # Applied to aggregated supervoxel features from all subjects
+  preprocessing_for_group_level:
+    methods:
+      - method: binning  # Discretization of continuous features
+        n_bins: 10  # Number of bins
+        bin_strategy: uniform  # Binning strategy: uniform, quantile, kmeans
+        global_normalize: false  # Whether to apply global normalization
+      
+      # Other available methods (same as subject_level):
+      # - method: minmax
+      # - method: zscore
+      # - method: robust
+      # - method: winsorize
+      # - method: log
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Habitat Segmentation Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+HabitatsSegmention:
+  
+  # Clustering mode
+  # Options:
+  #   - two_step: Individual-level (voxel→supervoxel) + Population-level (supervoxel→habitat)
+  #   - one_step: Individual-level only (voxel→habitat for each tumor independently)
+  clustering_mode: two_step
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Supervoxel Clustering (Step 1 for two_step, or final step for one_step)
+  # ───────────────────────────────────────────────────────────────────────
+  supervoxel:
+    # Clustering algorithm
+    # Options: kmeans, gmm
+    algorithm: kmeans
+    
+    # Number of clusters
+    # - For two_step: fixed number of supervoxels per subject
+    # - For one_step: maximum number to test (actual number determined automatically)
+    n_clusters: 50
+    
+    # Random seed for reproducibility
+    random_state: 42
+    
+    # Maximum iterations for clustering algorithm
+    max_iter: 300
+    
+    # Number of initializations (only for kmeans)
+    n_init: 10
+    
+    # Settings for one_step mode only
+    one_step_settings:
+      # Minimum number of clusters to test
+      min_clusters: 2
+      
+      # Maximum number of clusters to test
+      max_clusters: 10
+      
+      # Method to select optimal number of clusters
+      # Options: silhouette, calinski_harabasz, davies_bouldin, inertia
+      selection_method: silhouette
+      
+      # Whether to plot validation curves for each tumor
+      plot_validation_curves: true
+  
+  # ───────────────────────────────────────────────────────────────────────
+  # Habitat Clustering (Step 2, only for two_step mode)
+  # ───────────────────────────────────────────────────────────────────────
+  habitat:
+    # Mode
+    # Options:
+    #   - training: Train new habitat clustering model
+    #   - testing: Use pre-trained model
+    # Default model path: {out_dir}/supervoxel2habitat_clustering_model.pkl
+    # Default preprocessing: {out_dir}/mean_values_of_all_supervoxels_features.csv
+    mode: testing
+    
+    # Clustering algorithm
+    # Options: kmeans, gmm
+    algorithm: kmeans
+    
+    # Maximum number of habitat clusters to test
+    max_clusters: 10
+    
+    # Minimum number of habitat clusters to test (optional)
+    # min_clusters: 2
+    
+    # Method to select optimal number of clusters
+    # For kmeans: inertia, silhouette, calinski_harabasz
+    # For gmm: aic, bic, silhouette, calinski_harabasz
+    habitat_cluster_selection_method: inertia
+    
+    # Fixed number of clusters (optional)
+    # If specified, automatic selection is skipped
+    # Set to null or omit for automatic selection
+    best_n_clusters: 4
+    
+    # Random seed for reproducibility
+    random_state: 42
+    
+    # Maximum iterations for clustering algorithm
+    max_iter: 300
+    
+    # Number of initializations (only for kmeans)
+    n_init: 10
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# General Settings
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+# Set to 1 for sequential processing
+processes: 2
+
+# Whether to generate and save plots
+# Includes cluster validation curves, habitat distributions, etc.
+plot_curves: true
+
+# Random seed for reproducibility
+random_state: 42
+
+# Debug mode (enables detailed logging)
+debug: false
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Notes
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. All paths can be absolute or relative
+# 2. YAML format: use 2 spaces for indentation (no tabs)
+# 3. Null values can be expressed as: null or by omitting the value
+# 4. For list of methods, use "- method:" syntax
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

@@ -1,0 +1,391 @@
+# Habitat Analysis 使用指南
+
+## 概述
+
+Habitat Analysis 模块用于识别和表征肿瘤内部具有不同影像表型的亚区域（"生境"）。该模块支持两种聚类策略：
+
+### 🎯 聚类模式对比
+
+| 特性 | 一步法 (One-Step) | 二步法 (Two-Step) |
+|------|------------------|------------------|
+| **聚类流程** | 直接从体素聚类到生境 | 先聚类到supervoxels，再聚类到habitats |
+| **聚类层级** | 单层级（个体水平） | 双层级（个体+群体水平） |
+| **聚类数目** | 每个肿瘤自动确定最优数目 | supervoxels数目固定，habitats数目可优化 |
+| **生境标签** | 每个患者的生境标签独立 | 所有患者共享统一的生境标签体系 |
+| **跨患者比较** | 需要额外的对应分析 | 可直接比较相同编号的生境 |
+| **计算复杂度** | 较低（仅个体聚类） | 较高（个体+群体两次聚类） |
+| **适用场景** | 个体异质性分析、小样本研究 | 队列研究、跨患者生境模式识别 |
+
+---
+
+## 🚀 快速开始
+
+### 使用CLI（推荐）
+
+```bash
+# 二步法（默认）
+habit habitat --config config/config_getting_habitat.yaml
+
+# 一步法
+# 先修改配置文件中的 clustering_mode: one_step
+habit habitat --config config/config_getting_habitat.yaml
+```
+
+### 使用传统脚本
+
+```bash
+python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
+```
+
+---
+
+## 📋 配置文件说明
+
+**📖 配置文件链接**：
+- 📄 [当前配置文件](../config/config_getting_habitat.yaml) - 实际使用的精简配置
+- 📖 [详细注释模板](../config_templates/config_getting_habitat_annotated.yaml) - 包含完整英文注释和使用说明
+
+### 关键配置项
+
+```yaml
+HabitatsSegmention:
+  # 聚类策略选择
+  clustering_mode: two_step  # one_step 或 two_step
+  
+  # 第一步：个体水平聚类
+  supervoxel:
+    algorithm: kmeans  # 聚类算法：kmeans 或 gmm
+    n_clusters: 50     # 二步法的固定聚类数
+    
+    # 一步法专用设置
+    one_step_settings:
+      min_clusters: 2               # 最小聚类数
+      max_clusters: 10              # 最大聚类数
+      selection_method: silhouette  # 评估方法
+      plot_validation_curves: true  # 是否绘制验证曲线
+  
+  # 第二步：群体水平聚类（仅在two_step模式使用）
+  habitat:
+    mode: training  # training 或 testing
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method: inertia
+    best_n_clusters: 4  # 指定聚类数，或设为null自动选择
+```
+
+---
+
+## 🎨 一步法详解
+
+### 工作原理
+
+1. **体素特征提取**: 计算每个体素的组学特征
+2. **个体聚类**: 对每个患者的肿瘤单独聚类
+3. **自动选择聚类数**: 使用验证指标（如轮廓系数）确定最佳聚类数
+4. **生成个性化生境图**: 每个患者获得独特的生境分割
+
+### 聚类数选择原则
+
+代码根据不同的评估指标采用不同的策略来选择最佳聚类数：
+
+| 方法 | 说明 | 选择逻辑 |
+|------|------|---------|
+| `silhouette` | 轮廓系数 | **最大值原则 (Max)**: 数值越大越好，选择得分最高的聚类数。 |
+| `calinski_harabasz` | 方差比率 | **最大值原则 (Max)**: 数值越大越好，选择得分最高的聚类数。 |
+| `inertia` | 簇内平方和 (SSE) | **肘部法则 (Elbow)**: 数值越小越好。代码计算得分曲线的**二阶差分**，寻找曲线变化最剧烈的拐点（肘点）作为最佳聚类数。 |
+| `bic` / `aic` | 信息准则 (GMM) | **肘部法则 (Elbow)**: 数值越小越好。同样使用二阶差分法寻找拐点。 |
+| `davies_bouldin` | 簇间平均相似度 | **最小值原则 (Min)**: 数值越小越好。 |
+
+> **💡 为什么 Inertia 用肘部法则，而 Davies-Bouldin 用最小值？**
+>
+> *   **Inertia (SSE)**: 随着聚类数增加，簇内误差必然单调下降（当聚类数=样本数时降为0）。直接找最小值会导致过拟合。因此需要寻找收益递减的“拐点”（肘部）。
+> *   **Davies-Bouldin**: 同时考虑了簇内紧密度（分子）和簇间分离度（分母）。随着聚类数增加，虽然簇内更紧密，但簇间距离也可能变小（分母变小）。因此它通常存在一个明确的全局最小值，不需要使用肘部法则。
+
+### 组合方法：投票制度
+
+当使用多个评估方法组合时（例如：`silhouette_calinski_harabasz_davies_bouldin`），系统采用**投票制度**来选择最佳聚类数：
+
+1. **独立选择**：每个方法根据其自身的选择逻辑（最大值、最小值或肘部法则）独立选择最优聚类数
+2. **投票统计**：统计每个聚类数被选中的次数
+3. **多数决定**：选择得票最多的聚类数作为最终结果
+4. **平票处理**：如果出现平票，选择最小的聚类数（更保守的选择）
+
+**示例**：
+- 假设使用 `silhouette_calinski_harabasz_davies_bouldin` 三个方法
+- `silhouette` 选择聚类数 5
+- `calinski_harabasz` 选择聚类数 5
+- `davies_bouldin` 选择聚类数 4
+- **投票结果**：聚类数 5 得 2 票，聚类数 4 得 1 票
+- **最终选择**：聚类数 5（得票最多）
+
+这种投票制度能够综合多个评估指标的意见，提高选择结果的稳健性和可靠性。
+
+### 输出文件
+
+```
+output_dir/
+├── {subject}_supervoxel.nrrd           # 生境地图（每个患者）
+├── {subject}_validation_plots/         # 验证曲线（如果启用）
+│   └── {subject}_cluster_validation.png
+├── results_all_samples.csv             # 所有患者的聚类结果
+└── clustering_summary.csv              # 聚类摘要统计
+```
+
+### 示例配置（一步法）
+
+```yaml
+HabitatsSegmention:
+  clustering_mode: one_step
+  
+  supervoxel:
+    algorithm: kmeans
+    random_state: 42
+    
+    one_step_settings:
+      min_clusters: 3              # 测试3-8个聚类
+      max_clusters: 8
+      selection_method: silhouette  # 使用轮廓系数
+      plot_validation_curves: true  # 绘制每个患者的验证曲线
+```
+
+---
+
+## 📊 二步法详解
+
+### 工作原理
+
+1. **体素→超体素**: 每个患者的肿瘤聚类为supervoxels
+2. **超体素→生境**: 跨患者聚类，识别共通的生境模式
+3. **群体一致性**: 所有患者使用相同的生境定义
+
+### 优势
+
+- ✅ 跨患者可比较性
+- ✅ 识别共通模式
+- ✅ 适合队列研究
+- ✅ 便于统计分析
+
+### 输出文件
+
+```
+output_dir/
+├── {subject}_supervoxel.nrrd              # 超体素地图
+├── {subject}_habitat.nrrd                 # 生境地图
+├── mean_values_of_all_supervoxels_features.csv  # 超体素特征均值
+├── results_all_samples.csv                # 最终结果
+├── supervoxel2habitat_clustering_model.pkl  # 聚类模型
+└── habitat_clustering_scores.png          # 聚类评估曲线
+```
+
+### 示例配置（二步法）
+
+```yaml
+HabitatsSegmention:
+  clustering_mode: two_step
+  
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50  # 每个患者固定50个supervoxels
+    random_state: 42
+  
+  habitat:
+    mode: training
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method: silhouette
+    best_n_clusters: null  # 自动选择
+```
+
+---
+
+## 🔧 高级用法
+
+### 使用预训练模型（二步法）
+
+对于新的测试数据，可以使用之前训练的模型：
+
+```yaml
+habitat:
+  mode: testing  # 切换到测试模式
+  # 模型会自动从 out_dir/supervoxel2habitat_clustering_model.pkl 加载
+```
+
+### 多进程加速
+
+```yaml
+processes: 4  # 使用4个进程并行处理
+```
+
+### 自定义特征提取 (Custom Feature Extraction)
+
+`HABIT` 提供了一个灵活的特征提取框架，允许您在体素（Voxel）层面组合使用多种特征，用于后续的生境（Habitat）聚类分析。所有特征相关的配置都在配置文件的 `FeatureConstruction` 部分完成。
+
+### 语法简介
+
+特征提取的配置采用嵌套函数调用的形式，核心逻辑是 **"单模态提取 -> 多模态组合"**。
+
+1.  **单模态特征提取函数 (Single-modality Extractors)**: 
+    *   作用：从单个图像模态中提取特征。
+    *   例如：`raw(...)`, `voxel_radiomics(...)`, `local_entropy(...)`。
+    *   **注意**：这些函数的输出不能直接作为最终特征，必须传递给多模态组合函数。
+
+2.  **多模态组合函数 (Multi-modality Combiners)**:
+    *   作用：接收一个或多个单模态提取器的输出，将其整合为最终的特征向量。
+    *   例如：`concat(...)` (最常用，直接拼接特征), `kinetic(...)` (处理时间序列)。
+    *   **核心原则**：即使只提取一个模态的特征，也必须使用多模态组合函数进行包裹。
+
+**✨ 可扩展性**：`HABIT` 框架支持自定义单模态提取器和多模态组合器，您可以根据研究需要编写自己的函数。
+
+### 体素级特征 (`voxel_level`)
+
+这是生境分析的第一步，用于从原始图像中为每个体素提取一个或多个特征值，形成特征向量。
+
+以下是目前内置的函数：
+
+**单模态特征提取函数**:
+
+| 方法 | 功能描述 | 主要参数 |
+| :--- | :--- | :--- |
+| `raw` | **原始强度 (Raw Intensity)**<br>直接提取每个体素在指定图像中的原始信号强度值。 | 无 |
+| `voxel_radiomics` | **体素级组学 (Voxel-level Radiomics)**<br>使用 PyRadiomics 在每个体素的局部邻域内计算影像组学特征。 | `params_file`: PyRadiomics 参数文件路径 |
+| `local_entropy` | **局部熵 (Local Entropy)**<br>计算每个体素邻域内的局部信息熵。 | `kernel_size`: 邻域大小<br>`bins`: 分箱数 |
+
+**多模态组合函数**:
+
+| 方法 | 功能描述 | 说明 |
+| :--- | :--- | :--- |
+| `concat` | **特征拼接 (Concatenation)**<br>将输入的特征在通道维度上直接拼接。 | 最通用的组合方式。即使只有一个输入，也需要使用它来确立特征格式。 |
+| `kinetic` | **动力学特征 (Kinetic Features)**<br>专门用于处理多期相时间序列数据，计算灌注参数。 | **注意**：这是一个特定业务场景的示例实现（仅供参考），展示如何处理时间序列数据。需提供 `timestamps` 参数。 |
+
+---
+
+### 示例配置
+
+下面是一些具体的 `yaml` 配置示例。请注意：**所有单模态特征提取的结果，都必须被多模态组合函数（如 `concat`）包裹。**
+
+#### 示例 1: 使用单一原始图像强度
+
+这是最简单的配置。即使是单模态，也需要使用组合函数（这里使用 `concat`）进行包裹。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: concat(raw(pre_contrast))
+    params: {}
+```
+
+#### 示例 2: 组合使用多种原始图像强度
+
+您可以将多个模态的原始强度值拼接成一个特征向量。这里我们使用 `concat` 方法来组合三个不同期相的图像。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP))
+    params: {}
+```
+
+#### 示例 3: 计算动力学特征
+
+使用 `kinetic` 方法需要提供一个 `timestamps` 文件。该方法会自动处理 `raw()` 包装的多个图像。
+**说明**：`kinetic` 函数仅作为一个处理血流动力学特征的**参考示例**，展示了框架处理多模态时间序列数据的能力。您可以参考其源码实现自己的特定逻辑。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    params:
+      timestamps: './config/scan_times.xlsx' # 指向您的时间戳文件
+```
+
+#### 示例 4: 提取体素级组学特征
+
+使用 `voxel_radiomics` 需要提供一个 PyRadiomics 参数文件。注意：即使是单个特征提取结果，也需要使用多模态组合函数（如 `concat`）包裹。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: concat(voxel_radiomics(pre_contrast, radiomics_params))
+    params:
+      radiomics_params: './config/radiomics_params.yaml' # 指向您的组学参数文件
+```
+
+#### 示例 5: 提取局部熵特征
+
+使用 `local_entropy` 并自定义邻域大小和分箱数。同样需要使用组合函数包裹。
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    method: concat(local_entropy(pre_contrast, kernel_size, bins))
+    params:
+      kernel_size: 5
+      bins: 64
+```
+
+---
+
+## 🎯 使用建议
+
+### 选择一步法当...
+
+✅ 关注个体肿瘤的异质性  
+✅ 不需要跨患者比较  
+✅ 每个患者样本量充足（足够体素数）  
+✅ 探索性研究，了解个体差异  
+
+### 选择二步法当...
+
+✅ 需要跨患者统计分析  
+✅ 识别群体共通的生境类型  
+✅ 建立可复用的生境模型  
+✅ 进行队列研究或临床预测  
+
+---
+
+## 🐛 常见问题
+
+### Q1: 一步法中每个患者的聚类数都不同，如何比较？
+
+**A**: 一步法关注的是个体内的异质性，不是跨个体比较。如果需要比较，应该：
+- 比较聚类数量（作为异质性指标）
+- 提取每个生境的特征进行统计
+- 使用二步法获得统一的生境定义
+
+### Q2: 如何选择合适的聚类数范围？
+
+**A**: 建议：
+- 最小值：2-3（至少要有明显分类）
+- 最大值：10-15（避免过度分割）
+- 考虑肿瘤大小（小肿瘤用较少聚类数）
+
+### Q3: 验证曲线看起来不稳定怎么办？
+
+**A**: 可能原因：
+- 样本量不足（体素太少）
+- 特征选择不合适
+- 尝试不同的validation method
+- 增加聚类算法的 `n_init` 参数
+
+---
+
+## 📚 相关文档
+
+- [特征提取配置](./app_extracting_habitat_features.md)
+- [ICC可重复性分析](./app_icc_analysis.md)
+- [CLI使用指南](../HABIT_CLI.md)
+
+---
+
+## 📖 参考文献
+
+**二步法（经典Habitat方法）**:
+- Wu J, et al. "Intratumoral spatial heterogeneity at perfusion MR imaging predicts recurrence-free survival in locally advanced breast cancer treated with neoadjuvant chemotherapy." Radiology, 2018.
+
+**一步法（个性化分析）**:
+- Nomogram for Predicting Neoadjuvant Chemotherapy  Response in Breast Cancer Using MRI-based Intratumoral  Heterogeneity Quantification
+
+---
+
+*最后更新: 2025-10-19*
+

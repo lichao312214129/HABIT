@@ -1,0 +1,39 @@
+✓ Training completed successfully!
+PS F:\work\habit_project> & E:/conda/mconda/envs/py312/python.exe f:/work/habit_project/tests/test_ml.py
+Failed to import VoxelRadiomicsExtractor: No module named 'radiomics'
+Failed to import SupervoxelRadiomicsExtractor: No module named 'radiomics'
+Traceback (most recent call last):
+  File "f:\work\habit_project\tests\test_ml.py", line 8, in <module>
+    cli()
+  File "E:\conda\mconda\envs\py312\Lib\site-packages\click\core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\conda\mconda\envs\py312\Lib\site-packages\click\core.py", line 1078, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "E:\conda\mconda\envs\py312\Lib\site-packages\click\core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\conda\mconda\envs\py312\Lib\site-packages\click\core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\conda\mconda\envs\py312\Lib\site-packages\click\core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\work\habit_project\habit\cli.py", line 84, in model
+    run_ml(config, mode, model, data, output, model_name, evaluate)
+  File "F:\work\habit_project\habit\cli_commands\commands\cmd_ml.py", line 28, in run_ml
+    from habit.core.machine_learning.workflows.holdout_workflow import MachineLearningWorkflow
+  File "F:\work\habit_project\habit\core\machine_learning\workflows\holdout_workflow.py", line 12, in <module>
+    from ..base_workflow import BaseWorkflow
+  File "F:\work\habit_project\habit\core\machine_learning\base_workflow.py", line 7, in <module>
+    from .visualization.plot_manager import PlotManager
+  File "F:\work\habit_project\habit\core\machine_learning\visualization\__init__.py", line 1, in <module>
+    from .plotting import Plotter
+  File "F:\work\habit_project\habit\core\machine_learning\visualization\plotting.py", line 14, in <module>
+    from ..evaluation.metrics import calculate_net_benefit
+  File "F:\work\habit_project\habit\core\machine_learning\evaluation\metrics.py", line 104, in <module>
+    y_pred: Optional[np.ndarray] = None,
+            ^^^^^^^^
+NameError: name 'Optional' is not defined
+PS F:\work\habit_project>

@@ -1,0 +1,36 @@
+# Example configuration file for image and mask paths
+# This file demonstrates the expected format for get_image_and_mask_paths function
+
+# Image paths organized by subject and image type
+images:
+  subject_001:
+    T1: /path/to/data/images/subject_001/T1/T1.nii.gz
+    T2: /path/to/data/images/subject_001/T2/T2.nii.gz
+    FLAIR: /path/to/data/images/subject_001/FLAIR/FLAIR.nii.gz
+  
+  subject_002:
+    T1: /path/to/data/images/subject_002/T1/T1.nii.gz
+    T2: /path/to/data/images/subject_002/T2/T2.nii.gz
+    FLAIR: /path/to/data/images/subject_002/FLAIR/FLAIR.nii.gz
+  
+  subject_003:
+    T1: /path/to/data/images/subject_003/T1/T1.nii.gz
+    T2: /path/to/data/images/subject_003/T2/T2.nii.gz
+    FLAIR: /path/to/data/images/subject_003/FLAIR/FLAIR.nii.gz
+
+# Mask paths organized by subject and image type
+masks:
+  subject_001:
+    T1: /path/to/data/masks/subject_001/T1/mask.nii.gz
+    T2: /path/to/data/masks/subject_001/T2/mask.nii.gz
+    FLAIR: /path/to/data/masks/subject_001/FLAIR/mask.nii.gz
+  
+  subject_002:
+    T1: /path/to/data/masks/subject_002/T1/mask.nii.gz
+    T2: /path/to/data/masks/subject_002/T2/mask.nii.gz
+    FLAIR: /path/to/data/masks/subject_002/FLAIR/mask.nii.gz
+  
+  subject_003:
+    T1: /path/to/data/masks/subject_003/T1/mask.nii.gz
+    T2: /path/to/data/masks/subject_003/T2/mask.nii.gz
+    FLAIR: /path/to/data/masks/subject_003/FLAIR/mask.nii.gz 

@@ -1,0 +1,116 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Model Comparison Configuration Template
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Based on actual code: habit/core/machine_learning/model_comparison.py
+#
+# Quick Start:
+#   CLI:    habit compare --config config/config_model_comparison.yaml
+#   Script: python scripts/app_model_comparison_plots.py --config config/config_model_comparison.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# Output Directory
+# ─────────────────────────────────────────────────────────────────────────
+output_dir: ./ml_results/comparison
+
+# ─────────────────────────────────────────────────────────────────────────
+# Model Prediction Files Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# List of prediction files to compare
+# Each file should contain predictions from one model
+files_config:
+  - path: ./ml_results/model1/all_prediction_results.csv
+    model_name: Clinical Model  # Display name in plots
+    subject_id_col: subjID  # Column with subject IDs
+    label_col: true_label  # Column with true labels (0/1)
+    prob_col: prob  # Column with predicted probabilities (0-1)
+    pred_col: pred  # Column with predicted classes (0/1)
+    split_col: split  # Column indicating train/test split
+  
+  - path: ./ml_results/model2/all_prediction_results.csv
+    model_name: Radiomics Model
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: LogisticRegression_prob
+    pred_col: LogisticRegression_pred
+    split_col: split
+  
+  # Add more models as needed
+
+# ─────────────────────────────────────────────────────────────────────────
+# Merged Data Configuration
+# ─────────────────────────────────────────────────────────────────────────
+merged_data:
+  enabled: true  # Create combined predictions CSV
+  save_name: combined_predictions.csv
+
+# ─────────────────────────────────────────────────────────────────────────
+# Split Configuration
+# ─────────────────────────────────────────────────────────────────────────
+split:
+  enabled: true  # Generate separate analyses for each split (train/test)
+
+# ─────────────────────────────────────────────────────────────────────────
+# Visualization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+visualization:
+  # ROC Curves
+  roc:
+    enabled: true
+    save_name: roc_curves.pdf
+    title: ROC Curves
+  
+  # Decision Curve Analysis
+  dca:
+    enabled: true
+    save_name: decision_curves.pdf
+    title: Decision Curves
+  
+  # Calibration Curves
+  calibration:
+    enabled: true
+    save_name: calibration_curves.pdf
+    n_bins: 5  # Number of bins for calibration
+    title: Calibration Curves
+  
+  # Precision-Recall Curves
+  pr_curve:
+    enabled: true
+    save_name: precision_recall_curves.pdf
+    title: Precision-Recall Curves
+
+# ─────────────────────────────────────────────────────────────────────────
+# Statistical Testing
+# ─────────────────────────────────────────────────────────────────────────
+delong_test:
+  enabled: true  # Perform DeLong test to compare AUCs
+  save_name: delong_results.json
+
+# ─────────────────────────────────────────────────────────────────────────
+# Performance Metrics
+# ─────────────────────────────────────────────────────────────────────────
+metrics:
+  basic_metrics:
+    enabled: true  # Accuracy, sensitivity, specificity, etc.
+  
+  youden_metrics:
+    enabled: true  # Optimal threshold by Youden index
+  
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.7  # Target sensitivity
+      specificity: 0.7  # Target specificity
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Notes
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# All prediction files must contain the same subjects (matched by subject_id_col)
+# Column names can differ between files but must be specified correctly
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

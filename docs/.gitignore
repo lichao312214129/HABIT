@@ -1,0 +1,13 @@
+# Sphinx build output
+build/
+_build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+venv/
+env/

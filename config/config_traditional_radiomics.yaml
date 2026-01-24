@@ -1,0 +1,56 @@
+# Configuration for Traditional Radiomics Feature Extraction
+# This file contains configuration parameters for the app_traditional_radiomics_extractor.py script
+
+# Path Settings
+paths:
+  # Path to the radiomics parameter file 
+  params_file: './config/parameter.yaml'
+  
+  # Default path to the image dataset
+  # Structure should include images/ and masks/ subdirectories
+  images_folder: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_icc
+  
+ # Default output directory for results
+  out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results
+
+# Processing Settings
+processing:
+  # Number of CPU processes to use for feature extraction
+  # Set to 0 to automatically use half of available CPU cores
+  n_processes: 4
+  
+  # Number of files to process before saving intermediate results
+  save_every_n_files: 5
+  
+  # List of image types to process
+  # Only these image types will be processed, others will be skipped
+  process_image_types:
+    - pre_contrast
+    - LAP
+    - PVP
+    - delay_3min
+
+# Feature Export Settings
+export:
+  # Export features as separate CSV files for each image type
+  export_by_image_type: true
+  
+  # Export all features in a single combined CSV file
+  export_combined: true
+  
+  # Export format options: 'csv', 'json', 'pickle'
+  export_format: 'csv'
+  
+  # Add timestamp to output filenames
+  add_timestamp: true
+
+# Logging Settings
+logging:
+  # Log level: 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
+  level: 'INFO'
+  
+  # Enable/disable logging to console
+  console_output: true
+  
+  # Enable/disable logging to file
+  file_output: true 
