@@ -1,6 +1,7 @@
-Machine Learning
-================
+机器学习建模
+============
+
+本节介绍如何使用 HABIT 进行机器学习建模，包括特征选择、模型训练和模型评估。
 
 .. note::
-   This section is under development. For now, see the existing documentation
-   in ``doc_en/app_of_machine_learning.md``.
+   详细的机器学习建模文档请参考 :doc:`machine_learning_modeling_zh`。

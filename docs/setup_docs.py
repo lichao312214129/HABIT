@@ -31,7 +31,7 @@ def create_directories():
 
 def check_dependencies():
     """Check if required packages are installed."""
-    required = ['sphinx', 'sphinx_rtd_theme', 'myst_parser']
+    required = ['sphinx', 'sphinx_rtd_theme']
     missing = []
     
     for package in required:

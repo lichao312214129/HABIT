@@ -6,20 +6,22 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>preprocessing 模块 &mdash; HABIT 0.1.0 文档</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+  <title>preprocessing 模块 &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2d33a3a8"></script>
       <script src="../_static/doctools.js?v=888ff710"></script>
       <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
       <script src="../_static/translations.js?v=beaddf03"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
-    <link rel="search" title="搜索" href="../search.html" /> 
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="common 模块" href="common.html" />
+    <link rel="prev" title="machine_learning 模块" href="machine_learning.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,443 +45,47 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
               <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation_zh.html">安装指南</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id2">系统要求</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id3">主要依赖</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id4">从源码安装</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id5">安装依赖</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id6">验证安装</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id7">可选依赖</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id8">安装问题排查</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/quickstart_zh.html">快速入门</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id2">前提条件</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id3">快速入门示例</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id4">步骤 1: 图像预处理</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id5">步骤 2: 生境分割</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id6">步骤 3: 生境特征提取</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id7">步骤 4: 机器学习建模</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id8">配置文件说明</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id9">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/basic_concepts_zh.html">基本概念</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#habitat">生境（Habitat）</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id2">聚类策略</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id3">特征提取</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id4">配置驱动</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id5">双重接口</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html">扩展性概述</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id2">扩展机制概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id3">可扩展的组件</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id4">扩展步骤</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id5">配置文件中的使用</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id6">自动发现机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id9">扩展最佳实践</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id10">下一步</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id2">数据输入方式概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id3">文件夹结构方式</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id4">标准文件夹结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id5">文件夹命名规则</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id7">路径格式</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id8">路径和文件名规则</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id9">实际示例</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id10">两种方式对比</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id11">转换方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id12">数据验证</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id13">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id2">工作流程概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id3">自定义扩展</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id4">配置文件</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id5">数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id6">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id1">核心理念</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id2">设计原则</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id3">设计理念总结</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id3">扩展原则</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id6">自定义聚类算法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id7">自定义模型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id8">自定义特征选择器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id9">最佳实践</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id10">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id11">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id3">通用配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id4">预处理配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id5">生境分析配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id22">特征提取配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id25">机器学习配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id26">数据配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id43">配置文件验证</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id44">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id45">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id1">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id2">通用参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id3">图像预处理命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id4">生境分析命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id5">特征提取命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id6">机器学习命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id7">帮助命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id8">版本命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id9">命令行参数优先级</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id10">错误处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id11">日志记录</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id12">批处理示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id13">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id14">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="habit.core.html">habit.core package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API 文档</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html">habitat_analysis 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html">machine_learning 模块</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">preprocessing 模块</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#batchprocessor">BatchProcessor 类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor"><code class="docutils literal notranslate"><span class="pre">BatchProcessor</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="habit.utils.html">habit.utils package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#main-modules">Main Modules</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html">架构设计</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id2">核心模块</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#machine-learning">Machine Learning</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#preprocessing">Preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#common">Common</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id3">设计模式</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id4">模块依赖关系</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/design_patterns.html">设计模式</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/testing.html">测试指南</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id2">运行测试</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id3">编写测试</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#fixtures">使用 Fixtures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id4">测试最佳实践</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id5">持续集成</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">贡献指南</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id2">如何贡献</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#bug">报告 Bug</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id3">提交代码</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id4">代码规范</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id5">文档贡献</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id6">开发环境设置</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#pull-request">提交 Pull Request</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id7">行为准则</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">算法参考</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html">聚类算法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#k-means">K-Means</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#id3">层次聚类</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/feature_extraction.html">特征提取</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/validation_methods.html">验证方法</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id3">验证方法选择</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#known-issues">Known Issues</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">common 模块</a></li>
 </ul>
 </li>
 </ul>
@@ -498,6 +104,7 @@
           <div role="navigation" aria-label="页面导航">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API 文档</a></li>
       <li class="breadcrumb-item active">preprocessing 模块</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/preprocessing.rst.txt" rel="nofollow"> 查看页面源码</a>
@@ -510,251 +117,12 @@
              
   <section id="module-habit.core.preprocessing">
 <span id="preprocessing"></span><h1>preprocessing 模块<a class="headerlink" href="#module-habit.core.preprocessing" title="此标题的永久链接"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.AdaptiveHistogramEqualization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">AdaptiveHistogramEqualization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/adaptive_histogram_equalization.html#AdaptiveHistogramEqualization"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.AdaptiveHistogramEqualization" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Apply adaptive histogram equalization to images using SimpleITK.</p>
-<p>This preprocessor uses SimpleITK’s AdaptiveHistogramEqualizationImageFilter
-to perform contrast-limited adaptive histogram equalization (CLAHE).
-It enhances local contrast while limiting noise amplification.</p>
-<p>The filter divides the image into regions (controlled by radius parameter)
-and performs histogram equalization in each region, with bilinear interpolation
-to eliminate boundary artifacts.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.BasePreprocessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">BasePreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/base_preprocessor.html#BasePreprocessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.BasePreprocessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Base class for all image preprocessors in HABIT.</p>
-<p>This class defines the basic interface that all preprocessors must implement.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.CustomPreprocessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">CustomPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/custom_preprocessor_template.html#CustomPreprocessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.CustomPreprocessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Template for creating custom preprocessors.</p>
-<p>This class serves as a template for users to create their own preprocessors.
-Users should:
-1. Copy this file and rename it
-2. Change the class name and registration name
-3. Implement the __call__ method with their custom preprocessing logic
-4. Add any necessary helper methods for preprocessing</p>
-<p class="rubric">示例</p>
-<p>&#64;PreprocessorFactory.register(“my_preprocessor”)
-class MyPreprocessor(BasePreprocessor):</p>
-<blockquote>
-<div><dl>
-<dt>def __init__(self, keys, param1, param2, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs):</dt><dd><p>super().__init__(keys=keys)
-self.param1 = param1
-self.param2 = param2</p>
-</dd>
-<dt>def __call__(self, data):</dt><dd><p>self._check_keys(data)
-for key in self.keys:</p>
-<blockquote>
-<div><p>data[key] = self._process_image(data[key])</p>
-</div></blockquote>
-<p>return data</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.Dcm2niixConverter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">Dcm2niixConverter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dcm2niix_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacent_dicoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anonymize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_derived</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_file_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/dcm2niix_converter.html#Dcm2niixConverter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.Dcm2niixConverter" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Convert DICOM files to NIfTI format using dcm2niix tool.</p>
-<p>This preprocessor takes DICOM directories and converts them to NIfTI format
-using the dcm2niix command-line tool. It supports batch processing and
-integrates with the HABIT preprocessing pipeline.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.preprocessing.Dcm2niixConverter.batch_convert_subjects">
-<span class="sig-name descname"><span class="pre">batch_convert_subjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subjects_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/dcm2niix_converter.html#Dcm2niixConverter.batch_convert_subjects"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.Dcm2niixConverter.batch_convert_subjects" title="永久链接至目标"></a></dt>
-<dd><p>Batch convert DICOM directories for multiple subjects.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>subjects_data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – Dictionary with subject IDs as keys and sequence dictionaries as values
-Format: {subject_id: {sequence_name: dicom_dir_path}}</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Dictionary containing SimpleITK Image objects</dt><dd><p>Format: {subject_id: {sequence_name: sitk_image}}</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Dict[str, sitk.Image]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.HistogramStandardization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">HistogramStandardization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/histogram_standardization.html#HistogramStandardization"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.HistogramStandardization" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Apply Nyúl histogram standardization to images.</p>
-<p>This preprocessor implements the Nyúl histogram standardization method,
-which maps image intensities to a standard scale using percentile landmarks.
-Unlike histogram matching, this method does not require a reference image,
-but instead maps intensities to predefined target values.</p>
-<dl class="simple">
-<dt>Reference:</dt><dd><p>Nyúl, L.G., Udupa, J.K., Zhang, X., 2000. New variants of a method of
-MRI scale standardization. IEEE Trans. Med. Imaging 19, 143-150.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.N4BiasFieldCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">N4BiasFieldCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_fitting_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shrink_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/n4_correction.html#N4BiasFieldCorrection"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.N4BiasFieldCorrection" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Apply N4 bias field correction to images using SimpleITK.</p>
-<p>This preprocessor applies N4 bias field correction to correct for intensity
-inhomogeneity in medical images.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.PreprocessorFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">PreprocessorFactory</span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/preprocessor_factory.html#PreprocessorFactory"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.PreprocessorFactory" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Factory class for creating preprocessors.</p>
-<p>This class manages the registration and instantiation of preprocessors.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.preprocessing.PreprocessorFactory.create">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><span class="pre">BasePreprocessor</span></a></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/preprocessor_factory.html#PreprocessorFactory.create"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.PreprocessorFactory.create" title="永久链接至目标"></a></dt>
-<dd><p>Create an instance of a registered preprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the preprocessor to create.</p></li>
-<li><p><strong>**kwargs</strong> – Additional arguments to pass to the preprocessor constructor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Instance of the requested preprocessor.</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.BasePreprocessor">BasePreprocessor</a></p>
-</dd>
-<dt class="field-even">抛出<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the requested preprocessor is not registered.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.preprocessing.PreprocessorFactory.get_available_preprocessors">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_available_preprocessors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/preprocessor_factory.html#PreprocessorFactory.get_available_preprocessors"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.PreprocessorFactory.get_available_preprocessors" title="永久链接至目标"></a></dt>
-<dd><p>Get a list of all registered preprocessor names.</p>
-<dl class="field-list simple">
-<dt class="field-odd">返回<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of registered preprocessor names.</p>
-</dd>
-<dt class="field-even">返回类型<span class="colon">:</span></dt>
-<dd class="field-even"><p>List[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.preprocessing.PreprocessorFactory.register">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">callable</span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/preprocessor_factory.html#PreprocessorFactory.register"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.PreprocessorFactory.register" title="永久链接至目标"></a></dt>
-<dd><p>Register a preprocessor class with the factory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the preprocessor to register.</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Decorator function.</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p>callable</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.RegistrationPreprocessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">RegistrationPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_of_transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SyN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MI'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_by_fixed_image_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/registration.html#RegistrationPreprocessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.RegistrationPreprocessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Register images to a reference image using ANTs.</p>
-<p>This preprocessor performs image registration using ANTs (Advanced Normalization Tools).
-It supports various registration methods including SyN, Rigid, Affine, etc.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.ResamplePreprocessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">ResamplePreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bilinear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'border'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_corners</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/resample.html#ResamplePreprocessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.ResamplePreprocessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Resample images to a target spacing using SimpleITK.</p>
-<p>This preprocessor resamples images and masks to a specified target spacing.
-Images and masks are processed separately with different interpolation modes:
-- Images: use specified interpolation mode (default: bilinear)
-- Masks: use nearest neighbor interpolation</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.preprocessing.ZScoreNormalization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">ZScoreNormalization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_inmask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/zscore_normalization.html#ZScoreNormalization"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.ZScoreNormalization" title="永久链接至目标"></a></dt>
-<dd><p>基类：<a class="reference internal" href="#habit.core.preprocessing.BasePreprocessor" title="habit.core.preprocessing.base_preprocessor.BasePreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePreprocessor</span></code></a></p>
-<p>Apply Z-score normalization to medical images.</p>
-<p>This preprocessor normalizes image intensities by subtracting the mean and
-dividing by the standard deviation, resulting in a distribution with
-zero mean and unit variance.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="habit.core.preprocessing.batch_convert_dicom_directories">
-<span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">batch_convert_dicom_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dcm2niix_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/dcm2niix_converter.html#batch_convert_dicom_directories"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.batch_convert_dicom_directories" title="永久链接至目标"></a></dt>
-<dd><p>Utility function for batch DICOM to NIfTI conversion.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – Mapping of subjects to their DICOM directories
-Format: {subject_id: {sequence_name: dicom_dir_path}}</p></li>
-<li><p><strong>dcm2niix_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Full path to dcm2niix executable or directory containing it</p></li>
-<li><p><strong>**kwargs</strong> – Additional parameters for Dcm2niixConverter</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary containing SimpleITK Image objects</p>
-</dd>
-<dt class="field-odd">返回类型<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Dict[str, sitk.Image]]</p>
-</dd>
-</dl>
-<p class="rubric">示例</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">input_data</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">... </span>    <span class="s2">&quot;subject_001&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;T1&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/subject_001/T1_dicom&quot;</span><span class="p">,</span>
-<span class="gp">... </span>        <span class="s2">&quot;T2&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/subject_001/T2_dicom&quot;</span>
-<span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="s2">&quot;subject_002&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;T1&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/subject_002/T1_dicom&quot;</span>
-<span class="gp">... </span>    <span class="p">}</span>
-<span class="gp">... </span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">converted</span> <span class="o">=</span> <span class="n">batch_convert_dicom_directories</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">input_data</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">dcm2niix_path</span><span class="o">=</span><span class="s2">&quot;/path/to/dcm2niix/bin&quot;</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <section id="batchprocessor">
 <h2>BatchProcessor 类<a class="headerlink" href="#batchprocessor" title="此标题的永久链接"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.core.preprocessing.image_processor_pipeline.BatchProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.image_processor_pipeline.</span></span><span class="sig-name descname"><span class="pre">BatchProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.preprocessing.image_processor_pipeline.</span></span><span class="sig-name descname"><span class="pre">BatchProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="（在 Python v3.14）"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Batch processor for medical image preprocessing.</p>
 <p>This class handles parallel processing of medical images using multiple preprocessing
 steps defined in a configuration file. It supports processing multiple subjects and
@@ -776,21 +144,31 @@ multiple time points for each subject.</p>
 <dd><p>Number of worker processes for parallel processing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.preprocessing.image_processor_pipeline.BatchProcessor.process_batch">
-<span class="sig-name descname"><span class="pre">process_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor.process_batch"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor.process_batch" title="永久链接至目标"></a></dt>
-<dd><p>处理所有样本数据。</p>
-<p>使用多进程方式进行批处理。</p>
+<dt class="sig sig-object py" id="habit.core.preprocessing.image_processor_pipeline.BatchProcessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="（在 Python v3.14）"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor.__init__" title="永久链接至目标"></a></dt>
+<dd><p>Initialize the batch processor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_path</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a><em>, </em><em>Path</em><em>]</em>) – Path to the configuration file.</p></li>
+<li><p><strong>num_workers</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><em>int</em></a><em>]</em>) – Number of worker processes. If None, uses
+number of CPU cores - 1 on Linux/Mac, or 0 on Windows.</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a>) – Logging level. Defaults to “INFO”.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><em>bool</em></a>) – Whether to print verbose output. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.core.preprocessing.image_processor_pipeline.BatchProcessor.save_processed_images">
-<span class="sig-name descname"><span class="pre">save_processed_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor.save_processed_images"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor.save_processed_images" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">save_processed_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor.save_processed_images"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor.save_processed_images" title="永久链接至目标"></a></dt>
 <dd><p>Save processed images to their respective output directories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -802,6 +180,13 @@ Expected keys:
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.preprocessing.image_processor_pipeline.BatchProcessor.process_batch">
+<span class="sig-name descname"><span class="pre">process_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/habit/core/preprocessing/image_processor_pipeline.html#BatchProcessor.process_batch"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.preprocessing.image_processor_pipeline.BatchProcessor.process_batch" title="永久链接至目标"></a></dt>
+<dd><p>处理所有样本数据。</p>
+<p>使用多进程方式进行批处理。</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -810,12 +195,15 @@ Expected keys:
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="machine_learning.html" class="btn btn-neutral float-left" title="machine_learning 模块" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="common.html" class="btn btn-neutral float-right" title="common 模块" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2026, HABIT Team。</p>
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
   </div>
 
   利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 

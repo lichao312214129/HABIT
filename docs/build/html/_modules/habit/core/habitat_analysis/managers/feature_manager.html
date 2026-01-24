@@ -40,14 +40,39 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../algorithms.html">Algorithms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../development.html">Development Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/index_zh.html">用户指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/image_preprocessing_zh.html">图像预处理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/habitat_segmentation_zh.html">生境分割</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/index.html">API 文档</a></li>
 </ul>
 
         </div>
@@ -65,7 +90,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
-          <li class="breadcrumb-item"><a href="../../../core.html">habit.core</a></li>
           <li class="breadcrumb-item"><a href="../../habitat_analysis.html">habit.core.habitat_analysis</a></li>
       <li class="breadcrumb-item active">habit.core.habitat_analysis.managers.feature_manager</li>
       <li class="wy-breadcrumbs-aside">
@@ -96,12 +120,12 @@
 <span class="kn">from</span> <span class="nn">..extractors.feature_extractor_factory</span> <span class="kn">import</span> <span class="n">create_feature_extractor</span>
 <span class="kn">from</span> <span class="nn">..utils.preprocessing_state</span> <span class="kn">import</span> <span class="n">process_features_pipeline</span>
 
-<div class="viewcode-block" id="FeatureManager"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager">[文档]</a><span class="k">class</span> <span class="nc">FeatureManager</span><span class="p">:</span>
+<div class="viewcode-block" id="FeatureManager"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager">[文档]</a><span class="k">class</span> <span class="nc">FeatureManager</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages feature extraction and preprocessing for habitat analysis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="FeatureManager.__init__"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureManager.__init__"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize FeatureManager.</span>
 <span class="sd">        </span>
@@ -125,12 +149,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span></div>
 
-<div class="viewcode-block" id="FeatureManager.set_data_paths"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.set_data_paths">[文档]</a>    <span class="k">def</span> <span class="nf">set_data_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">mask_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureManager.set_data_paths"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.set_data_paths">[文档]</a>    <span class="k">def</span> <span class="nf">set_data_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">mask_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set image and mask paths.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span> <span class="o">=</span> <span class="n">images_paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span> <span class="o">=</span> <span class="n">mask_paths</span></div>
 
-<div class="viewcode-block" id="FeatureManager.set_logging_info"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.set_logging_info">[文档]</a>    <span class="k">def</span> <span class="nf">set_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureManager.set_logging_info"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.set_logging_info">[文档]</a>    <span class="k">def</span> <span class="nf">set_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set logging info for subprocesses.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="n">log_file_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">log_level</span></div>
@@ -201,7 +225,7 @@
         
         <span class="k">return</span> <span class="n">cross_image_kwargs</span>
 
-<div class="viewcode-block" id="FeatureManager.extract_voxel_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.extract_voxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_voxel_features</span><span class="p">(</span>
+<div class="viewcode-block" id="FeatureManager.extract_voxel_features"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.extract_voxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_voxel_features</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
@@ -273,7 +297,7 @@
         
         <span class="k">return</span> <span class="n">subject</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">raw_df</span><span class="p">,</span> <span class="n">mask_info</span></div>
 
-<div class="viewcode-block" id="FeatureManager.extract_supervoxel_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.extract_supervoxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_supervoxel_features</span><span class="p">(</span>
+<div class="viewcode-block" id="FeatureManager.extract_supervoxel_features"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.extract_supervoxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_supervoxel_features</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">]]:</span>
@@ -365,7 +389,7 @@
         
         <span class="k">return</span> <span class="n">feature_df</span>
 
-<div class="viewcode-block" id="FeatureManager.apply_preprocessing"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.apply_preprocessing">[文档]</a>    <span class="k">def</span> <span class="nf">apply_preprocessing</span><span class="p">(</span>
+<div class="viewcode-block" id="FeatureManager.apply_preprocessing"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.apply_preprocessing">[文档]</a>    <span class="k">def</span> <span class="nf">apply_preprocessing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
         <span class="n">level</span><span class="p">:</span> <span class="nb">str</span>
@@ -388,7 +412,7 @@
             <span class="s2">&quot;Group-level preprocessing is handled by Pipeline steps.&quot;</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="FeatureManager.calculate_supervoxel_means"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.calculate_supervoxel_means">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_supervoxel_means</span><span class="p">(</span>
+<div class="viewcode-block" id="FeatureManager.calculate_supervoxel_means"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.calculate_supervoxel_means">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_supervoxel_means</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -430,7 +454,7 @@
         
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_rows</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FeatureManager.setup_supervoxel_files"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.setup_supervoxel_files">[文档]</a>    <span class="k">def</span> <span class="nf">setup_supervoxel_files</span><span class="p">(</span>
+<div class="viewcode-block" id="FeatureManager.setup_supervoxel_files"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.setup_supervoxel_files">[文档]</a>    <span class="k">def</span> <span class="nf">setup_supervoxel_files</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subjects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
         <span class="n">failed_subjects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -456,7 +480,7 @@
             <span class="c1"># Only raise if we actually need these files (checked later)</span>
             <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="FeatureManager.clean_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.clean_features">[文档]</a>    <span class="k">def</span> <span class="nf">clean_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="FeatureManager.clean_features"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager.clean_features">[文档]</a>    <span class="k">def</span> <span class="nf">clean_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean feature DataFrame: handle types, inf, nan values.&quot;&quot;&quot;</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">))</span>
         <span class="c1"># Replace inf with NaN first</span>

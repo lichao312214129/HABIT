@@ -1,6 +1,7 @@
-Feature Extraction
-==================
+生境特征提取
+============
+
+本节介绍如何使用 HABIT 从生境图中提取特征。
 
 .. note::
-   This section is under development. For now, see the existing documentation
-   in ``doc_en/app_extracting_habitat_features.md``.
+   详细的生境特征提取文档请参考 :doc:`habitat_feature_extraction_zh`。

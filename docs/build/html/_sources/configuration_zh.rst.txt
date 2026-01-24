@@ -553,7 +553,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
    habitats_map_folder: ./results/habitat
    out_dir: ./results/features
 
-   n_processes: 3
+   n_processes:3
    habitat_pattern: '*_habitats.nrrd'
 
    feature_types:
@@ -660,7 +660,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
        n_estimators: 100
        max_depth: null
        min_samples_split: 2
-       min_samples_leaf: 1
+       min_samples_leaf:1
        random_state: 42
 
    ModelEvaluation:
@@ -672,7 +672,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
        - f1
        - roc_auc
        - confusion_matrix
-     cv: 5
+     cv:5
      test_size: 0.2
      random_state: 42
 
@@ -905,36 +905,3 @@ A: 可以使用以下方法：
 2. 检查配置文件语法
 3. 逐步添加参数，定位问题
 4. 查看错误信息
-
-**Q3: 如何管理多个配置文件？**
-
-A: 可以通过以下方式管理：
-1. 使用版本控制系统（如 Git）
-2. 使用配置文件命名约定
-3. 创建配置文件模板
-4. 使用配置文件管理工具
-
-**Q4: 如何共享配置文件？**
-
-A: 可以通过以下方式共享：
-1. 直接分享配置文件
-2. 提交到版本控制系统
-3. 创建配置文件仓库
-4. 提供配置文件文档
-
-**Q5: 如何优化配置文件？**
-
-A: 可以通过以下方式优化：
-1. 调整参数值
-2. 尝试不同的参数组合
-3. 使用网格搜索或随机搜索
-4. 使用自动调优工具
-
-下一步
--------
-
-配置参考完成后，您可以：
-
-- :doc:`../cli_zh`: 了解 CLI 命令的详细说明
-- :doc:`../../design_philosophy_zh`: 了解 HABIT 的设计哲学
-- :doc:`../customization/index_zh`: 了解如何自定义和扩展 HABIT

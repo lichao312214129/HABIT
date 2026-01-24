@@ -195,7 +195,7 @@ HABIT 有两种类型的配置文件：
 1. **数据配置文件**: 指定图像和掩码的路径
 2. **功能配置文件**: 指定处理流程的参数
 
-参考 :doc:`data_structure` 了解更多关于数据配置文件的信息。
+参考 :doc:`../data_structure_zh` 了解更多关于数据配置文件的信息。
 
 双重接口
 --------
@@ -211,9 +211,9 @@ HABIT 提供两种使用方式：CLI 和 Python API。
 .. code-block:: bash
 
    habit preprocess --config config_preprocessing.yaml
-   habit get-habitat --config config_habitat.yaml --mode predict
+   habitat get-habitat --config config_habitat.yaml --mode predict
    habit extract --config config_extract_features.yaml
-   habit model --config config_machine_learning.yaml --mode train
+   habitat model --config config_machine_learning.yaml --mode train
 
 **Python API 接口：**
 

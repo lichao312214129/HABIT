@@ -50,17 +50,15 @@
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
-   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+   from habit.core.habitat_analysis import HabitatAnalysis
    
    # 加载配置
-   config = HabitatAnalysisConfig.from_file('config.yaml')
-   
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   import yaml
+   with open('config.yaml', 'r') as f:
+       config = yaml.safe_load(f)
    
    # 运行分析
-   analysis = configurator.create_habitat_analysis()
+   analysis = HabitatAnalysis(config)
    results = analysis.run()
    
    # 查看结果

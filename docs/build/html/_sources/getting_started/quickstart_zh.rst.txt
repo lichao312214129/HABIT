@@ -8,7 +8,7 @@
 
 确保您已经：
 
-1. 安装了 HABIT（参考 :doc:`installation`）
+1. 安装了 HABIT（参考 :doc:`installation_zh`）
 2. 准备了医学图像数据（DICOM 或 NIfTI 格式）
 
 快速入门示例
@@ -25,7 +25,7 @@ demo_data 已包含可直接运行的示例数据与配置：
 - 文件列表：``demo_data/files_preprocessing.yaml``
 - 预处理配置：``demo_data/config_preprocessing.yaml``
 
-如果使用自己的数据，请按“受试者/期相/序列”的结构整理 DICOM，
+如果使用自己的数据，请按"受试者/期相/序列"的结构整理 DICOM，
 并参照 ``files_preprocessing.yaml`` 填写每个受试者对应的序列路径。
 
 示例（节选）：
@@ -68,8 +68,8 @@ demo_data 已包含可直接运行的示例数据与配置：
 
 完成预处理后，可继续阅读用户指南，进入生境分割与特征提取流程：
 
-- :doc:`../user_guide/app_habitat_analysis`
-- :doc:`../user_guide/app_extracting_habitat_features`
+- :doc:`../user_guide/habitat_analysis_zh`
+- :doc:`../user_guide/habitat_feature_extraction_zh`
 
 配置文件说明
 -----------

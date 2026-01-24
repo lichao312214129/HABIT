@@ -12,7 +12,7 @@ HABIT follows a modular architecture with clear separation of concerns:
 - **Strategy Layer**: Different clustering strategies
 - **Pipeline Layer**: sklearn-style pipeline execution
 
-For detailed architecture documentation, see:
-
-.. include:: ../../../../habit/core/habitat_analysis/ARCHITECTURE.md
-   :parser: myst_parser
+For detailed architecture documentation, see the ARCHITECTURE.md file in the source code:
+```
+habit/core/habitat_analysis/ARCHITECTURE.md
+```

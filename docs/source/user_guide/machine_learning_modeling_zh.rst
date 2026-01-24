@@ -1,0 +1,830 @@
+机器学习建模
+============
+
+本节介绍如何使用 HABIT 进行机器学习建模，包括特征选择、模型训练和模型评估。
+
+概述
+----
+
+机器学习建模是生境分析的最终步骤，使用提取的生境特征进行预测模型训练和评估。
+
+HABIT 提供了完整的机器学习工作流程：
+
+- **特征选择**: 选择最相关的特征
+- **模型训练**: 训练各种机器学习模型
+- **模型评估**: 评估模型性能
+- **模型保存**: 保存训练好的模型
+- **模型预测**: 使用训练好的模型进行预测
+
+**支持的模型类型：**
+
+- **传统机器学习模型**: 逻辑回归、随机森林、SVM、KNN 等
+- **集成学习模型**: XGBoost、LightGBM、AutoGluon 等
+- **深度学习模型**: 神经网络（可选）
+
+**Pipeline 机制：**
+
+HABIT 使用 scikit-learn 的 Pipeline 机制，确保特征选择、模型训练等步骤在交叉验证中正确应用，避免数据泄露。
+
+CLI 使用方法
+------------
+
+**基本语法：**
+
+.. code-block:: bash
+
+   habit model --config <config_file> [--mode <mode>]
+
+**参数说明：**
+
+- `--config`, `-c`: 配置文件路径（必需）
+- `--mode`, `-m`: 运行模式（train 或 predict），覆盖配置文件中的设置
+
+**使用示例：**
+
+.. code-block:: bash
+
+   # 训练模式
+   habit model --config ./demo_data/config_machine_learning.yaml --mode train
+
+   # 预测模式
+   habit model --config ./demo_data/config_machine_learning.yaml --mode predict
+
+**输出：**
+
+训练好的模型和评估结果将保存在配置文件中指定的输出目录。
+
+Python API 使用方法
+------------------
+
+**基本用法：**
+
+.. code-block:: python
+
+   from habit.core.machine_learning import MachineLearningWorkflow
+   from habit.core.machine_learning.config_schemas import MLConfig
+
+   # 加载配置
+   config = MLConfig.from_file('./config_machine_learning.yaml')
+
+   # 创建机器学习工作流
+   workflow = MachineLearningWorkflow(config)
+
+   # 运行工作流
+   workflow.run_pipeline()
+
+**详细示例：**
+
+.. code-block:: python
+
+   import logging
+   from habit.core.machine_learning import MachineLearningWorkflow
+   from habit.core.machine_learning.config_schemas import MLConfig
+   from habit.utils.log_utils import setup_logger
+   from pathlib import Path
+
+   # 设置日志
+   output_dir = Path('./results/ml')
+   output_dir.mkdir(parents=True, exist_ok=True)
+   logger = setup_logger(
+       name='machine_learning',
+       output_dir=output_dir,
+       log_filename='machine_learning.log',
+       level=logging.INFO
+   )
+
+   # 加载配置
+   config = MLConfig.from_file('./config_machine_learning.yaml')
+
+   # 创建机器学习工作流
+   workflow = MachineLearningWorkflow(config, logger=logger)
+
+   # 运行工作流
+   logger.info("开始训练模式")
+   workflow.run_pipeline()
+   logger.info("模型训练完成！")
+
+YAML 配置详解
+--------------
+
+**配置文件结构：**
+
+.. code-block:: yaml
+
+   # 运行模式和 Pipeline 设置（首先检查这些！）
+   run_mode: train  # train（如果要训练新模型，设置为 train）或 predict（如果要使用预训练模型，设置为 predict）
+   pipeline_path: ./results/ml/model_pipeline.pkl  # predict 模式的 Pipeline 路径（predict 模式必需）
+
+   # 数据路径
+   data_dir: ./files_ml.yaml
+   out_dir: ./results/ml/train
+
+   # 特征选择设置
+   FeatureSelection:
+     enabled: true  # 是否启用特征选择
+     method: variance  # 特征选择方法：variance、correlation、anova、chi2、lasso、rfecv
+     params:
+       # variance 方法参数
+       threshold: 0.0
+
+       # correlation 方法参数
+       threshold_correlation: 0.95
+
+       # anova 方法参数
+       k_features: 10
+
+       # chi2 方法参数
+       k_features_chi2: 10
+
+       # lasso 方法参数
+       alpha: 0.01
+
+       # rfecv 方法参数
+       estimator: RandomForest
+       cv: 5
+       scoring: accuracy
+
+   # 模型训练设置
+   ModelTraining:
+     enabled: true  # 是否启用模型训练
+     model_type: RandomForest  # 模型类型：LogisticRegression、RandomForest、XGBoost、SVM、KNN、AutoGluon
+     params:
+       # RandomForest 参数
+       n_estimators: 100
+       max_depth: null
+       min_samples_split: 2
+       min_samples_leaf: 1
+       random_state: 42
+
+       # LogisticRegression 参数
+       C: 1.0
+       penalty: l2
+       solver: lbfgs
+       max_iter: 1000
+       random_state: 42
+
+       # XGBoost 参数
+       n_estimators: 100
+       max_depth: 6
+       learning_rate: 0.1
+       random_state: 42
+
+       # SVM 参数
+       C: 1.0
+       kernel: rbf
+       gamma: scale
+       random_state: 42
+
+       # KNN 参数
+       n_neighbors: 5
+       weights: uniform
+       algorithm: auto
+
+       # AutoGluon 参数
+       time_limit: 3600
+       presets: best_quality
+
+   # 模型评估设置
+   ModelEvaluation:
+     enabled: true  # 是否启用模型评估
+     metrics:
+       - accuracy
+       - precision
+       - recall
+       - f1
+       - roc_auc
+       - confusion_matrix
+     cv: 5  # 交叉验证折数
+     test_size: 0.2  # 测试集比例
+     random_state: 42
+
+   # 模型保存设置
+   ModelSaving:
+     enabled: true  # 是否启用模型保存
+     save_path: ./results/ml/model_pipeline.pkl  # 模型保存路径
+     save_format: pkl  # 保存格式：pkl、joblib
+
+   # 通用设置
+   processes: 2  # 并行进程数
+   random_state: 42  # 可重复性的随机种子
+   debug: false  # 启用详细日志的调试模式
+
+**字段说明：**
+
+**run_mode**: 运行模式
+
+- `train`: 训练新模型
+- `predict`: 使用预训练模型进行预测
+
+**pipeline_path**: Pipeline 文件路径
+
+- predict 模式必需
+- 指定训练好的 Pipeline 文件路径
+
+**data_dir**: 数据目录路径
+
+- 可以是文件夹或 YAML 配置文件
+- 参考 :doc:`../data_structure_zh` 了解数据结构
+
+**out_dir**: 输出目录路径
+
+- 模型、评估结果和预测结果将保存在此目录
+
+**FeatureSelection**: 特征选择设置
+
+- `enabled`: 是否启用特征选择
+- `method`: 特征选择方法
+- `params`: 特征选择方法的参数
+
+**ModelTraining**: 模型训练设置
+
+- `enabled`: 是否启用模型训练
+- `model_type`: 模型类型
+- `params`: 模型参数
+
+**ModelEvaluation**: 模型评估设置
+
+- `enabled`: 是否启用模型评估
+- `metrics`: 评估指标列表
+- `cv`: 交叉验证折数
+- `test_size`: 测试集比例
+
+**ModelSaving**: 模型保存设置
+
+- `enabled`: 是否启用模型保存
+- `save_path`: 模型保存路径
+- `save_format`: 保存格式
+
+特征选择方法详解
+----------------
+
+**Variance (variance)**
+
+基于方差的特征选择，移除方差低于阈值的特征。
+
+**适用场景：**
+- 移除低方差特征
+- 减少特征数量
+
+**参数说明：**
+- `threshold`: 方差阈值，低于此阈值的特征将被移除
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: variance
+     params:
+       threshold: 0.0
+
+**Correlation (correlation)**
+
+基于相关性的特征选择，移除高度相关的特征。
+
+**适用场景：**
+- 移除冗余特征
+- 减少特征数量
+
+**参数说明：**
+- `threshold_correlation`: 相关性阈值，高于此阈值的特征对中一个将被移除
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: correlation
+     params:
+       threshold_correlation: 0.95
+
+**ANOVA (anova)**
+
+基于 ANOVA F 值的特征选择，选择与目标变量最相关的特征。
+
+**适用场景：**
+- 分类任务
+- 选择与目标变量最相关的特征
+
+**参数说明：**
+- `k_features`: 要选择的特征数量
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: anova
+     params:
+       k_features: 10
+
+**Chi2 (chi2)**
+
+基于卡方检验的特征选择，选择与目标变量最相关的特征。
+
+**适用场景：**
+- 分类任务
+- 非负特征
+
+**参数说明：**
+- `k_features_chi2`: 要选择的特征数量
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: chi2
+     params:
+       k_features_chi2: 10
+
+**LASSO (lasso)**
+
+基于 LASSO 回归的特征选择，使用 L1 正则化进行特征选择。
+
+**适用场景：**
+- 线性模型
+- 自动特征选择
+
+**参数说明：**
+- `alpha`: L1 正则化强度
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: lasso
+     params:
+       alpha: 0.01
+
+**RFECV (rfecv)**
+
+递归特征消除与交叉验证，通过递归地移除特征并评估模型性能来选择最佳特征子集。
+
+**适用场景：**
+- 需要精确的特征选择
+- 计算资源充足
+
+**参数说明：**
+- `estimator`: 估计器类型
+- `cv`: 交叉验证折数
+- `scoring`: 评分指标
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   FeatureSelection:
+     enabled: true
+     method: rfecv
+     params:
+       estimator: RandomForest
+       cv: 5
+       scoring: accuracy
+
+模型类型详解
+----------------
+
+**LogisticRegression**
+
+逻辑回归，适用于二分类和多分类任务。
+
+**适用场景：**
+- 二分类任务
+- 需要概率输出
+- 解释性要求高
+
+**优点：**
+- 简单快速
+- 可解释性强
+- 提供概率输出
+
+**缺点：**
+- 假设线性关系
+- 对异常值敏感
+
+**参数说明：**
+- `C`: 正则化强度的倒数
+- `penalty`: 正则化类型（l1、l2、elasticnet）
+- `solver`: 优化算法
+- `max_iter`: 最大迭代次数
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: LogisticRegression
+     params:
+       C: 1.0
+       penalty: l2
+       solver: lbfgs
+       max_iter: 1000
+       random_state: 42
+
+**RandomForest**
+
+随机森林，适用于分类和回归任务。
+
+**适用场景：**
+- 分类和回归任务
+- 高维数据
+- 非线性关系
+
+**优点：**
+- 性能强大
+- 不易过拟合
+- 提供特征重要性
+
+**缺点：**
+- 计算复杂度高
+- 内存消耗大
+
+**参数说明：**
+- `n_estimators`: 树的数量
+- `max_depth`: 树的最大深度
+- `min_samples_split`: 分裂节点所需的最小样本数
+- `min_samples_leaf`: 叶节点所需的最小样本数
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: RandomForest
+     params:
+       n_estimators: 100
+       max_depth: null
+       min_samples_split: 2
+       min_samples_leaf: 1
+       random_state: 42
+
+**XGBoost**
+
+梯度提升决策树，适用于分类和回归任务。
+
+**适用场景：**
+- 分类和回归任务
+- 大规模数据
+- 高性能要求
+
+**优点：**
+- 性能强大
+- 计算效率高
+- 支持并行计算
+
+**缺点：**
+- 参数较多
+- 需要调优
+
+**参数说明：**
+- `n_estimators`: 树的数量
+- `max_depth`: 树的最大深度
+- `learning_rate`: 学习率
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: XGBoost
+     params:
+       n_estimators: 100
+       max_depth: 6
+       learning_rate: 0.1
+       random_state: 42
+
+**SVM**
+
+支持向量机，适用于分类和回归任务。
+
+**适用场景：**
+- 二分类任务
+- 高维数据
+- 小样本数据
+
+**优点：**
+- 理论基础扎实
+- 泛化能力强
+- 适合高维数据
+
+**缺点：**
+- 对大规模数据效率低
+- 对参数敏感
+
+**参数说明：**
+- `C`: 正则化参数
+- `kernel`: 核函数类型（linear、poly、rbf、sigmoid）
+- `gamma`: 核函数系数
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: SVM
+     params:
+       C: 1.0
+       kernel: rbf
+       gamma: scale
+       random_state: 42
+
+**KNN**
+
+K 近邻，适用于分类和回归任务。
+
+**适用场景：**
+- 分类和回归任务
+- 简单快速
+- 非线性关系
+
+**优点：**
+- 简单易用
+- 无训练过程
+- 适合非线性关系
+
+**缺点：**
+- 预测速度慢
+- 对异常值敏感
+- 需要存储所有训练数据
+
+**参数说明：**
+- `n_neighbors`: 近邻数量
+- `weights`: 权重计算方式（uniform、distance）
+- `algorithm`: 算法类型（auto、ball_tree、kd_tree、brute）
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: KNN
+     params:
+       n_neighbors: 5
+       weights: uniform
+       algorithm: auto
+
+**AutoGluon**
+
+AutoML 框架，自动选择和优化模型。
+
+**适用场景：**
+- 快速原型
+- 不需要调参
+- 多模型比较
+
+**优点：**
+- 自动化程度高
+- 性能优秀
+- 易于使用
+
+**缺点：**
+- 计算资源消耗大
+- 黑盒模型
+
+**参数说明：**
+- `time_limit`: 训练时间限制（秒）
+- `presets`: 预设模式（best_quality、high_quality、good_quality、medium_quality）
+
+**配置示例：**
+
+.. code-block:: yaml
+
+   ModelTraining:
+     enabled: true
+     model_type: AutoGluon
+     params:
+       time_limit: 3600
+       presets: best_quality
+
+Pipeline 机制
+------------
+
+HABIT 使用 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关键设计。
+
+**什么是数据泄露？**
+
+数据泄露是指在模型训练过程中，测试集的信息意外地泄露到训练集中，导致模型性能被高估。
+
+**Pipeline 如何避免数据泄露？**
+
+1. **特征选择**: 在交叉验证的每个 fold 内进行特征选择
+2. **模型训练**: 在交叉验证的每个 fold 内进行模型训练
+3. **严格分离**: 训练集和测试集完全分离，避免测试集信息泄露
+
+**机器学习中的 Pipeline:**
+
+.. code-block:: python
+
+   from sklearn.pipeline import Pipeline
+   from habit.core.machine_learning import ModelFactory
+
+   # 创建 Pipeline，包含特征选择和模型训练
+   pipeline = Pipeline([
+       ('feature_selection', feature_selector),
+       ('model', ModelFactory.create_model('RandomForest', config))
+   ])
+
+   # 训练阶段
+   pipeline.fit(X_train, y_train)
+
+   # 测试阶段：使用训练好的 Pipeline 进行预测
+   y_pred = pipeline.predict(X_test)
+
+**关键要点：**
+
+- 特征选择和模型训练必须在同一个 Pipeline 中
+- 不要在整个数据集上进行特征选择
+- 使用交叉验证时，每个 fold 的训练和预测必须严格分离
+
+实际示例
+--------
+
+**示例 1: 基本机器学习工作流**
+
+.. code-block:: yaml
+
+   run_mode: train
+   data_dir: ./files_ml.yaml
+   out_dir: ./results/ml/train
+
+   FeatureSelection:
+     enabled: true
+     method: variance
+     params:
+       threshold: 0.0
+
+   ModelTraining:
+     enabled: true
+     model_type: RandomForest
+     params:
+       n_estimators: 100
+       random_state: 42
+
+   ModelEvaluation:
+     enabled: true
+     metrics:
+       - accuracy
+       - precision
+       - recall
+       - f1
+     cv: 5
+     test_size: 0.2
+     random_state: 42
+
+   ModelSaving:
+     enabled: true
+     save_path: ./results/ml/model_pipeline.pkl
+     save_format: pkl
+
+   processes: 2
+   random_state: 42
+
+**示例 2: 完整机器学习工作流**
+
+.. code-block:: yaml
+
+   run_mode: train
+   data_dir: ./files_ml.yaml
+   out_dir: ./results/ml/train
+
+   FeatureSelection:
+     enabled: true
+     method: rfecv
+     params:
+       estimator: RandomForest
+       cv: 5
+       scoring: accuracy
+
+   ModelTraining:
+     enabled: true
+     model_type: XGBoost
+     params:
+       n_estimators: 100
+       max_depth: 6
+       learning_rate: 0.1
+       random_state: 42
+
+   ModelEvaluation:
+     enabled: true
+     metrics:
+       - accuracy
+       - precision
+       - recall
+       - f1
+       - roc_auc
+       - confusion_matrix
+     cv: 5
+     test_size: 0.2
+     random_state: 42
+
+   ModelSaving:
+     enabled: true
+     save_path: ./results/ml/model_pipeline.pkl
+     save_format: pkl
+
+   processes: 4
+   random_state: 42
+
+**示例 3: 预测模式**
+
+.. code-block:: yaml
+
+   run_mode: predict
+   pipeline_path: ./results/ml/train/model_pipeline.pkl
+   data_dir: ./files_ml.yaml
+   out_dir: ./results/ml/predict
+
+   processes: 2
+   random_state: 42
+
+输出结构
+--------
+
+机器学习的输出结构：
+
+.. code-block:: text
+
+   results/ml/
+   ├── train/                    # 训练模式输出
+   │   ├── model_pipeline.pkl    # 训练好的 Pipeline
+   │   ├── model/                # 模型文件
+   │   │   └── ...
+   │   ├── evaluation/           # 评估结果
+   │   │   ├── metrics.csv
+   │   │   ├── confusion_matrix.png
+   │   │   ├── roc_curve.png
+   │   │   └── ...
+   │   ├── feature_importance/   # 特征重要性
+   │   │   └── ...
+   │   ├── predictions/          # 预测结果
+   │   │   └── ...
+   │   └── machine_learning.log  # 日志文件
+   └── predict/                  # 预测模式输出
+       ├── predictions/
+       │   └── predictions.csv
+       └── machine_learning.log
+
+常见问题
+--------
+
+**Q1: 如何选择特征选择方法？**
+
+A: 根据您的数据特点选择：
+- **快速原型**: 使用 variance 或 correlation
+- **分类任务**: 使用 anova 或 chi2
+- **线性模型**: 使用 lasso
+- **精确选择**: 使用 rfecv
+
+**Q2: 如何选择模型类型？**
+
+A: 根据您的任务和数据特点选择：
+- **二分类**: LogisticRegression、SVM
+- **高维数据**: RandomForest、XGBoost
+- **快速原型**: KNN
+- **自动调优**: AutoGluon
+
+**Q3: 如何避免数据泄露？**
+
+A: 遵循以下原则：
+1. 特征选择和模型训练必须在同一个 Pipeline 中
+2. 不要在整个数据集上进行特征选择
+3. 使用交叉验证时，每个 fold 的训练和预测必须严格分离
+
+**Q4: 模型训练失败怎么办？**
+
+A: 检查以下几点：
+1. 配置文件是否正确
+2. 数据路径是否正确
+3. 特征文件是否存在
+4. 标签文件是否存在
+5. 查看日志文件了解详细错误信息
+
+**Q5: 如何提高模型性能？**
+
+A: 可以尝试以下方法：
+1. 尝试不同的特征选择方法
+2. 尝试不同的模型类型
+3. 调整模型参数
+4. 增加训练数据
+5. 特征工程
+
+下一步
+-------
+
+机器学习建模完成后，您可以：
+
+- :doc:`../customization/index_zh`: 了解如何自定义模型和特征选择器
+- :doc:`../configuration_zh`: 了解配置文件的详细说明
+- :doc:`../../design_philosophy_zh`: 了解 HABIT 的设计哲学

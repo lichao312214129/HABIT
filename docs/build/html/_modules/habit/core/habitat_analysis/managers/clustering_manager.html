@@ -40,14 +40,39 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../algorithms.html">Algorithms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../development.html">Development Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/index_zh.html">用户指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/image_preprocessing_zh.html">图像预处理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/habitat_segmentation_zh.html">生境分割</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/index.html">API 文档</a></li>
 </ul>
 
         </div>
@@ -65,7 +90,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
-          <li class="breadcrumb-item"><a href="../../../core.html">habit.core</a></li>
           <li class="breadcrumb-item"><a href="../../habitat_analysis.html">habit.core.habitat_analysis</a></li>
       <li class="breadcrumb-item active">habit.core.habitat_analysis.managers.clustering_manager</li>
       <li class="wy-breadcrumbs-aside">
@@ -103,12 +127,12 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">HAS_VISUALIZATION</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ClusteringManager"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager">[文档]</a><span class="k">class</span> <span class="nc">ClusteringManager</span><span class="p">:</span>
+<div class="viewcode-block" id="ClusteringManager"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager">[文档]</a><span class="k">class</span> <span class="nc">ClusteringManager</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages clustering operations for habitat analysis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="ClusteringManager.__init__"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+<div class="viewcode-block" id="ClusteringManager.__init__"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize ClusteringManager.</span>
 <span class="sd">        </span>
@@ -209,7 +233,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">selection_methods</span> <span class="o">=</span> <span class="n">default_methods</span>
 
-<div class="viewcode-block" id="ClusteringManager.cluster_subject_voxels"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.cluster_subject_voxels">[文档]</a>    <span class="k">def</span> <span class="nf">cluster_subject_voxels</span><span class="p">(</span>
+<div class="viewcode-block" id="ClusteringManager.cluster_subject_voxels"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.cluster_subject_voxels">[文档]</a>    <span class="k">def</span> <span class="nf">cluster_subject_voxels</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
         <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -251,7 +275,7 @@
             <span class="p">)</span>
             <span class="k">raise</span></div>
 
-<div class="viewcode-block" id="ClusteringManager.find_optimal_clusters_for_subject"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.find_optimal_clusters_for_subject">[文档]</a>    <span class="k">def</span> <span class="nf">find_optimal_clusters_for_subject</span><span class="p">(</span>
+<div class="viewcode-block" id="ClusteringManager.find_optimal_clusters_for_subject"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.find_optimal_clusters_for_subject">[文档]</a>    <span class="k">def</span> <span class="nf">find_optimal_clusters_for_subject</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
         <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -302,7 +326,7 @@
         
         <span class="k">return</span> <span class="n">optimal_n_clusters</span></div>
 
-<div class="viewcode-block" id="ClusteringManager.plot_one_step_validation"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.plot_one_step_validation">[文档]</a>    <span class="k">def</span> <span class="nf">plot_one_step_validation</span><span class="p">(</span>
+<div class="viewcode-block" id="ClusteringManager.plot_one_step_validation"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.plot_one_step_validation">[文档]</a>    <span class="k">def</span> <span class="nf">plot_one_step_validation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> 
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
         <span class="n">scores_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> 
@@ -334,7 +358,7 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to plot validation curves for </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ClusteringManager.plot_habitat_scores"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.plot_habitat_scores">[文档]</a>    <span class="k">def</span> <span class="nf">plot_habitat_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">optimal_n_clusters</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ClusteringManager.plot_habitat_scores"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.plot_habitat_scores">[文档]</a>    <span class="k">def</span> <span class="nf">plot_habitat_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">optimal_n_clusters</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot habitat clustering validation scores.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">HAS_VISUALIZATION</span><span class="p">:</span>
             <span class="k">return</span>
@@ -365,7 +389,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error plotting clustering scores: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Continuing with other processes...&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ClusteringManager.visualize_supervoxel_clustering"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.visualize_supervoxel_clustering">[文档]</a>    <span class="k">def</span> <span class="nf">visualize_supervoxel_clustering</span><span class="p">(</span>
+<div class="viewcode-block" id="ClusteringManager.visualize_supervoxel_clustering"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.visualize_supervoxel_clustering">[文档]</a>    <span class="k">def</span> <span class="nf">visualize_supervoxel_clustering</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -421,7 +445,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to create visualization for </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ClusteringManager.visualize_habitat_clustering"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.ClusteringManager.visualize_habitat_clustering">[文档]</a>    <span class="k">def</span> <span class="nf">visualize_habitat_clustering</span><span class="p">(</span>
+<div class="viewcode-block" id="ClusteringManager.visualize_habitat_clustering"><a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager.visualize_habitat_clustering">[文档]</a>    <span class="k">def</span> <span class="nf">visualize_habitat_clustering</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">features</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">habitat_labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>

@@ -1,0 +1,99 @@
+用户指南
+========
+
+本指南按照生境分析的逻辑顺序组织，帮助您从数据准备到模型部署完成整个工作流程。
+
+.. toctree::
+   :maxdepth: 2
+
+   roi_preparation_zh
+   image_preprocessing_zh
+   habitat_segmentation_zh
+   habitat_feature_extraction_zh
+   machine_learning_modeling_zh
+
+工作流程概述
+------------
+
+HABIT 的完整工作流程包括以下步骤：
+
+1. **数据准备**: 准备医学图像数据和 ROI 掩码
+2. **图像预处理**: 对原始图像进行预处理（重采样、配准、标准化等）
+3. **生境分割**: 使用聚类算法将肿瘤分割为多个生境
+4. **生境特征提取**: 从生境图中提取各种特征
+5. **机器学习建模**: 使用提取的特征进行机器学习建模
+
+**工作流程图：**
+
+.. image:: ../images/habitat_concept_workflow.png
+   :alt: 生境分析工作流程
+   :align: center
+
+**步骤顺序说明：**
+
+- **预处理和 ROI 准备可以互换**: 可以先进行预处理，也可以先勾画 ROI
+- **勾画不是 HABIT 的重点**: 推荐使用 ITK-SNAP、3D Slicer 等专业工具
+- **生境分割是核心**: HABIT 的核心功能是生境分割和特征提取
+- **机器学习是可选的**: 可以使用提取的特征进行其他分析
+
+**CLI 和 Python API：**
+
+每个步骤都支持两种使用方式：
+
+- **CLI**: 适合批处理和自动化任务
+- **Python API**: 适合集成到其他项目或进行定制化开发
+
+选择适合您的使用方式，参考每个步骤的详细文档。
+
+自定义扩展
+------------
+
+HABIT 支持高度的自定义扩展，您可以：
+
+- **自定义预处理器**: 添加自定义的图像预处理方法
+- **自定义特征提取器**: 添加自定义的聚类特征提取方法
+- **自定义聚类算法**: 添加自定义的聚类算法
+- **自定义策略**: 添加自定义的生境分割策略
+- **自定义模型**: 添加自定义的机器学习模型
+- **自定义特征选择器**: 添加自定义的特征选择方法
+
+参考 :doc:`../customization/index_zh` 了解详细的扩展指南。
+
+配置文件
+---------
+
+HABIT 使用 YAML 配置文件来控制所有参数。每个步骤都有对应的配置文件模板：
+
+- **预处理配置**: `config_preprocessing.yaml`
+- **生境分析配置**: `config_habitat.yaml`
+- **特征提取配置**: `config_extract_features.yaml`
+- **机器学习配置**: `config_machine_learning.yaml`
+
+参考 :doc:`../configuration_zh` 了解配置文件的详细说明。
+
+数据结构
+---------
+
+HABIT 支持两种数据输入方式：
+
+1. **文件夹方式**: 按照固定的文件夹结构组织数据
+2. **YAML 配置文件方式**: 通过 YAML 文件指定数据路径（推荐）
+
+参考 :doc:`../data_structure_zh` 了解数据结构的详细说明。
+
+下一步
+-------
+
+选择您感兴趣的步骤，查看详细文档：
+
+- :doc:`roi_preparation_zh`: ROI 文件准备
+- :doc:`image_preprocessing_zh`: 图像预处理
+- :doc:`habitat_segmentation_zh`: 生境分割
+- :doc:`habitat_feature_extraction_zh`: 生境特征提取
+- :doc:`machine_learning_modeling_zh`: 机器学习建模
+
+或者查看：
+
+- :doc:`../tutorials/index_zh`: 完整的教程
+- :doc:`../customization/index_zh`: 自定义扩展指南
+- :doc:`../configuration_zh`: 配置参考

@@ -25,7 +25,7 @@ HABIT 的完整工作流程包括以下步骤：
 
 **工作流程图：**
 
-.. image:: images/habitat_concept_workflow.png
+.. image:: ../images/habitat_concept_workflow.png
    :alt: 生境分析工作流程
    :align: center
 
@@ -69,7 +69,7 @@ HABIT 使用 YAML 配置文件来控制所有参数。每个步骤都有对应�
 - **特征提取配置**: `config_extract_features.yaml`
 - **机器学习配置**: `config_machine_learning.yaml`
 
-参考 :doc:`configuration_zh` 了解配置文件的详细说明。
+参考 :doc:`../configuration_zh` 了解配置文件的详细说明。
 
 数据结构
 ---------
@@ -96,4 +96,4 @@ HABIT 支持两种数据输入方式：
 
 - :doc:`../tutorials/index_zh`: 完整的教程
 - :doc:`../customization/index_zh`: 自定义扩展指南
-- :doc:`configuration_zh`: 配置参考
+- :doc:`../configuration_zh`: 配置参考

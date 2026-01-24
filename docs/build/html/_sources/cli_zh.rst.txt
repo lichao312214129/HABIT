@@ -1,104 +1,72 @@
 CLI 参考文档
 ============
 
-本节详细介绍 HABIT 的所有命令行接口（CLI）命令。
-
 概述
 ----
 
-HABIT 提供了完整的命令行接口（CLI），用户可以通过命令行执行所有功能，包括图像预处理、生境分析、特征提取和机器学习建模。
+HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的批处理和自动化。
 
-**CLI 特点：**
-
-- **简单易用**: 通过简单的命令即可执行复杂功能
-- **参数灵活**: 支持多种参数配置
-- **批处理**: 适合批处理和自动化任务
-- **日志记录**: 自动记录详细的日志信息
-- **进度显示**: 显示处理进度
-
-**可用命令：**
+**主要命令：**
 
 - `habit preprocess`: 图像预处理
-- `habit get-habitat`: 生境分割
-- `habit extract`: 生境特征提取
+- `habit get-habitat`: 生境分析
+- `habit extract`: 特征提取
 - `habit model`: 机器学习建模
 - `habit --help`: 显示帮助信息
+- `habit --version`: 显示版本信息
 
 通用参数
 --------
+
+所有命令都支持以下通用参数：
 
 **--config, -c**: 配置文件路径
 
 - **类型**: 字符串
 - **必需**: 是
-- **说明**: 指定 YAML 配置文件路径
-- **示例**: `--config ./config_preprocessing.yaml`
+- **说明**: 指定 YAML 配置文件的路径
+- **示例**: `habit preprocess --config config_preprocessing.yaml`
+
+**--debug**: 启用调试模式
+
+- **类型**: 标志
+- **必需**: 否
+- **说明**: 启用详细的日志输出，便于调试
+- **示例**: `habit preprocess --config config.yaml --debug`
 
 **--help, -h**: 显示帮助信息
 
 - **类型**: 标志
 - **必需**: 否
 - **说明**: 显示命令的帮助信息
-- **示例**: `--help`
+- **示例**: `habit preprocess --help`
 
 **--version, -v**: 显示版本信息
 
 - **类型**: 标志
 - **必需**: 否
 - **说明**: 显示 HABIT 的版本信息
-- **示例**: `--version`
+- **示例**: `habit --version`
 
 图像预处理命令
-------------
+--------------
 
-**命令名称：** `habit preprocess`
+**命令**: `habit preprocess`
 
-**功能描述：** 执行图像预处理，包括 DICOM 转换、N4 偏置场校正、重采样、配准、标准化等。
+**功能**: 对医学图像进行预处理，包括 DICOM 转换、重采样、配准、标准化等。
 
-**基本语法：**
-
-.. code-block:: bash
-
-   habit preprocess --config <config_file>
-
-**参数说明：**
-
-- `--config`, `-c`: 配置文件路径（必需）
-
-**使用示例：**
+**基本用法**:
 
 .. code-block:: bash
 
-   # 基本用法
-   habit preprocess --config ./config_preprocessing.yaml
+   habit preprocess --config config_preprocessing.yaml
 
-   # 使用短选项
-   habit preprocess -c ./config_preprocessing.yaml
+**参数**:
 
-**输出：**
+- `--config, -c`: 配置文件路径（必需）
+- `--debug`: 启用调试模式（可选）
 
-预处理后的图像将保存在配置文件中指定的输出目录。
-
-**详细说明：**
-
-`habit preprocess` 命令执行以下步骤：
-
-1. **加载配置**: 从配置文件加载预处理参数
-2. **读取数据**: 读取原始图像数据
-3. **执行预处理**: 按照配置文件中的顺序执行预处理步骤
-4. **保存结果**: 保存预处理后的图像
-5. **记录日志**: 记录详细的处理日志
-
-**支持的预处理步骤：**
-
-- `dcm2nii`: DICOM 转换
-- `n4_correction`: N4 偏置场校正
-- `resample`: 重采样
-- `registration`: 配准
-- `zscore_normalization`: Z-Score 标准化
-- `adaptive_histogram_equalization`: 自适应直方图均衡化
-
-**配置文件示例：**
+**配置文件示例**:
 
 .. code-block:: yaml
 
@@ -110,75 +78,63 @@ HABIT 提供了完整的命令行接口（CLI），用户可以通过命令行�
        images: [delay2, delay3, delay5]
        dcm2niix_path: ./dcm2niix.exe
        compress: true
+       anonymize: true
+
+     n4_correction:
+       images: [delay2, delay3, delay5]
+       num_fitting_levels: 4
 
      resample:
        images: [delay2, delay3, delay5]
        target_spacing: [1.0, 1.0, 1.0]
 
+     registration:
+       images: [delay2, delay3, delay5]
+       fixed_image: delay2
+       moving_images: [delay3, delay5]
+       type_of_transform: SyNRA
+       use_mask: false
+
+     zscore_normalization:
+       images: [delay2, delay3, delay5]
+       only_inmask: false
+       mask_key: mask
+
    processes: 2
    random_state: 42
 
+**输出**:
+
+- 预处理后的图像保存在 `out_dir` 指定的目录
+- 处理日志保存在 `preprocessing.log`
+
 生境分析命令
-------------
+--------------
 
-**命令名称：** `habit get-habitat`
+**命令**: `habit get-habitat`
 
-**功能描述：** 执行生境分割，将肿瘤分割为多个具有相似特征的区域（生境）。
+**功能**: 对预处理后的图像进行生境分割和特征提取。
 
-**基本语法：**
-
-.. code-block:: bash
-
-   habit get-habitat --config <config_file> [--mode <mode>] [--pipeline <pipeline_path>] [--debug]
-
-**参数说明：**
-
-- `--config`, `-c`: 配置文件路径（必需）
-- `--mode`, `-m`: 运行模式（train 或 predict），覆盖配置文件中的设置
-- `--pipeline`: Pipeline 文件路径，用于 predict 模式，覆盖配置文件中的设置
-- `--debug`: 启用调试模式
-
-**使用示例：**
+**基本用法**:
 
 .. code-block:: bash
 
    # 训练模式
-   habit get-habitat --config ./config_habitat_train.yaml --mode train
+   habit get-habitat --config config_habitat.yaml --mode train
 
    # 预测模式
-   habit get-habitat --config ./config_habitat.yaml --mode predict
+   habit get-habitat --config config_habitat.yaml --mode predict --pipeline ./results/habitat_pipeline.pkl
 
-   # 使用指定的 Pipeline 文件
-   habit get-habitat --config ./config_habitat.yaml --mode predict --pipeline ./custom_pipeline.pkl
+**参数**:
 
-   # 启用调试模式
-   habit get-habitat --config ./config_habitat.yaml --debug
+- `--config, -c`: 配置文件路径（必需）
+- `--mode`: 运行模式（可选，默认：predict）
+  - `train`: 训练新的生境分割模型
+  - `predict`: 使用预训练模型进行预测
+- `--pipeline`: Pipeline 文件路径（predict 模式必需）
+- `--debug`: 启用调试模式（可选）
 
-**输出：**
-
-生境图将保存在配置文件中指定的输出目录。
-
-**详细说明：**
-
-`habit get-habitat` 命令执行以下步骤：
-
-1. **加载配置**: 从配置文件加载生境分析参数
-2. **读取数据**: 读取预处理后的图像数据
-3. **特征提取**: 提取体素级或超像素级特征
-4. **聚类**: 使用聚类算法进行生境分割
-5. **保存结果**: 保存生境图和聚类结果
-6. **记录日志**: 记录详细的处理日志
-
-**运行模式：**
-
-- **train**: 训练模式，在训练集上训练新的 Pipeline
-- **predict**: 预测模式，加载训练好的 Pipeline，应用于测试集
-
-**Pipeline 机制：**
-
-HABIT 使用 scikit-learn 的 Pipeline 机制，确保训练和测试使用相同的处理流程，避免数据泄露。
-
-**配置文件示例：**
+**配置文件示例**:
 
 .. code-block:: yaml
 
@@ -191,69 +147,59 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，确保训练和测试使用相�
        method: concat(raw(delay2), raw(delay3), raw(delay5))
        params: {}
 
+     supervoxel_level:
+       supervoxel_file_keyword: '*_supervoxel.nrrd'
+       method: mean_voxel_features()
+       params:
+         params_file: {}
+
    HabitatsSegmention:
      clustering_mode: two_step
+
      supervoxel:
        algorithm: kmeans
        n_clusters: 50
+       random_state: 42
+
      habitat:
        algorithm: kmeans
        max_clusters: 10
+       habitat_cluster_selection_method:
+         - inertia
+         - silhouette
+       random_state: 42
 
    processes: 2
+   plot_curves: true
+   save_results_csv: true
    random_state: 42
 
+**输出**:
+
+- 生境图保存在 `out_dir` 指定的目录
+- 特征文件保存在 `out_dir/features` 目录
+- 聚类验证曲线保存在 `out_dir/plots` 目录
+- 处理日志保存在 `habitat_analysis.log`
+
 特征提取命令
-------------
+--------------
 
-**命令名称：** `habit extract`
+**命令**: `habit extract`
 
-**功能描述：** 从生境图中提取各种类型的特征，包括传统影像组学特征、非影像组学特征、整体生境特征等。
+**功能**: 从生境图中提取各种特征。
 
-**基本语法：**
-
-.. code-block:: bash
-
-   habit extract --config <config_file>
-
-**参数说明：**
-
-- `--config`, `-c`: 配置文件路径（必需）
-
-**使用示例：**
+**基本用法**:
 
 .. code-block:: bash
 
-   # 基本用法
-   habit extract --config ./config_extract_features.yaml
+   habit extract --config config_extract_features.yaml
 
-   # 使用短选项
-   habit extract -c ./config_extract_features.yaml
+**参数**:
 
-**输出：**
+- `--config, -c`: 配置文件路径（必需）
+- `--debug`: 启用调试模式（可选）
 
-特征文件将保存在配置文件中指定的输出目录。
-
-**详细说明：**
-
-`habit extract` 命令执行以下步骤：
-
-1. **加载配置**: 从配置文件加载特征提取参数
-2. **读取数据**: 读取生境图和原始图像
-3. **特征提取**: 提取各种类型的特征
-4. **保存结果**: 保存特征文件
-5. **记录日志**: 记录详细的处理日志
-
-**支持的特征类型：**
-
-- `traditional`: 传统影像组学特征
-- `non_radiomics`: 非影像组学特征
-- `whole_habitat`: 整体生境特征
-- `each_habitat`: 每个生境特征
-- `msi`: MSI 特征
-- `ith_score`: ITH 特征
-
-**配置文件示例：**
+**配置文件示例**:
 
 .. code-block:: yaml
 
@@ -271,64 +217,44 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，确保训练和测试使用相�
      - traditional
      - non_radiomics
      - whole_habitat
+     - each_habitat
+     - msi
+     - ith_score
 
    debug: false
 
+**输出**:
+
+- 特征文件保存在 `out_dir` 指定的目录
+- 处理日志保存在 `feature_extraction.log`
+
 机器学习命令
-------------
+--------------
 
-**命令名称：** `habit model`
+**命令**: `habit model`
 
-**功能描述：** 执行机器学习建模，包括特征选择、模型训练、模型评估和模型预测。
+**功能**: 使用提取的特征进行机器学习建模。
 
-**基本语法：**
-
-.. code-block:: bash
-
-   habit model --config <config_file> [--mode <mode>]
-
-**参数说明：**
-
-- `--config`, `-c`: 配置文件路径（必需）
-- `--mode`, `-m`: 运行模式（train 或 predict），覆盖配置文件中的设置
-
-**使用示例：**
+**基本用法**:
 
 .. code-block:: bash
 
    # 训练模式
-   habit model --config ./config_machine_learning.yaml --mode train
+   habit model --config config_machine_learning.yaml --mode train
 
    # 预测模式
-   habit model --config ./config_machine_learning.yaml --mode predict
+   habit model --config config_machine_learning.yaml --mode predict --pipeline ./results/ml/model_pipeline.pkl
 
-**输出：**
+**参数**:
 
-训练好的模型和评估结果将保存在配置文件中指定的输出目录。
+- `--config, -c`: 配置文件路径（必需）
+- `--mode`: 运行模式（可选，默认：train）
+  - `train`: 训练新的机器学习模型
+  - `predict`: 使用预训练模型进行预测
+- `--pipeline`: Pipeline 文件路径（predict 模式必需）
+- `--debug`: 启用调试模式（可选）
 
-**详细说明：**
-
-`habit model` 命令执行以下步骤：
-
-1. **加载配置**: 从配置文件加载机器学习参数
-2. **读取数据**: 读取特征数据和标签
-3. **特征选择**: 执行特征选择（如果启用）
-4. **模型训练**: 训练机器学习模型（train 模式）
-5. **模型评估**: 评估模型性能（如果启用）
-6. **模型预测**: 使用训练好的模型进行预测（predict 模式）
-7. **保存结果**: 保存模型、评估结果和预测结果
-8. **记录日志**: 记录详细的处理日志
-
-**运行模式：**
-
-- **train**: 训练模式，训练新的机器学习模型
-- **predict**: 预测模式，使用训练好的模型进行预测
-
-**Pipeline 机制：**
-
-HABIT 使用 scikit-learn 的 Pipeline 机制，确保特征选择、模型训练等步骤在交叉验证中正确应用，避免数据泄露。
-
-**配置文件示例：**
+**配置文件示例**:
 
 .. code-block:: yaml
 
@@ -347,6 +273,9 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，确保特征选择、模型训�
      model_type: RandomForest
      params:
        n_estimators: 100
+       max_depth: null
+       min_samples_split: 2
+       min_samples_leaf: 1
        random_state: 42
 
    ModelEvaluation:
@@ -356,320 +285,224 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，确保特征选择、模型训�
        - precision
        - recall
        - f1
+       - roc_auc
+       - confusion_matrix
      cv: 5
      test_size: 0.2
+     random_state: 42
+
+   ModelSaving:
+     enabled: true
+     save_path: ./results/ml/model_pipeline.pkl
+     save_format: pkl
 
    processes: 2
    random_state: 42
 
+**输出**:
+
+- 训练好的模型保存在 `save_path` 指定的路径
+- 评估结果保存在 `out_dir` 指定的目录
+- 评估图表保存在 `out_dir/plots` 目录
+- 处理日志保存在 `ml_training.log`
+
 帮助命令
---------
+---------
 
-**命令名称：** `habit --help`
+**命令**: `habit --help`
 
-**功能描述：** 显示 HABIT 的帮助信息，包括所有可用命令和参数。
+**功能**: 显示 HABIT 的帮助信息，包括所有可用命令和参数。
 
-**基本语法：**
+**基本用法**:
 
 .. code-block:: bash
 
    habit --help
 
-**使用示例：**
-
-.. code-block:: bash
-
-   # 显示主帮助信息
-   habit --help
-
-   # 显示特定命令的帮助信息
+   # 显示特定命令的帮助
    habit preprocess --help
    habit get-habitat --help
    habit extract --help
    habit model --help
 
-**输出：**
-
-显示帮助信息，包括命令描述、参数说明和使用示例。
-
 版本命令
---------
+---------
 
-**命令名称：** `habit --version`
+**命令**: `habit --version`
 
-**功能描述：** 显示 HABIT 的版本信息。
+**功能**: 显示 HABIT 的版本信息。
 
-**基本语法：**
-
-.. code-block:: bash
-
-   habit --version
-
-**使用示例：**
+**基本用法**:
 
 .. code-block:: bash
 
    habit --version
-
-**输出：**
-
-显示 HABIT 的版本号，例如：
-
-.. code-block:: text
-
-   HABIT 0.1.0
 
 命令行参数优先级
 ----------------
 
-命令行参数的优先级高于配置文件中的参数。
+当同一个参数在配置文件和命令行中都指定时，命令行参数的优先级更高。
 
-**优先级顺序：**
+**优先级顺序**（从高到低）：
 
-1. 命令行参数（最高优先级）
+1. 命令行参数
 2. 配置文件参数
-3. 默认值（最低优先级）
+3. 默认值
 
-**示例：**
-
-如果配置文件中设置了 `run_mode: train`，但命令行中使用了 `--mode predict`，则实际运行模式为 `predict`。
+**示例**:
 
 .. code-block:: bash
 
-   # 配置文件中 run_mode: train
-   habit get-habitat --config ./config_habitat.yaml --mode predict
-   # 实际运行模式为 predict
+   # 配置文件中 processes: 2
+   # 命令行中指定 processes: 4
+   habit preprocess --config config.yaml --processes 4
+
+   # 实际使用的进程数为 4（命令行参数优先）
 
 错误处理
 --------
 
-**常见错误：**
+当命令执行失败时，HABIT 会：
 
-1. **配置文件不存在**
+1. **显示错误信息**: 在控制台显示清晰的错误信息
+2. **记录错误日志**: 在日志文件中记录详细的错误堆栈
+3. **提供解决建议**: 对于常见错误，提供解决建议
 
-   .. code-block:: text
+**常见错误及解决方法**:
 
-      ERROR: Config file not found: ./config.yaml
-
-   **解决方法**: 检查配置文件路径是否正确
-
-2. **参数缺失**
-
-   .. code-block:: text
-
-      ERROR: Missing required parameter: data_dir
-
-   **解决方法**: 在配置文件中添加缺失的参数
-
-3. **参数类型错误**
-
-   .. code-block:: text
-
-      ERROR: Invalid type for parameter 'processes': expected int, got str
-
-   **解决方法**: 检查参数类型是否正确
-
-4. **数据文件不存在**
-
-   .. code-block:: text
-
-      ERROR: Data file not found: ./data/subject1.nii.gz
-
-   **解决方法**: 检查数据文件路径是否正确
-
-**调试技巧：**
-
-1. **使用 `--debug` 参数**: 启用调试模式，查看详细的日志信息
-2. **检查日志文件**: 查看日志文件了解详细的错误信息
-3. **逐步执行**: 逐步执行命令，定位问题
-4. **检查配置文件**: 检查配置文件的语法和参数
+- **配置文件不存在**: 检查配置文件路径是否正确
+- **数据路径不存在**: 检查数据路径是否正确
+- **参数错误**: 检查配置文件中的参数是否正确
+- **依赖缺失**: 安装缺失的依赖包
 
 日志记录
 --------
 
-HABIT 自动记录详细的日志信息，包括：
+HABIT 会记录详细的日志信息，便于调试和问题排查。
 
-- **处理进度**: 显示处理的进度
-- **参数信息**: 记录使用的参数
-- **警告信息**: 记录警告信息
-- **错误信息**: 记录错误信息
+**日志级别**:
 
-**日志文件位置：**
+- `DEBUG`: 详细的调试信息
+- `INFO`: 一般信息
+- `WARNING`: 警告信息
+- `ERROR`: 错误信息
+- `CRITICAL`: 严重错误信息
 
-日志文件保存在输出目录中，文件名为 `<command_name>.log`。
+**日志文件**:
 
-**示例：**
+- 每个命令都会生成对应的日志文件
+- 日志文件保存在输出目录中
+- 日志文件命名格式：`<command>.log`
 
-.. code-block:: text
+**启用调试模式**:
 
-   results/
-   ├── preprocessing.log
-   ├── habitat_analysis.log
-   ├── feature_extraction.log
-   └── machine_learning.log
+.. code-block:: bash
 
-**日志级别：**
-
-- **INFO**: 一般信息
-- **WARNING**: 警告信息
-- **ERROR**: 错误信息
-- **DEBUG**: 调试信息（仅在调试模式下显示）
+   habit preprocess --config config.yaml --debug
 
 批处理示例
---------
+----------
 
-**示例 1: 完整工作流程**
-
-.. code-block:: bash
-
-   # 1. 图像预处理
-   habit preprocess --config ./config_preprocessing.yaml
-
-   # 2. 生境分割（训练）
-   habit get-habitat --config ./config_habitat_train.yaml --mode train
-
-   # 3. 生境分割（预测）
-   habit get-habitat --config ./config_habitat.yaml --mode predict
-
-   # 4. 特征提取
-   habit extract --config ./config_extract_features.yaml
-
-   # 5. 机器学习（训练）
-   habit model --config ./config_ml_train.yaml --mode train
-
-   # 6. 机器学习（预测）
-   habit model --config ./config_ml.yaml --mode predict
-
-**示例 2: 使用脚本自动化**
-
-创建批处理脚本 `run_analysis.sh`：
+**示例 1: 批量预处理**
 
 .. code-block:: bash
 
+   # 创建批处理脚本
+   cat > batch_preprocess.sh << 'EOF'
    #!/bin/bash
+   for config in config_*.yaml; do
+       echo "Processing $config..."
+       habit preprocess --config "$config" --debug
+   done
+   EOF
 
-   # 设置变量
-   CONFIG_DIR="./configs"
-   OUTPUT_DIR="./results"
+   # 运行批处理
+   chmod +x batch_preprocess.sh
+   ./batch_preprocess.sh
 
-   # 创建输出目录
-   mkdir -p $OUTPUT_DIR
-
-   # 1. 图像预处理
-   echo "Step 1: Image preprocessing..."
-   habit preprocess --config $CONFIG_DIR/config_preprocessing.yaml
-
-   # 2. 生境分割
-   echo "Step 2: Habitat segmentation..."
-   habit get-habitat --config $CONFIG_DIR/config_habitat.yaml --mode predict
-
-   # 3. 特征提取
-   echo "Step 3: Feature extraction..."
-   habit extract --config $CONFIG_DIR/config_extract_features.yaml
-
-   # 4. 机器学习
-   echo "Step 4: Machine learning..."
-   habit model --config $CONFIG_DIR/config_ml.yaml --mode predict
-
-   echo "Analysis completed!"
-
-运行脚本：
+**示例 2: 完整工作流程**
 
 .. code-block:: bash
 
-   chmod +x run_analysis.sh
-   ./run_analysis.sh
+   # 1. 预处理
+   habit preprocess --config config_preprocessing.yaml
 
-**示例 3: 使用 Python 脚本**
-
-创建 Python 脚本 `run_analysis.py`：
-
-.. code-block:: python
-
-   import subprocess
-   import os
-
-   def run_command(command):
-       print(f"Running: {command}")
-       result = subprocess.run(command, shell=True, capture_output=True, text=True)
-       if result.returncode != 0:
-           print(f"Error: {result.stderr}")
-           exit(1)
-       print(result.stdout)
-
-   # 设置变量
-   config_dir = "./configs"
-
-   # 1. 图像预处理
-   print("Step 1: Image preprocessing...")
-   run_command(f"habit preprocess --config {config_dir}/config_preprocessing.yaml")
-
-   # 2. 生境分割
-   print("Step 2: Habitat segmentation...")
-   run_command(f"habit get-habitat --config {config_dir}/config_habitat.yaml --mode predict")
+   # 2. 生境分析（训练）
+   habit get-habitat --config config_habitat.yaml --mode train
 
    # 3. 特征提取
-   print("Step 3: Feature extraction...")
-   run_command(f"habit extract --config {config_dir}/config_extract_features.yaml")
+   habit extract --config config_extract_features.yaml
 
-   # 4. 机器学习
-   print("Step 4: Machine learning...")
-   run_command(f"habit model --config {config_dir}/config_ml.yaml --mode predict")
+   # 4. 机器学习（训练）
+   habit model --config config_machine_learning.yaml --mode train
 
-   print("Analysis completed!")
-
-运行脚本：
+**示例 3: 预测模式**
 
 .. code-block:: bash
 
-   python run_analysis.py
+   # 1. 生境分析（预测）
+   habit get-habitat --config config_habitat.yaml --mode predict --pipeline ./results/habitat_pipeline.pkl
+
+   # 2. 特征提取
+   habit extract --config config_extract_features.yaml
+
+   # 3. 机器学习（预测）
+   habit model --config config_machine_learning.yaml --mode predict --pipeline ./results/ml/model_pipeline.pkl
 
 常见问题
 --------
 
-**Q1: 如何查看命令的帮助信息？**
+**Q1: 如何查看命令的详细帮助？**
 
 A: 使用 `--help` 参数：
 
 .. code-block:: bash
 
-   habit --help
    habit preprocess --help
-   habit get-habitat --help
 
-**Q2: 如何调试命令执行问题？**
+**Q2: 如何启用调试模式？**
 
-A: 使用 `--debug` 参数启用调试模式：
-
-.. code-block:: bash
-
-   habit preprocess --config ./config.yaml --debug
-
-**Q3: 如何在命令行中覆盖配置文件参数？**
-
-A: 使用相应的命令行参数：
+A: 使用 `--debug` 参数：
 
 .. code-block:: bash
 
-   habit get-habitat --config ./config.yaml --mode predict
+   habit preprocess --config config.yaml --debug
 
-**Q4: 如何查看命令的执行日志？**
+**Q3: 如何查看 HABIT 的版本？**
 
-A: 查看输出目录中的日志文件：
+A: 使用 `--version` 参数：
 
 .. code-block:: bash
 
-   cat results/preprocessing.log
+   habit --version
 
-**Q5: 如何在脚本中使用 CLI 命令？**
+**Q4: 如何批处理多个配置文件？**
 
-A: 可以在 Shell 脚本或 Python 脚本中使用 CLI 命令，参考上面的批处理示例。
+A: 使用 shell 脚本或循环：
+
+.. code-block:: bash
+
+   for config in config_*.yaml; do
+       habit preprocess --config "$config"
+   done
+
+**Q5: 如何处理命令执行失败？**
+
+A: 查看错误信息和日志文件：
+
+.. code-block:: bash
+
+   # 查看日志文件
+   cat preprocessing.log
+
+   # 使用调试模式重新运行
+   habit preprocess --config config.yaml --debug
 
 下一步
 -------
 
-CLI 参考文档完成后，您可以：
+现在您已经了解了 CLI 的使用方法，可以：
 
-- :doc:`configuration_zh`: 了解配置文件的详细说明
-- :doc:`user_guide/index_zh`: 了解用户指南
-- :doc:`../../design_philosophy_zh`: 了解 HABIT 的设计哲学
+- :doc:`../configuration_zh`: 了解配置文件的详细说明
+- :doc:`../user_guide/index_zh`: 了解各个功能的详细使用指南
+- :doc:`../customization/index_zh`: 了解如何自定义和扩展功能

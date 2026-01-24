@@ -6,20 +6,22 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common 模块 &mdash; HABIT 0.1.0 文档</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+  <title>common 模块 &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2d33a3a8"></script>
       <script src="../_static/doctools.js?v=888ff710"></script>
       <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
       <script src="../_static/translations.js?v=beaddf03"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
-    <link rel="search" title="搜索" href="../search.html" /> 
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="../development/index.html" />
+    <link rel="prev" title="preprocessing 模块" href="preprocessing.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,413 +45,45 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
               <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#install-from-source">Install from Source</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#install-dependencies">Install Dependencies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#verification">Verification</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#basic-workflow">Basic Workflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#example-configuration">Example Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#running-analysis">Running Analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#next-steps">Next Steps</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id2">数据输入方式概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id3">文件夹结构方式</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id4">标准文件夹结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id5">文件夹命名规则</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id7">路径格式</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id8">路径和文件名规则</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id9">实际示例</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id10">两种方式对比</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id11">转换方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id12">数据验证</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id13">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id2">工作流程概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id3">自定义扩展</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id4">配置文件</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id5">数据结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id6">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id1">核心理念</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id2">设计原则</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id3">设计理念总结</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id3">扩展原则</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id4">自定义预处理器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id5">自定义特征提取器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id6">自定义聚类算法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id7">自定义模型</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id8">自定义特征选择器</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id9">最佳实践</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id10">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id11">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id2">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id3">通用配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id4">预处理配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id5">生境分析配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id22">特征提取配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id25">机器学习配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id26">数据配置参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id43">配置文件验证</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id44">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id45">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id1">概述</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id2">通用参数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id3">图像预处理命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id4">生境分析命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id5">特征提取命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id6">机器学习命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id7">帮助命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id8">版本命令</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id9">命令行参数优先级</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id10">错误处理</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id11">日志记录</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id12">批处理示例</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id13">常见问题</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id14">下一步</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="habit.core.html">habit.core package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API 文档</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html">habitat_analysis 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html">machine_learning 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html">preprocessing 模块</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">common 模块</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#serviceconfigurator">ServiceConfigurator 类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#habit.core.common.service_configurator.ServiceConfigurator"><code class="docutils literal notranslate"><span class="pre">ServiceConfigurator</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.core.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="habit.utils.html">habit.utils package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#main-modules">Main Modules</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html">架构设计</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id2">核心模块</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#machine-learning">Machine Learning</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#preprocessing">Preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#common">Common</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id3">设计模式</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id4">模块依赖关系</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/design_patterns.html">设计模式</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/testing.html">测试指南</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id2">运行测试</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id3">编写测试</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#fixtures">使用 Fixtures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id4">测试最佳实践</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id5">持续集成</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">贡献指南</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id2">如何贡献</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#bug">报告 Bug</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id3">提交代码</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id4">代码规范</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id5">文档贡献</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id6">开发环境设置</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#pull-request">提交 Pull Request</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id7">行为准则</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">算法参考</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html">聚类算法</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#k-means">K-Means</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#id3">层次聚类</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/feature_extraction.html">特征提取</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../algorithms/validation_methods.html">验证方法</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id3">验证方法选择</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#known-issues">Known Issues</a></li>
 </ul>
 </li>
 </ul>
@@ -470,6 +104,7 @@
           <div role="navigation" aria-label="页面导航">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API 文档</a></li>
       <li class="breadcrumb-item active">common 模块</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/common.rst.txt" rel="nofollow"> 查看页面源码</a>
@@ -483,360 +118,12 @@
   <section id="module-habit.core.common">
 <span id="common"></span><h1>common 模块<a class="headerlink" href="#module-habit.core.common" title="此标题的永久链接"></a></h1>
 <p>Common components shared across HABIT modules.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.</span></span><span class="sig-name descname"><span class="pre">BaseConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Abstract base class for all configuration schemas in HABIT.</p>
-<p>Provides common functionality:
-- Version tracking
-- Configuration file path tracking
-- Validation hooks
-- Accessor methods</p>
-<p>All configuration classes should inherit from this base class.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.Config"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.Config" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Pydantic configuration.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.Config.extra">
-<span class="sig-name descname"><span class="pre">extra</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'forbid'</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.Config.extra" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.Config.use_enum_values">
-<span class="sig-name descname"><span class="pre">use_enum_values</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.Config.use_enum_values" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.Config.validate_assignment">
-<span class="sig-name descname"><span class="pre">validate_assignment</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.Config.validate_assignment" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.config_file">
-<span class="sig-name descname"><span class="pre">config_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.config_file" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.config_version">
-<span class="sig-name descname"><span class="pre">config_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.config_version" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.from_dict"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.from_dict" title="永久链接至目标"></a></dt>
-<dd><p>Create configuration instance from dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_dict</strong> – Configuration dictionary</p></li>
-<li><p><strong>config_path</strong> – Optional path to configuration file (for error reporting)</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration instance</p>
-</dd>
-<dt class="field-odd">抛出<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#habit.core.common.ConfigValidationError" title="habit.core.common.ConfigValidationError"><strong>ConfigValidationError</strong></a> – If validation fails</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.from_file"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.from_file" title="永久链接至目标"></a></dt>
-<dd><p>Load configuration from file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config_path</strong> – Path to configuration file (YAML or JSON)</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration instance</p>
-</dd>
-<dt class="field-odd">抛出<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>FileNotFoundError</strong> – If configuration file not found</p></li>
-<li><p><a class="reference internal" href="#habit.core.common.ConfigValidationError" title="habit.core.common.ConfigValidationError"><strong>ConfigValidationError</strong></a> – If validation fails</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.get"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.get" title="永久链接至目标"></a></dt>
-<dd><p>Get configuration value by key (dictionary-like access).</p>
-<p>This method provides backward compatibility with dictionary access patterns.
-However, direct attribute access (config.field_name) is preferred.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – Configuration key (supports dot notation for nested keys)</p></li>
-<li><p><strong>default</strong> – Default value if key not found</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration value or default</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.model_computed_fields" title="永久链接至目标"></a></dt>
-<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid',</span> <span class="pre">'use_enum_values':</span> <span class="pre">True,</span> <span class="pre">'validate_assignment':</span> <span class="pre">True}</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.model_config" title="永久链接至目标"></a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'config_file':</span> <span class="pre">FieldInfo(annotation=Union[str,</span> <span class="pre">NoneType],</span> <span class="pre">required=False),</span> <span class="pre">'config_version':</span> <span class="pre">FieldInfo(annotation=Union[str,</span> <span class="pre">NoneType],</span> <span class="pre">required=False)}</span></em><a class="headerlink" href="#habit.core.common.BaseConfig.model_fields" title="永久链接至目标"></a></dt>
-<dd><p>Metadata about the fields defined on the model,
-mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
-<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_none</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_unset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.to_dict"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.to_dict" title="永久链接至目标"></a></dt>
-<dd><p>Convert configuration to dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>exclude_none</strong> – Whether to exclude None values</p></li>
-<li><p><strong>exclude_unset</strong> – Whether to exclude unset values</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration dictionary</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.BaseConfig.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#BaseConfig.validate"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.BaseConfig.validate" title="永久链接至目标"></a></dt>
-<dd><p>Validate configuration (re-validate after modifications).</p>
-<dl class="field-list simple">
-<dt class="field-odd">返回<span class="colon">:</span></dt>
-<dd class="field-odd"><p>True if valid</p>
-</dd>
-<dt class="field-even">抛出<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#habit.core.common.ConfigValidationError" title="habit.core.common.ConfigValidationError"><strong>ConfigValidationError</strong></a> – If validation fails</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.</span></span><span class="sig-name descname"><span class="pre">ConfigAccessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#habit.core.common.BaseConfig" title="habit.core.common.config_base.BaseConfig"><span class="pre">BaseConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigAccessor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigAccessor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Unified interface for accessing configuration values.</p>
-<p>Provides a consistent API for accessing configuration regardless of
-whether it’s a Pydantic model or a dictionary.</p>
-<p>This class helps transition from dictionary-based config access
-to strongly-typed Pydantic model access.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigAccessor.get"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigAccessor.get" title="永久链接至目标"></a></dt>
-<dd><p>Get configuration value by key.</p>
-<p>Supports:
-- Direct attribute access for Pydantic models: config.field_name
-- Dot notation for nested access: config.section.subsection.field
-- Dictionary access for backward compatibility</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – Configuration key (supports dot notation)</p></li>
-<li><p><strong>default</strong> – Default value if key not found</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration value or default</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor.get_section">
-<span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.core.common.BaseConfig" title="habit.core.common.config_base.BaseConfig"><span class="pre">BaseConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigAccessor.get_section"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigAccessor.get_section" title="永久链接至目标"></a></dt>
-<dd><p>Get a configuration section.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>section_name</strong> – Section name (supports dot notation)</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configuration section or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor.has">
-<span class="sig-name descname"><span class="pre">has</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigAccessor.has"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigAccessor.has" title="永久链接至目标"></a></dt>
-<dd><p>Check if configuration contains a key.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> – Configuration key (supports dot notation)</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if key exists</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor.raw_config">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">raw_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#habit.core.common.BaseConfig" title="habit.core.common.config_base.BaseConfig"><span class="pre">BaseConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#habit.core.common.ConfigAccessor.raw_config" title="永久链接至目标"></a></dt>
-<dd><p>Get raw configuration object.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigAccessor.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigAccessor.to_dict"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigAccessor.to_dict" title="永久链接至目标"></a></dt>
-<dd><p>Convert configuration to dictionary.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="habit.core.common.ConfigValidationError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.</span></span><span class="sig-name descname"><span class="pre">ConfigValidationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/config_base.html#ConfigValidationError"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigValidationError" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Custom exception for configuration validation errors.</p>
-<p>Provides detailed information about validation failures.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="habit.core.common.ConfigValidator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.</span></span><span class="sig-name descname"><span class="pre">ConfigValidator</span></span><a class="reference internal" href="../_modules/habit/core/common/config_validator.html#ConfigValidator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigValidator" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Unified configuration validator and loader.</p>
-<p>Provides a single entry point for loading and validating configurations
-across all HABIT modules.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigValidator.safe_validate">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">safe_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_validator.html#ConfigValidator.safe_validate"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigValidator.safe_validate" title="永久链接至目标"></a></dt>
-<dd><p>Safely validate configuration (returns None on failure instead of raising).</p>
-<p>Useful for optional configurations or when you want to handle
-validation errors gracefully.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_dict</strong> – Configuration dictionary</p></li>
-<li><p><strong>config_class</strong> – Configuration class</p></li>
-<li><p><strong>default</strong> – Default value to return on validation failure</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Validated configuration instance or default</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigValidator.validate_and_load">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_and_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_validator.html#ConfigValidator.validate_and_load"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigValidator.validate_and_load" title="永久链接至目标"></a></dt>
-<dd><p>Load and validate configuration from file.</p>
-<p>This is the recommended way to load configurations in HABIT.
-It provides:
-- Automatic path resolution
-- Unified error handling
-- Type-safe configuration objects</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_path</strong> – Path to configuration file</p></li>
-<li><p><strong>config_class</strong> – Configuration class (must inherit from BaseConfig)</p></li>
-<li><p><strong>resolve_paths</strong> – Whether to resolve relative paths (default: True)</p></li>
-<li><p><strong>strict</strong> – Whether to raise exceptions on validation errors (default: True)</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Validated configuration instance</p>
-</dd>
-<dt class="field-odd">抛出<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>FileNotFoundError</strong> – If configuration file not found</p></li>
-<li><p><a class="reference internal" href="#habit.core.common.ConfigValidationError" title="habit.core.common.ConfigValidationError"><strong>ConfigValidationError</strong></a> – If validation fails and strict=True</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">示例</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">habit.core.habitat_analysis.config_schemas</span> <span class="kn">import</span> <span class="n">HabitatAnalysisConfig</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ConfigValidator</span><span class="o">.</span><span class="n">validate_and_load</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s1">&#39;config.yaml&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">HabitatAnalysisConfig</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.ConfigValidator.validate_dict">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_validator.html#ConfigValidator.validate_dict"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.ConfigValidator.validate_dict" title="永久链接至目标"></a></dt>
-<dd><p>Validate configuration dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_dict</strong> – Configuration dictionary</p></li>
-<li><p><strong>config_class</strong> – Configuration class</p></li>
-<li><p><strong>config_path</strong> – Optional path for error reporting</p></li>
-<li><p><strong>strict</strong> – Whether to raise exceptions on validation errors</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Validated configuration instance</p>
-</dd>
-<dt class="field-odd">抛出<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#habit.core.common.ConfigValidationError" title="habit.core.common.ConfigValidationError"><strong>ConfigValidationError</strong></a> – If validation fails and strict=True</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="habit.core.common.load_and_validate_config">
-<span class="sig-prename descclassname"><span class="pre">habit.core.common.</span></span><span class="sig-name descname"><span class="pre">load_and_validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigType</span></span></span><a class="reference internal" href="../_modules/habit/core/common/config_validator.html#load_and_validate_config"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.load_and_validate_config" title="永久链接至目标"></a></dt>
-<dd><p>Convenience function for loading and validating configurations.</p>
-<p>This is a shorthand for ConfigValidator.validate_and_load().</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_path</strong> – Path to configuration file</p></li>
-<li><p><strong>config_class</strong> – Configuration class</p></li>
-<li><p><strong>resolve_paths</strong> – Whether to resolve relative paths</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Validated configuration instance</p>
-</dd>
-</dl>
-<p class="rubric">示例</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">habit.core.habitat_analysis.config_schemas</span> <span class="kn">import</span> <span class="n">HabitatAnalysisConfig</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">load_and_validate_config</span><span class="p">(</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">,</span> <span class="n">HabitatAnalysisConfig</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <section id="serviceconfigurator">
 <h2>ServiceConfigurator 类<a class="headerlink" href="#serviceconfigurator" title="此标题的永久链接"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.service_configurator.</span></span><span class="sig-name descname"><span class="pre">ServiceConfigurator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.common.service_configurator.</span></span><span class="sig-name descname"><span class="pre">ServiceConfigurator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="（在 Python v3.14）"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Unified service configurator.</p>
 <p>Responsible for creating and configuring all services with their dependencies.
 Use this class instead of direct instantiation of complex workflow classes.</p>
@@ -848,80 +135,42 @@ comparison = configurator.create_model_comparison()
 habitat_analysis = configurator.create_habitat_analysis()
 <a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.clear_cache">
-<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.clear_cache"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.clear_cache" title="永久链接至目标"></a></dt>
-<dd><p>Clear cached services.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_batch_processor">
-<span class="sig-name descname"><span class="pre">create_batch_processor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_batch_processor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_batch_processor" title="永久链接至目标"></a></dt>
-<dd><p>Create BatchProcessor instance for image preprocessing.</p>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.__init__" title="永久链接至目标"></a></dt>
+<dd><p>Initialize ServiceConfigurator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">返回<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Configured BatchProcessor instance.</p>
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Configuration object or dictionary.</p></li>
+<li><p><strong>logger</strong> – Logger instance (will be created if not provided).</p></li>
+<li><p><strong>output_dir</strong> – Output directory (will be derived from config if not provided).</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_clustering_manager">
-<span class="sig-name descname"><span class="pre">create_clustering_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager" title="habit.core.habitat_analysis.managers.clustering_manager.ClusteringManager"><span class="pre">ClusteringManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_clustering_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_clustering_manager" title="永久链接至目标"></a></dt>
-<dd><p>Create ClusteringManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_evaluator">
-<span class="sig-name descname"><span class="pre">create_evaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="machine_learning.html#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator"><span class="pre">MultifileEvaluator</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_evaluator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_evaluator" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">create_evaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="machine_learning.html#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator"><span class="pre">MultifileEvaluator</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_evaluator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_evaluator" title="永久链接至目标"></a></dt>
 <dd><p>Create MultifileEvaluator instance.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_feature_extractor">
-<span class="sig-name descname"><span class="pre">create_feature_extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_feature_extractor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_feature_extractor" title="永久链接至目标"></a></dt>
-<dd><p>Create HabitatMapAnalyzer for feature extraction.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> – Optional configuration override.</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured HabitatMapAnalyzer instance.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_reporter">
+<span class="sig-name descname"><span class="pre">create_reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ReportExporter</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_reporter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_reporter" title="永久链接至目标"></a></dt>
+<dd><p>Create ReportExporter instance.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_feature_manager">
-<span class="sig-name descname"><span class="pre">create_feature_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager" title="habit.core.habitat_analysis.managers.feature_manager.FeatureManager"><span class="pre">FeatureManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_feature_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_feature_manager" title="永久链接至目标"></a></dt>
-<dd><p>Create FeatureManager instance.</p>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_threshold_manager">
+<span class="sig-name descname"><span class="pre">create_threshold_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ThresholdManager</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_threshold_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_threshold_manager" title="永久链接至目标"></a></dt>
+<dd><p>Create ThresholdManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_habitat_analysis">
-<span class="sig-name descname"><span class="pre">create_habitat_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#id0" title="habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis"><span class="pre">HabitatAnalysis</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_habitat_analysis"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_habitat_analysis" title="永久链接至目标"></a></dt>
-<dd><p>Create fully configured HabitatAnalysis instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured HabitatAnalysis instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_kfold_workflow">
-<span class="sig-name descname"><span class="pre">create_kfold_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_kfold_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_kfold_workflow" title="永久链接至目标"></a></dt>
-<dd><p>Create MachineLearningKFoldWorkflow instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured MachineLearningKFoldWorkflow instance.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_plot_manager">
+<span class="sig-name descname"><span class="pre">create_plot_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PlotManager</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_plot_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_plot_manager" title="永久链接至目标"></a></dt>
+<dd><p>Create PlotManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -931,22 +180,8 @@ habitat_analysis = configurator.create_habitat_analysis()
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_ml_workflow">
-<span class="sig-name descname"><span class="pre">create_ml_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_ml_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_ml_workflow" title="永久链接至目标"></a></dt>
-<dd><p>Create MachineLearningWorkflow instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
-</dd>
-<dt class="field-even">返回<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured MachineLearningWorkflow instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_model_comparison">
-<span class="sig-name descname"><span class="pre">create_model_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="machine_learning.html#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison" title="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison"><span class="pre">ModelComparison</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_model_comparison"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_model_comparison" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">create_model_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="machine_learning.html#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison" title="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison"><span class="pre">ModelComparison</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_model_comparison"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_model_comparison" title="永久链接至目标"></a></dt>
 <dd><p>Create fully configured ModelComparison instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -962,38 +197,99 @@ habitat_analysis = configurator.create_habitat_analysis()
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_plot_manager">
-<span class="sig-name descname"><span class="pre">create_plot_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PlotManager</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_plot_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_plot_manager" title="永久链接至目标"></a></dt>
-<dd><p>Create PlotManager instance.</p>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_feature_manager">
+<span class="sig-name descname"><span class="pre">create_feature_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.FeatureManager" title="habit.core.habitat_analysis.managers.feature_manager.FeatureManager"><span class="pre">FeatureManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_feature_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_feature_manager" title="永久链接至目标"></a></dt>
+<dd><p>Create FeatureManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_prediction_workflow">
-<span class="sig-name descname"><span class="pre">create_prediction_workflow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_prediction_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_prediction_workflow" title="永久链接至目标"></a></dt>
-<dd><p>Create PredictionWorkflow for model inference.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_reporter">
-<span class="sig-name descname"><span class="pre">create_reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ReportExporter</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_reporter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_reporter" title="永久链接至目标"></a></dt>
-<dd><p>Create ReportExporter instance.</p>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_clustering_manager">
+<span class="sig-name descname"><span class="pre">create_clustering_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.ClusteringManager" title="habit.core.habitat_analysis.managers.clustering_manager.ClusteringManager"><span class="pre">ClusteringManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_clustering_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_clustering_manager" title="永久链接至目标"></a></dt>
+<dd><p>Create ClusteringManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_result_manager">
-<span class="sig-name descname"><span class="pre">create_result_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.ResultManager" title="habit.core.habitat_analysis.managers.result_manager.ResultManager"><span class="pre">ResultManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_result_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_result_manager" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">create_result_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.managers.ResultManager" title="habit.core.habitat_analysis.managers.result_manager.ResultManager"><span class="pre">ResultManager</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_result_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_result_manager" title="永久链接至目标"></a></dt>
 <dd><p>Create ResultManager instance.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_threshold_manager">
-<span class="sig-name descname"><span class="pre">create_threshold_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ThresholdManager</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_threshold_manager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_threshold_manager" title="永久链接至目标"></a></dt>
-<dd><p>Create ThresholdManager instance.</p>
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_habitat_analysis">
+<span class="sig-name descname"><span class="pre">create_habitat_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habitat_analysis.html#habit.core.habitat_analysis.HabitatAnalysis" title="habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis"><span class="pre">HabitatAnalysis</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_habitat_analysis"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_habitat_analysis" title="永久链接至目标"></a></dt>
+<dd><p>Create fully configured HabitatAnalysis instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured HabitatAnalysis instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_batch_processor">
+<span class="sig-name descname"><span class="pre">create_batch_processor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_batch_processor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_batch_processor" title="永久链接至目标"></a></dt>
+<dd><p>Create BatchProcessor instance for image preprocessing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Configured BatchProcessor instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_ml_workflow">
+<span class="sig-name descname"><span class="pre">create_ml_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_ml_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_ml_workflow" title="永久链接至目标"></a></dt>
+<dd><p>Create MachineLearningWorkflow instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured MachineLearningWorkflow instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_kfold_workflow">
+<span class="sig-name descname"><span class="pre">create_kfold_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_kfold_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_kfold_workflow" title="永久链接至目标"></a></dt>
+<dd><p>Create MachineLearningKFoldWorkflow instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Configuration (uses configurator’s config if not provided).</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured MachineLearningKFoldWorkflow instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_prediction_workflow">
+<span class="sig-name descname"><span class="pre">create_prediction_workflow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_prediction_workflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_prediction_workflow" title="永久链接至目标"></a></dt>
+<dd><p>Create PredictionWorkflow for model inference.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.create_feature_extractor">
+<span class="sig-name descname"><span class="pre">create_feature_extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.create_feature_extractor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.create_feature_extractor" title="永久链接至目标"></a></dt>
+<dd><p>Create HabitatMapAnalyzer for feature extraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Optional configuration override.</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured HabitatMapAnalyzer instance.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.get_service">
-<span class="sig-name descname"><span class="pre">get_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.get_service"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.get_service" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">get_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.get_service"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.get_service" title="永久链接至目标"></a></dt>
 <dd><p>Get a cached service instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -1007,7 +303,7 @@ habitat_analysis = configurator.create_habitat_analysis()
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.register_service">
-<span class="sig-name descname"><span class="pre">register_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.register_service"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.register_service" title="永久链接至目标"></a></dt>
+<span class="sig-name descname"><span class="pre">register_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.register_service"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.register_service" title="永久链接至目标"></a></dt>
 <dd><p>Register a custom service instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数<span class="colon">:</span></dt>
@@ -1019,6 +315,12 @@ habitat_analysis = configurator.create_habitat_analysis()
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.common.service_configurator.ServiceConfigurator.clear_cache">
+<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/habit/core/common/service_configurator.html#ServiceConfigurator.clear_cache"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.common.service_configurator.ServiceConfigurator.clear_cache" title="永久链接至目标"></a></dt>
+<dd><p>Clear cached services.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1027,12 +329,15 @@ habitat_analysis = configurator.create_habitat_analysis()
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="preprocessing.html" class="btn btn-neutral float-left" title="preprocessing 模块" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../development/index.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2026, HABIT Team。</p>
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
   </div>
 
   利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
