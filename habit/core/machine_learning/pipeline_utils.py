@@ -1,5 +1,5 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 import pandas as pd
 import numpy as np
 from .feature_selectors.selector_registry import run_selector, get_selector_info
@@ -14,15 +14,23 @@ class PipelineBuilder:
     Centralized builder for creating sklearn Pipelines with HABIT components.
     Ensures consistency across different workflows (holdout, k-fold, etc.).
     """
-    def __init__(self, config: Dict[str, Any], output_dir: str = None):
+    def __init__(self, config: Any, output_dir: str = None):
+        """
+        Initialize PipelineBuilder.
+        
+        Args:
+            config: MLConfig Pydantic object.
+            output_dir: Output directory path.
+        """
         self.config = config
         self.output_dir = output_dir
 
     def get_scaler(self):
         """Returns the configured scaler instance."""
-        norm_config = self.config.get('normalization', {})
-        method = norm_config.get('method', 'z_score')
-        params = norm_config.get('params', {})
+        # Use Pydantic object attribute access
+        norm_config = self.config.normalization
+        method = getattr(norm_config, 'method', 'z_score')
+        params = getattr(norm_config, 'params', {})
         
         scalers = {
             'z_score': StandardScaler,
@@ -38,7 +46,26 @@ class PipelineBuilder:
         Build a complete pipeline: 
         Selection (Pre-scaling) -> Scaling -> Selection (Post-scaling) -> Model
         """
-        selection_methods = self.config.get('feature_selection_methods', [])
+        selection_methods = []
+        
+        # Get methods from config (Pydantic object)
+        raw_methods = self.config.feature_selection_methods
+
+        # Convert Pydantic objects to dicts for FeatureSelectTransformer
+        if raw_methods:
+            for m in raw_methods:
+                if hasattr(m, 'model_dump'):
+                    selection_methods.append(m.model_dump())
+                elif hasattr(m, 'dict'):
+                    selection_methods.append(m.dict())
+                elif isinstance(m, dict):
+                    selection_methods.append(m)
+                else:
+                    # Helper for unknown types
+                    try:
+                        selection_methods.append(dict(m))
+                    except:
+                        pass
         
         return Pipeline([
             ('selector_before', FeatureSelectTransformer(

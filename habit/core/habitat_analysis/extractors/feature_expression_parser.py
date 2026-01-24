@@ -64,8 +64,17 @@ class FeatureExpressionParser:
             if params:
                 config_params.update(params)
             params = config_params
+        elif hasattr(config, 'model_dump'):  # Pydantic model
+            config_dict = config.model_dump()
+            if 'method' not in config_dict:
+                raise ValueError("Configuration must contain 'method' field")
+            expression = config_dict['method']
+            config_params = config_dict.get('params', {})
+            if params:
+                config_params.update(params)
+            params = config_params
         else:
-            raise TypeError(f"Config must be a string or dictionary, got {type(config)}")
+            raise TypeError(f"Config must be a string, dictionary, or Pydantic model, got {type(config)}")
 
         # Initialize return values
         cross_image_method = None

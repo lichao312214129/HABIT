@@ -3,7 +3,8 @@ Feature extractor factory for creating and configuring feature extractors
 """
 
 import importlib
-from typing import Dict, Any, List, Type
+from typing import Dict, Any, List, Type, Union
+from pydantic import BaseModel
 from .base_extractor import (
     BaseClusteringExtractor,
     get_feature_extractor,
@@ -25,18 +26,23 @@ class FeatureExtractorConfig:
         self.params = params or {}
     
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> 'FeatureExtractorConfig':
+    def from_dict(cls, config: Union[Dict[str, Any], BaseModel]) -> 'FeatureExtractorConfig':
         """
-        Create feature extractor configuration from dictionary
+        Create feature extractor configuration from dictionary or Pydantic model
         
         Args:
-            config_dict: Configuration dictionary containing name and params fields
+            config: Configuration dictionary or Pydantic model containing method and params fields
         
         Returns:
             FeatureExtractorConfig: Feature extractor configuration instance
         """
-        if not isinstance(config_dict, dict):
-            raise ValueError(f"Configuration must be a dictionary, got: {type(config_dict)}")
+        if isinstance(config, BaseModel):
+            # Convert Pydantic model to dict
+            config_dict = config.model_dump()
+        elif isinstance(config, dict):
+            config_dict = config
+        else:
+            raise ValueError(f"Configuration must be a dictionary or Pydantic model, got: {type(config)}")
         
         name = config_dict.get('method')  # Use 'method' instead of 'name' to match YAML config
         if not name:

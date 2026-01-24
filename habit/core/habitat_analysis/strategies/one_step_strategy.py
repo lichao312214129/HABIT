@@ -1,122 +1,30 @@
 """
 One-step strategy: voxel -> habitat clustering per subject.
+Refactored to use HabitatPipeline.
 """
 
-import os
-import logging
-from functools import partial
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Any
-
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Optional
 import pandas as pd
 
-from habit.utils.parallel_utils import parallel_map
 from .base_strategy import BaseClusteringStrategy
-from ..managers import FeatureManager, ClusteringManager, ResultManager
-from ..config import ResultColumns
+from ..pipelines.pipeline_builder import build_habitat_pipeline
+from ..pipelines.base_pipeline import HabitatPipeline
+from ..config_schemas import ResultColumns
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
 
 
-# -----------------------------------------------------------------------------
-# Module-level worker function (Pure function, Picklable)
-# -----------------------------------------------------------------------------
-def _process_subject_one_step(
-    subject: str,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
-    result_manager: ResultManager,
-    min_clusters: int,
-    max_clusters: int,
-    selection_method: str,
-    best_n_clusters: Optional[int],
-    plot_validation: bool,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[str, Union[pd.DataFrame, Exception]]:
-    """
-    Process a single subject for One-Step strategy.
-    
-    This is a module-level function to ensure picklability.
-    
-    Args:
-        subject: Subject ID
-        feature_manager: FeatureManager instance
-        clustering_manager: ClusteringManager instance
-        result_manager: ResultManager instance
-        min_clusters: Minimum clusters to try
-        max_clusters: Maximum clusters to try
-        selection_method: Validation method to use
-        best_n_clusters: Fixed number of clusters (if specified)
-        plot_validation: Whether to plot validation curves
-        logger: Logger instance (optional)
-        
-    Returns:
-        Tuple of (subject, mean_features_df or Exception)
-    """
-    # Ensure logging in subprocess
-    feature_manager._ensure_logging_in_subprocess()
-    
-    if logger:
-        logger.info(f"Processing subject (One-Step): {subject}")
-    
-    try:
-        # 1. Extract features
-        _, feature_df, raw_df, mask_info = feature_manager.extract_voxel_features(subject)
-        
-        # 2. Apply preprocessing
-        feature_df = feature_manager.apply_preprocessing(feature_df, level='subject')
-        
-        # 3. Find optimal clusters for this subject (One-Step specific)
-        if best_n_clusters is not None:
-            # Use fixed number of clusters
-            optimal_n = best_n_clusters
-            if logger:
-                logger.info(f"Subject {subject}: Using fixed cluster number {optimal_n}")
-        else:
-            # Find optimal using validation methods
-            optimal_n = clustering_manager.find_optimal_clusters_for_subject(
-                subject, feature_df, min_clusters, max_clusters, 
-                selection_method, plot_validation
-            )
-        
-        # 4. Perform clustering with optimal number
-        habitat_labels = clustering_manager.cluster_subject_voxels(
-            subject, feature_df, n_clusters=optimal_n
-        )
-        
-        # 5. Calculate habitat means
-        mean_features_df = feature_manager.calculate_supervoxel_means(
-            subject, feature_df, raw_df, habitat_labels, 
-            optimal_n
-        )
-        
-        # In One-Step, supervoxels ARE habitats
-        mean_features_df[ResultColumns.HABITATS] = mean_features_df[ResultColumns.SUPERVOXEL]
-        
-        # 6. Save supervoxel image (which represents habitats in One-Step)
-        result_manager.save_supervoxel_image(subject, habitat_labels, mask_info)
-        
-        # Cleanup
-        del feature_df, raw_df, habitat_labels
-        
-        return subject, mean_features_df
-        
-    except Exception as e:
-        if logger:
-            logger.error(f"Error in one_step process for subject {subject}: {e}")
-        return subject, Exception(str(e))
-
-
 class OneStepStrategy(BaseClusteringStrategy):
     """
-    One-step clustering strategy.
+    One-step clustering strategy using HabitatPipeline.
 
     Flow:
-    1) Extract voxel features for each subject
-    2) Cluster voxels directly to form habitats (per-subject, no population-level step)
-    3) Each subject gets its own optimal number of habitats
-
-    Decoupled from TwoStepStrategy - directly inherits from BaseHabitatStrategy.
+    1) Voxel feature extraction (Pipeline Step 1)
+    2) Subject-level preprocessing (Pipeline Step 2)
+    3) Individual clustering (voxel -> habitat per subject) (Pipeline Step 3)
+    4) Supervoxel aggregation (Pipeline Step 4) - calculates means per habitat
     """
 
     def __init__(self, analysis: "HabitatAnalysis"):
@@ -127,117 +35,150 @@ class OneStepStrategy(BaseClusteringStrategy):
             analysis: HabitatAnalysis instance with shared utilities
         """
         super().__init__(analysis)
+        self.pipeline: Optional[HabitatPipeline] = None
 
     def run(
         self,
         subjects: Optional[List[str]] = None,
-        save_results_csv: bool = True
+        save_results_csv: Optional[bool] = None,
+        load_from: Optional[str] = None
     ) -> pd.DataFrame:
         """
-        Execute one-step clustering.
+        Execute one-step clustering using Pipeline.
 
         Args:
             subjects: List of subjects to process (None means all subjects)
-            save_results_csv: Whether to save results to CSV
+            save_results_csv: Whether to save results to CSV (defaults to config.save_results_csv)
+            load_from: Optional path to a saved pipeline. If provided, the pipeline
+                is loaded and only transform() is executed.
 
         Returns:
             Results DataFrame
         """
-        if subjects is None:
-            subjects = list(self.analysis.images_paths.keys())
+        # Use config value if parameter not provided, allowing runtime override
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+        subjects = self._prepare_subjects(subjects)
 
-        # Process all subjects
-        results_df, failed_subjects = self._batch_process_one_step(subjects)
+        # Prepare input data for pipeline
+        X = self._build_input(subjects)
 
-        if len(results_df) == 0:
-            raise ValueError("No valid features for analysis")
+        pipeline_path = self._resolve_pipeline_path(load_from)
 
-        # In One-Step, the "supervoxel" means ARE the final habitat results
-        self.analysis.results_df = results_df
+        # Ensure output directory exists
+        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
-        # Save results (CSV files)
+        if load_from:
+            if self.config.verbose:
+                self.logger.info("Loading and running One-Step pipeline...")
+
+            if not pipeline_path.exists():
+                raise FileNotFoundError(
+                    f"Saved pipeline not found at {pipeline_path}. "
+                    "Provide a valid load_from path or run without load_from to train."
+                )
+
+            self.pipeline = HabitatPipeline.load(str(pipeline_path))
+            
+            # Update references in loaded pipeline to use current analysis instances.
+            # This ensures that config changes (like out_dir, plot_curves) are reflected in all steps.
+            self._update_pipeline_references(self.pipeline)
+            
+            # Disable image outputs and plots for prediction runs to avoid unnecessary I/O.
+            self.pipeline.config.plot_curves = False
+            
+            self.analysis.results_df = self.pipeline.transform(X)
+        else:
+            if self.config.verbose:
+                self.logger.info("Building and running One-Step pipeline...")
+
+            self.pipeline = build_habitat_pipeline(
+                config=self.config,
+                feature_manager=self.analysis.feature_manager,
+                clustering_manager=self.analysis.clustering_manager,
+                result_manager=self.analysis.result_manager
+            )
+
+            # Fit and transform (all in one go for stateless pipeline)
+            self.analysis.results_df = self.pipeline.fit_transform(X)
+
+            # Save pipeline for consistency
+            if self.config.verbose:
+                self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
+            self.pipeline.save(str(pipeline_path))
+        
+        # In One-Step, the Aggregation step calculates means per habitat.
+        # Habitat column is usually same as Supervoxel column in this case.
+        if ResultColumns.HABITATS not in self.analysis.results_df.columns:
+            if ResultColumns.SUPERVOXEL in self.analysis.results_df.columns:
+                self.analysis.results_df[ResultColumns.HABITATS] = self.analysis.results_df[ResultColumns.SUPERVOXEL]
+
+        # Update ResultManager with new results
+        self.analysis.result_manager.results_df = self.analysis.results_df
+
+        # Save results
         if save_results_csv:
-            self._save_results(subjects, failed_subjects)
+            self._save_results()
 
         return self.analysis.results_df
 
-    def _batch_process_one_step(self, subjects: List[str]) -> Tuple[pd.DataFrame, List[str]]:
-        """
-        Execute parallel processing for One-Step clustering.
-        """
-        if self.config.runtime.verbose:
-            self.logger.info("Executing One-Step clustering (per-subject optimal)...")
-        
-        one_step_config = self.config.one_step
-
-        # Create a partial function with all the fixed arguments
-        worker_func = partial(
-            _process_subject_one_step,
-            feature_manager=self.analysis.feature_manager,
-            clustering_manager=self.analysis.clustering_manager,
-            result_manager=self.analysis.result_manager,
-            min_clusters=one_step_config.min_clusters,
-            max_clusters=one_step_config.max_clusters,
-            selection_method=one_step_config.selection_method,
-            best_n_clusters=one_step_config.best_n_clusters,
-            plot_validation=one_step_config.plot_validation_curves,
-            logger=None  # Worker uses local logger config
-        )
-
-        results, failed_subjects = parallel_map(
-            func=worker_func,
-            items=subjects,
-            n_processes=self.config.runtime.n_processes,
-            desc="Processing One-Step",
-            logger=self.logger,
-            show_progress=True,
-            log_file_path=self.analysis._log_file_path,
-            log_level=self.analysis._log_level,
-        )
-        
-        # Combine results
-        all_results = pd.DataFrame()
-        for result in results:
-            if result.success and result.result is not None:
-                # result.result is already the DataFrame (unpacked by _worker_wrapper)
-                # result.item_id contains the subject ID
-                df = result.result
-                all_results = pd.concat([all_results, df], ignore_index=True)
-        
-        if self.config.runtime.verbose:
-            if failed_subjects:
-                self.logger.warning(f"Failed to process {len(failed_subjects)} subject(s)")
-            self.logger.info(f"One-Step processing complete.")
-        
-        return all_results, failed_subjects
-    
-    def _save_results(
-        self, 
-        subjects: List[str], 
-        failed_subjects: List[str]
-    ) -> None:
+    def _save_results(self) -> None:
         """
         Save results for One-Step strategy.
         """
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info("Saving results...")
         
-        os.makedirs(self.config.io.out_folder, exist_ok=True)
-        
-        # Save configuration (no global optimal_n_clusters for One-Step)
-        if self.analysis.mode_handler:
-            self.analysis.mode_handler.save_config(optimal_n_clusters=None)
-        
         # Save results CSV
-        csv_path = os.path.join(self.config.io.out_folder, 'habitats.csv')
-        self.analysis.results_df.to_csv(csv_path, index=False)
-        if self.config.runtime.verbose:
+        csv_path = Path(self.config.out_dir) / "habitats.csv"
+        self.analysis.results_df.to_csv(str(csv_path), index=False)
+        if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         
-        # Note: In One-Step, supervoxel images already represent habitats
-        # No need to save separate habitat images
-        if self.config.runtime.verbose:
-            self.logger.info(
-                "One-Step mode: supervoxel images are the final habitat maps "
-                "(no separate habitat images needed)"
-            )
+        # Note: In One-Step, IndividualClusteringStep saves habitat maps directly.
+        if self.config.verbose:
+            self.logger.info("One-Step mode: habitat maps have been saved.")
+
+    def _prepare_subjects(self, subjects: Optional[List[str]]) -> List[str]:
+        """
+        Normalize subject list and validate it is not empty.
+
+        Args:
+            subjects: Optional list of subject IDs
+
+        Returns:
+            List of subject IDs
+        """
+        if subjects is None:
+            subjects = list(self.analysis.images_paths.keys())
+
+        if not subjects:
+            raise ValueError("No subjects provided for one-step strategy.")
+
+        return list(subjects)
+
+    def _build_input(self, subjects: List[str]) -> Dict[str, Dict]:
+        """
+        Build input dict for the pipeline.
+
+        Args:
+            subjects: List of subject IDs
+
+        Returns:
+            Dict of subject_id -> empty dict (pipeline will populate data)
+        """
+        return {subject: {} for subject in subjects}
+
+    def _resolve_pipeline_path(self, load_from: Optional[str]) -> Path:
+        """
+        Resolve pipeline path for saving or loading.
+
+        Args:
+            load_from: Optional path to a saved pipeline
+
+        Returns:
+            Path to pipeline file
+        """
+        if load_from:
+            return Path(load_from)
+        return Path(self.config.out_dir) / "habitat_pipeline.pkl"

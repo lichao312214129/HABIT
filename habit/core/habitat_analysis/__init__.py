@@ -3,8 +3,7 @@ Habitat Analysis module for HABIT package.
 
 This module provides:
 - HabitatAnalysis: Main class for habitat clustering analysis
-- Configuration classes: HabitatConfig, ClusteringConfig, IOConfig, RuntimeConfig
-- Mode classes: TrainingMode, TestingMode (formerly Pipeline)
+- Configuration schemas: HabitatAnalysisConfig, ResultColumns
 - Analyzer classes: HabitatMapAnalyzer (formerly HabitatFeatureExtractor)
 """
 
@@ -20,48 +19,14 @@ except ImportError as e:
     _import_errors['HabitatAnalysis'] = str(e)
     HabitatAnalysis = None
 
-# Try to import Configuration classes
+# Try to import configuration schemas
 try:
-    from .config import (
-        HabitatConfig,
-        ClusteringConfig,
-        IOConfig,
-        RuntimeConfig,
-        OneStepConfig,
-        ResultColumns
-    )
-    _available_classes['HabitatConfig'] = HabitatConfig
-    _available_classes['ClusteringConfig'] = ClusteringConfig
-    _available_classes['IOConfig'] = IOConfig
-    _available_classes['RuntimeConfig'] = RuntimeConfig
-    _available_classes['OneStepConfig'] = OneStepConfig
+    from .config_schemas import HabitatAnalysisConfig, ResultColumns
+    _available_classes['HabitatAnalysisConfig'] = HabitatAnalysisConfig
     _available_classes['ResultColumns'] = ResultColumns
 except ImportError as e:
     _import_errors['Config'] = str(e)
-    HabitatConfig = ClusteringConfig = IOConfig = RuntimeConfig = OneStepConfig = ResultColumns = None
-
-# Try to import Mode classes
-try:
-    from .modes import (
-        BaseMode,
-        TrainingMode,
-        TestingMode,
-        create_mode
-    )
-    _available_classes['BaseMode'] = BaseMode
-    _available_classes['TrainingMode'] = TrainingMode
-    _available_classes['TestingMode'] = TestingMode
-    
-    # Aliases for backward compatibility
-    BasePipeline = BaseMode
-    TrainingPipeline = TrainingMode
-    TestingPipeline = TestingMode
-    create_pipeline = create_mode
-    
-except ImportError as e:
-    _import_errors['Mode'] = str(e)
-    BaseMode = TrainingMode = TestingMode = create_mode = None
-    BasePipeline = TrainingPipeline = TestingPipeline = create_pipeline = None
+    HabitatAnalysisConfig = ResultColumns = None
 
 # Try to import HabitatMapAnalyzer
 try:
@@ -75,30 +40,43 @@ except ImportError as e:
     HabitatMapAnalyzer = None
     HabitatFeatureExtractor = None
 
+# Try to import Pipeline classes
+try:
+    from .pipelines import (
+        BasePipelineStep,
+        HabitatPipeline,
+        build_habitat_pipeline
+    )
+    from .pipelines.steps import (
+        GroupPreprocessingStep,
+        PopulationClusteringStep
+    )
+    _available_classes['BasePipelineStep'] = BasePipelineStep
+    _available_classes['HabitatPipeline'] = HabitatPipeline
+    _available_classes['build_habitat_pipeline'] = build_habitat_pipeline
+    _available_classes['GroupPreprocessingStep'] = GroupPreprocessingStep
+    _available_classes['PopulationClusteringStep'] = PopulationClusteringStep
+except ImportError as e:
+    _import_errors['Pipeline'] = str(e)
+    BasePipelineStep = HabitatPipeline = build_habitat_pipeline = None
+    GroupPreprocessingStep = PopulationClusteringStep = None
+
 __all__ = [
     # Main class
     "HabitatAnalysis",
-    # Configuration classes
-    "HabitatConfig",
-    "ClusteringConfig",
-    "IOConfig",
-    "RuntimeConfig",
-    "OneStepConfig",
+    # Configuration schemas
+    "HabitatAnalysisConfig",
     "ResultColumns",
-    # Mode classes
-    "BaseMode",
-    "TrainingMode",
-    "TestingMode",
-    "create_mode",
-    # Legacy Pipeline aliases
-    "BasePipeline",
-    "TrainingPipeline",
-    "TestingPipeline",
-    "create_pipeline",
     # Analyzer classes
     "HabitatMapAnalyzer",
     # Legacy Analyzer aliases
-    "HabitatFeatureExtractor"
+    "HabitatFeatureExtractor",
+    # Pipeline classes
+    "BasePipelineStep",
+    "HabitatPipeline",
+    "build_habitat_pipeline",
+    "GroupPreprocessingStep",
+    "PopulationClusteringStep",
 ]
 
 # Add utility functions for checking import status

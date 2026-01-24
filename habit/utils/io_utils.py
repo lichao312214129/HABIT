@@ -10,7 +10,7 @@ import numpy as np
 from typing import Dict, Any, Optional, List
 import yaml
 import logging
-from habit.utils.config_utils import load_config, save_config, validate_config
+from habit.core.common.config_loader import load_config, save_config, validate_config
 
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:

@@ -3,7 +3,9 @@ from .base import Callback
 class VisualizationCallback(Callback):
     """Triggers plotting routines."""
     def on_pipeline_end(self, logs=None):
-        if not self.workflow.config.get('is_visualize', True):
+        # Use config_accessor for unified access
+        is_visualize = self.workflow.config_accessor.get('is_visualize', True)
+        if not is_visualize:
             return
             
         # Holdout workflow plotting

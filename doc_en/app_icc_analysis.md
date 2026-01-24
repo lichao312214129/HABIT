@@ -263,7 +263,7 @@ The `icc` module has been refactored into a clean, layered architecture. You can
 This is the simplest way to run the entire analysis programmatically. It mimics the behavior of the `habit icc` command.
 
 ```python
-from habit.utils.config_utils import load_config
+from habit.core.common.config_loader import load_config
 from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
 
 # 1. Load configuration from a YAML file

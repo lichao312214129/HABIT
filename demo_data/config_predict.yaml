@@ -1,0 +1,20 @@
+# Configuration file for Model Prediction
+# This file is used with: habit model --mode predict --config demo_data/config_predict.yaml
+
+# Path to the trained model file (e.g., .pkl, .joblib)
+# Supports relative paths (resolved relative to this config file)
+model_path: ./ml_data/clinical/models/LogisticRegression_final_pipeline.pkl
+
+# Path to the new data file to be predicted (.csv)
+# Must contain the features required by the model
+data_path: ./ml_data/clinical_feature.csv
+
+# Directory to save prediction results
+output_dir: ./ml_data/clinical/predictions
+
+# (Optional) Name of the model for logging purposes
+# model_name: MyBestModel
+
+# (Optional) Whether to evaluate performance (requires ground truth labels in data)
+# Default: false
+evaluate: true

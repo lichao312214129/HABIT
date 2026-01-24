@@ -18,6 +18,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
                       clustering_algorithm: str = 'kmeans',
                       figsize: Tuple[int, int] = (10, 10),
                       outdir: Optional[str] = None,
+                      save_path: Optional[str] = None,
                       show: bool = True,
                       dpi: int = 600):
     """
@@ -29,7 +30,8 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         methods: Methods to plot, can be a string or list of strings, None means plot all methods
         clustering_algorithm: Name of the clustering algorithm
         figsize: Size of the figure
-        outdir: Path to save the figure, None means do not save
+        outdir: Directory to save figures, None means do not save
+        save_path: Explicit file path to save a single figure (overrides outdir)
         show: Whether to display the figure
         dpi: Image resolution
     """
@@ -41,8 +43,10 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
     elif isinstance(methods, str):
         methods = [methods]
     
-    figdir = os.path.join(outdir, 'visualizations', 'habitat_clustering')
-    os.makedirs(figdir, exist_ok=True)
+    figdir = None
+    if outdir:
+        figdir = os.path.join(outdir, 'visualizations', 'habitat_clustering')
+        os.makedirs(figdir, exist_ok=True)
 
     # Plot for each method
     for i, method in enumerate(methods):
@@ -102,8 +106,11 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
     
         # Adjust layout
         plt.tight_layout()
-        fig_path = os.path.join(figdir, f'{clustering_algorithm}_{method}_cluster_validation_scores.png')
-        plt.savefig(fig_path, dpi=dpi, bbox_inches='tight')
+        if save_path:
+            plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+        elif figdir:
+            fig_path = os.path.join(figdir, f'{clustering_algorithm}_{method}_cluster_validation_scores.png')
+            plt.savefig(fig_path, dpi=dpi, bbox_inches='tight')
     
         # Show or close figure
         if show:

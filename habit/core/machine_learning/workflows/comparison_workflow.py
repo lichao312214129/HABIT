@@ -8,68 +8,82 @@ import yaml
 import pandas as pd
 import json
 import numpy as np
+from typing import Dict, Any, Optional, List, Union
 from ..evaluation.model_evaluation import MultifileEvaluator
 from ..visualization.plotting import Plotter
 from ..evaluation.metrics import (
-    calculate_metrics, 
-    calculate_metrics_youden, 
+    calculate_metrics,
+    calculate_metrics_youden,
     calculate_metrics_at_target,
     apply_youden_threshold,
     apply_target_threshold
 )
+from ..evaluation.prediction_container import (
+    PredictionContainer,
+    create_prediction_container,
+    from_tuple,
+    convert_models_data_to_containers,
+    convert_containers_to_models_data
+)
+from ..evaluation.threshold_manager import ThresholdManager
+from ..reporting.report_exporter import ReportExporter, MetricsStore
+from ..visualization.plot_manager import PlotManager
+from ..config_schemas import ModelComparisonConfig
 from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_logger, LoggerManager
 
 class ModelComparison:
     """
-    Tool for comparing and evaluating multiple machine learning models
+    Tool for comparing and evaluating multiple machine learning models.
+    
+    Note: Dependencies should be provided via ServiceConfigurator or explicitly.
     """
-    def __init__(self, config):
+    def __init__(
+        self, 
+        config: Union[Dict[str, Any], ModelComparisonConfig],
+        evaluator: MultifileEvaluator,
+        reporter: ReportExporter,
+        threshold_manager: ThresholdManager,
+        plot_manager: PlotManager,
+        metrics_store: MetricsStore,
+        logger: Any,
+    ) -> None:
         """
-        Initialize the model comparison tool
+        Initialize the model comparison tool.
         
         Args:
-            config_path (str): Path to configuration YAML file
+            config: Parsed config dict or validated config object.
+            evaluator: MultifileEvaluator instance (required).
+            reporter: ReportExporter instance (required).
+            threshold_manager: ThresholdManager instance (required).
+            plot_manager: PlotManager instance (required).
+            metrics_store: MetricsStore instance (required).
+            logger: Logger instance (required).
         """
-        self.config = config
+        if isinstance(config, ModelComparisonConfig):
+            self.config = config
+        else:
+            self.config = ModelComparisonConfig(**config)
 
-        # 设置输出目录
-        self.output_dir = self.config.get('output_dir', './results/model_comparison')
+        self.output_dir = self.config.output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         
-        # Initialize logger - check if CLI already configured logging
-        manager = LoggerManager()
-        
-        if manager.get_log_file() is not None:
-            # Logging already configured by CLI, just get module logger
-            self.logger = get_module_logger('model.comparison')
-            self.logger.info("Using existing logging configuration from CLI entry point")
-        else:
-            # Logging not configured yet (e.g., direct class usage)
-            self.logger = setup_logger(
-                name="model.comparison",
-                output_dir=self.output_dir,
-                log_filename='processing.log'
-            )
-        
-        # 初始化评估器
-        self.evaluator = MultifileEvaluator(output_dir=self.output_dir)
-        
-        # 初始化分组数据存储
+        self.evaluator = evaluator
+        self.reporter = reporter
+        self.threshold_manager = threshold_manager
+        self.plot_manager = plot_manager
+        self.metrics_store = metrics_store
+        self.logger = logger
+
         self.split_groups = {}
         self.split_column = None
-        
-        # 用于存储离散预测列的映射
         self.pred_col_mapping = {}
-        
-        # 初始化指标存储字典
-        self.all_metrics = {}
     
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup the tool by reading prediction files and preparing data
         """
         # 配置多个预测文件
-        files_config = self.config.get('files_config', [])
+        files_config = [self._model_to_dict(file_config) for file_config in self.config.files_config]
     
         # 读取所有预测文件并获取split列信息
         split_cols = []
@@ -88,8 +102,8 @@ class ModelComparison:
                     self.pred_col_mapping[model_name] = pred_col
             
             # 获取split配置
-            split_config = self.config.get('split', {})
-            use_split = split_config.get('enabled', False)
+            split_config = self.config.split
+            use_split = split_config.enabled
             
             # 选择要使用的分组列
             # 检查所有split列是否存在于数据中，如果存在则使用第一个
@@ -102,13 +116,13 @@ class ModelComparison:
             if use_split and self.split_column:
                 self._create_split_groups()
     
-    def _add_split_columns(self, files_config, split_cols):
+    def _add_split_columns(self, files_config: List[Dict[str, Any]], split_cols: List[str]) -> None:
         """
         Add split columns from original data to merged data
         
         Args:
-            files_config (list): List of file configurations
-            split_cols (list): List of split column names
+            files_config (List[Dict[str, Any]]): List of file configurations
+            split_cols (List[str]): List of split column names
         """
         # 需要保存的原始数据，包含split列
         original_data_frames = []
@@ -177,7 +191,7 @@ class ModelComparison:
             if existing_split_cols:
                 self.logger.info(f"成功添加split列到合并数据中: {existing_split_cols}")
     
-    def _create_split_groups(self):
+    def _create_split_groups(self) -> None:
         """
         Create data groups based on split column
         """
@@ -198,32 +212,40 @@ class ModelComparison:
             if not group_df.empty:
                 group_models_data = {}
                 
-                for model_name in self.evaluator.models_data.keys():
+                for model_name, data_tuple in self.evaluator.models_data.items():
                     prob_column_name = f"{model_name}_prob"
+                    pred_column_name = f"{model_name}_pred"
                     
                     if prob_column_name in group_df.columns:
-                        group_models_data[model_name] = (
-                            group_df['label'].values,
-                            group_df[prob_column_name].values
-                        )
+                        # Always have true labels and probabilities
+                        y_true = group_df['label'].values
+                        y_pred_proba = group_df[prob_column_name].values
+                        
+                        # Check for prediction labels
+                        if pred_column_name in group_df.columns:
+                            y_pred = group_df[pred_column_name].values
+                            group_models_data[model_name] = (y_true, y_pred_proba, y_pred)
+                        else:
+                            # Fallback to tuple with None for y_pred
+                            group_models_data[model_name] = (y_true, y_pred_proba, None)
                 
                 self.split_groups[dataset_group_name] = group_models_data
     
-    def save_merged_data(self):
+    def save_merged_data(self) -> None:
         """
         Save merged data to a file
         """
-        merged_data_config = self.config.get('merged_data', {})
-        if merged_data_config.get('enabled', True):
-            self.evaluator.save_merged_data(merged_data_config.get('save_name', 'combined_predictions.csv'))
+        merged_data_config = self.config.merged_data
+        if merged_data_config.enabled:
+            self.evaluator.save_merged_data(merged_data_config.save_name)
     
-    def run_evaluation(self):
+    def run_evaluation(self) -> None:
         """
         Run the entire evaluation process
         """
         # 获取split配置
-        split_config = self.config.get('split', {})
-        use_split = split_config.get('enabled', False)
+        split_config = self.config.split
+        use_split = split_config.enabled
         
         # 根据是否有分组分别处理
         if use_split and self.split_column and self.split_groups:
@@ -233,7 +255,7 @@ class ModelComparison:
             # 不分组，处理所有数据
             self._run_evaluation_all_data()
     
-    def _run_evaluation_by_group(self):
+    def _run_evaluation_by_group(self) -> None:
         """
         Run evaluation for each data group
         """
@@ -262,7 +284,7 @@ class ModelComparison:
         # 集中计算所有分组的基本指标并保存
         self._calculate_all_basic_metrics()
     
-    def _run_evaluation_all_data(self):
+    def _run_evaluation_all_data(self) -> None:
         """
         Run evaluation for all data without grouping
         """
@@ -277,64 +299,94 @@ class ModelComparison:
         
         # 计算Youden指数
         self._calculate_youden_metrics()
-        
+
         # 计算目标指标
         self._calculate_target_metrics()
-    
-    def _generate_visualizations(self, plotter, models_data, output_dir, dataset_group_name=None):
+
+    def _convert_models_data_for_plotting(self, models_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Generate visualization plots
-        
+        Convert models_data from tuple format to dict format for plotting.
+
         Args:
-            plotter (Plotter): Plotter object
+            models_data: Dict mapping model_name -> (y_true, y_prob)
+
+        Returns:
+            Dict mapping model_name -> (y_true_array, y_prob_array)
+        """
+        plotting_data = {}
+        for model_name, (y_true, y_prob, *_) in models_data.items():
+            plotting_data[model_name] = (np.array(y_true), np.array(y_prob))
+        return plotting_data
+
+    def _model_to_dict(self, model: Any) -> Dict[str, Any]:
+        """
+        Convert a pydantic model to a plain dict with compatibility for v1/v2.
+
+        Args:
+            model (Any): Pydantic model instance to convert
+
+        Returns:
+            Dict[str, Any]: Serialized model data as a dictionary
+        """
+        if hasattr(model, "model_dump"):
+            return model.model_dump()
+        return model.dict()
+
+    def _generate_visualizations(
+        self,
+        plotter: Plotter,
+        models_data: Dict[str, Any],
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
+        """
+        Generate visualization plots using PlotManager
+
+        Args:
+            plotter (Plotter): Plotter object (kept for backward compatibility)
             models_data (dict): Models data
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for title. Defaults to None.
         """
-        viz_config = self.config.get('visualization', {})
-        
-        # 绘制ROC曲线
-        roc_config = viz_config.get('roc', {})
-        if roc_config.get('enabled', True):
-            save_name = roc_config.get('save_name', 'roc_curves.pdf')
-            title = roc_config.get('title', 'ROC Curves Comparison')
-            if dataset_group_name:
-                title = f"{title} ({dataset_group_name})"
-            plotter.plot_roc_v2(models_data, save_name=save_name, title=title)
-            self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}ROC曲线已保存到 {os.path.join(output_dir, save_name)}")
-        
-        # 绘制决策曲线
-        dca_config = viz_config.get('dca', {})
-        if dca_config.get('enabled', True):
-            save_name = dca_config.get('save_name', 'decision_curves.pdf')
-            title = dca_config.get('title', 'Decision Curve')
-            if dataset_group_name:
-                title = f"{title} ({dataset_group_name})"
-            plotter.plot_dca_v2(models_data, save_name=save_name, title=title)
-            self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}决策曲线已保存到 {os.path.join(output_dir, save_name)}")
-        
-        # 绘制校准曲线
-        cal_config = viz_config.get('calibration', {})
-        if cal_config.get('enabled', True):
-            save_name = cal_config.get('save_name', 'calibration_curves.pdf')
-            title = cal_config.get('title', 'Calibration Curves')
-            if dataset_group_name:
-                title = f"{title} ({dataset_group_name})"
-            n_bins = cal_config.get('n_bins', 10)
-            plotter.plot_calibration_v2(models_data, save_name=save_name, n_bins=n_bins, title=title)
-            self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}校准曲线已保存到 {os.path.join(output_dir, save_name)}")
-        
-        # 绘制精确率-召回率曲线
-        pr_config = viz_config.get('pr_curve', {})
-        if pr_config.get('enabled', True):
-            save_name = pr_config.get('save_name', 'precision_recall_curves.pdf')
-            title = pr_config.get('title', 'Precision-Recall Curves')
-            if dataset_group_name:
-                title = f"{title} ({dataset_group_name})"
-            plotter.plot_pr_curve(models_data, save_name=save_name, title=title)
-            self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}精确率-召回率曲线已保存到 {os.path.join(output_dir, save_name)}")
+        viz_config = self.config.visualization
+
+        plotting_data = self._convert_models_data_for_plotting(models_data)
+
+        title_suffix = f"{dataset_group_name}组 " if dataset_group_name else ""
+        prefix = f"{dataset_group_name}_" if dataset_group_name else ""
+
+        if viz_config.roc.enabled:
+            save_name = viz_config.roc.save_name or f'{prefix}roc_curves.pdf'
+            title = viz_config.roc.title or f'{title_suffix}ROC Curves Comparison'
+            plotter.plot_roc_v2(plotting_data, save_name=save_name, title=title)
+            self.logger.info(f"{title_suffix}ROC曲线已保存到 {os.path.join(output_dir, save_name)}")
+
+        if viz_config.dca.enabled:
+            save_name = viz_config.dca.save_name or f'{prefix}decision_curves.pdf'
+            title = viz_config.dca.title or f'{title_suffix}Decision Curve'
+            plotter.plot_dca_v2(plotting_data, save_name=save_name, title=title)
+            self.logger.info(f"{title_suffix}决策曲线已保存到 {os.path.join(output_dir, save_name)}")
+
+        if viz_config.calibration.enabled:
+            save_name = viz_config.calibration.save_name or f'{prefix}calibration_curves.pdf'
+            title = viz_config.calibration.title or f'{title_suffix}Calibration Curves'
+            n_bins = viz_config.calibration.n_bins or 10
+            plotter.plot_calibration_v2(plotting_data, save_name=save_name, n_bins=n_bins, title=title)
+            self.logger.info(f"{title_suffix}校准曲线已保存到 {os.path.join(output_dir, save_name)}")
+
+        if viz_config.pr_curve.enabled:
+            save_name = viz_config.pr_curve.save_name or f'{prefix}precision_recall_curves.pdf'
+            title = viz_config.pr_curve.title or f'{title_suffix}Precision-Recall Curves'
+            plotter.plot_pr_curve(plotting_data, save_name=save_name, title=title)
+            self.logger.info(f"{title_suffix}精确率-召回率曲线已保存到 {os.path.join(output_dir, save_name)}")
     
-    def _run_delong_test(self, models_data, data_df, output_dir, dataset_group_name=None):
+    def _run_delong_test(
+        self,
+        models_data: Dict[str, Any],
+        data_df: pd.DataFrame,
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
         """
         Run DeLong test for comparing AUCs
         
@@ -344,9 +396,9 @@ class ModelComparison:
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
         """
-        delong_config = self.config.get('delong_test', {})
-        if delong_config.get('enabled', True) and len(models_data) >= 2:
-            save_name = delong_config.get('save_name', 'delong_results.json')
+        delong_config = self.config.delong_test
+        if delong_config.enabled and len(models_data) >= 2:
+            save_name = delong_config.save_name
             
             # 创建临时评估器
             temp_evaluator = MultifileEvaluator(output_dir=output_dir)
@@ -359,435 +411,243 @@ class ModelComparison:
             temp_evaluator.run_delong_test(save_name)
             self.logger.info(f"{dataset_group_name+'组 ' if dataset_group_name else ''}DeLong检验结果已保存到 {os.path.join(output_dir, save_name)}")
     
-    def _calculate_all_basic_metrics(self):
+    def _calculate_all_basic_metrics(self) -> None:
         """
         Calculate and save basic metrics for all datasets in a single file
         """
-        basic_metrics_config = self.config.get('metrics', {}).get('basic_metrics', {})
-        if not basic_metrics_config.get('enabled', False):
+        basic_metrics_config = self.config.metrics.basic_metrics
+        if not basic_metrics_config.enabled:
             return
-            
+
         self.logger.info("开始计算所有数据集的基本指标...")
-        
-        # 为每个数据集计算指标
+
         for dataset_group_name, dataset_models_data in self.split_groups.items():
             self.logger.info(f"计算 {dataset_group_name} 数据集的基本指标...")
             group_df = self.evaluator.data[self.evaluator.data[self.split_column] == dataset_group_name]
-            
-            # 确保该数据集在结果中有条目
-            if dataset_group_name not in self.all_metrics:
-                self.all_metrics[dataset_group_name] = {}
-                
-                # 为每个模型计算metrics
-            for model_name, (y_true, y_pred_proba) in dataset_models_data.items():
-                # 确保该模型在结果中有条目
-                if model_name not in self.all_metrics[dataset_group_name]:
-                    self.all_metrics[dataset_group_name][model_name] = {}
-                    
-                # 处理数据并计算metrics
-                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, group_df, dataset_group_name)
+
+            for model_name, (y_true, y_pred_proba, y_pred) in dataset_models_data.items():
+                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, group_df, dataset_group_name, y_pred)
                 if model_metrics:
-                    self.all_metrics[dataset_group_name][model_name]['basic_metrics'] = model_metrics
-        
+                    self.metrics_store.add_metrics(dataset_group_name, model_name, 'basic_metrics', model_metrics)
+
         self.logger.info("所有数据集的基本指标计算完成")
     
-    def _calculate_basic_metrics(self, models_data: dict, data_df: pd.DataFrame, output_dir: str, dataset_group_name: str = None):
+    def _calculate_basic_metrics(
+        self,
+        models_data: Dict[str, Any],
+        data_df: pd.DataFrame,
+        output_dir: str,
+        dataset_group_name: Optional[str] = None
+    ) -> None:
         """
         Calculate basic metrics for each model
-        
+
         Args:
             models_data (dict): Models data
             data_df (pd.DataFrame): Data DataFrame
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
         """
-        basic_metrics_config = self.config.get('metrics', {}).get('basic_metrics', {})
-        if not basic_metrics_config.get('enabled', False):
+        basic_metrics_config = self.config.metrics.basic_metrics
+        if not basic_metrics_config.enabled:
             self.logger.info("基本指标计算未启用，跳过计算")
             return
-        
+
         self.logger.info("开始计算基本指标...")
-        
-        # 如果是分组评估，将结果添加到分组下
-        if dataset_group_name is not None:
-            # 确保该数据集在结果中有条目
-            if dataset_group_name not in self.all_metrics:
-                self.all_metrics[dataset_group_name] = {}
-                self.logger.info(f"创建新的数据集分组: {dataset_group_name}")
-            
-            # 为每个模型计算metrics
-            for model_name, (y_true, y_pred_proba) in models_data.items():
-                self.logger.info(f"计算模型 {model_name} 的基本指标...")
-                # 确保该模型在结果中有条目
-                if model_name not in self.all_metrics[dataset_group_name]:
-                    self.all_metrics[dataset_group_name][model_name] = {}
-                
-                # 处理数据并计算metrics
-                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, data_df, dataset_group_name)
-                if model_metrics:
-                    self.all_metrics[dataset_group_name][model_name]['basic_metrics'] = model_metrics
-                    self.logger.info(f"模型 {model_name} 的基本指标计算完成")
-                else:
-                    self.logger.warning(f"警告: 模型 {model_name} 的基本指标计算失败")
-            
-            self.logger.info(f"{dataset_group_name}组基本指标计算完成")
-        else:
-            # 如果不是分组评估，创建一个"all"分组
-            if 'all' not in self.all_metrics:
-                self.all_metrics['all'] = {}
-                self.logger.info("创建'all'分组")
-            
-            # 为每个模型计算metrics
-            for model_name, (y_true, y_pred_proba) in models_data.items():
-                self.logger.info(f"计算模型 {model_name} 的基本指标...")
-                # 确保该模型在结果中有条目
-                if model_name not in self.all_metrics['all']:
-                    self.all_metrics['all'][model_name] = {}
-                
-                # 处理数据并计算metrics
-                model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, data_df, dataset_group_name)
-                if model_metrics:
-                    self.all_metrics['all'][model_name]['basic_metrics'] = model_metrics
-                    self.logger.info(f"模型 {model_name} 的基本指标计算完成")
-                else:
-                    self.logger.warning(f"警告: 模型 {model_name} 的基本指标计算失败")
-            
-            self.logger.info("基本指标计算完成")
+        group = dataset_group_name or 'all'
+
+        for model_name, data_tuple in models_data.items():
+            y_true, y_pred_proba, y_pred = data_tuple if len(data_tuple) == 3 else (data_tuple[0], data_tuple[1], None)
+            model_metrics = self._compute_model_metrics(model_name, y_true, y_pred_proba, data_df, dataset_group_name, y_pred)
+            if model_metrics:
+                self.metrics_store.add_metrics(group, model_name, 'basic_metrics', model_metrics)
+                self.logger.info(f"{model_name} 基本指标计算完成")
+            else:
+                self.logger.warning(f"{model_name} 基本指标计算失败")
+
+        self.logger.info(f"{group}组基本指标计算完成")
     
-    def _calculate_youden_metrics(self, dataset_group_name=None):
+    def _calculate_youden_metrics(self, dataset_group_name: Optional[str] = None) -> None:
         """
         Calculate Youden metrics
-        
+
         Args:
             dataset_group_name (str, optional): Split value. Defaults to None.
         """
-        youden_config = self.config.get('metrics', {}).get('youden_metrics', {})
-        if not youden_config.get('enabled', False):
+        youden_config = self.config.metrics.youden_metrics
+        if not youden_config.enabled:
             self.logger.info("Youden指标计算未启用，跳过计算")
             return
-        
+
         self.logger.info("开始计算Youden指标...")
-        
-        # 检查是否有分组
+
         if self.split_column and self.split_groups and dataset_group_name is not None:
             self._calculate_youden_metrics_by_split()
         else:
-            # 不使用分组，在全部数据上计算Youden指数
             self.logger.info("没有启用数据分割，在全部数据上计算Youden指数...")
-            
-            # 确保'all'分组存在
-            if 'all' not in self.all_metrics:
-                self.all_metrics['all'] = {}
-            
-            # 为每个模型计算Youden指标
+
             for model_name, (y_true, y_pred_proba) in self.evaluator.models_data.items():
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
-                
-                if len(temp_df) > 0:
-                    try:
-                        # 调用metrics.py中的calculate_metrics_youden函数
-                        model_metrics = calculate_metrics_youden(
-                            temp_df['y_true'].values,
-                            temp_df['y_pred_proba'].values
-                        )
-                        self.logger.info(f"{model_name} 计算Youden指数，有效样本数: {len(temp_df)}")
-                        
-                        # 确保模型条目存在
-                        if model_name not in self.all_metrics['all']:
-                            self.all_metrics['all'][model_name] = {}
-                        
-                        # 添加Youden指标
-                        self.all_metrics['all'][model_name]['youden_metrics'] = model_metrics
-                        
-                        # 保存阈值信息
-                        if 'threshold' in model_metrics:
-                            if 'thresholds' not in self.all_metrics['all'][model_name]:
-                                self.all_metrics['all'][model_name]['thresholds'] = {}
-                            self.all_metrics['all'][model_name]['thresholds']['youden'] = model_metrics['threshold']
-                    except Exception as e:
-                        self.logger.warning(f"警告: {model_name} 计算Youden指数时出错: {str(e)}")
-                else:
-                    self.logger.warning(f"警告: {model_name} 没有有效的预测数据")
-            
+                try:
+                    container = self._create_prediction_container(y_true, y_pred_proba)
+                    model_metrics = calculate_metrics_youden(container.y_true, container.y_prob)
+                    threshold = model_metrics.get('threshold')
+
+                    self.logger.info(f"{model_name} 计算Youden指数，有效样本数: {len(container.y_true)}")
+
+                    self.metrics_store.add_metrics('all', model_name, 'youden_metrics', model_metrics)
+                    if threshold is not None:
+                        self.metrics_store.add_threshold('all', model_name, 'youden', threshold)
+                except Exception as e:
+                    self.logger.warning(f"{model_name} 计算Youden指数时出错: {str(e)}")
+
             self.logger.info("Youden指标计算完成")
     
-    def _calculate_youden_metrics_by_split(self):
+    def _calculate_youden_metrics_by_split(self) -> None:
         """
-        Calculate Youden metrics for train/test split scenario
+        Calculate Youden metrics for train/test split scenario using ThresholdManager and MetricsStore
         """
+        if 'Training set' not in self.split_groups:
+            self.logger.warning("没有找到训练集数据，跳过Youden指数计算")
+            return
+
         self.logger.info(f"根据 {self.split_column} 分组计算Youden指数...")
-        
-        # 在训练集上确定阈值
-        if 'Training set' in self.split_groups:
-            train_models_data = self.split_groups['Training set']
-            self.logger.info("使用训练集确定Youden指数最优阈值...")
-            
-            # 为每个模型计算Youden指数阈值
-            train_thresholds = {}
-            for model_name, (y_true, y_pred_proba) in train_models_data.items():
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
-                
-                if len(temp_df) > 0:
-                    try:
-                        # 调用metrics.py中的calculate_metrics_youden函数
-                        model_metrics = calculate_metrics_youden(
-                            temp_df['y_true'].values,
-                            temp_df['y_pred_proba'].values
-                        )
-                        self.logger.info(f"{model_name} 训练集计算Youden指数，有效样本数: {len(temp_df)}")
-                        
-                        # 保存每个模型的最优阈值，用于后续应用到测试集
-                        if 'threshold' in model_metrics:
-                            train_thresholds[model_name] = model_metrics['threshold']
-                            self.logger.info(f"模型 {model_name} Youden指数最优阈值: {train_thresholds[model_name]}")
-                            
-                            # 确保train分组存在
-                            if 'Training set' not in self.all_metrics:
-                                self.all_metrics['Training set'] = {}
-                            
-                            # 确保模型条目存在
-                            if model_name not in self.all_metrics['Training set']:
-                                self.all_metrics['Training set'][model_name] = {}
-                            
-                            # 添加Youden指标
-                            self.all_metrics['Training set'][model_name]['youden_metrics'] = model_metrics
-                            
-                            # 保存阈值信息
-                            if 'thresholds' not in self.all_metrics['Training set'][model_name]:
-                                self.all_metrics['Training set'][model_name]['thresholds'] = {}
-                            self.all_metrics['Training set'][model_name]['thresholds']['youden'] = model_metrics['threshold']
-                    except Exception as e:
-                        self.logger.warning(f"警告: {model_name} 计算Youden指数时出错: {str(e)}")
-                else:
-                    self.logger.warning(f"警告: {model_name} 训练集没有有效的预测数据")
-            
-            # 如果找到了阈值，将其应用到所有数据集
-            if train_thresholds:
-                # 将阈值应用到所有数据集
-                for dataset_group_name, dataset_models_data in self.split_groups.items():
-                    self.logger.info(f"将Youden指数最优阈值应用到 {dataset_group_name} 数据集...")
-                    
-                    # 确保该数据集在结果中有条目
-                    if dataset_group_name not in self.all_metrics:
-                        self.all_metrics[dataset_group_name] = {}
-                    
-                    # 为每个模型应用阈值
-                    dataset_metrics_results = self._apply_thresholds_to_test(
-                        dataset_models_data, train_thresholds, 'apply_youden_threshold'
-                    )
-                    
-                    # 将结果添加到all_results中
-                    for model_name, metrics_data in dataset_metrics_results.items():
-                        # 确保该模型在结果中有条目
-                        if model_name not in self.all_metrics[dataset_group_name]:
-                            self.all_metrics[dataset_group_name][model_name] = {}
-                        
-                        # 添加Youden指标结果
-                        self.all_metrics[dataset_group_name][model_name]['youden_metrics'] = metrics_data
-                        # 添加使用的阈值
-                        if model_name in train_thresholds:
-                            if 'thresholds' not in self.all_metrics[dataset_group_name][model_name]:
-                                self.all_metrics[dataset_group_name][model_name]['thresholds'] = {}
-                            self.all_metrics[dataset_group_name][model_name]['thresholds']['youden'] = train_thresholds[model_name]
-                
-                self.logger.info("所有数据集的Youden指数评估完成")
-            else:
-                self.logger.warning("警告: 没有找到任何Youden指数最优阈值，无法评估数据集")
+        train_models_data = self.split_groups['Training set']
+
+        for model_name, (y_true, y_pred_proba) in train_models_data.items():
+            try:
+                container = self._create_prediction_container(y_true, y_pred_proba)
+                self.threshold_manager.find_and_store(model_name, container, method='youden')
+                threshold = self.threshold_manager.get_threshold(model_name, 'youden')
+                model_metrics = calculate_metrics_youden(container.y_true, container.y_prob)
+
+                self.logger.info(f"{model_name} 训练集计算Youden指数，有效样本数: {len(container.y_true)}, 阈值: {threshold:.4f}")
+
+                self.metrics_store.add_metrics('Training set', model_name, 'youden_metrics', model_metrics)
+                self.metrics_store.add_threshold('Training set', model_name, 'youden', threshold)
+            except Exception as e:
+                self.logger.warning(f"{model_name} 计算Youden指数时出错: {str(e)}")
+
+        train_thresholds = {
+            m: self.threshold_manager.get_threshold(m, 'youden')
+            for m in self.threshold_manager.store.keys()
+        }
+
+        if not train_thresholds:
+            self.logger.warning("没有找到任何Youden指数最优阈值")
+            return
+
+        for dataset_group_name, dataset_models_data in self.split_groups.items():
+            self.logger.info(f"将阈值应用到 {dataset_group_name} 数据集...")
+            dataset_results = self._apply_thresholds_to_test(dataset_models_data, train_thresholds, 'apply_youden_threshold')
+
+            for model_name, metrics_data in dataset_results.items():
+                self.metrics_store.add_metrics(dataset_group_name, model_name, 'youden_metrics', metrics_data)
+                if model_name in train_thresholds:
+                    self.metrics_store.add_threshold(dataset_group_name, model_name, 'youden', train_thresholds[model_name])
+
+        self.logger.info("所有数据集的Youden指数评估完成")
     
-    def _calculate_target_metrics(self, dataset_group_name=None):
+    def _calculate_target_metrics(self, dataset_group_name: Optional[str] = None) -> None:
         """
         Calculate metrics based on target sensitivity/specificity
-        
+
         Args:
             dataset_group_name (str, optional): Split value. Defaults to None.
         """
-        target_metrics_config = self.config.get('metrics', {}).get('target_metrics', {})
-        if not target_metrics_config.get('enabled', False):
+        target_metrics_config = self.config.metrics.target_metrics
+        if not target_metrics_config.enabled:
             self.logger.info("目标指标计算未启用，跳过计算")
             return
-        
+
         self.logger.info("开始计算目标指标...")
-        
-        # 检查是否有有效的目标指标配置
-        if not target_metrics_config.get('targets', {}):
-            self.logger.warning("警告: 目标指标配置为空，跳过目标指标计算")
+
+        targets = target_metrics_config.targets
+        if not targets:
+            self.logger.warning("目标指标配置为空，跳过目标指标计算")
             return
-        
-        # 检查是否有分组
+
         if self.split_column and self.split_groups and dataset_group_name is not None:
-            # 这是按组分析的入口点，需要先在训练集确定阈值，再应用到测试集
-            self._calculate_target_metrics_by_split(target_metrics_config.get('targets', {}))
+            self._calculate_target_metrics_by_split(targets)
         else:
-            # 不使用分组，在全部数据上计算目标指标
             self.logger.info("没有启用数据分割，在全部数据上计算目标指标阈值...")
-            
-            # 确保'all'分组存在
-            if 'all' not in self.all_metrics:
-                self.all_metrics['all'] = {}
-            
-            # 为每个模型计算目标指标
+
             for model_name, (y_true, y_pred_proba) in self.evaluator.models_data.items():
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
-                
-                if len(temp_df) > 0:
-                    try:
-                        # 调用metrics.py中的calculate_metrics_at_target函数
-                        model_metrics = calculate_metrics_at_target(
-                            temp_df['y_true'].values,
-                            temp_df['y_pred_proba'].values,
-                            target_metrics_config.get('targets', {})
-                        )
-                        self.logger.info(f"{model_name} 计算目标指标，有效样本数: {len(temp_df)}")
-                        
-                        # 确保模型条目存在
-                        if model_name not in self.all_metrics['all']:
-                            self.all_metrics['all'][model_name] = {}
-                        
-                        # 添加目标指标
-                        self.all_metrics['all'][model_name]['target_metrics'] = model_metrics
-                        
-                        # 保存阈值信息
-                        if 'combined_results' in model_metrics:
-                            combined_key = ' & '.join(target_metrics_config.get('targets', {}).keys())
-                            if combined_key in model_metrics['combined_results']:
-                                combined_thresholds = model_metrics['combined_results'][combined_key]
-                                if combined_thresholds:
-                                    first_threshold_key = next(iter(combined_thresholds))
-                                    target_threshold = float(first_threshold_key)
-                                    
-                                    if 'thresholds' not in self.all_metrics['all'][model_name]:
-                                        self.all_metrics['all'][model_name]['thresholds'] = {}
-                                    self.all_metrics['all'][model_name]['thresholds']['target'] = target_threshold
-                    except Exception as e:
-                        self.logger.warning(f"警告: {model_name} 计算目标指标时出错: {str(e)}")
-                else:
-                    self.logger.warning(f"警告: {model_name} 没有有效的预测数据")
-            
+                try:
+                    container = self._create_prediction_container(y_true, y_pred_proba)
+                    model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
+
+                    self.logger.info(f"{model_name} 计算目标指标，有效样本数: {len(container.y_true)}")
+
+                    self.metrics_store.add_metrics('all', model_name, 'target_metrics', model_metrics)
+
+                    combined_key = ' & '.join(targets.keys())
+                    if 'combined_results' in model_metrics and combined_key in model_metrics['combined_results']:
+                        combined_thresholds = model_metrics['combined_results'][combined_key]
+                        if combined_thresholds:
+                            first_threshold_key = next(iter(combined_thresholds))
+                            target_threshold = float(first_threshold_key)
+                            self.metrics_store.add_threshold('all', model_name, 'target', target_threshold)
+                except Exception as e:
+                    self.logger.warning(f"{model_name} 计算目标指标时出错: {str(e)}")
+
             self.logger.info("目标指标计算完成")
     
-    def _calculate_target_metrics_by_split(self, targets):
+    def _calculate_target_metrics_by_split(self, targets: Dict[str, float]) -> None:
         """
         Calculate target metrics for train/test split scenario
-        
+
         Args:
             targets (dict): Target metrics
         """
+        if 'Training set' not in self.split_groups:
+            self.logger.warning("没有找到训练集数据，跳过目标指标计算")
+            return
+
         self.logger.info(f"根据 {self.split_column} 分组计算目标指标阈值...")
-        
-        # 在训练集上确定阈值
-        if 'Training set' in self.split_groups:
-            train_models_data = self.split_groups['Training set']
-            self.logger.info("使用训练集确定目标指标阈值...")
-            
-            # 为训练集计算目标指标
-            train_thresholds = {}
-            
-            for model_name, (y_true, y_pred_proba) in train_models_data.items():
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
-                
-                if len(temp_df) > 0:
-                    try:
-                        # 计算目标指标
-                        model_metrics = calculate_metrics_at_target(
-                            temp_df['y_true'].values,
-                            temp_df['y_pred_proba'].values,
-                            targets
-                        )
-                        self.logger.info(f"{model_name} 训练集计算目标指标，有效样本数: {len(temp_df)}")
-                        
-                        # 确保train分组存在
-                        if 'Training set' not in self.all_metrics:
-                            self.all_metrics['Training set'] = {}
-                        
-                        # 确保模型条目存在
-                        if model_name not in self.all_metrics['Training set']:
-                            self.all_metrics['Training set'][model_name] = {}
-                        
-                        # 添加目标指标
-                        self.all_metrics['Training set'][model_name]['target_metrics'] = model_metrics
-                        
-                        # 检查是否有同时满足所有目标的阈值
-                        combined_key = ' & '.join(targets.keys())
-                        if 'combined_results' in model_metrics and combined_key in model_metrics['combined_results']:
-                            # 找到第一个同时满足所有目标的阈值
-                            combined_thresholds = model_metrics['combined_results'][combined_key]
-                            if combined_thresholds:
-                                # 获取第一个阈值
-                                first_threshold_key = next(iter(combined_thresholds))
-                                train_thresholds[model_name] = float(first_threshold_key)
-                                self.logger.info(f"模型 {model_name} 同时满足所有目标的阈值: {train_thresholds[model_name]}")
-                                
-                                # 保存阈值信息
-                                if 'thresholds' not in self.all_metrics['Training set'][model_name]:
-                                    self.all_metrics['Training set'][model_name]['thresholds'] = {}
-                                self.all_metrics['Training set'][model_name]['thresholds']['target'] = train_thresholds[model_name]
-                            else:
-                                self.logger.warning(f"警告: {model_name} 没有找到同时满足所有目标的阈值")
-                        else:
-                            self.logger.warning(f"警告: {model_name} 没有找到同时满足所有目标的阈值")
-                    except Exception as e:
-                        self.logger.warning(f"警告: {model_name} 计算目标指标时出错: {str(e)}")
-                else:
-                    self.logger.warning(f"警告: {model_name} 训练集没有有效的预测数据")
-            
-            # 如果找到了阈值，将其应用到所有数据集
-            if train_thresholds:
-                # 将阈值应用到所有数据集
-                for dataset_group_name, dataset_models_data in self.split_groups.items():
-                    self.logger.info(f"将目标指标阈值应用到 {dataset_group_name} 数据集...")
-                    
-                    # 确保该数据集在结果中有条目
-                    if dataset_group_name not in self.all_metrics:
-                        self.all_metrics[dataset_group_name] = {}
-                    
-                    # 为每个模型应用阈值
-                    dataset_metrics_results = self._apply_thresholds_to_test(
-                        dataset_models_data, train_thresholds, 'apply_target_threshold'
-                    )
-                    
-                    # 将结果添加到all_metrics中
-                    for model_name, metrics_data in dataset_metrics_results.items():
-                        # 确保该模型在结果中有条目
-                        if model_name not in self.all_metrics[dataset_group_name]:
-                            self.all_metrics[dataset_group_name][model_name] = {}
-                        
-                        # 添加目标指标结果
-                        self.all_metrics[dataset_group_name][model_name]['target_metrics'] = metrics_data
-                        # 添加使用的阈值
-                        if model_name in train_thresholds:
-                            if 'thresholds' not in self.all_metrics[dataset_group_name][model_name]:
-                                self.all_metrics[dataset_group_name][model_name]['thresholds'] = {}
-                            self.all_metrics[dataset_group_name][model_name]['thresholds']['target'] = train_thresholds[model_name]
-                
-                self.logger.info("所有数据集的目标指标评估完成")
-            else:
-                self.logger.warning("警告: 没有找到任何同时满足所有目标的阈值，无法评估数据集")
-    
-    def _apply_thresholds_to_test(self, test_models_data, train_thresholds, apply_function_name):
+        train_models_data = self.split_groups['Training set']
+        train_thresholds = {}
+        combined_key = ' & '.join(targets.keys())
+
+        for model_name, (y_true, y_pred_proba) in train_models_data.items():
+            try:
+                container = self._create_prediction_container(y_true, y_pred_proba)
+                model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
+
+                self.logger.info(f"{model_name} 训练集计算目标指标，有效样本数: {len(container.y_true)}")
+
+                self.metrics_store.add_metrics('Training set', model_name, 'target_metrics', model_metrics)
+
+                if 'combined_results' in model_metrics and combined_key in model_metrics['combined_results']:
+                    combined_thresholds = model_metrics['combined_results'][combined_key]
+                    if combined_thresholds:
+                        first_threshold_key = next(iter(combined_thresholds))
+                        train_thresholds[model_name] = float(first_threshold_key)
+                        self.metrics_store.add_threshold('Training set', model_name, 'target', train_thresholds[model_name])
+                        self.logger.info(f"{model_name} 同时满足所有目标的阈值: {train_thresholds[model_name]:.4f}")
+            except Exception as e:
+                self.logger.warning(f"{model_name} 计算目标指标时出错: {str(e)}")
+
+        if not train_thresholds:
+            self.logger.warning("没有找到任何同时满足所有目标的阈值")
+            return
+
+        for dataset_group_name, dataset_models_data in self.split_groups.items():
+            self.logger.info(f"将目标阈值应用到 {dataset_group_name} 数据集...")
+            dataset_results = self._apply_thresholds_to_test(dataset_models_data, train_thresholds, 'apply_target_threshold')
+
+            for model_name, metrics_data in dataset_results.items():
+                self.metrics_store.add_metrics(dataset_group_name, model_name, 'target_metrics', metrics_data)
+                if model_name in train_thresholds:
+                    self.metrics_store.add_threshold(dataset_group_name, model_name, 'target', train_thresholds[model_name])
+
+        self.logger.info("所有数据集的目标指标评估完成")
+
+    def _apply_thresholds_to_test(
+        self,
+        test_models_data: Dict[str, Any],
+        train_thresholds: Dict[str, float],
+        apply_function_name: str
+    ) -> Dict[str, Any]:
         """
         Apply thresholds from training set to test set
         
@@ -804,15 +664,10 @@ class ModelComparison:
         for model_name, (y_true, y_pred_proba) in test_models_data.items():
             # 检查是否有该模型的训练集阈值
             if model_name in train_thresholds:
-                # 创建DataFrame以便处理可能的NaN值
-                temp_df = pd.DataFrame({
-                    'y_true': y_true,
-                    'y_pred_proba': y_pred_proba
-                })
-                # 删除任何包含NaN的行
-                temp_df = temp_df.dropna()
+                # Clean data using PredictionContainer
+                container = create_prediction_container(y_true, y_pred_proba)
                 
-                if len(temp_df) > 0:
+                if len(container) > 0:
                     # 使用训练集确定的阈值评估测试集
                     threshold = train_thresholds[model_name]
                     
@@ -820,21 +675,21 @@ class ModelComparison:
                         # 根据函数名动态选择应用阈值的函数
                         if apply_function_name == 'apply_youden_threshold':
                             test_metrics = apply_youden_threshold(
-                                temp_df['y_true'].values,
-                                temp_df['y_pred_proba'].values,
+                                container.y_true,
+                                container.get_eval_probs(),
                                 threshold
                             )
                         elif apply_function_name == 'apply_target_threshold':
                             test_metrics = apply_target_threshold(
-                                temp_df['y_true'].values,
-                                temp_df['y_pred_proba'].values,
+                                container.y_true,
+                                container.get_eval_probs(),
                                 threshold
                             )
                         else:
                             raise ValueError(f"未知的应用阈值函数: {apply_function_name}")
                         
                         test_results[model_name] = test_metrics
-                        self.logger.info(f"{model_name} 测试集应用训练集阈值评估完成，有效样本数: {len(temp_df)}")
+                        self.logger.info(f"{model_name} 测试集应用训练集阈值评估完成，有效样本数: {len(container)}")
                     except Exception as e:
                         self.logger.warning(f"警告: {model_name} 测试集应用阈值时出错: {str(e)}")
                 else:
@@ -844,112 +699,89 @@ class ModelComparison:
         
         return test_results
 
-    def _compute_model_metrics(self, model_name: str, y_true: np.ndarray, y_pred_proba: np.ndarray, 
-                             data_df: pd.DataFrame, dataset_group_name: str = None) -> dict:
+    def _create_prediction_container(self, y_true: np.ndarray, y_pred_proba: np.ndarray) -> PredictionContainer:
+        """
+        Create a PredictionContainer from raw arrays, handling NaN values.
+
+        Args:
+            y_true: True labels array
+            y_pred_proba: Predicted probabilities array
+
+        Returns:
+            PredictionContainer instance
+        """
+        return create_prediction_container(y_true, y_pred_proba)
+
+    def _compute_model_metrics(self, model_name: str, y_true: np.ndarray, y_pred_proba: np.ndarray,
+                             data_df: pd.DataFrame, dataset_group_name: str = None, y_pred: np.ndarray = None) -> dict:
         """
         Compute basic metrics for a single model
-        
+
         Args:
             model_name (str): Name of the model
             y_true (np.ndarray): True labels
             y_pred_proba (np.ndarray): Predicted probabilities
             data_df (pd.DataFrame): Data DataFrame
             dataset_group_name (str, optional): Split value for logging. Defaults to None.
-            
+            y_pred (np.ndarray, optional): Predicted labels. If None, will be generated from probabilities.
+
         Returns:
             dict: Dictionary containing basic metrics
         """
         try:
-            # Create a temporary DataFrame to handle NaN values
-            temp_df = pd.DataFrame({
-                'y_true': y_true,
-                'y_pred_proba': y_pred_proba
-            })
-            # Remove any rows containing NaN
-            temp_df = temp_df.dropna()
+            container = create_prediction_container(y_true, y_pred_proba, y_pred)
             
-            if len(temp_df) > 0:
-                # Calculate basic metrics using the metrics module
-                # 确保y_true和y_pred_proba都是numpy数组
-                y_true_array = temp_df['y_true'].values
-                y_pred_proba_array = temp_df['y_pred_proba'].values
-                
-                # 计算预测标签（使用0.5作为阈值）
-                y_pred_array = (y_pred_proba_array >= 0.5).astype(int)
-                
-                # 打印调试信息
-                self.logger.debug(f"调试信息 - {model_name}:")
-                self.logger.debug(f"y_true shape: {y_true_array.shape}")
-                self.logger.debug(f"y_pred_proba shape: {y_pred_proba_array.shape}")
-                self.logger.debug(f"y_pred shape: {y_pred_array.shape}")
-                self.logger.debug(f"y_true unique values: {np.unique(y_true_array)}")
-                self.logger.debug(f"y_pred unique values: {np.unique(y_pred_array)}")
-                self.logger.debug(f"y_pred_proba range: [{np.min(y_pred_proba_array)}, {np.max(y_pred_proba_array)}]")
-                
-                metrics = calculate_metrics(
-                    y_true=y_true_array,
-                    y_pred_proba=y_pred_proba_array,
-                    y_pred=y_pred_array
-                )
-                
-                self.logger.info(f"{model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标，有效样本数: {len(temp_df)}")
-                return metrics
-            else:
+            if len(container) == 0:
                 self.logger.warning(f"警告: {model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}没有有效的预测数据")
                 return None
+            
+            # Use provided prediction labels if available, otherwise compute from probability
+            if y_pred is not None:
+                self.logger.debug(f"Using provided prediction labels for model '{model_name}'.")
+            else:
+                self.logger.warning(
+                    f"Prediction labels for model '{model_name}' not found. "
+                    f"Falling back to generating labels from probabilities using a 0.5 threshold. "
+                    f"This may not accurately reflect of model's original predictions."
+                )
+            
+            # 打印调试信息
+            self.logger.debug(f"调试信息 - {model_name}:")
+            self.logger.debug(f"y_true shape: {container.y_true.shape}")
+            self.logger.debug(f"y_pred_proba shape: {container.get_eval_probs().shape}")
+            self.logger.debug(f"y_pred shape: {container.y_pred.shape}")
+            self.logger.debug(f"y_true unique values: {np.unique(container.y_true)}")
+            self.logger.debug(f"y_pred unique values: {np.unique(container.y_pred)}")
+            self.logger.debug(f"y_pred_proba range: [{np.min(container.get_eval_probs())}, {np.max(container.get_eval_probs())}]")
+            
+            metrics = calculate_metrics(
+                y_true=container.y_true,
+                y_pred_proba=container.get_eval_probs(),
+                y_pred=container.y_pred
+            )
+            
+            self.logger.info(f"{model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标，有效样本数: {len(container)}")
+            return metrics
                 
         except Exception as e:
             self.logger.warning(f"警告: {model_name} {'(' + dataset_group_name + '组) ' if dataset_group_name else ''}计算基本指标时出错: {str(e)}")
             return None
 
-    def save_all_metrics(self):
+    def save_all_metrics(self) -> None:
         """
         Save all metrics to a single JSON file
         """
-        # 创建metrics目录
-        metrics_dir = os.path.join(self.output_dir, 'metrics')
-        os.makedirs(metrics_dir, exist_ok=True)
-        
-        # 设置保存路径
-        save_path = os.path.join(metrics_dir, 'metrics.json')
-        
-        # 如果文件已存在，先加载它
-        if os.path.exists(save_path):
-            try:
-                with open(save_path, 'r', encoding='utf-8') as f:
-                    existing_metrics = json.load(f)
-                # 合并现有指标和新计算的指标
-                for group_key in self.all_metrics:
-                    if group_key in existing_metrics:
-                        for model_key in self.all_metrics[group_key]:
-                            if model_key in existing_metrics[group_key]:
-                                existing_metrics[group_key][model_key].update(self.all_metrics[group_key][model_key])
-                            else:
-                                existing_metrics[group_key][model_key] = self.all_metrics[group_key][model_key]
-                    else:
-                        existing_metrics[group_key] = self.all_metrics[group_key]
-                # 更新本地指标字典
-                self.all_metrics = existing_metrics
-            except Exception as e:
-                self.logger.warning(f"警告: 无法读取现有metrics文件: {str(e)}")
-        
-        # 保存结果
-        try:
-            with open(save_path, 'w', encoding='utf-8') as f:
-                json.dump(self.all_metrics, f, indent=4)
-            self.logger.info(f"所有指标已保存到 {save_path}")
-            
-            # 打印结果统计
-            self.logger.info(f"保存的指标分组数量: {len(self.all_metrics)}")
-            for key, value in self.all_metrics.items():
-                self.logger.info(f"分组 {key} 中的模型数量: {len(value)}")
-                for model_name, metrics in value.items():
-                    metric_types = list(metrics.keys())
-                    self.logger.info(f"  模型 {model_name} 的指标类型: {', '.join(metric_types)}")
-        except Exception as e:
-            self.logger.error(f"保存指标时出错: {str(e)}")
+        all_metrics = self.metrics_store.get()
+        self.reporter.merge_and_save_metrics(all_metrics)
 
-    def run(self):    
+        self.logger.info(f"保存的指标分组数量: {len(all_metrics)}")
+        for key, value in all_metrics.items():
+            self.logger.info(f"  分组 {key} 中的模型数量: {len(value)}")
+            for model_name, metrics in value.items():
+                metric_types = list(metrics.keys())
+                self.logger.info(f"  模型 {model_name} 的指标类型: {', '.join(metric_types)}")
+
+    def run(self) -> None:    
         
         # 读取和准备数据
         self.setup()

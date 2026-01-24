@@ -12,14 +12,14 @@ from typing import List, Optional, Tuple, Dict, Any
 
 from habit.utils.io_utils import save_habitat_image
 from habit.utils.parallel_utils import parallel_map
-from ..config import HabitatConfig, ResultColumns
+from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 
 class ResultManager:
     """
     Manages result storage and output for habitat analysis.
     """
     
-    def __init__(self, config: HabitatConfig, logger: logging.Logger):
+    def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
         Initialize ResultManager.
         
@@ -73,7 +73,7 @@ class ResultManager:
         supervoxel_img.CopyInformation(mask_info['mask'])
         
         output_path = os.path.join(
-            self.config.io.out_folder, f"{subject}_supervoxel.nrrd"
+            self.config.out_dir, f"{subject}_supervoxel.nrrd"
         )
         sitk.WriteImage(supervoxel_img, output_path)
 
@@ -102,10 +102,10 @@ class ResultManager:
             # Here we assume self.results_df is available in the instance state.
             
             supervoxel_path = os.path.join(
-                self.config.io.out_folder, f"{subject}_supervoxel.nrrd"
+                self.config.out_dir, f"{subject}_supervoxel.nrrd"
             )
             save_habitat_image(
-                subject, self.results_df, supervoxel_path, self.config.io.out_folder
+                subject, self.results_df, supervoxel_path, self.config.out_dir
             )
             return subject, None
         except Exception as e:
@@ -113,6 +113,13 @@ class ResultManager:
 
     def save_all_habitat_images(self, failed_subjects: List[str]) -> None:
         """Save habitat images for all successfully processed subjects."""
+        # Determine if we have supervoxel mapping or direct voxel results
+        is_voxel_level = 'VoxelIndex' in self.results_df.columns or ResultColumns.SUPERVOXEL not in self.results_df.columns
+        
+        if is_voxel_level:
+            self._save_all_voxel_habitat_images(failed_subjects)
+            return
+
         # Set Subject as index for save function if not already
         if ResultColumns.SUBJECT in self.results_df.columns:
             self.results_df.set_index(ResultColumns.SUBJECT, inplace=True)
@@ -120,13 +127,13 @@ class ResultManager:
         # Get unique subjects
         subjects_to_save = list(set(self.results_df.index))
         
-        if self.config.runtime.verbose:
+        if self.config.verbose:
             self.logger.info(f"Saving habitat images for {len(subjects_to_save)} subjects...")
         
         results, failed = parallel_map(
             func=self.save_habitat_for_subject,
             items=subjects_to_save,
-            n_processes=self.config.runtime.n_processes,
+            n_processes=self.config.processes,
             desc="Saving habitat images",
             logger=self.logger,
             show_progress=True,
@@ -134,7 +141,85 @@ class ResultManager:
             log_level=self._log_level,
         )
         
-        if failed and self.config.runtime.verbose:
+        if failed and self.config.verbose:
             self.logger.warning(
                 f"Failed to save habitat images for {len(failed)} subject(s)"
             )
+
+    def _save_all_voxel_habitat_images(self, failed_subjects: List[str]) -> None:
+        """Save habitat images for voxel-level results (direct pooling)."""
+        subjects = self.results_df[ResultColumns.SUBJECT].unique()
+        
+        if self.config.verbose:
+            self.logger.info(f"Saving voxel-level habitat images for {len(subjects)} subjects...")
+
+        for subject in subjects:
+            if subject in failed_subjects:
+                continue
+            
+            # Get labels for this subject
+            subject_df = self.results_df[self.results_df[ResultColumns.SUBJECT] == subject]
+            labels = subject_df[ResultColumns.HABITATS].values
+            
+            # Get mask info
+            mask_info = None
+            if hasattr(self, 'mask_info_cache') and subject in self.mask_info_cache:
+                mask_info = self.mask_info_cache[subject]
+            else:
+                # Fallback: try to load mask info if not cached (should not happen if using pipeline)
+                self.logger.warning(f"Mask info for {subject} not found in cache, skipping image saving")
+                continue
+                
+            if mask_info:
+                self._save_direct_habitat_image(subject, labels, mask_info)
+
+    def _save_direct_habitat_image(
+        self,
+        subject: str,
+        labels: np.ndarray,
+        mask_info: Dict[str, Any]
+    ) -> None:
+        """
+        Save habitat image for a single subject using voxel-level labels.
+        """
+        mask_array = mask_info["mask_array"]
+        mask_indices = mask_array > 0
+        
+        if np.sum(mask_indices) != len(labels):
+            self.logger.warning(
+                f"Subject {subject}: voxel count mismatch "
+                f"(mask voxels={np.sum(mask_indices)}, labels={len(labels)})"
+            )
+            # Adjust labels length if mismatch
+            if len(labels) > np.sum(mask_indices):
+                labels = labels[:np.sum(mask_indices)]
+            else:
+                # Pad with zeros
+                new_labels = np.zeros(np.sum(mask_indices))
+                new_labels[:len(labels)] = labels
+                labels = new_labels
+
+        habitat_map = np.zeros_like(mask_array)
+        habitat_map[mask_indices] = labels
+
+        habitat_img = sitk.GetImageFromArray(habitat_map)
+        habitat_img.CopyInformation(mask_info["mask"])
+
+        output_path = os.path.join(self.config.out_dir, f"{subject}_habitats.nrrd")
+        sitk.WriteImage(habitat_img, output_path)
+
+    def save_habitat_image_from_voxels(
+        self,
+        subject: str,
+        labels: np.ndarray,
+        mask_info: Dict[str, Any]
+    ) -> None:
+        """
+        Save habitat image directly from voxel-level labels.
+
+        Args:
+            subject: Subject ID
+            labels: Voxel-level habitat labels (1-indexed)
+            mask_info: Mask metadata for reconstruction
+        """
+        self._save_direct_habitat_image(subject, labels, mask_info)

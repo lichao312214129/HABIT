@@ -7,40 +7,33 @@ import sys
 import os
 import logging
 import click
-import pandas as pd
 from pathlib import Path
 
+from habit.core.machine_learning.config_schemas import MLConfig, PredictionConfig
+from habit.utils.log_utils import setup_logger
 
-def run_ml(config_path: str, mode: str, model: str, data: str, 
-           output: str, model_name: str, evaluate: bool) -> None:
+def run_ml(config_path: str, mode: str) -> None:
     """
     Run machine learning pipeline (training or prediction)
     
     Args:
         config_path (str): Path to configuration YAML file
         mode (str): Operation mode ('train' or 'predict')
-        model (str): Path to model package file for prediction
-        data (str): Path to data file for prediction
-        output (str): Path to save prediction results
-        model_name (str): Name of specific model to use
-        evaluate (bool): Whether to evaluate model performance
     """
-    from habit.core.machine_learning.workflows.holdout_workflow import MachineLearningWorkflow
-    from habit.utils.config_utils import load_config
-    from habit.utils.log_utils import setup_logger
+    from habit.core.common.service_configurator import ServiceConfigurator
     
     # Training mode
     if mode == 'train':
-        # Load YAML config file
+        # Load and validate configuration
         try:
-            config = load_config(config_path)
-            click.echo(f"Loaded config file: {config_path}")
+            config = MLConfig.from_file(config_path)
+            click.echo(f"Loaded configuration from: {config_path}")
         except Exception as e:
-            click.echo(f"Error: Failed to load config file: {e}", err=True)
+            click.echo(f"Error: Failed to load configuration: {e}", err=True)
             sys.exit(1)
         
         # Create output directory
-        output_dir = Path(config['output'])
+        output_dir = Path(config.output)
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Setup logging at CLI entry point
@@ -51,10 +44,19 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
             level=logging.INFO
         )
         logger.info(f"Starting machine learning training with config: {config_path}")
+        # Pydantic v2/v1 compat
+        cfg_dump = config.model_dump() if hasattr(config, 'model_dump') else config.dict()
+        logger.info(f"Full configuration: {cfg_dump}")
         
-        # Initialize modeling class with config
+        # Initialize service using ServiceConfigurator
         click.echo("Initializing machine learning pipeline...")
-        model_obj = MachineLearningWorkflow(config)
+        try:
+            configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+            model_obj = configurator.create_ml_workflow()
+        except Exception as e:
+            logger.error(f"Failed to initialize service: {e}", exc_info=True)
+            click.echo(f"Error: Failed to initialize service: {e}", err=True)
+            sys.exit(1)
         
         # Run modeling pipeline
         click.echo("Starting training pipeline...")
@@ -64,57 +66,37 @@ def run_ml(config_path: str, mode: str, model: str, data: str,
     
     # Prediction mode
     elif mode == 'predict':
-        # Check required arguments
-        if not model:
-            click.echo("Error: --model argument is required for prediction mode", err=True)
-            sys.exit(1)
-        if not data:
-            click.echo("Error: --data argument is required for prediction mode", err=True)
+        # Load Prediction Config from file (Consistent with Train mode)
+        try:
+            config = PredictionConfig.from_file(config_path)
+            click.echo(f"Loaded prediction configuration from: {config_path}")
+        except Exception as e:
+            click.echo(f"Error: Failed to load configuration: {e}", err=True)
             sys.exit(1)
         
-        # Setup logging for prediction mode
-        output_dir = Path(output) if output else Path('.')
+        # Setup logging
+        output_dir = Path(config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
+        
         logger = setup_logger(
             name='cli.ml.predict',
             output_dir=output_dir,
             log_filename='prediction.log',
             level=logging.INFO
         )
+        logger.info(f"Starting prediction with config: {config_path}")
         
         try:
-            import joblib
-            # Load data
-            new_data = pd.read_csv(data)
-            logger.info(f"Loaded data from {data}: {new_data.shape[0]} rows, {new_data.shape[1]} columns")
-            click.echo(f"Loaded data from {data}: {new_data.shape[0]} rows, {new_data.shape[1]} columns")
+            # Use ServiceConfigurator for unified workflow
+            configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+            workflow = configurator.create_prediction_workflow()
+            workflow.run_pipeline()
             
-            # Make predictions
-            click.echo(f"Loading pipeline from {model}...")
-            pipeline = joblib.load(model)
-            
-            click.echo("Making predictions...")
-            # Predict probabilities
-            probs = pipeline.predict_proba(new_data)
-            if probs.ndim > 1:
-                probs = probs[:, 1]
-            
-            # Predict labels
-            preds = pipeline.predict(new_data)
-            
-            # Combine results
-            results = new_data.copy()
-            results['predicted_label'] = preds
-            results['predicted_probability'] = probs
-            
-            # Save results
-            output_path = os.path.join(output, 'prediction_results.csv') if output else 'prediction_results.csv'
-            results.to_csv(output_path, index=False)
-            click.echo(f"Saved prediction results to {output_path}")
             click.secho("✓ Prediction completed successfully!", fg='green')
             
         except Exception as e:
             click.echo(f"Error during prediction: {e}", err=True)
+            logger.error(f"Prediction failed: {e}", exc_info=True)
             sys.exit(1)
 
 
@@ -125,9 +107,9 @@ def run_kfold(config_file: str) -> None:
     Args:
         config_file (str): Path to configuration YAML file
     """
-    from habit.utils.config_utils import load_config
+    from habit.core.machine_learning.config_schemas import MLConfig
+    from habit.core.common.service_configurator import ServiceConfigurator
     from habit.utils.log_utils import setup_logger
-    from habit.core.machine_learning.workflows.kfold_workflow import MachineLearningKFoldWorkflow
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
@@ -138,13 +120,20 @@ def run_kfold(config_file: str) -> None:
         click.echo(f"Error: Configuration file not found: {config_file}", err=True)
         sys.exit(1)
     
-    # Load config to get output directory
+    # Load and validate configuration
     try:
-        config = load_config(config_file)
-        output_dir = Path(config.get('output', '.'))
-        output_dir.mkdir(parents=True, exist_ok=True)
+        config = MLConfig.from_file(config_file)
+        click.echo(f"Loaded configuration from: {config_file}")
     except Exception as e:
         click.echo(f"Error: Failed to load configuration: {e}", err=True)
+        sys.exit(1)
+    
+    # Create output directory
+    try:
+        output_dir = Path(config.output)
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        click.echo(f"Error: Failed to create output directory: {e}", err=True)
         sys.exit(1)
     
     # Setup logging at CLI entry point
@@ -156,11 +145,14 @@ def run_kfold(config_file: str) -> None:
     )
     
     logger.info(f"Starting K-fold cross-validation with config: {config_file}")
+    logger.info(f"Full configuration: {config.model_dump() if hasattr(config, 'model_dump') else config.dict()}")
     click.echo(f"Starting K-fold cross-validation with config: {config_file}")
     
     try:
+        # Initialize service using ServiceConfigurator
         click.echo("Initializing machine learning pipeline...")
-        model_obj = MachineLearningKFoldWorkflow(config)
+        configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+        model_obj = configurator.create_kfold_workflow()
         model_obj.run_pipeline()
         logger.info("K-fold cross-validation completed successfully")
         click.secho("✓ K-fold cross-validation completed successfully!", fg='green')

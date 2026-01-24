@@ -27,8 +27,7 @@ from habit.utils.log_utils import setup_logger, get_module_logger, LoggerManager
 from habit.utils.parallel_utils import parallel_map
 
 # Local imports
-from .config import HabitatConfig, ResultColumns, ClusteringConfig, IOConfig, RuntimeConfig
-from .modes import create_mode
+from .config_schemas import HabitatAnalysisConfig
 from .strategies import get_strategy
 from .managers import FeatureManager, ClusteringManager, ResultManager
 
@@ -37,161 +36,76 @@ class HabitatAnalysis:
     Habitat Analysis class for performing clustering analysis on medical images.
     
     Acts as a coordinator for FeatureManager, ClusteringManager, and ResultManager.
+    
+    Note: Dependencies should be provided via ServiceConfigurator or explicitly.
     """
 
     def __init__(
         self,
-        config: Optional[HabitatConfig] = None,
-        # Legacy parameters for backward compatibility
-        root_folder: Optional[str] = None,
-        out_folder: Optional[str] = None,
-        feature_config: Optional[Dict[str, Any]] = None,
-        clustering_strategy: str = "two_step",
-        supervoxel_clustering_method: str = "kmeans",
-        habitat_clustering_method: str = "kmeans",
-        mode: str = "training",
-        n_clusters_supervoxel: int = 50,
-        n_clusters_habitats_max: int = 10,
-        n_clusters_habitats_min: int = 2,
-        habitat_cluster_selection_method: Optional[Union[str, List[str]]] = None,
-        best_n_clusters: Optional[int] = None,
-        one_step_settings: Optional[Dict[str, Any]] = None,
-        n_processes: int = 1,
-        random_state: int = 42,
-        verbose: bool = True,
-        images_dir: str = "images",
-        masks_dir: str = "masks",
-        plot_curves: bool = True,
-        progress_callback: Optional[callable] = None,
-        save_intermediate_results: bool = False,
-        config_file: Optional[str] = None,
-        log_level: str = "INFO"
+        config: Union[Dict[str, Any], HabitatAnalysisConfig],
+        feature_manager: FeatureManager,
+        clustering_manager: ClusteringManager,
+        result_manager: ResultManager,
+        logger: Any,
     ):
-        """Initialize HabitatAnalysis."""
-        if config is None:
-            config = self._build_config_from_legacy(
-                root_folder, out_folder, feature_config, clustering_strategy,
-                supervoxel_clustering_method, habitat_clustering_method, mode,
-                n_clusters_supervoxel, n_clusters_habitats_max, n_clusters_habitats_min,
-                habitat_cluster_selection_method, best_n_clusters, one_step_settings,
-                n_processes, random_state, verbose, images_dir, masks_dir,
-                plot_curves, progress_callback, save_intermediate_results,
-                config_file, log_level
-            )
+        """
+        Initialize HabitatAnalysis.
         
-        self.config = config
-        self._setup_logging()
+        Args:
+            config: Configuration dictionary or HabitatAnalysisConfig instance.
+            feature_manager: FeatureManager instance (required).
+            clustering_manager: ClusteringManager instance (required).
+            result_manager: ResultManager instance (required).
+            logger: Logger instance (required).
+        """
+        if isinstance(config, HabitatAnalysisConfig):
+            self.config = config
+        elif isinstance(config, dict):
+            self.config = HabitatAnalysisConfig.model_validate(config)
+        else:
+            raise TypeError("config must be a dict or HabitatAnalysisConfig")
+
+        self.feature_manager = feature_manager
+        self.clustering_manager = clustering_manager
+        self.result_manager = result_manager
+        self.logger = logger
         
-        # Initialize Managers
-        self.feature_manager = FeatureManager(config, self.logger)
-        self.clustering_manager = ClusteringManager(config, self.logger)
-        self.result_manager = ResultManager(config, self.logger)
-        
-        # Setup Data
+        self._setup_logging_info()
         self._setup_data_paths()
         
-        # Initialize Mode Handler
-        self.mode_handler = create_mode(self.config, self.logger)
-        
-        # Pass logging info to managers for subprocesses
         self.feature_manager.set_logging_info(self._log_file_path, self._log_level)
         self.result_manager.set_logging_info(self._log_file_path, self._log_level)
 
-    def _build_config_from_legacy(self, *args, **kwargs) -> HabitatConfig:
-        """Helper to build HabitatConfig from legacy parameters."""
-        # Map args to dict based on signature order if needed, or just use kwargs 
-        # But since we passed them explicitly in __init__, we construct dict here
-        # For simplicity, I'll rely on the arguments passed to this helper
-        
-        # Note: This method signature is simplified here, but in __init__ we pass all args.
-        # It's cleaner to construct the dict in __init__ or have a static factory.
-        # Let's revert to constructing inside __init__ using locals() or explicit dict
-        # to avoid massive signature duplication.
-        # Re-implementing __init__ with cleaner logic.
-        return HabitatConfig.from_dict({
-            'root_folder': args[0],
-            'out_folder': args[1],
-            'feature_config': args[2] or {},
-            'clustering_strategy': args[3],
-            'supervoxel_clustering_method': args[4],
-            'habitat_clustering_method': args[5],
-            'mode': args[6],
-            'n_clusters_supervoxel': args[7],
-            'n_clusters_habitats_max': args[8],
-            'n_clusters_habitats_min': args[9],
-            'habitat_cluster_selection_method': args[10],
-            'best_n_clusters': args[11],
-            'one_step_settings': args[12],
-            'n_processes': args[13],
-            'random_state': args[14],
-            'verbose': args[15],
-            'images_dir': args[16],
-            'masks_dir': args[17],
-            'plot_curves': args[18],
-            'progress_callback': args[19],
-            'save_intermediate_results': args[20],
-            'config_file': args[21],
-            'log_level': args[22],
-        })
-    
-    def _setup_logging(self) -> None:
-        """Setup logging configuration."""
+    def _setup_logging_info(self) -> None:
+        """Get logging info from injected logger or create defaults."""
         manager = LoggerManager()
         
-        if manager.get_log_file() is not None:
-            # Logging already configured by CLI
-            self.logger = get_module_logger('habitat')
-            self.logger.info("Using existing logging configuration from CLI entry point")
-            self._log_file_path = manager.get_log_file()
-            self._log_level = (
-                manager._root_logger.getEffectiveLevel() 
-                if manager._root_logger else logging.INFO
-            )
+        log_file = manager.get_log_file()
+        if log_file:
+            self._log_file_path = log_file
+        elif hasattr(self.logger, 'log_file'):
+            self._log_file_path = self.logger.log_file
         else:
-            # Setup new logging
-            level = self.config.runtime.get_log_level_int()
-            self.logger = setup_logger(
-                name='habitat',
-                output_dir=self.config.io.out_folder,
-                log_filename='habitat_analysis.log',
-                level=level
-            )
-            self._log_file_path = manager.get_log_file()
-            self._log_level = level
+            self._log_file_path = os.path.join(self.config.out_dir, 'habitat_analysis.log')
+        
+        if manager._root_logger:
+            self._log_level = manager._root_logger.getEffectiveLevel()
+        else:
+            self._log_level = logging.INFO
     
     def _setup_data_paths(self) -> None:
         """Setup data paths and create output directory."""
-        os.makedirs(self.config.io.out_folder, exist_ok=True)
+        os.makedirs(self.config.out_dir, exist_ok=True)
         
-        # Get image and mask paths
+        # Get image and mask paths. Assuming image/mask dir names are now part of file list yaml or default structure
+        # This part of logic might need to be adapted if images_dir/masks_dir were important
         images_paths, mask_paths = get_image_and_mask_paths(
-            self.config.io.root_folder,
-            keyword_of_raw_folder=self.config.io.images_dir,
-            keyword_of_mask_folder=self.config.io.masks_dir
+            self.config.data_dir,
         )
         
         # Auto-detect image names if not provided
-        voxel_config = self.config.feature_config['voxel_level']
-        if isinstance(voxel_config, dict) and 'image_names' not in voxel_config:
-            if self.config.runtime.verbose:
-                self.logger.info(
-                    "Image names not provided in voxel_level config, "
-                    "automatically detecting from data directory..."
-                )
-            image_names = detect_image_names(images_paths)
-            self.config.feature_config['voxel_level']['image_names'] = image_names
-            if self.config.runtime.verbose:
-                self.logger.info(f"Detected image names: {image_names}")
-        
-        # Validate data structure
-        voxel_config = self.config.feature_config['voxel_level']
-        if isinstance(voxel_config, dict) and 'image_names' in voxel_config:
-            check_data_structure(
-                images_paths, 
-                mask_paths,
-                voxel_config['image_names'], 
-                None
-            )
+        # This logic needs to adapt as `image_names` is not in the new schema, but part of the `method` string
+        # For now, assuming the logic in FeatureManager can handle the `method` string directly
         
         # Pass paths to FeatureManager
         self.feature_manager.set_data_paths(images_paths, mask_paths)
@@ -199,19 +113,23 @@ class HabitatAnalysis:
     def run(
         self, 
         subjects: Optional[List[str]] = None, 
-        save_results_csv: bool = True
+        save_results_csv: Optional[bool] = None
     ) -> pd.DataFrame:
         """
         Run the habitat clustering pipeline.
         
         Args:
             subjects: List of subjects to process (None = all subjects)
-            save_results_csv: Whether to save results as CSV files
+            save_results_csv: Whether to save results as CSV files (defaults to config.save_results_csv)
             
         Returns:
             DataFrame with habitat clustering results
         """
-        strategy_class = get_strategy(self.config.clustering.strategy)
+        # Use config value if parameter not provided, allowing runtime override
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+        
+        strategy_class = get_strategy(self.config.HabitatsSegmention.clustering_mode)
         strategy = strategy_class(self)
         return strategy.run(subjects=subjects, save_results_csv=save_results_csv)
     

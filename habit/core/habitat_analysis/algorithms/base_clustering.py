@@ -477,12 +477,24 @@ class BaseClustering(ABC):
             best_method = '_'.join(methods)
         
         best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+
+        # Sanity-check: auto-select must return a value from the evaluated range.
+        # This prevents subtle index-vs-value bugs from silently propagating.
+        if best_n_clusters not in self.cluster_range:
+            raise ValueError(
+                "Selected best_n_clusters is not in cluster_range. "
+                f"best_n_clusters={best_n_clusters}, cluster_range={self.cluster_range}"
+            )
+        best_idx = self.cluster_range.index(best_n_clusters)
         
         # Set the best number of clusters
         self.n_clusters = best_n_clusters
         
         if show_progress:
-            print(f"Automatically selected best number of clusters: {best_n_clusters}")
+            print(
+                "Automatically selected best number of clusters: "
+                f"{best_n_clusters} (index={best_idx})"
+            )
         
         return best_n_clusters, self.scores 
     
@@ -506,14 +518,14 @@ class BaseClustering(ABC):
 
     def _select_best_n_clusters_for_single_method(self, scores: List[float], method: str) -> int:
         """
-        Select optimal number of clusters for a single method.
+        Select the best cluster index for a single validation method.
         
         Args:
-            scores: List of scores for different cluster numbers
-            method: Method name
+            scores: List of scores for each cluster number in cluster_range order
+            method: Validation method name used to decide optimization direction
             
         Returns:
-            int: Best number of clusters
+            int: Index into self.cluster_range corresponding to the best cluster number
         """
         # Get optimization direction for the method
         algo_name = self.__class__.__name__.lower()
@@ -532,9 +544,7 @@ class BaseClustering(ABC):
             # Default to maximum value
             best_idx = np.argmax(scores)
         
-        best_n_clusters = self.cluster_range[best_idx]
-        
-        return best_n_clusters
+        return best_idx
     
     def auto_select_best_n_clusters(self, scores_dict: Dict[str, List[float]], method: str = 'silhouette') -> int:
         """
@@ -555,7 +565,7 @@ class BaseClustering(ABC):
         if method in scores_dict:
             scores = scores_dict[method]
             best_idx = self._select_best_n_clusters_for_single_method(scores, method)
-        
+            best_n_clusters = self.cluster_range[best_idx]
         # If it's a combination of methods, use voting system
         else:
             methods = method.split('_')
@@ -567,8 +577,9 @@ class BaseClustering(ABC):
                     continue
                 
                 scores = scores_dict[m]
-                # Select best cluster index for this method
-                best_n_clusters = self._select_best_n_clusters_for_single_method(scores, m)
+                # Select best cluster index for this method and map to cluster number
+                best_idx = self._select_best_n_clusters_for_single_method(scores, m)
+                best_n_clusters = self.cluster_range[best_idx]
                 
                 # Count the vote
                 if best_n_clusters not in votes:

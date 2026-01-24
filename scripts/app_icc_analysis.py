@@ -28,7 +28,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Late import to avoid circular dependencies and keep startup fast
-    from habit.utils.config_utils import load_config
+    from habit.core.common.config_loader import load_config
     from habit.utils.log_utils import setup_logger
     from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
 

@@ -12,9 +12,10 @@ from typing import Dict, Any
 from ..base_workflow import BaseWorkflow
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
+from ..config_schemas import MLConfig
 
 class MachineLearningWorkflow(BaseWorkflow):
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: MLConfig):
         super().__init__(config, module_name="ml_standard")
         self.X_train = None
         self.X_test = None
@@ -29,16 +30,20 @@ class MachineLearningWorkflow(BaseWorkflow):
         # 2. Split Data
         self.X_train, self.X_test, y_train, y_test = self.data_manager.split_data()
         
-        models_config = self.config.get('models', {})
+        # Access models from Pydantic config object
+        models_config = self.config_obj.models
         summary_results = []
 
         # 3. Process Models
         for m_name, m_params in models_config.items():
+            # Extract params dict from ModelConfig object
+            model_params_dict = m_params.params if hasattr(m_params, 'params') else m_params
+            
             self.logger.info(f"Training Model: {m_name}")
             self.callbacks.on_model_start(m_name)
             
             # Use centralized pipeline builder
-            pipeline = self.pipeline_builder.build(m_name, m_params, feature_names=list(self.X_train.columns))
+            pipeline = self.pipeline_builder.build(m_name, model_params_dict, feature_names=list(self.X_train.columns))
             pipeline.fit(self.X_train, y_train)
             
             # Prediction Containers (Pass explicit predictions from the model)
