@@ -10,6 +10,22 @@ sphinx-autodoc-typehints>=1.24.0
 # 文档构建所需基础科学计算库
 numpy
 pandas
+SimpleITK
+pydantic>=2.0.0
+scikit-learn
+scipy
+matplotlib
+click
+pyyaml
+pingouin
+statsmodels
+xgboost
+seaborn
+shap
+lifelines
+pydicom
+mrmr_selection
+# antspyx  # 暂时注释掉，因为在 Linux 环境下安装较慢且可能失败，如果 autodoc 不需要它则不用加
 
 # 代码高亮
 pygments>=2.15.0

@@ -121,7 +121,6 @@ autodoc_mock_imports = [
     'shap',
     'lifelines',
     'pydicom',
-    'pydantic',
     'sklearn',
     'pandas',
     'numpy'
