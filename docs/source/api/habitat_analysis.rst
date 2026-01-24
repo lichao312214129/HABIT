@@ -7,7 +7,7 @@ habitat_analysis 模块
    :show-inheritance:
 
 HabitatAnalysis 类
------------------
+----------------------------------------
 
 .. autoclass:: habit.core.habitat_analysis.HabitatAnalysis
    :members:
@@ -56,7 +56,7 @@ OneStepStrategy
    :undoc-members:
 
 DirectPoolingStrategy
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: habit.core.habitat_analysis.strategies.DirectPoolingStrategy
    :members:
