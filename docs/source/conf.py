@@ -95,7 +95,37 @@ for mod_name in missing_modules:
             sys.modules[mod_name] = MockModule(mod_name)
 
 # 抑制 autodoc 导入警告
-autodoc_mock_imports = ['SimpleITK', 'shap', 'habitat_clustering']
+autodoc_mock_imports = [
+    'SimpleITK', 
+    'antspy', 
+    'antspyx', 
+    'pyradiomics', 
+    'radiomics',
+    'habitat_clustering',
+    'cv2',
+    'trimesh',
+    'openpyxl',
+    'tqdm',
+    'torch',
+    'mrmr',
+    'matplotlib',
+    'matplotlib.pyplot',
+    'scipy',
+    'scipy.stats',
+    'scipy.ndimage',
+    'scipy.optimize',
+    'pingouin',
+    'statsmodels',
+    'statsmodels.api',
+    'seaborn',
+    'shap',
+    'lifelines',
+    'pydicom',
+    'pydantic',
+    'sklearn',
+    'pandas',
+    'numpy'
+]
 
 # Intersphinx 配置
 intersphinx_mapping = {
