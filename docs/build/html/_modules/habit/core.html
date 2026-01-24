@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Core modules for HABIT package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="n">_import_errors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_available_classes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># Import Habitat Analysis API with safe fallback if dependencies are missing.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.habitat_analysis</span> <span class="kn">import</span> <span class="n">HabitatAnalysis</span><span class="p">,</span> <span class="n">HabitatFeatureExtractor</span>
+    <span class="n">_available_classes</span><span class="p">[</span><span class="s2">&quot;HabitatAnalysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatAnalysis</span>
+    <span class="n">_available_classes</span><span class="p">[</span><span class="s2">&quot;HabitatFeatureExtractor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractor</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">_import_errors</span><span class="p">[</span><span class="s2">&quot;habitat_analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">HabitatAnalysis</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">HabitatFeatureExtractor</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Import standard ML workflow entry point with safe fallback.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.machine_learning.workflows.holdout_workflow</span> <span class="kn">import</span> <span class="n">MachineLearningWorkflow</span> <span class="k">as</span> <span class="n">Modeling</span>
+    <span class="n">_available_classes</span><span class="p">[</span><span class="s2">&quot;Modeling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Modeling</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">_import_errors</span><span class="p">[</span><span class="s2">&quot;machine_learning&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">Modeling</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HabitatAnalysis&quot;</span><span class="p">,</span> <span class="s2">&quot;HabitatFeatureExtractor&quot;</span><span class="p">,</span> <span class="s2">&quot;Modeling&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="get_import_errors"><a class="viewcode-back" href="../../api_modules.html#habit.core.get_import_errors">[文档]</a><span class="k">def</span> <span class="nf">get_import_errors</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return import errors collected during module initialization.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, str]: Mapping from module key to error message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_import_errors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_available_classes"><a class="viewcode-back" href="../../api_modules.html#habit.core.get_available_classes">[文档]</a><span class="k">def</span> <span class="nf">get_available_classes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return classes that were successfully imported.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: Mapping from public name to class object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_available_classes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="is_class_available"><a class="viewcode-back" href="../../api_modules.html#habit.core.is_class_available">[文档]</a><span class="k">def</span> <span class="nf">is_class_available</span><span class="p">(</span><span class="n">class_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a public class is available in this module.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        class_name (str): Public class name to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the class was imported successfully.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">_available_classes</span></div>
+
+<span class="n">__all__</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;get_import_errors&quot;</span><span class="p">,</span> <span class="s2">&quot;get_available_classes&quot;</span><span class="p">,</span> <span class="s2">&quot;is_class_available&quot;</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="n">_import_errors</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="n">warning_msg</span> <span class="o">=</span> <span class="s2">&quot;Some core modules failed to import:</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">_import_errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">warning_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="ne">ImportWarning</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

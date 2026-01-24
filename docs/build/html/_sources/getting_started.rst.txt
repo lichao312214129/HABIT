@@ -1,0 +1,63 @@
+Getting Started
+===============
+
+Installation
+------------
+
+Install HABIT using pip:
+
+.. code-block:: bash
+
+    pip install habit
+
+Or from source:
+
+.. code-block:: bash
+
+    git clone https://github.com/lichao312214129/HABIT.git
+    cd HABIT
+    pip install -e .
+
+Quick Start
+-----------
+
+1. Prepare your configuration file:
+
+.. code-block:: yaml
+
+    data_dir: /path/to/images
+    out_dir: /path/to/output
+
+2. Run habitat analysis:
+
+.. code-block:: bash
+
+    habit get-habitat --config config.yaml
+
+Basic Usage
+-----------
+
+.. code-block:: python
+
+    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+    from habit.utils.io_utils import get_image_and_mask_paths
+
+    # Load configuration
+    config = HabitatAnalysisConfig.from_file('config.yaml')
+    
+    # Create configurator
+    configurator = ServiceConfigurator(config=config)
+    
+    # Create and run analysis
+    analysis = configurator.create_habitat_analysis()
+    images_paths, mask_paths = get_image_and_mask_paths(config.data_dir)
+    subjects = list(images_paths.keys())
+    results = analysis.run(subjects=subjects, save_results_csv=True)
+
+Next Steps
+----------
+
+* Read the :doc:`../user_guide/configuration` guide for configuration options
+* Check :doc:`../tutorials/basic_habitat_analysis` for a step-by-step tutorial
+* Explore the :doc:`../api/modules` for Python API reference

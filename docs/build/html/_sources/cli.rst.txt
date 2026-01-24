@@ -1,0 +1,11 @@
+.. _cli:
+
+命令行接口 (CLI)
+=================
+
+HABIT 的所有功能都可以通过 `habit` 命令行工具访问。
+以下文档由代码自动生成，确保始终与最新版本保持同步。
+
+.. click:: habit.cli:cli
+   :prog: habit
+   :nested: full

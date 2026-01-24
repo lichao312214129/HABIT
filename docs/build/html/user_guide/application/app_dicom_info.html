@@ -1,0 +1,155 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DICOM Information Extraction Tool &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DICOM Information Extraction Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/application/app_dicom_info.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dicom-information-extraction-tool">
+<h1>DICOM Information Extraction Tool<a class="headerlink" href="#dicom-information-extraction-tool" title="此标题的永久链接"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>This tool provides command-line functionality to extract and view information from DICOM files. It supports batch reading of DICOM files, can extract specified DICOM tag information, and save results in CSV, Excel, or JSON formats.</p>
+<p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Batch reading of DICOM files (supports directories, single files, or YAML config files)</p></li>
+<li><p>Automatic grouping by series to avoid duplicate reading of multiple slice files from the same series</p></li>
+<li><p>Support for extracting specified DICOM tags or all standard tags</p></li>
+<li><p>Multiple output formats (CSV, Excel, JSON)</p></li>
+<li><p>List all available tags in DICOM files</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="此标题的永久链接"></a></h2>
+<section id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pydicom</span></code>: DICOM file reading library</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pandas</span></code>: Data processing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openpyxl</span></code>: Excel file support (if using Excel format)</p></li>
+</ul>
+</section>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pydicom<span class="w"> </span>pandas<span class="w"> </span>openpyxl
+</pre></div>
+</div>
+<p>Or install all HABIT dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="此标题的永久链接"></a></h2>
+<section id="basic-command-format">
+<h3>Basic Command Format<a class="headerlink" href="#basic-command-format" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>dicom-info<span class="w"> </span>--input<span class="w"> </span>&lt;input_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="common-options">
+<h3>Common Options<a class="headerlink" href="#common-options" title="此标题的永久链接"></a></h3>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

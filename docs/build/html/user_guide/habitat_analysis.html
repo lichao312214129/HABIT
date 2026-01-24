@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitat Analysis &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/translations.js?v=beaddf03"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Habitat Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/habitat_analysis.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="habitat-analysis">
+<h1>Habitat Analysis<a class="headerlink" href="#habitat-analysis" title="此标题的永久链接"></a></h1>
+<p>Habitat analysis is the core feature of HABIT, which clusters tumor regions
+into distinct habitats based on imaging features.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>The habitat analysis workflow consists of:</p>
+<ol class="arabic simple">
+<li><p><strong>Voxel Feature Extraction</strong>: Extract features from each voxel</p></li>
+<li><p><strong>Individual Clustering</strong>: Cluster voxels into supervoxels (per subject)</p></li>
+<li><p><strong>Population Clustering</strong>: Cluster supervoxels into habitats (across subjects)</p></li>
+</ol>
+</section>
+<section id="clustering-strategies">
+<h2>Clustering Strategies<a class="headerlink" href="#clustering-strategies" title="此标题的永久链接"></a></h2>
+<p>HABIT supports three clustering strategies:</p>
+<section id="two-step-strategy-default">
+<h3>Two-Step Strategy (Default)<a class="headerlink" href="#two-step-strategy-default" title="此标题的永久链接"></a></h3>
+<p>The standard approach that first clusters voxels into supervoxels per subject,
+then clusters supervoxels into habitats across all subjects.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">two_step</span>
+</pre></div>
+</div>
+</section>
+<section id="one-step-strategy">
+<h3>One-Step Strategy<a class="headerlink" href="#one-step-strategy" title="此标题的永久链接"></a></h3>
+<p>Clusters voxels directly into habitats per subject, without a population-level step.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">one_step</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-pooling-strategy">
+<h3>Direct Pooling Strategy<a class="headerlink" href="#direct-pooling-strategy" title="此标题的永久链接"></a></h3>
+<p>Pools all voxels and clusters them in a single step.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">direct_pooling</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="training-and-prediction">
+<h2>Training and Prediction<a class="headerlink" href="#training-and-prediction" title="此标题的永久链接"></a></h2>
+<section id="training-mode">
+<h3>Training Mode<a class="headerlink" href="#training-mode" title="此标题的永久链接"></a></h3>
+<p>Train a new habitat analysis pipeline:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">run_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>get-habitat<span class="w"> </span>--config<span class="w"> </span>config.yaml
+</pre></div>
+</div>
+</section>
+<section id="prediction-mode">
+<h3>Prediction Mode<a class="headerlink" href="#prediction-mode" title="此标题的永久链接"></a></h3>
+<p>Use a pre-trained pipeline for new data:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">run_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">predict</span>
+<span class="nt">pipeline_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">path/to/habitat_pipeline.pkl</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>get-habitat<span class="w"> </span>--config<span class="w"> </span>config.yaml<span class="w"> </span>--mode<span class="w"> </span>predict
+</pre></div>
+</div>
+<p>For more details, see <a class="reference internal" href="../architecture/index.html"><span class="doc">Architecture</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

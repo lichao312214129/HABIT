@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.habitat_analysis.algorithms.base_clustering &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
+          <li class="breadcrumb-item"><a href="../../../core.html">habit.core</a></li>
+          <li class="breadcrumb-item"><a href="../../habitat_analysis.html">habit.core.habitat_analysis</a></li>
+      <li class="breadcrumb-item active">habit.core.habitat_analysis.algorithms.base_clustering</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.habitat_analysis.algorithms.base_clustering 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base clustering module for habitat analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">silhouette_score</span><span class="p">,</span> <span class="n">calinski_harabasz_score</span><span class="p">,</span> <span class="n">davies_bouldin_score</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">pkgutil</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.cluster_validation_methods</span> <span class="kn">import</span> <span class="n">get_default_methods</span><span class="p">,</span> <span class="n">get_method_description</span><span class="p">,</span> <span class="n">get_optimization_direction</span>
+
+<span class="c1"># Registry for clustering algorithms</span>
+<span class="n">_CLUSTERING_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">register_clustering</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator for registering clustering algorithm classes</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): Name of the clustering algorithm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">_CLUSTERING_REGISTRY</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="bp">cls</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="k">def</span> <span class="nf">get_clustering_algorithm</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BaseClustering&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get clustering algorithm class by name</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): Name of the clustering algorithm</span>
+<span class="sd">        **kwargs: Parameters to pass to the clustering algorithm constructor</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        BaseClustering: Instance of the clustering algorithm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Lazy discovery of clustering algorithms to avoid circular imports</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_CLUSTERING_REGISTRY</span><span class="p">:</span>
+        <span class="n">discover_clustering_algorithms</span><span class="p">()</span>
+        
+    <span class="c1"># First try to find registered algorithms</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_CLUSTERING_REGISTRY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_CLUSTERING_REGISTRY</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="c1"># If not found, try dynamic import</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Try to import module with specified name</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_clustering&quot;</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">__package__</span><span class="p">)</span>
+        
+        <span class="c1"># Find clustering algorithm class in the module</span>
+        <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attr_name</span> <span class="o">!=</span> <span class="s1">&#39;BaseClustering&#39;</span> <span class="ow">and</span> <span class="s1">&#39;BaseClustering&#39;</span> <span class="ow">in</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">attr_value</span><span class="o">.</span><span class="vm">__mro__</span> <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;object&#39;</span><span class="p">]:</span>
+                <span class="c1"># Auto-register found class</span>
+                <span class="n">_CLUSTERING_REGISTRY</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attr_value</span>
+                <span class="k">return</span> <span class="n">attr_value</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">):</span>
+        <span class="k">pass</span>
+    
+    <span class="c1"># If still not found, raise error</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown clustering algorithm: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, available algorithms: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_CLUSTERING_REGISTRY</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_available_clustering_algorithms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all available clustering algorithm names</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List[str]: List of clustering algorithm names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Lazy discovery of clustering algorithms to avoid circular imports</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_CLUSTERING_REGISTRY</span><span class="p">:</span>
+        <span class="n">discover_clustering_algorithms</span><span class="p">()</span>
+        
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_CLUSTERING_REGISTRY</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">discover_clustering_algorithms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automatically discover all clustering algorithms defined in the clustering directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use current file directory to avoid circular imports</span>
+    <span class="n">package_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    
+    <span class="c1"># Iterate through all modules in the package</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">([</span><span class="n">package_dir</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">module_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_clustering&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">module_name</span> <span class="o">!=</span> <span class="s1">&#39;base_clustering&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Dynamically import module</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">__package__</span><span class="p">)</span>
+                
+                <span class="c1"># Find and register clustering algorithms defined in the module</span>
+                <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">attr_name</span> <span class="o">!=</span> <span class="s1">&#39;BaseClustering&#39;</span> <span class="ow">and</span> <span class="s1">&#39;BaseClustering&#39;</span> <span class="ow">in</span> <span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">attr_value</span><span class="o">.</span><span class="vm">__mro__</span> <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;object&#39;</span><span class="p">]:</span>
+                        <span class="c1"># Extract algorithm name from module name (e.g., extract kmeans from kmeans_clustering)</span>
+                        <span class="n">algo_name</span> <span class="o">=</span> <span class="n">module_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_clustering&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="n">_CLUSTERING_REGISTRY</span><span class="p">[</span><span class="n">algo_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attr_value</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="BaseClustering"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering">[文档]</a><span class="k">class</span> <span class="nc">BaseClustering</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for clustering algorithms, defining methods that all clustering algorithms must implement</span>
+<span class="sd">    </span>
+<span class="sd">    Subclasses must implement the following methods:</span>
+<span class="sd">    - fit: Train the clustering model based on input data</span>
+<span class="sd">    - predict: Predict cluster labels for input data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="BaseClustering.__init__"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize clustering algorithm</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            n_clusters (Optional[int]): Number of clusters, can be None, indicating it needs to be determined by find_optimal_clusters</span>
+<span class="sd">            random_state (int): Random seed to ensure reproducibility</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">n_clusters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">{}</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.fit"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.fit">[文档]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BaseClustering&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train clustering model</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            BaseClustering: Trained model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.predict"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.predict">[文档]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict cluster labels for input data</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Cluster labels with shape (n_samples,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.calculate_inertia_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_inertia_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_inertia_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate inertia (SSE) for different numbers of clusters (for K-Means)</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers to evaluate</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: List of inertia values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+            <span class="c1"># 检查是否是KMeans或其子类</span>
+            <span class="k">if</span> <span class="s2">&quot;kmeans&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;calculate_inertia_scores is primarily for KMeans algorithm, but was called on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="n">inertias</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+                <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span>
+                    <span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span>
+                    <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                    <span class="c1"># 尝试获取KMeans特有的参数</span>
+                    <span class="n">init</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="s1">&#39;k-means++&#39;</span><span class="p">),</span>
+                    <span class="n">n_init</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;n_init&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                    <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="p">)</span>
+                <span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                <span class="n">inertias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kmeans</span><span class="o">.</span><span class="n">inertia_</span><span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">inertias</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sklearn.cluster.KMeans is required for calculate_inertia_scores&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error calculating inertia scores: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseClustering.calculate_bic_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_bic_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_bic_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate BIC scores for different numbers of clusters (for GMM only)</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers to evaluate</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[List[float]]: List of BIC scores, or None if not applicable to this algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BIC is only applicable to GMM (probabilistic model with likelihood function)</span>
+        <span class="k">if</span> <span class="s2">&quot;gmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;BIC is only applicable to GMM algorithm. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Skipping BIC calculation for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Consider using silhouette, calinski_harabasz, or davies_bouldin instead.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">sklearn.mixture</span> <span class="kn">import</span> <span class="n">GaussianMixture</span>
+            
+            <span class="n">bic_scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+                <span class="n">gmm</span> <span class="o">=</span> <span class="n">GaussianMixture</span><span class="p">(</span>
+                    <span class="n">n_components</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span>
+                    <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                    <span class="n">covariance_type</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;covariance_type&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">),</span>
+                    <span class="n">n_init</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;n_init&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">max_iter</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;max_iter&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                    <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="p">)</span>
+                <span class="n">gmm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                <span class="n">bic_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gmm</span><span class="o">.</span><span class="n">bic</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+            
+            <span class="k">return</span> <span class="n">bic_scores</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sklearn.mixture.GaussianMixture is required for calculate_bic_scores&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error calculating BIC scores: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseClustering.calculate_aic_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_aic_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_aic_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate AIC scores for different numbers of clusters (for GMM only)</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers to evaluate</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[List[float]]: List of AIC scores, or None if not applicable to this algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># AIC is only applicable to GMM (probabilistic model with likelihood function)</span>
+        <span class="k">if</span> <span class="s2">&quot;gmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AIC is only applicable to GMM algorithm. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Skipping AIC calculation for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Consider using silhouette, calinski_harabasz, or davies_bouldin instead.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">sklearn.mixture</span> <span class="kn">import</span> <span class="n">GaussianMixture</span>
+            
+            <span class="n">aic_scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+                <span class="n">gmm</span> <span class="o">=</span> <span class="n">GaussianMixture</span><span class="p">(</span>
+                    <span class="n">n_components</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span>
+                    <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                    <span class="n">covariance_type</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;covariance_type&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">),</span>
+                    <span class="n">n_init</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;n_init&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">max_iter</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;max_iter&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                    <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="p">)</span>
+                <span class="n">gmm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                <span class="n">aic_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gmm</span><span class="o">.</span><span class="n">aic</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+            
+            <span class="k">return</span> <span class="n">aic_scores</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;sklearn.mixture.GaussianMixture is required for calculate_aic_scores&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error calculating AIC scores: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.calculate_silhouette_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_silhouette_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_silhouette_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate silhouette scores for different numbers of clusters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: List of silhouette scores</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+            <span class="c1"># Create temporary model</span>
+            <span class="n">temp_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">temp_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">temp_model</span><span class="o">.</span><span class="n">labels_</span>
+            
+            <span class="c1"># Calculate silhouette score</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Need at least two clusters</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">silhouette_score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">scores</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.calculate_calinski_harabasz_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_calinski_harabasz_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_calinski_harabasz_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate Calinski-Harabasz index for different numbers of clusters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: List of Calinski-Harabasz indices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+            <span class="c1"># Create temporary model</span>
+            <span class="n">temp_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">temp_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">temp_model</span><span class="o">.</span><span class="n">labels_</span>
+            
+            <span class="c1"># Calculate Calinski-Harabasz index</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Need at least two clusters</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">calinski_harabasz_score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">scores</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.calculate_davies_bouldin_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_davies_bouldin_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_davies_bouldin_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate Davies-Bouldin index for different numbers of clusters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+            <span class="c1"># Create temporary model</span>
+            <span class="n">temp_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">temp_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">temp_model</span><span class="o">.</span><span class="n">labels_</span>
+            
+            <span class="c1"># Calculate Davies-Bouldin index</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Need at least two clusters</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">davies_bouldin_score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">scores</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.calculate_gap_scores"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.calculate_gap_scores">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_gap_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate Gap statistic for different numbers of clusters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data</span>
+<span class="sd">            cluster_range (List[int]): Range of cluster numbers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n_clusters</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">:</span>
+            <span class="c1"># Create temporary model</span>
+            <span class="n">temp_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">temp_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">temp_model</span><span class="o">.</span><span class="n">labels_</span>
+            
+            <span class="c1"># Calculate Gap statistic</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Need at least two clusters</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">gap_score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">scores</span></div>
+    
+<div class="viewcode-block" id="BaseClustering.find_optimal_clusters"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.find_optimal_clusters">[文档]</a>    <span class="k">def</span> <span class="nf">find_optimal_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">min_clusters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+                              <span class="n">max_clusters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+                              <span class="n">methods</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                              <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal number of clusters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (np.ndarray): Input data with shape (n_samples, n_features)</span>
+<span class="sd">            min_clusters (int): Minimum number of clusters</span>
+<span class="sd">            max_clusters (int): Maximum number of clusters</span>
+<span class="sd">            methods (Optional[Union[List[str], str]]): List of methods to determine the optimal number of clusters. If None, default methods are used</span>
+<span class="sd">            show_progress (bool): Whether to display progress</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, Dict[str, List[float]]]: </span>
+<span class="sd">                - int: Optimal number of clusters</span>
+<span class="sd">                - Dict[str, List[float]]: Dictionary of scores for different numbers of clusters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic validation</span>
+        <span class="k">if</span> <span class="n">min_clusters</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_clusters must be positive&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_clusters</span> <span class="o">&lt;=</span> <span class="n">min_clusters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;max_clusters must be greater than min_clusters&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">max_clusters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of samples (</span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) must be greater than max_clusters (</span><span class="si">{</span><span class="n">max_clusters</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># If methods is None, use default methods from validation module</span>
+        <span class="k">if</span> <span class="n">methods</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Get the clustering algorithm name by checking the class name</span>
+            <span class="n">algo_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="c1"># Remove &#39;clustering&#39; suffix if present</span>
+            <span class="k">if</span> <span class="n">algo_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;clustering&#39;</span><span class="p">):</span>
+                <span class="n">algo_name</span> <span class="o">=</span> <span class="n">algo_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">10</span><span class="p">]</span>
+            <span class="c1"># Get default methods for this algorithm</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="n">get_default_methods</span><span class="p">(</span><span class="n">algo_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using default validation methods for </span><span class="si">{</span><span class="n">algo_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">methods</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Save cluster range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_clusters</span><span class="p">,</span> <span class="n">max_clusters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># Calculate different scores</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting to calculate evaluation metrics for different numbers of clusters...&quot;</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">max_clusters</span> <span class="o">-</span> <span class="n">min_clusters</span> <span class="o">+</span> <span class="mi">1</span>
+        
+        <span class="c1"># Check and calculate each validation method</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">methods</span><span class="p">]</span>
+        
+        <span class="c1"># Track which methods were actually calculated</span>
+        <span class="n">valid_methods</span> <span class="o">=</span> <span class="p">[]</span>
+            
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;calculate_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_scores&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+                    
+                <span class="c1"># Call the specific calculation method</span>
+                <span class="c1"># This dynamically gets the method named &quot;calculate_{method}_scores&quot; from the class</span>
+                <span class="c1"># For example, if method is &quot;silhouette&quot;, it gets &quot;calculate_silhouette_scores&quot; method</span>
+                <span class="n">calculation_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;calculate_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_scores&#39;</span><span class="p">)</span>
+                <span class="n">scores</span> <span class="o">=</span> <span class="n">calculation_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="p">)</span>
+                
+                <span class="c1"># Skip if method returns None (e.g., AIC/BIC for non-GMM algorithms)</span>
+                <span class="k">if</span> <span class="n">scores</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> skipped (not applicable to this algorithm)&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="n">scores</span>
+                <span class="n">valid_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> calculation completed!&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Update methods list to only include valid ones</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="n">valid_methods</span>
+        
+        <span class="c1"># Check if any valid methods remain</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No valid validation methods available for this clustering algorithm. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Original methods requested: </span><span class="si">{</span><span class="n">methods</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Please use appropriate methods for your algorithm.&quot;</span>
+            <span class="p">)</span>
+        
+        <span class="c1"># Automatically select the best number of clusters</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">best_method</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use combined method</span>
+            <span class="n">best_method</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+        
+        <span class="n">best_n_clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_select_best_n_clusters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">,</span> <span class="n">best_method</span><span class="p">)</span>
+
+        <span class="c1"># Sanity-check: auto-select must return a value from the evaluated range.</span>
+        <span class="c1"># This prevents subtle index-vs-value bugs from silently propagating.</span>
+        <span class="k">if</span> <span class="n">best_n_clusters</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Selected best_n_clusters is not in cluster_range. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;best_n_clusters=</span><span class="si">{</span><span class="n">best_n_clusters</span><span class="si">}</span><span class="s2">, cluster_range=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">best_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">best_n_clusters</span><span class="p">)</span>
+        
+        <span class="c1"># Set the best number of clusters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">best_n_clusters</span>
+        
+        <span class="k">if</span> <span class="n">show_progress</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Automatically selected best number of clusters: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">best_n_clusters</span><span class="si">}</span><span class="s2"> (index=</span><span class="si">{</span><span class="n">best_idx</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">best_n_clusters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores</span> </div>
+    
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_find_best_n_clusters_for_elbow_method</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find best cluster number using elbow method.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            scores: List of scores for different cluster numbers</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Index of the best cluster number (0-based)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        <span class="n">deltas2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
+        <span class="n">best_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">deltas2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">best_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># Choose the second-to-last point</span>
+        <span class="k">return</span> <span class="n">best_idx</span>
+
+    <span class="k">def</span> <span class="nf">_select_best_n_clusters_for_single_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select the best cluster index for a single validation method.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            scores: List of scores for each cluster number in cluster_range order</span>
+<span class="sd">            method: Validation method name used to decide optimization direction</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Index into self.cluster_range corresponding to the best cluster number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get optimization direction for the method</span>
+        <span class="n">algo_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">algo_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;clustering&#39;</span><span class="p">):</span>
+            <span class="n">algo_name</span> <span class="o">=</span> <span class="n">algo_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">optimization</span> <span class="o">=</span> <span class="n">get_optimization_direction</span><span class="p">(</span><span class="n">algo_name</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+
+        <span class="c1"># Select best cluster index based on optimization direction</span>
+        <span class="k">if</span> <span class="n">optimization</span> <span class="o">==</span> <span class="s1">&#39;maximize&#39;</span><span class="p">:</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">optimization</span> <span class="o">==</span> <span class="s1">&#39;minimize&#39;</span><span class="p">:</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">optimization</span> <span class="o">==</span> <span class="s1">&#39;elbow&#39;</span><span class="p">:</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_best_n_clusters_for_elbow_method</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Default to maximum value</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">best_idx</span>
+    
+<div class="viewcode-block" id="BaseClustering.auto_select_best_n_clusters"><a class="viewcode-back" href="../../../../../algorithms.html#habit.core.habitat_analysis.algorithms.base_clustering.BaseClustering.auto_select_best_n_clusters">[文档]</a>    <span class="k">def</span> <span class="nf">auto_select_best_n_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;silhouette&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatically select optimal number of clusters based on scores</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            scores_dict (Dict[str, List[float]]): Dictionary of scores, keys are method names, values are score lists</span>
+<span class="sd">            method (str): Method to use, options include &#39;silhouette&#39;, &#39;calinski_harabasz&#39;, &#39;elbow&#39;, etc.</span>
+<span class="sd">                    If it&#39;s a combination of methods, use &#39;_&#39; to connect, e.g., &#39;silhouette_calinski_harabasz&#39;</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Optimal number of clusters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores_dict</span> <span class="ow">and</span> <span class="s1">&#39;_&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown scoring method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># If it&#39;s a single method</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">scores_dict</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">scores_dict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_best_n_clusters_for_single_method</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="n">best_n_clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]</span>
+        <span class="c1"># If it&#39;s a combination of methods, use voting system</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="n">votes</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Dictionary to store votes: {cluster_index: vote_count}</span>
+            
+            <span class="c1"># Each method votes for its best cluster number</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores_dict</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                
+                <span class="n">scores</span> <span class="o">=</span> <span class="n">scores_dict</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+                <span class="c1"># Select best cluster index for this method and map to cluster number</span>
+                <span class="n">best_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_best_n_clusters_for_single_method</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+                <span class="n">best_n_clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_range</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]</span>
+                
+                <span class="c1"># Count the vote</span>
+                <span class="k">if</span> <span class="n">best_n_clusters</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">votes</span><span class="p">:</span>
+                    <span class="n">votes</span><span class="p">[</span><span class="n">best_n_clusters</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">votes</span><span class="p">[</span><span class="n">best_n_clusters</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">votes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No valid methods found in the combination&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Find the cluster number with the most votes</span>
+            <span class="c1"># If there&#39;s a tie, choose the one with the smallest cluster number</span>
+            <span class="n">max_votes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">votes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">votes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">max_votes</span><span class="p">]</span>
+            <span class="n">best_n_clusters</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>  <span class="c1"># In case of tie, choose the smallest cluster number</span>
+        
+        <span class="c1"># Add min_clusters offset</span>
+        <span class="k">return</span> <span class="n">best_n_clusters</span> </div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

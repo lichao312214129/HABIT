@@ -1,0 +1,65 @@
+示例
+========
+
+示例 1: 基础 Habitat 分析
+----------------------------
+
+.. code-block:: python
+
+   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+   from habit.utils.io_utils import get_image_and_mask_paths
+   
+   # 从配置文件加载
+   config = HabitatAnalysisConfig.from_file('./config.yaml')
+   
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config)
+   
+   # 创建分析对象
+   analysis = configurator.create_habitat_analysis()
+   
+   # 运行分析
+   images_paths, mask_paths = get_image_and_mask_paths(config.data_dir)
+   subjects = list(images_paths.keys())
+   results = analysis.run(subjects=subjects, save_results_csv=True)
+
+示例 2: 自定义特征提取
+------------------------
+
+.. code-block:: python
+
+   from typing import Any
+   import numpy as np
+   from habit.core.habitat_analysis.extractors import (
+       BaseClusteringExtractor,
+       register_feature_extractor
+   )
+   
+   @register_feature_extractor("my_custom")
+   class MyCustomExtractor(BaseClusteringExtractor):
+       def __init__(self, **kwargs: Any) -> None:
+           super().__init__(**kwargs)
+           self.feature_names = ["custom_feature_1", "custom_feature_2"]
+
+       def extract_features(self, **kwargs: Any) -> np.ndarray:
+           features: np.ndarray = np.array([0.0, 1.0], dtype=float)
+           return features
+   
+   # 使用自定义提取器
+   config.FeatureConstruction.voxel_level.method = "my_custom"
+
+示例 3: 使用 Pipeline
+----------------------
+
+.. code-block:: python
+
+   from habit.core.habitat_analysis.pipelines import build_habitat_pipeline
+   
+   pipeline = build_habitat_pipeline(config)
+   
+   # 训练
+   pipeline.fit(train_data)
+   
+   # 推理
+   habitat_maps = pipeline.transform(test_data)

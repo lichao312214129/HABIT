@@ -1,0 +1,918 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machine_learning 模块 &mdash; HABIT 0.1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/translations.js?v=beaddf03"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#install-from-source">Install from Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#install-dependencies">Install Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#basic-workflow">Basic Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#example-configuration">Example Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#running-analysis">Running Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id2">数据输入方式概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id3">文件夹结构方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id4">标准文件夹结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id5">文件夹命名规则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id7">路径格式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id8">路径和文件名规则</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id9">实际示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id10">两种方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id11">转换方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id12">数据验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id13">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/habitat_feature_extraction_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id2">工作流程概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id3">自定义扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id4">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id5">数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/index_zh.html#id6">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id1">核心理念</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id2">设计原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id3">设计理念总结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id3">扩展原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id6">自定义聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id7">自定义模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id8">自定义特征选择器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id9">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id10">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id11">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id3">通用配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id4">预处理配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id5">生境分析配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id22">特征提取配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id25">机器学习配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id26">数据配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id43">配置文件验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id44">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id45">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id2">通用参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id3">图像预处理命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id4">生境分析命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id5">特征提取命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id6">机器学习命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id7">帮助命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id8">版本命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id9">命令行参数优先级</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id10">错误处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id11">日志记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id12">批处理示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id13">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id14">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habit.core.html">habit.core package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habit.utils.html">habit.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#main-modules">Main Modules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html">架构设计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id2">核心模块</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#common">Common</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id3">设计模式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id4">模块依赖关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/design_patterns.html">设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/testing.html">测试指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id2">运行测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id3">编写测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#fixtures">使用 Fixtures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id4">测试最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id5">持续集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">贡献指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id2">如何贡献</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#bug">报告 Bug</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id3">提交代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id4">代码规范</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id5">文档贡献</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id6">开发环境设置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#pull-request">提交 Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id7">行为准则</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">算法参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html">聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#k-means">K-Means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#id3">层次聚类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/feature_extraction.html">特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/validation_methods.html">验证方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id3">验证方法选择</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">machine_learning 模块</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/machine_learning.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-habit.core.machine_learning">
+<span id="machine-learning"></span><h1>machine_learning 模块<a class="headerlink" href="#module-habit.core.machine_learning" title="此标题的永久链接"></a></h1>
+<p>Machine Learning module for HABIT package.</p>
+<p>This module aggregates key components for ML workflows, including
+model training, evaluation, and feature selection.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">KMSurvivalPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_family</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Arial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'int'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/km_survival.html#KMSurvivalPlotter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter.dpi">
+<span class="sig-name descname"><span class="pre">dpi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">600</span></em><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter.dpi" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter.font_family">
+<span class="sig-name descname"><span class="pre">font_family</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Arial'</span></em><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter.font_family" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter.font_size">
+<span class="sig-name descname"><span class="pre">font_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter.font_size" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter.output_dir">
+<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter.output_dir" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.KMSurvivalPlotter.plot_km">
+<span class="sig-name descname"><span class="pre">plot_km</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'KM_Curve.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Months'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_ci</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_risk_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_hr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(5.5,</span> <span class="pre">5.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Survival</span> <span class="pre">probability'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotate_median</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'best'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_ncol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_outside</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/km_survival.html#KMSurvivalPlotter.plot_km"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.KMSurvivalPlotter.plot_km" title="永久链接至目标"></a></dt>
+<dd><p>Plot KM curves by groups with risk table and annotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – DataFrame containing survival data</p></li>
+<li><p><strong>time_col</strong> – Duration column (numeric)</p></li>
+<li><p><strong>event_col</strong> – Event column (1=event, 0=censored)</p></li>
+<li><p><strong>group_col</strong> – Grouping column (categorical)</p></li>
+<li><p><strong>save_name</strong> – Output file name; extension controls format</p></li>
+<li><p><strong>time_unit</strong> – Label for x-axis (e.g., ‘Months’)</p></li>
+<li><p><strong>group_order</strong> – Optional manual ordering of groups</p></li>
+<li><p><strong>palette</strong> – Matplotlib/seaborn palette name or list of colors</p></li>
+<li><p><strong>show_ci</strong> – Whether to draw confidence bands</p></li>
+<li><p><strong>show_risk_table</strong> – Whether to render number-at-risk table</p></li>
+<li><p><strong>show_hr</strong> – Whether to compute and display HR</p></li>
+<li><p><strong>hr_reference</strong> – Reference group for HR (default: first in order)</p></li>
+<li><p><strong>figsize</strong> – Figure size in inches</p></li>
+<li><p><strong>y_label</strong> – Y-axis label</p></li>
+<li><p><strong>x_label</strong> – X-axis label (defaults to time_unit)</p></li>
+<li><p><strong>xlim</strong> – Optional x-axis range</p></li>
+<li><p><strong>ylim</strong> – Y-axis range</p></li>
+<li><p><strong>annotate_median</strong> – Add median survival to legend label</p></li>
+<li><p><strong>legend_loc</strong> – Legend location (‘best’, ‘upper right’, ‘lower left’, etc.)</p></li>
+<li><p><strong>legend_ncol</strong> – Number of columns in legend</p></li>
+<li><p><strong>legend_outside</strong> – Whether to place legend outside the plot area</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.MachineLearningKFoldWorkflow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">MachineLearningKFoldWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MLConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/kfold_workflow.html#MachineLearningKFoldWorkflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.MachineLearningKFoldWorkflow" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWorkflow</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.MachineLearningKFoldWorkflow.run_pipeline">
+<span class="sig-name descname"><span class="pre">run_pipeline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/kfold_workflow.html#MachineLearningKFoldWorkflow.run_pipeline"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.MachineLearningKFoldWorkflow.run_pipeline" title="永久链接至目标"></a></dt>
+<dd><p>Main entry point to be implemented by subclasses.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.MachineLearningWorkflow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">MachineLearningWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MLConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/holdout_workflow.html#MachineLearningWorkflow"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.MachineLearningWorkflow" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseWorkflow</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.MachineLearningWorkflow.run_pipeline">
+<span class="sig-name descname"><span class="pre">run_pipeline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/holdout_workflow.html#MachineLearningWorkflow.run_pipeline"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.MachineLearningWorkflow.run_pipeline" title="永久链接至目标"></a></dt>
+<dd><p>Main entry point to be implemented by subclasses.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.ModelFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">ModelFactory</span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/models/factory.html#ModelFactory"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.ModelFactory" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory class for creating model instances</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.ModelFactory.create_model">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BaseModel</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/models/factory.html#ModelFactory.create_model"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.ModelFactory.create_model" title="永久链接至目标"></a></dt>
+<dd><p>Create a model instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – Name of model to create</p></li>
+<li><p><strong>config</strong> – Configuration dictionary</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Model instance</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BaseModel</p>
+</dd>
+<dt class="field-even">抛出<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If model name is not registered</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.ModelFactory.get_available_models">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_available_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/models/factory.html#ModelFactory.get_available_models"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.ModelFactory.get_available_models" title="永久链接至目标"></a></dt>
+<dd><p>Get list of available model names</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of registered model names</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.ModelFactory.register">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/models/factory.html#ModelFactory.register"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.ModelFactory.register" title="永久链接至目标"></a></dt>
+<dd><p>Register a model class</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – Model name</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorator function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">Plotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_calibration_v2">
+<span class="sig-name descname"><span class="pre">plot_calibration_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Calibration.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_calibration_v2"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_calibration_v2" title="永久链接至目标"></a></dt>
+<dd><p>Plot calibration curves for a single dataset (optimized version)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models_data</strong> – Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values</p></li>
+<li><p><strong>save_name</strong> – Name of the file to save the plot</p></li>
+<li><p><strong>n_bins</strong> – Number of bins to use for calibration curve</p></li>
+<li><p><strong>title</strong> – Data type for title display (‘train’ or ‘test’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_confusion_matrix">
+<span class="sig-name descname"><span class="pre">plot_confusion_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Confusion_Matrix.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Confusion</span> <span class="pre">Matrix'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Blues'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_confusion_matrix"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_confusion_matrix" title="永久链接至目标"></a></dt>
+<dd><p>Plot confusion matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – True labels</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – Predicted labels</p></li>
+<li><p><strong>save_name</strong> (<em>str</em>) – Name of the file to save the plot</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the plot</p></li>
+<li><p><strong>class_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Names of the classes (default: None, will use ‘0’, ‘1’ for binary classification)</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – Whether to normalize the confusion matrix (default: False)</p></li>
+<li><p><strong>cmap</strong> (<em>str</em>) – Colormap to use (default: ‘Blues’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_dca_v2">
+<span class="sig-name descname"><span class="pre">plot_dca_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DCA.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_dca_v2"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_dca_v2" title="永久链接至目标"></a></dt>
+<dd><p>Plot Decision Curve Analysis (DCA) for a single dataset (optimized version)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models_data</strong> – Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values</p></li>
+<li><p><strong>save_name</strong> – Name of the file to save the plot</p></li>
+<li><p><strong>title</strong> – Data type for title display (‘train’ or ‘test’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_pr_curve">
+<span class="sig-name descname"><span class="pre">plot_pr_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PR_curve.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'evaluation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_pr_curve"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_pr_curve" title="永久链接至目标"></a></dt>
+<dd><p>Plot Precision-Recall curve for multiple models
+:param models_data: Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values
+:param save_name: Name of the file to save the plot
+:param title: Data type for title display (‘train’, ‘test’, or ‘evaluation’)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_roc_v2">
+<span class="sig-name descname"><span class="pre">plot_roc_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ROC.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_roc_v2"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_roc_v2" title="永久链接至目标"></a></dt>
+<dd><p>Plot ROC curves for a single dataset (optimized version)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models_data</strong> – Dictionary with model names as keys and (y_true, y_pred_proba) tuples as values</p></li>
+<li><p><strong>save_name</strong> – Name of the file to save the plot</p></li>
+<li><p><strong>title</strong> – Data type for title display (‘train’ or ‘test’)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.Plotter.plot_shap">
+<span class="sig-name descname"><span class="pre">plot_shap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SHAP.pdf'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/visualization/plotting.html#Plotter.plot_shap"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.Plotter.plot_shap" title="永久链接至目标"></a></dt>
+<dd><p>Plot SHAP values with bar and beeswarm plots</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Any</em>) – Trained model</p></li>
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – Feature data</p></li>
+<li><p><strong>feature_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of feature names</p></li>
+<li><p><strong>save_name</strong> (<em>str</em>) – Name of the file to save the plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.machine_learning.run_selector">
+<span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.</span></span><span class="sig-name descname"><span class="pre">run_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/feature_selectors/selector_registry.html#run_selector"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.run_selector" title="永久链接至目标"></a></dt>
+<dd><p>Orchestrate the execution of a feature selector with smart parameter injection.</p>
+</dd></dl>
+
+<section id="modelcomparison">
+<h2>ModelComparison 类<a class="headerlink" href="#modelcomparison" title="此标题的永久链接"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.workflows.comparison_workflow.</span></span><span class="sig-name descname"><span class="pre">ModelComparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ModelComparisonConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator"><span class="pre">MultifileEvaluator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reporter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ReportExporter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ThresholdManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PlotManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics_store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricsStore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tool for comparing and evaluating multiple machine learning models.</p>
+<p>Note: Dependencies should be provided via ServiceConfigurator or explicitly.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison.run"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.run" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.run_evaluation">
+<span class="sig-name descname"><span class="pre">run_evaluation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison.run_evaluation"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.run_evaluation" title="永久链接至目标"></a></dt>
+<dd><p>Run the entire evaluation process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.save_all_metrics">
+<span class="sig-name descname"><span class="pre">save_all_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison.save_all_metrics"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.save_all_metrics" title="永久链接至目标"></a></dt>
+<dd><p>Save all metrics to a single JSON file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.save_merged_data">
+<span class="sig-name descname"><span class="pre">save_merged_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison.save_merged_data"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.save_merged_data" title="永久链接至目标"></a></dt>
+<dd><p>Save merged data to a file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/workflows/comparison_workflow.html#ModelComparison.setup"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.workflows.comparison_workflow.ModelComparison.setup" title="永久链接至目标"></a></dt>
+<dd><p>Setup the tool by reading prediction files and preparing data</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="multifileevaluator">
+<h2>MultifileEvaluator 类<a class="headerlink" href="#multifileevaluator" title="此标题的永久链接"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.machine_learning.evaluation.model_evaluation.</span></span><span class="sig-name descname"><span class="pre">MultifileEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_calibration">
+<span class="sig-name descname"><span class="pre">plot_calibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Calibration.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'evaluation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.plot_calibration"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_calibration" title="永久链接至目标"></a></dt>
+<dd><p>为所有模型绘制校准曲线</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_name</strong> (<em>str</em>) – 保存文件名</p></li>
+<li><p><strong>n_bins</strong> (<em>int</em>) – 校准曲线的分箱数</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – 图表标题</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_dca">
+<span class="sig-name descname"><span class="pre">plot_dca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DCA.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'evaluation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.plot_dca"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_dca" title="永久链接至目标"></a></dt>
+<dd><p>为所有模型绘制决策曲线分析(DCA)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_name</strong> (<em>str</em>) – 保存文件名</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – 图表标题</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_pr_curve">
+<span class="sig-name descname"><span class="pre">plot_pr_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PR_curve.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'evaluation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.plot_pr_curve"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_pr_curve" title="永久链接至目标"></a></dt>
+<dd><p>为所有模型绘制精确率-召回率曲线</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_name</strong> (<em>str</em>) – 保存文件名</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – 图表标题</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_roc">
+<span class="sig-name descname"><span class="pre">plot_roc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ROC.pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'evaluation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.plot_roc"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.plot_roc" title="永久链接至目标"></a></dt>
+<dd><p>为所有模型绘制ROC曲线</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_name</strong> (<em>str</em>) – 保存文件名</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – 图表标题</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.read_prediction_files">
+<span class="sig-name descname"><span class="pre">read_prediction_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator"><span class="pre">MultifileEvaluator</span></a></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.read_prediction_files"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.read_prediction_files" title="永久链接至目标"></a></dt>
+<dd><p>从多个文件读取预测结果</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>files_config</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em>) – 文件配置列表，每个元素包含：
+- path: 文件路径
+- model_name: 模型名称
+- subject_id_col: 受试者ID列名
+- label_col: 真实标签列名
+- prob_col: 预测概率列名
+- pred_col: 预测标签列名（可选）</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>自身实例，用于方法链式调用</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator" title="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator">MultifileEvaluator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.run_delong_test">
+<span class="sig-name descname"><span class="pre">run_delong_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'delong_test_results.json'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.run_delong_test"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.run_delong_test" title="永久链接至目标"></a></dt>
+<dd><p>对所有模型对执行DeLong检验</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_json</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – 输出JSON文件名，如不需要保存设为None</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>DeLong检验结果列表</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.save_merged_data">
+<span class="sig-name descname"><span class="pre">save_merged_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'merged_predictions.csv'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/habit/core/machine_learning/evaluation/model_evaluation.html#MultifileEvaluator.save_merged_data"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.machine_learning.evaluation.model_evaluation.MultifileEvaluator.save_merged_data" title="永久链接至目标"></a></dt>
+<dd><p>保存合并后的数据到CSV文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – 输出文件名</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2026, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

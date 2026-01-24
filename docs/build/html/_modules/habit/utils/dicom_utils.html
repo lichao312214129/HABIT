@@ -1,0 +1,1396 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.utils.dicom_utils &mdash; HABIT 0.1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script src="../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index_zh.html">快速开始</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/installation.html#install-from-source">Install from Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/installation.html#install-dependencies">Install Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/quickstart.html">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/quickstart.html#basic-workflow">Basic Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/quickstart.html#example-configuration">Example Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/quickstart.html#running-analysis">Running Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/quickstart.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_structure_zh.html">数据结构说明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id2">数据输入方式概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id3">文件夹结构方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id4">标准文件夹结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id5">文件夹命名规则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id7">路径格式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id8">路径和文件名规则</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../data_structure_zh.html#id9">实际示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id10">两种方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id11">转换方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id12">数据验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_structure_zh.html#id13">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/index_zh.html">用户指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/habitat_feature_extraction_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/index_zh.html#id2">工作流程概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/index_zh.html#id3">自定义扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/index_zh.html#id4">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/index_zh.html#id5">数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/index_zh.html#id6">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../design_philosophy_zh.html#id1">核心理念</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../design_philosophy_zh.html#id2">设计原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../design_philosophy_zh.html#id3">设计理念总结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../customization/index_zh.html">自定义扩展指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id3">扩展原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id6">自定义聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id7">自定义模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id8">自定义特征选择器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id9">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id10">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../customization/index_zh.html#id11">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_zh.html">配置参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id3">通用配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id4">预处理配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id5">生境分析配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id22">特征提取配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id25">机器学习配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id26">数据配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id43">配置文件验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id44">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration_zh.html#id45">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_zh.html">CLI 参考文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id2">通用参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id3">图像预处理命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id4">生境分析命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id5">特征提取命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id6">机器学习命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id7">帮助命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id8">版本命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id9">命令行参数优先级</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id10">错误处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id11">日志记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id12">批处理示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id13">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_zh.html#id14">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/habit.core.html">habit.core package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/habit.utils.html">habit.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/index.html#main-modules">Main Modules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">开发指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../development/architecture.html">架构设计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/architecture.html#id2">核心模块</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#common">Common</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/architecture.html#id3">设计模式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/architecture.html#id4">模块依赖关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../development/design_patterns.html">设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../development/testing.html">测试指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/testing.html#id2">运行测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/testing.html#id3">编写测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/testing.html#fixtures">使用 Fixtures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/testing.html#id4">测试最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/testing.html#id5">持续集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../development/contributing.html">贡献指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/contributing.html#id2">如何贡献</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/contributing.html#bug">报告 Bug</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/contributing.html#id3">提交代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/contributing.html#id4">代码规范</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../development/contributing.html#id5">文档贡献</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/contributing.html#id6">开发环境设置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/contributing.html#pull-request">提交 Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/contributing.html#id7">行为准则</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../algorithms/index.html">算法参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../algorithms/clustering.html">聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#k-means">K-Means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#id3">层次聚类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../algorithms/feature_extraction.html">特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../algorithms/validation_methods.html">验证方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../algorithms/validation_methods.html#id3">验证方法选择</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.utils.dicom_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.utils.dicom_utils 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DICOM utilities for reading and extracting DICOM file information</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">habit.utils.log_utils</span> <span class="kn">import</span> <span class="n">get_module_logger</span>
+<span class="kn">from</span> <span class="nn">habit.utils.io_utils</span> <span class="kn">import</span> <span class="n">get_image_and_mask_paths</span><span class="p">,</span> <span class="n">load_config</span>
+<span class="kn">from</span> <span class="nn">habit.utils.progress_utils</span> <span class="kn">import</span> <span class="n">CustomTqdm</span>
+
+<span class="c1"># Default number of worker threads for parallel operations</span>
+<span class="c1"># Use min(32, cpu_count + 4) as recommended by Python docs for I/O bound tasks</span>
+<span class="n">DEFAULT_NUM_WORKERS</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pydicom</span>
+    <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+    <span class="n">PYDICOM_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">PYDICOM_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;pydicom is not installed. DICOM reading functionality will not be available.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_dicom_files"><a class="viewcode-back" href="../../../api/habit.utils.html#habit.utils.dicom_utils.get_dicom_files">[文档]</a><span class="k">def</span> <span class="nf">get_dicom_files</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all DICOM files from a directory or file path.</span>
+<span class="sd">    Uses io_utils functionality to handle YAML config files or directory paths.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_path: Path to DICOM directory, file, or YAML config file</span>
+<span class="sd">        recursive: Whether to search recursively in subdirectories</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of Path objects pointing to DICOM files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+    <span class="n">dicom_files</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Check if it&#39;s a YAML config file</span>
+    <span class="k">if</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">input_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;.yml&#39;</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">))</span>
+            <span class="c1"># Extract all paths from images and masks</span>
+            <span class="n">all_paths</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s1">&#39;images&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subject_dict</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;images&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">all_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">subject_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s1">&#39;masks&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subject_dict</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;masks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">all_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">subject_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            
+            <span class="c1"># Collect DICOM files from these paths</span>
+            <span class="k">for</span> <span class="n">path_str</span> <span class="ow">in</span> <span class="n">all_paths</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_str</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.dicom&#39;</span><span class="p">]:</span>
+                    <span class="n">dicom_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
+                        <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.dcm&#39;</span><span class="p">))</span>
+                        <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.dicom&#39;</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.dcm&#39;</span><span class="p">))</span>
+                        <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.dicom&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load config from </span><span class="si">{</span><span class="n">input_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Fall through to treat as regular path</span>
+    
+    <span class="c1"># If it&#39;s a directory, search for DICOM files</span>
+    <span class="k">if</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
+            <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.dcm&#39;</span><span class="p">))</span>  <span class="c1"># search for DICOM files in the directory and subdirectories</span>
+            <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">&#39;*.dicom&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.dcm&#39;</span><span class="p">))</span>
+            <span class="n">dicom_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.dicom&#39;</span><span class="p">))</span>
+    <span class="c1"># If it&#39;s a single file</span>
+    <span class="k">elif</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">input_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.dicom&#39;</span><span class="p">]:</span>
+        <span class="n">dicom_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">))</span>  <span class="c1"># Remove duplicates</span></div>
+
+
+<span class="k">def</span> <span class="nf">_is_dicom_file_fast</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quickly check if a file is a DICOM file by reading the magic bytes.</span>
+<span class="sd">    DICOM files have &quot;DICM&quot; at byte offset 128 (after 128-byte preamble).</span>
+<span class="sd">    Some DICOM files may not have this prefix (Part 10 vs non-Part 10),</span>
+<span class="sd">    so we also check for common DICOM tags at the beginning.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        filepath: Path to the file to check</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the file appears to be a DICOM file, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># Check for DICM magic bytes at offset 128 (standard DICOM Part 10)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>
+            <span class="n">magic</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            
+            <span class="c1"># For non-Part 10 DICOM files, check for common group tags at start</span>
+            <span class="c1"># DICOM tags start with group numbers like 0x0002, 0x0008, 0x0010</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># Check for common DICOM group numbers (little-endian)</span>
+                <span class="c1"># Group 0x0002 (File Meta), 0x0008 (Study/Series), 0x0010 (Patient)</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;little&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0x0002</span><span class="p">,</span> <span class="mh">0x0008</span><span class="p">,</span> <span class="mh">0x0010</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_find_dicom_in_folder</span><span class="p">(</span>
+    <span class="n">folder_info</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">dicom_extensions</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+    <span class="n">include_no_extension</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find one DICOM file in a folder. Used as worker function for parallel processing.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        folder_info: Tuple of (directory_path, list_of_filenames)</span>
+<span class="sd">        dicom_extensions: Set of valid DICOM extensions</span>
+<span class="sd">        include_no_extension: Whether to check files without extensions</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to a DICOM file, or None if not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dirpath</span><span class="p">,</span> <span class="n">filenames</span> <span class="o">=</span> <span class="n">folder_info</span>
+    <span class="n">current_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+    
+    <span class="c1"># Sort filenames to ensure consistent selection across runs</span>
+    <span class="n">sorted_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
+    
+    <span class="c1"># First pass: check files with known DICOM extensions (fastest, no I/O needed)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">sorted_filenames</span><span class="p">:</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">dicom_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">current_dir</span> <span class="o">/</span> <span class="n">filename</span>
+    
+    <span class="c1"># Second pass: if no extension-matched file found and include_no_extension is True,</span>
+    <span class="c1"># check files without extensions using magic byte validation</span>
+    <span class="k">if</span> <span class="n">include_no_extension</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">sorted_filenames</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Only check files without extensions (or with unusual extensions)</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_extensions</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">current_dir</span> <span class="o">/</span> <span class="n">filename</span>
+                <span class="c1"># Skip directories and very small files</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">filepath</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">132</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">_is_dicom_file_fast</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+                            <span class="k">return</span> <span class="n">filepath</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+    
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_get_folders_at_depth</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quickly get all folders at a specific depth level using os.scandir().</span>
+<span class="sd">    This is very fast because it only traverses to the target depth without</span>
+<span class="sd">    scanning any deeper structure.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        root_path: Root directory to start from</span>
+<span class="sd">        target_depth: Target depth level (0 = root itself)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of folder paths at the target depth</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">target_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">root_path</span><span class="p">]</span>
+    
+    <span class="c1"># Level-by-level traversal to target depth</span>
+    <span class="n">current_level</span> <span class="o">=</span> <span class="p">[</span><span class="n">root_path</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">depth</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_depth</span><span class="p">):</span>
+        <span class="n">next_level</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">current_level</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">as</span> <span class="n">entries</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(</span><span class="n">follow_symlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                                <span class="n">next_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                            <span class="k">continue</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot access directory </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="n">current_level</span> <span class="o">=</span> <span class="n">next_level</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">current_level</span><span class="p">:</span>
+            <span class="k">break</span>
+    
+    <span class="k">return</span> <span class="n">current_level</span>
+
+
+<span class="k">def</span> <span class="nf">_find_first_dicom_in_tree</span><span class="p">(</span>
+    <span class="n">folder_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dicom_extensions</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+    <span class="n">include_no_extension</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the first DICOM file in a folder and its subfolders.</span>
+<span class="sd">    Stops as soon as a DICOM file is found - does not scan entire tree.</span>
+<span class="sd">    </span>
+<span class="sd">    Uses depth-first search with early termination for maximum speed.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        folder_path: Root folder to search</span>
+<span class="sd">        dicom_extensions: Set of valid DICOM extensions</span>
+<span class="sd">        include_no_extension: Whether to check files without extensions</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to first DICOM file found, or None if not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">folders_to_check</span> <span class="o">=</span> <span class="p">[</span><span class="n">folder_path</span><span class="p">]</span>
+    
+    <span class="k">while</span> <span class="n">folders_to_check</span><span class="p">:</span>
+        <span class="n">current_folder</span> <span class="o">=</span> <span class="n">folders_to_check</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">current_folder</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Separate files and subdirectories</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">(</span><span class="n">follow_symlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(</span><span class="n">follow_symlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="n">subdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">continue</span>
+        
+        <span class="c1"># Sort files for consistent selection</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="c1"># First: check files with known DICOM extensions (fastest)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">dicom_extensions</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        
+        <span class="c1"># Second: check files without extensions if enabled</span>
+        <span class="k">if</span> <span class="n">include_no_extension</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_extensions</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">132</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">_is_dicom_file_fast</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)):</span>
+                                <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                        <span class="k">continue</span>
+        
+        <span class="c1"># Add subdirectories to check (sorted for consistent order)</span>
+        <span class="n">subdirs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">folders_to_check</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">subdirs</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_walk_with_depth</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator that walks directory tree with optional depth limit.</span>
+<span class="sd">    </span>
+<span class="sd">    When max_depth is None, uses os.walk() for best performance on unlimited traversal.</span>
+<span class="sd">    When max_depth is specified, uses os.scandir() with level-by-level traversal,</span>
+<span class="sd">    which is more efficient because it only reads directories at the required depth</span>
+<span class="sd">    without pre-scanning the entire tree.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        root_path: Root directory to start walking from</span>
+<span class="sd">        max_depth: Maximum depth to recurse. </span>
+<span class="sd">                  0 = only root directory</span>
+<span class="sd">                  1 = root + immediate subdirectories</span>
+<span class="sd">                  None = unlimited (same as os.walk)</span>
+<span class="sd">                  </span>
+<span class="sd">    Yields:</span>
+<span class="sd">        Tuple of (dirpath, dirnames, filenames) like os.walk()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+    
+    <span class="c1"># When no depth limit, use os.walk for best performance</span>
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="c1"># When depth is limited, use level-by-level traversal with os.scandir()</span>
+    <span class="c1"># Use a queue to track directories to process: (dir_path, current_depth)</span>
+    <span class="n">dirs_to_process</span> <span class="o">=</span> <span class="p">[(</span><span class="n">root_path</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+    
+    <span class="k">while</span> <span class="n">dirs_to_process</span><span class="p">:</span>
+        <span class="n">current_dir</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">=</span> <span class="n">dirs_to_process</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">current_dir</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot access directory </span><span class="si">{</span><span class="n">current_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Separate files and directories</span>
+        <span class="n">dirnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(</span><span class="n">follow_symlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="n">dirnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">(</span><span class="n">follow_symlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">continue</span>
+        
+        <span class="k">yield</span> <span class="n">current_dir</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span>
+        
+        <span class="c1"># If we haven&#39;t reached max depth, add subdirectories to process queue</span>
+        <span class="k">if</span> <span class="n">current_depth</span> <span class="o">&lt;</span> <span class="n">max_depth</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dirnames</span><span class="p">):</span>
+                <span class="n">subdir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">dirname</span><span class="p">)</span>
+                <span class="n">dirs_to_process</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">subdir_path</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="get_one_dicom_per_folder"><a class="viewcode-back" href="../../../api/habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder">[文档]</a><span class="k">def</span> <span class="nf">get_one_dicom_per_folder</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">dicom_extensions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_no_extension</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fast method to get one DICOM file per folder by traversing directories first.</span>
+<span class="sd">    This is much faster than recursively finding all DICOM files when there are </span>
+<span class="sd">    hundreds of thousands of files.</span>
+<span class="sd">    </span>
+<span class="sd">    Uses multi-threading for parallel I/O operations to significantly speed up scanning.</span>
+<span class="sd">    </span>
+<span class="sd">    Two strategies based on max_depth:</span>
+<span class="sd">    </span>
+<span class="sd">    1. When max_depth is None (unlimited):</span>
+<span class="sd">       - Traverse all directories and find one DICOM per folder</span>
+<span class="sd">       </span>
+<span class="sd">    2. When max_depth is specified (FAST MODE):</span>
+<span class="sd">       - Quickly locate folders at the target depth (no deep scanning)</span>
+<span class="sd">       - For each target folder, find ONE DICOM file (may be in subfolders)</span>
+<span class="sd">       - Stop searching each folder as soon as a DICOM is found</span>
+<span class="sd">       - This is extremely fast because it only reads the minimum required</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_path: Path to root directory to search</span>
+<span class="sd">        dicom_extensions: Set of valid DICOM extensions (with dot, lowercase).</span>
+<span class="sd">                         Default: {&#39;.dcm&#39;, &#39;.dicom&#39;}</span>
+<span class="sd">        include_no_extension: If True, also check files without extensions.</span>
+<span class="sd">                             These will be validated by reading DICOM magic bytes.</span>
+<span class="sd">                             Default: False</span>
+<span class="sd">        num_workers: Number of worker threads for parallel processing.</span>
+<span class="sd">                    Default: min(32, cpu_count + 4) for I/O bound tasks</span>
+<span class="sd">        max_depth: Target depth for folder search.</span>
+<span class="sd">                  When specified, finds folders at this depth and gets ONE DICOM</span>
+<span class="sd">                  from each (searching into subfolders if needed, but stopping</span>
+<span class="sd">                  as soon as one is found).</span>
+<span class="sd">                  0 = only search in root directory</span>
+<span class="sd">                  1 = root + immediate subdirectories  </span>
+<span class="sd">                  2 = root + 2 levels of subdirectories</span>
+<span class="sd">                  None = unlimited depth, one DICOM per folder (default)</span>
+<span class="sd">                  Example: For structure root/patient/study/series/*.dcm,</span>
+<span class="sd">                  use max_depth=2 to get one DICOM per study (faster than</span>
+<span class="sd">                  scanning all series folders).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of Path objects, one DICOM file per target folder</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+    
+    <span class="c1"># Default DICOM extensions</span>
+    <span class="k">if</span> <span class="n">dicom_extensions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dicom_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.dicom&#39;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Ensure extensions are lowercase and have dots</span>
+        <span class="n">dicom_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span> 
+                          <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">dicom_extensions</span><span class="p">}</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_path</span><span class="si">}</span><span class="s2"> is not a directory&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="c1"># Set number of workers</span>
+    <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="n">DEFAULT_NUM_WORKERS</span>
+    
+    <span class="n">result_files</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># ========== STRATEGY 1: max_depth specified - FAST targeted search ==========</span>
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fast mode: locating folders at depth </span><span class="si">{</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">, then finding one DICOM per folder&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Step 1: Quickly get all folders at target depth (very fast, no deep scan)</span>
+        <span class="n">target_folders</span> <span class="o">=</span> <span class="n">_get_folders_at_depth</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span> <span class="n">max_depth</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_folders</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No folders found at depth </span><span class="si">{</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_folders</span><span class="p">)</span><span class="si">}</span><span class="s2"> folder(s) at depth </span><span class="si">{</span><span class="n">max_depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Step 2: For each target folder, find ONE DICOM (with early termination)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_folders</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Parallel search for large number of folders</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> threads to search </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_folders</span><span class="p">)</span><span class="si">}</span><span class="s2"> folders&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                <span class="n">futures</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                        <span class="n">_find_first_dicom_in_tree</span><span class="p">,</span> 
+                        <span class="n">folder</span><span class="p">,</span> 
+                        <span class="n">dicom_extensions</span><span class="p">,</span> 
+                        <span class="n">include_no_extension</span>
+                    <span class="p">):</span> <span class="n">folder</span>
+                    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">target_folders</span>
+                <span class="p">}</span>
+                
+                <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">dicom_file</span><span class="p">:</span>
+                            <span class="n">result_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">folder</span> <span class="o">=</span> <span class="n">futures</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error searching folder </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Sequential search for small number of folders</span>
+            <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">target_folders</span><span class="p">:</span>
+                <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">_find_first_dicom_in_tree</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">dicom_extensions</span><span class="p">,</span> <span class="n">include_no_extension</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dicom_file</span><span class="p">:</span>
+                    <span class="n">result_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result_files</span>
+    
+    <span class="c1"># ========== STRATEGY 2: No depth limit - scan all folders ==========</span>
+    <span class="c1"># Collect all folders with their files using os.walk</span>
+    <span class="n">folder_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">filenames</span><span class="p">:</span>  <span class="c1"># Only include folders that have files</span>
+            <span class="n">folder_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">filenames</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">folder_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="c1"># For small number of folders, single-threaded is often faster</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">folder_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="ow">or</span> <span class="n">num_workers</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">folder_info</span> <span class="ow">in</span> <span class="n">folder_list</span><span class="p">:</span>
+            <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">_find_dicom_in_folder</span><span class="p">(</span><span class="n">folder_info</span><span class="p">,</span> <span class="n">dicom_extensions</span><span class="p">,</span> <span class="n">include_no_extension</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dicom_file</span><span class="p">:</span>
+                <span class="n">result_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Multi-threaded processing for large directories</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> threads to scan </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">folder_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> folders&quot;</span><span class="p">)</span>
+        
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_find_dicom_in_folder</span><span class="p">,</span> <span class="n">folder_info</span><span class="p">,</span> <span class="n">dicom_extensions</span><span class="p">,</span> <span class="n">include_no_extension</span><span class="p">):</span> <span class="n">folder_info</span>
+                <span class="k">for</span> <span class="n">folder_info</span> <span class="ow">in</span> <span class="n">folder_list</span>
+            <span class="p">}</span>
+            
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">dicom_file</span><span class="p">:</span>
+                        <span class="n">result_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">folder_info</span> <span class="o">=</span> <span class="n">futures</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing folder </span><span class="si">{</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result_files</span></div>
+
+
+<div class="viewcode-block" id="read_dicom_tags"><a class="viewcode-back" href="../../../api/habit.utils.html#habit.utils.dicom_utils.read_dicom_tags">[文档]</a><span class="k">def</span> <span class="nf">read_dicom_tags</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> 
+                    <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read specified DICOM tags from a DICOM file.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        dicom_path: Path to DICOM file</span>
+<span class="sd">        tags: List of tags to read. Can be:</span>
+<span class="sd">            - Tag names (e.g., &#39;PatientName&#39;, &#39;StudyDate&#39;)</span>
+<span class="sd">            - Tag numbers (e.g., 0x00100010)</span>
+<span class="sd">            - Tag tuples (e.g., (0x0010, 0x0010))</span>
+<span class="sd">            If None, reads all standard tags</span>
+<span class="sd">        force: Whether to force reading even if file is not a valid DICOM</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary mapping tag names/numbers to values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PYDICOM_AVAILABLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;pydicom is required for reading DICOM files. Install it with: pip install pydicom&quot;</span><span class="p">)</span>
+    
+    <span class="n">dicom_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dicom_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DICOM file not found: </span><span class="si">{</span><span class="n">dicom_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">),</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading DICOM file </span><span class="si">{</span><span class="n">dicom_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># Standard tags to read if tags is None</span>
+    <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">standard_tags</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;PatientID&#39;</span><span class="p">,</span> <span class="s1">&#39;PatientName&#39;</span><span class="p">,</span> <span class="s1">&#39;PatientBirthDate&#39;</span><span class="p">,</span> <span class="s1">&#39;PatientSex&#39;</span><span class="p">,</span> <span class="s1">&#39;PatientAge&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;StudyInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;StudyDate&#39;</span><span class="p">,</span> <span class="s1">&#39;StudyTime&#39;</span><span class="p">,</span> <span class="s1">&#39;StudyDescription&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;SeriesInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;SeriesNumber&#39;</span><span class="p">,</span> <span class="s1">&#39;SeriesDescription&#39;</span><span class="p">,</span> <span class="s1">&#39;SeriesDate&#39;</span><span class="p">,</span> <span class="s1">&#39;SeriesTime&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Modality&#39;</span><span class="p">,</span> <span class="s1">&#39;Manufacturer&#39;</span><span class="p">,</span> <span class="s1">&#39;ManufacturerModelName&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;MagneticFieldStrength&#39;</span><span class="p">,</span>  <span class="c1"># MRI field strength (e.g., 3.0T, 1.5T)</span>
+            <span class="s1">&#39;SliceThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;SpacingBetweenSlices&#39;</span><span class="p">,</span> <span class="s1">&#39;PixelSpacing&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Rows&#39;</span><span class="p">,</span> <span class="s1">&#39;Columns&#39;</span><span class="p">,</span> <span class="s1">&#39;BitsAllocated&#39;</span><span class="p">,</span> <span class="s1">&#39;BitsStored&#39;</span><span class="p">,</span> <span class="s1">&#39;HighBit&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ImagePositionPatient&#39;</span><span class="p">,</span> <span class="s1">&#39;ImageOrientationPatient&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;EchoTime&#39;</span><span class="p">,</span> <span class="s1">&#39;RepetitionTime&#39;</span><span class="p">,</span> <span class="s1">&#39;FlipAngle&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;InstanceNumber&#39;</span><span class="p">,</span> <span class="s1">&#39;SliceLocation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;AcquisitionDate&#39;</span><span class="p">,</span> <span class="s1">&#39;AcquisitionTime&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ContrastBolusAgent&#39;</span><span class="p">,</span> <span class="s1">&#39;ContrastBolusVolume&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;KVP&#39;</span><span class="p">,</span> <span class="s1">&#39;XRayTubeCurrent&#39;</span><span class="p">,</span> <span class="s1">&#39;ExposureTime&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;WindowCenter&#39;</span><span class="p">,</span> <span class="s1">&#39;WindowWidth&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;RescaleIntercept&#39;</span><span class="p">,</span> <span class="s1">&#39;RescaleSlope&#39;</span>
+        <span class="p">]</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">standard_tags</span>
+    
+    <span class="c1"># Read specified tags</span>
+    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Tag name</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="c1"># Tag number or tuple</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">tag_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">tag</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">,</span> <span class="n">tag</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tag_tuple</span> <span class="o">=</span> <span class="n">tag</span>
+                
+                <span class="k">if</span> <span class="n">tag_tuple</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">tag_tuple</span><span class="p">]</span>
+                    <span class="n">tag_name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">keyword</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s1">&#39;keyword&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">keyword</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag_tuple</span><span class="p">)</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">tag_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tag_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag_tuple</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">tag</span><span class="si">:</span><span class="s2">08X</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">tag_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading tag </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">dicom_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="c1"># Add file path</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;File_Path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;File_Name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicom_path</span><span class="o">.</span><span class="n">name</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_series_uid</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quickly get SeriesInstanceUID from a DICOM file.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        dicom_file: Path to DICOM file</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        SeriesInstanceUID or None if not available</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">),</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stop_before_pixels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;SeriesInstanceUID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="batch_read_dicom_info"><a class="viewcode-back" href="../../../api/habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info">[文档]</a><span class="k">def</span> <span class="nf">batch_read_dicom_info</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+                          <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="n">output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;csv&#39;</span><span class="p">,</span>
+                          <span class="n">group_by_series</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="n">one_file_per_folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">dicom_extensions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">include_no_extension</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">num_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Batch read DICOM information from multiple files.</span>
+<span class="sd">    Uses io_utils functionality to handle YAML config files or directory paths.</span>
+<span class="sd">    Uses multi-threading for parallel I/O operations to significantly speed up scanning.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_path: Path to DICOM directory, file, or YAML config file</span>
+<span class="sd">        tags: List of tags to read. If None, reads standard tags</span>
+<span class="sd">        recursive: Whether to search recursively in subdirectories (only used when one_file_per_folder=False)</span>
+<span class="sd">        output_file: Optional path to save results. If None, results are not saved</span>
+<span class="sd">        output_format: Format to save results (&#39;csv&#39;, &#39;excel&#39;, &#39;json&#39;)</span>
+<span class="sd">        group_by_series: If True, group files by SeriesInstanceUID and only read one file per series.</span>
+<span class="sd">                        If False, read all files. Default is True.</span>
+<span class="sd">        one_file_per_folder: If True, only take one DICOM file per folder to speed up scanning.</span>
+<span class="sd">                            This uses a fast directory traversal method instead of listing all files,</span>
+<span class="sd">                            which is much faster when there are hundreds of thousands of DICOM files.</span>
+<span class="sd">                            Useful when each folder contains exactly one series.</span>
+<span class="sd">                            Note: When enabled, --recursive is ignored (always recursive with depth control).</span>
+<span class="sd">        dicom_extensions: Set of valid DICOM file extensions (e.g., {&#39;.dcm&#39;, &#39;.dicom&#39;, &#39;.ima&#39;}).</span>
+<span class="sd">                         Only used when one_file_per_folder=True. Default: {&#39;.dcm&#39;, &#39;.dicom&#39;}</span>
+<span class="sd">        include_no_extension: If True, also check files without extensions by reading DICOM magic bytes.</span>
+<span class="sd">                             Only used when one_file_per_folder=True. This is useful for some medical</span>
+<span class="sd">                             devices that produce DICOM files without file extensions. Default: False</span>
+<span class="sd">        num_workers: Number of worker threads for parallel processing.</span>
+<span class="sd">                    Default: min(32, cpu_count + 4) for I/O bound tasks.</span>
+<span class="sd">                    Set to 1 to disable parallel processing.</span>
+<span class="sd">        max_depth: Maximum recursion depth for directory traversal.</span>
+<span class="sd">                  Only used when one_file_per_folder=True.</span>
+<span class="sd">                  0 = only search in root directory</span>
+<span class="sd">                  1 = root + immediate subdirectories</span>
+<span class="sd">                  None = unlimited depth (default)</span>
+<span class="sd">                  Example: For typical DICOM structure (root/patient/study/series/),</span>
+<span class="sd">                  set max_depth=3 to search up to the series level.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame with DICOM information, one row per series (if group_by_series=True) or per file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PYDICOM_AVAILABLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;pydicom is required for reading DICOM files. Install it with: pip install pydicom&quot;</span><span class="p">)</span>
+    
+    <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+    
+    <span class="c1"># Determine number of workers for parallel processing</span>
+    <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="n">DEFAULT_NUM_WORKERS</span>
+    
+    <span class="c1"># Get DICOM files using appropriate strategy</span>
+    <span class="k">if</span> <span class="n">one_file_per_folder</span> <span class="ow">and</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="c1"># Fast mode: traverse directories first, take one file per folder</span>
+        <span class="c1"># This avoids listing all files which is very slow with hundreds of thousands of files</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Speed mode enabled: traversing directories to find one DICOM file per folder...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_no_extension</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Including files without extensions (will validate DICOM magic bytes)&quot;</span><span class="p">)</span>
+        <span class="n">dicom_files</span> <span class="o">=</span> <span class="n">get_one_dicom_per_folder</span><span class="p">(</span>
+            <span class="n">input_path</span><span class="p">,</span>
+            <span class="n">dicom_extensions</span><span class="o">=</span><span class="n">dicom_extensions</span><span class="p">,</span>
+            <span class="n">include_no_extension</span><span class="o">=</span><span class="n">include_no_extension</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Speed mode: found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> folder(s) with DICOM files&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Standard mode: get all DICOM files</span>
+        <span class="n">dicom_files</span> <span class="o">=</span> <span class="n">get_dicom_files</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dicom_files</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No DICOM files found in </span><span class="si">{</span><span class="n">input_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> DICOM file(s)&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Determine if parallel processing should be used</span>
+    <span class="c1"># Disable parallel if num_workers is 1 or too few files</span>
+    <span class="n">use_parallel</span> <span class="o">=</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+    
+    <span class="c1"># If group_by_series is True, group files by SeriesInstanceUID</span>
+    <span class="n">files_to_read</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">series_groups</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Initialize for use in both branches</span>
+    
+    <span class="k">if</span> <span class="n">group_by_series</span><span class="p">:</span>
+        <span class="c1"># Group files by SeriesInstanceUID</span>
+        <span class="n">files_without_series</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="n">use_parallel</span><span class="p">:</span>
+            <span class="c1"># Parallel processing for getting SeriesInstanceUID</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> threads to group </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files by series&quot;</span><span class="p">)</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Grouping files by series (parallel)&quot;</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                <span class="c1"># Submit all tasks</span>
+                <span class="n">future_to_file</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_get_series_uid</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dicom_files</span><span class="p">}</span>
+                
+                <span class="c1"># Collect results as they complete</span>
+                <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_file</span><span class="p">):</span>
+                    <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">future_to_file</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">series_uid</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">series_uid</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">series_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">series_groups</span><span class="p">:</span>
+                                <span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">files_without_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error getting series UID from </span><span class="si">{</span><span class="n">dicom_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">files_without_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                    <span class="k">finally</span><span class="p">:</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Sequential processing for small number of files</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Grouping files by series&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">dicom_file</span> <span class="ow">in</span> <span class="n">dicom_files</span><span class="p">:</span>
+                <span class="n">series_uid</span> <span class="o">=</span> <span class="n">_get_series_uid</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">series_uid</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">series_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">series_groups</span><span class="p">:</span>
+                        <span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">files_without_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Select one representative file from each series (first file)</span>
+        <span class="k">for</span> <span class="n">series_uid</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">series_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">files_to_read</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Series </span><span class="si">{</span><span class="n">series_uid</span><span class="si">}</span><span class="s2">: selecting first file from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Add files without series UID</span>
+        <span class="n">files_to_read</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">files_without_series</span><span class="p">)</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grouped into </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">series_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> series, reading </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">)</span><span class="si">}</span><span class="s2"> representative file(s)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Read all files</span>
+        <span class="n">files_to_read</span> <span class="o">=</span> <span class="n">dicom_files</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading all </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">)</span><span class="si">}</span><span class="s2"> file(s) (not grouping by series)&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Read information from selected files</span>
+    <span class="n">all_info</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">failed_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">use_parallel_read</span> <span class="o">=</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+    
+    <span class="k">if</span> <span class="n">use_parallel_read</span><span class="p">:</span>
+        <span class="c1"># Parallel reading of DICOM information</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> threads to read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">)</span><span class="si">}</span><span class="s2"> DICOM files&quot;</span><span class="p">)</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Reading DICOM information (parallel)&quot;</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">_read_single_file</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Read a single DICOM file and return (info_dict, error_message)&quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="n">read_dicom_tags</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>
+                <span class="c1"># Add number of files in series if grouping was used</span>
+                <span class="k">if</span> <span class="n">group_by_series</span><span class="p">:</span>
+                    <span class="n">series_uid</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SeriesInstanceUID&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">series_uid</span> <span class="ow">and</span> <span class="n">series_uid</span> <span class="ow">in</span> <span class="n">series_groups</span><span class="p">:</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Files_In_Series&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Files_In_Series&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">future_to_file</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_read_single_file</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files_to_read</span><span class="p">}</span>
+            
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_file</span><span class="p">):</span>
+                <span class="n">dicom_file</span> <span class="o">=</span> <span class="n">future_to_file</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">info</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+                        <span class="n">all_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">error</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read </span><span class="si">{</span><span class="n">dicom_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">failed_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read </span><span class="si">{</span><span class="n">dicom_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">failed_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">))</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Sequential reading for small number of files</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files_to_read</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Reading DICOM information&quot;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">dicom_file</span> <span class="ow">in</span> <span class="n">files_to_read</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="n">read_dicom_tags</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>
+                <span class="c1"># Add number of files in series if grouping was used</span>
+                <span class="k">if</span> <span class="n">group_by_series</span><span class="p">:</span>
+                    <span class="n">series_uid</span> <span class="o">=</span> <span class="n">_get_series_uid</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">series_uid</span> <span class="ow">and</span> <span class="n">series_uid</span> <span class="ow">in</span> <span class="n">series_groups</span><span class="p">:</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Files_In_Series&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series_groups</span><span class="p">[</span><span class="n">series_uid</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Files_In_Series&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">all_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read </span><span class="si">{</span><span class="n">dicom_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">failed_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">))</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_info</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No DICOM files could be read successfully&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    
+    <span class="c1"># Create DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_info</span><span class="p">)</span>
+    
+    <span class="c1"># Log summary</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_info</span><span class="p">)</span><span class="si">}</span><span class="s2"> DICOM file(s)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">failed_files</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> file(s)&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Save if output file is specified</span>
+    <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+        <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">output_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">output_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;excel&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">output_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported output format: </span><span class="si">{</span><span class="n">output_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Results saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="list_available_tags"><a class="viewcode-back" href="../../../api/habit.utils.html#habit.utils.dicom_utils.list_available_tags">[文档]</a><span class="k">def</span> <span class="nf">list_available_tags</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> 
+                       <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List all available tags in DICOM file(s).</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        dicom_path: Path to DICOM file or directory</span>
+<span class="sd">        num_samples: Number of files to sample (if directory)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of available tag names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">PYDICOM_AVAILABLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;pydicom is required for reading DICOM files. Install it with: pip install pydicom&quot;</span><span class="p">)</span>
+    
+    <span class="n">dicom_files</span> <span class="o">=</span> <span class="n">get_dicom_files</span><span class="p">(</span><span class="n">dicom_path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dicom_files</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="c1"># Sample files</span>
+    <span class="n">sample_files</span> <span class="o">=</span> <span class="n">dicom_files</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicom_files</span><span class="p">))]</span>
+    
+    <span class="n">all_tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">dicom_file</span> <span class="ow">in</span> <span class="n">sample_files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dicom_file</span><span class="p">),</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s1">&#39;keyword&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">keyword</span><span class="p">:</span>
+                    <span class="n">all_tags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">keyword</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_tags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading </span><span class="si">{</span><span class="n">dicom_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">all_tags</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2026, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

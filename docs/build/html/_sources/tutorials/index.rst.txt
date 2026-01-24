@@ -1,0 +1,12 @@
+Tutorials
+=========
+
+Step-by-step tutorials for common tasks.
+
+.. toctree::
+   :maxdepth: 2
+
+   basic_workflow
+   basic_habitat_analysis
+   custom_features
+   ml_integration

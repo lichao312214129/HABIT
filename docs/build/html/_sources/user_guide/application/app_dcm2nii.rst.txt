@@ -1,0 +1,61 @@
+DICOM to NIfTI Conversion Module
+================================
+
+Overview
+--------
+
+This module provides the functionality to batch convert DICOM files to NIfTI format using the dcm2niix tool. It is integrated into the HABIT preprocessing pipeline and implemented through the ``Dcm2niixConverter`` class, supporting both single and batch conversion operations.
+
+**Note**: This feature is not a standalone application script but is used as part of the preprocessing pipeline. To use it, please refer to ``app_image_preprocessing.py``.
+
+Requirements
+------------
+
+Dependencies
+~~~~~~~~~~~~
+
+- ``dcm2niix`` executable (must be installed and accessible in the system PATH)
+- Python packages: ``subprocess``, ``pathlib``, ``logging``
+- HABIT dependencies: ``BasePreprocessor``, ``CustomTqdm``, ``file_system_utils``
+
+Installing dcm2niix
+~~~~~~~~~~~~~~~~~~~
+
+1. Download dcm2niix: https://github.com/rordenlab/dcm2niix
+2. Add dcm2niix.exe to the system PATH
+3. Verify installation: ``dcm2niix --help``
+
+Usage
+-----
+
+1. Single DICOM Directory Conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from habit.core.preprocessing import Dcm2niixConverter
+
+    # Initialize converter
+    converter = Dcm2niixConverter(
+        keys=["dicom_path"],
+        output_dir="/path/to/output",
+        dcm2niix_executable="dcm2niix.exe",  # For Windows
+        compress=True,
+        anonymize=True
+    )
+
+    # Setup data
+    data = {
+        "subject_id": "subject_001",
+        "dicom_path": "/path/to/dicom/directory"
+    }
+
+    # Convert
+    result = converter(data)
+
+2. Batch Conversion of Multiple Subjects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from habit.core.preprocessing import batch_convert_dicom_directories

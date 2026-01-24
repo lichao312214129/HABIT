@@ -1,0 +1,1295 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>机器学习模块使用文档 &mdash; HABIT 0.1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/translations.js?v=beaddf03"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation_zh.html">安装指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id2">系统要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id3">主要依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id4">从源码安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id5">安装依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id6">验证安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id7">可选依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id8">安装问题排查</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quickstart_zh.html">快速入门</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id2">前提条件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id3">快速入门示例</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id4">步骤 1: 图像预处理</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id5">步骤 2: 生境分割</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id6">步骤 3: 生境特征提取</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id7">步骤 4: 机器学习建模</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id8">配置文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/basic_concepts_zh.html">基本概念</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#habitat">生境（Habitat）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id2">聚类策略</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id3">特征提取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id4">配置驱动</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id5">双重接口</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html">扩展性概述</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id2">扩展机制概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id3">可扩展的组件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id4">扩展步骤</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id5">配置文件中的使用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id6">自动发现机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id9">扩展最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id10">下一步</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id2">数据输入方式概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id3">文件夹结构方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id4">标准文件夹结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id5">文件夹命名规则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id7">路径格式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id8">路径和文件名规则</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id9">实际示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id10">两种方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id11">转换方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id12">数据验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id13">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index_zh.html">用户指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_feature_extraction_zh.html">生境特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_extraction_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id2">工作流程概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id3">自定义扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id4">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id5">数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id6">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id1">核心理念</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id2">设计原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id3">设计理念总结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id3">扩展原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id6">自定义聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id7">自定义模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id8">自定义特征选择器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id9">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id10">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id11">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id3">通用配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id4">预处理配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id5">生境分析配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id22">特征提取配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id25">机器学习配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id26">数据配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id43">配置文件验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id44">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id45">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id2">通用参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id3">图像预处理命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id4">生境分析命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id5">特征提取命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id6">机器学习命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id7">帮助命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id8">版本命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id9">命令行参数优先级</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id10">错误处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id11">日志记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id12">批处理示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id13">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id14">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/habit.core.html">habit.core package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/habit.utils.html">habit.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#main-modules">Main Modules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html">架构设计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id2">核心模块</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#common">Common</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id3">设计模式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id4">模块依赖关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/design_patterns.html">设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/testing.html">测试指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id2">运行测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id3">编写测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#fixtures">使用 Fixtures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id4">测试最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id5">持续集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">贡献指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id2">如何贡献</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#bug">报告 Bug</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id3">提交代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id4">代码规范</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id5">文档贡献</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id6">开发环境设置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#pull-request">提交 Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id7">行为准则</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">算法参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html">聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#k-means">K-Means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#id3">层次聚类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/feature_extraction.html">特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/validation_methods.html">验证方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id3">验证方法选择</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">机器学习模块使用文档</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/app_of_machine_learning.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>机器学习模块使用文档<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<section id="id2">
+<h2>功能概述<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>机器学习模块提供了完整的机器学习流程，包括数据预处理、特征选择、模型训练、性能评估和新数据预测。支持多种机器学习算法，可用于放射组学特征的分类和回归任务。</p>
+</section>
+<section id="id3">
+<h2>🚀 快速开始<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<section id="cli">
+<h3>使用CLI（推荐）✨<a class="headerlink" href="#cli" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 训练模式</span>
+habit<span class="w"> </span>ml<span class="w"> </span>--config<span class="w"> </span>config/config_machine_learning.yaml<span class="w"> </span>--mode<span class="w"> </span>train
+
+<span class="c1"># 预测模式</span>
+habit<span class="w"> </span>ml<span class="w"> </span>--mode<span class="w"> </span>predict<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span>./ml_data/model_package.pkl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span>./new_data.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>./predictions/
+
+<span class="c1"># 预测并评估</span>
+habit<span class="w"> </span>ml<span class="w"> </span>--mode<span class="w"> </span>predict<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span>./ml_data/model_package.pkl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span>./test_data.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--evaluate
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>使用传统脚本（兼容旧版）<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 训练模式</span>
+python<span class="w"> </span>scripts/app_of_machine_learning.py<span class="w"> </span>--config<span class="w"> </span>&lt;config_file_path&gt;<span class="w"> </span>--mode<span class="w"> </span>train
+
+<span class="c1"># 预测模式</span>
+python<span class="w"> </span>scripts/app_of_machine_learning.py<span class="w"> </span>--config<span class="w"> </span>&lt;config_file_path&gt;<span class="w"> </span>--mode<span class="w"> </span>predict<span class="w"> </span>--model<span class="w"> </span>&lt;model_file_path&gt;<span class="w"> </span>--data<span class="w"> </span>&lt;data_file_path&gt;<span class="w"> </span><span class="o">[</span>--output<span class="w"> </span>&lt;output_dir&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model_name<span class="w"> </span>&lt;model_name&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--evaluate<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id5">
+<h2>命令行参数<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--config</span></code></p></td>
+<td><p>YAML配置文件路径（必需）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--mode</span></code></p></td>
+<td><p>运行模式: ‘train’ (训练) 或
+‘predict’ (预测)，默认为’train’</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--model</span></code></p></td>
+<td><p>模型包文件路径
+(.pkl)，预测模式必需</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--data</span></code></p></td>
+<td><p>预测数据文件路径
+(.csv)，预测模式必需</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output</span></code></p></td>
+<td><p>预测结果保存路径</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--model_name</span></code></p></td>
+<td><p>用于预测的特定模型名称</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--evaluate</span></code></p></td>
+<td><p>是否评估模型性能并生成图表</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id6">
+<h2>📋 配置文件<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h2>
+<p><strong>📖 配置文件链接</strong>： - 📄
+<a class="reference external" href="../config/config_machine_learning.yaml">当前配置文件</a> -
+实际使用的精简配置 - 📖
+<a class="reference external" href="../config_templates/config_machine_learning_annotated.yaml">详细注释模板</a>
+- 完整英文注释和使用说明</p>
+</section>
+<section id="id7">
+<h2>配置文件格式<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">app_of_machine_learning.py</span></code>
+使用YAML格式的配置文件，包含以下主要部分：</p>
+<section id="id8">
+<h3>基本配置<a class="headerlink" href="#id8" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 数据和输出路径</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;输入数据文件路径&gt;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;特征名称前缀，默认为空&gt;</span>
+<span class="w">    </span><span class="nt">subject_id_col</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;患者ID列名&gt;</span>
+<span class="w">    </span><span class="nt">label_col</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;标签列名&gt;</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;可选的特定特征列表&gt;</span>
+<span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;输出目录路径&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>数据分割配置<a class="headerlink" href="#id9" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 数据分割方法：random(随机分割)、stratified(分层分割)或custom(自定义分割)</span>
+<span class="nt">split_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;分割方法&gt;</span>
+<span class="nt">test_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;测试集比例&gt;</span><span class="w">  </span><span class="c1"># 当split_method为random或stratified时使用</span>
+
+<span class="c1"># 当split_method为custom时使用</span>
+<span class="nt">train_ids_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;训练集ID文件路径&gt;</span>
+<span class="nt">test_ids_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;测试集ID文件路径&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>特征选择配置<a class="headerlink" href="#id10" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># 可以配置多个特征选择方法，它们将按顺序执行</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;特征选择方法名称&gt;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;参数1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值1&gt;</span>
+<span class="w">      </span><span class="nt">&lt;参数2&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值2&gt;</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>机器学习模型配置<a class="headerlink" href="#id11" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">&lt;模型名称&gt;</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;参数1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值1&gt;</span>
+<span class="w">      </span><span class="nt">&lt;参数2&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值2&gt;</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>可视化和保存配置<a class="headerlink" href="#id12" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">is_visualize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;是否生成性能可视化图表&gt;</span>
+<span class="nt">is_save_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;是否保存训练好的模型&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h3>数据标准化配置<a class="headerlink" href="#id13" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 数据标准化/归一化配置</span>
+<span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;标准化方法名称&gt;</span><span class="w">  </span><span class="c1"># 支持多种标准化方法</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">&lt;参数1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值1&gt;</span><span class="w">  </span><span class="c1"># 特定标准化方法的参数</span>
+<span class="w">    </span><span class="nt">&lt;参数2&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;值2&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id14">
+<h2>支持的数据预处理方法<a class="headerlink" href="#id14" title="此标题的永久链接"></a></h2>
+<section id="id15">
+<h3>缺失值填充方法<a class="headerlink" href="#id15" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mean</span></code>: 均值填充</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">median</span></code>: 中位数填充</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">most_frequent</span></code>: 众数填充</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">constant</span></code>: 常数填充</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">knn</span></code>: K近邻填充</p></li>
+</ul>
+</section>
+</section>
+<section id="id16">
+<h2>支持的特征选择方法<a class="headerlink" href="#id16" title="此标题的永久链接"></a></h2>
+<section id="id17">
+<h3>特征选择时机选择<a class="headerlink" href="#id17" title="此标题的永久链接"></a></h3>
+<p>所有特征选择方法都支持一个新的参数
+<code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>，用于控制该方法是在Z-score标准化前还是标准化后执行：
+- <code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">true</span></code> - 方法将在Z-score标准化前执行 -
+<code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">false</span></code> - 方法将在Z-score标准化后执行（默认行为）</p>
+<p>对于方差敏感的方法（如方差阈值过滤器），建议设置
+<code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">true</span></code>，因为Z-score标准化会使所有特征的方差变为1，导致方差过滤失效。</p>
+</section>
+<section id="icc-intraclass-correlation-coefficient">
+<h3>ICC (Intraclass Correlation Coefficient) 方法<a class="headerlink" href="#icc-intraclass-correlation-coefficient" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'icc'</span></code>: 基于特征重复性选择特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">icc_results</span></code>: ICC结果JSON文件路径</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keys</span></code>: 使用的ICC结果键</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code>: 保留特征的最小ICC值(0.0-1.0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="vif-variance-inflation-factor">
+<h3>VIF (Variance Inflation Factor) 方法<a class="headerlink" href="#vif-variance-inflation-factor" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'vif'</span></code>: 移除具有高多重共线性的特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_vif</span></code>: 最大允许的VIF值</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成VIF值可视化</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id18">
+<h3>相关性方法<a class="headerlink" href="#id18" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'correlation'</span></code>: 移除高度相关的特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code>: 相关性阈值</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: 相关性计算方法(‘pearson’, ‘spearman’或’kendall’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成相关性热图</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="anova">
+<h3>ANOVA方法<a class="headerlink" href="#anova" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'anova'</span></code>: 基于ANOVA F值选择特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code>: P值阈值，默认为0.05（选择p值小于阈值的特征）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_features_to_select</span></code>:
+可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_importance</span></code>: 是否绘制特征重要性图，默认为True</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="chi2">
+<h3>Chi2方法<a class="headerlink" href="#chi2" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'chi2'</span></code>:
+基于卡方统计量选择特征（适用于非负特征的分类问题）</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code>: P值阈值，默认为0.05（选择p值小于阈值的特征）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_features_to_select</span></code>:
+可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_importance</span></code>: 是否绘制特征重要性图，默认为True</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成可视化结果</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id19">
+<h3>统计检验方法<a class="headerlink" href="#id19" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'statistical_test'</span></code>: 基于统计检验（t检验或Mann-Whitney
+U检验）选择特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code>: P值阈值，默认为0.05（选择p值小于阈值的特征）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_features_to_select</span></code>:
+可选参数，要选择的特征数量（如果指定，则覆盖p_threshold）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">normality_test_threshold</span></code>:
+Shapiro-Wilk正态性检验阈值，默认为0.05</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_importance</span></code>: 是否绘制特征重要性图，默认为True</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">force_test</span></code>:
+强制使用特定检验方法，可选值为’ttest’或’mannwhitney’，默认自动选择</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id20">
+<h3>方差阈值方法<a class="headerlink" href="#id20" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'variance'</span></code>: 基于特征方差选择特征，移除低方差特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code>: 方差阈值，默认为0.0（保留方差高于阈值的特征）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_variances</span></code>: 是否绘制特征方差图，默认为True</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>:
+是否在Z-score标准化前执行，推荐设置为true，因为标准化后所有特征的方差都为1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">top_k</span></code>:
+选择方差最大的前k个特征（如果指定，将覆盖threshold参数）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">top_percent</span></code>:
+选择方差最大的前百分比特征（0-100之间，如果指定，将覆盖threshold参数）</p></li>
+</ul>
+</li>
+</ul>
+<p>使用示例 - 基于阈值选择:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;variance&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">      </span><span class="nt">plot_variances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>使用示例 - 选择前k个特征:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;variance&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">top_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w">  </span><span class="c1"># 选择方差最大的前20个特征</span>
+<span class="w">      </span><span class="nt">plot_variances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>使用示例 - 选择前百分比特征:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;variance&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">top_percent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">  </span><span class="c1"># 选择方差最大的前10%特征</span>
+<span class="w">      </span><span class="nt">plot_variances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="mrmr-minimum-redundancy-maximum-relevance">
+<h3>mRMR (Minimum Redundancy Maximum Relevance) 方法<a class="headerlink" href="#mrmr-minimum-redundancy-maximum-relevance" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'mrmr'</span></code>: 选择与目标高度相关但特征间冗余度低的特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code>: 目标变量名</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_features</span></code>: 要选择的特征数量（默认10）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: MRMR方法，可选’MIQ’（互信息商）或’MID’（互信息差）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成可视化结果</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outdir</span></code>: 输出目录（用于保存可视化结果）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="lasso-l1">
+<h3>LASSO (L1正则化) 方法<a class="headerlink" href="#lasso-l1" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'lasso'</span></code>: 使用L1正则化进行特征选择</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cv</span></code>: 选择最优alpha的交叉验证折数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_alphas</span></code>: 尝试的alpha值数量</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_state</span></code>: 随机种子</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成特征系数可视化</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="rfecv-recursive-feature-elimination-with-cross-validation">
+<h3>RFECV (Recursive Feature Elimination with Cross-Validation) 方法<a class="headerlink" href="#rfecv-recursive-feature-elimination-with-cross-validation" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'rfecv'</span></code>: 使用递归特征消除与交叉验证进行特征选择</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">estimator</span></code>: 基础估计器，支持以下模型：</p>
+<ul>
+<li><p>分类任务：</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">LogisticRegression</span></code>: 逻辑回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomForestClassifier</span></code>: 随机森林分类器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SVC</span></code>: 支持向量机分类器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GradientBoostingClassifier</span></code>: 梯度提升分类器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XGBClassifier</span></code>: XGBoost分类器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LGBMClassifier</span></code>: LightGBM分类器</p></li>
+</ul>
+</li>
+<li><p>回归任务：</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">LinearRegression</span></code>: 线性回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomForestRegressor</span></code>: 随机森林回归器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SVR</span></code>: 支持向量机回归器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GradientBoostingRegressor</span></code>: 梯度提升回归器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XGBRegressor</span></code>: XGBoost回归器</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LGBMRegressor</span></code>: LightGBM回归器</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step</span></code>: 每次迭代要移除的特征数量（默认为1）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cv</span></code>: 交叉验证折数（默认为5）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scoring</span></code>: 评估指标</p>
+<ul>
+<li><p>分类任务：‘accuracy’, ‘f1’, ‘roc_auc’, ‘precision’, ‘recall’</p></li>
+<li><p>回归任务：‘r2’, ‘neg_mean_squared_error’,
+‘neg_mean_absolute_error’</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_features_to_select</span></code>: 最少保留的特征数量（默认为1）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_jobs</span></code>: 并行计算的作业数（默认为-1，使用所有CPU）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_state</span></code>: 随机种子</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code>: 是否生成特征数量与性能关系图</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+<p>使用示例：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;rfecv&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">estimator</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;RandomForestClassifier&#39;</span><span class="w">  </span><span class="c1"># 使用随机森林分类器</span>
+<span class="w">      </span><span class="nt">step</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">cv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">scoring</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;roc_auc&#39;</span>
+<span class="w">      </span><span class="nt">min_features_to_select</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">n_jobs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-1</span>
+<span class="w">      </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+<span class="w">      </span><span class="nt">visualize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># 在Z-score标准化后执行</span>
+</pre></div>
+</div>
+</section>
+<section id="id21">
+<h3>单变量逻辑回归方法<a class="headerlink" href="#id21" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'univariate_logistic'</span></code>: 基于单变量逻辑回归p值选择特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code>: 特征选择的最大p值阈值</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id22">
+<h3>逐步特征选择方法<a class="headerlink" href="#id22" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'stepwise'</span></code>: 使用AIC/BIC准则进行逐步特征选择</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>:
+逐步选择方向：‘forward’(前向)、‘backward’(后向)或’both’(双向)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">criterion</span></code>: 选择准则：‘aic’(AIC)、‘bic’(BIC)或’pvalue’(p值)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">before_z_score</span></code>: 是否在Z-score标准化前执行，默认为false</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id23">
+<h2>支持的机器学习模型<a class="headerlink" href="#id23" title="此标题的永久链接"></a></h2>
+<section id="id24">
+<h3>分类模型<a class="headerlink" href="#id24" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LogisticRegression</span></code>: 逻辑回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SVM</span></code>: 支持向量机</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomForest</span></code>: 随机森林</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XGBoost</span></code>: XGBoost</p></li>
+</ul>
+</section>
+<section id="id25">
+<h3>回归模型<a class="headerlink" href="#id25" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LinearRegression</span></code>: 线性回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ridge</span></code>: Ridge回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomForestRegressor</span></code>: 随机森林回归</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">XGBoostRegressor</span></code>: XGBoost回归</p></li>
+</ul>
+</section>
+</section>
+<section id="id26">
+<h2>支持的评估指标<a class="headerlink" href="#id26" title="此标题的永久链接"></a></h2>
+<section id="id27">
+<h3>分类指标<a class="headerlink" href="#id27" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">accuracy</span></code>: 准确率</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">precision</span></code>: 精确率</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recall</span></code>: 召回率</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">f1</span></code>: F1分数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>: ROC AUC</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pr_auc</span></code>: PR AUC (精确率-召回率曲线下面积)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sensitivity</span></code>: 敏感度</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">specificity</span></code>: 特异度</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>回归指标<a class="headerlink" href="#id28" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">r2</span></code>: R²决定系数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mae</span></code>: 平均绝对误差</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mse</span></code>: 均方误差</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rmse</span></code>: 均方根误差</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">explained_variance</span></code>: 解释方差</p></li>
+</ul>
+</section>
+</section>
+<section id="id29">
+<h2>完整配置示例<a class="headerlink" href="#id29" title="此标题的永久链接"></a></h2>
+<section id="id30">
+<h3>分类任务<a class="headerlink" href="#id30" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 基本配置</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data/radiomics_features.csv</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">subject_id_col</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;subjID&#39;</span>
+<span class="w">    </span><span class="nt">label_col</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;label&#39;</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/classification_results</span>
+
+<span class="c1"># 数据分割</span>
+<span class="nt">split_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;custom&#39;</span><span class="w">  </span><span class="c1"># 使用自定义分割方法</span>
+<span class="nt">train_ids_file</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./data/train_ids.txt&#39;</span><span class="w">  </span><span class="c1"># 训练集ID文件</span>
+<span class="nt">test_ids_file</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./data/test_ids.txt&#39;</span><span class="w">  </span><span class="c1"># 测试集ID文件</span>
+
+<span class="c1"># 特征选择</span>
+<span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;variance&#39;</span><span class="w">  </span><span class="c1"># 方差阈值过滤，在Z-score前执行</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">  </span><span class="c1"># 方差阈值</span>
+<span class="w">      </span><span class="nt">plot_variances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># 生成方差可视化</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># 在Z-score标准化前执行</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;univariate_logistic&#39;</span><span class="w">  </span><span class="c1"># 基于单变量逻辑回归p值选择特征</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">  </span><span class="c1"># p值阈值，低于此值的特征被保留</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># 在Z-score标准化后执行</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;stepwise&#39;</span><span class="w">  </span><span class="c1"># 逐步特征选择</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">Rhome</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;E:/software/R&#39;</span><span class="w">  </span><span class="c1"># R安装路径</span>
+<span class="w">      </span><span class="nt">direction</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;backward&#39;</span><span class="w">  </span><span class="c1"># 使用后向选择方法</span>
+<span class="w">      </span><span class="nt">before_z_score</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># 在Z-score标准化后执行</span>
+
+<span class="c1"># 模型配置</span>
+<span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">LogisticRegression</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+<span class="w">      </span><span class="nt">max_iter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">      </span><span class="nt">C</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">      </span><span class="nt">penalty</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;l2&quot;</span>
+<span class="w">      </span><span class="nt">solver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;lbfgs&quot;</span>
+
+<span class="c1"># 可视化和保存配置</span>
+<span class="nt">is_visualize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># 生成性能可视化图表</span>
+<span class="nt">is_save_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># 保存训练好的模型</span>
+</pre></div>
+</div>
+</section>
+<section id="id31">
+<h3>回归任务<a class="headerlink" href="#id31" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 基本配置</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data/radiomics_features.csv</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">subject_id_col</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;subjID&#39;</span>
+<span class="w">    </span><span class="nt">label_col</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;survival_time&#39;</span>
+<span class="w">    </span><span class="nt">features</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/regression_results</span>
+
+<span class="c1"># 数据分割</span>
+<span class="nt">split_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;random&#39;</span>
+<span class="nt">test_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.3</span>
+<span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+
+<span class="c1"># 特征选择</span>
+<span class="nt">feature_selection_methods</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;lasso&#39;</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">n_alphas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+<span class="w">      </span><span class="nt">visualize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># 模型配置</span>
+<span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">LinearRegression</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+
+<span class="w">  </span><span class="nt">Ridge</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+
+<span class="w">  </span><span class="nt">RandomForestRegressor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">n_estimators</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">max_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+
+<span class="c1"># 可视化和保存配置</span>
+<span class="nt">is_visualize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">is_save_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id32">
+<h2>执行流程<a class="headerlink" href="#id32" title="此标题的永久链接"></a></h2>
+<section id="id33">
+<h3>训练模式<a class="headerlink" href="#id33" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p>读取配置文件和数据</p></li>
+<li><p>数据预处理</p></li>
+<li><p>数据分割（训练集、测试集）</p></li>
+<li><p>特征选择（第一阶段，处理<code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">true</span></code>的方法）</p></li>
+<li><p>Z-score特征标准化</p></li>
+<li><p>特征选择（第二阶段，处理<code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">false</span></code>或未指定的方法）</p></li>
+<li><p>模型训练（支持多个模型同时训练）</p></li>
+<li><p>模型评估（计算性能指标、生成图表）</p></li>
+<li><p>模型解释（特征重要性分析、SHAP值）</p></li>
+<li><p>保存模型和结果</p></li>
+</ol>
+</section>
+<section id="id34">
+<h3>预测模式<a class="headerlink" href="#id34" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p>加载训练好的模型包</p></li>
+<li><p>读取新数据</p></li>
+<li><p>应用预处理和特征选择流程</p></li>
+<li><p>使用模型生成预测结果</p></li>
+<li><p>可选：评估预测性能（如果提供了真实标签）</p></li>
+<li><p>保存预测结果</p></li>
+</ol>
+</section>
+</section>
+<section id="id35">
+<h2>输出结果<a class="headerlink" href="#id35" title="此标题的永久链接"></a></h2>
+<p>程序执行后，将在指定的输出目录生成以下内容：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">models/</span></code>: 保存训练好的模型文件</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">feature_selection/</span></code>: 特征选择结果</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluation/</span></code>: 模型评估结果和图表</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predictions/</span></code>: 测试集和新数据的预测结果</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_package.pkl</span></code>: 完整模型包，包含预处理、特征选择和模型参数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">results_summary.csv</span></code>: 所有模型的性能指标摘要</p></li>
+</ol>
+</section>
+<section id="id36">
+<h2>注意事项<a class="headerlink" href="#id36" title="此标题的永久链接"></a></h2>
+<ol class="arabic simple">
+<li><p>确保输入数据格式正确，标签列必须存在</p></li>
+<li><p>对于分类任务，标签应该是分类变量（可以是数字、字符串或布尔值）</p></li>
+<li><p>对于回归任务，标签应该是连续数值</p></li>
+<li><p>使用预测模式时，新数据应包含与训练数据相同的特征列（除标签列外）</p></li>
+<li><p>建议在配置文件中指定随机种子以确保结果可重复性</p></li>
+</ol>
+</section>
+<section id="id37">
+<h2>支持的标准化/归一化方法<a class="headerlink" href="#id37" title="此标题的永久链接"></a></h2>
+<section id="z-score-standardscaler">
+<h3>Z-Score标准化 (StandardScaler)<a class="headerlink" href="#z-score-standardscaler" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'z_score'</span></code>: 标准化特征为零均值和单位方差</p></li>
+<li><p>参数: 无需额外参数</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">z_score</span>
+</pre></div>
+</div>
+</section>
+<section id="min-max-minmaxscaler">
+<h3>Min-Max缩放 (MinMaxScaler)<a class="headerlink" href="#min-max-minmaxscaler" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'min_max'</span></code>: 将特征缩放到指定范围内</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">feature_range</span></code>: 缩放范围，默认为[0, 1]</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">min_max</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">feature_range</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 缩放到0-1范围</span>
+</pre></div>
+</div>
+</section>
+<section id="robustscaler">
+<h3>稳健缩放 (RobustScaler)<a class="headerlink" href="#robustscaler" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'robust'</span></code>: 使用对异常值不敏感的统计量缩放特征</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">quantile_range</span></code>: 用于计算缩放的百分位范围，默认为[25.0, 75.0]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">with_centering</span></code>: 是否在缩放前中心化数据，默认为True</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">with_scaling</span></code>: 是否缩放数据到四分位距，默认为True</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">robust</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">quantile_range</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">25.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">75.0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">with_centering</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">with_scaling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="maxabsscaler">
+<h3>最大绝对值缩放 (MaxAbsScaler)<a class="headerlink" href="#maxabsscaler" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'max_abs'</span></code>: 按每个特征的最大绝对值缩放</p></li>
+<li><p>参数: 无需额外参数</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">max_abs</span>
+</pre></div>
+</div>
+</section>
+<section id="normalizer">
+<h3>样本归一化 (Normalizer)<a class="headerlink" href="#normalizer" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'normalizer'</span></code>: 将样本缩放为单位范数</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">norm</span></code>: 使用的范数，可选’l1’、‘l2’或’max’，默认为’l2’</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normalizer</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">norm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">l2</span><span class="w">  </span><span class="c1"># 使用L2范数归一化</span>
+</pre></div>
+</div>
+</section>
+<section id="quantiletransformer">
+<h3>分位数变换 (QuantileTransformer)<a class="headerlink" href="#quantiletransformer" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'quantile'</span></code>: 将特征转换为均匀或正态分布</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_quantiles</span></code>: 用于量化的分位数数量，默认为1000</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_distribution</span></code>:
+输出分布，可选’uniform’或’normal’，默认为’uniform’</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quantile</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">n_quantiles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">    </span><span class="nt">output_distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uniform</span><span class="w">  </span><span class="c1"># 或 normal</span>
+</pre></div>
+</div>
+</section>
+<section id="powertransformer">
+<h3>幂变换 (PowerTransformer)<a class="headerlink" href="#powertransformer" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">'power'</span></code>: 应用幂变换使数据更接近高斯分布</p></li>
+<li><p>参数:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>:
+变换方法，可选’yeo-johnson’或’box-cox’，默认为’yeo-johnson’</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">standardize</span></code>:
+是否标准化转换后的数据为零均值和单位方差，默认为True</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">power</span>
+<span class="w">  </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yeo-johnson</span>
+<span class="w">    </span><span class="nt">standardize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2026, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

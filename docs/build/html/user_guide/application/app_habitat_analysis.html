@@ -1,0 +1,601 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitat Analysis User Guide &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Habitat Analysis User Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/application/app_habitat_analysis.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="habitat-analysis-user-guide">
+<h1>Habitat Analysis User Guide<a class="headerlink" href="#habitat-analysis-user-guide" title="此标题的永久链接"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>The Habitat Analysis module identifies and characterizes tumor sub-regions with distinct imaging phenotypes (“habitats”). This module supports two clustering strategies:</p>
+<section id="clustering-mode-comparison">
+<h3>Clustering Mode Comparison<a class="headerlink" href="#clustering-mode-comparison" title="此标题的永久链接"></a></h3>
+</section>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="此标题的永久链接"></a></h2>
+<section id="using-cli-recommended">
+<h3>Using CLI (Recommended)<a class="headerlink" href="#using-cli-recommended" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Two-step method (default)</span>
+habit<span class="w"> </span>habitat<span class="w"> </span>--config<span class="w"> </span>config/config_getting_habitat.yaml
+
+<span class="c1"># One-step method</span>
+<span class="c1"># First modify clustering_mode: one_step in config file</span>
+habit<span class="w"> </span>habitat<span class="w"> </span>--config<span class="w"> </span>config/config_getting_habitat.yaml
+</pre></div>
+</div>
+</section>
+<section id="using-traditional-script">
+<h3>Using Traditional Script<a class="headerlink" href="#using-traditional-script" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts/app_getting_habitat_map.py<span class="w"> </span>--config<span class="w"> </span>config/config_getting_habitat.yaml
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-file">
+<h2>Configuration File<a class="headerlink" href="#configuration-file" title="此标题的永久链接"></a></h2>
+<p>Configuration File Links:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="../config/config_getting_habitat.yaml">Current Configuration</a> - Concise configuration for actual use</p></li>
+<li><p><a class="reference external" href="../config_templates/config_getting_habitat_annotated.yaml">Annotated Template</a> - Complete English comments and instructions</p></li>
+</ul>
+<section id="key-configuration-items">
+<h3>Key Configuration Items<a class="headerlink" href="#key-configuration-items" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Clustering strategy selection</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">two_step</span><span class="w">  </span><span class="c1"># one_step or two_step</span>
+
+<span class="w">  </span><span class="c1"># Step 1: Individual-level clustering</span>
+<span class="w">  </span><span class="nt">supervoxel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmeans</span><span class="w">  </span><span class="c1"># kmeans or gmm</span>
+<span class="w">    </span><span class="nt">n_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">     </span><span class="c1"># Fixed number for two_step</span>
+
+<span class="w">    </span><span class="c1"># One-step specific settings</span>
+<span class="w">    </span><span class="nt">one_step_settings</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">min_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w">               </span><span class="c1"># Minimum clusters to test</span>
+<span class="w">      </span><span class="nt">max_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">              </span><span class="c1"># Maximum clusters to test</span>
+<span class="w">      </span><span class="nt">selection_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">silhouette</span><span class="w">  </span><span class="c1"># Validation method</span>
+<span class="w">      </span><span class="nt">plot_validation_curves</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Plot validation curves</span>
+
+<span class="w">  </span><span class="c1"># Step 2: Population-level clustering (only for two_step)</span>
+<span class="w">  </span><span class="nt">habitat</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training</span><span class="w">  </span><span class="c1"># training or testing</span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmeans</span>
+<span class="w">    </span><span class="nt">max_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="nt">habitat_cluster_selection_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inertia</span>
+<span class="w">    </span><span class="nt">best_n_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">  </span><span class="c1"># Specify number or null for auto</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="one-step-method-details">
+<h2>One-Step Method Details<a class="headerlink" href="#one-step-method-details" title="此标题的永久链接"></a></h2>
+<section id="how-it-works">
+<h3>How It Works<a class="headerlink" href="#how-it-works" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Voxel Feature Extraction</strong>: Calculate radiomics features for each voxel</p></li>
+<li><p><strong>Individual Clustering</strong>: Cluster each patient’s tumor independently</p></li>
+<li><p><strong>Auto Cluster Selection</strong>: Use validation metrics (e.g., silhouette score) to determine optimal number</p></li>
+<li><p><strong>Generate Personalized Habitat Maps</strong>: Each patient gets unique habitat segmentation</p></li>
+</ol>
+</section>
+<section id="cluster-selection-strategy">
+<h3>Cluster Selection Strategy<a class="headerlink" href="#cluster-selection-strategy" title="此标题的永久链接"></a></h3>
+<p>The code employs different strategies to select the optimal number of clusters based on the evaluation metric:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Selection Logic</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">silhouette</span></code></p></td>
+<td><p>Silhouette
+Coefficient</p></td>
+<td><p><strong>Max Principle</strong>:
+Higher is better.
+Selects the number of
+clusters with the
+highest score.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code></p></td>
+<td><p>Variance Ratio</p></td>
+<td><p><strong>Max Principle</strong>:
+Higher is better.
+Selects the number of
+clusters with the
+highest score.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">inertia</span></code></p></td>
+<td><p>Sum of
+Squared Errors
+(SSE)</p></td>
+<td><p><strong>Elbow Method</strong>:
+Lower is better. The
+code calculates the
+<strong>second-order
+difference</strong> of the
+score curve to find
+the “elbow point”
+(maximum curvature).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bic</span></code> / <code class="docutils literal notranslate"><span class="pre">aic</span></code></p></td>
+<td><p>Information
+Criteria (GMM)</p></td>
+<td><p><strong>Elbow Method</strong>:
+Lower is better. Uses
+the same second-order
+difference logic to
+find the elbow point.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">davies_bouldin</span></code></p></td>
+<td><p>Davies-Bouldin
+Index</p></td>
+<td><p><strong>Min Principle</strong>:
+Lower is better.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><strong>Why use Elbow Method for Inertia but Min Principle for Davies-Bouldin?</strong></p>
+<ul class="simple">
+<li><p><strong>Inertia (SSE)</strong>: Monotonically decreases as the number of clusters increases (reaching 0 when clusters = samples). Finding the absolute minimum leads to overfitting. Therefore, we look for the “elbow point” where the gain diminishes.</p></li>
+<li><p><strong>Davies-Bouldin</strong>: Considers both intra-cluster compactness (numerator) and inter-cluster separation (denominator). As clusters increase, while compactness improves, separation might decrease (smaller denominator). Thus, it typically has a distinct global minimum and does not require the Elbow Method.</p></li>
+</ul>
+</div>
+</section>
+<section id="combined-methods-voting-system">
+<h3>Combined Methods: Voting System<a class="headerlink" href="#combined-methods-voting-system" title="此标题的永久链接"></a></h3>
+<p>When using multiple evaluation methods in combination (e.g., <code class="docutils literal notranslate"><span class="pre">silhouette_calinski_harabasz_davies_bouldin</span></code>), the system employs a <strong>voting system</strong> to select the optimal number of clusters:</p>
+<ol class="arabic simple">
+<li><p><strong>Independent Selection</strong>: Each method independently selects its optimal cluster number based on its own selection logic (max, min, or elbow method)</p></li>
+<li><p><strong>Vote Counting</strong>: Count the number of votes each cluster number receives</p></li>
+<li><p><strong>Majority Rule</strong>: Select the cluster number with the most votes as the final result</p></li>
+<li><p><strong>Tie Breaking</strong>: In case of a tie, select the smallest cluster number (more conservative choice)</p></li>
+</ol>
+<p><strong>Example</strong>:</p>
+<ul class="simple">
+<li><p>Using three methods: <code class="docutils literal notranslate"><span class="pre">silhouette_calinski_harabasz_davies_bouldin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">silhouette</span></code> selects cluster number 5</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code> selects cluster number 5</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">davies_bouldin</span></code> selects cluster number 4</p></li>
+<li><p><strong>Voting Result</strong>: Cluster number 5 receives 2 votes, cluster number 4 receives 1 vote</p></li>
+<li><p><strong>Final Selection</strong>: Cluster number 5 (most votes)</p></li>
+</ul>
+<p>This voting system integrates opinions from multiple evaluation metrics, improving the robustness and reliability of the selection result.</p>
+</section>
+<section id="output-files">
+<h3>Output Files<a class="headerlink" href="#output-files" title="此标题的永久链接"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>output_dir/
+├── {subject}_supervoxel.nrrd           # Habitat map (per patient)
+├── {subject}_validation_plots/         # Validation curves (if enabled)
+│   └── {subject}_cluster_validation.png
+├── results_all_samples.csv             # Clustering results for all patients
+└── clustering_summary.csv              # Clustering summary statistics
+</pre></div>
+</div>
+</section>
+<section id="example-configuration-one-step">
+<h3>Example Configuration (One-Step)<a class="headerlink" href="#example-configuration-one-step" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">one_step</span>
+
+<span class="w">  </span><span class="nt">supervoxel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmeans</span>
+<span class="w">    </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+
+<span class="w">    </span><span class="nt">one_step_settings</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">min_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">              </span><span class="c1"># Test 3-8 clusters</span>
+<span class="w">      </span><span class="nt">max_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">      </span><span class="nt">selection_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">silhouette</span><span class="w">  </span><span class="c1"># Use silhouette score</span>
+<span class="w">      </span><span class="nt">plot_validation_curves</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Plot validation curves for each patient</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="two-step-method-details">
+<h2>Two-Step Method Details<a class="headerlink" href="#two-step-method-details" title="此标题的永久链接"></a></h2>
+<section id="id1">
+<h3>How It Works<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Voxel→Supervoxel</strong>: Cluster each patient’s tumor into supervoxels</p></li>
+<li><p><strong>Supervoxel→Habitat</strong>: Cross-patient clustering to identify common habitat patterns</p></li>
+<li><p><strong>Population Consistency</strong>: All patients use the same habitat definitions</p></li>
+</ol>
+</section>
+<section id="advantages">
+<h3>Advantages<a class="headerlink" href="#advantages" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p>Cross-patient comparability</p></li>
+<li><p>Identify common patterns</p></li>
+<li><p>Suitable for cohort studies</p></li>
+<li><p>Easier statistical analysis</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Output Files<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>output_dir/
+├── {subject}_supervoxel.nrrd              # Supervoxel map
+├── {subject}_habitat.nrrd                 # Habitat map
+├── mean_values_of_all_supervoxels_features.csv  # Supervoxel feature means
+├── results_all_samples.csv                # Final results
+├── supervoxel2habitat_clustering_model.pkl  # Clustering model
+└── habitat_clustering_scores.png          # Clustering evaluation curves
+</pre></div>
+</div>
+</section>
+<section id="example-configuration-two-step">
+<h3>Example Configuration (Two-Step)<a class="headerlink" href="#example-configuration-two-step" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">HabitatsSegmention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clustering_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">two_step</span>
+
+<span class="w">  </span><span class="nt">supervoxel</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmeans</span>
+<span class="w">    </span><span class="nt">n_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">  </span><span class="c1"># Fixed 50 supervoxels per patient</span>
+<span class="w">    </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+
+<span class="w">  </span><span class="nt">habitat</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training</span>
+<span class="w">    </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kmeans</span>
+<span class="w">    </span><span class="nt">max_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="nt">habitat_cluster_selection_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">silhouette</span>
+<span class="w">    </span><span class="nt">best_n_clusters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">  </span><span class="c1"># Auto-select</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="此标题的永久链接"></a></h2>
+<section id="using-pre-trained-model-two-step">
+<h3>Using Pre-trained Model (Two-Step)<a class="headerlink" href="#using-pre-trained-model-two-step" title="此标题的永久链接"></a></h3>
+<p>For new test data, use previously trained model:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">habitat</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">testing</span><span class="w">  </span><span class="c1"># Switch to testing mode</span>
+<span class="w">  </span><span class="c1"># Model automatically loaded from out_dir/supervoxel2habitat_clustering_model.pkl</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-processing-acceleration">
+<h3>Multi-processing Acceleration<a class="headerlink" href="#multi-processing-acceleration" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">  </span><span class="c1"># Use 4 processes for parallel processing</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-feature-extraction">
+<h3>Custom Feature Extraction<a class="headerlink" href="#custom-feature-extraction" title="此标题的永久链接"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">HABIT</span></code> provides a flexible feature extraction framework, allowing you to combine multiple features at the voxel level for subsequent habitat clustering analysis. All feature-related configurations are done in the <code class="docutils literal notranslate"><span class="pre">FeatureConstruction</span></code> section of the configuration file.</p>
+</section>
+<section id="syntax-introduction">
+<h3>Syntax Introduction<a class="headerlink" href="#syntax-introduction" title="此标题的永久链接"></a></h3>
+<p>The configuration for feature extraction uses nested function calls. The core logic is <strong>“Single-modality Extraction -&gt; Multi-modality Combination”</strong>.</p>
+<ol class="arabic simple">
+<li><p><strong>Single-modality Extractors</strong>:
+*   Purpose: Extract features from a single image modality.
+*   Examples: <code class="docutils literal notranslate"><span class="pre">raw(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">voxel_radiomics(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">local_entropy(...)</span></code>.
+*   <strong>Note</strong>: The output of these functions cannot be used directly as the final feature; it must be passed to a multi-modality combiner.</p></li>
+<li><p><strong>Multi-modality Combiners</strong>:
+*   Purpose: Receive outputs from one or more single-modality extractors and integrate them into the final feature vector.
+*   Examples: <code class="docutils literal notranslate"><span class="pre">concat(...)</span></code> (most common, direct concatenation), <code class="docutils literal notranslate"><span class="pre">kinetic(...)</span></code> (for time-series).
+*   <strong>Core Principle</strong>: Even if extracting features from only one modality, it must be wrapped by a multi-modality combiner.</p></li>
+</ol>
+<p><strong>Extensibility</strong>: The <code class="docutils literal notranslate"><span class="pre">HABIT</span></code> framework supports custom single-modality extractors and multi-modality combiners, allowing you to write your own functions as needed.</p>
+</section>
+<section id="voxel-level-features-voxel-level">
+<h3>Voxel-level Features (<code class="docutils literal notranslate"><span class="pre">voxel_level</span></code>)<a class="headerlink" href="#voxel-level-features-voxel-level" title="此标题的永久链接"></a></h3>
+<p>This is the first step of habitat analysis, used to extract one or more feature values for each voxel from the original images, forming a feature vector.</p>
+<p>Here are the currently built-in functions:</p>
+<p><strong>Single-modality Extractors</strong>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Key Parameters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">raw</span></code></p></td>
+<td><p><strong>Raw Intensity</strong></p>
+<p>Directly extracts the
+original signal intensity
+value of each voxel in the
+specified image.</p>
+</td>
+<td><p>None</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><dl>
+<dt><a href="#id3"><span class="problematic" id="id4">``</span></a>voxel_radiomics``| <strong>Voxel-level Radiomics</strong></dt><dd><div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Uses PyRadiomics to</div>
+<div class="line">calculate radiomics</div>
+<div class="line">features in the local</div>
+<div class="line">neighborhood of each voxel.</div>
+</div>
+</dd>
+</dl>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code>: Path to
+PyRadiomics parameter file</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">local_entropy</span></code></p></td>
+<td><p><strong>Local Entropy</strong></p>
+<p>Calculates the local
+information entropy within
+the neighborhood of each
+voxel.</p>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kernel_size</span></code>: Neighborhood size
+<code class="docutils literal notranslate"><span class="pre">bins</span></code>: Number of bins</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-modality Combiners</strong>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">concat</span></code></p></td>
+<td><p><strong>Concatenation</strong></p>
+<p>Concatenates input features
+directly along the channel
+dimension.</p>
+</td>
+<td><p>Most generic combiner. Must be
+used even for a single input to
+establish feature format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kinetic</span></code></p></td>
+<td><p><strong>Kinetic Features</strong></p>
+<p>Specialized for multi-phase
+time-series data to
+calculate perfusion
+parameters.</p>
+</td>
+<td><p>Specialized for multi-phase
+time-series data to calculate
+perfusion parameters.
+<strong>Note</strong>: This is a specific
+example implementation (for
+reference only), showing how to
+handle time-series data.
+Requires <code class="docutils literal notranslate"><span class="pre">timestamps</span></code>
+parameter.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="configuration-examples">
+<h3>Configuration Examples<a class="headerlink" href="#configuration-examples" title="此标题的永久链接"></a></h3>
+<p>Here are some specific <code class="docutils literal notranslate"><span class="pre">yaml</span></code> configuration examples. Please note: <strong>All results from single-modality feature extraction must be wrapped by a multi-modality combiner (like ``concat``).</strong></p>
+<section id="example-1-using-single-raw-image-intensity">
+<h4>Example 1: Using Single Raw Image Intensity<a class="headerlink" href="#example-1-using-single-raw-image-intensity" title="此标题的永久链接"></a></h4>
+<p>This is the simplest configuration. Even for single modality, it needs to be wrapped by a combiner (using <code class="docutils literal notranslate"><span class="pre">concat</span></code> here).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">FeatureConstruction</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">voxel_level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concat(raw(pre_contrast))</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2-combining-multiple-raw-image-intensities">
+<h4>Example 2: Combining Multiple Raw Image Intensities<a class="headerlink" href="#example-2-combining-multiple-raw-image-intensities" title="此标题的永久链接"></a></h4>
+<p>You can concatenate the raw intensity values from multiple modalities into a single feature vector. Here, we use the <code class="docutils literal notranslate"><span class="pre">concat</span></code> method to combine images from three different phases.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">FeatureConstruction</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">voxel_level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concat(raw(pre_contrast), raw(LAP), raw(PVP))</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="example-3-calculating-kinetic-features">
+<h4>Example 3: Calculating Kinetic Features<a class="headerlink" href="#example-3-calculating-kinetic-features" title="此标题的永久链接"></a></h4>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">kinetic</span></code> method requires providing a <code class="docutils literal notranslate"><span class="pre">timestamps</span></code> file. The method automatically processes multiple images wrapped in <code class="docutils literal notranslate"><span class="pre">raw()</span></code>.
+<strong>Note</strong>: The <code class="docutils literal notranslate"><span class="pre">kinetic</span></code> function is provided as a <strong>reference example</strong> for hemodynamic feature processing, demonstrating the framework’s capability to handle multi-modality time-series data. You can refer to its source code to implement your own specific logic.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">FeatureConstruction</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">voxel_level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">timestamps</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./config/scan_times.xlsx&#39;</span><span class="w"> </span><span class="c1"># Path to your timestamps file</span>
+</pre></div>
+</div>
+</section>
+<section id="example-4-extracting-voxel-level-radiomics-features">
+<h4>Example 4: Extracting Voxel-level Radiomics Features<a class="headerlink" href="#example-4-extracting-voxel-level-radiomics-features" title="此标题的永久链接"></a></h4>
+<p>Using <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> requires providing a PyRadiomics parameter file. Note: Even for a single feature extraction result, it must be wrapped by a multi-modality combiner (like <code class="docutils literal notranslate"><span class="pre">concat</span></code>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">FeatureConstruction</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">voxel_level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concat(voxel_radiomics(pre_contrast, radiomics_params))</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">radiomics_params</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./config/radiomics_params.yaml&#39;</span><span class="w"> </span><span class="c1"># Path to your radiomics parameter file</span>
+</pre></div>
+</div>
+</section>
+<section id="example-5-extracting-local-entropy-features">
+<h4>Example 5: Extracting Local Entropy Features<a class="headerlink" href="#example-5-extracting-local-entropy-features" title="此标题的永久链接"></a></h4>
+<p>Using <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> with custom neighborhood size and bin count. Also requires wrapping by a combiner.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">FeatureConstruction</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">voxel_level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concat(local_entropy(pre_contrast, kernel_size, bins))</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kernel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">bins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="usage-recommendations">
+<h2>Usage Recommendations<a class="headerlink" href="#usage-recommendations" title="此标题的永久链接"></a></h2>
+<section id="choose-one-step-when">
+<h3>Choose One-Step when…<a class="headerlink" href="#choose-one-step-when" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p>Focused on individual tumor heterogeneity</p></li>
+<li><p>No need for cross-patient comparison</p></li>
+<li><p>Sufficient sample size per patient (enough voxels)</p></li>
+<li><p>Exploratory study to understand individual differences</p></li>
+</ul>
+</section>
+<section id="choose-two-step-when">
+<h3>Choose Two-Step when…<a class="headerlink" href="#choose-two-step-when" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p>Need cross-patient statistical analysis</p></li>
+<li><p>Identify common habitat types across population</p></li>
+<li><p>Build reusable habitat model</p></li>
+<li><p>Conduct cohort studies or clinical prediction</p></li>
+</ul>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="此标题的永久链接"></a></h2>
+<section id="q1-in-one-step-mode-each-patient-has-different-number-of-clusters-how-to-compare">
+<h3>Q1: In one-step mode, each patient has different number of clusters. How to compare?<a class="headerlink" href="#q1-in-one-step-mode-each-patient-has-different-number-of-clusters-how-to-compare" title="此标题的永久链接"></a></h3>
+<p><strong>A</strong>: One-step focuses on intra-tumor heterogeneity, not inter-patient comparison. If comparison needed:</p>
+<ul class="simple">
+<li><p>Compare cluster numbers (as heterogeneity indicator)</p></li>
+<li><p>Extract features from each habitat for statistics</p></li>
+<li><p>Use two-step method to get unified habitat definitions</p></li>
+</ul>
+</section>
+<section id="q2-how-to-choose-appropriate-cluster-number-range">
+<h3>Q2: How to choose appropriate cluster number range?<a class="headerlink" href="#q2-how-to-choose-appropriate-cluster-number-range" title="此标题的永久链接"></a></h3>
+<p><strong>A</strong>: Recommendations:</p>
+<ul class="simple">
+<li><p>Minimum: 2-3 (need clear separation)</p></li>
+<li><p>Maximum: 10-15 (avoid over-segmentation)</p></li>
+<li><p>Consider tumor size (smaller tumors use fewer clusters)</p></li>
+</ul>
+</section>
+<section id="q3-validation-curves-look-unstable">
+<h3>Q3: Validation curves look unstable?<a class="headerlink" href="#q3-validation-curves-look-unstable" title="此标题的永久链接"></a></h3>
+<p><strong>A</strong>: Possible reasons:</p>
+<ul class="simple">
+<li><p>Insufficient sample size (too few voxels)</p></li>
+<li><p>Inappropriate feature selection</p></li>
+<li><p>Try different validation methods</p></li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">n_init</span></code> parameter of clustering algorithm</p></li>
+</ul>
+</section>
+</section>
+<section id="related-documentation">
+<h2>Related Documentation<a class="headerlink" href="#related-documentation" title="此标题的永久链接"></a></h2>
+<ul class="simple">
+<li><p><cite>Feature Extraction Configuration &lt;app_extracting_habitat_features&gt;</cite></p></li>
+<li><p><cite>ICC Reproducibility Analysis &lt;app_icc_analysis&gt;</cite></p></li>
+<li><p><cite>CLI Usage Guide &lt;../HABIT_CLI&gt;</cite></p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="此标题的永久链接"></a></h2>
+<p><strong>Two-Step Method (Classic Habitat)</strong>:
+- Wu J, et al. “Intratumoral spatial heterogeneity at perfusion MR imaging predicts recurrence-free survival in locally advanced breast cancer treated with neoadjuvant chemotherapy.” Radiology, 2018.</p>
+<p><strong>One-Step Method (Personalized Analysis)</strong>:
+- Nomogram for Predicting Neoadjuvant Chemotherapy  Response in Breast Cancer Using MRI-based Intratumoral  Heterogeneity Quantification</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

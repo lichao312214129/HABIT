@@ -1,0 +1,119 @@
+Image Preprocessing Module User Guide
+=====================================
+
+Overview
+--------
+
+The Image Preprocessing module implements a series of medical image preprocessing steps, including resampling, registration, and N4 bias field correction, to provide standardized and optimized image data for subsequent habitat analysis.
+
+Quick Start
+-----------
+
+Using CLI (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Use default configuration
+    habit preprocess
+
+    # Use specified configuration file
+    habit preprocess --config config/config_image_preprocessing.yaml
+
+    # Short form
+    habit preprocess -c config/config_image_preprocessing.yaml
+
+Using Traditional Scripts (Legacy Compatible)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Use specified configuration file
+    python scripts/app_image_preprocessing.py --config ./config/config_image_preprocessing.yaml 
+
+    # Short form
+    python scripts/app_image_preprocessing.py -c ./config/config_image_preprocessing.yaml 
+
+    # If no configuration file is specified, the default will be used
+    python scripts/app_image_preprocessing.py
+
+Configuration File
+------------------
+
+Configuration File Links:
+
+- `Current Configuration <../config/config_image_preprocessing.yaml>`_ - Concise configuration for actual use
+- `Annotated Template <../config_templates/config_image_preprocessing_annotated.yaml>`_ - Complete English comments and instructions
+
+Configuration File Format
+-------------------------
+
+``app_image_preprocessing.py`` uses a YAML configuration file with the following main sections:
+
+Basic Configuration
+~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: yaml
+
+    # Data paths
+    data_dir: <path_to_raw_data_directory>
+    out_dir: <path_to_output_directory>
+
+    # Preprocessing settings
+    Preprocessing:
+      # Configuration for preprocessing steps
+
+Preprocessing Steps Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: yaml
+
+    Preprocessing:
+      # Resampling configuration
+      resample:
+        images: [<image1>, <image2>, ...]  # List of images to resample
+        target_spacing: [x, y, z]  # Target voxel spacing
+        img_mode: <interpolation_mode>  # Optional, defaults to linear
+        padding_mode: <padding_mode>  # Optional, defaults to border
+        align_corners: <true_or_false>  # Optional, defaults to false
+
+      # Registration configuration
+      registration:
+        images: [<image1>, <image2>, ...]  # List of images to register
+        fixed_image: <reference_image>  # Static reference image
+        moving_images: [<image1>, <image2>, ...]  # List of images to be moved
+        type_of_transform: <transform_type>  # e.g., Rigid, Affine, SyNRA
+        use_mask: <true_or_false>  # Optional, defaults to false
+
+      # N4 bias field correction configuration
+      n4_correction:
+        images: [<image1>, <image2>, ...]  # List of images to correct
+        num_fitting_levels: <number_of_fitting_levels>  # Optional, defaults to 4
+        num_iterations: [<iter1>, <iter2>, ...]  # Optional, defaults to 50 per level
+        convergence_threshold: <threshold>  # Optional, defaults to 0.001
+
+Supported Preprocessing Steps
+-----------------------------
+
+1. Resampling
+~~~~~~~~~~~~~
+
+Adjusts the voxel spacing of an image to a specified target resolution.
+
+Parameters
+^^^^^^^^^^
+
++------------------------+----------+-------------------------------------+-------------+
+| Parameter              | Type     | Description                         | Default     |
++========================+==========+=====================================+=============+
+| images                 | List[str]| List of images to resample          | Required    |
++------------------------+----------+-------------------------------------+-------------+
+| target_spacing         | List[float] | Target voxel spacing (in mm)     | Required    |
++------------------------+----------+-------------------------------------+-------------+
+| img_mode               | str      | Image interpolation mode            | "linear"    |
++------------------------+----------+-------------------------------------+-------------+
+| padding_mode           | str      | Padding mode for values outside     | "border"    |
+|                        |          | boundaries                          |             |
++------------------------+----------+-------------------------------------+-------------+
+| align_corners          | bool     | Whether to align corners            | False       |
++------------------------+----------+-------------------------------------+-------------+

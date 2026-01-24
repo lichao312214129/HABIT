@@ -1,0 +1,65 @@
+K-Fold Cross-Validation Guide
+=============================
+
+Overview
+--------
+
+K-Fold cross-validation is a widely used model evaluation method that divides the dataset into K subsets (folds). In each iteration, K-1 subsets are used for training and the remaining subset is used for validation. This process repeats K times, with each subset serving as the validation set once.
+
+Quick Start
+-----------
+
+Using CLI (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Use default configuration
+    habit kfold
+
+    # Use specified configuration file
+    habit kfold --config config/config_machine_learning_kfold.yaml
+
+    # Short form
+    habit kfold -c config/config_machine_learning_kfold.yaml
+
+Using Traditional Scripts (Legacy Compatible)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yaml
+
+Advantages of K-Fold Cross-Validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **More reliable performance estimation**: Compared to a single train-test split, K-Fold provides more stable and reliable performance estimates
+2. **Efficient data usage**: Every sample is used for both training and validation, especially suitable for small datasets
+3. **Reduced randomness**: Multiple validations reduce the impact of random splitting
+4. **Model stability assessment**: Standard deviation across folds evaluates model stability on different data subsets
+
+Differences from Standard Modeling Pipeline
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-------------------------+---------------------+------------------------------+
+| Feature                 | Standard Pipeline   | K-Fold Cross-Validation      |
++=========================+=====================+==============================+
+| Data splitting          | Single split        | K splits                     |
+|                         | (train + test)      |                              |
++-------------------------+---------------------+------------------------------+
+| Training iterations     | 1 per model         | K per model                  |
++-------------------------+---------------------+------------------------------+
+| Evaluation metrics      | Single test set     | Mean ± Std across K folds    |
+|                         | result              |                              |
++-------------------------+---------------------+------------------------------+
+| Feature selection       | On entire training  | Independently within each    |
+|                         | set                 | fold (avoids data leakage)   |
++-------------------------+---------------------+------------------------------+
+| Use cases               | Large datasets,     | Small datasets, reliable     |
+|                         | rapid prototyping   | evaluation                   |
++-------------------------+---------------------+------------------------------+
+| Computation time        | Fast                | Slow (K times)               |
++-------------------------+---------------------+------------------------------+
+
+Configuration File
+------------------

@@ -1,0 +1,1189 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.preprocessing.dcm2niix_converter &mdash; HABIT 0.1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script src="../../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index_zh.html">快速开始</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/installation.html#install-from-source">Install from Source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/installation.html#install-dependencies">Install Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/quickstart.html#basic-workflow">Basic Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/quickstart.html#example-configuration">Example Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/quickstart.html#running-analysis">Running Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/quickstart.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_structure_zh.html">数据结构说明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id2">数据输入方式概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id3">文件夹结构方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id4">标准文件夹结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id5">文件夹命名规则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id7">路径格式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id8">路径和文件名规则</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../data_structure_zh.html#id9">实际示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id10">两种方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id11">转换方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id12">数据验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_structure_zh.html#id13">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/index_zh.html">用户指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html">生境特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id3">特征类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id4">参数文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/habitat_feature_extraction_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/index_zh.html#id2">工作流程概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/index_zh.html#id3">自定义扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/index_zh.html#id4">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/index_zh.html#id5">数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/index_zh.html#id6">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../design_philosophy_zh.html#id1">核心理念</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../design_philosophy_zh.html#id2">设计原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../design_philosophy_zh.html#id3">设计理念总结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../customization/index_zh.html">自定义扩展指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id3">扩展原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id6">自定义聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id7">自定义模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id8">自定义特征选择器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id9">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id10">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../customization/index_zh.html#id11">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration_zh.html">配置参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id3">通用配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id4">预处理配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id5">生境分析配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id22">特征提取配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id25">机器学习配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id26">数据配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id43">配置文件验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id44">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../configuration_zh.html#id45">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_zh.html">CLI 参考文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id2">通用参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id3">图像预处理命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id4">生境分析命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id5">特征提取命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id6">机器学习命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id7">帮助命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id8">版本命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id9">命令行参数优先级</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id10">错误处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id11">日志记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id12">批处理示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id13">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cli_zh.html#id14">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/habit.core.html">habit.core package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/habit.utils.html">habit.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/index.html#main-modules">Main Modules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">开发指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../development/architecture.html">架构设计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/architecture.html#id2">核心模块</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#common">Common</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/architecture.html#id3">设计模式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/architecture.html#id4">模块依赖关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../development/design_patterns.html">设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../development/testing.html">测试指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/testing.html#id2">运行测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/testing.html#id3">编写测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/testing.html#fixtures">使用 Fixtures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/testing.html#id4">测试最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/testing.html#id5">持续集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../development/contributing.html">贡献指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/contributing.html#id2">如何贡献</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/contributing.html#bug">报告 Bug</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/contributing.html#id3">提交代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/contributing.html#id4">代码规范</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../development/contributing.html#id5">文档贡献</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/contributing.html#id6">开发环境设置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/contributing.html#pull-request">提交 Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/contributing.html#id7">行为准则</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../algorithms/index.html">算法参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../algorithms/clustering.html">聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#k-means">K-Means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#id3">层次聚类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../algorithms/feature_extraction.html">特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../algorithms/validation_methods.html">验证方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../algorithms/validation_methods.html#id3">验证方法选择</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../changelog.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">模块代码</a></li>
+          <li class="breadcrumb-item"><a href="../../core.html">habit.core</a></li>
+      <li class="breadcrumb-item active">habit.core.preprocessing.dcm2niix_converter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.preprocessing.dcm2niix_converter 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DICOM to NIfTI converter using dcm2niix tool.</span>
+
+<span class="sd">This module provides functionality to batch convert DICOM files to NIfTI format</span>
+<span class="sd">using the dcm2niix tool, with integration into the HABIT preprocessing pipeline.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">SimpleITK</span> <span class="k">as</span> <span class="nn">sitk</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">.base_preprocessor</span> <span class="kn">import</span> <span class="n">BasePreprocessor</span>
+<span class="kn">from</span> <span class="nn">.preprocessor_factory</span> <span class="kn">import</span> <span class="n">PreprocessorFactory</span>
+<span class="kn">from</span> <span class="nn">habit.utils.progress_utils</span> <span class="kn">import</span> <span class="n">CustomTqdm</span>
+<span class="kn">from</span> <span class="nn">habit.utils.file_system_utils</span> <span class="kn">import</span> <span class="n">safe_mkdir</span>
+
+
+<div class="viewcode-block" id="Dcm2niixConverter"><a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.Dcm2niixConverter">[文档]</a><span class="nd">@PreprocessorFactory</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;dcm2nii&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Dcm2niixConverter</span><span class="p">(</span><span class="n">BasePreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert DICOM files to NIfTI format using dcm2niix tool.</span>
+<span class="sd">    </span>
+<span class="sd">    This preprocessor takes DICOM directories and converts them to NIfTI format</span>
+<span class="sd">    using the dcm2niix command-line tool. It supports batch processing and</span>
+<span class="sd">    integrates with the HABIT preprocessing pipeline.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">keys</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="c1"># 默认不指定键</span>
+        <span class="n">dcm2niix_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 默认不指定dcm2niix可执行文件路径</span>
+        <span class="n">filename_format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 默认不指定输出文件名格式</span>
+        <span class="n">adjacent_dicoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认相邻DICOMs在同一文件夹</span>
+        <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认压缩输出文件</span>
+        <span class="n">anonymize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不匿名化文件名</span>
+        <span class="n">ignore_derived</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不忽略衍生图像</span>
+        <span class="n">crop_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认裁剪图像</span>
+        <span class="n">generate_json</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不生成JSON文件</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不输出详细信息</span>
+        <span class="n">batch_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认启用批处理模式</span>
+        <span class="n">merge_slices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="c1"># 合并模式: &quot;y&quot;/&quot;1&quot;=默认, &quot;2&quot;=按序列, &quot;n&quot;/&quot;0&quot;=不合并, None=不指定</span>
+        <span class="n">single_file_mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 单文件模式: True=强制单文件(-s y), False=允许多文件(-s n), None=不指定(推荐)</span>
+        <span class="n">allow_missing_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不允许缺失键</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the dcm2niix converter.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            keys (Union[str, List[str]]): Keys containing DICOM directory paths to convert</span>
+<span class="sd">            dcm2niix_path (Optional[str]): Full path to dcm2niix executable or directory containing it</span>
+<span class="sd">            filename_format (Optional[str]): Output filename format (default: uses subject name)</span>
+<span class="sd">            compress (bool): Compress output files (default: True)</span>
+<span class="sd">            anonymize (bool): Anonymize filenames (default: False)</span>
+<span class="sd">            ignore_derived (bool): Ignore derived images (default: False)</span>
+<span class="sd">            crop_images (bool): Crop images (default: False)</span>
+<span class="sd">            generate_json (bool): Generate BIDS JSON sidecar files (default: False)</span>
+<span class="sd">            verbose (bool): Verbose output (default: False)</span>
+<span class="sd">            batch_mode (bool): Enable batch mode (default: True)</span>
+<span class="sd">            merge_slices (Optional[str]): Merge mode - &quot;y&quot;/&quot;1&quot;=default merge, &quot;2&quot;=merge by series, </span>
+<span class="sd">                                         &quot;n&quot;/&quot;0&quot;=no merge, None=don&#39;t specify (default: &quot;2&quot;)</span>
+<span class="sd">            single_file_mode (Optional[bool]): Single file mode - True=force single file (-s y), </span>
+<span class="sd">                                              False=allow multiple (-s n), None=don&#39;t specify/use default (default: None)</span>
+<span class="sd">            allow_missing_keys (bool): Allow missing keys (default: False)</span>
+<span class="sd">            **kwargs: Additional parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">allow_missing_keys</span><span class="o">=</span><span class="n">allow_missing_keys</span><span class="p">)</span>
+        
+        <span class="c1"># Setup logging first</span>
+        <span class="kn">from</span> <span class="nn">habit.utils.log_utils</span> <span class="kn">import</span> <span class="n">get_module_logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        
+        <span class="c1"># Setup dcm2niix path and environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dcm2niix_executable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_dcm2niix_environment</span><span class="p">(</span><span class="n">dcm2niix_path</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename_format</span> <span class="o">=</span> <span class="n">filename_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compress</span> <span class="o">=</span> <span class="n">compress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacent_dicoms</span> <span class="o">=</span> <span class="n">adjacent_dicoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span> <span class="o">=</span> <span class="n">anonymize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span> <span class="o">=</span> <span class="n">ignore_derived</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span> <span class="o">=</span> <span class="n">crop_images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span> <span class="o">=</span> <span class="n">generate_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_mode</span> <span class="o">=</span> <span class="n">batch_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span> <span class="o">=</span> <span class="n">merge_slices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span> <span class="o">=</span> <span class="n">single_file_mode</span>
+        
+        <span class="c1"># Verify dcm2niix is available</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verify_dcm2niix</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">_setup_dcm2niix_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dcm2niix_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup dcm2niix environment by adding the executable path to PATH if provided.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            dcm2niix_path (Optional[str]): Path to dcm2niix executable or directory containing it</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Name of the dcm2niix executable to use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dcm2niix_path</span><span class="p">:</span>
+            <span class="c1"># Use default executable name if no path provided</span>
+            <span class="k">return</span> <span class="s2">&quot;dcm2niix&quot;</span>
+            
+        <span class="n">dcm2niix_path_obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dcm2niix_path</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">dcm2niix_path_obj</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="c1"># If path points to the executable itself</span>
+            <span class="n">executable_name</span> <span class="o">=</span> <span class="n">dcm2niix_path_obj</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">dcm2niix_dir</span> <span class="o">=</span> <span class="n">dcm2niix_path_obj</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">elif</span> <span class="n">dcm2niix_path_obj</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="c1"># If path points to directory containing the executable</span>
+            <span class="n">executable_name</span> <span class="o">=</span> <span class="s2">&quot;dcm2niix&quot;</span>
+            <span class="n">dcm2niix_dir</span> <span class="o">=</span> <span class="n">dcm2niix_path_obj</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Specified dcm2niix path does not exist: </span><span class="si">{</span><span class="n">dcm2niix_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;dcm2niix&quot;</span>
+        
+        <span class="c1"># Add to PATH environment variable</span>
+        <span class="n">current_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">dcm2niix_path_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dcm2niix_dir</span><span class="p">)</span>
+        
+        <span class="c1"># Check if path is already in PATH</span>
+        <span class="k">if</span> <span class="n">dcm2niix_path_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_path</span><span class="p">:</span>
+            <span class="c1"># Add to beginning of PATH</span>
+            <span class="n">new_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dcm2niix_path_str</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="si">}{</span><span class="n">current_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added dcm2niix path to environment: </span><span class="si">{</span><span class="n">dcm2niix_path_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dcm2niix path already in environment: </span><span class="si">{</span><span class="n">dcm2niix_path_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">executable_name</span>
+    
+    <span class="k">def</span> <span class="nf">_verify_dcm2niix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify that dcm2niix executable is available.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If dcm2niix is not found or not executable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dcm2niix_executable</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">],</span>
+                <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">check</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s2">&quot;dcm2niix&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_dcm2niix_not_found_message</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dcm2niix executable verified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dcm2niix_executable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_dcm2niix_not_found_message</span><span class="p">())</span>
+    
+    <span class="k">def</span> <span class="nf">_get_dcm2niix_not_found_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate helpful error message with installation instructions when dcm2niix is not found.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Error message with installation instructions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;dcm2niix executable not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dcm2niix_executable</span><span class="si">}</span>
+
+<span class="s2">Please install dcm2niix using one of the following methods:</span>
+
+<span class="s2">1. Using pip (recommended):</span>
+<span class="s2">   python -m pip install dcm2niix</span>
+
+<span class="s2">2. Using conda:</span>
+<span class="s2">   conda install -c conda-forge dcm2niix</span>
+
+<span class="s2">3. Using package manager:</span>
+<span class="s2">   - Debian/Ubuntu: sudo apt-get install dcm2niix</span>
+<span class="s2">   - MacOS Homebrew: brew install dcm2niix</span>
+<span class="s2">   - MacOS MacPorts: sudo port install dcm2niix</span>
+
+<span class="s2">4. Download pre-built binaries:</span>
+<span class="s2">   - Linux:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip</span>
+<span class="s2">   - MacOS:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/macos_dcm2niix.pkg</span>
+<span class="s2">   - Windows: curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_win.zip</span>
+
+<span class="s2">5. MRIcroGL includes dcm2niix:</span>
+<span class="s2">   - NITRC: https://www.nitrc.org/projects/mricrogl</span>
+<span class="s2">   - GitHub: https://github.com/rordenlab/MRIcroGL</span>
+
+<span class="s2">For more information, visit: https://github.com/rordenlab/dcm2niix</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">_build_dcm2niix_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">input_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">filename_format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build dcm2niix command with specified parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_dir (str): Input DICOM directory</span>
+<span class="sd">            output_dir (str): Output directory for NIfTI files</span>
+<span class="sd">            filename_format (Optional[str]): Output filename format</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: Command components for subprocess execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dcm2niix_executable</span><span class="p">]</span>
+        
+        <span class="c1"># Add filename format if specified</span>
+        <span class="k">if</span> <span class="n">filename_format</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="n">filename_format</span><span class="p">])</span>
+        
+        <span class="c1"># -a  adjacent DICOMs (images from same series always in same folder) for faster conversion (n/y, default n)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacent_dicoms</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Control JSON generation (BIDS sidecar)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Add boolean options</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_mode</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Merge 2D slices into 3D volumes</span>
+        <span class="c1"># Note: -m parameter controls slice merging behavior</span>
+        <span class="c1"># -m 0 or -m n: no merging</span>
+        <span class="c1"># -m 1 or -m y: merge 2D slices (default)</span>
+        <span class="c1"># -m 2: merge based on series (more aggressive)</span>
+        <span class="c1"># None: don&#39;t specify, use dcm2niix default</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span><span class="p">)])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Single file mode</span>
+        <span class="c1"># Note: -s y may force 4D structure, -s n splits volumes</span>
+        <span class="c1"># For 3D output, it&#39;s often best to NOT specify this parameter</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compress</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-z&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Add output directory</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">])</span>
+        
+        <span class="c1"># Add input directory</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">cmd</span>
+    
+    <span class="k">def</span> <span class="nf">_convert_single_dicom_dir</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">input_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sequence_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a single DICOM directory to NIfTI format and return as SimpleITK Image objects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_dir (str): Input DICOM directory path</span>
+<span class="sd">            subject_id (str): Subject identifier</span>
+<span class="sd">            sequence_name (Optional[str]): Sequence name for filename formatting</span>
+<span class="sd">            output_dir (Optional[str]): Output directory for converted files. If None, uses temporary directory</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, sitk.Image]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If conversion fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory does not exist: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input path is not a directory: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Determine output directory</span>
+        <span class="k">if</span> <span class="n">output_dir</span><span class="p">:</span>
+            <span class="c1"># Use provided output directory</span>
+            <span class="n">subject_output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">safe_mkdir</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">))</span>
+            <span class="n">use_temp_dir</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using output directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create temporary directory for conversion</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dcm2niix_</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">)</span>
+            <span class="n">subject_output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="n">use_temp_dir</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using temporary directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Determine filename format</span>
+            <span class="n">filename_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_format</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filename_format</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sequence_name</span><span class="p">:</span>
+                    <span class="n">filename_format</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">sequence_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">filename_format</span> <span class="o">=</span> <span class="n">subject_id</span>
+            
+            <span class="c1"># Build dcm2niix command as list</span>
+            <span class="n">cmd_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_dcm2niix_command</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span> 
+                <span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">),</span> 
+                <span class="n">filename_format</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Convert command list to string for os.system()</span>
+            <span class="c1"># Need to quote paths that may contain spaces</span>
+            <span class="n">cmd_parts</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">):</span>
+                <span class="c1"># Quote the executable path and directory paths</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">)]:</span>
+                    <span class="c1"># Check if path contains spaces</span>
+                    <span class="k">if</span> <span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">part</span><span class="p">:</span>
+                        <span class="n">cmd_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cmd_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cmd_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+            
+            <span class="n">cmd_string</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_parts</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Converting DICOM directory: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Executing command:&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">cmd_string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">80</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[DEBUG] Executing dcm2niix command:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">cmd_string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">80</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Select execution method</span>
+            <span class="c1"># Different methods may produce different results with dcm2niix</span>
+            <span class="c1"># Try &quot;os.system&quot; if subprocess methods give unexpected 4D output</span>
+            <span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;subprocess.Popen&quot;</span>  <span class="c1"># Options: &quot;os.system&quot;, &quot;subprocess.run&quot;, &quot;subprocess.Popen&quot;</span>
+            
+            <span class="k">if</span> <span class="n">execution_method</span> <span class="o">==</span> <span class="s2">&quot;os.system&quot;</span><span class="p">:</span>
+                <span class="c1"># Method 1: os.system() - Most similar to terminal behavior</span>
+                <span class="c1"># This is the closest to typing the command directly in terminal</span>
+                <span class="c1"># Recommended for dcm2niix to avoid 3D/4D conversion issues</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Execution Method: os.system]&quot;</span><span class="p">)</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd_string</span><span class="p">)</span>
+                <span class="c1"># os.system returns the exit status in platform-specific format</span>
+                <span class="c1"># On Windows, it&#39;s the actual exit code; on Unix, it may be shifted</span>
+                <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dcm2niix conversion failed with exit code </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">execution_method</span> <span class="o">==</span> <span class="s2">&quot;subprocess.run&quot;</span><span class="p">:</span>
+                <span class="c1"># Method 2: subprocess.run() with shell=True</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Execution Method: subprocess.run]&quot;</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                    <span class="n">cmd_string</span><span class="p">,</span>
+                    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">capture_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span>
+                <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dcm2niix conversion failed with exit code </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">execution_method</span> <span class="o">==</span> <span class="s2">&quot;subprocess.Popen&quot;</span><span class="p">:</span>
+                <span class="c1"># Method 3: subprocess.Popen() - Real-time output</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Execution Method: subprocess.Popen]&quot;</span><span class="p">)</span>
+                <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                    <span class="n">cmd_string</span><span class="p">,</span>
+                    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                    <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span> <span class="c1"># 实时输出</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Print output in real-time</span>
+                <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                
+                <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span>
+                <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dcm2niix conversion failed with exit code </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown execution method: </span><span class="si">{</span><span class="n">execution_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Find converted files and load as SimpleITK Image objects</span>
+            <span class="n">converted_images</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">]:</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">nifti_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+                
+                <span class="k">for</span> <span class="n">nifti_file</span> <span class="ow">in</span> <span class="n">nifti_files</span><span class="p">:</span>
+                    <span class="c1"># Extract sequence name from filename if possible</span>
+                    <span class="n">file_stem</span> <span class="o">=</span> <span class="n">nifti_file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sequence_name</span><span class="p">:</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">sequence_name</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Try to extract sequence info from filename</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">file_stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">subject_id</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span>
+                    
+                    <span class="c1"># Load as SimpleITK Image object</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">sitk_image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">))</span>
+                        <span class="n">converted_images</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sitk_image</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Loaded </span><span class="si">{</span><span class="n">nifti_file</span><span class="si">}</span><span class="s2"> as SimpleITK Image&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># Store the output file path</span>
+                        <span class="n">converted_images</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_output_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">)</span>
+                        
+                        <span class="c1"># Find corresponding JSON file</span>
+                        <span class="n">json_file</span> <span class="o">=</span> <span class="n">nifti_file</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">json_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                                <span class="n">json_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            
+                            <span class="c1"># Add JSON metadata to image metadata</span>
+                            <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                            <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                                <span class="n">converted_images</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                            
+                            <span class="n">converted_images</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s1">&#39;dcm2niix_json&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_metadata</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Loaded JSON metadata for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to load </span><span class="si">{</span><span class="n">nifti_file</span><span class="si">}</span><span class="s2"> as SimpleITK Image: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load converted NIfTI file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">converted_images</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No NIfTI files were created for </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Successfully converted and saved to </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">converted_images</span>
+            
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="c1"># Re-raise RuntimeError as is</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] dcm2niix conversion failed for </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Clean up temporary directory only if using temp directory</span>
+            <span class="k">if</span> <span class="n">use_temp_dir</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Cleaned up temporary directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to clean up temporary directory </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="Dcm2niixConverter.batch_convert_subjects"><a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.Dcm2niixConverter.batch_convert_subjects">[文档]</a>    <span class="k">def</span> <span class="nf">batch_convert_subjects</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">subjects_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Batch convert DICOM directories for multiple subjects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            subjects_data (Dict[str, Dict[str, str]]): </span>
+<span class="sd">                Dictionary with subject IDs as keys and sequence dictionaries as values</span>
+<span class="sd">                Format: {subject_id: {sequence_name: dicom_dir_path}}</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Dict[str, sitk.Image]]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">                Format: {subject_id: {sequence_name: sitk_image}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_converted_files</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># Calculate total number of conversions for progress bar</span>
+        <span class="n">total_conversions</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequences</span> <span class="ow">in</span> <span class="n">subjects_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total_conversions</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Converting DICOM to NIfTI&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">sequences</span> <span class="ow">in</span> <span class="n">subjects_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">subject_converted</span> <span class="o">=</span> <span class="p">{}</span>
+                
+                <span class="k">for</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">dicom_dir</span> <span class="ow">in</span> <span class="n">sequences</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">converted_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_single_dicom_dir</span><span class="p">(</span>
+                            <span class="n">dicom_dir</span><span class="p">,</span> 
+                            <span class="n">subject_id</span><span class="p">,</span> 
+                            <span class="n">sequence_name</span>
+                        <span class="p">)</span>
+                        <span class="n">subject_converted</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">converted_images</span><span class="p">)</span>
+                        
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to convert </span><span class="si">{</span><span class="n">sequence_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                            <span class="k">raise</span>
+                    
+                    <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">subject_converted</span><span class="p">:</span>
+                    <span class="n">all_converted_files</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject_converted</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Progress bar automatically handles completion display</span>
+            <span class="k">pass</span>
+        
+        <span class="k">return</span> <span class="n">all_converted_files</span></div>
+    
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the input data to convert DICOM directories to SimpleITK Image objects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (Dict[str, Any]): Input data dictionary containing DICOM directory paths</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Data dictionary with SimpleITK Image objects added</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="c1"># Extract subject ID if available (try different common keys)</span>
+        <span class="n">subject_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subj&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subject_id&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown_subject&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Process each specified key</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found in data dictionary&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Get the value from data[key]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            
+            <span class="c1"># Case 1: If already a SimpleITK Image, skip (already processed)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is already a SimpleITK Image, skipping dcm2niix conversion&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Case 2: If not a string, skip (invalid type)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> has invalid type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">, expected str or sitk.Image&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Case 3: value is a string path (file or directory)</span>
+            <span class="n">dicom_path</span> <span class="o">=</span> <span class="n">value</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Get output directory from data if available</span>
+                <span class="c1"># The pipeline will set output_dirs to intermediate directory if save_intermediate is enabled</span>
+                <span class="n">output_dir</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="s1">&#39;output_dirs&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output_dirs&#39;</span><span class="p">]:</span>
+                    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output_dirs&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using output directory for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Convert single DICOM directory</span>
+                <span class="n">converted_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_single_dicom_dir</span><span class="p">(</span>
+                    <span class="n">dicom_path</span><span class="p">,</span> 
+                    <span class="n">subject_id</span><span class="p">,</span> 
+                    <span class="n">key</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Update data with SimpleITK Image objects</span>
+                <span class="k">for</span> <span class="n">seq_name</span><span class="p">,</span> <span class="n">sitk_image</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="c1"># Skip metadata entries and output path entries</span>
+                    <span class="k">if</span> <span class="n">seq_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_meta_dict&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">seq_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_output_path&#39;</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    
+                    <span class="c1"># Use the original key name for consistency with other preprocessors</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sitk_image</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Converted </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to SimpleITK Image&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Store output file path if available</span>
+                    <span class="n">output_path_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seq_name</span><span class="si">}</span><span class="s2">_output_path&quot;</span>
+                    <span class="k">if</span> <span class="n">output_path_key</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                        <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                        <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                            <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;output_file_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted_images</span><span class="p">[</span><span class="n">output_path_key</span><span class="p">]</span>
+                    
+                    <span class="k">break</span>  <span class="c1"># Only use the first image if multiple found</span>
+                
+                <span class="c1"># Store conversion metadata</span>
+                <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;dcm2niix_converted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;original_dicom_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicom_path</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;original_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicom_path</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;converted_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> 
+                                                        <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_meta_dict&#39;</span><span class="p">)</span> 
+                                                        <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_output_path&#39;</span><span class="p">)])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;conversion_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compress</span><span class="p">,</span>
+                    <span class="s1">&#39;anonymize&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span><span class="p">,</span>
+                    <span class="s1">&#39;ignore_derived&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span><span class="p">,</span>
+                    <span class="s1">&#39;crop_images&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span><span class="p">,</span>
+                    <span class="s1">&#39;generate_json&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span>
+                <span class="p">}</span>
+                
+                <span class="c1"># Merge JSON metadata if available</span>
+                <span class="n">json_meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                <span class="k">if</span> <span class="n">json_meta_key</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">converted_images</span><span class="p">[</span><span class="n">json_meta_key</span><span class="p">])</span>
+                
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Error converting DICOM directory for key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                    <span class="k">raise</span>
+        
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="batch_convert_dicom_directories"><a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.batch_convert_dicom_directories">[文档]</a><span class="k">def</span> <span class="nf">batch_convert_dicom_directories</span><span class="p">(</span>
+    <span class="n">input_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="n">dcm2niix_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility function for batch DICOM to NIfTI conversion.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_mapping (Dict[str, Dict[str, str]]): </span>
+<span class="sd">            Mapping of subjects to their DICOM directories</span>
+<span class="sd">            Format: {subject_id: {sequence_name: dicom_dir_path}}</span>
+<span class="sd">        dcm2niix_path (Optional[str]): Full path to dcm2niix executable or directory containing it</span>
+<span class="sd">        **kwargs: Additional parameters for Dcm2niixConverter</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Dict[str, sitk.Image]]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; input_data = {</span>
+<span class="sd">        ...     &quot;subject_001&quot;: {</span>
+<span class="sd">        ...         &quot;T1&quot;: &quot;/path/to/subject_001/T1_dicom&quot;,</span>
+<span class="sd">        ...         &quot;T2&quot;: &quot;/path/to/subject_001/T2_dicom&quot;</span>
+<span class="sd">        ...     },</span>
+<span class="sd">        ...     &quot;subject_002&quot;: {</span>
+<span class="sd">        ...         &quot;T1&quot;: &quot;/path/to/subject_002/T1_dicom&quot;</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... }</span>
+<span class="sd">        &gt;&gt;&gt; converted = batch_convert_dicom_directories(</span>
+<span class="sd">        ...     input_data, </span>
+<span class="sd">        ...     dcm2niix_path=&quot;/path/to/dcm2niix/bin&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">converter</span> <span class="o">=</span> <span class="n">Dcm2niixConverter</span><span class="p">(</span>
+        <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dummy&quot;</span><span class="p">],</span>  <span class="c1"># Not used in batch mode</span>
+        <span class="n">dcm2niix_path</span><span class="o">=</span><span class="n">dcm2niix_path</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">converter</span><span class="o">.</span><span class="n">batch_convert_subjects</span><span class="p">(</span><span class="n">input_mapping</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2026, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

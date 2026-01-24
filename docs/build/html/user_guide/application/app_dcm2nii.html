@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DICOM to NIfTI Conversion Module &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DICOM to NIfTI Conversion Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/application/app_dcm2nii.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dicom-to-nifti-conversion-module">
+<h1>DICOM to NIfTI Conversion Module<a class="headerlink" href="#dicom-to-nifti-conversion-module" title="此标题的永久链接"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>This module provides the functionality to batch convert DICOM files to NIfTI format using the dcm2niix tool. It is integrated into the HABIT preprocessing pipeline and implemented through the <code class="docutils literal notranslate"><span class="pre">Dcm2niixConverter</span></code> class, supporting both single and batch conversion operations.</p>
+<p><strong>Note</strong>: This feature is not a standalone application script but is used as part of the preprocessing pipeline. To use it, please refer to <code class="docutils literal notranslate"><span class="pre">app_image_preprocessing.py</span></code>.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="此标题的永久链接"></a></h2>
+<section id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dcm2niix</span></code> executable (must be installed and accessible in the system PATH)</p></li>
+<li><p>Python packages: <code class="docutils literal notranslate"><span class="pre">subprocess</span></code>, <code class="docutils literal notranslate"><span class="pre">pathlib</span></code>, <code class="docutils literal notranslate"><span class="pre">logging</span></code></p></li>
+<li><p>HABIT dependencies: <code class="docutils literal notranslate"><span class="pre">BasePreprocessor</span></code>, <code class="docutils literal notranslate"><span class="pre">CustomTqdm</span></code>, <code class="docutils literal notranslate"><span class="pre">file_system_utils</span></code></p></li>
+</ul>
+</section>
+<section id="installing-dcm2niix">
+<h3>Installing dcm2niix<a class="headerlink" href="#installing-dcm2niix" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p>Download dcm2niix: <a class="reference external" href="https://github.com/rordenlab/dcm2niix">https://github.com/rordenlab/dcm2niix</a></p></li>
+<li><p>Add dcm2niix.exe to the system PATH</p></li>
+<li><p>Verify installation: <code class="docutils literal notranslate"><span class="pre">dcm2niix</span> <span class="pre">--help</span></code></p></li>
+</ol>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="此标题的永久链接"></a></h2>
+<section id="single-dicom-directory-conversion">
+<h3>1. Single DICOM Directory Conversion<a class="headerlink" href="#single-dicom-directory-conversion" title="此标题的永久链接"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">habit.core.preprocessing</span> <span class="kn">import</span> <span class="n">Dcm2niixConverter</span>
+
+<span class="c1"># Initialize converter</span>
+<span class="n">converter</span> <span class="o">=</span> <span class="n">Dcm2niixConverter</span><span class="p">(</span>
+    <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dicom_path&quot;</span><span class="p">],</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/output&quot;</span><span class="p">,</span>
+    <span class="n">dcm2niix_executable</span><span class="o">=</span><span class="s2">&quot;dcm2niix.exe&quot;</span><span class="p">,</span>  <span class="c1"># For Windows</span>
+    <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">anonymize</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Setup data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="s2">&quot;subject_001&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dicom_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/dicom/directory&quot;</span>
+<span class="p">}</span>
+
+<span class="c1"># Convert</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">converter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="batch-conversion-of-multiple-subjects">
+<h3>2. Batch Conversion of Multiple Subjects<a class="headerlink" href="#batch-conversion-of-multiple-subjects" title="此标题的永久链接"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">habit.core.preprocessing</span> <span class="kn">import</span> <span class="n">batch_convert_dicom_directories</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

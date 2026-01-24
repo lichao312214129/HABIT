@@ -1,0 +1,992 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>生境特征提取 &mdash; HABIT 0.1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cebd9dbd"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/translations.js?v=beaddf03"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="机器学习建模" href="machine_learning_modeling_zh.html" />
+    <link rel="prev" title="生境分割" href="habitat_segmentation_zh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation_zh.html">安装指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id2">系统要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id3">主要依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id4">从源码安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id5">安装依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id6">验证安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id7">可选依赖</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/installation_zh.html#id8">安装问题排查</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quickstart_zh.html">快速入门</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id2">前提条件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id3">快速入门示例</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id4">步骤 1: 图像预处理</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id5">步骤 2: 生境分割</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id6">步骤 3: 生境特征提取</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../getting_started/quickstart_zh.html#id7">步骤 4: 机器学习建模</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id8">配置文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/quickstart_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/basic_concepts_zh.html">基本概念</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#habitat">生境（Habitat）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id2">聚类策略</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id3">特征提取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id4">配置驱动</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/basic_concepts_zh.html#id5">双重接口</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html">扩展性概述</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id2">扩展机制概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id3">可扩展的组件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id4">扩展步骤</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id5">配置文件中的使用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id6">自动发现机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id9">扩展最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/extensibility_overview_zh.html#id10">下一步</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id2">数据输入方式概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id3">文件夹结构方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id4">标准文件夹结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id5">文件夹命名规则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#yaml">YAML 配置文件方式（推荐）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id6">YAML 配置文件结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id7">路径格式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#auto-select-first-file">auto_select_first_file 参数详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id8">路径和文件名规则</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../data_structure_zh.html#id9">实际示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id10">两种方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id11">转换方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id12">数据验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_structure_zh.html#id13">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index_zh.html">用户指南</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">生境特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">特征类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">参数文件说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id2">工作流程概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id3">自定义扩展</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id4">配置文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id5">数据结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index_zh.html#id6">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roi_preparation_zh.html">ROI 文件准备</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id2">ROI 文件格式要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id3">勾画工具推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id4">ROI 勾画指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id5">ROI 验证方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id6">ROI 文件组织</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roi_preparation_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_preprocessing_zh.html">图像预处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id3">预处理方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="habitat_segmentation_zh.html">生境分割</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id3">聚类策略详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id4">特征提取详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id6">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id7">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id8">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_segmentation_zh.html#id9">下一步</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="machine_learning_modeling_zh.html">机器学习建模</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#cli">CLI 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#python-api">Python API 使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#yaml">YAML 配置详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id3">特征选择方法详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id4">模型类型详解</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#pipeline">Pipeline 机制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id5">实际示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id6">输出结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id7">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning_modeling_zh.html#id8">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id1">核心理念</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id2">设计原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../design_philosophy_zh.html#id3">设计理念总结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id3">扩展原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id4">自定义预处理器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id5">自定义特征提取器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id6">自定义聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id7">自定义模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id8">自定义特征选择器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id9">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id10">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index_zh.html#id11">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id3">通用配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id4">预处理配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id5">生境分析配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id22">特征提取配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id25">机器学习配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id26">数据配置参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id43">配置文件验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id44">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration_zh.html#id45">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id2">通用参数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id3">图像预处理命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id4">生境分析命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id5">特征提取命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id6">机器学习命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id7">帮助命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id8">版本命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id9">命令行参数优先级</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id10">错误处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id11">日志记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id12">批处理示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id13">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_zh.html#id14">下一步</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/habit.core.html">habit.core package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.images_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.images_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.mask_paths"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.mask_paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.results_df"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.results_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.run"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatAnalysis.supervoxel2habitat_clustering"><code class="docutils literal notranslate"><span class="pre">HabitatAnalysis.supervoxel2habitat_clustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.HabitatFeatureExtractor"><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.Modeling"><code class="docutils literal notranslate"><span class="pre">Modeling</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.get_available_classes"><code class="docutils literal notranslate"><span class="pre">get_available_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.get_import_errors"><code class="docutils literal notranslate"><span class="pre">get_import_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#habit.core.is_class_available"><code class="docutils literal notranslate"><span class="pre">is_class_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.core.habitat_analysis.html">habit.core.habitat_analysis package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/habit.utils.html">habit.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ParallelProcessor"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ParallelProcessor.map"><code class="docutils literal notranslate"><span class="pre">ParallelProcessor.map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult"><code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.item_id"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.result"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.error"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.success"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id0"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id1"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.item_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id2"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#id3"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.ProcessingResult.unwrap"><code class="docutils literal notranslate"><span class="pre">ProcessingResult.unwrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.parallel_map"><code class="docutils literal notranslate"><span class="pre">parallel_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#habit.utils.parallel_map_simple"><code class="docutils literal notranslate"><span class="pre">parallel_map_simple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habit.utils.html#module-habit.utils.dicom_utils">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.batch_read_dicom_info"><code class="docutils literal notranslate"><span class="pre">batch_read_dicom_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.get_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_dicom_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.get_one_dicom_per_folder"><code class="docutils literal notranslate"><span class="pre">get_one_dicom_per_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.list_available_tags"><code class="docutils literal notranslate"><span class="pre">list_available_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dicom_utils.read_dicom_tags"><code class="docutils literal notranslate"><span class="pre">read_dicom_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.image_converter.ImageConverter"><code class="docutils literal notranslate"><span class="pre">ImageConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_cluster_results"><code class="docutils literal notranslate"><span class="pre">plot_cluster_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_cluster_scores"><code class="docutils literal notranslate"><span class="pre">plot_cluster_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_elbow_curve"><code class="docutils literal notranslate"><span class="pre">plot_elbow_curve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.visualization.plot_multiple_scores"><code class="docutils literal notranslate"><span class="pre">plot_multiple_scores()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dice_calculator.compute_dice"><code class="docutils literal notranslate"><span class="pre">compute_dice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habit.utils.html#habit.utils.dice_calculator.run_dice_calculation"><code class="docutils literal notranslate"><span class="pre">run_dice_calculation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#main-modules">Main Modules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html">架构设计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id2">核心模块</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#habitat-analysis">Habitat Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#common">Common</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id3">设计模式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/architecture.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/architecture.html#id4">模块依赖关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/design_patterns.html">设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#strategy-pattern">策略模式 (Strategy Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#factory-pattern">工厂模式 (Factory Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#dependency-injection">依赖注入 (Dependency Injection)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#observer-pattern">观察者模式 (Observer Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#template-method-pattern">模板方法模式 (Template Method Pattern)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/design_patterns.html#adapter-pattern">适配器模式 (Adapter Pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/testing.html">测试指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id2">运行测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id3">编写测试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#fixtures">使用 Fixtures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id4">测试最佳实践</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/testing.html#id5">持续集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">贡献指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id2">如何贡献</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#bug">报告 Bug</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id3">提交代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id4">代码规范</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development/contributing.html#id5">文档贡献</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id6">开发环境设置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#pull-request">提交 Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#id7">行为准则</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">算法参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html">聚类算法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/clustering.html#id2">支持的聚类算法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#k-means">K-Means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering"><code class="docutils literal notranslate"><span class="pre">KMeansClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#gmm-gaussian-mixture-model">GMM (Gaussian Mixture Model)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering"><code class="docutils literal notranslate"><span class="pre">GMMClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#id3">层次聚类</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering"><code class="docutils literal notranslate"><span class="pre">HierarchicalClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#dbscan">DBSCAN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering"><code class="docutils literal notranslate"><span class="pre">DBSCANClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#spectral-clustering">Spectral Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering"><code class="docutils literal notranslate"><span class="pre">SpectralClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#mean-shift">Mean Shift</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering"><code class="docutils literal notranslate"><span class="pre">MeanShiftClustering</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/clustering.html#affinity-propagation">Affinity Propagation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/clustering.html#habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering"><code class="docutils literal notranslate"><span class="pre">AffinityPropagationClustering</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/feature_extraction.html">特征提取</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id2">特征提取器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#mean-voxel-features">Mean Voxel Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#kinetic-features">Kinetic Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#local-entropy-features">Local Entropy Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#voxel-radiomics-features">Voxel Radiomics Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/feature_extraction.html#supervoxel-radiomics-features">Supervoxel Radiomics Features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/feature_extraction.html#id3">自定义特征提取器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../algorithms/validation_methods.html">验证方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id2">聚类验证指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#silhouette-score">Silhouette Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#calinski-harabasz-score">Calinski-Harabasz Score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/validation_methods.html#davies-bouldin-score">Davies-Bouldin Score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../algorithms/validation_methods.html#id3">验证方法选择</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2024-xx-xx">Version 1.0.0 (2024-XX-XX)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index_zh.html">用户指南</a></li>
+      <li class="breadcrumb-item active">生境特征提取</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/habitat_feature_extraction_zh.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>生境特征提取<a class="headerlink" href="#id1" title="此标题的永久链接"></a></h1>
+<p>本节介绍如何使用 HABIT 从生境图中提取特征。</p>
+<section id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="此标题的永久链接"></a></h2>
+<p>生境特征提取是生境分析的重要步骤，从生成的生境图中提取各种类型的特征，为后续的机器学习建模做准备。</p>
+<p>HABIT 支持多种特征类型：</p>
+<ul class="simple">
+<li><p><strong>传统影像组学特征</strong>: 使用 pyradiomics 提取标准影像组学特征</p></li>
+<li><p><strong>非影像组学特征</strong>: 提取非标准的影像组学特征</p></li>
+<li><p><strong>整体生境特征</strong>: 提取整个生境的特征</p></li>
+<li><p><strong>每个生境特征</strong>: 提取每个生境的特征</p></li>
+<li><p><strong>MSI 特征</strong>: 多尺度图像特征</p></li>
+<li><p><strong>ITH 特征</strong>: 肿瘤内异质性特征</p></li>
+</ul>
+</section>
+<section id="cli">
+<h2>CLI 使用方法<a class="headerlink" href="#cli" title="此标题的永久链接"></a></h2>
+<p><strong>基本语法：</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>extract<span class="w"> </span>--config<span class="w"> </span>&lt;config_file&gt;
+</pre></div>
+</div>
+<p><strong>参数说明：</strong></p>
+<ul class="simple">
+<li><p><cite>–config</cite>, <cite>-c</cite>: 配置文件路径（必需）</p></li>
+</ul>
+<p><strong>使用示例：</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>extract<span class="w"> </span>--config<span class="w"> </span>./demo_data/config_extract_features.yaml
+</pre></div>
+</div>
+<p><strong>输出：</strong></p>
+<p>特征文件将保存在配置文件中指定的输出目录。</p>
+</section>
+<section id="python-api">
+<h2>Python API 使用方法<a class="headerlink" href="#python-api" title="此标题的永久链接"></a></h2>
+<p><strong>基本用法：</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">habit.core.habitat_analysis.analyzers.habitat_analyzer</span> <span class="kn">import</span> <span class="n">HabitatMapAnalyzer</span>
+
+<span class="c1"># 创建特征提取器</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">HabitatMapAnalyzer</span><span class="p">(</span>
+    <span class="n">params_file_of_non_habitat</span><span class="o">=</span><span class="s1">&#39;./parameter.yaml&#39;</span><span class="p">,</span>
+    <span class="n">params_file_of_habitat</span><span class="o">=</span><span class="s1">&#39;./parameter_habitat.yaml&#39;</span><span class="p">,</span>
+    <span class="n">raw_img_folder</span><span class="o">=</span><span class="s1">&#39;./preprocessed/processed_images&#39;</span><span class="p">,</span>
+    <span class="n">habitats_map_folder</span><span class="o">=</span><span class="s1">&#39;./results/habitat&#39;</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="s1">&#39;./results/features&#39;</span><span class="p">,</span>
+    <span class="n">n_processes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">habitat_pattern</span><span class="o">=</span><span class="s1">&#39;*_habitats.nrrd&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># 运行特征提取</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">feature_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;traditional&#39;</span><span class="p">,</span> <span class="s1">&#39;non_radiomics&#39;</span><span class="p">,</span> <span class="s1">&#39;whole_habitat&#39;</span><span class="p">,</span> <span class="s1">&#39;each_habitat&#39;</span><span class="p">,</span> <span class="s1">&#39;msi&#39;</span><span class="p">,</span> <span class="s1">&#39;ith_score&#39;</span><span class="p">],</span>
+    <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>详细示例：</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">habit.core.habitat_analysis.analyzers.habitat_analyzer</span> <span class="kn">import</span> <span class="n">HabitatMapAnalyzer</span>
+<span class="kn">from</span> <span class="nn">habit.utils.log_utils</span> <span class="kn">import</span> <span class="n">setup_logger</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># 设置日志</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./results/features&#39;</span><span class="p">)</span>
+<span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">setup_logger</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;feature_extraction&#39;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+    <span class="n">log_filename</span><span class="o">=</span><span class="s1">&#39;feature_extraction.log&#39;</span><span class="p">,</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+<span class="p">)</span>
+
+<span class="c1"># 创建特征提取器</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">HabitatMapAnalyzer</span><span class="p">(</span>
+    <span class="n">params_file_of_non_habitat</span><span class="o">=</span><span class="s1">&#39;./parameter.yaml&#39;</span><span class="p">,</span>
+    <span class="n">params_file_of_habitat</span><span class="o">=</span><span class="s1">&#39;./parameter_habitat.yaml&#39;</span><span class="p">,</span>
+    <span class="n">raw_img_folder</span><span class="o">=</span><span class="s1">&#39;./preprocessed/processed_images&#39;</span><span class="p">,</span>
+    <span class="n">habitats_map_folder</span><span class="o">=</span><span class="s1">&#39;./results/habitat&#39;</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="s1">&#39;./results/features&#39;</span><span class="p">,</span>
+    <span class="n">n_processes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">habitat_pattern</span><span class="o">=</span><span class="s1">&#39;*_habitats.nrrd&#39;</span><span class="p">,</span>
+    <span class="n">voxel_cutoff</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+
+<span class="c1"># 运行特征提取</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;开始特征提取&quot;</span><span class="p">)</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">feature_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;traditional&#39;</span><span class="p">,</span> <span class="s1">&#39;non_radiomics&#39;</span><span class="p">,</span> <span class="s1">&#39;whole_habitat&#39;</span><span class="p">,</span> <span class="s1">&#39;each_habitat&#39;</span><span class="p">,</span> <span class="s1">&#39;msi&#39;</span><span class="p">,</span> <span class="s1">&#39;ith_score&#39;</span><span class="p">],</span>
+    <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;特征提取完成！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="yaml">
+<h2>YAML 配置详解<a class="headerlink" href="#yaml" title="此标题的永久链接"></a></h2>
+<p><strong>配置文件结构：</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 参数文件</span>
+<span class="nt">params_file_of_non_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter.yaml</span><span class="w">  </span><span class="c1"># 从原始图像提取特征的参数文件</span>
+<span class="nt">params_file_of_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter_habitat.yaml</span><span class="w">  </span><span class="c1"># 从生境图提取特征的参数文件</span>
+
+<span class="c1"># 数据目录</span>
+<span class="nt">raw_img_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./preprocessed/processed_images</span><span class="w">  </span><span class="c1"># 原始图像根目录</span>
+<span class="nt">habitats_map_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/habitat</span><span class="w">  </span><span class="c1"># 生境图根目录</span>
+<span class="nt">out_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/features</span><span class="w">  </span><span class="c1"># 输出目录</span>
+
+<span class="c1"># 特征提取参数</span>
+<span class="nt">n_processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">  </span><span class="c1"># 并行进程数</span>
+<span class="nt">habitat_pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;*_habitats.nrrd&#39;</span><span class="w">  </span><span class="c1"># 生境文件匹配模式</span>
+
+<span class="c1"># 特征类型</span>
+<span class="nt">feature_types</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traditional</span><span class="w">      </span><span class="c1"># 传统影像组学特征</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_radiomics</span><span class="w">   </span><span class="c1"># 非影像组学特征</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whole_habitat</span><span class="w">   </span><span class="c1"># 整体生境特征</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">each_habitat</span><span class="w">    </span><span class="c1"># 每个生境特征</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">msi</span><span class="w">             </span><span class="c1"># MSI 特征</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ith_score</span><span class="w">       </span><span class="c1"># ITH 特征</span>
+
+<span class="nt">n_habitats</span><span class="p">:</span><span class="w">   </span><span class="c1"># 生境数量（空表示自动检测）</span>
+
+<span class="c1"># 调试参数</span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># 启用调试模式</span>
+</pre></div>
+</div>
+<p><strong>字段说明：</strong></p>
+<p><strong>params_file_of_non_habitat</strong>: 从原始图像提取特征的参数文件</p>
+<ul class="simple">
+<li><p>使用 pyradiomics 提取传统影像组学特征</p></li>
+<li><p>参考 pyradiomics 文档了解参数说明</p></li>
+</ul>
+<p><strong>params_file_of_habitat</strong>: 从生境图提取特征的参数文件</p>
+<ul class="simple">
+<li><p>使用 pyradiomics 从生境图中提取特征</p></li>
+<li><p>参考 pyradiomics 文档了解参数说明</p></li>
+</ul>
+<p><strong>raw_img_folder</strong>: 原始图像根目录</p>
+<ul class="simple">
+<li><p>包含预处理后的图像</p></li>
+<li><p>用于提取传统影像组学特征</p></li>
+</ul>
+<p><strong>habitats_map_folder</strong>: 生境图根目录</p>
+<ul class="simple">
+<li><p>包含生成的生境图</p></li>
+<li><p>用于提取生境相关特征</p></li>
+</ul>
+<p><strong>out_dir</strong>: 输出目录</p>
+<ul class="simple">
+<li><p>特征文件将保存在此目录</p></li>
+</ul>
+<p><strong>n_processes</strong>: 并行进程数</p>
+<ul class="simple">
+<li><p>用于并行处理多个受试者</p></li>
+<li><p>根据您的硬件配置调整</p></li>
+</ul>
+<p><strong>habitat_pattern</strong>: 生境文件匹配模式</p>
+<ul class="simple">
+<li><p>用于匹配生境图文件</p></li>
+<li><p>支持通配符（<cite>*</cite>）</p></li>
+</ul>
+<p><strong>feature_types</strong>: 特征类型列表</p>
+<ul class="simple">
+<li><p><cite>traditional</cite>: 传统影像组学特征</p></li>
+<li><p><cite>non_radiomics</cite>: 非影像组学特征</p></li>
+<li><p><cite>whole_habitat</cite>: 整体生境特征</p></li>
+<li><p><cite>each_habitat</cite>: 每个生境特征</p></li>
+<li><p><cite>msi</cite>: MSI 特征</p></li>
+<li><p><cite>ith_score</cite>: ITH 特征</p></li>
+</ul>
+<p><strong>n_habitats</strong>: 生境数量</p>
+<ul class="simple">
+<li><p>空表示自动检测</p></li>
+<li><p>可以手动指定生境数量</p></li>
+</ul>
+<p><strong>debug</strong>: 调试模式</p>
+<ul class="simple">
+<li><p>启用详细日志</p></li>
+<li><p>便于调试和问题排查</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>特征类型详解<a class="headerlink" href="#id3" title="此标题的永久链接"></a></h2>
+<p><strong>传统影像组学特征 (traditional)</strong></p>
+<p>使用 pyradiomics 提取标准影像组学特征。</p>
+<p><strong>适用场景：</strong>
+- 与传统影像组学研究对比
+- 需要标准的影像组学特征</p>
+<p><strong>特征类别：</strong>
+- 一阶统计特征（First Order Statistics）
+- 形状特征（Shape）
+- 灰度共生矩阵特征（GLCM）
+- 灰度游程矩阵特征（GLRLM）
+- 灰度区域矩阵特征（GLSZM）
+- 邻域灰度差分矩阵特征（NGTDM）</p>
+<p><strong>参数文件示例：</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameter.yaml</span>
+<span class="nt">imageType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">original</span>
+<span class="nt">resampledPixelSpacing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">interpolator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sitkBSpline</span>
+<span class="nt">force2D</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">force2Ddimension</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">resampling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">preCrop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">binWidth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
+<span class="nt">binCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">normalizeScale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">removeOutliers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">voxelBased</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># 特征类别</span>
+<span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">firstorder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glcm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glrlm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glszm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">ngtdm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</pre></div>
+</div>
+<p><strong>非影像组学特征 (non_radiomics)</strong></p>
+<p>提取非标准的影像组学特征。</p>
+<p><strong>适用场景：</strong>
+- 探索新的特征类型
+- 研究特定的生物学特征</p>
+<p><strong>特征类型：</strong>
+- 空间分布特征
+- 强度分布特征
+- 形态学特征
+- 纹理特征</p>
+<p><strong>整体生境特征 (whole_habitat)</strong></p>
+<p>提取整个生境的特征。</p>
+<p><strong>适用场景：</strong>
+- 研究生境的整体特性
+- 分析生境之间的关系</p>
+<p><strong>特征类型：</strong>
+- 生境数量
+- 生境分布
+- 生境大小
+- 生境形状</p>
+<p><strong>每个生境特征 (each_habitat)</strong></p>
+<p>提取每个生境的特征。</p>
+<p><strong>适用场景：</strong>
+- 研究每个生境的独立特性
+- 分析生境之间的差异</p>
+<p><strong>特征类型：</strong>
+- 每个生境的强度特征
+- 每个生境的纹理特征
+- 每个生境的形状特征</p>
+<p><strong>MSI 特征 (msi)</strong></p>
+<p>多尺度图像特征。</p>
+<p><strong>适用场景：</strong>
+- 研究多尺度特征
+- 分析不同尺度的异质性</p>
+<p><strong>特征类型：</strong>
+- 多尺度强度特征
+- 多尺度纹理特征
+- 多尺度形态学特征</p>
+<p><strong>ITH 特征 (ith_score)</strong></p>
+<p>肿瘤内异质性特征。</p>
+<p><strong>适用场景：</strong>
+- 量化肿瘤内异质性
+- 研究异质性与临床结果的关系</p>
+<p><strong>特征类型：</strong>
+- 异质性指数
+- 多样性指数
+- 复杂性指数</p>
+</section>
+<section id="id4">
+<h2>参数文件说明<a class="headerlink" href="#id4" title="此标题的永久链接"></a></h2>
+<p>HABIT 使用 pyradiomics 进行特征提取，需要提供参数文件。</p>
+<p><strong>parameter.yaml（原始图像特征提取）：</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 图像设置</span>
+<span class="nt">imageType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">original</span>
+<span class="nt">resampledPixelSpacing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">interpolator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sitkBSpline</span>
+<span class="nt">force2D</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">force2Ddimension</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">resampling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">preCrop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="c1"># 分箱设置</span>
+<span class="nt">binWidth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
+<span class="nt">binCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">normalizeScale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">removeOutliers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">voxelBased</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># 特征类别</span>
+<span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">firstorder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glcm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glrlm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glszm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">ngtdm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</pre></div>
+</div>
+<p><strong>parameter_habitat.yaml（生境图特征提取）：</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 图像设置</span>
+<span class="nt">imageType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">original</span>
+<span class="nt">resampledPixelSpacing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">interpolator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sitkBSpline</span>
+<span class="nt">force2D</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">force2Ddimension</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">resampling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">preCrop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="c1"># 分箱设置</span>
+<span class="nt">binWidth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
+<span class="nt">binCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="nt">normalize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">normalizeScale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">removeOutliers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">voxelBased</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># 特征类别</span>
+<span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">firstorder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glcm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glrlm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">glszm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="nt">ngtdm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>实际示例<a class="headerlink" href="#id5" title="此标题的永久链接"></a></h2>
+<p><strong>示例 1: 基本特征提取</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params_file_of_non_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter.yaml</span>
+<span class="nt">params_file_of_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter_habitat.yaml</span>
+
+<span class="nt">raw_img_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./preprocessed/processed_images</span>
+<span class="nt">habitats_map_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/habitat/predict</span>
+<span class="nt">out_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/features</span>
+
+<span class="nt">n_processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">habitat_pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;*_habitats.nrrd&#39;</span>
+
+<span class="nt">feature_types</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traditional</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_radiomics</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whole_habitat</span>
+
+<span class="nt">n_habitats</span><span class="p">:</span>
+
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p><strong>示例 2: 完整特征提取</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params_file_of_non_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter.yaml</span>
+<span class="nt">params_file_of_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter_habitat.yaml</span>
+
+<span class="nt">raw_img_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./preprocessed/processed_images</span>
+<span class="nt">habitats_map_folder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/habitat/predict</span>
+<span class="nt">out_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/features</span>
+
+<span class="nt">n_processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="nt">habitat_pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;*_habitats.nrrd&#39;</span>
+
+<span class="nt">feature_types</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traditional</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_radiomics</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whole_habitat</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">each_habitat</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">msi</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ith_score</span>
+
+<span class="nt">n_habitats</span><span class="p">:</span>
+
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>输出结构<a class="headerlink" href="#id6" title="此标题的永久链接"></a></h2>
+<p>特征提取的输出结构：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>results/features/
+├── traditional/              # 传统影像组学特征
+│   ├── features.csv
+│   └── ...
+├── non_radiomics/           # 非影像组学特征
+│   ├── features.csv
+│   └── ...
+├── whole_habitat/           # 整体生境特征
+│   ├── features.csv
+│   └── ...
+├── each_habitat/            # 每个生境特征
+│   ├── features.csv
+│   └── ...
+├── msi/                    # MSI 特征
+│   ├── features.csv
+│   └── ...
+├── ith_score/               # ITH 特征
+│   ├── features.csv
+│   └── ...
+└── feature_extraction.log    # 日志文件
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>常见问题<a class="headerlink" href="#id7" title="此标题的永久链接"></a></h2>
+<p><strong>Q1: 特征提取失败怎么办？</strong></p>
+<p>A: 检查以下几点：
+1. 配置文件路径是否正确
+2. 参数文件是否存在
+3. 生境图文件是否存在
+4. 原始图像文件是否存在
+5. pyradiomics 是否正确安装
+6. 查看日志文件了解详细错误信息</p>
+<p><strong>Q2: 如何选择特征类型？</strong></p>
+<p>A: 根据您的研究需求选择：
+- <strong>传统影像组学</strong>: 与传统研究对比
+- <strong>非影像组学</strong>: 探索新的特征
+- <strong>整体生境</strong>: 研究生境整体特性
+- <strong>每个生境</strong>: 研究每个生境独立特性
+- <strong>MSI</strong>: 研究多尺度特征
+- <strong>ITH</strong>: 量化肿瘤内异质性</p>
+<p><strong>Q3: 如何调整特征提取参数？</strong></p>
+<p>A: 修改参数文件：
+- <cite>binWidth</cite>: 分箱宽度
+- <cite>binCount</cite>: 分箱数量
+- <cite>normalize</cite>: 是否标准化
+- 特征类别：启用或禁用特定特征类别</p>
+<p><strong>Q4: 特征提取速度慢怎么办？</strong></p>
+<p>A: 可以尝试以下方法：
+1. 增加 <cite>n_processes</cite> 参数，使用更多并行进程
+2. 减少特征类型，只提取必要的特征
+3. 使用更快的硬件（如 SSD）
+4. 对于大数据集，考虑分批处理</p>
+<p><strong>Q5: 如何验证提取的特征？</strong></p>
+<p>A: 可以通过以下方法验证：
+1. 检查特征文件的完整性
+2. 检查特征值的合理性
+3. 可视化特征分布
+4. 统计特征数量和质量</p>
+</section>
+<section id="id8">
+<h2>下一步<a class="headerlink" href="#id8" title="此标题的永久链接"></a></h2>
+<p>特征提取完成后，您可以：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="machine_learning_modeling_zh.html"><span class="doc">机器学习建模</span></a>: 进行机器学习建模</p></li>
+<li><p><a class="reference internal" href="../customization/index_zh.html"><span class="doc">自定义扩展指南</span></a>: 了解如何自定义特征提取器</p></li>
+<li><p><span class="xref std std-doc">configuration_zh</span>: 了解配置文件的详细说明</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="habitat_segmentation_zh.html" class="btn btn-neutral float-left" title="生境分割" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="machine_learning_modeling_zh.html" class="btn btn-neutral float-right" title="机器学习建模" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2026, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

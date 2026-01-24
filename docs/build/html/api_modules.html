@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>-+API Reference &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/translations.js?v=beaddf03"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API 文档</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">-+API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_modules.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>-+API Reference<a class="headerlink" href="#api-reference" title="此标题的永久链接"></a></h1>
+<section id="module-habit.core">
+<span id="core-module"></span><h2>Core Module<a class="headerlink" href="#module-habit.core" title="此标题的永久链接"></a></h2>
+<p>Core modules for HABIT package.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.get_import_errors">
+<span class="sig-prename descclassname"><span class="pre">habit.core.</span></span><span class="sig-name descname"><span class="pre">get_import_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/habit/core.html#get_import_errors"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.get_import_errors" title="永久链接至目标"></a></dt>
+<dd><p>Return import errors collected during module initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mapping from module key to error message.</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.get_available_classes">
+<span class="sig-prename descclassname"><span class="pre">habit.core.</span></span><span class="sig-name descname"><span class="pre">get_available_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/habit/core.html#get_available_classes"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.get_available_classes" title="永久链接至目标"></a></dt>
+<dd><p>Return classes that were successfully imported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mapping from public name to class object.</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）">str</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.is_class_available">
+<span class="sig-prename descclassname"><span class="pre">habit.core.</span></span><span class="sig-name descname"><span class="pre">is_class_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/habit/core.html#is_class_available"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.is_class_available" title="永久链接至目标"></a></dt>
+<dd><p>Check if a public class is available in this module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>class_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a>) – Public class name to check.</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the class was imported successfully.</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-habit.core.habitat_analysis">
+<span id="habitat-analysis-module"></span><h2>Habitat Analysis Module<a class="headerlink" href="#module-habit.core.habitat_analysis" title="此标题的永久链接"></a></h2>
+<p>Habitat Analysis module for HABIT package.</p>
+<p>This module provides:
+- HabitatAnalysis: Main class for habitat clustering analysis
+- Configuration schemas: HabitatAnalysisConfig, ResultColumns
+- Analyzer classes: HabitatMapAnalyzer (formerly HabitatFeatureExtractor)</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.get_import_errors">
+<span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.</span></span><span class="sig-name descname"><span class="pre">get_import_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis.html#get_import_errors"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.get_import_errors" title="永久链接至目标"></a></dt>
+<dd><p>Get dictionary of import errors that occurred during module loading.</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary mapping class names to error messages</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.get_available_classes">
+<span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.</span></span><span class="sig-name descname"><span class="pre">get_available_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis.html#get_available_classes"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.get_available_classes" title="永久链接至目标"></a></dt>
+<dd><p>Get dictionary of successfully imported classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary mapping class names to their classes</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.is_class_available">
+<span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.</span></span><span class="sig-name descname"><span class="pre">is_class_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis.html#is_class_available"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.is_class_available" title="永久链接至目标"></a></dt>
+<dd><p>Check if a specific class is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>class_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><em>str</em></a>) – Name of the class to check</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if class is available, False otherwise</p>
+</dd>
+<dt class="field-odd">返回类型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="feature-management">
+<h3>Feature Management<a class="headerlink" href="#feature-management" title="此标题的永久链接"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.managers.</span></span><span class="sig-name descname"><span class="pre">FeatureManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager" title="永久链接至目标"></a></dt>
+<dd><p>Manages feature extraction and preprocessing for habitat analysis.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.__init__" title="永久链接至目标"></a></dt>
+<dd><p>Initialize FeatureManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Habitat analysis configuration</p></li>
+<li><p><strong>logger</strong> – Logger instance</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.set_data_paths">
+<span class="sig-name descname"><span class="pre">set_data_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.set_data_paths"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.set_data_paths" title="永久链接至目标"></a></dt>
+<dd><p>Set image and mask paths.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.set_logging_info">
+<span class="sig-name descname"><span class="pre">set_logging_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.set_logging_info"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.set_logging_info" title="永久链接至目标"></a></dt>
+<dd><p>Set logging info for subprocesses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.extract_voxel_features">
+<span class="sig-name descname"><span class="pre">extract_voxel_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="（在 Python v3.14）"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.extract_voxel_features"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.extract_voxel_features" title="永久链接至目标"></a></dt>
+<dd><p>Extract voxel-level features for a single subject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>subject</strong> – Subject ID to process</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (subject_id, feature_df, raw_df, mask_info)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.extract_supervoxel_features">
+<span class="sig-name descname"><span class="pre">extract_supervoxel_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="（在 Python v3.14）"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="（在 Python v3.14）"><span class="pre">Exception</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.extract_supervoxel_features"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.extract_supervoxel_features" title="永久链接至目标"></a></dt>
+<dd><p>Extract supervoxel-level features from supervoxel maps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>subject</strong> – Subject ID to process</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (subject_id, features_df or Exception)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.apply_preprocessing">
+<span class="sig-name descname"><span class="pre">apply_preprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.apply_preprocessing"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.apply_preprocessing" title="永久链接至目标"></a></dt>
+<dd><p>Apply preprocessing based on level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_df</strong> – DataFrame to preprocess</p></li>
+<li><p><strong>level</strong> – ‘subject’ for individual level, ‘group’ for population level</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Preprocessed DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.calculate_supervoxel_means">
+<span class="sig-name descname"><span class="pre">calculate_supervoxel_means</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supervoxel_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_clusters_supervoxel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.calculate_supervoxel_means"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.calculate_supervoxel_means" title="永久链接至目标"></a></dt>
+<dd><p>Calculate supervoxel-level features (aggregated from voxel features).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.setup_supervoxel_files">
+<span class="sig-name descname"><span class="pre">setup_supervoxel_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subjects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="（在 Python v3.14）"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_subjects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="（在 Python v3.14）"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.setup_supervoxel_files"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.setup_supervoxel_files" title="永久链接至目标"></a></dt>
+<dd><p>Setup dictionary mapping subjects to supervoxel files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.FeatureManager.clean_features">
+<span class="sig-name descname"><span class="pre">clean_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/feature_manager.html#FeatureManager.clean_features"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.FeatureManager.clean_features" title="永久链接至目标"></a></dt>
+<dd><p>Clean feature DataFrame: handle types, inf, nan values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="clustering-management">
+<h3>Clustering Management<a class="headerlink" href="#clustering-management" title="此标题的永久链接"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.managers.</span></span><span class="sig-name descname"><span class="pre">ClusteringManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager" title="永久链接至目标"></a></dt>
+<dd><p>Manages clustering operations for habitat analysis.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.__init__" title="永久链接至目标"></a></dt>
+<dd><p>Initialize ClusteringManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Habitat analysis configuration</p></li>
+<li><p><strong>logger</strong> – Logger instance</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.cluster_subject_voxels">
+<span class="sig-name descname"><span class="pre">cluster_subject_voxels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.cluster_subject_voxels"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.cluster_subject_voxels" title="永久链接至目标"></a></dt>
+<dd><p>Cluster voxels to supervoxels for a single subject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject</strong> – Subject ID</p></li>
+<li><p><strong>feature_df</strong> – Feature DataFrame</p></li>
+<li><p><strong>n_clusters</strong> – Number of clusters (if None, uses config default)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of supervoxel labels (1-indexed)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.find_optimal_clusters_for_subject">
+<span class="sig-name descname"><span class="pre">find_optimal_clusters_for_subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_validation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="（在 Python v3.14）"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.find_optimal_clusters_for_subject"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.find_optimal_clusters_for_subject" title="永久链接至目标"></a></dt>
+<dd><p>Find optimal number of clusters for a single subject.
+Atomic capability for OneStep strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject</strong> – Subject ID</p></li>
+<li><p><strong>feature_df</strong> – Feature DataFrame</p></li>
+<li><p><strong>min_clusters</strong> – Minimum number of clusters to try</p></li>
+<li><p><strong>max_clusters</strong> – Maximum number of clusters to try</p></li>
+<li><p><strong>selection_method</strong> – Validation method to use</p></li>
+<li><p><strong>plot_validation</strong> – Whether to plot validation curves</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optimal number of clusters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.plot_one_step_validation">
+<span class="sig-name descname"><span class="pre">plot_one_step_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scores_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusterer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.plot_one_step_validation"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.plot_one_step_validation" title="永久链接至目标"></a></dt>
+<dd><p>Plot validation curves for one-step clustering.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.plot_habitat_scores">
+<span class="sig-name descname"><span class="pre">plot_habitat_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimal_n_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.plot_habitat_scores"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.plot_habitat_scores" title="永久链接至目标"></a></dt>
+<dd><p>Plot habitat clustering validation scores.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.visualize_supervoxel_clustering">
+<span class="sig-name descname"><span class="pre">visualize_supervoxel_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supervoxel_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.visualize_supervoxel_clustering"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.visualize_supervoxel_clustering" title="永久链接至目标"></a></dt>
+<dd><p>Create visualizations for supervoxel clustering results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ClusteringManager.visualize_habitat_clustering">
+<span class="sig-name descname"><span class="pre">visualize_habitat_clustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">habitat_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimal_n_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/clustering_manager.html#ClusteringManager.visualize_habitat_clustering"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ClusteringManager.visualize_habitat_clustering" title="永久链接至目标"></a></dt>
+<dd><p>Create visualizations for habitat clustering results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – Feature matrix used for clustering</p></li>
+<li><p><strong>habitat_labels</strong> – Cluster labels for habitats</p></li>
+<li><p><strong>optimal_n_clusters</strong> – Selected number of clusters</p></li>
+<li><p><strong>subject</strong> – Optional subject ID for one-step clustering visualization</p></li>
+<li><p><strong>output_dir</strong> – Optional override for output directory</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="result-management">
+<h3>Result Management<a class="headerlink" href="#result-management" title="此标题的永久链接"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">habit.core.habitat_analysis.managers.</span></span><span class="sig-name descname"><span class="pre">ResultManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager" title="永久链接至目标"></a></dt>
+<dd><p>Manages result storage and output for habitat analysis.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HabitatAnalysisConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="（在 Python v3.14）"><span class="pre">Logger</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.__init__"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.__init__" title="永久链接至目标"></a></dt>
+<dd><p>Initialize ResultManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Habitat analysis configuration</p></li>
+<li><p><strong>logger</strong> – Logger instance</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.set_logging_info">
+<span class="sig-name descname"><span class="pre">set_logging_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="（在 Python v3.14）"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.set_logging_info"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.set_logging_info" title="永久链接至目标"></a></dt>
+<dd><p>Set logging info for subprocesses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.save_supervoxel_image">
+<span class="sig-name descname"><span class="pre">save_supervoxel_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">supervoxel_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="（在 Python v3.14）"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.save_supervoxel_image"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.save_supervoxel_image" title="永久链接至目标"></a></dt>
+<dd><p>Save supervoxel labels as an image file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.save_habitat_for_subject">
+<span class="sig-name descname"><span class="pre">save_habitat_for_subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="（在 Python v3.14）"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="（在 Python v3.14）"><span class="pre">Exception</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.save_habitat_for_subject"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.save_habitat_for_subject" title="永久链接至目标"></a></dt>
+<dd><p>Save habitat image for a single subject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>subject</strong> – Subject ID</p>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (subject_id, None or Exception)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.save_all_habitat_images">
+<span class="sig-name descname"><span class="pre">save_all_habitat_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failed_subjects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="（在 Python v3.14）"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.save_all_habitat_images"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.save_all_habitat_images" title="永久链接至目标"></a></dt>
+<dd><p>Save habitat images for all successfully processed subjects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.core.habitat_analysis.managers.ResultManager.save_habitat_image_from_voxels">
+<span class="sig-name descname"><span class="pre">save_habitat_image_from_voxels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="（在 NumPy v2.4）"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="（在 Python v3.14）"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="（在 Python v3.14）"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="（在 Python v3.14）"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="（在 Python v3.14）"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/habit/core/habitat_analysis/managers/result_manager.html#ResultManager.save_habitat_image_from_voxels"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#habit.core.habitat_analysis.managers.ResultManager.save_habitat_image_from_voxels" title="永久链接至目标"></a></dt>
+<dd><p>Save habitat image directly from voxel-level labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject</strong> – Subject ID</p></li>
+<li><p><strong>labels</strong> – Voxel-level habitat labels (1-indexed)</p></li>
+<li><p><strong>mask_info</strong> – Mask metadata for reconstruction</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="machine-learning-module">
+<h2>Machine Learning Module<a class="headerlink" href="#machine-learning-module" title="此标题的永久链接"></a></h2>
+</section>
+<section id="module-habit.core.machine_learning.evaluation">
+<span id="evaluation-module"></span><h2>Evaluation Module<a class="headerlink" href="#module-habit.core.machine_learning.evaluation" title="此标题的永久链接"></a></h2>
+</section>
+<section id="module-habit.core.common">
+<span id="common-utilities"></span><h2>Common Utilities<a class="headerlink" href="#module-habit.core.common" title="此标题的永久链接"></a></h2>
+<p>Common components shared across HABIT modules.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

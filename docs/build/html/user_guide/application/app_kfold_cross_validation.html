@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K-Fold Cross-Validation Guide &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">K-Fold Cross-Validation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/application/app_kfold_cross_validation.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="k-fold-cross-validation-guide">
+<h1>K-Fold Cross-Validation Guide<a class="headerlink" href="#k-fold-cross-validation-guide" title="此标题的永久链接"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>K-Fold cross-validation is a widely used model evaluation method that divides the dataset into K subsets (folds). In each iteration, K-1 subsets are used for training and the remaining subset is used for validation. This process repeats K times, with each subset serving as the validation set once.</p>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="此标题的永久链接"></a></h2>
+<section id="using-cli-recommended">
+<h3>Using CLI (Recommended)<a class="headerlink" href="#using-cli-recommended" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use default configuration</span>
+habit<span class="w"> </span>kfold
+
+<span class="c1"># Use specified configuration file</span>
+habit<span class="w"> </span>kfold<span class="w"> </span>--config<span class="w"> </span>config/config_machine_learning_kfold.yaml
+
+<span class="c1"># Short form</span>
+habit<span class="w"> </span>kfold<span class="w"> </span>-c<span class="w"> </span>config/config_machine_learning_kfold.yaml
+</pre></div>
+</div>
+</section>
+<section id="using-traditional-scripts-legacy-compatible">
+<h3>Using Traditional Scripts (Legacy Compatible)<a class="headerlink" href="#using-traditional-scripts-legacy-compatible" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts/app_kfold_cv.py<span class="w"> </span>--config<span class="w"> </span>config/config_machine_learning_kfold.yaml
+</pre></div>
+</div>
+</section>
+<section id="advantages-of-k-fold-cross-validation">
+<h3>Advantages of K-Fold Cross-Validation<a class="headerlink" href="#advantages-of-k-fold-cross-validation" title="此标题的永久链接"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>More reliable performance estimation</strong>: Compared to a single train-test split, K-Fold provides more stable and reliable performance estimates</p></li>
+<li><p><strong>Efficient data usage</strong>: Every sample is used for both training and validation, especially suitable for small datasets</p></li>
+<li><p><strong>Reduced randomness</strong>: Multiple validations reduce the impact of random splitting</p></li>
+<li><p><strong>Model stability assessment</strong>: Standard deviation across folds evaluates model stability on different data subsets</p></li>
+</ol>
+</section>
+<section id="differences-from-standard-modeling-pipeline">
+<h3>Differences from Standard Modeling Pipeline<a class="headerlink" href="#differences-from-standard-modeling-pipeline" title="此标题的永久链接"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Standard Pipeline</p></th>
+<th class="head"><p>K-Fold Cross-Validation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Data splitting</p></td>
+<td><p>Single split
+(train + test)</p></td>
+<td><p>K splits</p></td>
+</tr>
+<tr class="row-odd"><td><p>Training iterations</p></td>
+<td><p>1 per model</p></td>
+<td><p>K per model</p></td>
+</tr>
+<tr class="row-even"><td><p>Evaluation metrics</p></td>
+<td><p>Single test set
+result</p></td>
+<td><p>Mean ± Std across K folds</p></td>
+</tr>
+<tr class="row-odd"><td><p>Feature selection</p></td>
+<td><p>On entire training
+set</p></td>
+<td><p>Independently within each
+fold (avoids data leakage)</p></td>
+</tr>
+<tr class="row-even"><td><p>Use cases</p></td>
+<td><p>Large datasets,
+rapid prototyping</p></td>
+<td><p>Small datasets, reliable
+evaluation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Computation time</p></td>
+<td><p>Fast</p></td>
+<td><p>Slow (K times)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="configuration-file">
+<h2>Configuration File<a class="headerlink" href="#configuration-file" title="此标题的永久链接"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

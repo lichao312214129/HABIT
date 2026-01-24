@@ -1,0 +1,18 @@
+habit.core package
+==================
+
+.. automodule:: habit.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   habit.core.habitat_analysis
+   habit.core.machine_learning
+   habit.core.preprocessing
+   habit.core.common

@@ -1,0 +1,105 @@
+Model Comparison Plots User Guide
+=================================
+
+Overview
+--------
+
+The Model Comparison Plots module generates comprehensive visualizations for comparing the performance of different machine learning models. This module creates various plots to facilitate the interpretation and comparison of model results in classification and regression tasks.
+
+Quick Start
+-----------
+
+Using CLI (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Use default configuration
+    habit compare-plots
+
+    # Use specified configuration file
+    habit compare-plots --config config/config_model_comparison_plots.yaml
+
+Using Traditional Scripts (Legacy Compatible)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    python scripts/app_model_comparison_plots.py --config <config_file_path>
+
+Configuration File
+------------------
+
+Configuration File Links:
+
+- `Current Configuration <../config/config_model_comparison_plots.yaml>`_ - Concise configuration for actual use
+- `Annotated Template <../config_templates/config_model_comparison_plots_annotated.yaml>`_ - Complete English comments and instructions
+
+Key Configuration Items
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: yaml
+
+    # Input settings
+    input:
+      results_path: <path_to_model_results>
+      output_dir: <path_to_output_directory>
+
+    # Plot settings
+    plots:
+      roc_curves: <true_or_false>
+      pr_curves: <true_or_false>
+      confusion_matrices: <true_or_false>
+      feature_importance: <true_or_false>
+      calibration_plots: <true_or_false>
+      box_plots: <true_or_false>
+
+    # Styling settings
+    style:
+      figsize: [<width>, <height>]
+      dpi: <plot_resolution>
+      color_palette: <color_scheme>
+
+Supported Plot Types
+--------------------
+
+1. ROC Curves
+~~~~~~~~~~~~~
+
+Receiver Operating Characteristic curves comparing the true positive rate against the false positive rate for different models.
+
+2. Precision-Recall Curves
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PR curves showing the trade-off between precision and recall for different models.
+
+3. Confusion Matrices
+~~~~~~~~~~~~~~~~~~~~~
+
+Matrix visualization of classification results showing true positives, false positives, true negatives, and false negatives.
+
+4. Feature Importance
+~~~~~~~~~~~~~~~~~~~~~
+
+Bar plots showing the importance of different features for each model.
+
+5. Calibration Plots
+~~~~~~~~~~~~~~~~~~~~~
+
+Plots showing how well the predicted probabilities match the actual probabilities.
+
+6. Box Plots
+~~~~~~~~~~~~~
+
+Box plots comparing the distribution of performance metrics across different models.
+
+Output
+------
+
+The module generates:
+
+- Multiple comparison plots in various formats
+- Summary statistics for each model
+- Performance rankings
+- Interactive plots (if supported)
+- Publication-ready figures

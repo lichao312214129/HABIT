@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.common.config_base &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">模块代码</a></li>
+          <li class="breadcrumb-item"><a href="../../core.html">habit.core</a></li>
+      <li class="breadcrumb-item active">habit.core.common.config_base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.common.config_base 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base configuration classes for unified configuration management.</span>
+
+<span class="sd">This module provides:</span>
+<span class="sd">1. BaseConfig: Abstract base class for all configuration schemas</span>
+<span class="sd">2. ConfigValidationError: Custom exception for configuration validation errors</span>
+<span class="sd">3. ConfigAccessor: Unified interface for accessing configuration values</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ValidationError</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c1"># Type variable for configuration classes</span>
+<span class="n">ConfigType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;ConfigType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;BaseConfig&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ConfigValidationError"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigValidationError">[文档]</a><span class="k">class</span> <span class="nc">ConfigValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom exception for configuration validation errors.</span>
+<span class="sd">    </span>
+<span class="sd">    Provides detailed information about validation failures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="ConfigValidationError.__init__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigValidationError.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize configuration validation error.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            message: Error message</span>
+<span class="sd">            errors: Detailed validation errors from Pydantic</span>
+<span class="sd">            config_path: Path to the configuration file that failed validation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span> <span class="o">=</span> <span class="n">config_path</span></div>
+    
+<div class="viewcode-block" id="ConfigValidationError.__str__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigValidationError.__str__">[文档]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format error message with details.&quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (config file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Validation errors: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">msg</span></div></div>
+
+
+<div class="viewcode-block" id="BaseConfig"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig">[文档]</a><span class="k">class</span> <span class="nc">BaseConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for all configuration schemas in HABIT.</span>
+<span class="sd">    </span>
+<span class="sd">    Provides common functionality:</span>
+<span class="sd">    - Version tracking</span>
+<span class="sd">    - Configuration file path tracking</span>
+<span class="sd">    - Validation hooks</span>
+<span class="sd">    - Accessor methods</span>
+<span class="sd">    </span>
+<span class="sd">    All configuration classes should inherit from this base class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Configuration metadata</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="BaseConfig.Config"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.Config">[文档]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pydantic configuration.&quot;&quot;&quot;</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="s1">&#39;forbid&#39;</span>  <span class="c1"># Forbid extra fields by default</span>
+        <span class="n">validate_assignment</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Validate on assignment</span>
+        <span class="n">use_enum_values</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Use enum values</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.__init__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize configuration with validation.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            **data: Configuration data</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigValidationError: If validation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigValidationError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Configuration validation failed for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">(),</span>
+                <span class="n">config_path</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;config_file&#39;</span><span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.from_dict"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.from_dict">[文档]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ConfigType</span><span class="p">],</span> <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConfigType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create configuration instance from dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_dict: Configuration dictionary</span>
+<span class="sd">            config_path: Optional path to configuration file (for error reporting)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration instance</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigValidationError: If validation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">config_path</span><span class="p">:</span>
+            <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;config_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_path</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config_dict</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigValidationError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Failed to create </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> from dictionary&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">(),</span>
+                <span class="n">config_path</span><span class="o">=</span><span class="n">config_path</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.from_file"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.from_file">[文档]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ConfigType</span><span class="p">],</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConfigType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load configuration from file.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_path: Path to configuration file (YAML or JSON)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration instance</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If configuration file not found</span>
+<span class="sd">            ConfigValidationError: If validation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">habit.core.common.config_loader</span> <span class="kn">import</span> <span class="n">load_config</span>
+        
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration file not found: </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span> <span class="n">resolve_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.to_dict"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.to_dict">[文档]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert configuration to dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            exclude_none: Whether to exclude None values</span>
+<span class="sd">            exclude_unset: Whether to exclude unset values</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;model_dump&#39;</span><span class="p">):</span>
+            <span class="c1"># Pydantic v2</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="n">exclude_none</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="n">exclude_unset</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Pydantic v1</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="n">exclude_none</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="n">exclude_unset</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.get"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.get">[文档]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get configuration value by key (dictionary-like access).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides backward compatibility with dictionary access patterns.</span>
+<span class="sd">        However, direct attribute access (config.field_name) is preferred.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: Configuration key (supports dot notation for nested keys)</span>
+<span class="sd">            default: Default value if key not found</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration value or default</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Support dot notation for nested access</span>
+            <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">part</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">default</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Direct attribute access</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;model_dump&#39;</span><span class="p">):</span>
+                    <span class="c1"># Pydantic v2</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Pydantic v1</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">default</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.validate"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.validate">[文档]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate configuration (re-validate after modifications).</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if valid</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ConfigValidationError: If validation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Trigger validation by creating a new instance</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigValidationError</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Configuration validation failed for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">(),</span>
+                <span class="n">config_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.__getitem__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.__getitem__">[文档]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dictionary-like access for backward compatibility.</span>
+<span class="sd">        </span>
+<span class="sd">        Prefer direct attribute access: config.field_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="BaseConfig.__contains__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.BaseConfig.__contains__">[文档]</a>    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if configuration contains a key.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ConfigAccessor"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor">[文档]</a><span class="k">class</span> <span class="nc">ConfigAccessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unified interface for accessing configuration values.</span>
+<span class="sd">    </span>
+<span class="sd">    Provides a consistent API for accessing configuration regardless of</span>
+<span class="sd">    whether it&#39;s a Pydantic model or a dictionary.</span>
+<span class="sd">    </span>
+<span class="sd">    This class helps transition from dictionary-based config access</span>
+<span class="sd">    to strongly-typed Pydantic model access.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="ConfigAccessor.__init__"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize config accessor.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config: Configuration object (BaseConfig instance or dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_pydantic</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">BaseConfig</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ConfigAccessor.get"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor.get">[文档]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get configuration value by key.</span>
+<span class="sd">        </span>
+<span class="sd">        Supports:</span>
+<span class="sd">        - Direct attribute access for Pydantic models: config.field_name</span>
+<span class="sd">        - Dot notation for nested access: config.section.subsection.field</span>
+<span class="sd">        - Dictionary access for backward compatibility</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: Configuration key (supports dot notation)</span>
+<span class="sd">            default: Default value if key not found</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration value or default</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_pydantic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Dictionary access with dot notation support</span>
+            <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">default</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ConfigAccessor.has"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor.has">[文档]</a>    <span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if configuration contains a key.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: Configuration key (supports dot notation)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if key exists</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_pydantic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span></div>
+    
+<div class="viewcode-block" id="ConfigAccessor.get_section"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor.get_section">[文档]</a>    <span class="k">def</span> <span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BaseConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a configuration section.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            section_name: Section name (supports dot notation)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Configuration section or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="c1"># If it&#39;s a Pydantic model or dict, return as ConfigAccessor</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">BaseConfig</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">ConfigAccessor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">value</span></div>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get raw configuration object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+    
+<div class="viewcode-block" id="ConfigAccessor.to_dict"><a class="viewcode-back" href="../../../../api_modules.html#habit.core.common.ConfigAccessor.to_dict">[文档]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert configuration to dictionary.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_pydantic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

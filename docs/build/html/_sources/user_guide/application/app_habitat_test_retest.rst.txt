@@ -1,0 +1,88 @@
+Habitat Test-Retest Reliability Analysis
+========================================
+
+Overview
+--------
+
+The Habitat Test-Retest Analysis module evaluates the reliability and consistency of habitat segmentation results across repeated measurements. This module implements various statistical methods to assess the reproducibility of habitat-based features.
+
+Quick Start
+-----------
+
+Using CLI (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    # Use default configuration
+    habit test-retest
+
+    # Use specified configuration file
+    habit test-retest --config config/config_habitat_test_retest.yaml
+
+Using Traditional Scripts (Legacy Compatible)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    python scripts/app_habitat_test_retest.py --config <config_file_path>
+
+Configuration File
+------------------
+
+Configuration File Links:
+
+- `Current Configuration <../config/config_habitat_test_retest.yaml>`_ - Concise configuration for actual use
+- `Annotated Template <../config_templates/config_habitat_test_retest_annotated.yaml>`_ - Complete English comments and instructions
+
+Key Configuration Items
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: yaml
+
+    # Input settings
+    input:
+      test_data_path: <path_to_test_session_data>
+      retest_data_path: <path_to_retest_session_data>
+      output_dir: <path_to_output_directory>
+
+    # Analysis settings
+    analysis:
+      features: [<list_of_features_to_analyze>]
+      icc_type: <type_of_icc_calculation>
+      correlation_methods: [<list_of_correlation_methods>]
+
+    # Visualization settings
+    visualization:
+      plot_scatter: <true_or_false>
+      plot_bland_altman: <true_or_false>
+      save_plots: <true_or_false>
+
+Analysis Methods
+----------------
+
+1. Intraclass Correlation Coefficient (ICC)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Measures the consistency and agreement between test and retest sessions.
+
+2. Correlation Analysis
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Pearson and Spearman correlation coefficients to assess linear and monotonic relationships.
+
+3. Bland-Altman Analysis
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Evaluates the agreement between test and retest measurements by plotting the difference against the average.
+
+Output
+------
+
+The module generates comprehensive reports including:
+
+- ICC values for each feature
+- Correlation matrices
+- Bland-Altman plots
+- Scatter plots
+- Statistical summaries

@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC Analysis Module User Guide &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ICC Analysis Module User Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/user_guide/application/app_icc_analysis.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="icc-analysis-module-user-guide">
+<h1>ICC Analysis Module User Guide<a class="headerlink" href="#icc-analysis-module-user-guide" title="此标题的永久链接"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="此标题的永久链接"></a></h2>
+<p>The ICC (Intraclass Correlation Coefficient) Analysis module evaluates the reliability and reproducibility of features extracted from medical images. ICC is commonly used to assess the consistency of measurements across different scanning sessions, raters, or imaging protocols.</p>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="此标题的永久链接"></a></h2>
+<section id="using-cli-recommended">
+<h3>Using CLI (Recommended)<a class="headerlink" href="#using-cli-recommended" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use default configuration</span>
+habit<span class="w"> </span>icc
+
+<span class="c1"># Use specified configuration file</span>
+habit<span class="w"> </span>icc<span class="w"> </span>--config<span class="w"> </span>config/config_icc_analysis.yaml
+</pre></div>
+</div>
+</section>
+<section id="using-traditional-scripts-legacy-compatible">
+<h3>Using Traditional Scripts (Legacy Compatible)<a class="headerlink" href="#using-traditional-scripts-legacy-compatible" title="此标题的永久链接"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts/app_icc_analysis.py<span class="w"> </span>--config<span class="w"> </span>&lt;config_file_path&gt;
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-file">
+<h2>Configuration File<a class="headerlink" href="#configuration-file" title="此标题的永久链接"></a></h2>
+<p>Configuration File Links:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="../config/config_icc_analysis.yaml">Current Configuration</a> - Concise configuration for actual use</p></li>
+<li><p><a class="reference external" href="../config_templates/config_icc_analysis_annotated.yaml">Annotated Template</a> - Complete English comments and instructions</p></li>
+</ul>
+<section id="key-configuration-items">
+<h3>Key Configuration Items<a class="headerlink" href="#key-configuration-items" title="此标题的永久链接"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input settings</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">data_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;path_to_input_data&gt;</span>
+<span class="w">  </span><span class="nt">subject_col</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;column_name_for_subject_id&gt;</span>
+<span class="w">  </span><span class="nt">session_cols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">&lt;list_of_session_columns&gt;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">feature_cols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">&lt;list_of_feature_columns&gt;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;path_to_output_directory&gt;</span>
+
+<span class="c1"># ICC calculation settings</span>
+<span class="nt">icc_settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">icc_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;&#39;oneway&#39; or &#39;twoway&#39;&gt;</span>
+<span class="w">  </span><span class="nt">icc_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;&#39;consistency&#39; or &#39;agreement&#39;&gt;</span>
+<span class="w">  </span><span class="nt">icc_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;&#39;single&#39; or &#39;average&#39;&gt;</span>
+
+<span class="c1"># Filtering settings</span>
+<span class="nt">filtering</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">icc_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;minimum_icc_value_for_good_reliability&gt;</span>
+<span class="w">  </span><span class="nt">remove_low_icc_features</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;true_or_false&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="icc-types">
+<h2>ICC Types<a class="headerlink" href="#icc-types" title="此标题的永久链接"></a></h2>
+<ol class="arabic simple">
+<li><p>ICC(1,1) - One-way random effects model, single measures</p></li>
+<li><p>ICC(C,1) - Two-way random effects model, consistency, single measures</p></li>
+<li><p>ICC(A,1) - Two-way mixed effects model, absolute agreement, single measures</p></li>
+<li><p>ICC(C,k) - Two-way random effects model, consistency, average measures</p></li>
+<li><p>ICC(A,k) - Two-way mixed effects model, absolute agreement, average measures</p></li>
+</ol>
+<section id="interpretation-of-icc-values">
+<h3>Interpretation of ICC Values<a class="headerlink" href="#interpretation-of-icc-values" title="此标题的永久链接"></a></h3>
+<ul class="simple">
+<li><p>ICC &lt; 0.5: Poor reliability</p></li>
+<li><p>0.5 ≤ ICC &lt; 0.75: Moderate reliability</p></li>
+<li><p>0.75 ≤ ICC &lt; 0.9: Good reliability</p></li>
+<li><p>ICC ≥ 0.9: Excellent reliability</p></li>
+</ul>
+</section>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="此标题的永久链接"></a></h2>
+<p>The module generates:</p>
+<ul class="simple">
+<li><p>ICC values for each feature</p></li>
+<li><p>Classification of features based on reliability</p></li>
+<li><p>Summary statistics</p></li>
+<li><p>Visualization plots (scatter plots, Bland-Altman plots)</p></li>
+<li><p>Feature ranking by reliability</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

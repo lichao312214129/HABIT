@@ -1,0 +1,498 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.habitat_analysis.managers.feature_manager &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js?v=2d33a3a8"></script>
+      <script src="../../../../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
+          <li class="breadcrumb-item"><a href="../../../core.html">habit.core</a></li>
+          <li class="breadcrumb-item"><a href="../../habitat_analysis.html">habit.core.habitat_analysis</a></li>
+      <li class="breadcrumb-item active">habit.core.habitat_analysis.managers.feature_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.habitat_analysis.managers.feature_manager 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Feature Manager for Habitat Analysis.</span>
+<span class="sd">Handles all feature extraction and preprocessing logic.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">SimpleITK</span> <span class="k">as</span> <span class="nn">sitk</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+
+<span class="kn">from</span> <span class="nn">habit.utils.parallel_utils</span> <span class="kn">import</span> <span class="n">parallel_map</span>
+<span class="kn">from</span> <span class="nn">..config_schemas</span> <span class="kn">import</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">ResultColumns</span>
+<span class="kn">from</span> <span class="nn">..extractors.feature_expression_parser</span> <span class="kn">import</span> <span class="n">FeatureExpressionParser</span>
+<span class="kn">from</span> <span class="nn">..extractors.feature_extractor_factory</span> <span class="kn">import</span> <span class="n">create_feature_extractor</span>
+<span class="kn">from</span> <span class="nn">..utils.preprocessing_state</span> <span class="kn">import</span> <span class="n">process_features_pipeline</span>
+
+<div class="viewcode-block" id="FeatureManager"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager">[文档]</a><span class="k">class</span> <span class="nc">FeatureManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages feature extraction and preprocessing for habitat analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="FeatureManager.__init__"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize FeatureManager.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config: Habitat analysis configuration</span>
+<span class="sd">            logger: Logger instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression_parser</span> <span class="o">=</span> <span class="n">FeatureExpressionParser</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_FeatureConstruction</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_feature_extractor</span><span class="p">()</span>
+        
+        <span class="c1"># Will be set by set_data_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># Log file path for subprocesses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span></div>
+
+<div class="viewcode-block" id="FeatureManager.set_data_paths"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.set_data_paths">[文档]</a>    <span class="k">def</span> <span class="nf">set_data_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">mask_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set image and mask paths.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span> <span class="o">=</span> <span class="n">images_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span> <span class="o">=</span> <span class="n">mask_paths</span></div>
+
+<div class="viewcode-block" id="FeatureManager.set_logging_info"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.set_logging_info">[文档]</a>    <span class="k">def</span> <span class="nf">set_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set logging info for subprocesses.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="n">log_file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">log_level</span></div>
+
+    <span class="k">def</span> <span class="nf">_ensure_logging_in_subprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure logging is properly configured in child processes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">habit.utils.log_utils</span> <span class="kn">import</span> <span class="n">restore_logging_in_subprocess</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span><span class="p">:</span>
+            <span class="n">restore_logging_in_subprocess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_FeatureConstruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate feature configuration.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">voxel_level</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;voxel_level configuration is required&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Note: supervoxel_level feature configuration detected.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_feature_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize feature extractor based on configuration.&quot;&quot;&quot;</span>
+        <span class="n">voxel_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">voxel_level</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">voxel_level</span><span class="o">.</span><span class="n">params</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Parse voxel_level expression</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_method</span><span class="p">,</span> 
+         <span class="bp">self</span><span class="o">.</span><span class="n">voxel_params</span><span class="p">,</span> 
+         <span class="bp">self</span><span class="o">.</span><span class="n">voxel_processing_steps</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expression_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">voxel_config</span><span class="p">)</span>
+        
+        <span class="c1"># Check for supervoxel_level configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_supervoxel_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_supervoxel_config</span><span class="p">:</span>
+            <span class="n">supervoxel_config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span><span class="o">.</span><span class="n">params</span>
+            <span class="p">}</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_method_name</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_params</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_processing_steps</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expression_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">supervoxel_config</span><span class="p">)</span>
+        
+        <span class="c1"># Prepare cross-image parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cross_image_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_cross_image_params</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_cross_image_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare cross-image feature extractor parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary of cross-image parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cross_image_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_params</span><span class="p">:</span>
+            <span class="n">voxel_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">voxel_level</span><span class="o">.</span><span class="n">params</span>
+            <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">param_value</span> <span class="o">==</span> <span class="n">param_name</span> <span class="ow">and</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">voxel_params</span><span class="p">:</span>
+                    <span class="n">cross_image_kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_params</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">voxel_params</span><span class="p">:</span>
+                    <span class="n">cross_image_kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_params</span><span class="p">[</span><span class="n">param_value</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cross_image_kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_value</span>
+        
+        <span class="k">return</span> <span class="n">cross_image_kwargs</span>
+
+<div class="viewcode-block" id="FeatureManager.extract_voxel_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.extract_voxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_voxel_features</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract voxel-level features for a single subject.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject ID to process</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (subject_id, feature_df, raw_df, mask_info)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data paths not set. Call set_data_paths first.&quot;</span><span class="p">)</span>
+
+        <span class="n">img_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+        <span class="n">mask_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+        
+        <span class="c1"># Process each image according to processing steps</span>
+        <span class="n">processed_images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_processing_steps</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span>
+            <span class="n">img_name</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+            <span class="n">step_params</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            
+            <span class="c1"># Resolve parameter values</span>
+            <span class="k">if</span> <span class="n">step_params</span><span class="p">:</span>
+                <span class="n">voxel_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">voxel_level</span><span class="o">.</span><span class="n">params</span>
+                <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">step_params</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">param_value</span> <span class="o">==</span> <span class="n">param_name</span> <span class="ow">and</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">voxel_params</span><span class="p">:</span>
+                        <span class="n">step_params</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_params</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">voxel_params</span><span class="p">:</span>
+                        <span class="n">step_params</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_params</span><span class="p">[</span><span class="n">param_value</span><span class="p">]</span>
+            
+            <span class="c1"># Create extractor and process</span>
+            <span class="n">step_params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">img_name</span><span class="p">})</span>
+            <span class="n">extractor</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">step_params</span><span class="p">)</span>
+            <span class="n">processed_df</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract_features</span><span class="p">(</span>
+                <span class="n">img_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">img_name</span><span class="p">),</span> 
+                <span class="n">mask_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">img_name</span><span class="p">),</span> 
+                <span class="o">**</span><span class="n">step_params</span>
+            <span class="p">)</span>
+            <span class="n">processed_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_df</span><span class="p">)</span>
+        
+        <span class="c1"># Create cross-image feature extractor</span>
+        <span class="n">cross_image_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_image_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">cross_image_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">})</span>
+        <span class="n">cross_image_extractor</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voxel_method</span><span class="p">,</span> <span class="o">**</span><span class="n">cross_image_kwargs</span>
+        <span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">cross_image_extractor</span><span class="o">.</span><span class="n">extract_features</span><span class="p">(</span>
+            <span class="n">processed_images</span><span class="p">,</span> <span class="o">**</span><span class="n">cross_image_kwargs</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Get raw data</span>
+        <span class="n">raw_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">processed_images</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Save mask information for image reconstruction</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_paths</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mask_img</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">mask_array</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">mask_img</span><span class="p">)</span>
+        <span class="n">mask_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="n">mask_img</span><span class="p">,</span>
+            <span class="s1">&#39;mask_array&#39;</span><span class="p">:</span> <span class="n">mask_array</span>
+        <span class="p">}</span>
+        
+        <span class="k">del</span> <span class="n">processed_images</span><span class="p">,</span> <span class="n">mask_img</span><span class="p">,</span> <span class="n">mask_array</span>
+        
+        <span class="k">return</span> <span class="n">subject</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">raw_df</span><span class="p">,</span> <span class="n">mask_info</span></div>
+
+<div class="viewcode-block" id="FeatureManager.extract_supervoxel_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.extract_supervoxel_features">[文档]</a>    <span class="k">def</span> <span class="nf">extract_supervoxel_features</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract supervoxel-level features from supervoxel maps.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject ID to process</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (subject_id, features_df or Exception)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_logging_in_subprocess</span><span class="p">()</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting supervoxel-level features for subject </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Supervoxel files not set up.&quot;</span><span class="p">)</span>
+
+            <span class="n">img_paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images_paths</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+            <span class="n">mask_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+            
+            <span class="c1"># Process each image</span>
+            <span class="n">processed_images</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_processing_steps</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span>
+                <span class="n">img_name</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+                <span class="n">step_params</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">step_params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">img_name</span><span class="p">})</span>
+                
+                <span class="n">single_image_extractor</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">step_params</span><span class="p">)</span>
+                <span class="n">processed_df</span> <span class="o">=</span> <span class="n">single_image_extractor</span><span class="o">.</span><span class="n">extract_features</span><span class="p">(</span>
+                    <span class="n">img_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">img_name</span><span class="p">),</span> <span class="n">mask_path</span><span class="p">,</span> <span class="o">**</span><span class="n">step_params</span>
+                <span class="p">)</span>
+                <span class="n">processed_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_df</span><span class="p">)</span>
+            
+            <span class="c1"># Create cross-image extractor</span>
+            <span class="n">supervoxel_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">cross_image_extractor</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_method_name</span><span class="p">,</span> <span class="o">**</span><span class="n">supervoxel_params</span>
+            <span class="p">)</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">cross_image_extractor</span><span class="o">.</span><span class="n">extract_features</span><span class="p">(</span>
+                <span class="n">processed_images</span><span class="p">,</span> <span class="o">**</span><span class="n">supervoxel_params</span>
+            <span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">subject</span><span class="p">,</span> <span class="n">features</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">subject</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_preprocessing_methods</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">preprocessing_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get preprocessing methods from config, returning PreprocessingMethod objects directly.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            preprocessing_config: PreprocessingConfig object or None</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List of PreprocessingMethod objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">preprocessing_config</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">preprocessing_config</span><span class="p">,</span> <span class="s1">&#39;methods&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">preprocessing_config</span><span class="o">.</span><span class="n">methods</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_apply_preprocessing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">config_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply preprocessing based on configuration key.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            feature_df: DataFrame to preprocess</span>
+<span class="sd">            config_key: Configuration key to look up (&#39;preprocessing_for_subject_level&#39; etc.)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Preprocessed DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">config_key</span> <span class="o">==</span> <span class="s1">&#39;preprocessing_for_subject_level&#39;</span><span class="p">:</span>
+            <span class="n">preprocessing_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_subject_level</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">preprocessing_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_group_level</span>
+
+        <span class="n">methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_preprocessing_methods</span><span class="p">(</span><span class="n">preprocessing_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">processed</span> <span class="o">=</span> <span class="n">process_features_pipeline</span><span class="p">(</span><span class="n">feature_df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">processed</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">feature_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">feature_df</span>
+
+<div class="viewcode-block" id="FeatureManager.apply_preprocessing"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.apply_preprocessing">[文档]</a>    <span class="k">def</span> <span class="nf">apply_preprocessing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+        <span class="n">level</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply preprocessing based on level.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            feature_df: DataFrame to preprocess</span>
+<span class="sd">            level: &#39;subject&#39; for individual level, &#39;group&#39; for population level</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Preprocessed DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;subject&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_preprocessing</span><span class="p">(</span><span class="n">feature_df</span><span class="p">,</span> <span class="s1">&#39;preprocessing_for_subject_level&#39;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported preprocessing level: </span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Group-level preprocessing is handled by Pipeline steps.&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureManager.calculate_supervoxel_means"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.calculate_supervoxel_means">[文档]</a>    <span class="k">def</span> <span class="nf">calculate_supervoxel_means</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">feature_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">raw_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">supervoxel_labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">n_clusters_supervoxel</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate supervoxel-level features (aggregated from voxel features).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature_names</span> <span class="o">=</span> <span class="n">feature_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">original_feature_names</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        
+        <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_clusters_supervoxel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_labels</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">supervoxel_labels</span> <span class="o">==</span> <span class="n">label</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+                <span class="n">mean_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">feature_df</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">mean_original</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">raw_df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+                
+                <span class="n">data_row</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">ResultColumns</span><span class="o">.</span><span class="n">SUBJECT</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span>
+                    <span class="n">ResultColumns</span><span class="o">.</span><span class="n">SUPERVOXEL</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                    <span class="n">ResultColumns</span><span class="o">.</span><span class="n">COUNT</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+                <span class="p">}</span>
+                
+                <span class="c1"># Add processed feature means</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_names</span><span class="p">):</span>
+                    <span class="n">data_row</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_features</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                
+                <span class="c1"># Add original feature means</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">original_feature_names</span><span class="p">):</span>
+                    <span class="n">data_row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">ResultColumns</span><span class="o">.</span><span class="n">ORIGINAL_SUFFIX</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_original</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                
+                <span class="n">data_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_row</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_rows</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureManager.setup_supervoxel_files"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.setup_supervoxel_files">[文档]</a>    <span class="k">def</span> <span class="nf">setup_supervoxel_files</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">subjects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+        <span class="n">failed_subjects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">out_folder</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup dictionary mapping subjects to supervoxel files.&quot;&quot;&quot;</span>
+        <span class="n">supervoxel_keyword</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span><span class="o">.</span><span class="n">supervoxel_file_keyword</span>
+        <span class="n">supervoxel_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="n">supervoxel_keyword</span><span class="p">)</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">subjects</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">supervoxel_file</span> <span class="ow">in</span> <span class="n">supervoxel_files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">supervoxel_file</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span> <span class="o">=</span> <span class="n">supervoxel_file</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">subject</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_subjects</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No supervoxel file found for subject </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_file_dict</span><span class="p">:</span>
+            <span class="c1"># Only raise if we actually need these files (checked later)</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="FeatureManager.clean_features"><a class="viewcode-back" href="../../../../../api_modules.html#habit.core.habitat_analysis.managers.FeatureManager.clean_features">[文档]</a>    <span class="k">def</span> <span class="nf">clean_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean feature DataFrame: handle types, inf, nan values.&quot;&quot;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">))</span>
+        <span class="c1"># Replace inf with NaN first</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="c1"># Note: We don&#39;t fillna here anymore for group level, as PreprocessingState handles it</span>
+        <span class="c1"># But for intermediate cleaning it&#39;s safer to fill with 0 or mean to avoid crashes before that</span>
+        <span class="c1"># For robustness, we&#39;ll leave NaNs to be handled by PreprocessingState later</span>
+        <span class="k">return</span> <span class="n">features</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
