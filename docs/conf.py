@@ -58,15 +58,9 @@ exclude_patterns = [
 ]
 
 # The suffix(es) of source filenames
-if ENABLE_MARKDOWN:
-    source_suffix = {
-        '.rst': 'restructuredtext',
-        '.md': 'myst',
-    }
-else:
-    source_suffix = {
-        '.rst': 'restructuredtext',
-    }
+source_suffix = {
+    '.rst': 'restructuredtext',
+}
 
 # -- Options for HTML output --------------------------------------------------
 
@@ -145,22 +139,6 @@ intersphinx_mapping = {
     'sklearn': ('https://scikit-learn.org/stable/', None),
     'click': ('https://click.palletsprojects.com/', None),
 }
-
-# -- Options for MyST Parser --------------------------------------------------
-
-if ENABLE_MARKDOWN:
-    myst_enable_extensions = [
-        'colon_fence',
-        'deflist',
-        'dollarmath',
-        'html_admonition',
-        'html_image',
-        'linkify',
-        'replacements',
-        'smartquotes',
-        'substitution',
-        'tasklist',
-    ]
 
 # -- Options for autosummary extension ----------------------------------------
 
