@@ -1,7 +1,6 @@
 # Sphinx 核心依赖
 sphinx>=7.0.0
 sphinx-rtd-theme>=2.0.0
-myst-parser>=2.0.0
 
 # 扩展
 sphinx-autobuild>=2021.3.14

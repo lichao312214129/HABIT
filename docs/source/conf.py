@@ -123,7 +123,10 @@ autodoc_mock_imports = [
     'pydicom',
     'sklearn',
     'pandas',
-    'numpy'
+    'numpy',
+    'ants',
+    'habitat_clustering',
+    'habitat_clustering.clustering'
 ]
 
 # Intersphinx 配置
