@@ -7,6 +7,10 @@ myst-parser>=2.0.0
 sphinx-autobuild>=2021.3.14
 sphinx-autodoc-typehints>=1.24.0
 
+# 文档构建所需基础科学计算库
+numpy
+pandas
+
 # 代码高亮
 pygments>=2.15.0
 
