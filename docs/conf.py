@@ -42,18 +42,6 @@ extensions = [
     'sphinx.ext.githubpages',       # Support GitHub Pages
 ]
 
-# Add myst_parser extension conditionally
-# Note: Some versions of myst_parser may have compatibility issues
-try:
-    # Try to import and check if it works
-    import myst_parser
-    # Only add if import succeeds
-    extensions.append('myst_parser')
-    ENABLE_MARKDOWN = True
-except (ImportError, AttributeError):
-    ENABLE_MARKDOWN = False
-    pass  # myst_parser not available or incompatible, skip Markdown support
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
