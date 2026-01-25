@@ -91,8 +91,11 @@ def run_habitat(
                     )
                 load_from = str(resolved_pipeline)
             else:
-                # Fall back to the default location under out_dir.
-                load_from = None
+                # If pipeline_path is not provided in predict mode, it's a critical error.
+                raise ValueError(
+                    "Error: In 'predict' mode, you MUST provide a 'pipeline_path'. "
+                    "Please specify it in your config.yaml or via the --pipeline argument."
+                )
 
             strategy_class = get_strategy(config.HabitatsSegmention.clustering_mode)
             strategy = strategy_class(habitat_analysis)

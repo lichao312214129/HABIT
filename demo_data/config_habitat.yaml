@@ -1,12 +1,11 @@
 # Habitat Analysis Configuration
 
 # Run mode and pipeline settings (check these first!)
-run_mode: predict  # train (if you want to train a new model, set to train) or predict(if you want to use a pre-trained model, set to predict)
-pipeline_path: F:\work\habit_project\demo_data\results\two_step\train\habitat_pipeline.pkl  # Path to trained pipeline for predict mode (required for predict mode)
+run_mode: predict
 
 # Data paths
 data_dir: ./file_habitat.yaml
-out_dir: ./results/habitat/predict/two_step
+out_dir: ./results/habitats/two_step
 
 # Feature extraction settings (only needed for train mode)
 FeatureConstruction:
