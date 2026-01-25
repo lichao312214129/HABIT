@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog, messagebox, BooleanVar, Checkbutton
 from habit.core.habitat_analysis import HabitatAnalysis
-from habit.utils.io_utils import load_config
+from habit.core.common.service_configurator import ServiceConfigurator
 
 # 导入特征提取和聚类算法工具函数
 # TODO: 实现相应的功能函数，当前使用占位函数
@@ -83,7 +83,8 @@ def show_config_dialog(config_file):
             - debug_mode: Boolean indicating debug mode status, or None if user cancels
     """
     try:
-        config = load_config(config_file)
+        configurator = ServiceConfigurator(config_path=config_file)
+        config = configurator.config
     except Exception as e:
         messagebox.showerror("Configuration Error", f"Failed to load configuration file: {str(e)}")
         return None, None
@@ -225,9 +226,10 @@ def main() -> None:
         if not debug_mode:
             debug_mode = gui_debug_mode
     else:
-        # Configuration file specified in command line, load directly
+        # Configuration file specified in command line, load using ServiceConfigurator
         try:
-            config = load_config(config_file)
+            configurator = ServiceConfigurator(config_path=config_file)
+            config = configurator.config
         except Exception as e:
             logger.error(f"Configuration load error: {str(e)}")
             return

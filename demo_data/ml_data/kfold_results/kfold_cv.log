@@ -1,0 +1,816 @@
+2026-01-25 11:55:39 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\kfold_results\kfold_cv.log
+2026-01-25 11:55:39 - habit.cli.kfold - INFO - [cmd_ml.py:147] - Starting K-fold cross-validation with config: ./demo_data/config_machine_learning_kfold.yaml
+2026-01-25 11:55:39 - habit.cli.kfold - INFO - [cmd_ml.py:148] - Full configuration: {'config_file': 'demo_data\\config_machine_learning_kfold.yaml', 'config_version': None, 'input': [{'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\breast_cancer_dataset.csv', 'name': 'radiomics_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None, 'split_col': None, 'pred_col': None}], 'output': 'F:\\work\\habit_project\\demo_data\\ml_data\\kfold_results', 'random_state': 42, 'split_method': 'stratified', 'test_size': 0.3, 'train_ids_file': None, 'test_ids_file': None, 'n_splits': 5, 'stratified': True, 'normalization': {'method': 'z_score', 'params': {}}, 'feature_selection_methods': [{'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}, {'method': 'variance', 'params': {'before_z_score': True, 'top_k': 20, 'plot_variances': True}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}, 'RandomForest': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': None, 'max_features': 'sqrt'}}, 'XGBoost': {'params': {'random_state': 42, 'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1}}}, 'is_visualize': True, 'is_save_model': True, 'visualization': {'enabled': True, 'plot_types': ['roc', 'calibration', 'confusion', 'dca'], 'dpi': 600, 'format': 'pdf'}}
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [kfold_workflow.py:28] - Starting K-Fold Pipeline...
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [base_workflow.py:89] - Loading and preparing data...
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [data_manager.py:41] - Loading data from 1 files
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [data_manager.py:59] - Reading F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv (Subject: subjID, Label: label)
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [data_manager.py:108] - Data loaded: (569, 13)
+2026-01-25 11:55:39 - habit.ml_kfold - INFO - [kfold_workflow.py:48] - --- Processing Fold 1 ---
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:39 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:39 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:40 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:40 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:40 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:40 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_1\LogisticRegression_pipeline.pkl
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:40 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:40 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:41 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:41 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:41 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:41 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model RandomForest saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_1\RandomForest_pipeline.pkl
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:41 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:41 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:42 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model XGBoost saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_1\XGBoost_pipeline.pkl
+2026-01-25 11:55:42 - habit.ml_kfold - INFO - [kfold_workflow.py:48] - --- Processing Fold 2 ---
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:42 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_2\LogisticRegression_pipeline.pkl
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:42 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:42 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:43 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:43 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:43 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:43 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model RandomForest saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_2\RandomForest_pipeline.pkl
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:43 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:43 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:44 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model XGBoost saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_2\XGBoost_pipeline.pkl
+2026-01-25 11:55:44 - habit.ml_kfold - INFO - [kfold_workflow.py:48] - --- Processing Fold 3 ---
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:44 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_3\LogisticRegression_pipeline.pkl
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:44 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:44 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:45 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:45 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:45 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:45 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model RandomForest saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_3\RandomForest_pipeline.pkl
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:45 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:45 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:46 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model XGBoost saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_3\XGBoost_pipeline.pkl
+2026-01-25 11:55:46 - habit.ml_kfold - INFO - [kfold_workflow.py:48] - --- Processing Fold 4 ---
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 8 features retained.
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 8
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 4
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area', 'worst compactness']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 8
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 4
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 66.67%
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:46 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_4\LogisticRegression_pipeline.pkl
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:46 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:46 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:47 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:47 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:47 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 8 features retained.
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 8
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 4
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area', 'worst compactness']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 8
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 4
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 66.67%
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:47 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model RandomForest saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_4\RandomForest_pipeline.pkl
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:47 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:47 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 8 features retained.
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 8
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 4
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area', 'worst compactness']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 8
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 4
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 66.67%
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:48 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model XGBoost saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_4\XGBoost_pipeline.pkl
+2026-01-25 11:55:48 - habit.ml_kfold - INFO - [kfold_workflow.py:48] - --- Processing Fold 5 ---
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:48 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:48 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:49 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_5\LogisticRegression_pipeline.pkl
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:49 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:49 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:49 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:49 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:49 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model RandomForest saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_5\RandomForest_pipeline.pkl
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: Before Normalization
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'before_z_score': True, 'top_k': 20, 'plot_variances': True}
+2026-01-25 11:55:49 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:49 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 11:55:50 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 12 features retained.
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 12
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 0
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:200] -   No features removed in this step
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 12
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 0
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 100.00%
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:143] - ================================================================================
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:144] - Feature Selection Stage: After Normalization
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:145] - ================================================================================
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:146] - Initial number of features: 12
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:147] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:148] - --------------------------------------------------------------------------------
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:176] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:177] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:178] -   Features before this step: 12
+2026-01-25 11:55:50 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 12 features...
+2026-01-25 11:55:50 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 9 features retained.
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:194] -   Features after this step: 9
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:195] -   Number of features removed: 3
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:198] -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:202] -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:203] - --------------------------------------------------------------------------------
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:206] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:207] -   Total steps executed: 1
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Initial features: 12
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Final features: 9
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:210] -   Total features removed: 3
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:211] -   Retention rate: 75.00%
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 11:55:50 - habit.ml.feature_selection - INFO - [pipeline_utils.py:213] - ================================================================================
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [model_checkpoint.py:25] - Model XGBoost saved to F:\work\habit_project\demo_data\ml_data\kfold_results\models\fold_5\XGBoost_pipeline.pkl
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [kfold_workflow.py:100] - Creating and saving ensemble models...
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [kfold_workflow.py:114] - Saved ensemble model for LogisticRegression to F:\work\habit_project\demo_data\ml_data\kfold_results\models\LogisticRegression_ensemble_final.pkl
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [kfold_workflow.py:114] - Saved ensemble model for RandomForest to F:\work\habit_project\demo_data\ml_data\kfold_results\models\RandomForest_ensemble_final.pkl
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [kfold_workflow.py:114] - Saved ensemble model for XGBoost to F:\work\habit_project\demo_data\ml_data\kfold_results\models\XGBoost_ensemble_final.pkl
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [report_callback.py:10] - Generating final reports...
+2026-01-25 11:55:50 - habit.ml_kfold - INFO - [visualization_callback.py:26] - Generating K-Fold workflow plots...
+2026-01-25 11:55:50 - habit.evaluation.plot_manager - INFO - [plot_manager.py:61] - Generating evaluation plots for kfold_ workflow (test set)...
+2026-01-25 11:55:54 - habit.cli.kfold - INFO - [cmd_ml.py:157] - K-fold cross-validation completed successfully

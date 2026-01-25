@@ -1,0 +1,39 @@
+name: habit
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  # Core scientific computing
+  - numpy
+  - scipy==1.10.1
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - seaborn
+  # Image processing (from conda-forge)
+  - opencv
+  - pyyaml
+  - tqdm
+  - openpyxl
+  # Machine learning
+  - xgboost
+  - pytorch  # torch from conda
+  # Utilities
+  - pip:
+    # Packages that are better installed via pip or not available in conda
+    - click>=8.0
+    - SimpleITK==2.2.1
+    - antspyx==0.4.2
+    - trimesh
+    - pyradiomics
+    - mrmr_selection
+    - pingouin
+    - statsmodels
+    - shap
+    - lifelines
+    - pydicom
+    - pydantic
+    # Install HABIT in development mode
+    - -e .

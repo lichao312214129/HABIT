@@ -19,7 +19,7 @@ def run_icc(config_file: str) -> None:
         config_file (str): Path to the configuration YAML file.
     """
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.config_loader import load_config
+    from habit.core.common.service_configurator import ServiceConfigurator
     from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
 
     if not config_file:
@@ -27,7 +27,9 @@ def run_icc(config_file: str) -> None:
         sys.exit(1)
     
     try:
-        config = load_config(config_file)
+        configurator = ServiceConfigurator(config_path=config_file)
+        config = configurator.config
+        
         output_path = Path(config.get('output', {}).get('path', 'icc_analysis.json'))
         output_dir = output_path.parent
         output_dir.mkdir(parents=True, exist_ok=True)

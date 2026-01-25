@@ -16,7 +16,7 @@ class PlotManager:
         Initialize PlotManager.
         
         Args:
-            config: MLConfig object.
+            config: MLConfig object or configuration dict.
             output_dir: Output directory path.
         """
         self.config = config
@@ -24,18 +24,24 @@ class PlotManager:
         self.plotter = Plotter(output_dir)
         self.logger = get_module_logger('evaluation.plot_manager')
         
-        # Use direct attribute access (Expects Pydantic MLConfig)
-        self.viz_config = config.visualization
-        self.is_visualize = getattr(config, 'is_visualize', True)
-        
-        # Default plots
-        self.default_plots = ['roc', 'dca', 'calibration', 'pr', 'confusion']
-        
-        # Get plot_types from Pydantic object
-        if hasattr(self.viz_config, 'plot_types'):
-            self.plot_types = self.viz_config.plot_types
+        # Handle both Pydantic objects and dicts
+        if isinstance(config, dict):
+            self.viz_config = config.get('visualization', {})
+            self.is_visualize = config.get('is_visualize', True)
+            self.plot_types = self.viz_config.get('plot_types', ['roc', 'dca', 'calibration', 'pr', 'confusion'])
         else:
-            self.plot_types = self.default_plots
+            # Pydantic object
+            self.viz_config = config.visualization
+            self.is_visualize = getattr(config, 'is_visualize', True)
+            
+            # Default plots
+            self.default_plots = ['roc', 'dca', 'calibration', 'pr', 'confusion']
+            
+            # Get plot_types from Pydantic object
+            if hasattr(self.viz_config, 'plot_types'):
+                self.plot_types = self.viz_config.plot_types
+            else:
+                self.plot_types = self.default_plots
 
     def run_workflow_plots(self, results: Dict[str, Any], prefix: str = "", 
                           X_test: Optional[pd.DataFrame] = None, dataset_type: str = 'test'):

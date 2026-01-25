@@ -1,0 +1,32 @@
+{
+    "train": {
+        "clinical": {
+            "basic_metrics": {
+                "accuracy": 0.93,
+                "sensitivity": 0.948051948051948,
+                "specificity": 0.910958904109589,
+                "ppv": 0.9182389937106918,
+                "npv": 0.9432624113475178,
+                "f1_score": 0.9329073482428114,
+                "auc": 0.9782067247820672,
+                "hosmer_lemeshow_p_value": 0.7633871818701906,
+                "spiegelhalter_z_p_value": 0.8992192565265436
+            }
+        }
+    },
+    "test": {
+        "clinical": {
+            "basic_metrics": {
+                "accuracy": 0.9442379182156134,
+                "sensitivity": 0.9408866995073891,
+                "specificity": 0.9545454545454546,
+                "ppv": 0.9845360824742269,
+                "npv": 0.84,
+                "f1_score": 0.9622166246851385,
+                "auc": 0.9941782355575459,
+                "hosmer_lemeshow_p_value": 0.0008416732771859836,
+                "spiegelhalter_z_p_value": 5.748355120793747e-07
+            }
+        }
+    }
+}

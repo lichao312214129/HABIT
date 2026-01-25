@@ -11,7 +11,8 @@ import argparse
 import logging
 import time
 from habit.core.habitat_analysis.analyzers.habitat_analyzer import HabitatMapAnalyzer
-from habit.utils.io_utils import load_config, setup_logging
+from habit.core.common.service_configurator import ServiceConfigurator
+from habit.utils.io_utils import setup_logging
 from habit.utils.log_utils import LoggerManager
 
 
@@ -175,8 +176,9 @@ def main() -> None:
     args = parse_args()
     
     try:
-        # Load configuration from YAML file
-        config = load_config(args.config)
+        # Load configuration using ServiceConfigurator
+        configurator = ServiceConfigurator(config_path=args.config)
+        config = configurator.config
         
         # Add debug flag from command line
         if args.debug:

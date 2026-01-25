@@ -1,10 +1,11 @@
+click
 SimpleITK==2.2.1
 antspyx==0.4.2
 opencv-python
 numpy
 matplotlib
 trimesh
-scipy
+scipy==1.10.1
 openpyxl
 pandas
 tqdm

@@ -15,7 +15,7 @@ from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
     save_results,
 )
 from habit.utils.log_utils import setup_logger
-from habit.core.common.config_loader import load_config
+from habit.core.common.service_configurator import ServiceConfigurator
 
 
 def run_analysis(config: dict) -> None:
@@ -211,9 +211,10 @@ def main():
     
     args = parser.parse_args()
     
-    # Load configuration
+    # Load configuration using ServiceConfigurator
     try:
-        config = load_config(args.config)
+        configurator = ServiceConfigurator(config_path=args.config)
+        config = configurator.config
     except Exception as e:
         print(f"Error: Failed to load configuration: {e}")
         sys.exit(1)

@@ -1,0 +1,40 @@
+2026-01-25 12:32:30 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\model_comparison\processing.log
+2026-01-25 12:32:30 - habit.cli.compare - INFO - [cmd_compare.py:58] - Starting model comparison with config: ./demo_data/config_model_comparison.yaml
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:375] - Reading data from multiple files: 1 files
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:399] - Reading file: F:\work\habit_project\demo_data\ml_data\clinical\all_prediction_results.csv
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:400] - Model name: clinical, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:423] - Merging all datasets...
+2026-01-25 12:32:30 - habit.cli.compare - INFO - [comparison_workflow.py:192] - 成功添加split列到合并数据中: ['dataset']
+2026-01-25 12:32:30 - habit.cli.compare - INFO - [comparison_workflow.py:206] - 按照 dataset 列进行分组，识别到的分组：['train', 'test']
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:483] - NaN value statistics:
+2026-01-25 12:32:30 - habit.evaluation.multifile - INFO - [model_evaluation.py:492] - Merged data saved to F:\work\habit_project\demo_data\ml_data\model_comparison\combined_predictions.csv
+2026-01-25 12:32:31 - habit.cli.compare - INFO - [comparison_workflow.py:362] - train组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\roc_curves.pdf
+2026-01-25 12:32:32 - habit.cli.compare - INFO - [comparison_workflow.py:368] - train组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\decision_curves.pdf
+2026-01-25 12:32:32 - habit.cli.compare - INFO - [comparison_workflow.py:375] - train组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\calibration_curves.pdf
+2026-01-25 12:32:33 - habit.cli.compare - INFO - [comparison_workflow.py:381] - train组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\train\precision_recall_curves.pdf
+2026-01-25 12:32:33 - habit.cli.compare - INFO - [comparison_workflow.py:482] - 开始计算Youden指标...
+2026-01-25 12:32:33 - habit.cli.compare - WARNING - [comparison_workflow.py:510] - 没有找到训练集数据，跳过Youden指数计算
+2026-01-25 12:32:33 - habit.cli.compare - INFO - [comparison_workflow.py:562] - 开始计算目标指标...
+2026-01-25 12:32:33 - habit.cli.compare - WARNING - [comparison_workflow.py:603] - 没有找到训练集数据，跳过目标指标计算
+2026-01-25 12:32:34 - habit.cli.compare - INFO - [comparison_workflow.py:362] - test组 ROC曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\roc_curves.pdf
+2026-01-25 12:32:34 - habit.cli.compare - INFO - [comparison_workflow.py:368] - test组 决策曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\decision_curves.pdf
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:375] - test组 校准曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\calibration_curves.pdf
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:381] - test组 精确率-召回率曲线已保存到 F:\work\habit_project\demo_data\ml_data\model_comparison\test\precision_recall_curves.pdf
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:482] - 开始计算Youden指标...
+2026-01-25 12:32:35 - habit.cli.compare - WARNING - [comparison_workflow.py:510] - 没有找到训练集数据，跳过Youden指数计算
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:562] - 开始计算目标指标...
+2026-01-25 12:32:35 - habit.cli.compare - WARNING - [comparison_workflow.py:603] - 没有找到训练集数据，跳过目标指标计算
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:422] - 开始计算所有数据集的基本指标...
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:425] - 计算 train 数据集的基本指标...
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:763] - clinical (train组) 计算基本指标，有效样本数: 300
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:425] - 计算 test 数据集的基本指标...
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:763] - clinical (test组) 计算基本指标，有效样本数: 269
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:433] - 所有数据集的基本指标计算完成
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [report_exporter.py:102] - Metrics saved to F:\work\habit_project\demo_data\ml_data\model_comparison\metrics\metrics.json
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:777] - 保存的指标分组数量: 2
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:779] -   分组 train 中的模型数量: 1
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:782] -   模型 clinical 的指标类型: basic_metrics
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:779] -   分组 test 中的模型数量: 1
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:782] -   模型 clinical 的指标类型: basic_metrics
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [comparison_workflow.py:798] - 评估完成！所有结果已保存到F:\work\habit_project\demo_data\ml_data\model_comparison
+2026-01-25 12:32:35 - habit.cli.compare - INFO - [cmd_compare.py:65] - Model comparison completed successfully

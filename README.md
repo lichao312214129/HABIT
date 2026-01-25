@@ -243,7 +243,12 @@ habit get-habitat --config demo_data/config_habitat.yaml
 
 ## 🛠️ 安装
 
-详细指南请参见 [**INSTALL.md**](INSTALL.md)。
+### 📚 安装相关文档
+
+- [**环境设置指南**](docs/ENVIRONMENT_SETUP.md) - 详细的环境配置说明
+- [**Conda 安装指南**](docs/CONDA_INSTALLATION.md) - Conda 批量安装包的方法
+- [**故障排除指南**](docs/TROUBLESHOOTING.md) - 常见错误及解决方案
+- [**Predict 模式使用指南**](docs/PREDICT_MODE_GUIDE.md) - 如何使用已训练的模型进行预测
 
 ### 快速安装步骤
 
@@ -273,6 +278,48 @@ habit --help
 
 # 如果看到命令列表，说明安装成功！
 ```
+
+### ⚠️ 遇到依赖冲突警告？
+
+如果您在安装时看到类似以下的警告：
+
+```
+ERROR: pip's dependency resolver does not currently take into account all the packages...
+clarifai 9.10.4 requires opencv-python==4.7.0.68, but you have opencv-python 4.13.0.90...
+```
+
+**这通常不是问题！** 这些警告是因为环境中已安装的其他包（如 `clarifai`、`tensorflow` 等）与 HABIT 的依赖版本不完全匹配。
+
+**解决方案：**
+1. **推荐**：为 HABIT 创建独立的 conda 环境（见下方）
+2. **如果必须使用当前环境**：只要 `habit -h` 能正常运行，说明安装成功，可以忽略这些警告
+
+**详细的环境设置指南**：请参考 [**环境设置指南**](docs/ENVIRONMENT_SETUP.md)
+
+#### 创建独立环境（推荐）
+
+**方法 1：使用 environment.yml（最简单）**
+
+```bash
+# 使用 conda 环境配置文件一键创建环境
+conda env create -f environment.yml
+conda activate habit
+```
+
+**方法 2：手动创建**
+
+```bash
+# 创建新的 conda 环境（避免依赖冲突）
+conda create -n habit python=3.10 -y
+conda activate habit
+
+# 安装 HABIT
+cd F:\work\habit_project
+pip install -r requirements.txt
+pip install -e .
+```
+
+**更多安装方法**：请参考 [**Conda 安装指南**](docs/CONDA_INSTALLATION.md)
 
 ---
 
@@ -379,6 +426,8 @@ habit icc --config config/config_icc_analysis.yaml
 ---
 
 ## ❓ 常见问题
+
+> 💡 **遇到问题？** 请查看 [**故障排除指南**](docs/TROUBLESHOOTING.md) 获取详细的错误解决方案。
 
 ### Q1: 如何开始使用 HABIT？
 

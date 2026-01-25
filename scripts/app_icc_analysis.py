@@ -2,7 +2,7 @@
 Legacy entry point for ICC analysis.
 
 This script is a thin wrapper to maintain backward compatibility. It loads a
-configuration file and delegates the analysis to the centralized ICC handler.
+configuration file and delegates to centralized ICC handler.
 The primary entry point for this functionality is via the main `habit` CLI:
 `habit icc --config <path_to_config>`
 """
@@ -23,17 +23,19 @@ def main() -> None:
         '--config', 
         type=str, 
         required=True,
-        help='Path to the YAML configuration file for ICC analysis.'
+        help='Path to YAML configuration file for ICC analysis.'
     )
     args = parser.parse_args()
 
     # Late import to avoid circular dependencies and keep startup fast
-    from habit.core.common.config_loader import load_config
-    from habit.utils.log_utils import setup_logger
+    from habit.core.common.service_configurator import ServiceConfigurator
     from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
+    from habit.utils.log_utils import setup_logger
 
     try:
-        config = load_config(args.config)
+        # Load config using ServiceConfigurator pattern
+        configurator = ServiceConfigurator(config_path=args.config)
+        config = configurator.config
     except FileNotFoundError:
         print(f"Error: Configuration file not found at {args.config}", file=sys.stderr)
         sys.exit(1)
@@ -47,7 +49,7 @@ def main() -> None:
         output_dir = output_path.parent
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        setup_logger(
+        logger = setup_logger(
             name='habit.icc',
             output_dir=output_dir,
             log_filename='icc_analysis.log',
@@ -58,7 +60,7 @@ def main() -> None:
         # Continue without file logging if logger setup fails
         logging.basicConfig(level=logging.INFO)
 
-    # Run the analysis by delegating to the centralized handler
+    # Run ICC analysis by delegating to centralized handler
     try:
         print(f"Starting ICC analysis with config: {args.config}")
         run_icc_analysis_from_config(config)

@@ -6,7 +6,8 @@ This replaces the fallback pattern in class __init__ methods.
 """
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
+from pathlib import Path
 
 from habit.utils.log_utils import get_module_logger, setup_logger, LoggerManager
 from habit.core.machine_learning.workflows.comparison_workflow import ModelComparison
@@ -38,18 +39,30 @@ class ServiceConfigurator:
     
     def __init__(
         self,
-        config: Any,
+        config: Optional[Any] = None,
         logger: Optional[Any] = None,
         output_dir: Optional[str] = None,
+        config_path: Optional[Union[str, Path]] = None,
     ):
         """
         Initialize ServiceConfigurator.
         
         Args:
-            config: Configuration object or dictionary.
+            config: Configuration object or dictionary (mutually exclusive with config_path).
             logger: Logger instance (will be created if not provided).
             output_dir: Output directory (will be derived from config if not provided).
+            config_path: Path to configuration file (will load config if provided).
         """
+        if config is None and config_path is None:
+            raise ValueError("Either 'config' or 'config_path' must be provided")
+        
+        if config is not None and config_path is not None:
+            raise ValueError("Cannot provide both 'config' and 'config_path'")
+        
+        if config_path is not None:
+            from habit.core.common.config_loader import load_config
+            config = load_config(str(config_path))
+        
         self.config = config
         self.output_dir = output_dir or getattr(config, 'output_dir', None) or getattr(config, 'out_dir', './output')
         self.logger = logger or self._create_logger()
@@ -135,8 +148,19 @@ class ServiceConfigurator:
         Returns:
             Configured ModelComparison instance.
         """
+        from habit.core.machine_learning.config_schemas import ModelComparisonConfig
+        
         config = config or self.config
         output_dir = output_dir or self._ensure_output_dir()
+        
+        # Ensure config is ModelComparisonConfig
+        if not isinstance(config, ModelComparisonConfig):
+            if isinstance(config, dict):
+                config = ModelComparisonConfig(**config)
+            else:
+                # Try to convert to dict first
+                config_dict = config.to_dict() if hasattr(config, 'to_dict') else dict(config)
+                config = ModelComparisonConfig(**config_dict)
         
         return ModelComparison(
             config=config,
