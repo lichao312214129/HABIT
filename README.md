@@ -107,6 +107,7 @@ cd D:\HABIT
 
 ```bash
 # 1. 创建一个名为 "habit" 的专属环境
+# 推荐使用 Python 3.8。如果您计划使用 AutoGluon 进行自动机器学习，请使用 Python 3.10
 conda create -n habit python=3.8 -y
 
 # 2. 激活这个环境 (注意观察命令行前缀的变化)
