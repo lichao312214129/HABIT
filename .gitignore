@@ -6,9 +6,23 @@ __pycache__/
 *.nrrd
 *.dcm
 *.nii.gz
-*.pyc
+*.log
+*.pdf
+*.json
+*.csv
 results/
 
 # 保留演示数据中的预处理图像，即使它们是 nrrd/nii.gz 格式
 !demo_data/preprocessed/processed_images/
 !demo_data/preprocessed/processed_images/**
+
+# 保留必要的配置文件和示例数据
+!config/*.yaml
+!config_templates/*.yaml
+!demo_data/*.yaml
+!demo_data/*.csv
+!demo_data/ml_data/*/features.csv
+!**/example_*.csv
+!requirements.txt
+!pyproject.toml
+!setup.py
