@@ -1,0 +1,6 @@
+2026-01-25 17:32:57 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\model_comparison\processing.log
+2026-01-25 17:32:57 - habit.cli.compare - INFO - [cmd_compare.py:58] - Starting model comparison with config: ./demo_data/config_model_comparison.yaml
+2026-01-25 17:32:57 - habit.evaluation.multifile - INFO - [model_evaluation.py:375] - Reading data from multiple files: 2 files
+2026-01-25 17:32:57 - habit.evaluation.multifile - INFO - [model_evaluation.py:399] - Reading file: F:\work\habit_project\demo_data\ml_data\radiomics\all_prediction_results - 副本.csv
+2026-01-25 17:32:57 - habit.evaluation.multifile - INFO - [model_evaluation.py:400] - Model name: radiomics, Subject ID: subject_id, Label: label, Prob: LogisticRegression_prob
+2026-01-25 17:32:57 - habit.cli.compare - ERROR - [cmd_compare.py:68] - Error during model comparison: [Errno 2] No such file or directory: 'F:\\work\\habit_project\\demo_data\\ml_data\\radiomics\\all_prediction_results - 副本.csv'

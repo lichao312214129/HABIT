@@ -1,194 +1,40 @@
-2026-01-22 10:41:14 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\preprocessed\processing.log
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:50] - Python version: 3.8.16 (default, Mar  2 2023, 03:18:16) [MSC v.1916 64 bit (AMD64)]
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_data/config_preprocessing.yaml
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:55] - Starting image preprocessing with config: ./demo_data/config_preprocessing.yaml
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:63] - Set multiprocessing start method to 'spawn' on Windows
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:214] - Using existing logging configuration from CLI entry point
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:104] - Intermediate results will be saved for all steps
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:83] - Using 2 worker processes.
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:67] - Successfully initialized BatchProcessor
-2026-01-22 10:41:14 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:77] - Starting batch processing
-2026-01-22 10:41:14 - habit.preprocessing - WARNING - [image_processor_pipeline.py:459] - No mask found for subject subj001, skipping
-2026-01-22 10:41:14 - habit.preprocessing - WARNING - [image_processor_pipeline.py:459] - No mask found for subject subj002, skipping
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:465] - 将使用 2 个进程进行处理
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:467] - 共有 2 个样本需要处理
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 开始处理数据...
-2026-01-22 10:41:14 - habit.preprocessing - INFO - [image_processor_pipeline.py:493] - 开始并行处理所有样本...
-2026-01-22 10:41:57 - habit.preprocessing - INFO - [image_processor_pipeline.py:498] - 完成处理样本: Success: subj001 (0/2)
-2026-01-22 10:42:03 - habit.preprocessing - INFO - [image_processor_pipeline.py:498] - 完成处理样本: Success: subj002 (1/2)
-2026-01-22 10:42:04 - habit.preprocessing - INFO - [image_processor_pipeline.py:506] - 批处理完成
-2026-01-22 10:42:04 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:81] - Image preprocessing completed successfully!
-2niix path to environment: F:\work\habit_project\demo_data
-2026-01-22 10:41:21 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:309] - [subj001] Set intermediate output_dirs for step dcm2nii
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:133] - Added dcm2niix path to environment: F:\work\habit_project\demo_data
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:155] - dcm2niix executable verified: dcm2niix.exe
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj002] Using output directory for delay2: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj002] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj002] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub002\013_WATERBHAxLAVAFlex2min
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj002] Executing command:
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj002_delay2 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2 F:\work\habit_project\demo_data\dicom\sub002\013_WATERBHAxLAVAFlex2min
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:155] - dcm2niix executable verified: dcm2niix.exe
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj001] Using output directory for delay2: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj001] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj001] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-2min_Series0012
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj001] Executing command:
-2026-01-22 10:41:21 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj001_delay2 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2 F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-2min_Series0012
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2\subj002_delay2.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2\subj001_delay2.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2\subj002_delay2a.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2\subj001_delay2a.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2\subj002_delay2b.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj002] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay2
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj002] Converted delay2 to SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj002] Using output directory for delay3: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj002] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj002] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub002\015_WATERBHAxLAVAFlex3min
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj002] Executing command:
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj002_delay3 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3 F:\work\habit_project\demo_data\dicom\sub002\015_WATERBHAxLAVAFlex3min
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2\subj001_delay2b.nii.gz as SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj001] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay2
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj001] Converted delay2 to SimpleITK Image
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj001] Using output directory for delay3: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj001] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj001] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-3min_Series0014
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj001] Executing command:
-2026-01-22 10:41:24 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj001_delay3 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3 F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-3min_Series0014
-2026-01-22 10:41:27 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3\subj002_delay3.nii.gz as SimpleITK Image
-2026-01-22 10:41:27 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3\subj002_delay3a.nii.gz as SimpleITK Image
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3\subj002_delay3b.nii.gz as SimpleITK Image
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj002] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay3
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj002] Converted delay3 to SimpleITK Image
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj002] Using output directory for delay5: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj002] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj002] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub002\016_WATERWATERBHAxLAVAFlex5min
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj002] Executing command:
-2026-01-22 10:41:28 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj002_delay5 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5 F:\work\habit_project\demo_data\dicom\sub002\016_WATERWATERBHAxLAVAFlex5min
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3\subj001_delay3.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3\subj001_delay3a.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5\subj002_delay5.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3\subj001_delay3b.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj001] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay3
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj001] Converted delay3 to SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:575] - [subj001] Using output directory for delay5: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:310] - [subj001] Using output directory: F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:350] - [subj001] Converting DICOM directory: F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-5min_Series0016
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:351] - [subj001] Executing command:
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:352] -     dcm2niix.exe -f subj001_delay5 -a y -b n -l y -m 2 -p y -z y -o F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5 F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-5min_Series0016
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5\subj002_delay5a.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj002] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5\subj002_delay5b.nii.gz as SimpleITK Image
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj002] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj002\delay5
-2026-01-22 10:41:31 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj002] Converted delay5 to SimpleITK Image
-2026-01-22 10:41:31 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:326] - [subj002] Skipping _save_step_results for dcm2nii (already saved directly)
-2026-01-22 10:41:31 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:309] - [subj002] Set intermediate output_dirs for step resample
-2026-01-22 10:41:31 - habit.core.preprocessing.resample - INFO - [resample.py:143] - Resampling images to [1.0, 1.0, 1.0]...
-2026-01-22 10:41:31 - habit.core.preprocessing.resample - INFO - [resample.py:147] - Processing subject: subj002
-2026-01-22 10:41:31 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj002] (delay2) Original spacing: (0.7031000256538391, 0.7031000256538391, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:31 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj002] (delay2) Target spacing: [1.0, 1.0, 1.0], new size: [360, 360, 200]
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj002] (delay2) Resampling completed
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj002] Successfully resampled image delay2
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj002] (delay3) Original spacing: (0.7031000256538391, 0.7031000256538391, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj002] (delay3) Target spacing: [1.0, 1.0, 1.0], new size: [360, 360, 200]
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj002] (delay3) Resampling completed
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj002] Successfully resampled image delay3
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj002] (delay5) Original spacing: (0.7031000256538391, 0.7031000256538391, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj002] (delay5) Target spacing: [1.0, 1.0, 1.0], new size: [360, 360, 200]
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj002] (delay5) Resampling completed
-2026-01-22 10:41:32 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj002] Successfully resampled image delay5
-2026-01-22 10:41:34 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5\subj001_delay5.nii.gz as SimpleITK Image
-2026-01-22 10:41:34 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay2 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj002\delay2\delay2.nii.gz
-2026-01-22 10:41:34 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5\subj001_delay5a.nii.gz as SimpleITK Image
-2026-01-22 10:41:35 - habit.core.preprocessing.dcm2niix_converter - DEBUG - [dcm2niix_converter.py:434] - [subj001] Loaded F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5\subj001_delay5b.nii.gz as SimpleITK Image
-2026-01-22 10:41:35 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:460] - [subj001] Successfully converted and saved to F:\work\habit_project\demo_data\preprocessed\dcm2nii_01\images\subj001\delay5
-2026-01-22 10:41:35 - habit.core.preprocessing.dcm2niix_converter - INFO - [dcm2niix_converter.py:593] - [subj001] Converted delay5 to SimpleITK Image
-2026-01-22 10:41:35 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:326] - [subj001] Skipping _save_step_results for dcm2nii (already saved directly)
-2026-01-22 10:41:35 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:309] - [subj001] Set intermediate output_dirs for step resample
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:143] - Resampling images to [1.0, 1.0, 1.0]...
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:147] - Processing subject: subj001
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj001] (delay2) Original spacing: (0.6640999913215637, 0.6640999913215637, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj001] (delay2) Target spacing: [1.0, 1.0, 1.0], new size: [340, 340, 200]
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj001] (delay2) Resampling completed
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj001] Successfully resampled image delay2
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj001] (delay3) Original spacing: (0.6640999913215637, 0.6640999913215637, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj001] (delay3) Target spacing: [1.0, 1.0, 1.0], new size: [340, 340, 200]
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj001] (delay3) Resampling completed
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj001] Successfully resampled image delay3
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:109] - [subj001] (delay5) Original spacing: (0.6640999913215637, 0.6640999913215637, 2.5), size: (512, 512, 80)
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:115] - [subj001] (delay5) Target spacing: [1.0, 1.0, 1.0], new size: [340, 340, 200]
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:129] - [subj001] (delay5) Resampling completed
-2026-01-22 10:41:35 - habit.core.preprocessing.resample - INFO - [resample.py:172] - [subj001] Successfully resampled image delay5
-2026-01-22 10:41:37 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay3 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj002\delay3\delay3.nii.gz
-2026-01-22 10:41:37 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay2 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj001\delay2\delay2.nii.gz
-2026-01-22 10:41:39 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay5 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj002\delay5\delay5.nii.gz
-2026-01-22 10:41:39 - habit.preprocessing - INFO - [image_processor_pipeline.py:189] - [subj002] Saved intermediate results for step: resample
-2026-01-22 10:41:39 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:309] - [subj002] Set intermediate output_dirs for step zscore_normalization
-2026-01-22 10:41:39 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:127] - Applying Z-score normalization...
-2026-01-22 10:41:39 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:131] - Processing subject: subj002
-2026-01-22 10:41:39 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj002] Calculated mean: 204.23997376087763, std: 275.0156917059978
-2026-01-22 10:41:39 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj002] Normalized image min: -0.7426484823226929, max: 6.261900424957275
-2026-01-22 10:41:40 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay3 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj001\delay3\delay3.nii.gz
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj002] Final normalized image pixel type: 8
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj002] Final array min: -0.7426484823226929, max: 6.261900424957275
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj002] Sample voxel at array index (27, 199, 192):
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj002]   Original value: 1926.36083984375
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj002]   Mean: 204.24009704589844, Std: 275.0154113769531
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj002]   Manual z-score: 6.261906147003174
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj002]   Normalized value: 6.261900424957275
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj002] Calculated mean: 209.13588198494833, std: 278.5424696119657
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj002] Normalized image min: -0.7508221864700317, max: 6.154373645782471
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj002] Final normalized image pixel type: 8
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj002] Final array min: -0.7508221864700317, max: 6.154373645782471
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj002] Sample voxel at array index (180, 95, 70):
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj002]   Original value: 1923.390380859375
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj002]   Mean: 209.13555908203125, Std: 278.5431823730469
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj002]   Manual z-score: 6.154359340667725
-2026-01-22 10:41:40 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj002]   Normalized value: 6.154373645782471
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj002] Calculated mean: 203.8874809893001, std: 273.0473708731136
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj002] Normalized image min: -0.746711015701294, max: 6.514120578765869
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj002] Final normalized image pixel type: 8
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj002] Final array min: -0.746711015701294, max: 6.514120578765869
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj002] Sample voxel at array index (183, 96, 69):
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj002]   Original value: 1982.5509033203125
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj002]   Mean: 203.8876495361328, Std: 273.0469970703125
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj002]   Manual z-score: 6.5141282081604
-2026-01-22 10:41:41 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj002]   Normalized value: 6.514120578765869
-2026-01-22 10:41:42 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay5 to F:\work\habit_project\demo_data\preprocessed\resample_02\images\subj001\delay5\delay5.nii.gz
-2026-01-22 10:41:42 - habit.preprocessing - INFO - [image_processor_pipeline.py:189] - [subj001] Saved intermediate results for step: resample
-2026-01-22 10:41:42 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:309] - [subj001] Set intermediate output_dirs for step zscore_normalization
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:127] - Applying Z-score normalization...
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:131] - Processing subject: subj001
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj001] Calculated mean: 202.00609031170558, std: 288.4536004020966
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj001] Normalized image min: -0.7003070116043091, max: 6.698512077331543
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj001] Final normalized image pixel type: 8
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj001] Final array min: -0.7003070116043091, max: 6.698512077331543
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj001] Sample voxel at array index (100, 235, 115):
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj001]   Original value: 2134.216064453125
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj001]   Mean: 202.00631713867188, Std: 288.45318603515625
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj001]   Manual z-score: 6.698521137237549
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj001]   Normalized value: 6.698512077331543
-2026-01-22 10:41:42 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj001] Calculated mean: 200.0261031642299, std: 282.8880156126108
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj001] Normalized image min: -0.7070858478546143, max: 6.040262699127197
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj001] Final normalized image pixel type: 8
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj001] Final array min: -0.7070858478546143, max: 6.040262699127197
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj001] Sample voxel at array index (103, 237, 113):
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj001]   Original value: 1908.7440185546875
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj001]   Mean: 200.02606201171875, Std: 282.8885803222656
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj001]   Manual z-score: 6.040250778198242
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj001]   Normalized value: 6.040262699127197
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:86] - [subj001] Calculated mean: 191.88520511530814, std: 268.7160033947134
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:106] - [subj001] Normalized image min: -0.7140818238258362, max: 7.093200206756592
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:158] - [subj001] Final normalized image pixel type: 8
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:159] - [subj001] Final array min: -0.7140818238258362, max: 7.093200206756592
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:171] - [subj001] Sample voxel at array index (100, 233, 113):
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:172] - [subj001]   Original value: 2097.941650390625
-2026-01-22 10:41:43 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:173] - [subj001]   Mean: 191.88511657714844, Std: 268.71539306640625
-2026-01-22 10:41:44 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:174] - [subj001]   Manual z-score: 7.093216896057129
-2026-01-22 10:41:44 - habit.core.preprocessing.zscore_normalization - INFO - [zscore_normalization.py:175] - [subj001]   Normalized value: 7.093200206756592
-2026-01-22 10:41:44 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay2 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj002\delay2\delay2.nii.gz
-2026-01-22 10:41:46 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay2 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj001\delay2\delay2.nii.gz
-2026-01-22 10:41:46 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay3 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj002\delay3\delay3.nii.gz
-2026-01-22 10:41:48 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay3 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj001\delay3\delay3.nii.gz
-2026-01-22 10:41:49 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj002] Saved delay5 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj002\delay5\delay5.nii.gz
-2026-01-22 10:41:49 - habit.preprocessing - INFO - [image_processor_pipeline.py:189] - [subj002] Saved intermediate results for step: zscore_normalization
-2026-01-22 10:41:50 - habit.preprocessing - DEBUG - [image_processor_pipeline.py:168] - [subj001] Saved delay5 to F:\work\habit_project\demo_data\preprocessed\zscore_normalization_03\images\subj001\delay5\delay5.nii.gz
-2026-01-22 10:41:50 - habit.preprocessing - INFO - [image_processor_pipeline.py:189] - [subj001] Saved intermediate results for step: zscore_normalization
+2026-01-25 18:23:37 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\preprocessed\processing.log
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:50] - Python version: 3.8.16 (default, Mar  2 2023, 03:18:16) [MSC v.1916 64 bit (AMD64)]
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:51] - Platform: Windows-10-10.0.19045-SP0
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:52] - Using configuration file: ./demo_data/config_preprocessing.yaml
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:55] - Starting image preprocessing with config: ./demo_data/config_preprocessing.yaml
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:63] - Set multiprocessing start method to 'spawn' on Windows
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:214] - Using existing logging configuration from CLI entry point
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:104] - Intermediate results will be saved for all steps
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:83] - Using 2 worker processes.
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:67] - Successfully initialized BatchProcessor
+2026-01-25 18:23:37 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:77] - Starting batch processing
+2026-01-25 18:23:37 - habit.preprocessing - WARNING - [image_processor_pipeline.py:459] - No mask found for subject subj001, skipping
+2026-01-25 18:23:37 - habit.preprocessing - WARNING - [image_processor_pipeline.py:459] - No mask found for subject subj002, skipping
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:465] - 将使用 2 个进程进行处理
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:467] - 共有 2 个样本需要处理
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:473] - 开始处理数据...
+2026-01-25 18:23:37 - habit.preprocessing - INFO - [image_processor_pipeline.py:493] - 开始并行处理所有样本...
+2026-01-25 18:23:44 - habit.preprocessing - ERROR - [image_processor_pipeline.py:500] - Error processing subj001: Input directory does not exist: F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-2min_Series0012
+Traceback (most recent call last):
+  File "F:\work\habit_project\habit\core\preprocessing\image_processor_pipeline.py", line 318, in _process_single_subject
+    processor(subject_data)
+  File "F:\work\habit_project\habit\core\preprocessing\dcm2niix_converter.py", line 578, in __call__
+    converted_images = self._convert_single_dicom_dir(
+  File "F:\work\habit_project\habit\core\preprocessing\dcm2niix_converter.py", line 299, in _convert_single_dicom_dir
+    raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+FileNotFoundError: Input directory does not exist: F:\work\habit_project\demo_data\dicom\sub001\WATER_BHAxLAVA-Flex-2min_Series0012
+
+2026-01-25 18:23:44 - habit.preprocessing - ERROR - [image_processor_pipeline.py:500] - Error processing subj002: Input directory does not exist: F:\work\habit_project\demo_data\dicom\sub002\013_WATERBHAxLAVAFlex2min
+Traceback (most recent call last):
+  File "F:\work\habit_project\habit\core\preprocessing\image_processor_pipeline.py", line 318, in _process_single_subject
+    processor(subject_data)
+  File "F:\work\habit_project\habit\core\preprocessing\dcm2niix_converter.py", line 578, in __call__
+    converted_images = self._convert_single_dicom_dir(
+  File "F:\work\habit_project\habit\core\preprocessing\dcm2niix_converter.py", line 299, in _convert_single_dicom_dir
+    raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+FileNotFoundError: Input directory does not exist: F:\work\habit_project\demo_data\dicom\sub002\013_WATERBHAxLAVAFlex2min
+
+2026-01-25 18:23:44 - habit.preprocessing - INFO - [image_processor_pipeline.py:506] - 批处理完成
+2026-01-25 18:23:44 - habit.cli.preprocessing - INFO - [cmd_preprocess.py:81] - Image preprocessing completed successfully!
+02] Error converting DICOM directory for key delay2: Input directory does not exist: F:\work\habit_project\demo_data\dicom\sub002\013_WATERBHAxLAVAFlex2min

@@ -113,8 +113,12 @@ class ServiceConfigurator:
     def create_plot_manager(self, config: Optional[Any] = None) -> PlotManager:
         """Create PlotManager instance."""
         output_dir = self._ensure_output_dir()
-        config_dict = config.model_dump() if hasattr(config, 'model_dump') else (config or {})
-        return PlotManager(config=config_dict, output_dir=output_dir)
+        # PlotManager expects a Pydantic config object, not a dict
+        # Pass the config object directly if it's a Pydantic model, otherwise use self.config
+        plot_config = config or self.config
+        # If it's a dict, we need to convert it to the appropriate config type
+        # But for ModelComparison, PlotManager should receive the full ModelComparisonConfig
+        return PlotManager(config=plot_config, output_dir=output_dir)
     
     def create_metrics_store(self) -> MetricsStore:
         """Create MetricsStore instance."""

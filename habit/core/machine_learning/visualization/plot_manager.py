@@ -24,9 +24,21 @@ class PlotManager:
         self.plotter = Plotter(output_dir)
         self.logger = get_module_logger('evaluation.plot_manager')
         
-        # Use direct attribute access (Expects Pydantic MLConfig)
-        self.viz_config = config.visualization
-        self.is_visualize = getattr(config, 'is_visualize', True)
+        # Use direct attribute access (Expects Pydantic MLConfig or ModelComparisonConfig)
+        # Handle both dict and Pydantic model for backward compatibility
+        if isinstance(config, dict):
+            # If config is a dict, try to access visualization field
+            if 'visualization' in config:
+                self.viz_config = config['visualization']
+            else:
+                # Create a default visualization config structure
+                from ..config_schemas import VisualizationConfig
+                self.viz_config = VisualizationConfig()
+            self.is_visualize = config.get('is_visualize', True)
+        else:
+            # Pydantic model - use attribute access
+            self.viz_config = config.visualization
+            self.is_visualize = getattr(config, 'is_visualize', True)
         
         # Default plots
         self.default_plots = ['roc', 'dca', 'calibration', 'pr', 'confusion']

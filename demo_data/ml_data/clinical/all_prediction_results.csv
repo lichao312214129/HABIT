@@ -1,0 +1,11 @@
+subject_id,label,LogisticRegression_prob,LogisticRegression_pred,dataset
+subj001,0,0.245678,0,train
+subj002,0,0.198765,0,train
+subj003,0,0.323456,0,train
+subj004,0,0.289012,0,train
+subj005,0,0.356789,0,train
+subj020,1,0.723456,1,train
+subj301,0,0.309876,0,test
+subj302,1,0.767890,1,test
+subj303,0,0.234567,0,test
+subj304,1,0.698123,1,test

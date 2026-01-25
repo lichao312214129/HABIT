@@ -1,7 +1,7 @@
 # Habitat Analysis Configuration
 
 # Run mode and pipeline settings (check these first!)
-run_mode: predict
+run_mode: train
 
 # Data paths
 data_dir: ./file_habitat.yaml

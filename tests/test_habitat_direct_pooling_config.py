@@ -10,8 +10,8 @@ from habit.core.habitat_analysis.strategies import get_strategy
 from habit.utils.io_utils import get_image_and_mask_paths
 
 _DIRECT_POOLING_CACHE: Optional[Tuple[Path, List[str]]] = None
-_OUTPUT_ROOT = Path("F:/work/habit_project/demo_data/results")
-_CONFIG_PATH = Path("F:/work/habit_project/demo_data/config_habitat_direct_pooling.yaml")
+_OUTPUT_ROOT = Path(__file__).parent.parent / "demo_data" / "results"
+_CONFIG_PATH = Path(__file__).parent.parent / "demo_data" / "config_habitat_direct_pooling.yaml"
 
 
 def _resolve_output_root(strategy_name: str) -> Path:

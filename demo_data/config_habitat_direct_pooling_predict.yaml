@@ -1,0 +1,70 @@
+# Habitat Analysis Configuration (Direct Pooling Strategy) - Predict Mode
+# This configuration is used for prediction using a pre-trained direct pooling habitat analysis pipeline
+# Usage: habit get-habitat --config demo_data/config_habitat_direct_pooling_predict.yaml --mode predict
+
+# Run mode and pipeline settings (REQUIRED for predict mode)
+run_mode: predict  # train (if you want to train a new model, set to train) or predict (if you want to use a pre-trained model, set to predict)
+pipeline_path: ./results/habitat_direct_pooling/train/habitat_pipeline.pkl  # Path to trained pipeline for predict mode (REQUIRED for predict mode)
+# Note: Update this path to point to your actual trained pipeline file
+
+# Data paths
+data_dir: ./file_habitat.yaml  # Path to data configuration file (same format as training)
+out_dir: ./results/habitat_direct_pooling/predict  # Output directory for prediction results
+
+# Feature extraction settings (optional in predict mode, but kept for reference)
+# These settings should match the training configuration
+FeatureConstruction:
+  voxel_level:
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    params: {}
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params:
+      params_file: {}
+
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+# Habitat segmentation settings (optional in predict mode, kept for reference)
+# These settings should match the training configuration
+HabitatsSegmention:
+  clustering_mode: direct_pooling
+  
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+    one_step_settings:
+      min_clusters: 2
+      max_clusters: 10
+      selection_method: inertia
+      plot_validation_curves: true
+  
+  habitat:
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method:
+      - inertia
+      - calinski_harabasz
+      - aic
+      - bic
+      - davies_bouldin
+    best_n_clusters:
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+# General settings
+processes: 2  # Number of parallel processes
+plot_curves: true  # Whether to generate and save plots
+save_results_csv: true  # Whether to save results as CSV files
+random_state: 42  # Random seed for reproducibility (should match training)
+debug: false  # Enable debug mode for detailed logging

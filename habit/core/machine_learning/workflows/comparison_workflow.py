@@ -61,8 +61,22 @@ class ModelComparison:
         """
         if isinstance(config, ModelComparisonConfig):
             self.config = config
+        elif isinstance(config, dict):
+            # Convert dict to ModelComparisonConfig using model_validate (Pydantic v2) or __init__ (Pydantic v1)
+            try:
+                if hasattr(ModelComparisonConfig, 'model_validate'):
+                    self.config = ModelComparisonConfig.model_validate(config)
+                else:
+                    self.config = ModelComparisonConfig(**config)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to create ModelComparisonConfig from dict: {e}. "
+                    "Please ensure the configuration file contains all required fields."
+                ) from e
         else:
-            self.config = ModelComparisonConfig(**config)
+            raise TypeError(
+                f"Config must be ModelComparisonConfig or dict, got {type(config)}"
+            )
 
         self.output_dir = self.config.output_dir
         os.makedirs(self.output_dir, exist_ok=True)
@@ -348,6 +362,20 @@ class ModelComparison:
             output_dir (str): Output directory
             dataset_group_name (str, optional): Split value for title. Defaults to None.
         """
+        # Ensure config is ModelComparisonConfig object, not dict
+        if isinstance(self.config, dict):
+            # This should not happen if __init__ worked correctly, but add safety check
+            try:
+                if hasattr(ModelComparisonConfig, 'model_validate'):
+                    self.config = ModelComparisonConfig.model_validate(self.config)
+                else:
+                    self.config = ModelComparisonConfig(**self.config)
+            except Exception as e:
+                raise ValueError(
+                    f"Config is still a dict after initialization. "
+                    f"Failed to convert: {e}"
+                ) from e
+        
         viz_config = self.config.visualization
 
         plotting_data = self._convert_models_data_for_plotting(models_data)
