@@ -40,10 +40,10 @@ habit get-habitat --config demo_data/config_habitat.yaml
 **Expected results**: After analysis completes, results will be saved in the `demo_data/results/habitat/` directory.
 
 **More usage examples**:
-- Image Preprocessing: See [Documentation - Image Preprocessing](docs/build/html/user_guide/app_image_preprocessing.html)
-- Habitat Analysis: See [Documentation - Habitat Analysis](docs/build/html/user_guide/habit_analysis.html)
-- Feature Extraction: See [Documentation - Feature Extraction](docs/build/html/user_guide/feature_extraction.html)
-- Machine Learning: See [Documentation - Machine Learning](docs/build/html/user_guide/machine_learning.html)
+- Image Preprocessing: See [Documentation - Image Preprocessing](https://lichao312214129.github.io/HABIT/user_guide/app_image_preprocessing.html)
+- Habitat Analysis: See [Documentation - Habitat Analysis](https://lichao312214129.github.io/HABIT/user_guide/habit_analysis.html)
+- Feature Extraction: See [Documentation - Feature Extraction](https://lichao312214129.github.io/HABIT/user_guide/feature_extraction.html)
+- Machine Learning: See [Documentation - Machine Learning](https://lichao312214129.github.io/HABIT/user_guide/machine_learning.html)
 
 ## 🛠️ Installation
 
@@ -68,7 +68,7 @@ pip install -e .
 For detailed usage guides and API documentation, please see:
 
 - **Sphinx Documentation System** (Recommended): Located in `docs/` directory
-  - Online docs: [docs/build/html/index.html](docs/build/html/index.html)
+  - Online docs: [https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
   - Local build: `cd docs && make html`
 
 ### Documentation Contents

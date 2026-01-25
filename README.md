@@ -40,10 +40,10 @@ habit get-habitat --config demo_data/config_habitat.yaml
 **预期结果**：分析完成后，结果将保存在 `demo_data/results/habitat/` 目录下。
 
 **更多使用示例**：
-- 图像预处理：参见 [文档 - 图像预处理](docs/build/html/user_guide/image_preprocessing_zh.html)
-- 生境分析：参见 [文档 - 生境分割](docs/build/html/user_guide/habitat_segmentation_zh.html)
-- 特征提取：参见 [文档 - 生境特征提取](docs/build/html/user_guide/habit_feature_extraction_zh.html)
-- 机器学习：参见 [文档 - 机器学习建模](docs/build/html/user_guide/machine_learning_modeling_zh.html)
+- 图像预处理：参见 [文档 - 图像预处理](https://lichao312214129.github.io/HABIT/user_guide/image_preprocessing_zh.html)
+- 生境分析：参见 [文档 - 生境分割](https://lichao312214129.github.io/HABIT/user_guide/habitat_segmentation_zh.html)
+- 特征提取：参见 [文档 - 生境特征提取](https://lichao312214129.github.io/HABIT/user_guide/habit_feature_extraction_zh.html)
+- 机器学习：参见 [文档 - 机器学习建模](https://lichao312214129.github.io/HABIT/user_guide/machine_learning_modeling_zh.html)
 
 ## 🛠️ 安装
 
@@ -68,7 +68,7 @@ pip install -e .
 详细的使用指南和API文档请参见：
 
 - **Sphinx 文档系统**（推荐）: 位于 `docs/` 目录
-  - 在线文档: [docs/build/html/index.html](docs/build/html/index.html)
+  - 在线文档: [https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
   - 本地构建: `cd docs && make html`
 
 ### 文档内容
