@@ -3,6 +3,17 @@ HABIT Command Line Interface
 Main entry point for all HABIT (Habitat Analysis: Biomedical Imaging Toolkit) commands
 """
 
+import warnings
+# Suppress numpy DLL warnings that slow down CLI startup
+# This warning occurs when numpy loads multiple DLL files from .libs directory
+# It's harmless but slows down CLI startup, so we filter it out
+# The warning is emitted from numpy._distributor_init, so we match by message pattern
+warnings.filterwarnings(
+    'ignore',
+    message=r'.*loaded more than 1 DLL.*',
+    category=UserWarning
+)
+
 import click
 from pathlib import Path
 from typing import Optional
