@@ -51,10 +51,10 @@ HabitatsSegmention:
     max_clusters: 10
     habitat_cluster_selection_method:
       - inertia
-      - calinski_harabasz
-      - aic
-      - bic
-      - davies_bouldin
+      # - calinski_harabasz
+      # - aic
+      # - bic
+      # - davies_bouldin
     best_n_clusters:
     random_state: 42
     max_iter: 300

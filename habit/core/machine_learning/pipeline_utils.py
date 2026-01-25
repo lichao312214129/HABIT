@@ -39,7 +39,15 @@ class PipelineBuilder:
         }
         
         scaler_class = scalers.get(method, StandardScaler)
-        return scaler_class(**params)
+        scaler = scaler_class(**params)
+        # Preserve DataFrame output when supported so downstream selectors keep headers.
+        if hasattr(scaler, "set_output"):
+            try:
+                scaler.set_output(transform="pandas")
+            except Exception:
+                # If set_output is unavailable at runtime, fallback to ndarray output.
+                pass
+        return scaler
 
     def build(self, model_name: str, model_params: Dict[str, Any], feature_names: List[str] = None) -> Pipeline:
         """
@@ -122,10 +130,16 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
                 )
             # Validate shape consistency
             if X.shape[1] != len(names_to_use):
-                raise ValueError(
-                    f"Shape mismatch: received array with {X.shape[1]} features, "
-                    f"but expected {len(names_to_use)} features based on stored names."
-                )
+                # Fallback to fitted feature names if they match current shape.
+                if self.fitted_feature_names_ is not None and len(self.fitted_feature_names_) == X.shape[1]:
+                    names_to_use = self.fitted_feature_names_
+                elif self.feature_names is not None and len(self.feature_names) == X.shape[1]:
+                    names_to_use = self.feature_names
+                else:
+                    raise ValueError(
+                        f"Shape mismatch: received array with {X.shape[1]} features, "
+                        f"but expected {len(names_to_use)} features based on stored names."
+                    )
             # Reconstruct DataFrame assuming columns match the feature names
             return pd.DataFrame(X, columns=names_to_use)
         return pd.DataFrame(X)
@@ -201,19 +215,6 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
                 
             self.logger.info(f"  Retained features: {current_features}")
             self.logger.info("-" * 80)
-        
-        # Log final summary
-        self.logger.info(f"\nFeature Selection Summary ({stage}):")
-        self.logger.info(f"  Total steps executed: {step_count}")
-        self.logger.info(f"  Initial features: {len(self.fitted_feature_names_)}")
-        self.logger.info(f"  Final features: {len(current_features)}")
-        self.logger.info(f"  Total features removed: {len(self.fitted_feature_names_) - len(current_features)}")
-        self.logger.info(f"  Retention rate: {len(current_features) / len(self.fitted_feature_names_) * 100:.2f}%")
-        self.logger.info(f"  Final selected features: {current_features}")
-        self.logger.info("=" * 80)
-        
-        self.selected_features_ = current_features
-        return self
         
         # Log final summary
         self.logger.info(f"\nFeature Selection Summary ({stage}):")

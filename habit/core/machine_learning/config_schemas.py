@@ -36,12 +36,33 @@ class VisualizationConfig(BaseModel):
 
 class ComparisonFileConfig(BaseModel):
     path: str
-    model_name: str
+    model_name: Optional[str] = None
+    name: Optional[str] = None
     subject_id_col: str
     label_col: str
     prob_col: str
     pred_col: Optional[str] = None
     split_col: Optional[str] = None
+
+    @validator('model_name', pre=True, always=True)
+    def resolve_model_name(cls, v, values):
+        """
+        Resolve model_name from alias fields.
+
+        Priority:
+        1) model_name (explicit)
+        2) name (alias)
+        3) file stem from path
+        """
+        if v is not None and str(v).strip():
+            return v
+        name_alias = values.get('name')
+        if name_alias is not None and str(name_alias).strip():
+            return name_alias
+        path = values.get('path')
+        if path is not None and str(path).strip():
+            return str(path).split('/')[-1].split('\\')[-1].split('.')[0]
+        raise ValueError("model_name is required (or provide name/path to infer it).")
 
 class MergedDataConfig(BaseModel):
     enabled: bool = True

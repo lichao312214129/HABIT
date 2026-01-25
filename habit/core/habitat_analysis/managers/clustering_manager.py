@@ -44,8 +44,12 @@ class ClusteringManager:
         self.supervoxel2habitat_clustering = None
         self.selection_methods = None
         
-        self._init_clustering_algorithms()
-        self._init_selection_methods()
+        # In predict mode, HabitatsSegmention details are optional (pipeline is loaded from file)
+        # Only initialize in train mode
+        if config.run_mode == 'train':
+            self._init_clustering_algorithms()
+            self._init_selection_methods()
+        # In predict mode, clustering models will be loaded from the saved pipeline
 
     def _init_clustering_algorithms(self) -> None:
         """Initialize clustering algorithm instances."""

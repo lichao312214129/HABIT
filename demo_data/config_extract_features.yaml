@@ -6,7 +6,7 @@ params_file_of_habitat: ./parameter_habitat.yaml  # Parameter file for extractin
 
 # Data directories
 raw_img_folder: ./preprocessed/processed_images  # Root directory containing original images
-habitats_map_folder: ./results/habitat  # Root directory containing habitat maps
+habitats_map_folder: ./results/habitat_direct_pooling  # Root directory containing habitat maps
 out_dir: ./results/features  # Output directory for results
 
 # Feature extraction parameters

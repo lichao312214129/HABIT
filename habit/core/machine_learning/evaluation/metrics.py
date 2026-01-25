@@ -177,6 +177,10 @@ def calculate_metrics_at_target(y_true: np.ndarray, y_pred_proba: np.ndarray,
                                target_metrics: Dict[str, float]) -> Dict[str, Union[float, Dict[str, float]]]:
     """
     Calculate metrics at thresholds that achieve target metric values (sensitivity, specificity, etc.)
+    
+    This function:
+    1. Finds individual thresholds that meet each target separately
+    2. Searches for combined thresholds that meet all targets simultaneously
     """
     y_true = np.array(y_true)
     y_pred_proba = np.array(y_pred_proba)
@@ -185,10 +189,13 @@ def calculate_metrics_at_target(y_true: np.ndarray, y_pred_proba: np.ndarray,
     # Sort thresholds from highest to lowest
     sorted_indices = np.argsort(thresholds)[::-1]
     thresholds = thresholds[sorted_indices]
+    fpr = fpr[sorted_indices]
+    tpr = tpr[sorted_indices]
     
     target_thresholds = {}
     metrics_at_thresholds = {}
     
+    # Find individual thresholds for each target
     for metric_name, target_value in target_metrics.items():
         best_threshold = None
         if metric_name == 'sensitivity':
@@ -207,11 +214,46 @@ def calculate_metrics_at_target(y_true: np.ndarray, y_pred_proba: np.ndarray,
         if best_threshold is not None:
             target_thresholds[metric_name] = best_threshold
             metrics_at_thresholds[metric_name] = apply_threshold(y_true, y_pred_proba, best_threshold)
+    
+    # Search for combined thresholds that meet all targets simultaneously
+    combined_results = {}
+    
+    if len(target_metrics) > 0:
+        # Iterate through all thresholds to find ones meeting all criteria
+        for i, thresh in enumerate(thresholds):
+            meets_all = True
+            current_metrics = {}
             
+            # Check sensitivity target if specified
+            if 'sensitivity' in target_metrics:
+                current_sensitivity = tpr[i]
+                current_metrics['sensitivity'] = float(current_sensitivity)
+                if current_sensitivity < target_metrics['sensitivity']:
+                    meets_all = False
+            
+            # Check specificity target if specified
+            if 'specificity' in target_metrics:
+                current_specificity = 1 - fpr[i]
+                current_metrics['specificity'] = float(current_specificity)
+                if current_specificity < target_metrics['specificity']:
+                    meets_all = False
+            
+            # If this threshold meets all targets, add to results
+            if meets_all:
+                # Calculate full metrics at this threshold
+                full_metrics = apply_threshold(y_true, y_pred_proba, thresh)
+                combined_key = ' & '.join(target_metrics.keys())
+                
+                # Store under the combined key
+                if combined_key not in combined_results:
+                    combined_results[combined_key] = {}
+                
+                combined_results[combined_key][float(thresh)] = full_metrics
+    
     return {
         'thresholds': target_thresholds,
         'metrics_at_thresholds': metrics_at_thresholds,
-        'combined_results': {} # Simplified for now
+        'combined_results': combined_results
     }
 
 def apply_target_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, 

@@ -1,0 +1,14 @@
+[
+    {
+        "comparison": "radiomics vs clinical",
+        "radiomics_auc": 0.9914913177490234,
+        "radiomics_ci_lower": 0.9831833793673888,
+        "radiomics_ci_upper": 0.9997992561306581,
+        "clinical_auc": 0.994178295135498,
+        "clinical_ci_lower": 0.9883328014819937,
+        "clinical_ci_upper": 1.0,
+        "p_value": 0.5808681152351556,
+        "significant_difference": false,
+        "conclusion": "radiomics and clinical do not have significantly different AUCs (p\u22650.05)"
+    }
+]

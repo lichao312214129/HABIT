@@ -119,19 +119,19 @@ HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的�
 
 .. code-block:: bash
 
-   # 训练模式
+   # 训练模式（以配置文件 run_mode 为准）
    habit get-habitat --config config_habitat.yaml --mode train
 
-   # 预测模式
+   # 预测模式（需要 pipeline_path 或 --pipeline）
    habit get-habitat --config config_habitat.yaml --mode predict --pipeline ./results/habitat_pipeline.pkl
 
 **参数**:
 
 - `--config, -c`: 配置文件路径（必需）
-- `--mode`: 运行模式（可选，默认：predict）
+- `--mode`: 运行模式（可选，用于覆盖配置文件中的 `run_mode`）
   - `train`: 训练新的生境分割模型
   - `predict`: 使用预训练模型进行预测
-- `--pipeline`: Pipeline 文件路径（predict 模式必需）
+- `--pipeline`: Pipeline 文件路径（predict 模式必需，用于覆盖配置文件中的 `pipeline_path`）
 - `--debug`: 启用调试模式（可选）
 
 **配置文件示例**:
@@ -176,10 +176,11 @@ HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的�
 
 **输出**:
 
-- 生境图保存在 `out_dir` 指定的目录
-- 特征文件保存在 `out_dir/features` 目录
-- 聚类验证曲线保存在 `out_dir/plots` 目录
-- 处理日志保存在 `habitat_analysis.log`
+- 结果表：`out_dir/habitats.csv`（若启用保存）
+- 生境图：`out_dir/<subject>_habitats.nrrd`
+- 超像素图（Two-Step）：`out_dir/<subject>_supervoxel.nrrd`
+- 可视化图表：`out_dir/visualizations/`
+- 处理日志：`out_dir/habitat_analysis.log`
 
 特征提取命令
 --------------

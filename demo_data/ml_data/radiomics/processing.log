@@ -1,0 +1,66 @@
+2026-01-25 21:48:09 - habit - INFO - [log_utils.py:127] - Log file initialized: F:\work\habit_project\demo_data\ml_data\radiomics\processing.log
+2026-01-25 21:48:09 - habit.cli.ml - INFO - [cmd_ml.py:46] - Starting machine learning training with config: ./demo_data/config_machine_learning_radiomics.yaml
+2026-01-25 21:48:09 - habit.cli.ml - INFO - [cmd_ml.py:49] - Full configuration: {'config_file': 'demo_data\\config_machine_learning_radiomics.yaml', 'config_version': None, 'input': [{'path': 'F:\\work\\habit_project\\demo_data\\ml_data\\breast_cancer_dataset.csv', 'name': 'radiomics_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None, 'split_col': None, 'pred_col': None}], 'output': 'F:\\work\\habit_project\\demo_data\\ml_data\\radiomics', 'random_state': 42, 'split_method': 'custom', 'test_size': 0.3, 'train_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\train_ids.txt', 'test_ids_file': 'F:\\work\\habit_project\\demo_data\\ml_data\\test_ids.txt', 'n_splits': 5, 'stratified': True, 'normalization': {'method': 'z_score', 'params': {}}, 'feature_selection_methods': [{'method': 'variance', 'params': {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}}, {'method': 'correlation', 'params': {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}}], 'models': {'LogisticRegression': {'params': {'random_state': 42, 'max_iter': 1000, 'C': 1.0, 'penalty': 'l2', 'solver': 'lbfgs'}}}, 'is_visualize': False, 'is_save_model': True, 'visualization': {'enabled': True, 'plot_types': ['roc', 'calibration', 'confusion', 'dca'], 'dpi': 600, 'format': 'pdf'}}
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [holdout_workflow.py:24] - Starting Standard ML Pipeline...
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [base_workflow.py:89] - Loading and preparing data...
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [data_manager.py:41] - Loading data from 1 files
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [data_manager.py:59] - Reading F:\work\habit_project\demo_data\ml_data\breast_cancer_dataset.csv (Subject: subjID, Label: label)
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [data_manager.py:108] - Data loaded: (569, 13)
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [data_manager.py:161] - Split results: Train=300, Test=269
+2026-01-25 21:48:09 - habit.ml_standard - INFO - [holdout_workflow.py:42] - Training Model: LogisticRegression
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:157] - ================================================================================
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:158] - Feature Selection Stage: Before Normalization
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:159] - ================================================================================
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:160] - Initial number of features: 12
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:161] - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:162] - --------------------------------------------------------------------------------
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:190] - 
+Step 1: Applying 'variance' feature selection
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:191] -   Parameters: {'before_z_score': True, 'threshold': 0.2, 'plot_variances': True}
+2026-01-25 21:48:09 - habit.ml.feature_selection - INFO - [pipeline_utils.py:192] -   Features before this step: 12
+2026-01-25 21:48:09 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Variance Threshold on 12 features...
+2026-01-25 21:48:10 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector variance completed: 4 features retained.
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Features after this step: 4
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Number of features removed: 8
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Removed features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:216] -   Retained features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:217] - --------------------------------------------------------------------------------
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:220] - 
+Feature Selection Summary (Before Normalization):
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:221] -   Total steps executed: 1
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:222] -   Initial features: 12
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:223] -   Final features: 4
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:224] -   Total features removed: 8
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:225] -   Retention rate: 33.33%
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:226] -   Final selected features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:227] - ================================================================================
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:157] - ================================================================================
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:158] - Feature Selection Stage: After Normalization
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:159] - ================================================================================
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:160] - Initial number of features: 4
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:161] - Initial features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:162] - --------------------------------------------------------------------------------
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:190] - 
+Step 1: Applying 'correlation' feature selection
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:191] -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False}
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:192] -   Features before this step: 4
+2026-01-25 21:48:10 - habit.ml.selector_registry - INFO - [selector_registry.py:108] - Running feature selector: Correlation on 4 features...
+2026-01-25 21:48:10 - habit.ml.selector_registry - INFO - [selector_registry.py:117] - Selector correlation completed: 2 features retained.
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:208] -   Features after this step: 2
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:209] -   Number of features removed: 2
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:212] -   Removed features: ['worst perimeter', 'worst area']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:216] -   Retained features: ['worst radius', 'worst texture']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:217] - --------------------------------------------------------------------------------
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:220] - 
+Feature Selection Summary (After Normalization):
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:221] -   Total steps executed: 1
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:222] -   Initial features: 4
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:223] -   Final features: 2
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:224] -   Total features removed: 2
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:225] -   Retention rate: 50.00%
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:226] -   Final selected features: ['worst radius', 'worst texture']
+2026-01-25 21:48:10 - habit.ml.feature_selection - INFO - [pipeline_utils.py:227] - ================================================================================
+2026-01-25 21:48:10 - habit.ml_standard - INFO - [model_checkpoint.py:25] - Model LogisticRegression saved to F:\work\habit_project\demo_data\ml_data\radiomics\models\LogisticRegression_final_pipeline.pkl
+2026-01-25 21:48:10 - habit.ml_standard - INFO - [report_callback.py:10] - Generating final reports...
+2026-01-25 21:48:10 - habit.ml_standard - INFO - [report_callback.py:45] - Full prediction results saved to F:\work\habit_project\demo_data\ml_data\radiomics
+2026-01-25 21:48:10 - habit.ml_standard - INFO - [holdout_workflow.py:86] - Standard ML workflow completed. Results saved to F:\work\habit_project\demo_data\ml_data\radiomics

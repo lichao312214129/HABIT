@@ -11,7 +11,7 @@ output_dir: H:\results\ml_results\compare20251223  # Base directory for all comp
 # Each entry represents a different model's predictions
 files_config:
   - path: H:\results\ml_results\autogluon_habitat\autogluon_habitat_pred_full.csv
-    model_name: Habitat model                        # Name used to identify this model in plots and reports
+    name: Habitat model                              # Must be unique across files
     subject_id_col: subjID            # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: prob   # Column containing predicted probabilities (continuous: 0-1)
@@ -19,7 +19,7 @@ files_config:
     split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
   - path: H:\results\ml_results\autogluon_radiomics\autogluon_radiomics_pred_full.csv
-    model_name: Radiomics model                        # Name used to identify this model in plots and reports
+    name: Radiomics model                              # Must be unique across files
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -27,7 +27,7 @@ files_config:
     split_col: split   
   
   - path: H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv
-    model_name: Clinical model                        # Name used to identify this model in plots and reports
+    name: Clinical model                              # Must be unique across files
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -35,7 +35,7 @@ files_config:
     split_col: split   
 
   - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
-    model_name: Clinical-Radiomics model                        # Name used to identify this model in plots and reports
+    name: Clinical-Radiomics model                              # Must be unique across files
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -43,7 +43,7 @@ files_config:
     split_col: split   
   
   # - path: H:\results\ml_results\merged_clinicalPlusHabitat\all_prediction_results.csv
-  #   model_name: Clinical+Habitat                      # Name used to identify this model in plots and reports
+  #   name: Clinical+Habitat                            # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
   #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -51,7 +51,7 @@ files_config:
   #   split_col: split  
 
   # - path: H:\results\ml_results\merged_HabitatPlusRadiomics\all_prediction_results.csv
-  #   model_name: Radiomics+Habitat                        # Name used to identify this model in plots and reports
+  #   name: Radiomics+Habitat                              # Name used to identify this model in plots and reports
   #   subject_id_col: subjID              # Column containing unique subject identifiers
   #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -59,7 +59,7 @@ files_config:
   #   split_col: split  
 
   - path: H:\results\ml_results\merged_all\all_prediction_results.csv
-    model_name: Hybrid model                        # Name used to identify this model in plots and reports
+    name: Hybrid model                              # Must be unique across files
     subject_id_col: subjID              # Column containing unique subject identifiers
     label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)

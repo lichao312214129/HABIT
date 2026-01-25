@@ -76,12 +76,12 @@ normalization:
 # Multiple feature selection methods can be applied sequentially
 feature_selection_methods:
   # ICC (Intraclass Correlation Coefficient) method
-  - method: icc  # Selects features based on their reproducibility
-    params:
-      icc_results: ./ml_data/icc_radiomics.json  # Path to pre-computed ICC results
-      keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
-      metric: ICC2 # Metrics to use
-      threshold: 0.8
+  # - method: icc  # Selects features based on their reproducibility
+  #   params:
+  #     icc_results: ./ml_data/icc_radiomics.json  # Path to pre-computed ICC results
+  #     keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
+  #     metric: ICC2 # Metrics to use
+  #     threshold: 0.8
   
   ## 方差选择器 - 移除低方差特征
   - method: variance
@@ -100,12 +100,12 @@ feature_selection_methods:
   #     before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
   #     force_test: "ttest"  # 可选：强制使用特定检验方法（"ttest"或"mannwhitney"）
 
-  # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
-  - method: vif  # Removes features with high multicollinearity
-    params:
-      max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
-      visualize: false  # Whether to generate visualization of VIF values
-      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  # # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
+  # - method: vif  # Removes features with high multicollinearity
+  #   params:
+  #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
+  #     visualize: false  # Whether to generate visualization of VIF values
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # # Correlation method - removes highly correlated features
   - method: correlation

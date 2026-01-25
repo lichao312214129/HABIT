@@ -1,0 +1,362 @@
+{
+    "train": {
+        "radiomics": {
+            "youden_metrics": {
+                "threshold": 0.5221865466407605,
+                "youden_index": 0.8792029887920298,
+                "metrics": {
+                    "accuracy": 0.94,
+                    "sensitivity": 0.9545454545454546,
+                    "specificity": 0.9246575342465754,
+                    "ppv": 0.930379746835443,
+                    "npv": 0.9507042253521126,
+                    "f1_score": 0.9423076923076923,
+                    "auc": 0.9836772816224871,
+                    "hosmer_lemeshow_p_value": 0.6829087943259259,
+                    "spiegelhalter_z_p_value": 0.9072101589716026
+                }
+            },
+            "thresholds": {
+                "youden": 0.5221865466407605,
+                "target": 0.6296106038532208
+            },
+            "target_metrics": {
+                "thresholds": {
+                    "sensitivity": 0.6296106038532208,
+                    "specificity": 0.50580839249458
+                },
+                "metrics_at_thresholds": {
+                    "sensitivity": {
+                        "accuracy": 0.93,
+                        "sensitivity": 0.922077922077922,
+                        "specificity": 0.9383561643835616,
+                        "ppv": 0.9403973509933775,
+                        "npv": 0.9194630872483222,
+                        "f1_score": 0.9311475409836065,
+                        "auc": 0.9836772816224871,
+                        "hosmer_lemeshow_p_value": 0.6829087943259259,
+                        "spiegelhalter_z_p_value": 0.9072101589716026
+                    },
+                    "specificity": {
+                        "accuracy": 0.94,
+                        "sensitivity": 0.961038961038961,
+                        "specificity": 0.9178082191780822,
+                        "ppv": 0.925,
+                        "npv": 0.9571428571428572,
+                        "f1_score": 0.9426751592356688,
+                        "auc": 0.9836772816224871,
+                        "hosmer_lemeshow_p_value": 0.6829087943259259,
+                        "spiegelhalter_z_p_value": 0.9072101589716026
+                    }
+                },
+                "combined_results": {
+                    "sensitivity & specificity": {
+                        "0.6296106038532208": {
+                            "accuracy": 0.93,
+                            "sensitivity": 0.922077922077922,
+                            "specificity": 0.9383561643835616,
+                            "ppv": 0.9403973509933775,
+                            "npv": 0.9194630872483222,
+                            "f1_score": 0.9311475409836065,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.62733563466261": {
+                            "accuracy": 0.9266666666666666,
+                            "sensitivity": 0.922077922077922,
+                            "specificity": 0.9315068493150684,
+                            "ppv": 0.9342105263157895,
+                            "npv": 0.918918918918919,
+                            "f1_score": 0.9281045751633986,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.543135109267876": {
+                            "accuracy": 0.9366666666666666,
+                            "sensitivity": 0.9415584415584416,
+                            "specificity": 0.9315068493150684,
+                            "ppv": 0.9354838709677419,
+                            "npv": 0.9379310344827586,
+                            "f1_score": 0.9385113268608415,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.5402220089248311": {
+                            "accuracy": 0.9333333333333333,
+                            "sensitivity": 0.9415584415584416,
+                            "specificity": 0.9246575342465754,
+                            "ppv": 0.9294871794871795,
+                            "npv": 0.9375,
+                            "f1_score": 0.9354838709677419,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.5221865466407605": {
+                            "accuracy": 0.94,
+                            "sensitivity": 0.9545454545454546,
+                            "specificity": 0.9246575342465754,
+                            "ppv": 0.930379746835443,
+                            "npv": 0.9507042253521126,
+                            "f1_score": 0.9423076923076923,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.5079818302055437": {
+                            "accuracy": 0.9366666666666666,
+                            "sensitivity": 0.9545454545454546,
+                            "specificity": 0.9178082191780822,
+                            "ppv": 0.9245283018867925,
+                            "npv": 0.950354609929078,
+                            "f1_score": 0.939297124600639,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        },
+                        "0.50580839249458": {
+                            "accuracy": 0.94,
+                            "sensitivity": 0.961038961038961,
+                            "specificity": 0.9178082191780822,
+                            "ppv": 0.925,
+                            "npv": 0.9571428571428572,
+                            "f1_score": 0.9426751592356688,
+                            "auc": 0.9836772816224871,
+                            "hosmer_lemeshow_p_value": 0.6829087943259259,
+                            "spiegelhalter_z_p_value": 0.9072101589716026
+                        }
+                    }
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.9366666666666666,
+                "sensitivity": 0.961038961038961,
+                "specificity": 0.910958904109589,
+                "ppv": 0.9192546583850931,
+                "npv": 0.9568345323741008,
+                "f1_score": 0.9396825396825396,
+                "auc": 0.9836772816224871,
+                "hosmer_lemeshow_p_value": 0.6829087943259259,
+                "spiegelhalter_z_p_value": 0.9072101589716026
+            }
+        },
+        "clinical": {
+            "youden_metrics": {
+                "threshold": 0.530909962520542,
+                "youden_index": 0.860078277886497,
+                "metrics": {
+                    "accuracy": 0.93,
+                    "sensitivity": 0.9285714285714286,
+                    "specificity": 0.9315068493150684,
+                    "ppv": 0.934640522875817,
+                    "npv": 0.9251700680272109,
+                    "f1_score": 0.9315960912052117,
+                    "auc": 0.9782067247820672,
+                    "hosmer_lemeshow_p_value": 0.7633871818701906,
+                    "spiegelhalter_z_p_value": 0.8992192565265436
+                }
+            },
+            "thresholds": {
+                "youden": 0.530909962520542,
+                "target": 0.530909962520542
+            },
+            "target_metrics": {
+                "thresholds": {
+                    "sensitivity": 0.530909962520542,
+                    "specificity": 0.5033343858908236
+                },
+                "metrics_at_thresholds": {
+                    "sensitivity": {
+                        "accuracy": 0.93,
+                        "sensitivity": 0.9285714285714286,
+                        "specificity": 0.9315068493150684,
+                        "ppv": 0.934640522875817,
+                        "npv": 0.9251700680272109,
+                        "f1_score": 0.9315960912052117,
+                        "auc": 0.9782067247820672,
+                        "hosmer_lemeshow_p_value": 0.7633871818701906,
+                        "spiegelhalter_z_p_value": 0.8992192565265436
+                    },
+                    "specificity": {
+                        "accuracy": 0.93,
+                        "sensitivity": 0.948051948051948,
+                        "specificity": 0.910958904109589,
+                        "ppv": 0.9182389937106918,
+                        "npv": 0.9432624113475178,
+                        "f1_score": 0.9329073482428114,
+                        "auc": 0.9782067247820672,
+                        "hosmer_lemeshow_p_value": 0.7633871818701906,
+                        "spiegelhalter_z_p_value": 0.8992192565265436
+                    }
+                },
+                "combined_results": {
+                    "sensitivity & specificity": {
+                        "0.530909962520542": {
+                            "accuracy": 0.93,
+                            "sensitivity": 0.9285714285714286,
+                            "specificity": 0.9315068493150684,
+                            "ppv": 0.934640522875817,
+                            "npv": 0.9251700680272109,
+                            "f1_score": 0.9315960912052117,
+                            "auc": 0.9782067247820672,
+                            "hosmer_lemeshow_p_value": 0.7633871818701906,
+                            "spiegelhalter_z_p_value": 0.8992192565265436
+                        },
+                        "0.5244870330977431": {
+                            "accuracy": 0.9233333333333333,
+                            "sensitivity": 0.9285714285714286,
+                            "specificity": 0.9178082191780822,
+                            "ppv": 0.9225806451612903,
+                            "npv": 0.9241379310344827,
+                            "f1_score": 0.9255663430420712,
+                            "auc": 0.9782067247820672,
+                            "hosmer_lemeshow_p_value": 0.7633871818701906,
+                            "spiegelhalter_z_p_value": 0.8992192565265436
+                        },
+                        "0.5171158424246792": {
+                            "accuracy": 0.93,
+                            "sensitivity": 0.9415584415584416,
+                            "specificity": 0.9178082191780822,
+                            "ppv": 0.9235668789808917,
+                            "npv": 0.9370629370629371,
+                            "f1_score": 0.9324758842443731,
+                            "auc": 0.9782067247820672,
+                            "hosmer_lemeshow_p_value": 0.7633871818701906,
+                            "spiegelhalter_z_p_value": 0.8992192565265436
+                        },
+                        "0.5117113871419486": {
+                            "accuracy": 0.9266666666666666,
+                            "sensitivity": 0.9415584415584416,
+                            "specificity": 0.910958904109589,
+                            "ppv": 0.9177215189873418,
+                            "npv": 0.9366197183098591,
+                            "f1_score": 0.9294871794871796,
+                            "auc": 0.9782067247820672,
+                            "hosmer_lemeshow_p_value": 0.7633871818701906,
+                            "spiegelhalter_z_p_value": 0.8992192565265436
+                        },
+                        "0.5033343858908236": {
+                            "accuracy": 0.93,
+                            "sensitivity": 0.948051948051948,
+                            "specificity": 0.910958904109589,
+                            "ppv": 0.9182389937106918,
+                            "npv": 0.9432624113475178,
+                            "f1_score": 0.9329073482428114,
+                            "auc": 0.9782067247820672,
+                            "hosmer_lemeshow_p_value": 0.7633871818701906,
+                            "spiegelhalter_z_p_value": 0.8992192565265436
+                        }
+                    }
+                }
+            },
+            "basic_metrics": {
+                "accuracy": 0.93,
+                "sensitivity": 0.948051948051948,
+                "specificity": 0.910958904109589,
+                "ppv": 0.9182389937106918,
+                "npv": 0.9432624113475178,
+                "f1_score": 0.9329073482428114,
+                "auc": 0.9782067247820672,
+                "hosmer_lemeshow_p_value": 0.7633871818701906,
+                "spiegelhalter_z_p_value": 0.8992192565265436
+            }
+        }
+    },
+    "test": {
+        "radiomics": {
+            "youden_metrics": {
+                "threshold": 0.5221865466407605,
+                "youden_index": 0.8715479922376475,
+                "metrics": {
+                    "accuracy": 0.9107806691449815,
+                    "sensitivity": 0.8866995073891626,
+                    "specificity": 0.9848484848484849,
+                    "ppv": 0.994475138121547,
+                    "npv": 0.7386363636363636,
+                    "f1_score": 0.9375000000000001,
+                    "auc": 0.9914912673533363,
+                    "hosmer_lemeshow_p_value": 2.9344195976444e-06,
+                    "spiegelhalter_z_p_value": 1.1311258596435891e-09
+                }
+            },
+            "thresholds": {
+                "youden": 0.5221865466407605,
+                "target": 0.6296106038532208
+            },
+            "basic_metrics": {
+                "accuracy": 0.9256505576208178,
+                "sensitivity": 0.9064039408866995,
+                "specificity": 0.9848484848484849,
+                "ppv": 0.9945945945945946,
+                "npv": 0.7738095238095238,
+                "f1_score": 0.9484536082474228,
+                "auc": 0.9914912673533363,
+                "hosmer_lemeshow_p_value": 2.9344195976444e-06,
+                "spiegelhalter_z_p_value": 1.1311258596435891e-09
+            },
+            "target_metrics": {
+                "threshold": 0.6296106038532208,
+                "metrics": {
+                    "accuracy": 0.8884758364312267,
+                    "sensitivity": 0.8571428571428571,
+                    "specificity": 0.9848484848484849,
+                    "ppv": 0.9942857142857143,
+                    "npv": 0.6914893617021277,
+                    "f1_score": 0.9206349206349207,
+                    "auc": 0.9914912673533363,
+                    "hosmer_lemeshow_p_value": 2.9344195976444e-06,
+                    "spiegelhalter_z_p_value": 1.1311258596435891e-09
+                }
+            }
+        },
+        "clinical": {
+            "youden_metrics": {
+                "threshold": 0.530909962520542,
+                "youden_index": 0.8954321540528438,
+                "metrics": {
+                    "accuracy": 0.9442379182156134,
+                    "sensitivity": 0.9408866995073891,
+                    "specificity": 0.9545454545454546,
+                    "ppv": 0.9845360824742269,
+                    "npv": 0.84,
+                    "f1_score": 0.9622166246851385,
+                    "auc": 0.9941782355575459,
+                    "hosmer_lemeshow_p_value": 0.0008416732771859836,
+                    "spiegelhalter_z_p_value": 5.748355120793747e-07
+                }
+            },
+            "thresholds": {
+                "youden": 0.530909962520542,
+                "target": 0.530909962520542
+            },
+            "basic_metrics": {
+                "accuracy": 0.9442379182156134,
+                "sensitivity": 0.9408866995073891,
+                "specificity": 0.9545454545454546,
+                "ppv": 0.9845360824742269,
+                "npv": 0.84,
+                "f1_score": 0.9622166246851385,
+                "auc": 0.9941782355575459,
+                "hosmer_lemeshow_p_value": 0.0008416732771859836,
+                "spiegelhalter_z_p_value": 5.748355120793747e-07
+            },
+            "target_metrics": {
+                "threshold": 0.530909962520542,
+                "metrics": {
+                    "accuracy": 0.9442379182156134,
+                    "sensitivity": 0.9408866995073891,
+                    "specificity": 0.9545454545454546,
+                    "ppv": 0.9845360824742269,
+                    "npv": 0.84,
+                    "f1_score": 0.9622166246851385,
+                    "auc": 0.9941782355575459,
+                    "hosmer_lemeshow_p_value": 0.0008416732771859836,
+                    "spiegelhalter_z_p_value": 5.748355120793747e-07
+                }
+            }
+        }
+    }
+}

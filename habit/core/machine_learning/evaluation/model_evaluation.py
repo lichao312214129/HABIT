@@ -378,14 +378,26 @@ class MultifileEvaluator:
         standardized_dfs = []
         original_subject_id_col = None
         original_label_col = None
+        used_model_names = set()
         
         for idx, file_config in enumerate(files_config):
-            file_path = file_config['path']
-            model_name = file_config.get('model_name', file_config.get('name', f"model{idx+1}"))
-            subject_id_col = file_config.get('subject_id_col')
-            label_col = file_config.get('label_col')
-            prob_col = file_config.get('prob_col')
-            pred_col = file_config.get('pred_col')
+            # Convert dict to ComparisonFileConfig to trigger validators
+            # This ensures name -> model_name mapping and proper defaults
+            from ..config_schemas import ComparisonFileConfig
+            
+            if not isinstance(file_config, ComparisonFileConfig):
+                config_obj = ComparisonFileConfig(**file_config)
+            else:
+                config_obj = file_config
+            
+            file_path = config_obj.path
+            # After validation, model_name is guaranteed to be set
+            model_name = config_obj.model_name
+            model_name = self._ensure_unique_model_name(model_name, used_model_names)
+            subject_id_col = config_obj.subject_id_col
+            label_col = config_obj.label_col
+            prob_col = config_obj.prob_col
+            pred_col = config_obj.pred_col
             
             # Check required parameters
             if not all([subject_id_col, label_col, prob_col]):
@@ -465,6 +477,32 @@ class MultifileEvaluator:
                     self.models_data[model_name] = (y_true, y_pred_proba)
         
         return self
+
+    def _ensure_unique_model_name(self, model_name: str, used_names: set) -> str:
+        """
+        Ensure model names are unique to avoid column collisions in merged data.
+
+        Args:
+            model_name: Original model name from config
+            used_names: Set of already used model names
+
+        Returns:
+            Unique model name
+        """
+        base_name = str(model_name).strip()
+        if not base_name:
+            base_name = "model"
+        unique_name = base_name
+        suffix = 2
+        while unique_name in used_names:
+            unique_name = f"{base_name}_{suffix}"
+            suffix += 1
+        if unique_name != base_name:
+            self.logger.warning(
+                f"Duplicate model name '{base_name}' detected. Using '{unique_name}' instead."
+            )
+        used_names.add(unique_name)
+        return unique_name
     
     def save_merged_data(self, filename: str = "merged_predictions.csv") -> None:
         """

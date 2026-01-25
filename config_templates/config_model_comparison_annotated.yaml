@@ -23,7 +23,7 @@ output_dir: ./ml_results/comparison
 # Each file should contain predictions from one model
 files_config:
   - path: ./ml_results/model1/all_prediction_results.csv
-    model_name: Clinical Model  # Display name in plots
+    name: Clinical Model  # Must be unique across files
     subject_id_col: subjID  # Column with subject IDs
     label_col: true_label  # Column with true labels (0/1)
     prob_col: prob  # Column with predicted probabilities (0-1)
@@ -31,7 +31,7 @@ files_config:
     split_col: split  # Column indicating train/test split
   
   - path: ./ml_results/model2/all_prediction_results.csv
-    model_name: Radiomics Model
+    name: Radiomics Model  # Must be unique across files
     subject_id_col: subjID
     label_col: true_label
     prob_col: LogisticRegression_prob

@@ -11,7 +11,7 @@ output_dir: ./ml_data/model_comparison  # Base directory for all comparison outp
 # Each entry represents a different model's predictions
 files_config:
   - path: ./ml_data/radiomics/all_prediction_results.csv
-    model_name: radiomics                        # Name used to identify this model in plots and reports
+    model_name: radiomics                              # Must be unique across files
     subject_id_col: subject_id            # Column containing unique subject identifiers
     label_col: label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob   # Column containing predicted probabilities (continuous: 0-1)
@@ -19,7 +19,7 @@ files_config:
     split_col: dataset                    # Column indicating data split (e.g., 'train', 'test', 'validation')
   
   - path: ./ml_data/clinical/all_prediction_results.csv
-    model_name: clinical                        # Name used to identify this model in plots and reports
+    model_name: clinical                              # Must be unique across files
     subject_id_col: subject_id              # Column containing unique subject identifiers
     label_col: label               # Column containing actual outcome labels (binary: 0/1)
     prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
@@ -32,31 +32,7 @@ files_config:
   #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
-  #   split_col: split   
-  
-  # - path: H:\results\ml_results\merged_clinicalPlusHabitat\all_prediction_results.csv
-  #   model_name: Clinical+Habitat                      # Name used to identify this model in plots and reports
-  #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
-  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
-  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
-  #   split_col: split  
-
-  # - path: H:\results\ml_results\merged_HabitatPlusRadiomics\all_prediction_results.csv
-  #   model_name: Radiomics+Habitat                        # Name used to identify this model in plots and reports
-  #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
-  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
-  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
-  #   split_col: split  
-
-  # - path: H:\results\ml_results\merged_all\all_prediction_results.csv
-  #   model_name: Hybrid model                        # Name used to identify this model in plots and reports
-  #   subject_id_col: subjID              # Column containing unique subject identifiers
-  #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
-  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
-  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
-  #   split_col: split   
+  #   split_col: dataset   
 
 # Merged Data Configuration
 # Settings for combining predictions from multiple models into a single dataset
@@ -125,5 +101,5 @@ metrics:
   target_metrics:
     enabled: true                           # Whether to calculate target-based metrics
     targets:                              # Target values for sensitivity and specificity
-      sensitivity: 0.8                    # Target sensitivity value
-      specificity: 0.8                      # Target specificity value
+      sensitivity: 0.91                    # Target sensitivity value
+      specificity: 0.91                      # Target specificity value

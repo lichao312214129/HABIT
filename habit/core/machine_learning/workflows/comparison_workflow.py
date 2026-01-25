@@ -142,11 +142,15 @@ class ModelComparison:
         original_data_frames = []
         dataset_values_by_id = {}  # 用于存储每个患者的split值
     
+        # Canonical training split name for normalization
+        canonical_train_name = "train"
+
         # 首先读取所有原始数据，并保存包含split列的数据框
         for idx, file_config in enumerate(files_config):
             file_path = file_config['path']
             subject_id_col = file_config.get('subject_id_col')
             split_col = file_config.get('split_col')
+            per_file_train_name = canonical_train_name
             
             if split_col and os.path.exists(file_path):
                 # 读取原始文件
@@ -157,6 +161,15 @@ class ModelComparison:
                     # 保存id和split列
                     df_subset = df[[subject_id_col, split_col]].copy()
                     df_subset[subject_id_col] = df_subset[subject_id_col].astype(str)
+
+                    # Normalize training split name using the fixed label.
+                    if canonical_train_name:
+                        df_subset[split_col] = df_subset[split_col].apply(
+                            lambda v: canonical_train_name
+                            if str(v).strip().lower() == canonical_train_name
+                            else v
+                        )
+
                     original_data_frames.append(df_subset)
                     
                     # 检查split值的一致性
@@ -514,8 +527,9 @@ class ModelComparison:
         else:
             self.logger.info("没有启用数据分割，在全部数据上计算Youden指数...")
 
-            for model_name, (y_true, y_pred_proba) in self.evaluator.models_data.items():
+            for model_name, data_tuple in self.evaluator.models_data.items():
                 try:
+                    y_true, y_pred_proba, *_ = data_tuple
                     container = self._create_prediction_container(y_true, y_pred_proba)
                     model_metrics = calculate_metrics_youden(container.y_true, container.y_prob)
                     threshold = model_metrics.get('threshold')
@@ -534,15 +548,17 @@ class ModelComparison:
         """
         Calculate Youden metrics for train/test split scenario using ThresholdManager and MetricsStore
         """
-        if 'Training set' not in self.split_groups:
+        train_group_name = self._get_training_group_name()
+        if train_group_name is None:
             self.logger.warning("没有找到训练集数据，跳过Youden指数计算")
             return
 
         self.logger.info(f"根据 {self.split_column} 分组计算Youden指数...")
-        train_models_data = self.split_groups['Training set']
+        train_models_data = self.split_groups[train_group_name]
 
-        for model_name, (y_true, y_pred_proba) in train_models_data.items():
+        for model_name, data_tuple in train_models_data.items():
             try:
+                y_true, y_pred_proba, *_ = data_tuple
                 container = self._create_prediction_container(y_true, y_pred_proba)
                 self.threshold_manager.find_and_store(model_name, container, method='youden')
                 threshold = self.threshold_manager.get_threshold(model_name, 'youden')
@@ -550,8 +566,8 @@ class ModelComparison:
 
                 self.logger.info(f"{model_name} 训练集计算Youden指数，有效样本数: {len(container.y_true)}, 阈值: {threshold:.4f}")
 
-                self.metrics_store.add_metrics('Training set', model_name, 'youden_metrics', model_metrics)
-                self.metrics_store.add_threshold('Training set', model_name, 'youden', threshold)
+                self.metrics_store.add_metrics(train_group_name, model_name, 'youden_metrics', model_metrics)
+                self.metrics_store.add_threshold(train_group_name, model_name, 'youden', threshold)
             except Exception as e:
                 self.logger.warning(f"{model_name} 计算Youden指数时出错: {str(e)}")
 
@@ -599,8 +615,9 @@ class ModelComparison:
         else:
             self.logger.info("没有启用数据分割，在全部数据上计算目标指标阈值...")
 
-            for model_name, (y_true, y_pred_proba) in self.evaluator.models_data.items():
+            for model_name, data_tuple in self.evaluator.models_data.items():
                 try:
+                    y_true, y_pred_proba, *_ = data_tuple
                     container = self._create_prediction_container(y_true, y_pred_proba)
                     model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
 
@@ -627,46 +644,64 @@ class ModelComparison:
         Args:
             targets (dict): Target metrics
         """
-        if 'Training set' not in self.split_groups:
+        train_group_name = self._get_training_group_name()
+        if train_group_name is None:
             self.logger.warning("没有找到训练集数据，跳过目标指标计算")
             return
 
         self.logger.info(f"根据 {self.split_column} 分组计算目标指标阈值...")
-        train_models_data = self.split_groups['Training set']
+        train_models_data = self.split_groups[train_group_name]
         train_thresholds = {}
         combined_key = ' & '.join(targets.keys())
 
-        for model_name, (y_true, y_pred_proba) in train_models_data.items():
+        for model_name, data_tuple in train_models_data.items():
             try:
+                y_true, y_pred_proba, *_ = data_tuple
                 container = self._create_prediction_container(y_true, y_pred_proba)
                 model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
 
                 self.logger.info(f"{model_name} 训练集计算目标指标，有效样本数: {len(container.y_true)}")
 
-                self.metrics_store.add_metrics('Training set', model_name, 'target_metrics', model_metrics)
+                self.metrics_store.add_metrics(train_group_name, model_name, 'target_metrics', model_metrics)
 
                 if 'combined_results' in model_metrics and combined_key in model_metrics['combined_results']:
                     combined_thresholds = model_metrics['combined_results'][combined_key]
                     if combined_thresholds:
                         first_threshold_key = next(iter(combined_thresholds))
                         train_thresholds[model_name] = float(first_threshold_key)
-                        self.metrics_store.add_threshold('Training set', model_name, 'target', train_thresholds[model_name])
+                        self.metrics_store.add_threshold(train_group_name, model_name, 'target', train_thresholds[model_name])
                         self.logger.info(f"{model_name} 同时满足所有目标的阈值: {train_thresholds[model_name]:.4f}")
             except Exception as e:
                 self.logger.warning(f"{model_name} 计算目标指标时出错: {str(e)}")
 
-        if not train_thresholds:
-            self.logger.warning("没有找到任何同时满足所有目标的阈值")
-            return
-
+        # Apply thresholds to all datasets (train and test)
         for dataset_group_name, dataset_models_data in self.split_groups.items():
-            self.logger.info(f"将目标阈值应用到 {dataset_group_name} 数据集...")
-            dataset_results = self._apply_thresholds_to_test(dataset_models_data, train_thresholds, 'apply_target_threshold')
+            # Skip training set if we already computed it above
+            if dataset_group_name == train_group_name:
+                continue
+            
+            # If we have combined thresholds from training, apply them
+            if train_thresholds:
+                self.logger.info(f"将训练集的组合目标阈值应用到 {dataset_group_name} 数据集...")
+                dataset_results = self._apply_thresholds_to_test(dataset_models_data, train_thresholds, 'apply_target_threshold')
 
-            for model_name, metrics_data in dataset_results.items():
-                self.metrics_store.add_metrics(dataset_group_name, model_name, 'target_metrics', metrics_data)
-                if model_name in train_thresholds:
-                    self.metrics_store.add_threshold(dataset_group_name, model_name, 'target', train_thresholds[model_name])
+                for model_name, metrics_data in dataset_results.items():
+                    self.metrics_store.add_metrics(dataset_group_name, model_name, 'target_metrics', metrics_data)
+                    if model_name in train_thresholds:
+                        self.metrics_store.add_threshold(dataset_group_name, model_name, 'target', train_thresholds[model_name])
+            else:
+                # No combined thresholds found, but still compute target_metrics for this dataset
+                self.logger.info(f"训练集未找到组合阈值，在 {dataset_group_name} 数据集上独立计算目标指标...")
+                for model_name, data_tuple in dataset_models_data.items():
+                    try:
+                        y_true, y_pred_proba, *_ = data_tuple
+                        container = self._create_prediction_container(y_true, y_pred_proba)
+                        model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
+                        
+                        self.logger.info(f"{model_name} ({dataset_group_name}组) 计算目标指标，有效样本数: {len(container.y_true)}")
+                        self.metrics_store.add_metrics(dataset_group_name, model_name, 'target_metrics', model_metrics)
+                    except Exception as e:
+                        self.logger.warning(f"{model_name} ({dataset_group_name}组) 计算目标指标时出错: {str(e)}")
 
         self.logger.info("所有数据集的目标指标评估完成")
 
@@ -689,7 +724,8 @@ class ModelComparison:
         """
         test_results = {}
         
-        for model_name, (y_true, y_pred_proba) in test_models_data.items():
+        for model_name, data_tuple in test_models_data.items():
+            y_true, y_pred_proba, *_ = data_tuple
             # 检查是否有该模型的训练集阈值
             if model_name in train_thresholds:
                 # Clean data using PredictionContainer
@@ -726,6 +762,31 @@ class ModelComparison:
                 self.logger.warning(f"警告: {model_name} 测试集评估失败，没有找到训练集阈值")
         
         return test_results
+
+    def _get_training_group_name(self) -> Optional[str]:
+        """
+        Resolve the training group name from split groups.
+
+        Returns:
+            Training group name if found, otherwise None.
+        """
+        if not self.split_groups:
+            return None
+
+        # Prefer fixed training label.
+        preferred_labels = {'train'}
+
+        for group_name in self.split_groups.keys():
+            if str(group_name).strip().lower() in preferred_labels:
+                return group_name
+
+        # No training group found.
+        available_groups = list(self.split_groups.keys())
+        if available_groups:
+            self.logger.warning(
+                f"未识别训练集分组名称，当前可用分组: {available_groups}"
+            )
+        return None
 
     def _create_prediction_container(self, y_true: np.ndarray, y_pred_proba: np.ndarray) -> PredictionContainer:
         """

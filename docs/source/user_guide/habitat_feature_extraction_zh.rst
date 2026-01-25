@@ -14,7 +14,7 @@ HABIT 支持多种特征类型：
 - **非影像组学特征**: 提取非标准的影像组学特征
 - **整体生境特征**: 提取整个生境图谱的特征
 - **每个生境特征**: 提取每个生境区域的特征
-- **MSI 特征**: 多区域交互特征
+- **MSI 特征**: 空间交互矩阵（Spatial Interaction Matrix）特征
 - **ITH 特征**: 肿瘤内异质性特征
 
 CLI 使用方法
@@ -131,7 +131,7 @@ YAML 配置详解
      - non_radiomics   # 非影像组学特征
      - whole_habitat   # 整体生境特征
      - each_habitat    # 每个生境特征
-     - msi             # MSI 特征
+    - msi             # MSI（Spatial Interaction Matrix）特征
      - ith_score       # ITH 特征
 
    n_habitats:   # 生境数量（空表示自动检测）
@@ -181,7 +181,7 @@ YAML 配置详解
 - `non_radiomics`: 非影像组学特征
 - `whole_habitat`: 整体生境特征
 - `each_habitat`: 每个生境特征
-- `msi`: MSI 特征
+- `msi`: MSI（Spatial Interaction Matrix）特征
 - `ith_score`: ITH 特征
 
 **n_habitats**: 生境数量
@@ -283,16 +283,18 @@ YAML 配置详解
 
 **MSI 特征 (msi)**
 
-多尺度图像特征。
+空间交互矩阵（Spatial Interaction Matrix）特征，描述不同生境区域之间的空间交互关系。
 
 **适用场景：**
-- 研究多尺度特征
-- 分析不同尺度的异质性
+- 研究生境之间的空间交互模式
+- 量化肿瘤内空间异质性
 
 **特征类型：**
-- 多尺度强度特征
-- 多尺度纹理特征
-- 多尺度形态学特征
+- 生境间空间邻接/共现相关指标
+- 生境间相互作用矩阵派生统计量
+
+**参考：**
+Intratumoral Spatial Heterogeneity at Perfusion MR Imaging Predicts Recurrence-free Survival in Locally Advanced Breast Cancer Treated with Neoadjuvant Chemotherapy
 
 **ITH 特征 (ith_score)**
 
@@ -442,7 +444,7 @@ HABIT 使用 pyradiomics 进行特征提取，需要提供参数文件。
    ├── each_habitat/            # 每个生境特征
    │   ├── features.csv
    │   └── ...
-   ├── msi/                    # MSI 特征
+   ├── msi/                    # MSI（Spatial Interaction Matrix）特征
    │   ├── features.csv
    │   └── ...
    ├── ith_score/               # ITH 特征
@@ -470,7 +472,7 @@ A: 根据您的研究需求选择：
 - **非影像组学**: 探索新的特征
 - **整体生境**: 研究生境整体特性
 - **每个生境**: 研究每个生境独立特性
-- **MSI**: 研究多尺度特征
+- **MSI**: 研究生境间空间交互特征
 - **ITH**: 量化肿瘤内异质性
 
 **Q3: 如何调整特征提取参数？**

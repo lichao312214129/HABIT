@@ -34,8 +34,18 @@ class FeatureManager:
         self.logger = logger
         self.expression_parser = FeatureExpressionParser()
         
-        self._validate_FeatureConstruction()
-        self._init_feature_extractor()
+        # In predict mode, FeatureConstruction is optional (pipeline is loaded from file)
+        # Only validate and initialize in train mode
+        if config.run_mode == 'train':
+            self._validate_FeatureConstruction()
+            self._init_feature_extractor()
+        else:
+            # In predict mode, skip initialization (pipeline will be loaded from file)
+            # Set minimal defaults to avoid AttributeError
+            self.voxel_method = None
+            self.voxel_params = {}
+            self.voxel_processing_steps = []
+            self.has_supervoxel_config = False
         
         # Will be set by set_data_paths
         self.images_paths = None

@@ -145,7 +145,8 @@ HABIT 支持多种特征提取方法：
 
 - **描述**: 提取非标准的影像组学特征
 - **适用场景**: 探索新的特征类型
-- **示例**: MSI（多尺度图像）、ITH（肿瘤内异质性）等
+- **示例**: MSI（Spatial Interaction Matrix，空间交互矩阵）、ITH（肿瘤内异质性）等
+- **参考**: Intratumoral Spatial Heterogeneity at Perfusion MR Imaging Predicts Recurrence-free Survival in Locally Advanced Breast Cancer Treated with Neoadjuvant Chemotherapy
 
 **6. 整体生境特征**
 

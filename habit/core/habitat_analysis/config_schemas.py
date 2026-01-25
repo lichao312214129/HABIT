@@ -4,7 +4,7 @@ Uses Pydantic for robust validation and type safety.
 """
 
 from typing import List, Dict, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from habit.core.common.config_base import BaseConfig
 
@@ -26,8 +26,14 @@ class HabitatAnalysisConfig(BaseConfig):
         description="Path to a trained pipeline file used in predict mode."
     )
     
-    FeatureConstruction: 'FeatureConstructionConfig'
-    HabitatsSegmention: 'HabitatsSegmentionConfig'
+    FeatureConstruction: Optional['FeatureConstructionConfig'] = Field(
+        None,
+        description="Feature construction configuration (required for train mode, optional for predict mode)."
+    )
+    HabitatsSegmention: Optional['HabitatsSegmentionConfig'] = Field(
+        None,
+        description="Habitat segmentation configuration (required for train mode, optional for predict mode but clustering_mode is needed)."
+    )
     
     processes: int = Field(2, description="Number of parallel processes to use.", gt=0)
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
@@ -36,6 +42,32 @@ class HabitatAnalysisConfig(BaseConfig):
     random_state: int = Field(42, description="Global random seed for reproducibility.")
     verbose: bool = Field(True, description="Whether to output detailed logs.")
     debug: bool = Field(False, description="Enable debug mode for verbose logging.")
+    
+    @model_validator(mode='after')
+    def validate_mode_dependent_fields(self):
+        """
+        Validate that required fields are present based on run_mode.
+        
+        - In train mode: FeatureConstruction and HabitatsSegmention are required
+        - In predict mode: FeatureConstruction is optional, but HabitatsSegmention.clustering_mode is needed
+        """
+        if self.run_mode == 'train':
+            if self.FeatureConstruction is None:
+                raise ValueError("FeatureConstruction is required in train mode")
+            if self.HabitatsSegmention is None:
+                raise ValueError("HabitatsSegmention is required in train mode")
+        elif self.run_mode == 'predict':
+            # In predict mode, FeatureConstruction is optional (not used)
+            # But HabitatsSegmention.clustering_mode is needed to select the strategy class
+            if self.HabitatsSegmention is None or self.HabitatsSegmention.clustering_mode is None:
+                raise ValueError(
+                    "HabitatsSegmention.clustering_mode is required in predict mode "
+                    "to select the correct strategy class. "
+                    "You can provide a minimal config with only clustering_mode, e.g.:\n"
+                    "HabitatsSegmention:\n"
+                    "  clustering_mode: one_step  # or two_step, direct_pooling"
+                )
+        return self
 
 # -----------------------------------------------------------------------------
 # Feature Construction Schemas

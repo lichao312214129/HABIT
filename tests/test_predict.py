@@ -13,7 +13,7 @@ class TestPredictCommand:
     
     def test_predict_with_config(self):
         """Test model predict command with valid config file"""
-        config_path = Path(__file__).parent.parent / 'demo_data' / 'config_predict.yaml'
+        config_path = Path(__file__).parent.parent / 'demo_data' / 'config_machine_learning_predict.yaml'
         
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -26,7 +26,7 @@ class TestPredictCommand:
     
     def test_predict_with_pipeline_override(self):
         """Test model predict command with pipeline path override"""
-        config_path = Path(__file__).parent.parent / 'demo_data' / 'config_predict.yaml'
+        config_path = Path(__file__).parent.parent / 'demo_data' / 'config_machine_learning_predict.yaml'
         
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -41,6 +41,6 @@ class TestPredictCommand:
 
 if __name__ == '__main__':
     # Allow running as script for debugging
-    config_path = './demo_data/config_predict.yaml'
+    config_path = './demo_data/config_machine_learning_predict.yaml'
     sys.argv = ['habit', 'model', '-c', config_path, '-m', 'predict']
     cli()

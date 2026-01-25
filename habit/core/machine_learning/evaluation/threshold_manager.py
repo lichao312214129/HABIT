@@ -23,7 +23,7 @@ class ThresholdManager:
         Calculates and stores the optimal threshold from a given dataset (usually training).
         """
         if method == 'youden':
-            result = calculate_metrics_youden(container)
+            result = calculate_metrics_youden(container.y_true, container.y_prob)
             threshold = result.get('threshold')
             if threshold is not None:
                 if model_name not in self.store:
