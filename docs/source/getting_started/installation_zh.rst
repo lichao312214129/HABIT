@@ -72,15 +72,33 @@ HABIT 的主要依赖包括：
 安装问题排查
 ------------
 
-如果在安装过程中遇到问题，请检查以下几点：
+如果在安装依赖（``pip install -r requirements.txt``）时遇到错误，您可以尝试以下步骤：
 
-1. **Python 版本**: 确保使用 Python 3.8 或更高版本
-2. **pip 版本**: 建议使用最新版本的 pip
-3. **权限问题**: 如果遇到权限问题，可以使用 `--user` 参数
-4. **网络问题**: 如果网络不稳定，可以使用国内镜像源
+1. **逐个排查依赖**
+   
+   有时某个特定的包可能因为系统环境原因无法安装。您可以打开 ``requirements.txt`` 文件，尝试逐行手动安装，以找出具体是哪个包出了问题：
 
-使用国内镜像源安装：
+   .. code-block:: bash
 
-.. code-block:: bash
+      # 例如：
+      pip install SimpleITK
+      pip install pyradiomics
+      # ... 针对文件中的每一行执行
 
-   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+2. **常见问题检查**
+
+   - **Python 版本**: 确保使用 Python 3.8 或更高版本。
+   - **pip 版本**: 建议升级到最新版本 (``pip install --upgrade pip``)。
+   - **C++ 构建工具**: 某些包（如 pyradiomics）可能需要系统安装 C++ 编译器。
+   - **网络问题**: 如果下载速度慢或超时，可以使用国内镜像源：
+
+     .. code-block:: bash
+
+        pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+3. **获取支持**
+
+   如果问题依然无法解决，请通过以下方式联系我们，并提供报错截图：
+
+   - **GitHub Issue**: `提交一个新的 Issue <https://github.com/lichao312214129/HABIT/issues>`_
+   - **电子邮件**: 发送邮件至 **lichao19870617@163.com**
