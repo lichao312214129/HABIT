@@ -21,231 +21,31 @@
 
 ## 📖 核心工作流
 
-HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚区，即"生境"。这一目标通过一个多阶段的流水线实现：
+HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚区，即"生境"。
 
-<p align="center">
-  <b>影像 → 体素特征 → 超体素(可选) → 生境 → 生境特征 → 预测模型(可选)</b>
-</p>
+**影像 → 体素特征 → 超体素(可选) → 生境 → 生境特征 → 预测模型(可选)**
 
-### 核心概念层级图
-*从微观体素到宏观生境的抽象过程*
+## 🧪 快速测试
 
-```
-       [肿瘤整体]             [微观结构]             [中观结构]             [宏观模式]
-     +------------+         +------------+         +------------+         +------------+
-     |   Tumor    |         |   Voxels   |         | Supervoxels|         |  Habitats  |
-     |  (Image)   |         | (Features) |         | (Clusters) |         | (Patterns) |
-     +-----+------+         +-----+------+         +-----+------+         +-----+------+
-           |                      |                      |                      |
-           v                      v                      v                      v
-     +------------+         +------------+         +------------+         +------------+
-     |            |         | . . . . . .|         | AA BB CC DD|         | ## ** @@   |
-     |  (Image)   |  ---->  | . . . . . .|  ---->  | AA BB CC DD|  ---->  | ## ** @@   |
-     |            |         | . . . . . .|         | EE FF GG HH|         | $$ %% &&   |
-     +------------+         +------------+         +------------+         +------------+
-        原始图像               体素特征               超体素                生境图
-                                                  (局部过分割)           (具有生物学意义)
-```
-
-### 详细流程说明
-
-1. **体素级特征提取**: 为肿瘤内的每一个体素提取丰富的特征（如信号强度、纹理、动态增强特征等）。
-2. **超体素聚类**: 将空间上相邻且特征相似的体素分组，形成"超体素"。这一过分割步骤在简化图像的同时保留了局部边界信息。
-3. **生境聚类**: 在整个患者队列中对超体素进行聚类，以识别共通的、反复出现的模式，从而形成最终的"生境"。
-4. **特征工程**: 从这些生境中提取高阶特征，如它们的大小、形状、空间关系（MSI特征）和异质性（ITH分数）。
-5. **机器学习**: 使用工程化的生境特征来训练预测模型，用于如患者生存期、治疗反应或疾病诊断等临床终点的预测。
-
-### 三种聚类策略
-
-HABIT 支持三种不同的聚类策略，适用于不同的研究场景：
-
-#### 1️⃣ 一步法 (One-Step)
-- **流程**：体素 → 生境（直接聚类）
-- **特点**：每个患者独立确定最优聚类数，生境标签独立
-- **适用场景**：个体异质性分析、小样本研究、每个患者需要个性化分析
-
-#### 2️⃣ 二步法 (Two-Step) ⭐ 默认方法
-- **流程**：体素 → 超体素 → 生境
-  - **第一步**：对每个患者的体素进行聚类，生成超体素（如每个患者50个超体素）
-  - **第二步**：将所有患者的超体素合并，进行群体级聚类，识别统一的生境模式
-- **特点**：先个体聚类，再群体聚类，所有患者共享统一的生境标签
-- **适用场景**：队列研究、跨患者生境模式识别、需要统一标签进行比较
-
-#### 3️⃣ 直接拼接法 (Direct Pooling)
-- **流程**：拼接所有患者的所有体素 → 直接群体聚类
-- **特点**：跳过超体素步骤，直接对所有体素进行群体级聚类，所有患者共享统一标签
-- **适用场景**：数据量适中、需要统一标签但不需要超体素中间步骤
-
-### 🔍 三种聚类策略的可视化对比
-
-#### 1. 一步法 (One-Step) - 个性化分析
-*每个患者独立进行聚类，适合分析个体异质性。*
-
-```
-      Patient 1 (P1)              Patient 2 (P2)
-   +------------------+        +------------------+
-   |  P1 Tumor Image  |        |  P2 Tumor Image  |
-   +--------+---------+        +--------+---------+
-            |                           |
-            v  (提取体素)                v
-   +--------+---------+        +--------+---------+
-   | Voxels: . . . .  |        | Voxels: . . . .  |
-   +--------+---------+        +--------+---------+
-            |                           |
-            v  (独立聚类)                v
-   +--------+---------+        +--------+---------+
-   | Habitats: # * @  |        | Habitats: & % $  |
-   +------------------+        +------------------+
-      P1 独有生境                  P2 独有生境
-    (标签互不通用)               (标签互不通用)
-```
-
-#### 2. 二步法 (Two-Step) - 队列研究 (⭐ 推荐)
-*先生成超体素(Supervoxels)，再进行群体聚类。平衡了局部细节和群体一致性。*
-
-```
-      Patient 1 (P1)              Patient 2 (P2)
-   +------------------+        +------------------+
-   |  P1 Tumor Image  |        |  P2 Tumor Image  |
-   +--------+---------+        +--------+---------+
-            |                           |
-            v                           v
-   +--------+---------+        +--------+---------+
-   | Voxels: . . . .  |        | Voxels: . . . .  |
-   +--------+---------+        +--------+---------+
-            |  (局部聚类)                |
-            v                           v
-   +--------+---------+        +--------+---------+
-   | Supervoxels:     |        | Supervoxels:     |
-   | AA BB CC DD      |        | EE FF GG HH      |
-   +--------+---------+        +--------+---------+
-            \                         /
-             \   (汇聚所有超体素)    /
-              \                     /
-               v                   v
-           +---------------------------+
-           |   Population Clustering   |
-           |    (群体级生境聚类)        |
-           +-------------+-------------+
-                         |
-                         v
-           +---------------------------+
-           |  Unified Habitats (统一)  |
-           |  Type 1: # (e.g. Necrosis)|
-           |  Type 2: * (e.g. Active)  |
-           |  Type 3: @ (e.g. Edema)   |
-           +---------------------------+
-             (所有患者共享相同的标签体系)
-```
-
-#### 3. 直接拼接法 (Direct Pooling)
-*跳过超体素，直接对所有体素进行群体聚类。*
-
-```
-      Patient 1 (P1)              Patient 2 (P2)
-   +------------------+        +------------------+
-   |  P1 Tumor Image  |        |  P2 Tumor Image  |
-   +--------+---------+        +--------+---------+
-            |                           |
-            v                           v
-   +--------+---------+        +--------+---------+
-   | Voxels: . . . .  |        | Voxels: . . . .  |
-   +--------+---------+        +--------+---------+
-             \                         /
-              \    (直接拼接所有体素)   /
-               \                     /
-                v                   v
-           +---------------------------+
-           |   Population Clustering   |
-           |    (群体级体素聚类)        |
-           +-------------+-------------+
-                         |
-                         v
-           +---------------------------+
-           |  Unified Habitats (统一)  |
-           |     Type 1: #, 2: *, 3: @ |
-           +---------------------------+
-```
-
-
-### 📊 策略选择指南
-
-**选择一步法如果：**
-- 想要逐个分析每个肿瘤
-- 患者间样本大小差异很大
-- 对个性化生境模式感兴趣
-- 计算资源有限
-
-**选择二步法如果：**
-- 正在进行队列研究
-- 需要跨患者可比较的生境 ⭐ **大多数研究**
-- 想要平衡计算效率与生物学相关性
-- 需要可解释的中间结果（超体素）
-
-**选择直接拼接法如果：**
-- 拥有适中的计算资源
-- 想要统一生境但不需要超体素中间步骤
-- 处理的数据集适合体素级聚类
-
-**三种方法对比表**：
-
-| 特性 | 一步法 | 二步法 | 直接拼接法 |
-|------|--------|--------|------------|
-| **聚类流程** | 体素→生境 | 体素→超体素→生境 | 拼接所有体素→生境 |
-| **聚类层级** | 单层级（个体） | 双层级（个体+群体） | 单层级（群体） |
-| **生境标签** | 每个患者独立 | 所有患者统一 | 所有患者统一 |
-| **计算复杂度** | 低 | 中等 | 高（取决于总体素数） |
-| **适用场景** | 个体异质性分析 | 队列研究（推荐） | 中等规模数据 |
-
----
-
-## 🧪 快速测试（使用示例数据）
-
-**🎯 重要提示**：HABIT 提供了完整的示例数据，您无需准备自己的数据即可快速体验所有功能！
-
-### 使用示例数据快速运行
-
-项目中的 `demo_data/` 目录包含了：
-- ✅ 示例 DICOM 影像数据（2个受试者）
-- ✅ 预处理后的影像和掩膜
-- ✅ 完整的配置文件示例
-- ✅ 示例分析结果
-
-### 三步快速体验
+**HABIT 提供了完整的示例数据，您无需准备自己的数据即可快速体验所有功能！**
 
 ```bash
 # 1. 确保已安装 HABIT（见下方安装指南）
-# 2. 激活环境
 conda activate habit
 
-# 3. 使用示例数据运行 Habitat 分析
+# 2. 使用示例数据运行 Habitat 分析
 habit get-habitat --config demo_data/config_habitat.yaml
 ```
 
-**预期结果**：
-- 分析完成后，结果将保存在 `demo_data/results/habitat/` 目录下
-- 您将看到：
-  - `habitats.csv` - 生境标签结果
-  - `subj001_habitats.nrrd` 和 `subj002_habitats.nrrd` - 生境地图（可用 ITK-SNAP 或 3D Slicer 查看）
-  - `visualizations/` - 自动生成的可视化图表
-  - `supervoxel2habitat_clustering_strategy_bundle.pkl` - 训练好的模型
+**预期结果**：分析完成后，结果将保存在 `demo_data/results/habitat/` 目录下。
 
-### 参考示例配置文件
-
-所有示例配置文件都在 `demo_data/` 目录下：
-- `config_habitat.yaml` - Habitat 分析配置（推荐从这里开始）
-- `config_preprocessing.yaml` - 影像预处理配置
-- `config_icc.yaml` - ICC 分析配置
-
-**💡 提示**：您可以复制这些配置文件并根据自己的数据修改路径和参数。
-
----
+**更多使用示例**：
+- 图像预处理：参见 [文档 - 图像预处理](docs/build/html/user_guide/image_preprocessing_zh.html)
+- 生境分析：参见 [文档 - 生境分割](docs/build/html/user_guide/habitat_segmentation_zh.html)
+- 特征提取：参见 [文档 - 生境特征提取](docs/build/html/user_guide/habit_feature_extraction_zh.html)
+- 机器学习：参见 [文档 - 机器学习建模](docs/build/html/user_guide/machine_learning_modeling_zh.html)
 
 ## 🛠️ 安装
-
-详细指南请参见 [**INSTALL.md**](INSTALL.md)。
-
-### 快速安装步骤
 
 ```bash
 # 1. 克隆仓库
@@ -254,8 +54,6 @@ cd habit_project
 
 # 2. 创建并激活Conda环境
 conda create -n habit python=3.8
-# 如果使用autogluon，则需要创建py310或以上的环境
-# conda create -n habit python=3.10
 conda activate habit
 
 # 3. 安装依赖
@@ -265,185 +63,35 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### 验证安装
+## 📖 完整文档
 
-```bash
-# 检查命令是否可用
-habit --help
+详细的使用指南和API文档请参见：
 
-# 如果看到命令列表，说明安装成功！
-```
+- **Sphinx 文档系统**（推荐）: 位于 `docs/` 目录
+  - 在线文档: [docs/build/html/index.html](docs/build/html/index.html)
+  - 本地构建: `cd docs && make html`
 
----
+### 文档内容
 
-## 📖 快速入门
-
-### 🎯 统一命令行界面 (CLI) - **推荐使用方式**
-
-**HABIT 提供了统一、简洁的命令行界面！** ✨ 
-
-使用基于 **Click** 构建的 CLI 系统，您只需使用 `habit` 命令即可访问所有功能，无需记住复杂的脚本路径。
-
-#### 安装后立即使用
-
-完成 `pip install -e .` 后，`habit` 命令将在您的环境中全局可用：
-
-```bash
-# 查看所有可用命令
-habit --help
-
-# 查看特定命令的帮助信息
-habit get-habitat --help
-```
-
-#### 核心命令示例
-
-```bash
-# 1️⃣ 图像预处理 - 重采样、配准、标准化
-habit preprocess --config config/config_image_preprocessing.yaml
-
-# 2️⃣ 生成 Habitat 地图 - 识别肿瘤亚区
-# 支持一步法、二步法或直接拼接法
-habit get-habitat --config demo_data/config_habitat.yaml
-
-# 3️⃣ 提取 Habitat 特征 - MSI, ITH等高级特征
-habit extract --config config/config_extract_features.yaml
-
-# 4️⃣ 机器学习 - 训练预测模型
-habit model --config config/config_machine_learning.yaml --mode train
-
-# 5️⃣ 模型预测 - 使用训练好的模型
-habit model --mode predict \
-  --model ./ml_data/model_package.pkl \
-  --data ./new_data.csv \
-  --output ./predictions/
-
-# 6️⃣ K折交叉验证 - 更稳健的模型评估
-habit cv --config config/config_machine_learning_kfold.yaml
-
-# 7️⃣ 模型比较 - ROC, DCA, 校准曲线等可视化
-habit compare --config config/config_model_comparison.yaml
-
-# 8️⃣ ICC分析 - 特征可重复性评估
-habit icc --config config/config_icc_analysis.yaml
-```
-
-#### 快速参考表
-
-| 命令 | 功能 | 配置文件示例 | 文档 |
-|------|------|-------------|:---:|
-| `habit preprocess` | 图像预处理 | `config_image_preprocessing.yaml` | [📖](doc/app_image_preprocessing.md) |
-| `habit get-habitat` | 生成Habitat地图 | `demo_data/config_habitat.yaml` ⭐ | [📖](doc/app_habitat_analysis.md) |
-| `habit extract` | 提取Habitat特征 | `config_extract_features.yaml` | [📖](doc/app_extracting_habitat_features.md) |
-| `habit model` | 机器学习训练/预测 | `config_machine_learning.yaml` | [📖](doc/app_of_machine_learning.md) |
-| `habit cv` | K折交叉验证 | `config_machine_learning_kfold.yaml` | [📖](doc/app_kfold_cross_validation.md) |
-| `habit compare` | 模型比较与可视化 | `config_model_comparison.yaml` | [📖](doc/app_model_comparison_plots.md) |
-| `habit icc` | ICC可重复性分析 | `config_icc_analysis.yaml` | [📖](doc/app_icc_analysis.md) |
-
----
-
-## 🔬 完整研究流程
-
-一个典型的基于HABIT的影像组学研究项目包含以下步骤。HABIT工具包为其中标记为 `[HABIT]` 的步骤提供了强大支持。
-
-1. **数据采集与下载**: 从医院PACS系统或公开数据集中获取原始影像数据（通常为DICOM格式）。
-2. **数据整理与匿名化**: 将数据按 `患者/序列/文件` 的结构进行整理，对患者隐私信息进行匿名化处理。
-3. **格式转换 (DICOM to NIfTI)**: `[HABIT]` 使用 `habit preprocess` 命令将DICOM序列转换为NIfTI格式。
-4. **感兴趣区域 (ROI) 分割**: 由放射科医生或研究人员使用ITK-SNAP, 3D Slicer等专业软件手动勾画肿瘤区域（ROI），并保存为mask文件。
-5. **影像预处理**: `[HABIT]` 使用 `habit preprocess` 命令进行配准、重采样、强度标准化、N4偏置场校正等预处理。
-6. **生境分析与特征提取**: 
-   - `[HABIT]` 运行 `habit get-habitat` 命令来识别肿瘤生境（支持一步法、二步法、直接拼接法）
-   - `[HABIT]` 运行 `habit extract` 命令从生境中提取高级特征（如MSI, ITH分数等）
-7. **构建与评估预测模型**: 
-   - `[HABIT]` 使用 `habit model` 命令进行特征选择、模型训练和内部验证
-   - `[HABIT]` 使用 `habit compare` 命令对不同模型进行性能比较和可视化
-8. **结果分析与论文撰写**: 解释模型的发现，并撰写研究论文。
-
----
+- **快速入门**: 安装、配置、快速测试
+- **用户指南**: 图像预处理、生境分析、特征提取、机器学习
+- **配置参考**: 完整的配置文件说明
+- **API 参考**: 模块和类的详细文档
+- **开发指南**: 架构设计、贡献指南
 
 ## 🚀 主要功能
 
-| 类别 | 功能 | 描述 | 文档 |
-| :--- | :--- | :--- | :---: |
-| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准、标准化和N4偏置场校正的端到端工具。 | [📖](doc/app_image_preprocessing.md) |
-| 🧬 **生境分析** | **一步法聚类** | 直接聚类到生境，每个肿瘤独立确定聚类数，生境标签不统一。 | [📖](doc/app_habitat_analysis.md) |
-| | **二步法聚类** | 两阶段聚类（个体supervoxels → 群体habitats），统一生境标签体系。 | [📖](doc/app_habitat_analysis.md) |
-| | **直接拼接法** | 拼接所有体素直接聚类，跳过超体素步骤。 | [📖](doc/app_habitat_analysis.md) |
-| | **🎨 自动可视化** | 自动生成2D/3D聚类散点图、最优聚类数曲线等高质量可视化结果。 | [📖](doc/app_habitat_analysis.md) |
-| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、多区域空间交互（MSI）和肿瘤内异质性（ITH）等特征。 | [📖](doc/app_extracting_habitat_features.md) |
-| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估。 | [📖](doc/app_of_machine_learning.md) |
-| | **K折交叉验证** | 完善的K折交叉验证流程，支持多模型评估和可视化。 | [📖](doc/app_kfold_cross_validation.md) |
-| | **模型比较** | 提供生成ROC曲线、决策曲线分析（DCA）和执行DeLong检验的工具。 | [📖](doc/app_model_comparison_plots.md) |
-| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测（Test-Retest）和组内相关系数（ICC）分析工具。 | [📖](doc/app_icc_analysis.md) |
-
----
-
-## ❓ 常见问题
-
-### Q1: 如何开始使用 HABIT？
-
-**推荐方式**：使用 `demo_data` 中的示例数据快速体验！
-
-```bash
-# 1. 确保已安装（见安装章节）
-conda activate habit
-
-# 2. 运行示例
-habit get-habitat --config demo_data/config_habitat.yaml
-
-# 3. 查看结果
-# 结果在 demo_data/results/habitat/ 目录下
-```
-
-### Q2: `habit` 命令找不到怎么办？
-
-**解决方案**：
-```bash
-# 确保已激活正确的环境
-conda activate habit
-
-# 重新安装
-pip install -e .
-
-# 验证安装
-habit --help
-```
-
-### Q3: 如何修改配置文件？
-
-**推荐方式**：
-1. 复制 `demo_data/config_habitat.yaml` 作为模板
-2. 修改其中的路径和参数
-3. 主要需要修改的参数：
-   - `data_dir`: 您的数据路径
-   - `out_dir`: 输出结果路径
-   - `FeatureConstruction.voxel_level.method`: 特征提取方法
-   - `HabitatsSegmention.clustering_mode`: 选择聚类策略（one_step/two_step/direct_pooling）
-
-### Q4: 如何查看分析结果？
-
-**结果位置**：
-- CSV文件：`{out_dir}/habitats.csv` - 可用Excel打开查看
-- 图像文件：`{out_dir}/*_habitats.nrrd` - 可用 ITK-SNAP 或 3D Slicer 查看
-- 可视化图表：`{out_dir}/visualizations/` - PNG格式，可直接查看
-
-### Q5: 三种聚类策略如何选择？
-
-- **一步法**：适合每个患者需要个性化分析，样本差异大的情况
-- **二步法**：适合队列研究，需要统一标签进行比较（**推荐用于大多数研究**）
-- **直接拼接法**：适合数据量适中，需要统一标签但不需要超体素中间步骤
-
-### Q6: 如何理解输出结果？
-
-- **habitats.csv**：包含每个超体素（或体素）的生境标签
-- **habitat地图**：3D图像，不同颜色代表不同的生境
-- **可视化图表**：帮助理解聚类效果和最优聚类数
-
----
+| 类别 | 功能 | 描述 |
+| :--- | :--- | :--- |
+| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准、标准化和N4偏置场校正 |
+| 🧬 **生境分析** | **聚类策略** | 支持一步法、二步法、直接拼接法三种聚类策略 |
+| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、多区域空间交互（MSI）和肿瘤内异质性（ITH）等特征 |
+| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估 |
+| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测和组内相关系数（ICC）分析工具 |
 
 ## 🤝 贡献
 
-欢迎各种形式的贡献！请参考贡献指南（待添加）或开启一个Issue来讨论您的想法。
+欢迎各种形式的贡献！请参考贡献指南或开启一个Issue来讨论您的想法。
 
 ## 📄 许可证
 
@@ -457,251 +105,5 @@ habit --help
 ## 🙋‍♀️ 支持
 
 如果您遇到任何问题或有改进建议，请：
-1. 阅读 `doc/` 文件夹中的详细文档
+1. 阅读完整文档
 2. 在 GitHub 上提交一个 [Issue](https://github.com/lichao312214129/HABIT/issues)
-
-### 📖 多语言文档
-
-HABIT提供完整的中英文双语文档：
-- **中文文档**: 位于 `doc/` 目录
-- **English Documentation**: 位于 `doc_en/` 目录
-
-💡 **语言切换**: 点击页面顶部的 "🇬🇧 English" 或 "🇨🇳 简体中文" 链接即可快速切换语言。
-
----
-
-## 📦 包结构 (Package Structure)
-
-HABIT 包采用模块化设计，主要包含以下目录结构：
-
-```
-habit/
-├── __init__.py                 # Package initialization and public API
-├── __main__.py                 # Entry point for python -m habit
-├── cli.py                      # Main CLI entry point (Click-based)
-│
-├── cli_commands/               # Command-line interface commands
-│   ├── __init__.py
-│   └── commands/               # Individual command implementations
-│       ├── cmd_preprocess.py   # Image preprocessing command
-│       ├── cmd_habitat.py      # Habitat analysis command
-│       ├── cmd_extract_features.py  # Feature extraction command
-│       ├── cmd_ml.py           # Machine learning command
-│       ├── cmd_kfold.py        # K-fold cross-validation command
-│       ├── cmd_compare.py      # Model comparison command
-│       ├── cmd_icc.py          # ICC analysis command
-│       ├── cmd_radiomics.py   # Traditional radiomics command
-│       ├── cmd_test_retest.py # Test-retest analysis command
-│       ├── cmd_dicom_info.py  # DICOM information extraction
-│       └── cmd_merge_csv.py   # CSV file merging utility
-│
-├── core/                       # Core functionality modules
-│   ├── __init__.py             # Core module initialization
-│   │
-│   ├── habitat_analysis/       # Habitat analysis core module
-│   │   ├── __init__.py
-│   │   ├── habitat_analysis.py # Main habitat analysis class
-│   │   ├── config_schemas.py   # Configuration schemas
-│   │   │
-│   │   ├── algorithms/         # Clustering algorithms
-│   │   │   ├── base_clustering.py      # Base clustering interface
-│   │   │   ├── kmeans_clustering.py    # K-means clustering
-│   │   │   ├── gmm_clustering.py      # Gaussian Mixture Model
-│   │   │   ├── hierarchical_clustering.py  # Hierarchical clustering
-│   │   │   ├── dbscan_clustering.py   # DBSCAN clustering
-│   │   │   ├── spectral_clustering.py # Spectral clustering
-│   │   │   ├── affinity_propagation.py # Affinity propagation
-│   │   │   ├── mean_shift_clustering.py # Mean shift clustering
-│   │   │   ├── cluster_validation_methods.py # Cluster validation
-│   │   │   └── custom_clustering_template.py # Template for custom algorithms
-│   │   │
-│   │   ├── extractors/         # Feature extractors
-│   │   │   ├── base_extractor.py      # Base extractor interface
-│   │   │   ├── raw_feature_extractor.py # Raw voxel features
-│   │   │   ├── voxel_radiomics_extractor.py # Voxel-level radiomics
-│   │   │   ├── supervoxel_radiomics_extractor.py # Supervoxel radiomics
-│   │   │   ├── kinetic_feature_extractor.py # Kinetic features (DCE-MRI)
-│   │   │   ├── local_entropy_extractor.py # Local entropy features
-│   │   │   ├── mean_voxel_features_extractor.py # Mean voxel features
-│   │   │   ├── concat_feature_extractor.py # Feature concatenation
-│   │   │   ├── feature_extractor_factory.py # Factory pattern
-│   │   │   ├── feature_expression_parser.py # Feature expression parser
-│   │   │   └── custom_feature_extractor_template.py # Custom extractor template
-│   │   │
-│   │   ├── analyzers/          # Feature analyzers
-│   │   │   ├── habitat_analyzer.py    # Main habitat analyzer
-│   │   │   ├── habitat_radiomics.py   # Habitat radiomics features
-│   │   │   ├── basic_features.py      # Basic habitat features
-│   │   │   ├── msi_features.py        # Multi-region Spatial Interaction (MSI)
-│   │   │   ├── ith_features.py        # Intra-tumor Heterogeneity (ITH)
-│   │   │   ├── traditional_radiomics_extractor.py # Traditional radiomics
-│   │   │   └── feature_utils.py      # Feature utility functions
-│   │   │
-│   │   ├── managers/            # Management classes
-│   │   │   ├── clustering_manager.py  # Clustering process management
-│   │   │   ├── feature_manager.py    # Feature extraction management
-│   │   │   └── result_manager.py      # Result saving and loading
-│   │   │
-│   │   ├── modes/              # Analysis modes
-│   │   │   ├── base_mode.py          # Base mode interface
-│   │   │   ├── training_mode.py      # Training mode (fit clustering)
-│   │   │   └── testing_mode.py       # Testing mode (apply clustering)
-│   │   │
-│   │   ├── strategies/         # Clustering strategies
-│   │   │   ├── base_strategy.py      # Base strategy interface
-│   │   │   ├── one_step_strategy.py  # One-step clustering strategy
-│   │   │   ├── two_step_strategy.py # Two-step clustering strategy
-│   │   │   └── direct_pooling_strategy.py # Direct pooling strategy
-│   │   │
-│   │   └── utils/              # Habitat analysis utilities
-│   │       └── preprocessing_state.py # Preprocessing state management
-│   │
-│   ├── machine_learning/       # Machine learning module
-│   │   ├── __init__.py
-│   │   ├── base_workflow.py    # Base workflow interface
-│   │   ├── machine_learning.py # Main ML workflow
-│   │   ├── machine_learning_kfold.py # K-fold cross-validation
-│   │   ├── data_manager.py     # Data loading and management
-│   │   ├── config_schemas.py   # ML configuration schemas
-│   │   ├── pipeline_utils.py   # Pipeline utilities
-│   │   │
-│   │   ├── models/             # Machine learning models
-│   │   │   ├── base.py         # Base model interface
-│   │   │   ├── factory.py      # Model factory
-│   │   │   ├── logistic_regression_model.py
-│   │   │   ├── random_forest_model.py
-│   │   │   ├── svm_model.py
-│   │   │   ├── xgboost_model.py
-│   │   │   ├── gradient_boosting_model.py
-│   │   │   ├── decision_tree_model.py
-│   │   │   ├── knn_model.py
-│   │   │   ├── naive_bayes_model.py
-│   │   │   ├── adaboost_model.py
-│   │   │   ├── mlp_model.py
-│   │   │   ├── autogluon_model.py
-│   │   │   └── custom_model_example.py
-│   │   │
-│   │   ├── feature_selectors/  # Feature selection methods
-│   │   │   ├── selector_registry.py # Feature selector registry
-│   │   │   ├── variance_selector.py # Variance-based selection
-│   │   │   ├── correlation_selector.py # Correlation-based selection
-│   │   │   ├── univariate_logistic_selector.py # Univariate logistic
-│   │   │   ├── lasso_selector.py # LASSO selection
-│   │   │   ├── rfecv_selector.py # Recursive feature elimination
-│   │   │   ├── mrmr_selector.py # Minimum Redundancy Maximum Relevance
-│   │   │   ├── stepwise_selector.py # Stepwise selection
-│   │   │   ├── anova_selector.py # ANOVA F-test
-│   │   │   ├── chi2_selector.py # Chi-square test
-│   │   │   ├── statistical_test_selector.py # Statistical tests
-│   │   │   ├── vif_selector.py # Variance Inflation Factor
-│   │   │   ├── icc_selector.py # ICC-based selection
-│   │   │   └── icc/            # ICC analysis submodule
-│   │   │
-│   │   ├── workflows/          # ML workflows
-│   │   │   ├── holdout_workflow.py # Holdout validation workflow
-│   │   │   ├── kfold_workflow.py # K-fold cross-validation workflow
-│   │   │   └── comparison_workflow.py # Model comparison workflow
-│   │   │
-│   │   ├── evaluation/         # Model evaluation
-│   │   │   ├── metrics.py      # Evaluation metrics
-│   │   │   ├── model_evaluation.py # Model evaluation logic
-│   │   │   ├── prediction_container.py # Prediction storage
-│   │   │   └── threshold_manager.py # Threshold optimization
-│   │   │
-│   │   ├── callbacks/          # Training callbacks
-│   │   │   ├── base.py         # Base callback interface
-│   │   │   ├── model_checkpoint.py # Model checkpointing
-│   │   │   ├── report_callback.py # Report generation
-│   │   │   └── visualization_callback.py # Visualization callbacks
-│   │   │
-│   │   ├── visualization/      # Visualization tools
-│   │   │   ├── plotting.py     # Main plotting functions
-│   │   │   ├── plot_manager.py # Plot management
-│   │   │   └── km_survival.py  # Kaplan-Meier survival curves
-│   │   │
-│   │   ├── reporting/          # Report generation
-│   │   │   └── report_exporter.py # Export reports
-│   │   │
-│   │   └── statistics/         # Statistical analysis
-│   │       └── (statistical analysis utilities)
-│   │
-│   └── preprocessing/          # Image preprocessing module
-│       ├── __init__.py
-│       ├── image_processor_pipeline.py # Main preprocessing pipeline
-│       ├── config_schemas.py   # Preprocessing config schemas
-│       ├── base_preprocessor.py # Base preprocessor interface
-│       ├── preprocessor_factory.py # Preprocessor factory
-│       ├── load_image.py       # Image loading utilities
-│       ├── dcm2niix_converter.py # DICOM to NIfTI conversion
-│       ├── resample.py         # Image resampling
-│       ├── registration.py    # Image registration
-│       ├── zscore_normalization.py # Z-score normalization
-│       ├── histogram_standardization.py # Histogram standardization
-│       ├── n4_correction.py    # N4 bias field correction
-│       ├── adaptive_histogram_equalization.py # Adaptive histogram equalization
-│       └── custom_preprocessor_template.py # Custom preprocessor template
-│
-└── utils/                      # Utility functions
-    ├── __init__.py
-    ├── config_utils.py         # Configuration file utilities
-    ├── io_utils.py             # I/O utilities
-    ├── file_system_utils.py    # File system operations
-    ├── log_utils.py            # Logging utilities
-    ├── progress_utils.py       # Progress bar utilities (unified)
-    ├── parallel_utils.py       # Parallel processing utilities
-    ├── dicom_utils.py          # DICOM file utilities
-    ├── image_converter.py      # Image format conversion
-    ├── visualization_utils.py # Visualization utilities
-    ├── visualization.py       # Visualization functions
-    ├── font_config.py         # Font configuration for plots
-    ├── dice_calculator.py      # Dice coefficient calculation
-    ├── path_resolver.py       # Path resolution utilities
-    ├── icc_config.py          # ICC analysis configuration
-    └── import_utils.py        # Import utilities
-```
-
-### 主要模块说明
-
-#### 1. **CLI 命令模块** (`cli_commands/`)
-- 提供统一的命令行接口
-- 每个命令对应一个独立的实现文件
-- 支持配置文件驱动的操作模式
-
-#### 2. **核心功能模块** (`core/`)
-
-**2.1 生境分析模块** (`habitat_analysis/`)
-- **算法** (`algorithms/`): 实现多种聚类算法（K-means, GMM, 层次聚类等）
-- **提取器** (`extractors/`): 从影像中提取体素级特征（影像组学、动力学特征等）
-- **分析器** (`analyzers/`): 从生境中提取高级特征（MSI, ITH等）
-- **管理器** (`managers/`): 管理聚类、特征提取和结果保存流程
-- **模式** (`modes/`): 训练模式和测试模式
-- **策略** (`strategies/`): 三种聚类策略（一步法、二步法、直接拼接法）
-
-**2.2 机器学习模块** (`machine_learning/`)
-- **模型** (`models/`): 多种机器学习模型实现
-- **特征选择** (`feature_selectors/`): 多种特征选择方法
-- **工作流** (`workflows/`): 训练、验证、比较工作流
-- **评估** (`evaluation/`): 模型性能评估指标和工具
-- **可视化** (`visualization/`): 结果可视化工具
-
-**2.3 预处理模块** (`preprocessing/`)
-- 提供完整的影像预处理流水线
-- 支持DICOM转换、重采样、配准、标准化等操作
-
-#### 3. **工具函数模块** (`utils/`)
-- 提供通用的工具函数
-- 统一的进度条、日志、并行处理等工具
-- 所有工具函数集中管理，便于维护
-
-### 设计特点
-
-1. **模块化设计**: 各功能模块独立，便于维护和扩展
-2. **策略模式**: 支持多种聚类策略和特征提取方法
-3. **工厂模式**: 使用工厂模式创建模型、提取器等对象
-4. **统一接口**: 各模块遵循统一的接口规范
-5. **配置驱动**: 通过YAML配置文件控制所有操作
-6. **可扩展性**: 提供模板文件，便于添加自定义算法和功能
-
----
-
-**祝使用愉快！** 🎉

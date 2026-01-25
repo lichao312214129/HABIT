@@ -9,4 +9,5 @@ This section describes the architecture and design of HABIT.
    overview
 
 .. note::
-   For detailed architecture documentation, see the :doc:`ARCHITECTURE.md <../../../../habit/core/habitat_analysis/ARCHITECTURE>` file.
+   For detailed architecture documentation, see the ARCHITECTURE.md file in the source code:
+   ``habit/core/habitat_analysis/ARCHITECTURE.md``
