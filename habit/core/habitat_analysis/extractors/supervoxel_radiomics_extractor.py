@@ -9,8 +9,19 @@ import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 from typing import Union, List, Dict, Optional, Tuple
-from radiomics import featureextractor
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+
+# Lazy import radiomics to avoid scipy.fft compatibility issues at startup
+def _get_featureextractor():
+    """Lazy import radiomics featureextractor to avoid startup errors"""
+    try:
+        from radiomics import featureextractor
+        return featureextractor
+    except ImportError as e:
+        raise ImportError(
+            "PyRadiomics is required for radiomics feature extraction. "
+            "Please install it with: pip install pyradiomics"
+        ) from e
 
 
 @register_feature_extractor('supervoxel_radiomics')
@@ -106,6 +117,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 # Load parameters from file
                 print(f"Loading parameters from file: {params_file}")
                 try:
+                    featureextractor = _get_featureextractor()
                     extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
                     print(f"Successfully initialized radiomics extractor with parameters from: {params_file}")
                 except Exception as e:
@@ -117,6 +129,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 print(f"Parameter file not found: {params_file}, trying to parse as YAML string")
                 try:
                     params = yaml.safe_load(params_file)
+                    featureextractor = _get_featureextractor()
                     extractor = featureextractor.RadiomicsFeatureExtractor(params)
                     print("Successfully initialized radiomics extractor with YAML string parameters")
                 except Exception as e:
@@ -126,6 +139,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         else:
             # Use default parameters
             print("No parameter file provided, using default radiomics settings")
+            featureextractor = _get_featureextractor()
             extractor = featureextractor.RadiomicsFeatureExtractor()
             
         # Get supervoxel map array

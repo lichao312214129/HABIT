@@ -35,8 +35,19 @@ import logging
 import numpy as np
 import os
 import SimpleITK as sitk
-from radiomics import featureextractor
 import warnings
+
+# Lazy import radiomics to avoid scipy.fft compatibility issues at startup
+def _get_featureextractor():
+    """Lazy import radiomics featureextractor to avoid startup errors"""
+    try:
+        from radiomics import featureextractor
+        return featureextractor
+    except ImportError as e:
+        raise ImportError(
+            "PyRadiomics is required for radiomics feature extraction. "
+            "Please install it with: pip install pyradiomics"
+        ) from e
 import multiprocessing
 from functools import partial
 import argparse
@@ -151,6 +162,7 @@ class TraditionalRadiomicsExtractor:
     def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
         """提取组学特征"""
         try:
+            featureextractor = _get_featureextractor()
             extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
 
             mask_img = sitk.ReadImage(mask_path)

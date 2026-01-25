@@ -9,8 +9,19 @@ import pandas as pd
 import SimpleITK as sitk
 import six
 from typing import Union, List, Dict, Optional, Tuple
-from radiomics import featureextractor
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+
+# Lazy import radiomics to avoid scipy.fft compatibility issues at startup
+def _get_featureextractor():
+    """Lazy import radiomics featureextractor to avoid startup errors"""
+    try:
+        from radiomics import featureextractor
+        return featureextractor
+    except ImportError as e:
+        raise ImportError(
+            "PyRadiomics is required for radiomics feature extraction. "
+            "Please install it with: pip install pyradiomics"
+        ) from e
 
 @register_feature_extractor('voxel_radiomics')
 class VoxelRadiomicsExtractor(BaseClusteringExtractor):
@@ -82,6 +93,7 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
         
         try:
             # Initialize PyRadiomics feature extractor
+            featureextractor = _get_featureextractor()
             extractor = featureextractor.RadiomicsFeatureExtractor(self.params_file)
             # kernelRadius controls the size of the local neighborhood (in voxels) 
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
