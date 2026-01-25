@@ -12,6 +12,19 @@
    habitat_feature_extraction_zh
    machine_learning_modeling_zh
 
+实用工具
+--------
+
+HABIT 提供了一些辅助工具来简化您的工作流程：
+
+.. toctree::
+   :maxdepth: 1
+
+   ../app_dicom_info_zh
+   ../app_model_comparison_zh
+   ../app_dice_calculator_zh
+   ../app_habitat_test_retest_zh
+
 工作流程概述
 ------------
 

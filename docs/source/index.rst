@@ -43,8 +43,6 @@ HABIT 识别并表征具有不同影像表型的肿瘤亚区域（即 Habitat）
    user_guide/habitat_segmentation_zh
    user_guide/habitat_feature_extraction_zh
    user_guide/machine_learning_modeling_zh
-   app_dice_calculator_zh
-   app_habitat_test_retest_zh
 
 .. toctree::
    :maxdepth: 2
