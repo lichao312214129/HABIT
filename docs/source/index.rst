@@ -24,7 +24,7 @@ Key Features
    :caption: Contents:
 
    getting_started
-   user_guide
+   user_guide/index_zh
    api/modules
    algorithms
    tutorials

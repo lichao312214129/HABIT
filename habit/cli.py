@@ -8,18 +8,46 @@ from pathlib import Path
 from typing import Optional
 
 
-@click.group()
+@click.group(context_settings=dict(help_option_names=['-h', '--help']))
 @click.version_option(version='0.1.0', prog_name='HABIT')
 def cli():
     """
-    HABIT - Habitat Analysis: Biomedical Imaging Toolkit
+    HABIT (Habitat Analysis: Biomedical Imaging Toolkit)
     
-    A comprehensive toolkit for medical image analysis including:
-    - Image preprocessing
-    - Habitat analysis and clustering  
-    - Feature extraction
-    - Machine learning modeling
-    - Statistical analysis
+    A comprehensive, low-code toolkit designed for medical image analysis, focusing on
+    tumor habitat analysis and radiomics workflow. It empowers clinicians and researchers
+    to perform advanced image analysis without extensive programming knowledge.
+
+    \b
+    Key Capabilities:
+    
+    1. Image Preprocessing (preprocess):
+       - Resampling, registration, normalization, and bias field correction.
+       - Prepares raw DICOM/NIfTI data for analysis.
+
+    2. Habitat Analysis (get-habitat):
+       - Identifies tumor sub-regions (habitats) using advanced clustering algorithms.
+       - Supports One-Step, Two-Step, and Direct Pooling strategies.
+       - Visualizes heterogeneity within tumors.
+
+    3. Feature Extraction (extract, radiomics):
+       - Extracts quantitative features from defined habitats (extract).
+       - Extracts traditional radiomics features (radiomics).
+       - Supports voxel-level, supervoxel-level, and habitat-level features.
+
+    4. Machine Learning (model, cv, compare):
+       - End-to-end ML pipeline: feature selection, model training, and evaluation.
+       - Supports AutoGluon for automated machine learning.
+       - Cross-validation (cv) and model comparison (compare) tools included.
+
+    5. Statistical Analysis & Utilities (icc, retest, dice, dicom-info, merge-csv):
+       - Reliability analysis (ICC, test-retest).
+       - Segmentation evaluation (Dice coefficient).
+       - DICOM metadata inspection (dicom-info).
+       - Utility to merge CSV files (merge-csv).
+
+    For more details on a specific command, use:
+        habit <command> -h
     """
     pass
 
