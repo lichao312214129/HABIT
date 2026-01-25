@@ -15,95 +15,119 @@
     <a href="#"><img src="https://img.shields.io/badge/Status-Active-green.svg"></a>
 </p>
 
-**HABIT (Habitat Analysis: Biomedical Imaging Toolkit)** 是一个专为医学影像设计的、基于Python的综合性肿瘤"生境"分析工具包。它提供从影像预处理到机器学习的端到端解决方案，使研究人员能够通过影像组学和高级分析方法深入探究肿瘤的异质性。
+> **专为临床医生和研究人员设计的肿瘤"生境"（Habitat）分析与异质性评估工具箱。**
+>
+> *无需复杂的编程知识，即可开展顶刊级别的影像组学与生境分析研究。*
 
 ---
 
-## 📖 核心工作流
+## 🌟 为什么选择 HABIT？
 
-HABIT的核心思想是识别和表征肿瘤内部具有不同影像表型的亚区，即"生境"。
+在精准医疗时代，**肿瘤异质性**是影响患者预后和治疗反应的关键因素。传统的影像组学往往提取整个肿瘤的平均特征，掩盖了肿瘤内部的空间异质性。
 
-**影像 → 体素特征 → 超体素(可选) → 生境 → 生境特征 → 预测模型(可选)**
+**HABIT 致力于解决这一痛点：**
 
-## 🧪 快速测试
+1.  **自动划分生境**：自动识别肿瘤内部的坏死区、活性肿瘤区、水肿区等具有不同生物学行为的亚区域。
+2.  **无缝对接临床**：完美支持由 **ITK-SNAP** 或 **3D Slicer** 勾画的 ROI，生成的生境地图可直接拖回软件中叠加显示。
+3.  **零代码门槛**：通过修改简单的配置文件（类似填表）即可运行，无需编写复杂的代码。
+4.  **一站式流程**：从 DICOM 预处理 -> 生境聚类 -> 特征提取 -> 机器学习建模 -> 绘制图表，全流程覆盖。
 
-**HABIT 提供了完整的示例数据，您无需准备自己的数据即可快速体验所有功能！**
+---
 
+## 👨‍⚕️ 临床工作流：从影像到发表
+
+HABIT 将复杂的计算过程封装为简单的四个步骤：
+
+1.  **准备数据 (Prepare)**
+    *   使用您熟悉的 **ITK-SNAP** 或 **3D Slicer** 勾画肿瘤 ROI，保存为 NIfTI (`.nii.gz`) 格式。
+2.  **填写配置 (Config)**
+    *   修改 `.yaml` 配置文件，指定您的影像文件夹路径（就像填写 Excel 表格一样简单）。
+3.  **一键运行 (Run)**
+    *   在终端运行一行命令，HABIT 自动完成所有计算。
+4.  **获取结果 (Result)**
+    *   获得 **彩色生境地图**（用于直观展示）和 **量化特征表格**（用于统计分析）。
+
+---
+
+## ⚡ 5分钟快速开始
+
+### 1. 安装 (Installation)
+
+**方式 A：直接下载 (推荐新手)**
+1. 👉 [**点击下载最新版 ZIP 压缩包**](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) 并解压。
+2. 打开终端（Terminal 或 CMD），进入解压后的文件夹。
+
+**方式 B：Git 克隆 (推荐开发者)**
 ```bash
-# 1. 确保已安装 HABIT（见下方安装指南）
-conda activate habit
-
-# 2. 使用示例数据运行 Habitat 分析
-habit get-habitat --config demo_data/config_habitat.yaml
+git clone https://github.com/lichao312214129/HABIT.git
+cd HABIT
 ```
 
-**预期结果**：分析完成后，结果将保存在 `demo_data/results/habitat/` 目录下。
-
-**更多使用示例**：
-- 图像预处理：参见 [文档 - 图像预处理](https://lichao312214129.github.io/HABIT/user_guide/image_preprocessing_zh.html)
-- 生境分析：参见 [文档 - 生境分割](https://lichao312214129.github.io/HABIT/user_guide/habitat_segmentation_zh.html)
-- 特征提取：参见 [文档 - 生境特征提取](https://lichao312214129.github.io/HABIT/user_guide/habit_feature_extraction_zh.html)
-- 机器学习：参见 [文档 - 机器学习建模](https://lichao312214129.github.io/HABIT/user_guide/machine_learning_modeling_zh.html)
-
-## 🛠️ 安装
-
+**环境配置**：
 ```bash
-# 1. 克隆仓库
-git clone <repository_url>
-cd habit_project
-
-# 2. 创建并激活Conda环境
+# 创建虚拟环境
 conda create -n habit python=3.8
 conda activate habit
 
-# 3. 安装依赖
+# 安装依赖
 pip install -r requirements.txt
-
-# 4. 以可编辑模式安装HABIT包
 pip install -e .
 ```
 
-## 📖 完整文档
+### 2. 运行示例 (Run Demo)
 
-详细的使用指南和API文档请参见：
+我们内置了演示数据，您无需准备任何数据即可立即体验：
 
-- **Sphinx 文档系统**（推荐）: 位于 `docs/` 目录
-  - 在线文档: [https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
-  - 本地构建: `cd docs && make html`
+```bash
+# 运行生境分析示例
+habit get-habitat --config demo_data/config_habitat.yaml
+```
 
-### 文档内容
+### 3. 查看结果 (Output)
 
-- **快速入门**: 安装、配置、快速测试
-- **用户指南**: 图像预处理、生境分析、特征提取、机器学习
-- **配置参考**: 完整的配置文件说明
-- **API 参考**: 模块和类的详细文档
-- **开发指南**: 架构设计、贡献指南
+运行完成后，打开 `demo_data/results/habitat/` 文件夹，您将看到：
 
-## 🚀 主要功能
+*   🖼️ **`*_habitats.nrrd`**：**3D 生境地图**。
+    *   *如何查看？* 直接拖入 ITK-SNAP，叠加在原始影像上，您将看到五颜六色的分区，直观展示肿瘤内部异质性。
+*   📊 **`habitats.csv`**：包含每个体素的详细分类结果。
+*   📈 **`visualizations/`**：自动生成的聚类分析图表，可直接用于论文插图。
 
-| 类别 | 功能 | 描述 |
-| :--- | :--- | :--- |
-| 🖼️ **影像处理** | **预处理流水线** | 提供DICOM转换、重采样、配准、标准化和N4偏置场校正 |
-| 🧬 **生境分析** | **聚类策略** | 支持一步法、二步法、直接拼接法三种聚类策略 |
-| 🔬 **特征提取** | **高级特征集** | 提取传统影像组学、多区域空间交互（MSI）和肿瘤内异质性（ITH）等特征 |
-| 🤖 **机器学习** | **完整工作流** | 包括数据分割、特征选择、模型训练和评估 |
-| 📊 **验证与工具** | **可复现性分析** | 包括测试-重测和组内相关系数（ICC）分析工具 |
+---
 
-## 🤝 贡献
+## 📚 核心功能模块
 
-欢迎各种形式的贡献！请参考贡献指南或开启一个Issue来讨论您的想法。
+| 功能模块 | 临床应用价值 |
+| :--- | :--- |
+| **影像预处理** | 自动进行重采样、配准、N4 偏置场校正，**省去手动处理的繁琐**，保证数据一致性。 |
+| **生境聚类** | 提供一步法、二步法等策略，**自动发现**肉眼难以区分的肿瘤亚区（生境）。 |
+| **特征提取** | 提取 **多区域空间交互 (MSI)** 和 **肿瘤内异质性 (ITH)** 特征，挖掘深层生物学信息。 |
+| **机器学习** | 内置全流程建模工具，从特征筛选到 AUC 曲线绘制，**助力高分文章发表**。 |
 
-## 📄 许可证
+> **💡 术语小贴士**：
+> *   **体素 (Voxel)**：3D 影像中的像素点，影像分析的基本单位。
+> *   **超体素 (Supervoxel)**：将性质相似的相邻体素打包成的小方块。相比传统体素，它能更稳定地反映纹理特征，抗噪性更强，计算效率更高。
 
-本项目采用 MIT 许可证 - 详情请见 [LICENSE](LICENSE) 文件。
+---
 
-## 🔬 引用
+## 📖 文档与支持
 
-如果您在研究中使用了 HABIT，请考虑引用：
+详细的使用指南、参数说明和 API 文档请访问：
+
+👉 **[HABIT 在线文档](https://lichao312214129.github.io/HABIT)**
+
+*   [如何准备数据？](https://lichao312214129.github.io/HABIT/user_guide/image_preprocessing_zh.html)
+*   [如何解读生境图？](https://lichao312214129.github.io/HABIT/user_guide/habitat_segmentation_zh.html)
+*   [常见问题 (FAQ)](https://lichao312214129.github.io/HABIT/index.html#faq)
+
+---
+
+## 🤝 引用与许可
+
+如果您在研究中使用了 HABIT，请引用我们的工作：
 > [引用信息待添加]
 
-## 🙋‍♀️ 支持
+本项目采用 [MIT 许可证](LICENSE) 开源。
 
-如果您遇到任何问题或有改进建议，请：
-1. 阅读完整文档
-2. 在 GitHub 上提交一个 [Issue](https://github.com/lichao312214129/HABIT/issues)
+---
+
+<p align="center">由 HABIT 团队维护 | 欢迎提交 Issue 或 Pull Request</p>
