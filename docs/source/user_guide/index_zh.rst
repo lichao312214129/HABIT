@@ -11,6 +11,7 @@
    habitat_segmentation_zh
    habitat_feature_extraction_zh
    machine_learning_modeling_zh
+   model_comparison_zh
 
 实用工具
 --------
@@ -21,9 +22,11 @@ HABIT 提供了一些辅助工具来简化您的工作流程：
    :maxdepth: 1
 
    ../app_dicom_info_zh
+   ../app_icc_analysis_zh
+   ../app_merge_csv_zh
+   ../app_habitat_test_retest_zh
    ../app_model_comparison_zh
    ../app_dice_calculator_zh
-   ../app_habitat_test_retest_zh
 
 工作流程概述
 ------------

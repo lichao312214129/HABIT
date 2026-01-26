@@ -10,14 +10,19 @@
 
 .. note::
 
-   在开始之前，请确保您的数据已整理为 CSV 格式，且您已清楚哪一列是 ID，哪一列是标签（Label）。
+   在开始之前，请确保您的数据已整理为 CSV 或 Excel 格式，且您已清楚哪一列是 ID，哪一列是标签（Label）。HABIT 会根据文件后缀自动识别格式。
 
 数据准备指南
 ------------
 
-这是医生用户最关心的部分。您的输入数据应为一个标准的 CSV 文件（可以使用 Excel 另存为 CSV），格式如下：
+这是医生用户最关心的部分。您的输入数据应为一个标准的表格文件，HABIT 支持以下格式：
 
-**CSV 文件示例 (data.csv):**
+- **CSV 文件** (`.csv`)
+- **Excel 文件** (`.xlsx`, `.xls`)
+
+HABIT 会根据文件后缀自动识别格式。
+
+**表格文件示例 (data.csv 或 data.xlsx):**
 
 .. csv-table::
    :header: "PatientID", "Label", "Feature_1", "Feature_2", "...", "Feature_N"
@@ -25,27 +30,33 @@
 
    "sub-001", 0, 12.5, 0.45, "...", 102.3
    "sub-002", 1, 14.2, 0.67, "...", 98.1
-   "sub-003", 0, 11.8, 0.33, "...", 105.4
+   "sub-003", 2, 11.8, 0.33, "...", 105.4
 
 **关键要求：**
 
 1.  **ID 列** (`PatientID`): 每一行代表一个病人，ID 必须唯一。
 2.  **标签列** (`Label`): 您要预测的目标。
     *   **二分类**: 通常用 `0` (阴性/良性) 和 `1` (阳性/恶性) 表示。
+    *   **多分类**: 支持 3 个及以上类别，如 `0` (良性), `1` (低度恶性), `2` (高度恶性)。HABIT 会自动检测并计算多分类指标（Macro-Average）。
     *   **回归**: 可以是连续数值（如生存时间）。
 3.  **特征列**: 除了 ID 和 Label 外的其他列，HABIT 会自动将其识别为特征用于训练。
 4.  **无中文**: 表头和内容尽量避免中文，以免出现编码错误。
 
 **如何在配置文件中指定列名？**
 
-您需要在数据配置文件（通常是 `files_ml.yaml`）中告诉 HABIT 哪一列是 ID，哪一列是 Label：
+您需要在数据配置文件（通常是 `files_ml.yaml` 或直接在主配置中）指定：
 
 .. code-block:: yaml
 
-   # files_ml.yaml
-   - path: ./demo_data/ml_data/clinical_feature.csv  # 您的 CSV 文件路径
-     subject_id_col: PatientID                       # 对应 CSV 中的 ID 列名
-     label_col: Label                                # 对应 CSV 中的标签 列名
+   # 方式1：CSV文件
+   - path: ./demo_data/ml_data/clinical_feature.csv
+     subject_id_col: PatientID
+     label_col: Label
+
+   # 方式2：Excel文件
+   - path: ./demo_data/ml_data/clinical_feature.xlsx
+     subject_id_col: PatientID
+     label_col: Label
 
 HABIT 提供了完整的机器学习工作流程：
 
@@ -156,7 +167,7 @@ YAML 配置详解
 
    # 数据路径
    data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/train
+   output: ./results/ml/train
 
    # 特征选择设置
    FeatureSelection:
@@ -183,45 +194,48 @@ YAML 配置详解
        cv: 5
        scoring: accuracy
 
-   # 模型训练设置
-   ModelTraining:
-     enabled: true  # 是否启用模型训练
-     model_type: RandomForest  # 模型类型：LogisticRegression、RandomForest、XGBoost、SVM、KNN、AutoGluon
-     params:
-       # RandomForest 参数
-       n_estimators: 100
-       max_depth: null
-       min_samples_split: 2
-       min_samples_leaf: 1
-       random_state: 42
+   # 模型配置
+   models:
+     RandomForest:
+       params:
+         n_estimators: 100
+         max_depth: null
+         min_samples_split: 2
+         min_samples_leaf: 1
+         random_state: 42
 
-       # LogisticRegression 参数
-       C: 1.0
-       penalty: l2
-       solver: lbfgs
-       max_iter: 1000
-       random_state: 42
+     LogisticRegression:
+       params:
+         C: 1.0
+         penalty: l2
+         solver: lbfgs
+         max_iter: 1000
+         random_state: 42
 
-       # XGBoost 参数
-       n_estimators: 100
-       max_depth: 6
-       learning_rate: 0.1
-       random_state: 42
+     XGBoost:
+       params:
+         n_estimators: 100
+         max_depth: 6
+         learning_rate: 0.1
+         random_state: 42
 
-       # SVM 参数
-       C: 1.0
-       kernel: rbf
-       gamma: scale
-       random_state: 42
+     SVM:
+       params:
+         C: 1.0
+         kernel: rbf
+         gamma: scale
+         random_state: 42
 
-       # KNN 参数
-       n_neighbors: 5
-       weights: uniform
-       algorithm: auto
+     KNN:
+       params:
+         n_neighbors: 5
+         weights: uniform
+         algorithm: auto
 
-       # AutoGluon 参数
-       time_limit: 3600
-       presets: best_quality
+     AutoGluon:
+       params:
+         time_limit: 3600
+         presets: best_quality
 
    # 模型评估设置
    ModelEvaluation:
@@ -265,9 +279,40 @@ YAML 配置详解
 - 可以是文件夹或 YAML 配置文件
 - 参考 :doc:`../data_structure_zh` 了解数据结构
 
-**out_dir**: 输出目录路径
+**output**: 输出目录路径
 
 - 模型、评估结果和预测结果将保存在此目录
+- 输出目录结构示例：
+
+.. code-block:: text
+
+   output/
+   ├── models/                          # 模型文件目录
+   │   ├── fold_1/
+   │   │   ├── LogisticRegression_pipeline.pkl
+   │   │   └── RandomForest_pipeline.pkl
+   │   ├── fold_2/
+   │   │   ├── LogisticRegression_pipeline.pkl
+   │   │   └── RandomForest_pipeline.pkl
+   │   ├── LogisticRegression_final_pipeline.pkl
+   │   └── RandomForest_final_pipeline.pkl
+   │
+   ├── LogisticRegression_results.json      # 详细评估结果
+   ├── LogisticRegression_summary.csv       # 汇总结果
+   ├── RandomForest_results.json
+   ├── RandomForest_summary.csv
+   │
+   ├── all_prediction_results.csv           # 所有预测结果
+   ├── performance_table.csv                # 性能指标表
+   ├── performance_detailed.csv             # 详细性能报告
+   ├── merged_predictions.csv               # 合并预测结果
+   ├── delong_comparison.json               # DeLong检验对比结果
+   │
+   ├── ROC_test.pdf                         # ROC曲线
+   ├── ROC_train.pdf
+   ├── DCA_test.pdf                         # DCA曲线
+   ├── Calibration_test.pdf                 # 校准曲线
+   └── PR_curve_test.pdf                    # PR曲线
 
 **FeatureSelection**: 特征选择设置
 
@@ -275,11 +320,11 @@ YAML 配置详解
 - `method`: 特征选择方法
 - `params`: 特征选择方法的参数
 
-**ModelTraining**: 模型训练设置
+**models**: 模型配置
 
-- `enabled`: 是否启用模型训练
-- `model_type`: 模型类型
-- `params`: 模型参数
+- 支持配置多个模型，所有模型都会被训练和评估
+- 每个模型以字典形式配置，包含 `params` 参数
+- 支持的模型类型：LogisticRegression、RandomForest、XGBoost、SVM、KNN、AutoGluon
 
 **ModelEvaluation**: 模型评估设置
 
@@ -458,15 +503,14 @@ YAML 配置详解
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: LogisticRegression
-     params:
-       C: 1.0
-       penalty: l2
-       solver: lbfgs
-       max_iter: 1000
-       random_state: 42
+   models:
+     LogisticRegression:
+       params:
+         C: 1.0
+         penalty: l2
+         solver: lbfgs
+         max_iter: 1000
+         random_state: 42
 
 **RandomForest**
 
@@ -496,15 +540,14 @@ YAML 配置详解
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: RandomForest
-     params:
-       n_estimators: 100
-       max_depth: null
-       min_samples_split: 2
-       min_samples_leaf: 1
-       random_state: 42
+   models:
+     RandomForest:
+       params:
+         n_estimators: 100
+         max_depth: null
+         min_samples_split: 2
+         min_samples_leaf: 1
+         random_state: 42
 
 **XGBoost**
 
@@ -533,14 +576,13 @@ YAML 配置详解
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: XGBoost
-     params:
-       n_estimators: 100
-       max_depth: 6
-       learning_rate: 0.1
-       random_state: 42
+   models:
+     XGBoost:
+       params:
+         n_estimators: 100
+         max_depth: 6
+         learning_rate: 0.1
+         random_state: 42
 
 **SVM**
 
@@ -569,14 +611,13 @@ YAML 配置详解
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: SVM
-     params:
-       C: 1.0
-       kernel: rbf
-       gamma: scale
-       random_state: 42
+   models:
+     SVM:
+       params:
+         C: 1.0
+         kernel: rbf
+         gamma: scale
+         random_state: 42
 
 **KNN**
 
@@ -606,13 +647,12 @@ K 近邻，适用于分类和回归任务。
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: KNN
-     params:
-       n_neighbors: 5
-       weights: uniform
-       algorithm: auto
+   models:
+     KNN:
+       params:
+         n_neighbors: 5
+         weights: uniform
+         algorithm: auto
 
 **AutoGluon**
 
@@ -640,12 +680,11 @@ AutoML 框架，自动选择和优化模型。
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: AutoGluon
-     params:
-       time_limit: 3600
-       presets: best_quality
+   models:
+     AutoGluon:
+       params:
+         time_limit: 3600
+         presets: best_quality
 
 Pipeline 机制
 ------------
@@ -696,7 +735,7 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关�
 
    run_mode: train
    data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/train
+   output: ./results/ml/train
 
    FeatureSelection:
      enabled: true
@@ -736,7 +775,7 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关�
 
    run_mode: train
    data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/train
+   output: ./results/ml/train
 
    FeatureSelection:
      enabled: true
@@ -783,7 +822,7 @@ HABIT 使用 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关�
    run_mode: predict
    pipeline_path: ./results/ml/train/model_pipeline.pkl
    data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/predict
+   output: ./results/ml/predict
 
    processes: 2
    random_state: 42

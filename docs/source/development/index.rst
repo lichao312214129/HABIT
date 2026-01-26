@@ -1,70 +1,40 @@
-Development Guide
-=================
+开发指南
+========
 
-This section contains documentation for developers working on HABIT.
+本文档面向 HABIT 项目的开发者。
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Development Topics
+   :maxdepth: 1
+   :caption: 开发文档
 
    architecture
    contributing
-   design_patterns
-   testing
-   metrics_optimization
 
-Overview
+快速开始
 --------
 
-HABIT is a comprehensive toolkit for habitat analysis in biomedical imaging. This guide covers:
+1. Fork 项目仓库
+2. 安装依赖: ``pip install -e ".[dev]"``
+3. 运行测试: ``pytest tests/``
+4. 提交 Pull Request
 
-* **Architecture**: System design and module organization
-* **Contributing**: How to contribute to HABIT
-* **Design Patterns**: Common patterns used in HABIT
-* **Testing**: Testing strategies and best practices
-* **Metrics Optimization**: Performance improvements and feature enhancements
+代码规范
+--------
 
-Getting Started with Development
----------------------------------
+- 遵循 PEP 8 编码规范
+- 使用类型提示 (Type Hints)
+- 添加文档字符串
+- 新功能需附带测试
 
-1. Fork the repository
-2. Create a development environment
-3. Install dependencies: ``pip install -e .[dev]``
-4. Run tests: ``pytest tests/``
-5. Make your changes
-6. Submit a pull request
+核心模块
+--------
 
-Development Principles
-----------------------
+- ``habit.core.preprocessing``: 图像预处理
+- ``habit.core.habitat_analysis``: 生境分析
+- ``habit.core.machine_learning``: 机器学习
+- ``habit.utils``: 通用工具
 
-1. **Code Quality**: Follow PEP 8 and use type hints
-2. **Testing**: Write tests for new features
-3. **Documentation**: Update docs for API changes
-4. **Performance**: Profile before optimizing
-5. **Compatibility**: Maintain backward compatibility
+联系方式
+--------
 
-Key Modules
------------
-
-* ``habit.core.preprocessing``: Image preprocessing pipeline
-* ``habit.core.habitat_analysis``: Habitat clustering and analysis
-* ``habit.core.machine_learning``: ML workflows and evaluation
-* ``habit.utils``: Shared utilities (logging, progress, visualization)
-
-Recent Improvements
--------------------
-
-**Metrics Module Optimization (v2.0)**
-
-* 8x performance improvement via confusion matrix caching
-* Extended target metrics support (PPV, NPV, F1-score)
-* Intelligent threshold selection (Pareto+Youden)
-* Fallback mechanism for unattainable targets
-* Category-based metric filtering
-
-See :doc:`metrics_optimization` for details.
-
-Contact
--------
-
-For questions or suggestions, please open an issue on GitHub.
+有问题请在 GitHub 上提交 Issue。

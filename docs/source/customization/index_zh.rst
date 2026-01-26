@@ -308,11 +308,10 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: yaml
 
-   ModelTraining:
-     enabled: true
-     model_type: my_model
-     params:
-       param1: value1
+   models:
+     my_model:
+       params:
+         param1: value1
 
 **步骤 3: 运行机器学习**
 

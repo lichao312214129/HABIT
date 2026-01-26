@@ -653,15 +653,14 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
      params:
        threshold: 0.0
 
-   ModelTraining:
-     enabled: true
-     model_type: RandomForest
-     params:
-       n_estimators: 100
-       max_depth: null
-       min_samples_split: 2
-       min_samples_leaf:1
-       random_state: 42
+   models:
+     RandomForest:
+       params:
+         n_estimators: 100
+         random_state: 42
+     LogisticRegression:
+       params:
+         max_iter: 1000
 
    ModelEvaluation:
      enabled: true
@@ -722,26 +721,43 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
   - 默认值: {}
   - 示例: `{threshold: 0.0}`
 
-**ModelTraining**: 模型训练设置
+**models**: 模型训练设置
 
-- `enabled`: 是否启用模型训练
-  - 类型: 布尔值
-  - 必需: 否
-  - 默认值: true
-  - 示例: `true`
+定义要训练的一个或多个模型。每个模型作为一个键，包含其参数。
 
-- `model_type`: 模型类型
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: RandomForest
-  - 可选值: LogisticRegression、RandomForest、XGBoost、SVM、KNN、AutoGluon
-  - 示例: `RandomForest`
+- **类型**: 字典
+- **必需**: 是
+- **说明**: 可以同时定义多个模型（如 RandomForest, LogisticRegression），HABIT 会依次训练它们。
 
-- `params`: 模型参数
+**支持的模型类型（作为键名）**:
+- `LogisticRegression`
+- `RandomForest`
+- `XGBoost`
+- `SVM`
+- `KNN`
+- `AutoGluon`
+
+**结构示例**:
+
+.. code-block:: yaml
+
+   models:
+     RandomForest:
+       params:
+         n_estimators: 100
+         random_state: 42
+     
+     LogisticRegression:
+       params:
+         max_iter: 1000
+
+**参数说明**:
+
+- `params`: 模型参数字典
   - 类型: 字典
   - 必需: 否
   - 默认值: {}
-  - 示例: `{n_estimators: 100, random_state: 42}`
+  - 说明: 传递给对应 scikit-learn 或其他库的参数
 
 **ModelEvaluation**: 模型评估设置
 

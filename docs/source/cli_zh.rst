@@ -12,6 +12,14 @@ HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的�
 - `habit get-habitat`: 生境分析
 - `habit extract`: 特征提取
 - `habit model`: 机器学习建模
+- `habit compare`: 模型对比分析
+- `habit icc`: ICC (组内相关系数) 分析
+- `habit retest`: Test-retest 重现性分析
+- `habit merge-csv`: CSV 文件合并
+- `habit dicom-info`: DICOM 信息提取
+- `habit dice`: Dice 系数计算
+- `habit radiomics`: 传统影像组学特征提取
+- `habit cv`: K-fold 交叉验证
 - `habit --help`: 显示帮助信息
 - `habit --version`: 显示版本信息
 
@@ -255,13 +263,18 @@ HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的�
 - `--pipeline`: Pipeline 文件路径（predict 模式必需）
 - `--debug`: 启用调试模式（可选）
 
-**配置文件示例**:
+**配置文件示例** (训练模式):
 
 .. code-block:: yaml
 
-   run_mode: train
-   data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/train
+   input:
+     - path: ./ml_data/clinical_feature.csv
+       subject_id_col: PatientID
+       label_col: Label
+   output: ./results/ml/train
+   random_state: 42
+   split_method: stratified
+   test_size: 0.3
 
    FeatureSelection:
      enabled: true
@@ -269,15 +282,31 @@ HABIT 提供了强大的命令行接口（CLI），支持所有核心功能的�
      params:
        threshold: 0.0
 
-   ModelTraining:
-     enabled: true
-     model_type: RandomForest
-     params:
-       n_estimators: 100
-       max_depth: null
-       min_samples_split: 2
-       min_samples_leaf: 1
-       random_state: 42
+   models:
+     LogisticRegression:
+       params:
+         C: 1.0
+         solver: liblinear
+         random_state: 42
+
+**配置文件示例** (预测模式):
+
+.. code-block:: yaml
+
+   model_path: ./results/ml/train/models/LogisticRegression_final_pipeline.pkl
+   data_path: ./ml_data/new_data.csv
+   output_dir: ./results/ml/predict
+   evaluate: true
+   label_col: Label
+
+   models:
+     RandomForest:
+       params:
+         n_estimators: 100
+         max_depth: null
+         min_samples_split: 2
+         min_samples_leaf: 1
+         random_state: 42
 
    ModelEvaluation:
      enabled: true
@@ -449,6 +478,96 @@ HABIT 会记录详细的日志信息，便于调试和问题排查。
 
    # 3. 机器学习（预测）
    habit model --config config_machine_learning.yaml --mode predict --pipeline ./results/ml/model_pipeline.pkl
+
+**示例 4: 模型对比分析**
+
+.. code-block:: bash
+
+   # 模型对比分析
+   habit compare --config config_model_comparison.yaml
+
+**示例 5: ICC 分析**
+
+.. code-block:: bash
+
+   # ICC 分析
+   habit icc --config config_icc.yaml
+
+**示例 6: Test-Retest 分析**
+
+.. code-block:: bash
+
+   # Test-Retest 分析
+   habit retest --config config_test_retest.yaml
+
+**示例 7: CSV 合并**
+
+.. code-block:: bash
+
+   # 合并多个 CSV 文件
+   habit merge-csv file1.csv file2.csv file3.csv -o merged.csv --index-col PatientID
+
+**示例 8: DICOM 信息提取**
+
+.. code-block:: bash
+
+   # 提取 DICOM 信息
+   habit dicom-info -i ./dicom_directory -o dicom_info.csv --tags "PatientName,StudyDate,Modality"
+
+**示例 9: Dice 系数计算**
+
+.. code-block:: bash
+
+   # 计算 Dice 系数
+   habit dice --input1 ./masks1 --input2 ./masks2 --output dice_results.csv
+
+**示例 10: 传统影像组学特征提取**
+
+.. code-block:: bash
+
+   # 传统影像组学特征提取
+   habit radiomics --config config_radiomics.yaml
+
+**示例 11: K-fold 交叉验证**
+
+.. code-block:: bash
+
+   # K-fold 交叉验证
+   habit cv --config config_machine_learning.yaml
+
+**命令详细说明**:
+
+- `habit compare`: 模型对比分析
+  - 参数: `--config, -c` (必需)
+  - 功能: 比较多个模型的性能，生成 ROC 曲线、校准曲线等
+
+- `habit icc`: ICC (组内相关系数) 分析
+  - 参数: `--config, -c` (必需)
+  - 功能: 评估特征在不同扫描条件下的可重复性
+
+- `habit retest`: Test-retest 重现性分析
+  - 参数: `--config, -c` (可选，也可以使用命令行参数)
+  - 功能: 评估生境映射在测试-重测扫描中的稳定性
+
+- `habit merge-csv`: CSV 文件合并
+  - 参数: `input_files` (必需), `--output, -o` (必需), `--index-col, -c` (可选)
+  - 功能: 基于索引列水平合并多个 CSV/Excel 文件
+
+- `habit dicom-info`: DICOM 信息提取
+  - 参数: `--input, -i` (必需), `--tags, -t` (可选), `--output, -o` (可选)
+  - 功能: 提取 DICOM 文件的元数据信息
+
+- `habit dice`: Dice 系数计算
+  - 参数: `--input1` (必需), `--input2` (必需), `--output` (可选)
+  - 功能: 计算两批图像之间的 Dice 系数
+
+- `habit radiomics`: 传统影像组学特征提取
+  - 参数: `--config, -c` (可选)
+  - 功能: 提取传统影像组学特征
+
+- `habit cv`: K-fold 交叉验证
+  - 参数: `--config, -c` (必需)
+  - 功能: 执行 K 折交叉验证评估
 
 常见问题
 --------

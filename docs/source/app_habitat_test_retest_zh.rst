@@ -1,197 +1,195 @@
-app_habitat_test_retest_mapper.py 功能文档
-=======================================
+Test-Retest 分析工具 (habit test-retest)
+=========================================
 
-功能概述
+概述
+----
+
+Test-Retest 分析用于评估生境映射在不同扫描条件下的可重复性，特别适用于：
+
+- 评估测试-重测扫描中生境标签的映射质量
+- 识别生境分割的稳定性
+- 为后续分析筛选可靠的生境映射结果
+
+使用方法
 --------
 
-``app_habitat_test_retest_mapper.py`` 是 HABIT 工具包中用于评估生境分析可重复性的专用工具。该模块通过对测试-重测数据（同一患者的多次扫描）进行分析，评估生境分割的稳定性和可靠性。这对于建立生境分析的临床适用性和验证其作为生物标志物的潜力至关重要。
-
-用法
------
+Test-Retest 工具使用命令行参数而非配置文件：
 
 .. code-block:: bash
 
-   python scripts/app_habitat_test_retest_mapper.py --config <config_file_path>
+   habit test-retest \
+     --test-habitat-table ./ml_data/habitats_test.csv \
+     --retest-habitat-table ./ml_data/habitats_retest.csv \
+     --similarity-method pearson \
+     --input-dir ./data/retest_nrrd \
+     --output-dir ./ml_data/test_retest/remapped \
+     --processes 4
 
-命令行参数
-----------
+参数说明
+--------
 
-+-----------+------------------+
-| 参数      | 描述             |
-+===========+==================+
-| ``--config`` | YAML 配置文件路径（必需） |
-+-----------+------------------+
+**必填参数：**
 
-配置文件格式
-------------
+- **--test-habitat-table**: 测试扫描的生境表文件路径 (CSV/Excel)
+- **--retest-habitat-table**: 重测扫描的生境表文件路径 (CSV/Excel)
 
-``app_habitat_test_retest_mapper.py`` 使用 YAML 格式的配置文件，包含以下主要部分：
+**可选参数：**
 
-基本配置
-^^^^^^^^^^
+- **--similarity-method**: 相似性计算方法
+  - 默认: ``pearson``
+  - 选项: ``pearson``, ``spearman``, ``kendall``, ``euclidean``, ``cosine``, ``manhattan``, ``chebyshev``
 
-.. code-block:: yaml
+- **--input-dir**: 重测扫描的 NRRD 文件目录
 
-   # 数据路径
-   test_dir: <测试数据目录路径>
-   retest_dir: <重测数据目录路径>
-   out_dir: <输出目录路径>
+- **--output-dir**: 重新映射后的文件输出目录
 
-   # 文件匹配
-   file_patterns:
-     test: <测试文件匹配模式>
-     retest: <重测文件匹配模式>
-     mapping: <测试-重测映射文件>
+- **--processes**: 并行进程数
+  - 默认: 1
+  - 建议: 根据 CPU 核心数设置
 
-   # 分析配置
-   analysis:
-     metrics: <评估指标列表>
-     visualization: <可视化设置>
-     statistics: <统计分析设置>
+- **--features**: 使用的特征列表
+  - 默认: None（使用所有特征）
+  - 示例: ``--features feature1,feature2,feature3``
 
-文件匹配配置
-^^^^^^^^^^^^
+- **--debug**: 启用调试模式
+  - 默认: False
 
-配置文件中的 ``file_patterns`` 部分允许灵活定义测试和重测文件的匹配方式：
+配置方式
+--------
 
-.. code-block:: yaml
-
-   file_patterns:
-     # 文件匹配模式
-     test: "*.nrrd"  # 测试数据文件匹配模式
-     retest: "*.nrrd"  # 重测数据文件匹配模式
-     
-     # 测试-重测映射方式，可以是以下之一：
-     # 1. 映射文件路径
-     mapping: "path/to/mapping.csv"  
-     
-     # 2. 文件名匹配规则
-     prefix_pattern:
-       test: "patient_{id}_scan1"
-       retest: "patient_{id}_scan2"
-
-分析配置
-^^^^^^^^
-
-分析配置部分定义了测试-重测评估的具体内容：
+虽然 CLI 使用命令行参数，但可以通过配置文件简化调用：
 
 .. code-block:: yaml
 
-   analysis:
-     # 评估指标
-     metrics:
-       - "dice"  # 骰子系数
-       - "jaccard"  # Jaccard索引
-       - "hausdorff"  # Hausdorff距离
-       - "volume_ratio"  # 体积比
-       - "habitat_stability"  # 生境稳定性指数
-     
-     # 可视化设置
-     visualization:
-       overlay_images: true  # 是否生成叠加图
-       difference_maps: true  # 是否生成差异图
-       colormap: "jet"  # 颜色映射
-     
-     # 统计分析设置
-     statistics:
-       confidence_level: 0.95  # 置信水平
-       permutation_tests: 1000  # 置换测试次数
+   # config_test_retest.yaml
 
-支持的评估指标
+   out_dir: ./ml_data/test_retest
+   test_habitat_table: ./ml_data/habitats_test.csv
+   retest_habitat_table: ./ml_data/habitats_retest.csv
+   similarity_method: pearson
+   input_dir: ./demo_data/habitat_maps/retest
+   output_dir: ./ml_data/test_retest/remapped
+   processes: 4
+   debug: false
+
+然后运行：
+
+.. code-block:: bash
+
+   habit test-retest --config config_test_retest.yaml
+
+配置文件字段说明：
+
+- **out_dir**: 结果输出根目录
+- **test_habitat_table**: 测试扫描生境表路径
+- **retest_habitat_table**: 重测扫描生境表路径
+- **similarity_method**: 相似性计算方法
+- **input_dir**: 重测 NRRD 文件目录
+- **output_dir**: 重新映射文件输出目录
+- **processes**: 并行进程数
+- **debug**: 调试模式
+
+生境表文件格式
 --------------
 
-测试-重测分析支持以下评估指标：
+生境表文件应包含以下列：
 
-1. **骰子系数 (dice)**：测量两个生境分割之间的空间重叠度
-2. **Jaccard 索引 (jaccard)**：另一种衡量空间重叠度的指标
-3. **Hausdorff 距离 (hausdorff)**：测量两个生境边界之间的最大距离
-4. **体积比 (volume_ratio)**：测试与重测体积的比率
-5. **体积差异百分比 (volume_diff_percent)**：体积差异的百分比
-6. **质心距离 (centroid_distance)**：生境质心之间的距离
-7. **生境稳定性指数 (habitat_stability)**：综合评价生境稳定性的指标
-8. **表面距离 (surface_distance)**：平均表面距离
-9. **重叠体积比例 (overlap_fraction)**：重叠体积占总体积的比例
+.. csv-table::
+   :header: "subject_id", "habitat_1", "habitat_2", "habitat_3", "..."
+   :widths: 15, 15, 15, 15, 15
 
-执行流程
---------
+   "sub-001", 0.12, 0.45, 0.33, ...
+   "sub-002", 0.23, 0.56, 0.21, ...
+   "sub-003", 0.15, 0.38, 0.47, ...
 
-1. 加载配置文件和测试-重测映射信息
-2. 读取测试和重测数据
-3. 配对测试和重测样本
-4. 计算各种评估指标
-5. 生成可视化结果
-6. 执行统计分析
-7. 生成报告
+- **subject_id**: 患者ID
+- **habitat_X**: 每个生境的特征值
 
-输出结果
---------
-
-程序执行后，将在指定的输出目录生成以下内容：
-
-1. ``metrics/``: 存储各评估指标的 CSV 文件
-2. ``visualization/``: 生境叠加图和差异图
-3. ``statistics/``: 统计分析结果
-4. ``summary_report.pdf``: 测试-重测分析总结报告
-
-完整配置示例
+输出文件说明
 ------------
 
-.. code-block:: yaml
+运行完成后，在输出目录下生成：
 
-   # 基本配置
-   test_dir: ./data/test_scans
-   retest_dir: ./data/retest_scans
-   out_dir: ./results/test_retest_analysis
+**数据文件：**
 
-   # 文件匹配配置
-   file_patterns:
-     test: "*_habitats.nrrd"
-     retest: "*_habitats.nrrd"
-     mapping: "./data/test_retest_mapping.csv"
+- ``remapped_habitats.csv``: 重新映射后的生境表
+- ``mapping_quality.csv``: 映射质量评估结果
 
-   # 分析配置
-   analysis:
-     metrics:
-       - "dice"
-       - "jaccard"
-       - "hausdorff"
-       - "volume_ratio"
-       - "volume_diff_percent"
-       - "centroid_distance"
-       - "habitat_stability"
-       - "surface_distance"
-       - "overlap_fraction"
-     
-     visualization:
-       overlay_images: true
-       difference_maps: true
-       colormap: "jet"
-       save_formats: ["png", "pdf"]
-       slice_view: "axial"
-     
-     statistics:
-       confidence_level: 0.95
-       permutation_tests: 1000
-       bland_altman: true
-       icc_analysis: true
+**映射质量报告示例：**
 
-映射文件格式
-------------
+.. csv-table::
+   :header: "subject_id", "mapping_score", "features_used", "status"
+   :widths: 20, 15, 20, 15
 
-如果使用 CSV 文件来定义测试-重测映射，格式应为：
+   "sub-001", 0.95, 45, "success"
+   "sub-002", 0.88, 45, "success"
+   "sub-003", 0.72, 42, "partial"
 
-.. code-block:: csv
+相似性方法说明
+--------------
 
-   test_id,retest_id
-   patient001_scan1,patient001_scan2
-   patient002_scan1,patient002_scan2
-   ...
+**相关系数方法（适用于连续特征）：**
+
+- **pearson**: 皮尔逊相关系数（线性关系）
+- **spearman**: 斯皮尔曼相关系数（单调关系）
+- **kendall**: 肯德尔相关系数（秩相关）
+
+**距离方法（适用于生境概率图）：**
+
+- **euclidean**: 欧氏距离
+- **cosine**: 余弦相似度
+- **manhattan**: 曼哈顿距离
+- **chebyshev**: 切比雪夫距离
+
+使用建议：
+
+- 连续特征值推荐使用 ``pearson`` 或 ``spearman``
+- 生境概率图推荐使用 ``cosine`` 或 ``euclidean``
+- 不确定性较高时尝试多种方法比较
+
+与 ICC 分析的结合
+-----------------
+
+Test-Retest 映射后，可以使用 ICC 分析评估特征稳定性：
+
+.. code-block:: bash
+
+   # 1. 先进行 Test-Retest 映射
+   habit test-retest --config config_test_retest.yaml
+
+   # 2. 使用 ICC 分析评估特征稳定性
+   habit icc --config config_icc.yaml
 
 注意事项
 --------
 
-1. 确保测试和重测数据使用相同的预处理和生境分析方法
-2. 建议使用相同扫描仪和扫描参数获取的测试-重测数据
-3. 体积较小的生境可能出现较大的变异性
-4. 评估结果应与临床意义相结合进行解释
-5. 生境稳定性可能受患者状态、扫描条件和分析参数的影响
+1. **样本配对**: 确保测试和重测扫描来自同一患者
+2. **特征一致性**: 两个生境表应具有相同的特征列
+3. **文件格式**: 支持 CSV 和 Excel 格式
+4. **相似性阈值**: 根据相似性方法设置合适的阈值
+5. **并行处理**: 大数据量时增加进程数以加速
+
+常见问题
+--------
+
+**Q: 映射失败怎么办？**
+
+A: 可能原因：
+- 生境表格式不一致
+- 患者ID不匹配
+- 相似性阈值设置过高
+- 检查日志文件获取详细错误信息
+
+**Q: 选择哪个相似性方法？**
+
+A: 建议：
+- 特征值比较：``pearson``
+- 生境概率图：``cosine`` 或 ``euclidean``
+- 不确定时：尝试多种方法
+
+**Q: 可以只映射部分特征吗？**
+
+A: 可以，使用 ``--features`` 参数指定特征列表：
+.. code-block:: bash
+
+   habit test-retest --features volume,surface_area,compactness
