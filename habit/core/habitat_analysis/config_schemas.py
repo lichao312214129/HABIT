@@ -36,6 +36,20 @@ class HabitatAnalysisConfig(BaseConfig):
     )
     
     processes: int = Field(2, description="Number of parallel processes to use.", gt=0)
+    use_streaming_pipeline: bool = Field(
+        True, 
+        description="Use streaming pipeline for memory-efficient processing. "
+                    "Processes subjects in batches to reduce memory usage. "
+                    "Set to False to use standard pipeline (all subjects in memory)."
+    )
+    streaming_batch_size: int = Field(
+        10, 
+        description="Batch size for streaming pipeline (number of subjects per batch). "
+                    "Higher values = faster but more memory. "
+                    "Lower values = slower but less memory. "
+                    "Set to 0 to disable batching (process all subjects at once).",
+        ge=0
+    )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
     save_results_csv: bool = Field(True, description="Whether to save results as CSV files.")

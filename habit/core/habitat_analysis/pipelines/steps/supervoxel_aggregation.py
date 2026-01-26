@@ -5,13 +5,15 @@ This step aggregates voxel features to supervoxel level and optionally merges
 with advanced features from SupervoxelFeatureExtractionStep.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
+import logging
 
 from ..base_pipeline import BasePipelineStep
 from ...managers.feature_manager import FeatureManager
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
+from habit.utils.parallel_utils import parallel_map
 
 
 class SupervoxelAggregationStep(BasePipelineStep):
@@ -46,6 +48,7 @@ class SupervoxelAggregationStep(BasePipelineStep):
         super().__init__()
         self.feature_manager = feature_manager
         self.config = config
+        self.logger = logging.getLogger(__name__)
     
     def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'SupervoxelAggregationStep':
         """
@@ -68,39 +71,31 @@ class SupervoxelAggregationStep(BasePipelineStep):
         self.fitted_ = True
         return self
     
-    def transform(self, X: Dict[str, Dict]) -> pd.DataFrame:
+    def _aggregate_single_subject(
+        self, 
+        item: Tuple[str, Dict]
+    ) -> Tuple[str, pd.DataFrame]:
         """
-        Aggregate features to supervoxel level.
+        Aggregate features for a single subject (wrapper for parallel processing).
         
         Args:
-            X: Dict of subject_id -> {
-                'features': pd.DataFrame,        # Processed voxel features
-                'raw': pd.DataFrame,             # Raw voxel features
-                'mask_info': dict,               # Mask info
-                'supervoxel_labels': np.ndarray, # Supervoxel labels (1-indexed)
-                'supervoxel_features': pd.DataFrame (optional)  # Advanced features from Step 4
-            }
-            Note: If Step 4 was executed, 'supervoxel_features' will be present in the dict.
-            If Step 4 was skipped, this key will not exist.
+            item: Tuple of (subject_id, data dict)
             
         Returns:
-            Combined DataFrame with supervoxel-level features for all subjects
-            Columns include: Subject, Supervoxel, feature columns, and optionally
-            advanced feature columns from Step 4.
+            Tuple of (subject_id, aggregated DataFrame or Exception)
         """
-        all_supervoxel_features = []
+        subject_id, data = item
         
-        for subject_id, data in X.items():
+        try:
             feature_df = data['features']
             raw_df = data['raw']
             supervoxel_labels = data['supervoxel_labels']
             
-            # Get number of clusters from unique labels
+            # Get number of clusters
             unique_labels = np.unique(supervoxel_labels)
             n_clusters = len(unique_labels)
             
-            # Always calculate mean voxel features per supervoxel
-            # This uses calculate_supervoxel_means() which aggregates voxel features
+            # Calculate mean voxel features per supervoxel
             mean_features_df = self.feature_manager.calculate_supervoxel_means(
                 subject_id, 
                 feature_df, 
@@ -110,28 +105,20 @@ class SupervoxelAggregationStep(BasePipelineStep):
             )
             
             # If Step 4 was executed, merge advanced features
-            # Check if 'supervoxel_features' exists in the data dict
             if 'supervoxel_features' in data:
                 advanced_features_df = data['supervoxel_features'].copy()
                 
-                # Ensure advanced_features_df has Subject and Supervoxel columns for merging
-                # The extract_supervoxel_features() may return DataFrame with 'SupervoxelID' instead of 'Supervoxel'
-                # We need to standardize the column names
+                # Standardize column names
                 if 'SupervoxelID' in advanced_features_df.columns and ResultColumns.SUPERVOXEL not in advanced_features_df.columns:
                     advanced_features_df[ResultColumns.SUPERVOXEL] = advanced_features_df['SupervoxelID']
                 
-                # Add Subject column if not present
                 if ResultColumns.SUBJECT not in advanced_features_df.columns:
                     advanced_features_df[ResultColumns.SUBJECT] = subject_id
                 
-                # Merge mean features with advanced features
-                # Use subject and supervoxel columns as keys
+                # Merge
                 merge_keys = [ResultColumns.SUBJECT, ResultColumns.SUPERVOXEL]
-                
-                # Ensure both DataFrames have the merge keys
                 if all(key in mean_features_df.columns for key in merge_keys):
                     if all(key in advanced_features_df.columns for key in merge_keys):
-                        # Drop 'SupervoxelID' if it exists to avoid duplicate columns
                         if 'SupervoxelID' in advanced_features_df.columns:
                             advanced_features_df = advanced_features_df.drop(columns=['SupervoxelID'])
                         
@@ -142,25 +129,71 @@ class SupervoxelAggregationStep(BasePipelineStep):
                             suffixes=('', '_advanced')
                         )
                     else:
-                        # If advanced features don't have merge keys, try to match by index
-                        # This is a fallback - ideally both should have Subject and Supervoxel columns
                         if self.config.verbose:
-                            self.feature_manager.logger.warning(
-                                f"Advanced features for {subject_id} don't have merge keys "
-                                f"({merge_keys}), attempting index-based merge"
+                            self.logger.warning(
+                                f"Advanced features for {subject_id} don't have merge keys, "
+                                "attempting index-based merge"
                             )
-                        # Try to align by index if possible
                         if len(mean_features_df) == len(advanced_features_df):
-                            # Reset index and merge
                             mean_features_df = pd.concat(
                                 [mean_features_df.reset_index(drop=True), 
                                  advanced_features_df.reset_index(drop=True)], 
                                 axis=1
                             )
             
-            all_supervoxel_features.append(mean_features_df)
+            return subject_id, mean_features_df
+            
+        except Exception as e:
+            self.logger.error(f"Error aggregating subject {subject_id}: {e}")
+            return subject_id, e
+    
+    def transform(self, X: Dict[str, Dict]) -> pd.DataFrame:
+        """
+        Aggregate features to supervoxel level with parallel processing.
         
-        # Combine all subjects' supervoxel features
+        Args:
+            X: Dict of subject_id -> {
+                'features': pd.DataFrame,
+                'raw': pd.DataFrame,
+                'mask_info': dict,
+                'supervoxel_labels': np.ndarray,
+                'supervoxel_features': pd.DataFrame (optional)
+            }
+            
+        Returns:
+            Combined DataFrame with supervoxel-level features for all subjects
+        """
+        # Get number of processes from config
+        n_processes = getattr(self.config, 'processes', 1)
+        
+        # Prepare items for parallel processing
+        items = [(subject_id, data) for subject_id, data in X.items()]
+        
+        # Process subjects in parallel
+        successful_results, failed_subjects = parallel_map(
+            func=self._aggregate_single_subject,
+            items=items,
+            n_processes=n_processes,
+            desc="Aggregating supervoxel features",
+            logger=self.logger,
+            show_progress=True,
+        )
+        
+        # Collect results
+        all_supervoxel_features = []
+        for proc_result in successful_results:
+            # proc_result.item_id contains subject_id
+            # proc_result.result contains result_df
+            all_supervoxel_features.append(proc_result.result)
+        
+        # Log failed subjects
+        if failed_subjects:
+            self.logger.error(
+                f"Failed to aggregate {len(failed_subjects)} subject(s): "
+                f"{', '.join(str(s[0]) if isinstance(s, tuple) else str(s) for s in failed_subjects)}"
+            )
+        
+        # Combine all subjects
         if not all_supervoxel_features:
             raise ValueError("No supervoxel features to aggregate")
         

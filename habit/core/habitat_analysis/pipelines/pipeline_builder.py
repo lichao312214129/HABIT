@@ -9,7 +9,7 @@ from ..config_schemas import HabitatAnalysisConfig
 from ..managers.feature_manager import FeatureManager
 from ..managers.clustering_manager import ClusteringManager
 from ..managers.result_manager import ResultManager
-from .base_pipeline import HabitatPipeline, BasePipelineStep
+from .base_pipeline import HabitatPipeline, StreamingHabitatPipeline, BasePipelineStep
 from .steps.voxel_feature_extractor import VoxelFeatureExtractor
 from .steps.subject_preprocessing import SubjectPreprocessingStep
 from .steps.individual_clustering import IndividualClusteringStep
@@ -164,7 +164,20 @@ def _build_two_step_pipeline(
         )
     ))
     
-    return HabitatPipeline(steps=steps, config=config)
+    # Choose pipeline type based on configuration
+    # Note: Streaming is only beneficial for individual-level steps (Steps 1-5)
+    # Population clustering (Steps 6-7) requires all subjects' data
+    if config.use_streaming_pipeline:
+        # Use streaming pipeline for memory efficiency
+        # Individual steps (1-5) will be processed in batches
+        # Population steps (6-7) will process all data at once
+        return StreamingHabitatPipeline(
+            steps=steps, 
+            batch_size=config.streaming_batch_size
+        )
+    else:
+        # Use standard pipeline (all steps, all subjects in memory)
+        return HabitatPipeline(steps=steps, config=config)
 
 
 def _build_one_step_pipeline(

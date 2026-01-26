@@ -4,14 +4,16 @@ Individual-level clustering step for habitat analysis pipeline.
 This step clusters voxels to supervoxels (or habitats) for each subject independently.
 """
 
-from typing import Dict, Any, Optional, Literal
+from typing import Dict, Any, Optional, Literal, Tuple
 import pandas as pd
 import numpy as np
+import logging
 
 from ..base_pipeline import BasePipelineStep
 from ...managers.clustering_manager import ClusteringManager
 from ...managers.result_manager import ResultManager
 from ...config_schemas import HabitatAnalysisConfig
+from habit.utils.parallel_utils import parallel_map
 
 
 class IndividualClusteringStep(BasePipelineStep):
@@ -57,6 +59,7 @@ class IndividualClusteringStep(BasePipelineStep):
         self.config = config
         self.target = target
         self.find_optimal = find_optimal
+        self.logger = logging.getLogger(__name__)
     
     def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'IndividualClusteringStep':
         """
@@ -79,9 +82,90 @@ class IndividualClusteringStep(BasePipelineStep):
         self.fitted_ = True
         return self
     
+    def _cluster_single_subject(
+        self, 
+        item: Tuple[str, Dict]
+    ) -> Tuple[str, Dict]:
+        """
+        Cluster a single subject (wrapper for parallel processing).
+        
+        Args:
+            item: Tuple of (subject_id, data dict)
+            
+        Returns:
+            Tuple of (subject_id, result dict or Exception)
+        """
+        subject_id, data = item
+        
+        try:
+            feature_df = data['features']
+            raw_df = data['raw']
+            mask_info = data['mask_info']
+            
+            # Determine number of clusters
+            n_clusters = None
+            if self.target == 'supervoxel':
+                n_clusters = self.config.HabitatsSegmention.supervoxel.n_clusters
+            elif self.target == 'habitat':
+                if self.find_optimal:
+                    one_step_cfg = self.config.HabitatsSegmention.supervoxel.one_step_settings
+                    n_clusters = self.clustering_manager.find_optimal_clusters_for_subject(
+                        subject_id,
+                        feature_df,
+                        min_clusters=one_step_cfg.min_clusters,
+                        max_clusters=one_step_cfg.max_clusters,
+                        selection_method=one_step_cfg.selection_method,
+                        plot_validation=self.config.plot_curves
+                    )
+                else:
+                    n_clusters = self.config.HabitatsSegmention.supervoxel.n_clusters
+            
+            # Perform clustering
+            labels = self.clustering_manager.cluster_subject_voxels(
+                subject_id,
+                feature_df,
+                n_clusters=n_clusters
+            )
+            
+            # Save images
+            if self.config.save_images:
+                if self.target == 'supervoxel':
+                    self.result_manager.save_supervoxel_image(
+                        subject_id, labels, mask_info
+                    )
+                elif self.target == 'habitat':
+                    self.result_manager.save_habitat_image_from_voxels(
+                        subject_id, labels, mask_info
+                    )
+            
+            # Visualize
+            if self.config.plot_curves:
+                if self.target == 'supervoxel':
+                    self.clustering_manager.visualize_supervoxel_clustering(
+                        subject_id, feature_df, labels
+                    )
+                elif self.target == 'habitat':
+                    self.clustering_manager.visualize_habitat_clustering(
+                        feature_df.values, labels, n_clusters,
+                        subject=subject_id, output_dir=self.config.out_dir
+                    )
+            
+            result = {
+                'features': feature_df,
+                'raw': raw_df,
+                'mask_info': mask_info,
+                'supervoxel_labels': labels
+            }
+            
+            return subject_id, result
+            
+        except Exception as e:
+            self.logger.error(f"Error clustering subject {subject_id}: {e}")
+            return subject_id, e
+    
     def transform(self, X: Dict[str, Dict]) -> Dict[str, Dict]:
         """
-        Cluster voxels to supervoxels (or habitats) for each subject.
+        Cluster voxels to supervoxels (or habitats) for each subject with parallel processing.
         
         Args:
             X: Dict of subject_id -> {
@@ -92,90 +176,41 @@ class IndividualClusteringStep(BasePipelineStep):
             
         Returns:
             Dict of subject_id -> {
-                'features': pd.DataFrame,        # Voxel features (unchanged)
-                'raw': pd.DataFrame,             # Raw features (unchanged)
-                'mask_info': dict,               # Mask info (unchanged)
-                'supervoxel_labels': np.ndarray  # Clustering labels (1-indexed)
+                'features': pd.DataFrame,
+                'raw': pd.DataFrame,
+                'mask_info': dict,
+                'supervoxel_labels': np.ndarray
             }
         """
-        results = {}
+        # Get number of processes from config
+        n_processes = getattr(self.config, 'processes', 1)
         
-        for subject_id, data in X.items():
-            feature_df = data['features']
-            raw_df = data['raw']
-            mask_info = data['mask_info']
-            
-            # Determine number of clusters
-            n_clusters = None
-            if self.target == 'supervoxel':
-                # Use configured supervoxel cluster number
-                n_clusters = self.config.HabitatsSegmention.supervoxel.n_clusters
-            elif self.target == 'habitat':
-                # For one-step strategy, may need to find optimal clusters
-                if self.find_optimal:
-                    # Find optimal number of clusters for this subject
-                    one_step_cfg = self.config.HabitatsSegmention.supervoxel.one_step_settings
-                    min_clusters = one_step_cfg.min_clusters
-                    max_clusters = one_step_cfg.max_clusters
-                    selection_method = one_step_cfg.selection_method
-                    
-                    n_clusters = self.clustering_manager.find_optimal_clusters_for_subject(
-                        subject_id,
-                        feature_df,
-                        min_clusters=min_clusters,
-                        max_clusters=max_clusters,
-                        selection_method=selection_method,
-                        plot_validation=self.config.plot_curves
-                    )
-                else:
-                    # Use configured cluster number for one-step mode
-                    n_clusters = self.config.HabitatsSegmention.supervoxel.n_clusters
-            
-            # Perform clustering
-            labels = self.clustering_manager.cluster_subject_voxels(
-                subject_id,
-                feature_df,
-                n_clusters=n_clusters
+        # Prepare items for parallel processing
+        items = [(subject_id, data) for subject_id, data in X.items()]
+        
+        # Process subjects in parallel
+        desc = f"Clustering to {self.target}s"
+        successful_results, failed_subjects = parallel_map(
+            func=self._cluster_single_subject,
+            items=items,
+            n_processes=n_processes,
+            desc=desc,
+            logger=self.logger,
+            show_progress=True,
+        )
+        
+        # Convert results to dict
+        results = {}
+        for proc_result in successful_results:
+            # proc_result.item_id contains subject_id
+            # proc_result.result contains the result dict
+            results[proc_result.item_id] = proc_result.result
+        
+        # Log failed subjects
+        if failed_subjects:
+            self.logger.error(
+                f"Failed to cluster {len(failed_subjects)} subject(s): "
+                f"{', '.join(str(s[0]) if isinstance(s, tuple) else str(s) for s in failed_subjects)}"
             )
-            
-            # Save images only when explicitly enabled.
-            # Prediction runs can disable this to avoid unnecessary I/O.
-            if self.config.save_images:
-                # Save supervoxel map file (for two-step strategy, needed for Step 4)
-                if self.target == 'supervoxel':
-                    self.result_manager.save_supervoxel_image(
-                        subject_id,
-                        labels,
-                        mask_info
-                    )
-                elif self.target == 'habitat':
-                    # Save habitat map directly from voxel-level labels (one-step strategy)
-                    self.result_manager.save_habitat_image_from_voxels(
-                        subject_id,
-                        labels,
-                        mask_info
-                    )
-            
-            # Visualize (if enabled)
-            if self.config.plot_curves:
-                if self.target == 'supervoxel':
-                    self.clustering_manager.visualize_supervoxel_clustering(
-                        subject_id, feature_df, labels
-                    )
-                elif self.target == 'habitat':
-                    self.clustering_manager.visualize_habitat_clustering(
-                        feature_df.values,
-                        labels,
-                        n_clusters,
-                        subject=subject_id,
-                        output_dir=self.config.out_dir
-                    )
-            
-            results[subject_id] = {
-                'features': feature_df,
-                'raw': raw_df,
-                'mask_info': mask_info,
-                'supervoxel_labels': labels
-            }
         
         return results
