@@ -167,7 +167,7 @@ demo_data/ml_data/*
 !demo_data/preprocessed/processed_images/
 !demo_data/ml_data/*.csv
 !demo_data/ml_data/*.txt
-!demo_data/dicom/
+!demo_data/ml_data/dicom/
 !demo_data/config_*.yaml
 !demo_data/files_*.yaml
 !config/*.yaml
