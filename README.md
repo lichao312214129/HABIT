@@ -155,30 +155,213 @@ pip install -e .
 - **严禁商业用途，仅供学术研究和Demo演示使用**
 - 下载后请将文件解压到 `demo_data` 目录下
 
-解压完成后，运行以下命令：
+解压完成后，按照以下步骤体验完整的研究流程：
+
+---
+
+#### 🔬 **完整研究流程演示**
+
+下面将带您走过一个典型的影像组学研究全流程，从原始影像到最终的预测模型。每一步都会说明其**临床意义**。
+
+---
+
+#### **步骤 1：影像预处理 (Image Preprocessing)**
+
+**📋 临床意义**：
+- 就像我们在看片前需要调整窗宽窗位一样，影像预处理确保所有病例的影像在同一"标尺"下进行分析
+- 消除不同设备、不同扫描参数带来的系统性差异
+- 类似于实验室检查前的标准化操作（如血糖检测前的空腹要求）
 
 ```bash
-# 运行生境分析示例（一步法）
+# 运行预处理（包括：DICOM转换、重采样、配准、标准化）
+habit preprocess-image --config demo_data/config_image_preprocessing.yaml
+```
+
+**⏱️ 预计用时**：约 2-5 分钟  
+**📁 结果位置**：`demo_data/preprocessed/`
+
+**💡 重要提示**：
+- **关于 `preprocessed` 文件夹**：您从百度网盘下载解压的 demo_data 中已包含此文件夹，里面有预处理好的影像和ROI mask文件
+- **运行预处理的影响**：
+  - ✅ 会**覆盖**文件夹中的影像文件（`*_image.nii.gz`），生成新的标准化影像
+  - ✅ **不会影响** ROI mask 文件（`*_mask.nii.gz`），这些文件会被保留
+  - ⚠️ 原因：预处理只处理影像，不涉及 ROI 勾画
+- **为什么要保留 mask？** 这些 ROI mask 文件是临床医生用 ITK-SNAP 或 3D Slicer 手工勾画的肿瘤边界，是后续生境分析的**必需输入文件**，请勿删除
+
+---
+
+#### **步骤 2：生境聚类分析 (Habitat Segmentation)**
+
+**📋 临床意义**：
+- 传统影像诊断只能看到"整个肿瘤"，就像只知道一个城市的总人口
+- 生境分析能自动识别肿瘤内部的不同亚区（如坏死区、活跃增殖区、缺氧区）
+- 这些亚区对治疗的反应不同，预后也不同
+- **实际应用举例**：某些亚区可能对放疗敏感，而另一些亚区可能需要靶向治疗
+
+```bash
+# 一步法生境分析（最简单，适合初学者）
 habit get-habitat --config demo_data/config_habitat_one_step.yaml
 ```
 
-### Step 3: 查看结果 (Output)
+**⏱️ 预计用时**：约 5-10 分钟  
+**📁 结果位置**：`demo_data/results/habitat/`  
+**🔍 如何查看**：将生成的 `*_habitats.nrrd` 文件拖入 ITK-SNAP，叠加在原始影像上查看
 
-运行完成后，打开 `demo_data/results/habitat/` 文件夹，您将看到类似下面的文件结构：
+---
 
-```text
-demo_data/results/habitat/
-├── 🖼️ sub001_habitats.nrrd      <-- 3D 生境地图 (拖入 ITK-SNAP 查看)
-├── 📊 habitats.csv              <-- 详细特征表格 (Excel 打开)
-└── 📈 visualizations/           <-- 自动生成的统计图表
-    ├── cluster_centroids.png    <-- 聚类中心图
-    └── feature_heatmap.png      <-- 特征热图
+#### **步骤 3：特征提取 (Feature Extraction)**
+
+**📋 临床意义**：
+- 从影像中提取数百个定量指标（纹理、形状、强度等）
+- 就像血常规检查能得到白细胞、红细胞、血红蛋白等多个指标一样
+- 这些特征能量化肿瘤的异质性，捕捉肉眼无法识别的信息
+- **实际应用举例**：某些纹理特征可能与肿瘤的恶性程度、侵袭性相关
+
+```bash
+# 提取传统影像组学特征
+habit extract-features --config demo_data/config_extract_features.yaml
+
+# （可选）提取生境特征（需要先完成步骤2）
+# habit extract-features --config demo_data/config_habitat_features.yaml
 ```
 
-*   🖼️ **`*_habitats.nrrd`**：**3D 生境地图**。
-    *   *如何查看？* 直接拖入 ITK-SNAP，叠加在原始影像上，您将看到五颜六色的分区，直观展示肿瘤内部异质性。
-*   📊 **`habitats.csv`**：包含每个体素的详细分类结果。
-*   📈 **`visualizations/`**：自动生成的聚类分析图表，可直接用于论文插图。
+**⏱️ 预计用时**：约 3-8 分钟  
+**📁 结果位置**：`demo_data/results/features/`  
+**📊 结果格式**：CSV 表格，可用 Excel 打开查看
+
+---
+
+#### **步骤 4：机器学习建模 (Machine Learning)**
+
+**📋 临床意义**：
+- 从众多特征中找出与预后/疗效最相关的"生物标志物"
+- 构建预测模型（如预测患者5年生存率、治疗反应等）
+- 就像多因素回归分析，但能处理更复杂的非线性关系
+- **实际应用举例**：帮助识别高危患者，指导个体化治疗方案
+
+```bash
+# 运行机器学习建模（包括特征选择、模型训练、性能评估）
+habit train-model --config demo_data/config_machine_learning.yaml
+```
+
+**⏱️ 预计用时**：约 2-5 分钟  
+**📁 结果位置**：`demo_data/results/machine_learning/`  
+**📈 生成内容**：
+- ROC 曲线（评估模型区分能力）
+- 混淆矩阵（查看预测准确性）
+- 特征重要性排序（哪些特征最有价值）
+
+---
+
+#### **步骤 5：模型比较 (Model Comparison)**
+
+**📋 临床意义**：
+- 比较不同模型（如传统影像组学 vs 生境特征）的预测性能
+- 类似于比较不同诊断方法的敏感性和特异性
+- 帮助您找到最佳的预测方案
+- **实际应用举例**：证明生境分析比传统方法能提供更多有价值的信息
+
+```bash
+# 比较多个模型的性能
+habit compare-models --config demo_data/config_model_comparison.yaml
+```
+
+**⏱️ 预计用时**：约 1-3 分钟  
+**📁 结果位置**：`demo_data/results/model_comparison/`  
+**📊 生成内容**：
+- 多模型 ROC 曲线对比图
+- 性能指标对比表（AUC、准确率、敏感性、特异性）
+- DeLong 检验结果（统计学差异检验）
+
+---
+
+#### **🎯 快速运行全流程**
+
+如果您想一次性运行所有步骤，可以使用以下命令：
+
+```bash
+# 依次运行所有步骤（适合熟悉流程后使用）
+habit preprocess-image --config demo_data/config_image_preprocessing.yaml && \
+habit get-habitat --config demo_data/config_habitat_one_step.yaml && \
+habit extract-features --config demo_data/config_extract_features.yaml && \
+habit train-model --config demo_data/config_machine_learning.yaml && \
+habit compare-models --config demo_data/config_model_comparison.yaml
+```
+
+**⚠️ 注意**：全流程运行约需 15-30 分钟，建议首次使用时逐步运行，熟悉每一步的输出结果。
+
+---
+
+### Step 3: 查看和理解结果 (View Results)
+
+运行完成后，`demo_data/results/` 文件夹将包含完整的分析结果：
+
+#### **📁 结果文件夹结构**
+
+```text
+demo_data/results/
+├── 📂 preprocessed/                    <-- 预处理后的标准化影像
+│   ├── sub001_image.nii.gz            <-- 标准化后的影像
+│   └── sub001_mask.nii.gz             <-- 标准化后的肿瘤ROI
+│
+├── 📂 habitat/                         <-- 生境分析结果
+│   ├── 🖼️ sub001_habitats.nrrd        <-- 3D 生境地图（可用ITK-SNAP查看）
+│   ├── 📊 habitats.csv                <-- 生境分类详细数据
+│   └── 📈 visualizations/             <-- 可视化图表
+│       ├── cluster_centroids.png      <-- 聚类中心图
+│       └── feature_heatmap.png        <-- 特征热图
+│
+├── 📂 features/                        <-- 提取的特征
+│   ├── radiomics_features.csv         <-- 传统影像组学特征
+│   └── habitat_features.csv           <-- 生境特征（MSI、ITH等）
+│
+├── 📂 machine_learning/                <-- 机器学习结果
+│   ├── 📊 model_performance.csv       <-- 模型性能指标
+│   ├── 📈 roc_curve.png               <-- ROC曲线
+│   ├── 📈 confusion_matrix.png        <-- 混淆矩阵
+│   ├── 📈 feature_importance.png      <-- 特征重要性排序
+│   └── 💾 trained_model.pkl           <-- 训练好的模型
+│
+└── 📂 model_comparison/                <-- 模型对比结果
+    ├── 📊 comparison_metrics.csv      <-- 各模型性能对比表
+    ├── 📈 roc_curves_comparison.png   <-- 多模型ROC曲线对比
+    └── 📄 statistical_tests.txt       <-- DeLong检验等统计结果
+```
+
+#### **🔍 如何查看和使用这些结果？**
+
+**1. 查看生境地图（临床最直观的结果）**
+- 打开 ITK-SNAP 或 3D Slicer
+- 加载原始影像：`demo_data/preprocessed/sub001_image.nii.gz`
+- 叠加生境地图：`demo_data/results/habitat/sub001_habitats.nrrd`
+- 您将看到肿瘤被自动分为不同颜色的区域，每种颜色代表一种生境
+
+**2. 查看特征数据（用于统计分析）**
+- 用 Excel 或 SPSS 打开 `radiomics_features.csv`
+- 每一行是一个病例，每一列是一个特征
+- 可直接用于后续的统计分析
+
+**3. 查看模型性能（评估预测能力）**
+- 查看 `roc_curve.png`：曲线越接近左上角，模型越好
+- 查看 `confusion_matrix.png`：对角线数值越大，预测越准确
+- AUC > 0.8 通常认为有较好的预测能力
+
+**4. 用于论文撰写**
+- 所有图表都是高分辨率 PNG 格式，可直接插入论文
+- `model_comparison/` 中的对比图可用于展示方法学优势
+- CSV 文件可用于绘制更多自定义图表
+
+#### **💡 结果解读小贴士**
+
+**对于医生**：
+- 生境地图可以帮助您直观理解肿瘤内部的异质性
+- 不同颜色的区域可能代表不同的生物学行为（如增殖活跃区 vs 坏死区）
+- 这些信息可以辅助治疗决策（如放疗剂量分布的优化）
+
+**对于研究人员**：
+- 特征文件可用于进一步的统计建模
+- 模型性能指标可用于方法学对比
+- 所有结果都有详细的日志记录，保证研究的可重复性
 
 ---
 

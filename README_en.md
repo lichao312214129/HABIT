@@ -54,18 +54,37 @@ pip install -e .
 # Extract the downloaded files to the demo_data directory
 # Note: All privacy information has been removed. For academic research and demo use only. Commercial use is strictly prohibited.
 
-# 3. Run example analysis
-habit get-habitat --config demo_data/config_habitat.yaml
+# 3. Run complete research workflow
+
+# Step 1: Image Preprocessing (standardize images)
+habit preprocess-image --config demo_data/config_image_preprocessing.yaml
+# Note: The demo_data already contains a 'preprocessed' folder with images and ROI masks.
+# This command will overwrite image files (*_image.nii.gz) but preserve ROI mask files (*_mask.nii.gz).
+# The mask files are essential for subsequent habitat analysis.
+
+# Step 2: Habitat Segmentation (identify tumor sub-regions)
+habit get-habitat --config demo_data/config_habitat_one_step.yaml
+
+# Step 3: Feature Extraction (extract quantitative features)
+habit extract-features --config demo_data/config_extract_features.yaml
+
+# Step 4: Machine Learning (build predictive model)
+habit train-model --config demo_data/config_machine_learning.yaml
+
+# Step 5: Model Comparison (compare different models)
+habit compare-models --config demo_data/config_model_comparison.yaml
 
 # 4. View results
-# Results are saved in demo_data/results/habitat/ directory
-# Includes: habitat maps, visualization charts, CSV result files
+# Results are saved in demo_data/results/ directory
+# Includes: habitat maps, features, model performance, and comparison results
 ```
 
 **Expected Results**:
-- `habitats.csv` - Habitat labels for each voxel
-- `*_habitats.nrrd` - 3D habitat maps (viewable with ITK-SNAP or 3D Slicer)
-- `visualizations/` - Automatically generated visualization charts
+- `preprocessed/` - Standardized images
+- `habitat/` - 3D habitat maps and visualization charts
+- `features/` - Extracted radiomics and habitat features (CSV format)
+- `machine_learning/` - Model performance metrics and ROC curves
+- `model_comparison/` - Multi-model comparison results
 
 ---
 
