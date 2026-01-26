@@ -19,11 +19,13 @@
 数据准备（demo_data）
 ~~~~~~~~~~~~~~~~~~~~
 
-demo_data 已包含可直接运行的示例数据与配置：
+**重要提示**: 使用前需要先解压 `demo_data` 目录中的 `demo_data.rar` 压缩包。
 
-- DICOM 数据：``demo_data/dicom/sub001``、``demo_data/dicom/sub002``
-- 文件列表：``demo_data/files_preprocessing.yaml``
-- 预处理配置：``demo_data/config_preprocessing.yaml``
+解压后会得到以下 demo 数据：
+
+- **DICOM 数据**: ``demo_data/dicom/sub001``、``demo_data/dicom/sub002``
+- **预处理配置**: ``demo_data/config_preprocessing.yaml``
+- **文件列表**: ``demo_data/files_preprocessing.yaml``
 
 如果使用自己的数据，请按"受试者/期相/序列"的结构整理 DICOM，
 并参照 ``files_preprocessing.yaml`` 填写每个受试者对应的序列路径。

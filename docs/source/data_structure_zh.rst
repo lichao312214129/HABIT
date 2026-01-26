@@ -3,6 +3,44 @@
 
 本节详细说明 HABIT 支持的数据输入方式，包括文件夹结构和 YAML 配置文件格式。
 
+**重要提示**: 使用前需要先解压 `demo_data` 目录中的 `demo_data.rar` 压缩包。
+
+解压后会得到以下 demo 数据：
+
+- **DICOM 原始数据**: ``demo_data/dicom/``
+- **预处理后的数据**: ``demo_data/preprocessed/``（包含 processed_images 子目录）
+- **配置文件**: ``demo_data/config_preprocessing.yaml``、``demo_data/files_preprocessing.yaml`` 等
+
+**解压后的目录结构**：
+
+.. code-block:: text
+
+   demo_data/
+   ├── dicom/                              # DICOM 原始数据
+   │   ├── sub001/
+   │   │   └── WATER_BHAxLAVA-Flex-2min_Series0012/
+   │   │       └── Image (0001).dcm
+   │   └── sub002/
+   ├── preprocessed/                         # 预处理后的数据
+   │   └── processed_images/                # 预处理输出目录
+   │       ├── images/                     # 图像
+   │       │   ├── subj001/
+   │       │   │   ├── delay2/
+   │       │   │   ├── delay3/
+   │       │   │   └── delay5/
+   │       │   └── subj002/
+   │       └── masks/                      # 掩码
+   │           ├── subj001/
+   │           │   ├── delay2/
+   │           │   ├── delay3/
+   │           │   └── delay5/
+   │           └── subj002/
+   ├── config_preprocessing.yaml              # 预处理配置
+   ├── files_preprocessing.yaml               # 文件列表
+   ├── file_habitat.yaml                   # 生境分析数据配置
+   ├── config_habitat_one_step.yaml          # 生境分析配置（一步法）
+   └── ...                                # 其他配置文件
+
 数据输入方式概述
 ----------------
 
@@ -290,23 +328,23 @@ auto_select_first_file 参数详解
 
    images:
      subj001:
-       delay2: ./preprocessed/processed_images/images/subj001/delay2
-       delay3: ./preprocessed/processed_images/images/subj001/delay3
-       delay5: ./preprocessed/processed_images/images/subj001/delay5
+       delay2: .\preprocessed\processed_images\images\subj001\delay2
+       delay3: .\preprocessed\processed_images\images\subj001\delay3
+       delay5: .\preprocessed\processed_images\images\subj001\delay5
      subj002:
-       delay2: ./preprocessed/processed_images/images/subj002/delay2
-       delay3: ./preprocessed/processed_images/images/subj002/delay3
-       delay5: ./preprocessed/processed_images/images/subj002/delay5
+       delay2: .\preprocessed\processed_images\images\subj002\delay2
+       delay3: .\preprocessed\processed_images\images\subj002\delay3
+       delay5: .\preprocessed\processed_images\images\subj002\delay5
 
    masks:
      subj001:
-       delay2: ./preprocessed/processed_images/masks/subj001/delay2
-       delay3: ./preprocessed/processed_images/masks/subj001/delay3
-       delay5: ./preprocessed/processed_images/masks/subj001/delay5
+       delay2: .\preprocessed\processed_images\masks\subj001\delay2
+       delay3: .\preprocessed\processed_images\masks\subj001\delay3
+       delay5: .\preprocessed\processed_images\masks\subj001\delay5
      subj002:
-       delay2: ./preprocessed/processed_images/masks/subj002/delay2
-       delay3: ./preprocessed/processed_images/masks/subj002/delay3
-       delay5: ./preprocessed/processed_images/masks/subj002/delay5
+       delay2: .\preprocessed\processed_images\masks\subj002\delay2
+       delay3: .\preprocessed\processed_images\masks\subj002\delay3
+       delay5: .\preprocessed\processed_images\masks\subj002\delay5
 
 两种方式对比
 ------------

@@ -143,11 +143,15 @@ pip install -e .
 
 ### Step 2: 运行示例 (Run Demo)
 
-我们内置了演示数据，您无需准备任何数据即可立即体验：
+我们内置了演示数据，您无需准备任何数据即可立即体验。
+
+**⚠️ 重要提示**：使用前需要先解压 `demo_data` 目录中的 `demo_data.rar` 压缩包。
+
+解压完成后，运行以下命令：
 
 ```bash
-# 运行生境分析示例（直接复制粘贴）
-habit get-habitat --config demo_data/config_habitat.yaml
+# 运行生境分析示例（一步法）
+habit get-habitat --config demo_data/config_habitat_one_step.yaml
 ```
 
 ### Step 3: 查看结果 (Output)
