@@ -1,0 +1,309 @@
+# Machine Learning Configuration File
+# This configuration file defines all parameters for data loading, preprocessing, feature selection, model training, and evaluation.
+
+#%%================================================================================
+# Data Input Configuration
+# Multiple input files can be specified for model ensemble or feature combination
+input:
+  - path: ./ml_data/breast_cancer_dataset.csv # Path to the input data file (CSV format)
+    name: radiomics_  # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
+    subject_id_col: subjID  # Column name containing subject identifiers (must be unique for each subject)
+    label_col: label  # Column name containing target labels (0/1 for binary classification)
+    features:    # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
+  
+  # # Example of additional input file configuration (commented out)
+  # - path: H:\results\ml_data\autogluon_habitat\autogluon_habitat_pred_full.csv
+  #   name: habitat_  # Prefix clinical_ will be added to all features from this file
+  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   label_col: true_label  # Column name for the target variable in this file
+  #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
+
+  # # # # Example of additional input file configuration (commented out)
+  # - path: H:\results\ml_data\autogluon_radiomics\autogluon_radiomics_pred_full.csv
+  #   name: radiomics_  # Prefix clinical_ will be added to all features from this file
+  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   label_col: true_label  # Column name for the target variable in this file
+  #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
+
+#%%================================================================================
+# Output Directory Configuration
+output: ./ml_data/radiomics  # Directory where all results will be saved (models, plots, statistics)
+
+#%%================================================================================
+# Data Splitting Configuration
+# Options: random (completely random split), stratified (preserves class distribution), custom (user-defined splits)
+split_method: custom  # Method used to split data into training and testing sets
+# The following parameters are used when split_method is random or stratified (currently commented out)
+# test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
+# random_state: 42  # Seed for random number generator to ensure reproducible splits
+# The following parameters are used when split_method is custom
+train_ids_file: ./ml_data/train_ids.txt  # File containing IDs for training set (one ID per line)
+test_ids_file: ./ml_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
+
+#%%================================================================================
+# Normalization Configuration
+# Several options are available:
+normalization:
+  method: z_score  # Standardization method (zero mean, unit variance)
+  # method: min_max  # Scale features to a specific range [0,1] by default
+  # params:
+  #   feature_range: [0, 1]  # Range to scale features to
+
+  # method: robust  # Scale features using statistics robust to outliers
+  # params:
+  #   quantile_range: [25.0, 75.0]  # Percentile range to compute the robust scaling
+  #   with_centering: true  # Whether to center the data before scaling
+  #   with_scaling: true  # Whether to scale the data to interquartile range
+
+  # method: max_abs  # Scale each feature by its maximum absolute value
+  
+  # method: normalizer  # Scale samples to have unit norm
+  # params:
+  #   norm: l2  # Norm to use (l1, l2, or max)
+
+  # method: quantile  # Transform features to follow uniform or normal distribution
+  # params:
+  #   n_quantiles: 1000  # Number of quantiles to use
+  #   output_distribution: uniform  # Output distribution (uniform or normal)
+
+  # method: power  # Apply power transform to make data more Gaussian-like
+  # params:
+  #   method: yeo-johnson  # Transformation method (yeo-johnson or box-cox)
+  #   standardize: true  # Whether to standardize the data to zero mean and unit variance
+
+#%%================================================================================
+# Feature Selection Configuration
+# Multiple feature selection methods can be applied sequentially
+feature_selection_methods:
+  # ICC (Intraclass Correlation Coefficient) method
+  # - method: icc  # Selects features based on their reproducibility
+  #   params:
+  #     icc_results: ./ml_data/icc_radiomics.json  # Path to pre-computed ICC results
+  #     keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
+  #     metric: ICC2 # Metrics to use
+  #     threshold: 0.8
+  
+  ## 方差选择器 - 移除低方差特征
+  - method: variance
+    params:
+      before_z_score: true  # 是否在Z-score标准化之前执行（推荐为true，因为标准化后所有特征方差均为1）
+      threshold: 0.2  # 方差阈值（特征方差必须大于此值才会被保留）
+      plot_variances: true  # 是否生成方差可视化图表
+
+  # # 统计检验选择器 - 自动选择t检验或Mann-Whitney U检验
+  # - method: statistical_test
+  #   params:
+  #     p_threshold: 0.05  # P值阈值（特征P值必须小于此值才会被保留）
+  #     # n_features_to_select: 20  # 可选：要选择的特征数量（如果指定，则覆盖p_threshold）
+  #     normality_test_threshold: 0.05  # 正态性检验的阈值
+  #     plot_importance: true  # 是否生成特征重要性图表
+  #     before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
+  #     force_test: "ttest"  # 可选：强制使用特定检验方法（"ttest"或"mannwhitney"）
+
+  # # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
+  # - method: vif  # Removes features with high multicollinearity
+  #   params:
+  #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
+  #     visualize: false  # Whether to generate visualization of VIF values
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # # Correlation method - removes highly correlated features
+  - method: correlation
+    params:
+      threshold: 0.80  # Correlation threshold (features with correlation above this value will be removed)
+      method: spearman  # Correlation method: pearson, spearman, or kendall
+      visualize: false  # Whether to generate correlation heatmap
+      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # # ANOVA method - selects features based on ANOVA F-value
+  # - method: anova
+  #   params:
+  #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
+  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
+  #     plot_importance: true  # Whether to plot feature importance
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # # Chi2 method - selects features based on chi-square test (only for non-negative features)
+  # - method: chi2
+  #   params:
+  #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
+  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
+  #     plot_importance: true  # Whether to plot feature importance
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # - method: rfecv
+  #   params:
+  #     estimator: LogisticRegression
+  #     cv: 10
+  #     step: 1
+  #     min_features_to_select: 1
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  
+  # mRMR (Minimum Redundancy Maximum Relevance) method
+  # - method: mrmr  # Selects features with high relevance to target and low redundancy among themselves
+  #   params:
+  #     n_features: 5  # Number of features to select
+  #     visualize: false  # Whether to generate visualization of selected features
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # LASSO (L1 regularization) method - selects features using L1 regularization
+  # - method: lasso  # Selects features using L1 regularization
+  #   params:
+  #     cv: 10  # Number of cross-validation folds for selecting optimal alpha
+  #     n_alphas: 100  # Number of alpha values to try
+  #     alphas: [0.01, 0.1, 1.0, 10, 100]  # Alpha values to try
+  #     random_state: 42  # Random seed for reproducibility
+  #     visualize: true  # Whether to generate visualization of feature coefficients
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  
+  # # Univariate Logistic Regression method
+  # - method: univariate_logistic  # Selects features based on individual logistic regression p-values
+  #   params:
+  #     threshold: 0.1  # Maximum p-value threshold for feature selection (features with p < threshold are retained)
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+  # # Stepwise Feature Selection method
+  # - method: stepwise  # Performs step-by-step feature selection using AIC/BIC criteria
+  #   params:
+  #     criterion: aic  # Criterion for selection: aic, bic
+  #     direction: forward  # Direction of stepwise selection: forward, backward, or both
+  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+
+#%%================================================================================
+# Model Configuration
+# Multiple models can be defined and will all be trained and evaluated
+models:
+  # # Logistic Regression model configuration
+  LogisticRegression:  # Model type: Standard logistic regression classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+      max_iter: 1000  # Maximum number of iterations for convergence
+      C: 1.0  # Inverse of regularization strength (smaller values = stronger regularization)
+      penalty: "l2"  # Regularization type (l1=Lasso, l2=Ridge)
+      solver: "lbfgs"  # Algorithm to use in the optimization problem
+  
+  # # AutoGluonTabular model configuration
+  # AutoGluonTabular:  # Model type: AutoGluonTabular classifier
+  #   params:
+  #     path: ./ml_data/autogluon_models
+  #     label: label
+  #     time_limit: 30
+  #     random_state: 42  # Random seed for reproducibility
+  #     # presets: "high_quality"  # Preset for AutoGluonTabular
+  #     verbosity: 4  # Verbosity level for AutoGluonTabular
+  #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
+  
+  # # Support Vector Machine configuration
+  # SVM:  # Model type: Support Vector Machine classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     C: 1.0  # Regularization parameter
+  #     kernel: "rbf"  # Kernel type: linear, poly, rbf, sigmoid
+  #     gamma: "scale"  # Kernel coefficient
+  #     probability: true  # Enable probability estimates
+
+  # # Random Forest configuration
+  # RandomForest:  # Model type: Random Forest classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of trees in the forest
+  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+  #     max_features: "sqrt"  # Number of features to consider for best split
+  #     class_weight: "balanced"  # Handle imbalanced classes
+
+  # # XGBoost configuration
+  # XGBoost:  # Model type: Gradient Boosting classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of boosting stages/trees to build
+  #     max_depth: 3  # Maximum tree depth
+  #     learning_rate: 0.1  # Boosting learning rate
+  #     subsample: 0.8  # Fraction of samples used for fitting trees
+  #     colsample_bytree: 0.8  # Fraction of features used per tree
+  #     objective: "binary:logistic"  # Objective function for optimization
+  #     eval_metric: "logloss"  # Evaluation metric during training
+
+  # # K-Nearest Neighbors configuration
+  # KNN:  # Model type: K-Nearest Neighbors classifier
+  #   params:
+  #     n_neighbors: 5  # Number of neighbors to use
+  #     weights: "uniform"  # Weight function: uniform or distance
+  #     algorithm: "auto"  # Algorithm to compute nearest neighbors: auto, ball_tree, kd_tree, brute
+  #     metric: "minkowski"  # Distance metric
+  #     p: 2  # Power parameter for Minkowski metric (p=2 is Euclidean distance)
+
+  # # Multi-layer Perceptron (Neural Network) configuration
+  # MLP:  # Model type: Multi-layer Perceptron classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     hidden_layer_sizes: [100, 50]  # Sizes of hidden layers
+  #     activation: "relu"  # Activation function: identity, logistic, tanh, relu
+  #     solver: "adam"  # Weight optimization solver: lbfgs, sgd, adam
+  #     alpha: 0.0001  # L2 penalty parameter
+  #     learning_rate: "constant"  # Learning rate schedule: constant, invscaling, adaptive
+  #     learning_rate_init: 0.001  # Initial learning rate
+  #     max_iter: 200  # Maximum number of iterations
+  #     early_stopping: false  # Whether to use early stopping
+
+  # # Gaussian Naive Bayes configuration
+  # GaussianNB:  # Model type: Gaussian Naive Bayes classifier
+  #   params:
+  #     var_smoothing: 1.0e-9  # Portion of the largest variance added to variances for stability
+
+  # # Multinomial Naive Bayes configuration (requires non-negative features)
+  # MultinomialNB:  # Model type: Multinomial Naive Bayes classifier
+  #   params:
+  #     alpha: 1.0  # Additive smoothing parameter
+  #     fit_prior: true  # Whether to learn class prior probabilities
+
+  # # Bernoulli Naive Bayes configuration (for binary/boolean features)
+  # BernoulliNB:  # Model type: Bernoulli Naive Bayes classifier
+  #   params:
+  #     alpha: 1.0  # Additive smoothing parameter
+  #     binarize: 0.0  # Threshold for binarizing features (null means pre-binarized)
+  #     fit_prior: true  # Whether to learn class prior probabilities
+
+  # # Gradient Boosting configuration
+  # GradientBoosting:  # Model type: Gradient Boosting classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 100  # Number of boosting stages
+  #     learning_rate: 0.1  # Learning rate shrinks the contribution of each tree
+  #     max_depth: 3  # Maximum depth of the individual trees
+  #     subsample: 1.0  # Fraction of samples to be used for fitting the trees
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+
+  # # AdaBoost configuration
+  # AdaBoost:  # Model type: AdaBoost classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     n_estimators: 50  # Maximum number of estimators
+  #     learning_rate: 1.0  # Weight applied to each classifier
+  #     algorithm: "SAMME.R"  # Boosting algorithm: SAMME or SAMME.R
+
+  # # Decision Tree configuration
+  # DecisionTree:  # Model type: Decision Tree classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     criterion: "gini"  # Function to measure split quality: gini or entropy
+  #     splitter: "best"  # Strategy to choose split: best or random
+  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
+  #     min_samples_split: 2  # Minimum samples required to split an internal node
+  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
+  #     class_weight: "balanced"  # Handle imbalanced classes
+
+#%%================================================================================  
+# Visualization and Saving Configuration
+is_visualize: false  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
+is_save_model: true  # Whether to save trained models to disk for future use
+
+visualization:
+  enabled: true
+  plot_types:
+    - roc
+    - calibration
+    - confusion
+    - dca

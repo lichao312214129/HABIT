@@ -1,0 +1,339 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Machine Learning Configuration Template
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# This template is based on actual code implementation
+# All parameters listed here are supported by the code
+#
+# Quick Start:
+#   Training:   habit ml --config config/config_machine_learning.yaml --mode train
+#   Prediction: habit ml --mode predict --model ./model.pkl --data ./data.csv
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# Data Input Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Can specify single or multiple input files
+# Multiple files will be merged by subject_id_col
+input:
+  - path: ./ml_data/breast_cancer_dataset.csv  # Path to CSV file (required)
+    name: clinical_  # Prefix for feature names (optional, default: empty)
+    subject_id_col: subjID  # Column name for subject IDs (required)
+    label_col: label  # Column name for labels (required, 0/1 for binary)
+    features:  # List of specific features to use (optional, empty = use all)
+  
+  # Example: Additional input file for feature fusion
+  # - path: ./ml_data/radiomics.csv
+  #   name: radiomics_
+  #   subject_id_col: subjID
+  #   label_col: label
+  #   features: [feature1, feature2]  # Or leave empty to use all
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Output Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Output directory for all results
+# Will contain: models, plots, metrics, predictions
+output: ./ml_data
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Data Splitting Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Split method
+# Options: random, stratified, custom
+split_method: custom
+
+# For random or stratified splits
+# test_size: 0.3  # Proportion for test set (0.0-1.0)
+# random_state: 42  # Random seed
+
+# For custom splits (required if split_method is custom)
+train_ids_file: ./ml_data/train_ids.txt  # One ID per line
+test_ids_file: ./ml_data/test_ids.txt  # One ID per line
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Normalization Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+normalization:
+  # method: z_score (default, StandardScaler)
+  method: z_score
+  
+  # method: min_max (MinMaxScaler)
+  # params:
+  #   feature_range: [0, 1]
+  
+  # method: robust (RobustScaler)
+  # params:
+  #   quantile_range: [25.0, 75.0]
+  #   with_centering: true
+  #   with_scaling: true
+  
+  # method: max_abs (MaxAbsScaler)
+  
+  # method: normalizer (Normalizer)
+  # params:
+  #   norm: l2  # Options: l1, l2, max
+  
+  # method: quantile (QuantileTransformer)
+  # params:
+  #   n_quantiles: 1000
+  #   output_distribution: uniform  # Options: uniform, normal
+  
+  # method: power (PowerTransformer)
+  # params:
+  #   method: yeo-johnson  # Options: yeo-johnson, box-cox
+  #   standardize: true
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Feature Selection Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Feature selection methods applied sequentially
+# Each method can run before or after z-score normalization
+feature_selection_methods:
+  
+  # ICC (Intraclass Correlation Coefficient)
+  # - method: icc
+  #   params:
+  #     icc_results: ./results/icc_results.json  # Path to ICC JSON file
+  #     keys: [comparison_key]  # Key(s) in ICC results to use
+  #     threshold: 0.8  # Minimum ICC value (0.0-1.0)
+  #     before_z_score: false
+  
+  # Variance Threshold
+  # - method: variance
+  #   params:
+  #     threshold: 0.2  # Minimum variance
+  #     plot_variances: true  # Generate variance plot
+  #     before_z_score: true  # MUST be true (z-score makes all variances=1)
+  
+  # Statistical Test (t-test or Mann-Whitney U)
+  # - method: statistical_test
+  #   params:
+  #     p_threshold: 0.05  # Maximum p-value
+  #     # n_features_to_select: 20  # Alternative: select top N features
+  #     normality_test_threshold: 0.05
+  #     plot_importance: true
+  #     before_z_score: false
+  #     # force_test: ttest  # Options: ttest, mannwhitney
+  
+  # VIF (Variance Inflation Factor)
+  # - method: vif
+  #   params:
+  #     max_vif: 10  # Maximum allowed VIF
+  #     visualize: false
+  #     before_z_score: false
+  
+  # Correlation Threshold
+  - method: correlation
+    params:
+      threshold: 0.80  # Remove if |correlation| > threshold
+      method: spearman  # Options: pearson, spearman, kendall
+      visualize: false
+      before_z_score: false
+  
+  # ANOVA F-test
+  # - method: anova
+  #   params:
+  #     p_threshold: 0.05
+  #     # n_features_to_select: 20
+  #     plot_importance: true
+  #     before_z_score: false
+  
+  # Chi-Square Test (requires non-negative features)
+  # - method: chi2
+  #   params:
+  #     p_threshold: 0.05
+  #     # n_features_to_select: 20
+  #     plot_importance: true
+  #     before_z_score: false
+  
+  # RFECV (Recursive Feature Elimination with CV)
+  # - method: rfecv
+  #   params:
+  #     estimator: LogisticRegression  # Model name
+  #     cv: 10  # Number of CV folds
+  #     step: 1  # Features to remove per iteration
+  #     min_features_to_select: 1
+  #     before_z_score: false
+  
+  # mRMR (Minimum Redundancy Maximum Relevance)
+  # - method: mrmr
+  #   params:
+  #     n_features: 5  # Number of features to select
+  #     visualize: false
+  #     before_z_score: false
+  
+  # LASSO (L1 Regularization)
+  # - method: lasso
+  #   params:
+  #     cv: 10  # CV folds for alpha selection
+  #     n_alphas: 100  # Number of alpha values to try
+  #     # alphas: [0.01, 0.1, 1.0, 10, 100]  # Or specify exact alphas
+  #     random_state: 42
+  #     visualize: true
+  #     before_z_score: false
+  
+  # Univariate Logistic Regression
+  # - method: univariate_logistic
+  #   params:
+  #     threshold: 0.1  # Maximum p-value
+  #     before_z_score: false
+  
+  # Stepwise Feature Selection
+  # - method: stepwise
+  #   params:
+  #     criterion: aic  # Options: aic, bic
+  #     direction: forward  # Options: forward, backward, both
+  #     before_z_score: false
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Model Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Multiple models can be trained simultaneously
+models:
+  
+  # Logistic Regression
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0  # Inverse regularization strength
+      penalty: l2  # Options: l1, l2, elasticnet, none
+      solver: lbfgs  # Options: lbfgs, liblinear, newton-cg, sag, saga
+  
+  # AutoGluon Tabular (Automated ML)
+  # AutoGluonTabular:
+  #   params:
+  #     path: ./ml_data/autogluon_models  # Model save directory
+  #     label: label  # Label column name
+  #     time_limit: 30  # Training time limit (seconds)
+  #     random_state: 42
+  #     presets: high_quality  # Options: best_quality, high_quality, good_quality, medium_quality, fast
+  #     verbosity: 4  # 0-4
+  #     eval_metric: roc_auc  # Optimization metric
+  
+  # Support Vector Machine
+  # SVM:
+  #   params:
+  #     random_state: 42
+  #     C: 1.0
+  #     kernel: rbf  # Options: linear, poly, rbf, sigmoid
+  #     gamma: scale  # Options: scale, auto, or float
+  #     probability: true  # Required for probability predictions
+  
+  # Random Forest
+  # RandomForest:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_depth: null  # null = unlimited
+  #     min_samples_split: 2
+  #     min_samples_leaf: 1
+  #     max_features: sqrt  # Options: sqrt, log2, int, float, none
+  #     class_weight: balanced  # Options: balanced, balanced_subsample, dict, none
+  
+  # XGBoost
+  # XGBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_depth: 3
+  #     learning_rate: 0.1
+  #     subsample: 0.8
+  #     colsample_bytree: 0.8
+  #     objective: binary:logistic
+  #     eval_metric: logloss
+  
+  # K-Nearest Neighbors
+  # KNN:
+  #   params:
+  #     n_neighbors: 5
+  #     weights: uniform  # Options: uniform, distance
+  #     algorithm: auto  # Options: auto, ball_tree, kd_tree, brute
+  #     metric: minkowski
+  #     p: 2  # Power parameter for Minkowski (p=2 is Euclidean)
+  
+  # Multi-layer Perceptron
+  # MLP:
+  #   params:
+  #     random_state: 42
+  #     hidden_layer_sizes: [100, 50]  # List of layer sizes
+  #     activation: relu  # Options: identity, logistic, tanh, relu
+  #     solver: adam  # Options: lbfgs, sgd, adam
+  #     alpha: 0.0001  # L2 penalty
+  #     learning_rate: constant  # Options: constant, invscaling, adaptive
+  #     learning_rate_init: 0.001
+  #     max_iter: 200
+  #     early_stopping: false
+  
+  # Gaussian Naive Bayes
+  # GaussianNB:
+  #   params:
+  #     var_smoothing: 1.0e-9
+  
+  # Gradient Boosting
+  # GradientBoosting:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     learning_rate: 0.1
+  #     max_depth: 3
+  #     subsample: 1.0
+  #     min_samples_split: 2
+  #     min_samples_leaf: 1
+  
+  # AdaBoost
+  # AdaBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 50
+  #     learning_rate: 1.0
+  #     algorithm: SAMME.R  # Options: SAMME, SAMME.R
+  
+  # Decision Tree
+  # DecisionTree:
+  #   params:
+  #     random_state: 42
+  #     criterion: gini  # Options: gini, entropy
+  #     splitter: best  # Options: best, random
+  #     max_depth: null
+  #     min_samples_split: 2
+  #     min_samples_leaf: 1
+  #     class_weight: balanced
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Visualization and Saving Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Generate performance plots (ROC, calibration, DCA, confusion matrix)
+is_visualize: false
+
+# Save trained models to disk (.pkl files)
+is_save_model: true
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Notes
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. All parameters listed are actually supported by the code
+# 2. YAML format: use 2 spaces for indentation (no tabs)
+# 3. Feature selection methods with before_z_score: true run first
+# 4. Feature selection methods with before_z_score: false run after normalization
+# 5. Models are trained on features after all feature selection steps
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

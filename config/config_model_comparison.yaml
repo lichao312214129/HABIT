@@ -1,0 +1,137 @@
+# Model Comparison Configuration File
+# This configuration file defines the settings for comparing multiple predictive models' performance
+# It includes settings for data input, visualization, statistical analysis, and performance metrics
+
+# Output Directory Configuration
+# Specifies where all comparison results, plots, and metrics will be saved
+output_dir: H:\results\ml_results\compare20251223  # Base directory for all comparison outputs
+
+# Model Prediction Files Configuration
+# Define the prediction files for each model to be compared
+# Each entry represents a different model's predictions
+files_config:
+  - path: H:\results\ml_results\autogluon_habitat\autogluon_habitat_pred_full.csv
+    name: Habitat model                              # Must be unique across files
+    subject_id_col: subjID            # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: prob   # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred  # Column containing predicted class labels (binary: 0/1)
+    split_col: split                    # Column indicating data split (e.g., 'train', 'test', 'validation')
+  
+  - path: H:\results\ml_results\autogluon_radiomics\autogluon_radiomics_pred_full.csv
+    name: Radiomics model                              # Must be unique across files
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+  
+  - path: H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv
+    name: Clinical model                              # Must be unique across files
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+
+  - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
+    name: Clinical-Radiomics model                              # Must be unique across files
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+  
+  # - path: H:\results\ml_results\merged_clinicalPlusHabitat\all_prediction_results.csv
+  #   name: Clinical+Habitat                            # Name used to identify this model in plots and reports
+  #   subject_id_col: subjID              # Column containing unique subject identifiers
+  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+  #   split_col: split  
+
+  # - path: H:\results\ml_results\merged_HabitatPlusRadiomics\all_prediction_results.csv
+  #   name: Radiomics+Habitat                              # Name used to identify this model in plots and reports
+  #   subject_id_col: subjID              # Column containing unique subject identifiers
+  #   label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+  #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+  #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+  #   split_col: split  
+
+  - path: H:\results\ml_results\merged_all\all_prediction_results.csv
+    name: Hybrid model                              # Must be unique across files
+    subject_id_col: subjID              # Column containing unique subject identifiers
+    label_col: true_label               # Column containing actual outcome labels (binary: 0/1)
+    prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
+    pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)
+    split_col: split   
+
+# Merged Data Configuration
+# Settings for combining predictions from multiple models into a single dataset
+merged_data:
+  enabled: true                           # Whether to create a combined dataset from all models
+  save_name: combined_predictions.csv   # Output filename for the merged dataset
+  
+# Split Configuration
+# Controls whether to analyze different data splits separately
+split:
+  enabled: true                           # Whether to generate separate analyses for different data splits
+
+# Visualization Configuration
+# Settings for generating various performance visualization plots
+visualization:
+  # ROC (Receiver Operating Characteristic) Curve Configuration
+  # Plots true positive rate vs false positive rate at various thresholds
+  roc:
+    enabled: true                         # Whether to generate ROC curve plots
+    save_name: roc_curves.pdf           # Output filename for ROC curve plot
+    title: ROC Curves        # Plot title
+  
+  # DCA (Decision Curve Analysis) Configuration
+  # Evaluates clinical utility of models across different threshold probabilities
+  dca:
+    enabled: true                         # Whether to generate decision curve analysis
+    save_name: decision_curves.pdf      # Output filename for decision curve plot
+    title: Decision Curves      # Plot title
+  
+  # Calibration Curve Configuration
+  # Shows how well predicted probabilities match actual probabilities
+  calibration:
+    enabled: true                         # Whether to generate calibration curves
+    save_name: calibration_curves.pdf   # Output filename for calibration plot
+    n_bins: 5                            # Number of probability bins for calibration analysis
+    title: Calibration Curves           # Plot title
+  
+  # Precision-Recall Curve Configuration
+  # Plots precision vs recall at various thresholds
+  pr_curve:
+    enabled: true                         # Whether to generate precision-recall curves
+    save_name: precision_recall_curves.pdf  # Output filename for PR curve plot
+    title: Precision-Recall Curves      # Plot title
+
+# DeLong Test Configuration
+# Statistical test for comparing ROC curves between models
+delong_test:
+  enabled: true                           # Whether to perform DeLong's test for AUC comparison
+  save_name: delong_results.json        # Output filename for DeLong test results
+
+# Performance Metrics Configuration
+# Settings for calculating various model performance metrics
+metrics:
+  # Basic Performance Metrics
+  # Includes accuracy, sensitivity, specificity, etc.
+  basic_metrics:
+    enabled: true                           # Whether to calculate basic performance metrics
+  
+  # Youden Index Metrics
+  # Optimal threshold based on sensitivity + specificity - 1
+  youden_metrics:
+    enabled: true                           # Whether to calculate Youden index metrics
+  
+  # Target Performance Metrics
+  # Metrics calculated at specific sensitivity/specificity targets
+  target_metrics:
+    enabled: true                           # Whether to calculate target-based metrics
+    targets:                              # Target values for sensitivity and specificity
+      sensitivity: 0.7                    # Target sensitivity value
+      specificity: 0.7                      # Target specificity value

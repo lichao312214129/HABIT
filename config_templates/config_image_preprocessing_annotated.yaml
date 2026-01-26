@@ -1,0 +1,138 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Image Preprocessing Configuration Template
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Based on actual code: habit/core/preprocessing/
+#
+# Quick Start:
+#   CLI:    habit preprocess --config config/config_image_preprocessing.yaml
+#   Script: python scripts/app_image_preprocessing.py --config config/config_image_preprocessing.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────
+# Data Paths
+# ─────────────────────────────────────────────────────────────────────────
+
+# Input data directory
+# Expected structure: data_dir/subject_id/images/ and masks/
+data_dir: ./data/raw_images
+
+# Output directory
+out_dir: ./data/preprocessed_images
+
+# ─────────────────────────────────────────────────────────────────────────
+# Preprocessing Pipeline
+# ─────────────────────────────────────────────────────────────────────────
+
+Preprocessing:
+  
+  # N4 Bias Field Correction (for MRI)
+  # n4_correction:
+  #   images: [T1, T2, FLAIR]
+  #   num_fitting_levels: 4  # Number of fitting levels (2-4 typical)
+  
+  # Resampling
+  # resample:
+  #   images: [T1, T2, DWI, ADC]
+  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing [x, y, z] in mm
+  
+  # Z-Score Normalization
+  # zscore_normalization:
+  #   images: [T1, T2]
+  #   only_inmask: false  # Use whole image or masked region only
+  #   # mask_key: tumor_mask  # Mask name if only_inmask: true
+  
+  # Histogram Standardization (Nyúl method)
+  # histogram_standardization:
+  #   images: [T1, T2, FLAIR]
+  #   percentiles: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99]  # Percentile landmarks
+  #   target_min: 0.0  # Target minimum value
+  #   target_max: 100.0  # Target maximum value
+  #   mask_key: tumor_mask  # Optional: mask for percentile computation
+  
+  # Adaptive Histogram Equalization (CLAHE)
+  # adaptive_histogram_equalization:
+  #   images: [T1, T2]
+  #   alpha: 0.3  # Classical histogram equalization degree [0,1]
+  #   beta: 0.3   # Local adaptation degree [0,1]
+  #   radius: 5   # Local window radius in pixels
+  
+  # Image Registration
+  registration:
+    images: [T2, ADC]  # All images involved
+    fixed_image: T2  # Reference image (stays fixed)
+    moving_images: [ADC]  # Images to align to fixed_image
+    type_of_transform: SyNRA  # ANTs transform type
+    use_mask: false  # Use mask to guide registration
+    # mask_key: tumor_mask  # Mask name if use_mask: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# Save Options (Intermediate Results)
+# ─────────────────────────────────────────────────────────────────────────
+
+save_options:
+  # Whether to save intermediate results after each preprocessing step
+  save_intermediate: false
+  
+  # Which steps to save (empty list = save all steps)
+  # Example: [n4_correction, resample]  # Only save these steps
+  intermediate_steps: []
+
+# Output directory structure when save_intermediate: true
+# out_dir/
+# ├── n4_correction_01/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   │              └── T2/T2.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# │                └── T2/mask_T2.nii.gz
+# ├── resample_02/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# └── processed_images/  (final results, always saved)
+#     ├── images/sub001/T1/T1.nii.gz
+#     └── masks/sub001/T1/mask_T1.nii.gz
+
+# ─────────────────────────────────────────────────────────────────────────
+# General Settings
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+processes: 1
+
+# Random seed for reproducibility
+random_state: 42
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Available Preprocessing Methods
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# n4_correction:
+#   - For MRI bias field correction
+#   - Parameters: images, num_fitting_levels
+#
+# resample:
+#   - Standardize voxel spacing
+#   - Parameters: images, target_spacing
+#
+# zscore_normalization:
+#   - Standardize intensity distribution
+#   - Parameters: images, only_inmask, mask_key
+#
+# histogram_standardization:
+#   - Nyúl histogram standardization using percentile landmarks
+#   - Maps intensities to standard scale without reference image
+#   - Parameters: images, percentiles, target_min, target_max, mask_key
+#
+# adaptive_histogram_equalization:
+#   - CLAHE (Contrast Limited Adaptive Histogram Equalization)
+#   - Enhances local contrast while limiting noise amplification
+#   - Parameters: images, alpha, beta, radius
+#
+# registration:
+#   - Align multiple images to same space
+#   - Parameters: images, fixed_image, moving_images, type_of_transform, use_mask, mask_key
+#   - Transform types: Translation, Rigid, Affine, SyN, SyNRA, SyNAggro, BSplineSyN
+#
+# ═══════════════════════════════════════════════════════════════════════════
+

@@ -1,0 +1,38 @@
+# Configuration file for Test-Retest Reproducibility Analysis
+# This configuration is used by habit retest command
+
+# Output directory for test-retest analysis results
+out_dir: ./ml_data/test_retest
+
+# Input configuration for test-retest mapping
+# Note: The actual script (app_habitat_test_retest_mapper.py) uses command-line arguments
+# This config file is mainly for CLI integration and logging setup
+
+# Test habitat table (CSV or Excel format)
+# Contains habitat features from the test (first) scan
+test_habitat_table: ./ml_data/habitats_test.csv
+
+# Retest habitat table (CSV or Excel format)  
+# Contains habitat features from the retest (second) scan
+retest_habitat_table: ./ml_data/habitats_retest.csv
+
+# Features to use for similarity calculation
+# If not specified, all features will be used
+features: null  # null means use all features
+# Example: features: ['feature1', 'feature2', 'feature3']
+
+# Similarity method for habitat mapping
+# Options: 'pearson', 'spearman', 'kendall', 'euclidean', 'cosine', 'manhattan', 'chebyshev'
+similarity_method: pearson
+
+# Input directory containing retest NRRD files
+input_dir: ./demo_data/habitat_maps/retest
+
+# Output directory for processed files
+output_dir: ./ml_data/test_retest/remapped
+
+# Number of parallel processes to use
+processes: 4
+
+# Enable debug logging
+debug: false
