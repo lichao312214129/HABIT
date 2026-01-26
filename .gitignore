@@ -144,15 +144,7 @@ cython_debug/
 .DS_Store
 
 # HABIT specific
-demo_data/results/
-demo_data/preprocessed/*
-!demo_data/preprocessed/processed_images/
-demo_data/preprocessed-backup/
-demo_data/ml_data/*
-!demo_data/ml_data/*.csv
-!demo_data/ml_data/*.txt
-!demo_data/ml_data/dicom/
-!demo_data/ml_data/dicom/**
+# General file types to ignore
 *.nii.gz
 *.nii
 *.nrrd
@@ -168,7 +160,19 @@ demo_data/ml_data/*
 *.joblib
 *.json
 
-# Exceptions (keep these files)
+# Specific directories to ignore
+demo_data/results/
+demo_data/preprocessed/*
+demo_data/preprocessed-backup/
+demo_data/ml_data/*
+
+# Exceptions (Allow these files/directories)
+!demo_data/preprocessed/processed_images/**
+!demo_data/ml_data/*.csv
+!demo_data/ml_data/*.txt
+!demo_data/ml_data/dicom/
+!demo_data/ml_data/dicom/**
+
 !demo_data/config_*.yaml
 !demo_data/files_*.yaml
 !config/*.yaml
