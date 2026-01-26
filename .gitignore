@@ -144,7 +144,7 @@ cython_debug/
 .DS_Store
 
 # HABIT specific
-# General file types to ignore
+# General file types to ignore (Global rules)
 *.nii.gz
 *.nii
 *.nrrd
@@ -159,20 +159,23 @@ cython_debug/
 *.pkl
 *.joblib
 *.json
+*.rar
+*.tar
+*.zip
+*.7z
 
 # Specific directories to ignore
 demo_data/results/
+results/
 demo_data/preprocessed/*
 demo_data/preprocessed-backup/
 demo_data/ml_data/*
+demo_data/dicom/*
 
-# Exceptions (Allow these files/directories)
-!demo_data/preprocessed/processed_images/*/*/*/*.nii.gz
+
+# 2. Allow csv and txt in ml_data root
 !demo_data/ml_data/*.csv
 !demo_data/ml_data/*.txt
-!demo_data/ml_data/dicom/
-!demo_data/ml_data/dicom/*/*/*.dcm
-
 !demo_data/config_*.yaml
 !demo_data/files_*.yaml
 !config/*.yaml
