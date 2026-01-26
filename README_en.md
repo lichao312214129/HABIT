@@ -48,10 +48,16 @@ conda activate habit
 pip install -r requirements.txt
 pip install -e .
 
-# 2. Run example analysis
+# 2. Download demo data
+# Download from Baidu Netdisk: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
+# Extraction code: xypk
+# Extract the downloaded files to the demo_data directory
+# Note: All privacy information has been removed. For academic research and demo use only. Commercial use is strictly prohibited.
+
+# 3. Run example analysis
 habit get-habitat --config demo_data/config_habitat.yaml
 
-# 3. View results
+# 4. View results
 # Results are saved in demo_data/results/habitat/ directory
 # Includes: habitat maps, visualization charts, CSV result files
 ```

@@ -141,11 +141,19 @@ pip install -e .
 1.  **逐个排查**：打开项目文件夹下的 `requirements.txt`，手动逐行运行 `pip install <包名>`（例如 `pip install SimpleITK`），找出具体是哪个包安装失败。
 2.  **寻求帮助**：如果无法解决，请在 GitHub 上 [提交 Issue](https://github.com/lichao312214129/HABIT/issues) 或者直接发送邮件联系作者：**lichao19870617@163.com**。
 
-### Step 2: 运行示例 (Run Demo)
+### Step 2: 下载演示数据 (Download Demo Data)
 
-我们内置了演示数据，您无需准备任何数据即可立即体验。
+演示数据已上传至百度网盘，请先下载并解压：
 
-**⚠️ 重要提示**：使用前需要先解压 `demo_data` 目录中的 `demo_data.rar` 压缩包。
+**📦 下载演示数据**
+
+链接: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA  
+提取码: `xypk`
+
+**⚠️ 重要说明**：
+- 所有隐私信息已完全去除
+- **严禁商业用途，仅供学术研究和Demo演示使用**
+- 下载后请将文件解压到 `demo_data` 目录下
 
 解压完成后，运行以下命令：
 
