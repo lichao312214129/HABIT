@@ -198,6 +198,18 @@ If you use HABIT in your research, please consider citing:
 
 ---
 
+## 🙏 Acknowledgments
+
+We sincerely thank the following experts and institutions for their support and contributions to the HABIT project:
+
+- **Dr. Huang Teng** - Ganzhou People's Hospital
+- **Dr. Wang Yaqi** - Anhui Medical University Third Affiliated Hospital
+- **Dr. Li Mengsi** - Central South University Xiangya Hospital
+
+Their valuable feedback and insights in clinical applications, algorithm improvements, and project optimization have been instrumental to the development of HABIT.
+
+---
+
 ## 🙋‍♀️ Support
 
 If you encounter any issues or have suggestions for improvement, please:

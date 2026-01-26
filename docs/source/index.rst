@@ -96,6 +96,7 @@ HABIT 识别并表征具有不同影像表型的肿瘤亚区域（即 Habitat）
    development/metrics_optimization
    algorithms/index
    changelog
+   acknowledgments
 
 索引与表格
 ----------
