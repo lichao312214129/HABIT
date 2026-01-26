@@ -167,11 +167,11 @@ demo_data/preprocessed-backup/
 demo_data/ml_data/*
 
 # Exceptions (Allow these files/directories)
-!demo_data/preprocessed/processed_images/**
+!demo_data/preprocessed/processed_images/*/*/*/*.nii.gz
 !demo_data/ml_data/*.csv
 !demo_data/ml_data/*.txt
 !demo_data/ml_data/dicom/
-!demo_data/ml_data/dicom/**
+!demo_data/ml_data/dicom/*/*/*.dcm
 
 !demo_data/config_*.yaml
 !demo_data/files_*.yaml
