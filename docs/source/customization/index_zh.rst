@@ -161,7 +161,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
    FeatureConstruction:
      voxel_level:
-       method: my_feature_extractor(delay2, delay3)
+       method: my_feature_extractor(raw(delay2), raw(delay3))
        params:
          param1: value1
 

@@ -226,13 +226,13 @@ HABIT 支持以下类型的自定义扩展：
        param1: value1
        param2: value2
 
-**特征提取器示例：**
+**2. 在配置文件中使用：**
 
 .. code-block:: yaml
 
    FeatureConstruction:
      voxel_level:
-       method: my_feature_extractor(T1, T2)
+       method: my_feature_extractor(raw(T1), raw(T2))
        params:
          param1: value1
 

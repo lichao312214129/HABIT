@@ -28,19 +28,30 @@ class MyFeatureExtractor(BaseClusteringExtractor):
         
         self.feature_names = ["intensity_precontrast", "intensity_lap", "intensity_pvp", "intensity_delay_3min", "delta"]
     
-    def extract_features(self, image_data: Union[np.ndarray, pd.DataFrame], **kwargs: Any) -> pd.DataFrame:
+    def extract_features(self, image_data: Union[np.ndarray, pd.DataFrame, List[Union[np.ndarray, pd.DataFrame]]], **kwargs: Any) -> pd.DataFrame:
         """
         Extract features from image data including delta calculation
         
         Args:
-            image_data: DataFrame with image data or 2D array
+            image_data: DataFrame/array with image data, or a list of them for multi-image extraction
             **kwargs: Additional parameters (not used by this extractor)
             
         Returns:
             pd.DataFrame: Extracted features with voxels as rows and features as columns
         """
-        # Ensure image_data is a DataFrame
-        if not isinstance(image_data, pd.DataFrame):
+        # Handle list input (multi-image case)
+        if isinstance(image_data, list):
+            # For this simple example, we just concatenate them
+            # In a real case, you might do complex cross-image calculations here
+            df = pd.concat([pd.DataFrame(img) if not isinstance(img, pd.DataFrame) else img for img in image_data], axis=1)
+            
+            # If we concatenated multiple images, we might need to assign column names
+            # For this demo, we'll try to map to our expected 4 images
+            if df.shape[1] >= 4:
+                df.columns = ['pre_contrast', 'LAP', 'PVP', 'delay_3min'] + list(df.columns[4:])
+        
+        # Ensure image_data is a DataFrame if it's not a list
+        elif not isinstance(image_data, pd.DataFrame):
             # If input is a numpy array, convert to DataFrame
             if len(self.feature_names) - 1 == image_data.shape[1]:  # -1 for the delta feature we'll calculate
                 column_names = self.feature_names[:-1]  # Exclude 'delta' from column names

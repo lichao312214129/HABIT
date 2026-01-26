@@ -532,7 +532,8 @@ HABIT 支持自定义特征提取器，您可以添加自己的特征提取方�
 
    FeatureConstruction:
      voxel_level:
-       method: my_feature_extractor(delay2, delay3)
+       # 注意：多图像输入时，每个图像名称必须包裹在 raw() 中
+       method: my_feature_extractor(raw(delay2), raw(delay3))
        params:
          param1: value1
 
