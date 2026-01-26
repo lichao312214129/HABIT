@@ -13,21 +13,6 @@
    machine_learning_modeling_zh
    model_comparison_zh
 
-实用工具
---------
-
-HABIT 提供了一些辅助工具来简化您的工作流程：
-
-.. toctree::
-   :maxdepth: 1
-
-   ../app_dicom_info_zh
-   ../app_icc_analysis_zh
-   ../app_merge_csv_zh
-   ../app_habitat_test_retest_zh
-   ../app_model_comparison_zh
-   ../app_dice_calculator_zh
-
 工作流程概述
 ------------
 
@@ -107,9 +92,11 @@ HABIT 支持两种数据输入方式：
 - :doc:`habitat_segmentation_zh`: 生境分割
 - :doc:`habitat_feature_extraction_zh`: 生境特征提取
 - :doc:`machine_learning_modeling_zh`: 机器学习建模
+- :doc:`model_comparison_zh`: 模型对比与统计检验
 
 或者查看：
 
 - :doc:`../tutorials/index_zh`: 完整的教程
 - :doc:`../customization/index_zh`: 自定义扩展指南
 - :doc:`../configuration_zh`: 配置参考
+- :doc:`../index`: 实用工具与其他入口

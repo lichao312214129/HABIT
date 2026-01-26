@@ -74,7 +74,11 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                 raise FileNotFoundError(f"Mask file not found: {mask_data}")
         else:
             mask = mask_data
-            
+
+        # Ensure mask has the same geometric information as image
+        # to avoid geometry mismatch errors in PyRadiomics
+        mask.CopyInformation(image)
+
         # Check if mask has non-zero values
         mask_array = sitk.GetArrayFromImage(mask)
         if np.sum(mask_array > 0) == 0:
@@ -87,7 +91,10 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
             # centered on each voxel, radius of 2 means 5×5×5, etc.
             kernelRadius = kwargs.get('kernelRadius', 1)
-            extractor.settings.update({'kernelRadius': kernelRadius})
+            extractor.settings.update({
+                'kernelRadius': kernelRadius,
+                'geometryTolerance': 1e-3  # Allow small geometric differences
+            })
             
             # Extract voxel-based features  计算GLCM时会报错，可能是由于局部太均质所致
             result = extractor.execute(image, mask, voxelBased=True)
