@@ -18,7 +18,7 @@
             },
             "thresholds": {
                 "youden": 0.5221865466407605,
-                "target": 0.6296106038532208
+                "target": 0.5221865466407605
             },
             "target_metrics": {
                 "thresholds": {
@@ -129,7 +129,25 @@
                             "spiegelhalter_z_p_value": 0.9072101589716026
                         }
                     }
-                }
+                },
+                "best_threshold": {
+                    "threshold": 0.5221865466407605,
+                    "metrics": {
+                        "accuracy": 0.94,
+                        "sensitivity": 0.9545454545454546,
+                        "specificity": 0.9246575342465754,
+                        "ppv": 0.930379746835443,
+                        "npv": 0.9507042253521126,
+                        "f1_score": 0.9423076923076923,
+                        "auc": 0.9836772816224871,
+                        "hosmer_lemeshow_p_value": 0.6829087943259259,
+                        "spiegelhalter_z_p_value": 0.9072101589716026
+                    },
+                    "youden_index": 0.8792029887920298,
+                    "strategy": "pareto+youden",
+                    "pareto_optimal_count": 4
+                },
+                "closest_threshold": null
             },
             "basic_metrics": {
                 "accuracy": 0.9366666666666666,
@@ -250,7 +268,25 @@
                             "spiegelhalter_z_p_value": 0.8992192565265436
                         }
                     }
-                }
+                },
+                "best_threshold": {
+                    "threshold": 0.530909962520542,
+                    "metrics": {
+                        "accuracy": 0.93,
+                        "sensitivity": 0.9285714285714286,
+                        "specificity": 0.9315068493150684,
+                        "ppv": 0.934640522875817,
+                        "npv": 0.9251700680272109,
+                        "f1_score": 0.9315960912052117,
+                        "auc": 0.9782067247820672,
+                        "hosmer_lemeshow_p_value": 0.7633871818701906,
+                        "spiegelhalter_z_p_value": 0.8992192565265436
+                    },
+                    "youden_index": 0.860078277886497,
+                    "strategy": "pareto+youden",
+                    "pareto_optimal_count": 3
+                },
+                "closest_threshold": null
             },
             "basic_metrics": {
                 "accuracy": 0.93,
@@ -284,7 +320,7 @@
             },
             "thresholds": {
                 "youden": 0.5221865466407605,
-                "target": 0.6296106038532208
+                "target": 0.5221865466407605
             },
             "basic_metrics": {
                 "accuracy": 0.9256505576208178,
@@ -298,14 +334,14 @@
                 "spiegelhalter_z_p_value": 1.1311258596435891e-09
             },
             "target_metrics": {
-                "threshold": 0.6296106038532208,
+                "threshold": 0.5221865466407605,
                 "metrics": {
-                    "accuracy": 0.8884758364312267,
-                    "sensitivity": 0.8571428571428571,
+                    "accuracy": 0.9107806691449815,
+                    "sensitivity": 0.8866995073891626,
                     "specificity": 0.9848484848484849,
-                    "ppv": 0.9942857142857143,
-                    "npv": 0.6914893617021277,
-                    "f1_score": 0.9206349206349207,
+                    "ppv": 0.994475138121547,
+                    "npv": 0.7386363636363636,
+                    "f1_score": 0.9375000000000001,
                     "auc": 0.9914912673533363,
                     "hosmer_lemeshow_p_value": 2.9344195976444e-06,
                     "spiegelhalter_z_p_value": 1.1311258596435891e-09

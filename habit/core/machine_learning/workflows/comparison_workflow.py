@@ -639,10 +639,15 @@ class ModelComparison:
     
     def _calculate_target_metrics_by_split(self, targets: Dict[str, float]) -> None:
         """
-        Calculate target metrics for train/test split scenario
+        Calculate target metrics for train/test split scenario with enhanced features.
+        
+        Features:
+        - Uses best_threshold from enhanced calculate_metrics_at_target
+        - Falls back to closest_threshold when no perfect match exists
+        - Logs detailed information about threshold selection
 
         Args:
-            targets (dict): Target metrics
+            targets (dict): Target metrics, e.g., {'sensitivity': 0.91, 'specificity': 0.91}
         """
         train_group_name = self._get_training_group_name()
         if train_group_name is None:
@@ -652,25 +657,59 @@ class ModelComparison:
         self.logger.info(f"根据 {self.split_column} 分组计算目标指标阈值...")
         train_models_data = self.split_groups[train_group_name]
         train_thresholds = {}
-        combined_key = ' & '.join(targets.keys())
 
         for model_name, data_tuple in train_models_data.items():
             try:
                 y_true, y_pred_proba, *_ = data_tuple
                 container = self._create_prediction_container(y_true, y_pred_proba)
-                model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
+                
+                # Use enhanced version with fallback
+                model_metrics = calculate_metrics_at_target(
+                    container.y_true, 
+                    container.y_prob, 
+                    targets,
+                    threshold_selection='pareto+youden',
+                    fallback_to_closest=True
+                )
 
                 self.logger.info(f"{model_name} 训练集计算目标指标，有效样本数: {len(container.y_true)}")
 
+                # Store the full metrics result
                 self.metrics_store.add_metrics(train_group_name, model_name, 'target_metrics', model_metrics)
 
-                if 'combined_results' in model_metrics and combined_key in model_metrics['combined_results']:
-                    combined_thresholds = model_metrics['combined_results'][combined_key]
-                    if combined_thresholds:
-                        first_threshold_key = next(iter(combined_thresholds))
-                        train_thresholds[model_name] = float(first_threshold_key)
-                        self.metrics_store.add_threshold(train_group_name, model_name, 'target', train_thresholds[model_name])
-                        self.logger.info(f"{model_name} 同时满足所有目标的阈值: {train_thresholds[model_name]:.4f}")
+                # Extract threshold for applying to test set
+                threshold_to_use = None
+                
+                # Priority 1: Use best_threshold if available
+                if model_metrics.get('best_threshold'):
+                    best_info = model_metrics['best_threshold']
+                    threshold_to_use = best_info['threshold']
+                    self.metrics_store.add_threshold(train_group_name, model_name, 'target', threshold_to_use)
+                    
+                    self.logger.info(
+                        f"{model_name} 同时满足所有目标的最优阈值: {threshold_to_use:.4f} "
+                        f"(策略: {best_info.get('strategy')}, "
+                        f"Youden: {best_info.get('youden_index', 0):.4f})"
+                    )
+                    train_thresholds[model_name] = threshold_to_use
+                
+                # Priority 2: Fallback to closest_threshold
+                elif model_metrics.get('closest_threshold'):
+                    closest_info = model_metrics['closest_threshold']
+                    threshold_to_use = closest_info['threshold']
+                    self.metrics_store.add_threshold(train_group_name, model_name, 'target_closest', threshold_to_use)
+                    
+                    self.logger.warning(
+                        f"{model_name} 未找到完全满足所有目标的阈值，使用最接近阈值: {threshold_to_use:.4f} "
+                        f"(距离: {closest_info.get('distance_to_target', 0):.4f}, "
+                        f"满足目标: {closest_info.get('satisfied_targets', [])}, "
+                        f"未满足: {closest_info.get('unsatisfied_targets', [])})"
+                    )
+                    train_thresholds[model_name] = threshold_to_use
+                
+                else:
+                    self.logger.warning(f"{model_name} 未找到任何合适的阈值")
+                    
             except Exception as e:
                 self.logger.warning(f"{model_name} 计算目标指标时出错: {str(e)}")
 
@@ -680,9 +719,9 @@ class ModelComparison:
             if dataset_group_name == train_group_name:
                 continue
             
-            # If we have combined thresholds from training, apply them
+            # If we have thresholds from training (either best or closest), apply them
             if train_thresholds:
-                self.logger.info(f"将训练集的组合目标阈值应用到 {dataset_group_name} 数据集...")
+                self.logger.info(f"将训练集的目标阈值应用到 {dataset_group_name} 数据集...")
                 dataset_results = self._apply_thresholds_to_test(dataset_models_data, train_thresholds, 'apply_target_threshold')
 
                 for model_name, metrics_data in dataset_results.items():
@@ -690,13 +729,18 @@ class ModelComparison:
                     if model_name in train_thresholds:
                         self.metrics_store.add_threshold(dataset_group_name, model_name, 'target', train_thresholds[model_name])
             else:
-                # No combined thresholds found, but still compute target_metrics for this dataset
-                self.logger.info(f"训练集未找到组合阈值，在 {dataset_group_name} 数据集上独立计算目标指标...")
+                # No thresholds found in training, still compute target_metrics for this dataset
+                self.logger.info(f"训练集未找到阈值，在 {dataset_group_name} 数据集上独立计算目标指标...")
                 for model_name, data_tuple in dataset_models_data.items():
                     try:
                         y_true, y_pred_proba, *_ = data_tuple
                         container = self._create_prediction_container(y_true, y_pred_proba)
-                        model_metrics = calculate_metrics_at_target(container.y_true, container.y_prob, targets)
+                        model_metrics = calculate_metrics_at_target(
+                            container.y_true, 
+                            container.y_prob, 
+                            targets,
+                            fallback_to_closest=True
+                        )
                         
                         self.logger.info(f"{model_name} ({dataset_group_name}组) 计算目标指标，有效样本数: {len(container.y_true)}")
                         self.metrics_store.add_metrics(dataset_group_name, model_name, 'target_metrics', model_metrics)

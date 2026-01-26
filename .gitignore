@@ -11,6 +11,7 @@ __pycache__/
 *.json
 *.csv
 results/
+demo_data/preprocessed-backup/
 
 # 保留演示数据中的预处理图像，即使它们是 nrrd/nii.gz 格式
 !demo_data/preprocessed/processed_images/
