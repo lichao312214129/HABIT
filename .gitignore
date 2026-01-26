@@ -146,8 +146,13 @@ cython_debug/
 # HABIT specific
 demo_data/results/
 demo_data/preprocessed/*
+!demo_data/preprocessed/processed_images/
 demo_data/preprocessed-backup/
 demo_data/ml_data/*
+!demo_data/ml_data/*.csv
+!demo_data/ml_data/*.txt
+!demo_data/ml_data/dicom/
+!demo_data/ml_data/dicom/**
 *.nii.gz
 *.nii
 *.nrrd
@@ -164,10 +169,6 @@ demo_data/ml_data/*
 *.json
 
 # Exceptions (keep these files)
-!demo_data/preprocessed/processed_images/*
-!demo_data/ml_data/*.csv
-!demo_data/ml_data/*.txt
-!demo_data/ml_data/dicom/*
 !demo_data/config_*.yaml
 !demo_data/files_*.yaml
 !config/*.yaml
