@@ -41,9 +41,10 @@ HabitatsSegmention:
   # One-step mode specific settings
   one_step_settings:
     # Option 1: Use fixed cluster number (skip optimal search, similar to two_step mode)
-    # fixed_n_clusters: 5  # If specified, use this fixed number for all samples, skip optimization
+    fixed_n_clusters: null  # If specified, use this fixed number for all samples, skip optimization
+                            # Set to null for automatic cluster number selection
     
-    # Option 2: Automatically find optimal clusters for each sample (default behavior)
+    # Option 2: Automatically find optimal clusters for each sample (default when fixed_n_clusters is null)
     min_clusters: 2           # Minimum number of clusters to test
     max_clusters: 10          # Maximum number of clusters to test
     selection_method: silhouette  # Method to determine optimal clusters

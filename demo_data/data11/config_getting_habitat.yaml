@@ -11,7 +11,7 @@ FeatureConstruction:
     method: concat(voxel_radiomics(T2, params_file, kernelRadius))
     params:
       params_file: ./parameter.yaml
-      kernelRadius: 2
+      kernelRadius: 5
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
@@ -21,15 +21,15 @@ FeatureConstruction:
 
   preprocessing_for_subject_level: 
     methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
+      - method: zscore
+        # winsor_limits: [0.05, 0.05]
 
-  # preprocessing_for_group_level:
-  #   methods:
-  #     - method: binning
-  #       n_bins: 10
-  #       bin_strategy: uniform
-  #       global_normalize: false
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
 
 
 # Habitat segmentation settings

@@ -156,13 +156,18 @@ HabitatsSegmention:
     
     # Settings for one_step mode only
     one_step_settings:
-      # Minimum number of clusters to test
+      # Fixed number of clusters (optional)
+      # If specified, automatic selection is skipped and this value is used for all subjects
+      # Set to null for automatic selection
+      fixed_n_clusters: null
+      
+      # Minimum number of clusters to test (used when fixed_n_clusters is null)
       min_clusters: 2
       
-      # Maximum number of clusters to test
+      # Maximum number of clusters to test (used when fixed_n_clusters is null)
       max_clusters: 10
       
-      # Method to select optimal number of clusters
+      # Method to select optimal number of clusters (used when fixed_n_clusters is null)
       # Options: silhouette, calinski_harabasz, davies_bouldin, inertia
       selection_method: silhouette
       
@@ -185,11 +190,11 @@ HabitatsSegmention:
     # Options: kmeans, gmm
     algorithm: kmeans
     
+    # Minimum number of habitat clusters to test
+    min_clusters: 2
+    
     # Maximum number of habitat clusters to test
     max_clusters: 10
-    
-    # Minimum number of habitat clusters to test (optional)
-    # min_clusters: 2
     
     # Method to select optimal number of clusters
     # For kmeans: inertia, silhouette, calinski_harabasz
@@ -199,7 +204,7 @@ HabitatsSegmention:
     # Fixed number of clusters (optional)
     # If specified, automatic selection is skipped
     # Set to null or omit for automatic selection
-    best_n_clusters: 4
+    fixed_n_clusters: 4
     
     # Random seed for reproducibility
     random_state: 42

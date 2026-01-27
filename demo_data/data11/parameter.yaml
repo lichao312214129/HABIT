@@ -32,7 +32,7 @@ featureClass:
   # They can be enabled by specifying individual feature names
   # shape:                            # Shape features - describe 3D geometric properties of the ROI
   firstorder:                       # First order statistics - describe intensity distribution (histogram-based)
-  # glcm:                             # Gray Level Co-occurrence Matrix - texture features describing local intensity arrangements
+  glcm:                             # Gray Level Co-occurrence Matrix - texture features describing local intensity arrangements
   # glrlm:                            # Gray Level Run Length Matrix - texture features describing run lengths of similar intensities
   # glszm:                            # Gray Level Size Zone Matrix - texture features describing sizes of similar intensity zones
   # ngtdm:                            # Neighboring Gray Tone Difference Matrix - texture features describing intensity differences between neighboring voxels
