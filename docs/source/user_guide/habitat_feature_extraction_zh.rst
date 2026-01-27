@@ -47,23 +47,22 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.analyzers.habitat_analyzer import HabitatMapAnalyzer
+   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
+
+   # 加载配置
+   config = FeatureExtractionConfig.from_file('./config_extract_features.yaml')
+
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config)
 
    # 创建特征提取器
-   analyzer = HabitatMapAnalyzer(
-       params_file_of_non_habitat='./parameter.yaml',
-       params_file_of_habitat='./parameter_habitat.yaml',
-       raw_img_folder='./preprocessed/processed_images',
-       habitats_map_folder='./results/habitat',
-       out_dir='./results/features',
-       n_processes=3,
-       habitat_pattern='*_habitats.nrrd'
-   )
+   analyzer = configurator.create_feature_extractor()
 
    # 运行特征提取
    analyzer.run(
-       feature_types=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith_score'],
-       n_habitats=3
+       feature_types=config.feature_types,
+       n_habitats=config.n_habitats
    )
 
 **详细示例：**
@@ -71,7 +70,8 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.habitat_analysis.analyzers.habitat_analyzer import HabitatMapAnalyzer
+   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
    from habit.utils.log_utils import setup_logger
    from pathlib import Path
 
@@ -85,23 +85,20 @@ Python API 使用方法
        level=logging.INFO
    )
 
+   # 加载配置
+   config = FeatureExtractionConfig.from_file('./config_extract_features.yaml')
+
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+
    # 创建特征提取器
-   analyzer = HabitatMapAnalyzer(
-       params_file_of_non_habitat='./parameter.yaml',
-       params_file_of_habitat='./parameter_habitat.yaml',
-       raw_img_folder='./preprocessed/processed_images',
-       habitats_map_folder='./results/habitat',
-       out_dir='./results/features',
-       n_processes=3,
-       habitat_pattern='*_habitats.nrrd',
-       voxel_cutoff=10
-   )
+   analyzer = configurator.create_feature_extractor()
 
    # 运行特征提取
    logger.info("开始特征提取")
    analyzer.run(
-       feature_types=['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith_score'],
-       n_habitats=3
+       feature_types=config.feature_types,
+       n_habitats=config.n_habitats
    )
    logger.info("特征提取完成！")
 

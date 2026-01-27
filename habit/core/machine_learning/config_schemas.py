@@ -213,3 +213,25 @@ class PredictionConfig(BaseConfig):
 def validate_config(config_dict: Dict[str, Any]) -> MLConfig:
     """Validate raw dictionary against the schema."""
     return MLConfig(**config_dict)
+
+# -----------------------------------------------------------------------------
+# Test-Retest Analysis Schemas
+# -----------------------------------------------------------------------------
+
+class TestRetestConfig(BaseConfig):
+    """Configuration for test-retest reproducibility analysis."""
+    
+    test_habitat_table: str = Field(..., description="Path to test group habitat feature table (CSV or Excel)")
+    retest_habitat_table: str = Field(..., description="Path to retest group habitat feature table (CSV or Excel)")
+    
+    features: Optional[List[str]] = Field(None, description="List of feature names for similarity calculation (None = all)")
+    similarity_method: Literal['pearson', 'spearman', 'kendall', 'euclidean', 'cosine', 'manhattan', 'chebyshev'] = Field(
+        'pearson',
+        description="Similarity calculation method"
+    )
+    
+    input_dir: str = Field(..., description="Directory containing retest group NRRD files")
+    out_dir: str = Field(..., description="Output directory for processed files")
+    
+    processes: int = Field(4, description="Number of parallel processes", gt=0)
+    debug: bool = Field(False, description="Enable debug logging")

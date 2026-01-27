@@ -60,6 +60,99 @@ HABIT 的主要依赖包括：
 
 如果安装成功，您应该看到版本号输出。
 
+卸载 HABIT
+-----------
+
+如果需要卸载 HABIT 包，可以使用以下方法：
+
+1. **查看已安装的包名**：
+
+   .. code-block:: bash
+
+      # 查看所有已安装的包
+      pip list | grep -i habit
+
+      # 或者查看包的详细信息
+      pip show HABIT
+
+2. **卸载包**：
+
+   .. code-block:: bash
+
+      # 卸载 HABIT 包（使用 -y 参数自动确认，避免交互提示）
+      pip uninstall HABIT -y
+
+3. **验证卸载**：
+
+   .. code-block:: bash
+
+      # 检查是否已卸载
+      pip show HABIT
+
+      # 如果包已卸载，上述命令会提示 "Package(s) not found"
+
+**注意事项**：
+
+- 卸载包不会删除源代码目录，只会移除 Python 环境中的安装链接。
+- 卸载包不会自动卸载依赖包，如果需要清理所有依赖，需要手动处理。
+- 如果使用 Conda 环境，建议在对应的环境中执行卸载命令。
+
+更新 HABIT
+-----------
+
+如果 HABIT 包有新版本发布，您可以通过以下方法更新到最新版本：
+
+**方法 1：从 Git 仓库更新（推荐）**
+
+如果您是通过 `git clone` 安装的，进入项目目录并拉取最新代码：
+
+.. code-block:: bash
+
+   # 进入 HABIT 项目目录
+   cd HABIT
+
+   # 拉取最新代码
+   git pull
+
+   # 如果依赖有更新，重新安装依赖
+   pip install -r requirements.txt --upgrade
+
+   # 重新安装包（确保安装是最新的）
+   pip install -e .
+
+**方法 2：重新克隆仓库**
+
+如果遇到合并冲突或想完全重新安装：
+
+.. code-block:: bash
+
+   # 备份您的配置文件（如果有自定义配置）
+   # cp -r HABIT/config my_config_backup
+
+   # 删除旧目录
+   # rm -rf HABIT
+
+   # 重新克隆
+   git clone https://github.com/lichao312214129/HABIT.git
+   cd HABIT
+   pip install -r requirements.txt
+   pip install -e .
+
+**方法 3：仅更新依赖包**
+
+如果只是依赖包有更新，而代码没有变化：
+
+.. code-block:: bash
+
+   # 更新所有依赖到最新版本
+   pip install -r requirements.txt --upgrade
+
+**注意事项**：
+
+- 使用 `git pull` 更新时，如果本地有未提交的修改，可能会遇到冲突。建议先提交或暂存本地修改。
+- 如果更新后遇到问题，可以查看 `CHANGELOG.md` 或 GitHub Releases 了解版本变更。
+- 更新后建议运行 `habit --version` 验证安装是否成功。
+
 可选依赖
 ---------
 

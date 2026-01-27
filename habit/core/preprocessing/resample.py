@@ -106,13 +106,13 @@ class ResamplePreprocessor(BasePreprocessor):
         # Get image size
         size = sitk_image.GetSize()
         
-        logger.info(f"{subj_info}{key_info}Original spacing: {original_spacing}, size: {size}")
+        logger.debug(f"{subj_info}{key_info}Original spacing: {original_spacing}, size: {size}")
         
         # Calculate the new size after resampling
         zoom_factor = [orig_sz / target_sz for orig_sz, target_sz in zip(original_spacing, target_spacing)]
         new_size = [int(round(sz * factor)) for sz, factor in zip(size, zoom_factor)]
         
-        logger.info(f"{subj_info}{key_info}Target spacing: {target_spacing}, new size: {new_size}")
+        logger.debug(f"{subj_info}{key_info}Target spacing: {target_spacing}, new size: {new_size}")
         
         # Create reference image with target spacing
         reference_image = sitk.Image(new_size, sitk_image.GetPixelID())
@@ -126,8 +126,6 @@ class ResamplePreprocessor(BasePreprocessor):
         resampler.SetInterpolator(interpolator)
         resampled_sitk = resampler.Execute(sitk_image)
         
-        logger.info(f"{subj_info}{key_info}Resampling completed")
-        
         return resampled_sitk, original_spacing
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -140,11 +138,10 @@ class ResamplePreprocessor(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with resampled images and masks.
         """
-        logger.info(f"Resampling images to {self.target_spacing}...")
         self._check_keys(data)
         
         subj = data.get('subj', 'unknown')
-        logger.info(f"Processing subject: {subj}")
+        logger.debug(f"[{subj}] Resampling to {self.target_spacing}")
         
         # Process images
         for key in self.img_keys:
@@ -169,7 +166,6 @@ class ResamplePreprocessor(BasePreprocessor):
 
             # Store the resampled array in the data
             data[key] = resampled_img
-            logger.info(f"[{subj}] Successfully resampled image {key}")
                     
         # Process masks with nearest neighbor interpolation
         for mask_key in self.mask_keys:
@@ -195,6 +191,5 @@ class ResamplePreprocessor(BasePreprocessor):
             
             # Store the resampled array in the data
             data[mask_key] = resampled_img
-            logger.info(f"[{subj}] Successfully resampled mask {mask_key}")
             
         return data

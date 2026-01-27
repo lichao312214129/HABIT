@@ -8,7 +8,9 @@ from .voxel_feature_extractor import VoxelFeatureExtractor
 from .subject_preprocessing import SubjectPreprocessingStep
 from .individual_clustering import IndividualClusteringStep
 from .supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
-from .supervoxel_aggregation import SupervoxelAggregationStep
+from .calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
+from .merge_supervoxel_features import MergeSupervoxelFeaturesStep
+from .supervoxel_aggregation import SupervoxelAggregationStep  # DEPRECATED: kept for backward compatibility
 from .combine_supervoxels import CombineSupervoxelsStep
 from .concatenate_voxels import ConcatenateVoxelsStep
 from .group_preprocessing import GroupPreprocessingStep
@@ -19,7 +21,9 @@ __all__ = [
     'SubjectPreprocessingStep',
     'IndividualClusteringStep',
     'SupervoxelFeatureExtractionStep',
-    'SupervoxelAggregationStep',
+    'CalculateMeanVoxelFeaturesStep',
+    'MergeSupervoxelFeaturesStep',
+    'SupervoxelAggregationStep',  # DEPRECATED
     'CombineSupervoxelsStep',
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',

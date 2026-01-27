@@ -216,14 +216,17 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.machine_learning import MachineLearningWorkflow
+   from habit.core.common.service_configurator import ServiceConfigurator
    from habit.core.machine_learning.config_schemas import MLConfig
 
    # 加载配置
    config = MLConfig.from_file('./config_machine_learning.yaml')
 
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config)
+
    # 创建机器学习工作流
-   workflow = MachineLearningWorkflow(config)
+   workflow = configurator.create_ml_workflow()
 
    # 运行工作流
    workflow.run_pipeline()
@@ -233,7 +236,7 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.machine_learning import MachineLearningWorkflow
+   from habit.core.common.service_configurator import ServiceConfigurator
    from habit.core.machine_learning.config_schemas import MLConfig
    from habit.utils.log_utils import setup_logger
    from pathlib import Path
@@ -251,8 +254,11 @@ Python API 使用方法
    # 加载配置
    config = MLConfig.from_file('./config_machine_learning.yaml')
 
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+
    # 创建机器学习工作流
-   workflow = MachineLearningWorkflow(config, logger=logger)
+   workflow = configurator.create_ml_workflow()
 
    # 运行工作流
    logger.info("开始训练模式")

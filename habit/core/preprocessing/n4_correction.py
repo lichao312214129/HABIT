@@ -86,7 +86,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         
         # Apply shrinking to speed up computation if shrink_factor > 1
         if self.shrink_factor > 1:
-            logger.info(f"{subj_info}Applying shrinking with factor {self.shrink_factor} to speed up computation")
+            logger.debug(f"{subj_info}Applying shrinking with factor {self.shrink_factor}")
             sitk_image = sitk.Shrink(original_image, [self.shrink_factor] * original_image.GetDimension())
             if sitk_mask is not None:
                 sitk_mask = sitk.Shrink(sitk_mask, [self.shrink_factor] * original_image.GetDimension())
@@ -96,8 +96,6 @@ class N4BiasFieldCorrection(BasePreprocessor):
         corrector.SetMaximumNumberOfIterations(self.num_iterations)
         corrector.SetConvergenceThreshold(self.convergence_threshold)
         
-        logger.info(f"{subj_info}Executing N4 correction with {self.num_fitting_levels} fitting levels")
-        
         # Execute the correction
         if sitk_mask is not None:
             corrected_image = corrector.Execute(sitk_image, sitk_mask)
@@ -106,7 +104,7 @@ class N4BiasFieldCorrection(BasePreprocessor):
         
         # If we used shrinking, apply correction to the full resolution image
         if self.shrink_factor > 1:
-            logger.info(f"{subj_info}Applying correction to full resolution image")
+            logger.debug(f"{subj_info}Applying correction to full resolution")
             # Get the log bias field and apply to full resolution image
             log_bias_field = corrector.GetLogBiasFieldAsImage(original_image)
             corrected_image = original_image / sitk.Exp(log_bias_field)
@@ -122,11 +120,10 @@ class N4BiasFieldCorrection(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with corrected images.
         """
-        logger.info("Applying N4 bias field correction...")
         self._check_keys(data)
         
         subj = data.get('subj', 'unknown')
-        logger.info(f"Processing subject: {subj}")
+        logger.debug(f"[{subj}] Applying N4 bias field correction")
         
         # Process each image
         for key in self.keys:
@@ -160,8 +157,6 @@ class N4BiasFieldCorrection(BasePreprocessor):
                 if meta_key not in data:
                     data[meta_key] = {}
                 data[meta_key]["n4_corrected"] = True
-                
-                logger.info(f"[{subj}] Successfully applied N4 correction to {key}")
                 
             except Exception as e:
                 logger.error(f"[{subj}] Error applying N4 correction to {key}: {e}")

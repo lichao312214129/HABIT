@@ -220,7 +220,51 @@ class FeatureExtractionConfig(BaseConfig):
     
     debug: bool = Field(False, description="Enable debug mode")
 
+# -----------------------------------------------------------------------------
+# Traditional Radiomics Extraction Schemas
+# -----------------------------------------------------------------------------
+
+class PathsConfig(BaseModel):
+    """Paths configuration for radiomics extraction."""
+    params_file: str = Field(..., description="Path to pyradiomics parameter file")
+    images_folder: str = Field(..., description="Root directory containing images/ and masks/ subdirectories")
+    out_dir: str = Field(..., description="Output directory for extracted features")
+
+class ProcessingConfig(BaseModel):
+    """Processing configuration for radiomics extraction."""
+    n_processes: int = Field(2, description="Number of parallel processes", gt=0)
+    save_every_n_files: int = Field(5, description="Save intermediate results every N files", gt=0)
+    process_image_types: Optional[List[str]] = Field(None, description="List of image types to process (None = all)")
+
+class ExportConfig(BaseModel):
+    """Export configuration for radiomics extraction."""
+    export_by_image_type: bool = Field(True, description="Export features by image type")
+    export_combined: bool = Field(True, description="Export combined features")
+    export_format: Literal['csv', 'json', 'pickle'] = Field('csv', description="Export format")
+    add_timestamp: bool = Field(True, description="Add timestamp to output files")
+
+class LoggingConfig(BaseModel):
+    """Logging configuration for radiomics extraction."""
+    level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] = Field('INFO', description="Log level")
+    console_output: bool = Field(True, description="Enable console output")
+    file_output: bool = Field(True, description="Enable file output")
+
+class RadiomicsConfig(BaseConfig):
+    """Configuration for traditional radiomics feature extraction."""
+    
+    paths: PathsConfig = Field(..., description="Paths configuration")
+    processing: ProcessingConfig = Field(default_factory=ProcessingConfig, description="Processing configuration")
+    export: ExportConfig = Field(default_factory=ExportConfig, description="Export configuration")
+    logging: LoggingConfig = Field(default_factory=LoggingConfig, description="Logging configuration")
+    
+    # For backward compatibility, allow top-level params
+    params_file: Optional[str] = Field(None, description="DEPRECATED: Use paths.params_file instead")
+    images_folder: Optional[str] = Field(None, description="DEPRECATED: Use paths.images_folder instead")
+    out_dir: Optional[str] = Field(None, description="DEPRECATED: Use paths.out_dir instead")
+    n_processes: Optional[int] = Field(None, description="DEPRECATED: Use processing.n_processes instead")
+
 # Update forward references
 HabitatAnalysisConfig.model_rebuild()
 FeatureConstructionConfig.model_rebuild()
 FeatureExtractionConfig.model_rebuild()
+RadiomicsConfig.model_rebuild()

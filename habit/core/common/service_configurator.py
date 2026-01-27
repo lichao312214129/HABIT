@@ -329,6 +329,90 @@ class ServiceConfigurator:
             n_processes=cfg.n_processes,
             habitat_pattern=cfg.habitat_pattern
         )
+    
+    # === Traditional Radiomics Services ===
+    
+    def create_radiomics_extractor(self, config: Optional[Any] = None) -> Any:
+        """
+        Create TraditionalRadiomicsExtractor for traditional radiomics feature extraction.
+        
+        Args:
+            config: Optional configuration override.
+            
+        Returns:
+            Configured TraditionalRadiomicsExtractor instance.
+        """
+        from scripts.app_traditional_radiomics_extractor import TraditionalRadiomicsExtractor
+        from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
+        
+        cfg = config or self.config
+        
+        # Ensure we have a typed config
+        if isinstance(cfg, dict):
+            cfg = RadiomicsConfig.model_validate(cfg)
+        elif not isinstance(cfg, RadiomicsConfig):
+            try:
+                cfg_dict = cfg.to_dict() if hasattr(cfg, 'to_dict') else dict(cfg)
+                cfg = RadiomicsConfig.model_validate(cfg_dict)
+            except Exception as e:
+                raise ValueError(f"Invalid configuration for Radiomics Extraction: {e}")
+        
+        # Create extractor with config
+        # Handle both nested and flat config formats for backward compatibility
+        params_file = cfg.params_file or cfg.paths.params_file
+        images_folder = cfg.images_folder or cfg.paths.images_folder
+        out_dir = cfg.out_dir or cfg.paths.out_dir
+        n_processes = cfg.n_processes or cfg.processing.n_processes
+        
+        extractor = TraditionalRadiomicsExtractor(
+            params_file=params_file,
+            images_folder=images_folder,
+            out_dir=out_dir,
+            n_processes=n_processes
+        )
+        
+        # Apply additional config settings
+        extractor.save_every_n_files = cfg.processing.save_every_n_files
+        extractor.process_image_types = cfg.processing.process_image_types
+        extractor.export_by_image_type = cfg.export.export_by_image_type
+        extractor.export_combined = cfg.export.export_combined
+        extractor.export_format = cfg.export.export_format
+        extractor.add_timestamp = cfg.export.add_timestamp
+        extractor.log_level = cfg.logging.level
+        extractor.console_output = cfg.logging.console_output
+        extractor.file_output = cfg.logging.file_output
+        
+        return extractor
+    
+    # === Test-Retest Analysis Services ===
+    
+    def create_test_retest_analyzer(self, config: Optional[Any] = None) -> Any:
+        """
+        Create Test-Retest analyzer for habitat reproducibility analysis.
+        
+        Args:
+            config: Optional configuration override.
+            
+        Returns:
+            Configured test-retest analyzer (returns config for functional API).
+        """
+        from habit.core.machine_learning.config_schemas import TestRetestConfig
+        
+        cfg = config or self.config
+        
+        # Ensure we have a typed config
+        if isinstance(cfg, dict):
+            cfg = TestRetestConfig.model_validate(cfg)
+        elif not isinstance(cfg, TestRetestConfig):
+            try:
+                cfg_dict = cfg.to_dict() if hasattr(cfg, 'to_dict') else dict(cfg)
+                cfg = TestRetestConfig.model_validate(cfg_dict)
+            except Exception as e:
+                raise ValueError(f"Invalid configuration for Test-Retest Analysis: {e}")
+        
+        # Return config object for use with functional API
+        # The actual analysis is performed by functions in habitat_test_retest_mapper module
+        return cfg
 
 
     

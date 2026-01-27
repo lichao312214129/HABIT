@@ -1,6 +1,9 @@
 """
 Supervoxel aggregation step for habitat analysis pipeline.
 
+DEPRECATED: This step is kept for backward compatibility only.
+Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.
+
 This step aggregates voxel features to supervoxel level and optionally merges
 with advanced features from SupervoxelFeatureExtractionStep.
 """
@@ -9,6 +12,7 @@ from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 import logging
+import warnings
 
 from ..base_pipeline import IndividualLevelStep
 from ...managers.feature_manager import FeatureManager
@@ -17,6 +21,8 @@ from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 class SupervoxelAggregationStep(IndividualLevelStep):
     """
+    DEPRECATED: Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.
+    
     Aggregate voxel features to supervoxel level for each subject.
     
     For two-step strategy:
@@ -42,11 +48,22 @@ class SupervoxelAggregationStep(IndividualLevelStep):
         """
         Initialize supervoxel aggregation step.
         
+        DEPRECATED: Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.
+
         Args:
             feature_manager: FeatureManager instance
             config: Configuration object
         """
         super().__init__()
+        
+        # Emit deprecation warning
+        warnings.warn(
+            "SupervoxelAggregationStep is deprecated and will be removed in a future version. "
+            "Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        
         self.feature_manager = feature_manager
         self.config = config
         self.logger = logging.getLogger(__name__)

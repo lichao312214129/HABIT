@@ -348,12 +348,7 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
             cmd_string = ' '.join(cmd_parts)
             
             self.logger.info(f"[{subject_id}] Converting DICOM directory: {input_dir}")
-            self.logger.info(f"[{subject_id}] Executing command:")
-            self.logger.info(f"    {cmd_string}")
-            print(f"\n{'='*80}")
-            print(f"[DEBUG] Executing dcm2niix command:")
-            print(f"    {cmd_string}")
-            print(f"{'='*80}\n")
+            self.logger.debug(f"[{subject_id}] Command: {cmd_string}")
 
             # Select execution method
             # Different methods may produce different results with dcm2niix
@@ -364,7 +359,6 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
                 # Method 1: os.system() - Most similar to terminal behavior
                 # This is the closest to typing the command directly in terminal
                 # Recommended for dcm2niix to avoid 3D/4D conversion issues
-                print(f"[Execution Method: os.system]")
                 exit_code = os.system(cmd_string)
                 # os.system returns the exit status in platform-specific format
                 # On Windows, it's the actual exit code; on Unix, it may be shifted
@@ -373,11 +367,10 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
             
             elif execution_method == "subprocess.run":
                 # Method 2: subprocess.run() with shell=True
-                print(f"[Execution Method: subprocess.run]")
                 result = subprocess.run(
                     cmd_string,
                     shell=True,
-                    capture_output=False,
+                    capture_output=True,
                     text=True,
                     check=True
                 )
@@ -387,25 +380,25 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
             
             elif execution_method == "subprocess.Popen":
                 # Method 3: subprocess.Popen() - Real-time output
-                print(f"[Execution Method: subprocess.Popen]")
                 process = subprocess.Popen(
                     cmd_string,
                     shell=True,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    bufsize=1 # 实时输出
+                    stderr=subprocess.PIPE,
+                    text=True
                 )
                 
-                # Print output in real-time
-                if process.stdout:
-                    for line in process.stdout:
-                        print(line, end='')
-                
-                process.wait()
+                # Wait for completion and capture output
+                stdout, stderr = process.communicate()
                 exit_code = process.returncode
+                
                 if exit_code != 0:
+                    self.logger.error(f"[{subject_id}] dcm2niix stderr: {stderr}")
                     raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
+                
+                # Log output at debug level
+                if stdout:
+                    self.logger.debug(f"[{subject_id}] dcm2niix output: {stdout}")
             
             else:
                 raise ValueError(f"Unknown execution method: {execution_method}")
@@ -457,7 +450,7 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
             if not converted_images:
                 raise RuntimeError(f"No NIfTI files were created for {input_dir}")
             
-            self.logger.info(f"[{subject_id}] Successfully converted and saved to {subject_output_dir}")
+            self.logger.debug(f"[{subject_id}] Conversion saved to {subject_output_dir}")
             return converted_images
             
         except RuntimeError:
@@ -590,7 +583,7 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
                     
                     # Use the original key name for consistency with other preprocessors
                     data[key] = sitk_image
-                    self.logger.info(f"[{subject_id}] Converted {key} to SimpleITK Image")
+                    self.logger.debug(f"[{subject_id}] Converted {key}")
                     
                     # Store output file path if available
                     output_path_key = f"{seq_name}_output_path"

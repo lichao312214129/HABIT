@@ -202,7 +202,7 @@ class HistogramStandardization(BasePreprocessor):
         subj_info = f"[{subj}] " if subj else ""
         key_info = f"({key}) " if key else ""
         
-        logger.info(f"{subj_info}{key_info}Applying Nyul histogram standardization")
+        logger.debug(f"{subj_info}{key_info}Nyul histogram standardization")
         
         # Convert to numpy array
         image_array = sitk.GetArrayFromImage(input_image).astype(np.float32)
@@ -229,8 +229,6 @@ class HistogramStandardization(BasePreprocessor):
         standardized_image.SetSpacing(input_image.GetSpacing())
         standardized_image.SetDirection(input_image.GetDirection())
         
-        logger.info(f"{subj_info}{key_info}Histogram standardization completed "
-                   f"(target range: [{self.target_min}, {self.target_max}])")
         
         return standardized_image
         
@@ -246,7 +244,7 @@ class HistogramStandardization(BasePreprocessor):
         self._check_keys(data)
         
         subj = data.get('subj', 'unknown')
-        logger.info(f"Processing subject: {subj}")
+        logger.debug(f"[{subj}] Histogram standardization")
         
         # Get mask image if specified
         mask_image = None
@@ -258,7 +256,7 @@ class HistogramStandardization(BasePreprocessor):
                                  "Proceeding without mask.")
                     mask_image = None
                 else:
-                    logger.info(f"[{subj}] Using {self.mask_key} as mask for histogram standardization")
+                    logger.debug(f"[{subj}] Using {self.mask_key} as mask")
             else:
                 logger.warning(f"[{subj}] Mask key {self.mask_key} not found. Proceeding without mask.")
         
@@ -301,7 +299,6 @@ class HistogramStandardization(BasePreprocessor):
                 data[meta_key]["percentiles"] = self.percentiles
                 data[meta_key]["target_range"] = [self.target_min, self.target_max]
                 
-                logger.info(f"[{subj}] Successfully standardized image {key}")
                 
             except Exception as e:
                 logger.error(f"[{subj}] Error applying histogram standardization to {key}: {e}")

@@ -257,7 +257,7 @@ class BatchProcessor:
         
         try:
             subject_id = subject_data['subj']
-            self.logger.info(f"Processing subject: {subject_id}")
+            self.logger.debug(f"Processing subject: {subject_id}")
             
             # Step 1: Load images first
             load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
@@ -284,7 +284,7 @@ class BatchProcessor:
                 # Only process modalities that exist in current subject_data
                 modalities = [mod for mod in modalities if mod in subject_data]
                 if not modalities:
-                    self.logger.warning(f"[{subject_id}] No valid modalities for step {step_name}, skipping")
+                    self.logger.debug(f"[{subject_id}] No valid modalities for step {step_name}, skipping")
                     continue
                 
                 # If saving intermediate results for this step, temporarily update output_dirs
@@ -306,7 +306,6 @@ class BatchProcessor:
                             step_output_dirs[mask_key] = str(step_masks_dir)
                     
                     subject_data['output_dirs'] = step_output_dirs
-                    self.logger.debug(f"[{subject_id}] Set intermediate output_dirs for step {step_name}")
                 
                 # Create and execute preprocessor
                 params = self._model_to_dict(step_config)
@@ -454,7 +453,7 @@ class BatchProcessor:
             # 将生成的数据条目加入到列表中
             subject_data_list.append(data_entry)
             if has_mask:  # 确保至少有一个mask才添加
-                self.logger.info(f"有mask的样本: {subject}")
+                self.logger.debug(f"Subject with mask: {subject}")
             else:
                 self.logger.warning(f"No mask found for subject {subject}, skipping")
             
@@ -462,19 +461,14 @@ class BatchProcessor:
             self.logger.warning("No valid subjects found")
             return
         
-        self.logger.info(f"将使用 {self.num_workers} 个进程进行处理")
         total_subjects = len(subject_data_list)
-        self.logger.info(f"共有 {total_subjects} 个样本需要处理")
+        self.logger.info(f"Processing {total_subjects} subjects with {self.num_workers} workers")
         
         # 创建进度条
         progress_bar = CustomTqdm(total=total_subjects, desc="Processing subjects")
         
-        # 使用多进程处理
-        self.logger.info("开始处理数据...")
-        
         # 单进程模式
         if self.num_workers == 1:
-            self.logger.info("使用单进程模式...")
             for subject_data in subject_data_list:
                 subject_id, result = self._process_single_subject(subject_data)
                 # Save processed images
@@ -483,27 +477,22 @@ class BatchProcessor:
                 progress_bar.update(1)
                 if subject_id.startswith("Error"):
                     self.logger.error(subject_id)
-                else:
-                    self.logger.info(f"完成处理样本: {subject_id} ({progress_bar.n}/{total_subjects})")
         else:
             # 使用进程池并行处理
             try:
                 with multiprocessing.Pool(processes=self.num_workers) as pool:
-                    if self.verbose:
-                        self.logger.info("开始并行处理所有样本...")
                     for subject_id, result in pool.imap(self._process_single_subject, subject_data_list):
                         # Save processed images
                         if not subject_id.startswith("Error"):  # 只保存成功处理的结果
                             self.save_processed_images(result)
-                            self.logger.info(f"完成处理样本: {subject_id} ({progress_bar.n}/{total_subjects})")
                         else:
                             self.logger.error(subject_id)  # 记录错误信息
                         progress_bar.update(1)  # 无论成功或失败都更新进度条
             except Exception as e:
-                self.logger.error(f"多进程处理发生错误: {str(e)}")
-                self.logger.info("尝试降级到单进程模式...")
+                self.logger.error(f"Multiprocessing error: {str(e)}")
+                self.logger.info("Falling back to single process mode...")
         
-        self.logger.info("批处理完成") 
+        self.logger.info(f"Batch processing completed: {total_subjects} subjects") 
 
     def _model_to_dict(self, model: Any) -> Dict[str, Any]:
         """

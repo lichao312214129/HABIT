@@ -47,9 +47,19 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
+   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
-   processor = BatchProcessor(config_path='./config_preprocessing.yaml')
+   # 加载配置
+   config = PreprocessingConfig.from_file('./config_preprocessing.yaml')
+
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config)
+
+   # 创建预处理器
+   processor = configurator.create_batch_processor()
+
+   # 运行预处理
    processor.process_batch()
 
 **详细示例：**
@@ -57,21 +67,34 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
+   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.preprocessing.config_schemas import PreprocessingConfig
+   from habit.utils.log_utils import setup_logger
    from pathlib import Path
 
-   # 创建预处理器
-   processor = BatchProcessor(
-       config_path='./config_preprocessing.yaml',
-       num_workers=4,
-       log_level='INFO',
-       verbose=True
+   # 设置日志
+   output_dir = Path('./preprocessed')
+   output_dir.mkdir(parents=True, exist_ok=True)
+   logger = setup_logger(
+       name='preprocessing',
+       output_dir=output_dir,
+       log_filename='preprocessing.log',
+       level=logging.INFO
    )
 
-   # 运行预处理
-   processor.process_batch()
+   # 加载配置
+   config = PreprocessingConfig.from_file('./config_preprocessing.yaml')
 
-   print("预处理完成！")
+   # 创建配置器
+   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+
+   # 创建预处理器
+   processor = configurator.create_batch_processor()
+
+   # 运行预处理
+   logger.info("开始图像预处理")
+   processor.process_batch()
+   logger.info("预处理完成！")
 
 YAML 配置详解
 --------------

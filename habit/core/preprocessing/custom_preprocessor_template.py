@@ -1,8 +1,16 @@
 from typing import Dict, Any, Union, List, Optional, Sequence, Tuple
-import torch
 import numpy as np
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
+
+# Optional torch import (only needed if your custom preprocessor uses PyTorch)
+# Uncomment the following lines if you need torch:
+# try:
+#     import torch
+#     TORCH_AVAILABLE = True
+# except ImportError:
+#     TORCH_AVAILABLE = False
+#     torch = None
 
 @PreprocessorFactory.register("custom_preprocessor")
 class CustomPreprocessor(BasePreprocessor):

@@ -37,25 +37,21 @@
 - ✅ 使用 `ServiceConfigurator.create_ml_workflow()` - 已更新
 - ✅ 使用 `ServiceConfigurator.create_kfold_workflow()` - 已更新（run_kfold函数）
 
-## ❌ 仍需要更新的命令
+## ✅ 已更新的命令（新增）
 
-### 4. cmd_radiomics.py ❌
-**当前状态**：
-- ❌ 使用 `yaml.safe_load()` - 应使用配置类（如果存在）
-- ❌ 调用脚本 `app_traditional_radiomics_extractor.main()` - 不是服务对象
+### 4. cmd_radiomics.py ✅ (已更新)
+**更新内容**：
+- ✅ 创建 `RadiomicsConfig` 配置类
+- ✅ 使用 `RadiomicsConfig.from_file(config_file)` - 已更新
+- ✅ 使用 `ServiceConfigurator.create_radiomics_extractor()` - 已更新
+- ✅ 重构为标准Service模式
 
-**需要修改**：
-- 如果存在 `RadiomicsConfig`，使用 `RadiomicsConfig.from_file()`
-- 如果不存在配置类，考虑创建或保持现状（调用脚本）
-
-### 5. cmd_test_retest.py ❌
-**当前状态**：
-- ❌ 使用 `yaml.safe_load()` - 应使用配置类（如果存在）
-- ❌ 调用脚本 `app_habitat_test_retest_mapper.main()` - 不是服务对象
-
-**需要修改**：
-- 如果存在 `TestRetestConfig`，使用 `TestRetestConfig.from_file()`
-- 如果不存在配置类，考虑创建或保持现状（调用脚本）
+### 5. cmd_test_retest.py ✅ (已更新)
+**更新内容**：
+- ✅ 创建 `TestRetestConfig` 配置类
+- ✅ 使用 `TestRetestConfig.from_file(config_file)` - 已更新
+- ✅ 使用 `ServiceConfigurator.create_test_retest_analyzer()` - 已更新
+- ✅ 重构为标准Service模式（使用函数式API）
 
 ## ⚠️ 特殊情况（不需要更新）
 
@@ -86,8 +82,8 @@
 
 | 状态 | 数量 | 文件列表 |
 |------|------|----------|
-| ✅ 已符合标准 | 6 | cmd_habitat.py, cmd_preprocess.py, cmd_extract_features.py, cmd_compare.py, cmd_ml.py (run_ml, run_kfold) |
-| ❌ 需要更新 | 2 | cmd_radiomics.py, cmd_test_retest.py |
+| ✅ 已符合标准 | 8 | cmd_habitat.py, cmd_preprocess.py, cmd_extract_features.py, cmd_compare.py, cmd_ml.py (run_ml, run_kfold), cmd_radiomics.py, cmd_test_retest.py |
+| ❌ 需要更新 | 0 | - |
 | ⚠️ 特殊情况 | 3 | cmd_icc.py, cmd_dicom_info.py, cmd_merge_csv.py |
 
 ## 🔧 已完成的工作

@@ -141,7 +141,8 @@ class RegistrationPreprocessor(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with registered images.
         """
-        logger.info(f"Registering images to {self.fixed_image}...")
+        subj = data.get('subj', 'unknown')
+        logger.debug(f"[{subj}] Registering to {self.fixed_image}")
         self._check_keys(data)
         
         # Get reference image
@@ -237,7 +238,7 @@ class RegistrationPreprocessor(BasePreprocessor):
                 
             # If user chose to replace moving mask with fixed mask
             if self.replace_by_fixed_image_mask:
-                logger.info(f"Replacing mask for {key} with fixed image mask as requested.")
+                logger.debug(f"Replacing mask for {key} with fixed image mask")
                 # Get the fixed mask and make a copy for the moving image
                 fixed_mask = data[fixed_mask_key]
                 data[mask_key] = sitk.Cast(fixed_mask, sitk.sitkUInt8)

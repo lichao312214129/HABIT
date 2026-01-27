@@ -270,10 +270,10 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
 
 .. code-block:: yaml
 
-   run_mode: predict
+   run_mode: train
    pipeline_path: ./results/habitat_pipeline.pkl
    data_dir: ./file_habitat.yaml
-   out_dir: ./results/habitat/predict
+   out_dir: ./results/habitat/train
 
    FeatureConstruction:
      voxel_level:
@@ -283,8 +283,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
      supervoxel_level:
        supervoxel_file_keyword: '*_supervoxel.nrrd'
        method: mean_voxel_features()
-       params:
-         params_file: {}
+       params: {}
 
      preprocessing_for_subject_level:
        methods:
@@ -311,19 +310,13 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
        max_iter: 300
        n_init: 10
 
-       one_step_settings:
-         min_clusters: 2
-         max_clusters: 10
-         selection_method: inertia
-         plot_validation_curves: true
-
      habitat:
        algorithm: kmeans
        max_clusters: 10
        habitat_cluster_selection_method:
          - inertia
          - silhouette
-       fixed_n_clusters:
+       fixed_n_clusters: null
        random_state: 42
        max_iter: 300
        n_init: 10
@@ -338,207 +331,198 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
 
 - **类型**: 字符串
 - **必需**: 否
-- **默认值**: train
-- **可选值**: train、predict
-- **说明**: train 表示训练新模型，predict 表示使用预训练模型进行预测
-- **示例**: `train`
+- **默认值**: ``train``
+- **可选值**: ``train``, ``predict``
+- **说明**: ``train`` 表示训练新模型，``predict`` 表示使用预训练模型进行预测。
+- **示例**: ``train``
 
 **pipeline_path**: Pipeline 文件路径
 
 - **类型**: 字符串
-- **必需**: 否（predict 模式必需）
-- **说明**: 指定训练好的 Pipeline 文件路径
-- **示例**: `./results/habitat_pipeline.pkl`
+- **必需**: 否 (``predict`` 模式必需)
+- **说明**: 指定训练好的 Pipeline 文件路径。
+- **示例**: ``./results/habitat_pipeline.pkl``
 
 **FeatureConstruction**: 特征提取设置
 
 **voxel_level**: 体素级特征提取
 
-- `method`: 特征提取方法
-  - 类型: 字符串
-  - 必需: 是
-  - 示例: `concat(raw(delay2), raw(delay3), raw(delay5))`
+- ``method``: 特征提取方法表达式
+  - **类型**: 字符串
+  - **必需**: 是
+  - **说明**: 支持函数式语法，如 ``concat(raw(img1), raw(img2))``。
+  - **常用方法**:
+    - ``raw(image_name)``: 提取原始图像体素值。
+    - ``concat(...)``: 拼接多个特征。
+    - ``kinetic(raw(img1), raw(img2), ..., timestamps=...)``: 提取动力学特征。
+    - ``local_entropy(raw(img1), radius=3)``: 提取局部熵特征。
+    - ``voxel_radiomics(raw(img1), params_file=...)``: 提取体素级影像组学特征。
+  - **示例**: ``concat(raw(delay2), raw(delay3), raw(delay5))``
 
-- `params`: 参数
-  - 类型: 字典
-  - 必需: 否
-  - 默认值: {}
-  - 示例: `{}`
+- ``params``: 全局参数
+  - **类型**: 字典
+  - **必需**: 否
+  - **默认值**: ``{}``
+  - **说明**: 传递给特征提取器的额外参数（如 ``timestamps`` 文件路径）。
+  - **示例**: ``{timestamps: "./timestamps.txt"}``
 
-**supervoxel_level**: 超像素级特征提取
+**supervoxel_level**: 超像素级特征提取 (可选)
 
-- `supervoxel_file_keyword`: 超像素文件匹配模式
-  - 类型: 字符串
-  - 必需: 是
-  - 示例: `*_supervoxel.nrrd`
+- ``supervoxel_file_keyword``: 超像素文件匹配模式
+  - **类型**: 字符串
+  - **必需**: 是
+  - **默认值**: ``"*_supervoxel.nrrd"``
+  - **说明**: 用于匹配已有的超像素分割文件。
+  - **示例**: ``"*_supervoxel.nrrd"``
 
-- `method`: 特征提取方法
-  - 类型: 字符串
-  - 必需: 是
-  - 示例: `mean_voxel_features()`
+- ``method``: 特征聚合/提取方法
+  - **类型**: 字符串
+  - **必需**: 是
+  - **默认值**: ``"mean_voxel_features()"``
+  - **说明**: 定义如何从体素特征聚合到超像素，或直接从超像素提取特征。
+  - **常用方法**:
+    - ``mean_voxel_features()``: 计算超像素内体素特征的平均值。
+    - ``supervoxel_radiomics(params_file=...)``: 直接从超像素块提取影像组学特征。
+  - **示例**: ``mean_voxel_features()``
 
-- `params`: 参数
-  - 类型: 字典
-  - 必需: 否
-  - 默认值: {}
-  - 示例: `{params_file: {}}`
+- ``params``: 参数
+  - **类型**: 字典
+  - **必需**: 否
+  - **默认值**: ``{}``
+  - **示例**: ``{}``
 
-**preprocessing_for_subject_level**: 个体级别预处理
+**preprocessing_for_subject_level**: 个体级别预处理 (可选)
 
-- `methods`: 预处理方法列表
-  - 类型: 列表
-  - 必需: 否
-  - 默认值: []
-  - 示例:
-    ```yaml
-    - method: winsorize
-      winsor_limits: [0.05, 0.05]
-      global_normalize: true
-    - method: minmax
-      global_normalize: true
-    ```
+- ``methods``: 预处理方法列表
+  - **类型**: 列表
+  - **必需**: 否
+  - **默认值**: ``[]``
+  - **支持方法**:
+    - ``winsorize``: 去除异常值。参数: ``winsor_limits`` (如 ``[0.05, 0.05]``)。
+    - ``minmax``: 归一化到 [0, 1]。
+    - ``zscore``: Z-Score 标准化。
+    - ``robust``: 基于分位数的鲁棒标准化。
+    - ``log``: 对数变换。
+  - **示例**:
+    .. code-block:: yaml
 
-**preprocessing_for_group_level**: 群体级别预处理
+       - method: winsorize
+         winsor_limits: [0.05, 0.05]
+         global_normalize: true
+       - method: minmax
+         global_normalize: true
 
-- `methods`: 预处理方法列表
-  - 类型: 列表
-  - 必需: 否
-  - 默认值: []
-  - 示例:
-    ```yaml
-    - method: binning
-      n_bins: 10
-      bin_strategy: uniform
-      global_normalize: false
-    ```
+**preprocessing_for_group_level**: 群体级别预处理 (可选)
+
+- ``methods``: 预处理方法列表
+  - **类型**: 列表
+  - **必需**: 否
+  - **默认值**: ``[]``
+  - **支持方法**:
+    - ``binning``: 特征离散化（分箱）。参数: ``n_bins`` (箱数), ``bin_strategy`` (``uniform``, ``quantile``, ``kmeans``)。
+  - **示例**:
+    .. code-block:: yaml
+
+       - method: binning
+         n_bins: 10
+         bin_strategy: uniform
+         global_normalize: false
 
 **HabitatsSegmention**: 生境分割设置
 
-- `clustering_mode`: 聚类策略
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: two_step
-  - 可选值: one_step、two_step、direct_pooling
-  - 示例: `two_step`
+- ``clustering_mode``: 聚类策略
+  - **类型**: 字符串
+  - **必需**: 否
+  - **默认值**: ``two_step``
+  - **可选值**:
+    - ``one_step``: 直接对体素进行聚类。
+    - ``two_step``: 先生成超像素，再对超像素进行聚类生成生境。
+    - ``direct_pooling``: 直接汇总所有受试者的体素进行聚类（计算量大）。
+  - **示例**: ``two_step``
 
-**supervoxel**: 超像素聚类设置
+**supervoxel**: 超像素聚类设置 (仅用于 ``two_step`` 模式)
 
-- `algorithm`: 聚类算法
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: kmeans
-  - 可选值: kmeans、gmm、dbscan、spectral、agglomerative
-  - 示例: `kmeans`
+- ``algorithm``: 聚类算法
+  - **类型**: 字符串
+  - **默认值**: ``kmeans``
+  - **可选值**: ``kmeans``, ``gmm``
+  - **示例**: ``kmeans``
 
-- `n_clusters`: 聚类数
-  - 类型: 整数
-  - 必需: 是
-  - 示例: `50`
+- ``n_clusters``: 超像素数量
+  - **类型**: 整数
+  - **必需**: 是
+  - **说明**: 每个受试者生成的超像素个数。
+  - **示例**: ``50``
 
-- `random_state`: 随机种子
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: None
-  - 示例: `42`
+- ``random_state``: 随机种子
+  - **类型**: 整数
+  - **默认值**: ``42``
 
-- `max_iter`: 最大迭代次数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 300
-  - 示例: `300`
+- ``max_iter``: 最大迭代次数
+  - **类型**: 整数
+  - **默认值**: ``300``
 
-- `n_init`: 初始化次数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 10
-  - 示例: `10`
+- ``n_init``: 初始化次数
+  - **类型**: 整数
+  - **默认值**: ``10``
 
-**one_step_settings**: One-Step 模式设置
+**one_step_settings**: One-Step 模式设置 (仅用于 ``one_step`` 模式)
 
-- `min_clusters`: 最小聚类数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 2
-  - 示例: `2`
+- ``min_clusters``: 最小聚类数
+  - **类型**: 整数
+  - **默认值**: ``2``
 
-- `max_clusters`: 最大聚类数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 10
-  - 示例: `10`
+- ``max_clusters``: 最大聚类数
+  - **类型**: 整数
+  - **默认值**: ``10``
 
-- `selection_method`: 选择方法
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: inertia
-  - 可选值: silhouette、calinski_harabasz、davies_bouldin、inertia
-  - 示例: `silhouette`
+- ``fixed_n_clusters``: 固定聚类数
+  - **类型**: 整数或 null
+  - **默认值**: ``null``
+  - **说明**: 若设置，则跳过自动选择。
 
-- `plot_validation_curves`: 是否绘制验证曲线
-  - 类型: 布尔值
-  - 必需: 否
-  - 默认值: true
-  - 示例: `true`
+- ``selection_method``: 自动选择指标
+  - **类型**: 字符串
+  - **默认值**: ``silhouette``
+  - **可选值**: ``silhouette``, ``calinski_harabasz``, ``davies_bouldin``, ``inertia``
+
+- ``plot_validation_curves``: 是否绘制验证曲线
+  - **类型**: 布尔值
+  - **默认值**: ``true``
 
 **habitat**: 生境聚类设置
 
-- `algorithm`: 聚类算法
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: kmeans
-  - 可选值: kmeans、gmm
-  - 示例: `kmeans`
+- ``algorithm``: 聚类算法
+  - **类型**: 字符串
+  - **默认值**: ``kmeans``
+  - **可选值**: ``kmeans``, ``gmm``
 
-- `max_clusters`: 最大聚类数
-  - 类型: 整数
-  - 必需: 是
-  - 示例: `10`
+- ``max_clusters``: 最大生境数
+  - **类型**: 整数
+  - **必需**: 是
+  - **说明**: 自动选择时的上限。
+  - **示例**: ``10``
 
-- `habitat_cluster_selection_method`: 生境聚类选择方法
-  - 类型: 列表
-  - 必需: 否
-  - 默认值: [inertia]
-  - 可选值: inertia、silhouette、calinski_harabasz、aic、bic、davies_bouldin
-  - 示例: `[inertia, silhouette]`
+- ``habitat_cluster_selection_method``: 自动选择指标
+  - **类型**: 列表
+  - **默认值**: ``[inertia]``
+  - **可选值**: ``inertia``, ``silhouette``, ``calinski_harabasz``, ``aic``, ``bic``, ``davies_bouldin``
+  - **示例**: ``[inertia, silhouette]``
 
-- `fixed_n_clusters`: 固定聚类数
-  - 类型: 整数或 null
-  - 必需: 否
-  - 默认值: null（表示自动选择）
-  - 说明: 如果设置具体数值，则禁用自动聚类数选择，直接使用该固定值
-  - 示例: `null`
-
-- `random_state`: 随机种子
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: None
-  - 示例: `42`
-
-- `max_iter`: 最大迭代次数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 300
-  - 示例: `300`
-
-- `n_init`: 初始化次数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 10
-  - 示例: `10`
+- ``fixed_n_clusters``: 固定生境数
+  - **类型**: 整数或 null
+  - **默认值**: ``null``
+  - **说明**: 若设置，则直接使用该值，不进行自动选择。
 
 **plot_curves**: 是否生成和保存图表
 
 - **类型**: 布尔值
-- **必需**: 否
-- **默认值**: true
-- **示例**: `true`
+- **默认值**: ``true``
 
 **save_results_csv**: 是否将结果保存为 CSV 文件
 
 - **类型**: 布尔值
-- **必需**: 否
-- **默认值**: true
-- **示例**: `true`
+- **默认值**: ``true``
 
 特征提取配置参数
 ------------
@@ -644,16 +628,29 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
 .. code-block:: yaml
 
    run_mode: train
-   pipeline_path: ./results/ml/model_pipeline.pkl
-   data_dir: ./files_ml.yaml
-   out_dir: ./results/ml/train
-
-   FeatureSelection:
-     enabled: true
-     method: variance
-     params:
-       threshold: 0.0
-
+   input:
+     - path: ./results/features/combined_features.csv
+       name: training_data
+       subject_id_col: Subject
+       label_col: label
+   output: ./results/ml/train
+   random_state: 42
+   
+   split_method: stratified
+   test_size: 0.3
+   
+   normalization:
+     method: z_score
+     params: {}
+   
+   feature_selection_methods:
+     - method: variance
+       params:
+         threshold: 0.0
+     - method: correlation
+       params:
+         threshold: 0.9
+   
    models:
      RandomForest:
        params:
@@ -662,158 +659,90 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
      LogisticRegression:
        params:
          max_iter: 1000
-
-   ModelEvaluation:
+   
+   is_visualize: true
+   is_save_model: true
+   
+   visualization:
      enabled: true
-     metrics:
-       - accuracy
-       - precision
-       - recall
-       - f1
-       - roc_auc
-       - confusion_matrix
-     cv:5
-     test_size: 0.2
-     random_state: 42
-
-   ModelSaving:
-     enabled: true
-     save_path: ./results/ml/model_pipeline.pkl
-     save_format: pkl
-
-   processes: 2
-   random_state: 42
-   debug: false
+     plot_types: [roc, dca, calibration, pr, confusion, shap]
+     dpi: 600
+     format: pdf
 
 **run_mode**: 运行模式
 
 - **类型**: 字符串
-- **必需**: 否
-- **默认值**: train
-- **可选值**: train、predict
-- **说明**: train 表示训练新模型，predict 表示使用预训练模型进行预测
-- **示例**: `train`
+- **默认值**: ``train``
+- **可选值**: ``train``, ``predict``
+- **说明**: ``train`` 表示训练新模型，``predict`` 表示使用预训练模型进行预测。
 
-**pipeline_path**: Pipeline 文件路径
+**input**: 输入数据配置
+
+- **类型**: 列表
+- **必需**: 是
+- **说明**: 包含一个或多个输入文件的配置字典。
+- **子参数**:
+  - ``path``: 特征文件路径 (CSV/Excel)。
+  - ``name``: 数据集名称。
+  - ``subject_id_col``: 受试者 ID 列名。
+  - ``label_col``: 标签列名。
+
+**output**: 输出目录
 
 - **类型**: 字符串
-- **必需**: 否（predict 模式必需）
-- **说明**: 指定训练好的 Pipeline 文件路径
-- **示例**: `./results/ml/model_pipeline.pkl`
+- **必需**: 是
+- **说明**: 结果、模型和图表保存的路径。
 
-**FeatureSelection**: 特征选择设置
+**split_method**: 数据划分方法
 
-- `enabled`: 是否启用特征选择
-  - 类型: 布尔值
-  - 必需: 否
-  - 默认值: true
-  - 示例: `true`
+- **类型**: 字符串
+- **默认值**: ``stratified``
+- **可选值**: ``random``, ``stratified``, ``custom``
 
-- `method`: 特征选择方法
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: variance
-  - 可选值: variance、correlation、anova、chi2、lasso、rfecv
-  - 示例: `variance`
+**test_size**: 测试集比例
 
-- `params`: 特征选择方法的参数
-  - 类型: 字典
-  - 必需: 否
-  - 默认值: {}
-  - 示例: `{threshold: 0.0}`
+- **类型**: 浮点数
+- **默认值**: ``0.3``
+- **范围**: (0, 1)
+
+**normalization**: 特征归一化设置
+
+- ``method``: 归一化方法
+  - **类型**: 字符串
+  - **默认值**: ``z_score``
+  - **可选值**: ``z_score``, ``min_max``, ``robust``, ``max_abs``, ``normalizer``, ``quantile``, ``power``
+- ``params``: 方法特定参数 (字典)。
+
+**feature_selection_methods**: 特征选择方法列表
+
+- **类型**: 列表
+- **说明**: 按顺序执行的特征选择步骤。
+- **可选方法**: ``variance``, ``correlation``, ``anova``, ``chi2``, ``lasso``, ``rfecv``
 
 **models**: 模型训练设置
 
-定义要训练的一个或多个模型。每个模型作为一个键，包含其参数。
+定义要训练的一个或多个模型。
 
-- **类型**: 字典
-- **必需**: 是
-- **说明**: 可以同时定义多个模型（如 RandomForest, LogisticRegression），HABIT 会依次训练它们。
+- **支持的模型类型**:
+  - ``LogisticRegression``
+  - ``RandomForest``
+  - ``XGBoost``
+  - ``SVM``
+  - ``KNN``
+  - ``AutoGluon``
+- **参数**: ``params`` (字典)，传递给底层算法库。
 
-**支持的模型类型（作为键名）**:
-- `LogisticRegression`
-- `RandomForest`
-- `XGBoost`
-- `SVM`
-- `KNN`
-- `AutoGluon`
+**is_visualize**: 是否启用可视化
 
-**结构示例**:
+- **类型**: 布尔值
+- **默认值**: ``true``
 
-.. code-block:: yaml
+**visualization**: 可视化详细设置
 
-   models:
-     RandomForest:
-       params:
-         n_estimators: 100
-         random_state: 42
-     
-     LogisticRegression:
-       params:
-         max_iter: 1000
-
-**参数说明**:
-
-- `params`: 模型参数字典
-  - 类型: 字典
-  - 必需: 否
-  - 默认值: {}
-  - 说明: 传递给对应 scikit-learn 或其他库的参数
-
-**ModelEvaluation**: 模型评估设置
-
-- `enabled`: 是否启用模型评估
-  - 类型: 布尔值
-  - 必需: 否
-  - 默认值: true
-  - 示例: `true`
-
-- `metrics`: 评估指标列表
-  - 类型: 列表
-  - 必需: 否
-  - 默认值: [accuracy]
-  - 可选值: accuracy、precision、recall、f1、roc_auc、confusion_matrix
-  - 示例: `[accuracy, precision, recall, f1, roc_auc]`
-
-- `cv`: 交叉验证折数
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: 5
-  - 示例: `5`
-
-- `test_size`: 测试集比例
-  - 类型: 浮点数
-  - 必需: 否
-  - 默认值: 0.2
-  - 范围: (0, 1)
-  - 示例: `0.2`
-
-- `random_state`: 随机种子
-  - 类型: 整数
-  - 必需: 否
-  - 默认值: None
-  - 示例: `42`
-
-**ModelSaving**: 模型保存设置
-
-- `enabled`: 是否启用模型保存
-  - 类型: 布尔值
-  - 必需: 否
-  - 默认值: true
-  - 示例: `true`
-
-- `save_path`: 模型保存路径
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: ./model_pipeline.pkl
-  - 示例: `./results/ml/model_pipeline.pkl`
-
-- `save_format`: 保存格式
-  - 类型: 字符串
-  - 必需: 否
-  - 默认值: pkl
-  - 可选值: pkl、joblib
-  - 示例: `pkl`
+- ``plot_types``: 要生成的图表类型。
+  - **可选值**: ``roc``, ``dca``, ``calibration``, ``pr``, ``confusion``, ``shap``
+- ``dpi``: 分辨率 (默认 600)。
+- ``format``: 文件格式 (如 ``pdf``, ``png``)。
 
 数据配置参数
 ------------
@@ -829,57 +758,35 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
      subject1:
        T1: /path/to/subject1/T1/T1.nii.gz
        T2: /path/to/subject1/T2/T2.nii.gz
-       FLAIR: /path/to/subject1/FLAIR/FLAIR.nii.gz
      subject2:
        T1: /path/to/subject2/T1/T1.nii.gz
        T2: /path/to/subject2/T2/T2.nii.gz
-       FLAIR: /path/to/subject2/FLAIR/FLAIR.nii.gz
 
    masks:
      subject1:
        T1: /path/to/subject1/T1/mask_T1.nii.gz
-       T2: /path/to/subject2/T2/mask_T2.nii.gz
-       FLAIR: /path/to/subject1/FLAIR/mask_FLAIR.nii.gz
      subject2:
        T1: /path/to/subject2/T1/mask_T1.nii.gz
-       T2: /path/to/subject2/T2/mask_T2.nii.gz
-       FLAIR: /path/to/subject2/FLAIR/mask_FLAIR.nii.gz
 
 **auto_select_first_file**: 是否自动读取目录中的第一个文件
 
 - **类型**: 布尔值
-- **必需**: 否
-- **默认值**: true
+- **默认值**: ``true``
 - **说明**: 
-  - true: 自动读取目录中的第一个文件（适用于已转换的nii文件等场景）
-  - false: 保持目录路径不变（适用于dcm2nii等需要整个文件夹的任务）
-- **示例**: `true`
+  - ``true``: 自动读取目录中的第一个文件（适用于已转换的 nii 文件等场景）。
+  - ``false``: 保持目录路径不变（适用于 dcm2nii 等需要整个文件夹的任务）。
 
 **images**: 图像数据路径
 
 - **类型**: 字典
 - **必需**: 是
-- **说明**: 嵌套字典，第一层是受试者ID，第二层是图像类型
-- **示例**:
-  ```yaml
-  images:
-    subject1:
-      T1: /path/to/subject1/T1/T1.nii.gz
-      T2: /path/to/subject1/T2/T2.nii.gz
-  ```
+- **说明**: 嵌套字典，第一层是受试者 ID，第二层是图像类型（Key）。
 
 **masks**: 掩码数据路径
 
 - **类型**: 字典
 - **必需**: 否
-- **说明**: 嵌套字典，第一层是受试者ID，第二层是图像类型
-- **示例**:
-  ```yaml
-  masks:
-    subject1:
-      T1: /path/to/subject1/T1/mask_T1.nii.gz
-      T2: /path/to/subject1/T2/mask_T2.nii.gz
-  ```
+- **说明**: 结构同 ``images``。通常用于指定 ROI。
 
 配置文件验证
 ------------

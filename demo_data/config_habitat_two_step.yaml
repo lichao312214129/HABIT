@@ -10,8 +10,10 @@ out_dir: ./results/habitat_two_step
 # Feature extraction settings (only needed for train mode)
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
-    params: {}
+    method: concat(voxel_radiomics(delay3, params_file, kernelRadius))
+    params:
+      params_file: ./parameter.yaml
+      kernelRadius: 2
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
@@ -19,15 +21,12 @@ FeatureConstruction:
     params:
       params_file: {}
 
-  # preprocessing_for_subject_level: 
-  #   methods:
-  #     - method: winsorize
-  #       winsor_limits: [0.05, 0.05]
-  #       global_normalize: true
-  #     - method: minmax
-  #       global_normalize: true
-  #     - method: log
-  #       global_normalize: true
+  preprocessing_for_subject_level: 
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+
 
   preprocessing_for_group_level:
     methods:

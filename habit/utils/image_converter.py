@@ -1,8 +1,15 @@
 from typing import Dict, Any, Tuple, Optional
-import torch
 import numpy as np
 import SimpleITK as sitk
 import ants
+
+# Optional torch import for tensor conversion methods (not used in core functionality)
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    torch = None
 
 class ImageConverter:
     """Utility class for converting between different image formats."""
@@ -44,32 +51,42 @@ class ImageConverter:
         return spacing, origin, direction
     
     @staticmethod
-    def tensor_to_numpy(tensor: torch.Tensor) -> np.ndarray:
+    def tensor_to_numpy(tensor) -> np.ndarray:
         """Convert torch tensor to numpy array.
         
         Args:
-            tensor (torch.Tensor): Input tensor in format [C,Z,Y,X] or [C,H,W].
+            tensor: Input tensor in format [C,Z,Y,X] or [C,H,W].
             
         Returns:
             np.ndarray: Numpy array with channel dimension removed if single channel.
+            
+        Raises:
+            ImportError: If torch is not installed.
         """
+        if not TORCH_AVAILABLE:
+            raise ImportError("torch is required for tensor_to_numpy. Install it with: pip install torch")
         array = tensor.cpu().numpy()
         if array.shape[0] == 1:  # If single channel
             array = array.squeeze(0)  # Remove channel dimension
         return array
     
     @staticmethod
-    def numpy_to_tensor(array: np.ndarray, dtype: Optional[torch.dtype] = None, device: Optional[torch.device] = None) -> torch.Tensor:
+    def numpy_to_tensor(array: np.ndarray, dtype=None, device=None):
         """Convert numpy array to torch tensor.
         
         Args:
             array (np.ndarray): Input array in [Z,Y,X] format.
-            dtype (Optional[torch.dtype]): Target tensor dtype.
-            device (Optional[torch.device]): Target tensor device.
+            dtype: Target tensor dtype (requires torch).
+            device: Target tensor device (requires torch).
             
         Returns:
             torch.Tensor: Torch tensor with added channel dimension [1,Z,Y,X].
+            
+        Raises:
+            ImportError: If torch is not installed.
         """
+        if not TORCH_AVAILABLE:
+            raise ImportError("torch is required for numpy_to_tensor. Install it with: pip install torch")
         if array.ndim == 2:
             array = array[np.newaxis, ...]  # Add channel dim for 2D
         elif array.ndim == 3:

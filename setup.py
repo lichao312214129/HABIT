@@ -31,7 +31,6 @@ setup(
         'seaborn',
         'shap',
         'pyyaml',
-        'torch',
         'lifelines',
     ],
     entry_points={

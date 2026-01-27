@@ -14,7 +14,8 @@ from .steps.voxel_feature_extractor import VoxelFeatureExtractor
 from .steps.subject_preprocessing import SubjectPreprocessingStep
 from .steps.individual_clustering import IndividualClusteringStep
 from .steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
-from .steps.supervoxel_aggregation import SupervoxelAggregationStep
+from .steps.calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
+from .steps.merge_supervoxel_features import MergeSupervoxelFeaturesStep
 from .steps.combine_supervoxels import CombineSupervoxelsStep
 from .steps.concatenate_voxels import ConcatenateVoxelsStep
 from .steps.group_preprocessing import GroupPreprocessingStep
@@ -120,7 +121,14 @@ def _build_two_step_pipeline(
         )
     ))
     
-    # Step 4: Conditionally add Supervoxel Feature Extraction
+    # Step 4: ALWAYS calculate mean voxel features (Individual-level)
+    # This provides baseline features by averaging voxel features within each supervoxel
+    steps.append((
+        'calculate_mean_voxel_features',
+        CalculateMeanVoxelFeaturesStep(feature_manager, config)
+    ))
+    
+    # Step 5: Conditionally extract advanced supervoxel features (Individual-level)
     # Check if advanced supervoxel features are needed
     supervoxel_config = config.FeatureConstruction.supervoxel_level
     method = supervoxel_config.method if supervoxel_config else None
@@ -130,27 +138,27 @@ def _build_two_step_pipeline(
     )
     
     if should_extract_advanced:
-        # Add Step 4: Extract advanced features from supervoxel maps
+        # Extract advanced features (shape, texture, radiomics) from supervoxel maps
         steps.append((
-            'supervoxel_feature_extraction', 
+            'supervoxel_advanced_features', 
             SupervoxelFeatureExtractionStep(feature_manager, config)
         ))
     
-    # Step 5: Always add Supervoxel Aggregation (Individual-level)
-    # This step calculates supervoxel features for each subject independently
+    # Step 6: Select which supervoxel features to use (Individual-level)
+    # This step chooses EITHER mean voxel features OR advanced features (mutually exclusive)
     steps.append((
-        'supervoxel_aggregation',
-        SupervoxelAggregationStep(feature_manager, config)
+        'merge_supervoxel_features',
+        MergeSupervoxelFeaturesStep(config)
     ))
     
-    # Step 5.5: Combine all subjects' supervoxels (Group-level)
+    # Step 7: Combine all subjects' supervoxels (Group-level)
     # This step merges individual supervoxel DataFrames into one
     steps.append((
         'combine_supervoxels',
         CombineSupervoxelsStep()
     ))
     
-    # Step 6: Group-level preprocessing
+    # Step 8: Group-level preprocessing (optional)
     if config.FeatureConstruction.preprocessing_for_group_level:
         methods = config.FeatureConstruction.preprocessing_for_group_level.methods
         if methods:
@@ -162,7 +170,7 @@ def _build_two_step_pipeline(
                 )
             ))
     
-    # Step 7: Population clustering
+    # Step 9: Population clustering (supervoxel → habitat)
     steps.append((
         'population_clustering',
         PopulationClusteringStep(

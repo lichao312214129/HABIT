@@ -277,9 +277,34 @@ class FeatureManager:
         """
         Apply preprocessing based on configuration key.
         
+        ## Purpose of Feature Preprocessing
+        
+        Feature preprocessing in habitat analysis serves to eliminate noise from technical 
+        factors (e.g., scanner variability, acquisition protocol differences) while preserving 
+        biologically meaningful tissue heterogeneity.
+        
+        **Subject-level preprocessing (Individual-level)**:
+        - **Goal**: Eliminate within-subject outliers and scale differences
+        - **Methods**: Winsorization (remove extreme outliers), Min-Max normalization (0-1 scaling)
+        - **Purpose**: Ensure each subject's features are on comparable scales before pooling 
+          across subjects. This prevents subjects with extreme intensity values from dominating 
+          the clustering.
+        - **Example**: If one subject has MRI intensities ranging [0, 1000] and another [0, 100], 
+          normalization ensures both contribute equally to population-level clustering.
+        
+        **Group-level preprocessing (Population-level)**:
+        - **Goal**: Reduce micro-noise and discretize features to capture stable patterns
+        - **Methods**: Binning/Discretization (e.g., uniform bins, quantile bins)
+        - **Purpose**: Transform continuous features into discrete bins, making clustering more 
+          robust to small fluctuations. This helps identify stable biological patterns like 
+          "high perfusion" vs "low perfusion" rather than overfitting to exact intensity values.
+        - **Example**: Instead of clustering on exact ADC values (e.g., 800.1, 801.3, 799.8), 
+          bin them into "low ADC" (0-600), "medium ADC" (600-1200), "high ADC" (1200+).
+        
         Args:
             feature_df: DataFrame to preprocess
-            config_key: Configuration key to look up ('preprocessing_for_subject_level' etc.)
+            config_key: Configuration key to look up ('preprocessing_for_subject_level' or 
+                       'preprocessing_for_group_level')
             
         Returns:
             Preprocessed DataFrame
@@ -302,7 +327,9 @@ class FeatureManager:
         level: str
     ) -> pd.DataFrame:
         """
-        Apply preprocessing based on level.
+        Apply preprocessing based on level (user-facing interface).
+        
+        This method provides a simplified interface for applying preprocessing at different levels.
         
         Args:
             feature_df: DataFrame to preprocess
@@ -310,6 +337,10 @@ class FeatureManager:
             
         Returns:
             Preprocessed DataFrame
+            
+        Note:
+            Group-level preprocessing is typically handled by Pipeline steps automatically.
+            This method is primarily used for subject-level preprocessing.
         """
         if level == 'subject':
             return self._apply_preprocessing(feature_df, 'preprocessing_for_subject_level')

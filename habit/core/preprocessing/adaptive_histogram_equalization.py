@@ -94,8 +94,7 @@ class AdaptiveHistogramEqualization(BasePreprocessor):
         subj_info = f"[{subj}] " if subj else ""
         key_info = f"({key}) " if key else ""
         
-        logger.info(f"{subj_info}{key_info}Applying adaptive histogram equalization "
-                   f"(alpha={self.alpha}, beta={self.beta}, radius={self.radius})")
+        logger.debug(f"{subj_info}{key_info}AHE (α={self.alpha}, β={self.beta}, r={self.radius})")
         
         # Cast image to float32 for processing
         input_image = sitk.Cast(input_image, sitk.sitkFloat32)
@@ -111,7 +110,6 @@ class AdaptiveHistogramEqualization(BasePreprocessor):
         # Apply filter
         output_image = ahe_filter.Execute(input_image)
         
-        logger.info(f"{subj_info}{key_info}Adaptive histogram equalization completed")
         
         return output_image
         
@@ -127,7 +125,7 @@ class AdaptiveHistogramEqualization(BasePreprocessor):
         self._check_keys(data)
         
         subj = data.get('subj', 'unknown')
-        logger.info(f"Processing subject: {subj}")
+        logger.debug(f"[{subj}] Adaptive histogram equalization")
         
         # Initialize progress bar
         progress_bar = CustomTqdm(
@@ -171,7 +169,6 @@ class AdaptiveHistogramEqualization(BasePreprocessor):
                 data[meta_key]["ahe_beta"] = self.beta
                 data[meta_key]["ahe_radius"] = self.radius
                 
-                logger.info(f"[{subj}] Successfully processed image {key}")
                 
             except Exception as e:
                 logger.error(f"[{subj}] Error applying adaptive histogram equalization to {key}: {e}")

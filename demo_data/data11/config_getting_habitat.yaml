@@ -1,8 +1,9 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: ./data
-out_dir: ./out2
+# data_dir: ./preprocessed/processed_images
+data_dir: ./data_new
+out_dir: ./out_new
 
 # Feature extraction settings
 FeatureConstruction:
@@ -23,12 +24,12 @@ FeatureConstruction:
       - method: winsorize
         winsor_limits: [0.05, 0.05]
 
-  preprocessing_for_group_level:
-    methods:
-      - method: binning
-        n_bins: 10
-        bin_strategy: uniform
-        global_normalize: false
+  # preprocessing_for_group_level:
+  #   methods:
+  #     - method: binning
+  #       n_bins: 10
+  #       bin_strategy: uniform
+  #       global_normalize: false
 
 
 # Habitat segmentation settings
@@ -62,7 +63,7 @@ HabitatsSegmention:
     mode: training  # training or testing  
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
-    habitat_cluster_selection_method: silhouette  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
+    habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
     fixed_n_clusters:    # Fixed number of habitat clusters (set to null for automatic selection)
     random_state: 42
     max_iter: 300

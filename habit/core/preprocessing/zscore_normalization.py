@@ -83,7 +83,7 @@ class ZScoreNormalization(BasePreprocessor):
         std_val = stats_filter.GetSigma()  # Use GetSigma() instead of GetStandardDeviation()
         
         subj_info = f"[{subj}] " if subj else ""
-        logger.info(f"{subj_info}Calculated mean: {mean_val}, std: {std_val}")
+        logger.debug(f"{subj_info}Mean: {mean_val}, std: {std_val}")
         
         # Avoid division by zero or very small values
         if std_val < 1e-10:
@@ -103,7 +103,7 @@ class ZScoreNormalization(BasePreprocessor):
         
         # Get sample values for logging
         sample_array = sitk.GetArrayFromImage(normalized_image)
-        logger.info(f"{subj_info}Normalized image min: {np.min(sample_array)}, max: {np.max(sample_array)}")
+        logger.debug(f"{subj_info}Normalized range: [{np.min(sample_array)}, {np.max(sample_array)}]")
         
         # Clip values if specified
         if self.clip_values is not None:
@@ -124,11 +124,10 @@ class ZScoreNormalization(BasePreprocessor):
         Returns:
             Dict[str, Any]: Data dictionary with normalized images.
         """
-        logger.info("Applying Z-score normalization...")
         self._check_keys(data)
 
         subj = data.get('subj', 'unknown')
-        logger.info(f"Processing subject: {subj}")
+        logger.debug(f"[{subj}] Z-score normalization")
         
         # Process each image
         for key in self.keys:
@@ -153,26 +152,9 @@ class ZScoreNormalization(BasePreprocessor):
                 # Apply Z-score normalization
                 normalized_image = self._apply_zscore_normalization(sitk_image, sitk_mask, subj)
                 
-                # Check normalized image
+                # Verification details moved to debug level
                 normalized_array = sitk.GetArrayFromImage(normalized_image)
-                logger.info(f"[{subj}] Final normalized image pixel type: {normalized_image.GetPixelID()}")
-                logger.info(f"[{subj}] Final array min: {np.min(normalized_array)}, max: {np.max(normalized_array)}")
-                
-                # Calculate one sample manually for verification
-                orig_array = sitk.GetArrayFromImage(sitk_image)
-                # Find point with maximum deviation from mean for clearer verification
-                sample_idx = np.unravel_index(np.argmax(np.abs(orig_array - np.mean(orig_array))), orig_array.shape)
-                
-                # Convert to physical point for comparison
-                # (SimpleITK and NumPy index order is different)
-                # NumPy array is [z,y,x] while SimpleITK is [x,y,z]
-                sitk_idx = sample_idx[::-1]  # Reverse the indices
-                
-                logger.info(f"[{subj}] Sample voxel at array index {sample_idx}:")
-                logger.info(f"[{subj}]   Original value: {orig_array[sample_idx]}")
-                logger.info(f"[{subj}]   Mean: {np.mean(orig_array)}, Std: {np.std(orig_array)}")
-                logger.info(f"[{subj}]   Manual z-score: {(orig_array[sample_idx] - np.mean(orig_array)) / np.std(orig_array)}")
-                logger.info(f"[{subj}]   Normalized value: {normalized_array[sample_idx]}")
+                logger.debug(f"[{subj}] Normalized range: [{np.min(normalized_array):.2f}, {np.max(normalized_array):.2f}]")
 
                 # Store the normalized image
                 data[key] = normalized_image
