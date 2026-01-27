@@ -150,3 +150,9 @@ github_version = 'main'
 
 # Todo 配置
 todo_include_todos = True
+
+# 自定义变量
+rst_epilog = """
+.. |demo_data_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
+.. |demo_data_code| replace:: xypk
+"""

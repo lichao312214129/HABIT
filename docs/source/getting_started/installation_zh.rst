@@ -22,27 +22,32 @@ HABIT 的主要依赖包括：
 - pyyaml: 配置文件解析
 - pydantic: 配置验证
 
-从源码安装
------------
+推荐安装步骤（使用 Conda）
+--------------------------
 
-.. code-block:: bash
+为了确保环境的稳定性，我们强烈建议使用 **Miniconda** 或 **Anaconda** 创建独立的虚拟环境。
 
-   git clone https://github.com/your-repo/habit_project.git
-   cd habit_project
-   pip install -e .
+1. **创建虚拟环境**：
 
-安装依赖
----------
+   .. code-block:: bash
 
-.. code-block:: bash
+      # 推荐使用 Python 3.8。如果需要 AutoGluon，请使用 3.10
+      conda create -n habit python=3.8 -y
 
-   pip install -r requirements.txt
+2. **激活环境**：
 
-或者使用开发模式安装（推荐用于开发）：
+   .. code-block:: bash
 
-.. code-block:: bash
+      conda activate habit
 
-   pip install -e .
+3. **从源码安装**：
+
+   .. code-block:: bash
+
+      git clone https://github.com/lichao312214129/HABIT.git
+      cd HABIT
+      pip install -r requirements.txt
+      pip install -e .
 
 验证安装
 --------

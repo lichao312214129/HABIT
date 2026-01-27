@@ -147,8 +147,8 @@ pip install -e .
 
 **📦 下载演示数据**
 
-链接: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA  
-提取码: `xypk`
+- **链接**: |demo_data_link|
+- **提取码**: |demo_data_code|
 
 **⚠️ 重要说明**：
 - 所有隐私信息已完全去除

@@ -53,7 +53,7 @@
 .. code-block:: bash
 
    # 克隆仓库
-   git clone https://github.com/your-repo/habit_project.git
+   git clone https://github.com/lichao312214129/HABIT.git
    cd habit_project
    
    # 创建虚拟环境
