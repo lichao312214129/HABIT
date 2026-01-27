@@ -87,6 +87,43 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
         try:
             # Initialize PyRadiomics feature extractor
             extractor = featureextractor.RadiomicsFeatureExtractor(self.params_file)
+            
+            # Check if GLCM is enabled and needs restriction
+            # Access the enabled features from the extractor object directly
+            if 'glcm' in extractor.enabledFeatures:
+                glcm_features = extractor.enabledFeatures['glcm']
+                
+                # If GLCM has no specific features or has all features enabled, restrict to safe ones
+                # (empty list or None means all features enabled)
+                if not glcm_features or len(glcm_features) == 0:
+                    # Define safe GLCM features for voxel-based extraction
+                    # These features are robust even with small kernel sizes
+                    safe_glcm_features = ['Contrast', 'Correlation', 'JointEnergy', 'Idm']
+                    
+                    logging.info(f"GLCM enabled with all features. Restricting to safe features for voxel-based extraction: {safe_glcm_features}")
+                    
+                    # Store original enabled features
+                    original_enabled_features = extractor.enabledFeatures.copy()
+                    
+                    # Disable all features first
+                    extractor.disableAllFeatures()
+                    
+                    # Re-enable non-GLCM feature classes
+                    for feature_class, features in original_enabled_features.items():
+                        if feature_class != 'glcm':
+                            if features and len(features) > 0:
+                                # Enable specific features
+                                extractor.enableFeaturesByName(**{feature_class: features})
+                            else:
+                                # Enable entire feature class
+                                extractor.enableFeatureClassByName(feature_class)
+                    
+                    # Enable only safe GLCM features
+                    extractor.enableFeaturesByName(glcm=safe_glcm_features)
+                    logging.info(f"Enabled GLCM features: {safe_glcm_features}")
+                else:
+                    logging.info(f"GLCM features explicitly specified: {glcm_features}")
+            
             # kernelRadius controls the size of the local neighborhood (in voxels) 
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
             # centered on each voxel, radius of 2 means 5×5×5, etc.

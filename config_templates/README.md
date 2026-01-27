@@ -104,6 +104,53 @@ Every template includes:
 - Quality control recommendations
 - Resource management advice
 
+## ⚠️ Special Handling: Voxel-based GLCM Features
+
+When using `voxel_radiomics()` method for voxel-level feature extraction, HABIT automatically handles GLCM (Gray Level Co-occurrence Matrix) features to prevent extraction failures.
+
+### Background
+
+Voxel-based extraction uses small local neighborhoods (e.g., 3×3×3 or 5×5×5). In such small regions:
+- Some GLCM features may fail due to overly homogeneous local textures
+- PyRadiomics has strict requirements for feature names
+
+### Automatic Protection Mechanism
+
+HABIT uses PyRadiomics API to automatically restrict GLCM to safe features:
+
+1. **When**: Detects when `glcm` is enabled in parameter file without specifying exact features
+2. **Action**: Restricts to 4 validated safe features:
+   - `Contrast` - Measures local intensity variation
+   - `Correlation` - Measures linear dependency of gray levels
+   - `JointEnergy` - Measures image uniformity (NOT `Energy`!)
+   - `Idm` - Inverse Difference Moment, measures local homogeneity
+3. **User Control**: If you explicitly list GLCM features, HABIT respects your choice
+
+### Configuration Example
+
+```yaml
+# parameter.yaml
+featureClass:
+  firstorder:     # Enable all first-order features
+  glcm:           # Enable GLCM (auto-restricted to safe features)
+```
+
+### Important Notes
+
+- Only applies to `voxel_radiomics()` method
+- For ROI-level radiomics, full GLCM feature set can be used
+- To use more GLCM features, increase `kernelRadius` (increases computation time)
+- Avoid deprecated feature names like `Homogeneity1`, `Homogeneity2`
+- The safe feature names are validated against PyRadiomics source code
+
+### Technical Details
+
+The implementation in `habit/core/habitat_analysis/extractors/voxel_radiomics_extractor.py`:
+- Checks `extractor.enabledFeatures` dictionary after initialization
+- If GLCM features list is empty (meaning all features enabled), applies restriction
+- Uses `extractor.enableFeaturesByName(glcm=[...])` API for precise control
+- No temporary files or YAML modifications needed
+
 ## 🔄 Next Steps (Optional)
 
 If needed, we can create annotated templates for:
