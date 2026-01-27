@@ -13,7 +13,7 @@ import numpy as np
 import logging
 
 try:
-    from ..base_pipeline import BasePipelineStep
+    from ..base_pipeline import GroupLevelStep
     from ...algorithms.base_clustering import get_clustering_algorithm
     from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 except ImportError as e:
@@ -27,7 +27,7 @@ except ImportError as e:
     raise
 
 
-class PopulationClusteringStep(BasePipelineStep):
+class PopulationClusteringStep(GroupLevelStep):
     """
     Population-level clustering (supervoxel → habitat).
     
@@ -165,12 +165,12 @@ class PopulationClusteringStep(BasePipelineStep):
         """
         habitat_cfg = self.config.HabitatsSegmention.habitat
         
-        # Check if best_n_clusters is already specified
-        if habitat_cfg.best_n_clusters is not None:
-            optimal_n_clusters = habitat_cfg.best_n_clusters
+        # Check if fixed_n_clusters is specified (disables automatic selection)
+        if habitat_cfg.fixed_n_clusters is not None:
+            optimal_n_clusters = habitat_cfg.fixed_n_clusters
             if self.config.verbose:
                 self.clustering_manager.logger.info(
-                    f"Using specified best number of clusters: {optimal_n_clusters}"
+                    f"Using fixed number of clusters: {optimal_n_clusters}"
                 )
             return optimal_n_clusters, None
         

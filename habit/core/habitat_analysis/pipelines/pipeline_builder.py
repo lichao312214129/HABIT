@@ -9,12 +9,13 @@ from ..config_schemas import HabitatAnalysisConfig
 from ..managers.feature_manager import FeatureManager
 from ..managers.clustering_manager import ClusteringManager
 from ..managers.result_manager import ResultManager
-from .base_pipeline import HabitatPipeline, StreamingHabitatPipeline, BasePipelineStep
+from .base_pipeline import HabitatPipeline, BasePipelineStep
 from .steps.voxel_feature_extractor import VoxelFeatureExtractor
 from .steps.subject_preprocessing import SubjectPreprocessingStep
 from .steps.individual_clustering import IndividualClusteringStep
 from .steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
 from .steps.supervoxel_aggregation import SupervoxelAggregationStep
+from .steps.combine_supervoxels import CombineSupervoxelsStep
 from .steps.concatenate_voxels import ConcatenateVoxelsStep
 from .steps.group_preprocessing import GroupPreprocessingStep
 from .steps.population_clustering import PopulationClusteringStep
@@ -135,11 +136,18 @@ def _build_two_step_pipeline(
             SupervoxelFeatureExtractionStep(feature_manager, config)
         ))
     
-    # Step 5: Always add Supervoxel Aggregation
-    # This step handles both cases: with or without Step 4
+    # Step 5: Always add Supervoxel Aggregation (Individual-level)
+    # This step calculates supervoxel features for each subject independently
     steps.append((
         'supervoxel_aggregation',
         SupervoxelAggregationStep(feature_manager, config)
+    ))
+    
+    # Step 5.5: Combine all subjects' supervoxels (Group-level)
+    # This step merges individual supervoxel DataFrames into one
+    steps.append((
+        'combine_supervoxels',
+        CombineSupervoxelsStep()
     ))
     
     # Step 6: Group-level preprocessing
@@ -164,20 +172,9 @@ def _build_two_step_pipeline(
         )
     ))
     
-    # Choose pipeline type based on configuration
-    # Note: Streaming is only beneficial for individual-level steps (Steps 1-5)
-    # Population clustering (Steps 6-7) requires all subjects' data
-    if config.use_streaming_pipeline:
-        # Use streaming pipeline for memory efficiency
-        # Individual steps (1-5) will be processed in batches
-        # Population steps (6-7) will process all data at once
-        return StreamingHabitatPipeline(
-            steps=steps, 
-            batch_size=config.streaming_batch_size
-        )
-    else:
-        # Use standard pipeline (all steps, all subjects in memory)
-        return HabitatPipeline(steps=steps, config=config)
+    # Return unified pipeline
+    # Memory usage is controlled by the `processes` parameter in individual-level steps
+    return HabitatPipeline(steps=steps, config=config)
 
 
 def _build_one_step_pipeline(
@@ -238,11 +235,17 @@ def _build_one_step_pipeline(
         )
     ))
     
-    # Step 4: Aggregate features (calculate means)
+    # Step 4: Aggregate features (calculate means) - Individual-level
     # Even for one-step, we need to return a DataFrame with mean features
     steps.append((
         'supervoxel_aggregation',
         SupervoxelAggregationStep(feature_manager, config)
+    ))
+    
+    # Step 5: Combine all subjects' habitats - Group-level
+    steps.append((
+        'combine_supervoxels',
+        CombineSupervoxelsStep()
     ))
     
     return HabitatPipeline(steps=steps, config=config)

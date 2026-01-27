@@ -50,8 +50,9 @@ HabitatsSegmention:
     one_step_settings:
       min_clusters: 2           # Minimum number of clusters to test
       max_clusters: 10          # Maximum number of clusters to test
+      fixed_n_clusters: 4       # Fixed number of clusters (if set, automatic selection is disabled)
       selection_method: silhouette  # Method to determine optimal clusters: silhouette, calinski_harabasz, davies_bouldin, inertia
-      plot_validation_curves: true  # Plot validation curves for each tumor
+      plot_validation_curves: true  # Plot validation curves for each tumor Plot validation curves for each tumor
   
   # Habitat clustering settings (Step 2: Population-level clustering, only used in two_step mode)
   habitat:
@@ -62,13 +63,13 @@ HabitatsSegmention:
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
     habitat_cluster_selection_method: silhouette  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
-    best_n_clusters:    # Set to null for automatic selection
+    fixed_n_clusters:    # Fixed number of habitat clusters (set to null for automatic selection)
     random_state: 42
     max_iter: 300
     n_init: 10
 
 # General settings
-processes: 3  # Number of parallel processes
+processes: 6  # Number of parallel processes
 plot_curves: true  # Whether to generate and save plots
 random_state: 42  # Random seed for reproducibility
 debug: false  # Enable debug mode for detailed logging 

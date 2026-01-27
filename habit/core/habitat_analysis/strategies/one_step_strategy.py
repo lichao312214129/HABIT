@@ -1,14 +1,12 @@
 """
 One-step strategy: voxel -> habitat clustering per subject.
-Refactored to use HabitatPipeline.
+Refactored to use HabitatPipeline with template method pattern.
 """
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Optional
 import pandas as pd
 
 from .base_strategy import BaseClusteringStrategy
-from ..pipelines.pipeline_builder import build_habitat_pipeline
 from ..pipelines.base_pipeline import HabitatPipeline
 from ..config_schemas import ResultColumns
 
@@ -25,6 +23,10 @@ class OneStepStrategy(BaseClusteringStrategy):
     2) Subject-level preprocessing (Pipeline Step 2)
     3) Individual clustering (voxel -> habitat per subject) (Pipeline Step 3)
     4) Supervoxel aggregation (Pipeline Step 4) - calculates means per habitat
+    5) Combine supervoxels (Pipeline Step 5) - merge all subjects' results
+    
+    Note: This strategy supports parallel processing through HabitatPipeline.
+    Use config.processes to control the number of parallel workers.
     """
 
     def __init__(self, analysis: "HabitatAnalysis"):
@@ -36,96 +38,27 @@ class OneStepStrategy(BaseClusteringStrategy):
         """
         super().__init__(analysis)
         self.pipeline: Optional[HabitatPipeline] = None
-
-    def run(
-        self,
-        subjects: Optional[List[str]] = None,
-        save_results_csv: Optional[bool] = None,
-        load_from: Optional[str] = None
-    ) -> pd.DataFrame:
+    
+    def _post_process_results(self) -> None:
         """
-        Execute one-step clustering using Pipeline.
-
-        Args:
-            subjects: List of subjects to process (None means all subjects)
-            save_results_csv: Whether to save results to CSV (defaults to config.save_results_csv)
-            load_from: Optional path to a saved pipeline. If provided, the pipeline
-                is loaded and only transform() is executed.
-
-        Returns:
-            Results DataFrame
-        """
-        # Use config value if parameter not provided, allowing runtime override
-        if save_results_csv is None:
-            save_results_csv = self.config.save_results_csv
-        subjects = self._prepare_subjects(subjects)
-
-        # Prepare input data for pipeline
-        X = self._build_input(subjects)
-
-        pipeline_path = self._resolve_pipeline_path(load_from)
-
-        # Ensure output directory exists
-        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
-
-        if load_from:
-            if self.config.verbose:
-                self.logger.info("Loading and running One-Step pipeline...")
-
-            if not pipeline_path.exists():
-                raise FileNotFoundError(
-                    f"Saved pipeline not found at {pipeline_path}. "
-                    "Provide a valid load_from path or run without load_from to train."
-                )
-
-            self.pipeline = HabitatPipeline.load(str(pipeline_path))
-            
-            # Update references in loaded pipeline to use current analysis instances.
-            # This ensures that config changes (like out_dir, plot_curves) are reflected in all steps.
-            self._update_pipeline_references(self.pipeline)
-            
-            # Disable image outputs and plots for prediction runs to avoid unnecessary I/O.
-            self.pipeline.config.plot_curves = False
-            
-            self.analysis.results_df = self.pipeline.transform(X)
-        else:
-            if self.config.verbose:
-                self.logger.info("Building and running One-Step pipeline...")
-
-            self.pipeline = build_habitat_pipeline(
-                config=self.config,
-                feature_manager=self.analysis.feature_manager,
-                clustering_manager=self.analysis.clustering_manager,
-                result_manager=self.analysis.result_manager
-            )
-
-            # Fit and transform (all in one go for stateless pipeline)
-            self.analysis.results_df = self.pipeline.fit_transform(X)
-
-            # Save pipeline for consistency
-            if self.config.verbose:
-                self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
-            self.pipeline.save(str(pipeline_path))
+        Post-process results specific to One-Step strategy.
         
-        # In One-Step, the Aggregation step calculates means per habitat.
-        # Habitat column is usually same as Supervoxel column in this case.
+        In One-Step, the Aggregation step calculates means per habitat.
+        Habitat column is usually same as Supervoxel column in this case.
+        """
         if ResultColumns.HABITATS not in self.analysis.results_df.columns:
             if ResultColumns.SUPERVOXEL in self.analysis.results_df.columns:
-                self.analysis.results_df[ResultColumns.HABITATS] = self.analysis.results_df[ResultColumns.SUPERVOXEL]
-
-        # Update ResultManager with new results
-        self.analysis.result_manager.results_df = self.analysis.results_df
-
-        # Save results
-        if save_results_csv:
-            self._save_results()
-
-        return self.analysis.results_df
-
+                self.analysis.results_df[ResultColumns.HABITATS] = \
+                    self.analysis.results_df[ResultColumns.SUPERVOXEL]
+    
     def _save_results(self) -> None:
         """
         Save results for One-Step strategy.
+        
+        Overrides base implementation because One-Step saves images differently.
         """
+        from pathlib import Path
+        
         if self.config.verbose:
             self.logger.info("Saving results...")
         
@@ -135,50 +68,7 @@ class OneStepStrategy(BaseClusteringStrategy):
         if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         
-        # Note: In One-Step, IndividualClusteringStep saves habitat maps directly.
+        # Note: In One-Step, IndividualClusteringStep already saved habitat maps directly
+        # No need to call save_all_habitat_images which expects supervoxel files
         if self.config.verbose:
-            self.logger.info("One-Step mode: habitat maps have been saved.")
-
-    def _prepare_subjects(self, subjects: Optional[List[str]]) -> List[str]:
-        """
-        Normalize subject list and validate it is not empty.
-
-        Args:
-            subjects: Optional list of subject IDs
-
-        Returns:
-            List of subject IDs
-        """
-        if subjects is None:
-            subjects = list(self.analysis.images_paths.keys())
-
-        if not subjects:
-            raise ValueError("No subjects provided for one-step strategy.")
-
-        return list(subjects)
-
-    def _build_input(self, subjects: List[str]) -> Dict[str, Dict]:
-        """
-        Build input dict for the pipeline.
-
-        Args:
-            subjects: List of subject IDs
-
-        Returns:
-            Dict of subject_id -> empty dict (pipeline will populate data)
-        """
-        return {subject: {} for subject in subjects}
-
-    def _resolve_pipeline_path(self, load_from: Optional[str]) -> Path:
-        """
-        Resolve pipeline path for saving or loading.
-
-        Args:
-            load_from: Optional path to a saved pipeline
-
-        Returns:
-            Path to pipeline file
-        """
-        if load_from:
-            return Path(load_from)
-        return Path(self.config.out_dir) / "habitat_pipeline.pkl"
+            self.logger.info("One-Step mode: habitat maps have been saved during clustering.")

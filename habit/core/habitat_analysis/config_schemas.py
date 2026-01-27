@@ -35,20 +35,13 @@ class HabitatAnalysisConfig(BaseConfig):
         description="Habitat segmentation configuration (required for train mode, optional for predict mode but clustering_mode is needed)."
     )
     
-    processes: int = Field(2, description="Number of parallel processes to use.", gt=0)
-    use_streaming_pipeline: bool = Field(
-        True, 
-        description="Use streaming pipeline for memory-efficient processing. "
-                    "Processes subjects in batches to reduce memory usage. "
-                    "Set to False to use standard pipeline (all subjects in memory)."
-    )
-    streaming_batch_size: int = Field(
-        10, 
-        description="Batch size for streaming pipeline (number of subjects per batch). "
-                    "Higher values = faster but more memory. "
-                    "Lower values = slower but less memory. "
-                    "Set to 0 to disable batching (process all subjects at once).",
-        ge=0
+    processes: int = Field(
+        2, 
+        description="Number of parallel processes for individual-level steps. "
+                    "Controls memory usage and processing speed. "
+                    "Recommended: processes=2 (default, 1-2GB), processes=4 (2-4GB), "
+                    "processes=8 (4-8GB). Reduce if memory is limited.", 
+        gt=0
     )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
@@ -118,8 +111,19 @@ class FeatureConstructionConfig(BaseModel):
 # -----------------------------------------------------------------------------
 
 class OneStepSettings(BaseModel):
+    """
+    Settings for one-step clustering mode (voxel -> habitat directly).
+    
+    In one-step mode, each subject is clustered independently. You can either:
+    1. Specify a fixed number of clusters (fixed_n_clusters)
+    2. Let the algorithm automatically select optimal clusters (min/max_clusters + selection_method)
+    """
     min_clusters: int = 2
     max_clusters: int = 10
+    fixed_n_clusters: Optional[int] = Field(
+        None,
+        description="Fixed number of clusters for all subjects. If specified, automatic selection is disabled."
+    )
     selection_method: Literal['silhouette', 'calinski_harabasz', 'davies_bouldin', 'inertia'] = 'silhouette'
     plot_validation_curves: bool = True
 
@@ -136,7 +140,10 @@ class HabitatClusteringConfig(BaseModel):
     max_clusters: int = 10
     min_clusters: Optional[int] = 2
     habitat_cluster_selection_method: Union[str, List[str]] = 'inertia'
-    best_n_clusters: Optional[int] = None
+    fixed_n_clusters: Optional[int] = Field(
+        None,
+        description="Fixed number of habitat clusters. If specified, automatic selection is disabled."
+    )
     random_state: int = 42
     max_iter: int = 300
     n_init: int = 10

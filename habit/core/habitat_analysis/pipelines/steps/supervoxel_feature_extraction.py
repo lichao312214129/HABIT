@@ -9,13 +9,12 @@ from typing import Dict, Any, Optional
 import pandas as pd
 import logging
 
-from ..base_pipeline import BasePipelineStep
+from ..base_pipeline import IndividualLevelStep
 from ...managers.feature_manager import FeatureManager
 from ...config_schemas import HabitatAnalysisConfig
-from habit.utils.parallel_utils import parallel_map
 
 
-class SupervoxelFeatureExtractionStep(BasePipelineStep):
+class SupervoxelFeatureExtractionStep(IndividualLevelStep):
     """
     Extract advanced features for each supervoxel based on supervoxel maps.
     
@@ -100,49 +99,32 @@ class SupervoxelFeatureExtractionStep(BasePipelineStep):
                 'supervoxel_features': pd.DataFrame
             }
         """
-        subject_ids = list(X.keys())
-        
-        # Get number of processes from config
-        n_processes = getattr(self.config, 'processes', 1)
-        
-        # Extract supervoxel features in parallel
-        successful_results, failed_subjects = parallel_map(
-            func=self.feature_manager.extract_supervoxel_features,
-            items=subject_ids,
-            n_processes=n_processes,
-            desc="Extracting supervoxel features",
-            logger=self.logger,
-            show_progress=True,
-        )
-        
-        # Convert results to dict
         results = {}
-        for proc_result in successful_results:
-            # proc_result.item_id contains subject_id
-            # proc_result.result contains features_df or Exception
-            subject_id = proc_result.item_id
-            features_df = proc_result.result
-            
-            if isinstance(features_df, Exception):
-                self.logger.error(
-                    f"Failed to extract supervoxel features for {subject_id}: {features_df}"
-                )
-                continue
-            
-            # Add supervoxel features to result
-            results[subject_id] = {
-                'features': X[subject_id]['features'],
-                'raw': X[subject_id]['raw'],
-                'mask_info': X[subject_id]['mask_info'],
-                'supervoxel_labels': X[subject_id]['supervoxel_labels'],
-                'supervoxel_features': features_df
-            }
         
-        # Log failed subjects
-        if failed_subjects:
-            self.logger.error(
-                f"Failed to extract supervoxel features for {len(failed_subjects)} subject(s): "
-                f"{', '.join(str(s) for s in failed_subjects)}"
-            )
+        # Process each subject sequentially (pipeline handles parallelization)
+        for subject_id, data in X.items():
+            try:
+                mask_info = data['mask_info']
+                supervoxel_labels = data['supervoxel_labels']
+                
+                # Extract advanced features from supervoxel maps
+                supervoxel_features_df = self.feature_manager.extract_supervoxel_features(
+                    subject_id,
+                    supervoxel_labels,
+                    mask_info
+                )
+                
+                # Add supervoxel features to the data
+                results[subject_id] = {
+                    'features': data['features'],
+                    'raw': data['raw'],
+                    'mask_info': mask_info,
+                    'supervoxel_labels': supervoxel_labels,
+                    'supervoxel_features': supervoxel_features_df
+                }
+                
+            except Exception as e:
+                self.logger.error(f"Failed to extract supervoxel features for subject {subject_id}: {e}")
+                raise
         
         return results

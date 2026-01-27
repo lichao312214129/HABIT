@@ -75,7 +75,7 @@ HabitatsSegmention:
       # - davies_bouldin
 
                                                
-    best_n_clusters:    # Set to null for automatic selection
+    fixed_n_clusters:    # Fixed number of habitat clusters (set to null for automatic selection)
     random_state: 42
     max_iter: 300
     n_init: 10

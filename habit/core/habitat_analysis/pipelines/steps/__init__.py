@@ -9,6 +9,7 @@ from .subject_preprocessing import SubjectPreprocessingStep
 from .individual_clustering import IndividualClusteringStep
 from .supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
 from .supervoxel_aggregation import SupervoxelAggregationStep
+from .combine_supervoxels import CombineSupervoxelsStep
 from .concatenate_voxels import ConcatenateVoxelsStep
 from .group_preprocessing import GroupPreprocessingStep
 from .population_clustering import PopulationClusteringStep
@@ -19,6 +20,7 @@ __all__ = [
     'IndividualClusteringStep',
     'SupervoxelFeatureExtractionStep',
     'SupervoxelAggregationStep',
+    'CombineSupervoxelsStep',
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',
     'PopulationClusteringStep',

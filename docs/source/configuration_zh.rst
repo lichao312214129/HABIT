@@ -323,7 +323,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
        habitat_cluster_selection_method:
          - inertia
          - silhouette
-       best_n_clusters:
+       fixed_n_clusters:
        random_state: 42
        max_iter: 300
        n_init: 10
@@ -501,10 +501,11 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
   - 可选值: inertia、silhouette、calinski_harabasz、aic、bic、davies_bouldin
   - 示例: `[inertia, silhouette]`
 
-- `best_n_clusters`: 最佳聚类数
+- `fixed_n_clusters`: 固定聚类数
   - 类型: 整数或 null
   - 必需: 否
   - 默认值: null（表示自动选择）
+  - 说明: 如果设置具体数值，则禁用自动聚类数选择，直接使用该固定值
   - 示例: `null`
 
 - `random_state`: 随机种子

@@ -8,11 +8,11 @@ from typing import Dict, Any, Optional
 import pandas as pd
 import numpy as np
 
-from ..base_pipeline import BasePipelineStep
+from ..base_pipeline import GroupLevelStep
 from ...config_schemas import ResultColumns
 
 
-class ConcatenateVoxelsStep(BasePipelineStep):
+class ConcatenateVoxelsStep(GroupLevelStep):
     """
     Concatenate all voxels from all subjects into a single DataFrame.
     

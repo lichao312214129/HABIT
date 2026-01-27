@@ -11,7 +11,7 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 
 try:
-    from ..base_pipeline import BasePipelineStep
+    from ..base_pipeline import GroupLevelStep
     from ...utils.preprocessing_state import PreprocessingState
 except ImportError as e:
     # Provide helpful error message if imported incorrectly
@@ -24,7 +24,7 @@ except ImportError as e:
     raise
 
 
-class GroupPreprocessingStep(BasePipelineStep):
+class GroupPreprocessingStep(GroupLevelStep):
     """
     Group-level preprocessing using PreprocessingState.
     

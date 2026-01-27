@@ -225,7 +225,7 @@ YAML 配置详解
          # - bic
          # - davies_bouldin
 
-       best_n_clusters:    # 设置为 null 进行自动选择
+       fixed_n_clusters:    # 固定的聚类数（设置为 null 则自动选择）
        random_state: 42
        max_iter: 300
        n_init: 10
@@ -348,7 +348,7 @@ YAML 配置详解
        habitat_cluster_selection_method:
          - inertia
          - silhouette
-       best_n_clusters: null  # 自动选择
+       fixed_n_clusters: null  # 自动选择
        random_state: 42
 
 **Direct Pooling 策略**
@@ -381,7 +381,7 @@ YAML 配置详解
        max_clusters: 10
        habitat_cluster_selection_method:
          - inertia
-       best_n_clusters: null
+       fixed_n_clusters: null
        random_state: 42
 
 Pipeline 机制
