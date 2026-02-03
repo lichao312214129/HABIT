@@ -7,6 +7,15 @@ We sincerely thank the following experts and institutions for their support and 
 
 ---
 
+核心开发者 / Core Developers
+-----------------------------
+
+**黎超 / Li Chao**
+
+**董梦实 / Dong Mengshi**
+
+---
+
 临床合作专家 / Clinical Collaborators
 --------------------------------------
 

@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 project = 'HABIT'
 copyright = f'{datetime.now().year}, HABIT Team'
-author = 'HABIT Team'
+author = '黎超, 董梦实 (Li Chao, Dong Mengshi)'
 
 # The full version, including alpha/beta/rc tags
 try:

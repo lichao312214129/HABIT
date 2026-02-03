@@ -8,6 +8,8 @@ HABIT: Habitat Analysis: Biomedical Imaging Toolkit
 
 **HABIT** 是一个综合性的肿瘤"生境"（Habitat）分析工具包，旨在通过医疗影像挖掘肿瘤内部的异质性。它涵盖了从影像预处理、特征提取、聚类分析到机器学习建模的完整放射组学（Radiomics）流水线。
 
+本项目的核心开发者为 **黎超** 和 **董梦实** (Core developers: Li Chao, Dong Mengshi)。
+
 核心工作流
 ----------
 

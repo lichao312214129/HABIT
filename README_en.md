@@ -216,6 +216,12 @@ This project is licensed under MIT License - see [LICENSE](LICENSE) file for det
 
 ---
 
+## 👥 Core Developers
+
+The core developers of this project are **Li Chao (黎超)** and **Dong Mengshi (董梦实)**.
+
+---
+
 ## 🔬 Citation
 
 If you use HABIT in your research, please consider citing:
