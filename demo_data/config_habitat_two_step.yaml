@@ -4,20 +4,20 @@
 run_mode: train
 
 # Data paths
-data_dir: ./file_habitat.yaml
-out_dir: ./results/habitat_two_step
+data_dir: H:\Registration_ICC_structured
+out_dir: H:\results_young_funding
 
 # Feature extraction settings (only needed for train mode)
 FeatureConstruction:
   voxel_level:
-    method: concat(voxel_radiomics(delay2, params_file, kernelRadius), voxel_radiomics(delay3, params_file, kernelRadius), voxel_radiomics(delay5, params_file, kernelRadius))
+    method: concat(voxel_radiomics(pre_contrast, params_file, kernelRadius), voxel_radiomics(LAP, params_file, kernelRadius), voxel_radiomics(PVP, params_file, kernelRadius), voxel_radiomics(delay_3min, params_file, kernelRadius))
     params:
       params_file: ./parameter.yaml
-      kernelRadius: 2
+      kernelRadius: 1
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: concat(supervoxel_radiomics(delay2, params_file), supervoxel_radiomics(delay3, params_file), supervoxel_radiomics(delay5, params_file))
+    method: concat(supervoxel_radiomics(pre_contrast, params_file), supervoxel_radiomics(LAP, params_file), supervoxel_radiomics(PVP, params_file), supervoxel_radiomics(delay_3min, params_file))
     params:
       params_file: ./parameter.yaml
 
@@ -30,9 +30,8 @@ FeatureConstruction:
 
   preprocessing_for_group_level:
     methods:
-      - method: binning
-        n_bins: 10
-        bin_strategy: uniform
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
         global_normalize: false
 
 
@@ -47,7 +46,7 @@ HabitatsSegmention:
   # Supervoxel clustering settings (Step 1: Individual-level clustering)
   supervoxel:
     algorithm: kmeans
-    n_clusters: 30  # Used in two_step mode, or as max for one_step mode
+    n_clusters: 50  # Used in two_step mode, or as max for one_step mode
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -74,13 +73,13 @@ HabitatsSegmention:
       # - davies_bouldin
 
                                                
-    fixed_n_clusters: 10    # Fixed number of habitat clusters (set to null for automatic selection)
+    fixed_n_clusters:     # Fixed number of habitat clusters (set to null for automatic selection)
     random_state: 42
     max_iter: 300
     n_init: 10
 
 # General settings
-processes: 1  # Number of parallel processes
+processes: 5  # Number of parallel processes
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 random_state: 42  # Random seed for reproducibility

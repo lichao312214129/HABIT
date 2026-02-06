@@ -8,3 +8,5 @@ API 文档
    machine_learning
    preprocessing
    common
+   utils
+   cli

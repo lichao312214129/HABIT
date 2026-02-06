@@ -6,10 +6,35 @@ common 模块
    :undoc-members:
    :show-inheritance:
 
-ServiceConfigurator 类
-----------------------
+配置系统 (Configuration System)
+--------------------------------
 
-.. autoclass:: habit.core.common.service_configurator.ServiceConfigurator
+HABIT 使用一套基于 YAML 的强类型配置系统。
+
+.. automodule:: habit.core.common.service_configurator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.config_loader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.config_validator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.config_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+数据工具 (Data Utilities)
+--------------------------
+
+.. automodule:: habit.core.common.dataframe_utils
    :members:
    :undoc-members:
    :show-inheritance:
