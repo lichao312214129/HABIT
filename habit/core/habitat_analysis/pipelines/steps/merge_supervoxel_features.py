@@ -8,6 +8,7 @@ This step selects which supervoxel features to use for group-level clustering:
 """
 
 from typing import Dict, Any, Optional
+import numpy as np
 import pandas as pd
 import logging
 
@@ -146,11 +147,38 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                     if ResultColumns.SUBJECT not in supervoxel_df.columns:
                         supervoxel_df[ResultColumns.SUBJECT] = subject_id
                     
+                    # Add Count column (voxels per supervoxel) for consistency with mean_voxel_features path
+                    if ResultColumns.COUNT not in supervoxel_df.columns and 'supervoxel_labels' in data:
+                        labels = np.asarray(data['supervoxel_labels']).ravel()
+                        labels_in_mask = labels[labels > 0]
+                        unique, counts = np.unique(labels_in_mask, return_counts=True)
+                        count_series = pd.Series(counts, index=unique)
+                        supervoxel_df[ResultColumns.COUNT] = supervoxel_df[ResultColumns.SUPERVOXEL].map(count_series).values
+                    
+                    # Ensure all feature columns are numeric type
+                    # Convert any non-numeric feature columns to numeric
+                    non_metadata_cols = [col for col in supervoxel_df.columns 
+                                        if col not in [ResultColumns.SUBJECT, ResultColumns.SUPERVOXEL, ResultColumns.COUNT]]
+                    
+                    if self.config.verbose and len(non_metadata_cols) > 0:
+                        # Check first column before conversion
+                        sample_col = non_metadata_cols[0]
+                        self.logger.info(f"Before conversion - sample column '{sample_col}' dtype: {supervoxel_df[sample_col].dtype}, first value: {supervoxel_df[sample_col].iloc[0]}")
+                    
+                    for col in non_metadata_cols:
+                        supervoxel_df[col] = pd.to_numeric(supervoxel_df[col], errors='coerce')
+                    
+                    if self.config.verbose and len(non_metadata_cols) > 0:
+                        # Check first column after conversion
+                        sample_col = non_metadata_cols[0]
+                        self.logger.info(f"After conversion - sample column '{sample_col}' dtype: {supervoxel_df[sample_col].dtype}, first value: {supervoxel_df[sample_col].iloc[0]}")
+                    
                     if self.config.verbose:
                         self.logger.info(
                             f"Subject {subject_id}: Using ADVANCED features "
                             f"({len(supervoxel_df)} supervoxels, {len(supervoxel_df.columns)} features)"
                         )
+                        self.logger.info(f"Subject {subject_id}: DataFrame dtypes: {supervoxel_df.dtypes.value_counts().to_dict()}")
                 
                 else:
                     # Mode 1: Use mean voxel features

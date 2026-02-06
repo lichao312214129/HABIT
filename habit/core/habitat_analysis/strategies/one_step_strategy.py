@@ -62,9 +62,12 @@ class OneStepStrategy(BaseClusteringStrategy):
         if self.config.verbose:
             self.logger.info("Saving results...")
         
-        # Save results CSV
+        # Save results CSV with consistent column order (metadata first, then features)
         csv_path = Path(self.config.out_dir) / "habitats.csv"
-        self.analysis.results_df.to_csv(str(csv_path), index=False)
+        from habit.core.habitat_analysis.strategies.base_strategy import _canonical_csv_column_order
+        df = self.analysis.results_df
+        canonical_order = _canonical_csv_column_order(df)
+        df[canonical_order].to_csv(str(csv_path), index=False)
         if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         

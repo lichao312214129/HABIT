@@ -53,9 +53,14 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
             
             # If values is already a DataFrame, use its column names
             if isinstance(values, pd.DataFrame):
-                # Add prefix to column names to identify the image source
-                # renamed_cols = {col: f"{key}_{col}" for col in values.columns}
-                # values = values.rename(columns=renamed_cols)
+                # Remove duplicate index columns (like SupervoxelID) that already exist
+                # in image_df to avoid multiple columns with the same name after concat
+                if not image_df.empty:
+                    # Find columns that already exist in image_df (e.g., SupervoxelID)
+                    duplicate_cols = [col for col in values.columns if col in image_df.columns]
+                    if duplicate_cols:
+                        values = values.drop(columns=duplicate_cols)
+                
                 image_df = pd.concat([image_df, values], axis=1)
             else:
                 # If values is a numpy array, convert to DataFrame with prefixed column name
@@ -74,6 +79,22 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
         if image_df.empty:
             raise ValueError("No valid data found in input list")
             
+        # Ensure all feature columns (except SupervoxelID) are numeric type
+        # pd.concat may convert numeric columns to object type in some cases
+        print(f"[ConcatFeatureExtractor] Before conversion: {image_df.dtypes.value_counts().to_dict()}")
+        if len(image_df.columns) > 1:
+            sample_col = [c for c in image_df.columns if c != 'SupervoxelID'][0]
+            print(f"[ConcatFeatureExtractor] Sample column '{sample_col}': dtype={image_df[sample_col].dtype}, first value={image_df[sample_col].iloc[0]}, type={type(image_df[sample_col].iloc[0])}")
+        
+        for col in image_df.columns:
+            if col != 'SupervoxelID':
+                image_df[col] = pd.to_numeric(image_df[col], errors='coerce')
+        
+        print(f"[ConcatFeatureExtractor] After conversion: {image_df.dtypes.value_counts().to_dict()}")
+        if len(image_df.columns) > 1:
+            sample_col = [c for c in image_df.columns if c != 'SupervoxelID'][0]
+            print(f"[ConcatFeatureExtractor] Sample column '{sample_col}': dtype={image_df[sample_col].dtype}, first value={image_df[sample_col].iloc[0]}")
+        
         # Update feature names
         self.feature_names = list(image_df.columns)
         

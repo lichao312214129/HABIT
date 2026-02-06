@@ -43,6 +43,6 @@ class TestHabitatTwoStepTrain:
 if __name__ == '__main__':
     # Allow running as script for debugging
     # All configuration is in YAML, no -m parameter needed
-    config_path = './demo_data/data11/config_getting_habitat.yaml'
+    config_path = './demo_data/config_habitat_two_step.yaml'
     sys.argv = ['habit', 'get-habitat', '-c', config_path]
     cli()

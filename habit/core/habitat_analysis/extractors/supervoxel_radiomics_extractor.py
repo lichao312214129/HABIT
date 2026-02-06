@@ -169,6 +169,13 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                         if sv_idx == 0 and new_feature_name not in self.feature_names:
                             self.feature_names.append(new_feature_name)
                         
+                        # Convert numpy array/scalar to Python scalar
+                        # PyRadiomics returns 0-dim numpy arrays which pandas treats as objects
+                        if hasattr(feature_value, 'item'):
+                            feature_value = feature_value.item()
+                        elif isinstance(feature_value, np.ndarray):
+                            feature_value = float(feature_value.flat[0]) if feature_value.size > 0 else np.nan
+                        
                         feature_row[new_feature_name] = feature_value
                 
                 # Add row to data
@@ -185,6 +192,19 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         
         # Convert to DataFrame
         feature_df = pd.DataFrame(feature_data)
+        
+        print(f"[SupervoxelRadiomics] Before conversion: shape={feature_df.shape}, dtypes={feature_df.dtypes.value_counts().to_dict()}")
+        if len(feature_df.columns) > 1:
+            sample_col = [c for c in feature_df.columns if c != 'SupervoxelID'][0]
+            print(f"[SupervoxelRadiomics] Sample column '{sample_col}': dtype={feature_df[sample_col].dtype}, first value={feature_df[sample_col].iloc[0]}, type={type(feature_df[sample_col].iloc[0])}")
+        
+        # Ensure all feature columns (except SupervoxelID) are numeric type
+        # PyRadiomics may return numpy special types that pandas treats as objects
+        for col in feature_df.columns:
+            if col != 'SupervoxelID':
+                feature_df[col] = pd.to_numeric(feature_df[col], errors='coerce')
+        
+        print(f"[SupervoxelRadiomics] After conversion: dtypes={feature_df.dtypes.value_counts().to_dict()}")
         
         return feature_df
     

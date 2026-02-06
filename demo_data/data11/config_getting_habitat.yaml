@@ -44,7 +44,7 @@ HabitatsSegmention:
   # Supervoxel clustering settings (Step 1: Individual-level clustering)
   supervoxel:
     algorithm: kmeans
-    n_clusters: 30  # Used in two_step mode, or as max for one_step mode
+    n_clusters: 10  # Used in two_step mode, or as max for one_step mode
     random_state: 42
     max_iter: 300
     n_init: 10
@@ -66,13 +66,13 @@ HabitatsSegmention:
     algorithm: kmeans  # kmeans or gmm
     max_clusters: 10
     habitat_cluster_selection_method: inertia  # inertia, silhouette, or calinski_harabasz, aic or bic for gmm
-    fixed_n_clusters:    # Fixed number of habitat clusters (set to null for automatic selection)
+    fixed_n_clusters: 6   # Fixed number of habitat clusters (set to null for automatic selection)
     random_state: 42
     max_iter: 300
     n_init: 10
 
 # General settings
-processes: 1  # Number of parallel processes
+processes: 3  # Number of parallel processes
 plot_curves: true  # Whether to generate and save plots
 random_state: 42  # Random seed for reproducibility
 debug: false  # Enable debug mode for detailed logging 

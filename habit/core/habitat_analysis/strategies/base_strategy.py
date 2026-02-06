@@ -8,9 +8,30 @@ from pathlib import Path
 
 import pandas as pd
 
+from habit.core.habitat_analysis.config_schemas import ResultColumns
+
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
     from habit.core.habitat_analysis.pipelines.base_pipeline import HabitatPipeline
+
+
+def _canonical_csv_column_order(df: pd.DataFrame) -> List[str]:
+    """
+    Return column order for habitats.csv: metadata columns first (fixed order),
+    then all other columns in their current order.
+    This ensures habitats.csv has a consistent, predictable column order across runs.
+    """
+    # Fixed order for standard metadata columns (only include if present)
+    meta_order = [
+        ResultColumns.SUBJECT,
+        ResultColumns.SUPERVOXEL,
+        ResultColumns.HABITATS,
+        ResultColumns.COUNT,
+    ]
+    meta_cols = [c for c in meta_order if c in df.columns]
+    # Rest of columns (features) in their current order
+    other_cols = [c for c in df.columns if c not in meta_cols]
+    return meta_cols + other_cols
 
 
 class BaseClusteringStrategy(ABC):
@@ -364,9 +385,11 @@ class BaseClusteringStrategy(ABC):
         if self.config.verbose:
             self.logger.info("Saving results...")
         
-        # Save results CSV
+        # Save results CSV with consistent column order (metadata first, then features)
         csv_path = Path(self.config.out_dir) / "habitats.csv"
-        self.analysis.results_df.to_csv(str(csv_path), index=False)
+        df = self.analysis.results_df
+        canonical_order = _canonical_csv_column_order(df)
+        df[canonical_order].to_csv(str(csv_path), index=False)
         if self.config.verbose:
             self.logger.info(f"Results saved to {csv_path}")
         

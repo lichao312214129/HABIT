@@ -306,10 +306,23 @@ class PreprocessingState:
         """
         self.methods_config = methods
         
+        # Debug: Check DataFrame info
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"PreprocessingState.fit() received DataFrame with shape: {df.shape}")
+        logger.info(f"DataFrame columns: {list(df.columns)[:10]}...")  # First 10 columns
+        logger.info(f"DataFrame dtypes sample: {df.dtypes.value_counts().to_dict()}")
+        
         # Filter out non-numeric columns (metadata columns like Subject ID)
         numeric_df = self._get_numeric_columns(df)
         
+        logger.info(f"After filtering, numeric columns count: {len(numeric_df.columns)}")
+        if len(numeric_df.columns) > 0:
+            logger.info(f"Sample numeric columns: {list(numeric_df.columns)[:5]}")
+        
         if numeric_df.empty:
+            logger.error(f"All DataFrame columns: {list(df.columns)}")
+            logger.error(f"DataFrame dtypes:\n{df.dtypes}")
             raise ValueError("No numeric columns found in DataFrame. Cannot perform preprocessing.")
         
         # Always compute basic statistics for imputation and potential use
@@ -458,13 +471,22 @@ class PreprocessingState:
         Returns:
             DataFrame containing only numeric feature columns
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
         # Get numeric columns
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        logger.info(f"select_dtypes found {len(numeric_cols)} numeric columns")
+        if len(numeric_cols) > 0:
+            logger.info(f"Sample numeric columns: {numeric_cols[:5]}")
         
         # Filter out metadata columns
         feature_cols = [col for col in numeric_cols if ResultColumns.is_feature_column(col)]
+        logger.info(f"After filtering metadata, {len(feature_cols)} feature columns remain")
         
         if not feature_cols:
+            logger.warning(f"Metadata columns found: {[col for col in df.columns if col in ResultColumns.metadata_columns()]}")
+            logger.warning(f"Non-numeric columns: {df.select_dtypes(exclude=[np.number]).columns.tolist()[:10]}")
             return pd.DataFrame()
         
         return df[feature_cols]

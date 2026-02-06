@@ -51,7 +51,11 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
     
     def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'SupervoxelFeatureExtractionStep':
         """
-        Fit step: setup supervoxel file discovery for feature extraction.
+        Fit step: record subjects for later supervoxel file discovery.
+        
+        Note: Supervoxel files are discovered in transform() rather than fit()
+        because the files are created by the previous step's transform(), which
+        hasn't run yet during the fit() phase.
         
         Args:
             X: Dict of subject_id -> {
@@ -66,15 +70,10 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         Returns:
             self
         """
-        # Setup supervoxel file dictionary for feature extraction
-        # This discovers supervoxel map files saved in Step 3 (IndividualClusteringStep)
-        subjects = list(X.keys())
-        self.feature_manager.setup_supervoxel_files(
-            subjects, 
-            failed_subjects=[],
-            out_folder=self.config.out_dir
-        )
-        
+        # Store subjects for later supervoxel file discovery in transform()
+        # Note: We cannot call setup_supervoxel_files() here because supervoxel
+        # files haven't been saved yet (they're saved during IndividualClusteringStep.transform())
+        self.subjects_ = list(X.keys())
         self.fitted_ = True
         return self
     
@@ -99,6 +98,26 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
                 'supervoxel_features': pd.DataFrame
             }
         """
+        # Setup supervoxel files dictionary NOW (not in fit())
+        # This must be done here because supervoxel files are created by the
+        # previous step's transform(), which runs AFTER all fit() calls
+        # 
+        # IMPORTANT: In parallel processing, each worker process has its own
+        # copy of FeatureManager, so each worker needs to setup its own mapping.
+        # We always setup for the current subjects being processed.
+        
+        # Get subjects from current input data (works in both serial and parallel modes)
+        current_subjects = list(X.keys())
+        
+        # Setup file mapping for current subjects
+        # In parallel mode: each worker processes one subject at a time
+        # In serial mode: may process multiple subjects at once
+        self.feature_manager.setup_supervoxel_files(
+            subjects=current_subjects,
+            failed_subjects=[],
+            out_folder=self.config.out_dir
+        )
+        
         results = {}
         
         # Process each subject sequentially (pipeline handles parallelization)
@@ -107,12 +126,18 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
                 mask_info = data['mask_info']
                 supervoxel_labels = data['supervoxel_labels']
                 
-                # Extract advanced features from supervoxel maps
-                supervoxel_features_df = self.feature_manager.extract_supervoxel_features(
-                    subject_id,
-                    supervoxel_labels,
-                    mask_info
+                # Extract advanced features from supervoxel maps (from saved files)
+                # Note: extract_supervoxel_features reads from supervoxel map files
+                # that were saved during the clustering step
+                subject_id_returned, result = self.feature_manager.extract_supervoxel_features(
+                    subject_id
                 )
+                
+                # Handle potential errors returned from feature extraction
+                if isinstance(result, Exception):
+                    raise result
+                
+                supervoxel_features_df = result
                 
                 # Add supervoxel features to the data
                 results[subject_id] = {

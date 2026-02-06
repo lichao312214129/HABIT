@@ -80,5 +80,8 @@ class CombineSupervoxelsStep(GroupLevelStep):
         combined_df = pd.concat(all_supervoxel_dfs, ignore_index=True)
         
         self.logger.info(f"Combined supervoxel features from {len(all_supervoxel_dfs)} subjects")
+        self.logger.info(f"Combined DataFrame shape: {combined_df.shape}")
+        self.logger.info(f"Combined DataFrame columns: {list(combined_df.columns)[:10]}...")
+        self.logger.info(f"Combined DataFrame dtypes sample: {combined_df.dtypes.value_counts().to_dict()}")
         
         return combined_df
