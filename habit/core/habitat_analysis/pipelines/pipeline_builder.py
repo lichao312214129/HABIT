@@ -243,14 +243,21 @@ def _build_one_step_pipeline(
         )
     ))
     
-    # Step 4: Aggregate features (calculate means) - Individual-level
-    # Even for one-step, we need to return a DataFrame with mean features
+    # Step 4: Calculate mean voxel features (Individual-level)
+    # Even for one-step, we need aggregated features per label for downstream outputs.
     steps.append((
-        'supervoxel_aggregation',
-        SupervoxelAggregationStep(feature_manager, config)
+        'calculate_mean_voxel_features',
+        CalculateMeanVoxelFeaturesStep(feature_manager, config)
     ))
     
-    # Step 5: Combine all subjects' habitats - Group-level
+    # Step 5: Select which aggregated features to use (Individual-level)
+    # This keeps the logic consistent with the two-step pipeline.
+    steps.append((
+        'merge_supervoxel_features',
+        MergeSupervoxelFeaturesStep(config)
+    ))
+    
+    # Step 6: Combine all subjects' habitats - Group-level
     steps.append((
         'combine_supervoxels',
         CombineSupervoxelsStep()

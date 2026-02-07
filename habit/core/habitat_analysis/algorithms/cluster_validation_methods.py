@@ -6,7 +6,7 @@ Define the mapping relationship between clustering methods and optimal cluster n
 CLUSTERING_VALIDATION_METHODS = {
     # Methods supported by K-Means clustering
     'kmeans': {
-        'default': ['silhouette', 'calinski_harabasz', 'inertia'],  # Default methods
+        'default': ['silhouette', 'calinski_harabasz', 'kneedle'],  # Default methods
         'methods': {
             'silhouette': {
                 'description': 'Silhouette Score, higher is better',
@@ -18,7 +18,11 @@ CLUSTERING_VALIDATION_METHODS = {
             },
             'inertia': {
                 'description': 'Inertia, sum of squared distances to the nearest cluster center, lower is better',
-                'optimization': 'elbow'
+                'optimization': 'kneedle'
+            },
+            'kneedle': {
+                'description': 'Kneedle method on inertia curve, selects the maximum distance to the diagonal',
+                'optimization': 'kneedle'
             },
             'gap': {
                 'description': 'Gap Statistic, higher is better',

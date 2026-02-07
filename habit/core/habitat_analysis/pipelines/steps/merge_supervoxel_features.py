@@ -174,11 +174,20 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                         self.logger.info(f"After conversion - sample column '{sample_col}' dtype: {supervoxel_df[sample_col].dtype}, first value: {supervoxel_df[sample_col].iloc[0]}")
                     
                     if self.config.verbose:
+                        # Count total columns and true feature columns separately for user-facing clarity.
+                        # True feature columns exclude metadata and "-original" columns.
+                        total_columns = len(supervoxel_df.columns)
+                        true_feature_columns = sum(
+                            ResultColumns.is_feature_column(col) for col in supervoxel_df.columns
+                        )
                         self.logger.info(
                             f"Subject {subject_id}: Using ADVANCED features "
-                            f"({len(supervoxel_df)} supervoxels, {len(supervoxel_df.columns)} features)"
+                            f"({len(supervoxel_df)} supervoxels, total columns: {total_columns}, "
+                            f"feature columns: {true_feature_columns})"
                         )
-                        self.logger.info(f"Subject {subject_id}: DataFrame dtypes: {supervoxel_df.dtypes.value_counts().to_dict()}")
+                        self.logger.info(
+                            f"Subject {subject_id}: DataFrame dtypes: {supervoxel_df.dtypes.value_counts().to_dict()}"
+                        )
                 
                 else:
                     # Mode 1: Use mean voxel features
@@ -191,9 +200,16 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                     supervoxel_df = data['mean_voxel_features'].copy()
                     
                     if self.config.verbose:
+                        # Count total columns and true feature columns separately for user-facing clarity.
+                        # True feature columns exclude metadata and "-original" columns.
+                        total_columns = len(supervoxel_df.columns)
+                        true_feature_columns = sum(
+                            ResultColumns.is_feature_column(col) for col in supervoxel_df.columns
+                        )
                         self.logger.info(
                             f"Subject {subject_id}: Using MEAN VOXEL features "
-                            f"({len(supervoxel_df)} supervoxels, {len(supervoxel_df.columns)} features)"
+                            f"({len(supervoxel_df)} supervoxels, total columns: {total_columns}, "
+                            f"feature columns: {true_feature_columns})"
                         )
                 
                 # Store result with unified key name

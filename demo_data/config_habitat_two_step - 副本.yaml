@@ -4,21 +4,17 @@
 run_mode: train
 
 # Data paths
-data_dir: H:\Registration_ICC_structured
-out_dir: H:\results_young_funding
+data_dir: ./file_habitat.yaml
+out_dir: ./results/habitat_two_step
 
 # Feature extraction settings (only needed for train mode)
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
-    params:
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
-    params:
-      params_file: ./parameter.yaml
 
   preprocessing_for_subject_level: 
     methods:
@@ -41,7 +37,7 @@ HabitatsSegmention:
   # - one_step: Individual-level only (voxel-to-habitat clustering for each tumor)
   # - two_step: Individual-level + Population-level (voxel-to-supervoxel, then supervoxel-to-habitat across patients)
   # - direct_pooling: Pool all voxels and cluster once
-  clustering_mode: one_step
+  clustering_mode: two_step
   
   # Supervoxel clustering settings (Step 1: Individual-level clustering)
   supervoxel:
@@ -55,7 +51,6 @@ HabitatsSegmention:
     one_step_settings:
       min_clusters: 2           # Minimum number of clusters to test
       max_clusters: 10          # Maximum number of clusters to test
-      fixed_n_clusters: 6       # Fixed number of clusters (if set, automatic selection is disabled)
       selection_method: inertia  # Method to determine optimal clusters: silhouette, calinski_harabasz, davies_bouldin, inertia
       plot_validation_curves: true  # Plot validation curves for each tumor
   

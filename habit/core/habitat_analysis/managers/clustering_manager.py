@@ -245,6 +245,14 @@ class ClusteringManager:
             os.makedirs(viz_dir, exist_ok=True)
             
             plot_file = os.path.join(viz_dir, f'{subject}_cluster_validation.png')
+            # Compute the best cluster count using the same logic as BaseClustering.
+            best_idx = clusterer._select_best_n_clusters_for_single_method(
+                scores_dict[selection_method],
+                selection_method
+            )
+            best_n_clusters_map = {
+                selection_method: clusterer.cluster_range[best_idx]
+            }
             plot_cluster_scores(
                 scores_dict=scores_dict,
                 cluster_range=clusterer.cluster_range,
@@ -253,7 +261,8 @@ class ClusteringManager:
                 figsize=(8, 6),
                 save_path=plot_file,
                 show=False,
-                dpi=600
+                dpi=600,
+                best_n_clusters=best_n_clusters_map
             )
             self.logger.info(f"Validation plot saved to: {plot_file}")
         except Exception as e:
@@ -271,15 +280,32 @@ class ClusteringManager:
             min_clusters = self.config.HabitatsSegmention.habitat.min_clusters or 2
             max_clusters = self.config.HabitatsSegmention.habitat.max_clusters
             cluster_range = list(range(min_clusters, max_clusters + 1))
-            
+
+            # Compute per-method best cluster counts using BaseClustering logic.
+            methods_list = (
+                [self.selection_methods]
+                if isinstance(self.selection_methods, str)
+                else list(self.selection_methods)
+            )
+            best_n_clusters_map = {}
+            for method in methods_list:
+                if method not in scores:
+                    continue
+                best_idx = self.supervoxel2habitat_clustering._select_best_n_clusters_for_single_method(
+                    scores[method],
+                    method
+                )
+                best_n_clusters_map[method] = cluster_range[best_idx]
+
             plot_cluster_scores(
                 scores_dict=scores,
                 cluster_range=cluster_range,
-                methods=self.selection_methods,
+                methods=methods_list,
                 clustering_algorithm=self.config.HabitatsSegmention.habitat.algorithm,
                 figsize=(6, 6),
                 outdir=self.config.out_dir,
-                show=False
+                show=False,
+                best_n_clusters=best_n_clusters_map
             )
             
             if self.config.verbose:

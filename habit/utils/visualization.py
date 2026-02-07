@@ -12,15 +12,16 @@ from .font_config import setup_publication_font, get_font_config
 setup_publication_font()
 
 
-def plot_cluster_scores(scores_dict: Dict[str, List[float]], 
-                      cluster_range: List[int], 
+def plot_cluster_scores(scores_dict: Dict[str, List[float]],
+                      cluster_range: List[int],
                       methods: Optional[Union[List[str], str]] = None,
                       clustering_algorithm: str = 'kmeans',
                       figsize: Tuple[int, int] = (10, 10),
                       outdir: Optional[str] = None,
                       save_path: Optional[str] = None,
                       show: bool = True,
-                      dpi: int = 600):
+                      dpi: int = 600,
+                      best_n_clusters: Optional[Dict[str, int]] = None):
     """
     Plot the scoring curves for cluster evaluation
     
@@ -34,6 +35,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         save_path: Explicit file path to save a single figure (overrides outdir)
         show: Whether to display the figure
         dpi: Image resolution
+        best_n_clusters: Precomputed best cluster number per method to mark on the plot
     """
     from habit.core.habitat_analysis.algorithms.cluster_validation_methods import get_method_description, get_optimization_direction
     
@@ -61,45 +63,50 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
 
         # Get optimization direction for the method
         optimization = get_optimization_direction(clustering_algorithm, method)
-        
-        # Mark the optimal number of clusters
-        if optimization == 'maximize':
-            # For methods where higher is better
-            best_idx = np.argmax(scores)
-            best_score = scores[best_idx]
+
+        # Mark the optimal number of clusters.
+        # Prefer externally provided best_n_clusters to avoid recomputing the selection logic.
+        best_n_clusters_value: Optional[int] = None
+        # Provide a readable criterion label even when the best index is supplied.
+        if optimization in ['kneedle', 'inertia', 'elbow']:
+            criterion = "Kneedle"
+        elif optimization == 'maximize':
             criterion = "Maximum"
         elif optimization == 'minimize':
-            # For methods where lower is better
-            best_idx = np.argmin(scores)
-            best_score = scores[best_idx]
             criterion = "Minimum"
-        elif optimization == 'elbow':
-            # For methods where lower is better, use elbow method
-            # Calculate first-order differences
-            deltas = np.diff(scores)
-            # Calculate second-order differences (inflection point typically has max second-order difference)
-            deltas2 = np.diff(deltas)
-            # Inflection point is the point after the max second-order difference
-            best_idx = np.argmax(deltas2) + 1
-            if best_idx >= len(scores) - 1:
-                best_idx = len(scores) - 2
-            best_score = scores[best_idx]
-            criterion = "Elbow Method"
         else:
-            # Default to maximum
-            best_idx = np.argmax(scores)
-            best_score = scores[best_idx]
             criterion = "Maximum"
-        
-        # Get the optimal number of clusters
-        best_n_clusters = cluster_range[best_idx]
+        if best_n_clusters is not None and method in best_n_clusters:
+            best_n_clusters_value = best_n_clusters[method]
+        else:
+            # Fallback to internal logic to keep compatibility for other call sites.
+            if optimization == 'maximize':
+                best_idx = int(np.argmax(scores))
+            elif optimization == 'minimize':
+                best_idx = int(np.argmin(scores))
+            else:
+                best_idx = int(np.argmax(scores))
+            best_n_clusters_value = cluster_range[best_idx]
+
+        # Map the provided best cluster number back to score index.
+        if best_n_clusters_value in cluster_range:
+            best_idx = cluster_range.index(best_n_clusters_value)
+            best_score = scores[best_idx]
+        else:
+            # If the best cluster number is outside the plotting range, skip marking.
+            best_score = None
+            criterion = "N/A"
         
         # Mark the optimal point on the plot
-        ax.plot(best_n_clusters, best_score, 'rx', markersize=12, markeredgewidth=3)
+        if best_score is not None:
+            ax.plot(best_n_clusters_value, best_score, 'rx', markersize=12, markeredgewidth=3)
         
         # Set title and labels
         method_desc = get_method_description(clustering_algorithm, method)
-        ax.set_title(f"{method_desc}\nOptimal Clusters = {best_n_clusters} ({criterion})", fontfamily='Arial')
+        ax.set_title(
+            f"{method_desc}\nOptimal Clusters = {best_n_clusters_value} ({criterion})",
+            fontfamily='Arial'
+        )
         ax.set_xlabel("Number of Clusters", fontfamily='Arial')
         ax.set_ylabel(f"{method.capitalize()} Score", fontfamily='Arial')
         ax.grid(True)

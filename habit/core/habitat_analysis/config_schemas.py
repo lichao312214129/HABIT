@@ -124,7 +124,13 @@ class OneStepSettings(BaseModel):
         None,
         description="Fixed number of clusters for all subjects. If specified, automatic selection is disabled."
     )
-    selection_method: Literal['silhouette', 'calinski_harabasz', 'davies_bouldin', 'inertia'] = 'silhouette'
+    selection_method: Literal[
+        'silhouette',
+        'calinski_harabasz',
+        'davies_bouldin',
+        'inertia',
+        'kneedle'
+    ] = 'silhouette'
     plot_validation_curves: bool = True
 
 class SupervoxelClusteringConfig(BaseModel):

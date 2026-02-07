@@ -45,8 +45,8 @@
 *   **横轴**：尝试的聚类数量（k=2, 3, 4...）。
 *   **纵轴**：聚类评价指标（如 Inertia 或 Silhouette Score）。
 *   **如何看？**
-    *   **拐点法 (Elbow Method)**：看曲线在哪出现明显“肘部”弯曲。
-    *   **轮廓系数 (Silhouette)**：看哪个 k 的分数最高。
+*   **Kneedle**：对 Inertia 曲线归一化后，选与对角线最大偏离点。
+*   **轮廓系数 (Silhouette)**：看哪个 k 的分数最高。
 
 3. 聚类可视化图 (visualizations/*_clustering/)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,15 +221,16 @@ YAML 配置详解
        one_step_settings:
          min_clusters: 2           # 要测试的最小聚类数
          max_clusters: 10          # 要测试的最大聚类数
-         selection_method: inertia  # 确定最佳聚类数的方法：silhouette、calinski_harabasz、davies_bouldin、inertia
+        selection_method: inertia  # 确定最佳聚类数的方法：silhouette、calinski_harabasz、davies_bouldin、inertia、kneedle
          plot_validation_curves: true  # 为每个肿瘤绘制验证曲线
 
      # 生境聚类设置（第二步：群体级别聚类，仅在 two_step 模式使用）
      habitat:
        algorithm: kmeans  # kmeans 或 gmm
        max_clusters: 10
-       # - 'silhouette'、'calinski_harabasz': 选择最大分数（越高越好）
-       # - 'inertia'、'aic'、'bic': 使用二阶导数选择拐点（越低越好）
+      # - 'silhouette'、'calinski_harabasz': 选择最大分数（越高越好）
+      # - 'inertia'、'kneedle': 使用 Kneedle 在 inertia 曲线上选拐点
+      # - 'aic'、'bic': 选择最小分数（越低越好）
        habitat_cluster_selection_method:
          - inertia
          # - silhouette
@@ -661,7 +662,8 @@ A: 根据您的研究需求选择：
 
 A: HABIT 提供了多种自动化评估方法：
 
-- **inertia**: 使用拐点方法（Elbow Method）。
+- **inertia**: 使用 Kneedle 方法在 inertia 曲线上选拐点。
+- **kneedle**: 直接使用 Kneedle 方法（对 inertia 曲线归一化后选最大偏离点）。
 - **silhouette**: 使用轮廓系数。
 - **calinski_harabasz**: 使用 Calinski-Harabasz 指数。
 - **davies_bouldin**: 使用 Davies-Bouldin 指数。

@@ -13,6 +13,7 @@ import os
 import importlib
 import pkgutil
 import inspect
+from kneed import KneeLocator
 
 warnings.simplefilter('ignore')
 
@@ -193,6 +194,22 @@ class BaseClustering(ABC):
         except Exception as e:
             raise ValueError(f"Error calculating inertia scores: {str(e)}")
 
+    def calculate_kneedle_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate scores for Kneedle-based selection.
+
+        Kneedle needs a monotonically changing curve. For KMeans, the inertia curve
+        is the standard choice, so this method reuses inertia scores to build the
+        curve that Kneedle will analyze later.
+
+        Args:
+            X (np.ndarray): Input data with shape (n_samples, n_features)
+            cluster_range (List[int]): Range of cluster numbers to evaluate
+
+        Returns:
+            List[float]: List of inertia values used for Kneedle detection
+        """
+        return self.calculate_inertia_scores(X, cluster_range)
     def calculate_bic_scores(self, X: np.ndarray, cluster_range: List[int]) -> Optional[List[float]]:
         """
         Calculate BIC scores for different numbers of clusters (for GMM only)
@@ -516,6 +533,50 @@ class BaseClustering(ABC):
             best_idx = len(scores) - 2  # Choose the second-to-last point
         return best_idx
 
+    @staticmethod
+    def _find_best_n_clusters_for_kneedle_method(scores: List[float]) -> int:
+        """
+        Find best cluster index using the Kneedle method.
+
+        This implementation assumes a monotonically decreasing curve (e.g., inertia).
+        It relies on the kneed package to detect the knee of a convex, decreasing curve.
+
+        Args:
+            scores: List of scores for different cluster numbers
+
+        Returns:
+            int: Index of the best cluster number (0-based)
+        """
+        scores_array = np.asarray(scores, dtype=float)
+        if scores_array.size == 0:
+            return 0
+        if scores_array.size < 3:
+            # With too few points, fall back to the minimum score index.
+            return int(np.argmin(scores_array))
+
+        x_values = np.arange(scores_array.size, dtype=float)
+
+        # For inertia curves in KMeans, the shape is usually convex and decreasing.
+        knee_locator = KneeLocator(
+            x_values,
+            scores_array,
+            curve="convex",
+            direction="decreasing"
+        )
+        knee_index = knee_locator.knee
+
+        if knee_index is None:
+            # If no knee is detected, return the middle point for stability.
+            return int(scores_array.size // 2)
+
+        best_idx = int(knee_index)
+        # Avoid selecting endpoints, which are usually not meaningful elbows.
+        if best_idx <= 0:
+            best_idx = 1
+        if best_idx >= scores_array.size - 1:
+            best_idx = scores_array.size - 2
+        return best_idx
+
     def _select_best_n_clusters_for_single_method(self, scores: List[float], method: str) -> int:
         """
         Select the best cluster index for a single validation method.
@@ -538,8 +599,14 @@ class BaseClustering(ABC):
             best_idx = np.argmax(scores)
         elif optimization == 'minimize':
             best_idx = np.argmin(scores)
+        elif optimization == 'inertia':
+            # Inertia uses Kneedle to detect the elbow on a decreasing curve.
+            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
         elif optimization == 'elbow':
-            best_idx = self._find_best_n_clusters_for_elbow_method(scores)
+            # Backward compatibility: treat elbow as Kneedle.
+            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
+        elif optimization == 'kneedle':
+            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
         else:
             # Default to maximum value
             best_idx = np.argmax(scores)
