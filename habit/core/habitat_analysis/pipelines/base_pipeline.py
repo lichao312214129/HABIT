@@ -444,6 +444,14 @@ class HabitatPipeline:
             subject_id = proc_result.item_id
             data = proc_result.result
             results[subject_id] = data
+
+        # Cache mask_info in the main process for downstream image saving.
+        # This avoids losing mask metadata when individual steps run in subprocesses.
+        self.mask_info_cache = {
+            subject_id: data.get('mask_info')
+            for subject_id, data in results.items()
+            if isinstance(data, dict) and data.get('mask_info') is not None
+        }
         
         # Log failures
         if failed_subjects:

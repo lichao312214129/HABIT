@@ -395,4 +395,11 @@ class BaseClusteringStrategy(ABC):
         
         # Save habitat images for each subject
         if self.config.save_images:
+            # Sync mask cache from pipeline (populated in main process) to result manager.
+            if (
+                hasattr(self, "pipeline")
+                and hasattr(self.pipeline, "mask_info_cache")
+                and self.pipeline.mask_info_cache
+            ):
+                self.analysis.result_manager.mask_info_cache = self.pipeline.mask_info_cache
             self.analysis.result_manager.save_all_habitat_images(failed_subjects=[])
