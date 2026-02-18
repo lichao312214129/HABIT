@@ -32,6 +32,47 @@ class Plotter:
         setup_publication_font()
         # plt.style.use('seaborn')
         # sns.set_context("paper", font_scale=1.2)
+
+    def _build_model_curve_styles(self, model_names: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        Build high-contrast styles for multi-model line plots.
+
+        This style generator is intentionally deterministic so the same model order
+        always gets the same visual encoding within one plotting call.
+
+        Design choices:
+        - Use color-blind friendly palettes first.
+        - If model count exceeds palette size, cycle line styles and markers.
+        - Keep baseline curves (e.g., Treat All / Treat None) separate in callers.
+
+        Args:
+            model_names: Ordered model names to style.
+
+        Returns:
+            Dict[str, Dict[str, Any]]: Mapping from model name to style dict.
+        """
+        # Primary high-contrast palettes (color-blind friendly).
+        palette = (
+            sns.color_palette("colorblind", 10)
+            + sns.color_palette("tab10", 10)
+            + sns.color_palette("Set2", 8)
+        )
+        line_styles = ["-", "--", "-.", ":"]
+        markers = ["o", "s", "^", "D", "v", "P", "X", "*", "<", ">"]
+
+        styles: Dict[str, Dict[str, Any]] = {}
+        palette_size = len(palette)
+        for idx, model_name in enumerate(model_names):
+            color = palette[idx % palette_size]
+            linestyle = line_styles[(idx // palette_size) % len(line_styles)]
+            marker = markers[(idx // (palette_size * len(line_styles))) % len(markers)]
+
+            styles[model_name] = {
+                "color": color,
+                "linestyle": linestyle,
+                "marker": marker,
+            }
+        return styles
         
     def plot_roc_v2(self, models_data: Dict[str, Tuple[np.ndarray, np.ndarray]], save_name: str = 'ROC.pdf', title: str = 'test') -> None:
         """
@@ -44,12 +85,21 @@ class Plotter:
         """
         # Create figure - optimized for SCI journal requirements (single column)
         plt.figure(figsize=(5, 5))
+        model_styles = self._build_model_curve_styles(list(models_data.keys()))
         
         # Plot ROC curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
             fpr, tpr, _ = roc_curve(y_true, y_pred_proba)
             auc = np.trapz(tpr, fpr)
-            plt.plot(fpr, tpr, label=f'{model_name} (AUC = {auc:.2f})', linewidth=1.5)
+            style = model_styles[model_name]
+            plt.plot(
+                fpr,
+                tpr,
+                label=f'{model_name} (AUC = {auc:.2f})',
+                linewidth=1.8,
+                color=style["color"],
+                linestyle=style["linestyle"],
+            )
         
         # Add diagonal line
         plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5)
@@ -104,6 +154,7 @@ class Plotter:
         
         # Define threshold range
         thresholds = np.linspace(0, 1, 100)
+        model_styles = self._build_model_curve_styles(list(models_data.keys()))
         
         # Extract y_true as reference (any model can be used since y_true should be consistent)
         if not models_data:
@@ -129,7 +180,15 @@ class Plotter:
         # Plot decision curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
             net_benefits = np.array([calculate_net_benefit(y_true, y_pred_proba, t) for t in thresholds])
-            plt.plot(thresholds, net_benefits, '-', linewidth=1.5, label=model_name)
+            style = model_styles[model_name]
+            plt.plot(
+                thresholds,
+                net_benefits,
+                linewidth=1.8,
+                label=model_name,
+                color=style["color"],
+                linestyle=style["linestyle"],
+            )
         
         # Beautify the plot
         plt.xlabel('Threshold Probability', fontsize=10, fontfamily='Arial')
@@ -267,6 +326,7 @@ class Plotter:
         """
         # Create figure - optimized for SCI journal requirements (single column)
         plt.figure(figsize=(5, 5))
+        model_styles = self._build_model_curve_styles(list(models_data.keys()))
         
         # Plot calibration curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
@@ -275,10 +335,17 @@ class Plotter:
             
             # Calculate calibration curve
             prob_true, prob_pred = calibration_curve(y_true, y_pred_normalized, n_bins=n_bins, strategy='quantile')
-            # Use different marker styles for each model for better distinction
-            # Common matplotlib markers: 'o' (circle), '^' (triangle_up), 'D' (diamond), 'v' (triangle_down), '*' (star), 'x' (x), '+' (plus), 'p' (pentagon), etc.
-            # Here, as an example, use 'o' (circle) marker instead of 's' (square)
-            plt.plot(prob_pred, prob_true, '.-', linewidth=1.5, markersize=8, label=model_name)
+            style = model_styles[model_name]
+            plt.plot(
+                prob_pred,
+                prob_true,
+                linewidth=1.8,
+                markersize=5,
+                marker=style["marker"],
+                color=style["color"],
+                linestyle=style["linestyle"],
+                label=model_name,
+            )
         
         # Add ideal calibration line and beautify the plot
         plt.plot([0, 1], [0, 1], 'k--', linewidth=1.5, label='Perfectly Calibrated')
@@ -425,13 +492,22 @@ class Plotter:
         """
         # Create figure - optimized for SCI journal requirements (single column)
         plt.figure(figsize=(5, 5))
+        model_styles = self._build_model_curve_styles(list(models_data.keys()))
         # Plot PR curves for each model
         for model_name, (y_true, y_pred_proba) in models_data.items():
             precision, recall, _ = precision_recall_curve(y_true, y_pred_proba, drop_intermediate=True)
 
             # Calculate average precision score
             AUPRC = auc(recall, precision)
-            plt.plot(recall, precision, linewidth=1.5, label=f'{model_name} (AUPRC = {AUPRC:.2f})')
+            style = model_styles[model_name]
+            plt.plot(
+                recall,
+                precision,
+                linewidth=1.8,
+                color=style["color"],
+                linestyle=style["linestyle"],
+                label=f'{model_name} (AUPRC = {AUPRC:.2f})',
+            )
         
         # Beautify the plot
         plt.xlabel('Recall', fontsize=10, fontfamily='Arial')  # 修改X轴标签

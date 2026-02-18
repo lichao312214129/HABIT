@@ -14,6 +14,7 @@ class InputFileConfig(BaseModel):
     subject_id_col: str
     label_col: str
     features: Optional[List[str]] = None
+    features_from_log: Optional[str] = None
     split_col: Optional[str] = None
     pred_col: Optional[str] = None
 
@@ -27,6 +28,26 @@ class FeatureSelectionMethod(BaseModel):
 
 class ModelConfig(BaseModel):
     params: Dict[str, Any] = Field(default_factory=dict)
+
+
+class SamplingConfig(BaseModel):
+    """
+    Training-set resampling configuration.
+
+    Notes:
+    - This module applies only to training data.
+    - It is disabled by default.
+    """
+    enabled: bool = False
+    method: Literal['random_over', 'random_under', 'smote'] = 'random_over'
+    ratio: float = 1.0
+    random_state: int = 42
+
+    @validator('ratio')
+    def ratio_range(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("sampling.ratio must be > 0")
+        return v
 
 class VisualizationConfig(BaseModel):
     enabled: bool = True
@@ -164,6 +185,7 @@ class MLConfig(BaseConfig):
     
     # Core components
     normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
+    sampling: SamplingConfig = Field(default_factory=SamplingConfig)
     feature_selection_methods: List[FeatureSelectionMethod] = Field(default_factory=list)
     models: Dict[str, ModelConfig]
     

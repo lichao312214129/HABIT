@@ -90,6 +90,28 @@ class BaseModel(ABC, BaseEstimator):
             The underlying model object (e.g., sklearn estimator)
         """
         return self.model
+
+    @property
+    def classes_(self) -> np.ndarray:
+        """
+        Expose classifier classes for sklearn compatibility.
+
+        Why this is needed:
+        - sklearn-compatible wrappers may need `estimator.classes_` after fitting.
+        - HABIT wraps sklearn estimators with custom model classes, so we forward
+          this attribute to the underlying sklearn estimator.
+
+        Returns:
+            np.ndarray: Class labels from the fitted underlying estimator.
+
+        Raises:
+            AttributeError: If the underlying estimator is not fitted yet.
+        """
+        if self.model is None or not hasattr(self.model, "classes_"):
+            raise AttributeError(
+                f"{self.__class__.__name__} does not expose classes_ before fitting."
+            )
+        return self.model.classes_
         
     def save(self, filepath: str) -> None:
         """

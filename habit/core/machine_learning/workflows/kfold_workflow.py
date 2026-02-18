@@ -76,22 +76,24 @@ class MachineLearningKFoldWorkflow(BaseWorkflow):
             self.callbacks.on_model_start(m_name, logs={'fold_id': fold_id})
             
             pipeline = self.pipeline_builder.build(m_name, model_params_dict, feature_names=list(X_train.columns))
-            pipeline.fit(X_train, y_train)
+            trained_estimator = self._train_with_optional_sampling(
+                pipeline, X_train, y_train
+            )
             
             # Store pipeline for ensemble
-            self.fold_pipelines[m_name].append(pipeline)
+            self.fold_pipelines[m_name].append(trained_estimator)
             
             container = PredictionContainer(
                 y_true=y_val.values, 
-                y_prob=pipeline.predict_proba(X_val),
-                y_pred=pipeline.predict(X_val)
+                y_prob=trained_estimator.predict_proba(X_val),
+                y_pred=trained_estimator.predict(X_val)
             )
             metrics_dict = calculate_metrics(container)
             
             fold_data['models'][m_name] = container.to_dict()
             fold_data['models'][m_name]['metrics'] = metrics_dict
             
-            self.callbacks.on_model_end(m_name, logs={'pipeline': pipeline, 'fold_id': fold_id})
+            self.callbacks.on_model_end(m_name, logs={'pipeline': trained_estimator, 'fold_id': fold_id})
             
         return fold_data
 

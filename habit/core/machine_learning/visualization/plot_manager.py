@@ -6,7 +6,7 @@ Handles the orchestration of all visualization tasks for machine learning workfl
 import os
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from .plotting import Plotter
 from habit.utils.log_utils import get_module_logger
 
@@ -133,34 +133,16 @@ class PlotManager:
             # SHAP
             if 'shap' in self.plot_types and 'pipeline' in res and X_test is not None:
                 try:
-                    pipeline = res['pipeline']
-                    model_obj = pipeline.named_steps['model']
-                    
+                    trained_estimator = res['pipeline']
                     self.logger.info(f"Generating SHAP plot for {m_name}...")
-                    self.logger.debug(f"Original X shape: {X_test.shape}")
-                    
-                    # Transform X_test through the pipeline up to (but not including) the model
-                    # This ensures we use the same features that the model was trained on
-                    X_transformed = X_test.copy()
-                    for step_name, transformer in pipeline.steps[:-1]:  # Exclude the final 'model' step
-                        X_transformed = transformer.transform(X_transformed)
-                        self.logger.debug(f"After '{step_name}' step: shape={X_transformed.shape if hasattr(X_transformed, 'shape') else 'N/A'}")
-                    
-                    # Get feature names after transformation
-                    if hasattr(X_transformed, 'columns'):
-                        feature_names = list(X_transformed.columns)
-                        X_for_shap = X_transformed.values
-                    else:
-                        # If X_transformed is numpy array, try to get feature names from the last selector
-                        selector_after = pipeline.named_steps.get('selector_after')
-                        if selector_after and hasattr(selector_after, 'selected_features_'):
-                            feature_names = selector_after.selected_features_
-                        else:
-                            feature_names = [f'Feature_{i}' for i in range(X_transformed.shape[1])]
-                        X_for_shap = X_transformed
-                    
-                    self.logger.debug(f"Final X shape for SHAP: {X_for_shap.shape}, n_features={len(feature_names)}")
-                    self.logger.debug(f"Feature names: {feature_names}")
+                    model_obj, X_for_shap, feature_names = self._resolve_shap_inputs(
+                        trained_estimator, X_test
+                    )
+                    self.logger.debug(
+                        "Final SHAP input shape=%s, n_features=%d",
+                        X_for_shap.shape if hasattr(X_for_shap, "shape") else "N/A",
+                        len(feature_names),
+                    )
                     
                     self.plotter.plot_shap(
                         model_obj, 
@@ -173,3 +155,115 @@ class PlotManager:
                     import traceback
                     self.logger.warning(f"Could not generate SHAP for {m_name}: {e}")
                     self.logger.debug(f"Traceback: {traceback.format_exc()}")
+
+    def _resolve_shap_inputs(
+        self, trained_estimator: Any, X_input: pd.DataFrame
+    ) -> Tuple[Any, np.ndarray, List[str]]:
+        """
+        Resolve SHAP-ready model and feature matrix from a trained estimator.
+
+        Why this adapter exists:
+        - Standard workflows may save a plain sklearn Pipeline.
+        - When post calibration is enabled, workflows save CalibratedClassifierCV.
+        - SHAP should explain the feature model (the base estimator), not the
+          calibration wrapper itself. Therefore, we unwrap calibrators to retrieve
+          the underlying fitted estimator and transform X consistently.
+
+        Args:
+            trained_estimator: Trained object saved in workflow results.
+            X_input: Raw input features (pre-pipeline transform).
+
+        Returns:
+            Tuple[Any, np.ndarray, List[str]]:
+                - model_obj: Model object for SHAP explainer.
+                - X_for_shap: Transformed feature array for SHAP.
+                - feature_names: Feature names aligned to X_for_shap columns.
+
+        Raises:
+            ValueError: If estimator structure is unsupported.
+        """
+        base_estimator = self._unwrap_for_shap(trained_estimator)
+        pipeline = self._extract_pipeline_from_estimator(base_estimator)
+        if pipeline is None:
+            raise ValueError(
+                f"Unsupported estimator for SHAP: {type(base_estimator).__name__}. "
+                "Expected a sklearn Pipeline or a calibrator wrapping a Pipeline."
+            )
+
+        self.logger.debug(f"Original X shape: {X_input.shape}")
+        X_transformed = X_input.copy()
+        for step_name, transformer in pipeline.steps[:-1]:
+            X_transformed = transformer.transform(X_transformed)
+            self.logger.debug(
+                "After '%s' step: shape=%s",
+                step_name,
+                X_transformed.shape if hasattr(X_transformed, "shape") else "N/A",
+            )
+
+        if hasattr(X_transformed, "columns"):
+            feature_names = list(X_transformed.columns)
+            X_for_shap = X_transformed.values
+        else:
+            selector_after = pipeline.named_steps.get("selector_after")
+            if selector_after is not None and hasattr(selector_after, "selected_features_"):
+                feature_names = list(selector_after.selected_features_)
+            else:
+                feature_count = X_transformed.shape[1]
+                feature_names = [f"Feature_{i}" for i in range(feature_count)]
+            X_for_shap = np.asarray(X_transformed)
+
+        model_obj = pipeline.named_steps["model"]
+        return model_obj, X_for_shap, feature_names
+
+    def _extract_pipeline_from_estimator(self, estimator: Any) -> Any:
+        """
+        Extract sklearn Pipeline from estimator if available.
+
+        Args:
+            estimator: Candidate estimator.
+
+        Returns:
+            Any: Pipeline object or None when unavailable.
+        """
+        if hasattr(estimator, "named_steps") and hasattr(estimator, "steps"):
+            return estimator
+        return None
+
+    def _unwrap_for_shap(self, estimator: Any) -> Any:
+        """
+        Unwrap wrappers (e.g., CalibratedClassifierCV) to base estimator.
+
+        For post-calibrated models we explain the underlying fitted estimator.
+        This preserves feature-level interpretability and avoids relying on
+        calibrator internals during SHAP generation.
+
+        Args:
+            estimator: Trained estimator possibly wrapped by calibrator.
+
+        Returns:
+            Any: Unwrapped estimator suitable for pipeline extraction.
+        """
+        class_name = type(estimator).__name__
+        if class_name != "CalibratedClassifierCV":
+            return estimator
+
+        # Newer sklearn APIs expose `estimator`; older versions may use
+        # `base_estimator`. Prefer a fitted calibrated classifier when present.
+        calibrated_list = getattr(estimator, "calibrated_classifiers_", None)
+        if calibrated_list:
+            first_calibrator = calibrated_list[0]
+            fitted_estimator = getattr(first_calibrator, "estimator", None)
+            if fitted_estimator is not None:
+                return fitted_estimator
+            fitted_estimator = getattr(first_calibrator, "base_estimator", None)
+            if fitted_estimator is not None:
+                return fitted_estimator
+
+        direct_estimator = getattr(estimator, "estimator", None)
+        if direct_estimator is not None:
+            return direct_estimator
+        direct_estimator = getattr(estimator, "base_estimator", None)
+        if direct_estimator is not None:
+            return direct_estimator
+
+        return estimator

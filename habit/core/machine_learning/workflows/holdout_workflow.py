@@ -44,18 +44,20 @@ class MachineLearningWorkflow(BaseWorkflow):
             
             # Use centralized pipeline builder
             pipeline = self.pipeline_builder.build(m_name, model_params_dict, feature_names=list(self.X_train.columns))
-            pipeline.fit(self.X_train, y_train)
+            trained_estimator = self._train_with_optional_sampling(
+                pipeline, self.X_train, y_train
+            )
             
             # Prediction Containers (Pass explicit predictions from the model)
             train_container = PredictionContainer(
                 y_true=y_train.values, 
-                y_prob=pipeline.predict_proba(self.X_train),
-                y_pred=pipeline.predict(self.X_train)
+                y_prob=trained_estimator.predict_proba(self.X_train),
+                y_pred=trained_estimator.predict(self.X_train)
             )
             test_container = PredictionContainer(
                 y_true=y_test.values, 
-                y_prob=pipeline.predict_proba(self.X_test),
-                y_pred=pipeline.predict(self.X_test)
+                y_prob=trained_estimator.predict_proba(self.X_test),
+                y_pred=trained_estimator.predict(self.X_test)
             )
             
             train_metrics = calculate_metrics(train_container)
@@ -65,7 +67,7 @@ class MachineLearningWorkflow(BaseWorkflow):
             self.results[m_name] = {
                 'train': train_container.to_dict(),
                 'test': test_container.to_dict(),
-                'pipeline': pipeline,
+                'pipeline': trained_estimator,
                 'features': list(self.X_train.columns)
             }
             # Manually inject metrics for downstream callbacks
@@ -73,7 +75,7 @@ class MachineLearningWorkflow(BaseWorkflow):
             self.results[m_name]['test']['metrics'] = test_metrics
             
             # Trigger model end callback (handles saving)
-            self.callbacks.on_model_end(m_name, logs={'pipeline': pipeline})
+            self.callbacks.on_model_end(m_name, logs={'pipeline': trained_estimator})
             
             # Aggregate summary
             row = {'Model': m_name}

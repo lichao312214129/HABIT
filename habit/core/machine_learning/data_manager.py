@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import json
@@ -57,10 +58,7 @@ class DataManager:
                 raise ValueError(f"subject_id_col and label_col are required for {path}")
                 
             self.logger.info(f"Reading {path} (Subject: {subj_col}, Label: {lbl_col})")
-            # Read subject ID as string at file-load time to preserve exact formatting
-            # (e.g., leading zeros like "0002886419"). Converting to string after
-            # numeric inference is too late because leading zeros are already lost.
-            df = pd.read_csv(path, dtype={subj_col: str})
+            df = self._read_table_file(path=path, subject_id_col=subj_col)
             
             # Unify subject ID type
             df[subj_col] = df[subj_col].astype(str)
@@ -158,6 +156,52 @@ class DataManager:
             self.logger.warning(f"Dropped {original_len - len(self.data)} rows with missing labels.")
             
         return self
+
+    def _read_table_file(self, path: str, subject_id_col: str) -> pd.DataFrame:
+        """
+        Read tabular input file for machine-learning workflows.
+
+        Supported formats:
+        - .csv: comma-separated values
+        - .tsv/.txt: tab-separated text files
+        - .xlsx/.xls: Excel workbooks (first sheet by default)
+
+        Why this adapter exists:
+        - The ML pipeline should accept both CSV and Excel feature tables without
+          requiring users to manually convert files.
+        - Subject ID must stay string-typed to avoid losing leading zeros.
+
+        Args:
+            path: Absolute or relative file path to input table.
+            subject_id_col: Column name used as subject identifier.
+
+        Returns:
+            pd.DataFrame: Loaded table.
+
+        Raises:
+            ValueError: If file extension is unsupported.
+        """
+        ext: str = os.path.splitext(str(path))[1].lower()
+
+        if ext == ".csv":
+            # Keep subject IDs as strings at load time so values such as "000123"
+            # are preserved exactly and not converted to numeric representations.
+            return pd.read_csv(path, dtype={subject_id_col: str})
+
+        if ext in [".tsv", ".txt"]:
+            # Use tab separator for TSV/TXT feature tables.
+            return pd.read_csv(path, sep="\t", dtype={subject_id_col: str})
+
+        if ext in [".xlsx", ".xls"]:
+            # pandas.read_excel does not expose per-column dtype behavior that is
+            # consistently reliable across engines and versions for all scenarios.
+            # We therefore read first, then normalize subject ID type right after.
+            return pd.read_excel(path)
+
+        raise ValueError(
+            f"Unsupported input file format: {path}. "
+            "Supported formats are .csv, .tsv, .txt, .xlsx, .xls."
+        )
 
     def split_data(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
         """
