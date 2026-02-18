@@ -241,6 +241,10 @@ class ProcessingConfig(BaseModel):
     n_processes: int = Field(2, description="Number of parallel processes", gt=0)
     save_every_n_files: int = Field(5, description="Save intermediate results every N files", gt=0)
     process_image_types: Optional[List[str]] = Field(None, description="List of image types to process (None = all)")
+    target_labels: List[int] = Field(
+        default_factory=lambda: [1],
+        description="Mask labels to extract. Selected labels are merged into binary foreground."
+    )
 
 class ExportConfig(BaseModel):
     """Export configuration for radiomics extraction."""

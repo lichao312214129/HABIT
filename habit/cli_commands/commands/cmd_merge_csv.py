@@ -8,6 +8,7 @@ import sys
 import logging
 import click
 import pandas as pd
+import csv
 from pathlib import Path
 from typing import List, Optional, Tuple
 from habit.utils.log_utils import setup_logger
@@ -67,6 +68,31 @@ def run_merge_csv(
     
     click.echo(f"Starting to merge {len(input_files)} files...")
     
+    def _resolve_csv_index_col(file_path: str, configured_index_col: Optional[str]) -> str:
+        """
+        Resolve which column should be treated as index for CSV files.
+
+        If configured_index_col is None or missing in header, fall back to the first column.
+        """
+        if configured_index_col:
+            try:
+                header_df = pd.read_csv(
+                    file_path,
+                    sep=separator,
+                    encoding=encoding,
+                    nrows=0
+                )
+                if configured_index_col in header_df.columns:
+                    return configured_index_col
+            except Exception:
+                pass
+        with open(file_path, 'r', encoding=encoding, newline='') as csv_file:
+            reader = csv.reader(csv_file, delimiter=separator)
+            header = next(reader, None)
+            if not header:
+                raise ValueError(f"Empty CSV file: {file_path}")
+            return header[0]
+
     try:
         for i, file_path in enumerate(input_files):
             click.echo(f"Processing file {i+1}/{len(input_files)}: {file_path}")
@@ -93,7 +119,15 @@ def run_merge_csv(
                 df = pd.read_excel(file_path)
             else:
                 # Default to CSV
-                df = pd.read_csv(file_path, sep=separator, encoding=encoding)
+                # Preserve leading zeros in subject IDs by forcing index column as string.
+                resolved_index_col = _resolve_csv_index_col(file_path, current_index_col)
+                df = pd.read_csv(
+                    file_path,
+                    sep=separator,
+                    encoding=encoding,
+                    dtype={resolved_index_col: str}
+                )
+                current_index_col = resolved_index_col
             
             if df.empty:
                 logger.warning(f"Empty file: {file_path}")

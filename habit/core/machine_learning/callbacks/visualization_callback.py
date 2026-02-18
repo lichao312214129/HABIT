@@ -14,12 +14,14 @@ class VisualizationCallback(Callback):
             self.workflow.plot_manager.run_workflow_plots(
                 self.workflow.results, 
                 prefix="standard_train_", 
-                X_test=self.workflow.X_train
+                X_test=self.workflow.X_train,
+                dataset_type="train"
             )
             self.workflow.plot_manager.run_workflow_plots(
                 self.workflow.results, 
                 prefix="standard_test_", 
-                X_test=self.workflow.X_test
+                X_test=self.workflow.X_test,
+                dataset_type="test"
             )
         # K-Fold workflow plotting
         elif hasattr(self.workflow, 'results') and 'aggregated' in self.workflow.results:

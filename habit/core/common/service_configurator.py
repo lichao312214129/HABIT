@@ -374,6 +374,7 @@ class ServiceConfigurator:
         # Apply additional config settings
         extractor.save_every_n_files = cfg.processing.save_every_n_files
         extractor.process_image_types = cfg.processing.process_image_types
+        extractor.target_labels = cfg.processing.target_labels
         extractor.export_by_image_type = cfg.export.export_by_image_type
         extractor.export_combined = cfg.export.export_combined
         extractor.export_format = cfg.export.export_format

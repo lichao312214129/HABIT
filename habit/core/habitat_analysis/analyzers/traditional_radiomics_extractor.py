@@ -42,8 +42,10 @@ from functools import partial
 import argparse
 import sys
 import pandas as pd
+import yaml
+import csv
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 
 # Disable warnings
 warnings.filterwarnings('ignore')
@@ -179,10 +181,70 @@ class TraditionalRadiomicsExtractor:
             logger.error(f"Error extracting radiomics features: {str(e)}")
             return {"error": f"Feature extraction error: {str(e)}"}
 
-    def get_image_and_mask_files(self):
-        """获取所有影像和掩码文件路径"""
+    def get_image_and_mask_files(self) -> Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
+        """
+        Get all image and mask file paths.
+
+        This method supports two input styles:
+        1) Dataset root directory that contains `images/` and `masks/` subfolders.
+        2) YAML manifest file that explicitly lists image/mask paths per subject.
+
+        Returns:
+            Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
+                - images_paths: subject -> image_type -> image_path
+                - masks_paths: subject -> image_type -> mask_path
+        """
+        # Support YAML manifest input for consistency with preprocessing workflow.
+        if (
+            isinstance(self.images_folder, str)
+            and os.path.isfile(self.images_folder)
+            and self.images_folder.lower().endswith((".yaml", ".yml"))
+        ):
+            self.logger.info(
+                "Detected YAML file list input for radiomics extraction: %s",
+                self.images_folder
+            )
+            yaml_path = os.path.abspath(self.images_folder)
+            yaml_dir = os.path.dirname(yaml_path)
+            with open(yaml_path, "r", encoding="utf-8") as file_obj:
+                # BaseLoader keeps YAML keys as raw strings (e.g., "0002886419").
+                raw_config = yaml.load(file_obj, Loader=yaml.BaseLoader) or {}
+
+            auto_select_raw = str(raw_config.get("auto_select_first_file", "true")).strip().lower()
+            auto_select_first_file = auto_select_raw in {"true", "1", "yes", "y"}
+
+            def _resolve_and_normalize_paths(raw_paths: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+                normalized: Dict[str, Dict[str, str]] = {}
+                for subject_id, modality_map in (raw_paths or {}).items():
+                    subject_key = str(subject_id)
+                    normalized[subject_key] = {}
+                    for modality, raw_path in (modality_map or {}).items():
+                        modality_key = str(modality)
+                        path_value = str(raw_path)
+                        if not os.path.isabs(path_value):
+                            path_value = os.path.normpath(os.path.join(yaml_dir, path_value))
+                        if auto_select_first_file and os.path.isdir(path_value):
+                            files = [name for name in os.listdir(path_value) if not name.startswith('.')]
+                            if files:
+                                path_value = os.path.join(path_value, files[0])
+                        normalized[subject_key][modality_key] = path_value
+                return normalized
+
+            images_paths = _resolve_and_normalize_paths(raw_config.get("images", {}))
+            masks_paths = _resolve_and_normalize_paths(raw_config.get("masks", {}))
+            return images_paths, masks_paths
+
+        if self.images_folder is None:
+            raise ValueError("images_folder cannot be None")
+
         images_paths = {}
         images_root = os.path.join(self.images_folder, "images")
+        if not os.path.isdir(images_root):
+            raise FileNotFoundError(
+                f"Images directory not found: {images_root}. "
+                "Expected either a dataset root with images/masks subfolders, "
+                "or a YAML file list path."
+            )
         subjs = os.listdir(images_root)
         for subj in subjs:
             images_paths[subj] = {}
@@ -198,7 +260,13 @@ class TraditionalRadiomicsExtractor:
                     images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
 
         masks_paths = {}
-        masks_root = os.path.join(self.images_folder, "masks")
+        masks_root = self.masks_folder if self.masks_folder else os.path.join(self.images_folder, "masks")
+        if not os.path.isdir(masks_root):
+            raise FileNotFoundError(
+                f"Masks directory not found: {masks_root}. "
+                "Expected either a dataset root with images/masks subfolders, "
+                "or a YAML file list path."
+            )
         subjs = os.listdir(masks_root)
         for subj in subjs:
             masks_paths[subj] = {}
@@ -306,11 +374,12 @@ class TraditionalRadiomicsExtractor:
                 if feature_dfs:
                     # 合并所有受试者的特征
                     combined_df = pd.concat(feature_dfs, ignore_index=True)
-                    combined_df.index = subjs
+                    # Use an explicit ID column (not index) to preserve exact subject IDs.
+                    combined_df.insert(0, "ID", [str(subj_id).strip() for subj_id in subjs])
 
                     # 保存为CSV
                     out_file = os.path.join(self.out_dir, f"radiomics_features_{img_type}.csv")
-                    combined_df.to_csv(out_file)
+                    combined_df.to_csv(out_file, index=False, quoting=csv.QUOTE_MINIMAL)
                     print(f"已将 {img_type} 的组学特征保存到 {out_file}")
 
             # 创建合并所有影像类型的特征文件
@@ -327,10 +396,12 @@ class TraditionalRadiomicsExtractor:
 
             # 转换为DataFrame
             all_df = pd.DataFrame.from_dict(all_features, orient='index')
+            all_df.insert(0, "ID", all_df.index.map(lambda value: str(value).strip()))
+            all_df = all_df.reset_index(drop=True)
 
             # 保存为CSV
             out_file = os.path.join(self.out_dir, "radiomics_features_all.csv")
-            all_df.to_csv(out_file)
+            all_df.to_csv(out_file, index=False, quoting=csv.QUOTE_MINIMAL)
             print(f"已将所有组学特征保存到 {out_file}")
 
         except Exception as e:

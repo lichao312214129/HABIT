@@ -43,7 +43,8 @@ import argparse
 import sys
 import pandas as pd
 import yaml
-from typing import Dict, List, Optional, Union, Any
+import csv
+from typing import Dict, List, Optional, Union, Any, Tuple
 
 # 禁用警告
 warnings.filterwarnings('ignore')
@@ -101,6 +102,14 @@ class TraditionalRadiomicsExtractor:
         # 处理图像类型设置
         if not hasattr(self, 'process_image_types'):
             self.process_image_types = None  # 默认处理所有图像类型
+        
+        # Target labels to extract from mask.
+        # Default keeps backward compatibility with previous single-label behavior.
+        if not hasattr(self, 'target_labels') or self.target_labels is None:
+            self.target_labels = [1]
+        self.target_labels = [int(label) for label in self.target_labels]
+        if len(self.target_labels) == 0:
+            raise ValueError("processing.target_labels must contain at least one label.")
             
         # 设置导出格式
         if not hasattr(self, 'export_format'):
@@ -132,6 +141,9 @@ class TraditionalRadiomicsExtractor:
                 self.n_processes = config['processing'].get('n_processes', 0)
                 self.save_every_n_files = config['processing'].get('save_every_n_files', 5)
                 self.process_image_types = config['processing'].get('process_image_types')
+                # Labels to be merged as foreground before extraction.
+                # Example: [1, 2] means voxels with value 1 or 2 become 1, others become 0.
+                self.target_labels = config['processing'].get('target_labels', [1])
                 
             # 导出设置
             if 'export' in config:
@@ -192,9 +204,51 @@ class TraditionalRadiomicsExtractor:
         logging.info(f"日志文件将保存到: {log_file}")
 
     @staticmethod
-    def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
+    def _merge_target_labels_to_binary_mask(
+        mask_img: sitk.Image,
+        target_labels: List[int],
+        subject_id: str
+    ) -> sitk.Image:
+        """
+        Convert selected labels in the original mask to a binary mask.
+
+        Selected labels are mapped to 1 (foreground), all other voxels are mapped to 0.
+
+        Args:
+            mask_img (sitk.Image): Original multi-label mask image.
+            target_labels (List[int]): Labels to keep as foreground.
+            subject_id (str): Subject identifier for logging and error context.
+
+        Returns:
+            sitk.Image: Binary mask image with voxel values {0, 1}.
+        """
+        mask_array: np.ndarray = sitk.GetArrayFromImage(mask_img)
+        binary_array: np.ndarray = np.isin(mask_array, target_labels).astype(np.uint8)
+
+        if int(binary_array.sum()) == 0:
+            raise ValueError(
+                f"No voxels found for target labels {target_labels} in subject {subject_id}."
+            )
+
+        binary_mask_img: sitk.Image = sitk.GetImageFromArray(binary_array)
+        # Preserve geometry so the binary mask remains aligned with the input image.
+        binary_mask_img.CopyInformation(mask_img)
+        return binary_mask_img
+
+    @staticmethod
+    def extract_radiomics_features(
+        image_path: str,
+        mask_path: str,
+        subject_id: str,
+        params_file: str,
+        target_labels: Optional[List[int]] = None
+    ) -> Dict[str, Any]:
         """提取组学特征"""
         try:
+            labels_to_extract: List[int] = [int(v) for v in (target_labels or [1])]
+            if len(labels_to_extract) == 0:
+                raise ValueError("target_labels must contain at least one label.")
+
             extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
 
             mask_img = sitk.ReadImage(mask_path)
@@ -213,20 +267,100 @@ class TraditionalRadiomicsExtractor:
                 logging.info(f"图像和掩码间距不同: {subject_id}")
                 mask_img.SetSpacing(raw_img.GetSpacing())
 
-            # 使用label=1提取特征
+            # Merge selected labels into a binary mask for extraction.
+            # Foreground is always encoded as value 1 for PyRadiomics.
+            binary_mask_img: sitk.Image = TraditionalRadiomicsExtractor._merge_target_labels_to_binary_mask(
+                mask_img=mask_img,
+                target_labels=labels_to_extract,
+                subject_id=subject_id
+            )
+
             return extractor.execute(
                 imageFilepath=raw_img,
-                maskFilepath=mask_img,
+                maskFilepath=binary_mask_img,
                 label=1
             )
         except Exception as e:
             logging.error(f"提取组学特征时出错: {str(e)}")
             return {"error": f"特征提取错误: {str(e)}"}
 
-    def get_image_and_mask_files(self):
-        """获取所有影像和掩码文件路径"""
+    def get_image_and_mask_files(self) -> Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
+        """
+        Get all image and mask file paths.
+
+        Supported input styles for `self.images_folder`:
+        1) Dataset root directory that contains `images/` and `masks/`.
+        2) YAML file list that explicitly provides image/mask paths.
+
+        Returns:
+            Tuple[Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]]:
+                - images_paths: subject -> image_type -> image_path
+                - masks_paths: subject -> image_type -> mask_path
+        """
+        # Support YAML file list input for consistency with preprocessing behavior.
+        if (
+            isinstance(self.images_folder, str)
+            and os.path.isfile(self.images_folder)
+            and self.images_folder.lower().endswith((".yaml", ".yml"))
+        ):
+            logging.info(f"Detected YAML file list input: {self.images_folder}")
+            yaml_path = os.path.abspath(self.images_folder)
+            yaml_dir = os.path.dirname(yaml_path)
+            with open(yaml_path, "r", encoding="utf-8") as file_obj:
+                # BaseLoader keeps YAML keys as raw strings (e.g., "0002886419").
+                raw_config = yaml.load(file_obj, Loader=yaml.BaseLoader) or {}
+
+            auto_select_raw = str(raw_config.get("auto_select_first_file", "true")).strip().lower()
+            auto_select_first_file = auto_select_raw in {"true", "1", "yes", "y"}
+
+            def _resolve_and_normalize_paths(raw_paths: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+                normalized: Dict[str, Dict[str, str]] = {}
+                for subject_id, modality_map in (raw_paths or {}).items():
+                    subject_key = str(subject_id)
+                    normalized[subject_key] = {}
+                    for modality, raw_path in (modality_map or {}).items():
+                        modality_key = str(modality)
+                        path_value = str(raw_path)
+                        if not os.path.isabs(path_value):
+                            path_value = os.path.normpath(os.path.join(yaml_dir, path_value))
+                        if auto_select_first_file and os.path.isdir(path_value):
+                            files = [name for name in os.listdir(path_value) if not name.startswith('.')]
+                            if files:
+                                path_value = os.path.join(path_value, files[0])
+                        normalized[subject_key][modality_key] = path_value
+                return normalized
+
+            images_paths = _resolve_and_normalize_paths(raw_config.get("images", {}))
+            masks_paths = _resolve_and_normalize_paths(raw_config.get("masks", {}))
+
+            # Respect process_image_types filter when YAML input is used.
+            if self.process_image_types:
+                images_paths = {
+                    subj: {
+                        img_type: img_path
+                        for img_type, img_path in img_dict.items()
+                        if img_type in self.process_image_types
+                    }
+                    for subj, img_dict in images_paths.items()
+                }
+                masks_paths = {
+                    subj: {
+                        mask_type: mask_path
+                        for mask_type, mask_path in mask_dict.items()
+                        if mask_type in self.process_image_types
+                    }
+                    for subj, mask_dict in masks_paths.items()
+                }
+            return images_paths, masks_paths
+
         images_paths = {}
         images_root = os.path.join(self.images_folder, "images")
+        if not os.path.isdir(images_root):
+            raise FileNotFoundError(
+                f"Images directory not found: {images_root}. "
+                "Expected either a dataset root with images/masks subfolders, "
+                "or a YAML file list path."
+            )
         subjs = os.listdir(images_root)
         for subj in subjs:
             images_paths[subj] = {}
@@ -247,7 +381,13 @@ class TraditionalRadiomicsExtractor:
                     images_paths[subj][img_subfolder] = os.path.join(img_subfolder_path, img_file)
 
         masks_paths = {}
-        masks_root = os.path.join(self.images_folder, "masks")
+        masks_root = self.masks_folder if self.masks_folder else os.path.join(self.images_folder, "masks")
+        if not os.path.isdir(masks_root):
+            raise FileNotFoundError(
+                f"Masks directory not found: {masks_root}. "
+                "Expected either a dataset root with images/masks subfolders, "
+                "or a YAML file list path."
+            )
         subjs = os.listdir(masks_root)
         for subj in subjs:
             masks_paths[subj] = {}
@@ -285,7 +425,8 @@ class TraditionalRadiomicsExtractor:
                     images_paths[subj][img],
                     masks_paths[subj][img],
                     f"{subj}/{img}",
-                    self.params_file
+                    self.params_file,
+                    self.target_labels
                 )
                 subject_features[img] = features
             except Exception as e:
@@ -373,11 +514,12 @@ class TraditionalRadiomicsExtractor:
                     if feature_dfs:
                         # 合并所有受试者的特征
                         combined_df = pd.concat(feature_dfs, ignore_index=True)
-                        combined_df.index = subjs
+                        # Use an explicit ID column (not index) to preserve exact subject IDs.
+                        combined_df.insert(0, "ID", [str(subj_id).strip() for subj_id in subjs])
 
                         # 保存为CSV
                         out_file = os.path.join(self.out_dir, f"radiomics_features_{img_type}{timestamp}.csv")
-                        combined_df.to_csv(out_file)
+                        combined_df.to_csv(out_file, index=False, quoting=csv.QUOTE_MINIMAL)
                         print(f"已将 {img_type} 的组学特征保存到 {out_file}")
 
             # 创建合并所有影像类型的特征文件
@@ -395,10 +537,12 @@ class TraditionalRadiomicsExtractor:
 
                 # 转换为DataFrame
                 all_df = pd.DataFrame.from_dict(all_features, orient='index')
+                all_df.insert(0, "ID", all_df.index.map(lambda value: str(value).strip()))
+                all_df = all_df.reset_index(drop=True)
 
                 # 保存为CSV
                 out_file = os.path.join(self.out_dir, f"radiomics_features_all{timestamp}.csv")
-                all_df.to_csv(out_file)
+                all_df.to_csv(out_file, index=False, quoting=csv.QUOTE_MINIMAL)
                 print(f"已将所有组学特征保存到 {out_file}")
 
         except Exception as e:

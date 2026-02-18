@@ -43,7 +43,7 @@ class DataManager:
         first_label_col = None
         label_values = None
         
-        for file_config in self.input_config:
+        for file_idx, file_config in enumerate(self.input_config):
             # Use Pydantic object attributes
             path = file_config.path
             name = getattr(file_config, 'name', '')
@@ -57,7 +57,10 @@ class DataManager:
                 raise ValueError(f"subject_id_col and label_col are required for {path}")
                 
             self.logger.info(f"Reading {path} (Subject: {subj_col}, Label: {lbl_col})")
-            df = pd.read_csv(path)
+            # Read subject ID as string at file-load time to preserve exact formatting
+            # (e.g., leading zeros like "0002886419"). Converting to string after
+            # numeric inference is too late because leading zeros are already lost.
+            df = pd.read_csv(path, dtype={subj_col: str})
             
             # Unify subject ID type
             df[subj_col] = df[subj_col].astype(str)
@@ -93,6 +96,44 @@ class DataManager:
             if merged_df is None:
                 merged_df = subset
             else:
+                # Resolve feature-name collisions before join.
+                # This is critical for fusion workflows where each input file often uses
+                # the same feature name (e.g., "LogisticRegression_prob"). Pandas join
+                # raises a ValueError when overlapping column names are present without
+                # suffixes. We rename only overlapping columns to keep behavior stable.
+                overlap_cols = merged_df.columns.intersection(subset.columns).tolist()
+                if overlap_cols:
+                    # Prefer user-provided input name as prefix; fallback to file index.
+                    # Ensure prefix ends with "_" so generated names are readable.
+                    prefix_source = str(name).strip() if str(name).strip() else f"input{file_idx}"
+                    safe_prefix = prefix_source if prefix_source.endswith("_") else f"{prefix_source}_"
+                    collision_rename_map = {}
+
+                    for col in overlap_cols:
+                        base_new_col = f"{safe_prefix}{col}"
+                        new_col = base_new_col
+                        suffix_idx = 1
+
+                        # Guarantee uniqueness against existing columns and current batch.
+                        while (
+                            new_col in merged_df.columns
+                            or new_col in subset.columns
+                            or new_col in collision_rename_map.values()
+                        ):
+                            new_col = f"{base_new_col}_{suffix_idx}"
+                            suffix_idx += 1
+
+                        collision_rename_map[col] = new_col
+
+                    subset = subset.rename(columns=collision_rename_map)
+                    self.logger.warning(
+                        "Detected overlapping feature columns in %s; auto-renamed %d columns. "
+                        "Examples: %s",
+                        path,
+                        len(collision_rename_map),
+                        dict(list(collision_rename_map.items())[:5]),
+                    )
+
                 merged_df = merged_df.join(subset, how='outer')
         
         # Re-attach label
@@ -143,6 +184,21 @@ class DataManager:
             # Intersect with available data
             valid_train = [i for i in train_ids if i in X.index]
             valid_test = [i for i in test_ids if i in X.index]
+            missing_train = [i for i in train_ids if i not in X.index]
+            missing_test = [i for i in test_ids if i not in X.index]
+
+            if missing_train:
+                self.logger.warning(
+                    "Custom split: %d train IDs not found in data index. Sample: %s",
+                    len(missing_train),
+                    missing_train[:10]
+                )
+            if missing_test:
+                self.logger.warning(
+                    "Custom split: %d test IDs not found in data index. Sample: %s",
+                    len(missing_test),
+                    missing_test[:10]
+                )
             
             X_train = X.loc[valid_train]
             y_train = y.loc[valid_train]
