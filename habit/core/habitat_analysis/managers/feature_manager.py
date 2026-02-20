@@ -357,20 +357,26 @@ class FeatureManager:
                         if method.corr_threshold is not None
                         else 0.95
                     )
-                    corr_method = method.corr_method or 'spearman'
+                    # 相关性过滤（correlation_filter）步骤，根据给定的相关性阈值（threshold）去除高度相关的特征列
+                    corr_method = method.corr_method or 'spearman'  # 优先用配置的相关方法，否则默认为 spearman
                     if processed_df.shape[1] > 1:
+                        # 计算相关性矩阵，取绝对值，并将空值填为 0.0
                         corr = processed_df.corr(method=corr_method).abs().fillna(0.0)
-                        kept_cols = list(processed_df.columns)
+                        kept_cols = list(processed_df.columns)  # 初始化保留全部列
                         i = 0
+                        # 逐步遍历每一列，与后续所有列进行两两比较
                         while i < len(kept_cols):
                             current = kept_cols[i]
                             to_remove = []
                             for j in range(i + 1, len(kept_cols)):
                                 candidate = kept_cols[j]
+                                # 若当前列与候选列的相关性大于阈值，则标记为移除
                                 if corr.loc[current, candidate] > threshold:
                                     to_remove.append(candidate)
+                            # 仅保留未被高相关性移除的列
                             kept_cols = [col for col in kept_cols if col not in to_remove]
                             i += 1
+                        # 如果全部列都被过滤，只保留第一列作为兜底
                         if not kept_cols:
                             kept_cols = [processed_df.columns[0]]
                         processed_df = processed_df[kept_cols]
