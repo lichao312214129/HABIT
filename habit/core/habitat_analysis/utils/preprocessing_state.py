@@ -163,11 +163,25 @@ def process_features_pipeline(
 
 def preprocess_features(
     features: np.ndarray,
-    method: Literal['minmax', 'zscore', 'robust', 'binning', 'global_minmax', 'global_zscore', 'winsorize', 'log'] = 'minmax',
+    method: Literal[
+        'minmax',
+        'zscore',
+        'robust',
+        'binning',
+        'global_minmax',
+        'global_zscore',
+        'winsorize',
+        'log',
+        'variance_filter',
+        'correlation_filter'
+    ] = 'minmax',
     n_bins: int = 10,
     bin_strategy: str = 'uniform',
     global_normalize: bool = False,
     winsor_limits: tuple = (0.05, 0.05),
+    variance_threshold: float = 0.0,
+    corr_threshold: float = 0.95,
+    corr_method: str = 'spearman',
     discretizer: Optional[KBinsDiscretizer] = None,
     methods: Optional[List[Dict[str, Any]]] = None
 ) -> np.ndarray:
@@ -251,6 +265,34 @@ def preprocess_features(
             min_vals = np.min(features, axis=0)
             shifted_features = features - min_vals + 1.0
             return np.log(shifted_features)
+
+    elif method == 'variance_filter':
+        variances = np.var(features, axis=0)
+        selected_indices = np.where(variances > variance_threshold)[0]
+        if selected_indices.size == 0:
+            # Keep at least one feature to avoid empty matrix.
+            selected_indices = np.array([int(np.argmax(variances))])
+        return features[:, selected_indices]
+
+    elif method == 'correlation_filter':
+        if features.shape[1] <= 1:
+            return features
+        corr_matrix = np.corrcoef(features, rowvar=False)
+        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
+        keep_indices = list(range(features.shape[1]))
+        i = 0
+        while i < len(keep_indices):
+            current_idx = keep_indices[i]
+            to_remove = []
+            for j in range(i + 1, len(keep_indices)):
+                compare_idx = keep_indices[j]
+                if abs(corr_matrix[current_idx, compare_idx]) > corr_threshold:
+                    to_remove.append(compare_idx)
+            keep_indices = [idx for idx in keep_indices if idx not in to_remove]
+            i += 1
+        if not keep_indices:
+            keep_indices = [0]
+        return features[:, keep_indices]
     
     else:
         raise ValueError(f"Unknown preprocessing method: {method}")
@@ -295,6 +337,43 @@ class PreprocessingState:
         
         # Methods configuration
         self.methods_config: List[Union[Dict[str, Any], BaseModel]] = []
+        # Feature selection columns per preprocessing step index.
+        # This guarantees predict mode uses exactly the same selected columns as train.
+        self.selected_columns_by_step: Dict[int, List[str]] = {}
+
+    @staticmethod
+    def _compute_variance_selected_columns(df: pd.DataFrame, threshold: float) -> List[str]:
+        """Select columns whose variance is strictly greater than threshold."""
+        variances = df.var()
+        selected = variances[variances > threshold].index.tolist()
+        if not selected:
+            selected = [variances.sort_values(ascending=False).index[0]]
+        return selected
+
+    @staticmethod
+    def _compute_correlation_selected_columns(
+        df: pd.DataFrame,
+        threshold: float,
+        method: str
+    ) -> List[str]:
+        """Remove highly correlated columns while preserving a deterministic order."""
+        if df.shape[1] <= 1:
+            return list(df.columns)
+        corr = df.corr(method=method).abs().fillna(0.0)
+        features = list(df.columns)
+        i = 0
+        while i < len(features):
+            current = features[i]
+            to_remove: List[str] = []
+            for j in range(i + 1, len(features)):
+                candidate = features[j]
+                if corr.loc[current, candidate] > threshold:
+                    to_remove.append(candidate)
+            features = [col for col in features if col not in to_remove]
+            i += 1
+        if not features:
+            return [df.columns[0]]
+        return features
         
     def fit(self, df: pd.DataFrame, methods: List[Union[Dict[str, Any], BaseModel]]) -> None:
         """
@@ -305,6 +384,7 @@ class PreprocessingState:
             methods: List of preprocessing method configurations
         """
         self.methods_config = methods
+        self.selected_columns_by_step = {}
         
         # Debug: Check DataFrame info
         import logging
@@ -335,7 +415,7 @@ class PreprocessingState:
         temp_df = numeric_df.fillna(self.means)
         
         # Compute parameters for each method
-        for method_config in methods:
+        for step_index, method_config in enumerate(methods):
             method_name = _get_method_attr(method_config, 'method', 'minmax')
             global_normalize = _get_method_attr(method_config, 'global_normalize', False)
             
@@ -409,6 +489,21 @@ class PreprocessingState:
                 else:
                     self.log_offsets = temp_df.min()
 
+            elif method_name == 'variance_filter':
+                variance_threshold = _get_method_attr(method_config, 'variance_threshold', 0.0)
+                selected_cols = self._compute_variance_selected_columns(temp_df, variance_threshold)
+                self.selected_columns_by_step[step_index] = selected_cols
+                temp_df = temp_df[selected_cols]
+
+            elif method_name == 'correlation_filter':
+                corr_threshold = _get_method_attr(method_config, 'corr_threshold', 0.95)
+                corr_method = _get_method_attr(method_config, 'corr_method', 'spearman')
+                selected_cols = self._compute_correlation_selected_columns(
+                    temp_df, corr_threshold, corr_method
+                )
+                self.selected_columns_by_step[step_index] = selected_cols
+                temp_df = temp_df[selected_cols]
+
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Apply stored parameters to transform data (Training or Testing).
@@ -440,7 +535,7 @@ class PreprocessingState:
         df_transformed = pd.DataFrame(df_values, columns=df_transformed.columns, index=df_transformed.index)
         
         # 3. Apply methods in order
-        for method_config in self.methods_config:
+        for step_index, method_config in enumerate(self.methods_config):
             method_name = _get_method_attr(method_config, 'method', 'minmax')
             global_normalize = _get_method_attr(method_config, 'global_normalize', False)
             
@@ -448,7 +543,8 @@ class PreprocessingState:
                 df_transformed, 
                 method_name, 
                 global_normalize,
-                method_config
+                method_config,
+                step_index
             )
         
         # 4. Merge transformed numeric columns with metadata columns
@@ -496,7 +592,8 @@ class PreprocessingState:
         df: pd.DataFrame, 
         method_name: str,
         global_normalize: bool,
-        method_config: Union[Dict[str, Any], BaseModel]
+        method_config: Union[Dict[str, Any], BaseModel],
+        step_index: int
     ) -> pd.DataFrame:
         """Apply a single preprocessing method using stored parameters."""
         
@@ -557,6 +654,13 @@ class PreprocessingState:
                 return np.log(df - offset + 1.0)
             else:
                 return np.log(df - self.log_offsets + 1.0)
+
+        elif method_name in {'variance_filter', 'correlation_filter'}:
+            selected_cols = self.selected_columns_by_step.get(step_index, list(df.columns))
+            valid_cols = [col for col in selected_cols if col in df.columns]
+            if not valid_cols:
+                return df
+            return df[valid_cols]
         
         else:
             # Unknown method, return unchanged

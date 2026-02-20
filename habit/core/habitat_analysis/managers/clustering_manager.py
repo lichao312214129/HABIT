@@ -51,14 +51,69 @@ class ClusteringManager:
             self._init_selection_methods()
         # In predict mode, clustering models will be loaded from the saved pipeline
 
+    def _build_supervoxel_clustering_params(self, n_clusters: int) -> Dict[str, Any]:
+        """
+        Build algorithm-specific constructor kwargs for supervoxel clustering.
+
+        Args:
+            n_clusters: Target number of clusters/supervoxels.
+
+        Returns:
+            Dict[str, Any]: Parameters passed to get_clustering_algorithm.
+        """
+        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+        params: Dict[str, Any] = {
+            "n_clusters": n_clusters,
+            "random_state": supervoxel_cfg.random_state,
+        }
+
+        # Keep existing KMeans/GMM behavior and extend for SLIC.
+        params["max_iter"] = supervoxel_cfg.max_iter
+        params["n_init"] = supervoxel_cfg.n_init
+        if supervoxel_cfg.algorithm == "slic":
+            params["compactness"] = supervoxel_cfg.compactness
+            params["sigma"] = supervoxel_cfg.sigma
+            params["enforce_connectivity"] = supervoxel_cfg.enforce_connectivity
+        return params
+
+    @staticmethod
+    def _extract_spatial_info(mask_info: Optional[Dict[str, Any]]) -> Tuple[Optional[np.ndarray], Optional[Tuple[float, ...]]]:
+        """
+        Extract voxel coordinates and spacing from mask_info for spatially-aware clustering.
+
+        Args:
+            mask_info: Optional mask metadata dictionary.
+
+        Returns:
+            Tuple: (coordinates in z,y,x order, spacing in z,y,x order)
+        """
+        if not isinstance(mask_info, dict):
+            return None, None
+        mask_array = mask_info.get("mask_array")
+        mask_img = mask_info.get("mask")
+        
+        if mask_array is None:
+            return None, None
+            
+        coords = np.column_stack(np.where(mask_array > 0))
+        
+        spacing = None
+        if mask_img:
+            # SimpleITK spacing is (x, y, z), we need (z, y, x) for skimage/numpy
+            spacing = mask_img.GetSpacing()[::-1]
+            
+        return coords, spacing
+
     def _init_clustering_algorithms(self) -> None:
         """Initialize clustering algorithm instances."""
         supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
         habitat_cfg = self.config.HabitatsSegmention.habitat
+        supervoxel_params = self._build_supervoxel_clustering_params(
+            n_clusters=supervoxel_cfg.n_clusters
+        )
         self.voxel2supervoxel_clustering = get_clustering_algorithm(
             supervoxel_cfg.algorithm,
-            n_clusters=supervoxel_cfg.n_clusters,
-            random_state=supervoxel_cfg.random_state
+            **supervoxel_params
         )
         
         self.supervoxel2habitat_clustering = get_clustering_algorithm(
@@ -138,7 +193,8 @@ class ClusteringManager:
         self, 
         subject: str, 
         feature_df: pd.DataFrame,
-        n_clusters: Optional[int] = None
+        n_clusters: Optional[int] = None,
+        mask_info: Optional[Dict[str, Any]] = None
     ) -> np.ndarray:
         """
         Cluster voxels to supervoxels for a single subject.
@@ -147,25 +203,51 @@ class ClusteringManager:
             subject: Subject ID
             feature_df: Feature DataFrame
             n_clusters: Number of clusters (if None, uses config default)
+            mask_info: Optional mask metadata. Required by spatial methods like SLIC.
             
         Returns:
             Array of supervoxel labels (1-indexed)
         """
         try:
+            supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+            spatial_coords, spacing = self._extract_spatial_info(mask_info)
+            mask_array = mask_info.get("mask_array") if isinstance(mask_info, dict) else None
+
             if n_clusters is not None:
                 # Custom number of clusters (e.g., for one-step optimal clusters)
-                supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-                clusterer = get_clustering_algorithm(
-                    supervoxel_cfg.algorithm,
-                    n_clusters=n_clusters,
-                    random_state=supervoxel_cfg.random_state
-                )
-                clusterer.fit(feature_df.values)
-                supervoxel_labels = clusterer.predict(feature_df.values)
+                clusterer = get_clustering_algorithm(supervoxel_cfg.algorithm, **self._build_supervoxel_clustering_params(n_clusters))
+                if supervoxel_cfg.algorithm == "slic":
+                    clusterer.fit(
+                        feature_df.values,
+                        spatial_coords=spatial_coords,
+                        mask_array=mask_array,
+                        spacing=spacing
+                    )
+                    supervoxel_labels = clusterer.predict(
+                        feature_df.values,
+                        spatial_coords=spatial_coords,
+                        mask_array=mask_array
+                    )
+                else:
+                    clusterer.fit(feature_df.values)
+                    supervoxel_labels = clusterer.predict(feature_df.values)
             else:
                 # Use default clustering instance
-                self.voxel2supervoxel_clustering.fit(feature_df.values)
-                supervoxel_labels = self.voxel2supervoxel_clustering.predict(feature_df.values)
+                if supervoxel_cfg.algorithm == "slic":
+                    self.voxel2supervoxel_clustering.fit(
+                        feature_df.values,
+                        spatial_coords=spatial_coords,
+                        mask_array=mask_array,
+                        spacing=spacing
+                    )
+                    supervoxel_labels = self.voxel2supervoxel_clustering.predict(
+                        feature_df.values,
+                        spatial_coords=spatial_coords,
+                        mask_array=mask_array
+                    )
+                else:
+                    self.voxel2supervoxel_clustering.fit(feature_df.values)
+                    supervoxel_labels = self.voxel2supervoxel_clustering.predict(feature_df.values)
             
             supervoxel_labels += 1  # 1-indexed
             return supervoxel_labels
@@ -183,7 +265,8 @@ class ClusteringManager:
         min_clusters: int,
         max_clusters: int,
         selection_method: str,
-        plot_validation: bool = False
+        plot_validation: bool = False,
+        mask_info: Optional[Dict[str, Any]] = None
     ) -> int:
         """
         Find optimal number of clusters for a single subject.
@@ -196,6 +279,7 @@ class ClusteringManager:
             max_clusters: Maximum number of clusters to try
             selection_method: Validation method to use
             plot_validation: Whether to plot validation curves
+            mask_info: Optional mask metadata used by spatial clustering methods.
             
         Returns:
             Optimal number of clusters
@@ -205,19 +289,27 @@ class ClusteringManager:
         )
         
         supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-        clusterer = get_clustering_algorithm(
-            supervoxel_cfg.algorithm,
-            n_clusters=max_clusters,
-            random_state=supervoxel_cfg.random_state
-        )
-        
-        optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
-            X=feature_df.values,
-            min_clusters=min_clusters,
-            max_clusters=max_clusters,
-            methods=[selection_method],
-            show_progress=False
-        )
+        clusterer = get_clustering_algorithm(supervoxel_cfg.algorithm, **self._build_supervoxel_clustering_params(max_clusters))
+        spatial_coords, spacing = self._extract_spatial_info(mask_info)
+
+        if supervoxel_cfg.algorithm == "slic":
+            optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
+                X=feature_df.values,
+                min_clusters=min_clusters,
+                max_clusters=max_clusters,
+                methods=[selection_method],
+                show_progress=False,
+                spatial_coords=spatial_coords,
+                spacing=spacing
+            )
+        else:
+            optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
+                X=feature_df.values,
+                min_clusters=min_clusters,
+                max_clusters=max_clusters,
+                methods=[selection_method],
+                show_progress=False
+            )
         
         # Plot validation curves if requested
         if plot_validation and self.config.plot_curves:

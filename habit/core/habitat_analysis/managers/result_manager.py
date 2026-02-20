@@ -12,6 +12,7 @@ from typing import List, Optional, Tuple, Dict, Any
 
 from habit.utils.io_utils import save_habitat_image
 from habit.utils.parallel_utils import parallel_map
+from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 
 class ResultManager:
@@ -105,7 +106,11 @@ class ResultManager:
                 self.config.out_dir, f"{subject}_supervoxel.nrrd"
             )
             save_habitat_image(
-                subject, self.results_df, supervoxel_path, self.config.out_dir
+                subject,
+                self.results_df,
+                supervoxel_path,
+                self.config.out_dir,
+                postprocess_settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump()
             )
             return subject, None
         except Exception as e:
@@ -201,6 +206,12 @@ class ResultManager:
 
         habitat_map = np.zeros_like(mask_array)
         habitat_map[mask_indices] = labels
+
+        habitat_map = remove_small_connected_components(
+            label_map=habitat_map.astype(np.int32, copy=False),
+            roi_mask=mask_indices,
+            settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump()
+        )
 
         habitat_img = sitk.GetImageFromArray(habitat_map)
         habitat_img.CopyInformation(mask_info["mask"])

@@ -11,6 +11,9 @@ habit = "habit.cli:cli"
 [tool.poetry.dependencies]
 python = "^3.8"
 click = "^8.0"
+numpy = "*"
+scikit-learn = "*"
+scikit-image = "*"
 
 
 [tool.poetry.dev-dependencies]

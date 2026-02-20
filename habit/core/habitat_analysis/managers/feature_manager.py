@@ -316,8 +316,75 @@ class FeatureManager:
 
         methods = self._get_preprocessing_methods(preprocessing_config)
         if methods:
-            processed = process_features_pipeline(feature_df.values, methods=methods)
-            return pd.DataFrame(processed, columns=feature_df.columns)
+            # Guardrail: in two-step mode, subject-level feature-dropping can create
+            # inconsistent columns across subjects before group concatenation.
+            if (
+                config_key == 'preprocessing_for_subject_level'
+                and self.config.HabitatsSegmention.clustering_mode == 'two_step'
+            ):
+                dropping_methods = {
+                    method.method
+                    for method in methods
+                    if method.method in {'variance_filter', 'correlation_filter'}
+                }
+                if dropping_methods:
+                    methods_text = ", ".join(sorted(dropping_methods))
+                    raise ValueError(
+                        "Subject-level feature-dropping methods are not allowed in two_step mode: "
+                        f"{methods_text}. Please move them to preprocessing_for_group_level."
+                    )
+
+            processed_df = feature_df.copy()
+
+            for method in methods:
+                method_name = method.method
+
+                if method_name == 'variance_filter':
+                    threshold = (
+                        float(method.variance_threshold)
+                        if method.variance_threshold is not None
+                        else 0.0
+                    )
+                    variances = processed_df.var()
+                    selected_cols = variances[variances > threshold].index.tolist()
+                    if not selected_cols:
+                        selected_cols = [variances.sort_values(ascending=False).index[0]]
+                    processed_df = processed_df[selected_cols]
+
+                elif method_name == 'correlation_filter':
+                    threshold = (
+                        float(method.corr_threshold)
+                        if method.corr_threshold is not None
+                        else 0.95
+                    )
+                    corr_method = method.corr_method or 'spearman'
+                    if processed_df.shape[1] > 1:
+                        corr = processed_df.corr(method=corr_method).abs().fillna(0.0)
+                        kept_cols = list(processed_df.columns)
+                        i = 0
+                        while i < len(kept_cols):
+                            current = kept_cols[i]
+                            to_remove = []
+                            for j in range(i + 1, len(kept_cols)):
+                                candidate = kept_cols[j]
+                                if corr.loc[current, candidate] > threshold:
+                                    to_remove.append(candidate)
+                            kept_cols = [col for col in kept_cols if col not in to_remove]
+                            i += 1
+                        if not kept_cols:
+                            kept_cols = [processed_df.columns[0]]
+                        processed_df = processed_df[kept_cols]
+
+                else:
+                    # Keep existing stateless behavior for value-transform methods.
+                    transformed = process_features_pipeline(processed_df.values, methods=[method])
+                    processed_df = pd.DataFrame(
+                        transformed,
+                        columns=processed_df.columns,
+                        index=processed_df.index
+                    )
+
+            return processed_df
         
         return feature_df
 

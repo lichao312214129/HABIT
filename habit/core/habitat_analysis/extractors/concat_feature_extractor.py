@@ -79,21 +79,12 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
         if image_df.empty:
             raise ValueError("No valid data found in input list")
             
-        # Ensure all feature columns (except SupervoxelID) are numeric type
-        # pd.concat may convert numeric columns to object type in some cases
-        print(f"[ConcatFeatureExtractor] Before conversion: {image_df.dtypes.value_counts().to_dict()}")
-        if len(image_df.columns) > 1:
-            sample_col = [c for c in image_df.columns if c != 'SupervoxelID'][0]
-            print(f"[ConcatFeatureExtractor] Sample column '{sample_col}': dtype={image_df[sample_col].dtype}, first value={image_df[sample_col].iloc[0]}, type={type(image_df[sample_col].iloc[0])}")
+        # Ensure all feature columns (except SupervoxelID) are numeric type.
+        # pd.concat may convert numeric columns to object type in some cases.
         
         for col in image_df.columns:
             if col != 'SupervoxelID':
                 image_df[col] = pd.to_numeric(image_df[col], errors='coerce')
-        
-        print(f"[ConcatFeatureExtractor] After conversion: {image_df.dtypes.value_counts().to_dict()}")
-        if len(image_df.columns) > 1:
-            sample_col = [c for c in image_df.columns if c != 'SupervoxelID'][0]
-            print(f"[ConcatFeatureExtractor] Sample column '{sample_col}': dtype={image_df[sample_col].dtype}, first value={image_df[sample_col].iloc[0]}")
         
         # Update feature names
         self.feature_names = list(image_df.columns)

@@ -55,3 +55,11 @@ HabitatsSegmention:
   habitat:
     mode: training  # Mode: 'training' or 'testing'
 
+  # Optional connected-component cleanup for final one-step habitat maps
+  postprocess_habitat:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1          # 1=6-neighbor, 2=18-neighbor, 3=26-neighbor
+    reassign_method: neighbor_vote
+    max_iterations: 3
+

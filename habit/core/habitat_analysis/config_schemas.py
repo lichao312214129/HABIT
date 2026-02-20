@@ -74,6 +74,29 @@ class HabitatAnalysisConfig(BaseConfig):
                     "HabitatsSegmention:\n"
                     "  clustering_mode: one_step  # or two_step, direct_pooling"
                 )
+
+        # Guardrail: in two-step mode, subject-level feature-dropping filters
+        # can produce inconsistent columns across subjects, which may introduce
+        # heavy NaN after cross-subject concatenation.
+        if (
+            self.HabitatsSegmention is not None
+            and self.HabitatsSegmention.clustering_mode == 'two_step'
+            and self.FeatureConstruction is not None
+            and self.FeatureConstruction.preprocessing_for_subject_level is not None
+        ):
+            subject_methods = self.FeatureConstruction.preprocessing_for_subject_level.methods
+            dropping_methods = {
+                method.method
+                for method in subject_methods
+                if method.method in {'variance_filter', 'correlation_filter'}
+            }
+            if dropping_methods:
+                methods_text = ", ".join(sorted(dropping_methods))
+                raise ValueError(
+                    "Subject-level feature-dropping methods are not allowed in two_step mode: "
+                    f"{methods_text}. "
+                    "Please move these methods to preprocessing_for_group_level."
+                )
         return self
 
 # -----------------------------------------------------------------------------
@@ -90,11 +113,23 @@ class SupervoxelLevelConfig(BaseModel):
     params: Dict[str, Any] = Field(default_factory=dict, description="Parameters for the supervoxel-level feature aggregator.")
 
 class PreprocessingMethod(BaseModel):
-    method: Literal['winsorize', 'minmax', 'zscore', 'robust', 'log', 'binning']
+    method: Literal[
+        'winsorize',
+        'minmax',
+        'zscore',
+        'robust',
+        'log',
+        'binning',
+        'variance_filter',
+        'correlation_filter'
+    ]
     global_normalize: bool = False
     winsor_limits: Optional[List[float]] = None
     n_bins: Optional[int] = None
     bin_strategy: Optional[Literal['uniform', 'quantile', 'kmeans']] = None
+    variance_threshold: Optional[float] = None
+    corr_threshold: Optional[float] = None
+    corr_method: Optional[Literal['pearson', 'spearman', 'kendall']] = None
 
 class PreprocessingConfig(BaseModel):
     methods: List[PreprocessingMethod] = Field(default_factory=list)
@@ -133,12 +168,48 @@ class OneStepSettings(BaseModel):
     ] = 'silhouette'
     plot_validation_curves: bool = True
 
+class ConnectedComponentPostprocessConfig(BaseModel):
+    """
+    Connected-component post-processing settings for label-map cleanup.
+    """
+    enabled: bool = False
+    min_component_size: int = Field(
+        30,
+        ge=1,
+        description="Minimum connected-component size in voxels. Smaller components are reassigned."
+    )
+    connectivity: Literal[1, 2, 3] = Field(
+        1,
+        description="Neighborhood connectivity: 1(6-neighbor), 2(18-neighbor), 3(26-neighbor)."
+    )
+    reassign_method: Literal['neighbor_vote'] = Field(
+        'neighbor_vote',
+        description="Strategy to reassign tiny components."
+    )
+    max_iterations: int = Field(
+        3,
+        ge=1,
+        description="Maximum cleanup iterations."
+    )
+
 class SupervoxelClusteringConfig(BaseModel):
-    algorithm: Literal['kmeans', 'gmm'] = 'kmeans'
+    algorithm: Literal['kmeans', 'gmm', 'slic'] = 'kmeans'
     n_clusters: int = 50
     random_state: int = 42
     max_iter: int = 300
     n_init: int = 10
+    compactness: float = Field(
+        0.1,
+        description="SLIC compactness factor balancing feature similarity and spatial proximity."
+    )
+    sigma: float = Field(
+        0.0,
+        description="Gaussian smoothing width used by SLIC before segmentation."
+    )
+    enforce_connectivity: bool = Field(
+        True,
+        description="Whether SLIC should enforce connected components."
+    )
     one_step_settings: OneStepSettings = Field(default_factory=OneStepSettings)
 
 class HabitatClusteringConfig(BaseModel):
@@ -158,6 +229,12 @@ class HabitatsSegmentionConfig(BaseModel):
     clustering_mode: Literal['one_step', 'two_step', 'direct_pooling'] = 'two_step'
     supervoxel: SupervoxelClusteringConfig = Field(default_factory=SupervoxelClusteringConfig)
     habitat: HabitatClusteringConfig = Field(default_factory=HabitatClusteringConfig)
+    postprocess_supervoxel: ConnectedComponentPostprocessConfig = Field(
+        default_factory=ConnectedComponentPostprocessConfig
+    )
+    postprocess_habitat: ConnectedComponentPostprocessConfig = Field(
+        default_factory=ConnectedComponentPostprocessConfig
+    )
 
 # -----------------------------------------------------------------------------
 # Result Column Names

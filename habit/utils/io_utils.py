@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional, List
 import yaml
 import logging
 from habit.core.common.config_loader import load_config, save_config, validate_config
+from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
@@ -239,7 +240,13 @@ def save_supervoxel_image(subject: str, supervoxel_labels: np.ndarray, mask_path
     
     return output_path
 
-def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path: str, out_folder: str) -> str:
+def save_habitat_image(
+    subject: str,
+    habitats_df: pd.DataFrame,
+    supervoxel_path: str,
+    out_folder: str,
+    postprocess_settings: Optional[Dict[str, Any]] = None,
+) -> str:
     """
     Save habitat image
     
@@ -269,6 +276,14 @@ def save_habitat_image(subject: str, habitats_df: pd.DataFrame, supervoxel_path:
         if (supervoxel_array == i+1).sum() > 0:
             habitats_array[supervoxel_array == i+1] = habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'].values[0]
     
+
+    roi_mask = supervoxel_array > 0
+    if postprocess_settings and postprocess_settings.get("enabled", False):
+        habitats_array = remove_small_connected_components(
+            label_map=habitats_array.astype(np.int32, copy=False),
+            roi_mask=roi_mask,
+            settings=postprocess_settings
+        )
 
     # Convert to SimpleITK image and save
     habitats_img = sitk.GetImageFromArray(habitats_array)

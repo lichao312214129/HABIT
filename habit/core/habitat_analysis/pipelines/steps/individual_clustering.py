@@ -13,6 +13,7 @@ from ..base_pipeline import IndividualLevelStep
 from ...managers.clustering_manager import ClusteringManager
 from ...managers.result_manager import ResultManager
 from ...config_schemas import HabitatAnalysisConfig
+from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
 
 class IndividualClusteringStep(IndividualLevelStep):
@@ -130,7 +131,8 @@ class IndividualClusteringStep(IndividualLevelStep):
                             min_clusters=one_step_cfg.min_clusters,
                             max_clusters=one_step_cfg.max_clusters,
                             selection_method=one_step_cfg.selection_method,
-                            plot_validation=self.config.plot_curves
+                            plot_validation=self.config.plot_curves,
+                            mask_info=mask_info
                         )
                     else:
                         # Priority 3: Fall back to supervoxel n_clusters
@@ -140,8 +142,11 @@ class IndividualClusteringStep(IndividualLevelStep):
                 labels = self.clustering_manager.cluster_subject_voxels(
                     subject_id,
                     feature_df,
-                    n_clusters=n_clusters
+                    n_clusters=n_clusters,
+                    mask_info=mask_info
                 )
+
+                labels = self._postprocess_labels_if_enabled(labels, mask_info)
                 
                 # Save images
                 if self.config.save_images:
@@ -178,3 +183,41 @@ class IndividualClusteringStep(IndividualLevelStep):
                 raise
         
         return results
+
+    def _postprocess_labels_if_enabled(
+        self,
+        labels: np.ndarray,
+        mask_info: Dict[str, Any]
+    ) -> np.ndarray:
+        """
+        Optionally clean tiny connected components in voxel-level labels.
+
+        Args:
+            labels: 1D voxel labels (1-indexed) for ROI voxels.
+            mask_info: Dictionary containing mask_array for spatial reconstruction.
+
+        Returns:
+            np.ndarray: Post-processed 1D labels (1-indexed).
+        """
+        if not isinstance(mask_info, dict) or "mask_array" not in mask_info:
+            return labels
+
+        if self.target == "supervoxel":
+            pp_cfg = self.config.HabitatsSegmention.postprocess_supervoxel
+        else:
+            pp_cfg = self.config.HabitatsSegmention.postprocess_habitat
+
+        if not pp_cfg.enabled:
+            return labels
+
+        mask_array = mask_info["mask_array"]
+        roi_mask = mask_array > 0
+        label_map = np.zeros_like(mask_array, dtype=np.int32)
+        label_map[roi_mask] = labels.astype(np.int32)
+
+        cleaned = remove_small_connected_components(
+            label_map=label_map,
+            roi_mask=roi_mask,
+            settings=pp_cfg.model_dump()
+        )
+        return cleaned[roi_mask].astype(labels.dtype, copy=False)

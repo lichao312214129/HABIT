@@ -532,6 +532,7 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
   - **必需**: 否
   - **默认值**: ``[]``
   - **说明**: 在个体水平对特征进行预处理，消除个体内异常值和尺度差异。
+  - **注意**: ``two_step`` 模式下，个体级别不允许使用会删列的方法（``variance_filter``、``correlation_filter``），否则会导致跨受试者拼接后出现大量缺失列。
   - **支持方法及参数**:
 
     **winsorize (缩尾处理)**:
@@ -556,6 +557,17 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
 
       - ``global_normalize`` (bool, 默认: ``false``): 是否全局变换
       - 自动处理负值（平移后再取对数）
+
+    **variance_filter (低方差筛选)**:
+
+      - ``variance_threshold`` (float, 默认: ``0.0``): 保留方差大于该阈值的特征
+      - 说明: 该方法会删除特征列
+
+    **correlation_filter (高相关筛选)**:
+
+      - ``corr_threshold`` (float, 默认: ``0.95``): 相关系数绝对值大于该阈值时删除冗余特征
+      - ``corr_method`` (str, 默认: ``spearman``): 相关系数方法，可选 ``pearson``/``spearman``/``kendall``
+      - 说明: 该方法会删除特征列
 
   - **示例**:
 
@@ -601,6 +613,13 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
     **minmax / zscore / robust / log**:
 
       - 同 ``preprocessing_for_subject_level``，但作用于群体汇总后的数据
+
+    **variance_filter / correlation_filter (推荐放在群体级执行)**:
+
+      - 用于无监督场景下的特征删列，降低噪声与冗余
+      - ``variance_filter`` 参数: ``variance_threshold``
+      - ``correlation_filter`` 参数: ``corr_threshold``、``corr_method``
+      - 建议: 在训练阶段确定保留列，预测阶段复用同一列集合
 
   - **示例**:
 
@@ -826,6 +845,43 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
        algorithm: kmeans
        fixed_n_clusters: 5
        random_state: 42
+
+**postprocess_supervoxel / postprocess_habitat**: 连通域后处理设置
+
+- **类型**: 字典
+- **必需**: 否
+- **默认值**: ``enabled: false``
+- **说明**:
+
+  - ``postprocess_supervoxel`` 作用于超体素标签图（主要 two_step 阶段）。
+  - ``postprocess_habitat`` 作用于最终生境标签图（one_step/two_step/direct_pooling）。
+
+- **子参数**:
+
+  - ``enabled`` (bool, 默认: ``false``): 是否启用后处理
+  - ``min_component_size`` (int, 默认: ``30``): 最小连通域体素数阈值
+  - ``connectivity`` (int, 默认: ``1``): 邻域连通性，可选 ``1``/``2``/``3``（对应 6/18/26 邻域）
+  - ``reassign_method`` (str, 默认: ``neighbor_vote``): 小连通域重分配策略
+  - ``max_iterations`` (int, 默认: ``3``): 最大迭代次数
+
+- **示例**:
+
+  .. code-block:: yaml
+
+     HabitatsSegmention:
+       postprocess_supervoxel:
+         enabled: false
+         min_component_size: 30
+         connectivity: 1
+         reassign_method: neighbor_vote
+         max_iterations: 3
+
+       postprocess_habitat:
+         enabled: true
+         min_component_size: 30
+         connectivity: 1
+         reassign_method: neighbor_vote
+         max_iterations: 3
 
 **plot_curves**: 是否生成和保存图表
 

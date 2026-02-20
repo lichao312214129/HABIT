@@ -24,6 +24,7 @@ setup(
         'tqdm',
         'pyradiomics',
         'scikit-learn',
+        'scikit-image',
         'mrmr_selection',
         'pingouin',
         'statsmodels',

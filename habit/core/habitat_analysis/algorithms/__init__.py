@@ -12,6 +12,7 @@ from .base_clustering import (
 # Import implemented clustering algorithms
 from .kmeans_clustering import KMeansClustering
 from .gmm_clustering import GMMClustering
+from .slic_clustering import SLICClustering
 
 # Import validation methods
 from .cluster_validation_methods import (
@@ -27,7 +28,7 @@ from .cluster_validation_methods import (
 
 __all__ = [
     "BaseClustering", "register_clustering", "get_clustering_algorithm",
-    "KMeansClustering", "GMMClustering",
+    "KMeansClustering", "GMMClustering", "SLICClustering",
     "get_validation_methods", "get_default_methods", "is_valid_method_for_algorithm",
     "get_method_description", "get_optimization_direction"
 ]

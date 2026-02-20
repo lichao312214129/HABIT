@@ -405,6 +405,48 @@ YAML 配置详解
 Pipeline 机制
 ------------
 
+连通域后处理（减少碎块）
+----------------------
+
+为了减少生境图中“破碎小块”，HABIT 支持在 ROI 内执行最小连通域过滤，并将小连通域重分配到邻近主导标签。
+
+可配置入口：
+
+- ``HabitatsSegmention.postprocess_supervoxel``：超体素层后处理（主要用于 two_step 的 voxel->supervoxel 结果）
+- ``HabitatsSegmention.postprocess_habitat``：生境层后处理（适用于 one_step/two_step/direct_pooling 的最终生境图）
+
+参数说明：
+
+- ``enabled``: 是否启用后处理
+- ``min_component_size``: 连通域最小体素数阈值，小于阈值的组件会被重分配
+- ``connectivity``: 连通性（``1/2/3`` 对应 ``6/18/26`` 邻域）
+- ``reassign_method``: 重分配策略（当前支持 ``neighbor_vote``）
+- ``max_iterations``: 最大迭代次数
+
+配置示例：
+
+.. code-block:: yaml
+
+   HabitatsSegmention:
+     postprocess_supervoxel:
+       enabled: false
+       min_component_size: 30
+       connectivity: 1
+       reassign_method: neighbor_vote
+       max_iterations: 3
+
+     postprocess_habitat:
+       enabled: true
+       min_component_size: 30
+       connectivity: 1
+       reassign_method: neighbor_vote
+       max_iterations: 3
+
+说明：
+
+- 后处理仅作用于 ROI 内标签，ROI 外保持 0。
+- 建议先从 ``min_component_size=30``、``connectivity=1`` 开始调参。
+
 HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关键设计。
 
 **什么是数据泄露？**
@@ -519,6 +561,26 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
          n_bins: 10
          bin_strategy: uniform
          global_normalize: false
+
+无监督特征筛选放置原则
+----------------------
+
+在聚类任务中，``variance_filter`` 和 ``correlation_filter`` 这类“删列型”方法会改变特征维度。  
+为避免跨受试者特征列不一致，建议按聚类策略放置：
+
+- **two_step**:
+  - 个体级别（``preprocessing_for_subject_level``）不要使用删列型方法
+  - 推荐在群体级别（``preprocessing_for_group_level``）执行删列型方法
+- **one_step**:
+  - 可在个体级别使用删列型方法（每个受试者独立聚类）
+  - 若需要跨受试者可比性，仍建议把删列放在群体级别
+- **direct_pooling**:
+  - 推荐在群体级别执行删列型方法，以保证列空间一致
+
+推荐的无监督筛选方法：
+
+- ``variance_filter``: 删除低方差特征
+- ``correlation_filter``: 删除高相关冗余特征
 
 自定义特征提取器
 ----------------

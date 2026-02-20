@@ -231,6 +231,25 @@ HabitatsSegmention:
     # Number of initializations (only for kmeans)
     n_init: 10
 
+  # ───────────────────────────────────────────────────────────────────────
+  # Optional Label-Map Post-processing (Connected Components)
+  # ───────────────────────────────────────────────────────────────────────
+  # Goal: reduce tiny fragmented patches in supervoxel/habitat maps.
+  # Works on 3D label maps inside ROI only (outside ROI remains 0).
+  postprocess_supervoxel:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1          # 1=6-neighbor, 2=18-neighbor, 3=26-neighbor
+    reassign_method: neighbor_vote
+    max_iterations: 3
+
+  postprocess_habitat:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1
+    reassign_method: neighbor_vote
+    max_iterations: 3
+
 
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings

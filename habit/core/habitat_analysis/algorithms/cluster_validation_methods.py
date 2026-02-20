@@ -133,6 +133,33 @@ CLUSTERING_VALIDATION_METHODS = {
             }
         }
     },
+
+    # Methods supported by SLIC clustering
+    'slic': {
+        'default': ['silhouette', 'kneedle'],
+        'methods': {
+            'silhouette': {
+                'description': 'Silhouette Score, higher is better',
+                'optimization': 'maximize'
+            },
+            'calinski_harabasz': {
+                'description': 'Calinski-Harabasz Index, higher is better',
+                'optimization': 'maximize'
+            },
+            'davies_bouldin': {
+                'description': 'Davies-Bouldin Index, lower is better',
+                'optimization': 'minimize'
+            },
+            'inertia': {
+                'description': 'Inertia on SLIC-regularized embedding, lower is better',
+                'optimization': 'kneedle'
+            },
+            'kneedle': {
+                'description': 'Kneedle method on inertia curve for SLIC-regularized embedding',
+                'optimization': 'kneedle'
+            }
+        }
+    },
     
     # Methods supported by Affinity Propagation
     'affinity_propagation': {
