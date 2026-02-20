@@ -56,10 +56,15 @@ HabitatsSegmention:
     mode: training  # Mode: 'training' or 'testing'
 
   # Optional connected-component cleanup for final one-step habitat maps
+  # Current implementation uses a fast SimpleITK path:
+  # - Tiny components are identified per label by component size
+  # - Removed ROI voxels are refilled by nearest large-component seed label
+  # - ROI voxels are preserved (no permanent voxel drop inside ROI)
   postprocess_habitat:
     enabled: false
     min_component_size: 30
-    connectivity: 1          # 1=6-neighbor, 2=18-neighbor, 3=26-neighbor
-    reassign_method: neighbor_vote
-    max_iterations: 3
+    connectivity: 1          # 1=face-neighbor only, 2/3=full-connected behavior in current SITK path
+    debug_postprocess: false # true: print per-label detailed logs for troubleshooting
+    reassign_method: neighbor_vote  # Deprecated/ignored in current fast path (kept for compatibility)
+    max_iterations: 3               # Deprecated/ignored in current fast path (kept for compatibility)
 

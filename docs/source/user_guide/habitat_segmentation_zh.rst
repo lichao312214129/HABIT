@@ -408,7 +408,12 @@ Pipeline 机制
 连通域后处理（减少碎块）
 ----------------------
 
-为了减少生境图中“破碎小块”，HABIT 支持在 ROI 内执行最小连通域过滤，并将小连通域重分配到邻近主导标签。
+为了减少生境图中“破碎小块”，HABIT 支持在 ROI 内执行连通域后处理。当前实现采用 **SimpleITK 快路径**：
+
+1. 按标签识别并临时移除小连通域（体素数小于 ``min_component_size``）。
+2. 使用最近的大连通域种子标签对被移除体素进行回填。
+
+该流程的关键目标是：**减少碎块，同时保持 ROI 内体素不丢失**。
 
 可配置入口：
 
@@ -418,10 +423,11 @@ Pipeline 机制
 参数说明：
 
 - ``enabled``: 是否启用后处理
-- ``min_component_size``: 连通域最小体素数阈值，小于阈值的组件会被重分配
-- ``connectivity``: 连通性（``1/2/3`` 对应 ``6/18/26`` 邻域）
-- ``reassign_method``: 重分配策略（当前支持 ``neighbor_vote``）
-- ``max_iterations``: 最大迭代次数
+- ``min_component_size``: 连通域最小体素数阈值，小于阈值的组件会被临时移除并回填
+- ``connectivity``: 连通性设置。当前实现中 ``1`` 为面邻接优先；``2``/``3`` 在快路径中均表现为全连接行为
+- ``debug_postprocess``: 是否输出后处理详细日志（按标签/阶段）
+- ``reassign_method``: 兼容字段，当前快路径中已忽略
+- ``max_iterations``: 兼容字段，当前快路径中已忽略
 
 配置示例：
 
@@ -432,19 +438,22 @@ Pipeline 机制
        enabled: false
        min_component_size: 30
        connectivity: 1
-       reassign_method: neighbor_vote
-       max_iterations: 3
+       debug_postprocess: false
+       reassign_method: neighbor_vote  # deprecated/ignored
+       max_iterations: 3               # deprecated/ignored
 
      postprocess_habitat:
        enabled: true
        min_component_size: 30
        connectivity: 1
-       reassign_method: neighbor_vote
-       max_iterations: 3
+       debug_postprocess: false
+       reassign_method: neighbor_vote  # deprecated/ignored
+       max_iterations: 3               # deprecated/ignored
 
 说明：
 
 - 后处理仅作用于 ROI 内标签，ROI 外保持 0。
+- 当前快路径会保证 ROI 内体素保持有标签（不会永久删除 ROI 体素）。
 - 建议先从 ``min_component_size=30``、``connectivity=1`` 开始调参。
 
 HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的关键设计。

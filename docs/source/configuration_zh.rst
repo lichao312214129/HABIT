@@ -855,14 +855,17 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
 
   - ``postprocess_supervoxel`` 作用于超体素标签图（主要 two_step 阶段）。
   - ``postprocess_habitat`` 作用于最终生境标签图（one_step/two_step/direct_pooling）。
+  - 当前实现采用 SimpleITK 快路径：先按标签移除小连通域，再按最近种子标签回填。
+  - 该流程旨在减少碎片并保持 ROI 内体素不丢失。
 
 - **子参数**:
 
   - ``enabled`` (bool, 默认: ``false``): 是否启用后处理
   - ``min_component_size`` (int, 默认: ``30``): 最小连通域体素数阈值
-  - ``connectivity`` (int, 默认: ``1``): 邻域连通性，可选 ``1``/``2``/``3``（对应 6/18/26 邻域）
-  - ``reassign_method`` (str, 默认: ``neighbor_vote``): 小连通域重分配策略
-  - ``max_iterations`` (int, 默认: ``3``): 最大迭代次数
+  - ``connectivity`` (int, 默认: ``1``): 邻域连通性；当前快路径中 ``1`` 为面邻接优先，``2``/``3`` 均表现为全连接行为
+  - ``debug_postprocess`` (bool, 默认: ``false``): 是否输出后处理详细日志
+  - ``reassign_method`` (str, 默认: ``neighbor_vote``): 兼容字段，当前快路径已忽略
+  - ``max_iterations`` (int, 默认: ``3``): 兼容字段，当前快路径已忽略
 
 - **示例**:
 
@@ -873,15 +876,17 @@ HABIT 使用 YAML 格式的配置文件来控制所有功能。每个功能模�
          enabled: false
          min_component_size: 30
          connectivity: 1
-         reassign_method: neighbor_vote
-         max_iterations: 3
+         debug_postprocess: false
+         reassign_method: neighbor_vote  # deprecated/ignored
+         max_iterations: 3               # deprecated/ignored
 
        postprocess_habitat:
          enabled: true
          min_component_size: 30
          connectivity: 1
-         reassign_method: neighbor_vote
-         max_iterations: 3
+         debug_postprocess: false
+         reassign_method: neighbor_vote  # deprecated/ignored
+         max_iterations: 3               # deprecated/ignored
 
 **plot_curves**: 是否生成和保存图表
 

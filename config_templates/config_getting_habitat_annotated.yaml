@@ -236,19 +236,25 @@ HabitatsSegmention:
   # ───────────────────────────────────────────────────────────────────────
   # Goal: reduce tiny fragmented patches in supervoxel/habitat maps.
   # Works on 3D label maps inside ROI only (outside ROI remains 0).
+  # Current implementation uses a fast SimpleITK path:
+  # 1) Remove tiny connected components per label (temporary)
+  # 2) Refill removed ROI voxels by nearest large-component seed
+  # This design keeps ROI fully labeled while reducing tiny islands.
   postprocess_supervoxel:
     enabled: false
-    min_component_size: 30
-    connectivity: 1          # 1=6-neighbor, 2=18-neighbor, 3=26-neighbor
-    reassign_method: neighbor_vote
-    max_iterations: 3
+    min_component_size: 30   # Components smaller than this are treated as tiny fragments
+    connectivity: 1          # 1=face-neighbor only, 2/3=full-connected behavior in current SITK path
+    debug_postprocess: false # true: print per-label detailed logs for troubleshooting
+    reassign_method: neighbor_vote  # Deprecated/ignored in current fast path (kept for compatibility)
+    max_iterations: 3               # Deprecated/ignored in current fast path (kept for compatibility)
 
   postprocess_habitat:
     enabled: false
     min_component_size: 30
-    connectivity: 1
-    reassign_method: neighbor_vote
-    max_iterations: 3
+    connectivity: 1          # 1=face-neighbor only, 2/3=full-connected behavior in current SITK path
+    debug_postprocess: false # true: print per-label detailed logs for troubleshooting
+    reassign_method: neighbor_vote  # Deprecated/ignored in current fast path (kept for compatibility)
+    max_iterations: 3               # Deprecated/ignored in current fast path (kept for compatibility)
 
 
 # ─────────────────────────────────────────────────────────────────────────
