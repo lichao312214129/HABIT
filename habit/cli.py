@@ -8,15 +8,15 @@ from pathlib import Path
 from typing import Optional
 
 
-@click.group()
+@click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.version_option(version='0.1.0', prog_name='HABIT')
 def cli():
     """
     HABIT - Habitat Analysis: Biomedical Imaging Toolkit
-    
+
     A comprehensive toolkit for medical image analysis including:
     - Image preprocessing
-    - Habitat analysis and clustering  
+    - Habitat analysis and clustering
     - Feature extraction
     - Machine learning modeling
     - Statistical analysis
@@ -109,7 +109,45 @@ def cv(config):
               required=True,                    # 必须提供该参数
               help='Path to configuration YAML file')  # 参数描述，会显示在帮助信息中
 def compare(config):
-    """Generate model comparison plots and statistics"""
+    """
+    模型比较工具 - Generate model comparison plots and statistics
+
+    此工具用于比较多个机器学习模型的性能，生成可视化图表和统计分析结果。
+    支持 ROC 曲线、校准曲线、决策曲线、精确度-召回率曲线等各种评估图表。
+
+    输入文件：
+    - 多个模型的预测结果 CSV 文件（包含真实标签和预测概率）
+    - 每个模型需要指定：文件路径、模型名称、列名配置
+
+    输出结果：
+    - ROC 曲线图 (roc_curves.pdf)
+    - 决策曲线图 (decision_curves.pdf)
+    - 校准曲线图 (calibration_curves.pdf)
+    - 精确度-召回率曲线图 (precision_recall_curves.pdf)
+    - DeLong 检验结果 (delong_results.json)
+    - 合并的预测结果文件 (combined_predictions.csv)
+
+    配置文件示例：
+    \b
+    output_dir: ./results/comparison/
+    files_config:
+      - path: ./results/model1_predictions.csv
+        model_name: model1
+        subject_id_col: PatientID
+        label_col: label
+        prob_col: probability
+      - path: ./results/model2_predictions.csv
+        model_name: model2
+        subject_id_col: PatientID
+        label_col: label
+        prob_col: probability
+
+    使用示例：
+    \b
+    habit compare --config config_model_comparison.yaml
+
+    详细文档：https://lichao312214129.github.io/HABIT/user_guide/app_model_comparison_zh.html
+    """
     from habit.cli_commands.commands.cmd_compare import run_compare
     run_compare(config)
 

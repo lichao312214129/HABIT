@@ -277,8 +277,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: python
 
-   from habit.core.machine_learning.models.base_model import BaseModel
-   from habit.core.machine_learning.models.model_factory import ModelFactory
+   from habit.core.machine_learning.models.base import BaseModel
+   from habit.core.machine_learning.models.factory import ModelFactory
 
    @ModelFactory.register("my_model")
    class MyModel(BaseModel):
@@ -325,8 +325,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
    import numpy as np
    from sklearn.neural_network import MLPClassifier
-   from habit.core.machine_learning.models.base_model import BaseModel
-   from habit.core.machine_learning.models.model_factory import ModelFactory
+   from habit.core.machine_learning.models.base import BaseModel
+   from habit.core.machine_learning.models.factory import ModelFactory
 
    @ModelFactory.register("neural_network")
    class NeuralNetworkModel(BaseModel):
@@ -364,7 +364,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
 .. code-block:: python
 
    from sklearn.base import BaseEstimator, TransformerMixin
-   from habit.core.machine_learning.feature_selection.feature_selector_registry import register_selector
+   from habit.core.machine_learning.feature_selectors.selector_registry import register_selector
 
    @register_selector('my_selector')
    class MyFeatureSelector(BaseEstimator, TransformerMixin):
@@ -390,12 +390,11 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: yaml
 
-   FeatureSelection:
-     enabled: true
-     method: my_selector
-     params:
-       param1: value1
-       param2: value2
+   feature_selection_methods:
+     - method: my_selector
+       params:
+         param1: value1
+         param2: value2
 
 **步骤 3: 运行机器学习**
 
@@ -410,7 +409,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
    import numpy as np
    from sklearn.feature_selection import mutual_info_classif
    from sklearn.base import BaseEstimator, TransformerMixin
-   from habit.core.machine_learning.feature_selection.feature_selector_registry import register_selector
+   from habit.core.machine_learning.feature_selectors.selector_registry import register_selector
 
    @register_selector('mutual_info')
    class MutualInfoSelector(BaseEstimator, TransformerMixin):

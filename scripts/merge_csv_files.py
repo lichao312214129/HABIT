@@ -117,10 +117,23 @@ def merge_csv_files(
             
             logger.info(f"Reading file: {file_path}")
             
-            # Determine file type and read
+            # Determine file type and read.
             file_ext = os.path.splitext(file_path)[1].lower()
+            index_already_set = False
             if file_ext == '.xlsx' or file_ext == '.xls':
-                df = pd.read_excel(file_path)
+                # Read Excel header first to resolve the index column and keep it as string.
+                header_df = pd.read_excel(file_path, nrows=0)
+                if current_index_col and current_index_col in header_df.columns:
+                    resolved_index_col = current_index_col
+                else:
+                    resolved_index_col = header_df.columns[0]
+                df = pd.read_excel(
+                    file_path,
+                    dtype={resolved_index_col: str},
+                    index_col=resolved_index_col
+                )
+                current_index_col = resolved_index_col
+                index_already_set = True
             else:
                 # Default to CSV
                 # Preserve leading zeros in subject IDs by forcing index column as string.
@@ -129,26 +142,44 @@ def merge_csv_files(
                     file_path,
                     sep=separator,
                     encoding=encoding,
-                    dtype={resolved_index_col: str}
+                    dtype={resolved_index_col: str},
+                    index_col=resolved_index_col
                 )
                 current_index_col = resolved_index_col
+                index_already_set = True
             
+            logger.info(
+                f"Loaded {os.path.basename(file_path)}: rows={df.shape[0]}, columns={df.shape[1]}"
+            )
             if df.empty:
                 logger.warning(f"Empty file: {file_path}")
                 print(f"  Warning: Empty file: {file_path}")
                 continue
             
             # Set index column
-            if current_index_col is None:
-                df.set_index(df.columns[0], inplace=True)
-                logger.info(f"Using first column '{df.index.name}' as index")
-            else:
-                if current_index_col in df.columns:
-                    df.set_index(current_index_col, inplace=True)
-                    logger.info(f"Using column '{current_index_col}' as index")
-                else:
-                    logger.warning(f"Index column '{current_index_col}' not found in {file_path}, using first column")
+            if not index_already_set:
+                if current_index_col is None:
                     df.set_index(df.columns[0], inplace=True)
+                    logger.info(f"Using first column '{df.index.name}' as index")
+                else:
+                    if current_index_col in df.columns:
+                        df.set_index(current_index_col, inplace=True)
+                        logger.info(f"Using column '{current_index_col}' as index")
+                    else:
+                        logger.warning(f"Index column '{current_index_col}' not found in {file_path}, using first column")
+                        df.set_index(df.columns[0], inplace=True)
+                        logger.info(f"Using first column '{df.index.name}' as index")
+            else:
+                logger.info(
+                    f"Index column '{current_index_col}' has been set during file read."
+                )
+
+            # Ensure index is always treated as string to avoid ID truncation issues.
+            df.index = df.index.astype(str)
+            logger.info(
+                f"After setting index: {os.path.basename(file_path)}, "
+                f"index_dtype={df.index.dtype}, index_preview={list(df.index[:3])}"
+            )
             
             # Merge dataframes
             if merged_df is None:
