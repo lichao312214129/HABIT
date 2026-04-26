@@ -212,9 +212,9 @@ HABIT 提供两种使用方式：CLI 和 Python API。
 .. code-block:: bash
 
    habit preprocess --config config_preprocessing.yaml
-   habitat get-habitat --config config_habitat.yaml --mode predict
+   habit get-habitat --config config_habitat.yaml --mode predict
    habit extract --config config_extract_features.yaml
-   habitat model --config config_machine_learning.yaml --mode train
+   habit model --config config_machine_learning.yaml --mode train
 
 **Python API 接口：**
 

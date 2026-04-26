@@ -57,7 +57,7 @@ pip install -e .
 # 3. Run complete research workflow
 
 # Step 1: Image Preprocessing (standardize images)
-habit preprocess-image --config demo_data/config_image_preprocessing.yaml
+habit preprocess --config demo_data/config_image_preprocessing.yaml
 # Note: The demo_data already contains a 'preprocessed' folder with images and ROI masks.
 # This command will overwrite image files (*_image.nii.gz) but preserve ROI mask files (*_mask.nii.gz).
 # The mask files are essential for subsequent habitat analysis.
@@ -66,13 +66,13 @@ habit preprocess-image --config demo_data/config_image_preprocessing.yaml
 habit get-habitat --config demo_data/config_habitat_one_step.yaml
 
 # Step 3: Feature Extraction (extract quantitative features)
-habit extract-features --config demo_data/config_extract_features.yaml
+habit extract --config demo_data/config_extract_features.yaml
 
 # Step 4: Machine Learning (build predictive model)
-habit train-model --config demo_data/config_machine_learning.yaml
+habit model --config demo_data/config_machine_learning.yaml --mode train
 
 # Step 5: Model Comparison (compare different models)
-habit compare-models --config demo_data/config_model_comparison.yaml
+habit compare --config demo_data/config_model_comparison.yaml
 
 # 4. View results
 # Results are saved in demo_data/results/ directory

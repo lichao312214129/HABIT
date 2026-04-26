@@ -30,8 +30,8 @@ FeatureConstruction:
 
 # Habitat Segmentation Configuration
 HabitatsSegmention:
-  # Clustering strategy: 'one_step' or 'two_step'
-  clustering_strategy: one_step
+  # Clustering mode: 'one_step', 'two_step', or 'direct_pooling'
+  clustering_mode: one_step
   
   # Supervoxel clustering configuration
   supervoxel:

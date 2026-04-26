@@ -5,7 +5,7 @@
 # Based on actual code: scripts/app_extracting_habitat_features.py
 #
 # Quick Start:
-#   CLI:    habit extract-features --config config/config_extract_features.yaml
+#   CLI:    habit extract --config config/config_extract_features.yaml
 #   Script: python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════

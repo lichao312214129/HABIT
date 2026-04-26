@@ -6,8 +6,8 @@
 # All parameters listed here are supported by the code
 #
 # Quick Start:
-#   Training:   habit ml --config config/config_machine_learning.yaml --mode train
-#   Prediction: habit ml --mode predict --model ./model.pkl --data ./data.csv
+#   Training:   habit model --config config/config_machine_learning.yaml --mode train
+#   Prediction: habit model --config demo_data/config_machine_learning_predict.yaml --mode predict
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

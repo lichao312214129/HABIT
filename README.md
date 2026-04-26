@@ -174,7 +174,7 @@ pip install -e .
 
 ```bash
 # 运行预处理（包括：DICOM转换、重采样、配准、标准化）
-habit preprocess-image --config demo_data/config_image_preprocessing.yaml
+habit preprocess --config demo_data/config_image_preprocessing.yaml
 ```
 
 **⏱️ 预计用时**：约 2-5 分钟  
@@ -219,10 +219,10 @@ habit get-habitat --config demo_data/config_habitat_one_step.yaml
 
 ```bash
 # 提取传统影像组学特征
-habit extract-features --config demo_data/config_extract_features.yaml
+habit extract --config demo_data/config_extract_features.yaml
 
 # （可选）提取生境特征（需要先完成步骤2）
-# habit extract-features --config demo_data/config_habitat_features.yaml
+# habit extract --config demo_data/config_habitat_features.yaml
 ```
 
 **⏱️ 预计用时**：约 3-8 分钟  
@@ -241,7 +241,7 @@ habit extract-features --config demo_data/config_extract_features.yaml
 
 ```bash
 # 运行机器学习建模（包括特征选择、模型训练、性能评估）
-habit train-model --config demo_data/config_machine_learning.yaml
+habit model --config demo_data/config_machine_learning.yaml --mode train
 ```
 
 **⏱️ 预计用时**：约 2-5 分钟  
@@ -263,7 +263,7 @@ habit train-model --config demo_data/config_machine_learning.yaml
 
 ```bash
 # 比较多个模型的性能
-habit compare-models --config demo_data/config_model_comparison.yaml
+habit compare --config demo_data/config_model_comparison.yaml
 ```
 
 **⏱️ 预计用时**：约 1-3 分钟  
@@ -281,11 +281,11 @@ habit compare-models --config demo_data/config_model_comparison.yaml
 
 ```bash
 # 依次运行所有步骤（适合熟悉流程后使用）
-habit preprocess-image --config demo_data/config_image_preprocessing.yaml && \
+habit preprocess --config demo_data/config_image_preprocessing.yaml && \
 habit get-habitat --config demo_data/config_habitat_one_step.yaml && \
-habit extract-features --config demo_data/config_extract_features.yaml && \
-habit train-model --config demo_data/config_machine_learning.yaml && \
-habit compare-models --config demo_data/config_model_comparison.yaml
+habit extract --config demo_data/config_extract_features.yaml && \
+habit model --config demo_data/config_machine_learning.yaml --mode train && \
+habit compare --config demo_data/config_model_comparison.yaml
 ```
 
 **⚠️ 注意**：全流程运行约需 15-30 分钟，建议首次使用时逐步运行，熟悉每一步的输出结果。

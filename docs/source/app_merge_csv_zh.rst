@@ -30,13 +30,13 @@ CSV 合并工具 (habit merge-csv)
 
 .. code-block:: bash
 
-   habit merge-csv file1.csv file2.csv -o merged.csv --index-cols PatientID
+   habit merge-csv file1.csv file2.csv -o merged.csv --index-col PatientID
 
 **指定不同索引列**
 
 .. code-block:: bash
 
-   habit merge-csv file1.csv file2.csv -o merged.csv --index-cols ID1 ID2
+   habit merge-csv file1.csv file2.csv -o merged.csv --index-col "ID1,ID2"
 
 **使用 Excel 文件**
 
@@ -55,15 +55,15 @@ CSV 合并工具 (habit merge-csv)
 
 - **input_files**: 要合并的输入文件 (至少2个)
 - **-o, --output**: 输出文件路径 (必需)
-- **--index-cols**: 索引列名
+- **--index-col, -c**: 索引列名
   - 不指定：使用第一个文件的第一个列
   - 单个列名：所有文件使用相同列名
   - 多个列名：按顺序匹配到每个文件
 - **--separator**: CSV 分隔符 (默认逗号)
 - **--encoding**: 文件编码 (默认 UTF-8)
-- **--join-type**: 连接类型
-  - inner: 只保留所有文件中都有索引的行
-  - outer: 保留所有索引 (默认)
+- **--join**: 连接类型
+  - inner: 只保留所有文件中都有索引的行（默认）
+  - outer: 保留所有索引
 
 使用场景示例
 ------------
@@ -72,25 +72,25 @@ CSV 合并工具 (habit merge-csv)
 
 .. code-block:: bash
 
-   habit merge-csv ./data/scan1_features.csv ./data/scan2_features.csv -o ./data/merged_features.csv --index-cols PatientID
+   habit merge-csv ./data/scan1_features.csv ./data/scan2_features.csv -o ./data/merged_features.csv --index-col PatientID
 
 **场景2：合并临床数据和影像特征**
 
 .. code-block:: bash
 
-   habit merge-csv ./data/clinical.csv ./data/radiomics.csv -o ./data/combined.csv --index-cols SubjectID
+   habit merge-csv ./data/clinical.csv ./data/radiomics.csv -o ./data/combined.csv --index-col SubjectID
 
 **场景3：合并多个时间点数据**
 
 .. code-block:: bash
 
-   habit merge-csv baseline.csv month3.csv month6.csv month12.csv -o longitudinal.csv --index-cols PatientID
+   habit merge-csv baseline.csv month3.csv month6.csv month12.csv -o longitudinal.csv --index-col PatientID
 
 **场景4：处理不同列名的情况**
 
 .. code-block:: bash
 
-   habit merge-csv file1.csv file2.csv -o merged.csv --index-cols ID ID_number
+   habit merge-csv file1.csv file2.csv -o merged.csv --index-col "ID,ID_number"
 
 输出文件说明
 ------------
@@ -143,7 +143,7 @@ CSV 合并工具 (habit merge-csv)
 
 **Q: 合并后某些行丢失？**
 
-A: 默认使用 inner join，只有所有文件中都存在的索引才会保留。使用 `--join-type outer` 保留所有行。
+A: 默认使用 inner join，只有所有文件中都存在的索引才会保留。使用 `--join outer` 保留所有行。
 
 **Q: 合并后列名重复？**
 

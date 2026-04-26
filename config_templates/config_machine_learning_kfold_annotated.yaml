@@ -5,7 +5,7 @@
 # Based on actual code: habit/core/machine_learning/machine_learning_kfold.py
 #
 # Quick Start:
-#   CLI:    habit kfold --config config/config_machine_learning_kfold.yaml
+#   CLI:    habit cv --config config/config_machine_learning_kfold.yaml
 #   Script: python scripts/app_kfold_cv.py --config config/config_machine_learning_kfold.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════

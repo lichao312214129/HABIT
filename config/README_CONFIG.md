@@ -91,13 +91,13 @@ settings:
 
 ```bash
 # Use default configuration
-habit habitat
+habit get-habitat
 
 # Use specified configuration file
-habit habitat --config config/config_getting_habitat.yaml
+habit get-habitat --config config/config_getting_habitat.yaml
 
 # Short form
-habit habitat -c config/config_getting_habitat.yaml
+habit get-habitat -c config/config_getting_habitat.yaml
 ```
 
 ### Using Scripts (Legacy)
