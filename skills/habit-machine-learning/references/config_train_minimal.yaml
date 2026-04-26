@@ -1,0 +1,70 @@
+# ML training config — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_machine_learning_annotated.yaml
+
+input:
+  - path: <FEATURE_CSV_PATH>            # e.g. ./results/features/whole_habitat_radiomics.csv
+    name: <FEATURE_PREFIX>              # e.g. habitat_  (added to feature names; can be empty)
+    subject_id_col: <SUBJECT_ID_COL>    # e.g. subjID
+    label_col: <LABEL_COL>              # e.g. label  (must be 0/1)
+    features:                           # empty = use all
+  # Add more input files to merge them on subject_id_col
+
+output: <OUTPUT_DIR>                    # e.g. ./results/ml
+
+# Splitting
+split_method: stratified                # custom | stratified | random
+test_size: 0.3
+random_state: 42
+# For custom split:
+# split_method: custom
+# train_ids_file: ./data/train_ids.txt
+# test_ids_file: ./data/test_ids.txt
+
+normalization:
+  method: z_score                       # z_score | min_max | robust | max_abs | quantile | power
+
+feature_selection_methods:
+  - method: variance
+    params:
+      threshold: 0.2
+      before_z_score: true              # MUST be true
+
+  - method: correlation
+    params:
+      threshold: 0.80
+      method: spearman
+      before_z_score: false
+
+  - method: lasso
+    params:
+      cv: 10
+      n_alphas: 100
+      visualize: true
+      before_z_score: false
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: l2
+      solver: lbfgs
+
+  # Uncomment to train more models simultaneously:
+  # RandomForest:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_features: sqrt
+  #     class_weight: balanced
+  #
+  # XGBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_depth: 3
+  #     learning_rate: 0.1
+
+is_visualize: true
+is_save_model: true

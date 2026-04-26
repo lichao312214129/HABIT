@@ -1,0 +1,47 @@
+# Example PyRadiomics parameter.yaml
+# Reference: https://pyradiomics.readthedocs.io/en/latest/customization.html
+
+# ─────────────────────────────────────────────────────────
+# Image filters/types to compute features from
+# ─────────────────────────────────────────────────────────
+imageType:
+  Original: {}
+  # LoG:                     # Laplacian of Gaussian (multi-scale)
+  #   sigma: [1.0, 2.0, 3.0]
+  # Wavelet: {}              # generates 8 wavelet decompositions
+
+# ─────────────────────────────────────────────────────────
+# Feature classes
+# ─────────────────────────────────────────────────────────
+featureClass:
+  firstorder:                # 18 features
+  shape:                     # 14 features (3D shape)
+  glcm:                      # 24 texture features
+  glrlm:                     # 16 run-length features
+  glszm:                     # 16 size-zone features
+  ngtdm:                     # 5 neighborhood features
+  gldm:                      # 14 dependence features
+
+# ─────────────────────────────────────────────────────────
+# Settings
+# ─────────────────────────────────────────────────────────
+setting:
+  # Discretization
+  binWidth: 25               # fixed bin width (use binCount alternative for fixed bin count)
+
+  # Resampling (skip if already resampled in preprocessing)
+  # resampledPixelSpacing: [1, 1, 1]
+  # interpolator: sitkBSpline
+
+  # Image normalization
+  normalize: false           # set true if you want PyRadiomics to z-score normalize
+
+  # Mask label value (default: 1)
+  label: 1
+
+  # Padding for filter operations
+  padDistance: 5
+
+  # Force 2D extraction (use only for 2D ROIs)
+  # force2D: false
+  # force2Ddimension: 0

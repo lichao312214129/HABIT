@@ -1,0 +1,65 @@
+# Model comparison config — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_model_comparison_annotated.yaml
+
+output_dir: <OUTPUT_DIR>                  # e.g. ./results/comparison
+
+# List ALL models to compare (≥2 required)
+files_config:
+  - path: <PRED_CSV_1>                    # path to model 1 prediction CSV
+    name: <MODEL_1_NAME>                  # legend label, must be unique
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob                        # confirm with actual CSV column name!
+    pred_col: pred
+    split_col: split                      # optional; usually 'train' / 'test'
+
+  - path: <PRED_CSV_2>
+    name: <MODEL_2_NAME>
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob
+    pred_col: pred
+    split_col: split
+
+  # Add more models as needed
+
+merged_data:
+  enabled: true
+  save_name: combined_predictions.csv
+
+split:
+  enabled: true                           # set false if no train/test split column
+
+visualization:
+  roc:
+    enabled: true
+    save_name: roc_curves.pdf
+    title: ROC Curves
+  dca:
+    enabled: true
+    save_name: decision_curves.pdf
+    title: Decision Curves
+  calibration:
+    enabled: true
+    save_name: calibration_curves.pdf
+    n_bins: 5
+    title: Calibration Curves
+  pr_curve:
+    enabled: true
+    save_name: precision_recall_curves.pdf
+    title: Precision-Recall Curves
+
+delong_test:
+  enabled: true
+  save_name: delong_results.json
+
+metrics:
+  basic_metrics:
+    enabled: true
+  youden_metrics:
+    enabled: true
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.7
+      specificity: 0.7

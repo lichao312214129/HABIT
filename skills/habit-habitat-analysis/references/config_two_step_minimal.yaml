@@ -1,0 +1,64 @@
+# Two-step habitat analysis — fill in <PLACEHOLDER> values
+# Step 1: voxel -> supervoxel (per subject)
+# Step 2: supervoxel -> habitat (population-level model)
+# Full reference: config_templates/config_getting_habitat_annotated.yaml
+
+data_dir: <PATH_TO_PREPROCESSED_IMAGES>
+out_dir: <OUTPUT_DIR>
+
+processes: 4
+random_state: 42
+plot_curves: true
+
+FeatureConstruction:
+  voxel_level:
+    # Examples:
+    #   concat(raw(T1), raw(T2), raw(DWI), raw(ADC))
+    #   kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    method: <FEATURE_METHOD>
+    params:
+      # timestamps: ./data/scan_time_of_phases.xlsx   # required for kinetic()
+      # params_file: ./config/params_voxel_radiomics.yaml  # required for voxel_radiomics()
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {}
+
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+HabitatsSegmention:
+  clustering_mode: two_step
+
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50              # supervoxels per subject
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  habitat:
+    mode: training              # set to 'testing' to use a pre-trained pipeline
+    algorithm: kmeans
+    min_clusters: 2
+    max_clusters: 10
+    habitat_cluster_selection_method: inertia
+    fixed_n_clusters: 4         # set null for auto-selection
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  postprocess_supervoxel:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1
+
+  postprocess_habitat:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1

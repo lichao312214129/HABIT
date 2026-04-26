@@ -1,0 +1,29 @@
+# Minimal preprocessing config — fill in <PLACEHOLDER> values
+# Full annotated reference: config_templates/config_image_preprocessing_annotated.yaml
+
+data_dir: <PATH_TO_RAW_IMAGES>          # e.g. ./data/raw_images
+out_dir: <PATH_TO_OUTPUT>               # e.g. ./data/preprocessed_images
+
+Preprocessing:
+  # Uncomment and customize the steps you need:
+
+  # n4_correction:                       # MRI only
+  #   images: [T1, T2]
+  #   num_fitting_levels: 4
+
+  resample:
+    images: [<MODALITY_LIST>]            # e.g. [T1, T2, DWI, ADC]
+    target_spacing: [1.0, 1.0, 1.0]      # mm
+
+  # registration:
+  #   images: [T2, ADC]
+  #   fixed_image: T2
+  #   moving_images: [ADC]
+  #   type_of_transform: SyNRA
+
+  # zscore_normalization:
+  #   images: [T1, T2]
+  #   only_inmask: false
+
+processes: 4
+random_state: 42

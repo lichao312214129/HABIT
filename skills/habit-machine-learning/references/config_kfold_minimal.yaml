@@ -1,0 +1,54 @@
+# K-fold cross-validation config — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_machine_learning_kfold_annotated.yaml
+
+input:
+  - path: <FEATURE_CSV_PATH>
+    name: <FEATURE_PREFIX>
+    subject_id_col: <SUBJECT_ID_COL>
+    label_col: <LABEL_COL>
+    features:
+
+output: <OUTPUT_DIR>                    # e.g. ./results/kfold
+
+# K-fold settings
+n_splits: 5                             # 5 or 10 typical
+stratified: true                        # preserve class balance per fold
+random_state: 42
+
+normalization:
+  method: z_score
+
+feature_selection_methods:              # runs inside each fold (no leakage)
+  - method: correlation
+    params:
+      threshold: 0.80
+      method: spearman
+      before_z_score: false
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: l2
+
+  RandomForest:
+    params:
+      random_state: 42
+      n_estimators: 100
+      max_features: sqrt
+
+  XGBoost:
+    params:
+      random_state: 42
+      n_estimators: 100
+      max_depth: 3
+      learning_rate: 0.1
+
+is_visualize: true
+is_save_model: false                    # saves are large for k folds × m models
+
+visualization:
+  enabled: true
+  plot_types: [roc, calibration, confusion, dca]

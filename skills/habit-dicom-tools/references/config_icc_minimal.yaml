@@ -1,0 +1,22 @@
+# ICC analysis config — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_icc_analysis_annotated.yaml
+
+input:
+  type: files                             # files | directories
+
+  # When type=files: each list is one comparison group
+  file_groups:
+    - [<SCAN1_FEATURES_CSV>, <SCAN2_FEATURES_CSV>]
+    # Add more groups as needed:
+    # - [<SCAN1_MSI_CSV>, <SCAN2_MSI_CSV>]
+
+  # When type=directories (alternative — auto-matches same-named files):
+  # dir_list:
+  #   - <SCAN1_DIR>
+  #   - <SCAN2_DIR>
+
+output:
+  path: <OUTPUT_JSON_PATH>                # e.g. ./results/icc_results.json
+
+processes: 4
+debug: false

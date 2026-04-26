@@ -1,0 +1,38 @@
+# One-step habitat analysis — fill in <PLACEHOLDER> values
+# Each tumor independently determines its optimal cluster number.
+# Full reference: config_templates/config_habitat_one_step_example.yaml
+
+data_dir: <PATH_TO_PREPROCESSED_IMAGES>     # e.g. ./data/preprocessed_images
+out_dir: <OUTPUT_DIR>                        # e.g. ./results/habitat_one_step
+
+processes: 4
+random_state: 42
+plot_curves: true
+
+FeatureConstruction:
+  voxel_level:
+    # Pick ONE method — see SKILL.md "Second Decision" table:
+    method: concat(raw(<MOD1>), raw(<MOD2>))   # e.g. concat(raw(T1), raw(T2))
+    params: {}
+
+HabitatsSegmention:
+  clustering_mode: one_step
+
+  supervoxel:
+    algorithm: kmeans
+
+  one_step_settings:
+    fixed_n_clusters: null         # null = auto-select per tumor
+    min_clusters: 2
+    max_clusters: 10
+    selection_method: silhouette   # silhouette | davies_bouldin | calinski_harabasz | inertia
+    plot_validation_curves: true
+
+  habitat:
+    mode: training                 # not used in one_step but required for compatibility
+
+  # Optional: clean tiny fragments
+  postprocess_habitat:
+    enabled: false
+    min_component_size: 30
+    connectivity: 1

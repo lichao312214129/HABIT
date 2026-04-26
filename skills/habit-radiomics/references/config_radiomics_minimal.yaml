@@ -1,0 +1,26 @@
+# Traditional radiomics extraction — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_traditional_radiomics_annotated.yaml
+
+paths:
+  params_file: <PATH_TO_PYRADIOMICS_PARAMETER_YAML>   # e.g. ./config/parameter.yaml
+  images_folder: <PREPROCESSED_IMAGES_DIR>            # e.g. ./data/preprocessed_images
+  out_dir: <RADIOMICS_OUTPUT_DIR>                     # e.g. ./results/radiomics
+
+processing:
+  n_processes: 4
+  save_every_n_files: 5
+  process_image_types:
+    - <MODALITY_1>                                    # e.g. T1
+    - <MODALITY_2>                                    # e.g. T2
+    # add more as needed
+
+export:
+  export_by_image_type: true                          # one CSV per modality
+  export_combined: true                               # merged CSV
+  export_format: csv                                  # csv | json | pickle
+  add_timestamp: true
+
+logging:
+  level: INFO
+  console_output: true
+  file_output: true

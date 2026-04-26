@@ -1,0 +1,28 @@
+# Habitat feature extraction — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_extract_features_annotated.yaml
+
+# PyRadiomics parameter files (required if you include radiomics-based feature_types)
+params_file_of_non_habitat: <PATH_TO_PARAMETER_YAML>     # e.g. ./config/parameter.yaml
+params_file_of_habitat: <PATH_TO_HABITAT_PARAMETER_YAML> # e.g. ./config/parameter_habitat.yaml
+
+# Data directories
+raw_img_folder: <PREPROCESSED_IMAGES_DIR>                # e.g. ./data/preprocessed_images
+habitats_map_folder: <HABITAT_RESULTS_DIR>               # e.g. ./results/habitat_analysis
+out_dir: <FEATURE_OUTPUT_DIR>                            # e.g. ./results/features
+
+# Habitat file pattern
+# Use '*_habitats_remapped.nrrd' for two_step output, '*_habitats.nrrd' for one_step
+habitat_pattern: '*_habitats_remapped.nrrd'
+
+# Choose feature types — see SKILL.md table
+feature_types:
+  - traditional
+  - non_radiomics
+  - whole_habitat
+  - msi
+  - ith_score
+  # - each_habitat   # generates many features; use with caution
+
+n_processes: 4
+n_habitats:          # empty = auto-detect from habitat maps
+debug: false

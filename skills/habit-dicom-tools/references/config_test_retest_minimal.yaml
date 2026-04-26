@@ -1,0 +1,16 @@
+# Test-retest habitat mapping — fill in <PLACEHOLDER> values
+
+out_dir: <OUTPUT_ROOT>                            # e.g. ./results/test_retest
+test_habitat_table: <SCAN1_HABITATS_CSV>          # e.g. ./results/scan1/habitats.csv
+retest_habitat_table: <SCAN2_HABITATS_CSV>        # e.g. ./results/scan2/habitats.csv
+
+# Similarity method:
+#   pearson | spearman | kendall   (continuous features)
+#   cosine | euclidean | manhattan | chebyshev   (probability maps)
+similarity_method: pearson
+
+input_dir: <SCAN2_HABITAT_MAPS_DIR>               # directory of retest .nrrd files
+output_dir: <REMAPPED_OUTPUT_DIR>                 # e.g. ./results/test_retest/remapped
+
+processes: 4
+debug: false

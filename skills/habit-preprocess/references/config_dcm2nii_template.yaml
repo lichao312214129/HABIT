@@ -1,0 +1,22 @@
+# DICOM-to-NIfTI conversion config — fill in <PLACEHOLDER> values
+# Full reference: config_templates/config_image_preprocessing_dcm2nii_annotated.yaml
+
+data_dir: <PATH_TO_DICOM_OR_YAML_LIST>   # directory of DICOMs OR a YAML listing dicom dirs
+out_dir: <OUTPUT_NIFTI_DIR>              # e.g. ./data/converted_nifti
+
+Preprocessing:
+  dcm2nii:
+    images: [<MODALITY_LIST>]            # e.g. [T1, T2, DWI, ADC]
+    dcm2niix_path: <PATH_TO_DCM2NIIX>    # download: https://github.com/rordenlab/dcm2niix/releases
+    compress: true
+    anonymize: false
+    merge_slices: "2"                    # "2" = merge by series, gives 3D output
+    single_file_mode: null               # null = let dcm2niix decide
+
+  # Optional follow-up steps (uncomment as needed):
+  # resample:
+  #   images: [T1, T2, DWI, ADC]
+  #   target_spacing: [1.0, 1.0, 1.0]
+
+processes: 1
+random_state: 42
