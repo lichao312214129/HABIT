@@ -122,14 +122,8 @@ class CustomClusteringTemplate(BaseClustering):
         
         # Add your own scoring methods here (if any)
         
-        # Automatically select the best number of clusters
-        if len(methods) == 1:
-            best_method = methods[0]
-        else:
-            # Use combined method
-            best_method = '_'.join(methods)
-        
-        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        # Automatically select the best number of clusters.
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
         
         # Set the best number of clusters
         self.n_clusters = best_n_clusters

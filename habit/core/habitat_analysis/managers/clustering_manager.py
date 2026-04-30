@@ -119,7 +119,9 @@ class ClusteringManager:
         self.supervoxel2habitat_clustering = get_clustering_algorithm(
             habitat_cfg.algorithm,
             n_clusters=habitat_cfg.max_clusters,
-            random_state=habitat_cfg.random_state
+            random_state=habitat_cfg.random_state,
+            max_iter=habitat_cfg.max_iter,
+            n_init=habitat_cfg.n_init
         )
 
     def _init_selection_methods(self) -> None:

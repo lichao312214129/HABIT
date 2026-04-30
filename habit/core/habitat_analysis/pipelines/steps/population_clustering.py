@@ -193,16 +193,25 @@ class PopulationClusteringStep(GroupLevelStep):
                     )
                 return min_clusters, None
             
-            # Create new clustering algorithm for optimization
+            selection_methods = (
+                self.clustering_manager.selection_methods
+                or habitat_cfg.habitat_cluster_selection_method
+            )
+
+            # Create a validation model with the same core parameters used later
+            # for final fitting, so model selection reflects the configured model.
             cluster_for_best_n = get_clustering_algorithm(
-                habitat_cfg.algorithm
+                habitat_cfg.algorithm,
+                random_state=habitat_cfg.random_state,
+                max_iter=habitat_cfg.max_iter,
+                n_init=habitat_cfg.n_init
             )
             
             optimal_n_clusters, scores = cluster_for_best_n.find_optimal_clusters(
                 features,
                 min_clusters=min_clusters,
                 max_clusters=max_clusters,
-                methods=habitat_cfg.habitat_cluster_selection_method,
+                methods=selection_methods,
                 show_progress=True
             )
             

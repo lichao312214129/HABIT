@@ -158,6 +158,26 @@ class BaseClustering(ABC):
         """
         pass
     
+    def _create_model_for_score(self, n_clusters: int) -> 'BaseClustering':
+        """
+        Create a temporary model for validation-score calculation.
+
+        Args:
+            n_clusters: Number of clusters used by the temporary model.
+
+        Returns:
+            BaseClustering: New unfitted model with the same main constructor parameters.
+        """
+        params: Dict[str, Any] = {
+            "n_clusters": n_clusters,
+            "random_state": self.random_state,
+        }
+        for attr_name in ("init", "n_init", "max_iter", "covariance_type"):
+            if hasattr(self, attr_name):
+                params[attr_name] = getattr(self, attr_name)
+        params.update(getattr(self, "kwargs", {}))
+        return self.__class__(**params)
+
     def calculate_inertia_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
         """
         Calculate inertia (SSE) for different numbers of clusters (for K-Means)
@@ -171,7 +191,6 @@ class BaseClustering(ABC):
         """
         try:
             from sklearn.cluster import KMeans
-            # 检查是否是KMeans或其子类
             if "kmeans" not in self.__class__.__name__.lower():
                 warnings.warn(f"calculate_inertia_scores is primarily for KMeans algorithm, but was called on {self.__class__.__name__}")
             
@@ -180,7 +199,6 @@ class BaseClustering(ABC):
                 kmeans = KMeans(
                     n_clusters=n_clusters,
                     random_state=self.random_state,
-                    # 尝试获取KMeans特有的参数
                     init=getattr(self, 'init', 'k-means++'),
                     n_init=getattr(self, 'n_init', 10),
                     **getattr(self, 'kwargs', {})
@@ -307,8 +325,8 @@ class BaseClustering(ABC):
         """
         scores = []
         for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            # Reuse algorithm-specific constructor parameters so validation and final fitting match.
+            temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
             labels = temp_model.labels_
             
@@ -334,8 +352,8 @@ class BaseClustering(ABC):
         """
         scores = []
         for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            # Reuse algorithm-specific constructor parameters so validation and final fitting match.
+            temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
             labels = temp_model.labels_
             
@@ -358,8 +376,8 @@ class BaseClustering(ABC):
         """
         scores = []
         for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            # Reuse algorithm-specific constructor parameters so validation and final fitting match.
+            temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
             labels = temp_model.labels_
             
@@ -382,8 +400,8 @@ class BaseClustering(ABC):
         """
         scores = []
         for n_clusters in cluster_range:
-            # Create temporary model
-            temp_model = self.__class__(n_clusters=n_clusters, random_state=self.random_state)
+            # Reuse algorithm-specific constructor parameters so validation and final fitting match.
+            temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
             labels = temp_model.labels_
             
@@ -486,14 +504,7 @@ class BaseClustering(ABC):
                 "Please use appropriate methods for your algorithm."
             )
         
-        # Automatically select the best number of clusters
-        if len(methods) == 1:
-            best_method = methods[0]
-        else:
-            # Use combined method
-            best_method = '_'.join(methods)
-        
-        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
 
         # Sanity-check: auto-select must return a value from the evaluated range.
         # This prevents subtle index-vs-value bugs from silently propagating.
@@ -612,55 +623,89 @@ class BaseClustering(ABC):
             best_idx = np.argmax(scores)
         
         return best_idx
-    
-    def auto_select_best_n_clusters(self, scores_dict: Dict[str, List[float]], method: str = 'silhouette') -> int:
+
+    def _select_best_index_by_methods(
+        self,
+        scores_dict: Dict[str, List[float]],
+        methods: Union[List[str], str]
+    ) -> int:
+        """
+        Select the best score index from one or more validation methods.
+
+        Args:
+            scores_dict: Mapping from validation method name to score sequence.
+            methods: A method name or a list of method names. Lists are treated as
+                independent votes and are never split by underscores, because method
+                names such as calinski_harabasz contain underscores.
+
+        Returns:
+            int: Index into the evaluated parameter range.
+        """
+        if isinstance(methods, str):
+            methods = [methods]
+        if not methods:
+            raise ValueError("At least one scoring method is required")
+
+        missing_methods = [method for method in methods if method not in scores_dict]
+        if missing_methods:
+            raise ValueError(
+                "Unknown scoring method(s): "
+                f"{', '.join(missing_methods)}"
+            )
+
+        if len(methods) == 1:
+            method = methods[0]
+            return self._select_best_n_clusters_for_single_method(
+                scores_dict[method],
+                method
+            )
+
+        votes: Dict[int, int] = {}
+        for method in methods:
+            best_idx = self._select_best_n_clusters_for_single_method(
+                scores_dict[method],
+                method
+            )
+            votes[best_idx] = votes.get(best_idx, 0) + 1
+
+        max_votes = max(votes.values())
+        candidates = [idx for idx, count in votes.items() if count == max_votes]
+        return min(candidates)
+
+    def auto_select_best_index(
+        self,
+        scores_dict: Dict[str, List[float]],
+        methods: Union[List[str], str] = 'silhouette'
+    ) -> int:
+        """
+        Automatically select the best index in the evaluated range.
+
+        Args:
+            scores_dict: Mapping from validation method name to score sequence.
+            methods: Validation method name or list of names.
+
+        Returns:
+            int: Index into the evaluated range.
+        """
+        return self._select_best_index_by_methods(scores_dict, methods)
+
+    def auto_select_best_n_clusters(
+        self,
+        scores_dict: Dict[str, List[float]],
+        methods: Union[List[str], str] = 'silhouette'
+    ) -> int:
         """
         Automatically select optimal number of clusters based on scores
         
         Args:
             scores_dict (Dict[str, List[float]]): Dictionary of scores, keys are method names, values are score lists
-            method (str): Method to use, options include 'silhouette', 'calinski_harabasz', 'elbow', etc.
-                    If it's a combination of methods, use '_' to connect, e.g., 'silhouette_calinski_harabasz'
+            methods (Union[List[str], str]): Method or methods to use. A list uses voting across methods.
             
         Returns:
             int: Optimal number of clusters
         """
-        if method not in scores_dict and '_' not in method:
-            raise ValueError(f"Unknown scoring method: {method}")
-        
-        # If it's a single method
-        if method in scores_dict:
-            scores = scores_dict[method]
-            best_idx = self._select_best_n_clusters_for_single_method(scores, method)
-            best_n_clusters = self.cluster_range[best_idx]
-        # If it's a combination of methods, use voting system
-        else:
-            methods = method.split('_')
-            votes = {}  # Dictionary to store votes: {cluster_index: vote_count}
-            
-            # Each method votes for its best cluster number
-            for m in methods:
-                if m not in scores_dict:
-                    continue
-                
-                scores = scores_dict[m]
-                # Select best cluster index for this method and map to cluster number
-                best_idx = self._select_best_n_clusters_for_single_method(scores, m)
-                best_n_clusters = self.cluster_range[best_idx]
-                
-                # Count the vote
-                if best_n_clusters not in votes:
-                    votes[best_n_clusters] = 0
-                votes[best_n_clusters] += 1
-            
-            if len(votes) == 0:
-                raise ValueError("No valid methods found in the combination")
-            
-            # Find the cluster number with the most votes
-            # If there's a tie, choose the one with the smallest cluster number
-            max_votes = max(votes.values())
-            candidates = [idx for idx, count in votes.items() if count == max_votes]
-            best_n_clusters = min(candidates)  # In case of tie, choose the smallest cluster number
-        
-        # Add min_clusters offset
-        return best_n_clusters 
+        if self.cluster_range is None:
+            raise ValueError("cluster_range must be set before selecting n_clusters")
+
+        best_idx = self._select_best_index_by_methods(scores_dict, methods)
+        return self.cluster_range[best_idx]

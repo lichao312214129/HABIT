@@ -385,7 +385,6 @@ class SLICClustering(BaseClustering):
                 if "kneedle" in self.scores:
                     self.scores["kneedle"].append(inertia_val)
 
-        best_method = methods[0] if len(methods) == 1 else "_".join(methods)
-        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
         self.n_clusters = best_n_clusters
         return best_n_clusters, self.scores

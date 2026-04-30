@@ -40,11 +40,33 @@ HABIT 的主要依赖包括：
 
       conda activate habit
 
-3. **从源码安装**：
+3. **下载源码并安装**：
+
+   推荐普通用户直接从 GitHub 下载 ZIP 压缩包，这通常比 ``git clone`` 更快，尤其是在网络访问 GitHub Git 服务较慢时。
+
+   **方式 A：快速下载 ZIP（推荐）**
+
+   打开 `HABIT GitHub 页面 <https://github.com/lichao312214129/HABIT>`_，点击 **Code** -> **Download ZIP**，下载后解压。
+
+   也可以直接下载当前主分支源码：
+
+   `https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_
+
+   解压后进入项目目录并安装：
 
    .. code-block:: bash
 
-      git clone https://github.com/lichao312214129/HABIT.git
+      cd HABIT-main
+      pip install -r requirements.txt
+      pip install -e .
+
+   **方式 B：使用 Git 下载（适合开发者或需要后续 git pull 更新的用户）**
+
+   如果您需要保留 Git 历史或后续使用 ``git pull`` 更新代码，可以使用浅克隆来减少下载量：
+
+   .. code-block:: bash
+
+      git clone --depth 1 --single-branch https://github.com/lichao312214129/HABIT.git
       cd HABIT
       pip install -r requirements.txt
       pip install -e .
@@ -102,9 +124,9 @@ HABIT 的主要依赖包括：
 
 如果 HABIT 包有新版本发布，您可以通过以下方法更新到最新版本：
 
-**方法 1：从 Git 仓库更新（推荐）**
+**方法 1：从 Git 仓库更新（适合通过 Git 安装的用户）**
 
-如果您是通过 `git clone` 安装的，进入项目目录并拉取最新代码：
+如果您是通过 ``git clone`` 安装的，进入项目目录并拉取最新代码：
 
 .. code-block:: bash
 
@@ -120,9 +142,9 @@ HABIT 的主要依赖包括：
    # 重新安装包（确保安装是最新的）
    pip install -e .
 
-**方法 2：重新克隆仓库**
+**方法 2：重新下载源码**
 
-如果遇到合并冲突或想完全重新安装：
+如果您想完全重新安装，或者使用 Git 更新时遇到合并冲突：
 
 .. code-block:: bash
 
@@ -130,10 +152,18 @@ HABIT 的主要依赖包括：
    # cp -r HABIT/config my_config_backup
 
    # 删除旧目录
-   # rm -rf HABIT
+   # rm -rf HABIT-main
 
-   # 重新克隆
-   git clone https://github.com/lichao312214129/HABIT.git
+   # 重新下载 ZIP 后解压，并进入项目目录
+   cd HABIT-main
+   pip install -r requirements.txt
+   pip install -e .
+
+如果您使用 Git 重新下载，建议使用浅克隆以加快速度：
+
+.. code-block:: bash
+
+   git clone --depth 1 --single-branch https://github.com/lichao312214129/HABIT.git
    cd HABIT
    pip install -r requirements.txt
    pip install -e .

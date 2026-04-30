@@ -197,12 +197,7 @@ class DBSCANClustering(BaseClustering):
             if show_progress:
                 print("Calinski-Harabasz score calculation completed!")
                 
-        if len(methods) == 1:
-            best_method = methods[0]
-        else:
-            best_method = '_'.join(methods)
-            
-        best_eps_idx = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_eps_idx = self.auto_select_best_index(self.scores, methods)
         best_eps = eps_range[best_eps_idx]
         self.eps = best_eps
         

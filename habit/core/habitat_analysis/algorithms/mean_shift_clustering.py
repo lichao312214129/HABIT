@@ -240,12 +240,7 @@ class MeanShiftClustering(BaseClustering):
             if show_progress:
                 print("Davies-Bouldin score calculation completed!")
                 
-        if len(methods) == 1:
-            best_method = methods[0]
-        else:
-            best_method = '_'.join(methods)
-            
-        best_bandwidth_idx = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_bandwidth_idx = self.auto_select_best_index(self.scores, methods)
         best_bandwidth = bandwidth_range[best_bandwidth_idx]
         self.bandwidth = best_bandwidth
         

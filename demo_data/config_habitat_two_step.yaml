@@ -41,7 +41,7 @@ HabitatsSegmention:
   # - one_step: Individual-level only (voxel-to-habitat clustering for each tumor)
   # - two_step: Individual-level + Population-level (voxel-to-supervoxel, then supervoxel-to-habitat across patients)
   # - direct_pooling: Pool all voxels and cluster once
-  clustering_mode: one_step
+  clustering_mode: two_step
   
   # Supervoxel clustering settings (Step 1: Individual-level clustering)
   supervoxel:

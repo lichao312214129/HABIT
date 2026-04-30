@@ -211,13 +211,14 @@ Methods to determine optimal number of clusters:
 | `silhouette` | Silhouette coefficient (-1 to 1, higher is better) | **Max Principle**: Selects cluster number with highest score |
 | `calinski_harabasz` | Variance ratio (higher is better) | **Max Principle**: Selects cluster number with highest score |
 | `davies_bouldin` | Cluster separation (lower is better) | **Min Principle**: Selects cluster number with lowest score |
-| `inertia` | Sum of squared errors (lower is better) | **Elbow Method**: Uses second-order difference to find elbow point |
-| `bic` / `aic` | Information criteria for GMM (lower is better) | **Elbow Method**: Uses second-order difference to find elbow point |
+| `inertia` | Sum of squared distances to the nearest cluster center | **Kneedle Elbow**: Evaluates the inertia curve and selects its knee |
+| `kneedle` | Automatic knee detection on the inertia curve | **Kneedle Elbow**: Same underlying inertia curve as `inertia`, explicit selector name |
+| `bic` / `aic` | Information criteria for GMM (lower is better) | **Min Principle**: Selects cluster number with lowest score |
 | `gap_statistic` | Gap to random reference (higher is better) | **Max Principle**: Selects cluster number with highest score |
 
 ### Combined Methods: Voting System
 
-When multiple methods are combined (e.g., `silhouette_calinski_harabasz_davies_bouldin`), the system uses a **voting system**:
+When multiple methods are configured as a YAML list (for example, `['silhouette', 'calinski_harabasz', 'davies_bouldin']`), the system uses a **voting system**:
 
 1. Each method independently selects its optimal cluster number
 2. Votes are counted for each cluster number
@@ -225,6 +226,8 @@ When multiple methods are combined (e.g., `silhouette_calinski_harabasz_davies_b
 4. In case of ties, the smallest cluster number is chosen (more conservative)
 
 **Example**: If `silhouette` and `calinski_harabasz` both select 5, and `davies_bouldin` selects 4, then 5 wins with 2 votes.
+
+Use list syntax for combined methods. Method names are not concatenated with underscores, because names such as `calinski_harabasz` and `davies_bouldin` contain underscores themselves.
 
 ## Module Components
 

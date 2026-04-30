@@ -17,11 +17,11 @@ CLUSTERING_VALIDATION_METHODS = {
                 'optimization': 'maximize'
             },
             'inertia': {
-                'description': 'Inertia, sum of squared distances to the nearest cluster center, lower is better',
+                'description': 'Inertia curve, selected by Kneedle elbow detection',
                 'optimization': 'kneedle'
             },
             'kneedle': {
-                'description': 'Kneedle method on inertia curve, selects the maximum distance to the diagonal',
+                'description': 'Kneedle elbow detection on the inertia curve',
                 'optimization': 'kneedle'
             },
             'gap': {
@@ -151,11 +151,11 @@ CLUSTERING_VALIDATION_METHODS = {
                 'optimization': 'minimize'
             },
             'inertia': {
-                'description': 'Inertia on SLIC-regularized embedding, lower is better',
+                'description': 'Inertia curve on SLIC-regularized embedding, selected by Kneedle',
                 'optimization': 'kneedle'
             },
             'kneedle': {
-                'description': 'Kneedle method on inertia curve for SLIC-regularized embedding',
+                'description': 'Kneedle elbow detection on the SLIC-regularized inertia curve',
                 'optimization': 'kneedle'
             }
         }

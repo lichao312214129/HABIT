@@ -233,12 +233,7 @@ class SpectralClustering(BaseClustering):
             if show_progress:
                 print("Davies-Bouldin score calculation completed!")
                 
-        if len(methods) == 1:
-            best_method = methods[0]
-        else:
-            best_method = '_'.join(methods)
-            
-        best_n_clusters = self.auto_select_best_n_clusters(self.scores, best_method)
+        best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
         self.n_clusters = best_n_clusters
         
         if show_progress:
