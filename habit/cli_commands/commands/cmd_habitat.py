@@ -27,9 +27,8 @@ def run_habitat(
     from pathlib import Path
 
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import HabitatConfigurator
     from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-    from habit.core.habitat_analysis.strategies import get_strategy
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
@@ -77,35 +76,29 @@ def run_habitat(
     click.echo(f"  Log file at: {output_path / 'habitat_analysis.log'}")
 
     try:
-        configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_path))
+        configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_path))
         habitat_analysis = configurator.create_habitat_analysis()
 
         if config.run_mode == "predict":
             # Predict mode must load a trained pipeline to avoid retraining.
-            if config.pipeline_path:
-                resolved_pipeline = Path(config.pipeline_path)
-                if not resolved_pipeline.exists():
-                    raise FileNotFoundError(
-                        f"Pipeline file not found: {resolved_pipeline}. "
-                        "Provide a valid pipeline_path in the YAML or via --pipeline."
-                    )
-                load_from = str(resolved_pipeline)
-            else:
-                # If pipeline_path is not provided in predict mode, it's a critical error.
+            if not config.pipeline_path:
                 raise ValueError(
                     "Error: In 'predict' mode, you MUST provide a 'pipeline_path'. "
                     "Please specify it in your config.yaml or via the --pipeline argument."
                 )
+            resolved_pipeline = Path(config.pipeline_path)
+            if not resolved_pipeline.exists():
+                raise FileNotFoundError(
+                    f"Pipeline file not found: {resolved_pipeline}. "
+                    "Provide a valid pipeline_path in the YAML or via --pipeline."
+                )
 
-            strategy_class = get_strategy(config.HabitatsSegmention.clustering_mode)
-            strategy = strategy_class(habitat_analysis)
-            strategy.run(
-                subjects=None,
+            habitat_analysis.predict(
+                pipeline_path=str(resolved_pipeline),
                 save_results_csv=config.save_results_csv,
-                load_from=load_from
             )
         else:
-            habitat_analysis.run(save_results_csv=config.save_results_csv)
+            habitat_analysis.fit(save_results_csv=config.save_results_csv)
 
         logger.info("Habitat analysis completed successfully")
         click.secho("✓ Habitat analysis completed successfully!", fg='green')

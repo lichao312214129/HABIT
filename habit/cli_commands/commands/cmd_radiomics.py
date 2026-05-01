@@ -18,7 +18,7 @@ def run_radiomics(config_file: str) -> None:
         config_file (str): Path to configuration YAML file
     """
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import HabitatConfigurator
     from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
     
     if not config_file:
@@ -50,7 +50,7 @@ def run_radiomics(config_file: str) -> None:
         click.echo(f"Starting traditional radiomics extraction with config: {config_file}")
         
         # Create service configurator and extractor
-        configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+        configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
         extractor = configurator.create_radiomics_extractor()
         
         # Run extraction

@@ -10,15 +10,21 @@ Habitat analysis divides tumors into distinct sub-regions (habitats) based on im
 
 ```
 habitat_analysis/
-├── habitat_analysis.py           # Main HabitatAnalysis class
-├── config.py                     # Configuration dataclasses
-├── strategies/                   # Analysis strategies and pipelines
-│   ├── base_strategy.py          # Base strategy interface
-│   └── ...
-├── clustering/                   # Clustering algorithms
-├── clustering_features/          # Feature extractors for clustering (voxel/supervoxel-level)
-└── habitat_feature_extraction/   # Feature extraction from habitat maps (for analysis)
+├── habitat_analysis.py           # HabitatAnalysis (deep module: build / fit / predict / run)
+├── config_schemas.py             # Pydantic configuration models (HabitatAnalysisConfig, ...)
+├── managers/                     # FeatureManager / ClusteringManager / ResultManager
+├── pipelines/
+│   ├── base_pipeline.py          # HabitatPipeline + BasePipelineStep
+│   └── steps/                    # Concrete pipeline steps
+├── algorithms/                   # Clustering algorithms (KMeans, GMM, ...)
+├── extractors/                   # Voxel / supervoxel feature extractors
+└── analyzers/                    # HabitatMapAnalyzer (post-clustering features)
 ```
+
+> V1 note: the legacy `strategies/` subpackage and `pipelines/pipeline_builder.py`
+> have been removed. Mode dispatch (`two_step` / `one_step` / `direct_pooling`)
+> now happens through the `_PIPELINE_RECIPES` dictionary inside
+> `habitat_analysis.py`. See `ARCHITECTURE.md` for details.
 
 ## Pipeline Flow
 
@@ -242,17 +248,19 @@ Use list syntax for combined methods. Method names are not concatenated with und
 
 ### `pipelines/` - Pipeline Core
 
-- `HabitatPipeline`: sklearn-style pipeline
-- `BasePipelineStep`: step interface
-- `build_habitat_pipeline()`: pipeline builder
+- `HabitatPipeline`: sklearn-style pipeline (`fit` / `transform` / `save` / `load`)
+- `BasePipelineStep`: pipeline-step interface
+
+In V1, mode dispatch is handled by the `_PIPELINE_RECIPES` dictionary inside
+`habitat_analysis.py`. There is no separate `pipeline_builder` factory.
 
 ### `habitat_analysis.py` - Main Class
 
-Key methods:
-- `run()`: Main pipeline entry point
-- `extract_voxel_features()`: Feature extraction
-- `_voxel2supervoxel_clustering()`: Individual clustering
-- `_perform_population_clustering()`: Population clustering
+Public entry points on `HabitatAnalysis`:
+
+- `fit(subjects=None, save_results_csv=None)`: train + persist
+- `predict(pipeline_path, subjects=None, save_results_csv=None)`: load + transform
+- `run(subjects=None, save_results_csv=None, load_from=None)`: dispatcher
 
 ## Example YAML Configuration
 

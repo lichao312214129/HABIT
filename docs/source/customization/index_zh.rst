@@ -35,7 +35,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 - **预处理器**: 继承 `BasePreprocessor`，实现 `__call__` 方法
 - **特征提取器**: 继承 `BaseClusteringExtractor`，实现 `extract_features` 方法
-- **聚类算法**: 继承 `BaseClusteringAlgorithm`，实现 `fit_predict` 方法
+- **聚类算法**: 继承 `BaseClustering`，实现 `fit_predict` 方法
 - **模型**: 继承 `BaseModel`，实现 `fit`、`predict`、`predict_proba` 方法
 
 **2. 使用注册装饰器**
@@ -44,7 +44,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 - **预处理器**: `@PreprocessorFactory.register("name")`
 - **特征提取器**: `@register_feature_extractor('name')`
-- **聚类算法**: `@ClusteringFactory.register("name")`
+- **聚类算法**: `@register_clustering("name")`
 - **模型**: `@ModelFactory.register("name")`
 
 **3. 提供清晰的文档**
@@ -140,8 +140,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: python
 
-   from habit.core.habit_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habit_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
 
    @register_feature_extractor('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
@@ -150,7 +150,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
            self.feature_names = ['feature1', 'feature2', 'feature3']
 
        def extract_features(self, image_data, **kwargs):
-           # 实现特征提取逻辑
+           # Implement feature extraction logic.
            n_samples = image_data.shape[0]
            features = np.random.random((n_samples, 3))
            return features
@@ -176,8 +176,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 .. code-block:: python
 
    import numpy as np
-   from habit.core.habit_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habit_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
 
    @register_feature_extractor('local_contrast')
    class LocalContrastExtractor(BaseClusteringExtractor):
@@ -209,22 +209,22 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: python
 
-   from habit.core.habit_analysis.clustering.base_clustering import BaseClusteringAlgorithm
-   from habit.core.habit_analysis.clustering.clustering_factory import ClusteringFactory
+   from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
+   from habit.core.habitat_analysis.algorithms.base_clustering import register_clustering
 
-   @ClusteringFactory.register("my_clustering")
-   class MyClusteringAlgorithm(BaseClusteringAlgorithm):
+   @register_clustering("my_clustering")
+   class MyClusteringAlgorithm(BaseClustering):
        def __init__(self, n_clusters=3, random_state=None, **kwargs):
-           super().__init__(n_clusters=n_clusters, random_state=random_state, **kwargs)
+           super().__init__(n_clusters=n_clusters, random_state=random_state)
            self.param1 = kwargs.get('param1', default_value)
 
        def fit_predict(self, X, **kwargs):
-           # 实现聚类逻辑
+           # Implement clustering logic.
            labels = self._cluster(X)
            return labels
 
        def _cluster(self, X):
-           # 实现具体的聚类算法
+           # Implement the concrete clustering algorithm.
            return labels
 
 **步骤 2: 在配置文件中使用**
@@ -250,13 +250,13 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
    import numpy as np
    from sklearn.cluster import SpectralClustering
-   from habit.core.habit_analysis.clustering.base_clustering import BaseClusteringAlgorithm
-   from habit.core.habit_analysis.clustering.clustering_factory import ClusteringFactory
+   from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
+   from habit.core.habitat_analysis.algorithms.base_clustering import register_clustering
 
-   @ClusteringFactory.register("spectral")
-   class SpectralClusteringAlgorithm(BaseClusteringAlgorithm):
+   @register_clustering("spectral")
+   class SpectralClusteringAlgorithm(BaseClustering):
        def __init__(self, n_clusters=3, random_state=None, **kwargs):
-           super().__init__(n_clusters=n_clusters, random_state=random_state, **kwargs)
+           super().__init__(n_clusters=n_clusters, random_state=random_state)
            self.gamma = kwargs.get('gamma', 1.0)
            self.n_neighbors = kwargs.get('n_neighbors', 10)
 
@@ -444,12 +444,12 @@ HABIT 使用工厂模式和注册机制实现扩展：
    # 好的命名
    @PreprocessorFactory.register("gaussian_filter")
    @register_feature_extractor('local_contrast')
-   @ClusteringFactory.register("spectral")
+   @register_clustering("spectral")
 
    # 不好的命名
    @PreprocessorFactory.register("gf")
    @register_feature_extractor('lc')
-   @ClusteringFactory.register("spec")
+   @register_clustering("spec")
 
 **2. 参数验证**
 

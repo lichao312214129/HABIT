@@ -1,531 +1,77 @@
-# Habitat Analysis Architecture
+# Habitat Analysis Architecture (V1)
 
-This document describes the architecture of the habitat analysis module, including component relationships, data flow, and execution patterns.
+This document describes the internal architecture of the `habitat_analysis`
+subpackage after the V1 refactor. For the project-level architecture (how this
+subpackage fits into the rest of `habit/`), see
+`docs/source/development/architecture.rst`.
+
+> **V1 note.** The pre-V1 layout had three layers — a `HabitatAnalysis`
+> controller, a `strategies/` subpackage (`TwoStepStrategy` / `OneStepStrategy`
+> / `DirectPoolingStrategy`), and a `pipelines/pipeline_builder.py` factory.
+> V1 collapses all three into a single deep module
+> (`habitat_analysis.HabitatAnalysis`) with explicit recipe dispatch. This
+> document only describes the V1 layout; it does **not** keep the legacy
+> three-layer description.
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [System Architecture](#system-architecture)
-3. [Component Hierarchy](#component-hierarchy)
-4. [Data Flow](#data-flow)
-5. [Clustering Strategies](#clustering-strategies)
-6. [Pipeline Execution](#pipeline-execution)
-7. [Manager Pattern](#manager-pattern)
+2. [Module Layout](#module-layout)
+3. [Public API](#public-api)
+4. [Pipeline Recipes](#pipeline-recipes)
+5. [Manager Injection](#manager-injection)
+6. [Data Flow](#data-flow)
+7. [Pipeline Steps](#pipeline-steps)
+8. [Persistence Format](#persistence-format)
+9. [Extension Points](#extension-points)
+10. [Design Decisions](#design-decisions)
+
+---
 
 ## Overview
 
-The habitat analysis module implements a flexible, sklearn-style pipeline for tumor habitat clustering. It supports three clustering strategies (two-step, one-step, and direct pooling) and provides both training and prediction modes.
-
-### Key Design Principles
-
-- **Strategy Pattern**: Different clustering approaches implemented as separate strategy classes
-- **Pipeline Pattern**: sklearn-like pipeline with `fit()` and `transform()` methods
-- **Manager Pattern**: Dedicated managers for features, clustering, and results
-- **Dependency Injection**: Services created via `ServiceConfigurator` for testability
-
-## System Architecture
-
-### High-Level Architecture Diagram
-
-```mermaid
-graph TB
-    subgraph "Entry Point"
-        CLI[CLI Command<br/>habit get-habitat]
-        Config[YAML Config<br/>HabitatAnalysisConfig]
-    end
-    
-    subgraph "Service Layer"
-        SC[ServiceConfigurator<br/>Dependency Injection]
-        HA[HabitatAnalysis<br/>Main Coordinator]
-    end
-    
-    subgraph "Manager Layer"
-        FM[FeatureManager<br/>Feature Extraction]
-        CM[ClusteringManager<br/>Clustering Algorithms]
-        RM[ResultManager<br/>Results & Visualization]
-    end
-    
-    subgraph "Strategy Layer"
-        BS[BaseClusteringStrategy<br/>Abstract Interface]
-        TS[TwoStepStrategy]
-        OS[OneStepStrategy]
-        DP[DirectPoolingStrategy]
-    end
-    
-    subgraph "Pipeline Layer"
-        HP[HabitatPipeline<br/>sklearn-style Pipeline]
-        BPS[BasePipelineStep<br/>Step Interface]
-        Steps[Pipeline Steps<br/>7 Steps for Two-Step]
-    end
-    
-    CLI --> Config
-    Config --> SC
-    SC --> HA
-    HA --> FM
-    HA --> CM
-    HA --> RM
-    HA --> BS
-    BS --> TS
-    BS --> OS
-    BS --> DP
-    TS --> HP
-    OS --> HP
-    DP --> HP
-    HP --> BPS
-    BPS --> Steps
-    Steps --> FM
-    Steps --> CM
-    Steps --> RM
-```
-
-### Component Interaction Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant CLI
-    participant Config
-    participant ServiceConfigurator
-    participant HabitatAnalysis
-    participant Strategy
-    participant Pipeline
-    participant Managers
-    
-    User->>CLI: habit get-habitat --config config.yaml
-    CLI->>Config: Load YAML
-    Config-->>CLI: HabitatAnalysisConfig
-    CLI->>ServiceConfigurator: Create services
-    ServiceConfigurator->>Managers: Create FeatureManager
-    ServiceConfigurator->>Managers: Create ClusteringManager
-    ServiceConfigurator->>Managers: Create ResultManager
-    ServiceConfigurator->>HabitatAnalysis: Create HabitatAnalysis
-    CLI->>HabitatAnalysis: run()
-    HabitatAnalysis->>Strategy: Get strategy by mode
-    Strategy->>Pipeline: Build pipeline
-    Pipeline->>Pipeline: fit_transform() or transform()
-    Pipeline->>Managers: Use managers in steps
-    Managers-->>Pipeline: Return results
-    Pipeline-->>Strategy: Results DataFrame
-    Strategy-->>HabitatAnalysis: Results DataFrame
-    HabitatAnalysis-->>CLI: Results DataFrame
-```
-
-## Component Hierarchy
-
-### 1. Entry Layer
-
-#### `CLI Command` (`habit/cli_commands/commands/cmd_habitat.py`)
-- Entry point: `habit get-habitat --config config.yaml`
-- Parses command-line arguments
-- Loads configuration from YAML
-- Creates services via `ServiceConfigurator`
-- Executes `HabitatAnalysis.run()`
-
-#### `Configuration` (`config_schemas.py`)
-- `HabitatAnalysisConfig`: Root configuration class (Pydantic)
-- `FeatureConstructionConfig`: Feature extraction settings
-- `HabitatsSegmentionConfig`: Clustering strategy settings
-- Validates and resolves paths automatically
-
-### 2. Service Layer
-
-#### `ServiceConfigurator` (`habit/core/common/service_configurator.py`)
-- **Purpose**: Dependency injection container
-- **Responsibilities**:
-  - Creates `FeatureManager`, `ClusteringManager`, `ResultManager`
-  - Creates `HabitatAnalysis` with all dependencies
-  - Manages logger creation and configuration
-
-#### `HabitatAnalysis` (`habitat_analysis.py`)
-- **Purpose**: Main coordinator class
-- **Responsibilities**:
-  - Coordinates managers (Feature, Clustering, Result)
-  - Delegates execution to strategy classes
-  - Provides facade methods for accessing manager properties
-- **Key Methods**:
-  - `run(subjects, save_results_csv)`: Main entry point
-
-### 3. Manager Layer
-
-#### `FeatureManager` (`managers/feature_manager.py`)
-- **Purpose**: Manages feature extraction and preprocessing
-- **Responsibilities**:
-  - Voxel-level feature extraction
-  - Supervoxel-level feature aggregation
-  - Subject-level and group-level preprocessing
-  - Image and mask path management
-
-#### `ClusteringManager` (`managers/clustering_manager.py`)
-- **Purpose**: Manages clustering algorithms and models
-- **Responsibilities**:
-  - Individual-level clustering (voxel → supervoxel)
-  - Population-level clustering (supervoxel → habitat)
-  - Model persistence (save/load)
-  - Cluster validation and selection
-
-#### `ResultManager` (`managers/result_manager.py`)
-- **Purpose**: Manages results and visualization
-- **Responsibilities**:
-  - Results DataFrame management
-  - Habitat map saving (NRRD format)
-  - Visualization generation
-  - CSV export
-
-### 4. Strategy Layer
-
-#### `BaseClusteringStrategy` (`strategies/base_strategy.py`)
-- **Purpose**: Abstract base class for all strategies
-- **Key Methods**:
-  - `run(subjects, save_results_csv, load_from)`: Execute strategy
-  - `_update_pipeline_references()`: Update loaded pipeline references
-- **Design Pattern**: Template Method Pattern
-
-#### `TwoStepStrategy` (`strategies/two_step_strategy.py`)
-- **Flow**:
-  1. Voxel → Supervoxel (individual-level)
-  2. Supervoxel → Habitat (population-level)
-- **Use Case**: Standard approach for finding common habitat patterns
-
-#### `OneStepStrategy` (`strategies/one_step_strategy.py`)
-- **Flow**:
-  1. Voxel → Habitat (per subject, no population step)
-- **Use Case**: Subject-specific habitat patterns
-
-#### `DirectPoolingStrategy` (`strategies/direct_pooling_strategy.py`)
-- **Flow**:
-  1. Pool all voxels → Habitat (single clustering step)
-- **Use Case**: Simple, fast clustering without supervoxel intermediate
-
-### 5. Pipeline Layer
-
-#### `HabitatPipeline` (`pipelines/base_pipeline.py`)
-- **Purpose**: sklearn-style pipeline container
-- **Interface**:
-  - `fit(X)`: Train pipeline on data
-  - `transform(X)`: Apply trained pipeline to new data
-  - `fit_transform(X)`: Train and transform in one call
-  - `save(path)`: Save trained pipeline
-  - `load(path)`: Load saved pipeline
-- **Design**: Follows sklearn Pipeline pattern
-
-#### `BasePipelineStep` (`pipelines/base_pipeline.py`)
-- **Purpose**: Abstract base class for all pipeline steps
-- **Interface**:
-  - `fit(X, y=None)`: Learn parameters from data
-  - `transform(X)`: Apply transformation
-  - `fit_transform(X, y=None)`: Fit and transform
-
-#### Pipeline Steps (for Two-Step Strategy)
-
-1. **VoxelFeatureExtractor**: Extract voxel-level features from images
-2. **SubjectPreprocessingStep**: Preprocess features per subject
-3. **IndividualClusteringStep**: Cluster voxels → supervoxels (per subject)
-4. **SupervoxelFeatureExtractionStep** (conditional): Extract advanced supervoxel features
-5. **SupervoxelAggregationStep**: Aggregate supervoxel features
-6. **GroupPreprocessingStep**: Preprocess features across all subjects
-7. **PopulationClusteringStep**: Cluster supervoxels → habitats (population-level)
-
-## Data Flow
-
-### Training Mode Flow
-
-```mermaid
-graph LR
-    subgraph "Input"
-        Images[Medical Images<br/>+ Masks]
-    end
-    
-    subgraph "Pipeline Execution"
-        VF[Voxel Features<br/>Extraction]
-        SP[Subject<br/>Preprocessing]
-        IC[Individual<br/>Clustering]
-        SA[Supervoxel<br/>Aggregation]
-        GP[Group<br/>Preprocessing]
-        PC[Population<br/>Clustering]
-    end
-    
-    subgraph "Output"
-        HM[Habitat Maps<br/>NRRD Files]
-        CSV[Results CSV<br/>habitats.csv]
-        Model[Trained Pipeline<br/>habitat_pipeline.pkl]
-    end
-    
-    Images --> VF
-    VF --> SP
-    SP --> IC
-    IC --> SA
-    SA --> GP
-    GP --> PC
-    PC --> HM
-    PC --> CSV
-    PC --> Model
-```
-
-### Prediction Mode Flow
-
-```mermaid
-graph LR
-    subgraph "Input"
-        NewImages[New Medical Images<br/>+ Masks]
-        Pipeline[Saved Pipeline<br/>habitat_pipeline.pkl]
-    end
-    
-    subgraph "Pipeline Execution"
-        Load[Load Pipeline<br/>Update References]
-        Transform[Transform Only<br/>No Training]
-    end
-    
-    subgraph "Output"
-        HM[Habitat Maps<br/>NRRD Files]
-        CSV[Results CSV<br/>habitats.csv]
-    end
-    
-    NewImages --> Load
-    Pipeline --> Load
-    Load --> Transform
-    Transform --> HM
-    Transform --> CSV
-```
-
-### Data Structure Evolution
-
-```mermaid
-graph TB
-    subgraph "Step 1: Voxel Features"
-        V1[Subject 1:<br/>N1 voxels × F features]
-        V2[Subject 2:<br/>N2 voxels × F features]
-    end
-    
-    subgraph "Step 3: Individual Clustering"
-        S1[Subject 1:<br/>50 supervoxels × F features]
-        S2[Subject 2:<br/>50 supervoxels × F features]
-    end
-    
-    subgraph "Step 5: Aggregation"
-        A1[Subject 1:<br/>50 supervoxels × F features<br/>+ Supervoxel column]
-        A2[Subject 2:<br/>50 supervoxels × F features<br/>+ Supervoxel column]
-    end
-    
-    subgraph "Step 7: Population Clustering"
-        H1[Subject 1:<br/>50 supervoxels × F features<br/>+ Habitats column]
-        H2[Subject 2:<br/>50 supervoxels × F features<br/>+ Habitats column]
-    end
-    
-    V1 --> S1
-    V2 --> S2
-    S1 --> A1
-    S2 --> A2
-    A1 --> H1
-    A2 --> H2
-```
-
-## Clustering Strategies
-
-### Two-Step Strategy (Default)
-
-**Pipeline Steps:**
-1. Voxel Feature Extraction
-2. Subject Preprocessing
-3. Individual Clustering (voxel → supervoxel, per subject)
-4. Supervoxel Feature Extraction (conditional)
-5. Supervoxel Aggregation
-6. Group Preprocessing
-7. Population Clustering (supervoxel → habitat, across all subjects)
-
-**Advantages:**
-- Reduces dimensionality (voxels → supervoxels)
-- Finds common habitat patterns across population
-- Standard approach in literature
-
-**Pipeline Diagram:**
-
-```mermaid
-graph TB
-    V[Voxel Features<br/>All Subjects] --> SP[Subject<br/>Preprocessing]
-    SP --> IC[Individual Clustering<br/>Voxel → Supervoxel<br/>Per Subject]
-    IC --> SA[Supervoxel<br/>Aggregation]
-    SA --> GP[Group<br/>Preprocessing]
-    GP --> PC[Population Clustering<br/>Supervoxel → Habitat<br/>Across All Subjects]
-    PC --> R[Results<br/>Habitat Labels]
-```
-
-### One-Step Strategy
-
-**Pipeline Steps:**
-1. Voxel Feature Extraction
-2. Subject Preprocessing
-3. Individual Clustering (voxel → habitat, per subject)
-4. Supervoxel Aggregation (for consistency)
-
-**Advantages:**
-- Subject-specific habitat patterns
-- No population-level step
-- Faster execution
-
-**Pipeline Diagram:**
-
-```mermaid
-graph TB
-    V[Voxel Features<br/>All Subjects] --> SP[Subject<br/>Preprocessing]
-    SP --> IC[Individual Clustering<br/>Voxel → Habitat<br/>Per Subject]
-    IC --> SA[Supervoxel<br/>Aggregation]
-    SA --> R[Results<br/>Habitat Labels]
-```
-
-### Direct Pooling Strategy
-
-**Pipeline Steps:**
-1. Voxel Feature Extraction
-2. Subject Preprocessing
-3. Concatenate All Voxels
-4. Group Preprocessing
-5. Population Clustering (all voxels → habitat)
-
-**Advantages:**
-- Simplest approach
-- Fast execution
-- No intermediate supervoxel step
-
-**Pipeline Diagram:**
-
-```mermaid
-graph TB
-    V[Voxel Features<br/>All Subjects] --> SP[Subject<br/>Preprocessing]
-    SP --> CV[Concatenate<br/>All Voxels]
-    CV --> GP[Group<br/>Preprocessing]
-    GP --> PC[Population Clustering<br/>All Voxels → Habitat]
-    PC --> R[Results<br/>Habitat Labels]
-```
-
-## Pipeline Execution
-
-### Training Mode (`run_mode: train`)
-
-```python
-# 1. Build new pipeline
-pipeline = build_habitat_pipeline(
-    config=config,
-    feature_manager=feature_manager,
-    clustering_manager=clustering_manager,
-    result_manager=result_manager
-)
-
-# 2. Fit and transform (trains all stateful steps)
-results_df = pipeline.fit_transform(X)
-
-# 3. Save trained pipeline
-pipeline.save(pipeline_path)
-```
-
-**What Happens:**
-- All steps execute `fit()` to learn parameters
-- Stateful steps (clustering) train models
-- Pipeline state is saved to disk
-
-### Prediction Mode (`run_mode: predict`)
-
-```python
-# 1. Load saved pipeline
-pipeline = HabitatPipeline.load(pipeline_path)
-
-# 2. Update references to current managers/config
-strategy._update_pipeline_references(pipeline)
-
-# 3. Transform only (no training)
-results_df = pipeline.transform(X)
-```
-
-**What Happens:**
-- Pipeline loads from disk
-- References (config, managers) are updated
-- Only `transform()` is called (no `fit()`)
-- Uses pre-trained models from saved pipeline
-
-### Reference Update Mechanism
-
-When loading a pipeline for prediction, the system automatically updates:
-
-1. **Config**: `pipeline.config = current_config`
-2. **Managers**: All `*_manager` attributes in pipeline steps
-   - `feature_manager` → current `analysis.feature_manager`
-   - `clustering_manager` → current `analysis.clustering_manager`
-   - `result_manager` → current `analysis.result_manager`
-
-This ensures that:
-- Output paths (`out_dir`) use current config
-- Visualization settings (`plot_curves`, `save_images`) use current config
-- Managers use current instances (important for file paths)
-
-## Manager Pattern
-
-### Why Managers?
-
-The manager pattern provides:
-- **Separation of Concerns**: Each manager handles one domain
-- **Testability**: Managers can be mocked/stubbed
-- **Reusability**: Managers used across different strategies
-- **Dependency Injection**: Easy to swap implementations
-
-### Manager Responsibilities
-
-| Manager | Responsibilities |
-|---------|-----------------|
-| **FeatureManager** | Feature extraction, preprocessing, image/mask paths |
-| **ClusteringManager** | Clustering algorithms, model training, validation |
-| **ResultManager** | Results storage, visualization, file I/O |
-
-### Manager Interaction
-
-```mermaid
-graph TB
-    subgraph "Pipeline Steps"
-        VF[VoxelFeatureExtractor]
-        IC[IndividualClusteringStep]
-        PC[PopulationClusteringStep]
-    end
-    
-    subgraph "Managers"
-        FM[FeatureManager]
-        CM[ClusteringManager]
-        RM[ResultManager]
-    end
-    
-    VF --> FM
-    IC --> FM
-    IC --> CM
-    PC --> CM
-    IC --> RM
-    PC --> RM
-```
-
-## File Structure
+The subpackage produces tumour habitat clusters from voxel-level imaging
+features. It supports three clustering modes — `two_step`, `one_step`,
+`direct_pooling` — and exposes both training (`fit`) and prediction (`predict`)
+paths through one class.
+
+### Key design principles
+
+- **Single deep module.** `HabitatAnalysis` owns build, fit, predict, persist,
+  and result post-processing. There is no separate strategy class tree and no
+  separate `PipelineBuilder` module any more.
+- **Recipe dispatch.** `clustering_mode` selects a step list via the
+  `_PIPELINE_RECIPES` dictionary; the rest of the module branches on mode only
+  for tiny save-side variations.
+- **Explicit manager whitelist.** Manager injection into a loaded pipeline uses
+  `_PIPELINE_MANAGER_ATTRS`. Reflection over `dir(self)` was deliberately
+  removed: adding a manager type must be a deliberate edit.
+- **One pipeline class for fit and predict.** Prediction is "load → inject →
+  transform"; it does not get its own execution stack.
+- **sklearn-style pipeline.** `HabitatPipeline` keeps `fit` / `transform` /
+  `fit_transform` / `save` / `load`, so each step is a familiar
+  `BasePipelineStep` with `fit(X, y=None)` / `transform(X)`.
+
+---
+
+## Module Layout
 
 ```
 habit/core/habitat_analysis/
 ├── __init__.py                 # Public API exports
-├── habitat_analysis.py         # Main HabitatAnalysis class
+├── habitat_analysis.py         # HabitatAnalysis (deep module) + recipes
 ├── config_schemas.py           # Pydantic configuration models
 ├── ARCHITECTURE.md             # This document
 ├── README.md                   # User-facing documentation
-├── PIPELINE_DESIGN.md          # Pipeline design details
+├── PIPELINE_DESIGN.md          # Pipeline step contracts
 │
-├── strategies/                 # Clustering strategies
-│   ├── __init__.py
-│   ├── base_strategy.py       # Abstract base class
-│   ├── two_step_strategy.py   # Two-step strategy
-│   ├── one_step_strategy.py   # One-step strategy
-│   └── direct_pooling_strategy.py
-│
-├── managers/                   # Manager classes
-│   ├── __init__.py
-│   ├── feature_manager.py     # Feature extraction & preprocessing
-│   ├── clustering_manager.py  # Clustering algorithms
-│   └── result_manager.py      # Results & visualization
+├── managers/                   # Domain-specific managers
+│   ├── feature_manager.py
+│   ├── clustering_manager.py
+│   └── result_manager.py
 │
 ├── pipelines/                  # Pipeline infrastructure
-│   ├── __init__.py
-│   ├── base_pipeline.py       # HabitatPipeline, BasePipelineStep
-│   ├── pipeline_builder.py    # Pipeline factory functions
+│   ├── base_pipeline.py        # HabitatPipeline + BasePipelineStep
 │   └── steps/                  # Concrete pipeline steps
 │       ├── voxel_feature_extractor.py
 │       ├── subject_preprocessing.py
@@ -536,94 +82,337 @@ habit/core/habitat_analysis/
 │       ├── group_preprocessing.py
 │       └── population_clustering.py
 │
-├── extractors/                 # Feature extractors
-│   ├── base_extractor.py
-│   ├── feature_extractor_factory.py
-│   ├── feature_expression_parser.py
-│   └── [various extractors]
-│
-├── algorithms/                 # Clustering algorithms
-│   ├── base_clustering.py
-│   ├── kmeans_clustering.py
-│   ├── gmm_clustering.py
-│   └── [other algorithms]
-│
-└── utils/                      # Utility functions
-    └── preprocessing_state.py
+├── extractors/                 # Voxel/supervoxel feature extractors
+├── algorithms/                 # Clustering algorithms (KMeans, GMM, ...)
+├── analyzers/                  # HabitatMapAnalyzer (post-clustering features)
+└── utils/                      # Subpackage-local utilities (legacy)
 ```
 
-## Key Design Decisions
+> **Removed in V1.** `strategies/` (the old `*Strategy` class tree) and
+> `pipelines/pipeline_builder.py` are no longer present in the V1 layout. All
+> their behaviour now lives in `habitat_analysis.py`.
 
-### 1. Strategy Pattern for Clustering Modes
+---
 
-**Decision**: Use separate strategy classes instead of if/else in main class.
+## Public API
 
-**Rationale**:
-- Each strategy has different pipeline steps
-- Easy to add new strategies
-- Clear separation of concerns
+`HabitatAnalysis` exposes three entry points; all return a `pd.DataFrame`:
 
-### 2. sklearn-style Pipeline
+| Method | Use | Side effects |
+|--------|-----|--------------|
+| `fit(subjects=None, save_results_csv=None)` | Train + persist. Builds a pipeline by recipe, calls `pipeline.fit_transform`, saves `habitat_pipeline.pkl`, runs result post-processing and CSV/NRRD output. | Writes `.pkl`, `habitats.csv`, `habitat_*.nrrd`. |
+| `predict(pipeline_path, subjects=None, save_results_csv=None)` | Load + transform. Loads a saved pipeline, reconciles config, injects current managers via the whitelist, forces `plot_curves = False`, calls `pipeline.transform`. | Writes `habitats.csv`, `habitat_*.nrrd` (no `.pkl`). |
+| `run(subjects=None, save_results_csv=None, load_from=None)` | Dispatcher. Routes to `fit` or `predict` based on `load_from` or `config.run_mode`. Kept as a stable entry point for CLI / scripts. | Same as the dispatched method. |
 
-**Decision**: Implement `fit()` and `transform()` methods.
+The CLI (`habit get-habitat`) is the only entry point in V1; it is a thin
+wrapper around `fit` / `predict`. The legacy `scripts/run_habitat_analysis.py`
+dual-track runner has been removed.
 
-**Rationale**:
-- Familiar interface for ML practitioners
-- Clear separation of training and prediction
-- Standard pattern in Python ML ecosystem
+### Class diagram
 
-### 3. Manager Pattern
+```mermaid
+graph TB
+    subgraph "habitat_analysis.HabitatAnalysis (deep module)"
+        HA[HabitatAnalysis]
+        Rec["_PIPELINE_RECIPES<br/>(mode -> step list builder)"]
+        Wl["_PIPELINE_MANAGER_ATTRS<br/>(injection whitelist)"]
+        HA -.uses.-> Rec
+        HA -.uses.-> Wl
+    end
 
-**Decision**: Separate managers for features, clustering, and results.
+    subgraph "Managers (injected at construction time)"
+        FM[FeatureManager]
+        CM[ClusteringManager]
+        RM[ResultManager]
+    end
 
-**Rationale**:
-- Single Responsibility Principle
-- Easy to test and mock
-- Reusable across strategies
+    subgraph "Pipeline (sklearn-style)"
+        HP[HabitatPipeline]
+        BPS[BasePipelineStep]
+        Steps[Concrete steps<br/>voxel / subject prep /<br/>individual / aggregation /<br/>group prep / population]
+    end
 
-### 4. Dependency Injection via ServiceConfigurator
+    HA --> FM
+    HA --> CM
+    HA --> RM
+    HA --> HP
+    HP --> BPS
+    BPS --> Steps
+    Steps --> FM
+    Steps --> CM
+    Steps --> RM
+```
 
-**Decision**: Create services via `ServiceConfigurator` instead of direct instantiation.
+---
 
-**Rationale**:
-- Testability (can inject mocks)
-- Centralized service creation
-- Consistent with other modules
+## Pipeline Recipes
 
-### 5. Reference Update for Loaded Pipelines
+`_PIPELINE_RECIPES` is the single source of truth for mode dispatch:
 
-**Decision**: Automatically update config and manager references when loading pipelines.
+```python
+_PIPELINE_RECIPES = {
+    'two_step':       _build_two_step_steps,
+    'one_step':       _build_one_step_steps,
+    'direct_pooling': _build_pooling_steps,
+}
+```
 
-**Rationale**:
-- Allows changing output paths without retraining
-- Enables different visualization settings for prediction
-- Maintains flexibility while using pre-trained models
+`HabitatAnalysis._build_pipeline()` simply looks up the recipe by
+`config.HabitatsSegmention.clustering_mode`, calls the builder with the three
+managers, and wraps the resulting list in a `HabitatPipeline`.
+
+### Two-step recipe (`_build_two_step_steps`)
+
+1. `VoxelFeatureExtractor` — voxel-level features per subject.
+2. `SubjectPreprocessing` — per-subject feature cleaning.
+3. `IndividualClustering` — voxel → supervoxel (per subject).
+4. `SupervoxelFeatureExtraction` *(conditional)* — advanced supervoxel features.
+5. `SupervoxelAggregation` — aggregate supervoxel features.
+6. `GroupPreprocessing` — feature cleaning across subjects.
+7. `PopulationClustering` — supervoxel → habitat (population level).
+
+### One-step recipe (`_build_one_step_steps`)
+
+1. `VoxelFeatureExtractor`
+2. `SubjectPreprocessing`
+3. `IndividualClustering` — voxel → habitat directly (per subject).
+4. `SupervoxelAggregation` — kept for downstream column consistency.
+
+### Direct-pooling recipe (`_build_pooling_steps`)
+
+1. `VoxelFeatureExtractor`
+2. `SubjectPreprocessing`
+3. `ConcatenateVoxels` — pool voxels across subjects.
+4. `GroupPreprocessing`
+5. `PopulationClustering` — all voxels → habitat in one shot.
+
+Adding a new mode means adding one builder function and one entry in
+`_PIPELINE_RECIPES`. No new file, no new class.
+
+---
+
+## Manager Injection
+
+When a pipeline is *trained*, manager references are set up at construction
+time. When a pipeline is *loaded* from `.pkl` for prediction, the deserialised
+steps still hold whatever manager references were live at training time —
+those references must be replaced with the current run's managers.
+
+V1 does this with an explicit whitelist:
+
+```python
+_PIPELINE_MANAGER_ATTRS: Tuple[str, ...] = (
+    'feature_manager',
+    'clustering_manager',
+    'result_manager',
+)
+```
+
+`_inject_managers_into_pipeline(pipeline)` iterates over each step and, for
+every name in the whitelist that the step has, overwrites it with the current
+manager instance. It also overwrites `pipeline.config` with the current config.
+
+This deliberately replaces the pre-V1 `dir(self)` reflection that injected any
+attribute whose name ended in `_manager`. Reflection-based injection was
+fragile: any future field accidentally named `*_manager` would have been
+silently injected, and removing a manager would have silently stopped being
+injected. With the whitelist, **introducing a new manager forces an explicit
+edit to this constant**, which is the desired behaviour.
+
+---
+
+## Data Flow
+
+### Training (`fit`)
+
+```mermaid
+graph LR
+    Imgs[images + masks<br/>per subject] --> VF[VoxelFeatureExtractor]
+    VF --> SP[SubjectPreprocessing]
+    SP --> IC[IndividualClustering<br/>voxel -> supervoxel]
+    IC --> SA[SupervoxelAggregation]
+    SA --> GP[GroupPreprocessing]
+    GP --> PC[PopulationClustering<br/>supervoxel -> habitat]
+    PC --> HM[habitat maps NRRD]
+    PC --> CSV[habitats.csv]
+    PC --> Pkl[habitat_pipeline.pkl]
+```
+
+### Prediction (`predict`)
+
+```mermaid
+graph LR
+    NewImgs[new images + masks] --> Load
+    Pkl[habitat_pipeline.pkl] --> Load[HabitatPipeline.load]
+    Load --> Inject[_inject_managers_into_pipeline<br/>+ plot_curves := False]
+    Inject --> Trans[pipeline.transform]
+    Trans --> HM[habitat maps NRRD]
+    Trans --> CSV[habitats.csv]
+```
+
+The `plot_curves = False` override on the predict path closes a pre-V1 bug
+where the cluster-selection curves consumed `None` values when no selection
+methods were configured for the prediction run.
+
+### Data shape evolution (two-step)
+
+```mermaid
+graph TB
+    V[Per subject: N voxels x F features] --> S[Per subject: K supervoxels x F features]
+    S --> A[Per subject: K supervoxels x F + Supervoxel column]
+    A --> H[Per subject: K supervoxels x F + Habitats column]
+```
+
+---
+
+## Pipeline Steps
+
+Each step inherits from `BasePipelineStep` and implements:
+
+- `fit(X, y=None)` — learn parameters from training data.
+- `transform(X)` — apply the learnt transformation.
+- `fit_transform(X, y=None)` — convenience composition.
+
+The `HabitatPipeline` itself only orchestrates these three methods across the
+step list and handles `save` / `load` (joblib).
+
+| Step | Purpose | Manager(s) used |
+|------|---------|------------------|
+| `VoxelFeatureExtractor` | Extract voxel-level features inside the ROI. | `FeatureManager` |
+| `SubjectPreprocessing` | Per-subject cleaning (NaN, scaling, drop). | `FeatureManager` |
+| `IndividualClustering` | Cluster voxels into supervoxels (or habitats in `one_step`). | `ClusteringManager`, `ResultManager` |
+| `SupervoxelFeatureExtraction` *(conditional)* | Compute richer supervoxel features. | `FeatureManager` |
+| `SupervoxelAggregation` | Aggregate features at supervoxel level. | `FeatureManager` |
+| `ConcatenateVoxels` *(direct pooling only)* | Pool voxels across subjects. | `FeatureManager` |
+| `GroupPreprocessing` | Group-level cleaning. | `FeatureManager` |
+| `PopulationClustering` | Cluster supervoxels (or pooled voxels) into habitats. | `ClusteringManager`, `ResultManager` |
+
+`PIPELINE_DESIGN.md` documents the per-step input/output column contracts in
+detail.
+
+---
+
+## Persistence Format
+
+`HabitatPipeline.save(path)` writes a single joblib file at `path`. The file
+contains:
+
+- The full step list (each step keeps the parameters it learnt during `fit`).
+- A reference to the config used for training (the predict path replaces this
+  with the current config before transforming).
+
+The default location is `<config.out_dir>/habitat_pipeline.pkl`. This file is
+the only persistent artefact required for prediction.
+
+`HabitatPipeline.load(path)` is the inverse and returns a `HabitatPipeline`
+instance with all step state restored.
+
+---
 
 ## Extension Points
 
-### Adding a New Strategy
+### Add a new clustering mode
 
-1. Create new strategy class inheriting from `BaseClusteringStrategy`
-2. Implement `run()` method
-3. Build pipeline using `build_habitat_pipeline()` or custom builder
-4. Register in `strategies/__init__.py` via `get_strategy()`
+1. Implement a `_build_<mode>_steps(feature_manager, clustering_manager,
+   result_manager, config)` function in `habitat_analysis.py`.
+2. Add the mode to the `_PIPELINE_RECIPES` dictionary.
+3. (Optional) Add mode-specific result post-processing inside
+   `HabitatAnalysis._post_process_results` and / or `_save_results`.
 
-### Adding a New Pipeline Step
+You do **not** need to add a class, file, or registry entry. The recipe
+dictionary is the registry.
 
-1. Create step class inheriting from `BasePipelineStep`
-2. Implement `fit()` and `transform()` methods
-3. Add to pipeline builder function
-4. Update pipeline builder to include new step
+### Add a new pipeline step
 
-### Adding a New Manager
+1. Inherit from `BasePipelineStep` and implement `fit` / `transform`.
+2. Inject the step into one or more recipes in `habitat_analysis.py`.
+3. Document the step's input / output column contract in `PIPELINE_DESIGN.md`.
 
-1. Create manager class following existing pattern
-2. Add to `ServiceConfigurator.create_habitat_analysis()`
-3. Inject into `HabitatAnalysis.__init__()`
-4. Update `_update_pipeline_references()` automatically discovers `*_manager` attributes
+### Add a new manager
 
-## References
+1. Create the manager class under `managers/`.
+2. Inject it into `HabitatAnalysis.__init__` and store it on `self`.
+3. **Add its attribute name to `_PIPELINE_MANAGER_ATTRS`.** This step is
+   mandatory: without it, the manager will not be re-injected on the predict
+   path.
+4. Update `HabitatConfigurator.create_habitat_analysis` (in
+   `habit/core/common/configurators/habitat.py`) to construct and pass the new
+   manager.
 
-- sklearn Pipeline: https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
-- Strategy Pattern: Design Patterns by Gang of Four
-- Manager Pattern: Domain-Driven Design by Eric Evans
+### Add a new clustering algorithm
+
+1. Inherit from `BaseClusteringStrategy` *(this name lives in
+   `algorithms/base_clustering.py`; it refers to the **algorithm** interface,
+   not the removed top-level strategy tree)*.
+2. Register the algorithm so `ClusteringManager` can resolve it by name from
+   config.
+
+---
+
+## Design Decisions
+
+### 1. Collapse three layers into one deep module
+
+**Decision.** Drop `strategies/` and `pipelines/pipeline_builder.py`; put
+recipe dispatch and orchestration inside `HabitatAnalysis`.
+
+**Rationale.** The pre-V1 layout had three layers that each added almost no
+behaviour: the controller forwarded to a strategy, the strategy forwarded to
+the builder, the builder returned a step list. The split inflated the
+abstraction surface (3 classes + 1 module + 1 registry) without hiding any
+real complexity. One deep module — small public surface, all the moving
+parts inside — fits the actual cognitive shape of the problem better.
+
+### 2. Recipe dictionary instead of class hierarchy
+
+**Decision.** `_PIPELINE_RECIPES: Dict[str, Callable]`.
+
+**Rationale.** Each "strategy" in the old design only differed in its step
+list. A function returning the list captures exactly that, and putting the
+mapping in a dictionary makes the dispatch one line and the extension point
+one line.
+
+### 3. Explicit injection whitelist
+
+**Decision.** `_PIPELINE_MANAGER_ATTRS` instead of `dir(self)` reflection.
+
+**Rationale.** Reflection over attribute names is correct *only* by accident.
+A whitelist makes the contract — "these are the attributes a step is allowed
+to have us re-bind on load" — explicit, readable, and testable.
+
+### 4. Force `plot_curves = False` on the predict path
+
+**Decision.** `_inject_managers_into_pipeline` overrides
+`pipeline.config.plot_curves = False`.
+
+**Rationale.** The cluster-selection plotting code consumed `None` when no
+`selection_methods` were configured at predict time; the predict path had no
+business plotting selection curves anyway, since selection happens only at
+training. Forcing the flag closes the bug at its source instead of patching
+each plotting call site.
+
+### 5. Single pipeline class for fit and predict
+
+**Decision.** `HabitatPipeline` is the only execution class; predict reuses
+its `transform`.
+
+**Rationale.** Two parallel execution stacks were a known maintenance hazard
+in the old layout (any new step had to be plumbed twice). With a single class
+the predict path is trivially correct as long as `transform` is correct.
+
+### 6. sklearn-style step interface
+
+**Decision.** Keep `fit(X, y=None)` / `transform(X)` / `fit_transform`.
+
+**Rationale.** Familiar to ML practitioners, plays well with the rest of the
+ecosystem, and gives an obvious contract for new step authors.
+
+---
+
+## See Also
+
+- Project-level architecture: `docs/source/development/architecture.rst`.
+- Pipeline step contracts: `PIPELINE_DESIGN.md`.
+- V1 refactor record:
+  `docs/code_review/habitat_analysis_review.md` and
+  `docs/code_review/habitat_analysis_refactor_step1.md`.

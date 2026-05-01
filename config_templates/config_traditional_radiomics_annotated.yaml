@@ -2,11 +2,11 @@
 # Traditional Radiomics Configuration Template
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# Based on actual code: scripts/app_traditional_radiomics_extractor.py
+# Used by:  habit radiomics  (entry: habit/cli_commands/commands/cmd_radiomics.py)
 #
 # Quick Start:
 #   CLI:    habit radiomics --config config/config_traditional_radiomics.yaml
-#   Script: python scripts/app_traditional_radiomics_extractor.py --config config/config_traditional_radiomics.yaml
+#   CLI:    habit radiomics --config config/config_traditional_radiomics.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

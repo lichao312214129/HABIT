@@ -1,41 +1,47 @@
 """
-MultifileEvaluator使用示例
-展示如何使用多文件评估工具评估多个模型的性能
+ModelComparison facade.
+
+Coordinates a multi-file evaluation run by composing existing deep modules:
+:class:`MultifileEvaluator` (data + DeLong test), :class:`Plotter` /
+:class:`PlotManager` (figures), :class:`ThresholdManager` (Youden / target
+thresholds), :class:`MetricsStore` and :class:`ReportExporter` (artefacts).
+
+This file owns only the orchestration logic that ties those modules
+together (split-aware grouping, train -> test threshold transfer).
+Metric formulas, plotting, and report formats live in their respective
+deep modules and must not be duplicated here.
 """
 
 import os
-import yaml
-import pandas as pd
-import json
+from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
-from typing import Dict, Any, Optional, List, Union
-from ..evaluation.model_evaluation import MultifileEvaluator
-from ..visualization.plotting import Plotter
+import pandas as pd
+
+from ..config_schemas import ModelComparisonConfig
 from ..evaluation.metrics import (
-    calculate_metrics,
-    calculate_metrics_youden,
-    calculate_metrics_at_target,
+    apply_target_threshold,
     apply_youden_threshold,
-    apply_target_threshold
+    calculate_metrics,
+    calculate_metrics_at_target,
+    calculate_metrics_youden,
 )
+from ..evaluation.model_evaluation import MultifileEvaluator
 from ..evaluation.prediction_container import (
     PredictionContainer,
     create_prediction_container,
-    from_tuple,
-    convert_models_data_to_containers,
-    convert_containers_to_models_data
 )
 from ..evaluation.threshold_manager import ThresholdManager
-from ..reporting.report_exporter import ReportExporter, MetricsStore
+from ..reporting.report_exporter import MetricsStore, ReportExporter
 from ..visualization.plot_manager import PlotManager
-from ..config_schemas import ModelComparisonConfig
-from habit.utils.log_utils import setup_output_logger, setup_logger, get_module_logger, LoggerManager
+from ..visualization.plotting import Plotter
 
 class ModelComparison:
     """
     Tool for comparing and evaluating multiple machine learning models.
     
-    Note: Dependencies should be provided via ServiceConfigurator or explicitly.
+    Note: Dependencies should be provided via ``MLConfigurator`` (or
+    explicitly by the caller).
     """
     def __init__(
         self, 
@@ -94,41 +100,49 @@ class ModelComparison:
     
     def setup(self) -> None:
         """
-        Setup the tool by reading prediction files and preparing data
+        Read prediction files and prepare the merged data + per-model arrays.
+
+        Side effects:
+            - populates ``self.evaluator.data`` / ``self.evaluator.models_data``
+              via :meth:`_add_split_columns`;
+            - builds ``self.pred_col_mapping`` from the file configs;
+            - if a split column is configured and present, creates per-group
+              splits in ``self.split_groups``.
         """
-        # 配置多个预测文件
-        files_config = [self._model_to_dict(file_config) for file_config in self.config.files_config]
-    
-        # 读取所有预测文件并获取split列信息
-        split_cols = []
+        files_config = [
+            self._model_to_dict(file_config)
+            for file_config in self.config.files_config
+        ]
+
+        # Collect every configured split column up-front; the first one that
+        # actually exists in the merged data wins.
+        split_cols: List[str] = []
         for file_conf in files_config:
-            if "split_col" in file_conf:
+            if "split_col" in file_conf and file_conf["split_col"]:
                 split_cols.append(file_conf["split_col"])
-        
-            # 添加split列到合并数据中
-            self._add_split_columns(files_config, split_cols)
-            
-            # 创建离散预测列的映射
-            for file_config in files_config:
-                if 'pred_col' in file_config and 'model_name' in file_config:
-                    model_name = file_config['model_name']
-                    pred_col = file_config['pred_col']
-                    self.pred_col_mapping[model_name] = pred_col
-            
-            # 获取split配置
-            split_config = self.config.split
-            use_split = split_config.enabled
-            
-            # 选择要使用的分组列
-            # 检查所有split列是否存在于数据中，如果存在则使用第一个
-            for col in split_cols:
-                if col in self.evaluator.data.columns:
-                    self.split_column = col
-                    break
-            
-            # 如果启用分组，创建分组数据
-            if use_split and self.split_column:
-                self._create_split_groups()
+
+        # Read predictions, merge, and attach split columns to the merged frame.
+        self._add_split_columns(files_config, split_cols)
+
+        # Build the model_name -> pred_col mapping from the file configs.
+        for file_config in files_config:
+            if 'pred_col' in file_config and 'model_name' in file_config:
+                model_name = file_config['model_name']
+                pred_col = file_config['pred_col']
+                self.pred_col_mapping[model_name] = pred_col
+
+        # Pick the first split column that survived the merge.
+        for col in split_cols:
+            if (
+                self.evaluator.data is not None
+                and col in self.evaluator.data.columns
+            ):
+                self.split_column = col
+                break
+
+        # If split is enabled and a column was resolved, build per-group views.
+        if self.config.split.enabled and self.split_column:
+            self._create_split_groups()
     
     def _add_split_columns(self, files_config: List[Dict[str, Any]], split_cols: List[str]) -> None:
         """
@@ -393,33 +407,37 @@ class ModelComparison:
 
         plotting_data = self._convert_models_data_for_plotting(models_data)
 
-        title_suffix = f"{dataset_group_name}组 " if dataset_group_name else ""
+        # Titles and filenames must use ASCII labels: per project rule, figure
+        # captions are always English. Logs may contain the group name in
+        # whatever the user chose.
+        title_suffix = f"[{dataset_group_name}] " if dataset_group_name else ""
         prefix = f"{dataset_group_name}_" if dataset_group_name else ""
+        log_prefix = f"({dataset_group_name}) " if dataset_group_name else ""
 
         if viz_config.roc.enabled:
             save_name = viz_config.roc.save_name or f'{prefix}roc_curves.pdf'
             title = viz_config.roc.title or f'{title_suffix}ROC Curves Comparison'
             plotter.plot_roc_v2(plotting_data, save_name=save_name, title=title)
-            self.logger.info(f"{title_suffix}ROC曲线已保存到 {os.path.join(output_dir, save_name)}")
+            self.logger.info(f"{log_prefix}ROC saved to {os.path.join(output_dir, save_name)}")
 
         if viz_config.dca.enabled:
             save_name = viz_config.dca.save_name or f'{prefix}decision_curves.pdf'
             title = viz_config.dca.title or f'{title_suffix}Decision Curve'
             plotter.plot_dca_v2(plotting_data, save_name=save_name, title=title)
-            self.logger.info(f"{title_suffix}决策曲线已保存到 {os.path.join(output_dir, save_name)}")
+            self.logger.info(f"{log_prefix}DCA saved to {os.path.join(output_dir, save_name)}")
 
         if viz_config.calibration.enabled:
             save_name = viz_config.calibration.save_name or f'{prefix}calibration_curves.pdf'
             title = viz_config.calibration.title or f'{title_suffix}Calibration Curves'
             n_bins = viz_config.calibration.n_bins or 10
             plotter.plot_calibration_v2(plotting_data, save_name=save_name, n_bins=n_bins, title=title)
-            self.logger.info(f"{title_suffix}校准曲线已保存到 {os.path.join(output_dir, save_name)}")
+            self.logger.info(f"{log_prefix}calibration saved to {os.path.join(output_dir, save_name)}")
 
         if viz_config.pr_curve.enabled:
             save_name = viz_config.pr_curve.save_name or f'{prefix}precision_recall_curves.pdf'
             title = viz_config.pr_curve.title or f'{title_suffix}Precision-Recall Curves'
             plotter.plot_pr_curve(plotting_data, save_name=save_name, title=title)
-            self.logger.info(f"{title_suffix}精确率-召回率曲线已保存到 {os.path.join(output_dir, save_name)}")
+            self.logger.info(f"{log_prefix}PR curve saved to {os.path.join(output_dir, save_name)}")
     
     def _run_delong_test(
         self,

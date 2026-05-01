@@ -1,187 +1,154 @@
 """
-ICC configuration utilities for loading and validating ICC analysis config
+ICC analysis configuration schema.
+
+V1: this module is now a Pydantic ``BaseConfig`` subclass, in line with the
+rest of the HABIT configuration system. The previous dict + ``validate_config``
+style has been removed (no backward compatibility — V1 ground truth only).
+
+Public surface:
+    - :class:`ICCConfig`            : root config (Pydantic ``BaseConfig``).
+    - :class:`ICCInputConfig`       : nested input section.
+    - :class:`ICCOutputConfig`      : nested output section.
+    - :func:`save_default_icc_config`: helper to dump an example YAML.
 """
 
 import os
-from typing import Dict, Any, List, Union, Optional
+from pathlib import Path
+from typing import Any, List, Literal, Optional, Union
+
 import yaml
-from habit.core.common.config_loader import load_config, validate_config
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-def load_icc_config(config_path: str) -> Dict[str, Any]:
-    """
-    Load ICC analysis configuration from YAML file
-    
-    Args:
-        config_path (str): Path to ICC configuration file (YAML)
-    
-    Returns:
-        Dict[str, Any]: Configuration dictionary
-    """
-    config = load_config(config_path)
-    validate_icc_config(config)
-    return config
-
-def validate_icc_config(config: Dict[str, Any]) -> bool:
-    """
-    Validate ICC configuration structure and required parameters
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        bool: Whether configuration is valid
-        
-    Raises:
-        ValueError: If configuration is invalid
-    """
-    # Define required top-level keys
-    required_keys = ["input", "output"]
-    validate_config(config, required_keys)
-    
-    # Validate input configuration
-    if "type" not in config["input"]:
-        raise ValueError("Input configuration must contain 'type' field ('files' or 'directories')")
-    
-    if config["input"]["type"] not in ["files", "directories"]:
-        raise ValueError("Input type must be either 'files' or 'directories'")
-    
-    if config["input"]["type"] == "files" and "file_groups" not in config["input"]:
-        raise ValueError("Input configuration with type 'files' must contain 'file_groups' field")
-    
-    if config["input"]["type"] == "directories" and "dir_list" not in config["input"]:
-        raise ValueError("Input configuration with type 'directories' must contain 'dir_list' field")
-    
-    # Validate output configuration
-    if "path" not in config["output"]:
-        raise ValueError("Output configuration must contain 'path' field")
-    
-    return True
-
-def parse_icc_config_files(config: Dict[str, Any]) -> List[List[str]]:
-    """
-    Parse file groups from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        List[List[str]]: List of file groups
-    """
-    if config["input"]["type"] != "files":
-        raise ValueError("Cannot parse file groups from non-file input type")
-    
-    file_groups = []
-    for group in config["input"]["file_groups"]:
-        if isinstance(group, list):
-            file_groups.append(group)
-        else:
-            # If a single string is provided, treat it as a one-element group
-            file_groups.append([group])
-    
-    return file_groups
-
-def parse_icc_config_directories(config: Dict[str, Any]) -> List[str]:
-    """
-    Parse directory list from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        List[str]: List of directories
-    """
-    if config["input"]["type"] != "directories":
-        raise ValueError("Cannot parse directory list from non-directory input type")
-    
-    return config["input"]["dir_list"]
-
-def get_icc_config_output_path(config: Dict[str, Any]) -> str:
-    """
-    Get output path from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        str: Output file path
-    """
-    return config["output"]["path"]
-
-def get_icc_config_processes(config: Dict[str, Any]) -> Optional[int]:
-    """
-    Get number of processes from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        Optional[int]: Number of processes or None for default
-    """
-    return config.get("processes", None)
+from habit.core.common.config_base import BaseConfig
 
 
-def get_icc_config_metrics(config: Dict[str, Any]) -> Optional[List[str]]:
+class ICCInputConfig(BaseModel):
     """
-    Get list of metrics to calculate from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        Optional[List[str]]: List of metric names or None for default (icc3)
-        
-    Available metrics:
-        - icc1, icc2, icc3, icc1k, icc2k, icc3k: Individual ICC types
-        - multi_icc: All 6 ICC types at once
-        - cohen_kappa, cohen: Cohen's Kappa (2 raters)
-        - fleiss_kappa, fleiss: Fleiss' Kappa (multiple raters)
-        - krippendorff: Krippendorff's Alpha
+    Input section of the ICC configuration.
+
+    Two mutually exclusive shapes:
+        - ``type='files'`` with ``file_groups`` populated (each group is a
+          list of file paths).
+        - ``type='directories'`` with ``dir_list`` populated.
     """
-    return config.get("metrics", None)
+
+    type: Literal['files', 'directories']
+    file_groups: Optional[List[List[str]]] = None
+    dir_list: Optional[List[str]] = None
+
+    class Config:
+        extra = 'forbid'
+
+    @field_validator('file_groups', mode='before')
+    @classmethod
+    def _coerce_file_groups(cls, value: Any) -> Any:
+        # Accept both [[a, b], [c, d]] and [a, b, c, d]; in the latter case
+        # treat each scalar as a single-element group. Keeps backward
+        # compatibility with older YAMLs at the *parser* level (still V1
+        # idiomatic since the resulting Pydantic shape is canonical).
+        if value is None:
+            return None
+        if isinstance(value, list):
+            normalised: List[List[str]] = []
+            for entry in value:
+                if isinstance(entry, list):
+                    normalised.append([str(p) for p in entry])
+                else:
+                    normalised.append([str(entry)])
+            return normalised
+        return value
 
 
-def get_icc_config_full_results(config: Dict[str, Any]) -> bool:
-    """
-    Get whether to return full results (with CI and p-value) from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        bool: True if full results should be returned, False otherwise
-    """
-    return config.get("full_results", False)
+class ICCOutputConfig(BaseModel):
+    """Output section of the ICC configuration."""
+
+    path: str
+
+    class Config:
+        extra = 'forbid'
 
 
-def get_icc_config_selected_features(config: Dict[str, Any]) -> Optional[List[str]]:
+class ICCConfig(BaseConfig):
     """
-    Get list of selected features from ICC configuration
-    
-    Args:
-        config (Dict[str, Any]): ICC configuration dictionary
-    
-    Returns:
-        Optional[List[str]]: List of feature names or None (analyze all features)
-    """
-    return config.get("selected_features", None)
+    Root configuration for the ICC (reliability) analysis.
 
-def create_default_icc_config() -> Dict[str, Any]:
+    Loaded via :py:meth:`ICCConfig.from_file` from a YAML file. All field
+    access is by attribute (``cfg.metrics`` instead of ``cfg["metrics"]``).
     """
-    Create default ICC configuration
-    
-    Returns:
-        Dict[str, Any]: Default configuration dictionary
-    """
+
+    input: ICCInputConfig
+    output: ICCOutputConfig
+
+    metrics: Optional[List[str]] = None
+    processes: Optional[int] = None
+    full_results: bool = False
+    selected_features: Optional[List[str]] = None
+    debug: bool = False
+
+    @model_validator(mode='after')
+    def _validate_input_shape(self) -> 'ICCConfig':
+        # Cross-field invariant: type ↔ payload presence.
+        if self.input.type == 'files':
+            if not self.input.file_groups:
+                raise ValueError(
+                    "ICCConfig: input.type='files' requires a non-empty "
+                    "input.file_groups list."
+                )
+        else:  # 'directories'
+            if not self.input.dir_list:
+                raise ValueError(
+                    "ICCConfig: input.type='directories' requires a "
+                    "non-empty input.dir_list."
+                )
+        return self
+
+    def parse_file_groups(self) -> List[List[str]]:
+        """
+        Return canonicalised file groups.
+
+        Returns:
+            List[List[str]]: list of file groups, where each group is a list
+                of file paths.
+
+        Raises:
+            ValueError: if ``input.type`` is not ``'files'``.
+        """
+        if self.input.type != 'files':
+            raise ValueError(
+                "Cannot parse file groups when input.type is not 'files'."
+            )
+        return list(self.input.file_groups or [])
+
+    def parse_directories(self) -> List[str]:
+        """
+        Return the directory list.
+
+        Returns:
+            List[str]: list of directory paths.
+
+        Raises:
+            ValueError: if ``input.type`` is not ``'directories'``.
+        """
+        if self.input.type != 'directories':
+            raise ValueError(
+                "Cannot parse directory list when input.type is not "
+                "'directories'."
+            )
+        return list(self.input.dir_list or [])
+
+
+def create_default_icc_config() -> dict:
+    """Return a default ICC configuration as a plain dict (for YAML dump)."""
     return {
         "input": {
             "type": "files",
             "file_groups": [
                 ["path/to/file1.csv", "path/to/file2.csv", "path/to/file3.csv"],
-                ["path/to/file4.csv", "path/to/file5.csv", "path/to/file6.csv"]
-            ]
+                ["path/to/file4.csv", "path/to/file5.csv", "path/to/file6.csv"],
+            ],
         },
         "output": {
-            "path": "icc_results.json"
+            "path": "icc_results.json",
         },
         # Metrics to calculate. Options:
         # - icc1, icc2, icc3, icc1k, icc2k, icc3k: Individual ICC types
@@ -189,26 +156,26 @@ def create_default_icc_config() -> Dict[str, Any]:
         # - cohen_kappa, cohen: Cohen's Kappa (2 raters)
         # - fleiss_kappa, fleiss: Fleiss' Kappa (multiple raters)
         # - krippendorff: Krippendorff's Alpha
-        "metrics": ["icc3"],  # Default: ICC(3,1)
-        # Return full results with confidence intervals and p-values
+        "metrics": ["icc3"],
         "full_results": False,
-        # Selected features to analyze (None = all features)
         "selected_features": None,
         "processes": None,
-        "debug": False
+        "debug": False,
     }
 
-def save_default_icc_config(output_path: str) -> None:
+
+def save_default_icc_config(output_path: Union[str, Path]) -> None:
     """
-    Save default ICC configuration to file
-    
+    Save a default ICC configuration to a YAML file.
+
     Args:
-        output_path (str): Output file path
+        output_path: target file path (parent directories created if missing).
     """
     default_config = create_default_icc_config()
-    
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    
+
+    parent = os.path.dirname(os.path.abspath(str(output_path)))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
     with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(default_config, f, default_flow_style=False, sort_keys=False) 
+        yaml.dump(default_config, f, default_flow_style=False, sort_keys=False)

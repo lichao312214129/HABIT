@@ -53,8 +53,8 @@ warnings.filterwarnings('ignore')
 # Import logging utilities from centralized logging system
 from habit.utils.log_utils import setup_logger, get_module_logger
 
-# Import progress bar utility
-from habit.core.habitat_analysis.utils.progress_utils import CustomTqdm
+# Import progress bar utility (canonical location: habit.utils.progress_utils)
+from habit.utils.progress_utils import CustomTqdm
 
 # Module logger for static methods
 logger = get_module_logger(__name__)

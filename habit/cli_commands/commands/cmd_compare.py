@@ -27,7 +27,7 @@ def run_compare(config_file: str) -> None:
     
     from habit.utils.log_utils import setup_logger
     from habit.core.machine_learning.config_schemas import ModelComparisonConfig
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import MLConfigurator
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
@@ -59,7 +59,7 @@ def run_compare(config_file: str) -> None:
     click.echo(f"Starting model comparison with config: {config_file}")
     
     try:
-        configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+        configurator = MLConfigurator(config=config, logger=logger, output_dir=str(output_dir))
         model_obj = configurator.create_model_comparison()
         model_obj.run()
         logger.info("Model comparison completed successfully")

@@ -1,311 +1,143 @@
-HABIT 包导入健壮性指南
+HABIT 包导入策略指南
 ========================
 
-概述
-----
+V1 导入策略
+-----------
 
-HABIT 包现在包含了强大的导入容错机制，确保即使在部分模块导入失败的情况下，包仍然可以正常使用。这个机制提供了：
+HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` /
+``HabitatFeatureExtractor`` / ``Modeling``）的导入失败会**直接抛出 ``ImportError``**，
+不会被静默吞掉为 ``None``。
 
-1. **优雅的错误处理** - 导入失败不会导致整个包崩溃
-2. **状态跟踪** - 可以查询哪些模块可用，哪些失败
-3. **警告系统** - 自动显示导入错误信息
-4. **实用工具** - 提供检查和诊断功能
+这是设计决定。原因：
 
-基本使用
+1. ``HabitatAnalysis`` / ``Modeling`` 都是 HABIT 的核心能力。它们 import
+   失败必然意味着环境损坏或依赖缺失，调用方拿到 ``None`` 后再触发的下游
+   报错只会让排错更困难。
+2. 让接口"半透明"（有时是类、有时是 ``None``）会迫使每个调用方都做
+   ``if foo is not None`` 防御，**locality** 跨调用方分散。
+
+只有 **真正可选的第三方依赖**（V1 当前仅 ``autogluon``）才暴露显式的
+查询接口：
+
+.. code-block:: python
+
+   import habit
+
+   if habit.is_available('autogluon'):
+       # AutoGluon 装上了，可以用 AutoGluonTabularModel
+       ...
+   else:
+       err = habit.import_error('autogluon')
+       print(f"AutoGluon 不可用：{err}")
+
+显式接口
 --------
 
-导入包
-^^^^^^
+``habit.is_available(name: str) -> bool``
+    查询某个**已登记的可选依赖**是否可被 import。
 
-.. code-block:: python
+``habit.import_error(name: str) -> Optional[ImportError]``
+    返回该可选依赖在最近一次探测时缓存的 ``ImportError``；可用则返回 ``None``。
 
-   import habit
+可选依赖白名单存放在 ``habit._OPTIONAL_DEPENDENCIES``（V1 = ``("autogluon",)``）。
+向白名单加项**必须是刻意修改**——这是为了避免新依赖被悄悄当作可选。
 
-   # 检查包版本
-   print(f"HABIT version: {habit.__version__}")
+调用 ``is_available`` / ``import_error`` 时若传入未登记的名字，会抛
+``ValueError``，提示当前白名单内容。
 
-   # 检查可用的模块
-   available_modules = habit.get_available_modules()
-   print(f"Available modules: {list(available_modules.keys())}")
-
-   # 检查导入错误
-   import_errors = habit.get_import_errors()
-   if import_errors:
-       print(f"Import errors: {import_errors}")
-
-检查模块可用性
-^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   import habit
-
-   # 检查特定模块是否可用
-   if habit.is_module_available('HabitatAnalysis'):
-       analyzer = habit.HabitatAnalysis()
-       # 使用分析器...
-   else:
-       print("HabitatAnalysis is not available")
-       print(f"Error: {habit.get_import_errors().get('HabitatAnalysis')}")
-
-   if habit.is_module_available('Modeling'):
-       model = habit.Modeling()
-       # 使用模型...
-   else:
-       print("Modeling is not available")
-
-高级功能
---------
-
-使用 ImportManager
-^^^^^^^^^^^^^^^^^^
-
-``ImportManager`` 类提供了更高级的导入管理功能：
-
-.. code-block:: python
-
-   from habit.utils.import_utils import ImportManager
-
-   # 创建导入管理器
-   manager = ImportManager()
-
-   # 安全导入模块
-   numpy = manager.safe_import('numpy', alias='np')
-   pandas = manager.safe_import('pandas', alias='pd')
-
-   # 安全导入类
-   rf_classifier = manager.safe_import('sklearn.ensemble', 'RandomForestClassifier', 'RFC')
-
-   # 批量导入
-   imports = [
-       ('matplotlib.pyplot', None, 'plt'),
-       ('seaborn', None, 'sns'),
-       ('sklearn.metrics', 'accuracy_score', 'acc_score'),
-   ]
-
-   results = manager.safe_import_multiple(imports)
-
-   # 检查导入状态
-   manager.print_import_status(verbose=True)
-
-   # 获取错误信息
-   errors = manager.get_import_errors()
-   warnings = manager.get_import_warnings()
-
-依赖检查
-^^^^^^^^
-
-.. code-block:: python
-
-   from habit.utils.import_utils import check_dependencies
-
-   # 检查必需和可选依赖
-   required_modules = ['numpy', 'pandas', 'sklearn']
-   optional_modules = ['matplotlib', 'seaborn', 'plotly']
-
-   status = check_dependencies(required_modules, optional_modules)
-
-   for module, available in status.items():
-       if available:
-           print(f"✓ {module} is available")
-       else:
-           print(f"✗ {module} is not available")
-
-模块信息查询
-^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from habit.utils.import_utils import get_module_info
-
-   # 获取模块详细信息
-   modules_to_check = ['numpy', 'pandas', 'nonexistent_module']
-
-   for module in modules_to_check:
-       info = get_module_info(module)
-       print(f"\n{module}:")
-       print(f"  Available: {info['available']}")
-       print(f"  Version: {info['version']}")
-       print(f"  Path: {info['path']}")
-       if info['error']:
-           print(f"  Error: {info['error']}")
-
-装饰器使用
-^^^^^^^^^^
-
-.. code-block:: python
-
-   from habit.utils.import_utils import safe_import_decorator
-
-   # 使用装饰器安全导入
-   @safe_import_decorator('matplotlib.pyplot', alias='plt', default_value=None)
-   def plot_data(data, plt):
-       if plt is None:
-           print("matplotlib.pyplot is not available, skipping plot")
-           return
-
-       plt.plot(data)
-       plt.show()
-
-   # 调用函数
-   plot_data([1, 2, 3, 4, 5])
-
-错误处理最佳实践
-----------------
-
-1. 检查模块可用性
-^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   import habit
-
-   def safe_analysis():
-       if not habit.is_module_available('HabitatAnalysis'):
-           print("HabitatAnalysis is not available")
-           return None
-
-       try:
-           analyzer = habit.HabitatAnalysis()
-           return analyzer
-       except Exception as e:
-           print(f"Error creating analyzer: {e}")
-           return None
-
-2. 提供替代方案
-^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from habit.utils.import_utils import ImportManager
-
-   def get_plotting_backend():
-       manager = ImportManager()
-
-       # 尝试不同的绘图后端
-       backends = [
-           ('matplotlib.pyplot', None, 'plt'),
-           ('plotly.express', None, 'px'),
-           ('seaborn', None, 'sns'),
-       ]
-
-       for module_path, class_name, alias in backends:
-           backend = manager.safe_import(module_path, class_name, alias)
-           if backend is not None:
-               print(f"Using {alias} for plotting")
-               return backend
-
-       print("No plotting backend available")
-       return None
-
-3. 条件功能启用
-^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   import habit
-
-   class FeatureProcessor:
-       def __init__(self):
-           self.has_ml = habit.is_module_available('Modeling')
-           self.has_analysis = habit.is_module_available('HabitatAnalysis')
-
-       def process_features(self, data):
-           if self.has_analysis:
-               # 使用HabitatAnalysis处理
-               analyzer = habit.HabitatAnalysis()
-               return analyzer.process(data)
-           else:
-               # 使用基础处理
-               return self.basic_process(data)
-
-       def train_model(self, X, y):
-           if self.has_ml:
-               # 使用Modeling训练
-               model = habit.Modeling()
-               return model.train(X, y)
-           else:
-               print("Machine learning module not available")
-               return None
-
-测试导入健壮性
+正确的使用模式
 --------------
 
-运行测试脚本来验证导入容错机制：
-
-.. code-block:: bash
-
-   python scripts/test_import_robustness.py
-
-这个脚本会测试：
-
-- 基本导入功能
-- 模块可用性检查
-- 导入工具功能
-- 优雅失败处理
-
-常见问题
---------
-
-Q: 如何知道哪些模块导入失败了？
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A: 使用 ``habit.get_import_errors()`` 获取详细的错误信息：
+**核心能力使用** ——直接 import，不需要做任何"是否可用"判断：
 
 .. code-block:: python
 
    import habit
 
-   errors = habit.get_import_errors()
-   for module, error in errors.items():
-       print(f"{module}: {error}")
+   analysis = habit.HabitatAnalysis(config, ...)
+   analysis.fit()
 
-Q: 如何强制重新导入模块？
-^^^^^^^^^^^^^^^^^^^^^^^^
+   model = habit.Modeling(config_path)
+   model.run()
 
-A: 使用 Python 的 ``importlib.reload()``：
+如果上述 import 失败，你拿到的是真正的 ``ImportError``，traceback 会指向
+真正的问题（比如缺 ``SimpleITK``、``pyradiomics``），而不是模糊的 "object
+has no attribute"。
+
+**可选能力（如 AutoGluon）** ——先查询：
 
 .. code-block:: python
 
-   import importlib
    import habit
 
-   # 重新加载模块
-   importlib.reload(habit)
+   if habit.is_available('autogluon'):
+       from habit.core.machine_learning.models import AutoGluonTabularModel
+       model = AutoGluonTabularModel(config)
+   else:
+       # 退回到默认 ensemble 或提示用户安装
+       ...
 
-Q: 如何禁用导入警告？
-^^^^^^^^^^^^^^^^^^^^
+通用 ImportManager（utils 层）
+-----------------------------
 
-A: 使用 Python 的 warnings 模块：
-
-.. code-block:: python
-
-   import warnings
-   warnings.filterwarnings("ignore", category=ImportWarning)
-
-   import habit  # 不会显示导入警告
-
-Q: 如何检查特定版本的模块？
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A: 使用 ``get_module_info()`` 函数：
+如果你在写自己的脚本/工具，需要 **批量、临时** 探测一组依赖（不限于 HABIT
+登记的可选项），可以直接用 ``habit.utils.import_utils`` 提供的工具：
 
 .. code-block:: python
 
-   from habit.utils.import_utils import get_module_info
+   from habit.utils.import_utils import ImportManager, check_dependencies
 
-   info = get_module_info('numpy')
-   if info['available'] and info['version']:
-       print(f"NumPy version: {info['version']}")
+   manager = ImportManager()
+   plt = manager.safe_import('matplotlib.pyplot', alias='plt')
+   if plt is None:
+       print("matplotlib 不可用：", manager.get_import_errors().get('plt'))
+
+   status = check_dependencies(
+       required_modules=['numpy', 'pandas', 'sklearn'],
+       optional_modules=['matplotlib', 'seaborn'],
+   )
+   for name, ok in status.items():
+       print('OK' if ok else 'MISS', name)
+
+注意：``ImportManager`` 是 **utils 层** 的通用工具，与上面的
+``habit.is_available`` / ``habit.import_error`` **不是同一回事**。前者是
+你自己的脚本可以随手用的"safe import 容器"；后者是 HABIT 暴露给用户的
+**显式接口**，仅覆盖经过白名单登记的可选依赖。
+
+V0 行为已移除
+-------------
+
+V0 曾在 ``habit/core/__init__.py`` 与 ``habit/core/habitat_analysis/__init__.py``
+里维护 ``_import_errors`` / ``_available_classes`` 字典并暴露
+``get_import_errors`` / ``get_available_classes`` / ``is_class_available``
+三个函数。V1 已经移除这套机制：核心 import 直接 fail-fast，可选 dep 走
+``is_available`` / ``import_error``。
+
+如果你的旧代码用过下列 API，请按映射改写：
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - V0
+     - V1
+   * - ``habit.get_import_errors()``
+     - 直接 ``import habit``，失败会抛真正的 ``ImportError``。
+   * - ``habit.get_available_classes()``
+     - 不再需要——核心类是必然可用的。
+   * - ``habit.is_class_available('HabitatAnalysis')``
+     - 不再需要。
+   * - ``habit.is_class_available('AutoGluonTabularModel')``
+     - 改为 ``habit.is_available('autogluon')``。
 
 总结
 ----
 
-HABIT 包的导入容错机制提供了：
+V1 的导入策略以"接口诚实"为目标：
 
-1. **可靠性** - 包可以在部分模块缺失的情况下正常工作
-2. **透明度** - 清楚了解哪些功能可用，哪些不可用
-3. **灵活性** - 可以根据可用模块调整功能
-4. **调试能力** - 详细的错误信息和状态跟踪
+- **核心模块** —— fail-fast，错误信息清晰。
+- **可选依赖** —— 白名单 + 显式 ``is_available`` / ``import_error``。
+- **业务无关的临时探测** —— 用 ``habit.utils.import_utils`` 的 ``ImportManager``。
 
-这个机制确保了 HABIT 包在各种环境中的稳定性和可用性。
+调用方因此可以放心写 ``import habit; habit.HabitatAnalysis(...)``，
+不需要再被 "万一是 None" 这种历史遗留迫使写防御代码。

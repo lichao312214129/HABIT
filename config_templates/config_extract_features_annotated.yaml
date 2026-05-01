@@ -2,11 +2,11 @@
 # Habitat Feature Extraction Configuration Template
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# Based on actual code: scripts/app_extracting_habitat_features.py
+# Used by:  habit extract  (entry: habit/cli_commands/commands/cmd_extract_features.py)
 #
 # Quick Start:
 #   CLI:    habit extract --config config/config_extract_features.yaml
-#   Script: python scripts/app_extracting_habitat_features.py --config config/config_extract_features.yaml
+#   CLI:    habit extract --config config/config_extract_features.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

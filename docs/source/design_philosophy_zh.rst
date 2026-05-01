@@ -81,23 +81,28 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
 
 .. code-block:: python
 
-   from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import (
+       HabitatConfigurator,
+       MLConfigurator,
+       PreprocessingConfigurator,
+   )
+   from habit.core.preprocessing.config_schemas import PreprocessingConfig
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-   from habit.core.machine_learning import MLWorkflow
+   from habit.core.machine_learning.config_schemas import MLConfig
 
-   # 预处理
-   processor = BatchProcessor(config_path='config_preprocessing.yaml')
+   # Preprocessing
+   pre_cfg = PreprocessingConfig.from_file('config_preprocessing.yaml')
+   processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
    processor.process_batch()
 
-   # 生境分析
-   config = HabitatAnalysisConfig.from_file('config_habitat.yaml')
-   configurator = ServiceConfigurator(config=config)
-   habitat_analysis = configurator.create_habitat_analysis()
+   # Habitat analysis
+   habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
+   habitat_analysis = HabitatConfigurator(config=habitat_cfg).create_habitat_analysis()
    habitat_analysis.run()
 
-   # 机器学习
-   workflow = MLWorkflow(config)
+   # Machine learning
+   ml_cfg = MLConfig.from_file('config_machine_learning.yaml')
+   workflow = MLConfigurator(config=ml_cfg).create_ml_workflow()
    workflow.run_pipeline()
 
 **统一体验：**
@@ -139,7 +144,7 @@ HABIT 的模块相互独立，职责明确：
 
 - **PreprocessorFactory**: 创建预处理器
 - **FeatureExtractorFactory**: 创建特征提取器
-- **ClusteringFactory**: 创建聚类算法
+- **get_clustering_algorithm**: 创建聚类算法
 - **ModelFactory**: 创建机器学习模型
 - **SelectorRegistry**: 管理特征选择器
 
@@ -155,6 +160,10 @@ HABIT 的模块相互独立，职责明确：
 
    @register_feature_extractor('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
+       pass
+
+   @register_clustering("my_clustering")
+   class MyClustering(BaseClustering):
        pass
 
    @ModelFactory.register("my_model")
@@ -177,7 +186,7 @@ HABIT 的模块相互独立，职责明确：
 
 - **预处理器**: 继承 `BasePreprocessor`，实现 `__call__` 方法
 - **特征提取器**: 继承 `BaseClusteringExtractor`，实现 `extract_features` 方法
-- **聚类算法**: 继承 `BaseClusteringAlgorithm`，实现 `fit_predict` 方法
+- **聚类算法**: 继承 `BaseClustering`，实现 `fit_predict` 方法
 - **模型**: 继承 `BaseModel`，实现 `fit`、`predict`、`predict_proba` 方法
 
 **标准化规范：**
@@ -238,7 +247,7 @@ YAML 格式更加灵活，适合复杂的数据组织：
 
 - **BasePreprocessor**: 预处理器基类
 - **BaseClusteringExtractor**: 特征提取器基类
-- **BaseClusteringAlgorithm**: 聚类算法基类
+- **BaseClustering**: 聚类算法基类
 - **BaseModel**: 模型基类
 
 **继承和多态：**
@@ -257,16 +266,16 @@ YAML 格式更加灵活，适合复杂的数据组织：
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # 加载配置
+   # Load configuration
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config)
 
-   # 创建生境分析对象
+   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
    # 运行生境分析

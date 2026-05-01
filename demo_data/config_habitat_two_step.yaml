@@ -4,15 +4,13 @@
 run_mode: train
 
 # Data paths
-data_dir: H:\Registration_ICC_structured
-out_dir: H:\results_young_funding
+data_dir: ./preprocessed/processed_images
+out_dir: ./results/habitat_two_step
 
 # Feature extraction settings (only needed for train mode)
 FeatureConstruction:
   voxel_level:
-    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
-    params:
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'

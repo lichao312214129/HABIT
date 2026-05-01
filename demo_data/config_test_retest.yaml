@@ -5,7 +5,7 @@
 out_dir: ./ml_data/test_retest
 
 # Input configuration for test-retest mapping
-# Note: The actual script (app_habitat_test_retest_mapper.py) uses command-line arguments
+# Note: The CLI command (`habit retest`) consumes this config file.
 # This config file is mainly for CLI integration and logging setup
 
 # Test habitat table (CSV or Excel format)

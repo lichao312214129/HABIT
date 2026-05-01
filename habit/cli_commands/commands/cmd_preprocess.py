@@ -22,7 +22,7 @@ def run_preprocess(config_path: str) -> None:
     Args:
         config_path (str): Path to configuration YAML file
     """
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import PreprocessingConfigurator
     
     # Check if config file exists first
     if not os.path.exists(config_path):
@@ -33,10 +33,9 @@ def run_preprocess(config_path: str) -> None:
         # 1. Load Config (Typed & Path Resolved)
         config = PreprocessingConfig.from_file(config_path)
         
-        # 2. Setup Logging
-        # We set it up manually here to ensure we capture early logs, 
-        # or we let ServiceConfigurator handle it. 
-        # For consistency with cmd_habitat, let's setup logger explicitly so we can pass it to Configurator.
+        # 2. Setup Logging.
+        # Set up the CLI-level logger explicitly so it can be reused by the
+        # configurator (consistent with cmd_habitat).
         output_dir = Path(config.out_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -62,7 +61,7 @@ def run_preprocess(config_path: str) -> None:
                 multiprocessing.set_start_method('spawn', force=True)
                 logger.info("Set multiprocessing start method to 'spawn' on Windows")
             
-            configurator = ServiceConfigurator(config=config, logger=logger)
+            configurator = PreprocessingConfigurator(config=config, logger=logger)
             processor = configurator.create_batch_processor()
             logger.info("Successfully initialized BatchProcessor")
         except Exception as e:

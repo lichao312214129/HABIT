@@ -8,6 +8,7 @@
    :caption: 开发文档
 
    architecture
+   module_architecture
    contributing
 
 快速开始

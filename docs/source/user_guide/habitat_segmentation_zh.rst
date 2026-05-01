@@ -113,19 +113,19 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # 加载配置
+   # Load configuration
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config)
 
-   # 创建生境分析对象
+   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # 运行生境分析
+   # Run
    habitat_analysis.run()
 
 **详细示例：**
@@ -133,12 +133,12 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from pathlib import Path
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
    from habit.utils.log_utils import setup_logger
-   from pathlib import Path
 
-   # 设置日志
+   # Logging
    output_dir = Path('./results/habitat')
    output_dir.mkdir(parents=True, exist_ok=True)
    logger = setup_logger(
@@ -148,16 +148,16 @@ Python API 使用方法
        level=logging.INFO
    )
 
-   # 加载配置
+   # Load configuration
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
 
-   # 创建生境分析对象
+   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # 运行生境分析
+   # Run
    logger.info("开始生境分析")
    habitat_analysis.run(save_results_csv=True)
    logger.info("生境分析完成！")
@@ -473,19 +473,19 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # 加载配置
+   # Load configuration
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config)
 
-   # 创建生境分析对象
+   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # 运行生境分析
+   # Run
    habitat_analysis.run()
 
 **关键要点：**
@@ -601,8 +601,8 @@ HABIT 支持自定义特征提取器，您可以添加自己的特征提取方�
 
 .. code-block:: python
 
-   from habit.core.habit_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habit_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
 
    @register_feature_extractor('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
@@ -611,7 +611,7 @@ HABIT 支持自定义特征提取器，您可以添加自己的特征提取方�
            self.feature_names = ['feature1', 'feature2', 'feature3']
 
        def extract_features(self, image_data, **kwargs):
-           # 实现特征提取逻辑
+           # Implement feature extraction logic.
            n_samples = image_data.shape[0]
            features = np.random.random((n_samples, 3))
            return features

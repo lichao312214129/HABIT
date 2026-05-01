@@ -26,27 +26,19 @@ habitat_analysis 模块
    :undoc-members:
    :show-inheritance:
 
-分析策略 (Analysis Strategies)
--------------------------------
+Pipeline 与步骤 (Pipeline & Steps)
+-----------------------------------
 
-不同的策略决定了如何从 ROI 中提取生境特征。
+V1 已删除旧的 ``strategies/`` 子包；``clustering_mode`` 的分发集中在
+``HabitatAnalysis`` 内部的 recipe 字典。开发者应从 pipeline 基类和具体 step
+理解当前执行结构。
 
-.. automodule:: habit.core.habitat_analysis.strategies.two_step_strategy
+.. automodule:: habit.core.habitat_analysis.pipelines.base_pipeline
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: habit.core.habitat_analysis.strategies.one_step_strategy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.habitat_analysis.strategies.direct_pooling_strategy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.habitat_analysis.strategies.base_strategy
+.. automodule:: habit.core.habitat_analysis.pipelines.steps
    :members:
    :undoc-members:
    :show-inheritance:

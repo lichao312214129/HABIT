@@ -100,12 +100,6 @@ habit get-habitat --config config/config_getting_habitat.yaml
 habit get-habitat -c config/config_getting_habitat.yaml
 ```
 
-### Using Scripts (Legacy)
-
-```bash
-python scripts/app_getting_habitat_map.py --config config/config_getting_habitat.yaml
-```
-
 ## 📝 Creating New Annotated Files
 
 When creating new annotated configuration files:
@@ -124,7 +118,7 @@ When creating new annotated configuration files:
 
 - **Main README**: [README.md](../README.md) / [README_en.md](../README_en.md)
 - **Habitat Analysis**: [doc/app_habitat_analysis.md](../doc/app_habitat_analysis.md) / [doc_en/app_habitat_analysis.md](../doc_en/app_habitat_analysis.md)
-- **Machine Learning**: [doc/app_of_machine_learning.md](../doc/app_of_machine_learning.md) / [doc_en/app_of_machine_learning.md](../doc_en/app_of_machine_learning.md)
+- **Machine Learning**: see `docs/source/user_guide/machine_learning_modeling_zh.rst`
 
 ---
 

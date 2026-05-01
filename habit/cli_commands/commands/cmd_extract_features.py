@@ -19,7 +19,7 @@ def run_extract_features(config_file: str) -> None:
     Args:
         config_file (str): Path to configuration YAML file
     """
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import HabitatConfigurator
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)
@@ -50,7 +50,7 @@ def run_extract_features(config_file: str) -> None:
         click.echo(f"Starting habitat feature extraction with config: {config_file}")
         
         # 3. Initialize Service
-        configurator = ServiceConfigurator(config=config, logger=logger)
+        configurator = HabitatConfigurator(config=config, logger=logger)
         extractor = configurator.create_feature_extractor()
         
         # 4. Run Extraction

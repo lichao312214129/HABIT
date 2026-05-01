@@ -18,7 +18,7 @@ def run_test_retest(config_file: str) -> None:
         config_file (str): Path to configuration YAML file
     """
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.service_configurator import ServiceConfigurator
+    from habit.core.common.configurators import HabitatConfigurator
     from habit.core.machine_learning.config_schemas import TestRetestConfig
     from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
         find_habitat_mapping, batch_process_files, setup_logger as setup_test_retest_logger
@@ -52,8 +52,8 @@ def run_test_retest(config_file: str) -> None:
         logger.info(f"Starting test-retest analysis with config: {config_file}")
         click.echo(f"Starting test-retest analysis with config: {config_file}")
         
-        # Create service configurator
-        configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+        # Validate the test-retest config via the habitat configurator.
+        configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
         cfg = configurator.create_test_retest_analyzer()
         
         # Setup debug logging for test-retest mapper module

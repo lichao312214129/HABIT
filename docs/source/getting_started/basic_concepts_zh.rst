@@ -73,19 +73,19 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # 加载配置
+   # Load configuration
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config)
 
-   # 创建生境分析对象
+   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # 运行生境分析
+   # Run
    habitat_analysis.run()
 
 **机器学习中的 Pipeline:**
@@ -224,23 +224,28 @@ HABIT 提供两种使用方式：CLI 和 Python API。
 
 .. code-block:: python
 
-   from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import (
+       HabitatConfigurator,
+       MLConfigurator,
+       PreprocessingConfigurator,
+   )
+   from habit.core.preprocessing.config_schemas import PreprocessingConfig
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-   from habit.core.machine_learning import MLWorkflow
+   from habit.core.machine_learning.config_schemas import MLConfig
 
-   # 预处理
-   processor = BatchProcessor(config_path='config_preprocessing.yaml')
+   # Preprocessing
+   pre_cfg = PreprocessingConfig.from_file('config_preprocessing.yaml')
+   processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
    processor.process_batch()
 
-   # 生境分析
-   config = HabitatAnalysisConfig.from_file('config_habitat.yaml')
-   configurator = ServiceConfigurator(config=config)
-   habitat_analysis = configurator.create_habitat_analysis()
+   # Habitat analysis
+   habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
+   habitat_analysis = HabitatConfigurator(config=habitat_cfg).create_habitat_analysis()
    habitat_analysis.run()
 
-   # 机器学习
-   workflow = MLWorkflow(config)
+   # Machine learning
+   ml_cfg = MLConfig.from_file('config_machine_learning.yaml')
+   workflow = MLConfigurator(config=ml_cfg).create_ml_workflow()
    workflow.run_pipeline()
 
 **选择建议：**

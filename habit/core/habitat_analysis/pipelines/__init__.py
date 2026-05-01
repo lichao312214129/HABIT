@@ -1,13 +1,14 @@
 """
 Pipeline module for habitat analysis.
 
-This module provides a sklearn-like pipeline interface for habitat analysis workflows.
+This module provides a sklearn-style pipeline interface for habitat
+analysis workflows. Mode dispatch (``two_step`` / ``one_step`` /
+``direct_pooling``) lives inside ``habitat_analysis.HabitatAnalysis``
+via the ``_PIPELINE_RECIPES`` dictionary; there is no longer a separate
+``pipeline_builder`` module or ``build_habitat_pipeline`` factory in V1.
 """
 
 from .base_pipeline import BasePipelineStep, HabitatPipeline
-from .pipeline_builder import build_habitat_pipeline
-
-# Import steps for convenience
 from .steps import (
     VoxelFeatureExtractor,
     SubjectPreprocessingStep,
@@ -24,7 +25,6 @@ from .steps import (
 __all__ = [
     'BasePipelineStep',
     'HabitatPipeline',
-    'build_habitat_pipeline',
     # Steps
     'VoxelFeatureExtractor',
     'SubjectPreprocessingStep',

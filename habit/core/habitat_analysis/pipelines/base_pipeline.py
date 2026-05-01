@@ -459,6 +459,11 @@ class HabitatPipeline:
                 f"Failed to process {len(failed_subjects)} subject(s): "
                 f"{', '.join(str(s) for s in failed_subjects)}"
             )
+            if not results:
+                raise ValueError(
+                    "All subjects failed during individual-level processing. "
+                    "Check the errors above before running group-level pipeline steps."
+                )
         
         logger.info(
             f"Individual-level processing completed: "

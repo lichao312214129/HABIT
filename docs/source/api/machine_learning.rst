@@ -6,6 +6,13 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
+开发者阅读入口
+----------------
+
+理解机器学习模块时，建议先从 ``MLConfig``、``BaseWorkflow``、
+``PipelineBuilder``、``ModelFactory`` 和 ``run_selector`` 读起。整体代码架构
+和模块边界见 :doc:`../development/module_architecture`。
+
 工作流 (Workflows)
 -------------------
 
@@ -17,11 +24,6 @@ machine_learning 模块
    :show-inheritance:
 
 .. automodule:: habit.core.machine_learning.workflows.kfold_workflow
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.machine_learning.workflows.prediction_workflow
    :members:
    :undoc-members:
    :show-inheritance:

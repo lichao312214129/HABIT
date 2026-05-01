@@ -47,19 +47,19 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import PreprocessingConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
-   # 加载配置
+   # Load configuration
    config = PreprocessingConfig.from_file('./config_preprocessing.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the preprocessing configurator
+   configurator = PreprocessingConfigurator(config=config)
 
-   # 创建预处理器
+   # Build the batch processor
    processor = configurator.create_batch_processor()
 
-   # 运行预处理
+   # Run preprocessing
    processor.process_batch()
 
 **详细示例：**
@@ -67,12 +67,12 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from pathlib import Path
+   from habit.core.common.configurators import PreprocessingConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
    from habit.utils.log_utils import setup_logger
-   from pathlib import Path
 
-   # 设置日志
+   # Logging
    output_dir = Path('./preprocessed')
    output_dir.mkdir(parents=True, exist_ok=True)
    logger = setup_logger(
@@ -82,13 +82,13 @@ Python API 使用方法
        level=logging.INFO
    )
 
-   # 加载配置
+   # Load configuration
    config = PreprocessingConfig.from_file('./config_preprocessing.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+   # Build the preprocessing configurator
+   configurator = PreprocessingConfigurator(config=config, logger=logger, output_dir=str(output_dir))
 
-   # 创建预处理器
+   # Build the batch processor
    processor = configurator.create_batch_processor()
 
    # 运行预处理

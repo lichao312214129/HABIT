@@ -47,19 +47,19 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
 
-   # 加载配置
+   # Load configuration
    config = FeatureExtractionConfig.from_file('./config_extract_features.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config)
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config)
 
-   # 创建特征提取器
+   # Build the feature extractor
    analyzer = configurator.create_feature_extractor()
 
-   # 运行特征提取
+   # Run feature extraction
    analyzer.run(
        feature_types=config.feature_types,
        n_habitats=config.n_habitats
@@ -70,12 +70,12 @@ Python API 使用方法
 .. code-block:: python
 
    import logging
-   from habit.core.common.service_configurator import ServiceConfigurator
+   from pathlib import Path
+   from habit.core.common.configurators import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
    from habit.utils.log_utils import setup_logger
-   from pathlib import Path
 
-   # 设置日志
+   # Logging
    output_dir = Path('./results/features')
    output_dir.mkdir(parents=True, exist_ok=True)
    logger = setup_logger(
@@ -85,13 +85,13 @@ Python API 使用方法
        level=logging.INFO
    )
 
-   # 加载配置
+   # Load configuration
    config = FeatureExtractionConfig.from_file('./config_extract_features.yaml')
 
-   # 创建配置器
-   configurator = ServiceConfigurator(config=config, logger=logger, output_dir=str(output_dir))
+   # Build the habitat configurator
+   configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
 
-   # 创建特征提取器
+   # Build the feature extractor
    analyzer = configurator.create_feature_extractor()
 
    # 运行特征提取

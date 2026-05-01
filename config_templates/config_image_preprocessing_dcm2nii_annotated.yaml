@@ -6,7 +6,7 @@
 #
 # Quick Start:
 #   CLI:    habit preprocess --config config/config_image_preprocessing_dcm2nii.yaml
-#   Script: python scripts/app_image_preprocessing.py --config config/config_image_preprocessing_dcm2nii.yaml
+#   CLI:    habit preprocess --config config/config_image_preprocessing_dcm2nii.yaml
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

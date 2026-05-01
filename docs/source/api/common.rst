@@ -11,7 +11,22 @@ common 模块
 
 HABIT 使用一套基于 YAML 的强类型配置系统。
 
-.. automodule:: habit.core.common.service_configurator
+.. automodule:: habit.core.common.configurators.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.configurators.habitat
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.configurators.ml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.common.configurators.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:
