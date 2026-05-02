@@ -4,7 +4,7 @@
 
 整体依赖规则与包级拓扑见同目录 Sphinx 源码 [architecture.rst](architecture.rst)；本文更关注「读代码时从哪里开始、改功能时改哪里」。若需网页版渲染，请以 `architecture.rst` 与 `module_architecture.rst` 为准构建文档。
 
----
+***
 
 ## 总览
 
@@ -26,20 +26,20 @@ CLI / Python API
 
 它们通过**文件产物**衔接，而不是通过跨域对象引用衔接。跨域共享能力放在 `habit.core.common` 和 `habit.utils`。
 
----
+***
 
 ## 入口与装配层
 
 ### 关键文件
 
-| 文件 | 职责 |
-|------|------|
-| `habit/cli.py` | Click 根入口，集中注册所有 `habit <subcommand>` 命令。 |
-| `habit/cli_commands/commands/cmd_*.py` | 业务命令的薄封装：加载配置、创建 configurator、调用业务对象。 |
-| `habit/core/common/configurators/base.py` | configurator 公共基类，处理 logger、输出目录和轻量服务缓存。 |
-| `habit/core/common/configurators/habitat.py` | 装配 habitat 分析、habitat 特征抽取、传统 radiomics、test-retest。 |
-| `habit/core/common/configurators/ml.py` | 装配 ML workflow、KFold、模型比较、评估、报告、绘图组件。 |
-| `habit/core/common/configurators/preprocessing.py` | 装配图像预处理 `BatchProcessor`。 |
+| 文件                                                 | 职责                                                   |
+| -------------------------------------------------- | ---------------------------------------------------- |
+| `habit/cli.py`                                     | Click 根入口，集中注册所有 `habit <subcommand>` 命令。            |
+| `habit/cli_commands/commands/cmd_*.py`             | 业务命令的薄封装：加载配置、创建 configurator、调用业务对象。                |
+| `habit/core/common/configurators/base.py`          | configurator 公共基类，处理 logger、输出目录和轻量服务缓存。             |
+| `habit/core/common/configurators/habitat.py`       | 装配 habitat 分析、habitat 特征抽取、传统 radiomics、test-retest。 |
+| `habit/core/common/configurators/ml.py`            | 装配 ML workflow、KFold、模型比较、评估、报告、绘图组件。                |
+| `habit/core/common/configurators/preprocessing.py` | 装配图像预处理 `BatchProcessor`。                            |
 
 ### 标准调用链
 
@@ -66,7 +66,7 @@ habit <command> -c config.yaml
 - 新增需要 YAML 的业务服务：先定义 `BaseConfig` 子类，再在对应 domain configurator 添加 `create_*`。
 - configurator 内部的业务 `import` 应放在 factory 方法内部，避免 `habit.core.common` **顶层** `import` 业务子包。
 
----
+***
 
 ## `habit.core.preprocessing`
 
@@ -78,19 +78,19 @@ habit <command> -c config.yaml
 
 ### 关键文件
 
-| 文件 | 职责 |
-|------|------|
-| `config_schemas.py` | `PreprocessingConfig` 和每个步骤配置的 Pydantic schema。 |
-| `image_processor_pipeline.py` | `BatchProcessor`，按 subject 并行调度整条预处理链。 |
-| `base_preprocessor.py` | `BasePreprocessor`，所有具体预处理器的统一接口。 |
-| `preprocessor_factory.py` | `PreprocessorFactory`，通过注册名创建具体 preprocessor。 |
-| `load_image.py` | `LoadImagePreprocessor`，把路径读取成 `SimpleITK.Image`。 |
-| `dcm2niix_converter.py` | `Dcm2niixConverter`，调用外部 dcm2niix。 |
-| `resample.py` / `registration.py` / `n4_correction.py` 等 | 具体预处理步骤，均通过 factory 注册。 |
+| 文件                                                       | 职责                                                |
+| -------------------------------------------------------- | ------------------------------------------------- |
+| `config_schemas.py`                                      | `PreprocessingConfig` 和每个步骤配置的 Pydantic schema。   |
+| `image_processor_pipeline.py`                            | `BatchProcessor`，按 subject 并行调度整条预处理链。            |
+| `base_preprocessor.py`                                   | `BasePreprocessor`，所有具体预处理器的统一接口。                 |
+| `preprocessor_factory.py`                                | `PreprocessorFactory`，通过注册名创建具体 preprocessor。     |
+| `load_image.py`                                          | `LoadImagePreprocessor`，把路径读取成 `SimpleITK.Image`。 |
+| `dcm2niix_converter.py`                                  | `Dcm2niixConverter`，调用外部 dcm2niix。                |
+| `resample.py` / `registration.py` / `n4_correction.py` 等 | 具体预处理步骤，均通过 factory 注册。                           |
 
 ### 数据流
 
-```
+```Textile
 PreprocessingConfig
   -> PreprocessingConfigurator.create_batch_processor()
   -> BatchProcessor.process_batch()
@@ -123,7 +123,7 @@ PreprocessingConfig
 - 预处理器应尽量只读写自己声明处理的键。
 - 进度条统一使用 `habit.utils.progress_utils.CustomTqdm` 或经 `parallel_utils` 间接使用。
 
----
+***
 
 ## `habit.core.habitat_analysis`
 
@@ -133,18 +133,18 @@ PreprocessingConfig
 
 ### 关键文件
 
-| 文件 | 职责 |
-|------|------|
-| `habitat_analysis.py` | `HabitatAnalysis` deep module：`build`、`fit`、`predict`、持久化、结果后处理。 |
-| `config_schemas.py` | `HabitatAnalysisConfig`、`FeatureExtractionConfig`、`RadiomicsConfig` 等。 |
-| `pipelines/base_pipeline.py` | `HabitatPipeline`、`BasePipelineStep`、`IndividualLevelStep`、`GroupLevelStep`。 |
-| `pipelines/steps/*.py` | 体素特征、subject 预处理、个体聚类、supervoxel 聚合、群体聚类等步骤。 |
-| `managers/feature_manager.py` | 特征抽取、特征预处理、supervoxel 级特征计算。 |
-| `managers/clustering_manager.py` | 聚类算法、最佳聚类数选择、训练状态。 |
-| `managers/result_manager.py` | habitat / supervoxel 图像和 CSV 落盘。 |
-| `algorithms/` | KMeans、GMM、DBSCAN、SLIC 等聚类策略实现。 |
-| `extractors/` | voxel / supervoxel 级特征抽取器与表达式解析。 |
-| `analyzers/` | 已生成 habitat map 上的特征提取、传统 radiomics 等。 |
+| 文件                               | 职责                                                                           |
+| -------------------------------- | ---------------------------------------------------------------------------- |
+| `habitat_analysis.py`            | `HabitatAnalysis` deep module：`build`、`fit`、`predict`、持久化、结果后处理。             |
+| `config_schemas.py`              | `HabitatAnalysisConfig`、`FeatureExtractionConfig`、`RadiomicsConfig` 等。       |
+| `pipelines/base_pipeline.py`     | `HabitatPipeline`、`BasePipelineStep`、`IndividualLevelStep`、`GroupLevelStep`。 |
+| `pipelines/steps/*.py`           | 体素特征、subject 预处理、个体聚类、supervoxel 聚合、群体聚类等步骤。                                 |
+| `managers/feature_manager.py`    | 特征抽取、特征预处理、supervoxel 级特征计算。                                                 |
+| `managers/clustering_manager.py` | 聚类算法、最佳聚类数选择、训练状态。                                                           |
+| `managers/result_manager.py`     | habitat / supervoxel 图像和 CSV 落盘。                                             |
+| `algorithms/`                    | KMeans、GMM、DBSCAN、SLIC 等聚类策略实现。                                              |
+| `extractors/`                    | voxel / supervoxel 级特征抽取器与表达式解析。                                             |
+| `analyzers/`                     | 已生成 habitat map 上的特征提取、传统 radiomics 等。                                       |
 
 ### Pipeline 结构
 
@@ -203,7 +203,7 @@ images + masks
 - manager 注入使用显式白名单 `_PIPELINE_MANAGER_ATTRS`；新增 manager 必须同步修改白名单与注入逻辑。
 - 更细说明：`habit/core/habitat_analysis/ARCHITECTURE.md`、`habit/core/habitat_analysis/PIPELINE_DESIGN.md`。
 
----
+***
 
 ## `habit.core.machine_learning`
 
@@ -213,18 +213,18 @@ images + masks
 
 ### 关键文件
 
-| 文件 | 职责 |
-|------|------|
-| `config_schemas.py` | `MLConfig`、模型配置、特征选择配置、比较配置等。 |
-| `base_workflow.py` | `BaseWorkflow`：配置、数据管理、pipeline builder、callbacks 骨架。 |
-| `workflows/holdout_workflow.py` | `MachineLearningWorkflow`：训练与预测主 workflow。 |
-| `workflows/kfold_workflow.py` | `MachineLearningKFoldWorkflow`。 |
-| `workflows/comparison_workflow.py` | `ModelComparison`。 |
-| `data_manager.py` | 读取、合并、切分 CSV。 |
-| `pipeline_utils.py` | `PipelineBuilder`、`FeatureSelectTransformer`。 |
-| `models/` | `ModelFactory` 与具体模型。 |
-| `feature_selectors/` | selector 注册表、`run_selector`、ICC 等。 |
-| `evaluation/`、`visualization/`、`reporting/`、`callbacks/` | 评估、绘图、报告、回调。 |
+| 文件                                                       | 职责                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `config_schemas.py`                                      | `MLConfig`、模型配置、特征选择配置、比较配置等。                         |
+| `base_workflow.py`                                       | `BaseWorkflow`：配置、数据管理、pipeline builder、callbacks 骨架。 |
+| `workflows/holdout_workflow.py`                          | `MachineLearningWorkflow`：训练与预测主 workflow。            |
+| `workflows/kfold_workflow.py`                            | `MachineLearningKFoldWorkflow`。                       |
+| `workflows/comparison_workflow.py`                       | `ModelComparison`。                                    |
+| `data_manager.py`                                        | 读取、合并、切分 CSV。                                         |
+| `pipeline_utils.py`                                      | `PipelineBuilder`、`FeatureSelectTransformer`。         |
+| `models/`                                                | `ModelFactory` 与具体模型。                                 |
+| `feature_selectors/`                                     | selector 注册表、`run_selector`、ICC 等。                    |
+| `evaluation/`、`visualization/`、`reporting/`、`callbacks/` | 评估、绘图、报告、回调。                                          |
 
 ### 训练调用链
 
@@ -280,7 +280,7 @@ imputer
 - **绘图文字必须用英文**（项目约定）。
 - 评估/绘图/报告尽量放在对应子包或 callback，workflow 只做编排。
 
----
+***
 
 ## `habit.core.common`
 
@@ -290,15 +290,15 @@ imputer
 
 ### 关键文件
 
-| 文件 | 职责 |
-|------|------|
-| `config_base.py` | `BaseConfig`、`from_file` / `from_dict` / `to_dict`。 |
-| `config_loader.py` | YAML/JSON 读写与路径解析。 |
-| `config_validator.py` | 历史兼容校验入口。 |
-| `config_accessor.py` | dict 与 Pydantic 访问辅助。 |
-| `configurators/` | 域专用服务装配入口。 |
-| `dependency_injection.py` | 通用 DI 容器（当前非主路径）。 |
-| `dataframe_utils.py` | 表格清洗辅助。 |
+| 文件                        | 职责                                                  |
+| ------------------------- | --------------------------------------------------- |
+| `config_base.py`          | `BaseConfig`、`from_file` / `from_dict` / `to_dict`。 |
+| `config_loader.py`        | YAML/JSON 读写与路径解析。                                  |
+| `config_validator.py`     | 历史兼容校验入口。                                           |
+| `config_accessor.py`      | dict 与 Pydantic 访问辅助。                               |
+| `configurators/`          | 域专用服务装配入口。                                          |
+| `dependency_injection.py` | 通用 DI 容器（当前非主路径）。                                   |
+| `dataframe_utils.py`      | 表格清洗辅助。                                             |
 
 ### 边界
 
@@ -308,7 +308,7 @@ imputer
 
 不要把带领域语义的运行逻辑塞进 `common`。
 
----
+***
 
 ## `habit.utils`
 
@@ -318,17 +318,17 @@ imputer
 
 ### 常见工具
 
-| 模块 | 职责 |
-|------|------|
-| `progress_utils.py` | 统一进度条 `CustomTqdm`。 |
-| `parallel_utils.py` | 并行 map，整合进度条与错误收集。 |
-| `log_utils.py` | 日志初始化与子进程日志恢复。 |
-| `io_utils.py` | 通用 I/O、image/mask 路径扫描。 |
-| `dicom_utils.py` | DICOM 元信息扫描与提取。 |
-| `dice_calculator.py` | Dice 批量计算。 |
-| `visualization_utils.py` / `visualization.py` | 绘图风格与可视化辅助。 |
-| `habitat_postprocess_utils.py` | habitat map 连通域等后处理。 |
-| `file_system_utils.py` / `import_utils.py` / `image_converter.py` | 文件、动态 import、格式转换。 |
+| 模块                                                                | 职责                      |
+| ----------------------------------------------------------------- | ----------------------- |
+| `progress_utils.py`                                               | 统一进度条 `CustomTqdm`。     |
+| `parallel_utils.py`                                               | 并行 map，整合进度条与错误收集。      |
+| `log_utils.py`                                                    | 日志初始化与子进程日志恢复。          |
+| `io_utils.py`                                                     | 通用 I/O、image/mask 路径扫描。 |
+| `dicom_utils.py`                                                  | DICOM 元信息扫描与提取。         |
+| `dice_calculator.py`                                              | Dice 批量计算。              |
+| `visualization_utils.py` / `visualization.py`                     | 绘图风格与可视化辅助。             |
+| `habitat_postprocess_utils.py`                                    | habitat map 连通域等后处理。    |
+| `file_system_utils.py` / `import_utils.py` / `image_converter.py` | 文件、动态 import、格式转换。      |
 
 ### 维护注意事项
 
@@ -337,19 +337,19 @@ imputer
 - 绘图与图中标签用英文。
 - `utils` 不要 `import` 业务 domain；若工具出现领域耦合，迁回对应子包。
 
----
+***
 
 ## 辅助工具命令
 
-| 命令 | 实现位置 | 说明 |
-|------|----------|------|
+| 命令                 | 实现位置                                               | 说明                    |
+| ------------------ | -------------------------------------------------- | --------------------- |
 | `habit dicom-info` | `cmd_dicom_info.py` + `habit/utils/dicom_utils.py` | 扫描 DICOM、列出或导出指定 tag。 |
-| `habit merge-csv` | `cmd_merge_csv.py` | 按索引列横向合并 CSV/Excel。 |
-| `habit dice` | `habit/cli.py` + `habit/utils/dice_calculator.py` | 批量 Dice。 |
+| `habit merge-csv`  | `cmd_merge_csv.py`                                 | 按索引列横向合并 CSV/Excel。   |
+| `habit dice`       | `habit/cli.py` + `habit/utils/dice_calculator.py`  | 批量 Dice。              |
 
 以上命令不走 domain configurator；若后续需要复杂装配与 YAML，可迁至 `cmd_*.py` + schema + configurator 的标准模式。
 
----
+***
 
 ## 开发者阅读顺序
 
