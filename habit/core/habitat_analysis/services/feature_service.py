@@ -12,9 +12,10 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
-from ..config_schemas import HabitatAnalysisConfig, ResultColumns
+from ..config_schemas import HabitatAnalysisConfig
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
+from ..feature_preprocessing import apply_variance_filter, apply_correlation_filter
 from ..utils.preprocessing_state import process_features_pipeline
 
 class FeatureService:
@@ -342,17 +343,16 @@ class FeatureService:
             for method in methods:
                 method_name = method.method
 
+                # Column-dropping preprocessors live in feature_preprocessing/
+                # because they cannot be expressed through the value-only
+                # process_features_pipeline path used for the else branch.
                 if method_name == 'variance_filter':
                     threshold = (
                         float(method.variance_threshold)
                         if method.variance_threshold is not None
                         else 0.0
                     )
-                    variances = processed_df.var()
-                    selected_cols = variances[variances > threshold].index.tolist()
-                    if not selected_cols:
-                        selected_cols = [variances.sort_values(ascending=False).index[0]]
-                    processed_df = processed_df[selected_cols]
+                    processed_df = apply_variance_filter(processed_df, threshold)
 
                 elif method_name == 'correlation_filter':
                     threshold = (
@@ -360,32 +360,13 @@ class FeatureService:
                         if method.corr_threshold is not None
                         else 0.95
                     )
-                    # 相关性过滤（correlation_filter）步骤，根据给定的相关性阈值（threshold）去除高度相关的特征列
-                    corr_method = method.corr_method or 'spearman'  # 优先用配置的相关方法，否则默认为 spearman
-                    if processed_df.shape[1] > 1:
-                        # 计算相关性矩阵，取绝对值，并将空值填为 0.0
-                        corr = processed_df.corr(method=corr_method).abs().fillna(0.0)
-                        kept_cols = list(processed_df.columns)  # 初始化保留全部列
-                        i = 0
-                        # 逐步遍历每一列，与后续所有列进行两两比较
-                        while i < len(kept_cols):
-                            current = kept_cols[i]
-                            to_remove = []
-                            for j in range(i + 1, len(kept_cols)):
-                                candidate = kept_cols[j]
-                                # 若当前列与候选列的相关性大于阈值，则标记为移除
-                                if corr.loc[current, candidate] > threshold:
-                                    to_remove.append(candidate)
-                            # 仅保留未被高相关性移除的列
-                            kept_cols = [col for col in kept_cols if col not in to_remove]
-                            i += 1
-                        # 如果全部列都被过滤，只保留第一列作为兜底
-                        if not kept_cols:
-                            kept_cols = [processed_df.columns[0]]
-                        processed_df = processed_df[kept_cols]
+                    corr_method = method.corr_method or 'spearman'
+                    processed_df = apply_correlation_filter(
+                        processed_df, threshold, corr_method
+                    )
 
                 else:
-                    # Keep existing stateless behavior for value-transform methods.
+                    # Stateless value-transform methods (scaling, binning, ...).
                     transformed = process_features_pipeline(processed_df.values, methods=[method])
                     processed_df = pd.DataFrame(
                         transformed,
@@ -425,48 +406,6 @@ class FeatureService:
             f"Unsupported preprocessing level: {level}. "
             "Group-level preprocessing is handled by Pipeline steps."
         )
-
-    def calculate_supervoxel_means(
-        self,
-        subject: str,
-        feature_df: pd.DataFrame,
-        raw_df: pd.DataFrame,
-        supervoxel_labels: np.ndarray,
-        n_clusters_supervoxel: int
-    ) -> pd.DataFrame:
-        """
-        Calculate supervoxel-level features (aggregated from voxel features).
-        """
-        feature_names = feature_df.columns.tolist()
-        original_feature_names = raw_df.columns.tolist()
-        
-        unique_labels = np.arange(1, n_clusters_supervoxel + 1)
-        data_rows = []
-        
-        for label in unique_labels:
-            indices = supervoxel_labels == label
-            if np.any(indices):
-                mean_features = np.mean(feature_df[indices], axis=0)
-                mean_original = np.mean(raw_df.values[indices], axis=0)
-                count = np.sum(indices)
-                
-                data_row = {
-                    ResultColumns.SUBJECT: subject,
-                    ResultColumns.SUPERVOXEL: label,
-                    ResultColumns.COUNT: count,
-                }
-                
-                # Add processed feature means
-                for j, name in enumerate(feature_names):
-                    data_row[name] = mean_features[j]
-                
-                # Add original feature means
-                for j, name in enumerate(original_feature_names):
-                    data_row[f"{name}{ResultColumns.ORIGINAL_SUFFIX}"] = mean_original[j]
-                
-                data_rows.append(data_row)
-        
-        return pd.DataFrame(data_rows)
 
     def setup_supervoxel_files(
         self, 

@@ -16,6 +16,12 @@ from pydantic import BaseModel
 # Import ResultColumns to identify metadata columns
 from ..config_schemas import ResultColumns
 
+# Single source of truth for the variance/correlation filter algorithms.
+from ..feature_preprocessing import (
+    select_variance_columns,
+    select_correlation_columns,
+)
+
 # =============================================================================
 # Utility Functions (Stateless)
 # =============================================================================
@@ -341,39 +347,6 @@ class PreprocessingState:
         # This guarantees predict mode uses exactly the same selected columns as train.
         self.selected_columns_by_step: Dict[int, List[str]] = {}
 
-    @staticmethod
-    def _compute_variance_selected_columns(df: pd.DataFrame, threshold: float) -> List[str]:
-        """Select columns whose variance is strictly greater than threshold."""
-        variances = df.var()
-        selected = variances[variances > threshold].index.tolist()
-        if not selected:
-            selected = [variances.sort_values(ascending=False).index[0]]
-        return selected
-
-    @staticmethod
-    def _compute_correlation_selected_columns(
-        df: pd.DataFrame,
-        threshold: float,
-        method: str
-    ) -> List[str]:
-        """Remove highly correlated columns while preserving a deterministic order."""
-        if df.shape[1] <= 1:
-            return list(df.columns)
-        corr = df.corr(method=method).abs().fillna(0.0)
-        features = list(df.columns)
-        i = 0
-        while i < len(features):
-            current = features[i]
-            to_remove: List[str] = []
-            for j in range(i + 1, len(features)):
-                candidate = features[j]
-                if corr.loc[current, candidate] > threshold:
-                    to_remove.append(candidate)
-            features = [col for col in features if col not in to_remove]
-            i += 1
-        if not features:
-            return [df.columns[0]]
-        return features
         
     def fit(self, df: pd.DataFrame, methods: List[Union[Dict[str, Any], BaseModel]]) -> None:
         """
@@ -491,14 +464,14 @@ class PreprocessingState:
 
             elif method_name == 'variance_filter':
                 variance_threshold = _get_method_attr(method_config, 'variance_threshold', 0.0)
-                selected_cols = self._compute_variance_selected_columns(temp_df, variance_threshold)
+                selected_cols = select_variance_columns(temp_df, variance_threshold)
                 self.selected_columns_by_step[step_index] = selected_cols
                 temp_df = temp_df[selected_cols]
 
             elif method_name == 'correlation_filter':
                 corr_threshold = _get_method_attr(method_config, 'corr_threshold', 0.95)
                 corr_method = _get_method_attr(method_config, 'corr_method', 'spearman')
-                selected_cols = self._compute_correlation_selected_columns(
+                selected_cols = select_correlation_columns(
                     temp_df, corr_threshold, corr_method
                 )
                 self.selected_columns_by_step[step_index] = selected_cols

@@ -62,11 +62,15 @@ except ImportError as e:
     ConcatImageFeatureExtractor = None
 
 try:
-    from .mean_voxel_features_extractor import MeanVoxelFeaturesExtractor
+    from .mean_voxel_features_extractor import (
+        MeanVoxelFeaturesExtractor,
+        calculate_supervoxel_means,
+    )
     _available_extractors['MeanVoxelFeaturesExtractor'] = MeanVoxelFeaturesExtractor
 except ImportError as e:
     logger.warning(f"Failed to import MeanVoxelFeaturesExtractor: {e}")
     MeanVoxelFeaturesExtractor = None
+    calculate_supervoxel_means = None
 
 try:
     from .local_entropy_extractor import LocalEntropyExtractor
@@ -114,7 +118,7 @@ def get_feature_extractor(name: str) -> Optional[Type]:
 # Define __all__ with only available modules
 __all__ = [
     "BaseClusteringExtractor", "BaseFeatureExtractor", "register_feature_extractor", "get_feature_extractors",
-    "get_feature_extractor"
+    "get_feature_extractor", "calculate_supervoxel_means"
 ]
 
 # Add available extractors to __all__

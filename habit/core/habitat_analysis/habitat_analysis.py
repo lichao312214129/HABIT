@@ -139,7 +139,7 @@ def _build_two_step_steps(
     # Always produce mean-voxel features as a baseline aggregation per supervoxel.
     steps.append((
         'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(feature_service, config),
+        CalculateMeanVoxelFeaturesStep(config),
     ))
 
     # Conditionally extract advanced supervoxel features (e.g. radiomics) when
@@ -250,7 +250,7 @@ def _build_one_step_steps(
     # Even in one-step we want aggregated per-label features for downstream output.
     steps.append((
         'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(feature_service, config),
+        CalculateMeanVoxelFeaturesStep(config),
     ))
 
     steps.append((

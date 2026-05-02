@@ -11,7 +11,7 @@ import numpy as np
 import logging
 
 from ..base_pipeline import IndividualLevelStep
-from ...services.feature_service import FeatureService
+from ...clustering_features import calculate_supervoxel_means
 from ...config_schemas import HabitatAnalysisConfig
 
 
@@ -35,25 +35,18 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
     **Individual-level step**: Processes each subject independently in parallel.
     
     Attributes:
-        feature_service: FeatureService instance
         config: Configuration object
         fitted_: bool indicating whether the step has been fitted
     """
     
-    def __init__(
-        self,
-        feature_service: FeatureService,
-        config: HabitatAnalysisConfig
-    ):
+    def __init__(self, config: HabitatAnalysisConfig):
         """
         Initialize calculate mean voxel features step.
-        
+
         Args:
-            feature_service: FeatureService instance
-            config: Configuration object
+            config: Configuration object.
         """
         super().__init__()
-        self.feature_service = feature_service
         self.config = config
         self.logger = logging.getLogger(__name__)
     
@@ -111,13 +104,13 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
                 unique_labels = np.unique(supervoxel_labels)
                 n_clusters = len(unique_labels)
                 
-                # Calculate mean voxel features per supervoxel
-                mean_features_df = self.feature_service.calculate_supervoxel_means(
-                    subject_id, 
-                    feature_df, 
-                    raw_df, 
-                    supervoxel_labels, 
-                    n_clusters
+                # Calculate mean voxel features per supervoxel.
+                mean_features_df = calculate_supervoxel_means(
+                    subject_id,
+                    feature_df,
+                    raw_df,
+                    supervoxel_labels,
+                    n_clusters,
                 )
                 
                 # Store result with NEW key name

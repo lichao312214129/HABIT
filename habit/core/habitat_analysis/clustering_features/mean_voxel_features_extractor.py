@@ -1,5 +1,15 @@
 """
-Mean voxel features extractor for supervoxels
+Mean voxel features extractor for supervoxels.
+
+This module provides two complementary entry points:
+
+* :class:`MeanVoxelFeaturesExtractor` — image-based extractor registered
+  under the name ``'mean_voxel_features'`` and called via the extractor
+  factory with ``image_data`` + ``supervoxel_map`` (paths or sitk images).
+
+* :func:`calculate_supervoxel_means` — array-based pure function used by
+  the in-memory pipeline (label array + already-extracted voxel features).
+  Same domain (mean voxel intensity per supervoxel), different input shape.
 """
 
 import os
@@ -8,7 +18,75 @@ import pandas as pd
 import SimpleITK as sitk
 from typing import Union, List, Dict, Optional, Any
 
+from ..config_schemas import ResultColumns
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+
+
+def calculate_supervoxel_means(
+    subject: str,
+    feature_df: pd.DataFrame,
+    raw_df: pd.DataFrame,
+    supervoxel_labels: np.ndarray,
+    n_clusters_supervoxel: int,
+) -> pd.DataFrame:
+    """
+    Aggregate voxel-level features into supervoxel-level means.
+
+    For every supervoxel label ``k in [1, n_clusters_supervoxel]``, average
+    the rows of ``feature_df`` and ``raw_df`` whose corresponding entry in
+    ``supervoxel_labels`` equals ``k``. Empty supervoxels are skipped.
+
+    The returned DataFrame contains, per supervoxel:
+
+    * ``ResultColumns.SUBJECT``     : the subject id;
+    * ``ResultColumns.SUPERVOXEL``  : 1-based supervoxel label;
+    * ``ResultColumns.COUNT``       : number of voxels in the supervoxel;
+    * mean of every column in ``feature_df`` (same column names);
+    * mean of every column in ``raw_df``, suffixed with
+      ``ResultColumns.ORIGINAL_SUFFIX`` to disambiguate from the processed
+      ``feature_df`` columns.
+
+    Args:
+        subject: Subject id, copied verbatim into the ``Subject`` column.
+        feature_df: Per-voxel processed features. One row per voxel,
+            aligned with ``supervoxel_labels``.
+        raw_df: Per-voxel raw features (pre-processing inputs). Same row
+            alignment as ``feature_df``.
+        supervoxel_labels: 1-D array of integer labels, one per voxel.
+        n_clusters_supervoxel: Number of supervoxels; labels are expected
+            to be in ``range(1, n_clusters_supervoxel + 1)``.
+
+    Returns:
+        DataFrame with one row per non-empty supervoxel.
+    """
+    feature_names = feature_df.columns.tolist()
+    original_feature_names = raw_df.columns.tolist()
+
+    unique_labels = np.arange(1, n_clusters_supervoxel + 1)
+    data_rows: List[Dict[str, Any]] = []
+
+    for label in unique_labels:
+        indices = supervoxel_labels == label
+        if not np.any(indices):
+            continue
+
+        mean_features = np.mean(feature_df[indices], axis=0)
+        mean_original = np.mean(raw_df.values[indices], axis=0)
+        count = int(np.sum(indices))
+
+        data_row: Dict[str, Any] = {
+            ResultColumns.SUBJECT: subject,
+            ResultColumns.SUPERVOXEL: label,
+            ResultColumns.COUNT: count,
+        }
+        for j, name in enumerate(feature_names):
+            data_row[name] = mean_features[j]
+        for j, name in enumerate(original_feature_names):
+            data_row[f"{name}{ResultColumns.ORIGINAL_SUFFIX}"] = mean_original[j]
+
+        data_rows.append(data_row)
+
+    return pd.DataFrame(data_rows)
 
 
 @register_feature_extractor('mean_voxel_features')

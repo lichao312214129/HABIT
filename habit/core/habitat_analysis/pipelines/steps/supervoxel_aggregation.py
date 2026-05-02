@@ -15,7 +15,7 @@ import logging
 import warnings
 
 from ..base_pipeline import IndividualLevelStep
-from ...services.feature_service import FeatureService
+from ...clustering_features import calculate_supervoxel_means
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 
@@ -35,36 +35,28 @@ class SupervoxelAggregationStep(IndividualLevelStep):
     - Use CombineSupervoxelsStep (group-level) to merge all subjects afterwards
     
     Attributes:
-        feature_service: FeatureService instance
         config: Configuration object
         fitted_: bool indicating whether the step has been fitted
     """
     
-    def __init__(
-        self,
-        feature_service: FeatureService,
-        config: HabitatAnalysisConfig
-    ):
+    def __init__(self, config: HabitatAnalysisConfig):
         """
         Initialize supervoxel aggregation step.
-        
+
         DEPRECATED: Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.
 
         Args:
-            feature_service: FeatureService instance
             config: Configuration object
         """
         super().__init__()
-        
-        # Emit deprecation warning
+
         warnings.warn(
             "SupervoxelAggregationStep is deprecated and will be removed in a future version. "
             "Use CalculateMeanVoxelFeaturesStep + MergeSupervoxelFeaturesStep instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
-        
-        self.feature_service = feature_service
+
         self.config = config
         self.logger = logging.getLogger(__name__)
     
@@ -126,13 +118,13 @@ class SupervoxelAggregationStep(IndividualLevelStep):
                 unique_labels = np.unique(supervoxel_labels)
                 n_clusters = len(unique_labels)
                 
-                # Calculate mean voxel features per supervoxel
-                mean_features_df = self.feature_service.calculate_supervoxel_means(
-                    subject_id, 
-                    feature_df, 
-                    raw_df, 
-                    supervoxel_labels, 
-                    n_clusters
+                # Calculate mean voxel features per supervoxel.
+                mean_features_df = calculate_supervoxel_means(
+                    subject_id,
+                    feature_df,
+                    raw_df,
+                    supervoxel_labels,
+                    n_clusters,
                 )
                 
                 # If Step 4 was executed, merge advanced features
