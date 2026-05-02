@@ -40,6 +40,7 @@ extensions = [
     'sphinx.ext.intersphinx',       # Link to external documentation
     'sphinx.ext.mathjax',           # Render math equations
     'sphinx.ext.githubpages',       # Support GitHub Pages
+    'sphinx.ext.graphviz',          # Render Graphviz diagrams (architecture diagrams)
 ]
 
 # Add any paths that contain templates here, relative to this directory.
