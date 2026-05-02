@@ -1,132 +1,140 @@
 """
 Feature extractors module for habitat analysis.
+
+Import policy (V1, aligned with the package-level fail-fast rule):
+
+* Hard dependencies (numpy / pandas / SimpleITK / scipy / six) are imported
+  directly. If any of these is missing the user gets the original
+  ``ImportError`` straight away — silently degrading to ``None`` placeholders
+  hides real configuration bugs and shows up much later as confusing
+  ``AttributeError: 'NoneType' object has no attribute ...`` traces.
+* Truly optional integrations (currently the ``radiomics`` Python package)
+  are guarded with ``try / except ImportError``. The module is still
+  importable without ``radiomics`` installed, but the corresponding
+  extractor classes will be absent from the registry — calling code can
+  query :func:`get_feature_extractors` to detect this.
+
+If you add a new extractor, decide which bucket it belongs in and follow
+the same pattern; do NOT add a generic ``try / except ImportError`` "just
+to be safe" — that defeats the point of fail-fast imports.
 """
 
 import logging
-from typing import Dict, Type, Optional
+from typing import Dict, Optional, Type
+
 from habit.utils.log_utils import get_module_logger
 
-# Set up logging for import errors
 logger = get_module_logger(__name__)
 
-# Base feature extractor - this should always be available
-try:
-    from .base_extractor import (
-        BaseClusteringExtractor,
-        register_feature_extractor
-    )
-    # Alias for backward compatibility
-    BaseFeatureExtractor = BaseClusteringExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import base_extractor: {e}")
-    BaseClusteringExtractor = None
-    BaseFeatureExtractor = None
-    register_feature_extractor = None
+# ---------------------------------------------------------------------------
+# Always-available (hard dependency) extractors
+# ---------------------------------------------------------------------------
 
-# Import feature extractors with error handling
-_available_extractors = {}
+from .base_extractor import (
+    BaseClusteringExtractor,
+    register_feature_extractor,
+)
 
-try:
-    from .kinetic_feature_extractor import KineticFeatureExtractor
-    _available_extractors['KineticFeatureExtractor'] = KineticFeatureExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import KineticFeatureExtractor: {e}")
-    KineticFeatureExtractor = None
+# Backward-compatible alias (downstream code referenced this name pre-V1).
+BaseFeatureExtractor = BaseClusteringExtractor
 
-try:
-    from .raw_feature_extractor import RawFeatureExtractor
-    _available_extractors['RawFeatureExtractor'] = RawFeatureExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import RawFeatureExtractor: {e}")
-    RawFeatureExtractor = None
+from .kinetic_feature_extractor import KineticFeatureExtractor
+from .raw_feature_extractor import RawFeatureExtractor
+from .concat_feature_extractor import ConcatImageFeatureExtractor
+from .mean_voxel_features_extractor import (
+    MeanVoxelFeaturesExtractor,
+    calculate_supervoxel_means,
+)
+from .local_entropy_extractor import LocalEntropyExtractor
+from .my_feature_extractor import MyFeatureExtractor
+
+_available_extractors: Dict[str, Type] = {
+    'KineticFeatureExtractor': KineticFeatureExtractor,
+    'RawFeatureExtractor': RawFeatureExtractor,
+    'ConcatImageFeatureExtractor': ConcatImageFeatureExtractor,
+    'MeanVoxelFeaturesExtractor': MeanVoxelFeaturesExtractor,
+    'LocalEntropyExtractor': LocalEntropyExtractor,
+    'MyFeatureExtractor': MyFeatureExtractor,
+}
+
+# ---------------------------------------------------------------------------
+# Optional radiomics-backed extractors
+# ---------------------------------------------------------------------------
+# These need the third-party ``radiomics`` package; without it the package
+# still imports cleanly so non-radiomics workflows keep working.
 
 try:
     from .voxel_radiomics_extractor import VoxelRadiomicsExtractor
+except ImportError as exc:  # pragma: no cover - depends on optional dep
+    logger.info(
+        "VoxelRadiomicsExtractor unavailable (radiomics package not installed): %s",
+        exc,
+    )
+    VoxelRadiomicsExtractor = None  # type: ignore[assignment]
+else:
     _available_extractors['VoxelRadiomicsExtractor'] = VoxelRadiomicsExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import VoxelRadiomicsExtractor: {e}")
-    VoxelRadiomicsExtractor = None
 
 try:
     from .supervoxel_radiomics_extractor import SupervoxelRadiomicsExtractor
-    _available_extractors['SupervoxelRadiomicsExtractor'] = SupervoxelRadiomicsExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import SupervoxelRadiomicsExtractor: {e}")
-    SupervoxelRadiomicsExtractor = None
-
-try:
-    from .concat_feature_extractor import ConcatImageFeatureExtractor
-    _available_extractors['ConcatImageFeatureExtractor'] = ConcatImageFeatureExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import ConcatImageFeatureExtractor: {e}")
-    ConcatImageFeatureExtractor = None
-
-try:
-    from .mean_voxel_features_extractor import (
-        MeanVoxelFeaturesExtractor,
-        calculate_supervoxel_means,
+except ImportError as exc:  # pragma: no cover - depends on optional dep
+    logger.info(
+        "SupervoxelRadiomicsExtractor unavailable (radiomics package not installed): %s",
+        exc,
     )
-    _available_extractors['MeanVoxelFeaturesExtractor'] = MeanVoxelFeaturesExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import MeanVoxelFeaturesExtractor: {e}")
-    MeanVoxelFeaturesExtractor = None
-    calculate_supervoxel_means = None
+    SupervoxelRadiomicsExtractor = None  # type: ignore[assignment]
+else:
+    _available_extractors['SupervoxelRadiomicsExtractor'] = SupervoxelRadiomicsExtractor
 
-try:
-    from .local_entropy_extractor import LocalEntropyExtractor
-    _available_extractors['LocalEntropyExtractor'] = LocalEntropyExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import LocalEntropyExtractor: {e}")
-    LocalEntropyExtractor = None
 
-# Custom feature extractors
-try:
-    from .my_feature_extractor import MyFeatureExtractor
-    _available_extractors['MyFeatureExtractor'] = MyFeatureExtractor
-except ImportError as e:
-    logger.warning(f"Failed to import MyFeatureExtractor: {e}")
-    MyFeatureExtractor = None
-
-# Import feature preprocessing module - MOVED TO UTILS
-# try:
-#     from .feature_preprocessing import preprocess_features
-# except ImportError as e:
-#     logger.warning(f"Failed to import feature_preprocessing: {e}")
-#     preprocess_features = None
+# ---------------------------------------------------------------------------
+# Registry helpers
+# ---------------------------------------------------------------------------
 
 def get_feature_extractors() -> Dict[str, Type]:
     """
     Get all available feature extractors.
-    
+
     Returns:
-        Dict[str, Type]: Dictionary mapping extractor names to their classes
+        Dict[str, Type]: Dictionary mapping extractor names to their classes.
     """
     return _available_extractors.copy()
+
 
 def get_feature_extractor(name: str) -> Optional[Type]:
     """
     Get a specific feature extractor by name.
-    
+
     Args:
-        name (str): Name of the feature extractor
-        
+        name: Name of the feature extractor.
+
     Returns:
-        Optional[Type]: The feature extractor class if available, None otherwise
+        The feature extractor class, or ``None`` when not registered (e.g.
+        a radiomics extractor was requested but radiomics is not installed).
     """
     return _available_extractors.get(name)
 
-# Define __all__ with only available modules
+
 __all__ = [
-    "BaseClusteringExtractor", "BaseFeatureExtractor", "register_feature_extractor", "get_feature_extractors",
-    "get_feature_extractor", "calculate_supervoxel_means"
+    "BaseClusteringExtractor",
+    "BaseFeatureExtractor",
+    "register_feature_extractor",
+    "get_feature_extractors",
+    "get_feature_extractor",
+    "calculate_supervoxel_means",
+    "KineticFeatureExtractor",
+    "RawFeatureExtractor",
+    "ConcatImageFeatureExtractor",
+    "MeanVoxelFeaturesExtractor",
+    "LocalEntropyExtractor",
+    "MyFeatureExtractor",
 ]
+if VoxelRadiomicsExtractor is not None:
+    __all__.append("VoxelRadiomicsExtractor")
+if SupervoxelRadiomicsExtractor is not None:
+    __all__.append("SupervoxelRadiomicsExtractor")
 
-# Add available extractors to __all__
-for extractor_name in _available_extractors.keys():
-    __all__.append(extractor_name)
-
-# Log summary of available extractors
-if _available_extractors:
-    logger.info(f"Successfully imported {len(_available_extractors)} feature extractors: {list(_available_extractors.keys())}")
-else:
-    logger.warning("No feature extractors were successfully imported")
+logger.info(
+    "Loaded %d feature extractors: %s",
+    len(_available_extractors),
+    sorted(_available_extractors.keys()),
+)

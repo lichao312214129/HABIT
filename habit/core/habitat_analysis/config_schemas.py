@@ -3,10 +3,23 @@ Configuration Schemas for Habitat Analysis Workflows
 Uses Pydantic for robust validation and type safety.
 """
 
-from typing import List, Dict, Any, Optional, Union, Literal
+from typing import List, Dict, Any, Optional, Union, Literal, FrozenSet
 from pydantic import BaseModel, Field, model_validator
 
 from habit.core.common.config_base import BaseConfig
+
+# Preprocessing methods that DROP feature columns (variance / correlation
+# filtering). They cannot legally run at subject level when the pipeline is
+# in two-step mode, because each subject would survive a different column
+# subset and group concatenation would be left with NaN-heavy gaps.
+#
+# Single source of truth: imported by both the top-level pydantic validator
+# (``HabitatAnalysisConfig.validate_mode_dependent_fields``) and the runtime
+# guardrail in ``FeatureService._apply_preprocessing``.
+DROPPING_PREPROCESSING_METHODS: FrozenSet[str] = frozenset({
+    'variance_filter',
+    'correlation_filter',
+})
 
 # -----------------------------------------------------------------------------
 # General/Root Configuration
@@ -19,11 +32,22 @@ class HabitatAnalysisConfig(BaseConfig):
     config_file: Optional[str] = Field(None, description="Path to original config file.")
     run_mode: Literal['train', 'predict'] = Field(
         'train',
-        description="Run mode for habitat analysis: train or predict."
+        description=(
+            "Run mode for habitat analysis: 'train' or 'predict'. "
+            "DEPRECATED for new code: prefer calling HabitatAnalysis.fit() / "
+            ".predict() explicitly instead of relying on run_mode dispatch via "
+            "HabitatAnalysis.run(). Kept for backward compatibility with the "
+            "CLI and existing YAML configs."
+        ),
     )
     pipeline_path: Optional[str] = Field(
         None,
-        description="Path to a trained pipeline file used in predict mode."
+        description=(
+            "Path to a trained pipeline file used in predict mode. "
+            "DEPRECATED for new code: prefer passing the path explicitly to "
+            "HabitatAnalysis.predict(pipeline_path=...). Kept for backward "
+            "compatibility with the CLI."
+        ),
     )
     
     FeatureConstruction: Optional['FeatureConstructionConfig'] = Field(
@@ -88,7 +112,7 @@ class HabitatAnalysisConfig(BaseConfig):
             dropping_methods = {
                 method.method
                 for method in subject_methods
-                if method.method in {'variance_filter', 'correlation_filter'}
+                if method.method in DROPPING_PREPROCESSING_METHODS
             }
             if dropping_methods:
                 methods_text = ", ".join(sorted(dropping_methods))

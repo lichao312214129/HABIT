@@ -12,7 +12,7 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
-from ..config_schemas import HabitatAnalysisConfig
+from ..config_schemas import HabitatAnalysisConfig, DROPPING_PREPROCESSING_METHODS
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
 from ..feature_preprocessing import apply_variance_filter, apply_correlation_filter
@@ -24,41 +24,93 @@ class FeatureService:
 
     Pipeline steps call into this class instead of touching extractors and
     preprocessing utilities directly.
+
+    The service has two distinct construction modes:
+
+    * ``train`` — full initialisation: validates ``FeatureConstruction``,
+      parses voxel/supervoxel expressions, builds extractors. Use
+      :meth:`for_train` (or pass ``config.run_mode == 'train'``).
+    * ``predict`` — minimal initialisation: feature extraction state lives
+      inside the loaded pipeline pkl, so we only set safe defaults to keep
+      attribute access from blowing up. Use :meth:`for_predict` (or pass
+      ``config.run_mode == 'predict'``).
+
+    Both factories are equivalent to the existing ``__init__`` and are
+    provided to make caller intent explicit; ``HabitatConfigurator`` keeps
+    using ``__init__`` so existing call sites are unaffected.
     """
-    
+
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize FeatureService.
-        
+        Initialize FeatureService and dispatch on ``config.run_mode``.
+
         Args:
-            config: Habitat analysis configuration
-            logger: Logger instance
+            config: Habitat analysis configuration.
+            logger: Logger instance.
         """
         self.config = config
         self.logger = logger
         self.expression_parser = FeatureExpressionParser()
-        
-        # In predict mode, FeatureConstruction is optional (pipeline is loaded from file)
-        # Only validate and initialize in train mode
-        if config.run_mode == 'train':
-            self._validate_FeatureConstruction()
-            self._init_feature_extractor()
-        else:
-            # In predict mode, skip initialization (pipeline will be loaded from file)
-            # Set minimal defaults to avoid AttributeError
-            self.voxel_method = None
-            self.voxel_params = {}
-            self.voxel_processing_steps = []
-            self.has_supervoxel_config = False
-        
-        # Will be set by set_data_paths
-        self.images_paths = None
-        self.mask_paths = None
-        self.supervoxel_file_dict = None
-        
+
+        # Per-run data paths (filled by set_data_paths). Declared here so
+        # both train and predict instances expose the same attribute set.
+        self.images_paths: Optional[Dict[str, Any]] = None
+        self.mask_paths: Optional[Dict[str, Any]] = None
+        self.supervoxel_file_dict: Optional[Dict[str, str]] = None
+
         # Log file path for subprocesses
-        self._log_file_path = None
-        self._log_level = logging.INFO
+        self._log_file_path: Optional[str] = None
+        self._log_level: int = logging.INFO
+
+        if config.run_mode == 'train':
+            self._init_train_mode()
+        else:
+            self._init_predict_mode()
+
+    @classmethod
+    def for_train(
+        cls,
+        config: HabitatAnalysisConfig,
+        logger: logging.Logger,
+    ) -> 'FeatureService':
+        """Explicit factory for the training run path. See class docstring."""
+        if config.run_mode != 'train':
+            raise ValueError(
+                f"FeatureService.for_train requires config.run_mode == 'train', "
+                f"got '{config.run_mode}'."
+            )
+        return cls(config, logger)
+
+    @classmethod
+    def for_predict(
+        cls,
+        config: HabitatAnalysisConfig,
+        logger: logging.Logger,
+    ) -> 'FeatureService':
+        """Explicit factory for the prediction run path. See class docstring."""
+        if config.run_mode == 'train':
+            raise ValueError(
+                "FeatureService.for_predict requires config.run_mode != 'train' "
+                "(got 'train')."
+            )
+        return cls(config, logger)
+
+    def _init_train_mode(self) -> None:
+        """Full init: validate config and build feature extractors."""
+        self._validate_FeatureConstruction()
+        self._init_feature_extractor()
+
+    def _init_predict_mode(self) -> None:
+        """
+        Minimal init for the predict path. The real feature-extraction
+        state will be restored from the loaded pipeline; we only seed safe
+        defaults so attribute access elsewhere does not blow up before that
+        injection happens.
+        """
+        self.voxel_method = None
+        self.voxel_params: Dict[str, Any] = {}
+        self.voxel_processing_steps: List[Any] = []
+        self.has_supervoxel_config = False
 
     def set_data_paths(self, images_paths: Dict, mask_paths: Dict):
         """Set image and mask paths."""
@@ -322,6 +374,8 @@ class FeatureService:
         if methods:
             # Guardrail: in two-step mode, subject-level feature-dropping can create
             # inconsistent columns across subjects before group concatenation.
+            # Same constant set as the pydantic-level validator in
+            # config_schemas.HabitatAnalysisConfig.validate_mode_dependent_fields.
             if (
                 config_key == 'preprocessing_for_subject_level'
                 and self.config.HabitatsSegmention.clustering_mode == 'two_step'
@@ -329,7 +383,7 @@ class FeatureService:
                 dropping_methods = {
                     method.method
                     for method in methods
-                    if method.method in {'variance_filter', 'correlation_filter'}
+                    if method.method in DROPPING_PREPROCESSING_METHODS
                 }
                 if dropping_methods:
                     methods_text = ", ".join(sorted(dropping_methods))
@@ -408,30 +462,52 @@ class FeatureService:
         )
 
     def setup_supervoxel_files(
-        self, 
-        subjects: List[str], 
+        self,
+        subjects: List[str],
         failed_subjects: List[str],
         out_folder: str
     ) -> None:
-        """Setup dictionary mapping subjects to supervoxel files."""
+        """
+        Map each subject to its supervoxel-label NRRD file produced by the
+        upstream clustering step.
+
+        Matching uses ``_``-delimited tokens of the file basename so that
+        subject ids like ``A1`` cannot accidentally match files for ``A11``
+        (the original substring match was ambiguous when one subject id is a
+        prefix of another).
+        """
         supervoxel_keyword = self.config.FeatureConstruction.supervoxel_level.supervoxel_file_keyword
         supervoxel_files = glob(
             os.path.join(out_folder, supervoxel_keyword)
         )
-        
+
         self.supervoxel_file_dict = {}
         for subject in subjects:
-            for supervoxel_file in supervoxel_files:
-                if subject in supervoxel_file:
-                    self.supervoxel_file_dict[subject] = supervoxel_file
-                    break
-            else:
-                if subject not in failed_subjects and self.config.verbose:
-                    self.logger.warning(f"No supervoxel file found for subject {subject}")
-        
-        if not self.supervoxel_file_dict:
-            # Only raise if we actually need these files (checked later)
-            pass
+            matched = self._find_supervoxel_file_for_subject(subject, supervoxel_files)
+            if matched is not None:
+                self.supervoxel_file_dict[subject] = matched
+            elif subject not in failed_subjects and self.config.verbose:
+                self.logger.warning(f"No supervoxel file found for subject {subject}")
+
+    @staticmethod
+    def _find_supervoxel_file_for_subject(
+        subject: str,
+        candidate_files: List[str]
+    ) -> Optional[str]:
+        """
+        Pick the supervoxel file whose basename contains ``subject`` as a
+        complete ``_``-delimited token (extension stripped first).
+
+        Examples (subject="A1"):
+            "A1_supervoxel.nrrd"             -> match
+            "A11_supervoxel.nrrd"            -> NO match (token is "A11", not "A1")
+            "scan_A1_supervoxel.nrrd"        -> match (subject is one of the tokens)
+        """
+        for path in candidate_files:
+            stem = os.path.splitext(os.path.basename(path))[0]
+            if subject in stem.split('_'):
+                return path
+        return None
 
     def clean_features(self, features: pd.DataFrame) -> pd.DataFrame:
         """Clean feature DataFrame: handle types, inf, nan values."""

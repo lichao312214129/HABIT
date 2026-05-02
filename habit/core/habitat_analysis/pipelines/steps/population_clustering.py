@@ -1,10 +1,8 @@
 """
 Population-level clustering step for habitat analysis pipeline.
 
-This step manages clustering model internally for population-level habitat identification.
-
-Note: This module should not be run directly. Import it as part of the package:
-    from habit.core.habitat_analysis.pipelines.steps import PopulationClusteringStep
+This step manages the clustering model internally for population-level
+habitat identification.
 """
 
 from typing import Any, Optional, Tuple, Dict
@@ -12,19 +10,9 @@ import pandas as pd
 import numpy as np
 import logging
 
-try:
-    from ..base_pipeline import GroupLevelStep
-    from ...clustering.base_clustering import get_clustering_algorithm
-    from ...config_schemas import HabitatAnalysisConfig, ResultColumns
-except ImportError as e:
-    # Provide helpful error message if imported incorrectly
-    import sys
-    if __name__ == "__main__":
-        print("Error: This module cannot be run directly.")
-        print("Please import it as part of the package:")
-        print("  from habit.core.habitat_analysis.pipelines.steps import PopulationClusteringStep")
-        sys.exit(1)
-    raise
+from ..base_pipeline import GroupLevelStep
+from ...clustering.base_clustering import get_clustering_algorithm
+from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 
 class PopulationClusteringStep(GroupLevelStep):

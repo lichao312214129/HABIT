@@ -4,8 +4,7 @@ Subject-level preprocessing step for habitat analysis pipeline.
 This step applies preprocessing at the individual subject level (stateless).
 """
 
-from typing import Dict, Any, Optional
-import pandas as pd
+from typing import Any, Dict
 import logging
 
 from ..base_pipeline import IndividualLevelStep
@@ -15,94 +14,38 @@ from ...services.feature_service import FeatureService
 class SubjectPreprocessingStep(IndividualLevelStep):
     """
     Subject-level preprocessing (stateless).
-    
+
     Each subject is preprocessed independently using its own statistics.
     No state needs to be saved between training and testing.
-    
+
     Attributes:
-        feature_service: FeatureService instance for preprocessing
-        fitted_: bool indicating whether the step has been fitted (always True after fit)
+        feature_service: FeatureService instance for preprocessing.
     """
-    
+
     def __init__(self, feature_service: FeatureService):
-        """
-        Initialize subject preprocessing step.
-        
-        Args:
-            feature_service: FeatureService instance
-        """
         super().__init__()
         self.feature_service = feature_service
         self.logger = logging.getLogger(__name__)
-    
-    def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'SubjectPreprocessingStep':
+
+    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Fit the step (stateless operation, just mark as fitted).
-        
+        Apply subject-level preprocessing to one subject's voxel features.
+
         Args:
-            X: Dict of subject_id -> {
-                'features': pd.DataFrame,
-                'raw': pd.DataFrame,
-                'mask_info': dict
-            }
-            y: Optional target data (not used)
-            **fit_params: Additional fitting parameters (not used)
-            
+            subject_id: Subject identifier.
+            subject_data: Dict with ``features``, ``raw``, ``mask_info`` from
+                :class:`VoxelFeatureExtractor`.
+
         Returns:
-            self
+            Same dict shape as input, with ``features`` replaced by the
+            preprocessed and cleaned DataFrame.
         """
-        # Stateless step - no parameters to learn
-        # Each subject will be preprocessed independently in transform()
-        self.fitted_ = True
-        return self
-    
-    def transform(self, X: Dict[str, Dict]) -> Dict[str, Dict]:
-        """
-        Apply subject-level preprocessing to each subject sequentially.
-        
-        Pipeline handles parallelization at subject level, so this method
-        processes subjects sequentially without parallel logic.
-        
-        Args:
-            X: Dict of subject_id -> {
-                'features': pd.DataFrame,
-                'raw': pd.DataFrame,
-                'mask_info': dict
-            }
-            
-        Returns:
-            Dict of subject_id -> {
-                'features': pd.DataFrame,
-                'raw': pd.DataFrame,
-                'mask_info': dict
-            }
-        """
-        results = {}
-        
-        # Process each subject sequentially (pipeline handles parallelization)
-        for subject_id, data in X.items():
-            try:
-                feature_df = data['features']
-                raw_df = data['raw']
-                mask_info = data['mask_info']
-                
-                # Apply subject-level preprocessing
-                processed_features = self.feature_service.apply_preprocessing(
-                    feature_df, 
-                    level='subject'
-                )
-                
-                # Clean features (handle inf, nan)
-                processed_features = self.feature_service.clean_features(processed_features)
-                
-                results[subject_id] = {
-                    'features': processed_features,
-                    'raw': raw_df,
-                    'mask_info': mask_info
-                }
-                
-            except Exception as e:
-                self.logger.error(f"Error preprocessing subject {subject_id}: {e}")
-                raise
-        
-        return results
+        feature_df = subject_data['features']
+        processed = self.feature_service.apply_preprocessing(feature_df, level='subject')
+        processed = self.feature_service.clean_features(processed)
+
+        return {
+            'features': processed,
+            'raw': subject_data['raw'],
+            'mask_info': subject_data['mask_info'],
+        }

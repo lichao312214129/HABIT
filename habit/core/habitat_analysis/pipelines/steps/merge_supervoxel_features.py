@@ -76,24 +76,21 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         else:
             self.logger.info("Will use MEAN VOXEL features for clustering")
     
-    def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'MergeSupervoxelFeaturesStep':
+    def fit(
+        self,
+        X: Dict[str, Any],
+        y: Optional[Any] = None,
+        **fit_params,
+    ) -> 'MergeSupervoxelFeaturesStep':
         """
-        Fit the step (stateless operation, just mark as fitted).
-        
-        Args:
-            X: Dict of subject_id -> {
-                'mean_voxel_features': pd.DataFrame (always present),
-                'supervoxel_features': pd.DataFrame (optional)
-            }
-            y: Optional target data (not used)
-            **fit_params: Additional fitting parameters (not used)
-            
-        Returns:
-            self
+        Validate that the upstream advanced-feature step actually produced
+        results when the configuration asks for advanced features.
+
+        This is the only individual-level step that needs an explicit fit
+        beyond the base class default — it is the right place to fail fast
+        before the parallel transform fans out across workers.
         """
-        # Validate that required features are available
         if self.use_advanced_features:
-            # Check if at least one subject has advanced features
             has_advanced = any('supervoxel_features' in data for data in X.values())
             if not has_advanced:
                 raise ValueError(
@@ -101,140 +98,104 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                     "SupervoxelFeatureExtractionStep was not executed or failed. "
                     "Make sure supervoxel_level.method is configured correctly."
                 )
-        
         self.fitted_ = True
         return self
-    
-    def transform(self, X: Dict[str, Dict]) -> Dict[str, Dict]:
-        """
-        Select appropriate supervoxel features for each subject.
-        
-        **Decision logic**:
-        - If use_advanced_features=True: Use 'supervoxel_features'
-        - If use_advanced_features=False: Use 'mean_voxel_features'
-        
-        Args:
-            X: Dict of subject_id -> {
-                'mean_voxel_features': pd.DataFrame,
-                'supervoxel_features': pd.DataFrame (optional),
-                ... (other fields)
-            }
-            
-        Returns:
-            Dict of subject_id -> {
-                'supervoxel_df': pd.DataFrame  # Selected features
-            }
-        """
-        results = {}
-        
-        for subject_id, data in X.items():
-            try:
-                if self.use_advanced_features:
-                    # Mode 2: Use advanced features
-                    if 'supervoxel_features' not in data:
-                        raise ValueError(
-                            f"Subject {subject_id} missing 'supervoxel_features'. "
-                            "SupervoxelFeatureExtractionStep must be executed first."
-                        )
-                    
-                    supervoxel_df = data['supervoxel_features'].copy()
-                    
-                    # Ensure standard column names
-                    if 'SupervoxelID' in supervoxel_df.columns and ResultColumns.SUPERVOXEL not in supervoxel_df.columns:
-                        supervoxel_df[ResultColumns.SUPERVOXEL] = supervoxel_df['SupervoxelID']
-                        supervoxel_df = supervoxel_df.drop(columns=['SupervoxelID'])
-                    
-                    if ResultColumns.SUBJECT not in supervoxel_df.columns:
-                        supervoxel_df[ResultColumns.SUBJECT] = subject_id
-                    
-                    # Add Count column (voxels per supervoxel) for consistency with mean_voxel_features path
-                    if ResultColumns.COUNT not in supervoxel_df.columns and 'supervoxel_labels' in data:
-                        labels = np.asarray(data['supervoxel_labels']).ravel()
-                        labels_in_mask = labels[labels > 0]
-                        unique, counts = np.unique(labels_in_mask, return_counts=True)
-                        count_series = pd.Series(counts, index=unique)
-                        supervoxel_df[ResultColumns.COUNT] = supervoxel_df[ResultColumns.SUPERVOXEL].map(count_series).values
-                    
-                    # Ensure all feature columns are numeric type
-                    # Convert any non-numeric feature columns to numeric
-                    non_metadata_cols = [col for col in supervoxel_df.columns 
-                                        if col not in [ResultColumns.SUBJECT, ResultColumns.SUPERVOXEL, ResultColumns.COUNT]]
-                    
-                    if self.config.verbose and len(non_metadata_cols) > 0:
-                        # Check first column before conversion
-                        sample_col = non_metadata_cols[0]
-                        self.logger.info(f"Before conversion - sample column '{sample_col}' dtype: {supervoxel_df[sample_col].dtype}, first value: {supervoxel_df[sample_col].iloc[0]}")
-                    
-                    for col in non_metadata_cols:
-                        supervoxel_df[col] = pd.to_numeric(supervoxel_df[col], errors='coerce')
-                    
-                    if self.config.verbose and len(non_metadata_cols) > 0:
-                        # Check first column after conversion
-                        sample_col = non_metadata_cols[0]
-                        self.logger.info(f"After conversion - sample column '{sample_col}' dtype: {supervoxel_df[sample_col].dtype}, first value: {supervoxel_df[sample_col].iloc[0]}")
-                    
-                    if self.config.verbose:
-                        # Count total columns and true feature columns separately for user-facing clarity.
-                        # True feature columns exclude metadata and "-original" columns.
-                        total_columns = len(supervoxel_df.columns)
-                        true_feature_columns = sum(
-                            ResultColumns.is_feature_column(col) for col in supervoxel_df.columns
-                        )
-                        self.logger.info(
-                            f"Subject {subject_id}: Using ADVANCED features "
-                            f"({len(supervoxel_df)} supervoxels, total columns: {total_columns}, "
-                            f"feature columns: {true_feature_columns})"
-                        )
-                        self.logger.info(
-                            f"Subject {subject_id}: DataFrame dtypes: {supervoxel_df.dtypes.value_counts().to_dict()}"
-                        )
-                
-                else:
-                    # Mode 1: Use mean voxel features
-                    if 'mean_voxel_features' not in data:
-                        raise ValueError(
-                            f"Subject {subject_id} missing 'mean_voxel_features'. "
-                            "CalculateMeanVoxelFeaturesStep must be executed first."
-                        )
-                    
-                    supervoxel_df = data['mean_voxel_features'].copy()
-                    
-                    if self.config.verbose:
-                        # Count total columns and true feature columns separately for user-facing clarity.
-                        # True feature columns exclude metadata and "-original" columns.
-                        total_columns = len(supervoxel_df.columns)
-                        true_feature_columns = sum(
-                            ResultColumns.is_feature_column(col) for col in supervoxel_df.columns
-                        )
-                        self.logger.info(
-                            f"Subject {subject_id}: Using MEAN VOXEL features "
-                            f"({len(supervoxel_df)} supervoxels, total columns: {total_columns}, "
-                            f"feature columns: {true_feature_columns})"
-                        )
-                
-                # In one_step mode the per-subject clustering already produced
-                # habitat labels (the Supervoxel column IS the habitat label).
-                # Mirror Supervoxel into Habitats here so downstream code does
-                # not have to patch the controller-level output.
-                clustering_mode = (
-                    self.config.HabitatsSegmention.clustering_mode
-                    if self.config.HabitatsSegmention is not None
-                    else None
-                )
-                if (
-                    clustering_mode == 'one_step'
-                    and ResultColumns.SUPERVOXEL in supervoxel_df.columns
-                    and ResultColumns.HABITATS not in supervoxel_df.columns
-                ):
-                    supervoxel_df[ResultColumns.HABITATS] = supervoxel_df[ResultColumns.SUPERVOXEL]
 
-                # Store result with unified key name
-                results[subject_id] = {
-                    'supervoxel_df': supervoxel_df
-                }
-                
-            except Exception as e:
-                self.logger.error(f"Error selecting supervoxel features for subject {subject_id}: {e}")
-                raise
-        
-        return results
+    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Pick advanced or mean-voxel supervoxel features for one subject and
+        normalise them into the ``supervoxel_df`` contract consumed by
+        :class:`CombineSupervoxelsStep`.
+        """
+        if self.use_advanced_features:
+            supervoxel_df = self._build_advanced_supervoxel_df(subject_id, subject_data)
+            label = "ADVANCED"
+        else:
+            supervoxel_df = self._build_mean_supervoxel_df(subject_id, subject_data)
+            label = "MEAN VOXEL"
+
+        # In one_step mode the per-subject clustering already produced habitat
+        # labels (the Supervoxel column IS the habitat label). Mirror it into
+        # Habitats here so downstream code does not have to special-case mode.
+        clustering_mode = (
+            self.config.HabitatsSegmention.clustering_mode
+            if self.config.HabitatsSegmention is not None
+            else None
+        )
+        if (
+            clustering_mode == 'one_step'
+            and ResultColumns.SUPERVOXEL in supervoxel_df.columns
+            and ResultColumns.HABITATS not in supervoxel_df.columns
+        ):
+            supervoxel_df[ResultColumns.HABITATS] = supervoxel_df[ResultColumns.SUPERVOXEL]
+
+        if self.config.verbose:
+            true_feature_columns = sum(
+                ResultColumns.is_feature_column(col) for col in supervoxel_df.columns
+            )
+            self.logger.info(
+                f"Subject {subject_id}: Using {label} features "
+                f"({len(supervoxel_df)} supervoxels, "
+                f"feature columns: {true_feature_columns})"
+            )
+
+        return {'supervoxel_df': supervoxel_df}
+
+    def _build_advanced_supervoxel_df(
+        self,
+        subject_id: str,
+        subject_data: Dict[str, Any],
+    ) -> pd.DataFrame:
+        if 'supervoxel_features' not in subject_data:
+            raise ValueError(
+                f"Subject {subject_id} missing 'supervoxel_features'. "
+                "SupervoxelFeatureExtractionStep must be executed first."
+            )
+
+        supervoxel_df = subject_data['supervoxel_features'].copy()
+
+        if (
+            'SupervoxelID' in supervoxel_df.columns
+            and ResultColumns.SUPERVOXEL not in supervoxel_df.columns
+        ):
+            supervoxel_df[ResultColumns.SUPERVOXEL] = supervoxel_df['SupervoxelID']
+            supervoxel_df = supervoxel_df.drop(columns=['SupervoxelID'])
+
+        if ResultColumns.SUBJECT not in supervoxel_df.columns:
+            supervoxel_df[ResultColumns.SUBJECT] = subject_id
+
+        # Voxel-count column for parity with the mean_voxel_features path.
+        if (
+            ResultColumns.COUNT not in supervoxel_df.columns
+            and 'supervoxel_labels' in subject_data
+        ):
+            labels = np.asarray(subject_data['supervoxel_labels']).ravel()
+            labels_in_mask = labels[labels > 0]
+            unique, counts = np.unique(labels_in_mask, return_counts=True)
+            count_series = pd.Series(counts, index=unique)
+            supervoxel_df[ResultColumns.COUNT] = (
+                supervoxel_df[ResultColumns.SUPERVOXEL].map(count_series).values
+            )
+
+        # Coerce any object-typed feature columns to numeric so downstream
+        # statistics / clustering do not blow up on stray strings.
+        non_metadata_cols = [
+            col for col in supervoxel_df.columns
+            if col not in (ResultColumns.SUBJECT, ResultColumns.SUPERVOXEL, ResultColumns.COUNT)
+        ]
+        for col in non_metadata_cols:
+            supervoxel_df[col] = pd.to_numeric(supervoxel_df[col], errors='coerce')
+
+        return supervoxel_df
+
+    def _build_mean_supervoxel_df(
+        self,
+        subject_id: str,
+        subject_data: Dict[str, Any],
+    ) -> pd.DataFrame:
+        if 'mean_voxel_features' not in subject_data:
+            raise ValueError(
+                f"Subject {subject_id} missing 'mean_voxel_features'. "
+                "CalculateMeanVoxelFeaturesStep must be executed first."
+            )
+        return subject_data['mean_voxel_features'].copy()

@@ -359,28 +359,31 @@ class PreprocessingState:
         self.methods_config = methods
         self.selected_columns_by_step = {}
         
-        # Debug: Check DataFrame info
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"PreprocessingState.fit() received DataFrame with shape: {df.shape}")
-        logger.info(f"DataFrame columns: {list(df.columns)[:10]}...")  # First 10 columns
-        logger.info(f"DataFrame dtypes sample: {df.dtypes.value_counts().to_dict()}")
-        
-        # Filter out non-numeric columns (metadata columns like Subject ID)
+        logger.info(
+            f"PreprocessingState.fit() input shape={df.shape}, "
+            f"dtypes={df.dtypes.value_counts().to_dict()}"
+        )
+        # Verbose schema (column names, dtype breakdown) only useful when debugging.
+        logger.debug(f"Input columns sample: {list(df.columns)[:10]}")
+
+        # Filter out non-numeric columns (metadata columns like Subject ID).
         numeric_df = self._get_numeric_columns(df)
-        
-        logger.info(f"After filtering, numeric columns count: {len(numeric_df.columns)}")
-        if len(numeric_df.columns) > 0:
-            logger.info(f"Sample numeric columns: {list(numeric_df.columns)[:5]}")
-        
+        logger.info(f"PreprocessingState.fit() numeric feature columns: {len(numeric_df.columns)}")
+        logger.debug(f"Sample numeric columns: {list(numeric_df.columns)[:5]}")
+
         if numeric_df.empty:
+            # On failure we DO want full diagnostic context at ERROR level.
             logger.error(f"All DataFrame columns: {list(df.columns)}")
             logger.error(f"DataFrame dtypes:\n{df.dtypes}")
             raise ValueError("No numeric columns found in DataFrame. Cannot perform preprocessing.")
         
         # Always compute basic statistics for imputation and potential use
         self.means = numeric_df.mean()
-        self.stds = numeric_df.std().replace(0, 1.0)  # 解释：如果标准差为0，则替换为1.0 为什么这样做？因为如果标准差为0，则所有数据都相同，这样会导致除数为0，所以替换为1.0
+        # When std is 0 (all values identical) z-score division would explode;
+        # replace with 1.0 so the column collapses to (x - mean) without crashing.
+        self.stds = numeric_df.std().replace(0, 1.0)
         self.mins = numeric_df.min()
         self.maxs = numeric_df.max()
         
@@ -532,32 +535,36 @@ class PreprocessingState:
     
     def _get_numeric_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Extract only numeric columns from DataFrame, excluding metadata columns.
-        
+        Extract only numeric feature columns from DataFrame, excluding metadata columns.
+
         Args:
             df: Input DataFrame
-            
+
         Returns:
-            DataFrame containing only numeric feature columns
+            DataFrame containing only numeric feature columns. Empty DataFrame if none survive.
         """
         import logging
         logger = logging.getLogger(__name__)
-        
-        # Get numeric columns
+
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        logger.info(f"select_dtypes found {len(numeric_cols)} numeric columns")
-        if len(numeric_cols) > 0:
-            logger.info(f"Sample numeric columns: {numeric_cols[:5]}")
-        
-        # Filter out metadata columns
         feature_cols = [col for col in numeric_cols if ResultColumns.is_feature_column(col)]
-        logger.info(f"After filtering metadata, {len(feature_cols)} feature columns remain")
-        
+
+        # Verbose breakdown only when explicitly debugging.
+        logger.debug(
+            f"_get_numeric_columns: {len(numeric_cols)} numeric, "
+            f"{len(feature_cols)} feature (after dropping metadata)"
+        )
+
         if not feature_cols:
-            logger.warning(f"Metadata columns found: {[col for col in df.columns if col in ResultColumns.metadata_columns()]}")
-            logger.warning(f"Non-numeric columns: {df.select_dtypes(exclude=[np.number]).columns.tolist()[:10]}")
+            # Surface diagnostics only when the caller is about to fail.
+            logger.warning(
+                f"No feature columns found. Metadata cols: "
+                f"{[c for c in df.columns if c in ResultColumns.metadata_columns()]}; "
+                f"first non-numeric cols: "
+                f"{df.select_dtypes(exclude=[np.number]).columns.tolist()[:10]}"
+            )
             return pd.DataFrame()
-        
+
         return df[feature_cols]
     
     def _apply_method(

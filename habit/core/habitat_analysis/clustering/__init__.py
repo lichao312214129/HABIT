@@ -23,8 +23,8 @@ from .cluster_validation_methods import (
     get_optimization_direction
 )
 
-# 可以添加自定义聚类算法的导入
-# 比如: from .custom_clustering import CustomClustering
+# Add custom clustering algorithm imports here, e.g.:
+#     from .custom_clustering import CustomClustering
 
 __all__ = [
     "BaseClustering", "register_clustering", "get_clustering_algorithm",

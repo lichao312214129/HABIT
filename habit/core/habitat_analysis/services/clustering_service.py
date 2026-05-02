@@ -30,29 +30,79 @@ class ClusteringService:
 
     Pipeline steps call this class to perform voxel/supervoxel/habitat
     clustering, optimal-cluster-number search, and cluster visualisation.
+
+    Two construction modes (mirrors :class:`FeatureService`):
+
+    * ``train`` — initialises clustering algorithms and selection methods
+      from configuration. Use :meth:`for_train` for explicit intent.
+    * ``predict`` — leaves clustering models as ``None``; the loaded
+      pipeline holds the fitted state and is injected over the top via the
+      manager-injection whitelist. Use :meth:`for_predict`.
     """
 
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize ClusteringService.
-        
+        Initialize ClusteringService and dispatch on ``config.run_mode``.
+
         Args:
-            config: Habitat analysis configuration
-            logger: Logger instance
+            config: Habitat analysis configuration.
+            logger: Logger instance.
         """
         self.config = config
         self.logger = logger
-        
+
+        # Always declared so attribute access is uniform across modes.
         self.voxel2supervoxel_clustering = None
         self.supervoxel2habitat_clustering = None
         self.selection_methods = None
-        
-        # In predict mode, HabitatsSegmention details are optional (pipeline is loaded from file)
-        # Only initialize in train mode
+
         if config.run_mode == 'train':
-            self._init_clustering_algorithms()
-            self._init_selection_methods()
-        # In predict mode, clustering models will be loaded from the saved pipeline
+            self._init_train_mode()
+        else:
+            self._init_predict_mode()
+
+    @classmethod
+    def for_train(
+        cls,
+        config: HabitatAnalysisConfig,
+        logger: logging.Logger,
+    ) -> 'ClusteringService':
+        """Explicit factory for the training run path."""
+        if config.run_mode != 'train':
+            raise ValueError(
+                f"ClusteringService.for_train requires config.run_mode == 'train', "
+                f"got '{config.run_mode}'."
+            )
+        return cls(config, logger)
+
+    @classmethod
+    def for_predict(
+        cls,
+        config: HabitatAnalysisConfig,
+        logger: logging.Logger,
+    ) -> 'ClusteringService':
+        """Explicit factory for the prediction run path."""
+        if config.run_mode == 'train':
+            raise ValueError(
+                "ClusteringService.for_predict requires config.run_mode != 'train' "
+                "(got 'train')."
+            )
+        return cls(config, logger)
+
+    def _init_train_mode(self) -> None:
+        """Full init: build clustering algorithms and selection-method wiring."""
+        self._init_clustering_algorithms()
+        self._init_selection_methods()
+
+    def _init_predict_mode(self) -> None:
+        """
+        Minimal init for the predict path. Fitted clustering models live in
+        the loaded pipeline pkl and are injected over the top via the
+        manager-injection whitelist; we leave the attributes as ``None``
+        rather than guessing partial state here.
+        """
+        # Nothing to do: the explicit ``= None`` defaults in __init__ are enough.
+        return
 
     def _build_supervoxel_clustering_params(self, n_clusters: int) -> Dict[str, Any]:
         """
@@ -80,7 +130,9 @@ class ClusteringService:
         return params
 
     @staticmethod
-    def _extract_spatial_info(mask_info: Optional[Dict[str, Any]]) -> Tuple[Optional[np.ndarray], Optional[Tuple[float, ...]]]:
+    def _extract_spatial_info(
+        mask_info: Optional[Dict[str, Any]],
+    ) -> Tuple[Optional[np.ndarray], Optional[Tuple[float, ...]]]:
         """
         Extract voxel coordinates and spacing from mask_info for spatially-aware clustering.
 
@@ -94,18 +146,49 @@ class ClusteringService:
             return None, None
         mask_array = mask_info.get("mask_array")
         mask_img = mask_info.get("mask")
-        
+
         if mask_array is None:
             return None, None
-            
+
         coords = np.column_stack(np.where(mask_array > 0))
-        
-        spacing = None
+
+        spacing: Optional[Tuple[float, ...]] = None
         if mask_img:
-            # SimpleITK spacing is (x, y, z), we need (z, y, x) for skimage/numpy
+            # SimpleITK spacing is (x, y, z), we need (z, y, x) for skimage/numpy.
             spacing = mask_img.GetSpacing()[::-1]
-            
+
         return coords, spacing
+
+    def _spatial_fit_predict_kwargs(
+        self,
+        algorithm: str,
+        mask_info: Optional[Dict[str, Any]],
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        Build the algorithm-specific keyword args for ``fit`` and ``predict``.
+
+        For SLIC (and any future spatial clusterer) we forward voxel
+        coordinates / mask / spacing; for non-spatial algorithms (KMeans,
+        GMM, ...) we return empty dicts so the caller passes only ``X``.
+
+        Returns:
+            Tuple of ``(fit_kwargs, predict_kwargs)``.
+        """
+        if algorithm != "slic":
+            return {}, {}
+
+        spatial_coords, spacing = self._extract_spatial_info(mask_info)
+        mask_array = mask_info.get("mask_array") if isinstance(mask_info, dict) else None
+        fit_kwargs = {
+            "spatial_coords": spatial_coords,
+            "mask_array": mask_array,
+            "spacing": spacing,
+        }
+        predict_kwargs = {
+            "spatial_coords": spatial_coords,
+            "mask_array": mask_array,
+        }
+        return fit_kwargs, predict_kwargs
 
     def _init_clustering_algorithms(self) -> None:
         """Initialize clustering algorithm instances."""
@@ -215,48 +298,26 @@ class ClusteringService:
         """
         try:
             supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-            spatial_coords, spacing = self._extract_spatial_info(mask_info)
-            mask_array = mask_info.get("mask_array") if isinstance(mask_info, dict) else None
+            fit_kwargs, predict_kwargs = self._spatial_fit_predict_kwargs(
+                supervoxel_cfg.algorithm, mask_info
+            )
 
             if n_clusters is not None:
-                # Custom number of clusters (e.g., for one-step optimal clusters)
-                clusterer = get_clustering_algorithm(supervoxel_cfg.algorithm, **self._build_supervoxel_clustering_params(n_clusters))
-                if supervoxel_cfg.algorithm == "slic":
-                    clusterer.fit(
-                        feature_df.values,
-                        spatial_coords=spatial_coords,
-                        mask_array=mask_array,
-                        spacing=spacing
-                    )
-                    supervoxel_labels = clusterer.predict(
-                        feature_df.values,
-                        spatial_coords=spatial_coords,
-                        mask_array=mask_array
-                    )
-                else:
-                    clusterer.fit(feature_df.values)
-                    supervoxel_labels = clusterer.predict(feature_df.values)
+                # Custom number of clusters (e.g. one-step optimal clusters);
+                # build a fresh clusterer instance with the requested k.
+                clusterer = get_clustering_algorithm(
+                    supervoxel_cfg.algorithm,
+                    **self._build_supervoxel_clustering_params(n_clusters),
+                )
             else:
-                # Use default clustering instance
-                if supervoxel_cfg.algorithm == "slic":
-                    self.voxel2supervoxel_clustering.fit(
-                        feature_df.values,
-                        spatial_coords=spatial_coords,
-                        mask_array=mask_array,
-                        spacing=spacing
-                    )
-                    supervoxel_labels = self.voxel2supervoxel_clustering.predict(
-                        feature_df.values,
-                        spatial_coords=spatial_coords,
-                        mask_array=mask_array
-                    )
-                else:
-                    self.voxel2supervoxel_clustering.fit(feature_df.values)
-                    supervoxel_labels = self.voxel2supervoxel_clustering.predict(feature_df.values)
-            
+                clusterer = self.voxel2supervoxel_clustering
+
+            clusterer.fit(feature_df.values, **fit_kwargs)
+            supervoxel_labels = clusterer.predict(feature_df.values, **predict_kwargs)
+
             supervoxel_labels += 1  # 1-indexed
             return supervoxel_labels
-            
+
         except Exception as e:
             self.logger.error(
                 f"Error performing supervoxel clustering for subject {subject}: {e}"
@@ -294,27 +355,32 @@ class ClusteringService:
         )
         
         supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-        clusterer = get_clustering_algorithm(supervoxel_cfg.algorithm, **self._build_supervoxel_clustering_params(max_clusters))
-        spatial_coords, spacing = self._extract_spatial_info(mask_info)
+        clusterer = get_clustering_algorithm(
+            supervoxel_cfg.algorithm,
+            **self._build_supervoxel_clustering_params(max_clusters),
+        )
 
+        # find_optimal_clusters takes the SAME spatial kwargs as fit() for
+        # spatial algorithms (SLIC). Reuse the central helper so the SLIC
+        # branch is not duplicated here.
+        fit_kwargs, _ = self._spatial_fit_predict_kwargs(
+            supervoxel_cfg.algorithm, mask_info
+        )
+        # find_optimal_clusters expects ``spacing`` but not ``mask_array``.
+        spatial_coords = fit_kwargs.get("spatial_coords")
+        spacing = fit_kwargs.get("spacing")
+        find_kwargs: Dict[str, Any] = {
+            "X": feature_df.values,
+            "min_clusters": min_clusters,
+            "max_clusters": max_clusters,
+            "methods": [selection_method],
+            "show_progress": False,
+        }
         if supervoxel_cfg.algorithm == "slic":
-            optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
-                X=feature_df.values,
-                min_clusters=min_clusters,
-                max_clusters=max_clusters,
-                methods=[selection_method],
-                show_progress=False,
-                spatial_coords=spatial_coords,
-                spacing=spacing
-            )
-        else:
-            optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(
-                X=feature_df.values,
-                min_clusters=min_clusters,
-                max_clusters=max_clusters,
-                methods=[selection_method],
-                show_progress=False
-            )
+            find_kwargs["spatial_coords"] = spatial_coords
+            find_kwargs["spacing"] = spacing
+
+        optimal_n_clusters, scores_dict = clusterer.find_optimal_clusters(**find_kwargs)
         
         # Plot validation curves if requested
         if plot_validation and self.config.plot_curves:

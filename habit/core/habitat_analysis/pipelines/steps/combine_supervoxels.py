@@ -15,9 +15,10 @@ from ..base_pipeline import GroupLevelStep
 class CombineSupervoxelsStep(GroupLevelStep):
     """
     Combine supervoxel features from all subjects into a single DataFrame.
-    
-    This is a group-level step that runs after individual-level SupervoxelAggregationStep.
-    It simply concatenates all subjects' supervoxel DataFrames.
+
+    This is a group-level step that runs after the individual-level
+    MergeSupervoxelFeaturesStep. It simply concatenates all subjects'
+    supervoxel DataFrames.
     
     Stateless: simple concatenation operation.
     
@@ -69,7 +70,7 @@ class CombineSupervoxelsStep(GroupLevelStep):
             except KeyError as e:
                 self.logger.error(
                     f"Subject {subject_id} missing 'supervoxel_df' key. "
-                    "Make sure SupervoxelAggregationStep was executed."
+                    "Make sure MergeSupervoxelFeaturesStep was executed."
                 )
                 raise
         
@@ -78,10 +79,13 @@ class CombineSupervoxelsStep(GroupLevelStep):
         
         # Concatenate all subjects' supervoxel DataFrames
         combined_df = pd.concat(all_supervoxel_dfs, ignore_index=True)
-        
-        self.logger.info(f"Combined supervoxel features from {len(all_supervoxel_dfs)} subjects")
-        self.logger.info(f"Combined DataFrame shape: {combined_df.shape}")
-        self.logger.info(f"Combined DataFrame columns: {list(combined_df.columns)[:10]}...")
-        self.logger.info(f"Combined DataFrame dtypes sample: {combined_df.dtypes.value_counts().to_dict()}")
-        
+
+        self.logger.info(
+            f"Combined supervoxel features from {len(all_supervoxel_dfs)} "
+            f"subjects (shape={combined_df.shape})"
+        )
+        # Detailed schema (columns / dtypes) only useful when debugging.
+        self.logger.debug(f"Combined columns sample: {list(combined_df.columns)[:10]}")
+        self.logger.debug(f"Combined dtypes: {combined_df.dtypes.value_counts().to_dict()}")
+
         return combined_df

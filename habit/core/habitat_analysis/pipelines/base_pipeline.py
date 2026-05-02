@@ -74,15 +74,73 @@ class BasePipelineStep(BaseEstimator, TransformerMixin, ABC):
 
 class IndividualLevelStep(BasePipelineStep):
     """
-    Marker class for individual-level pipeline steps.
-    
-    Individual-level steps process each subject independently.
-    They should implement transform() to handle Dict[subject_id -> data].
-    
-    Pipeline automatically identifies these steps and handles parallelization
-    at the subject level, so steps only need to focus on processing logic.
+    Base class for individual-level pipeline steps.
+
+    Individual-level steps process each subject independently. Subclasses
+    only need to implement :meth:`transform_one` — the per-subject
+    transformation. The base class provides:
+
+    * a default stateless :meth:`fit` (individual-level steps do not learn
+      cross-subject parameters; their per-subject behaviour is fully
+      determined by configuration);
+    * a default :meth:`transform` that loops over the input dict and
+      delegates to :meth:`transform_one`, with uniform error handling.
+
+    The pipeline orchestrator can also call :meth:`transform_one` directly
+    on a single subject (this is what enables per-subject parallelism
+    without each step having to write its own ``for`` loop).
     """
-    pass
+
+    def fit(
+        self,
+        X: Dict[str, Any],
+        y: Optional[Any] = None,
+        **fit_params,
+    ) -> 'IndividualLevelStep':
+        """
+        Stateless fit: individual-level steps do not learn cross-subject
+        parameters, so this just marks the step as fitted.
+
+        Subclasses with genuine per-step state may override this.
+        """
+        self.fitted_ = True
+        return self
+
+    @abstractmethod
+    def transform_one(self, subject_id: str, subject_data: Any) -> Any:
+        """
+        Transform a single subject's data.
+
+        Args:
+            subject_id: Subject ID being processed.
+            subject_data: Whatever payload this step's contract expects
+                (typically a dict carrying ``features`` / ``raw`` /
+                ``mask_info`` / ``supervoxel_labels`` / ...).
+
+        Returns:
+            The transformed per-subject payload.
+        """
+
+    def transform(self, X: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Default transform: iterate subjects, delegate to ``transform_one``.
+
+        Subclasses should NOT override this unless they need cross-subject
+        behaviour during transform (in which case they should probably be a
+        :class:`GroupLevelStep` instead).
+        """
+        results: Dict[str, Any] = {}
+        logger = logging.getLogger(self.__class__.__module__)
+        for subject_id, subject_data in X.items():
+            try:
+                results[subject_id] = self.transform_one(subject_id, subject_data)
+            except Exception:
+                logger.error(
+                    f"Error in {self.__class__.__name__} for subject {subject_id}",
+                    exc_info=True,
+                )
+                raise
+        return results
 
 
 class GroupLevelStep(BasePipelineStep):
@@ -164,23 +222,31 @@ class HabitatPipeline:
             self.fitted_ = loaded.fitted_
             self.individual_steps = loaded.individual_steps
             self.group_steps = loaded.group_steps
+            # Loaded pipelines may pre-date the explicit attribute; keep a
+            # dict on hand so downstream code never needs hasattr() guards.
+            self.mask_info_cache: Dict[str, Any] = getattr(loaded, 'mask_info_cache', {}) or {}
         else:
             if not steps:
                 raise ValueError("steps cannot be empty if load_from is not provided")
             self.steps = steps
             self.config = config
             self.fitted_ = False
-            
-            # Automatically separate individual-level and group-level steps by type
-            # No hardcoded step names - clean architecture!
+
+            # Automatically separate individual-level and group-level steps by type.
             self.individual_steps = [
-                (name, step) for name, step in steps 
+                (name, step) for name, step in steps
                 if isinstance(step, IndividualLevelStep)
             ]
             self.group_steps = [
-                (name, step) for name, step in steps 
+                (name, step) for name, step in steps
                 if isinstance(step, GroupLevelStep)
             ]
+
+            # Transient parent-side cache populated by
+            # :meth:`_process_subjects_parallel` after each fit/transform run.
+            # ``HabitatAnalysis`` hands this off to ``ResultWriter`` once,
+            # right before image saving — see ``HabitatAnalysis._save_results``.
+            self.mask_info_cache: Dict[str, Any] = {}
     
     def fit(
         self,
@@ -360,39 +426,31 @@ class HabitatPipeline:
     def _process_single_subject(self, item: Tuple[str, Any]) -> Tuple[str, Any]:
         """
         Process one subject through all individual-level steps sequentially.
-        
-        This is the atomic operation unit for parallelization. Steps are executed
-        sequentially for this single subject without any internal parallelization.
-        
+
+        This is the atomic operation unit for parallelization. Each step's
+        single-subject contract is :meth:`IndividualLevelStep.transform_one`,
+        so no per-step dict-wrapping/unwrapping is needed here.
+
         Args:
-            item: Tuple of (subject_id, input_data)
-            
+            item: Tuple of (subject_id, input_data).
+
         Returns:
-            Tuple of (subject_id, output_data)
+            Tuple of (subject_id, output_data) after all individual-level
+            steps have run on this subject.
         """
         subject_id, subject_data = item
-        
-        # Process this subject through all individual-level steps
         data = subject_data
-        try:
-            for name, step in self.individual_steps:
-                # Call step.transform with single-subject dict (sklearn compatible)
-                single_dict = {subject_id: data}
-                result_dict = step.transform(single_dict)
-                # Extract data for this subject from result
-                # (handle both Dict and single-item Dict)
-                if subject_id in result_dict:
-                    data = result_dict[subject_id]
-                else:
-                    # If step returns a dict but without subject_id key, use the single value
-                    data = list(result_dict.values())[0] if result_dict else data
-            
-            return (subject_id, data)
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Error processing subject {subject_id} in step {name}: {e}", exc_info=True)
-            raise
+        for name, step in self.individual_steps:
+            try:
+                data = step.transform_one(subject_id, data)
+            except Exception:
+                logger = logging.getLogger(__name__)
+                logger.error(
+                    f"Error processing subject {subject_id} in step '{name}'",
+                    exc_info=True,
+                )
+                raise
+        return (subject_id, data)
     
     def _process_subjects_parallel(self, X: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -436,17 +494,17 @@ class HabitatPipeline:
             show_progress=True
         )
         
-        # Collect results
-        # Note: parallel_map automatically unpacks (subject_id, data) tuples
-        # subject_id is in proc_result.item_id, data is in proc_result.result
-        results = {}
+        # Collect results.
+        # Note: parallel_map automatically unpacks (subject_id, data) tuples;
+        # subject_id is in proc_result.item_id, data is in proc_result.result.
+        results: Dict[str, Any] = {}
         for proc_result in successful_results:
-            subject_id = proc_result.item_id
-            data = proc_result.result
-            results[subject_id] = data
+            results[proc_result.item_id] = proc_result.result
 
         # Cache mask_info in the main process for downstream image saving.
-        # This avoids losing mask metadata when individual steps run in subprocesses.
+        # Workers cannot publish state back to the parent (forked copies of
+        # ResultWriter are dropped on worker exit), so we extract mask_info
+        # from the per-subject result dict here, in the parent.
         self.mask_info_cache = {
             subject_id: data.get('mask_info')
             for subject_id, data in results.items()

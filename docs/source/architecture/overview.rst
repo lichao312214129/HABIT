@@ -35,12 +35,13 @@ For the full developer-facing architecture (dependency rules, configuration
 system, data flow per domain, persistence formats, and the list of currently
 known architecture concerns), see:
 
-- :doc:`../development/architecture` — project-wide architecture.
-- ``habit/core/habitat_analysis/ARCHITECTURE.md`` — internals of the
-  habitat-analysis subpackage (recipe dispatch, manager injection,
-  pipeline steps).
-- ``habit/core/habitat_analysis/PIPELINE_DESIGN.md`` — per-step input/output
-  contracts.
+- :doc:`../development/architecture` — project-wide architecture, including
+  the ``habitat_analysis`` ②-a section that describes recipe dispatch,
+  service injection (``_PIPELINE_SERVICE_ATTRS``), persistence format
+  and design decisions.
+- :doc:`../development/module_architecture` — per-subpackage code
+  organisation, including the per-step I/O contract and state-management
+  rules for every pipeline step in ``habitat_analysis``.
 
 .. note::
    The pre-V1 "Strategy Layer" (``TwoStepStrategy`` / ``OneStepStrategy``

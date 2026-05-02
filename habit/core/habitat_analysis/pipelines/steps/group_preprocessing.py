@@ -2,26 +2,13 @@
 Group-level preprocessing step for habitat analysis pipeline.
 
 This step manages PreprocessingState internally for group-level normalization.
-
-Note: This module should not be run directly. Import it as part of the package:
-    from habit.core.habitat_analysis.pipelines.steps import GroupPreprocessingStep
 """
 
 from typing import List, Dict, Any, Optional
 import pandas as pd
 
-try:
-    from ..base_pipeline import GroupLevelStep
-    from ...utils.preprocessing_state import PreprocessingState
-except ImportError as e:
-    # Provide helpful error message if imported incorrectly
-    import sys
-    if __name__ == "__main__":
-        print("Error: This module cannot be run directly.")
-        print("Please import it as part of the package:")
-        print("  from habit.core.habitat_analysis.pipelines.steps import GroupPreprocessingStep")
-        sys.exit(1)
-    raise
+from ..base_pipeline import GroupLevelStep
+from ...utils.preprocessing_state import PreprocessingState
 
 
 class GroupPreprocessingStep(GroupLevelStep):

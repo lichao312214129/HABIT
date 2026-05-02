@@ -16,7 +16,6 @@ from .steps import (
     SupervoxelFeatureExtractionStep,
     CalculateMeanVoxelFeaturesStep,
     MergeSupervoxelFeaturesStep,
-    SupervoxelAggregationStep,  # DEPRECATED
     ConcatenateVoxelsStep,
     GroupPreprocessingStep,
     PopulationClusteringStep,
@@ -32,7 +31,6 @@ __all__ = [
     'SupervoxelFeatureExtractionStep',
     'CalculateMeanVoxelFeaturesStep',
     'MergeSupervoxelFeaturesStep',
-    'SupervoxelAggregationStep',  # DEPRECATED
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',
     'PopulationClusteringStep',

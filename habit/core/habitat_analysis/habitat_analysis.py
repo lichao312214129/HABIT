@@ -30,7 +30,6 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
 import pandas as pd
 
 # Suppress noisy library warnings during long-running runs.
@@ -630,6 +629,13 @@ class HabitatAnalysis:
         """
         Backward-compatible dispatcher to ``fit`` / ``predict``.
 
+        .. deprecated::
+            Prefer calling :meth:`fit` or :meth:`predict` explicitly. ``run``
+            keeps the old "single entry point + run_mode flag" surface for
+            existing scripts and notebooks; new code should pick the right
+            verb at the call site so the data flow is obvious without having
+            to consult ``run_mode`` / ``pipeline_path`` on the config.
+
         Dispatch rules (highest priority first):
 
         1. If ``load_from`` is provided -> ``predict(load_from, ...)``.
@@ -848,13 +854,12 @@ class HabitatAnalysis:
         if not self.config.save_images:
             return
 
-        # Surface the mask cache from the pipeline (populated in the main
-        # process) to the result writer so it can reconstruct images.
-        if (
-            self.pipeline is not None
-            and getattr(self.pipeline, 'mask_info_cache', None)
-        ):
-            self.result_writer.mask_info_cache = self.pipeline.mask_info_cache
+        # Hand the mask cache off from the pipeline (parent-side shuttle)
+        # to the result writer (the long-lived owner used by image saving).
+        # Both attributes are now always defined as dicts (no hasattr guards).
+        pipeline_cache = getattr(self.pipeline, 'mask_info_cache', None) or {}
+        if pipeline_cache:
+            self.result_writer.mask_info_cache = pipeline_cache
         self.result_writer.save_all_habitat_images(failed_subjects=[])
 
     # ------------------------------------------------------------------

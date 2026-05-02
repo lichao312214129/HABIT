@@ -35,13 +35,17 @@ class ResultWriter:
         """
         self.config = config
         self.logger = logger
-        
-        self.X = None
-        self.supervoxel_labels = {}
-        self.habitat_labels = None
-        self.results_df = None
-        
-        # Log file path for subprocesses
+
+        # Result DataFrame is published by HabitatAnalysis after the pipeline
+        # finishes; per-subject save methods read it from here.
+        self.results_df: Optional[pd.DataFrame] = None
+
+        # Mask metadata cache, populated by VoxelFeatureExtractor (in the main
+        # process) and consumed by save_*_habitat_image* methods. Declared here
+        # so callers do not need ``hasattr`` guards.
+        self.mask_info_cache: Dict[str, Dict[str, Any]] = {}
+
+        # Log file path for subprocesses (set via set_logging_info).
         self._log_file_path = None
         self._log_level = logging.INFO
 
@@ -84,65 +88,73 @@ class ResultWriter:
         sitk.WriteImage(supervoxel_img, output_path)
 
     def save_habitat_for_subject(
-        self, 
-        subject: str
+        self,
+        item: Tuple[str, pd.DataFrame],
     ) -> Tuple[str, Optional[Exception]]:
         """
-        Save habitat image for a single subject.
-        
+        Save the habitat NRRD for one subject (parallel worker entry).
+
         Args:
-            subject: Subject ID
-            
+            item: ``(subject_id, subject_df)`` — a small DataFrame indexed by
+                ``Subject`` containing only this subject's rows. We pass the
+                slice explicitly instead of relying on ``self.results_df`` so
+                ``parallel_map`` only pickles per-subject data into each
+                worker, not the full results table.
+
         Returns:
-            Tuple of (subject_id, None or Exception)
+            Tuple of (subject_id, None on success / Exception on failure).
         """
+        subject, subject_df = item
         self._ensure_logging_in_subprocess()
-        
         try:
-            # We need results_df to be set before calling this in parallel, 
-            # or passed as argument. Since this method is usually called via
-            # parallel_map which pickles the instance/method, self.results_df
-            # should be available if it was set before mapping.
-            # However, for safety with multiprocessing, it's better if results_df 
-            # is self-contained or accessible.
-            # Here we assume self.results_df is available in the instance state.
-            
             supervoxel_path = os.path.join(
                 self.config.out_dir, f"{subject}_supervoxel.nrrd"
             )
             save_habitat_image(
                 subject,
-                self.results_df,
+                subject_df,
                 supervoxel_path,
                 self.config.out_dir,
-                postprocess_settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump()
+                postprocess_settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump(),
             )
             return subject, None
-        except Exception as e:
-            return subject, Exception(str(e))
+        except Exception as exc:
+            return subject, Exception(str(exc))
 
     def save_all_habitat_images(self, failed_subjects: List[str]) -> None:
         """Save habitat images for all successfully processed subjects."""
-        # Determine if we have supervoxel mapping or direct voxel results
-        is_voxel_level = 'VoxelIndex' in self.results_df.columns or ResultColumns.SUPERVOXEL not in self.results_df.columns
-        
+        is_voxel_level = (
+            'VoxelIndex' in self.results_df.columns
+            or ResultColumns.SUPERVOXEL not in self.results_df.columns
+        )
         if is_voxel_level:
             self._save_all_voxel_habitat_images(failed_subjects)
             return
 
-        # Set Subject as index for save function if not already
+        # Use Subject as the row index so save_habitat_image can do .loc[subject].
         if ResultColumns.SUBJECT in self.results_df.columns:
             self.results_df.set_index(ResultColumns.SUBJECT, inplace=True)
-        
-        # Get unique subjects
-        subjects_to_save = list(set(self.results_df.index))
-        
+
+        subjects_to_save = sorted(set(self.results_df.index))
+        if not subjects_to_save:
+            return
+
         if self.config.verbose:
-            self.logger.info(f"Saving habitat images for {len(subjects_to_save)} subjects...")
-        
-        results, failed = parallel_map(
+            self.logger.info(
+                f"Saving habitat images for {len(subjects_to_save)} subjects..."
+            )
+
+        # Pre-slice in the parent so each worker only receives the rows it
+        # needs. ``loc[[subject]]`` keeps the Subject index in place even for
+        # a single row, which is what save_habitat_image expects internally.
+        items: List[Tuple[str, pd.DataFrame]] = [
+            (subject, self.results_df.loc[[subject]])
+            for subject in subjects_to_save
+        ]
+
+        _, failed = parallel_map(
             func=self.save_habitat_for_subject,
-            items=subjects_to_save,
+            items=items,
             n_processes=self.config.processes,
             desc="Saving habitat images",
             logger=self.logger,
@@ -150,7 +162,7 @@ class ResultWriter:
             log_file_path=self._log_file_path,
             log_level=self._log_level,
         )
-        
+
         if failed and self.config.verbose:
             self.logger.warning(
                 f"Failed to save habitat images for {len(failed)} subject(s)"
@@ -171,17 +183,16 @@ class ResultWriter:
             subject_df = self.results_df[self.results_df[ResultColumns.SUBJECT] == subject]
             labels = subject_df[ResultColumns.HABITATS].values
             
-            # Get mask info
-            mask_info = None
-            if hasattr(self, 'mask_info_cache') and subject in self.mask_info_cache:
-                mask_info = self.mask_info_cache[subject]
-            else:
-                # Fallback: try to load mask info if not cached (should not happen if using pipeline)
-                self.logger.warning(f"Mask info for {subject} not found in cache, skipping image saving")
+            # mask_info_cache is always initialised in __init__, so we only
+            # need to check membership for this subject.
+            mask_info = self.mask_info_cache.get(subject)
+            if mask_info is None:
+                self.logger.warning(
+                    f"Mask info for {subject} not found in cache, skipping image saving"
+                )
                 continue
-                
-            if mask_info:
-                self._save_direct_habitat_image(subject, labels, mask_info)
+
+            self._save_direct_habitat_image(subject, labels, mask_info)
 
     def _save_direct_habitat_image(
         self,

@@ -4,8 +4,7 @@ Voxel-level feature extraction step for habitat analysis pipeline.
 This step extracts voxel-level features from images for each subject.
 """
 
-from typing import Dict, Any, Optional
-import pandas as pd
+from typing import Any, Dict, Optional
 import logging
 
 from ..base_pipeline import IndividualLevelStep
@@ -14,89 +13,60 @@ from ...services.feature_service import FeatureService
 
 class VoxelFeatureExtractor(IndividualLevelStep):
     """
-    Extract voxel-level features from images.
-    
-    Stateless: feature extraction logic is fixed, based on configuration.
-    
+    Extract voxel-level features from images for one subject at a time.
+
+    Stateless: feature extraction logic is fully driven by configuration;
+    no cross-subject state is learnt.
+
     Attributes:
-        feature_service: FeatureService instance for feature extraction
-        fitted_: bool indicating whether the step has been fitted (always True after fit)
+        feature_service: FeatureService instance for feature extraction.
+        result_writer: Optional ResultWriter — if provided, this step caches
+            ``mask_info`` on it so downstream image-saving code can reconstruct
+            label volumes.
     """
-    
+
     def __init__(self, feature_service: FeatureService, result_writer: Optional[Any] = None):
         """
-        Initialize voxel feature extractor.
-        
         Args:
-            feature_service: FeatureService instance
-            result_writer: ResultWriter instance (optional)
+            feature_service: FeatureService instance.
+            result_writer: Deprecated; retained only for backward-compatible
+                construction. The step no longer writes to
+                ``result_writer.mask_info_cache`` (see ``transform_one`` note).
+                Will be removed in a future release.
         """
         super().__init__()
         self.feature_service = feature_service
+        # Kept on the instance for backward compat but intentionally unused.
         self.result_writer = result_writer
         self.logger = logging.getLogger(__name__)
-    
-    def fit(self, X: Dict[str, Any], y: Optional[Any] = None, **fit_params) -> 'VoxelFeatureExtractor':
+
+    def transform_one(self, subject_id: str, subject_data: Any) -> Dict[str, Any]:
         """
-        Fit the step (stateless operation, just mark as fitted).
-        
+        Extract voxel features for a single subject.
+
         Args:
-            X: Dict of subject_id -> data (not used in fit, but required by interface)
-            y: Optional target data (not used)
-            **fit_params: Additional fitting parameters (not used)
-            
+            subject_id: Subject identifier.
+            subject_data: Unused payload from the orchestrator (the first
+                pipeline step is fed an empty stub; image and mask paths
+                live on ``feature_service``).
+
         Returns:
-            self
+            Dict with keys ``features`` (processed voxel features),
+            ``raw`` (raw voxel features) and ``mask_info`` (metadata for
+            later image reconstruction).
+
+        Note:
+            ``mask_info`` rides through the per-subject result dict and is
+            collected back into ``HabitatPipeline.mask_info_cache`` by the
+            parent process (see ``HabitatPipeline._process_subjects_parallel``).
+            This step does NOT write into ``result_writer.mask_info_cache``
+            directly: under multi-processing each worker has its own forked
+            copy of ``result_writer``, so any state mutated here is dropped
+            when the worker exits.
         """
-        # Stateless step - no parameters to learn
-        self.fitted_ = True
-        return self
-    
-    def transform(self, X: Dict[str, Dict]) -> Dict[str, Dict]:
-        """
-        Extract voxel features for each subject sequentially.
-        
-        Pipeline handles parallelization at subject level, so this method
-        processes subjects sequentially without parallel logic.
-        
-        Args:
-            X: Dict of subject_id -> {
-                'images': Dict of image_name -> image_path (optional, if not set in feature_service),
-                'masks': Dict of mask_name -> mask_path (optional, if not set in feature_service)
-            }
-            Note: If images_paths and mask_paths are already set in feature_service,
-            this dict can be empty or just contain subject IDs.
-            
-        Returns:
-            Dict of subject_id -> {
-                'features': pd.DataFrame,  # Processed voxel features
-                'raw': pd.DataFrame,        # Raw voxel features
-                'mask_info': dict           # Mask metadata for image reconstruction
-            }
-        """
-        results = {}
-        
-        # Process each subject sequentially (pipeline handles parallelization)
-        for subject_id in X.keys():
-            try:
-                # Extract voxel features for this subject
-                subject_id_result, feature_df, raw_df, mask_info = \
-                    self.feature_service.extract_voxel_features(subject_id)
-                
-                # Store mask_info in result_writer if available
-                if self.result_writer is not None:
-                    if not hasattr(self.result_writer, 'mask_info_cache'):
-                        self.result_writer.mask_info_cache = {}
-                    self.result_writer.mask_info_cache[subject_id] = mask_info
-                
-                results[subject_id] = {
-                    'features': feature_df,
-                    'raw': raw_df,
-                    'mask_info': mask_info
-                }
-                
-            except Exception as e:
-                self.logger.error(f"Failed to extract voxel features for subject {subject_id}: {e}")
-                raise
-        
-        return results
+        _, feature_df, raw_df, mask_info = self.feature_service.extract_voxel_features(subject_id)
+        return {
+            'features': feature_df,
+            'raw': raw_df,
+            'mask_info': mask_info,
+        }
