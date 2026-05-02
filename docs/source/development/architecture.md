@@ -20,7 +20,9 @@
 HABIT（**H**abitat **A**nalysis & **B**iomarker **I**dentification **T**oolkit）是一个面向影像组学（radiomics）研究的 Python 包，覆盖以下三块独立但可拼接的能力：
 
 1. **影像预处理**：把原始 DICOM/NIfTI 数据转成可建模输入。
-2. **生境分析**：把影像内体素聚为亚区（habitat），输出每个 subject 的生境图（NRRD）与表格（CSV）。
+2. **生境分析**：包含两个子部分
+   - **②-a 生境获取（Habitat Generation）**：把影像内体素聚为亚区（habitat），输出每个 subject 的生境图（NRRD）与标签表（CSV）。
+   - **②-b 生境特征提取（Habitat Feature Extraction）**：在已生成的生境图上进行多进程特征抽取，输出 habitat 级别的影像组学特征表。
 3. **机器学习**：在生境/影像组学特征上训练分类/回归模型，做评估、对比、可视化、报告。
 
 三块能力之间通过 **数据契约** 解耦（一方写文件，另一方读文件），而非互相 `import` 业务代码。这是理解整个仓库依赖方向的钥匙。
@@ -45,13 +47,19 @@ graph TB
 
     subgraph L3["Layer 3: 业务核心层（三域解耦）"]
         Pre["① preprocessing<br/>图像预处理"]
-        Habitat["② habitat_analysis<br/>生境分析"]
+        subgraph Habitat["② habitat_analysis<br/>生境分析"]
+            HabitatGen["②-a 生境获取<br/>(Habitat Generation)"]
+            HabitatFeat["②-b 生境特征提取<br/>(Habitat Feature Extraction)"]
+        end
         ML["③ machine_learning<br/>机器学习"]
     end
 
     subgraph L4["Layer 4: 域内架构"]
         PreArch["BatchProcessor<br/>+ PreprocessorFactory"]
-        HabitatArch["HabitatAnalysis (deep)<br/>+ Pipeline + Managers"]
+        subgraph HabitatArch["habitat_analysis 域内架构"]
+            GenArch["HabitatAnalysis (deep)<br/>+ Pipeline + Managers<br/><i>生境获取</i>"]
+            FeatArch["HabitatMapAnalyzer (deep)<br/>+ FeatureExtractor<br/><i>特征提取</i>"]
+        end
         MLArch["MLWorkflow<br/>+ PipelineBuilder + Models"]
     end
 
@@ -69,16 +77,20 @@ graph TB
     BaseCfg --> MLCfg
     BaseCfg --> PreCfg
     PreCfg --> Pre
-    HabitatCfg --> Habitat
+    HabitatCfg --> HabitatGen
+    HabitatCfg --> HabitatFeat
     MLCfg --> ML
     Pre --> PreArch
-    Habitat --> HabitatArch
+    HabitatGen --> GenArch
+    HabitatFeat --> FeatArch
     ML --> MLArch
     PreArch --> Configs
-    HabitatArch --> Configs
+    GenArch --> Configs
+    FeatArch --> Configs
     MLArch --> Configs
     PreArch --> Utils
-    HabitatArch --> Utils
+    GenArch --> Utils
+    FeatArch --> Utils
     MLArch --> Utils
 ```
 
@@ -228,6 +240,12 @@ raw images (per subject)
 
 ### ② `habit.core.habitat_analysis` —— 生境分析
 
+生域分析包含**两个独立的子部分**，通过文件产物（NRRD/CSV）衔接：
+
+---
+
+#### ②-a **生境获取（Habitat Generation）**
+
 **定位**：把多模态影像在 ROI 内的体素聚为生境（habitat），输出 NRRD 生境图与 CSV 标签表，并把训练状态持久化为 `habitat_pipeline.pkl` 以供后续预测。
 
 **关键模块**：
@@ -239,11 +257,10 @@ raw images (per subject)
 | `pipelines/base_pipeline.py` | sklearn 风格的 `HabitatPipeline` + `BasePipelineStep`。`fit_transform` / `transform` / `save` / `load` 接口。 |
 | `pipelines/steps/*.py` | 7+ 个具体步骤：体素特征抽取、subject 预处理、个体聚类、supervoxel 特征/聚合、group 预处理、群体聚类等。 |
 | `algorithms/` | K-Means / GMM / DBSCAN / SLIC / Hierarchical 等 **聚类算法**（注意：此处的 strategy 是算法接口，**不是** 已废弃的旧策略模式）。 |
-| `extractors/` | 体素级 / supervoxel 级特征抽取实现，由 factory 按配置选择。 |
-| `analyzers/habitat_analyzer.py` | `HabitatMapAnalyzer`：在已生成的生境图上做多进程特征抽取。 |
+| `extractors/` | 体素级 / supervoxel 级特征抽取实现，由 factory 按配置选择（用于聚类前的特征计算）。 |
 | `config_schemas.py` | `HabitatAnalysisConfig` / `FeatureExtractionConfig` / `RadiomicsConfig`。 |
 
-#### Pipeline Recipe 分发机制
+##### Pipeline Recipe 分发机制
 
 `HabitatAnalysis` 通过 `_PIPELINE_RECIPES` 字典按 clustering mode 选择步骤列表：
 
@@ -253,7 +270,7 @@ raw images (per subject)
 | `one_step` | voxel features → subject prep → individual clustering (voxel→habitat directly) → supervoxel aggregation |
 | `direct_pooling` | voxel features → subject prep → concatenate voxels (cross-subject pooling) → group prep → population clustering |
 
-#### 训练数据流
+##### 训练数据流
 
 ```mermaid
 graph LR
@@ -266,7 +283,7 @@ graph LR
     PC --> Out["habitat maps (.nrrd)<br/>habitats.csv<br/>habitat_pipeline.pkl"]
 ```
 
-#### 预测数据流
+##### 预测数据流
 
 预测路径与训练共用同一个 `HabitatPipeline`，只是：
 
@@ -275,21 +292,89 @@ graph LR
 3. 强制 `pipeline.config.plot_curves = False`。
 4. 只调 `transform`，不再 `fit`。
 
-#### 外部产物
+##### 外部产物
 
 - `<out_dir>/habitats.csv` —— habitat 标签表
 - `<out_dir>/habitat_*.nrrd` —— 每 subject 生境图
 - `<out_dir>/habitat_pipeline.pkl` —— joblib 序列化的训练 pipeline
 
-#### deep / shallow 划分
+##### deep / shallow 划分
 
 - **Deep**：`HabitatAnalysis` + `HabitatPipeline`。接口表面少，实现表面大。
 - **Shallow**：`managers`、单个 step、单个 algorithm/extractor。这些都是「插件式」的薄壳，遵循固定接口。
 
-#### 扩展点
+##### 扩展点
 
 - **新增 clustering mode**：新增 recipe 函数 + 加入 `_PIPELINE_RECIPES` 字典。
 - **新增 pipeline step**：继承 `IndividualLevelStep` 或 `GroupLevelStep`，通过构造函数接收 manager。
+
+---
+
+#### ②-b **生境特征提取（Habitat Feature Extraction）**
+
+**定位**：在已生成的生境图上进行多进程特征抽取，输出 habitat 级别的影像组学特征表（CSV），供下游机器学习使用。
+
+**输入依赖**：
+- ②-a 生境获取阶段生成的 `<out_dir>/habitat_*.nrrd` 文件
+- 原始影像和 mask 文件（用于在每个 habitat 区域内计算影像组学特征）
+
+**关键模块**：
+
+| 模块 | 职责 |
+|------|------|
+| `analyzers/habitat_analyzer.py` (**deep**) | `HabitatMapAnalyzer`：核心协调器，负责多进程调度、特征汇总、结果持久化。 |
+| `managers/feature_manager.py` | `FeatureManager`：管理特征提取器的注册、选择、执行（复用自生境获取阶段的同一组件）。 |
+| `extractors/` | 体素级 / supervoxel 级特征抽取实现（如 radiomics 特征、纹理特征等）。 |
+| `config_schemas.py` | `FeatureExtractionConfig` / `RadiomicsConfig`：定义提取参数（特征类别、归一化方式等）。 |
+
+##### 数据流
+
+```mermaid
+graph LR
+    Input["输入<br/>habitat_*.nrrd<br/>+ 原始影像/mask"] --> HMA["HabitatMapAnalyzer<br/>(多进程调度)"]
+    HMA --> FM["FeatureManager<br/>(特征提取器管理)"]
+    FM --> Ext["Extractors<br/>(radiomics/texture/etc.)"]
+    Ext --> Output["输出<br/>habitat_features.csv<br/>(per subject)"]
+```
+
+##### 工作流程
+
+1. **加载生境图**：读取 ②-a 阶段生成的 `.nrrd` 文件，获取每个体素的 habitat 标签
+2. **区域分割**：根据 habitat 标签将 ROI 划分为多个子区域
+3. **并行提取**：对每个 habitat 区域并行执行特征提取（利用 `parallel_utils`）
+4. **特征聚合**：汇总所有 habitat 的特征为表格格式
+5. **结果保存**：输出 `<out_dir>/habitat_features.csv`，每行一个 subject × habitat 组合
+
+##### 外部产物
+
+- `<out_dir>/habitat_features.csv` —— habitat 级别特征表（行：subject×habitat，列：特征名）
+- 可选：`<out_dir>/features_per_habitat/` —— 每个 habitat 的详细特征报告
+
+##### 与生境获取的关系
+
+```
+②-a 生境获取                          ②-b 生境特征提取
+┌─────────────────────┐              ┌─────────────────────────┐
+│ images + masks      │              │ habitat_*.nrrd          │
+│       ↓             │              │ images + masks          │
+│ HabitatAnalysis.fit │──产出 NRRD──▶│       ↓                 │
+│       ↓             │              │ HabitatMapAnalyzer.run  │
+│ habitat_*.nrrd      │              │       ↓                 │
+│ habitats.csv        │              │ habitat_features.csv    │
+└─────────────────────┘              └─────────────────────────┘
+   训练/预测                              仅预测（无需训练）
+```
+
+**注意**：两个子部分可以独立调用：
+- 用户可以只运行 ②-a 获取 habitat maps
+- 或者在已有 habitat maps 的基础上只运行 ②-b 提取特征
+- 也可以通过 CLI 一次性完成两步（`habit get-habitat` + `habit extract`）
+
+##### 扩展点
+
+- **新增特征类型**：实现新的 extractor 类并注册到 `FeatureManager`
+- **新增聚合策略**：修改 `HabitatMapAnalyzer` 中的特征汇总逻辑
+- **优化并行性能**：调整进程数、内存映射策略
 
 ---
 
