@@ -233,7 +233,7 @@ Strategies
 Managers
 --------
 
-.. automodule:: habit.core.habitat_analysis.managers
+.. automodule:: habit.core.habitat_analysis.services
    :members:
 ```
 

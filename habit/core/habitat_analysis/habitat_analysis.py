@@ -16,9 +16,9 @@ All real behaviour lives here:
 - Train and predict orchestration are exposed as ``fit()`` / ``predict()``
   with ``run()`` kept as a backward-compat alias that dispatches based on
   ``load_from`` or ``config.run_mode``.
-- Manager injection into a loaded pipeline is performed via an explicit
-  attribute whitelist (``_PIPELINE_MANAGER_ATTRS``). The old reflection-based
-  ``dir()`` discovery is gone (it would silently absorb any future ``*_manager``
+- Service injection into a loaded pipeline is performed via an explicit
+  attribute whitelist (``_PIPELINE_SERVICE_ATTRS``). The old reflection-based
+  ``dir()`` discovery is gone (it would silently absorb any future ``*_service``
   attribute and inject it into every step).
 - predict-mode skips ``plot_habitat_scores`` so it can never consume a
   ``selection_methods`` value that was never initialised in predict mode.
@@ -40,7 +40,7 @@ from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.log_utils import LoggerManager
 
 from .config_schemas import HabitatAnalysisConfig, ResultColumns
-from .managers import ClusteringManager, FeatureManager, ResultManager
+from .services import ClusteringService, FeatureService, ResultWriter
 from .pipelines.base_pipeline import BasePipelineStep, HabitatPipeline
 from .pipelines.steps.calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
 from .pipelines.steps.combine_supervoxels import CombineSupervoxelsStep
@@ -88,9 +88,9 @@ def _canonical_csv_column_order(df: pd.DataFrame) -> List[str]:
 
 def _build_two_step_steps(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
-    result_manager: ResultManager,
+    feature_service: FeatureService,
+    clustering_service: ClusteringService,
+    result_writer: ResultWriter,
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``two_step`` clustering mode.
@@ -102,35 +102,35 @@ def _build_two_step_steps(
 
     Args:
         config: Validated habitat-analysis configuration.
-        feature_manager: Provides voxel/supervoxel feature extraction.
-        clustering_manager: Provides clustering algorithms and validation.
-        result_manager: Required for saving supervoxel maps in two-step mode.
+        feature_service: Provides voxel/supervoxel feature extraction.
+        clustering_service: Provides clustering algorithms and validation.
+        result_writer: Required for saving supervoxel maps in two-step mode.
 
     Returns:
         List of (name, step) tuples to feed into ``HabitatPipeline``.
     """
-    if result_manager is None:
-        raise ValueError("result_manager is required for two-step pipeline")
+    if result_writer is None:
+        raise ValueError("result_writer is required for two-step pipeline")
 
     steps: List[Tuple[str, BasePipelineStep]] = []
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_manager, result_manager),
+        VoxelFeatureExtractor(feature_service, result_writer),
     ))
 
     steps.append((
         'subject_preprocessing',
-        SubjectPreprocessingStep(feature_manager),
+        SubjectPreprocessingStep(feature_service),
     ))
 
     # Individual-level clustering: voxel -> supervoxel (one cluster set per subject).
     steps.append((
         'individual_clustering',
         IndividualClusteringStep(
-            feature_manager=feature_manager,
-            clustering_manager=clustering_manager,
-            result_manager=result_manager,
+            feature_service=feature_service,
+            clustering_service=clustering_service,
+            result_writer=result_writer,
             config=config,
             target='supervoxel',
         ),
@@ -139,7 +139,7 @@ def _build_two_step_steps(
     # Always produce mean-voxel features as a baseline aggregation per supervoxel.
     steps.append((
         'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(feature_manager, config),
+        CalculateMeanVoxelFeaturesStep(feature_service, config),
     ))
 
     # Conditionally extract advanced supervoxel features (e.g. radiomics) when
@@ -153,7 +153,7 @@ def _build_two_step_steps(
     if should_extract_advanced:
         steps.append((
             'supervoxel_advanced_features',
-            SupervoxelFeatureExtractionStep(feature_manager, config),
+            SupervoxelFeatureExtractionStep(feature_service, config),
         ))
 
     # Choose between mean-voxel and advanced supervoxel features (mutually exclusive).
@@ -184,7 +184,7 @@ def _build_two_step_steps(
     steps.append((
         'population_clustering',
         PopulationClusteringStep(
-            clustering_manager=clustering_manager,
+            clustering_service=clustering_service,
             config=config,
             out_dir=config.out_dir,
         ),
@@ -195,9 +195,9 @@ def _build_two_step_steps(
 
 def _build_one_step_steps(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
-    result_manager: Optional[ResultManager],
+    feature_service: FeatureService,
+    clustering_service: ClusteringService,
+    result_writer: Optional[ResultWriter],
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``one_step`` clustering mode.
@@ -208,9 +208,9 @@ def _build_one_step_steps(
 
     Args:
         config: Validated habitat-analysis configuration.
-        feature_manager: Provides voxel feature extraction.
-        clustering_manager: Provides clustering algorithms and validation.
-        result_manager: Optional; created on-the-fly if missing because the
+        feature_service: Provides voxel feature extraction.
+        clustering_service: Provides clustering algorithms and validation.
+        result_writer: Optional; created on-the-fly if missing because the
             individual-clustering step needs it for saving habitat maps.
 
     Returns:
@@ -220,27 +220,27 @@ def _build_one_step_steps(
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_manager, result_manager),
+        VoxelFeatureExtractor(feature_service, result_writer),
     ))
 
     steps.append((
         'subject_preprocessing',
-        SubjectPreprocessingStep(feature_manager),
+        SubjectPreprocessingStep(feature_service),
     ))
 
-    # Lazily build a minimal ResultManager when one was not injected.
+    # Lazily build a minimal ResultWriter when one was not injected.
     # IndividualClusteringStep with target='habitat' needs it for saving maps.
-    if result_manager is None:
-        result_manager = ResultManager(config, logging.getLogger(__name__))
+    if result_writer is None:
+        result_writer = ResultWriter(config, logging.getLogger(__name__))
 
     # In one-step we cluster voxels directly into habitats per subject and we
     # ask the step to find an optimal cluster count for each subject.
     steps.append((
         'individual_clustering',
         IndividualClusteringStep(
-            feature_manager=feature_manager,
-            clustering_manager=clustering_manager,
-            result_manager=result_manager,
+            feature_service=feature_service,
+            clustering_service=clustering_service,
+            result_writer=result_writer,
             config=config,
             target='habitat',
             find_optimal=True,
@@ -250,7 +250,7 @@ def _build_one_step_steps(
     # Even in one-step we want aggregated per-label features for downstream output.
     steps.append((
         'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(feature_manager, config),
+        CalculateMeanVoxelFeaturesStep(feature_service, config),
     ))
 
     steps.append((
@@ -270,9 +270,9 @@ def _build_one_step_steps(
 
 def _build_pooling_steps(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
-    result_manager: Optional[ResultManager],
+    feature_service: FeatureService,
+    clustering_service: ClusteringService,
+    result_writer: Optional[ResultWriter],
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``direct_pooling`` clustering mode.
@@ -283,9 +283,9 @@ def _build_pooling_steps(
 
     Args:
         config: Validated habitat-analysis configuration.
-        feature_manager: Provides voxel feature extraction.
-        clustering_manager: Provides clustering algorithms and validation.
-        result_manager: Unused for the pooling flow but accepted for parity
+        feature_service: Provides voxel feature extraction.
+        clustering_service: Provides clustering algorithms and validation.
+        result_writer: Unused for the pooling flow but accepted for parity
             with other recipes.
 
     Returns:
@@ -295,12 +295,12 @@ def _build_pooling_steps(
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_manager, result_manager),
+        VoxelFeatureExtractor(feature_service, result_writer),
     ))
 
     steps.append((
         'subject_preprocessing',
-        SubjectPreprocessingStep(feature_manager),
+        SubjectPreprocessingStep(feature_service),
     ))
 
     steps.append((
@@ -322,7 +322,7 @@ def _build_pooling_steps(
     steps.append((
         'population_clustering',
         PopulationClusteringStep(
-            clustering_manager=clustering_manager,
+            clustering_service=clustering_service,
             config=config,
             out_dir=config.out_dir,
         ),
@@ -370,28 +370,28 @@ class HabitatAnalysis:
     All three return the resulting ``pd.DataFrame``.
 
     Notes:
-        Manager injection into a loaded pipeline uses the explicit whitelist
-        ``_PIPELINE_MANAGER_ATTRS``. Adding a new manager type requires a
-        deliberate change here, which is precisely the goal: new managers
+        Service injection into a loaded pipeline uses the explicit whitelist
+        ``_PIPELINE_SERVICE_ATTRS``. Adding a new service type requires a
+        deliberate change here, which is precisely the goal: new services
         should not be silently injected via reflection.
     """
 
-    # Explicit whitelist of manager attribute names that are injected into a
+    # Explicit whitelist of service attribute names that are injected into a
     # loaded pipeline's steps. Replaces the previous ``dir(self)`` reflection
-    # which would absorb any future ``*_manager`` attribute. If a new manager
+    # which would absorb any future ``*_service`` attribute. If a new service
     # is introduced, it must be added here on purpose.
-    _PIPELINE_MANAGER_ATTRS: Tuple[str, ...] = (
-        'feature_manager',
-        'clustering_manager',
-        'result_manager',
+    _PIPELINE_SERVICE_ATTRS: Tuple[str, ...] = (
+        'feature_service',
+        'clustering_service',
+        'result_writer',
     )
 
     def __init__(
         self,
         config: Union[Dict[str, Any], HabitatAnalysisConfig],
-        feature_manager: FeatureManager,
-        clustering_manager: ClusteringManager,
-        result_manager: ResultManager,
+        feature_service: FeatureService,
+        clustering_service: ClusteringService,
+        result_writer: ResultWriter,
         logger: Any,
     ) -> None:
         """
@@ -400,9 +400,9 @@ class HabitatAnalysis:
         Args:
             config: Either a dict (validated against ``HabitatAnalysisConfig``)
                 or an already-validated ``HabitatAnalysisConfig`` instance.
-            feature_manager: Manager for voxel/supervoxel feature extraction.
-            clustering_manager: Manager for clustering algorithms.
-            result_manager: Manager for result persistence.
+            feature_service: Service for voxel/supervoxel feature extraction.
+            clustering_service: Service for clustering algorithms.
+            result_writer: Writer for result persistence (CSV / NRRD images).
             logger: A configured logger instance (typically from CLI entry point).
 
         Raises:
@@ -415,9 +415,9 @@ class HabitatAnalysis:
         else:
             raise TypeError("config must be a dict or HabitatAnalysisConfig")
 
-        self.feature_manager = feature_manager
-        self.clustering_manager = clustering_manager
-        self.result_manager = result_manager
+        self.feature_service = feature_service
+        self.clustering_service = clustering_service
+        self.result_writer = result_writer
         self.logger = logger
 
         # Pipeline instance is populated by either ``fit`` or ``predict``.
@@ -426,9 +426,9 @@ class HabitatAnalysis:
         self._setup_logging_info()
         self._setup_data_paths()
 
-        # Propagate logging targets to managers that need to log from subprocesses.
-        self.feature_manager.set_logging_info(self._log_file_path, self._log_level)
-        self.result_manager.set_logging_info(self._log_file_path, self._log_level)
+        # Propagate logging targets to services that need to log from subprocesses.
+        self.feature_service.set_logging_info(self._log_file_path, self._log_level)
+        self.result_writer.set_logging_info(self._log_file_path, self._log_level)
 
     # ------------------------------------------------------------------
     # Setup helpers (kept private; ``__init__`` calls them in order).
@@ -458,12 +458,12 @@ class HabitatAnalysis:
 
     def _setup_data_paths(self) -> None:
         """
-        Ensure ``config.out_dir`` exists and pass image/mask paths to FeatureManager.
+        Ensure ``config.out_dir`` exists and pass image/mask paths to FeatureService.
         """
         os.makedirs(self.config.out_dir, exist_ok=True)
         images_paths, mask_paths = get_image_and_mask_paths(self.config.data_dir)
         self._validate_data_paths(images_paths, mask_paths)
-        self.feature_manager.set_data_paths(images_paths, mask_paths)
+        self.feature_service.set_data_paths(images_paths, mask_paths)
 
     def _validate_data_paths(
         self,
@@ -516,8 +516,7 @@ class HabitatAnalysis:
         Train the habitat clustering pipeline and persist it to disk.
 
         Workflow: build pipeline based on ``clustering_mode`` -> ``fit_transform``
-        -> save pkl to ``<out_dir>/habitat_pipeline.pkl`` -> post-process and
-        save results.
+        -> save pkl to ``<out_dir>/habitat_pipeline.pkl`` -> save results.
 
         Args:
             subjects: Optional explicit subject ID list. ``None`` means use all
@@ -528,9 +527,14 @@ class HabitatAnalysis:
         Returns:
             DataFrame with habitat clustering results.
         """
-        save_results_csv = self._resolve_save_flag(save_results_csv)
+        # Resolve save flag: explicit argument overrides the config default.
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+
         subjects_list = self._prepare_subjects(subjects)
-        X = self._build_input(subjects_list)
+        # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
+        # so we just hand it an empty stub per subject.
+        X: Dict[str, Dict] = {subject: {} for subject in subjects_list}
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
         if self.config.verbose:
@@ -541,12 +545,16 @@ class HabitatAnalysis:
         self.pipeline = self._build_pipeline()
         results_df = self.pipeline.fit_transform(X)
 
-        pipeline_path = self._resolve_pipeline_path(None)
+        pipeline_path = Path(self.config.out_dir) / "habitat_pipeline.pkl"
         if self.config.verbose:
             self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
         self.pipeline.save(str(pipeline_path))
 
-        return self._finalise_results(results_df, save_results_csv, mode='train')
+        # Publish results on the writer and optionally save them to disk.
+        self.result_writer.results_df = results_df
+        if save_results_csv:
+            self._save_results(results_df, mode='train')
+        return results_df
 
     def predict(
         self,
@@ -580,9 +588,14 @@ class HabitatAnalysis:
                 "Provide a valid path or run fit() to train one."
             )
 
-        save_results_csv = self._resolve_save_flag(save_results_csv)
+        # Resolve save flag: explicit argument overrides the config default.
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
+
         subjects_list = self._prepare_subjects(subjects)
-        X = self._build_input(subjects_list)
+        # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
+        # so we just hand it an empty stub per subject.
+        X: Dict[str, Dict] = {subject: {} for subject in subjects_list}
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
         if self.config.verbose:
@@ -594,14 +607,19 @@ class HabitatAnalysis:
 
         # Reconcile the loaded pipeline's collaborators and config with the
         # current runtime context (paths, loggers, runtime-only flags).
-        self._inject_managers_into_pipeline(self.pipeline)
+        self._inject_services_into_pipeline(self.pipeline)
 
         # Hard guarantee: predict mode must never trigger plot_habitat_scores;
         # the validation scores are not part of a loaded pipeline.
         self.pipeline.config.plot_curves = False
 
         results_df = self.pipeline.transform(X)
-        return self._finalise_results(results_df, save_results_csv, mode='predict')
+
+        # Publish results on the writer and optionally save them to disk.
+        self.result_writer.results_df = results_df
+        if save_results_csv:
+            self._save_results(results_df, mode='predict')
+        return results_df
 
     def run(
         self,
@@ -677,9 +695,9 @@ class HabitatAnalysis:
         recipe = _PIPELINE_RECIPES[mode]
         steps = recipe(
             config=self.config,
-            feature_manager=self.feature_manager,
-            clustering_manager=self.clustering_manager,
-            result_manager=self.result_manager,
+            feature_service=self.feature_service,
+            clustering_service=self.clustering_service,
+            result_writer=self.result_writer,
         )
         return HabitatPipeline(steps=steps, config=self.config)
 
@@ -720,44 +738,44 @@ class HabitatAnalysis:
 
         return self.config
 
-    def _sync_feature_manager(
+    def _sync_feature_service(
         self,
-        pipeline_feature_manager: Any,
-        runtime_feature_manager: Any,
+        pipeline_feature_service: Any,
+        runtime_feature_service: Any,
     ) -> None:
         """
-        Refresh the loaded pipeline's FeatureManager with current paths/logging.
+        Refresh the loaded pipeline's FeatureService with current paths/logging.
 
-        We deliberately keep the *trained* FeatureManager instance (it carries
+        We deliberately keep the *trained* FeatureService instance (it carries
         the fitted feature-extraction state) and only update the data paths
         and logging targets so it works against the current dataset.
 
         Args:
-            pipeline_feature_manager: FeatureManager loaded from the pkl file.
-            runtime_feature_manager: FeatureManager built from the current run config.
+            pipeline_feature_service: FeatureService loaded from the pkl file.
+            runtime_feature_service: FeatureService built from the current run config.
         """
         if (
-            getattr(runtime_feature_manager, 'images_paths', None) is not None
-            and getattr(runtime_feature_manager, 'mask_paths', None) is not None
+            getattr(runtime_feature_service, 'images_paths', None) is not None
+            and getattr(runtime_feature_service, 'mask_paths', None) is not None
         ):
-            pipeline_feature_manager.set_data_paths(
-                runtime_feature_manager.images_paths,
-                runtime_feature_manager.mask_paths,
+            pipeline_feature_service.set_data_paths(
+                runtime_feature_service.images_paths,
+                runtime_feature_service.mask_paths,
             )
 
-        if hasattr(runtime_feature_manager, '_log_file_path'):
-            pipeline_feature_manager.set_logging_info(
-                runtime_feature_manager._log_file_path,
-                runtime_feature_manager._log_level,
+        if hasattr(runtime_feature_service, '_log_file_path'):
+            pipeline_feature_service.set_logging_info(
+                runtime_feature_service._log_file_path,
+                runtime_feature_service._log_level,
             )
 
-    def _inject_managers_into_pipeline(self, pipeline: HabitatPipeline) -> None:
+    def _inject_services_into_pipeline(self, pipeline: HabitatPipeline) -> None:
         """
-        Push current config and managers into a freshly loaded pipeline.
+        Push current config and services into a freshly loaded pipeline.
 
-        Uses an explicit whitelist (``_PIPELINE_MANAGER_ATTRS``) instead of
-        scanning ``dir(self)`` for ``*_manager`` attributes. The whitelist
-        prevents accidental injection of any future manager that doesn't
+        Uses an explicit whitelist (``_PIPELINE_SERVICE_ATTRS``) instead of
+        scanning ``dir(self)`` for ``*_service`` attributes. The whitelist
+        prevents accidental injection of any future service that doesn't
         belong inside pipeline steps.
 
         Args:
@@ -770,76 +788,27 @@ class HabitatAnalysis:
         # Build the explicit name -> instance map. Only attributes listed in
         # the whitelist participate.
         attributes_to_update: Dict[str, Any] = {'config': config_to_apply}
-        for attr_name in self._PIPELINE_MANAGER_ATTRS:
-            manager = getattr(self, attr_name, None)
-            if manager is not None:
-                attributes_to_update[attr_name] = manager
+        for attr_name in self._PIPELINE_SERVICE_ATTRS:
+            service = getattr(self, attr_name, None)
+            if service is not None:
+                attributes_to_update[attr_name] = service
 
         for _, step in pipeline.steps:
             for attr_name, attr_value in attributes_to_update.items():
                 if not hasattr(step, attr_name):
                     continue
-                # FeatureManager has fitted state we must keep; only sync
+                # FeatureService has fitted state we must keep; only sync
                 # paths/logging onto the trained instance.
-                if attr_name == 'feature_manager':
-                    pipeline_feature_manager = getattr(step, attr_name, None)
-                    if pipeline_feature_manager is not None:
-                        self._sync_feature_manager(pipeline_feature_manager, attr_value)
+                if attr_name == 'feature_service':
+                    pipeline_feature_service = getattr(step, attr_name, None)
+                    if pipeline_feature_service is not None:
+                        self._sync_feature_service(pipeline_feature_service, attr_value)
                         continue
                 setattr(step, attr_name, attr_value)
 
     # ------------------------------------------------------------------
     # Result handling.
     # ------------------------------------------------------------------
-
-    def _finalise_results(
-        self,
-        results_df: pd.DataFrame,
-        save_results_csv: bool,
-        mode: str,
-    ) -> pd.DataFrame:
-        """
-        Apply post-processing, store results on the manager, and optionally save.
-
-        Args:
-            results_df: Output produced by the pipeline.
-            save_results_csv: Whether to write ``habitats.csv``.
-            mode: ``'train'`` or ``'predict'`` (used by the result-saving branch
-                to avoid re-running plot_curves on predict).
-
-        Returns:
-            The (possibly post-processed) results DataFrame.
-        """
-        results_df = self._post_process_results(results_df)
-        self.result_manager.results_df = results_df
-
-        if save_results_csv:
-            self._save_results(results_df, mode=mode)
-
-        return results_df
-
-    def _post_process_results(self, results_df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Mode-specific tweaks applied to the raw pipeline output.
-
-        For ``one_step``, the aggregation step produces per-habitat rows but
-        does not always populate ``Habitats``; we copy ``Supervoxel`` into
-        ``Habitats`` when it's missing.
-
-        Args:
-            results_df: Raw output from the pipeline.
-
-        Returns:
-            A DataFrame with mode-appropriate columns ensured.
-        """
-        mode = self.config.HabitatsSegmention.clustering_mode
-        if mode == 'one_step':
-            if (
-                ResultColumns.HABITATS not in results_df.columns
-                and ResultColumns.SUPERVOXEL in results_df.columns
-            ):
-                results_df[ResultColumns.HABITATS] = results_df[ResultColumns.SUPERVOXEL]
-        return results_df
 
     def _save_results(self, results_df: pd.DataFrame, mode: str) -> None:
         """
@@ -848,7 +817,7 @@ class HabitatAnalysis:
         For ``one_step`` mode, the IndividualClusteringStep already wrote the
         per-subject habitat NRRDs; we only emit the CSV here.
         For ``two_step`` and ``direct_pooling``, we delegate to
-        ``ResultManager.save_all_habitat_images`` after syncing the
+        ``ResultWriter.save_all_habitat_images`` after syncing the
         ``mask_info_cache`` from the pipeline (which lives in the parent process).
 
         Args:
@@ -875,30 +844,22 @@ class HabitatAnalysis:
                 )
             return
 
-        # two_step / direct_pooling: rely on ResultManager.save_all_habitat_images.
+        # two_step / direct_pooling: rely on ResultWriter.save_all_habitat_images.
         if not self.config.save_images:
             return
 
         # Surface the mask cache from the pipeline (populated in the main
-        # process) to the result manager so it can reconstruct images.
+        # process) to the result writer so it can reconstruct images.
         if (
             self.pipeline is not None
             and getattr(self.pipeline, 'mask_info_cache', None)
         ):
-            self.result_manager.mask_info_cache = self.pipeline.mask_info_cache
-        self.result_manager.save_all_habitat_images(failed_subjects=[])
+            self.result_writer.mask_info_cache = self.pipeline.mask_info_cache
+        self.result_writer.save_all_habitat_images(failed_subjects=[])
 
     # ------------------------------------------------------------------
     # Small private helpers.
     # ------------------------------------------------------------------
-
-    def _resolve_save_flag(self, save_results_csv: Optional[bool]) -> bool:
-        """
-        Resolve the ``save_results_csv`` argument: explicit > config default.
-        """
-        if save_results_csv is None:
-            return self.config.save_results_csv
-        return save_results_csv
 
     def _prepare_subjects(self, subjects: Optional[List[str]]) -> List[str]:
         """
@@ -915,7 +876,7 @@ class HabitatAnalysis:
             ValueError: If no subjects can be resolved.
         """
         if subjects is None:
-            subjects = list(self.feature_manager.images_paths.keys())
+            subjects = list(self.feature_service.images_paths.keys())
 
         if not subjects:
             raise ValueError(
@@ -923,61 +884,30 @@ class HabitatAnalysis:
             )
         return list(subjects)
 
-    def _build_input(self, subjects: List[str]) -> Dict[str, Dict]:
-        """
-        Build the per-subject input dict consumed by the pipeline.
-
-        The pipeline's first step (``VoxelFeatureExtractor``) populates these
-        dicts with image/mask/feature data; we just provide an empty stub for
-        each subject.
-
-        Args:
-            subjects: List of subject IDs.
-
-        Returns:
-            ``{subject_id: {} for ...}``.
-        """
-        return {subject: {} for subject in subjects}
-
-    def _resolve_pipeline_path(self, load_from: Optional[Union[str, Path]]) -> Path:
-        """
-        Resolve the on-disk pipeline path used by ``fit`` for saving.
-
-        Args:
-            load_from: Optional path supplied by the caller; if given, returned
-                as-is so external scripts can override the default location.
-
-        Returns:
-            ``Path`` to write/read the pipeline file.
-        """
-        if load_from:
-            return Path(load_from)
-        return Path(self.config.out_dir) / "habitat_pipeline.pkl"
-
     # ------------------------------------------------------------------
     # Property forwarding kept for backward compatibility.
     # ------------------------------------------------------------------
 
     @property
     def results_df(self) -> Optional[pd.DataFrame]:
-        """Forward to ``ResultManager.results_df``."""
-        return self.result_manager.results_df
+        """Forward to ``ResultWriter.results_df``."""
+        return self.result_writer.results_df
 
     @results_df.setter
     def results_df(self, value: pd.DataFrame) -> None:
-        self.result_manager.results_df = value
+        self.result_writer.results_df = value
 
     @property
     def supervoxel2habitat_clustering(self) -> Any:
-        """Forward to ``ClusteringManager.supervoxel2habitat_clustering``."""
-        return self.clustering_manager.supervoxel2habitat_clustering
+        """Forward to ``ClusteringService.supervoxel2habitat_clustering``."""
+        return self.clustering_service.supervoxel2habitat_clustering
 
     @property
     def images_paths(self) -> Optional[Dict[str, Any]]:
-        """Forward to ``FeatureManager.images_paths``."""
-        return self.feature_manager.images_paths
+        """Forward to ``FeatureService.images_paths``."""
+        return self.feature_service.images_paths
 
     @property
     def mask_paths(self) -> Optional[Dict[str, Any]]:
-        """Forward to ``FeatureManager.mask_paths``."""
-        return self.feature_manager.mask_paths
+        """Forward to ``FeatureService.mask_paths``."""
+        return self.feature_service.mask_paths

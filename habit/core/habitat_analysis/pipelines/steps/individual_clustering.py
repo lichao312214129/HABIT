@@ -10,8 +10,8 @@ import numpy as np
 import logging
 
 from ..base_pipeline import IndividualLevelStep
-from ...managers.clustering_manager import ClusteringManager
-from ...managers.result_manager import ResultManager
+from ...services.clustering_service import ClusteringService
+from ...services.result_writer import ResultWriter
 from ...config_schemas import HabitatAnalysisConfig
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
@@ -23,9 +23,9 @@ class IndividualClusteringStep(IndividualLevelStep):
     Stateless: clustering parameters are fixed by configuration or computed per subject.
     
     Attributes:
-        feature_manager: FeatureManager instance (for accessing data)
-        clustering_manager: ClusteringManager instance
-        result_manager: ResultManager instance (for saving supervoxel maps)
+        feature_service: FeatureService instance (for accessing data)
+        clustering_service: ClusteringService instance
+        result_writer: ResultWriter instance (for saving supervoxel maps)
         config: Configuration object
         target: 'supervoxel' for two-step strategy, 'habitat' for one-step strategy
         find_optimal: Whether to find optimal cluster number (for one-step strategy)
@@ -34,9 +34,9 @@ class IndividualClusteringStep(IndividualLevelStep):
     
     def __init__(
         self,
-        feature_manager: Any,  # FeatureManager
-        clustering_manager: ClusteringManager,
-        result_manager: ResultManager,
+        feature_service: Any,  # FeatureService
+        clustering_service: ClusteringService,
+        result_writer: ResultWriter,
         config: HabitatAnalysisConfig,
         target: Literal['supervoxel', 'habitat'] = 'supervoxel',
         find_optimal: bool = False
@@ -45,17 +45,17 @@ class IndividualClusteringStep(IndividualLevelStep):
         Initialize individual clustering step.
         
         Args:
-            feature_manager: FeatureManager instance
-            clustering_manager: ClusteringManager instance
-            result_manager: ResultManager instance (for saving supervoxel maps)
+            feature_service: FeatureService instance
+            clustering_service: ClusteringService instance
+            result_writer: ResultWriter instance (for saving supervoxel maps)
             config: Configuration object
             target: 'supervoxel' for two-step, 'habitat' for one-step
             find_optimal: Whether to find optimal cluster number (one-step only)
         """
         super().__init__()
-        self.feature_manager = feature_manager
-        self.clustering_manager = clustering_manager
-        self.result_manager = result_manager
+        self.feature_service = feature_service
+        self.clustering_service = clustering_service
+        self.result_writer = result_writer
         self.config = config
         self.target = target
         self.find_optimal = find_optimal
@@ -125,7 +125,7 @@ class IndividualClusteringStep(IndividualLevelStep):
                         n_clusters = one_step_cfg.fixed_n_clusters
                     elif self.find_optimal:
                         # Priority 2: Automatic selection based on validation metrics
-                        n_clusters = self.clustering_manager.find_optimal_clusters_for_subject(
+                        n_clusters = self.clustering_service.find_optimal_clusters_for_subject(
                             subject_id,
                             feature_df,
                             min_clusters=one_step_cfg.min_clusters,
@@ -139,7 +139,7 @@ class IndividualClusteringStep(IndividualLevelStep):
                         n_clusters = self.config.HabitatsSegmention.supervoxel.n_clusters
                 
                 # Perform clustering
-                labels = self.clustering_manager.cluster_subject_voxels(
+                labels = self.clustering_service.cluster_subject_voxels(
                     subject_id,
                     feature_df,
                     n_clusters=n_clusters,
@@ -151,22 +151,22 @@ class IndividualClusteringStep(IndividualLevelStep):
                 # Save images
                 if self.config.save_images:
                     if self.target == 'supervoxel':
-                        self.result_manager.save_supervoxel_image(
+                        self.result_writer.save_supervoxel_image(
                             subject_id, labels, mask_info
                         )
                     elif self.target == 'habitat':
-                        self.result_manager.save_habitat_image_from_voxels(
+                        self.result_writer.save_habitat_image_from_voxels(
                             subject_id, labels, mask_info
                         )
                 
                 # Visualize
                 if self.config.plot_curves:
                     if self.target == 'supervoxel':
-                        self.clustering_manager.visualize_supervoxel_clustering(
+                        self.clustering_service.visualize_supervoxel_clustering(
                             subject_id, feature_df, labels
                         )
                     elif self.target == 'habitat':
-                        self.clustering_manager.visualize_habitat_clustering(
+                        self.clustering_service.visualize_habitat_clustering(
                             feature_df.values, labels, n_clusters,
                             subject=subject_id, output_dir=self.config.out_dir
                         )

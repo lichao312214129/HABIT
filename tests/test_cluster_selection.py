@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
+from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
 
 
 class DummyClustering(BaseClustering):

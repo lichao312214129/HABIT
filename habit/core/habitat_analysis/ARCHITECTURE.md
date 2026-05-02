@@ -44,7 +44,7 @@ paths through one class.
   `_PIPELINE_RECIPES` dictionary; the rest of the module branches on mode only
   for tiny save-side variations.
 - **Explicit manager whitelist.** Manager injection into a loaded pipeline uses
-  `_PIPELINE_MANAGER_ATTRS`. Reflection over `dir(self)` was deliberately
+  `_PIPELINE_SERVICE_ATTRS`. Reflection over `dir(self)` was deliberately
   removed: adding a manager type must be a deliberate edit.
 - **One pipeline class for fit and predict.** Prediction is "load → inject →
   transform"; it does not get its own execution stack.
@@ -65,10 +65,10 @@ habit/core/habitat_analysis/
 ├── README.md                   # User-facing documentation
 ├── PIPELINE_DESIGN.md          # Pipeline step contracts
 │
-├── managers/                   # Domain-specific managers
-│   ├── feature_manager.py
-│   ├── clustering_manager.py
-│   └── result_manager.py
+├── services/                   # Service layer (orchestrators called by steps)
+│   ├── feature_service.py      # FeatureService
+│   ├── clustering_service.py   # ClusteringService
+│   └── result_writer.py        # ResultWriter
 │
 ├── pipelines/                  # Pipeline infrastructure
 │   ├── base_pipeline.py        # HabitatPipeline + BasePipelineStep
@@ -82,9 +82,9 @@ habit/core/habitat_analysis/
 │       ├── group_preprocessing.py
 │       └── population_clustering.py
 │
-├── extractors/                 # Voxel/supervoxel feature extractors
-├── algorithms/                 # Clustering algorithms (KMeans, GMM, ...)
-├── analyzers/                  # HabitatMapAnalyzer (post-clustering features)
+├── clustering_features/        # Pre-clustering feature extractors (voxel/supervoxel)
+├── clustering/                 # Clustering algorithms (KMeans, GMM, SLIC, ...)
+├── habitat_features/           # Post-clustering feature extractors (HabitatMapAnalyzer, etc.)
 └── utils/                      # Subpackage-local utilities (legacy)
 ```
 
@@ -101,7 +101,7 @@ habit/core/habitat_analysis/
 | Method | Use | Side effects |
 |--------|-----|--------------|
 | `fit(subjects=None, save_results_csv=None)` | Train + persist. Builds a pipeline by recipe, calls `pipeline.fit_transform`, saves `habitat_pipeline.pkl`, runs result post-processing and CSV/NRRD output. | Writes `.pkl`, `habitats.csv`, `habitat_*.nrrd`. |
-| `predict(pipeline_path, subjects=None, save_results_csv=None)` | Load + transform. Loads a saved pipeline, reconciles config, injects current managers via the whitelist, forces `plot_curves = False`, calls `pipeline.transform`. | Writes `habitats.csv`, `habitat_*.nrrd` (no `.pkl`). |
+| `predict(pipeline_path, subjects=None, save_results_csv=None)` | Load + transform. Loads a saved pipeline, reconciles config, injects current services via the whitelist, forces `plot_curves = False`, calls `pipeline.transform`. | Writes `habitats.csv`, `habitat_*.nrrd` (no `.pkl`). |
 | `run(subjects=None, save_results_csv=None, load_from=None)` | Dispatcher. Routes to `fit` or `predict` based on `load_from` or `config.run_mode`. Kept as a stable entry point for CLI / scripts. | Same as the dispatched method. |
 
 The CLI (`habit get-habitat`) is the only entry point in V1; it is a thin
@@ -115,15 +115,15 @@ graph TB
     subgraph "habitat_analysis.HabitatAnalysis (deep module)"
         HA[HabitatAnalysis]
         Rec["_PIPELINE_RECIPES<br/>(mode -> step list builder)"]
-        Wl["_PIPELINE_MANAGER_ATTRS<br/>(injection whitelist)"]
+        Wl["_PIPELINE_SERVICE_ATTRS<br/>(injection whitelist)"]
         HA -.uses.-> Rec
         HA -.uses.-> Wl
     end
 
     subgraph "Managers (injected at construction time)"
-        FM[FeatureManager]
-        CM[ClusteringManager]
-        RM[ResultManager]
+        FM[FeatureService]
+        CM[ClusteringService]
+        RM[ResultWriter]
     end
 
     subgraph "Pipeline (sklearn-style)"
@@ -159,7 +159,7 @@ _PIPELINE_RECIPES = {
 
 `HabitatAnalysis._build_pipeline()` simply looks up the recipe by
 `config.HabitatsSegmention.clustering_mode`, calls the builder with the three
-managers, and wraps the resulting list in a `HabitatPipeline`.
+services, and wraps the resulting list in a `HabitatPipeline`.
 
 ### Two-step recipe (`_build_two_step_steps`)
 
@@ -196,19 +196,19 @@ Adding a new mode means adding one builder function and one entry in
 When a pipeline is *trained*, manager references are set up at construction
 time. When a pipeline is *loaded* from `.pkl` for prediction, the deserialised
 steps still hold whatever manager references were live at training time —
-those references must be replaced with the current run's managers.
+those references must be replaced with the current run's services.
 
 V1 does this with an explicit whitelist:
 
 ```python
-_PIPELINE_MANAGER_ATTRS: Tuple[str, ...] = (
-    'feature_manager',
-    'clustering_manager',
-    'result_manager',
+_PIPELINE_SERVICE_ATTRS: Tuple[str, ...] = (
+    'feature_service',
+    'clustering_service',
+    'result_writer',
 )
 ```
 
-`_inject_managers_into_pipeline(pipeline)` iterates over each step and, for
+`_inject_services_into_pipeline(pipeline)` iterates over each step and, for
 every name in the whitelist that the step has, overwrites it with the current
 manager instance. It also overwrites `pipeline.config` with the current config.
 
@@ -244,7 +244,7 @@ graph LR
 graph LR
     NewImgs[new images + masks] --> Load
     Pkl[habitat_pipeline.pkl] --> Load[HabitatPipeline.load]
-    Load --> Inject[_inject_managers_into_pipeline<br/>+ plot_curves := False]
+    Load --> Inject[_inject_services_into_pipeline<br/>+ plot_curves := False]
     Inject --> Trans[pipeline.transform]
     Trans --> HM[habitat maps NRRD]
     Trans --> CSV[habitats.csv]
@@ -278,14 +278,14 @@ step list and handles `save` / `load` (joblib).
 
 | Step | Purpose | Manager(s) used |
 |------|---------|------------------|
-| `VoxelFeatureExtractor` | Extract voxel-level features inside the ROI. | `FeatureManager` |
-| `SubjectPreprocessing` | Per-subject cleaning (NaN, scaling, drop). | `FeatureManager` |
-| `IndividualClustering` | Cluster voxels into supervoxels (or habitats in `one_step`). | `ClusteringManager`, `ResultManager` |
-| `SupervoxelFeatureExtraction` *(conditional)* | Compute richer supervoxel features. | `FeatureManager` |
-| `SupervoxelAggregation` | Aggregate features at supervoxel level. | `FeatureManager` |
-| `ConcatenateVoxels` *(direct pooling only)* | Pool voxels across subjects. | `FeatureManager` |
-| `GroupPreprocessing` | Group-level cleaning. | `FeatureManager` |
-| `PopulationClustering` | Cluster supervoxels (or pooled voxels) into habitats. | `ClusteringManager`, `ResultManager` |
+| `VoxelFeatureExtractor` | Extract voxel-level features inside the ROI. | `FeatureService` |
+| `SubjectPreprocessing` | Per-subject cleaning (NaN, scaling, drop). | `FeatureService` |
+| `IndividualClustering` | Cluster voxels into supervoxels (or habitats in `one_step`). | `ClusteringService`, `ResultWriter` |
+| `SupervoxelFeatureExtraction` *(conditional)* | Compute richer supervoxel features. | `FeatureService` |
+| `SupervoxelAggregation` | Aggregate features at supervoxel level. | `FeatureService` |
+| `ConcatenateVoxels` *(direct pooling only)* | Pool voxels across subjects. | `FeatureService` |
+| `GroupPreprocessing` | Group-level cleaning. | `FeatureService` |
+| `PopulationClustering` | Cluster supervoxels (or pooled voxels) into habitats. | `ClusteringService`, `ResultWriter` |
 
 `PIPELINE_DESIGN.md` documents the per-step input/output column contracts in
 detail.
@@ -313,11 +313,14 @@ instance with all step state restored.
 
 ### Add a new clustering mode
 
-1. Implement a `_build_<mode>_steps(feature_manager, clustering_manager,
-   result_manager, config)` function in `habitat_analysis.py`.
+1. Implement a `_build_<mode>_steps(feature_service, clustering_service,
+   result_writer, config)` function in `habitat_analysis.py`.
 2. Add the mode to the `_PIPELINE_RECIPES` dictionary.
-3. (Optional) Add mode-specific result post-processing inside
-   `HabitatAnalysis._post_process_results` and / or `_save_results`.
+3. (Optional) Add mode-specific result tweaks. Output-column adjustments
+   (e.g. mirroring `Supervoxel` into `Habitats` for `one_step` mode) belong
+   inside the relevant pipeline step (see `MergeSupervoxelFeaturesStep`);
+   only side effects that *follow* the pipeline (extra files, logging,
+   conditional saves) belong inside `HabitatAnalysis._save_results`.
 
 You do **not** need to add a class, file, or registry entry. The recipe
 dictionary is the registry.
@@ -328,23 +331,23 @@ dictionary is the registry.
 2. Inject the step into one or more recipes in `habitat_analysis.py`.
 3. Document the step's input / output column contract in `PIPELINE_DESIGN.md`.
 
-### Add a new manager
+### Add a new service
 
-1. Create the manager class under `managers/`.
+1. Create the service class under `services/`.
 2. Inject it into `HabitatAnalysis.__init__` and store it on `self`.
-3. **Add its attribute name to `_PIPELINE_MANAGER_ATTRS`.** This step is
-   mandatory: without it, the manager will not be re-injected on the predict
+3. **Add its attribute name to `_PIPELINE_SERVICE_ATTRS`.** This step is
+   mandatory: without it, the service will not be re-injected on the predict
    path.
 4. Update `HabitatConfigurator.create_habitat_analysis` (in
    `habit/core/common/configurators/habitat.py`) to construct and pass the new
-   manager.
+   service.
 
 ### Add a new clustering algorithm
 
 1. Inherit from `BaseClusteringStrategy` *(this name lives in
-   `algorithms/base_clustering.py`; it refers to the **algorithm** interface,
+   `clustering/base_clustering.py`; it refers to the **algorithm** interface,
    not the removed top-level strategy tree)*.
-2. Register the algorithm so `ClusteringManager` can resolve it by name from
+2. Register the algorithm so `ClusteringService` can resolve it by name from
    config.
 
 ---
@@ -374,7 +377,7 @@ one line.
 
 ### 3. Explicit injection whitelist
 
-**Decision.** `_PIPELINE_MANAGER_ATTRS` instead of `dir(self)` reflection.
+**Decision.** `_PIPELINE_SERVICE_ATTRS` instead of `dir(self)` reflection.
 
 **Rationale.** Reflection over attribute names is correct *only* by accident.
 A whitelist makes the contract — "these are the attributes a step is allowed
@@ -382,7 +385,7 @@ to have us re-bind on load" — explicit, readable, and testable.
 
 ### 4. Force `plot_curves = False` on the predict path
 
-**Decision.** `_inject_managers_into_pipeline` overrides
+**Decision.** `_inject_services_into_pipeline` overrides
 `pipeline.config.plot_curves = False`.
 
 **Rationale.** The cluster-selection plotting code consumed `None` when no

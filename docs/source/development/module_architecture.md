@@ -139,9 +139,9 @@ PreprocessingConfig
 | `config_schemas.py`              | `HabitatAnalysisConfig`、`FeatureExtractionConfig`、`RadiomicsConfig` 等。       |
 | `pipelines/base_pipeline.py`     | `HabitatPipeline`、`BasePipelineStep`、`IndividualLevelStep`、`GroupLevelStep`。 |
 | `pipelines/steps/*.py`           | 体素特征、subject 预处理、个体聚类、supervoxel 聚合、群体聚类等步骤。                                 |
-| `managers/feature_manager.py`    | 特征抽取、特征预处理、supervoxel 级特征计算。                                                 |
-| `managers/clustering_manager.py` | 聚类算法、最佳聚类数选择、训练状态。                                                           |
-| `managers/result_manager.py`     | habitat / supervoxel 图像和 CSV 落盘。                                             |
+| `managers/feature_service.py`    | 特征抽取、特征预处理、supervoxel 级特征计算。                                                 |
+| `managers/clustering_service.py` | 聚类算法、最佳聚类数选择、训练状态。                                                           |
+| `managers/result_writer.py`     | habitat / supervoxel 图像和 CSV 落盘。                                             |
 | `algorithms/`                    | KMeans、GMM、DBSCAN、SLIC 等聚类策略实现。                                              |
 | `extractors/`                    | voxel / supervoxel 级特征抽取器与表达式解析。                                             |
 | `analyzers/`                     | 已生成 habitat map 上的特征提取、传统 radiomics 等。                                       |
@@ -179,8 +179,8 @@ images + masks
 预测不会重新 `fit` pipeline：
 
 1. `HabitatPipeline.load(pipeline_path)` 读取训练产物。
-2. `HabitatAnalysis._inject_managers_into_pipeline` 用 `_PIPELINE_MANAGER_ATTRS` 白名单注入当前运行时 manager。
-3. `FeatureManager` 更新当前数据路径与日志目标，保留已训练状态。
+2. `HabitatAnalysis._inject_services_into_pipeline` 用 `_PIPELINE_SERVICE_ATTRS` 白名单注入当前运行时 manager。
+3. `FeatureService` 更新当前数据路径与日志目标，保留已训练状态。
 4. 调用 `pipeline.transform(...)`。
 
 ### 扩展点
@@ -189,7 +189,7 @@ images + masks
 
 - 新增 recipe 函数，返回明确 step 列表。
 - 把模式名加入 `_PIPELINE_RECIPES`。
-- 新的输出后处理尽量集中在 `HabitatAnalysis` 或 `ResultManager`，不要在 CLI 层分叉。
+- 新的输出后处理尽量集中在 `HabitatAnalysis` 或 `ResultWriter`，不要在 CLI 层分叉。
 
 **新增 pipeline step**
 
@@ -200,7 +200,7 @@ images + masks
 ### 维护注意事项
 
 - 旧 `strategies/` 与 `pipeline_builder.py` 已删除，不要沿用旧三层结构。
-- manager 注入使用显式白名单 `_PIPELINE_MANAGER_ATTRS`；新增 manager 必须同步修改白名单与注入逻辑。
+- manager 注入使用显式白名单 `_PIPELINE_SERVICE_ATTRS`；新增 manager 必须同步修改白名单与注入逻辑。
 - 更细说明：`habit/core/habitat_analysis/ARCHITECTURE.md`、`habit/core/habitat_analysis/PIPELINE_DESIGN.md`。
 
 ***

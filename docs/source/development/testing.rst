@@ -41,7 +41,7 @@ HABIT 使用 pytest 进行测试。
 
    import pytest
    import numpy as np
-   from habit.core.habitat_analysis.extractors import MeanVoxelFeaturesExtractor
+   from habit.core.habitat_analysis.clustering_features import MeanVoxelFeaturesExtractor
    
    def test_mean_voxel_extractor():
        # 准备测试数据

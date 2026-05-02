@@ -9,7 +9,7 @@ import pandas as pd
 import logging
 
 from ..base_pipeline import IndividualLevelStep
-from ...managers.feature_manager import FeatureManager
+from ...services.feature_service import FeatureService
 
 
 class SubjectPreprocessingStep(IndividualLevelStep):
@@ -20,19 +20,19 @@ class SubjectPreprocessingStep(IndividualLevelStep):
     No state needs to be saved between training and testing.
     
     Attributes:
-        feature_manager: FeatureManager instance for preprocessing
+        feature_service: FeatureService instance for preprocessing
         fitted_: bool indicating whether the step has been fitted (always True after fit)
     """
     
-    def __init__(self, feature_manager: FeatureManager):
+    def __init__(self, feature_service: FeatureService):
         """
         Initialize subject preprocessing step.
         
         Args:
-            feature_manager: FeatureManager instance
+            feature_service: FeatureService instance
         """
         super().__init__()
-        self.feature_manager = feature_manager
+        self.feature_service = feature_service
         self.logger = logging.getLogger(__name__)
     
     def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'SubjectPreprocessingStep':
@@ -87,13 +87,13 @@ class SubjectPreprocessingStep(IndividualLevelStep):
                 mask_info = data['mask_info']
                 
                 # Apply subject-level preprocessing
-                processed_features = self.feature_manager.apply_preprocessing(
+                processed_features = self.feature_service.apply_preprocessing(
                     feature_df, 
                     level='subject'
                 )
                 
                 # Clean features (handle inf, nan)
-                processed_features = self.feature_manager.clean_features(processed_features)
+                processed_features = self.feature_service.clean_features(processed_features)
                 
                 results[subject_id] = {
                     'features': processed_features,

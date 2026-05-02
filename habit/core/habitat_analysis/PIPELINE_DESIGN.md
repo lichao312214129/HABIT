@@ -71,7 +71,7 @@
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  Step 7: Population Clustering (Supervoxel → Habitat)│   │
 │  │  - Stateful: fit() trains model, transform() predicts│   │
-│  │  - Uses ClusteringManager                             │   │
+│  │  - Uses ClusteringService                             │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                                                               │
 └─────────────────────────────────────────────────────────────┘
@@ -270,8 +270,8 @@ class VoxelFeatureExtractor(BasePipelineStep):
     Extract voxel-level features from images.
     """
     
-    def __init__(self, feature_manager: FeatureManager):
-        self.feature_manager = feature_manager
+    def __init__(self, feature_service: FeatureService):
+        self.feature_service = feature_service
         self.fitted_ = False
     
     def fit(self, X: Dict[str, Any], y=None, **fit_params):
@@ -294,7 +294,7 @@ class VoxelFeatureExtractor(BasePipelineStep):
         """
         results = {}
         for subject_id, data in X.items():
-            _, feature_df, raw_df, mask_info = self.feature_manager.extract_voxel_features(
+            _, feature_df, raw_df, mask_info = self.feature_service.extract_voxel_features(
                 subject_id
             )
             results[subject_id] = {
@@ -371,7 +371,7 @@ class PopulationClusteringStep(BasePipelineStep):
     
     def __init__(
         self, 
-        clustering_manager: ClusteringManager, 
+        clustering_service: ClusteringService, 
         config: HabitatAnalysisConfig,
         out_dir: str
     ):
@@ -379,11 +379,11 @@ class PopulationClusteringStep(BasePipelineStep):
         Initialize population clustering step.
         
         Args:
-            clustering_manager: ClusteringManager instance
+            clustering_service: ClusteringService instance
             config: Configuration object
             out_dir: Output directory for saving model (if needed)
         """
-        self.clustering_manager = clustering_manager
+        self.clustering_service = clustering_service
         self.config = config
         self.out_dir = out_dir
         self.clustering_model = None  # Will be created in fit()
@@ -403,7 +403,7 @@ class PopulationClusteringStep(BasePipelineStep):
         self.optimal_n_clusters_ = optimal_n
         
         # Train clustering model
-        self.clustering_model = self.clustering_manager.supervoxel2habitat_clustering
+        self.clustering_model = self.clustering_service.supervoxel2habitat_clustering
         self.clustering_model.n_clusters = optimal_n
         self.clustering_model.fit(X)
         
@@ -480,8 +480,8 @@ class TwoStepStrategy(BaseClusteringStrategy):
         
         return build_habitat_pipeline(
             config=self.config,
-            feature_manager=self.analysis.feature_manager,
-            clustering_manager=self.analysis.clustering_manager
+            feature_service=self.analysis.feature_service,
+            clustering_service=self.analysis.clustering_service
         )
     
     def run(
@@ -538,8 +538,8 @@ class TwoStepStrategy(BaseClusteringStrategy):
 ```python
 def build_habitat_pipeline(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
+    feature_service: FeatureService,
+    clustering_service: ClusteringService,
     mode_handler: BaseMode,
     load_from: Optional[str] = None
 ) -> HabitatPipeline:
@@ -548,8 +548,8 @@ def build_habitat_pipeline(
     
     Args:
         config: Configuration object
-        feature_manager: FeatureManager instance
-        clustering_manager: ClusteringManager instance
+        feature_service: FeatureService instance
+        clustering_service: ClusteringService instance
         mode_handler: Mode handler (TrainingMode or TestingMode) - used for state management
         load_from: Optional path to load saved pipeline (for transform on new data)
         
@@ -572,23 +572,23 @@ def build_habitat_pipeline(
     )
     
     steps = [
-        ('voxel_features', VoxelFeatureExtractor(feature_manager)),
-        ('subject_preprocessing', SubjectPreprocessingStep(feature_manager)),
+        ('voxel_features', VoxelFeatureExtractor(feature_service)),
+        ('subject_preprocessing', SubjectPreprocessingStep(feature_service)),
         ('individual_clustering', IndividualClusteringStep(
-            feature_manager, clustering_manager, config
+            feature_service, clustering_service, config
         )),
         ('supervoxel_feature_extraction', SupervoxelFeatureExtractionStep(
-            feature_manager, config
+            feature_service, config
         )),
         ('supervoxel_aggregation', SupervoxelAggregationStep(
-            feature_manager, config
+            feature_service, config
         )),
         ('group_preprocessing', GroupPreprocessingStep(
             config.FeatureConstruction.preprocessing_for_group_level.methods,
             config.out_dir
         )),
         ('population_clustering', PopulationClusteringStep(
-            clustering_manager, config, config.out_dir
+            clustering_service, config, config.out_dir
         ))
     ]
     
@@ -655,8 +655,8 @@ from habit.core.habitat_analysis.pipelines import build_habitat_pipeline, Habita
 # Build pipeline
 pipeline = build_habitat_pipeline(
     config=config,
-    feature_manager=feature_manager,
-    clustering_manager=clustering_manager
+    feature_service=feature_service,
+    clustering_service=clustering_service
 )
 
 # Fit on training data
@@ -678,8 +678,8 @@ results = pipeline.transform(test_data)
 # Method 3: Use builder with load_from
 pipeline = build_habitat_pipeline(
     config=config,
-    feature_manager=feature_manager,
-    clustering_manager=clustering_manager,
+    feature_service=feature_service,
+    clustering_service=clustering_service,
     load_from='habitat_pipeline.pkl'
 )
 results = pipeline.transform(test_data)
@@ -872,10 +872,10 @@ class SupervoxelFeatureExtractionStep(BasePipelineStep):
     
     def __init__(
         self,
-        feature_manager: FeatureManager,
+        feature_service: FeatureService,
         config: HabitatAnalysisConfig
     ):
-        self.feature_manager = feature_manager
+        self.feature_service = feature_service
         self.config = config
         self.fitted_ = False
     
@@ -892,7 +892,7 @@ class SupervoxelFeatureExtractionStep(BasePipelineStep):
         # Setup supervoxel file dictionary for feature extraction
         # This discovers supervoxel map files saved in Step 3
         subjects = list(X.keys())
-        self.feature_manager.setup_supervoxel_files(
+        self.feature_service.setup_supervoxel_files(
             subjects, 
             failed_subjects=[],
             out_dir=self.config.out_dir
@@ -920,7 +920,7 @@ class SupervoxelFeatureExtractionStep(BasePipelineStep):
             # Extract advanced features from supervoxel maps
             # This uses the supervoxel map file saved in Step 3
             # Uses extract_supervoxel_features() method
-            _, features_df = self.feature_manager.extract_supervoxel_features(
+            _, features_df = self.feature_service.extract_supervoxel_features(
                 subject_id
             )
             supervoxel_features[subject_id] = features_df
@@ -945,10 +945,10 @@ class SupervoxelAggregationStep(BasePipelineStep):
     
     def __init__(
         self,
-        feature_manager: FeatureManager,
+        feature_service: FeatureService,
         config: HabitatAnalysisConfig
     ):
-        self.feature_manager = feature_manager
+        self.feature_service = feature_service
         self.config = config
         self.fitted_ = False
     
@@ -1000,7 +1000,7 @@ class SupervoxelAggregationStep(BasePipelineStep):
             
             # Always calculate mean voxel features per supervoxel
             # (This was also done in Step 3, but we recalculate here for consistency)
-            mean_features_df = self.feature_manager.calculate_supervoxel_means(
+            mean_features_df = self.feature_service.calculate_supervoxel_means(
                 subject_id, feature_df, raw_df, supervoxel_labels, n_clusters
             )
             
@@ -1122,7 +1122,7 @@ pd.DataFrame = Same as Step 5 output, with additional columns:
 
 **Step 1: Voxel Feature Extraction（体素特征提取）**
 - **状态需求**：❌ **不需要保存状态**
-- **代码位置**：`FeatureManager.extract_voxel_features()`
+- **代码位置**：`FeatureService.extract_voxel_features()`
 - **详细理由**：
   1. 特征提取逻辑完全由配置决定（`voxel_level.method` 和 `params`）
   2. 提取过程是确定性的：基于图像和mask，使用固定的算法（如raw、texture等）
@@ -1133,7 +1133,7 @@ pd.DataFrame = Same as Step 5 output, with additional columns:
 
 **Step 2: Subject Preprocessing（个体预处理）**
 - **状态需求**：❌ **不需要保存状态**
-- **代码位置**：`FeatureManager.apply_preprocessing(level='subject')`
+- **代码位置**：`FeatureService.apply_preprocessing(level='subject')`
 - **详细理由**：
   1. 每个subject独立进行预处理，使用该subject自身的数据计算统计量
   2. 例如z-score归一化：使用该subject的均值和标准差，不依赖其他subject
@@ -1145,7 +1145,7 @@ pd.DataFrame = Same as Step 5 output, with additional columns:
 
 **Step 3: Individual Clustering（个体聚类：Voxel → Supervoxel）**
 - **状态需求**：❌ **不需要保存状态**
-- **代码位置**：`ClusteringManager.cluster_subject_voxels()`
+- **代码位置**：`ClusteringService.cluster_subject_voxels()`
 - **详细理由**：
   1. 聚类参数完全由配置决定：
      - `n_clusters`：固定的supervoxel数量（如50）
@@ -1165,7 +1165,7 @@ pd.DataFrame = Same as Step 5 output, with additional columns:
 - **执行条件**：⚠️ **条件执行** - 根据配置决定是否执行
   - 如果 `config.FeatureConstruction.supervoxel_level.method` 只包含 `'mean_voxel_features'`，则**跳过此步骤**以节省时间
   - 如果包含其他方法（如 `'supervoxel_radiomics'`），则**执行此步骤**
-- **代码位置**：`FeatureManager.extract_supervoxel_features()`
+- **代码位置**：`FeatureService.extract_supervoxel_features()`
 - **详细理由**：
   1. 基于supervoxel标签图提取高级特征（纹理、形状、radiomics等）
   2. 提取算法固定，不依赖训练数据
@@ -1176,7 +1176,7 @@ pd.DataFrame = Same as Step 5 output, with additional columns:
 
 **Step 5: Supervoxel Aggregation（Supervoxel特征聚合）**
 - **状态需求**：❌ **不需要保存状态**
-- **代码位置**：`FeatureManager.calculate_supervoxel_means()` 和可选的 Step 4 输出
+- **代码位置**：`FeatureService.calculate_supervoxel_means()` 和可选的 Step 4 输出
 - **详细理由**：
   1. 总是计算均值特征：对每个supervoxel内的voxels求均值，是纯数学计算
   2. 如果 Step 4 被执行，则合并 Step 4 输出的高级特征
@@ -1354,8 +1354,8 @@ pooling_steps = [
 ```python
 def build_habitat_pipeline(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager,
+    feature_service: FeatureService,
+    clustering_service: ClusteringService,
     mode_handler: BaseMode,
     load_from: Optional[str] = None
 ) -> HabitatPipeline:
@@ -1364,8 +1364,8 @@ def build_habitat_pipeline(
     
     Args:
         config: Configuration object
-        feature_manager: FeatureManager instance
-        clustering_manager: ClusteringManager instance
+        feature_service: FeatureService instance
+        clustering_service: ClusteringService instance
         mode_handler: Mode handler (TrainingMode or TestingMode) - used for state management
         load_from: Optional path to load saved pipeline (for transform on new data)
         
@@ -1379,15 +1379,15 @@ def build_habitat_pipeline(
     
     if strategy == 'two_step':
         return _build_two_step_pipeline(
-            config, feature_manager, clustering_manager, mode_handler
+            config, feature_service, clustering_service, mode_handler
         )
     elif strategy == 'one_step':
         return _build_one_step_pipeline(
-            config, feature_manager, clustering_manager, mode_handler
+            config, feature_service, clustering_service, mode_handler
         )
     elif strategy == 'direct_pooling':
         return _build_pooling_pipeline(
-            config, feature_manager, clustering_manager, mode_handler
+            config, feature_service, clustering_service, mode_handler
         )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
@@ -1395,39 +1395,39 @@ def build_habitat_pipeline(
 def _build_two_step_pipeline(...) -> HabitatPipeline:
     """Build two-step strategy pipeline."""
     steps = [
-        ('voxel_features', VoxelFeatureExtractor(feature_manager)),
-        ('subject_preprocessing', SubjectPreprocessingStep(feature_manager)),
+        ('voxel_features', VoxelFeatureExtractor(feature_service)),
+        ('subject_preprocessing', SubjectPreprocessingStep(feature_service)),
         ('individual_clustering', IndividualClusteringStep(
-            feature_manager, clustering_manager, config,
+            feature_service, clustering_service, config,
             target='supervoxel'  # 聚类到supervoxel
         )),
         ('supervoxel_feature_extraction', SupervoxelFeatureExtractionStep(
-            feature_manager, config
+            feature_service, config
         )),
         ('supervoxel_aggregation', SupervoxelAggregationStep(
-            feature_manager, config
+            feature_service, config
         )),
         ('group_preprocessing', GroupPreprocessingStep(
             mode_handler.preprocessing_state,
             config.FeatureConstruction.preprocessing_for_group_level.methods
         )),
         ('population_clustering', PopulationClusteringStep(
-            clustering_manager, mode_handler
+            clustering_service, mode_handler
         ))
     ]
     return HabitatPipeline(steps=steps, config=config)
 
 def _build_one_step_pipeline(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager
+    feature_service: FeatureService,
+    clustering_service: ClusteringService
 ) -> HabitatPipeline:
     """Build one-step strategy pipeline."""
     steps = [
-        ('voxel_features', VoxelFeatureExtractor(feature_manager)),
-        ('subject_preprocessing', SubjectPreprocessingStep(feature_manager)),
+        ('voxel_features', VoxelFeatureExtractor(feature_service)),
+        ('subject_preprocessing', SubjectPreprocessingStep(feature_service)),
         ('individual_clustering', IndividualClusteringStep(
-            feature_manager, clustering_manager, config,
+            feature_service, clustering_service, config,
             target='habitat',  # 直接聚类到habitat
             find_optimal=True  # 每个subject找最优cluster数
         )),
@@ -1437,20 +1437,20 @@ def _build_one_step_pipeline(
 
 def _build_pooling_pipeline(
     config: HabitatAnalysisConfig,
-    feature_manager: FeatureManager,
-    clustering_manager: ClusteringManager
+    feature_service: FeatureService,
+    clustering_service: ClusteringService
 ) -> HabitatPipeline:
     """Build direct pooling strategy pipeline."""
     steps = [
-        ('voxel_features', VoxelFeatureExtractor(feature_manager)),
-        ('subject_preprocessing', SubjectPreprocessingStep(feature_manager)),
+        ('voxel_features', VoxelFeatureExtractor(feature_service)),
+        ('subject_preprocessing', SubjectPreprocessingStep(feature_service)),
         ('concatenate_voxels', ConcatenateVoxelsStep()),  # 合并所有voxel
         ('group_preprocessing', GroupPreprocessingStep(
             config.FeatureConstruction.preprocessing_for_group_level.methods,
             config.out_dir
         )),
         ('population_clustering', PopulationClusteringStep(
-            clustering_manager, config, config.out_dir,
+            clustering_service, config, config.out_dir,
             input_type='voxel'  # 对voxel聚类，不是supervoxel
         ))
     ]
@@ -1574,8 +1574,8 @@ class GroupPreprocessingStep(BasePipelineStep):
         return self.preprocessing_state.transform(X)
 
 class PopulationClusteringStep(BasePipelineStep):
-    def __init__(self, clustering_manager: ClusteringManager, config, out_dir: str):
-        self.clustering_manager = clustering_manager
+    def __init__(self, clustering_service: ClusteringService, config, out_dir: str):
+        self.clustering_service = clustering_service
         self.config = config
         self.out_dir = out_dir
         self.clustering_model = None
@@ -1721,7 +1721,7 @@ class GroupPreprocessingStep(BasePipelineStep):
 - **Strategy 层**：`TwoStepStrategy`、`OneStepStrategy`、`DirectPoolingStrategy` 内部使用对应的 Pipeline
 - **Mode 层**：
   - Pipeline Steps 内部直接管理状态，不需要 Mode 类
-- **Manager 层**：`FeatureManager`、`ClusteringManager` 等被 Pipeline Steps 调用
+- **Service 层**：`FeatureService`、`ClusteringService`、`ResultWriter` 等被 Pipeline Steps 调用
 - **向后兼容**：现有的 Strategy API 保持不变，Pipeline 作为内部实现
 
 ### 8.4 实施优先级
@@ -1828,7 +1828,7 @@ class GroupPreprocessingStep(BasePipelineStep):
 - [x] 测试 `BasePipelineStep` 接口
 - [x] 测试 `HabitatPipeline` 的基本功能
 - [x] 测试 `GroupPreprocessingStep` 的 fit/transform
-- [ ] 测试 `PopulationClusteringStep` 的 fit/transform（需要完整的 ClusteringManager 和 Config）
+- [ ] 测试 `PopulationClusteringStep` 的 fit/transform（需要完整的 ClusteringService 和 Config）
 - [ ] 测试 Pipeline 的 save/load 功能（需要完整测试环境）
 
 ---
@@ -1837,24 +1837,24 @@ class GroupPreprocessingStep(BasePipelineStep):
 
 #### 2.1 实现无状态步骤
 - [x] 实现 `VoxelFeatureExtractor`
-  - [x] 调用 `FeatureManager.extract_voxel_features()`
+  - [x] 调用 `FeatureService.extract_voxel_features()`
   - [x] 处理输入格式（Dict[str, Dict]）
   - [x] 返回正确的输出格式
 - [x] 实现 `SubjectPreprocessingStep`
-  - [x] 调用 `FeatureManager.apply_preprocessing(level='subject')`
+  - [x] 调用 `FeatureService.apply_preprocessing(level='subject')`
   - [x] 处理特征清理（inf, nan）
   - [x] 保持数据格式一致性
 - [x] 实现 `IndividualClusteringStep`
   - [x] 支持 `target='supervoxel'` 和 `target='habitat'`
-  - [x] 调用 `ClusteringManager.cluster_subject_voxels()`
+  - [x] 调用 `ClusteringService.cluster_subject_voxels()`
   - [x] 保存 supervoxel map 文件
   - [x] 处理 one-step 策略的最优 cluster 数查找
 - [x] 实现 `SupervoxelFeatureExtractionStep`（条件执行）
-  - [x] 调用 `FeatureManager.extract_supervoxel_features()`
+  - [x] 调用 `FeatureService.extract_supervoxel_features()`
   - [x] 处理 supervoxel map 文件发现
   - [x] 返回格式：将 supervoxel_features 添加到 X 中（通过 X 传递）
 - [x] 实现 `SupervoxelAggregationStep`
-  - [x] 调用 `FeatureManager.calculate_supervoxel_means()`
+  - [x] 调用 `FeatureService.calculate_supervoxel_means()`
   - [x] 支持从 X 中提取 Step 4 的输出（`supervoxel_features` 键）
   - [x] 合并均值特征和高级特征（如果提供）
   - [x] 返回合并后的 DataFrame

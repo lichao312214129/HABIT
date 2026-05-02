@@ -7,7 +7,7 @@
 K-Means
 ^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.kmeans_clustering.KMeansClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.kmeans_clustering.KMeansClustering
    :members:
    :undoc-members:
    :no-index:
@@ -15,7 +15,7 @@ K-Means
 GMM (Gaussian Mixture Model)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.gmm_clustering.GMMClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.gmm_clustering.GMMClustering
    :members:
    :undoc-members:
    :no-index:
@@ -23,7 +23,7 @@ GMM (Gaussian Mixture Model)
 层次聚类
 ^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.hierarchical_clustering.HierarchicalClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.hierarchical_clustering.HierarchicalClustering
    :members:
    :undoc-members:
    :no-index:
@@ -31,7 +31,7 @@ GMM (Gaussian Mixture Model)
 DBSCAN
 ^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.dbscan_clustering.DBSCANClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.dbscan_clustering.DBSCANClustering
    :members:
    :undoc-members:
    :no-index:
@@ -39,7 +39,7 @@ DBSCAN
 Spectral Clustering
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.spectral_clustering.SpectralClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.spectral_clustering.SpectralClustering
    :members:
    :undoc-members:
    :no-index:
@@ -47,7 +47,7 @@ Spectral Clustering
 Mean Shift
 ^^^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.mean_shift_clustering.MeanShiftClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.mean_shift_clustering.MeanShiftClustering
    :members:
    :undoc-members:
    :no-index:
@@ -55,7 +55,7 @@ Mean Shift
 Affinity Propagation
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: habit.core.habitat_analysis.algorithms.affinity_propagation.AffinityPropagationClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.affinity_propagation.AffinityPropagationClustering
    :members:
    :undoc-members:
    :no-index:

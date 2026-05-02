@@ -1,5 +1,5 @@
 """
-Clustering Manager for Habitat Analysis.
+Clustering Service for Habitat Analysis.
 Handles clustering algorithms, model selection, and validation.
 """
 
@@ -10,8 +10,8 @@ import pandas as pd
 from typing import Dict, List, Any, Tuple, Optional, Union
 
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
-from ..algorithms.base_clustering import get_clustering_algorithm
-from ..algorithms.cluster_validation_methods import (
+from ..clustering.base_clustering import get_clustering_algorithm
+from ..clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
     get_default_methods
@@ -24,14 +24,17 @@ try:
 except ImportError:
     HAS_VISUALIZATION = False
 
-class ClusteringManager:
+class ClusteringService:
     """
-    Manages clustering operations for habitat analysis.
+    Orchestrates clustering operations for habitat analysis.
+
+    Pipeline steps call this class to perform voxel/supervoxel/habitat
+    clustering, optimal-cluster-number search, and cluster visualisation.
     """
-    
+
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize ClusteringManager.
+        Initialize ClusteringService.
         
         Args:
             config: Habitat analysis configuration

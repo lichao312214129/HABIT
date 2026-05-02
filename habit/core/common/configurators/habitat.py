@@ -2,9 +2,9 @@
 HabitatConfigurator: factory for habitat-domain services.
 
 Owns the assembly of:
-    * :class:`HabitatAnalysis` and its three managers
-      (:class:`FeatureManager` / :class:`ClusteringManager` /
-      :class:`ResultManager`),
+    * :class:`HabitatAnalysis` and its three services
+      (:class:`FeatureService` / :class:`ClusteringService` /
+      :class:`ResultWriter`),
     * :class:`HabitatMapAnalyzer` (post-clustering feature extraction),
     * :class:`TraditionalRadiomicsExtractor` (PyRadiomics wrapper),
     * :class:`TestRetestConfig` resolution for the test-retest analyser.
@@ -53,32 +53,32 @@ class HabitatConfigurator(BaseConfigurator):
     # HabitatAnalysis
     # ------------------------------------------------------------------
 
-    def create_feature_manager(self, config: Optional[Any] = None) -> Any:
-        """Return a configured :class:`FeatureManager`."""
-        from habit.core.habitat_analysis.managers import FeatureManager
+    def create_feature_service(self, config: Optional[Any] = None) -> Any:
+        """Return a configured :class:`FeatureService`."""
+        from habit.core.habitat_analysis.services import FeatureService
 
         habitat_config = self._get_habitat_config(config)
-        return FeatureManager(habitat_config, self.logger)
+        return FeatureService(habitat_config, self.logger)
 
-    def create_clustering_manager(self, config: Optional[Any] = None) -> Any:
-        """Return a configured :class:`ClusteringManager`."""
-        from habit.core.habitat_analysis.managers import ClusteringManager
-
-        habitat_config = self._get_habitat_config(config)
-        return ClusteringManager(habitat_config, self.logger)
-
-    def create_result_manager(self, config: Optional[Any] = None) -> Any:
-        """Return a configured :class:`ResultManager`."""
-        from habit.core.habitat_analysis.managers import ResultManager
+    def create_clustering_service(self, config: Optional[Any] = None) -> Any:
+        """Return a configured :class:`ClusteringService`."""
+        from habit.core.habitat_analysis.services import ClusteringService
 
         habitat_config = self._get_habitat_config(config)
-        return ResultManager(habitat_config, self.logger)
+        return ClusteringService(habitat_config, self.logger)
+
+    def create_result_writer(self, config: Optional[Any] = None) -> Any:
+        """Return a configured :class:`ResultWriter`."""
+        from habit.core.habitat_analysis.services import ResultWriter
+
+        habitat_config = self._get_habitat_config(config)
+        return ResultWriter(habitat_config, self.logger)
 
     def create_habitat_analysis(self, config: Optional[Any] = None) -> Any:
         """
         Return a fully configured :class:`HabitatAnalysis`.
 
-        Wires the three managers and the logger; all real behaviour
+        Wires the three services and the logger; all real behaviour
         (build / fit / predict / run) lives inside ``HabitatAnalysis``.
         """
         from habit.core.habitat_analysis.habitat_analysis import HabitatAnalysis
@@ -86,9 +86,9 @@ class HabitatConfigurator(BaseConfigurator):
         cfg = config if config is not None else self.config
         return HabitatAnalysis(
             config=cfg,
-            feature_manager=self.create_feature_manager(cfg),
-            clustering_manager=self.create_clustering_manager(cfg),
-            result_manager=self.create_result_manager(cfg),
+            feature_service=self.create_feature_service(cfg),
+            clustering_service=self.create_clustering_service(cfg),
+            result_writer=self.create_result_writer(cfg),
             logger=self.logger,
         )
 
@@ -98,7 +98,7 @@ class HabitatConfigurator(BaseConfigurator):
 
     def create_feature_extractor(self, config: Optional[Any] = None) -> Any:
         """Return a configured :class:`HabitatMapAnalyzer`."""
-        from habit.core.habitat_analysis.analyzers.habitat_analyzer import HabitatMapAnalyzer
+        from habit.core.habitat_analysis.habitat_features.habitat_analyzer import HabitatMapAnalyzer
         from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
 
         cfg = config if config is not None else self.config
@@ -129,7 +129,7 @@ class HabitatConfigurator(BaseConfigurator):
 
     def create_radiomics_extractor(self, config: Optional[Any] = None) -> Any:
         """Return a configured :class:`TraditionalRadiomicsExtractor`."""
-        from habit.core.habitat_analysis.analyzers.traditional_radiomics_extractor import (
+        from habit.core.habitat_analysis.habitat_features.traditional_radiomics_extractor import (
             TraditionalRadiomicsExtractor,
         )
         from habit.core.habitat_analysis.config_schemas import RadiomicsConfig

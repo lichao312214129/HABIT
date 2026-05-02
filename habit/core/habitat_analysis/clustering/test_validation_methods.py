@@ -5,7 +5,7 @@
 import os
 import sys
 
-from habit.core.habitat_analysis.algorithms.cluster_validation_methods import (
+from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     CLUSTERING_VALIDATION_METHODS,
     get_validation_methods,
     is_valid_method_for_algorithm,

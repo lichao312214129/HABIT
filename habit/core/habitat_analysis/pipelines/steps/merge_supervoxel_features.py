@@ -212,6 +212,22 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                             f"feature columns: {true_feature_columns})"
                         )
                 
+                # In one_step mode the per-subject clustering already produced
+                # habitat labels (the Supervoxel column IS the habitat label).
+                # Mirror Supervoxel into Habitats here so downstream code does
+                # not have to patch the controller-level output.
+                clustering_mode = (
+                    self.config.HabitatsSegmention.clustering_mode
+                    if self.config.HabitatsSegmention is not None
+                    else None
+                )
+                if (
+                    clustering_mode == 'one_step'
+                    and ResultColumns.SUPERVOXEL in supervoxel_df.columns
+                    and ResultColumns.HABITATS not in supervoxel_df.columns
+                ):
+                    supervoxel_df[ResultColumns.HABITATS] = supervoxel_df[ResultColumns.SUPERVOXEL]
+
                 # Store result with unified key name
                 results[subject_id] = {
                     'supervoxel_df': supervoxel_df

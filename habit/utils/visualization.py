@@ -37,7 +37,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         dpi: Image resolution
         best_n_clusters: Precomputed best cluster number per method to mark on the plot
     """
-    from habit.core.habitat_analysis.algorithms.cluster_validation_methods import get_method_description, get_optimization_direction
+    from habit.core.habitat_analysis.clustering.cluster_validation_methods import get_method_description, get_optimization_direction
     
     # If methods is None, use all methods in scores_dict
     if methods is None:

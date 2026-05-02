@@ -148,9 +148,9 @@ habit <command> -c config.yaml
 V1 起，仓库不再有"一个上帝类"装配三个域。`habit/core/common/configurators/` 按业务域拆成三个并列的 configurator，全部继承同一个抽象基类 `BaseConfigurator`：
 
 - **`HabitatConfigurator`** —— habitat 域的工厂方法：
-  - `create_feature_manager()`
-  - `create_clustering_manager()`
-  - `create_result_manager()`
+  - `create_feature_service()`
+  - `create_clustering_service()`
+  - `create_result_writer()`
   - `create_habitat_analysis()` —— 完整装配（注入三个 managers + logger）
   - `create_habitat_map_analyzer()`
   - `create_feature_extractor()`
@@ -252,7 +252,7 @@ raw images (per subject)
 
 | 模块 | 职责 |
 |------|------|
-| `habitat_analysis.py` (**deep**) | V1 的 **唯一编排入口** 。build → fit/predict → 持久化 → 结果后处理。内部用 `_PIPELINE_RECIPES` 按 `clustering_mode` 分发 step 列表，用 `_PIPELINE_MANAGER_ATTRS` 显式白名单注入 manager。 |
+| `habitat_analysis.py` (**deep**) | V1 的 **唯一编排入口** 。build → fit/predict → 持久化 → 结果后处理。内部用 `_PIPELINE_RECIPES` 按 `clustering_mode` 分发 step 列表，用 `_PIPELINE_SERVICE_ATTRS` 显式白名单注入 manager。 |
 | `managers/{feature,clustering,result}_manager.py` | 三类领域职责：特征抽取与预处理、聚类训练/选择、结果落盘与可视化。通过构造时注入到 `HabitatAnalysis`，再由后者注入到 pipeline 步。 |
 | `pipelines/base_pipeline.py` | sklearn 风格的 `HabitatPipeline` + `BasePipelineStep`。`fit_transform` / `transform` / `save` / `load` 接口。 |
 | `pipelines/steps/*.py` | 7+ 个具体步骤：体素特征抽取、subject 预处理、个体聚类、supervoxel 特征/聚合、group 预处理、群体聚类等。 |
@@ -288,7 +288,7 @@ graph LR
 预测路径与训练共用同一个 `HabitatPipeline`，只是：
 
 1. 从磁盘 `HabitatPipeline.load(pipeline_path)` 反序列化训练好的 step。
-2. 用 `_PIPELINE_MANAGER_ATTRS` 白名单把当前运行时的 manager 注入到 step。
+2. 用 `_PIPELINE_SERVICE_ATTRS` 白名单把当前运行时的 manager 注入到 step。
 3. 强制 `pipeline.config.plot_curves = False`。
 4. 只调 `transform`，不再 `fit`。
 
@@ -323,7 +323,7 @@ graph LR
 | 模块 | 职责 |
 |------|------|
 | `analyzers/habitat_analyzer.py` (**deep**) | `HabitatMapAnalyzer`：核心协调器，负责多进程调度、特征汇总、结果持久化。 |
-| `managers/feature_manager.py` | `FeatureManager`：管理特征提取器的注册、选择、执行（复用自生境获取阶段的同一组件）。 |
+| `managers/feature_service.py` | `FeatureService`：管理特征提取器的注册、选择、执行（复用自生境获取阶段的同一组件）。 |
 | `extractors/` | 体素级 / supervoxel 级特征抽取实现（如 radiomics 特征、纹理特征等）。 |
 | `config_schemas.py` | `FeatureExtractionConfig` / `RadiomicsConfig`：定义提取参数（特征类别、归一化方式等）。 |
 
@@ -332,7 +332,7 @@ graph LR
 ```mermaid
 graph LR
     Input["输入<br/>habitat_*.nrrd<br/>+ 原始影像/mask"] --> HMA["HabitatMapAnalyzer<br/>(多进程调度)"]
-    HMA --> FM["FeatureManager<br/>(特征提取器管理)"]
+    HMA --> FM["FeatureService<br/>(特征提取器管理)"]
     FM --> Ext["Extractors<br/>(radiomics/texture/etc.)"]
     Ext --> Output["输出<br/>habitat_features.csv<br/>(per subject)"]
 ```
@@ -372,7 +372,7 @@ graph LR
 
 ##### 扩展点
 
-- **新增特征类型**：实现新的 extractor 类并注册到 `FeatureManager`
+- **新增特征类型**：实现新的 extractor 类并注册到 `FeatureService`
 - **新增聚合策略**：修改 `HabitatMapAnalyzer` 中的特征汇总逻辑
 - **优化并行性能**：调整进程数、内存映射策略
 
@@ -499,9 +499,9 @@ class HabitatAnalysis:
     def __init__(
         self,
         config,
-        feature_manager,      # FeatureManager 实例
-        clustering_manager,   # ClusteringManager 实例
-        result_manager,        # ResultManager 实例
+        feature_service,      # FeatureService 实例
+        clustering_service,   # ClusteringService 实例
+        result_writer,        # ResultWriter 实例
         logger=None,
     ):
         ...
@@ -513,9 +513,9 @@ class HabitatAnalysis:
 # 测试时可以注入 mock managers
 analysis = HabitatAnalysis(
     config=config,
-    feature_manager=MockFeatureManager(),
-    clustering_manager=MockClusteringManager(),
-    result_manager=MockResultManager()
+    feature_service=MockFeatureService(),
+    clustering_service=MockClusteringService(),
+    result_writer=MockResultWriter()
 )
 ```
 
@@ -793,9 +793,9 @@ class IndividualClustering(BasePipelineStep):
 
 ---
 
-#### 2. FeatureManager 职责过重
+#### 2. FeatureService 职责过重
 
-**问题描述**：`FeatureManager` 同时负责特征提取、预处理、缓存、序列化等多个职责。
+**问题描述**：`FeatureService` 同时负责特征提取、预处理、缓存、序列化等多个职责。
 
 **建议**：按 SRP 原则拆分为：
 - `FeatureExtractorCoordinator` —— 协调不同 extractor
@@ -803,7 +803,7 @@ class IndividualClustering(BasePipelineStep):
 - `FeatureSerializer` —— 负责 序列化/反序列化
 
 **相关文件**：
-- `habit/core/habitat_analysis/managers/feature_manager.py`
+- `habit/core/habitat_analysis/managers/feature_service.py`
 
 ---
 
@@ -814,7 +814,7 @@ class IndividualClustering(BasePipelineStep):
 **问题描述**：多个模块中存在相似的图像加载/保存代码。
 
 **现状**：
-- `managers/feature_manager.py` 有图像加载逻辑
+- `managers/feature_service.py` 有图像加载逻辑
 - `analyzers/habitat_analyzer.py` 有图像加载逻辑
 - `utils/io_utils.py` 也有图像 I/O 函数
 

@@ -140,8 +140,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import register_feature_extractor
 
    @register_feature_extractor('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
@@ -176,8 +176,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 .. code-block:: python
 
    import numpy as np
-   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import register_feature_extractor
 
    @register_feature_extractor('local_contrast')
    class LocalContrastExtractor(BaseClusteringExtractor):
@@ -209,8 +209,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.algorithms.base_clustering import register_clustering
+   from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
+   from habit.core.habitat_analysis.clustering.base_clustering import register_clustering
 
    @register_clustering("my_clustering")
    class MyClusteringAlgorithm(BaseClustering):
@@ -250,8 +250,8 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
    import numpy as np
    from sklearn.cluster import SpectralClustering
-   from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.algorithms.base_clustering import register_clustering
+   from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
+   from habit.core.habitat_analysis.clustering.base_clustering import register_clustering
 
    @register_clustering("spectral")
    class SpectralClusteringAlgorithm(BaseClustering):

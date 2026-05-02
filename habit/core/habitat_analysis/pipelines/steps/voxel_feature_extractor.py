@@ -9,7 +9,7 @@ import pandas as pd
 import logging
 
 from ..base_pipeline import IndividualLevelStep
-from ...managers.feature_manager import FeatureManager
+from ...services.feature_service import FeatureService
 
 
 class VoxelFeatureExtractor(IndividualLevelStep):
@@ -19,21 +19,21 @@ class VoxelFeatureExtractor(IndividualLevelStep):
     Stateless: feature extraction logic is fixed, based on configuration.
     
     Attributes:
-        feature_manager: FeatureManager instance for feature extraction
+        feature_service: FeatureService instance for feature extraction
         fitted_: bool indicating whether the step has been fitted (always True after fit)
     """
     
-    def __init__(self, feature_manager: FeatureManager, result_manager: Optional[Any] = None):
+    def __init__(self, feature_service: FeatureService, result_writer: Optional[Any] = None):
         """
         Initialize voxel feature extractor.
         
         Args:
-            feature_manager: FeatureManager instance
-            result_manager: ResultManager instance (optional)
+            feature_service: FeatureService instance
+            result_writer: ResultWriter instance (optional)
         """
         super().__init__()
-        self.feature_manager = feature_manager
-        self.result_manager = result_manager
+        self.feature_service = feature_service
+        self.result_writer = result_writer
         self.logger = logging.getLogger(__name__)
     
     def fit(self, X: Dict[str, Any], y: Optional[Any] = None, **fit_params) -> 'VoxelFeatureExtractor':
@@ -61,10 +61,10 @@ class VoxelFeatureExtractor(IndividualLevelStep):
         
         Args:
             X: Dict of subject_id -> {
-                'images': Dict of image_name -> image_path (optional, if not set in feature_manager),
-                'masks': Dict of mask_name -> mask_path (optional, if not set in feature_manager)
+                'images': Dict of image_name -> image_path (optional, if not set in feature_service),
+                'masks': Dict of mask_name -> mask_path (optional, if not set in feature_service)
             }
-            Note: If images_paths and mask_paths are already set in feature_manager,
+            Note: If images_paths and mask_paths are already set in feature_service,
             this dict can be empty or just contain subject IDs.
             
         Returns:
@@ -81,13 +81,13 @@ class VoxelFeatureExtractor(IndividualLevelStep):
             try:
                 # Extract voxel features for this subject
                 subject_id_result, feature_df, raw_df, mask_info = \
-                    self.feature_manager.extract_voxel_features(subject_id)
+                    self.feature_service.extract_voxel_features(subject_id)
                 
-                # Store mask_info in result_manager if available
-                if self.result_manager is not None:
-                    if not hasattr(self.result_manager, 'mask_info_cache'):
-                        self.result_manager.mask_info_cache = {}
-                    self.result_manager.mask_info_cache[subject_id] = mask_info
+                # Store mask_info in result_writer if available
+                if self.result_writer is not None:
+                    if not hasattr(self.result_writer, 'mask_info_cache'):
+                        self.result_writer.mask_info_cache = {}
+                    self.result_writer.mask_info_cache[subject_id] = mask_info
                 
                 results[subject_id] = {
                     'features': feature_df,

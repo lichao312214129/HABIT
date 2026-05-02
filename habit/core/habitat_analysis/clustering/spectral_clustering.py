@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 from typing import Tuple, Dict, Any, Optional, List
-from ..algorithms.base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, register_clustering
 
 @register_clustering('spectral')
 class SpectralClustering(BaseClustering):

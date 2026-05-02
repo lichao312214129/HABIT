@@ -1,6 +1,6 @@
 """
-Result Manager for Habitat Analysis.
-Handles result storage, saving images, and exporting data.
+Result Writer for Habitat Analysis.
+Handles result storage, saving habitat NRRD images, and exporting CSV data.
 """
 
 import os
@@ -15,14 +15,19 @@ from habit.utils.parallel_utils import parallel_map
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 
-class ResultManager:
+class ResultWriter:
     """
-    Manages result storage and output for habitat analysis.
+    Writes habitat-analysis results to disk.
+
+    Handles two artefact families:
+        * the result DataFrame -> ``habitats.csv``;
+        * per-subject habitat label volumes -> ``<subject>_habitat.nrrd`` /
+          ``<subject>_supervoxel.nrrd``.
     """
-    
+
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize ResultManager.
+        Initialize ResultWriter.
         
         Args:
             config: Habitat analysis configuration

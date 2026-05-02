@@ -12,13 +12,13 @@ Habitat analysis divides tumors into distinct sub-regions (habitats) based on im
 habitat_analysis/
 ├── habitat_analysis.py           # HabitatAnalysis (deep module: build / fit / predict / run)
 ├── config_schemas.py             # Pydantic configuration models (HabitatAnalysisConfig, ...)
-├── managers/                     # FeatureManager / ClusteringManager / ResultManager
+├── services/                     # FeatureService / ClusteringService / ResultWriter
 ├── pipelines/
 │   ├── base_pipeline.py          # HabitatPipeline + BasePipelineStep
 │   └── steps/                    # Concrete pipeline steps
-├── algorithms/                   # Clustering algorithms (KMeans, GMM, ...)
-├── extractors/                   # Voxel / supervoxel feature extractors
-└── analyzers/                    # HabitatMapAnalyzer (post-clustering features)
+├── clustering/                   # Clustering algorithms (KMeans, GMM, SLIC, ...)
+├── clustering_features/          # Pre-clustering feature extractors (voxel/supervoxel)
+└── habitat_features/             # Post-clustering feature extractors (HabitatMapAnalyzer, etc.)
 ```
 
 > V1 note: the legacy `strategies/` subpackage and `pipelines/pipeline_builder.py`

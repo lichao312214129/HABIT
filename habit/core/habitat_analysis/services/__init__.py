@@ -1,8 +1,14 @@
 """
-Managers for Habitat Analysis.
-"""
-from .feature_manager import FeatureManager
-from .clustering_manager import ClusteringManager
-from .result_manager import ResultManager
+Service layer for Habitat Analysis.
 
-__all__ = ["FeatureManager", "ClusteringManager", "ResultManager"]
+Each service is the orchestration surface that pipeline steps call into:
+
+- :class:`FeatureService`   : feature extraction and per-subject preprocessing.
+- :class:`ClusteringService`: clustering algorithms, validation, and visualisation.
+- :class:`ResultWriter`     : persistence of results (CSV, NRRD habitat maps).
+"""
+from .feature_service import FeatureService
+from .clustering_service import ClusteringService
+from .result_writer import ResultWriter
+
+__all__ = ["FeatureService", "ClusteringService", "ResultWriter"]

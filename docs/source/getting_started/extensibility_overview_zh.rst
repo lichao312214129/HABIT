@@ -65,8 +65,8 @@ HABIT 支持以下类型的自定义扩展：
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.extractors.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.extractors.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import register_feature_extractor
 
    @register_feature_extractor('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
@@ -90,8 +90,8 @@ HABIT 支持以下类型的自定义扩展：
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.algorithms.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.algorithms.base_clustering import register_clustering
+   from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
+   from habit.core.habitat_analysis.clustering.base_clustering import register_clustering
 
    @register_clustering('my_clustering')
    class MyClusteringAlgorithm(BaseClustering):
@@ -116,7 +116,7 @@ HABIT 支持以下类型的自定义扩展：
 
    from habit.core.habitat_analysis.pipelines.base_pipeline import BasePipelineStep
 
-   def _build_my_mode_steps(config, feature_manager, clustering_manager, result_manager):
+   def _build_my_mode_steps(config, feature_service, clustering_service, result_writer):
        # Return ordered pipeline steps for the new mode.
        steps: list[tuple[str, BasePipelineStep]] = []
        return steps

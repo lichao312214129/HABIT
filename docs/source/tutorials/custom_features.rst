@@ -10,7 +10,7 @@
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.extractors import BaseFeatureExtractor
+   from habit.core.habitat_analysis.clustering_features import BaseFeatureExtractor
    import numpy as np
    
    class MyCustomExtractor(BaseFeatureExtractor):

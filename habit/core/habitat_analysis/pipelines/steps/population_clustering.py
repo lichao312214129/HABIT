@@ -14,7 +14,7 @@ import logging
 
 try:
     from ..base_pipeline import GroupLevelStep
-    from ...algorithms.base_clustering import get_clustering_algorithm
+    from ...clustering.base_clustering import get_clustering_algorithm
     from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 except ImportError as e:
     # Provide helpful error message if imported incorrectly
@@ -36,7 +36,7 @@ class PopulationClusteringStep(GroupLevelStep):
     Note: This step manages clustering model internally, no need for external Mode classes.
     
     Attributes:
-        clustering_manager: ClusteringManager instance (for accessing algorithm instances)
+        clustering_service: ClusteringService instance (for accessing algorithm instances)
         config: Configuration object
         out_dir: Output directory for saving model (if needed)
         clustering_model: Fitted clustering model
@@ -46,7 +46,7 @@ class PopulationClusteringStep(GroupLevelStep):
     
     def __init__(
         self, 
-        clustering_manager: Any, 
+        clustering_service: Any, 
         config: HabitatAnalysisConfig,
         out_dir: str
     ):
@@ -54,12 +54,12 @@ class PopulationClusteringStep(GroupLevelStep):
         Initialize population clustering step.
         
         Args:
-            clustering_manager: ClusteringManager instance
+            clustering_service: ClusteringService instance
             config: Configuration object
             out_dir: Output directory for saving model (if needed)
         """
         super().__init__()
-        self.clustering_manager = clustering_manager
+        self.clustering_service = clustering_service
         self.config = config
         self.out_dir = out_dir
         self.clustering_model = None  # Will be created in fit()
@@ -86,7 +86,7 @@ class PopulationClusteringStep(GroupLevelStep):
         
         # Get clustering algorithm instance from manager
         # Use the supervoxel2habitat_clustering instance
-        self.clustering_model = self.clustering_manager.supervoxel2habitat_clustering
+        self.clustering_model = self.clustering_service.supervoxel2habitat_clustering
         
         # Set optimal number of clusters and fit
         self.clustering_model.n_clusters = optimal_n
@@ -95,7 +95,7 @@ class PopulationClusteringStep(GroupLevelStep):
         # Predict on training data (for consistency)
         # Note: This is optional, but useful for debugging
         if self.config.verbose:
-            self.clustering_manager.logger.info(
+            self.clustering_service.logger.info(
                 f"Fitted population clustering model with {optimal_n} clusters"
             )
         
@@ -134,13 +134,13 @@ class PopulationClusteringStep(GroupLevelStep):
         result_df[ResultColumns.HABITATS] = habitat_labels
 
         if self.config.plot_curves and self.habitat_scores_ is not None:
-            self.clustering_manager.plot_habitat_scores(
+            self.clustering_service.plot_habitat_scores(
                 scores=self.habitat_scores_,
                 optimal_n_clusters=self.optimal_n_clusters_
             )
 
         if self.config.plot_curves:
-            self.clustering_manager.visualize_habitat_clustering(
+            self.clustering_service.visualize_habitat_clustering(
                 feature_matrix.values,
                 habitat_labels,
                 self.optimal_n_clusters_
@@ -169,14 +169,14 @@ class PopulationClusteringStep(GroupLevelStep):
         if habitat_cfg.fixed_n_clusters is not None:
             optimal_n_clusters = habitat_cfg.fixed_n_clusters
             if self.config.verbose:
-                self.clustering_manager.logger.info(
+                self.clustering_service.logger.info(
                     f"Using fixed number of clusters: {optimal_n_clusters}"
                 )
             return optimal_n_clusters, None
         
         # Find optimal number of clusters
         if self.config.verbose:
-            self.clustering_manager.logger.info("Finding optimal number of clusters...")
+            self.clustering_service.logger.info("Finding optimal number of clusters...")
         
         try:
             min_clusters = max(2, habitat_cfg.min_clusters or 2)
@@ -187,14 +187,14 @@ class PopulationClusteringStep(GroupLevelStep):
             
             if max_clusters <= min_clusters:
                 if self.config.verbose:
-                    self.clustering_manager.logger.warning(
+                    self.clustering_service.logger.warning(
                         f"Invalid cluster range [{min_clusters}, {max_clusters}], "
                         "using default value"
                     )
                 return min_clusters, None
             
             selection_methods = (
-                self.clustering_manager.selection_methods
+                self.clustering_service.selection_methods
                 or habitat_cfg.habitat_cluster_selection_method
             )
 
@@ -216,7 +216,7 @@ class PopulationClusteringStep(GroupLevelStep):
             )
             
             if self.config.verbose:
-                self.clustering_manager.logger.info(
+                self.clustering_service.logger.info(
                     f"Optimal number of clusters: {optimal_n_clusters}"
                 )
             
@@ -224,10 +224,10 @@ class PopulationClusteringStep(GroupLevelStep):
             
         except Exception as e:
             if self.config.verbose:
-                self.clustering_manager.logger.error(
+                self.clustering_service.logger.error(
                     f"Exception when determining optimal clusters: {e}"
                 )
-                self.clustering_manager.logger.info("Using default number of clusters")
+                self.clustering_service.logger.info("Using default number of clusters")
             return 3, None
 
     def _extract_feature_matrix(self, df: pd.DataFrame) -> pd.DataFrame:

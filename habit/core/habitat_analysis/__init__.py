@@ -20,7 +20,7 @@ Public surface:
 
 from .habitat_analysis import HabitatAnalysis
 from .config_schemas import HabitatAnalysisConfig, ResultColumns
-from .analyzers.habitat_analyzer import HabitatMapAnalyzer
+from .habitat_features.habitat_analyzer import HabitatMapAnalyzer
 from .pipelines import BasePipelineStep, HabitatPipeline
 from .pipelines.steps import (
     GroupPreprocessingStep,

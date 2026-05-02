@@ -7,17 +7,17 @@
 Silhouette Score
 ^^^^^^^^^^^^^^^^
 
-.. autofunction:: habit.core.habitat_analysis.algorithms.cluster_validation_methods.silhouette_score
+.. autofunction:: habit.core.habitat_analysis.clustering.cluster_validation_methods.silhouette_score
 
 Calinski-Harabasz Score
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autofunction:: habit.core.habitat_analysis.algorithms.cluster_validation_methods.calinski_harabasz_score
+.. autofunction:: habit.core.habitat_analysis.clustering.cluster_validation_methods.calinski_harabasz_score
 
 Davies-Bouldin Score
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. autofunction:: habit.core.habitat_analysis.algorithms.cluster_validation_methods.davies_bouldin_score
+.. autofunction:: habit.core.habitat_analysis.clustering.cluster_validation_methods.davies_bouldin_score
 
 Kneedle
 ^^^^^^^

@@ -10,7 +10,7 @@ import pandas as pd
 import logging
 
 from ..base_pipeline import IndividualLevelStep
-from ...managers.feature_manager import FeatureManager
+from ...services.feature_service import FeatureService
 from ...config_schemas import HabitatAnalysisConfig
 
 
@@ -27,25 +27,25 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
     to save computation time.
     
     Attributes:
-        feature_manager: FeatureManager instance
+        feature_service: FeatureService instance
         config: Configuration object
         fitted_: bool indicating whether the step has been fitted
     """
     
     def __init__(
         self,
-        feature_manager: FeatureManager,
+        feature_service: FeatureService,
         config: HabitatAnalysisConfig
     ):
         """
         Initialize supervoxel feature extraction step.
         
         Args:
-            feature_manager: FeatureManager instance
+            feature_service: FeatureService instance
             config: Configuration object
         """
         super().__init__()
-        self.feature_manager = feature_manager
+        self.feature_service = feature_service
         self.config = config
         self.logger = logging.getLogger(__name__)
     
@@ -103,7 +103,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         # previous step's transform(), which runs AFTER all fit() calls
         # 
         # IMPORTANT: In parallel processing, each worker process has its own
-        # copy of FeatureManager, so each worker needs to setup its own mapping.
+        # copy of FeatureService, so each worker needs to setup its own mapping.
         # We always setup for the current subjects being processed.
         
         # Get subjects from current input data (works in both serial and parallel modes)
@@ -112,7 +112,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         # Setup file mapping for current subjects
         # In parallel mode: each worker processes one subject at a time
         # In serial mode: may process multiple subjects at once
-        self.feature_manager.setup_supervoxel_files(
+        self.feature_service.setup_supervoxel_files(
             subjects=current_subjects,
             failed_subjects=[],
             out_folder=self.config.out_dir
@@ -129,7 +129,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
                 # Extract advanced features from supervoxel maps (from saved files)
                 # Note: extract_supervoxel_features reads from supervoxel map files
                 # that were saved during the clustering step
-                subject_id_returned, result = self.feature_manager.extract_supervoxel_features(
+                subject_id_returned, result = self.feature_service.extract_supervoxel_features(
                     subject_id
                 )
                 

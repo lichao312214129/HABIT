@@ -1,5 +1,5 @@
 """
-Feature Manager for Habitat Analysis.
+Feature Service for Habitat Analysis.
 Handles all feature extraction and preprocessing logic.
 """
 
@@ -13,18 +13,21 @@ from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
-from ..extractors.feature_expression_parser import FeatureExpressionParser
-from ..extractors.feature_extractor_factory import create_feature_extractor
+from ..clustering_features.feature_expression_parser import FeatureExpressionParser
+from ..clustering_features.feature_extractor_factory import create_feature_extractor
 from ..utils.preprocessing_state import process_features_pipeline
 
-class FeatureManager:
+class FeatureService:
     """
-    Manages feature extraction and preprocessing for habitat analysis.
+    Orchestrates feature extraction and preprocessing for habitat analysis.
+
+    Pipeline steps call into this class instead of touching extractors and
+    preprocessing utilities directly.
     """
     
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize FeatureManager.
+        Initialize FeatureService.
         
         Args:
             config: Habitat analysis configuration
