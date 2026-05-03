@@ -1,11 +1,13 @@
 ---
 name: habit-habitat-analysis
-description: Generate tumor habitat (sub-region) maps from medical images using voxel-level clustering. Use when the user wants to identify intra-tumor heterogeneity zones, perform supervoxel clustering, generate habitat maps (.nrrd), or run the core HABIT habitat segmentation. Triggers on phrases like "生境分析", "habitat 聚类", "肿瘤亚区", "亚区分析", "supervoxel", "kinetic features", "DCE 分期生境", "habitat segmentation", "intra-tumor heterogeneity".
+description: Generate tumor habitat (sub-region) maps from medical images using voxel-level clustering. Use when the user wants to identify intra-tumor heterogeneity zones, perform supervoxel clustering, generate habitat .nrrd maps, run kinetic DCE habitat, or use voxel-radiomics texture clustering. Triggers on "生境分析", "亚区聚类", "habitat", "supervoxel", "kinetic", "DCE 分期生境", "intra-tumor heterogeneity". Runs `habit get-habitat`.
 ---
 
 # HABIT Habitat Analysis (Core)
 
-This is the **core** function of HABIT: cluster voxels inside the ROI to discover sub-regions ("habitats") that may correspond to different biological behaviors (necrosis, proliferation, hypoxia, etc.).
+The core function of HABIT: cluster voxels inside the ROI to discover sub-regions
+("habitats") that may correspond to different biological behaviors (necrosis,
+proliferation, hypoxia, etc.).
 
 ## CLI
 
@@ -20,59 +22,75 @@ habit get-habitat --config <config.yaml> --mode predict --pipeline <path/to/pipe
 habit get-habitat --config <config.yaml> --debug
 ```
 
-## Critical First Decision: one_step vs two_step
+## Required Information
 
-**ALWAYS ASK** the user this before generating a config:
+Before generating a config, confirm:
+
+| Field | Notes |
+|---|---|
+| `data_dir` (preprocessed) | output of `habit preprocess` |
+| `out_dir` | output root |
+| Modalities to cluster | drives `voxel_level.method` |
+| `clustering_mode` | one_step or two_step (see below) |
+| (kinetic only) timestamps Excel | required |
+| (voxel_radiomics only) PyRadiomics params YAML | required |
+| Expected habitat count | typical 3-5 |
+
+## Decision 1 — one_step vs two_step
+
+ALWAYS ask the user this first.
 
 ### one_step (recommended for beginners)
 - Each tumor independently determines its optimal cluster number (silhouette / elbow)
 - No population-level model — habitat labels are per-subject local meaning
 - Faster, simpler
-- Good for: pilot studies, single-cohort exploration
-- Use template: `references/config_one_step_minimal.yaml`
+- Use template: `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml`
 
-### two_step (for publications & predictive modeling)
+### two_step (publications / predictive modeling)
 - **Step 1**: voxel → supervoxel (per subject; e.g. 50 supervoxels per tumor)
 - **Step 2**: supervoxel → habitat (population-level model; same habitat label = same biology across all patients)
 - Slower, requires train+test cohort
-- Generates `supervoxel2habitat_clustering_model.pkl` that can be applied via `--mode predict`
-- Use template: `references/config_two_step_minimal.yaml`
+- Generates `supervoxel2habitat_clustering_model.pkl` for `--mode predict`
+- Use template: `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml`
 
 If unsure → start with **one_step**.
 
-## Second Decision: Voxel Feature Method
+## Decision 2 — Voxel feature method
 
-The `FeatureConstruction.voxel_level.method` defines what voxel features get clustered. Choose based on what data the user has:
+`FeatureConstruction.voxel_level.method` defines what voxel features get clustered.
+This is the most important biological choice.
 
-| Data type | Method | Example |
+| Data type | Method | Template |
 |---|---|---|
-| Single modality (e.g. T2 only) | `raw(T2)` | Simplest baseline |
-| Multi-modal (T1+T2+DWI+ADC) | `concat(raw(T1), raw(T2), raw(DWI), raw(ADC))` | Most common |
-| DCE-MRI (multi-phase contrast) | `kinetic(raw(pre), raw(LAP), raw(PVP), raw(delay), timestamps)` | Time-intensity curves; needs `timestamps` Excel |
-| Texture-based clustering | `voxel_radiomics(T2)` | Slow; needs PyRadiomics params file |
-| Local entropy | `local_entropy(T2)` | Texture variation |
+| Single modality | `raw(<seq>)` | one_step / two_step minimal |
+| Multi-modal (most common) | `concat(raw(M1), raw(M2), ...)` | one_step / two_step minimal |
+| DCE-MRI | `kinetic(raw(p1), ..., timestamps)` | `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` |
+| Texture-based | `voxel_radiomics(<seq>)` | `config_templates/skill_scaffolds/habitat_voxel_radiomics.yaml` |
+| Local entropy | `local_entropy(<seq>)` | (manual) |
 
-For `kinetic`: user MUST provide an Excel file with patient IDs and per-phase scan times. Without this, fail fast and tell them.
+Detailed comparison: `references/voxel_feature_methods.md`.
 
-For `voxel_radiomics`: HABIT auto-restricts GLCM features to safe ones (Contrast, Correlation, JointEnergy, Idm) when using small kernels. Tell the user this is automatic and intentional.
+For `kinetic`: user MUST provide a timestamps Excel with subject IDs and
+per-phase scan times. Without this, fail fast.
 
-## Population-level Preprocessing (two_step only)
+For `voxel_radiomics`: HABIT auto-restricts GLCM to safe features
+(Contrast, Correlation, JointEnergy, Idm) when `kernelRadius<=3`. Tell the
+user this is automatic.
 
-Before the population clustering step, supervoxel features are typically normalized:
+## Population-level preprocessing (two_step only)
 
 ```yaml
 FeatureConstruction:
   preprocessing_for_group_level:
     methods:
-      - method: binning           # Discretization — most stable for habitat
+      - method: binning
         n_bins: 10
         bin_strategy: uniform
-      # Other options: minmax, zscore, robust, winsorize, log
 ```
 
-Recommendation: **binning with n_bins=10** is the default for publication work.
+**Recommendation**: `binning` with `n_bins: 10` is the publication default.
 
-## Optional: Postprocess (clean tiny fragments)
+## Optional postprocess (clean tiny fragments)
 
 ```yaml
 HabitatsSegmention:
@@ -86,61 +104,68 @@ HabitatsSegmention:
     connectivity: 1
 ```
 
-Removes tiny isolated voxel clusters (<30 voxels) by reassigning them to nearest neighbor. Recommended for clean visualization.
+Removes tiny isolated voxel clusters (<30 voxels). Recommended for clean
+visualization.
 
-## Reference Templates
+## Reading the cluster validation curves
 
-Full annotated templates in the project:
-- `config_templates/config_getting_habitat_annotated.yaml` — complete reference
-- `config_templates/config_habitat_one_step_example.yaml` — simple one_step example
+After running with `plot_curves: true`, inspect
+`<out_dir>/visualizations/.../cluster_validation_scores.png`. See
+`references/cluster_validity_guide.md` for how to interpret silhouette,
+inertia (elbow), Davies-Bouldin, Calinski-Harabasz.
 
-Minimal scaffolds in `references/`:
-- `config_one_step_minimal.yaml`
-- `config_two_step_minimal.yaml`
+## Validate output (MANDATORY after run)
 
-## Output Files
+```bash
+python skills/habit-habitat-analysis/scripts/validate_habitat_output.py <out_dir>
+# add --two-step if clustering_mode was two_step
+```
+
+Checks every subject has a habitat .nrrd, no degenerate (1-cluster) maps,
+and habitats.csv fractions sum to ~1.
+
+## Reference templates
+
+Config index (scaffold → annotated → standard): `skills/CONFIG_SOURCES.md`.
+
+| File | Use |
+|---|---|
+| `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml` | beginner one_step |
+| `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml` | publication two_step |
+| `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` | DCE multi-phase |
+| `config_templates/skill_scaffolds/habitat_voxel_radiomics.yaml` | texture clustering |
+| `references/voxel_feature_methods.md` | how to choose `voxel_level.method` |
+| `references/cluster_validity_guide.md` | reading the validation plots |
+
+Full annotated reference: `config_templates/config_getting_habitat_annotated.yaml`.
+
+## Output files
 
 ```
 out_dir/
 ├── <subject_id>/
-│   ├── <subject_id>_supervoxel.nrrd         # supervoxel labels (two_step only)
-│   ├── <subject_id>_habitats.nrrd            # final habitat map ← MAIN OUTPUT
-│   └── <subject_id>_habitats_remapped.nrrd   # consistent labels across subjects
+│   ├── <subject_id>_supervoxel.nrrd         # two_step only
+│   ├── <subject_id>_habitats.nrrd            # final habitat map (MAIN OUTPUT)
+│   └── <subject_id>_habitats_remapped.nrrd   # two_step only — consistent labels across subjects
 ├── habitats.csv                               # per-subject habitat fractions
-├── supervoxel2habitat_clustering_model.pkl    # trained model (two_step train mode)
+├── supervoxel2habitat_clustering_model.pkl    # two_step train mode only
 ├── mean_values_of_all_supervoxels_features.csv
 └── visualizations/
-    ├── cluster_centroids.png
-    └── feature_heatmap.png
 ```
 
-The `*_habitats.nrrd` is the file users open in ITK-SNAP / 3D Slicer to view colored habitat maps.
+The `*_habitats.nrrd` is the file users open in ITK-SNAP / 3D Slicer.
 
-## Predict Mode Workflow
+## Common pitfalls
 
-To apply a trained habitat model to new patients:
+1. **Mask not found** → check `data_dir/<subject>/masks/`.
+2. **Memory error during voxel_radiomics** → reduce `processes`, switch to `concat(raw(...))`.
+3. **Cluster number 1 returned** → tumor too homogeneous; add modalities or switch to `voxel_radiomics`/`kinetic`.
+4. **kinetic fails** → verify Excel timestamps file IDs match folder names.
+5. **Predict mode without pipeline** → require `--pipeline` or `pipeline_path` in config.
 
-1. User must have already run train mode and have:
-   - `supervoxel2habitat_clustering_model.pkl`
-   - `mean_values_of_all_supervoxels_features.csv`
-2. Set `HabitatsSegmention.habitat.mode: testing` in YAML, OR pass `--mode predict --pipeline <pkl>`
-3. New `data_dir` should contain new patients with same modality structure
+For more, see `habit-troubleshoot/references/errors_habitat.md`.
 
-## Common Pitfalls
+## Next step
 
-1. **Mask not found** → check `data_dir/<subject>/masks/` exists and mask file matches modality.
-2. **Memory error during voxel_radiomics** → reduce `processes` in config, or switch to `concat(raw(...))`.
-3. **Cluster number 1 returned** → tumor is too homogeneous OR features are degenerate. Check raw images aren't constant inside ROI.
-4. **kinetic method fails** → verify Excel timestamp file has correct subject IDs matching folder names.
-5. **Predict mode without pipeline** → fail. Always require `--pipeline` or `pipeline_path` in config.
-
-## Verification
-
-After running:
-- Check `out_dir/<subject>/<subject>_habitats.nrrd` exists for every subject
-- Open in ITK-SNAP, overlay on original T2 — habitats should look spatially coherent (not random pepper)
-- Check `habitats.csv` — habitat fractions should sum to ~1.0 per subject
-
-## Next Steps
-
-After habitat maps are generated, the next typical step is **feature extraction** → see `habit-feature-extraction` skill.
+After habitat maps are generated, use `habit-feature-extraction` to extract
+per-subject quantitative features.

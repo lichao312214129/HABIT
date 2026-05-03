@@ -1,0 +1,24 @@
+# Predict-mode config — apply a previously trained model to NEW patients.
+# Run with:
+#   habit model --config <this_file> --mode predict
+#
+# Required: a trained model .pkl from a previous `habit model --mode train` run.
+
+input:
+  - path: <NEW_PATIENT_FEATURES_CSV>     # must have the same feature columns as training
+    name: <FEATURE_PREFIX>               # MUST match the prefix used during training
+    subject_id_col: <SUBJECT_ID_COL>
+    label_col: <LABEL_COL>               # if labels are unknown, fill with dummy 0s
+    features:                            # empty = use all (recommended)
+
+output: <OUTPUT_DIR>                     # where to write predictions
+
+# Path to the .pkl model file produced by the previous training run.
+# Default location after training: <train_output>/<ModelName>_model.pkl
+model_path: <PATH_TO_TRAINED_MODEL_PKL>  # e.g. ./results/ml/LogisticRegression_model.pkl
+
+# Predict mode does NOT need split_method, feature_selection, or models sections —
+# those are baked into the saved model pipeline.
+
+is_visualize: false                      # plots need true labels; turn on only if you have them
+is_save_model: false                     # nothing to save in predict mode

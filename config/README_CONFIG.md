@@ -11,6 +11,9 @@ HABIT toolkit uses YAML configuration files to control all functionalities. Each
 
 All annotated templates are located in the [`config_templates/`](../config_templates/) directory.
 
+Short **agent/OpenClaw** YAML scaffolds (placeholders, per scenario) live in
+[`config_templates/skill_scaffolds/`](../config_templates/skill_scaffolds/); the index linking scaffold → annotated → this folder is [`skills/CONFIG_SOURCES.md`](../skills/CONFIG_SOURCES.md).
+
 ## Available Configuration Files
 
 | Config File | Annotated Template | Module | Status |

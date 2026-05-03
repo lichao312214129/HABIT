@@ -16,7 +16,7 @@ class Callback:
         self.workflow = workflow
 
     def on_pipeline_start(self, logs: Optional[Dict] = None):
-        """Called at the very beginning of run_pipeline."""
+        """Called at the very beginning of run."""
         pass
 
     def on_model_start(self, model_name: str, logs: Optional[Dict] = None):
@@ -36,7 +36,7 @@ class Callback:
         pass
 
     def on_pipeline_end(self, logs: Optional[Dict] = None):
-        """Called at the very end of run_pipeline."""
+        """Called at the very end of run."""
         pass
 
 class CallbackList:

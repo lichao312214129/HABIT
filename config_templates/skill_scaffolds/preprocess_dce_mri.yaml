@@ -1,0 +1,40 @@
+# DCE-MRI preprocessing — for dynamic contrast-enhanced studies.
+# DCE protocols typically have a pre-contrast image plus several post-contrast
+# phases (e.g. arterial / portal / delay). All phases must be aligned to the
+# pre-contrast (or arterial) so that voxel-wise time-intensity curves are valid.
+#
+# Phase names below ('pre_contrast', 'LAP', 'PVP', 'delay_3min') are examples;
+# rename them to match your folder names.
+#
+# Full reference: config_templates/config_image_preprocessing_annotated.yaml
+
+data_dir: <PATH_TO_RAW_NIFTI>
+out_dir: <PATH_TO_OUTPUT>
+
+Preprocessing:
+
+  # 1) N4 on each phase (DCE is MRI -> bias field exists).
+  n4_correction:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    num_fitting_levels: 4
+
+  # 2) Resample everything to a common isotropic grid.
+  resample:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    target_spacing: [1.0, 1.0, 1.0]
+
+  # 3) Register every other phase to the pre-contrast (or arterial peak).
+  #    DCE phases share the same scanner geometry but breath-hold drift means
+  #    you almost always need at least a rigid alignment.
+  registration:
+    images: [pre_contrast, LAP, PVP, delay_3min]
+    fixed_image: pre_contrast
+    moving_images: [LAP, PVP, delay_3min]
+    type_of_transform: SyNRA             # use 'Rigid' if you trust the breath-hold
+
+  # NOTE: DO NOT z-score normalize DCE phases independently!
+  # Doing so destroys the relative enhancement signal that habitat kinetic()
+  # methods depend on. Skip zscore_normalization for DCE.
+
+processes: 4
+random_state: 42

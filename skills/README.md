@@ -1,78 +1,116 @@
 # HABIT Agent Skills
 
-This folder contains a collection of **Agent Skills** that let AI assistants (Claude, Cursor, etc.) drive the HABIT (Habitat Analysis Biomedical Imaging Toolkit) workflow on behalf of clinicians and researchers.
+A self-contained collection of **Agent Skills** that lets AI assistants
+(Claude Code, Cursor, Claude Desktop, the Anthropic API, OpenCode, etc.)
+drive the entire HABIT (Habitat Analysis Biomedical Imaging Toolkit) workflow
+on behalf of clinicians and researchers — **with no Python coding required**.
 
-> 这个文件夹包含一组 **Agent Skills**，可以让 AI 助手（Claude、Cursor 等）代替临床医生和研究人员驱动整个 HABIT 工作流。用户只需要用自然语言描述需求（"我有一组肝癌 MRI，想做生境分析"），AI 就会自动调用合适的 skill、生成配置文件、运行命令、解读结果。
-
----
+> 这个文件夹包含一组 **Agent Skills**，可以让 AI 助手（Claude、Cursor、OpenCode 等）
+> 代替临床医生和研究人员驱动整个 HABIT 工作流。用户只需要用自然语言描述需求
+> （"我有一组肝癌 MRI，想做生境分析"），AI 就会自动调用合适的 skill、
+> 生成配置文件、运行命令、解读结果。
 
 ## What is an Agent Skill?
 
-An Agent Skill is a folder containing a `SKILL.md` file with YAML frontmatter (`name` and `description`) plus optional reference files. The AI assistant reads the `description` of every available skill at startup, then automatically loads the full `SKILL.md` when the user's request matches.
-
-This is called **progressive disclosure** — the AI only loads the detailed instructions for the skill it actually needs, keeping context efficient.
+An Agent Skill is a folder containing a `SKILL.md` file with YAML frontmatter
+(`name` and `description`), optional reference files (templates, guides),
+and optional executable scripts. The AI reads the `description` of every
+available skill at startup, then **progressively loads** the full `SKILL.md`
+(and any referenced files) only for the skill matching the current task.
 
 Reference: [Anthropic Agent Skills documentation](https://docs.anthropic.com/en/docs/agents/skills)
 
----
+## What you get
 
-## Available Skills
+```
+skills/
+├── README.md                       # this file
+├── CONFIG_SOURCES.md               # index: YAML scaffolds → annotated → config/ (single source map)
+├── INSTALL.md                      # how to plug skills into different AI tools
+│
+├── habit-quickstart/               # ★ entry router — read this first
+│   ├── SKILL.md
+│   ├── references/                 # decision tree, required questions, data layout spec
+│   └── scripts/                    # check_environment.py, check_data_layout.py
+│
+├── habit-preprocess/               # image preprocessing (resample/register/N4/normalize)
+├── habit-habitat-analysis/         # tumor sub-region clustering (one_step / two_step)
+├── habit-feature-extraction/       # MSI / ITH / habitat radiomics features
+├── habit-machine-learning/         # train / predict / k-fold CV
+├── habit-model-comparison/         # ROC / DCA / DeLong / calibration
+├── habit-radiomics/                # classical PyRadiomics (no habitat)
+├── habit-dicom-tools/              # DICOM info, CSV merge, ICC, test-retest, Dice
+│
+├── habit-recipes/                  # ★ end-to-end pipelines for common scenarios
+│   └── references/                 # 5 recipes (MRI / DCE / CT / test-retest / demo)
+│
+└── habit-troubleshoot/             # ★ symptom→fix playbook for runtime errors
+    └── references/                 # per-step error files + recovery playbook
+```
 
-| Skill | Purpose | Trigger keywords (中英) |
-|---|---|---|
-| **`habit-quickstart`** | Workflow router / entry point | "做生境分析", "habitat", "start with HABIT", "5分钟快速开始" |
-| **`habit-preprocess`** | Image preprocessing (DICOM→NIfTI, registration, N4, normalization) | "图像预处理", "重采样", "配准", "preprocess images" |
-| **`habit-habitat-analysis`** | Core habitat clustering (one_step / two_step) | "生境聚类", "亚区分析", "habitat segmentation", "supervoxel" |
-| **`habit-feature-extraction`** | Habitat-based features (MSI, ITH, whole/each habitat radiomics) | "提取生境特征", "MSI features", "ITH score", "habitat features" |
-| **`habit-machine-learning`** | Train / predict / k-fold CV with feature selection | "训练模型", "机器学习建模", "K折交叉验证", "LASSO" |
-| **`habit-model-comparison`** | Multi-model comparison (ROC/DCA/calibration/DeLong) | "模型比较", "ROC 对比", "DeLong 检验", "model comparison" |
-| **`habit-radiomics`** | Classical PyRadiomics extraction (no habitat needed) | "传统影像组学", "PyRadiomics", "radiomics features" |
-| **`habit-dicom-tools`** | DICOM info, CSV merge, ICC, test-retest, Dice | "DICOM 信息", "合并 CSV", "ICC 分析", "test-retest", "Dice" |
+Each skill is a self-contained directory:
 
-Each skill is self-contained:
 ```
 <skill-name>/
-├── SKILL.md                    # main instructions for the AI
-└── references/                 # optional templates and examples
-    ├── config_*_minimal.yaml   # ready-to-fill config scaffolds
-    └── ...
+├── SKILL.md                        # main instructions (loaded when triggered)
+├── references/                     # Markdown guides only (YAML scaffolds live in config_templates/skill_scaffolds/)
+└── scripts/                        # optional Python helpers (the AI runs these)
 ```
 
----
+## Skill catalog
 
-## How to Use These Skills
+| Skill | Purpose | Trigger keywords (zh / en) |
+|---|---|---|
+| `habit-quickstart` | Entry router; environment + data check | "habitat", "生境分析", "start" |
+| `habit-preprocess` | DICOM→NIfTI, resample, register, N4, normalize | "预处理", "配准", "preprocess", "register" |
+| `habit-habitat-analysis` | Core voxel clustering (one_step / two_step) | "生境", "亚区", "habitat", "supervoxel" |
+| `habit-feature-extraction` | MSI / ITH / habitat radiomics | "MSI", "ITH", "habitat features" |
+| `habit-machine-learning` | Train / predict / k-fold | "建模", "训练", "k-fold", "LASSO" |
+| `habit-model-comparison` | Multi-model ROC / DCA / DeLong | "模型比较", "DeLong", "ROC 对比" |
+| `habit-radiomics` | Classical PyRadiomics (no habitat) | "传统影像组学", "PyRadiomics" |
+| `habit-dicom-tools` | DICOM info, CSV merge, ICC, test-retest, Dice | "DICOM", "ICC", "test-retest", "Dice" |
+| `habit-recipes` | End-to-end pipelines | "全流程", "end-to-end", "demo" |
+| `habit-troubleshoot` | Diagnose runtime errors | "报错", "error", "failed", "AUC 太低" |
 
-### Option 1: Cursor
+## Why this layout works for AI agents
 
-1. Place the `skills/` folder at the project root (already done in this repo).
-2. Optionally copy or symlink to `.cursor/skills/` so Cursor auto-discovers them per workspace.
-3. Open Cursor in this project — skills are detected automatically.
-4. In chat, just describe what you want. Examples:
-   - "I have a folder of MRI DICOMs, help me run the full HABIT pipeline."
-   - "我有 200 个肝癌患者的 T1/T2/DWI/ADC 数据，想做生境分析然后建模预测复发，怎么开始？"
-   - "Compare the ROC curves of my clinical and radiomics models with DeLong test."
+1. **Description-driven matching** — Anthropic's Skills system loads the
+   matching skill automatically from the `description` field. Each
+   description is single-sentence, mentions both Chinese and English
+   triggers, and explicitly says when NOT to use the skill.
 
-### Option 2: Claude (Desktop / Code / Web)
+2. **Progressive disclosure** — The agent doesn't read the whole skill
+   bundle. It reads `SKILL.md` for the skill that matched, then opens
+   reference files only as needed. Keeps context efficient.
 
-1. Copy this entire `skills/` folder to your Claude skills directory:
-   - **Claude Code (CLI)**: `~/.claude/skills/`
-   - **Claude Desktop**: settings → Skills → import folder
-   - **Claude.ai (Pro/Team)**: Skills tab in settings, upload as zip
-2. Restart Claude or reload skills.
-3. Ask Claude in natural language. It will auto-select the right skill.
+3. **Self-validating workflow** — Every step has a corresponding
+   `validate_*.py` or `inspect_*.py` script. The agent runs validation
+   after each step before continuing, so failures are caught early
+   rather than cascading.
 
-### Option 3: Claude API
+4. **No-config-from-scratch policy** — Every skill points at minimal
+   YAML scaffolds in its `references/` folder. The agent fills in
+   `<PLACEHOLDER>` values from user-confirmed inputs rather than
+   inventing field names.
 
-Use the Skills API endpoint with this folder uploaded as a skill bundle. See Anthropic API docs for the current endpoint.
+5. **Project-rule compliance** — Every skill enforces the project rules:
+   English plot labels, YAML 2-space indent, output directory
+   conventions. See `habit-quickstart/SKILL.md` for the full list.
 
----
+## How to install / use
+
+See [INSTALL.md](INSTALL.md) for step-by-step instructions for:
+- Claude Code (CLI)
+- Claude Desktop
+- Cursor
+- Anthropic API
+- OpenCode and other Skills-compatible tools
 
 ## Prerequisites
 
-These skills assume the HABIT package is already installed:
+These skills assume the HABIT package is installed:
 
 ```bash
-# In a conda env (Python 3.8 or 3.10)
 conda create -n habit python=3.8 -y
 conda activate habit
 pip install -r requirements.txt
@@ -82,31 +120,48 @@ pip install -e .
 habit --version
 ```
 
-If HABIT is not installed, the `habit-quickstart` skill will detect this and guide installation.
+If HABIT is not installed, the first thing `habit-quickstart` does is run
+`scripts/check_environment.py` and tell the user how to install.
 
----
+## Example user interactions
 
-## Skill Design Notes
+These prompts will trigger the right skill chain automatically once the
+skills are installed:
 
-1. **Descriptions are bilingual-keyword friendly** — Chinese trigger phrases are embedded in English `description` fields so both Chinese and English users can activate skills naturally.
-2. **All plot/figure outputs use English labels** — project-wide rule (see `README.md`). Documentation comments may be Chinese.
-3. **Configs are referenced, not duplicated** — each skill points to `config_templates/config_*_annotated.yaml` for the full reference, and provides a minimal scaffold in its own `references/` for quick filling.
-4. **No hidden state** — every skill is independent. Composition happens via the `habit-quickstart` router and explicit chained CLI calls.
+- *"I have a folder of MRI DICOMs, help me run the full HABIT pipeline."*
+  → `habit-quickstart` → `habit-recipes/recipe_mri_habitat_full.md`
 
----
+- *"我有 200 个肝癌患者的 T1/T2/DWI/ADC 数据，想做生境分析然后建模预测复发。"*
+  → `habit-quickstart` → `habit-recipes/recipe_mri_habitat_full.md`
 
-## Updating / Extending
+- *"DCE-MRI 多期相，想做 kinetic 分期生境，然后看哪些生境与 PFS 相关。"*
+  → `habit-recipes/recipe_dce_kinetic.md` → `habit-machine-learning`
 
-To add a new skill (e.g. for a new HABIT command):
-1. Create `skills/<new-skill-name>/SKILL.md` with YAML frontmatter.
-2. Write a single-sentence `description` that includes both English keywords and Chinese trigger phrases.
-3. Add reference templates in `references/`.
-4. Add a row to the table in this README.
+- *"Compare the ROC curves of my clinical and radiomics models with DeLong test."*
+  → `habit-model-comparison`
 
-To modify an existing skill, edit `SKILL.md` directly. No registration step needed — skills are discovered by folder structure.
+- *"Extract returned an empty CSV, what's wrong?"*
+  → `habit-troubleshoot/references/errors_extraction.md`
 
----
+- *"我刚装好，想跑一下 demo 看看效果。"*
+  → `habit-recipes/references/recipe_demo_walkthrough.md`
+
+## Adding a new skill
+
+1. Create `skills/<new-skill-name>/SKILL.md` with YAML frontmatter:
+   ```yaml
+   ---
+   name: <new-skill-name>
+   description: <single sentence: what it does + when to use + key triggers>
+   ---
+   ```
+2. Add reference templates in `references/`.
+3. Add helper Python in `scripts/` (optional but recommended).
+4. Add a row to the catalog table above.
+5. Update `habit-quickstart/SKILL.md` and `habit-quickstart/references/workflow_decision_tree.md` if it changes routing.
 
 ## Citation
 
-If you use HABIT (and these skills) in research, please cite the project per `README.md`. Issues and PRs welcome at https://github.com/lichao312214129/HABIT.
+If you use HABIT (and these skills) in research, please cite the project per
+the main `README.md`. Issues and PRs welcome at
+https://github.com/lichao312214129/HABIT.

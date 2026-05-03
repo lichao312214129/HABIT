@@ -1,0 +1,61 @@
+# Two-model comparison — typical "clinical vs radiomics" or "T2 vs DCE" study.
+
+output_dir: <OUTPUT_DIR>                 # e.g. ./results/comparison_two
+
+files_config:
+  - path: <PRED_CSV_MODEL_A>             # e.g. ./results/clinical/all_prediction_results.csv
+    name: Clinical                       # legend label
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob                       # may be 'LogisticRegression_prob' if multi-model
+    pred_col: pred
+    split_col: split
+
+  - path: <PRED_CSV_MODEL_B>             # e.g. ./results/radiomics/all_prediction_results.csv
+    name: Radiomics
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob
+    pred_col: pred
+    split_col: split
+
+merged_data:
+  enabled: true
+  save_name: combined_predictions.csv
+
+split:
+  enabled: true                          # generate train AND test plots
+
+visualization:
+  roc:
+    enabled: true
+    save_name: roc_curves.pdf
+    title: ROC Curves
+  dca:
+    enabled: true
+    save_name: decision_curves.pdf
+    title: Decision Curves
+  calibration:
+    enabled: true
+    save_name: calibration_curves.pdf
+    n_bins: 5
+    title: Calibration Curves
+  pr_curve:
+    enabled: true
+    save_name: precision_recall_curves.pdf
+    title: Precision-Recall Curves
+
+delong_test:
+  enabled: true
+  save_name: delong_results.json
+
+metrics:
+  basic_metrics:
+    enabled: true
+  youden_metrics:
+    enabled: true
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.7
+      specificity: 0.7

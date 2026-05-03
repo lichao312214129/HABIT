@@ -1,0 +1,77 @@
+# High-dimensional pipeline — when feature_count >> sample_count.
+# Typical case: radiomics with LoG + Wavelet (>1000 features) and < 200 patients.
+# Adds an mRMR step to bound the candidate set BEFORE LASSO so the L1 path is
+# numerically stable.
+
+input:
+  - path: <FEATURE_CSV_PATH>
+    name: rad_
+    subject_id_col: subjID
+    label_col: label
+    features:
+
+output: <OUTPUT_DIR>
+
+split_method: stratified
+test_size: 0.3
+random_state: 42
+
+normalization:
+  method: z_score
+
+feature_selection_methods:
+
+  # 1) Hard pre-filters
+  - method: variance
+    params:
+      threshold: 0.2
+      plot_variances: true
+      before_z_score: true
+
+  - method: correlation
+    params:
+      threshold: 0.95                    # looser; we still have many features
+      method: spearman
+      before_z_score: false
+
+  # 2) Univariate label-relevance — drop features with no class signal
+  - method: statistical_test
+    params:
+      p_threshold: 0.10                  # looser than usual; mRMR will tighten
+      before_z_score: false
+
+  # 3) mRMR caps the candidate set to N best features by relevance/redundancy
+  - method: mrmr
+    params:
+      n_features: 50                     # top 50 candidates for LASSO
+      visualize: false
+      before_z_score: false
+
+  # 4) Final L1 selection
+  - method: lasso
+    params:
+      cv: 10
+      n_alphas: 100
+      random_state: 42
+      visualize: true
+      before_z_score: false
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 2000
+      C: 1.0
+      penalty: l2
+
+  # SVM with RBF — works well on small, dense feature sets after LASSO
+  SVM:
+    params:
+      random_state: 42
+      C: 1.0
+      kernel: rbf
+      gamma: scale
+      probability: true
+
+is_visualize: true
+is_save_model: true

@@ -1,0 +1,24 @@
+# CT-only preprocessing — for single-modality CT studies.
+# CT intensities are already standardized in Hounsfield Units, so:
+#   - DO NOT use N4 (no bias field in CT)
+#   - DO NOT use z-score normalization (would destroy HU semantics)
+#   - resample only
+
+data_dir: <PATH_TO_RAW_NIFTI>
+out_dir: <PATH_TO_OUTPUT>
+
+Preprocessing:
+
+  resample:
+    images: [CT]                         # or your CT folder name (e.g. arterial_CT)
+    target_spacing: [1.0, 1.0, 1.0]      # 1mm isotropic typical; use [0.7, 0.7, 1.0] for thin-slice
+
+  # Optional: enhance soft-tissue contrast (use only if you know what you're doing).
+  # adaptive_histogram_equalization:
+  #   images: [CT]
+  #   alpha: 0.3
+  #   beta: 0.3
+  #   radius: 5
+
+processes: 4
+random_state: 42

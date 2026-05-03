@@ -7,7 +7,7 @@ using multiple preprocessing steps defined in a configuration file.
 Example:
     >>> from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
     >>> processor = BatchProcessor(config_path="./config/config_kmeans.yaml")
-    >>> processor.process_batch()
+    >>> processor.run()
 """
 
 from typing import Dict, List, Optional, Union, Callable, Any
@@ -398,7 +398,7 @@ class BatchProcessor:
 
             # raise
 
-    def process_batch(self) -> None:
+    def run(self) -> None:
         """处理所有样本数据。
         
         使用多进程方式进行批处理。

@@ -1,0 +1,65 @@
+# DCE kinetic habitat analysis — clusters voxels by their enhancement curves.
+# Use when you have multi-phase contrast-enhanced MRI/CT (e.g. pre / arterial /
+# portal / delay) and want to discover regions with distinct uptake/wash-out
+# behavior (necrosis, hyper-perfusion, etc.).
+#
+# Prerequisite: an Excel file mapping subject IDs to scan time of each phase
+#               (in minutes from injection). Required by the kinetic() method.
+# Full reference: config_templates/config_getting_habitat_annotated.yaml
+
+data_dir: <PATH_TO_PREPROCESSED_DCE_IMAGES>
+out_dir: <OUTPUT_DIR>                    # e.g. ./results/habitat_dce_kinetic
+
+processes: 4
+random_state: 42
+plot_curves: true
+
+FeatureConstruction:
+  voxel_level:
+    # kinetic(...) extracts time-intensity curve features per voxel.
+    # The argument order MUST match the rising time order in the timestamps file.
+    method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
+    params:
+      timestamps: <PATH_TO_TIMESTAMPS_XLSX>
+      # The Excel sheet should look like:
+      #   subjID | pre_contrast | LAP   | PVP   | delay_3min
+      #   sub001 | 0.0          | 0.5   | 1.5   | 3.0
+      # (times in minutes from injection)
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {}
+
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+HabitatsSegmention:
+  clustering_mode: two_step                  # DCE habitats benefit from population-level model
+
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  habitat:
+    mode: training
+    algorithm: kmeans
+    min_clusters: 2
+    max_clusters: 8
+    habitat_cluster_selection_method: silhouette
+    fixed_n_clusters: 4                       # null = auto-select; 4 is a common DCE choice
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  postprocess_habitat:
+    enabled: true                             # DCE habitats often benefit from cleanup
+    min_component_size: 30
+    connectivity: 1

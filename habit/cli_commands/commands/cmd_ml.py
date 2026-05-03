@@ -81,7 +81,7 @@ def run_ml(config_path: str, mode: str) -> None:
         sys.exit(1)
 
     try:
-        workflow.run_pipeline()
+        workflow.run()
     except Exception as e:
         logger.error(f"Workflow failed: {e}", exc_info=True)
         click.echo(f"Error during {mode}: {e}", err=True)
@@ -150,7 +150,7 @@ def run_kfold(config_file: str) -> None:
             config=config, logger=logger, output_dir=str(output_dir)
         )
         workflow = configurator.create_kfold_workflow()
-        workflow.run_pipeline()
+        workflow.run()
         logger.info("K-fold cross-validation completed successfully")
         click.secho("OK K-fold cross-validation completed successfully!", fg='green')
     except Exception as e:

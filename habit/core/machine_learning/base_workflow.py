@@ -241,7 +241,7 @@ class BaseWorkflow(ABC):
         return estimator
 
     @abstractmethod
-    def run_pipeline(self):
+    def run(self) -> None:
         """Main entry point to be implemented by subclasses."""
         pass
 

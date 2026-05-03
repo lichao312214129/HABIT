@@ -93,7 +93,7 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
    # Preprocessing
    pre_cfg = PreprocessingConfig.from_file('config_preprocessing.yaml')
    processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
-   processor.process_batch()
+   processor.run()
 
    # Habitat analysis
    habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
@@ -103,7 +103,7 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
    # Machine learning
    ml_cfg = MLConfig.from_file('config_machine_learning.yaml')
    workflow = MLConfigurator(config=ml_cfg).create_ml_workflow()
-   workflow.run_pipeline()
+   workflow.run()
 
 **统一体验：**
 

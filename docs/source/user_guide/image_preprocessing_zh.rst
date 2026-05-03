@@ -60,7 +60,7 @@ Python API 使用方法
    processor = configurator.create_batch_processor()
 
    # Run preprocessing
-   processor.process_batch()
+   processor.run()
 
 **详细示例：**
 
@@ -93,7 +93,7 @@ Python API 使用方法
 
    # 运行预处理
    logger.info("开始图像预处理")
-   processor.process_batch()
+   processor.run()
    logger.info("预处理完成！")
 
 YAML 配置详解

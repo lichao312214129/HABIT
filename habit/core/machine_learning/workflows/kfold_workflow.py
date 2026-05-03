@@ -24,7 +24,7 @@ class MachineLearningKFoldWorkflow(BaseWorkflow):
         # Store pipelines for each model: {model_name: [pipeline_fold1, pipeline_fold2, ...]}
         self.fold_pipelines = defaultdict(list)
 
-    def run_pipeline(self):
+    def run(self) -> None:
         self.logger.info("Starting K-Fold Pipeline...")
         self.callbacks.on_pipeline_start()
         

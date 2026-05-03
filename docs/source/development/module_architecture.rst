@@ -64,7 +64,7 @@ HABIT 的主干能力可以按下面的数据链理解：
      -> ConfigClass.from_file(...)
      -> DomainConfigurator(...)
      -> create_<service>()
-     -> service.run / fit / predict / process_batch
+     -> service.run / fit / predict
 
 命令组织有两类：
 
@@ -126,7 +126,7 @@ radiomics 可直接读取的标准化影像。它是图像层面的批处理 pip
 
    PreprocessingConfig
      -> PreprocessingConfigurator.create_batch_processor()
-     -> BatchProcessor.process_batch()
+     -> BatchProcessor.run()
      -> LoadImagePreprocessor
      -> PreprocessorFactory.create(step_name)
      -> BasePreprocessor.__call__(subject_data)
@@ -455,7 +455,7 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
 
    MLConfig
      -> MLConfigurator.create_ml_workflow()
-     -> MachineLearningWorkflow.run_pipeline()
+     -> MachineLearningWorkflow.run()
      -> DataManager
      -> PipelineBuilder
      -> FeatureSelectTransformer

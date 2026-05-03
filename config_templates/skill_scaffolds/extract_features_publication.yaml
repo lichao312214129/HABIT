@@ -1,0 +1,26 @@
+# Publication-grade habitat feature extraction.
+# Extracts the comprehensive feature set used in most habitat-radiomics papers:
+#   traditional + non_radiomics + whole_habitat + msi + ith_score
+# Skips per-habitat radiomics (each_habitat) by default — enable only if your
+# cohort is large (>200 patients) and you can afford aggressive selection later.
+
+params_file_of_non_habitat: <PATH_TO_PARAMETER_YAML>          # for traditional radiomics
+params_file_of_habitat: <PATH_TO_PARAMETER_HABITAT_YAML>      # for whole/each habitat radiomics
+
+raw_img_folder: <PREPROCESSED_IMAGES_DIR>                     # e.g. ./data/preprocessed_images
+habitats_map_folder: <HABITAT_RESULTS_DIR>                    # e.g. ./results/habitat_two_step
+out_dir: <FEATURE_OUTPUT_DIR>                                 # e.g. ./results/features
+
+n_processes: 4
+habitat_pattern: '*_habitats_remapped.nrrd'
+
+feature_types:
+  - traditional                                               # whole-tumor radiomics on original images
+  - non_radiomics                                             # volumes, fractions, basic stats
+  - whole_habitat                                             # radiomics on the whole habitat label map
+  - msi                                                       # multi-region spatial interaction
+  - ith_score                                                 # intra-tumor heterogeneity scores
+  # - each_habitat                                            # uncomment only for large cohorts
+
+n_habitats:                                                   # empty = auto-detect
+debug: false

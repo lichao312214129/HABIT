@@ -1,0 +1,24 @@
+# Quick-path feature extraction — only MSI + ITH + non_radiomics.
+# Use this when you want to avoid setting up PyRadiomics parameter files.
+# Output is small (~tens of features per subject) and ready for ML.
+
+# These are not used because we don't extract any radiomics features.
+# Keep the keys present (HABIT requires them) but you can point at any file.
+params_file_of_non_habitat: ./config/parameter.yaml
+params_file_of_habitat: ./config/parameter_habitat.yaml
+
+raw_img_folder: <PREPROCESSED_IMAGES_DIR>
+habitats_map_folder: <HABITAT_RESULTS_DIR>
+out_dir: <FEATURE_OUTPUT_DIR>
+
+n_processes: 4
+habitat_pattern: '*_habitats_remapped.nrrd'   # use '*_habitats.nrrd' for one_step
+
+# Only the radiomics-free feature types — fast, no extra config.
+feature_types:
+  - non_radiomics                              # volumes, fractions
+  - msi                                        # multi-region spatial interaction
+  - ith_score                                  # entropy-based intra-tumor heterogeneity
+
+n_habitats:                                    # empty = auto-detect
+debug: false

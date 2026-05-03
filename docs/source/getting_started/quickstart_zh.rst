@@ -64,7 +64,7 @@
    from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
    processor = BatchProcessor(config_path='./demo_data/config_preprocessing.yaml')
-   processor.process_batch()
+   processor.run()
 
 **输出:**
 

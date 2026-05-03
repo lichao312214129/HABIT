@@ -193,7 +193,7 @@ CLI 子命令清单（节选自 ``habit/cli.py``）：
      -> ConfigClass.from_file(...)
      -> DomainConfigurator(...)
      -> create_<service>()
-     -> service.run / fit / predict / process_batch
+     -> service.run / fit / predict
 
 
 Layer 2：服务装配层（Domain Configurators）

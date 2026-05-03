@@ -113,7 +113,7 @@ class ExampleBatchProcessor:
         
         self.logger.info('BatchProcessor initialized')
     
-    def process_batch(self):
+    def run(self) -> None:
         """Process batch of items."""
         self.logger.info('Starting batch processing')
         # ... processing code ...
@@ -251,7 +251,7 @@ def real_world_example(config_path: str):
         
         # 5. Process data
         logger.info('Starting data processing')
-        processor.process_batch()
+        processor.run()
         
         # 6. Log completion
         logger.info('='*60)

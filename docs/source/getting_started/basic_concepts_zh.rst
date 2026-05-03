@@ -236,7 +236,7 @@ HABIT 提供两种使用方式：CLI 和 Python API。
    # Preprocessing
    pre_cfg = PreprocessingConfig.from_file('config_preprocessing.yaml')
    processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
-   processor.process_batch()
+   processor.run()
 
    # Habitat analysis
    habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
@@ -246,7 +246,7 @@ HABIT 提供两种使用方式：CLI 和 Python API。
    # Machine learning
    ml_cfg = MLConfig.from_file('config_machine_learning.yaml')
    workflow = MLConfigurator(config=ml_cfg).create_ml_workflow()
-   workflow.run_pipeline()
+   workflow.run()
 
 **选择建议：**
 

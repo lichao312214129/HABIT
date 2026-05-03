@@ -1,0 +1,71 @@
+# Three-model comparison — typical "clinical vs radiomics vs habitat" or
+# "single-modality vs multi-modality vs combined" study.
+# DeLong test will produce 3 pairwise p-values (A-B, A-C, B-C).
+
+output_dir: <OUTPUT_DIR>                 # e.g. ./results/comparison_three
+
+files_config:
+  - path: <PRED_CSV_MODEL_A>
+    name: Clinical
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob
+    pred_col: pred
+    split_col: split
+
+  - path: <PRED_CSV_MODEL_B>
+    name: Radiomics
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob
+    pred_col: pred
+    split_col: split
+
+  - path: <PRED_CSV_MODEL_C>
+    name: Habitat
+    subject_id_col: subjID
+    label_col: true_label
+    prob_col: prob
+    pred_col: pred
+    split_col: split
+
+merged_data:
+  enabled: true
+  save_name: combined_predictions.csv
+
+split:
+  enabled: true
+
+visualization:
+  roc:
+    enabled: true
+    save_name: roc_curves.pdf
+    title: ROC Curves (Clinical vs Radiomics vs Habitat)
+  dca:
+    enabled: true
+    save_name: decision_curves.pdf
+    title: Decision Curves
+  calibration:
+    enabled: true
+    save_name: calibration_curves.pdf
+    n_bins: 5
+    title: Calibration Curves
+  pr_curve:
+    enabled: true
+    save_name: precision_recall_curves.pdf
+    title: Precision-Recall Curves
+
+delong_test:
+  enabled: true
+  save_name: delong_results.json
+
+metrics:
+  basic_metrics:
+    enabled: true
+  youden_metrics:
+    enabled: true
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.7
+      specificity: 0.7

@@ -2,7 +2,7 @@
 Standard Machine Learning Workflow (Train / Test Split).
 
 Inherits from :class:`BaseWorkflow` for consistent infrastructure. V1
-unifies training and prediction here: ``run_pipeline`` dispatches on
+unifies training and prediction here: ``run`` dispatches on
 ``config.run_mode`` so a single workflow class handles both paths and the
 old ``PredictionWorkflow`` is gone.
 """
@@ -28,7 +28,7 @@ class MachineLearningWorkflow(BaseWorkflow):
         - :meth:`fit`      : train + persist pipelines (one per model).
         - :meth:`predict`  : load a saved ``*_final_pipeline.pkl`` and predict
           on ``config.input[0].path``.
-        - :meth:`run_pipeline` : dispatcher; routes to :meth:`fit` /
+        - :meth:`run` : dispatcher; routes to :meth:`fit` /
           :meth:`predict` based on ``config.run_mode``. This is the V1 entry
           used by the CLI (`habit model`).
     """
@@ -42,7 +42,7 @@ class MachineLearningWorkflow(BaseWorkflow):
     # Dispatcher
     # ---------------------------------------------------------------------
 
-    def run_pipeline(self) -> None:
+    def run(self) -> None:
         """Route to :meth:`fit` or :meth:`predict` according to ``run_mode``."""
         run_mode = getattr(self.config_obj, "run_mode", "train")
         if run_mode == "train":

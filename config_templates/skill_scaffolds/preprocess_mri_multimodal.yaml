@@ -1,0 +1,43 @@
+# Multi-modal MRI preprocessing — standard publication-grade pipeline.
+# Use this when you have T1 + T2 (+ DWI / ADC / FLAIR) and want them all aligned,
+# bias-corrected, resampled, and intensity-normalized.
+#
+# Order matters: N4 -> resample -> registration -> z-score normalization.
+# Full reference: config_templates/config_image_preprocessing_annotated.yaml
+
+data_dir: <PATH_TO_RAW_NIFTI>            # e.g. ./data/raw_images
+out_dir: <PATH_TO_OUTPUT>                # e.g. ./data/preprocessed_images
+
+Preprocessing:
+
+  # 1) Bias-field correction for MRI sequences only.
+  n4_correction:
+    images: [T1, T2, FLAIR]              # remove FLAIR if not present
+    num_fitting_levels: 4
+
+  # 2) Standardize voxel grid before registration.
+  resample:
+    images: [T1, T2, DWI, ADC, FLAIR]    # include every modality you have
+    target_spacing: [1.0, 1.0, 1.0]      # mm; 1mm isotropic is the typical default
+
+  # 3) Align everything to T2 (most common reference for abdominal/brain MRI).
+  registration:
+    images: [T2, T1, DWI, ADC, FLAIR]    # 'images' lists ALL modalities involved
+    fixed_image: T2                      # reference (stays put)
+    moving_images: [T1, DWI, ADC, FLAIR] # warped to fixed
+    type_of_transform: SyNRA             # ANTs deformable; use 'Rigid' if only translation/rotation suffices
+    use_mask: false                      # set true if you want mask-guided registration
+    # mask_key: tumor_mask               # required if use_mask: true
+
+  # 4) Intensity normalization (after registration so all modalities share grid).
+  zscore_normalization:
+    images: [T1, T2, FLAIR]              # NOT for DWI/ADC (they have meaningful absolute scales)
+    only_inmask: false
+
+# Optional: enable to debug each stage by writing intermediate files.
+save_options:
+  save_intermediate: false
+  intermediate_steps: []                 # empty = save every step
+
+processes: 4
+random_state: 42

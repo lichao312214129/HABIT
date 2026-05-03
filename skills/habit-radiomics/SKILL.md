@@ -1,13 +1,14 @@
 ---
 name: habit-radiomics
-description: Extract traditional PyRadiomics features from medical images at the whole-tumor ROI level (no habitat segmentation needed). Use when the user wants classical radiomics features (first-order, shape, GLCM, GLRLM, GLSZM, NGTDM, GLDM) without doing habitat analysis. Triggers on phrases like "传统影像组学", "PyRadiomics", "radiomics features", "提取影像组学特征", "shape and texture features", "first-order features".
+description: Extract traditional PyRadiomics features (firstorder, shape, GLCM, GLRLM, GLSZM, NGTDM, GLDM) from medical images at the whole-tumor ROI level — no habitat segmentation. Use when the user wants classical radiomics features without doing habitat analysis. Triggers on "传统影像组学", "PyRadiomics", "radiomics features", "shape features", "GLCM". Runs `habit radiomics`.
 ---
 
 # HABIT Traditional Radiomics
 
-Extract whole-tumor PyRadiomics features (no habitat clustering involved). This is the **classical** radiomics workflow — one row per subject, one feature per column.
+Extract whole-tumor PyRadiomics features (no habitat clustering involved). The
+classical radiomics workflow — one row per subject, one feature per column.
 
-If the user wants **habitat-based** features (per-region, MSI, ITH), redirect to the `habit-feature-extraction` skill instead.
+If the user wants **habitat-based** features, redirect to `habit-feature-extraction`.
 
 ## CLI
 
@@ -15,44 +16,30 @@ If the user wants **habitat-based** features (per-region, MSI, ITH), redirect to
 habit radiomics --config <config_traditional_radiomics.yaml>
 ```
 
-## Required Inputs
+## Required Information
 
-1. **PyRadiomics parameter file** (`parameter.yaml`) — defines what features to extract
-2. **Images folder** — preprocessed NIfTI images with masks
-3. **Output directory**
+| Field | Stop if missing |
+|---|---|
+| `paths.params_file` | yes — PyRadiomics parameter YAML |
+| `paths.images_folder` | yes |
+| `paths.out_dir` | yes |
+| `processing.process_image_types` | yes — modality folder names |
 
-## PyRadiomics Parameter File
+## PyRadiomics parameter file
 
-User must provide a `parameter.yaml` (PyRadiomics standard format). Example:
+Three options for the params file:
 
-```yaml
-imageType:
-  Original: {}
-  LoG:                       # Laplacian of Gaussian (multi-scale)
-    sigma: [1.0, 2.0, 3.0]
-  Wavelet: {}                # 8 wavelet decompositions
+| File | Use |
+|---|---|
+| `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` | generic full set |
+| `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` | minimal (~70 features) |
+| `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` | full with LoG+Wavelet (~1500 features) |
 
-featureClass:
-  firstorder:                # 18 features: mean, energy, entropy, etc.
-  shape:                     # 14 features: volume, sphericity, etc.
-  glcm:                      # 24 texture features
-  glrlm:                     # 16 run-length features
-  glszm:                     # 16 size-zone features
-  ngtdm:                     # 5 neighborhood features
-  gldm:                      # 14 dependence features
+Choosing guide: `references/parameter_choice_guide.md`.
 
-setting:
-  binWidth: 25               # for fixed bin width discretization
-  resampledPixelSpacing: [1, 1, 1]
-  interpolator: sitkBSpline
-  normalize: false           # set true if not pre-normalized
-```
+If the user has no params file, use the basic template as a starting point.
 
-If user doesn't have a `parameter.yaml`, point them to:
-- PyRadiomics docs: https://pyradiomics.readthedocs.io/en/latest/customization.html
-- Or use the simpler example above as starting point.
-
-## Standard Config
+## Standard config
 
 ```yaml
 paths:
@@ -62,7 +49,7 @@ paths:
 
 processing:
   n_processes: 4
-  save_every_n_files: 5            # checkpoint frequency
+  save_every_n_files: 5
   process_image_types:
     - T1
     - T2
@@ -81,22 +68,38 @@ logging:
   file_output: true
 ```
 
-## Reference Template
+## Reference templates
 
-- Full annotated: `config_templates/config_traditional_radiomics_annotated.yaml`
-- Minimal scaffold: `references/config_radiomics_minimal.yaml`
+Config index: `skills/CONFIG_SOURCES.md`.
 
-## Output Files
+| File | Use |
+|---|---|
+| `config_templates/skill_scaffolds/radiomics_minimal.yaml` | scaffold |
+| `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` | starter PyRadiomics params |
+| `references/parameter_choice_guide.md` | how to pick filters and feature classes |
+
+Full annotated reference: `config_templates/config_traditional_radiomics_annotated.yaml`.
+
+## Validate output (after run)
+
+```bash
+python skills/habit-feature-extraction/scripts/inspect_feature_csv.py \
+  <out_dir>/radiomics_features_combined_*.csv --subject-id-col subjID
+```
+
+(The same CSV inspector used for habitat features works here too.)
+
+## Output files
 
 With default settings (`add_timestamp: true`, both export options on):
 
 ```
 out_dir/
-├── radiomics_features_T1_2026-04-26_10-30.csv      # per-modality
-├── radiomics_features_T2_2026-04-26_10-30.csv
-├── radiomics_features_DWI_2026-04-26_10-30.csv
-├── radiomics_features_ADC_2026-04-26_10-30.csv
-├── radiomics_features_combined_2026-04-26_10-30.csv  # all modalities merged
+├── radiomics_features_T1_<timestamp>.csv      # per-modality
+├── radiomics_features_T2_<timestamp>.csv
+├── radiomics_features_DWI_<timestamp>.csv
+├── radiomics_features_ADC_<timestamp>.csv
+├── radiomics_features_combined_<timestamp>.csv  # all modalities merged
 └── extraction.log
 ```
 
@@ -107,23 +110,31 @@ The combined CSV is the typical input for `habit model`.
 | Aspect | `habit radiomics` | `habit extract` |
 |---|---|---|
 | Operates on | Whole-tumor ROI | Habitat sub-regions |
-| Requires | Just images + masks | Habitat maps (.nrrd) too |
+| Requires | Just images + masks | Habitat maps too |
 | Output features | Per modality | Per habitat + traditional + MSI + ITH |
-| Use case | Classical radiomics study | Habitat-based study |
+| Use case | Classical radiomics | Habitat-based study |
 
-If the user has habitat maps and wants the most comprehensive analysis, prefer `habit extract` (which also extracts traditional whole-tumor features as one of its options).
+If the user has habitat maps and wants comprehensive features, prefer
+`habit extract` (which can include traditional whole-tumor features as one
+of its options).
 
-## Common Pitfalls
+## Common pitfalls
 
-1. **`process_image_types` mismatch** — names must exactly match folder names under `images/<subject>/<modality>/`. Case-sensitive.
+1. **`process_image_types` mismatch** — names must exactly match folder names. Case-sensitive.
 2. **PyRadiomics fails on small ROIs** — ROIs <30 voxels can fail GLCM/GLRLM. Increase `binWidth` or check ROI size.
-3. **Resampling mismatch** — `resampledPixelSpacing` in `parameter.yaml` may resample again. Disable if images are already resampled in preprocessing.
-4. **Memory blow-up with Wavelet + LoG** — each filter multiplies features by 8-10×. Start with `Original: {}` only for testing.
-5. **Mask label value** — by default uses label=1. If user has multi-label mask (e.g. tumor=1, edema=2), specify in parameter.yaml: `label: 1`.
+3. **Resampling mismatch** — `resampledPixelSpacing` in `parameter.yaml` may resample again. Comment out if already resampled in preprocessing.
+4. **Memory blow-up with Wavelet + LoG** — each filter multiplies features ~8-10×. Start with `Original: {}` only for testing.
+5. **Mask label value** — default is label=1. If multi-label mask, specify `label: 1` in `parameter.yaml`.
+
+For more, see `habit-troubleshoot/references/errors_extraction.md`.
 
 ## Verification
 
 After running:
-- Open one of the CSVs — should have ~100-1500 columns depending on parameter file
+- Open one CSV — should have ~100-1500 columns depending on params
 - First column = subject ID
-- No NaN columns (NaN means failed extraction → check log)
+- No NaN columns (NaN = failed extraction → check log)
+
+## Next step
+
+After radiomics extraction, proceed to `habit-machine-learning` to train models.

@@ -118,7 +118,7 @@ class MLConfigurator(BaseConfigurator):
         """
         Return a :class:`MachineLearningWorkflow` instance.
 
-        The workflow's ``run_pipeline`` will dispatch to ``fit()`` /
+        The workflow's ``run`` method will dispatch to ``fit()`` /
         ``predict()`` based on ``config.run_mode``.
         """
         from habit.core.machine_learning.workflows.holdout_workflow import (

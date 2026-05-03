@@ -77,6 +77,14 @@ config/
 - Check examples for specific use cases
 - Review best practices before production use
 
+## 🤖 Agent skill scaffolds (`skill_scaffolds/`)
+
+Short YAML examples used by Cursor / OpenClaw **skills** live under
+`config_templates/skill_scaffolds/`. They are copy-paste starting points with
+`<PLACEHOLDER>` fields; every key is documented in the matching `*_annotated.yaml`
+in this folder. See `skills/CONFIG_SOURCES.md` for the full index (scaffold →
+annotated → `config/` standard file).
+
 ## 📈 Key Features
 
 ### 1. YAML Format Guidelines
@@ -160,6 +168,7 @@ If needed, we can create annotated templates for:
 
 ## 📚 Related Documentation
 
+- **Agent scaffold index**: `skills/CONFIG_SOURCES.md`
 - **Configuration Index**: `config/README_CONFIG.md`
 - **Main README**: `README.md` / `README_en.md`
 - **Module Docs**: `doc/` and `doc_en/` directories

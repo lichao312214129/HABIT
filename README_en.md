@@ -49,42 +49,55 @@ pip install -r requirements.txt
 pip install -e .
 
 # 2. Download demo data
-# Download from Baidu Netdisk: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
-# Extraction code: xypk
+# Shared file: demo_data.rar
+# Download from Baidu Netdisk: https://pan.baidu.com/s/1bHTLvVMHnfiApArmZf8wrQ
+# Extraction code: kbmd
 # Extract the downloaded files to the demo_data directory
 # Note: All privacy information has been removed. For academic research and demo use only. Commercial use is strictly prohibited.
 
 # 3. Run complete research workflow
 
 # Step 1: Image Preprocessing (standardize images)
-habit preprocess --config demo_data/config_image_preprocessing.yaml
+habit preprocess --config demo_data/config_preprocessing.yaml
 # Note: The demo_data already contains a 'preprocessed' folder with images and ROI masks.
-# This command will overwrite image files (*_image.nii.gz) but preserve ROI mask files (*_mask.nii.gz).
-# The mask files are essential for subsequent habitat analysis.
+# Outputs are organised by pipeline stage and modality:
+#   preprocessed/<stage>_NN/{images,masks}/<subject>/<modality>/<modality>.nii.gz
+#   (e.g. preprocessed/zscore_normalization_04/images/subj001/delay2/delay2.nii.gz)
+# Re-running this command overwrites images per stage; ROI masks under masks/ are
+# preserved (only resampled along with the images during registration).
 
 # Step 2: Habitat Segmentation (identify tumor sub-regions)
-habit get-habitat --config demo_data/config_habitat_one_step.yaml
+# The demo's habitat configs point to ./preprocessed/processed_images, so the
+# two-step strategy is the one that runs out-of-the-box on the demo data.
+habit get-habitat --config demo_data/config_habitat_two_step.yaml
 
 # Step 3: Feature Extraction (extract quantitative features)
+# Feature types (traditional / whole_habitat / msi / ith_score / ...) are
+# controlled by the feature_types field in the YAML config.
 habit extract --config demo_data/config_extract_features.yaml
 
 # Step 4: Machine Learning (build predictive model)
-habit model --config demo_data/config_machine_learning.yaml --mode train
+# Train the radiomics model first; train the clinical model too if you want to
+# run the model comparison step below.
+habit model --config demo_data/config_machine_learning_radiomics.yaml --mode train
+habit model --config demo_data/config_machine_learning_clinical.yaml --mode train
 
 # Step 5: Model Comparison (compare different models)
 habit compare --config demo_data/config_model_comparison.yaml
 
 # 4. View results
-# Results are saved in demo_data/results/ directory
-# Includes: habitat maps, features, model performance, and comparison results
+# Outputs land in three sibling directories under demo_data/:
+#   - demo_data/preprocessed/   : preprocessed images & ROI masks
+#   - demo_data/results/        : habitat maps, visualizations, extracted features
+#   - demo_data/ml_data/        : trained models, predictions, model-comparison plots
 ```
 
 **Expected Results**:
-- `preprocessed/` - Standardized images
-- `habitat/` - 3D habitat maps and visualization charts
-- `features/` - Extracted radiomics and habitat features (CSV format)
-- `machine_learning/` - Model performance metrics and ROC curves
-- `model_comparison/` - Multi-model comparison results
+- `demo_data/preprocessed/` - Preprocessed images & ROI masks, organised by pipeline stage; the final products live in `processed_images/`
+- `demo_data/results/habitat_two_step/` - 3D habitat / supervoxel maps (`*_habitats.nrrd`, `*_supervoxel.nrrd`), `habitats.csv`, and 2D/3D clustering visualisations
+- `demo_data/results/features/` - Per-feature-type CSV tables: `raw_image_radiomics.csv`, `whole_habitat_radiomics.csv`, `msi_features.csv`, `ith_scores.csv`, `habitat_basic_features.csv`
+- `demo_data/ml_data/radiomics/` (and `ml_data/clinical/`) - `prediction_results.csv`, `evaluation_metrics.csv`, ROC / calibration / decision / PR curves (PDF), confusion matrix, trained model `*.pkl`
+- `demo_data/ml_data/model_comparison/` - Multi-model `roc_curves.pdf`, `decision_curves.pdf`, `calibration_curves.pdf`, `precision_recall_curves.pdf`, `delong_results.json`, `combined_predictions.csv`
 
 ---
 

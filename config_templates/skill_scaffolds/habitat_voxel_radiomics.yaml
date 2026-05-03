@@ -1,0 +1,71 @@
+# Voxel-radiomics habitat analysis — clusters voxels by local texture features.
+# Full reference: config_templates/config_getting_habitat_annotated.yaml
+# Use this when you want habitats defined by texture patterns (heterogeneity)
+# rather than raw intensity. Slowest method but most "biological" for tumors
+# with heterogeneous texture (e.g. some glioma, HCC).
+#
+# Note: HABIT auto-restricts GLCM to safe features (Contrast, Correlation,
+# JointEnergy, Idm) when kernelRadius<=3. This is silent and intentional.
+
+data_dir: <PATH_TO_PREPROCESSED_IMAGES>
+out_dir: <OUTPUT_DIR>                    # e.g. ./results/habitat_voxel_radiomics
+
+processes: 2                              # voxel-radiomics is heavy; lower processes
+random_state: 42
+plot_curves: true
+
+FeatureConstruction:
+  voxel_level:
+    # Apply voxel-radiomics on a single anatomical sequence.
+    # If you want texture clustering on multiple modalities, replace with:
+    #   concat(voxel_radiomics(T1), voxel_radiomics(T2))
+    method: voxel_radiomics(T2)
+    params:
+      params_file: <PATH_TO_VOXEL_RADIOMICS_PARAMS_YAML>
+      # Recommended params_file content (small kernel, only safe features):
+      #   featureClass:
+      #     firstorder:    # always safe
+      #     glcm:          # auto-restricted to Contrast/Correlation/JointEnergy/Idm
+      #   setting:
+      #     binWidth: 25
+      #     kernelRadius: 1     # 1 = 3x3x3; 2 = 5x5x5
+      #     maskedKernel: true
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {}
+
+  preprocessing_for_group_level:
+    methods:
+      - method: zscore
+        global_normalize: false
+
+HabitatsSegmention:
+  clustering_mode: two_step
+
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 30                       # texture is noisier; fewer supervoxels are fine
+    random_state: 42
+    max_iter: 300
+    n_init: 10
+
+  habitat:
+    mode: training
+    algorithm: kmeans
+    min_clusters: 2
+    max_clusters: 6
+    habitat_cluster_selection_method: silhouette
+    fixed_n_clusters: 3
+    random_state: 42
+
+  postprocess_supervoxel:
+    enabled: true
+    min_component_size: 50
+    connectivity: 1
+
+  postprocess_habitat:
+    enabled: true
+    min_component_size: 50
+    connectivity: 1

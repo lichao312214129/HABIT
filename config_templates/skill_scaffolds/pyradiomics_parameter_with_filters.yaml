@@ -1,0 +1,29 @@
+# Comprehensive PyRadiomics parameter file — adds LoG and Wavelet filters.
+# Generates ~1000+ features per image (Original x 7 classes
+#                                      + LoG x 3 sigmas x 7 classes
+#                                      + Wavelet x 8 decompositions x 7 classes)
+# Use only if you have a large cohort and aggressive feature selection
+# downstream. For pilot studies, prefer pyradiomics_parameter_basic.yaml.
+
+imageType:
+  Original: {}
+  LoG:                          # Laplacian of Gaussian — multi-scale edge enhancement
+    sigma: [1.0, 2.0, 3.0]      # in mm; one filter per sigma
+  Wavelet: {}                   # 8 wavelet decompositions (LLL, LLH, LHL, ...)
+
+featureClass:
+  firstorder:
+  shape:                        # shape only computed once on Original
+  glcm:
+  glrlm:                        # 16 grey-level run-length features
+  glszm:                        # 16 grey-level size-zone features
+  ngtdm:                        # 5 neighborhood grey-tone difference features
+  gldm:                         # 14 grey-level dependence features
+
+setting:
+  binWidth: 25
+  label: 1
+  normalize: false
+  padDistance: 5
+  # resampledPixelSpacing: [1, 1, 1]
+  # interpolator: sitkBSpline

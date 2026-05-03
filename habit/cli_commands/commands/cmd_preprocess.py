@@ -74,7 +74,7 @@ def run_preprocess(config_path: str) -> None:
         # 4. Process
         try:
             logger.info("Starting batch processing")
-            processor.process_batch()
+            processor.run()
             
             success_msg = "Image preprocessing completed successfully!"
             logger.info(success_msg)

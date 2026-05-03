@@ -228,7 +228,7 @@ Python API 使用方法
    workflow = configurator.create_ml_workflow()
 
    # Run
-   workflow.run_pipeline()
+   workflow.run()
 
 **详细示例：**
 
@@ -261,7 +261,7 @@ Python API 使用方法
 
    # Run
    logger.info("开始训练模式")
-   workflow.run_pipeline()
+   workflow.run()
    logger.info("模型训练完成！")
 
 YAML 配置详解

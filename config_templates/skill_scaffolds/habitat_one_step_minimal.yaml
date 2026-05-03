@@ -1,6 +1,6 @@
 # One-step habitat analysis — fill in <PLACEHOLDER> values
 # Each tumor independently determines its optimal cluster number.
-# Full reference: config_templates/config_habitat_one_step_example.yaml
+# Full reference: config_templates/config_getting_habitat_annotated.yaml
 
 data_dir: <PATH_TO_PREPROCESSED_IMAGES>     # e.g. ./data/preprocessed_images
 out_dir: <OUTPUT_DIR>                        # e.g. ./results/habitat_one_step
