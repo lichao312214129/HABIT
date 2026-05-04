@@ -3,7 +3,7 @@ Machine learning command implementation.
 
 Handles model training, prediction, and k-fold cross-validation. Train and
 predict share a single :class:`MLConfig` schema and a single workflow class
-(``MachineLearningWorkflow``). The CLI ``--mode`` flag is mirrored into
+(``HoldoutWorkflow``). The CLI ``--mode`` flag is mirrored into
 ``config.run_mode`` for users who don't want to set it in YAML.
 """
 

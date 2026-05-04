@@ -24,6 +24,75 @@ import numpy as np
 import pandas as pd
 
 
+class Resampler:
+    """
+    Adapter that turns the imperative :func:`apply_resampling` function into a
+    small, testable object with a stable interface.
+
+    The class deliberately wraps a single configuration plus its random seed
+    and logger so that runners can inject one ``Resampler`` instance without
+    knowing the specific resampling algorithm.  Two thin methods are exposed:
+
+    * :meth:`resample` - return resampled (X, y); pure transformation.
+    * :meth:`fit_with_resampling` - resample then fit a sklearn estimator.
+
+    This replaces the previous ``BaseWorkflow._train_with_optional_sampling``
+    private method and makes the seam explicit (the runner depends on a
+    ``Resampler``-shaped object, not on the workflow internals).
+    """
+
+    def __init__(
+        self,
+        sampling_cfg: Any,
+        random_state: int,
+        logger: logging.Logger,
+    ) -> None:
+        self.sampling_cfg = sampling_cfg
+        self.random_state = random_state
+        self.logger = logger
+
+    def resample(
+        self,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+    ) -> Tuple[pd.DataFrame, pd.Series]:
+        """Run the configured resampling step on training data only."""
+        return apply_resampling(
+            X_train=X_train,
+            y_train=y_train,
+            sampling_cfg=self.sampling_cfg,
+            random_state=self.random_state,
+            logger=self.logger,
+        )
+
+    def fit_with_resampling(
+        self,
+        estimator: Any,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+    ) -> Any:
+        """
+        Resample the training set (when configured) and fit ``estimator``.
+
+        Parameters
+        ----------
+        estimator:
+            sklearn-compatible estimator/pipeline already constructed.
+        X_train:
+            Training features.
+        y_train:
+            Training labels aligned with ``X_train``.
+
+        Returns
+        -------
+        Any
+            The fitted estimator (the same object is returned for chaining).
+        """
+        X_fit, y_fit = self.resample(X_train, y_train)
+        estimator.fit(X_fit, y_fit)
+        return estimator
+
+
 def apply_resampling(
     X_train: pd.DataFrame,
     y_train: pd.Series,

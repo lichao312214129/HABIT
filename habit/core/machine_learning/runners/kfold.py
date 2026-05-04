@@ -1,9 +1,9 @@
 """
-K-Fold runner used by ``MachineLearningKFoldWorkflow``.
+K-Fold runner used by :class:`KFoldWorkflow`.
 
-The runner extracts fold/model loops from the workflow class while keeping
-the existing runtime behavior unchanged. In particular, callback hooks are
-still triggered in the same places so downstream integrations continue to work.
+The runner owns the fold/model loops and produces a structured
+:class:`KFoldRunResult`.  Reporting (CSV/JSON/plots/ensembles) is delegated
+to the ``reporting`` layer which consumes the same result object.
 """
 
 from __future__ import annotations
@@ -15,138 +15,124 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold, StratifiedKFold
 
+from ..core.results import (
+    AggregatedModelResult,
+    KFoldModelResult,
+    KFoldRunResult,
+)
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
+from .base import BaseRunner
 
 
-class KFoldRunner:
+class KFoldRunner(BaseRunner):
     """
-    Execute K-Fold training/evaluation for an existing workflow instance.
-
-    Parameters
-    ----------
-    workflow:
-        The owner workflow that provides configuration, builders, logger, and
-        callback hooks.
+    Execute K-Fold training/evaluation and return a structured result.
     """
 
-    def __init__(self, workflow: Any) -> None:
-        self.workflow = workflow
-
-    def run(
-        self, X: pd.DataFrame, y: pd.Series
-    ) -> Tuple[Dict[str, Any], Dict[str, List[Any]], List[Dict[str, Any]]]:
+    def run(self, X: pd.DataFrame, y: pd.Series) -> KFoldRunResult:
         """
-        Run the full K-Fold loop and return collected artifacts.
+        Run the full K-Fold loop and collect artefacts.
 
         Parameters
         ----------
         X:
             Feature matrix.
         y:
-            Target vector.
+            Target vector aligned with ``X``.
 
         Returns
         -------
-        Tuple[Dict[str, Any], Dict[str, List[Any]], List[Dict[str, Any]]]
-            - results: fold-level and aggregated prediction payloads.
-            - fold_pipelines: trained estimators grouped by model name.
-            - summary_results: tabular summary rows for report writers.
+        KFoldRunResult
+            Structured K-Fold output (per-fold + aggregated payloads).
         """
-        results: Dict[str, Any] = {"folds": [], "aggregated": {}}
-        fold_pipelines: Dict[str, List[Any]] = defaultdict(list)
-
         splitter = self._build_splitter()
+
+        fold_payloads_per_model: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        fold_estimators_per_model: Dict[str, List[Any]] = defaultdict(list)
 
         for fold_idx, (train_index, val_index) in enumerate(splitter.split(X, y)):
             fold_id = fold_idx + 1
-            self.workflow.logger.info(f"--- Processing Fold {fold_id} ---")
+            self.context.logger.info("--- Processing Fold %s ---", fold_id)
 
             X_train: pd.DataFrame = X.iloc[train_index]
             X_val: pd.DataFrame = X.iloc[val_index]
             y_train: pd.Series = y.iloc[train_index]
             y_val: pd.Series = y.iloc[val_index]
 
-            fold_result: Dict[str, Any] = self._process_fold(
+            self._train_and_evaluate_fold(
                 X_train=X_train,
                 y_train=y_train,
                 X_val=X_val,
                 y_val=y_val,
-                fold_id=fold_id,
-                fold_pipelines=fold_pipelines,
+                fold_payloads_per_model=fold_payloads_per_model,
+                fold_estimators_per_model=fold_estimators_per_model,
             )
-            results["folds"].append(fold_result)
 
-        summary_results = self._aggregate_results(results=results)
-        return results, fold_pipelines, summary_results
+        # Promote the per-model collections to immutable result objects.
+        models: Dict[str, KFoldModelResult] = {}
+        for model_name, fold_payloads in fold_payloads_per_model.items():
+            models[model_name] = KFoldModelResult(
+                model_name=model_name,
+                folds=tuple(fold_payloads),
+                fold_estimators=tuple(fold_estimators_per_model[model_name]),
+            )
+
+        aggregated, summary_rows = self._aggregate_models(models=models)
+
+        return KFoldRunResult.create(
+            plan=self.plan,
+            models=models,
+            aggregated=aggregated,
+            summary_rows=summary_rows,
+        )
+
+    # ------------------------------------------------------------------
+    # Splitter
+    # ------------------------------------------------------------------
 
     def _build_splitter(self) -> Union[KFold, StratifiedKFold]:
-        """
-        Build the splitter from workflow config.
-
-        Returns
-        -------
-        KFold | StratifiedKFold
-            A deterministic splitter using workflow random_state.
-        """
-        stratified: bool = bool(self.workflow.config_obj.stratified)
-        n_splits: int = int(self.workflow.config_obj.n_splits)
+        """Build the splitter from the run plan's config."""
+        cfg = self.context.config
+        stratified: bool = bool(cfg.stratified)
+        n_splits: int = int(cfg.n_splits)
         splitter_cls = StratifiedKFold if stratified else KFold
         return splitter_cls(
             n_splits=n_splits,
             shuffle=True,
-            random_state=self.workflow.random_state,
+            random_state=self.plan.random_state,
         )
 
-    def _process_fold(
+    # ------------------------------------------------------------------
+    # Per-fold training/evaluation
+    # ------------------------------------------------------------------
+
+    def _train_and_evaluate_fold(
         self,
         X_train: pd.DataFrame,
         y_train: pd.Series,
         X_val: pd.DataFrame,
         y_val: pd.Series,
-        fold_id: int,
-        fold_pipelines: Dict[str, List[Any]],
-    ) -> Dict[str, Any]:
-        """
-        Train/evaluate all configured models for one fold.
-
-        Parameters
-        ----------
-        X_train:
-            Training features for the current fold.
-        y_train:
-            Training labels for the current fold.
-        X_val:
-            Validation features for the current fold.
-        y_val:
-            Validation labels for the current fold.
-        fold_id:
-            One-based fold index used in logs and callback payloads.
-        fold_pipelines:
-            Mutable model->estimators mapping updated in place.
-
-        Returns
-        -------
-        Dict[str, Any]
-            Serialized fold payload compatible with existing reports.
-        """
-        fold_data: Dict[str, Any] = {"fold": fold_id, "models": {}}
-        models_config = self.workflow.config_obj.models
+        fold_payloads_per_model: Dict[str, List[Dict[str, Any]]],
+        fold_estimators_per_model: Dict[str, List[Any]],
+    ) -> None:
+        """Train every configured model on one fold and capture predictions."""
+        models_config = self.context.config.models
 
         for model_name, model_params in models_config.items():
             model_params_dict = (
                 model_params.params if hasattr(model_params, "params") else model_params
             )
 
-            pipeline = self.workflow.pipeline_builder.build(
+            pipeline = self.context.pipeline_builder.build(
                 model_name,
                 model_params_dict,
                 feature_names=list(X_train.columns),
             )
-            trained_estimator = self.workflow._train_with_optional_sampling(
+            trained_estimator = self.context.resampler.fit_with_resampling(
                 pipeline, X_train, y_train
             )
-            fold_pipelines[model_name].append(trained_estimator)
+            fold_estimators_per_model[model_name].append(trained_estimator)
 
             container = PredictionContainer(
                 y_true=y_val.values,
@@ -154,49 +140,43 @@ class KFoldRunner:
                 y_pred=trained_estimator.predict(X_val),
             )
             metrics_dict = calculate_metrics(container)
-            fold_data["models"][model_name] = container.to_dict()
-            fold_data["models"][model_name]["metrics"] = metrics_dict
+            payload = container.to_dict()
+            payload["metrics"] = metrics_dict
+            fold_payloads_per_model[model_name].append(payload)
 
-        return fold_data
+    # ------------------------------------------------------------------
+    # Aggregation (pure functions)
+    # ------------------------------------------------------------------
 
-    def _aggregate_results(self, results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    @staticmethod
+    def _aggregate_models(
+        models: Dict[str, KFoldModelResult],
+    ) -> Tuple[Dict[str, AggregatedModelResult], List[Dict[str, Any]]]:
         """
-        Aggregate fold-level outputs into model-level metrics.
-
-        Parameters
-        ----------
-        results:
-            Mutable results dictionary with ``folds`` and ``aggregated`` keys.
+        Aggregate fold-level outputs into model-level results and summary rows.
 
         Returns
         -------
-        List[Dict[str, Any]]
-            Summary rows, one row per model, used by report writers.
+        Tuple[Dict[str, AggregatedModelResult], List[Dict[str, Any]]]
+            The aggregated result map and the summary rows used by the writer.
         """
-        folds: List[Dict[str, Any]] = results["folds"]
-        if not folds:
-            return []
-
-        model_names = folds[0]["models"].keys()
+        aggregated: Dict[str, AggregatedModelResult] = {}
         summary_rows: List[Dict[str, Any]] = []
 
-        for model_name in model_names:
+        for model_name, model in models.items():
+            if not model.folds:
+                continue
+
+            fold_aucs: List[Optional[float]] = []
             y_true: List[Any] = []
             y_prob: List[Any] = []
             y_pred: List[Any] = []
-            fold_aucs: List[Optional[float]] = []
 
-            for fold_data in folds:
-                if model_name not in fold_data["models"]:
-                    continue
-                model_data = fold_data["models"][model_name]
-                y_true.extend(model_data["y_true"])
-                y_prob.extend(model_data["y_prob"])
-                y_pred.extend(model_data["y_pred"])
-                fold_aucs.append(model_data["metrics"].get("auc"))
-
-            if not y_true:
-                continue
+            for fold_payload in model.folds:
+                y_true.extend(fold_payload["y_true"])
+                y_prob.extend(fold_payload["y_prob"])
+                y_pred.extend(fold_payload["y_pred"])
+                fold_aucs.append(fold_payload.get("metrics", {}).get("auc"))
 
             aggregated_container = PredictionContainer(
                 np.array(y_true), np.array(y_prob), np.array(y_pred)
@@ -204,20 +184,27 @@ class KFoldRunner:
             overall_metrics = calculate_metrics(aggregated_container)
 
             valid_aucs = [value for value in fold_aucs if value is not None]
-            aggregated_payload: Dict[str, Any] = {"metrics": overall_metrics}
-            summary_row: Dict[str, Any] = {"Model": model_name}
+            auc_mean: Optional[float] = (
+                float(np.mean(valid_aucs)) if valid_aucs else None
+            )
+            auc_std: Optional[float] = (
+                float(np.std(valid_aucs)) if valid_aucs else None
+            )
 
-            if valid_aucs:
-                auc_mean = float(np.mean(valid_aucs))
-                auc_std = float(np.std(valid_aucs))
-                aggregated_payload["auc_mean"] = auc_mean
-                aggregated_payload["auc_std"] = auc_std
-                summary_row["AUC_Mean"] = auc_mean
-                summary_row["AUC_Std"] = auc_std
+            aggregated[model_name] = AggregatedModelResult(
+                model_name=model_name,
+                raw=aggregated_container.to_dict(),
+                overall_metrics=overall_metrics,
+                auc_mean=auc_mean,
+                auc_std=auc_std,
+            )
 
-            results["aggregated"][model_name] = aggregated_container.to_dict()
-            results["aggregated"][model_name].update(aggregated_payload)
-            summary_row.update({f"Overall_{key}": value for key, value in overall_metrics.items()})
-            summary_rows.append(summary_row)
+            row: Dict[str, Any] = {"Model": model_name}
+            if auc_mean is not None:
+                row["AUC_Mean"] = auc_mean
+            if auc_std is not None:
+                row["AUC_Std"] = auc_std
+            row.update({f"Overall_{k}": v for k, v in overall_metrics.items()})
+            summary_rows.append(row)
 
-        return summary_rows
+        return aggregated, summary_rows

@@ -10,7 +10,7 @@ package root.
 
 from .habitat_analysis import HabitatAnalysis, HabitatFeatureExtractor
 from .machine_learning.workflows.holdout_workflow import (
-    MachineLearningWorkflow as Modeling,
+    HoldoutWorkflow as Modeling,
 )
 
 __all__ = [

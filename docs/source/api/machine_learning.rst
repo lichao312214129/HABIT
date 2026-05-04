@@ -63,8 +63,9 @@ machine_learning 模块
    :show-inheritance:
 
 .. note::
-   ``MachineLearningKFoldWorkflow`` 仍然是对外入口，但其内部已委托给
-   :py:class:`habit.core.machine_learning.runners.kfold.KFoldRunner` 执行折内训练与聚合。
+   ``KFoldWorkflow`` 是对外入口（旧名 ``MachineLearningKFoldWorkflow`` 已成为 deprecation 子类，仍可使用），其内部已委托给
+   :py:class:`habit.core.machine_learning.runners.kfold.KFoldRunner` 执行折内训练与聚合，
+   持久化与绘图统一交由 ``ReportWriter`` / ``ModelStore`` / ``PlotComposer`` 处理。
 
 输出组件说明
 ------------

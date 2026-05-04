@@ -2,8 +2,8 @@
 MLConfigurator: factory for machine-learning-domain services.
 
 Owns the assembly of:
-    * :class:`MachineLearningWorkflow` (holdout train + predict),
-    * :class:`MachineLearningKFoldWorkflow` (k-fold CV),
+    * :class:`HoldoutWorkflow` (holdout train + predict),
+    * :class:`KFoldWorkflow` (k-fold CV),
     * :class:`ModelComparison` (multi-file evaluator + plotter + reporter).
 
 Heavy imports (sklearn / matplotlib / shap) are deferred to the factory
@@ -116,23 +116,23 @@ class MLConfigurator(BaseConfigurator):
 
     def create_ml_workflow(self, config: Optional[Any] = None) -> Any:
         """
-        Return a :class:`MachineLearningWorkflow` instance.
+        Return a :class:`HoldoutWorkflow` instance.
 
-        The workflow's ``run`` method will dispatch to ``fit()`` /
-        ``predict()`` based on ``config.run_mode``.
+        The workflow's ``run`` method dispatches to ``fit()`` / ``predict()``
+        based on ``config.run_mode``.
         """
         from habit.core.machine_learning.workflows.holdout_workflow import (
-            MachineLearningWorkflow,
+            HoldoutWorkflow,
         )
 
         cfg = self._coerce_ml_config(config, 'ML workflow')
-        return MachineLearningWorkflow(cfg)
+        return HoldoutWorkflow(cfg)
 
     def create_kfold_workflow(self, config: Optional[Any] = None) -> Any:
-        """Return a :class:`MachineLearningKFoldWorkflow` instance."""
+        """Return a :class:`KFoldWorkflow` instance."""
         from habit.core.machine_learning.workflows.kfold_workflow import (
-            MachineLearningKFoldWorkflow,
+            KFoldWorkflow,
         )
 
         cfg = self._coerce_ml_config(config, 'K-Fold workflow')
-        return MachineLearningKFoldWorkflow(cfg)
+        return KFoldWorkflow(cfg)

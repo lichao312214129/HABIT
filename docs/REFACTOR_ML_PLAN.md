@@ -265,3 +265,63 @@
 - callback 模块已加入弃用提示，且未删除旧文件
 - 稳定内容已合并进正式文档（API + 架构）
 - 临时文档保留为执行记录，不作为长期维护文档
+
+---
+
+## 12. Phase 2：架构深化与命名整理（执行记录）
+
+> 本节是 Phase 1 完成后做的第二轮深化，目标是让数据契约对称、依赖图单向、命名贴合职责。
+
+### 12.1 数据契约（`core/`）
+
+- 新增 `core/dataset.py:DatasetSnapshot`：把训练/测试矩阵从 `RunResult` 拆出。
+- 新增 `core/protocols.py:WorkflowResult`：作为 reporting 层接受的最小协议。
+- `core/plan.py:WorkflowPlan.__post_init__` 对 `MLConfig` 做 `model_copy(deep=True)`，让 plan 真正成为不可变快照。
+- `core/results.py` 重写：
+  - `RunResult` 用 `dataset: DatasetSnapshot` 代替 `x_train/x_test/y_*/label_col`，旧字段保留为 `@property` 兼容；`ModelResult` 增加 `train_subject_ids` / `test_subject_ids`。
+  - `KFoldRunResult.results: Dict[str, Any]` 不再是不透明字段，被替换为 `models: Dict[str, KFoldModelResult]` + `aggregated: Dict[str, AggregatedModelResult]`，`results` 改为 `@property` 提供旧 dict 视图。
+  - 新增 `InferenceResult` 让 predict 路径也吃同一套契约。
+
+### 12.2 执行层（`runners/`）
+
+- 新增 `runners/context.py:RunnerContext`：封装 `data_manager / pipeline_builder / resampler / logger / config`。
+- `BaseRunner` 不再持有 `workflow: Any`，改为持有 `context: RunnerContext` + `plan: WorkflowPlan`，依赖图变为单向：`workflow -> context -> runner`。
+- `HoldoutRunner` 和 `KFoldRunner` 全部走 context；`KFoldRunner` 的 `_aggregate_results` 拆成纯函数 `_aggregate_models`，不再边写边返回。
+- 新增 `runners/inference.py:InferenceRunner`，把 `predict()` 中的核心逻辑搬过来。
+
+### 12.3 报告层（`reporting/`）
+
+- `ModelStore` 同时支持 holdout 与 K-Fold（`save` / `save_kfold_ensembles`）。
+- `ReportWriter.write` 用 `isinstance` 路由 holdout / K-Fold / inference 三种结果类型；K-Fold 不再在 workflow 内联 `save_json/save_csv`。
+- `PlotComposer.render` 同样按结果类型分派；inference 不出图。
+
+### 12.4 编排层（`workflows/`）
+
+- `BaseWorkflow` 在构造时直接组装 `Resampler` 与 `RunnerContext`；`_train_with_optional_sampling` 保留为兼容包装。
+- `holdout_workflow.py`：主类改名为 `HoldoutWorkflow`；`predict()` 走 `InferenceRunner` + `ReportWriter`，不再旁路。
+- `kfold_workflow.py`：主类改名为 `KFoldWorkflow`，使用三件套（`ModelStore.save_kfold_ensembles` / `ReportWriter.write` / `PlotComposer.render`），不再内联 IO。
+
+### 12.5 命名整理
+
+| 旧名 | 新名 | 备注 |
+| --- | --- | --- |
+| `MachineLearningWorkflow` | `HoldoutWorkflow` | 旧名保留为 deprecation 子类 |
+| `MachineLearningKFoldWorkflow` | `KFoldWorkflow` | 旧名保留为 deprecation 子类 |
+| `BaseRunner.workflow` | `BaseRunner.context` | 反向耦合消除 |
+| `BaseWorkflow._train_with_optional_sampling` | `Resampler.fit_with_resampling` | 抽出为 adapter；旧方法保留为兼容包装 |
+| `KFoldRunResult.results: Dict[str,Any]` | `KFoldRunResult.models / aggregated`（结构化），`results` 仍可用作 `@property` | — |
+| `RunResult.x_train/x_test/y_*/label_col` | `RunResult.dataset` | 旧字段保留为 `@property` |
+| `KFoldRunner._aggregate_results`（双重副作用） | `_aggregate_models`（纯函数） | — |
+
+### 12.6 测试与公共 API
+
+- `tests/test_public_run_entrypoints.py`：同时断言新名（`HoldoutWorkflow` / `KFoldWorkflow`）与旧名（deprecation 子类）都存在并实现 `run`。
+- `tests/test_ml_kfold_result_contract.py`：新增对 `KFoldModelResult` / `AggregatedModelResult` 的存在性断言；新增对 K-Fold workflow 调用 reporting 三件套的断言。
+- `MLConfigurator.create_ml_workflow / create_kfold_workflow` 改为构造新名类。
+- `habit.core.machine_learning.__init__` 同时导出新名与旧名。
+
+### 12.7 本轮不做（明确边界）
+
+- `comparison_workflow.py:ModelComparison`（870 行 facade）：与本轮 plan/runner/result 重构正交，下一轮单独处理。
+- `feature_selectors/`、`models/` 算法库、`evaluation/metrics.py`、`visualization/plot_manager.py`：均不在本轮深化范围内。
+- `to_legacy_results()` / `to_legacy_dict()`：保留为过渡 adapter，等 plotting 与 report 完全升级后再统一移除。

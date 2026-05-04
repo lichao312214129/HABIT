@@ -41,7 +41,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install sphinx==7.4.7 sphinx-rtd-theme==2.0.0
+          pip install sphinx==7.4.7 sphinx-rtd-theme==2.0.0 sphinx.ext.graphviz
 
       - name: Build Sphinx documentation
         run: |

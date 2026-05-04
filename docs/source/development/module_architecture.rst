@@ -432,9 +432,9 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
    * - ``workflows/base.py``
      - ``BaseWorkflow``，公共骨架：配置、数据管理、pipeline builder。
    * - ``workflows/holdout_workflow.py``
-     - ``MachineLearningWorkflow``，训练和预测的主 workflow。
+     - ``HoldoutWorkflow``，训练和预测的主 workflow（旧名 ``MachineLearningWorkflow`` 仍可用，已成为 deprecation 子类）。
    * - ``workflows/kfold_workflow.py``
-     - ``MachineLearningKFoldWorkflow``，K 折交叉验证。
+     - ``KFoldWorkflow``，K 折交叉验证（旧名 ``MachineLearningKFoldWorkflow`` 仍可用，已成为 deprecation 子类）。
    * - ``workflows/comparison_workflow.py``
      - ``ModelComparison``，多模型结果评估、绘图、报告。
    * - ``data_manager.py``
@@ -455,7 +455,7 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
 
    MLConfig
      -> MLConfigurator.create_ml_workflow()
-     -> MachineLearningWorkflow.run()
+     -> HoldoutWorkflow.run()
      -> DataManager
      -> PipelineBuilder
      -> FeatureSelectTransformer
@@ -481,7 +481,7 @@ selector 注册表会按 selector 函数签名注入 ``X``、``y``、
 预测和比较
 ^^^^^^^^^^
 
-* 预测模式仍使用 ``MachineLearningWorkflow``，由 ``MLConfig.run_mode`` 分发。
+* 预测模式仍使用 ``HoldoutWorkflow``（旧名 ``MachineLearningWorkflow`` 仍可用），由 ``MLConfig.run_mode`` 分发。
   预测时加载训练好的 ``*_final_pipeline.pkl``，输出预测结果和可选评估指标。
 * ``ModelComparison`` 不训练模型，只读取多个模型的预测结果，组合
   ``MultifileEvaluator``、``Plotter``、``ThresholdManager``、``ReportExporter``
@@ -507,7 +507,7 @@ selector 注册表会按 selector 函数签名注入 ``X``、``y``、
 维护注意事项
 ^^^^^^^^^^^^
 
-* V1 中训练和预测共用 ``MLConfig`` 与 ``MachineLearningWorkflow``；
+* V1 中训练和预测共用 ``MLConfig`` 与 ``HoldoutWorkflow``；
   不要恢复独立 ``PredictionWorkflow``。
 * 绘图文字必须使用英文。
 * workflow 之外的评估、绘图、报告逻辑尽量放入 ``evaluation``、
@@ -641,7 +641,7 @@ preprocessing、habitat、ML 和 CLI 辅助工具共同使用。
 
    * 图像预处理：从 ``BatchProcessor`` 和 ``PreprocessorFactory`` 开始。
    * habitat 分割：从 ``HabitatAnalysis`` 和 ``_PIPELINE_RECIPES`` 开始。
-   * ML 建模：从 ``MachineLearningWorkflow``、``BaseWorkflow``、
+   * ML 建模：从 ``HoldoutWorkflow``、``BaseWorkflow``、
      ``PipelineBuilder`` 开始。
 
 3. 再深入到具体 step、model、selector、extractor。
