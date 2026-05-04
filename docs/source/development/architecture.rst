@@ -752,9 +752,13 @@ habitat 表也好、传统 radiomics 表也好，都是同一份 CSV 契约。
      - workflow 公共骨架：配置校验 + DataManager +
        PlotManager + PipelineBuilder + CallbackList。
    * - ``workflows/holdout_workflow.py``
-     - ``MachineLearningWorkflow``：训练 + 预测统一执行体。
+     - ``MachineLearningWorkflow``：训练 + 预测统一执行体（训练路径内部委托 runner）。
+   * - ``runners/holdout.py``
+     - ``HoldoutRunner``：封装 holdout 训练、评估与汇总逻辑。
    * - ``workflows/kfold_workflow.py``
-     - ``MachineLearningKFoldWorkflow``。
+     - ``MachineLearningKFoldWorkflow``（对外入口，内部委托 runner）。
+   * - ``runners/kfold.py``
+     - ``KFoldRunner``：封装 K-Fold 折循环、模型训练与聚合逻辑。
    * - ``workflows/comparison_workflow.py``
      - ``ModelComparison``：多模型评估 + 可视化 + 报告。
    * - ``pipeline_utils.PipelineBuilder``
@@ -763,8 +767,13 @@ habitat 表也好、传统 radiomics 表也好，都是同一份 CSV 契约。
      - 用装饰器 ``@register`` 注册具体模型。
    * - ``feature_selectors/selector_registry``
      - selector 元数据注册与执行。
-   * - ``evaluation/``, ``visualization/``, ``reporting/``, ``callbacks/``
-     - 评估、绘图、报告、回调。
+   * - ``evaluation/`` / ``visualization/`` / ``reporting/``
+     - 评估、绘图和报告（回调模块已移除）。
+
+.. note::
+   2026-05 起，``MachineLearningKFoldWorkflow`` 采用“workflow 薄壳 + runner 执行器”模式：
+   workflow 负责入口与生命周期，``KFoldRunner`` 负责折内计算细节。所有输出步骤
+   （保存模型、写报表、画图）都改为显式调用 reporting 组件，不再依赖 callbacks。
 
 **数据流（训练 / 预测 / 对比）**：
 

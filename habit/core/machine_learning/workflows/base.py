@@ -1,16 +1,12 @@
 import os
 import pandas as pd
-from typing import Dict, Any, List, Optional, Tuple, Union
+from typing import Dict, Any, Tuple, Union
 from abc import ABC, abstractmethod
 
 from ..data_manager import DataManager
 from ..visualization.plot_manager import PlotManager
 from ..pipeline_utils import PipelineBuilder
 from ..config_schemas import MLConfig
-from ..callbacks.base import CallbackList
-from ..callbacks.model_checkpoint import ModelCheckpoint
-from ..callbacks.visualization_callback import VisualizationCallback
-from ..callbacks.report_callback import ReportCallback
 from ..resampling import apply_resampling
 from habit.utils.log_utils import get_module_logger, setup_logger, LoggerManager
 from habit.utils.io_utils import save_json, save_csv
@@ -26,7 +22,6 @@ class BaseWorkflow(ABC):
         self,
         config: Union[MLConfig, Dict[str, Any]],
         module_name: str,
-        callbacks: Optional[List] = None,
     ) -> None:
         """
         Initialize BaseWorkflow.
@@ -34,11 +29,6 @@ class BaseWorkflow(ABC):
         Args:
             config: MLConfig Pydantic object or dict (dict will be validated and converted).
             module_name: Name of the workflow module.
-            callbacks: Optional list of :class:`~habit.core.machine_learning.callbacks.base.Callback`
-                instances.  When *None* (the default) the standard set
-                ``[ModelCheckpoint, ReportCallback, VisualizationCallback]`` is used,
-                preserving full backward compatibility.  Pass an empty list to
-                run the workflow without any side-effect callbacks (useful in tests).
         """
         self.module_name = module_name
         # Validate configuration early using unified validator
@@ -84,13 +74,6 @@ class BaseWorkflow(ABC):
         # Pass Pydantic model to PipelineBuilder
         self.pipeline_builder = PipelineBuilder(self.config_obj, self.output_dir)
         self.random_state = getattr(self.config_obj, 'random_state', 42)
-        
-        # Callbacks: use the caller-supplied list when provided; fall back to
-        # the standard production set so that existing code (which never
-        # passes `callbacks`) is unaffected.
-        if callbacks is None:
-            callbacks = [ModelCheckpoint(), ReportCallback(), VisualizationCallback()]
-        self.callbacks = CallbackList(callbacks, workflow=self)
         
         # Results storage
         self.results = {}

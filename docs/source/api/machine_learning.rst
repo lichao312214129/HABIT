@@ -13,6 +13,19 @@ machine_learning 模块
 ``PipelineBuilder``、``ModelFactory`` 和 ``run_selector`` 读起。整体代码架构
 和模块边界见 :doc:`../development/module_architecture`。
 
+核心数据对象 (Core Contracts)
+-----------------------------
+
+.. automodule:: habit.core.machine_learning.core.plan
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.machine_learning.core.results
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 工作流 (Workflows)
 -------------------
 
@@ -29,6 +42,47 @@ machine_learning 模块
    :show-inheritance:
 
 .. automodule:: habit.core.machine_learning.workflows.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+执行器层 (Runners)
+------------------
+
+从 2026-05 起，K-Fold 计算主循环已抽离到 ``runners`` 子包，
+用于降低 workflow 类复杂度，同时保持外部调用方式不变。
+
+.. automodule:: habit.core.machine_learning.runners.kfold
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.machine_learning.runners.holdout
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. note::
+   ``MachineLearningKFoldWorkflow`` 仍然是对外入口，但其内部已委托给
+   :py:class:`habit.core.machine_learning.runners.kfold.KFoldRunner` 执行折内训练与聚合。
+
+输出组件说明
+------------
+
+``habit.core.machine_learning.callbacks`` 已从代码中移除。
+模型保存、报表写入和可视化统一使用 ``reporting`` 子包中的显式组件。
+
+.. automodule:: habit.core.machine_learning.reporting.model_store
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.machine_learning.reporting.report_writer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: habit.core.machine_learning.reporting.plot_composer
    :members:
    :undoc-members:
    :show-inheritance:

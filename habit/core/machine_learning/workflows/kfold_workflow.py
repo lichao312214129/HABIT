@@ -1,101 +1,64 @@
 """
-Advanced K-Fold Cross-Validation Workflow.
-Inherits from BaseWorkflow for consistent infrastructure.
+Advanced K-Fold cross-validation workflow.
+
+This workflow remains the public entry point while delegating fold/model loops
+to ``KFoldRunner`` so the class is easier to maintain.
 """
 
 import os
 import joblib
-import numpy as np
-import pandas as pd
-from typing import Dict, Any, List
-from collections import defaultdict
+from typing import Any, Dict, List
 
-from sklearn.model_selection import StratifiedKFold, KFold
+import pandas as pd
 from .base import BaseWorkflow
-from ..evaluation.metrics import calculate_metrics
-from ..evaluation.prediction_container import PredictionContainer
+from ..runners.kfold import KFoldRunner
 from ..models.ensemble import HabitEnsembleModel
 from ..config_schemas import MLConfig
+from habit.utils.io_utils import save_csv, save_json
+
 
 class MachineLearningKFoldWorkflow(BaseWorkflow):
+    """
+    Backward-compatible K-Fold workflow facade.
+
+    The public API and output structure stay unchanged. Internal fold execution
+    is delegated to :class:`~habit.core.machine_learning.runners.kfold.KFoldRunner`.
+    """
+
     def __init__(self, config: MLConfig):
         super().__init__(config, module_name="ml_kfold")
         self.results = {'folds': [], 'aggregated': {}}
-        # Store pipelines for each model: {model_name: [pipeline_fold1, pipeline_fold2, ...]}
-        self.fold_pipelines = defaultdict(list)
+        self.fold_pipelines: Dict[str, List[Any]] = {}
+        self.runner = KFoldRunner(workflow=self)
 
     def run(self) -> None:
         self.logger.info("Starting K-Fold Pipeline...")
-        self.callbacks.on_pipeline_start()
-        
-        # 1. Load Data
-        X, y = self._load_and_prepare_data()
-        
-        # 2. Setup Split
-        # Access K-Fold config from Pydantic config object
-        stratified = self.config_obj.stratified
-        n_splits = self.config_obj.n_splits
-        
-        kf = (StratifiedKFold if stratified else KFold)(
-            n_splits=n_splits, 
-            shuffle=True, 
-            random_state=self.random_state
-        )
-        
-        # 3. Iterate Folds
-        for fold_idx, (t_idx, v_idx) in enumerate(kf.split(X, y)):
-            fold_id = fold_idx + 1
-            self.logger.info(f"--- Processing Fold {fold_id} ---")
-            self.callbacks.on_fold_start(fold_id)
-            
-            X_train, X_val = X.iloc[t_idx], X.iloc[v_idx]
-            y_train, y_val = y.iloc[t_idx], y.iloc[v_idx]
-            
-            fold_res = self._process_fold(X_train, y_train, X_val, y_val, fold_id)
-            self.results['folds'].append(fold_res)
-            self.callbacks.on_fold_end(fold_id)
-            
-        # 4. Aggregate & Finalize
-        summary_results = self._aggregate_results()
-        
-        # 5. Save Ensemble Models
-        self._save_ensemble_models()
-        
-        # 6. End Pipeline
-        self.callbacks.on_pipeline_end(logs={'summary_results': summary_results})
 
-    def _process_fold(self, X_train, y_train, X_val, y_val, fold_id):
-        fold_data = {'fold': fold_id, 'models': {}}
-        
-        models_config = self.config_obj.models
-        
-        for m_name, m_params in models_config.items():
-            # Extract params
-            model_params_dict = m_params.params if hasattr(m_params, 'params') else m_params
-                
-            self.callbacks.on_model_start(m_name, logs={'fold_id': fold_id})
-            
-            pipeline = self.pipeline_builder.build(m_name, model_params_dict, feature_names=list(X_train.columns))
-            trained_estimator = self._train_with_optional_sampling(
-                pipeline, X_train, y_train
+        # 1. Load data.
+        X, y = self._load_and_prepare_data()
+
+        # 2. Delegate fold execution to runner and keep public attributes stable.
+        self.results, self.fold_pipelines, summary_results = self.runner.run(X=X, y=y)
+
+        # 3. Save ensemble models.
+        self._save_ensemble_models()
+
+        # 4. Persist reports explicitly.
+        save_json(
+            self.results,
+            os.path.join(self.output_dir, f"{self.module_name}_results.json"),
+        )
+        save_csv(
+            pd.DataFrame(summary_results),
+            os.path.join(self.output_dir, f"{self.module_name}_summary.csv"),
+        )
+
+        # 5. Render plots explicitly when visualization is enabled.
+        if bool(getattr(self.config_obj, "is_visualize", True)):
+            self.plot_manager.run_workflow_plots(
+                self.results.get("aggregated", {}),
+                prefix="kfold_",
             )
-            
-            # Store pipeline for ensemble
-            self.fold_pipelines[m_name].append(trained_estimator)
-            
-            container = PredictionContainer(
-                y_true=y_val.values, 
-                y_prob=trained_estimator.predict_proba(X_val),
-                y_pred=trained_estimator.predict(X_val)
-            )
-            metrics_dict = calculate_metrics(container)
-            
-            fold_data['models'][m_name] = container.to_dict()
-            fold_data['models'][m_name]['metrics'] = metrics_dict
-            
-            self.callbacks.on_model_end(m_name, logs={'pipeline': trained_estimator, 'fold_id': fold_id})
-            
-        return fold_data
 
     def _save_ensemble_models(self):
         """Creates and saves HabitEnsembleModel for each model type."""
@@ -116,64 +79,3 @@ class MachineLearningKFoldWorkflow(BaseWorkflow):
                 self.logger.info(f"Saved ensemble model for {m_name} to {save_path}")
             except Exception as e:
                 self.logger.error(f"Failed to save ensemble model for {m_name}: {e}")
-
-    def _aggregate_results(self) -> List[Dict[str, Any]]:
-        """
-        Aggregate per-fold results into overall metrics.
-
-        AUC mean/std are computed only when every fold actually produced an
-        'auc' entry in its metrics dict.  Missing values (e.g. multiclass or
-        regression scenarios where AUC is not calculated) are silently skipped
-        so that the workflow does not crash.
-        """
-        if not self.results['folds']:
-            return []
-
-        model_names = self.results['folds'][0]['models'].keys()
-        summary = []
-
-        for m_name in model_names:
-            y_true: List = []
-            y_prob: List = []
-            y_pred: List = []
-            # Collect per-fold AUC values; None when the metric is absent.
-            fold_aucs: List = []
-
-            for f in self.results['folds']:
-                if m_name in f['models']:
-                    m_data = f['models'][m_name]
-                    y_true.extend(m_data['y_true'])
-                    y_prob.extend(m_data['y_prob'])
-                    y_pred.extend(m_data['y_pred'])
-                    fold_aucs.append(m_data['metrics'].get('auc'))
-
-            if not y_true:
-                continue
-
-            # Use container for aggregated metrics
-            agg_container = PredictionContainer(
-                np.array(y_true), np.array(y_prob), np.array(y_pred)
-            )
-            overall_metrics = calculate_metrics(agg_container)
-
-            # Filter out folds where AUC was not available.
-            valid_aucs = [v for v in fold_aucs if v is not None]
-
-            agg_extra: Dict[str, Any] = {'metrics': overall_metrics}
-            row: Dict[str, Any] = {'Model': m_name}
-
-            if valid_aucs:
-                auc_mean = float(np.mean(valid_aucs))
-                auc_std = float(np.std(valid_aucs))
-                agg_extra['auc_mean'] = auc_mean
-                agg_extra['auc_std'] = auc_std
-                row['AUC_Mean'] = auc_mean
-                row['AUC_Std'] = auc_std
-
-            self.results['aggregated'][m_name] = agg_container.to_dict()
-            self.results['aggregated'][m_name].update(agg_extra)
-
-            row.update({f"Overall_{k}": v for k, v in overall_metrics.items()})
-            summary.append(row)
-
-        return summary

@@ -8,16 +8,21 @@ old ``PredictionWorkflow`` is gone.
 """
 
 import os
-from typing import Any, Optional
+from typing import Optional
 
 import joblib
-import numpy as np
 import pandas as pd
 
 from .base import BaseWorkflow
 from ..config_schemas import MLConfig
+from ..core.plan import WorkflowPlan
+from ..core.results import RunResult
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
+from ..reporting.model_store import ModelStore
+from ..reporting.plot_composer import PlotComposer
+from ..reporting.report_writer import ReportWriter
+from ..runners.holdout import HoldoutRunner
 
 
 class MachineLearningWorkflow(BaseWorkflow):
@@ -37,6 +42,13 @@ class MachineLearningWorkflow(BaseWorkflow):
         super().__init__(config, module_name="ml_standard")
         self.X_train: Optional[pd.DataFrame] = None
         self.X_test: Optional[pd.DataFrame] = None
+        self._plan = WorkflowPlan(
+            config=self.config_obj,
+            output_dir=self.output_dir,
+            random_state=self.random_state,
+        )
+        self._runner = HoldoutRunner(workflow=self, plan=self._plan)
+        self._run_result: Optional[RunResult] = None
 
     # ---------------------------------------------------------------------
     # Dispatcher
@@ -60,67 +72,39 @@ class MachineLearningWorkflow(BaseWorkflow):
     # ---------------------------------------------------------------------
 
     def fit(self) -> None:
-        """Train every configured model on the train split and persist outputs."""
+        """
+        Train every configured model on the train split and persist outputs.
+
+        The training path uses explicit reporting components instead of callback-
+        driven side effects, while preserving the historical output files.
+        """
         self.logger.info("Starting Standard ML Pipeline (mode=train)...")
-        self.callbacks.on_pipeline_start()
+        self.data_manager.load_data()
+        self._run_result = self._runner.run()
 
-        # 1. Load Data.
-        X, y = self._load_and_prepare_data()
+        # Keep public attributes available for compatibility.
+        self.X_train = self._run_result.x_train
+        self.X_test = self._run_result.x_test
+        self.results = self._run_result.to_legacy_results()
 
-        # 2. Split Data.
-        self.X_train, self.X_test, y_train, y_test = self.data_manager.split_data()
+        # Persist outputs in explicit order: models -> reports -> plots.
+        model_store = ModelStore(
+            output_dir=self.output_dir,
+            is_save_model=bool(getattr(self.config_obj, "is_save_model", True)),
+        )
+        report_writer = ReportWriter(
+            output_dir=self.output_dir,
+            module_name=self.module_name,
+        )
+        plot_composer = PlotComposer(
+            plot_manager=self.plot_manager,
+            is_visualize=bool(getattr(self.config_obj, "is_visualize", True)),
+        )
 
-        models_config = self.config_obj.models or {}
-        summary_results = []
+        model_store.save(self._run_result)
+        report_writer.write(self._run_result)
+        plot_composer.render(self._run_result)
 
-        # 3. Process Models.
-        for m_name, m_params in models_config.items():
-            model_params_dict = m_params.params if hasattr(m_params, 'params') else m_params
-
-            self.logger.info(f"Training Model: {m_name}")
-            self.callbacks.on_model_start(m_name)
-
-            pipeline = self.pipeline_builder.build(
-                m_name,
-                model_params_dict,
-                feature_names=list(self.X_train.columns),
-            )
-            trained_estimator = self._train_with_optional_sampling(
-                pipeline, self.X_train, y_train
-            )
-
-            train_container = PredictionContainer(
-                y_true=y_train.values,
-                y_prob=trained_estimator.predict_proba(self.X_train),
-                y_pred=trained_estimator.predict(self.X_train),
-            )
-            test_container = PredictionContainer(
-                y_true=y_test.values,
-                y_prob=trained_estimator.predict_proba(self.X_test),
-                y_pred=trained_estimator.predict(self.X_test),
-            )
-
-            train_metrics = calculate_metrics(train_container)
-            test_metrics = calculate_metrics(test_container)
-
-            self.results[m_name] = {
-                'train': train_container.to_dict(),
-                'test': test_container.to_dict(),
-                'pipeline': trained_estimator,
-                'features': list(self.X_train.columns),
-            }
-            self.results[m_name]['train']['metrics'] = train_metrics
-            self.results[m_name]['test']['metrics'] = test_metrics
-
-            self.callbacks.on_model_end(m_name, logs={'pipeline': trained_estimator})
-
-            row = {'Model': m_name}
-            row.update({f'Train_{k}': v for k, v in train_metrics.items()})
-            row.update({f'Test_{k}': v for k, v in test_metrics.items()})
-            summary_results.append(row)
-
-        # 4. End Pipeline (callbacks handle final reports / plotting).
-        self.callbacks.on_pipeline_end(logs={'summary_results': summary_results})
         self.logger.info(
             f"Standard ML workflow completed (train). Results saved to {self.output_dir}"
         )
@@ -144,7 +128,6 @@ class MachineLearningWorkflow(BaseWorkflow):
             - ``<output>/evaluation_metrics.csv`` (only if ``evaluate=True``).
         """
         self.logger.info("Starting Standard ML Pipeline (mode=predict)...")
-        self.callbacks.on_pipeline_start(logs={"mode": "predict"})
 
         pipeline_path = self.config_obj.pipeline_path
         if not pipeline_path or not os.path.exists(pipeline_path):
@@ -233,21 +216,6 @@ class MachineLearningWorkflow(BaseWorkflow):
             metrics_path = os.path.join(self.output_dir, 'evaluation_metrics.csv')
             pd.DataFrame([metrics_results]).to_csv(metrics_path, index=False)
             self.logger.info(f"Saved evaluation metrics to {metrics_path}")
-
-        # Keep callback lifecycle aligned with train mode; pass lightweight
-        # summary so reporting callbacks can remain mode-agnostic.
-        summary_results = []
-        if metrics_results:
-            row = {"Model": "inference_pipeline"}
-            row.update({f"Predict_{key}": value for key, value in metrics_results.items()})
-            summary_results.append(row)
-
-        self.callbacks.on_pipeline_end(
-            logs={
-                "mode": "predict",
-                "summary_results": summary_results,
-            }
-        )
 
         self.logger.info(
             f"Standard ML workflow completed (predict). Output dir: {self.output_dir}"

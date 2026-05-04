@@ -430,7 +430,7 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
    * - ``config_schemas.py``
      - ``MLConfig``、模型配置、特征选择配置、比较配置等 schema。
    * - ``workflows/base.py``
-     - ``BaseWorkflow``，公共骨架：配置、数据管理、pipeline builder、callbacks。
+     - ``BaseWorkflow``，公共骨架：配置、数据管理、pipeline builder。
    * - ``workflows/holdout_workflow.py``
      - ``MachineLearningWorkflow``，训练和预测的主 workflow。
    * - ``workflows/kfold_workflow.py``
@@ -445,8 +445,8 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
      - ``ModelFactory`` 和具体模型实现。
    * - ``feature_selectors/``
      - selector 注册表、``run_selector``、ICC 等特征选择实现。
-   * - ``evaluation/`` / ``visualization/`` / ``reporting/`` / ``callbacks/``
-     - 评估、绘图、报告和训练过程回调。
+   * - ``evaluation/`` / ``visualization/`` / ``reporting/``
+     - 评估、绘图和报告输出。
 
 训练调用链
 ^^^^^^^^^^
@@ -461,7 +461,7 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
      -> FeatureSelectTransformer
      -> scaler / imputer
      -> ModelFactory.create_model()
-     -> callbacks
+     -> reporting components
      -> model PKL + reports + figures
 
 ``PipelineBuilder`` 负责把 YAML 配置转为 sklearn ``Pipeline``。常见顺序是：
