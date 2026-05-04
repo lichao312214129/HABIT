@@ -44,7 +44,7 @@ def test_preprocessing_batch_processor_uses_run_entrypoint() -> None:
 def test_machine_learning_workflows_use_run_entrypoint() -> None:
     """ML workflows should implement the same public entry point as other modules."""
     base_methods = _method_names(
-        "habit/core/machine_learning/base_workflow.py",
+        "habit/core/machine_learning/workflows/base.py",
         "BaseWorkflow",
     )
     holdout_methods = _method_names(

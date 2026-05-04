@@ -429,7 +429,7 @@ direct_pooling 在 ``SubjectPreprocessing`` 之后直接 ``ConcatenateVoxels``
      - 职责
    * - ``config_schemas.py``
      - ``MLConfig``、模型配置、特征选择配置、比较配置等 schema。
-   * - ``base_workflow.py``
+   * - ``workflows/base.py``
      - ``BaseWorkflow``，公共骨架：配置、数据管理、pipeline builder、callbacks。
    * - ``workflows/holdout_workflow.py``
      - ``MachineLearningWorkflow``，训练和预测的主 workflow。

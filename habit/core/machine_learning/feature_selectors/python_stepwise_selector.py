@@ -15,123 +15,18 @@ from statsmodels.discrete.discrete_model import Logit
 import warnings
 
 from habit.utils.progress_utils import CustomTqdm
+from habit.utils.log_utils import get_module_logger
 from .selector_registry import register_selector
+from .selector_registry import SelectorContext
+from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
 
-def detect_file_type(input_path: str) -> Optional[str]:
-    """
-    Automatically detect file type
-    
-    Args:
-        input_path: Input file path
-        
-    Returns:
-        Optional[str]: Detected file type, returns None if cannot detect
-    """
-    file_ext = Path(input_path).suffix.lower()
-    file_types = {
-        '.csv': 'csv',
-        '.xlsx': 'excel',
-        '.xls': 'excel',
-        '.parquet': 'parquet',
-        '.json': 'json',
-        '.pkl': 'pickle',
-        '.pickle': 'pickle'
-    }
-    
-    if file_ext in file_types:
-        return file_types[file_ext]
-    
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            if ',' in first_line and len(first_line.split(',')) > 1:
-                return 'csv'
-            elif first_line.startswith('{') or first_line.startswith('['):
-                return 'json'
-    except:
-        pass
-    
-    return None
+LOGGER = get_module_logger("ml.python_stepwise_selector")
 
-def load_data(input_data: Union[str, pd.DataFrame], 
-              target_column: Optional[str] = None,
-              file_type: Optional[str] = None,
-              columns: Optional[Union[str, List[str]]] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Load data from various formats
-    
-    Args:
-        input_data: Input data path or DataFrame object
-        target_column: Target variable column name
-        file_type: File type
-        columns: Feature column selection
-        
-    Returns:
-        Tuple[pd.DataFrame, pd.Series]: Feature data and target variable
-    """
-    if isinstance(input_data, pd.DataFrame):
-        data = input_data
-    else:
-        if not os.path.exists(input_data):
-            raise FileNotFoundError(f"Error: File {input_data} does not exist")
-        
-        if file_type is None:
-            file_type = detect_file_type(input_data)
-            if file_type is None:
-                raise ValueError(f"Cannot detect file type: {input_data}")
-            print(f"Automatically detected file type: {file_type}")
-        
-        loaders = {
-            'csv': pd.read_csv,
-            'excel': pd.read_excel,
-            'parquet': pd.read_parquet,
-            'json': pd.read_json,
-            'pickle': pd.read_pickle
-        }
-        
-        if file_type.lower() not in loaders:
-            raise ValueError(f"Unsupported file type: {file_type}")
-        
-        try:
-            data = loaders[file_type.lower()](input_data)
-            if data.empty:
-                raise ValueError(f"Loaded data is empty: {input_data}")
-        except Exception as e:
-            raise Exception(f"Error loading data: {e}")
-    
-    # Handle column selection
-    if target_column is None:
-        raise ValueError("Target column name must be specified")
-    
-    if columns is not None:
-        if isinstance(columns, str):
-            if ':' in columns:
-                start, end = columns.split(':')
-                start = int(start) if start else 0
-                end = int(end) if end else None
-                # Get all column names
-                all_cols = data.columns.tolist()
-                # Target column index
-                target_idx = all_cols.index(target_column)
-                # Feature columns (excluding target column)
-                X_cols = all_cols[start:end]
-                if target_column in X_cols:
-                    X_cols.remove(target_column)
-                X = data[X_cols]
-            else:
-                columns_list = [col.strip() for col in columns.split(',')]
-                X = data[columns_list]
-        elif isinstance(columns, list):
-            X = data[columns]
-        else:
-            raise ValueError("columns parameter must be a list of column names or a column range string")
-    else:
-        # Use all columns except target column as features
-        X = data.drop(columns=[target_column])
-    
-    y = data[target_column]
-    
-    return X, y
+
+def _verbose_log(verbose: bool, message: str) -> None:
+    """Log selector progress only when verbose mode is enabled."""
+    if verbose:
+        LOGGER.info(message)
 
 def calculate_odds_ratio_and_ci(model: "statsmodels.discrete.discrete_model.LogitResults") -> pd.DataFrame:
     """
@@ -223,7 +118,7 @@ def forward_selection(X: pd.DataFrame,
                         
             except Exception as e:
                 if verbose:
-                    print(f"Error fitting model with feature {feature}: {str(e)}")
+                    LOGGER.warning("Error fitting model with feature %s: %s", feature, str(e))
             finally:
                 if progress_bar:
                     progress_bar.update(1)
@@ -236,7 +131,7 @@ def forward_selection(X: pd.DataFrame,
                 remaining_features.remove(best_feature)
                 
                 if verbose:
-                    print(f"Added {best_feature} ({criterion.upper()}: {best_criterion})")
+                    _verbose_log(verbose, f"Added {best_feature} ({criterion.upper()}: {best_criterion})")
             else:
                 # No improvement, stop
                 break
@@ -247,7 +142,7 @@ def forward_selection(X: pd.DataFrame,
                 remaining_features.remove(best_feature)
                 
                 if verbose:
-                    print(f"Added {best_feature} (p-value: {best_new_criterion})")
+                    _verbose_log(verbose, f"Added {best_feature} (p-value: {best_new_criterion})")
             else:
                 # No feature with p-value below threshold, stop
                 break
@@ -338,7 +233,7 @@ def backward_elimination(X: pd.DataFrame,
                 best_criterion = best_new_criterion
                 initial_features.remove(worst_feature)
                 if verbose:
-                    print(f"Removed {worst_feature} ({criterion.upper()}: {best_criterion})")
+                    _verbose_log(verbose, f"Removed {worst_feature} ({criterion.upper()}: {best_criterion})")
             else:
                 # No improvement, stop
                 break
@@ -367,7 +262,7 @@ def backward_elimination(X: pd.DataFrame,
             if worst_feature is not None and best_pvalue > threshold_out:
                 initial_features.remove(worst_feature)
                 if verbose:
-                    print(f"Removed {worst_feature} (p-value: {best_pvalue})")
+                    _verbose_log(verbose, f"Removed {worst_feature} (p-value: {best_pvalue})")
             else:
                 # No feature with p-value above threshold, stop
                 break
@@ -444,7 +339,7 @@ def stepwise_selection(X: pd.DataFrame,
                 changed = True
                 
                 if verbose:
-                    print(f"Added {best_feature_to_add} ({criterion.upper()}: {best_criterion})")
+                    _verbose_log(verbose, f"Added {best_feature_to_add} ({criterion.upper()}: {best_criterion})")
         
         else:  # pvalue criterion
             best_pvalue = threshold_in  # Initialize with threshold
@@ -484,7 +379,7 @@ def stepwise_selection(X: pd.DataFrame,
                 changed = True
                 
                 if verbose:
-                    print(f"Added {best_feature_to_add} (p-value: {best_pvalue})")
+                    _verbose_log(verbose, f"Added {best_feature_to_add} (p-value: {best_pvalue})")
         
         # Backward step (if we have features to remove)
         if len(initial_features) > 0:
@@ -530,7 +425,7 @@ def stepwise_selection(X: pd.DataFrame,
                     changed = True
                     
                     if verbose:
-                        print(f"Removed {worst_feature} ({criterion.upper()}: {best_criterion})")
+                        _verbose_log(verbose, f"Removed {worst_feature} ({criterion.upper()}: {best_criterion})")
             
             else:  # pvalue criterion
                 # Get full model results
@@ -558,7 +453,7 @@ def stepwise_selection(X: pd.DataFrame,
                         changed = True
                         
                         if verbose:
-                            print(f"Removed {worst_feature} (p-value: {worst_pvalue})")
+                            _verbose_log(verbose, f"Removed {worst_feature} (p-value: {worst_pvalue})")
                 except:
                     # If model fitting fails, don't remove any features
                     pass
@@ -577,7 +472,8 @@ def python_stepwise_selector(X: pd.DataFrame,
                            threshold_out: float = 0.05,
                            criterion: str = 'aic',
                            verbose: bool = False,
-                           outdir: str = None) -> List[str]:
+                           outdir: str = None,
+                           context: Optional[SelectorContext] = None) -> List[str]:
     """
     Run stepwise regression feature selection using pure Python
     
@@ -594,6 +490,11 @@ def python_stepwise_selector(X: pd.DataFrame,
     Returns:
         List[str]: List of selected feature names
     """
+    if context is not None:
+        X = context.X
+        y = context.y
+        outdir = context.outdir
+
     # Check direction
     if direction not in ['forward', 'backward', 'both']:
         raise ValueError("direction must be one of: 'forward', 'backward', 'both'")

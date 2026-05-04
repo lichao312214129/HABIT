@@ -24,7 +24,7 @@ High-level layers
 - **Pipeline / manager layer (per domain)** — each domain has its own
   sklearn-style pipeline. In ``habitat_analysis`` the pipeline is
   ``HabitatPipeline`` driven by ``HabitatAnalysis`` (a deep module). In
-  ``machine_learning`` it is ``BaseWorkflow`` + ``PipelineBuilder``.
+  ``machine_learning`` it is ``workflows.base.BaseWorkflow`` + ``PipelineBuilder``.
 - **Utilities** — ``habit/utils/`` holds I/O, logging, the unified
   ``CustomTqdm`` progress bar, parallel helpers, and visualization style.
 

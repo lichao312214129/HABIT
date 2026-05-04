@@ -748,7 +748,7 @@ habitat 表也好、传统 radiomics 表也好，都是同一份 CSV 契约。
 
    * - 模块
      - 职责
-   * - ``base_workflow.BaseWorkflow`` (**deep**)
+   * - ``workflows.base.BaseWorkflow`` (**deep**)
      - workflow 公共骨架：配置校验 + DataManager +
        PlotManager + PipelineBuilder + CallbackList。
    * - ``workflows/holdout_workflow.py``

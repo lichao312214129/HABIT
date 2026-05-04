@@ -5,9 +5,11 @@ Provides a centralized registry for feature selection methods with metadata supp
 """
 
 import inspect
+import logging
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional
+
 import pandas as pd
-import numpy as np
-from typing import Dict, List, Callable, Any, Optional, Union, Tuple
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger('ml.selector_registry')
@@ -15,6 +17,30 @@ logger = get_module_logger('ml.selector_registry')
 # Feature selector registry with metadata
 # Format: { 'name': { 'func': callable, 'default_before_z_score': bool, 'display_name': str } }
 _SELECTOR_REGISTRY: Dict[str, Dict[str, Any]] = {}
+
+
+@dataclass(frozen=True)
+class SelectorContext:
+    """
+    Explicit runtime context passed into selector functions.
+
+    Standardizing this context makes selector contracts explicit and reduces
+    runtime surprises from implicit parameter-name matching.
+    """
+
+    X: pd.DataFrame
+    y: pd.Series
+    selected_features: List[str]
+    outdir: Optional[str] = None
+    logger: Optional[logging.Logger] = None
+
+
+@dataclass(frozen=True)
+class SelectorResult:
+    """Normalized selector output payload."""
+
+    selected_features: List[str]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 def register_selector(name: str, display_name: str = None, default_before_z_score: bool = False):
     """
@@ -61,61 +87,105 @@ def run_selector(name: str,
     
     info = get_selector_info(name)
     selector_func = info['func']
-    
-    # Introspect function signature to inject only required parameters
     sig = inspect.signature(selector_func)
     bound_args = {}
-    
-    # Mapping of semantic roles to actual data with alias support
-    # This allows different selector functions to use different names for the same core inputs
-    roles = {
-        'X': X[selected_features],
-        'y': y,
-        'selected_features': selected_features,
-        'outdir': kwargs.get('outdir')
-    }
-    
-    # Aliases for mapping role data to function parameter names
-    alias_map = {
-        'X': ['X', 'x', 'data', 'features'],
-        'y': ['y', 'Y', 'target', 'labels'],
-        'selected_features': ['selected_features', 'feature_names'],
-        'outdir': ['outdir', 'output_dir', 'save_path']
-    }
 
-    for param_name, param in sig.parameters.items():
-        # 1. Try to find a role for this parameter name via aliases
-        matched_role = None
-        for role, aliases in alias_map.items():
-            if param_name in aliases:
-                matched_role = role
-                break
-        
-        if matched_role:
-            bound_args[param_name] = roles[matched_role]
-        # 2. Try to inject from kwargs (user config)
-        elif param_name in kwargs:
-            bound_args[param_name] = kwargs[param_name]
-        # 3. Use default if available
-        elif param.default is not inspect.Parameter.empty:
-            continue 
-        # 4. Warn if a required parameter is missing
-        elif param.kind not in [inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL]:
-            logger.warning(f"Required parameter '{param_name}' for selector '{name}' not found in inputs or config.")
+    context = SelectorContext(
+        X=X[selected_features],
+        y=y,
+        selected_features=selected_features,
+        outdir=kwargs.get("outdir"),
+        logger=kwargs.get("logger", logger),
+    )
+
+    if "context" in sig.parameters:
+        # New explicit contract.
+        bound_args["context"] = context
+        for param_name, param in sig.parameters.items():
+            if param_name == "context":
+                continue
+            if param_name in kwargs:
+                bound_args[param_name] = kwargs[param_name]
+            elif param.default is not inspect.Parameter.empty:
+                continue
+            elif param.kind not in [inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL]:
+                logger.warning(
+                    "Required parameter '%s' for selector '%s' not found in config kwargs.",
+                    param_name,
+                    name,
+                )
+    else:
+        # Backward-compatible contract with alias-based injection.
+        roles = {
+            "X": context.X,
+            "y": context.y,
+            "selected_features": context.selected_features,
+            "outdir": context.outdir,
+            "logger": context.logger,
+        }
+        alias_map = {
+            "X": ["X", "x", "data", "features"],
+            "y": ["y", "Y", "target", "labels"],
+            "selected_features": ["selected_features", "feature_names"],
+            "outdir": ["outdir", "output_dir", "save_path"],
+            "logger": ["logger", "log"],
+        }
+
+        for param_name, param in sig.parameters.items():
+            matched_role = None
+            for role, aliases in alias_map.items():
+                if param_name in aliases:
+                    matched_role = role
+                    break
+
+            if matched_role:
+                bound_args[param_name] = roles[matched_role]
+            elif param_name in kwargs:
+                bound_args[param_name] = kwargs[param_name]
+            elif param.default is not inspect.Parameter.empty:
+                continue
+            elif param.kind not in [inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL]:
+                logger.warning(
+                    "Required parameter '%s' for selector '%s' not found in inputs or config.",
+                    param_name,
+                    name,
+                )
 
     # Execute and handle return value
     try:
         logger.info(f"Running feature selector: {info['display_name']} on {len(selected_features)} features...")
         result = selector_func(**bound_args)
-        
-        # Ensure we return a list of feature names
-        if isinstance(result, tuple):
-            selected_list = list(result[0])
-        else:
-            selected_list = list(result)
-            
+        selected_list = _normalize_selected_features(result=result, selector_name=name)
         logger.info(f"Selector {name} completed: {len(selected_list)} features retained.")
         return selected_list
     except Exception as e:
         logger.error(f"Error executing selector '{name}': {e}")
         raise
+
+
+def _normalize_selected_features(result: Any, selector_name: str) -> List[str]:
+    """
+    Normalize diverse selector outputs into a list of feature names.
+
+    Supported return formats:
+    - List[str]
+    - Tuple[List[str], ...]
+    - Dict with key 'selected_features'
+    - SelectorResult
+    """
+    if isinstance(result, SelectorResult):
+        return list(result.selected_features)
+
+    if isinstance(result, dict):
+        if "selected_features" not in result:
+            raise ValueError(
+                f"Selector '{selector_name}' returned dict without 'selected_features' key."
+            )
+        return list(result["selected_features"])
+
+    if isinstance(result, tuple):
+        if not result:
+            return []
+        return list(result[0])
+
+    return list(result)

@@ -11,6 +11,9 @@ import numpy as np
 import pandas as pd
 
 from .base import BaseModel
+from habit.utils.log_utils import get_module_logger
+
+LOGGER = get_module_logger("ml.model_factory")
 
 class ModelFactory:
     """Factory class for creating model instances"""
@@ -90,6 +93,6 @@ class ModelFactory:
                 try:
                     # Use relative import
                     importlib.import_module(f".{module_name}", package="habit.core.machine_learning.models")
-                    print(f"Successfully imported model module: {module_name}")
+                    LOGGER.debug("Successfully imported model module: %s", module_name)
                 except ImportError as e:
-                    print(f"Warning: Failed to import {module_name}: {e}") 
+                    LOGGER.warning("Failed to import model module %s: %s", module_name, e)

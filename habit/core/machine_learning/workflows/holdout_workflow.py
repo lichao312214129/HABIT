@@ -14,7 +14,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from ..base_workflow import BaseWorkflow
+from .base import BaseWorkflow
 from ..config_schemas import MLConfig
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
@@ -144,6 +144,7 @@ class MachineLearningWorkflow(BaseWorkflow):
             - ``<output>/evaluation_metrics.csv`` (only if ``evaluate=True``).
         """
         self.logger.info("Starting Standard ML Pipeline (mode=predict)...")
+        self.callbacks.on_pipeline_start(logs={"mode": "predict"})
 
         pipeline_path = self.config_obj.pipeline_path
         if not pipeline_path or not os.path.exists(pipeline_path):
@@ -162,7 +163,7 @@ class MachineLearningWorkflow(BaseWorkflow):
             raise FileNotFoundError(f"Input data file not found: {data_path}")
 
         self.logger.info(f"Loading data from {data_path}")
-        df = pd.read_csv(data_path)
+        df = self.data_manager.load_inference_data(data_path)
         self.logger.info(f"Data loaded: {df.shape[0]} rows, {df.shape[1]} columns")
 
         self.logger.info(f"Loading pipeline from {pipeline_path}")
@@ -232,6 +233,21 @@ class MachineLearningWorkflow(BaseWorkflow):
             metrics_path = os.path.join(self.output_dir, 'evaluation_metrics.csv')
             pd.DataFrame([metrics_results]).to_csv(metrics_path, index=False)
             self.logger.info(f"Saved evaluation metrics to {metrics_path}")
+
+        # Keep callback lifecycle aligned with train mode; pass lightweight
+        # summary so reporting callbacks can remain mode-agnostic.
+        summary_results = []
+        if metrics_results:
+            row = {"Model": "inference_pipeline"}
+            row.update({f"Predict_{key}": value for key, value in metrics_results.items()})
+            summary_results.append(row)
+
+        self.callbacks.on_pipeline_end(
+            logs={
+                "mode": "predict",
+                "summary_results": summary_results,
+            }
+        )
 
         self.logger.info(
             f"Standard ML workflow completed (predict). Output dir: {self.output_dir}"

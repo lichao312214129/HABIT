@@ -9,7 +9,12 @@ class VisualizationCallback(Callback):
             return
             
         # Holdout workflow plotting
-        if hasattr(self.workflow, 'X_train'):
+        if (
+            hasattr(self.workflow, 'X_train')
+            and hasattr(self.workflow, 'X_test')
+            and self.workflow.X_train is not None
+            and self.workflow.X_test is not None
+        ):
             self.workflow.logger.info("Generating standard workflow plots...")
             self.workflow.plot_manager.run_workflow_plots(
                 self.workflow.results, 

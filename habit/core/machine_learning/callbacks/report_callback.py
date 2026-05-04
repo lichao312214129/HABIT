@@ -23,7 +23,14 @@ class ReportCallback(Callback):
             save_csv(pd.DataFrame(summary_results), os.path.join(self.workflow.output_dir, f'{self.workflow.module_name}_summary.csv'))
 
         # 2. Save prediction CSVs (if standard workflow)
-        if hasattr(self.workflow, 'X_train'):
+        if (
+            hasattr(self.workflow, 'X_train')
+            and hasattr(self.workflow, 'X_test')
+            and self.workflow.X_train is not None
+            and self.workflow.X_test is not None
+            and getattr(self.workflow.data_manager, "data", None) is not None
+            and getattr(self.workflow.data_manager, "label_col", None) is not None
+        ):
             self._save_standard_predictions()
 
     def _save_standard_predictions(self):

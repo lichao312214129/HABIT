@@ -28,7 +28,7 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: habit.core.machine_learning.base_workflow
+.. automodule:: habit.core.machine_learning.workflows.base
    :members:
    :undoc-members:
    :show-inheritance:

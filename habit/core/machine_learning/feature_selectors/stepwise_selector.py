@@ -5,13 +5,10 @@ Uses forward, backward, or stepwise (bidirectional) logistic regression for feat
 """
 import os
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import List, Optional, Tuple, Dict, Union
-from tqdm import tqdm
-from pathlib import Path
+from typing import List, Optional
 
-from .selector_registry import register_selector
+from .selector_registry import register_selector, SelectorContext
+from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
 
 def _set_r_environment(Rhome: Optional[str]) -> None:
     """
@@ -34,128 +31,15 @@ def _set_r_environment(Rhome: Optional[str]) -> None:
     from rpy2.robjects import r, pandas2ri
     from rpy2.robjects.packages import importr
         
-def detect_file_type(input_path: str) -> Optional[str]:
-    """
-    Automatically detect file type
-    
-    Args:
-        input_path: Input file path
-        
-    Returns:
-        Optional[str]: Detected file type, returns None if cannot detect
-    """
-    file_ext = Path(input_path).suffix.lower()
-    file_types = {
-        '.csv': 'csv',
-        '.xlsx': 'excel',
-        '.xls': 'excel',
-        '.parquet': 'parquet',
-        '.json': 'json',
-        '.pkl': 'pickle',
-        '.pickle': 'pickle'
-    }
-    
-    if file_ext in file_types:
-        return file_types[file_ext]
-    
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            if ',' in first_line and len(first_line.split(',')) > 1:
-                return 'csv'
-            elif first_line.startswith('{') or first_line.startswith('['):
-                return 'json'
-    except:
-        pass
-    
-    return None
-
-def load_data(input_data: Union[str, pd.DataFrame], 
-              target_column: Optional[str] = None,
-              file_type: Optional[str] = None,
-              columns: Optional[Union[str, List[str]]] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Load data from various formats
-    
-    Args:
-        input_data: Input data path or DataFrame object
-        target_column: Target variable column name
-        file_type: File type
-        columns: Feature column selection
-        
-    Returns:
-        Tuple[pd.DataFrame, pd.Series]: Feature data and target variable
-    """
-    if isinstance(input_data, pd.DataFrame):
-        data = input_data
-    else:
-        if not os.path.exists(input_data):
-            raise FileNotFoundError(f"Error: File {input_data} does not exist")
-        
-        if file_type is None:
-            file_type = detect_file_type(input_data)
-            if file_type is None:
-                raise ValueError(f"Cannot detect file type: {input_data}")
-            print(f"Automatically detected file type: {file_type}")
-        
-        loaders = {
-            'csv': pd.read_csv,
-            'excel': pd.read_excel,
-            'parquet': pd.read_parquet,
-            'json': pd.read_json,
-            'pickle': pd.read_pickle
-        }
-        
-        if file_type.lower() not in loaders:
-            raise ValueError(f"Unsupported file type: {file_type}")
-        
-        try:
-            data = loaders[file_type.lower()](input_data)
-            if data.empty:
-                raise ValueError(f"Loaded data is empty: {input_data}")
-        except Exception as e:
-            raise Exception(f"Error loading data: {e}")
-    
-    # Handle column selection
-    if target_column is None:
-        raise ValueError("Target column name must be specified")
-    
-    if columns is not None:
-        if isinstance(columns, str):
-            if ':' in columns:
-                start, end = columns.split(':')
-                start = int(start) if start else 0
-                end = int(end) if end else None
-                # Get all column names
-                all_cols = data.columns.tolist()
-                # Target column index
-                target_idx = all_cols.index(target_column)
-                # Feature columns (excluding target column)
-                X_cols = all_cols[start:end]
-                if target_column in X_cols:
-                    X_cols.remove(target_column)
-                X = data[X_cols]
-            else:
-                columns_list = [col.strip() for col in columns.split(',')]
-                X = data[columns_list]
-        elif isinstance(columns, list):
-            X = data[columns]
-        else:
-            raise ValueError("columns parameter must be a list of column names or a column range string")
-    else:
-        # Use all columns except target column as features
-        X = data.drop(columns=[target_column])
-    
-    y = data[target_column]
-    
-    return X, y
-
 @register_selector('stepwise_r')
-def stepwise_selector(X: pd.DataFrame, 
-                     y: pd.Series,
-                     direction: str = 'backward',
-                     outdir: str = None,
-                     Rhome: str = None) -> List[str]:
+def stepwise_selector(
+    X: Optional[pd.DataFrame] = None,
+    y: Optional[pd.Series] = None,
+    direction: str = 'backward',
+    outdir: str = None,
+    Rhome: str = None,
+    context: Optional[SelectorContext] = None,
+) -> List[str]:
     """
     Run stepwise regression feature selection using R's stepAIC
     
@@ -168,6 +52,13 @@ def stepwise_selector(X: pd.DataFrame,
     Returns:
         List[str]: List of selected feature names
     """
+    if context is not None:
+        X = context.X
+        y = context.y
+        outdir = context.outdir
+    if X is None or y is None:
+        raise ValueError("stepwise_selector requires X and y inputs.")
+
     _set_r_environment(Rhome)
 
     # Initialize R environment
@@ -209,11 +100,13 @@ def stepwise_selector(X: pd.DataFrame,
         results_df = pd.DataFrame(results_r)
         results_df.columns = feature_name
         results_df.index = header_name
-        results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
+        if outdir:
+            results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
     except:
         results_r = ro.r('results')
         results_df = pd.DataFrame(results_r)
-        results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
+        if outdir:
+            results_df.to_csv(os.path.join(outdir, 'stepwise_results.csv'), index=True)
 
     return selected_features
 

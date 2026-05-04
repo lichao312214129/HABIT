@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 from collections import defaultdict
 
 from sklearn.model_selection import StratifiedKFold, KFold
-from ..base_workflow import BaseWorkflow
+from .base import BaseWorkflow
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
 from ..models.ensemble import HabitEnsembleModel
@@ -117,40 +117,63 @@ class MachineLearningKFoldWorkflow(BaseWorkflow):
             except Exception as e:
                 self.logger.error(f"Failed to save ensemble model for {m_name}: {e}")
 
-    def _aggregate_results(self):
-        """Standard aggregation logic."""
+    def _aggregate_results(self) -> List[Dict[str, Any]]:
+        """
+        Aggregate per-fold results into overall metrics.
+
+        AUC mean/std are computed only when every fold actually produced an
+        'auc' entry in its metrics dict.  Missing values (e.g. multiclass or
+        regression scenarios where AUC is not calculated) are silently skipped
+        so that the workflow does not crash.
+        """
         if not self.results['folds']:
             return []
-            
+
         model_names = self.results['folds'][0]['models'].keys()
         summary = []
-        
+
         for m_name in model_names:
-            y_true, y_prob, y_pred, fold_aucs = [], [], [], []
+            y_true: List = []
+            y_prob: List = []
+            y_pred: List = []
+            # Collect per-fold AUC values; None when the metric is absent.
+            fold_aucs: List = []
+
             for f in self.results['folds']:
                 if m_name in f['models']:
                     m_data = f['models'][m_name]
                     y_true.extend(m_data['y_true'])
                     y_prob.extend(m_data['y_prob'])
                     y_pred.extend(m_data['y_pred'])
-                    fold_aucs.append(m_data['metrics']['auc'])
-            
+                    fold_aucs.append(m_data['metrics'].get('auc'))
+
             if not y_true:
                 continue
-                
+
             # Use container for aggregated metrics
-            agg_container = PredictionContainer(np.array(y_true), np.array(y_prob), np.array(y_pred))
+            agg_container = PredictionContainer(
+                np.array(y_true), np.array(y_prob), np.array(y_pred)
+            )
             overall_metrics = calculate_metrics(agg_container)
-            
+
+            # Filter out folds where AUC was not available.
+            valid_aucs = [v for v in fold_aucs if v is not None]
+
+            agg_extra: Dict[str, Any] = {'metrics': overall_metrics}
+            row: Dict[str, Any] = {'Model': m_name}
+
+            if valid_aucs:
+                auc_mean = float(np.mean(valid_aucs))
+                auc_std = float(np.std(valid_aucs))
+                agg_extra['auc_mean'] = auc_mean
+                agg_extra['auc_std'] = auc_std
+                row['AUC_Mean'] = auc_mean
+                row['AUC_Std'] = auc_std
+
             self.results['aggregated'][m_name] = agg_container.to_dict()
-            self.results['aggregated'][m_name].update({
-                'auc_mean': np.mean(fold_aucs), 
-                'auc_std': np.std(fold_aucs),
-                'metrics': overall_metrics
-            })
-            
-            row = {'Model': m_name, 'AUC_Mean': np.mean(fold_aucs), 'AUC_Std': np.std(fold_aucs)}
+            self.results['aggregated'][m_name].update(agg_extra)
+
             row.update({f"Overall_{k}": v for k, v in overall_metrics.items()})
             summary.append(row)
-            
+
         return summary
