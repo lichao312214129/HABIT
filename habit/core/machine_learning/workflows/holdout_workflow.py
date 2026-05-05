@@ -112,7 +112,10 @@ class HoldoutWorkflow(BaseWorkflow):
             is_visualize=bool(getattr(self.config_obj, "is_visualize", True)),
         )
 
-        model_store.save(self._run_result)
+        saved_paths = model_store.save(self._run_result)
+        for model_name, path in saved_paths.items():
+            self.logger.info("Model saved [%s]: %s", model_name, path)
+
         report_writer.write(self._run_result)
         plot_composer.render(self._run_result)
 

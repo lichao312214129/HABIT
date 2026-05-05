@@ -3,6 +3,8 @@
 
 本指南按照生境分析的逻辑顺序组织，帮助您从数据准备到模型部署完成整个工作流程。
 
+**文档与上游库**：各步骤的 **完整算法说明** 分布在 ANTs、SimpleITK、PyRadiomics、scikit-learn 等项目中。HABIT 手册侧重 **YAML/CLI 与数据流**；理论、全量超参数与版本差异请配合 :doc:`../reference/upstream_libraries_zh`。
+
 .. toctree::
    :maxdepth: 2
 

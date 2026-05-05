@@ -19,6 +19,15 @@ random_state: 42
 normalization:
   method: z_score
 
+# Resampling Configuration (default disabled)
+# Only affects training data to handle class imbalance. Skipped for validation/test/predict.
+resampling:
+  enabled: false  # Set to true to enable class-imbalance resampling
+  method: random_over  # Options: random_over, random_under, smote
+  position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
+  ratio: 1.0  # Target sampling ratio passed to the selected resampling method
+  random_state: 42  # Random seed used by the resampling method
+
 feature_selection_methods:
 
   # 1) Hard pre-filters

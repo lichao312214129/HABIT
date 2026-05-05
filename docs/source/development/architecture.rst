@@ -644,8 +644,8 @@ HABIT 使用 pytest 进行测试。
 .. code-block:: bash
 
    pytest tests/
-   pytest tests/test_habitat.py
-   pytest tests/test_habitat.py::test_feature_extraction
+   pytest tests/habitat/test_habitat_features.py
+   pytest tests/habitat/test_habitat_features.py::TestBasicFeatures
    pytest --cov=habit --cov-report=html tests/
 
 编写测试

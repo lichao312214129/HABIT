@@ -68,7 +68,7 @@
 
 **输出:**
 
-预处理后的图像将保存在 `./demo_data/preprocessed/processed_images/` 目录下。
+预处理后的图像将保存在 `./demo_data/preprocessed/processed_images/` 目录下；日志默认写在 `./demo_data/preprocessed/processing.log`（``out_dir`` 与 CLI 设置一致时）。
 
 下一步建议
 ~~~~~~~~~~

@@ -13,6 +13,7 @@ python = "^3.8"
 click = "^8.0"
 numpy = "*"
 scikit-learn = "*"
+imbalanced-learn = "*"
 scikit-image = "*"
 
 

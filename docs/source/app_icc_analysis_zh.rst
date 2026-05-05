@@ -1,6 +1,10 @@
 ICC 分析工具 (habit icc)
 ========================
 
+.. seealso::
+
+   配置参数见 :doc:`../configuration_zh`；通用统计概念可参考统计学教材与 :doc:`../reference/upstream_libraries_zh`。
+
 概述
 ----
 

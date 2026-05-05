@@ -3,6 +3,10 @@
 
 本节介绍如何使用 HABIT 进行机器学习建模，包括特征选择、模型训练和模型评估。
 
+.. seealso::
+
+   sklearn / XGBoost / 采样 / SHAP 等权威文档见 :doc:`../reference/upstream_libraries_zh`；字段级说明见 :doc:`../configuration_zh`「机器学习配置参数」。
+
 使用场景
 --------
 

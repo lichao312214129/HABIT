@@ -72,6 +72,18 @@ normalization:
   #   standardize: true  # Whether to standardize the data to zero mean and unit variance
 
 #%%================================================================================
+# Resampling Configuration
+# Resampling is applied only while fitting the training data. It is skipped
+# automatically during validation, testing, and prediction so row counts stay
+# unchanged outside the training fold.
+resampling:
+  enabled: true  # Set to true to enable class-imbalance resampling
+  method: random_over  # Options: random_over, random_under, smote
+  position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
+  ratio: 1.0  # Target sampling ratio passed to the selected resampling method
+  random_state: 42  # Random seed used by the resampling method
+
+#%%================================================================================
 # Feature Selection Configuration
 # Multiple feature selection methods can be applied sequentially
 feature_selection_methods:
@@ -147,14 +159,14 @@ feature_selection_methods:
   #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
 
   # LASSO (L1 regularization) method - selects features using L1 regularization
-  # - method: lasso  # Selects features using L1 regularization
-  #   params:
-  #     cv: 10  # Number of cross-validation folds for selecting optimal alpha
-  #     n_alphas: 100  # Number of alpha values to try
-  #     alphas: [0.01, 0.1, 1.0, 10, 100]  # Alpha values to try
-  #     random_state: 42  # Random seed for reproducibility
-  #     visualize: true  # Whether to generate visualization of feature coefficients
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
+  - method: lasso  # Selects features using L1 regularization
+    params:
+      cv: 10  # Number of cross-validation folds for selecting optimal alpha
+      n_alphas: 100  # Number of alpha values to try
+      alphas: [0.01, 0.1, 1.0, 10, 100]  # Alpha values to try
+      random_state: 42  # Random seed for reproducibility
+      visualize: true  # Whether to generate visualization of feature coefficients
+      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
   
   # # Univariate Logistic Regression method
   # - method: univariate_logistic  # Selects features based on individual logistic regression p-values
@@ -297,7 +309,7 @@ models:
 
 #%%================================================================================  
 # Visualization and Saving Configuration
-is_visualize: false  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
+is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
 is_save_model: true  # Whether to save trained models to disk for future use
 
 visualization:

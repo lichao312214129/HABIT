@@ -3,6 +3,10 @@
 
 本节介绍如何使用 HABIT 从生境图中提取特征。
 
+.. seealso::
+
+   PyRadiomics 参数文件、特征类定义见 `PyRadiomics 文档 <https://pyradiomics.readthedocs.io/>`__；库索引见 :doc:`../reference/upstream_libraries_zh`。
+
 概述
 ----
 

@@ -61,6 +61,12 @@ class HoldoutRunner(BaseRunner):
             )
             models[model_name] = model_result
             summary_rows.append(self._build_summary_row(model_result=model_result))
+            self.context.logger.info(
+                "[%s] Train AUC=%.4f | Test AUC=%.4f",
+                model_name,
+                model_result.train_metrics.get("auc", float("nan")),
+                model_result.test_metrics.get("auc", float("nan")),
+            )
 
         if data_manager.label_col is None:
             raise ValueError("DataManager.label_col is required for reporting.")
@@ -101,14 +107,17 @@ class HoldoutRunner(BaseRunner):
         X_train: pd.DataFrame,
         y_train: pd.Series,
     ) -> Any:
-        """Build and fit one model pipeline using the context resampler."""
+        """Build and fit one model pipeline from the configured steps."""
         self.context.logger.info("Training Model: %s", model_name)
         pipeline = self.context.pipeline_builder.build(
             model_name,
             model_params,
             feature_names=list(X_train.columns),
         )
-        return self.context.resampler.fit_with_resampling(pipeline, X_train, y_train)
+        self.context.logger.info("Fitting pipeline for %s ...", model_name)
+        pipeline.fit(X_train, y_train)
+        self.context.logger.info("Pipeline fit complete for %s", model_name)
+        return pipeline
 
     def _evaluate_one_model(
         self,

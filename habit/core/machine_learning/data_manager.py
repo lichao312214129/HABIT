@@ -337,6 +337,14 @@ class DataManager:
         )
 
         self.logger.info("Split results: Train=%d, Test=%d", len(X_train), len(X_test))
+        self.logger.info(
+            "Train class distribution: %s",
+            y_train.value_counts().sort_index().to_dict(),
+        )
+        self.logger.info(
+            "Test  class distribution: %s",
+            y_test.value_counts().sort_index().to_dict(),
+        )
         return X_train, X_test, y_train, y_test
 
     def load_inference_data(self, path: str) -> pd.DataFrame:

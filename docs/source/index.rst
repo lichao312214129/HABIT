@@ -83,6 +83,13 @@ HABIT 识别并表征具有不同影像表型的肿瘤亚区域（即 Habitat）
    configuration_zh
 
 .. toctree::
+   :maxdepth: 1
+   :caption: 上游依赖速查
+   :hidden:
+
+   reference/upstream_libraries_zh
+
+.. toctree::
    :maxdepth: 2
    :caption: 命令行工具
    :hidden:

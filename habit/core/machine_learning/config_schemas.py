@@ -42,7 +42,7 @@ class ModelConfig(BaseModel):
     params: Dict[str, Any] = Field(default_factory=dict)
 
 
-class SamplingConfig(BaseModel):
+class ResamplingConfig(BaseModel):
     """
     Training-set resampling configuration.
 
@@ -52,14 +52,24 @@ class SamplingConfig(BaseModel):
     """
     enabled: bool = False
     method: Literal['random_over', 'random_under', 'smote'] = 'random_over'
+    position: Literal[
+        'before_feature_selection',
+        'before_normalization',
+        'after_normalization',
+        'before_model',
+    ] = 'before_model'
     ratio: float = 1.0
     random_state: int = 42
 
     @validator('ratio')
     def ratio_range(cls, v: float) -> float:
         if v <= 0:
-            raise ValueError("sampling.ratio must be > 0")
+            raise ValueError("resampling.ratio must be > 0")
         return v
+
+
+# Backward-compatible alias for external imports that still use SamplingConfig.
+SamplingConfig = ResamplingConfig
 
 
 class VisualizationConfig(BaseModel):
@@ -227,7 +237,7 @@ class MLConfig(BaseConfig):
 
     # Core components.
     normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
-    sampling: SamplingConfig = Field(default_factory=SamplingConfig)
+    resampling: ResamplingConfig = Field(default_factory=ResamplingConfig)
     feature_selection_methods: List[FeatureSelectionMethod] = Field(default_factory=list)
     # Optional in predict mode; required + non-empty in train mode (enforced
     # by the model_validator below).
@@ -254,6 +264,35 @@ class MLConfig(BaseConfig):
         if not (0 < v < 1):
             raise ValueError('test_size must be between 0 and 1')
         return v
+
+    @model_validator(mode='before')
+    @classmethod
+    def _migrate_legacy_sampling_key(cls, data: Any) -> Any:
+        """
+        Accept the previous ``sampling`` key while exposing ``resampling``.
+
+        YAML files are part of the user-facing interface.  Renaming the block
+        should not break existing configurations immediately, so the legacy
+        key is copied into the new key when ``resampling`` is absent.
+        """
+        if not isinstance(data, dict):
+            return data
+        if 'resampling' in data or 'sampling' not in data:
+            return data
+        migrated = dict(data)
+        migrated['resampling'] = migrated.pop('sampling')
+        return migrated
+
+    @property
+    def sampling(self) -> ResamplingConfig:
+        """
+        Backward-compatible attribute alias for older Python callers.
+
+        New code should read ``config.resampling``.  This property keeps older
+        code that accessed ``config.sampling`` working after the YAML key was
+        renamed.
+        """
+        return self.resampling
 
     @model_validator(mode='after')
     def _validate_run_mode(self) -> 'MLConfig':

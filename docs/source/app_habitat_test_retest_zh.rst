@@ -1,6 +1,10 @@
 Test-Retest 分析工具 (habit retest)
 ===================================
 
+.. seealso::
+
+   ``TestRetestConfig`` 字段见源码 ``habit/core/machine_learning/config_schemas.py``；相似性度量与 NumPy/SciPy 见 :doc:`../reference/upstream_libraries_zh`。
+
 概述
 ----
 

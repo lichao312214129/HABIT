@@ -3,6 +3,10 @@
 
 本节介绍如何自定义和扩展 HABIT 的各种组件，包括预处理器、特征提取器、聚类算法、模型等。
 
+.. seealso::
+
+   基类与接口以源码为准；若自定义模型/度量依赖 **scikit-learn 约定**，见 `sklearn 指南 <https://scikit-learn.org/stable/developers/develop.html>`__ 及 :doc:`../reference/upstream_libraries_zh`。
+
 概述
 ----
 

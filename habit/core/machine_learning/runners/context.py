@@ -5,7 +5,7 @@ A :class:`RunnerContext` bundles the *minimum* set of collaborators a runner
 needs in order to execute a training/evaluation loop.  Bundling them here
 removes the previous reverse dependency where ``BaseRunner`` reached back
 into ``self.workflow`` for ``data_manager``, ``pipeline_builder``, the
-logger and the protected ``_train_with_optional_sampling`` helper.
+logger and workflow-owned helper methods.
 
 With an explicit context object:
 
@@ -23,8 +23,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..data_manager import DataManager
-from ..pipeline_utils import PipelineBuilder
-from ..resampling import Resampler
+from ..pipeline_builder import PipelineBuilder
 
 
 @dataclass
@@ -38,9 +37,6 @@ class RunnerContext:
         Source of features/labels and split logic.
     pipeline_builder:
         Builder that produces a fresh sklearn pipeline per model.
-    resampler:
-        Optional resampling adapter.  Pass a :class:`Resampler` even when no
-        resampling is configured; it will pass the data through untouched.
     logger:
         Logger used for status messages.
     config:
@@ -50,6 +46,5 @@ class RunnerContext:
 
     data_manager: DataManager
     pipeline_builder: PipelineBuilder
-    resampler: Resampler
     logger: logging.Logger
     config: Any

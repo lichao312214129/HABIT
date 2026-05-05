@@ -25,7 +25,6 @@ Preprocessing:
   registration:
     images: [delay2, delay3, delay5]
     fixed_image: delay2
-    moving_images: [delay3, delay5]
     type_of_transform: Rigid
     use_mask: false
 

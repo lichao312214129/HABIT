@@ -16,13 +16,13 @@ HABIT 使用 pytest 进行测试。
 
 .. code-block:: bash
 
-   pytest tests/test_habitat.py
+   pytest tests/habitat/test_habitat_features.py
 
 运行特定测试函数：
 
 .. code-block:: bash
 
-   pytest tests/test_habitat.py::test_feature_extraction
+   pytest tests/habitat/test_habitat_features.py::TestBasicFeatures
 
 查看测试覆盖率：
 

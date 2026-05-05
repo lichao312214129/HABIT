@@ -133,7 +133,7 @@
 
 2. **运行特定测试**:
    ```bash
-   pytest tests/test_compare.py -v
+   pytest tests/model_comparison/test_cli_compare.py -v
    ```
 
 3. **跳过需要数据的测试**:

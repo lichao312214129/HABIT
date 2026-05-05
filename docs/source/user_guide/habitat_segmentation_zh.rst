@@ -3,6 +3,10 @@
 
 本节介绍如何使用 HABIT 进行生境分割，这是 HABIT 的核心功能。
 
+.. seealso::
+
+   聚类算法、指标与 sklearn 参数见 :doc:`../reference/upstream_libraries_zh`（**scikit-learn**）；预处理步骤中的 ANTs / SimpleITK 见同页。
+
 概述
 ----
 

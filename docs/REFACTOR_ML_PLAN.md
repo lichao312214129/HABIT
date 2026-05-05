@@ -315,8 +315,8 @@
 
 ### 12.6 测试与公共 API
 
-- `tests/test_public_run_entrypoints.py`：同时断言新名（`HoldoutWorkflow` / `KFoldWorkflow`）与旧名（deprecation 子类）都存在并实现 `run`。
-- `tests/test_ml_kfold_result_contract.py`：新增对 `KFoldModelResult` / `AggregatedModelResult` 的存在性断言；新增对 K-Fold workflow 调用 reporting 三件套的断言。
+- `tests/integration/test_public_run_entrypoints.py`：同时断言新名（`HoldoutWorkflow` / `KFoldWorkflow`）与旧名（deprecation 子类）都存在并实现 `run`。
+- `tests/machine_learning/test_ml_kfold_result_contract.py`：新增对 `KFoldModelResult` / `AggregatedModelResult` 的存在性断言；新增对 K-Fold workflow 调用 reporting 三件套的断言。
 - `MLConfigurator.create_ml_workflow / create_kfold_workflow` 改为构造新名类。
 - `habit.core.machine_learning.__init__` 同时导出新名与旧名。
 

@@ -6,7 +6,6 @@ The base class owns infrastructure that every workflow needs:
 * configuration validation,
 * logging,
 * shared collaborators (data manager, pipeline builder, plot manager),
-* a :class:`Resampler` adapter,
 * a pre-built :class:`RunnerContext` that runners can be constructed from.
 
 Concrete workflows stay thin: they decide which runner to call and how to
@@ -26,7 +25,7 @@ from habit.utils.log_utils import LoggerManager, get_module_logger, setup_logger
 
 from ..config_schemas import MLConfig
 from ..data_manager import DataManager
-from ..pipeline_utils import PipelineBuilder
+from ..pipeline_builder import PipelineBuilder
 from ..resampling import Resampler
 from ..runners.context import RunnerContext
 from ..visualization.plot_manager import PlotManager
@@ -81,13 +80,12 @@ class BaseWorkflow(ABC):
         self.pipeline_builder = PipelineBuilder(self.config_obj, self.output_dir)
         self.random_state = getattr(self.config_obj, "random_state", 42)
 
-        # Resampler adapter - replaces the previous private
-        # ``_train_with_optional_sampling`` method on this class.  The method
-        # is kept on the workflow for backward compatibility but now simply
-        # delegates to the resampler.
-        sampling_cfg = getattr(self.config_obj, "sampling", None)
+        # Backward-compatible adapter for callers that still invoke the old
+        # workflow helper methods directly.  New training paths put resampling
+        # inside the model pipeline via PipelineBuilder.
+        resampling_cfg = getattr(self.config_obj, "resampling", None)
         self.resampler = Resampler(
-            sampling_cfg=sampling_cfg,
+            sampling_cfg=resampling_cfg,
             random_state=self.random_state,
             logger=self.logger,
         )
@@ -96,7 +94,6 @@ class BaseWorkflow(ABC):
         self.runner_context = RunnerContext(
             data_manager=self.data_manager,
             pipeline_builder=self.pipeline_builder,
-            resampler=self.resampler,
             logger=self.logger,
             config=self.config_obj,
         )
@@ -154,8 +151,8 @@ class BaseWorkflow(ABC):
         """
         Backward-compat wrapper for older callers / tests.
 
-        New code should prefer ``self.resampler.fit_with_resampling`` or use
-        the runner layer.
+        New code should use ``PipelineBuilder`` so resampling is part of the
+        fitted pipeline and can be positioned from configuration.
         """
         return self.resampler.fit_with_resampling(estimator, X_train, y_train)
 

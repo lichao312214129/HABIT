@@ -129,9 +129,8 @@ class KFoldRunner(BaseRunner):
                 model_params_dict,
                 feature_names=list(X_train.columns),
             )
-            trained_estimator = self.context.resampler.fit_with_resampling(
-                pipeline, X_train, y_train
-            )
+            pipeline.fit(X_train, y_train)
+            trained_estimator = pipeline
             fold_estimators_per_model[model_name].append(trained_estimator)
 
             container = PredictionContainer(

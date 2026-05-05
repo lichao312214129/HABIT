@@ -3,6 +3,10 @@ ROI 文件准备
 
 本节说明如何准备肿瘤 ROI（Region of Interest）掩码文件。
 
+.. seealso::
+
+   勾画软件与 NIfTI 空间一致性：:doc:`../reference/upstream_libraries_zh`（ROI 外部工具节）。
+
 概述
 ----
 

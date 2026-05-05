@@ -18,10 +18,11 @@ Supported methods (``sampling.method`` in the config):
 """
 
 import logging
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator
 
 
 class Resampler:
@@ -91,6 +92,45 @@ class Resampler:
         X_fit, y_fit = self.resample(X_train, y_train)
         estimator.fit(X_fit, y_fit)
         return estimator
+
+
+class ResamplingStep(BaseEstimator):
+    """
+    Pipeline-compatible adapter for training-set resampling.
+
+    ``imblearn.pipeline.Pipeline`` recognizes intermediate steps that expose
+    ``fit_resample``.  During ``fit`` it calls this method and receives the
+    resampled ``X`` and ``y``; during prediction the sampler is skipped, so test
+    and inference rows are never duplicated or removed.
+    """
+
+    def __init__(
+        self,
+        resampling_cfg: Any,
+        random_state: int = 42,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
+        self.resampling_cfg = resampling_cfg
+        self.random_state = random_state
+        self.logger = logger or logging.getLogger(__name__)
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> "ResamplingStep":
+        """No-op fit for estimator compatibility."""
+        return self
+
+    def fit_resample(
+        self,
+        X: pd.DataFrame,
+        y: pd.Series,
+    ) -> Tuple[pd.DataFrame, pd.Series]:
+        """Resample training data and return the updated feature/label pair."""
+        return apply_resampling(
+            X_train=X,
+            y_train=y,
+            sampling_cfg=self.resampling_cfg,
+            random_state=self.random_state,
+            logger=self.logger,
+        )
 
 
 def apply_resampling(

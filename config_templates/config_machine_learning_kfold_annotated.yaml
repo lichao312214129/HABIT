@@ -48,6 +48,19 @@ normalization:
   # Other options: min_max, robust, max_abs, normalizer, quantile, power
 
 # ─────────────────────────────────────────────────────────────────────────
+# Resampling Configuration
+# ─────────────────────────────────────────────────────────────────────────
+# Resampling is applied only while fitting the training data. It is skipped
+# automatically during validation, testing, and prediction so row counts stay
+# unchanged outside the training fold.
+resampling:
+  enabled: false  # Set to true to enable class-imbalance resampling
+  method: random_over  # Options: random_over, random_under, smote
+  position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
+  ratio: 1.0  # Target sampling ratio passed to the selected resampling method
+  random_state: 42  # Random seed used by the resampling method
+
+# ─────────────────────────────────────────────────────────────────────────
 # Feature Selection (Applied within each fold to avoid data leakage)
 # ─────────────────────────────────────────────────────────────────────────
 feature_selection_methods:
