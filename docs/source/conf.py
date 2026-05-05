@@ -25,6 +25,7 @@ source_suffix = '.rst'
 # 扩展 - 不使用 myst_parser
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.graphviz',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
