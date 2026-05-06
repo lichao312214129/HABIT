@@ -50,7 +50,7 @@ class TestKMeansClustering:
     def _make_step(self, n_clusters: int = 3):
         from habit.core.habitat_analysis.clustering.kmeans_clustering import KMeansClustering
 
-        return KMeansClustering(params={"n_clusters": n_clusters, "random_state": 0})
+        return KMeansClustering(n_clusters=n_clusters, random_state=0)
 
     def test_instantiation(self) -> None:
         step = self._make_step()
@@ -95,7 +95,8 @@ class TestGMMClustering:
     def _make_step(self, n_components: int = 3):
         from habit.core.habitat_analysis.clustering.gmm_clustering import GMMClustering
 
-        return GMMClustering(params={"n_components": n_components, "random_state": 0})
+        # Implementation uses BaseClustering n_clusters as GMM n_components.
+        return GMMClustering(n_clusters=n_components, random_state=0)
 
     def test_instantiation(self) -> None:
         step = self._make_step()
@@ -121,7 +122,7 @@ class TestHierarchicalClustering:
             HierarchicalClustering,
         )
 
-        return HierarchicalClustering(params={"n_clusters": n_clusters})
+        return HierarchicalClustering(n_clusters=n_clusters)
 
     def test_instantiation(self) -> None:
         step = self._make_step()
@@ -146,7 +147,7 @@ class TestSpectralClustering:
             SpectralClustering,
         )
 
-        return SpectralClustering(params={"n_clusters": n_clusters, "random_state": 0})
+        return SpectralClustering(n_clusters=n_clusters, random_state=0)
 
     def test_instantiation(self) -> None:
         step = self._make_step()

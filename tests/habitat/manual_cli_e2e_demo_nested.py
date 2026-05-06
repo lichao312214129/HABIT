@@ -1,7 +1,11 @@
 """
-Optional E2E smoke for alternate demo YAML layouts (e.g. under ``demo_data/data11/``).
+Manual optional E2E check for alternate demo YAML layouts (e.g. ``demo_data/data11/``).
 
-If the file is absent (partial checkout / trimmed demos), the test is skipped.
+Not collected by default (``manual_*.py``). Run explicitly when needed::
+
+    pytest tests/habitat/manual_cli_e2e_demo_nested.py -v
+
+If the config file is absent (partial checkout / trimmed demos), the case is skipped.
 """
 
 from __future__ import annotations

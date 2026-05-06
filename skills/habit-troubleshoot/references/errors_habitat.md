@@ -68,7 +68,7 @@ features from 7x7x7 neighborhoods which is 343 voxels per voxel.
 
 **Fix**: Either:
 - Pass `--pipeline <path_to_pkl>` on the CLI, OR
-- Set in YAML: `HabitatsSegmention.habitat.mode: testing` AND
+- Set in YAML: `HabitatSegmentation.habitat.mode: testing` AND
   ensure `<out_dir>/supervoxel2habitat_clustering_model.pkl` exists from a
   prior train run.
 

@@ -1,8 +1,13 @@
 """
-End-to-end workflow test: preprocess -> get-habitat -> extract -> model -> compare.
+Manual end-to-end workflow: preprocess -> get-habitat -> extract -> model -> compare.
 
-Each step invokes the real CLI (Click CliRunner) with cwd at repo root so demo
-YAML relative paths resolve like a local developer run.
+``manual_*.py`` is not auto-collected. Each step invokes the real CLI (Click
+CliRunner) with cwd at repo root so demo YAML relative paths resolve like a
+local developer run. Execute when needed::
+
+    pytest tests/integration/manual_end_to_end_workflow.py -v -s
+
+Legacy path was ``test_end_to_end_workflow.py``.
 """
 
 from __future__ import annotations

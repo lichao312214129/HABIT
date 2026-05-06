@@ -1,20 +1,15 @@
 """
 CLI-level tests for `habit compare` command (model comparison).
 
-Migrated and extended from tests/test_compare.py.
+Heavy demo YAML run: ``tests/model_comparison/manual_cli_compare.py``.
 """
 
 from __future__ import annotations
-
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from habit.cli import cli
-
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
-CONFIG_COMPARE = DEMO / "config_model_comparison.yaml"
 
 
 class TestCompareCLI:
@@ -40,14 +35,3 @@ class TestCompareCLI:
         runner = CliRunner()
         result = runner.invoke(cli, ["compare", "-c", "nonexistent.yaml"])
         assert result.exit_code != 0
-
-    # ------------------------------------------------------------------
-    # Demo-data integration
-    # ------------------------------------------------------------------
-
-    def test_compare_with_demo_config(self) -> None:
-        if not CONFIG_COMPARE.exists():
-            pytest.skip(f"Config not found: {CONFIG_COMPARE}")
-        runner = CliRunner()
-        result = runner.invoke(cli, ["compare", "-c", str(CONFIG_COMPARE)])
-        assert result.exit_code in [0, 1], result.output

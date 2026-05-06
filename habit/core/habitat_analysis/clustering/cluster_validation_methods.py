@@ -2,6 +2,9 @@
 Define the mapping relationship between clustering methods and optimal cluster number determination methods
 """
 
+import numpy as np
+from sklearn.metrics import silhouette_score as _sk_silhouette_score
+
 # Validation methods supported by each clustering algorithm
 CLUSTERING_VALIDATION_METHODS = {
     # Methods supported by K-Means clustering
@@ -276,3 +279,22 @@ def get_method_description(clustering_algorithm: str, validation_method: str) ->
     else:
         # 默认描述
         return f"{validation_method.capitalize()} Score"
+
+
+def compute_silhouette_score(
+    X: np.ndarray,
+    labels: np.ndarray,
+    **kwargs,
+) -> float:
+    """
+    Public wrapper around sklearn's silhouette_score for validation and tests.
+
+    Args:
+        X: Feature matrix of shape (n_samples, n_features).
+        labels: Cluster label per sample, shape (n_samples,).
+        **kwargs: Forwarded to sklearn.metrics.silhouette_score (e.g. metric).
+
+    Returns:
+        Scalar silhouette score in [-1, 1] when well-defined.
+    """
+    return float(_sk_silhouette_score(X, labels, **kwargs))

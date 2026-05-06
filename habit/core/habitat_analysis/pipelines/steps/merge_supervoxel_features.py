@@ -13,6 +13,7 @@ import pandas as pd
 import logging
 
 from ..base_pipeline import IndividualLevelStep
+from ..subject_state import SubjectHabitatState
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 
@@ -91,7 +92,10 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         before the parallel transform fans out across workers.
         """
         if self.use_advanced_features:
-            has_advanced = any('supervoxel_features' in data for data in X.values())
+            has_advanced = any(
+                data.supervoxel_features is not None
+                for data in X.values()
+            )
             if not has_advanced:
                 raise ValueError(
                     "Configuration requests advanced supervoxel features, but "
@@ -101,7 +105,7 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         self.fitted_ = True
         return self
 
-    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
+    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """
         Pick advanced or mean-voxel supervoxel features for one subject and
         normalise them into the ``supervoxel_df`` contract consumed by
@@ -118,8 +122,8 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         # labels (the Supervoxel column IS the habitat label). Mirror it into
         # Habitats here so downstream code does not have to special-case mode.
         clustering_mode = (
-            self.config.HabitatsSegmention.clustering_mode
-            if self.config.HabitatsSegmention is not None
+            self.config.HabitatSegmentation.clustering_mode
+            if self.config.HabitatSegmentation is not None
             else None
         )
         if (
@@ -139,20 +143,14 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                 f"feature columns: {true_feature_columns})"
             )
 
-        return {'supervoxel_df': supervoxel_df}
+        return SubjectHabitatState(supervoxel_df=supervoxel_df)
 
     def _build_advanced_supervoxel_df(
         self,
         subject_id: str,
-        subject_data: Dict[str, Any],
+        subject_data: SubjectHabitatState,
     ) -> pd.DataFrame:
-        if 'supervoxel_features' not in subject_data:
-            raise ValueError(
-                f"Subject {subject_id} missing 'supervoxel_features'. "
-                "SupervoxelFeatureExtractionStep must be executed first."
-            )
-
-        supervoxel_df = subject_data['supervoxel_features'].copy()
+        supervoxel_df = subject_data.require_supervoxel_features(self.__class__.__name__).copy()
 
         if (
             'SupervoxelID' in supervoxel_df.columns
@@ -165,11 +163,10 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
             supervoxel_df[ResultColumns.SUBJECT] = subject_id
 
         # Voxel-count column for parity with the mean_voxel_features path.
-        if (
-            ResultColumns.COUNT not in supervoxel_df.columns
-            and 'supervoxel_labels' in subject_data
-        ):
-            labels = np.asarray(subject_data['supervoxel_labels']).ravel()
+        if ResultColumns.COUNT not in supervoxel_df.columns:
+            labels = np.asarray(
+                subject_data.require_supervoxel_labels(self.__class__.__name__)
+            ).ravel()
             labels_in_mask = labels[labels > 0]
             unique, counts = np.unique(labels_in_mask, return_counts=True)
             count_series = pd.Series(counts, index=unique)
@@ -191,11 +188,6 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
     def _build_mean_supervoxel_df(
         self,
         subject_id: str,
-        subject_data: Dict[str, Any],
+        subject_data: SubjectHabitatState,
     ) -> pd.DataFrame:
-        if 'mean_voxel_features' not in subject_data:
-            raise ValueError(
-                f"Subject {subject_id} missing 'mean_voxel_features'. "
-                "CalculateMeanVoxelFeaturesStep must be executed first."
-            )
-        return subject_data['mean_voxel_features'].copy()
+        return subject_data.require_mean_voxel_features(self.__class__.__name__).copy()

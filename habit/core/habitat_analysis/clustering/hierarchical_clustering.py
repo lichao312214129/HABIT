@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score, calinski_harabasz_score
 from typing import Tuple, Dict, Any, Optional, List
-from habitat_clustering.clustering.base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, register_clustering
 
 @register_clustering('hierarchical')
 class HierarchicalClustering(BaseClustering):

@@ -10,6 +10,7 @@ import pandas as pd
 import logging
 
 from ..base_pipeline import GroupLevelStep
+from ..subject_state import SubjectHabitatState
 
 
 class CombineSupervoxelsStep(GroupLevelStep):
@@ -31,45 +32,22 @@ class CombineSupervoxelsStep(GroupLevelStep):
         super().__init__()
         self.logger = logging.getLogger(__name__)
     
-    def fit(self, X: Dict[str, Dict], y: Optional[Any] = None, **fit_params) -> 'CombineSupervoxelsStep':
-        """
-        Fit the step (stateless operation, just mark as fitted).
-        
-        Args:
-            X: Dict of subject_id -> {
-                'supervoxel_df': pd.DataFrame
-            }
-            y: Optional target data (not used)
-            **fit_params: Additional fitting parameters (not used)
-            
-        Returns:
-            self
-        """
-        # Stateless step - no parameters to learn
+    def fit(self, X: Dict[str, SubjectHabitatState], y: Optional[Any] = None, **fit_params) -> 'CombineSupervoxelsStep':
+        """Fit the stateless step by marking it as fitted."""
         self.fitted_ = True
         return self
     
-    def transform(self, X: Dict[str, Dict]) -> pd.DataFrame:
-        """
-        Combine all subjects' supervoxel features into a single DataFrame.
-        
-        Args:
-            X: Dict of subject_id -> {
-                'supervoxel_df': pd.DataFrame  # Supervoxel features for this subject
-            }
-            
-        Returns:
-            Combined DataFrame with supervoxel-level features for all subjects
-        """
+    def transform(self, X: Dict[str, SubjectHabitatState]) -> pd.DataFrame:
+        """Combine all subjects' supervoxel features into a single DataFrame."""
         all_supervoxel_dfs = []
         
         for subject_id, data in X.items():
             try:
-                supervoxel_df = data['supervoxel_df']
+                supervoxel_df = data.require_supervoxel_df(self.__class__.__name__)
                 all_supervoxel_dfs.append(supervoxel_df)
-            except KeyError as e:
+            except ValueError:
                 self.logger.error(
-                    f"Subject {subject_id} missing 'supervoxel_df' key. "
+                    f"Subject {subject_id} missing supervoxel_df. "
                     "Make sure MergeSupervoxelFeaturesStep was executed."
                 )
                 raise
@@ -77,14 +55,12 @@ class CombineSupervoxelsStep(GroupLevelStep):
         if not all_supervoxel_dfs:
             raise ValueError("No supervoxel features to combine")
         
-        # Concatenate all subjects' supervoxel DataFrames
         combined_df = pd.concat(all_supervoxel_dfs, ignore_index=True)
 
         self.logger.info(
             f"Combined supervoxel features from {len(all_supervoxel_dfs)} "
             f"subjects (shape={combined_df.shape})"
         )
-        # Detailed schema (columns / dtypes) only useful when debugging.
         self.logger.debug(f"Combined columns sample: {list(combined_df.columns)[:10]}")
         self.logger.debug(f"Combined dtypes: {combined_df.dtypes.value_counts().to_dict()}")
 

@@ -1,7 +1,13 @@
 """
-End-to-end CLI smoke tests for direct-pooling habitat demo configs.
+Manual end-to-end CLI checks for two-step habitat demo configs (heavy I/O).
 
-See ``test_cli_e2e_two_step.py`` for rationale (cwd + Click CliRunner).
+Renamed with the ``manual_*.py`` prefix so normal ``pytest tests/habitat`` does
+not collect this module. Run explicitly when needed::
+
+    pytest tests/habitat/manual_cli_e2e_two_step.py -v
+
+Covers ``habit get-habitat`` with YAML-only runs and common flag combinations
+(``--debug``, explicit ``-m train`` / ``-m predict``).
 """
 
 from __future__ import annotations
@@ -31,38 +37,47 @@ def _skip_if_missing(path: Path) -> None:
     "relative_config_path, extra_args",
     (
         pytest.param(
-            "config_habitat_direct_pooling.yaml",
+            "config_habitat_two_step.yaml",
             [],
             id="train_yaml_only",
         ),
         pytest.param(
-            "config_habitat_direct_pooling.yaml",
+            "config_habitat_two_step.yaml",
             ["--debug"],
             id="train_plus_debug",
         ),
         pytest.param(
-            "config_habitat_direct_pooling.yaml",
+            "config_habitat_two_step.yaml",
             ["-m", "train"],
             id="train_plus_cli_mode_train",
         ),
         pytest.param(
-            "config_habitat_direct_pooling_predict.yaml",
+            "config_habitat_two_step_predict.yaml",
             [],
             id="predict_yaml_only",
         ),
         pytest.param(
-            "config_habitat_direct_pooling_predict.yaml",
+            "config_habitat_two_step_predict.yaml",
             ["-m", "predict"],
             id="predict_plus_cli_mode_predict",
         ),
     ),
 )
-def test_direct_pooling_user_like_cli_combinations(
+def test_two_step_user_like_cli_combinations(
     cwd_project_root: None,
     relative_config_path: str,
     extra_args: Sequence[str],
 ) -> None:
-    """Run ``get-habitat`` against direct-pooling demo YAMLs plus CLI flags."""
+    """
+    Parameters
+    ----------
+    cwd_project_root:
+        Ensures demo YAML relative paths resolve from repo root.
+    relative_config_path:
+        Filename under ``demo_data/``.
+    extra_args:
+        Tokens after ``-c <path>``.
+    """
     cfg = _config(relative_config_path)
     _skip_if_missing(cfg)
 

@@ -5,10 +5,11 @@ This step extracts advanced features (texture, shape, radiomics) from supervoxel
 Conditionally executed based on configuration.
 """
 
-from typing import Any, Dict
+from typing import Any
 import logging
 
 from ..base_pipeline import IndividualLevelStep
+from ..subject_state import SubjectHabitatState
 from ...services.feature_service import FeatureService
 from ...config_schemas import HabitatAnalysisConfig
 
@@ -37,7 +38,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         self.config = config
         self.logger = logging.getLogger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
+    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """
         Extract supervoxel features for one subject.
 
@@ -59,10 +60,10 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         if isinstance(result, Exception):
             raise result
 
-        return {
-            'features': subject_data['features'],
-            'raw': subject_data['raw'],
-            'mask_info': subject_data['mask_info'],
-            'supervoxel_labels': subject_data['supervoxel_labels'],
-            'supervoxel_features': result,
-        }
+        return SubjectHabitatState(
+            features=subject_data.require_features(self.__class__.__name__),
+            raw=subject_data.require_raw(self.__class__.__name__),
+            mask_info=subject_data.require_mask_info(self.__class__.__name__),
+            supervoxel_labels=subject_data.require_supervoxel_labels(self.__class__.__name__),
+            supervoxel_features=result,
+        )

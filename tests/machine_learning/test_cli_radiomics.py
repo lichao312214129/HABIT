@@ -1,5 +1,7 @@
 """
 CLI-level tests for ``habit radiomics`` command (standalone radiomics pipeline entry).
+
+Heavy demo invocation: ``manual_cli_radiomics.py``.
 """
 
 from __future__ import annotations
@@ -7,7 +9,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 
 from habit.cli import cli
@@ -18,15 +19,6 @@ DEMO_CONFIG = PROJECT_ROOT / "demo_data" / "config_machine_learning_radiomics.ya
 
 class TestRadiomicsCLI:
     """Smoke tests for ``habit radiomics``."""
-
-    def test_radiomics_with_config(self, cwd_repo_root: None) -> None:
-        """Invoke radiomics with demo YAML when present."""
-        if not DEMO_CONFIG.is_file():
-            pytest.skip(f"Config file not found: {DEMO_CONFIG}")
-
-        runner = CliRunner()
-        result = runner.invoke(cli, ["radiomics", "-c", str(DEMO_CONFIG)])
-        assert result.exit_code in [0, 1], result.output
 
     def test_radiomics_help(self) -> None:
         runner = CliRunner()

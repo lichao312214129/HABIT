@@ -8,7 +8,7 @@ Consolidates the six original habitat CLI test files:
 
 Demo-config tests depend on ``cwd_project_root`` from ``conftest.py`` so relative
 paths in YAML resolve from the repository root. Parametrized E2E flag combinations
-live in ``test_cli_e2e_*.py`` beside this module.
+live in ``manual_cli_e2e_*.py`` beside this module (not auto-collected; run by path).
 """
 
 from __future__ import annotations

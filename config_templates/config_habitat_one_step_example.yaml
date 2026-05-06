@@ -29,7 +29,7 @@ FeatureConstruction:
     params: {}
 
 # Habitat Segmentation Configuration
-HabitatsSegmention:
+HabitatSegmentation:
   # Clustering mode: 'one_step', 'two_step', or 'direct_pooling'
   clustering_mode: one_step
   

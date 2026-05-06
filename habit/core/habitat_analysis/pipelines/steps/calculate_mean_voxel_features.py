@@ -5,12 +5,13 @@ This step calculates the mean of voxel features within each supervoxel.
 It's always executed in two-step strategy to provide baseline features.
 """
 
-from typing import Any, Dict
+from typing import Any
 import logging
 
 import numpy as np
 
 from ..base_pipeline import IndividualLevelStep
+from ..subject_state import SubjectHabitatState
 from ...clustering_features import calculate_supervoxel_means
 from ...config_schemas import HabitatAnalysisConfig
 
@@ -32,16 +33,12 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
         self.config = config
         self.logger = logging.getLogger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Compute per-supervoxel mean features for one subject.
-
-        Returns the same dict shape as input plus ``mean_voxel_features``
-        (a DataFrame with one row per supervoxel).
-        """
-        feature_df = subject_data['features']
-        raw_df = subject_data['raw']
-        supervoxel_labels = subject_data['supervoxel_labels']
+    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+        """Compute per-supervoxel mean features for one subject."""
+        feature_df = subject_data.require_features(self.__class__.__name__)
+        raw_df = subject_data.require_raw(self.__class__.__name__)
+        mask_info = subject_data.require_mask_info(self.__class__.__name__)
+        supervoxel_labels = subject_data.require_supervoxel_labels(self.__class__.__name__)
         n_clusters = len(np.unique(supervoxel_labels))
 
         mean_features_df = calculate_supervoxel_means(
@@ -52,10 +49,10 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
             n_clusters,
         )
 
-        return {
-            'features': feature_df,
-            'raw': raw_df,
-            'mask_info': subject_data['mask_info'],
-            'supervoxel_labels': supervoxel_labels,
-            'mean_voxel_features': mean_features_df,
-        }
+        return SubjectHabitatState(
+            features=feature_df,
+            raw=raw_df,
+            mask_info=mask_info,
+            supervoxel_labels=supervoxel_labels,
+            mean_voxel_features=mean_features_df,
+        )

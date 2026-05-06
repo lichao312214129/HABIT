@@ -33,9 +33,9 @@ class ClusteringService:
 
     Two construction modes (mirrors :class:`FeatureService`):
 
-    * ``train`` — initialises clustering algorithms and selection methods
+    * ``train`` - initialises clustering algorithms and selection methods
       from configuration. Use :meth:`for_train` for explicit intent.
-    * ``predict`` — leaves clustering models as ``None``; the loaded
+    * ``predict`` - leaves clustering models as ``None``; the loaded
       pipeline holds the fitted state and is injected over the top via the
       manager-injection whitelist. Use :meth:`for_predict`.
     """
@@ -114,7 +114,7 @@ class ClusteringService:
         Returns:
             Dict[str, Any]: Parameters passed to ClusteringAlgorithmFactory.create_algorithm.
         """
-        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+        supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
         params: Dict[str, Any] = {
             "n_clusters": n_clusters,
             "random_state": supervoxel_cfg.random_state,
@@ -192,8 +192,8 @@ class ClusteringService:
 
     def _init_clustering_algorithms(self) -> None:
         """Initialize clustering algorithm instances."""
-        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-        habitat_cfg = self.config.HabitatsSegmention.habitat
+        supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
+        habitat_cfg = self.config.HabitatSegmentation.habitat
         supervoxel_params = self._build_supervoxel_clustering_params(
             n_clusters=supervoxel_cfg.n_clusters
         )
@@ -212,7 +212,7 @@ class ClusteringService:
 
     def _init_selection_methods(self) -> None:
         """Initialize and validate cluster selection methods."""
-        habitat_cfg = self.config.HabitatsSegmention.habitat
+        habitat_cfg = self.config.HabitatSegmentation.habitat
         validation_info = get_validation_methods(habitat_cfg.algorithm)
         valid_methods = list(validation_info['methods'].keys())
         default_methods = get_default_methods(habitat_cfg.algorithm)
@@ -297,7 +297,7 @@ class ClusteringService:
             Array of supervoxel labels (1-indexed)
         """
         try:
-            supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+            supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
             fit_kwargs, predict_kwargs = self._spatial_fit_predict_kwargs(
                 supervoxel_cfg.algorithm, mask_info
             )
@@ -354,7 +354,7 @@ class ClusteringService:
             f"Determining optimal clusters for {subject} using {selection_method}"
         )
         
-        supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
+        supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
         clusterer = ClusteringAlgorithmFactory.create_algorithm(
             supervoxel_cfg.algorithm,
             **self._build_supervoxel_clustering_params(max_clusters),
@@ -420,7 +420,7 @@ class ClusteringService:
                 scores_dict=scores_dict,
                 cluster_range=clusterer.cluster_range,
                 methods=[selection_method],
-                clustering_algorithm=self.config.HabitatsSegmention.supervoxel.algorithm,
+                clustering_algorithm=self.config.HabitatSegmentation.supervoxel.algorithm,
                 figsize=(8, 6),
                 save_path=plot_file,
                 show=False,
@@ -440,8 +440,8 @@ class ClusteringService:
             os.makedirs(self.config.out_dir, exist_ok=True)
             
             # Get cluster range from configuration
-            min_clusters = self.config.HabitatsSegmention.habitat.min_clusters or 2
-            max_clusters = self.config.HabitatsSegmention.habitat.max_clusters
+            min_clusters = self.config.HabitatSegmentation.habitat.min_clusters or 2
+            max_clusters = self.config.HabitatSegmentation.habitat.max_clusters
             cluster_range = list(range(min_clusters, max_clusters + 1))
 
             # Compute per-method best cluster counts using BaseClustering logic.
@@ -464,7 +464,7 @@ class ClusteringService:
                 scores_dict=scores,
                 cluster_range=cluster_range,
                 methods=methods_list,
-                clustering_algorithm=self.config.HabitatsSegmention.habitat.algorithm,
+                clustering_algorithm=self.config.HabitatSegmentation.habitat.algorithm,
                 figsize=(6, 6),
                 outdir=self.config.out_dir,
                 show=False,
@@ -501,7 +501,7 @@ class ClusteringService:
             
             title = (
                 f'Supervoxel Clustering: {subject}\n'
-                f'(n_clusters={self.config.HabitatsSegmention.supervoxel.n_clusters})'
+                f'(n_clusters={self.config.HabitatSegmentation.supervoxel.n_clusters})'
             )
             
             # 2D scatter

@@ -38,9 +38,10 @@ warnings.simplefilter('ignore')
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.log_utils import LoggerManager
 
-from .config_schemas import HabitatAnalysisConfig, ResultColumns
-from .services import ClusteringService, FeatureService, ResultWriter
+from .config_schemas import HabitatAnalysisConfig
+from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
 from .pipelines.base_pipeline import BasePipelineStep, HabitatPipeline
+from .pipelines.subject_state import SubjectHabitatState
 from .pipelines.steps.calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
 from .pipelines.steps.combine_supervoxels import CombineSupervoxelsStep
 from .pipelines.steps.concatenate_voxels import ConcatenateVoxelsStep
@@ -51,30 +52,6 @@ from .pipelines.steps.population_clustering import PopulationClusteringStep
 from .pipelines.steps.subject_preprocessing import SubjectPreprocessingStep
 from .pipelines.steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
 from .pipelines.steps.voxel_feature_extractor import VoxelFeatureExtractor
-
-
-# Module-level helper used by the result post-processing path to enforce a
-# stable column order on the habitats.csv output.
-def _canonical_csv_column_order(df: pd.DataFrame) -> List[str]:
-    """
-    Return habitats.csv column order: metadata columns first, features after.
-
-    Args:
-        df: Result DataFrame produced by the pipeline.
-
-    Returns:
-        List of column names in canonical order, preserving any unknown columns
-        in their current order after the metadata block.
-    """
-    meta_order = [
-        ResultColumns.SUBJECT,
-        ResultColumns.SUPERVOXEL,
-        ResultColumns.HABITATS,
-        ResultColumns.COUNT,
-    ]
-    meta_cols = [c for c in meta_order if c in df.columns]
-    other_cols = [c for c in df.columns if c not in meta_cols]
-    return meta_cols + other_cols
 
 
 # =============================================================================
@@ -89,7 +66,7 @@ def _build_two_step_steps(
     config: HabitatAnalysisConfig,
     feature_service: FeatureService,
     clustering_service: ClusteringService,
-    result_writer: ResultWriter,
+    habitat_image_writer: HabitatImageWriter,
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``two_step`` clustering mode.
@@ -103,19 +80,19 @@ def _build_two_step_steps(
         config: Validated habitat-analysis configuration.
         feature_service: Provides voxel/supervoxel feature extraction.
         clustering_service: Provides clustering algorithms and validation.
-        result_writer: Required for saving supervoxel maps in two-step mode.
+        habitat_image_writer: Required for saving supervoxel maps in two-step mode.
 
     Returns:
         List of (name, step) tuples to feed into ``HabitatPipeline``.
     """
-    if result_writer is None:
-        raise ValueError("result_writer is required for two-step pipeline")
+    if habitat_image_writer is None:
+        raise ValueError("habitat_image_writer is required for two-step pipeline")
 
     steps: List[Tuple[str, BasePipelineStep]] = []
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_service, result_writer),
+        VoxelFeatureExtractor(feature_service, habitat_image_writer),
     ))
 
     steps.append((
@@ -129,7 +106,7 @@ def _build_two_step_steps(
         IndividualClusteringStep(
             feature_service=feature_service,
             clustering_service=clustering_service,
-            result_writer=result_writer,
+            habitat_image_writer=habitat_image_writer,
             config=config,
             target='supervoxel',
         ),
@@ -196,7 +173,7 @@ def _build_one_step_steps(
     config: HabitatAnalysisConfig,
     feature_service: FeatureService,
     clustering_service: ClusteringService,
-    result_writer: Optional[ResultWriter],
+    habitat_image_writer: Optional[HabitatImageWriter],
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``one_step`` clustering mode.
@@ -209,7 +186,7 @@ def _build_one_step_steps(
         config: Validated habitat-analysis configuration.
         feature_service: Provides voxel feature extraction.
         clustering_service: Provides clustering algorithms and validation.
-        result_writer: Optional; created on-the-fly if missing because the
+        habitat_image_writer: Optional; created on-the-fly if missing because the
             individual-clustering step needs it for saving habitat maps.
 
     Returns:
@@ -219,7 +196,7 @@ def _build_one_step_steps(
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_service, result_writer),
+        VoxelFeatureExtractor(feature_service, habitat_image_writer),
     ))
 
     steps.append((
@@ -227,10 +204,10 @@ def _build_one_step_steps(
         SubjectPreprocessingStep(feature_service),
     ))
 
-    # Lazily build a minimal ResultWriter when one was not injected.
+    # Lazily build a minimal HabitatImageWriter when one was not injected.
     # IndividualClusteringStep with target='habitat' needs it for saving maps.
-    if result_writer is None:
-        result_writer = ResultWriter(config, logging.getLogger(__name__))
+    if habitat_image_writer is None:
+        habitat_image_writer = HabitatImageWriter(config, logging.getLogger(__name__))
 
     # In one-step we cluster voxels directly into habitats per subject and we
     # ask the step to find an optimal cluster count for each subject.
@@ -239,7 +216,7 @@ def _build_one_step_steps(
         IndividualClusteringStep(
             feature_service=feature_service,
             clustering_service=clustering_service,
-            result_writer=result_writer,
+            habitat_image_writer=habitat_image_writer,
             config=config,
             target='habitat',
             find_optimal=True,
@@ -271,7 +248,7 @@ def _build_pooling_steps(
     config: HabitatAnalysisConfig,
     feature_service: FeatureService,
     clustering_service: ClusteringService,
-    result_writer: Optional[ResultWriter],
+    habitat_image_writer: Optional[HabitatImageWriter],
 ) -> List[Tuple[str, BasePipelineStep]]:
     """
     Build the ordered step list for the ``direct_pooling`` clustering mode.
@@ -284,7 +261,7 @@ def _build_pooling_steps(
         config: Validated habitat-analysis configuration.
         feature_service: Provides voxel feature extraction.
         clustering_service: Provides clustering algorithms and validation.
-        result_writer: Unused for the pooling flow but accepted for parity
+        habitat_image_writer: Unused for the pooling flow but accepted for parity
             with other recipes.
 
     Returns:
@@ -294,7 +271,7 @@ def _build_pooling_steps(
 
     steps.append((
         'voxel_features',
-        VoxelFeatureExtractor(feature_service, result_writer),
+        VoxelFeatureExtractor(feature_service, habitat_image_writer),
     ))
 
     steps.append((
@@ -331,7 +308,7 @@ def _build_pooling_steps(
 
 
 # Map clustering_mode -> recipe builder. The single source of truth for the
-# mode dispatch (the rest of the module branches via ``config.HabitatsSegmention
+# mode dispatch (the rest of the module branches via ``config.HabitatSegmentation
 # .clustering_mode`` only for save-side variations, which are tiny).
 _PIPELINE_RECIPES = {
     'two_step': _build_two_step_steps,
@@ -353,7 +330,7 @@ class HabitatAnalysis:
     ``pipeline_builder``):
 
     1. Build a ``HabitatPipeline`` whose step list depends on
-       ``config.HabitatsSegmention.clustering_mode``.
+       ``config.HabitatSegmentation.clustering_mode``.
     2. Train (``fit``) -> persist as ``habitat_pipeline.pkl`` -> return results.
     3. Load a saved pipeline (``predict``) -> reconcile runtime config and
        data paths -> transform -> return results.
@@ -382,7 +359,7 @@ class HabitatAnalysis:
     _PIPELINE_SERVICE_ATTRS: Tuple[str, ...] = (
         'feature_service',
         'clustering_service',
-        'result_writer',
+        'habitat_image_writer',
     )
 
     def __init__(
@@ -390,7 +367,7 @@ class HabitatAnalysis:
         config: Union[Dict[str, Any], HabitatAnalysisConfig],
         feature_service: FeatureService,
         clustering_service: ClusteringService,
-        result_writer: ResultWriter,
+        habitat_image_writer: HabitatImageWriter,
         logger: Any,
     ) -> None:
         """
@@ -401,7 +378,7 @@ class HabitatAnalysis:
                 or an already-validated ``HabitatAnalysisConfig`` instance.
             feature_service: Service for voxel/supervoxel feature extraction.
             clustering_service: Service for clustering algorithms.
-            result_writer: Writer for result persistence (CSV / NRRD images).
+            habitat_image_writer: Writer for habitat/supervoxel NRRD images.
             logger: A configured logger instance (typically from CLI entry point).
 
         Raises:
@@ -416,7 +393,7 @@ class HabitatAnalysis:
 
         self.feature_service = feature_service
         self.clustering_service = clustering_service
-        self.result_writer = result_writer
+        self.habitat_image_writer = habitat_image_writer
         self.logger = logger
 
         # Pipeline instance is populated by either ``fit`` or ``predict``.
@@ -427,7 +404,13 @@ class HabitatAnalysis:
 
         # Propagate logging targets to services that need to log from subprocesses.
         self.feature_service.set_logging_info(self._log_file_path, self._log_level)
-        self.result_writer.set_logging_info(self._log_file_path, self._log_level)
+        self.habitat_image_writer.set_logging_info(self._log_file_path, self._log_level)
+        self.result_publisher = HabitatResultPublisher(
+            config=self.config,
+            habitat_image_writer=self.habitat_image_writer,
+            logger=self.logger,
+            pipeline_getter=lambda: self.pipeline,
+        )
 
     # ------------------------------------------------------------------
     # Setup helpers (kept private; ``__init__`` calls them in order).
@@ -533,12 +516,15 @@ class HabitatAnalysis:
         subjects_list = self._prepare_subjects(subjects)
         # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
         # so we just hand it an empty stub per subject.
-        X: Dict[str, Dict] = {subject: {} for subject in subjects_list}
+        X: Dict[str, SubjectHabitatState] = {
+            subject: SubjectHabitatState.empty()
+            for subject in subjects_list
+        }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
         if self.config.verbose:
             self.logger.info(
-                f"Building and fitting {self.config.HabitatsSegmention.clustering_mode} pipeline..."
+                f"Building and fitting {self.config.HabitatSegmentation.clustering_mode} pipeline..."
             )
 
         self.pipeline = self._build_pipeline()
@@ -549,10 +535,10 @@ class HabitatAnalysis:
             self.logger.info(f"Saving fitted pipeline to {pipeline_path}")
         self.pipeline.save(str(pipeline_path))
 
-        # Publish results on the writer and optionally save them to disk.
-        self.result_writer.results_df = results_df
+        # Keep the image writer's current result table available for optional image publishing.
+        self.habitat_image_writer.results_df = results_df
         if save_results_csv:
-            self._save_results(results_df, mode='train')
+            self.result_publisher.publish(results_df, mode='train')
         return results_df
 
     def predict(
@@ -594,12 +580,15 @@ class HabitatAnalysis:
         subjects_list = self._prepare_subjects(subjects)
         # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
         # so we just hand it an empty stub per subject.
-        X: Dict[str, Dict] = {subject: {} for subject in subjects_list}
+        X: Dict[str, SubjectHabitatState] = {
+            subject: SubjectHabitatState.empty()
+            for subject in subjects_list
+        }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
         if self.config.verbose:
             self.logger.info(
-                f"Loading and running {self.config.HabitatsSegmention.clustering_mode} pipeline..."
+                f"Loading and running {self.config.HabitatSegmentation.clustering_mode} pipeline..."
             )
 
         self.pipeline = HabitatPipeline.load(str(resolved_path))
@@ -614,10 +603,10 @@ class HabitatAnalysis:
 
         results_df = self.pipeline.transform(X)
 
-        # Publish results on the writer and optionally save them to disk.
-        self.result_writer.results_df = results_df
+        # Keep the image writer's current result table available for optional image publishing.
+        self.habitat_image_writer.results_df = results_df
         if save_results_csv:
-            self._save_results(results_df, mode='predict')
+            self.result_publisher.publish(results_df, mode='predict')
         return results_df
 
     def run(
@@ -691,7 +680,7 @@ class HabitatAnalysis:
         Raises:
             ValueError: If ``clustering_mode`` is not one of the registered modes.
         """
-        mode = self.config.HabitatsSegmention.clustering_mode
+        mode = self.config.HabitatSegmentation.clustering_mode
         if mode not in _PIPELINE_RECIPES:
             raise ValueError(
                 f"Unknown clustering_mode: {mode}. "
@@ -703,7 +692,7 @@ class HabitatAnalysis:
             config=self.config,
             feature_service=self.feature_service,
             clustering_service=self.clustering_service,
-            result_writer=self.result_writer,
+            habitat_image_writer=self.habitat_image_writer,
         )
         return HabitatPipeline(steps=steps, config=self.config)
 
@@ -813,56 +802,6 @@ class HabitatAnalysis:
                 setattr(step, attr_name, attr_value)
 
     # ------------------------------------------------------------------
-    # Result handling.
-    # ------------------------------------------------------------------
-
-    def _save_results(self, results_df: pd.DataFrame, mode: str) -> None:
-        """
-        Write ``habitats.csv`` and any habitat-map images.
-
-        For ``one_step`` mode, the IndividualClusteringStep already wrote the
-        per-subject habitat NRRDs; we only emit the CSV here.
-        For ``two_step`` and ``direct_pooling``, we delegate to
-        ``ResultWriter.save_all_habitat_images`` after syncing the
-        ``mask_info_cache`` from the pipeline (which lives in the parent process).
-
-        Args:
-            results_df: Final results DataFrame.
-            mode: ``'train'`` or ``'predict'``; only affects logging.
-        """
-        if self.config.verbose:
-            self.logger.info("Saving results...")
-
-        # Always write the CSV first with a stable column ordering.
-        csv_path = Path(self.config.out_dir) / "habitats.csv"
-        canonical_order = _canonical_csv_column_order(results_df)
-        results_df[canonical_order].to_csv(str(csv_path), index=False)
-        if self.config.verbose:
-            self.logger.info(f"Results saved to {csv_path}")
-
-        clustering_mode = self.config.HabitatsSegmention.clustering_mode
-        if clustering_mode == 'one_step':
-            # IndividualClusteringStep saved habitat maps directly during fit/transform;
-            # nothing more to do here.
-            if self.config.verbose:
-                self.logger.info(
-                    "One-Step mode: habitat maps were saved during clustering."
-                )
-            return
-
-        # two_step / direct_pooling: rely on ResultWriter.save_all_habitat_images.
-        if not self.config.save_images:
-            return
-
-        # Hand the mask cache off from the pipeline (parent-side shuttle)
-        # to the result writer (the long-lived owner used by image saving).
-        # Both attributes are now always defined as dicts (no hasattr guards).
-        pipeline_cache = getattr(self.pipeline, 'mask_info_cache', None) or {}
-        if pipeline_cache:
-            self.result_writer.mask_info_cache = pipeline_cache
-        self.result_writer.save_all_habitat_images(failed_subjects=[])
-
-    # ------------------------------------------------------------------
     # Small private helpers.
     # ------------------------------------------------------------------
 
@@ -885,7 +824,7 @@ class HabitatAnalysis:
 
         if not subjects:
             raise ValueError(
-                f"No subjects provided for {self.config.HabitatsSegmention.clustering_mode} run."
+                f"No subjects provided for {self.config.HabitatSegmentation.clustering_mode} run."
             )
         return list(subjects)
 
@@ -895,12 +834,12 @@ class HabitatAnalysis:
 
     @property
     def results_df(self) -> Optional[pd.DataFrame]:
-        """Forward to ``ResultWriter.results_df``."""
-        return self.result_writer.results_df
+        """Forward to ``HabitatImageWriter.results_df``."""
+        return self.habitat_image_writer.results_df
 
     @results_df.setter
     def results_df(self, value: pd.DataFrame) -> None:
-        self.result_writer.results_df = value
+        self.habitat_image_writer.results_df = value
 
     @property
     def supervoxel2habitat_clustering(self) -> Any:

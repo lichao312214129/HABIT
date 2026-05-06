@@ -9,6 +9,7 @@ Uses synthetic habitat maps represented as numpy arrays / pandas DataFrames.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Dict
 
 import numpy as np
@@ -108,17 +109,15 @@ class TestMSIFeatures:
 class TestHabitatAnalyzer:
     def test_import_succeeds(self) -> None:
         from habit.core.habitat_analysis.habitat_features.habitat_analyzer import (  # noqa: F401
-            HabitatAnalyzer,
+            HabitatMapAnalyzer,
         )
 
-    def test_instantiation(self) -> None:
-        from habit.core.habitat_analysis.habitat_features.habitat_analyzer import HabitatAnalyzer
+    def test_instantiation(self, tmp_path: Path) -> None:
+        from habit.core.habitat_analysis.habitat_features.habitat_analyzer import HabitatMapAnalyzer
 
-        try:
-            analyzer = HabitatAnalyzer(config=None)
-            assert analyzer is not None
-        except TypeError:
-            pytest.skip("HabitatAnalyzer requires non-None config")
+        # out_dir is required: _setup_logging creates the directory and file handlers there.
+        analyzer = HabitatMapAnalyzer(out_dir=str(tmp_path))
+        assert analyzer is not None
 
 
 # ---------------------------------------------------------------------------
@@ -129,37 +128,34 @@ class TestHabitatAnalyzer:
 class TestFeaturePreprocessing:
     def test_variance_filter_removes_zero_variance(self) -> None:
         from habit.core.habitat_analysis.feature_preprocessing.variance_filter import (
-            VarianceFilter,
+            apply_variance_filter,
         )
 
         df = pd.DataFrame(
             {"const": [1.0] * 20, "vary": np.linspace(0, 1, 20)}
         )
-        vf = VarianceFilter(threshold=0.0)
-        filtered = vf.fit_transform(df)
+        filtered = apply_variance_filter(df, threshold=0.0)
         assert "const" not in filtered.columns
         assert "vary" in filtered.columns
 
     def test_variance_filter_keeps_all_when_threshold_zero_and_no_const(self) -> None:
         from habit.core.habitat_analysis.feature_preprocessing.variance_filter import (
-            VarianceFilter,
+            apply_variance_filter,
         )
 
         df = pd.DataFrame(np.random.randn(20, 5), columns=list("ABCDE"))
-        vf = VarianceFilter(threshold=0.0)
-        filtered = vf.fit_transform(df)
+        filtered = apply_variance_filter(df, threshold=0.0)
         assert filtered.shape[1] == 5
 
     def test_correlation_filter_removes_redundant_features(self) -> None:
         from habit.core.habitat_analysis.feature_preprocessing.correlation_filter import (
-            CorrelationFilter,
+            apply_correlation_filter,
         )
 
         base = np.linspace(0, 1, 30)
         df = pd.DataFrame(
             {"A": base, "B": base * 1.001, "C": np.random.randn(30)}
         )
-        cf = CorrelationFilter(threshold=0.99)
-        filtered = cf.fit_transform(df)
+        filtered = apply_correlation_filter(df, threshold=0.99)
         # A and B are nearly perfectly correlated; one should be dropped
         assert filtered.shape[1] < 3

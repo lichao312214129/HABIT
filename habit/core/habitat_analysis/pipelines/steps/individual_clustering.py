@@ -4,21 +4,22 @@ Individual-level clustering step for habitat analysis pipeline.
 This step clusters voxels to supervoxels (or habitats) for each subject independently.
 """
 
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal
 import logging
 
 import numpy as np
 
 from ..base_pipeline import IndividualLevelStep
+from ..subject_state import SubjectHabitatState
 from ...services.clustering_service import ClusteringService
-from ...services.result_writer import ResultWriter
+from ...services.habitat_image_writer import HabitatImageWriter
 from ...config_schemas import HabitatAnalysisConfig
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
 
 class IndividualClusteringStep(IndividualLevelStep):
     """
-    Individual-level clustering (voxel → supervoxel or voxel → habitat).
+    Individual-level clustering (voxel to supervoxel or voxel to habitat).
 
     Stateless: clustering parameters are fixed by configuration or computed
     per subject. Each subject is clustered independently in
@@ -27,7 +28,7 @@ class IndividualClusteringStep(IndividualLevelStep):
     Attributes:
         feature_service: FeatureService instance (for accessing data).
         clustering_service: ClusteringService instance.
-        result_writer: ResultWriter instance (for saving supervoxel maps).
+        habitat_image_writer: HabitatImageWriter instance (for saving supervoxel maps).
         config: Configuration object.
         target: 'supervoxel' for two-step strategy, 'habitat' for one-step.
         find_optimal: Whether to find optimal cluster number (one-step only).
@@ -37,7 +38,7 @@ class IndividualClusteringStep(IndividualLevelStep):
         self,
         feature_service: Any,  # FeatureService
         clustering_service: ClusteringService,
-        result_writer: ResultWriter,
+        habitat_image_writer: HabitatImageWriter,
         config: HabitatAnalysisConfig,
         target: Literal['supervoxel', 'habitat'] = 'supervoxel',
         find_optimal: bool = False
@@ -45,27 +46,17 @@ class IndividualClusteringStep(IndividualLevelStep):
         super().__init__()
         self.feature_service = feature_service
         self.clustering_service = clustering_service
-        self.result_writer = result_writer
+        self.habitat_image_writer = habitat_image_writer
         self.config = config
         self.target = target
         self.find_optimal = find_optimal
         self.logger = logging.getLogger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Cluster one subject's voxels to supervoxels (or habitats).
-
-        Args:
-            subject_id: Subject identifier.
-            subject_data: Dict with ``features`` / ``raw`` / ``mask_info``
-                from the upstream preprocessing step.
-
-        Returns:
-            Same dict augmented with ``supervoxel_labels`` (1D, 1-indexed).
-        """
-        feature_df = subject_data['features']
-        raw_df = subject_data['raw']
-        mask_info = subject_data['mask_info']
+    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+        """Cluster one subject's voxels to supervoxels (or habitats)."""
+        feature_df = subject_data.require_features(self.__class__.__name__)
+        raw_df = subject_data.require_raw(self.__class__.__name__)
+        mask_info = subject_data.require_mask_info(self.__class__.__name__)
 
         n_clusters = self._resolve_n_clusters(subject_id, feature_df, mask_info)
         labels = self.clustering_service.cluster_subject_voxels(
@@ -82,12 +73,12 @@ class IndividualClusteringStep(IndividualLevelStep):
         if self.config.plot_curves:
             self._visualize(subject_id, feature_df, labels, n_clusters)
 
-        return {
-            'features': feature_df,
-            'raw': raw_df,
-            'mask_info': mask_info,
-            'supervoxel_labels': labels,
-        }
+        return SubjectHabitatState(
+            features=feature_df,
+            raw=raw_df,
+            mask_info=mask_info,
+            supervoxel_labels=labels,
+        )
 
     def _resolve_n_clusters(
         self,
@@ -100,10 +91,10 @@ class IndividualClusteringStep(IndividualLevelStep):
         and the one-step configuration block.
         """
         if self.target == 'supervoxel':
-            return self.config.HabitatsSegmention.supervoxel.n_clusters
+            return self.config.HabitatSegmentation.supervoxel.n_clusters
 
         # target == 'habitat' (one-step mode)
-        one_step_cfg = self.config.HabitatsSegmention.supervoxel.one_step_settings
+        one_step_cfg = self.config.HabitatSegmentation.supervoxel.one_step_settings
 
         if one_step_cfg.fixed_n_clusters is not None:
             return one_step_cfg.fixed_n_clusters
@@ -118,13 +109,13 @@ class IndividualClusteringStep(IndividualLevelStep):
                 mask_info=mask_info,
             )
         # Fall back to supervoxel n_clusters when one-step is not set up to find optimal.
-        return self.config.HabitatsSegmention.supervoxel.n_clusters
+        return self.config.HabitatSegmentation.supervoxel.n_clusters
 
     def _save_label_image(self, subject_id: str, labels: np.ndarray, mask_info: Any) -> None:
         if self.target == 'supervoxel':
-            self.result_writer.save_supervoxel_image(subject_id, labels, mask_info)
+            self.habitat_image_writer.save_supervoxel_image(subject_id, labels, mask_info)
         else:
-            self.result_writer.save_habitat_image_from_voxels(subject_id, labels, mask_info)
+            self.habitat_image_writer.save_habitat_image_from_voxels(subject_id, labels, mask_info)
 
     def _visualize(
         self,
@@ -165,9 +156,9 @@ class IndividualClusteringStep(IndividualLevelStep):
             return labels
 
         if self.target == "supervoxel":
-            pp_cfg = self.config.HabitatsSegmention.postprocess_supervoxel
+            pp_cfg = self.config.HabitatSegmentation.postprocess_supervoxel
         else:
-            pp_cfg = self.config.HabitatsSegmention.postprocess_habitat
+            pp_cfg = self.config.HabitatSegmentation.postprocess_habitat
 
         if not pp_cfg.enabled:
             return labels

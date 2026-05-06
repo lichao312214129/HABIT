@@ -1,4 +1,4 @@
-# DCE kinetic habitat analysis â€” clusters voxels by their enhancement curves.
+# DCE kinetic habitat analysis â€?clusters voxels by their enhancement curves.
 # Use when you have multi-phase contrast-enhanced MRI/CT (e.g. pre / arterial /
 # portal / delay) and want to discover regions with distinct uptake/wash-out
 # behavior (necrosis, hyper-perfusion, etc.).
@@ -38,7 +38,7 @@ FeatureConstruction:
         bin_strategy: uniform
         global_normalize: false
 
-HabitatsSegmention:
+HabitatSegmentation:
   clustering_mode: two_step                  # DCE habitats benefit from population-level model
 
   supervoxel:

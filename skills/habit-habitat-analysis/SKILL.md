@@ -93,7 +93,7 @@ FeatureConstruction:
 ## Optional postprocess (clean tiny fragments)
 
 ```yaml
-HabitatsSegmention:
+HabitatSegmentation:
   postprocess_supervoxel:    # for two_step
     enabled: true
     min_component_size: 30

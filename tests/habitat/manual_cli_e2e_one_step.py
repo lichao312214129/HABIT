@@ -1,7 +1,8 @@
 """
-End-to-end CLI smoke tests for one-step habitat demo configs.
+Manual end-to-end CLI checks for one-step habitat demo configs (heavy I/O).
 
-See ``test_cli_e2e_two_step.py`` for rationale (cwd + Click CliRunner).
+See ``manual_cli_e2e_two_step.py`` for rationale (cwd + Click CliRunner).
+Run with ``pytest tests/habitat/manual_cli_e2e_one_step.py -v`` when needed.
 """
 
 from __future__ import annotations

@@ -12,6 +12,7 @@ import joblib
 import logging
 
 from habit.utils.parallel_utils import parallel_map
+from .subject_state import SubjectHabitatState
 
 
 class BasePipelineStep(BaseEstimator, TransformerMixin, ABC):
@@ -77,7 +78,7 @@ class IndividualLevelStep(BasePipelineStep):
     Base class for individual-level pipeline steps.
 
     Individual-level steps process each subject independently. Subclasses
-    only need to implement :meth:`transform_one` — the per-subject
+    only need to implement :meth:`transform_one`; the per-subject
     transformation. The base class provides:
 
     * a default stateless :meth:`fit` (individual-level steps do not learn
@@ -113,9 +114,10 @@ class IndividualLevelStep(BasePipelineStep):
 
         Args:
             subject_id: Subject ID being processed.
-            subject_data: Whatever payload this step's contract expects
-                (typically a dict carrying ``features`` / ``raw`` /
-                ``mask_info`` / ``supervoxel_labels`` / ...).
+            subject_data: Explicit per-subject payload. Habitat-analysis
+                steps normally pass :class:`SubjectHabitatState`, which carries
+                progressively-populated fields such as ``features``, ``raw``,
+                ``mask_info`` and ``supervoxel_labels``.
 
         Returns:
             The transformed per-subject payload.
@@ -168,12 +170,12 @@ class HabitatPipeline:
     The pipeline uses a two-stage processing strategy:
     
     1. **Individual-level stage**: Each subject independently goes through all 
-       individual-level steps as an atomic operation (voxel extraction → preprocessing → 
-       clustering → supervoxel extraction → aggregation). Multiple subjects are 
+       individual-level steps as an atomic operation (voxel extraction �?preprocessing �?
+       clustering �?supervoxel extraction �?aggregation). Multiple subjects are 
        processed in parallel (controlled by `processes` parameter).
        
     2. **Group-level stage**: After all subjects complete individual processing,
-       group-level steps (group preprocessing → population clustering) are executed
+       group-level steps (group preprocessing �?population clustering) are executed
        on the aggregated results.
     
     **Memory Control**:
@@ -244,8 +246,8 @@ class HabitatPipeline:
 
             # Transient parent-side cache populated by
             # :meth:`_process_subjects_parallel` after each fit/transform run.
-            # ``HabitatAnalysis`` hands this off to ``ResultWriter`` once,
-            # right before image saving — see ``HabitatAnalysis._save_results``.
+            # ``HabitatResultPublisher`` hands this off to ``HabitatImageWriter`` once,
+            # right before image saving.
             self.mask_info_cache: Dict[str, Any] = {}
     
     def fit(
@@ -503,12 +505,12 @@ class HabitatPipeline:
 
         # Cache mask_info in the main process for downstream image saving.
         # Workers cannot publish state back to the parent (forked copies of
-        # ResultWriter are dropped on worker exit), so we extract mask_info
+        # HabitatImageWriter are dropped on worker exit), so we extract mask_info
         # from the per-subject result dict here, in the parent.
         self.mask_info_cache = {
-            subject_id: data.get('mask_info')
+            subject_id: data.mask_info
             for subject_id, data in results.items()
-            if isinstance(data, dict) and data.get('mask_info') is not None
+            if isinstance(data, SubjectHabitatState) and data.mask_info is not None
         }
         
         # Log failures

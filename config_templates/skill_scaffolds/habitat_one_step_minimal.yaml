@@ -1,4 +1,4 @@
-# One-step habitat analysis â€” fill in <PLACEHOLDER> values
+# One-step habitat analysis â€?fill in <PLACEHOLDER> values
 # Each tumor independently determines its optimal cluster number.
 # Full reference: config_templates/config_getting_habitat_annotated.yaml
 
@@ -11,11 +11,11 @@ plot_curves: true
 
 FeatureConstruction:
   voxel_level:
-    # Pick ONE method â€” see SKILL.md "Second Decision" table:
+    # Pick ONE method â€?see SKILL.md "Second Decision" table:
     method: concat(raw(<MOD1>), raw(<MOD2>))   # e.g. concat(raw(T1), raw(T2))
     params: {}
 
-HabitatsSegmention:
+HabitatSegmentation:
   clustering_mode: one_step
 
   supervoxel:

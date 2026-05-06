@@ -16,7 +16,7 @@ habitats.
 ## How to choose the metric
 
 ```yaml
-HabitatsSegmention:
+HabitatSegmentation:
   habitat:
     habitat_cluster_selection_method: silhouette   # recommended default
 ```
@@ -87,12 +87,12 @@ algorithm picks per-subject optimal automatically when `fixed_n_clusters: null`.
 You looked at the curve and decided k=4 looks right? Edit the YAML:
 
 ```yaml
-HabitatsSegmention:
+HabitatSegmentation:
   habitat:
     fixed_n_clusters: 4   # was: null
 ```
 
 Re-run only the population-level step is not currently supported via CLI; you
 must rerun `habit get-habitat` with the updated config. To save time, set
-`HabitatsSegmention.habitat.mode: testing` if you already have a saved
+`HabitatSegmentation.habitat.mode: testing` if you already have a saved
 `supervoxel2habitat_clustering_model.pkl`.

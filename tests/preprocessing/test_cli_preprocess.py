@@ -1,20 +1,18 @@
 """
 CLI-level tests for the `habit preprocess` command.
 
-Tests verify argument parsing, help output, error handling for missing
-config, and (when demo data is available) a successful invocation.
+Tests verify argument parsing, help output, and error handling for missing
+config. Heavy demo-data runs live in ``manual_cli_preprocess.py`` (not
+auto-collected)::
+
+    pytest tests/preprocessing/manual_cli_preprocess.py -v
 """
-
 from __future__ import annotations
-
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from habit.cli import cli
-
-DEMO_CONFIG = Path(__file__).resolve().parents[2] / "demo_data" / "config_preprocessing.yaml"
 
 
 class TestPreprocessCLI:
@@ -49,18 +47,3 @@ class TestPreprocessCLI:
         result = runner.invoke(cli, ["preprocess"])
         # Should fail because -c is required, or show help
         assert result.exit_code != 0 or "help" in result.output.lower()
-
-    # ------------------------------------------------------------------
-    # Demo-data integration (skipped when data absent)
-    # ------------------------------------------------------------------
-
-    def test_preprocess_with_demo_config(self) -> None:
-        if not DEMO_CONFIG.exists():
-            pytest.skip(f"Demo config not found: {DEMO_CONFIG}")
-
-        runner = CliRunner()
-        result = runner.invoke(cli, ["preprocess", "-c", str(DEMO_CONFIG)])
-        # Accept 0 (success) or 1 (expected data-not-found error)
-        assert result.exit_code in [0, 1], (
-            f"Unexpected exit code {result.exit_code}:\n{result.output}"
-        )

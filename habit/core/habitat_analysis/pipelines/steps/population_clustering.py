@@ -17,7 +17,7 @@ from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 class PopulationClusteringStep(GroupLevelStep):
     """
-    Population-level clustering (supervoxel → habitat).
+    Population-level clustering (supervoxel to habitat).
     
     Stateful: fit() trains clustering model, transform() applies to new data.
     
@@ -151,7 +151,7 @@ class PopulationClusteringStep(GroupLevelStep):
         Returns:
             Tuple of (optimal_n_clusters, scores_dict)
         """
-        habitat_cfg = self.config.HabitatsSegmention.habitat
+        habitat_cfg = self.config.HabitatSegmentation.habitat
         
         # Check if fixed_n_clusters is specified (disables automatic selection)
         if habitat_cfg.fixed_n_clusters is not None:

@@ -32,7 +32,7 @@ FeatureConstruction:
 
 
 # Habitat segmentation settings (only needed for train mode)
-HabitatsSegmention:
+HabitatSegmentation:
   # Clustering strategy: "one_step", "two_step", or "direct_pooling"
   # - one_step: Individual-level only (voxel-to-habitat clustering for each tumor)
   # - two_step: Individual-level + Population-level (voxel-to-supervoxel, then supervoxel-to-habitat across patients)

@@ -54,7 +54,7 @@ class HabitatAnalysisConfig(BaseConfig):
         None,
         description="Feature construction configuration (required for train mode, optional for predict mode)."
     )
-    HabitatsSegmention: Optional['HabitatsSegmentionConfig'] = Field(
+    HabitatSegmentation: Optional['HabitatSegmentationConfig'] = Field(
         None,
         description="Habitat segmentation configuration (required for train mode, optional for predict mode but clustering_mode is needed)."
     )
@@ -79,23 +79,23 @@ class HabitatAnalysisConfig(BaseConfig):
         """
         Validate that required fields are present based on run_mode.
         
-        - In train mode: FeatureConstruction and HabitatsSegmention are required
-        - In predict mode: FeatureConstruction is optional, but HabitatsSegmention.clustering_mode is needed
+        - In train mode: FeatureConstruction and HabitatSegmentation are required
+        - In predict mode: FeatureConstruction is optional, but HabitatSegmentation.clustering_mode is needed
         """
         if self.run_mode == 'train':
             if self.FeatureConstruction is None:
                 raise ValueError("FeatureConstruction is required in train mode")
-            if self.HabitatsSegmention is None:
-                raise ValueError("HabitatsSegmention is required in train mode")
+            if self.HabitatSegmentation is None:
+                raise ValueError("HabitatSegmentation is required in train mode")
         elif self.run_mode == 'predict':
             # In predict mode, FeatureConstruction is optional (not used)
-            # But HabitatsSegmention.clustering_mode is needed to select the strategy class
-            if self.HabitatsSegmention is None or self.HabitatsSegmention.clustering_mode is None:
+            # But HabitatSegmentation.clustering_mode is needed to select the strategy class
+            if self.HabitatSegmentation is None or self.HabitatSegmentation.clustering_mode is None:
                 raise ValueError(
-                    "HabitatsSegmention.clustering_mode is required in predict mode "
+                    "HabitatSegmentation.clustering_mode is required in predict mode "
                     "to select the correct strategy class. "
                     "You can provide a minimal config with only clustering_mode, e.g.:\n"
-                    "HabitatsSegmention:\n"
+                    "HabitatSegmentation:\n"
                     "  clustering_mode: one_step  # or two_step, direct_pooling"
                 )
 
@@ -103,8 +103,8 @@ class HabitatAnalysisConfig(BaseConfig):
         # can produce inconsistent columns across subjects, which may introduce
         # heavy NaN after cross-subject concatenation.
         if (
-            self.HabitatsSegmention is not None
-            and self.HabitatsSegmention.clustering_mode == 'two_step'
+            self.HabitatSegmentation is not None
+            and self.HabitatSegmentation.clustering_mode == 'two_step'
             and self.FeatureConstruction is not None
             and self.FeatureConstruction.preprocessing_for_subject_level is not None
         ):
@@ -249,7 +249,7 @@ class HabitatClusteringConfig(BaseModel):
     max_iter: int = 300
     n_init: int = 10
 
-class HabitatsSegmentionConfig(BaseModel):
+class HabitatSegmentationConfig(BaseModel):
     clustering_mode: Literal['one_step', 'two_step', 'direct_pooling'] = 'two_step'
     supervoxel: SupervoxelClusteringConfig = Field(default_factory=SupervoxelClusteringConfig)
     habitat: HabitatClusteringConfig = Field(default_factory=HabitatClusteringConfig)

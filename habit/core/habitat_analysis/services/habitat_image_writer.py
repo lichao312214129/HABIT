@@ -1,6 +1,8 @@
 """
-Result Writer for Habitat Analysis.
-Handles result storage, saving habitat NRRD images, and exporting CSV data.
+Habitat image writer for habitat analysis.
+
+This module writes image artefacts only: per-subject supervoxel maps and
+habitat maps reconstructed from pipeline label outputs.
 """
 
 import os
@@ -15,19 +17,18 @@ from habit.utils.parallel_utils import parallel_map
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 
-class ResultWriter:
+class HabitatImageWriter:
     """
-    Writes habitat-analysis results to disk.
+    Writes habitat-analysis image artefacts to disk.
 
-    Handles two artefact families:
-        * the result DataFrame -> ``habitats.csv``;
-        * per-subject habitat label volumes -> ``<subject>_habitat.nrrd`` /
-          ``<subject>_supervoxel.nrrd``.
+    Handles per-subject habitat and supervoxel label volumes:
+    ``<subject>_habitats.nrrd`` and ``<subject>_supervoxel.nrrd``.
+    CSV publishing lives in :class:`HabitatResultPublisher`.
     """
 
     def __init__(self, config: HabitatAnalysisConfig, logger: logging.Logger):
         """
-        Initialize ResultWriter.
+        Initialize HabitatImageWriter.
         
         Args:
             config: Habitat analysis configuration
@@ -36,8 +37,8 @@ class ResultWriter:
         self.config = config
         self.logger = logger
 
-        # Result DataFrame is published by HabitatAnalysis after the pipeline
-        # finishes; per-subject save methods read it from here.
+        # Result DataFrame is supplied by HabitatResultPublisher after the
+        # pipeline finishes; per-subject save methods read it from here.
         self.results_df: Optional[pd.DataFrame] = None
 
         # Mask metadata cache, populated by VoxelFeatureExtractor (in the main
@@ -95,7 +96,7 @@ class ResultWriter:
         Save the habitat NRRD for one subject (parallel worker entry).
 
         Args:
-            item: ``(subject_id, subject_df)`` — a small DataFrame indexed by
+            item: ``(subject_id, subject_df)`` - a small DataFrame indexed by
                 ``Subject`` containing only this subject's rows. We pass the
                 slice explicitly instead of relying on ``self.results_df`` so
                 ``parallel_map`` only pickles per-subject data into each
@@ -115,7 +116,7 @@ class ResultWriter:
                 subject_df,
                 supervoxel_path,
                 self.config.out_dir,
-                postprocess_settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump(),
+                postprocess_settings=self.config.HabitatSegmentation.postprocess_habitat.model_dump(),
             )
             return subject, None
         except Exception as exc:
@@ -123,19 +124,22 @@ class ResultWriter:
 
     def save_all_habitat_images(self, failed_subjects: List[str]) -> None:
         """Save habitat images for all successfully processed subjects."""
+        if self.results_df is None:
+            raise ValueError("results_df must be set before saving habitat images")
+
+        results_df = self.results_df.copy(deep=True)
         is_voxel_level = (
-            'VoxelIndex' in self.results_df.columns
-            or ResultColumns.SUPERVOXEL not in self.results_df.columns
+            'VoxelIndex' in results_df.columns
+            or ResultColumns.SUPERVOXEL not in results_df.columns
         )
         if is_voxel_level:
-            self._save_all_voxel_habitat_images(failed_subjects)
+            self._save_all_voxel_habitat_images(results_df, failed_subjects)
             return
 
-        # Use Subject as the row index so save_habitat_image can do .loc[subject].
-        if ResultColumns.SUBJECT in self.results_df.columns:
-            self.results_df.set_index(ResultColumns.SUBJECT, inplace=True)
+        if ResultColumns.SUBJECT in results_df.columns:
+            results_df = results_df.set_index(ResultColumns.SUBJECT, drop=False)
 
-        subjects_to_save = sorted(set(self.results_df.index))
+        subjects_to_save = sorted(set(results_df.index))
         if not subjects_to_save:
             return
 
@@ -144,11 +148,8 @@ class ResultWriter:
                 f"Saving habitat images for {len(subjects_to_save)} subjects..."
             )
 
-        # Pre-slice in the parent so each worker only receives the rows it
-        # needs. ``loc[[subject]]`` keeps the Subject index in place even for
-        # a single row, which is what save_habitat_image expects internally.
         items: List[Tuple[str, pd.DataFrame]] = [
-            (subject, self.results_df.loc[[subject]])
+            (subject, results_df.loc[[subject]])
             for subject in subjects_to_save
         ]
 
@@ -168,9 +169,9 @@ class ResultWriter:
                 f"Failed to save habitat images for {len(failed)} subject(s)"
             )
 
-    def _save_all_voxel_habitat_images(self, failed_subjects: List[str]) -> None:
+    def _save_all_voxel_habitat_images(self, results_df: pd.DataFrame, failed_subjects: List[str]) -> None:
         """Save habitat images for voxel-level results (direct pooling)."""
-        subjects = self.results_df[ResultColumns.SUBJECT].unique()
+        subjects = results_df[ResultColumns.SUBJECT].unique()
         
         if self.config.verbose:
             self.logger.info(f"Saving voxel-level habitat images for {len(subjects)} subjects...")
@@ -180,7 +181,7 @@ class ResultWriter:
                 continue
             
             # Get labels for this subject
-            subject_df = self.results_df[self.results_df[ResultColumns.SUBJECT] == subject]
+            subject_df = results_df[results_df[ResultColumns.SUBJECT] == subject]
             labels = subject_df[ResultColumns.HABITATS].values
             
             # mask_info_cache is always initialised in __init__, so we only
@@ -226,7 +227,7 @@ class ResultWriter:
         habitat_map = remove_small_connected_components(
             label_map=habitat_map.astype(np.int32, copy=False),
             roi_mask=mask_indices,
-            settings=self.config.HabitatsSegmention.postprocess_habitat.model_dump()
+            settings=self.config.HabitatSegmentation.postprocess_habitat.model_dump()
         )
 
         habitat_img = sitk.GetImageFromArray(habitat_map)

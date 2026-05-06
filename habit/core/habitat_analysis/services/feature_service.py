@@ -27,10 +27,10 @@ class FeatureService:
 
     The service has two distinct construction modes:
 
-    * ``train`` — full initialisation: validates ``FeatureConstruction``,
+    * ``train`` - full initialisation: validates ``FeatureConstruction``,
       parses voxel/supervoxel expressions, builds extractors. Use
       :meth:`for_train` (or pass ``config.run_mode == 'train'``).
-    * ``predict`` — minimal initialisation: feature extraction state lives
+    * ``predict`` - minimal initialisation: feature extraction state lives
       inside the loaded pipeline pkl, so we only set safe defaults to keep
       attribute access from blowing up. Use :meth:`for_predict` (or pass
       ``config.run_mode == 'predict'``).
@@ -378,7 +378,7 @@ class FeatureService:
             # config_schemas.HabitatAnalysisConfig.validate_mode_dependent_fields.
             if (
                 config_key == 'preprocessing_for_subject_level'
-                and self.config.HabitatsSegmention.clustering_mode == 'two_step'
+                and self.config.HabitatSegmentation.clustering_mode == 'two_step'
             ):
                 dropping_methods = {
                     method.method

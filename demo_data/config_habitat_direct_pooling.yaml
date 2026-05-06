@@ -28,7 +28,7 @@ FeatureConstruction:
         global_normalize: false
 
 # Habitat segmentation settings (only needed for train mode)
-HabitatsSegmention:
+HabitatSegmentation:
   # Clustering strategy: "one_step", "two_step", or "direct_pooling"
   clustering_mode: direct_pooling
   

@@ -13,7 +13,7 @@ data_dir: ./file_habitat.yaml  # Path to data configuration file (same format as
 out_dir: ./results/habitat_two_step/predict  # Output directory for prediction results
 
 # Habitat segmentation settings (minimal required for predict mode)
-HabitatsSegmention:
+HabitatSegmentation:
   clustering_mode: two_step
 
 # General settings

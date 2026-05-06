@@ -7,50 +7,75 @@ Extractors that require optional packages (pyradiomics) are guarded.
 
 from __future__ import annotations
 
-from typing import Any, Dict
-
 import numpy as np
+import pandas as pd
 import pytest
 
-
-def _make_subject_voxels(n_voxels: int = 50, n_features: int = 4, seed: int = 0) -> Dict[str, Any]:
-    """Simulate a subject's voxel-level data as a dict of arrays."""
-    rng = np.random.RandomState(seed)
-    return {
-        "voxel_features": rng.randn(n_voxels, n_features).astype(np.float32),
-        "cluster_labels": np.repeat([0, 1], [n_voxels // 2, n_voxels - n_voxels // 2]),
-    }
+try:
+    import SimpleITK as sitk
+except ImportError:  # pragma: no cover
+    sitk = None
 
 
 # ---------------------------------------------------------------------------
-# MeanVoxelFeaturesExtractor
+# calculate_supervoxel_means (in-memory path)
 # ---------------------------------------------------------------------------
 
 
+class TestCalculateSupervoxelMeans:
+    def test_returns_dataframe_per_supervoxel(self) -> None:
+        from habit.core.habitat_analysis.clustering_features.mean_voxel_features_extractor import (
+            calculate_supervoxel_means,
+        )
+
+        n_voxels = 8
+        rng = np.random.RandomState(0)
+        feature_df = pd.DataFrame(rng.randn(n_voxels, 2), columns=["f0", "f1"])
+        raw_df = pd.DataFrame(rng.randn(n_voxels, 1), columns=["raw0"])
+        labels = np.array([1, 1, 1, 1, 2, 2, 2, 2], dtype=np.int64)
+        out = calculate_supervoxel_means("S1", feature_df, raw_df, labels, n_clusters_supervoxel=2)
+        assert isinstance(out, pd.DataFrame)
+        assert len(out) == 2
+
+    def test_handles_single_supervoxel(self) -> None:
+        from habit.core.habitat_analysis.clustering_features.mean_voxel_features_extractor import (
+            calculate_supervoxel_means,
+        )
+
+        feature_df = pd.DataFrame(np.ones((5, 2), dtype=np.float32), columns=["a", "b"])
+        raw_df = pd.DataFrame(np.ones((5, 1), dtype=np.float32), columns=["r"])
+        labels = np.ones(5, dtype=np.int64)
+        out = calculate_supervoxel_means("S2", feature_df, raw_df, labels, n_clusters_supervoxel=1)
+        assert len(out) == 1
+
+
+# ---------------------------------------------------------------------------
+# MeanVoxelFeaturesExtractor.extract_features (DataFrame + supervoxel map)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(sitk is None, reason="SimpleITK not installed")
 class TestMeanVoxelFeaturesExtractor:
-    def test_extract_returns_dict_per_cluster(self) -> None:
+    def test_extract_features_dataframe_and_map(self) -> None:
         from habit.core.habitat_analysis.clustering_features.mean_voxel_features_extractor import (
             MeanVoxelFeaturesExtractor,
         )
 
-        extractor = MeanVoxelFeaturesExtractor(params={})
-        subject_data = _make_subject_voxels()
-        result = extractor.extract(subject_data)
-        # Result must be a dict (cluster_id -> feature vector or dict)
-        assert isinstance(result, dict)
-
-    def test_extract_handles_single_cluster(self) -> None:
-        from habit.core.habitat_analysis.clustering_features.mean_voxel_features_extractor import (
-            MeanVoxelFeaturesExtractor,
+        shape = (2, 2, 2)
+        flat_n = int(np.prod(shape))
+        sv_arr = np.zeros(shape, dtype=np.int32)
+        sv_arr.ravel()[:] = np.repeat([1, 2], flat_n // 2)
+        sv_img = sitk.GetImageFromArray(sv_arr)
+        voxel_df = pd.DataFrame(
+            {
+                "supervoxel": sv_arr.ravel(),
+                "f1": np.linspace(0, 1, flat_n, dtype=np.float32),
+            }
         )
-
-        extractor = MeanVoxelFeaturesExtractor(params={})
-        data = {
-            "voxel_features": np.ones((30, 4), dtype=np.float32),
-            "cluster_labels": np.zeros(30, dtype=int),
-        }
-        result = extractor.extract(data)
-        assert isinstance(result, dict)
+        extractor = MeanVoxelFeaturesExtractor()
+        result = extractor.extract_features(voxel_df, sv_img)
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) >= 1
 
 
 # ---------------------------------------------------------------------------
@@ -64,22 +89,22 @@ class TestRawFeatureExtractor:
             RawFeatureExtractor,
         )
 
-        ext = RawFeatureExtractor(params={})
+        ext = RawFeatureExtractor()
         assert ext is not None
 
 
 # ---------------------------------------------------------------------------
-# ConcatFeatureExtractor
+# ConcatImageFeatureExtractor
 # ---------------------------------------------------------------------------
 
 
-class TestConcatFeatureExtractor:
+class TestConcatImageFeatureExtractor:
     def test_instantiation(self) -> None:
         from habit.core.habitat_analysis.clustering_features.concat_feature_extractor import (
-            ConcatFeatureExtractor,
+            ConcatImageFeatureExtractor,
         )
 
-        ext = ConcatFeatureExtractor(params={})
+        ext = ConcatImageFeatureExtractor()
         assert ext is not None
 
 
@@ -107,14 +132,19 @@ class TestFeatureExpressionParser:
         parsed = parser.parse("supervoxel_radiomics()")
         assert parsed is not None
 
-    def test_parse_unknown_raises(self) -> None:
+    def test_parse_unknown_method_still_returns_structure(self) -> None:
+        """
+        Parser does not validate extractor names; unknown methods still yield a tuple.
+        """
         from habit.core.habitat_analysis.clustering_features.feature_expression_parser import (
             FeatureExpressionParser,
         )
 
         parser = FeatureExpressionParser()
-        with pytest.raises((ValueError, KeyError)):
-            parser.parse("totally_unknown_method()")
+        cross_method, cross_params, steps = parser.parse("totally_unknown_method()")
+        assert cross_method == "totally_unknown_method"
+        assert isinstance(cross_params, dict)
+        assert isinstance(steps, list)
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +158,7 @@ class TestFeatureExtractorFactory:
             FeatureExtractorFactory,
         )
 
-        ext = FeatureExtractorFactory.create("mean_voxel_features()", params={})
+        ext = FeatureExtractorFactory.create_from_name("mean_voxel_features")
         assert ext is not None
 
     def test_factory_raises_for_unknown_method(self) -> None:
@@ -136,5 +166,6 @@ class TestFeatureExtractorFactory:
             FeatureExtractorFactory,
         )
 
-        with pytest.raises((ValueError, KeyError)):
-            FeatureExtractorFactory.create("unknown_xyz()", params={})
+        with pytest.raises(ValueError, match="Unknown feature extractor"):
+            FeatureExtractorFactory.create_from_name("unknown_xyz")
+

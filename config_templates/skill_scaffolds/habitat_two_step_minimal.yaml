@@ -1,4 +1,4 @@
-# Two-step habitat analysis â€” fill in <PLACEHOLDER> values
+# Two-step habitat analysis â€?fill in <PLACEHOLDER> values
 # Step 1: voxel -> supervoxel (per subject)
 # Step 2: supervoxel -> habitat (population-level model)
 # Full reference: config_templates/config_getting_habitat_annotated.yaml
@@ -32,7 +32,7 @@ FeatureConstruction:
         bin_strategy: uniform
         global_normalize: false
 
-HabitatsSegmention:
+HabitatSegmentation:
   clustering_mode: two_step
 
   supervoxel:

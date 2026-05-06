@@ -20,6 +20,7 @@ from habit.core.habitat_analysis.pipelines.base_pipeline import (
     HabitatPipeline,
     IndividualLevelStep,
 )
+from habit.core.habitat_analysis.pipelines.subject_state import SubjectHabitatState
 from habit.core.habitat_analysis.pipelines.steps import (
     CalculateMeanVoxelFeaturesStep,
     IndividualClusteringStep,
@@ -73,7 +74,7 @@ def test_step_implements_transform_one(step_cls: type) -> None:
 @pytest.mark.parametrize("step_cls", INDIVIDUAL_STEP_TYPES)
 def test_step_does_not_override_transform(step_cls: type) -> None:
     """
-    Subclasses must NOT override transform() — that is the base's responsibility.
+    Subclasses must NOT override transform(); that is the base's responsibility.
     Per-subject logic belongs in transform_one().
     """
     assert "transform" not in step_cls.__dict__, (
@@ -172,7 +173,7 @@ def test_pipeline_drives_steps_via_transform_one() -> None:
 
     out_id, out_value = pipeline._process_single_subject(("S1", "INPUT"))
     assert out_id == "S1"
-    assert out_value == "a->b->a->INPUT"
+    assert out_value == "b->a->INPUT"
     assert calls == [("a", "S1", "INPUT"), ("b", "S1", "a->INPUT")]
 
 
@@ -185,15 +186,15 @@ def test_merge_step_keeps_explicit_fit_validation() -> None:
     """MergeSupervoxelFeaturesStep.fit must fail-fast on missing advanced features."""
     cfg = MagicMock()
     cfg.FeatureConstruction.supervoxel_level.method = "supervoxel_radiomics()"
-    cfg.HabitatsSegmention.clustering_mode = "two_step"
+    cfg.HabitatSegmentation.clustering_mode = "two_step"
     cfg.verbose = False
 
     step = MergeSupervoxelFeaturesStep(cfg)
     assert step.use_advanced_features is True
 
     with pytest.raises(ValueError, match="advanced supervoxel features"):
-        step.fit({"S1": {"mean_voxel_features": object()}})
+        step.fit({"S1": SubjectHabitatState(mean_voxel_features=object())})
 
     # With advanced features present, fit must succeed.
-    step.fit({"S1": {"supervoxel_features": object()}})
+    step.fit({"S1": SubjectHabitatState(supervoxel_features=object())})
     assert step.fitted_ is True

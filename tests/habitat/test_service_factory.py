@@ -21,7 +21,7 @@ from typing import Any
 import pytest
 
 # These imports purposely avoid pulling in heavy optional deps (radiomics,
-# SimpleITK, sklearn) — the tests below only exercise factory dispatch and
+# SimpleITK, sklearn); the tests below only exercise factory dispatch and
 # attribute defaults, never actual feature extraction or clustering.
 from habit.core.habitat_analysis.services.clustering_service import ClusteringService
 from habit.core.habitat_analysis.services.feature_service import FeatureService
@@ -31,14 +31,14 @@ def _predict_config() -> Any:
     """
     Build a minimal stand-in for ``HabitatAnalysisConfig`` that the predict-mode
     constructors are happy with. Predict mode does NOT touch
-    ``FeatureConstruction`` / ``HabitatsSegmention``, so we can use a
+    ``FeatureConstruction`` / ``HabitatSegmentation``, so we can use a
     ``SimpleNamespace`` and avoid importing the full pydantic schema.
     """
     return SimpleNamespace(
         run_mode='predict',
         verbose=False,
         FeatureConstruction=None,
-        HabitatsSegmention=None,
+        HabitatSegmentation=None,
     )
 
 

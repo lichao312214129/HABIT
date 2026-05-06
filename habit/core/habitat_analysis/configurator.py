@@ -4,7 +4,7 @@ HabitatConfigurator: factory for habitat-domain services.
 Owns the assembly of:
     * :class:`HabitatAnalysis` and its three services
       (:class:`FeatureService` / :class:`ClusteringService` /
-      :class:`ResultWriter`),
+      :class:`HabitatImageWriter`),
     * :class:`HabitatMapAnalyzer` (post-clustering feature extraction),
     * :class:`TraditionalRadiomicsExtractor` (PyRadiomics wrapper),
     * :class:`TestRetestConfig` resolution for the test-retest analyser.
@@ -59,12 +59,12 @@ class HabitatConfigurator(BaseConfigurator):
         habitat_config = self._get_habitat_config(config)
         return ClusteringService(habitat_config, self.logger)
 
-    def create_result_writer(self, config: Optional[Any] = None) -> Any:
-        """Return a configured :class:`ResultWriter`."""
-        from habit.core.habitat_analysis.services import ResultWriter
+    def create_habitat_image_writer(self, config: Optional[Any] = None) -> Any:
+        """Return a configured :class:`HabitatImageWriter`."""
+        from habit.core.habitat_analysis.services import HabitatImageWriter
 
         habitat_config = self._get_habitat_config(config)
-        return ResultWriter(habitat_config, self.logger)
+        return HabitatImageWriter(habitat_config, self.logger)
 
     def create_habitat_analysis(self, config: Optional[Any] = None) -> Any:
         """
@@ -80,7 +80,7 @@ class HabitatConfigurator(BaseConfigurator):
             config=cfg,
             feature_service=self.create_feature_service(cfg),
             clustering_service=self.create_clustering_service(cfg),
-            result_writer=self.create_result_writer(cfg),
+            habitat_image_writer=self.create_habitat_image_writer(cfg),
             logger=self.logger,
         )
 

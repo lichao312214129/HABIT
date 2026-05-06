@@ -36,7 +36,7 @@ FeatureConstruction:
 
 
 # Habitat segmentation settings
-HabitatsSegmention:
+HabitatSegmentation:
   # Clustering strategy: "one_step" or "two_step"
   # - one_step: Individual-level only (voxel-to-habitat clustering for each tumor)
   # - two_step: Individual-level + Population-level (voxel-to-supervoxel, then supervoxel-to-habitat across patients)

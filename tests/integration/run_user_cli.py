@@ -4,7 +4,7 @@ Run integration-style CLI flows like a local user (no pytest).
 Supports:
 
 - Single-command demos (icc, retest).
-- Optional multi-step workflow: preprocess → get-habitat → extract → model → compare (same order as ``integration/test_end_to_end_workflow.py``).
+- Optional multi-step workflow: preprocess → get-habitat → extract → model → compare (same order as ``integration/manual_end_to_end_workflow.py``).
 
 Usage:
 

@@ -1,4 +1,4 @@
-# Voxel-radiomics habitat analysis â€” clusters voxels by local texture features.
+# Voxel-radiomics habitat analysis â€?clusters voxels by local texture features.
 # Full reference: config_templates/config_getting_habitat_annotated.yaml
 # Use this when you want habitats defined by texture patterns (heterogeneity)
 # rather than raw intensity. Slowest method but most "biological" for tumors
@@ -41,7 +41,7 @@ FeatureConstruction:
       - method: zscore
         global_normalize: false
 
-HabitatsSegmention:
+HabitatSegmentation:
   clustering_mode: two_step
 
   supervoxel:
