@@ -73,7 +73,7 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.configurators import PreprocessingConfigurator
+   from habit.core.preprocessing.configurator import PreprocessingConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
    config = PreprocessingConfig.from_file("./demo_data/config_preprocessing.yaml")

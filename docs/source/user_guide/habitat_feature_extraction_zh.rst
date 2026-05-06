@@ -51,7 +51,7 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
 
    # Load configuration
@@ -75,7 +75,7 @@ Python API 使用方法
 
    import logging
    from pathlib import Path
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
    from habit.utils.log_utils import setup_logger
 

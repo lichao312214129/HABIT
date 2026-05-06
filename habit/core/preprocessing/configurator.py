@@ -4,9 +4,9 @@ PreprocessingConfigurator: factory for the image preprocessing pipeline.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
-from .base import BaseConfigurator
+from habit.core.common.configurators.base import BaseConfigurator
 
 
 class PreprocessingConfigurator(BaseConfigurator):

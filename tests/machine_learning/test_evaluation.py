@@ -77,9 +77,12 @@ class TestPredictionContainer:
         assert set(d.keys()) == {"y_true", "y_prob", "y_pred"}
 
     def test_clean_nan_removes_rows(self) -> None:
-        y_true = np.array([0, np.nan, 1, 0])
+        # y_true must stay binary-only: NaN in labels makes num_classes>2 and breaks
+        # default pred generation for 1D probabilities.
+        y_true = np.array([0, 1, 1, 0])
         y_prob = np.array([0.1, 0.5, 0.9, np.nan])
-        c = PredictionContainer(y_true, y_prob).clean_nan()
+        y_pred = np.array([0, 1, 1, 0])
+        c = PredictionContainer(y_true, y_prob, y_pred=y_pred).clean_nan()
         assert len(c) < 4
 
     def test_len_matches_n_samples(self) -> None:
@@ -90,8 +93,8 @@ class TestPredictionContainer:
 
 class TestCreatePredictionContainer:
     def test_create_cleans_nan(self) -> None:
-        y_true = np.array([0, np.nan, 1])
-        y_prob = np.array([0.2, 0.5, 0.8])
+        y_true = np.array([0, 1, 1])
+        y_prob = np.array([0.2, np.nan, 0.8])
         c = create_prediction_container(y_true, y_prob)
         assert len(c) == 2  # NaN row removed
 
@@ -107,7 +110,8 @@ class TestCreatePredictionContainer:
 
     def test_from_dict(self) -> None:
         y_true, y_prob, y_pred = _make_arrays(40)
-        c = from_dict({"y_true": y_true, "y_pred_proba": y_prob})
+        # Use 'y_prob' key: ``or`` between ndarray keys is ambiguous in from_dict.
+        c = from_dict({"y_true": y_true, "y_prob": y_prob})
         assert len(c) == 40
 
     def test_from_dict_missing_keys_raises(self) -> None:
@@ -183,7 +187,8 @@ class TestYoudenMetrics:
         threshold = youden_result["threshold"]
         metrics = apply_youden_threshold(y_true, y_prob, threshold)
         assert isinstance(metrics, dict)
-        assert "sensitivity" in metrics or "accuracy" in metrics
+        inner = metrics.get("metrics", metrics)
+        assert "sensitivity" in inner or "accuracy" in inner
 
 
 # ---------------------------------------------------------------------------

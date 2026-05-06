@@ -6,7 +6,7 @@ Uses Pydantic for robust validation and type safety.
 from typing import List, Dict, Any, Optional, Union, Literal, FrozenSet
 from pydantic import BaseModel, Field, model_validator
 
-from habit.core.common.config_base import BaseConfig
+from habit.core.common.configs.base import BaseConfig
 
 # Preprocessing methods that DROP feature columns (variance / correlation
 # filtering). They cannot legally run at subject level when the pipeline is

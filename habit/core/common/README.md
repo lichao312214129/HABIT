@@ -14,7 +14,7 @@
 - **错误处理**：统一的异常类型
 
 ```python
-from habit.core.common.config_base import BaseConfig
+from habit.core.common.configs.base import BaseConfig
 from pydantic import Field
 
 class MyConfig(BaseConfig):
@@ -28,7 +28,7 @@ class MyConfig(BaseConfig):
 统一的配置验证和加载入口：
 
 ```python
-from habit.core.common.config_validator import ConfigValidator
+from habit.core.common.configs.validator import ConfigValidator
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 # 从文件加载并验证
@@ -49,7 +49,7 @@ config = ConfigValidator.validate_dict(
 提供统一的配置访问接口，支持字典和 Pydantic 模型：
 
 ```python
-from habit.core.common.config_base import ConfigAccessor
+from habit.core.common.configs.base import ConfigAccessor
 
 # 创建访问器
 accessor = ConfigAccessor(config)
@@ -68,7 +68,7 @@ if accessor.has('processes'):
 ### 示例 1: 加载 Habitat 分析配置
 
 ```python
-from habit.core.common.config_validator import load_and_validate_config
+from habit.core.common.configs.validator import load_and_validate_config
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 # 方式1: 使用便捷函数
@@ -78,7 +78,7 @@ config = load_and_validate_config(
 )
 
 # 方式2: 使用验证器
-from habit.core.common.config_validator import ConfigValidator
+from habit.core.common.configs.validator import ConfigValidator
 config = ConfigValidator.validate_and_load(
     'demo_data/config_habitat.yaml',
     HabitatAnalysisConfig
@@ -96,7 +96,7 @@ print(config['out_dir'])
 ### 示例 2: 在类中使用配置
 
 ```python
-from habit.core.common.config_base import ConfigAccessor
+from habit.core.common.configs.base import ConfigAccessor
 from habit.core.machine_learning.config_schemas import MLConfig
 
 class MyWorkflow:
@@ -115,8 +115,8 @@ class MyWorkflow:
 ### 示例 3: 错误处理
 
 ```python
-from habit.core.common.config_validator import ConfigValidator
-from habit.core.common.config_base import ConfigValidationError
+from habit.core.common.configs.validator import ConfigValidator
+from habit.core.common.configs.base import ConfigValidationError
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 try:
@@ -145,7 +145,7 @@ processes = config.get('processes', 2)
 
 **新方式**（强类型访问）：
 ```python
-from habit.core.common.config_validator import load_and_validate_config
+from habit.core.common.configs.validator import load_and_validate_config
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 config = load_and_validate_config('config.yaml', HabitatAnalysisConfig)
@@ -179,8 +179,8 @@ config['out_dir']
 
 ## 相关文件
 
-- `habit/core/common/config_base.py` - 配置基类和访问器
-- `habit/core/common/config_validator.py` - 配置验证器
+- `habit/core/common/configs/base.py` — 配置基类与访问器
+- `habit/core/common/configs/validator.py` — 配置验证器
 - `habit/core/habitat_analysis/config_schemas.py` - Habitat 分析配置
 - `habit/core/machine_learning/config_schemas.py` - 机器学习配置
 - `habit/core/preprocessing/config_schemas.py` - 预处理配置

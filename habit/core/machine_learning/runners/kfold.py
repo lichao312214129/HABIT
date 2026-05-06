@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold, StratifiedKFold
 
-from ..core.results import (
+from ..contracts.results import (
     AggregatedModelResult,
     KFoldModelResult,
     KFoldRunResult,

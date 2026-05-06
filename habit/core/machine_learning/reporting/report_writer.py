@@ -17,7 +17,7 @@ import pandas as pd
 
 from habit.utils.io_utils import save_csv, save_json
 
-from ..core.results import InferenceResult, KFoldRunResult, RunResult
+from ..contracts.results import InferenceResult, KFoldRunResult, RunResult
 
 
 class ReportWriter:

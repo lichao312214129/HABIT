@@ -8,6 +8,7 @@ extractor backends), prefer ``habit.is_available(name)``.
 
 Public surface:
     - :class:`HabitatAnalysis`         : main analysis entry point.
+    - :class:`HabitatConfigurator`     : domain service assembly entry point.
     - :class:`HabitatAnalysisConfig`   : Pydantic root configuration.
     - :class:`ResultColumns`           : reserved DataFrame column names.
     - :class:`HabitatMapAnalyzer`      : post-clustering feature analyser
@@ -19,6 +20,7 @@ Public surface:
 """
 
 from .habitat_analysis import HabitatAnalysis
+from .configurator import HabitatConfigurator
 from .config_schemas import HabitatAnalysisConfig, ResultColumns
 from .habitat_features.habitat_analyzer import HabitatMapAnalyzer
 from .pipelines import BasePipelineStep, HabitatPipeline
@@ -27,12 +29,11 @@ from .pipelines.steps import (
     PopulationClusteringStep,
 )
 
-# ``HabitatFeatureExtractor`` is a long-lived public alias for the analyser;
-# kept because user-facing scripts still reach for the older name.
 HabitatFeatureExtractor = HabitatMapAnalyzer
 
 __all__ = [
     "HabitatAnalysis",
+    "HabitatConfigurator",
     "HabitatAnalysisConfig",
     "ResultColumns",
     "HabitatMapAnalyzer",

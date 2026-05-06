@@ -18,8 +18,8 @@ from typing import Any, Dict, Tuple, Union
 
 import pandas as pd
 
-from habit.core.common.config_base import ConfigAccessor
-from habit.core.common.config_validator import ConfigValidator
+from habit.core.common.configs.base import ConfigAccessor
+from habit.core.common.configs.validator import ConfigValidator
 from habit.utils.io_utils import save_csv, save_json
 from habit.utils.log_utils import LoggerManager, get_module_logger, setup_logger
 

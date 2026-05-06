@@ -21,8 +21,8 @@ from typing import Optional
 import pandas as pd
 
 from ..config_schemas import MLConfig
-from ..core.plan import WorkflowPlan
-from ..core.results import InferenceResult, RunResult
+from ..contracts.plan import WorkflowPlan
+from ..contracts.results import InferenceResult, RunResult
 from ..reporting.model_store import ModelStore
 from ..reporting.plot_composer import PlotComposer
 from ..reporting.report_writer import ReportWriter

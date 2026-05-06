@@ -15,7 +15,7 @@ from typing import Any, Dict, Optional
 import joblib
 import pandas as pd
 
-from ..core.results import InferenceResult
+from ..contracts.results import InferenceResult
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
 from .base import BaseRunner

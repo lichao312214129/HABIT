@@ -1389,7 +1389,7 @@ HABIT 提供了配置文件验证机制，确保参数的正确性。
 
 .. code-block:: python
 
-   from habit.core.common.config_loader import load_config
+   from habit.core.common.configs.loader import load_config
 
    # 加载配置并验证
    config = load_config('./config.yaml')

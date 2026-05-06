@@ -117,7 +117,7 @@ Python API 使用方法
 
 .. code-block:: python
 
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load configuration
@@ -138,7 +138,7 @@ Python API 使用方法
 
    import logging
    from pathlib import Path
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
    from habit.utils.log_utils import setup_logger
 
@@ -559,7 +559,7 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
 
 .. code-block:: python
 
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load configuration

@@ -196,9 +196,14 @@ class TestSplitStrategy:
     def test_custom_split_from_json_file(self, tmp_path: Path) -> None:
         splitter = self._splitter()
         X, y = self._make_X_y(60)
+        # SplitStrategy matches IDs against the DataFrame index; JSON ids are strings,
+        # so align the index type with _read_ids() output.
+        str_index = pd.Index([str(i) for i in range(len(X))], name=X.index.name)
+        X.index = str_index
+        y.index = str_index
 
-        train_ids = list(X.index[:40].astype(str))
-        test_ids = list(X.index[40:].astype(str))
+        train_ids = list(X.index[:40])
+        test_ids = list(X.index[40:])
         train_file = tmp_path / "train.json"
         test_file = tmp_path / "test.json"
         train_file.write_text(json.dumps(train_ids))

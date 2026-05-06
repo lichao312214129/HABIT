@@ -63,9 +63,7 @@ class SVMModel(BaseModel):
         
         # Train the model
         self.model.fit(X, y)
-        
-        # Store classes
-        self.classes_ = np.unique(y)
+        # ``classes_`` comes from ``BaseModel`` forwarding to ``self.model`` — do not assign here.
         
     def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """

@@ -7,6 +7,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from habit.core.common.configs.base import ConfigValidationError
 from habit.core.machine_learning.config_schemas import (
     ComparisonFileConfig,
     ModelComparisonConfig,
@@ -113,7 +114,7 @@ class TestModelComparisonConfig:
                 "targets": {"sensitivity": 1.5},  # invalid: > 1
             }
         }
-        with pytest.raises(ValidationError, match="between 0 and 1"):
+        with pytest.raises((ValidationError, ConfigValidationError), match="between 0 and 1"):
             ModelComparisonConfig(**d)
 
     def test_valid_target_metrics(self) -> None:
@@ -135,11 +136,11 @@ class TestModelComparisonConfig:
         assert cfg.visualization.calibration.enabled is True
 
     def test_missing_files_config_raises(self) -> None:
-        with pytest.raises((ValidationError, TypeError)):
+        with pytest.raises((ValidationError, ConfigValidationError, TypeError)):
             ModelComparisonConfig(output_dir="./out")
 
     def test_missing_output_dir_raises(self) -> None:
-        with pytest.raises((ValidationError, TypeError)):
+        with pytest.raises((ValidationError, ConfigValidationError, TypeError)):
             ModelComparisonConfig(files_config=[{
                 "path": "m1.csv", "subject_id_col": "s", "label_col": "l", "prob_col": "p"
             }])

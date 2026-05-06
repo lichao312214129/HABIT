@@ -1,11 +1,11 @@
-# core 子模块说明
+# contracts 子模块说明
 
-`core` 是机器学习模块的“数据契约层”，专门定义各层之间交换的数据对象。
+`contracts` 是机器学习模块的“数据契约层”，专门定义各层之间交换的数据对象。
 
 ## 为什么这个模块有必要
 
-如果没有 `core`，`workflow`、`runner`、`reporting` 往往会通过临时 `dict` 互传数据，
-字段名容易漂移，改一个 key 会牵连多处代码。`core` 的作用就是把这些“口头约定”变成
+如果没有 `contracts`，`workflow`、`runner`、`reporting` 往往会通过临时 `dict` 互传数据，
+字段名容易漂移，改一个 key 会牵连多处代码。`contracts` 的作用就是把这些“口头约定”变成
 显式的数据合同。
 
 ## 它是怎么起作用的
@@ -49,6 +49,6 @@
 
 ## 维护建议
 
-- 新增结果字段时，优先修改 `core/results.py` 的 dataclass，并同步 legacy 适配方法。
+- 新增结果字段时，优先修改 `contracts/results.py` 的 dataclass，并同步 legacy 适配方法。
 - 不要在 `workflow/runner` 中随意新增临时 `dict` 结构。
 - 新运行模式先定义新 Result 契约，再接入 `reporting`。

@@ -12,9 +12,9 @@ behaviour and a ``model_validator`` enforces the cross-field invariants
 """
 
 from typing import List, Dict, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field, validator, model_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, model_validator, validator, ConfigDict
 
-from habit.core.common.config_base import BaseConfig
+from habit.core.common.configs.base import BaseConfig
 
 
 class InputFileConfig(BaseModel):
@@ -80,6 +80,14 @@ class VisualizationConfig(BaseModel):
 
 
 class ComparisonFileConfig(BaseModel):
+    """
+    Single prediction file row inside ``files_config``.
+
+    ``model_name`` can be inferred before field validation runs so aliases like
+    ``name`` participate correctly (ordering of per-field validators alone is
+    insufficient when ``name`` is declared after ``model_name``).
+    """
+
     path: str
     model_name: Optional[str] = None
     name: Optional[str] = None
@@ -89,25 +97,34 @@ class ComparisonFileConfig(BaseModel):
     pred_col: Optional[str] = None
     split_col: Optional[str] = None
 
-    @validator('model_name', pre=True, always=True)
-    def resolve_model_name(cls, v, values):
+    @model_validator(mode='before')
+    @classmethod
+    def _resolve_model_name(cls, data: Any) -> Any:
         """
-        Resolve model_name from alias fields.
+        Resolve ``model_name`` from explicit value, ``name`` alias, or path stem.
 
         Priority:
-            1) model_name (explicit)
-            2) name (alias)
+            1) model_name (explicit non-empty)
+            2) name (alias, non-empty)
             3) file stem from path
         """
-        if v is not None and str(v).strip():
-            return v
-        name_alias = values.get('name')
-        if name_alias is not None and str(name_alias).strip():
-            return name_alias
-        path = values.get('path')
+        if not isinstance(data, dict):
+            return data
+        raw = dict(data)
+        path = raw.get('path')
+        explicit = raw.get('model_name')
+        if explicit is not None and str(explicit).strip():
+            raw['model_name'] = str(explicit).strip()
+            return raw
+        alias_name = raw.get('name')
+        if alias_name is not None and str(alias_name).strip():
+            raw['model_name'] = str(alias_name).strip()
+            return raw
         if path is not None and str(path).strip():
-            return str(path).split('/')[-1].split('\\')[-1].split('.')[0]
-        raise ValueError("model_name is required (or provide name/path to infer it).")
+            stem = str(path).replace('\\', '/').split('/')[-1].split('.')[0]
+            raw['model_name'] = stem
+            return raw
+        raise ValueError('model_name is required (or provide name/path to infer it).')
 
 
 class MergedDataConfig(BaseModel):
@@ -169,8 +186,9 @@ class TargetMetricsConfig(BaseModel):
     enabled: bool = False
     targets: Dict[str, float] = Field(default_factory=dict)
 
-    @validator('targets')
-    def target_values_range(cls, v):
+    @field_validator('targets')
+    @classmethod
+    def target_values_range(cls, v: Dict[str, float]) -> Dict[str, float]:
         for key, value in v.items():
             if not (0 < value < 1):
                 raise ValueError(f"Target '{key}' must be between 0 and 1")
@@ -187,7 +205,7 @@ class ModelComparisonConfig(BaseConfig):
     model_config = ConfigDict(extra='allow')
 
     output_dir: str
-    files_config: List[ComparisonFileConfig] = Field(default_factory=list)
+    files_config: List[ComparisonFileConfig] = Field(min_length=1)
     merged_data: MergedDataConfig = Field(default_factory=MergedDataConfig)
     split: SplitConfig = Field(default_factory=SplitConfig)
     visualization: ComparisonVisualizationConfig = Field(default_factory=ComparisonVisualizationConfig)

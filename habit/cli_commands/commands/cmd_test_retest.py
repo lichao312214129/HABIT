@@ -18,7 +18,7 @@ def run_test_retest(config_file: str) -> None:
         config_file (str): Path to configuration YAML file
     """
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.configurators import HabitatConfigurator
+    from habit.core.habitat_analysis.configurator import HabitatConfigurator
     from habit.core.machine_learning.config_schemas import TestRetestConfig
     from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
         find_habitat_mapping, batch_process_files, setup_logger as setup_test_retest_logger

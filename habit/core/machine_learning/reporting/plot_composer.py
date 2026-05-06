@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..core.results import InferenceResult, KFoldRunResult, RunResult
+from ..contracts.results import InferenceResult, KFoldRunResult, RunResult
 from ..visualization.plot_manager import PlotManager
 
 

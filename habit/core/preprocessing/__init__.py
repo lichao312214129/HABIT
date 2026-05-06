@@ -1,4 +1,5 @@
 from .base_preprocessor import BasePreprocessor
+from .configurator import PreprocessingConfigurator
 from .preprocessor_factory import PreprocessorFactory
 from .resample import ResamplePreprocessor
 from .n4_correction import N4BiasFieldCorrection
@@ -11,6 +12,7 @@ from .dcm2niix_converter import Dcm2niixConverter, batch_convert_dicom_directori
 
 __all__ = [
     "BasePreprocessor",
+    "PreprocessingConfigurator",
     "PreprocessorFactory",
     "ResamplePreprocessor",
     "N4BiasFieldCorrection",
@@ -21,4 +23,4 @@ __all__ = [
     "AdaptiveHistogramEqualization",
     "Dcm2niixConverter",
     "batch_convert_dicom_directories",
-] 
+]

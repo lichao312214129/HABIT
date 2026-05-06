@@ -8,6 +8,7 @@ Unit tests for statistical test modules:
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 import pytest
 
 
@@ -82,11 +83,12 @@ class TestHosmerLemeshowTest:
         # Use predicted probs as true labels (perfectly calibrated)
         y_prob = rng.rand(n)
         y_true = (rng.rand(n) < y_prob).astype(int)
-        result = hosmer_lemeshow_test(y_true, y_prob)
+        hl_data = pd.DataFrame({"y_true": y_true, "y_pred_proba": y_prob})
+        result = hosmer_lemeshow_test(hl_data)
         assert result is not None
-        # Result should be a dict or tuple with a p-value
-        p_val = result.get("p_value") if isinstance(result, dict) else result[1]
+        chi2_stat, p_val = result[0], result[1]
         assert 0.0 <= float(p_val) <= 1.0
+        assert isinstance(float(chi2_stat), float)
 
     def test_returns_dict_or_tuple(self) -> None:
         from habit.core.machine_learning.statistics.hosmer_lemeshow_test import (
@@ -94,8 +96,9 @@ class TestHosmerLemeshowTest:
         )
 
         y_true, y_prob = _make_roc_arrays()
-        result = hosmer_lemeshow_test(y_true, y_prob)
-        assert isinstance(result, (dict, tuple))
+        hl_data = pd.DataFrame({"y_true": y_true, "y_pred_proba": y_prob})
+        result = hosmer_lemeshow_test(hl_data)
+        assert isinstance(result, tuple)
 
 
 # ---------------------------------------------------------------------------

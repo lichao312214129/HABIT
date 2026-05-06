@@ -13,8 +13,8 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
-from ..core.dataset import DatasetSnapshot
-from ..core.results import ModelResult, RunResult
+from ..contracts.dataset import DatasetSnapshot
+from ..contracts.results import ModelResult, RunResult
 from ..evaluation.metrics import calculate_metrics
 from ..evaluation.prediction_container import PredictionContainer
 from .base import BaseRunner

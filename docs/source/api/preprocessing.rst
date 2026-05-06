@@ -11,6 +11,11 @@ preprocessing 模块
 
 `BatchProcessor` 是预处理模块的核心入口，用于批量执行图像处理任务。
 
+.. automodule:: habit.core.preprocessing.configurator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: habit.core.preprocessing.image_processor_pipeline
    :members:
    :undoc-members:

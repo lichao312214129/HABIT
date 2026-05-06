@@ -14,17 +14,13 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from .base import BaseConfigurator
+from habit.core.common.configurators.base import BaseConfigurator
 
 
 class MLConfigurator(BaseConfigurator):
     """Factory for ML training, prediction, k-fold and model comparison."""
 
     logger_name = 'ml_configurator'
-
-    # ------------------------------------------------------------------
-    # ModelComparison auxiliaries
-    # ------------------------------------------------------------------
 
     def create_evaluator(self, output_dir: Optional[str] = None) -> Any:
         """Return a :class:`MultifileEvaluator` rooted at ``output_dir``."""
@@ -68,10 +64,6 @@ class MLConfigurator(BaseConfigurator):
 
         return MetricsStore()
 
-    # ------------------------------------------------------------------
-    # ModelComparison
-    # ------------------------------------------------------------------
-
     def create_model_comparison(
         self,
         config: Optional[Any] = None,
@@ -94,10 +86,6 @@ class MLConfigurator(BaseConfigurator):
             metrics_store=self.create_metrics_store(),
             logger=self.logger,
         )
-
-    # ------------------------------------------------------------------
-    # Holdout / k-fold workflows
-    # ------------------------------------------------------------------
 
     def _coerce_ml_config(self, config: Optional[Any], purpose: str) -> Any:
         """Coerce a raw config to :class:`MLConfig`, raising on failure."""

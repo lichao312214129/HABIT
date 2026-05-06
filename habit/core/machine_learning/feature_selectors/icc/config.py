@@ -19,7 +19,7 @@ from typing import Any, List, Literal, Optional, Union
 import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from habit.core.common.config_base import BaseConfig
+from habit.core.common.configs.base import BaseConfig
 
 
 class ICCInputConfig(BaseModel):

@@ -27,7 +27,7 @@ from habit.core.machine_learning.reporting.model_store import ModelStore
 
 
 def _make_plan(tmp_path: Path):
-    from habit.core.machine_learning.core.plan import WorkflowPlan
+    from habit.core.machine_learning.contracts.plan import WorkflowPlan
 
     cfg = MagicMock()
     cfg.model_copy = MagicMock(return_value=cfg)
@@ -38,8 +38,8 @@ def _make_run_result(tmp_path: Path):
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import Pipeline
 
-    from habit.core.machine_learning.core.dataset import DatasetSnapshot
-    from habit.core.machine_learning.core.results import ModelResult, RunResult
+    from habit.core.machine_learning.contracts.dataset import DatasetSnapshot
+    from habit.core.machine_learning.contracts.results import ModelResult, RunResult
 
     X = pd.DataFrame({"f0": [0.1, 0.9], "f1": [0.2, 0.8]})
     y = pd.Series([0, 1], name="label")
@@ -66,7 +66,7 @@ def _make_kfold_result(tmp_path: Path):
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import Pipeline
 
-    from habit.core.machine_learning.core.results import (
+    from habit.core.machine_learning.contracts.results import (
         AggregatedModelResult,
         KFoldModelResult,
         KFoldRunResult,
@@ -97,7 +97,7 @@ def _make_kfold_result(tmp_path: Path):
 
 
 # ---------------------------------------------------------------------------
-# ModelStore â€“ holdout
+# ModelStore â€?holdout
 # ---------------------------------------------------------------------------
 
 
@@ -124,7 +124,7 @@ class TestModelStoreHoldout:
 
 
 # ---------------------------------------------------------------------------
-# ModelStore â€“ kfold ensemble
+# ModelStore â€?kfold ensemble
 # ---------------------------------------------------------------------------
 
 

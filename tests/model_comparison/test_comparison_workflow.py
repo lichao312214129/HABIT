@@ -94,7 +94,7 @@ def _make_workflow(config: ModelComparisonConfig, output_dir: str) -> ModelCompa
     evaluator = MultifileEvaluator(output_dir=output_dir)
     reporter = ReportExporter(output_dir=output_dir)
     threshold_manager = ThresholdManager()
-    plot_manager = PlotManager(output_dir=output_dir)
+    plot_manager = PlotManager(config=config, output_dir=output_dir)
     metrics_store = MetricsStore()
     return ModelComparison(
         config=config,
@@ -137,7 +137,7 @@ class TestModelComparisonInstantiation:
             evaluator=evaluator,
             reporter=reporter,
             threshold_manager=ThresholdManager(),
-            plot_manager=PlotManager(output_dir=str(tmp_path / "out")),
+            plot_manager=PlotManager(config=cfg_dict, output_dir=str(tmp_path / "out")),
             metrics_store=MetricsStore(),
             logger=_logger(),
         )
@@ -152,7 +152,7 @@ class TestModelComparisonInstantiation:
                 evaluator=evaluator,
                 reporter=reporter,
                 threshold_manager=ThresholdManager(),
-                plot_manager=PlotManager(output_dir=str(tmp_path)),
+                plot_manager=PlotManager(config={}, output_dir=str(tmp_path)),
                 metrics_store=MetricsStore(),
                 logger=_logger(),
             )

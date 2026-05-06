@@ -53,7 +53,7 @@ def _method_names(cls_node: ast.ClassDef) -> set:
     }
 
 
-RESULTS_PATH = "habit/core/machine_learning/core/results.py"
+RESULTS_PATH = "habit/core/machine_learning/contracts/results.py"
 
 
 # ---------------------------------------------------------------------------
@@ -120,7 +120,7 @@ class TestKFoldWorkflowUsesReportingLayer:
 
 
 def _make_model_result():
-    from habit.core.machine_learning.core.results import ModelResult
+    from habit.core.machine_learning.contracts.results import ModelResult
 
     return ModelResult(
         model_name="LR",
@@ -136,7 +136,7 @@ def _make_model_result():
 
 
 def _make_plan():
-    from habit.core.machine_learning.core.plan import WorkflowPlan
+    from habit.core.machine_learning.contracts.plan import WorkflowPlan
 
     cfg = MagicMock()
     cfg.model_copy = MagicMock(return_value=cfg)
@@ -145,8 +145,8 @@ def _make_plan():
 
 class TestRunResultRuntime:
     def test_create_auto_timestamps(self) -> None:
-        from habit.core.machine_learning.core.dataset import DatasetSnapshot
-        from habit.core.machine_learning.core.results import RunResult
+        from habit.core.machine_learning.contracts.dataset import DatasetSnapshot
+        from habit.core.machine_learning.contracts.results import RunResult
 
         model_result = _make_model_result()
         plan = _make_plan()
@@ -169,8 +169,8 @@ class TestRunResultRuntime:
         assert dt.year >= 2020
 
     def test_to_legacy_results_shape(self) -> None:
-        from habit.core.machine_learning.core.dataset import DatasetSnapshot
-        from habit.core.machine_learning.core.results import RunResult
+        from habit.core.machine_learning.contracts.dataset import DatasetSnapshot
+        from habit.core.machine_learning.contracts.results import RunResult
 
         model_result = _make_model_result()
         plan = _make_plan()
@@ -190,8 +190,8 @@ class TestRunResultRuntime:
         assert "test" in legacy["LR"]
 
     def test_backward_compat_properties(self) -> None:
-        from habit.core.machine_learning.core.dataset import DatasetSnapshot
-        from habit.core.machine_learning.core.results import RunResult
+        from habit.core.machine_learning.contracts.dataset import DatasetSnapshot
+        from habit.core.machine_learning.contracts.results import RunResult
 
         X = pd.DataFrame({"f0": [1.0, 2.0]})
         y = pd.Series([0, 1], name="label")
@@ -209,7 +209,7 @@ class TestRunResultRuntime:
 
 class TestKFoldRunResultRuntime:
     def test_to_legacy_results_shape(self) -> None:
-        from habit.core.machine_learning.core.results import (
+        from habit.core.machine_learning.contracts.results import (
             AggregatedModelResult,
             KFoldModelResult,
             KFoldRunResult,
@@ -241,7 +241,7 @@ class TestKFoldRunResultRuntime:
         assert "LR" in legacy["aggregated"]
 
     def test_fold_pipelines_property(self) -> None:
-        from habit.core.machine_learning.core.results import (
+        from habit.core.machine_learning.contracts.results import (
             AggregatedModelResult,
             KFoldModelResult,
             KFoldRunResult,
@@ -265,7 +265,7 @@ class TestKFoldRunResultRuntime:
 
 class TestInferenceResultRuntime:
     def test_create_auto_timestamp(self) -> None:
-        from habit.core.machine_learning.core.results import InferenceResult
+        from habit.core.machine_learning.contracts.results import InferenceResult
 
         plan = _make_plan()
         result = InferenceResult.create(
@@ -279,7 +279,7 @@ class TestInferenceResultRuntime:
         assert result.pipeline_path == "/models/lr.pkl"
 
     def test_to_legacy_results(self) -> None:
-        from habit.core.machine_learning.core.results import InferenceResult
+        from habit.core.machine_learning.contracts.results import InferenceResult
 
         plan = _make_plan()
         predictions = pd.DataFrame({"y_pred": [0, 1]})

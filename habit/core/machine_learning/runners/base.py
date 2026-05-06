@@ -12,7 +12,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from ..core.plan import WorkflowPlan
+from ..contracts.plan import WorkflowPlan
 from .context import RunnerContext
 
 

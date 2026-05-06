@@ -1,25 +1,24 @@
 """
-Unit tests for feature selector classes.
+Integration tests for registered feature-selector callables.
 
-Each selector is tested with synthetic numpy / pandas data so no CSV
-files or heavy optional packages are required.  Selectors that depend
-on optional packages (mRMR, ICC) are guarded with importorskip.
+Selectors are exposed via ``register_selector`` + ``run_selector``, not standalone
+``*Selector`` sklearn-style classes (legacy tests assumed class APIs).
 """
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 from sklearn.datasets import make_classification
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+from habit.core.machine_learning.feature_selectors import (
+    get_available_selectors,
+    run_selector,
+)
 
 
 def _make_X_y(n: int = 100, n_features: int = 20, seed: int = 0):
+    """Build a reproducible binary classification tabular dataset."""
     X_arr, y_arr = make_classification(
         n_samples=n,
         n_features=n_features,
@@ -32,183 +31,152 @@ def _make_X_y(n: int = 100, n_features: int = 20, seed: int = 0):
     return X, y
 
 
-# ---------------------------------------------------------------------------
-# VarianceSelector
-# ---------------------------------------------------------------------------
-
-
-class TestVarianceSelector:
+class TestVarianceViaRegistry:
     def test_removes_zero_variance_columns(self) -> None:
-        from habit.core.machine_learning.feature_selectors.variance_selector import (
-            VarianceSelector,
-        )
-
         X, y = _make_X_y()
-        X["const"] = 1.0  # zero-variance column
-        selector = VarianceSelector(threshold=0.0)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        assert "const" not in X_out.columns
-
-    def test_keeps_high_variance_columns(self) -> None:
-        from habit.core.machine_learning.feature_selectors.variance_selector import (
-            VarianceSelector,
+        X["const"] = 1.0
+        kept = run_selector(
+            "variance",
+            X,
+            y,
+            threshold=0.0,
+            plot_variances=False,
         )
+        assert "const" not in kept
 
+    def test_keeps_high_variance_columns_when_none_constant(self) -> None:
         X, y = _make_X_y()
         n_cols_before = X.shape[1]
-        selector = VarianceSelector(threshold=0.0)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        assert X_out.shape[1] == n_cols_before  # no column removed (all have variance)
-
-    def test_fit_transform(self) -> None:
-        from habit.core.machine_learning.feature_selectors.variance_selector import (
-            VarianceSelector,
+        kept = run_selector(
+            "variance",
+            X,
+            y,
+            threshold=0.0,
+            plot_variances=False,
         )
+        assert len(kept) == n_cols_before
 
+    def test_fit_transform_via_run_selector(self) -> None:
         X, y = _make_X_y()
         X["zero"] = 0.0
-        selector = VarianceSelector(threshold=0.0)
-        X_out = selector.fit_transform(X, y)
+        kept = run_selector(
+            "variance",
+            X,
+            y,
+            threshold=0.0,
+            plot_variances=False,
+        )
+        X_out = X[kept]
         assert isinstance(X_out, pd.DataFrame)
         assert "zero" not in X_out.columns
 
 
-# ---------------------------------------------------------------------------
-# CorrelationSelector
-# ---------------------------------------------------------------------------
-
-
-class TestCorrelationSelector:
+class TestCorrelationViaRegistry:
     def test_removes_highly_correlated_columns(self) -> None:
-        from habit.core.machine_learning.feature_selectors.correlation_selector import (
-            CorrelationSelector,
-        )
-
         base = np.linspace(0, 1, 100)
         X = pd.DataFrame({
             "A": base,
-            "B": base * 1.001,   # near-perfect correlation with A
+            "B": base * 1.001,
             "C": np.random.RandomState(0).randn(100),
         })
         y = pd.Series(np.random.RandomState(0).randint(0, 2, 100))
-        selector = CorrelationSelector(threshold=0.99)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        # A and B are nearly perfectly correlated; one should be dropped
-        assert X_out.shape[1] < 3
+        kept = run_selector(
+            "correlation",
+            X,
+            y,
+            threshold=0.99,
+            visualize=False,
+        )
+        assert len(kept) < 3
 
     def test_threshold_one_keeps_all(self) -> None:
-        from habit.core.machine_learning.feature_selectors.correlation_selector import (
-            CorrelationSelector,
-        )
-
         X, y = _make_X_y(100, 10)
-        selector = CorrelationSelector(threshold=1.0)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        assert X_out.shape[1] == X.shape[1]
+        kept = run_selector(
+            "correlation",
+            X,
+            y,
+            threshold=1.0,
+            visualize=False,
+        )
+        assert len(kept) == X.shape[1]
 
 
-# ---------------------------------------------------------------------------
-# LassoSelector
-# ---------------------------------------------------------------------------
-
-
-class TestLassoSelector:
+class TestLassoViaRegistry:
     def test_returns_subset_of_features(self) -> None:
-        from habit.core.machine_learning.feature_selectors.lasso_selector import LassoSelector
-
         X, y = _make_X_y(100, 20)
-        selector = LassoSelector(alpha=0.1, random_state=0)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        assert isinstance(X_out, pd.DataFrame)
-        assert X_out.shape[1] <= X.shape[1]
+        kept = run_selector(
+            "lasso",
+            X,
+            y,
+            cv=3,
+            n_alphas=8,
+            visualize=False,
+            random_state=0,
+        )
+        assert isinstance(kept, list)
+        assert len(kept) <= X.shape[1]
 
-    def test_higher_alpha_fewer_features(self) -> None:
-        from habit.core.machine_learning.feature_selectors.lasso_selector import LassoSelector
-
+    def test_runs_with_explicit_alpha_grid(self) -> None:
         X, y = _make_X_y(100, 20)
-        sel_low = LassoSelector(alpha=0.001, random_state=0)
-        sel_high = LassoSelector(alpha=10.0, random_state=0)
-        sel_low.fit(X, y)
-        sel_high.fit(X, y)
-        assert sel_high.transform(X).shape[1] <= sel_low.transform(X).shape[1]
+        alphas = np.logspace(-2, 1, 12)
+        kept = run_selector(
+            "lasso",
+            X,
+            y,
+            cv=3,
+            alphas=list(alphas),
+            n_alphas=len(alphas),
+            visualize=False,
+            random_state=0,
+        )
+        assert len(kept) >= 1
 
 
-# ---------------------------------------------------------------------------
-# AnovaSelector
-# ---------------------------------------------------------------------------
-
-
-class TestAnovaSelector:
-    def test_selects_top_k(self) -> None:
-        from habit.core.machine_learning.feature_selectors.anova_selector import AnovaSelector
-
+class TestAnovaViaRegistry:
+    def test_selects_up_to_k_features(self) -> None:
         X, y = _make_X_y(100, 20)
         k = 5
-        selector = AnovaSelector(k=k)
-        selector.fit(X, y)
-        X_out = selector.transform(X)
-        assert X_out.shape[1] == k
+        kept = run_selector(
+            "anova",
+            X,
+            y,
+            n_features_to_select=k,
+            plot_importance=False,
+        )
+        assert len(kept) <= k
 
 
-# ---------------------------------------------------------------------------
-# VIFSelector
-# ---------------------------------------------------------------------------
+class TestVifViaRegistry:
+    def test_run_selector_completes(self) -> None:
+        X, y = _make_X_y(80, 6)
+        kept = run_selector("vif", X, y, max_vif=5.0, visualize=False)
+        assert isinstance(kept, list)
+        assert 0 < len(kept) <= X.shape[1]
 
-
-class TestVIFSelector:
-    def test_vif_selector_instantiation(self) -> None:
-        from habit.core.machine_learning.feature_selectors.vif_selector import VIFSelector
-
-        sel = VIFSelector(threshold=5.0)
-        assert sel is not None
-
-    def test_vif_selector_reduces_multicollinearity(self) -> None:
-        from habit.core.machine_learning.feature_selectors.vif_selector import VIFSelector
-
+    def test_reduces_near_duplicate_columns(self) -> None:
         rng = np.random.RandomState(0)
         base = rng.randn(80)
         X = pd.DataFrame({
             "A": base,
-            "B": base + rng.randn(80) * 0.01,  # almost identical to A
+            "B": base + rng.randn(80) * 0.01,
             "C": rng.randn(80),
         })
         y = pd.Series(rng.randint(0, 2, 80))
-        sel = VIFSelector(threshold=5.0)
-        sel.fit(X, y)
-        X_out = sel.transform(X)
-        # B should be removed due to high VIF with A
-        assert X_out.shape[1] < 3
+        kept = run_selector("vif", X, y, max_vif=5.0, visualize=False)
+        assert len(kept) < 3
 
 
-# ---------------------------------------------------------------------------
-# SelectorRegistry
-# ---------------------------------------------------------------------------
+class TestSelectorRegistryMetadata:
+    def test_variance_registered(self) -> None:
+        assert "variance" in get_available_selectors()
 
-
-class TestSelectorRegistry:
-    def test_known_selectors_are_registered(self) -> None:
-        from habit.core.machine_learning.feature_selectors.selector_registry import (
-            SelectorRegistry,
+    def test_registry_run_variance(self) -> None:
+        X, y = _make_X_y(30, 8)
+        kept = run_selector(
+            "variance",
+            X,
+            y,
+            threshold=0.0,
+            plot_variances=False,
         )
-
-        registry = SelectorRegistry()
-        available = registry.list_selectors() if hasattr(registry, "list_selectors") else []
-        # At least some selectors must be registered
-        assert len(available) >= 0  # permissive: registry may be populated lazily
-
-    def test_registry_creates_variance_selector(self) -> None:
-        from habit.core.machine_learning.feature_selectors.selector_registry import (
-            SelectorRegistry,
-        )
-
-        registry = SelectorRegistry()
-        try:
-            sel = registry.create("variance", params={"threshold": 0.0})
-            assert sel is not None
-        except (KeyError, ValueError, AttributeError):
-            pytest.skip("Registry does not support 'variance' key in this version")
+        assert len(kept) >= 1

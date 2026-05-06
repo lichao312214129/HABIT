@@ -46,11 +46,11 @@ HABIT 的主干能力可以按下面的数据链理解：
      - 业务命令的薄封装：加载配置、创建 configurator、调用业务对象。
    * - ``habit/core/common/configurators/base.py``
      - configurator 公共基类，处理 logger、输出目录和轻量服务缓存。
-   * - ``habit/core/common/configurators/habitat.py``
+   * - ``habit/core/habitat_analysis/configurator.py``
      - 装配 habitat 分析、habitat 特征抽取、传统 radiomics、test-retest。
-   * - ``habit/core/common/configurators/ml.py``
+   * - ``habit/core/machine_learning/configurator.py``
      - 装配 ML workflow、KFold、模型比较、评估、报告、绘图组件。
-   * - ``habit/core/common/configurators/preprocessing.py``
+   * - ``habit/core/preprocessing/configurator.py``
      - 装配图像预处理 ``BatchProcessor``。
 
 标准调用链
@@ -81,8 +81,7 @@ HABIT 的主干能力可以按下面的数据链理解：
 * 新增业务命令时，优先新增 ``cmd_<name>.py``，再在 ``habit/cli.py`` 注册。
 * 新增需要 YAML 的业务服务时，先定义 ``BaseConfig`` 子类，再在对应
   domain configurator 添加 ``create_*`` 方法。
-* configurator 内部的业务 import 应放在 factory 方法内部，避免
-  ``habit.core.common`` 顶层 import 业务子包。
+* configurator 内部应只负责装配，不应承载业务运行逻辑。
 
 
 ``habit.core.preprocessing``
@@ -532,25 +531,21 @@ selector 注册表会按 selector 函数签名注入 ``X``、``y``、
 
    * - 文件
      - 职责
-   * - ``config_base.py``
-     - ``BaseConfig``、统一 ``from_file`` / ``from_dict`` / ``to_dict``。
-   * - ``config_loader.py``
+   * - ``configs/base.py``
+     - ``BaseConfig``、``ConfigAccessor``；统一 ``from_file`` / ``from_dict`` / ``to_dict``。
+   * - ``configs/loader.py``
      - YAML/JSON 读写和路径解析。
-   * - ``config_validator.py``
-     - 历史兼容的配置校验入口。
-   * - ``config_accessor.py``
-     - 兼容 dict 与 Pydantic model 的访问辅助。
+   * - ``configs/validator.py``
+     - ``ConfigValidator`` 与 ``load_and_validate_config``。
    * - ``configurators/``
      - 域专用服务装配入口。
-   * - ``dependency_injection.py``
-     - 通用 DI 容器，目前不是主路径。
-   * - ``dataframe_utils.py``
+   * - ``dataframe/``
      - 表格和数组清洗辅助。
 
 边界
 ^^^^
 
-* ``config_loader`` 解决“配置文件如何读、路径如何解析”。
+* ``configs.loader`` 解决“配置文件如何读、路径如何解析”。
 * ``BaseConfig`` 和各 domain schema 解决“配置结构是否合法”。
 * ``configurators`` 解决“已验证配置如何组装成可运行服务”。
 

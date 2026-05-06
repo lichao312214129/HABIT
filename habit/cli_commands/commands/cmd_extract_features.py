@@ -19,7 +19,7 @@ def run_extract_features(config_file: str) -> None:
     Args:
         config_file (str): Path to configuration YAML file
     """
-    from habit.core.common.configurators import HabitatConfigurator
+    from habit.core.habitat_analysis.configurator import HabitatConfigurator
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)

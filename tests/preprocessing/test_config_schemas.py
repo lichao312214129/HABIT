@@ -10,6 +10,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from habit.core.common.configs.base import ConfigValidationError
 from habit.core.preprocessing.config_schemas import (
     PreprocessingConfig,
     PreprocessingStepConfig,
@@ -72,23 +73,24 @@ class TestPreprocessingConfig:
         assert cfg.auto_select_first_file is True
 
     def test_missing_data_dir_rejected(self) -> None:
-        with pytest.raises(ValidationError):
+        # BaseConfig wraps Pydantic ValidationError in ConfigValidationError.
+        with pytest.raises(ConfigValidationError):
             PreprocessingConfig(out_dir="/out")
 
     def test_missing_out_dir_rejected(self) -> None:
-        with pytest.raises(ValidationError):
+        with pytest.raises(ConfigValidationError):
             PreprocessingConfig(data_dir="/data")
 
     def test_empty_data_dir_rejected(self) -> None:
-        with pytest.raises(ValidationError):
+        with pytest.raises(ConfigValidationError):
             PreprocessingConfig(data_dir="", out_dir="/out")
 
     def test_empty_out_dir_rejected(self) -> None:
-        with pytest.raises(ValidationError):
+        with pytest.raises(ConfigValidationError):
             PreprocessingConfig(data_dir="/data", out_dir="")
 
     def test_processes_must_be_positive(self) -> None:
-        with pytest.raises(ValidationError, match="processes must be >= 1"):
+        with pytest.raises(ConfigValidationError, match="processes must be >= 1"):
             PreprocessingConfig(**self._minimal(), processes=0)
 
     def test_processes_default_one(self) -> None:

@@ -26,6 +26,11 @@ habitat_analysis 模块
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: habit.core.habitat_analysis.configurator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Pipeline 与步骤 (Pipeline & Steps)
 -----------------------------------
 

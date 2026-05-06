@@ -18,17 +18,13 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from .base import BaseConfigurator
+from habit.core.common.configurators.base import BaseConfigurator
 
 
 class HabitatConfigurator(BaseConfigurator):
     """Factory for habitat analysis, feature extraction and reproducibility."""
 
     logger_name = 'habitat_configurator'
-
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
 
     def _get_habitat_config(self, config: Optional[Any] = None) -> Any:
         """
@@ -48,10 +44,6 @@ class HabitatConfigurator(BaseConfigurator):
         if isinstance(cfg, dict):
             return HabitatAnalysisConfig.model_validate(cfg)
         return cfg
-
-    # ------------------------------------------------------------------
-    # HabitatAnalysis
-    # ------------------------------------------------------------------
 
     def create_feature_service(self, config: Optional[Any] = None) -> Any:
         """Return a configured :class:`FeatureService`."""
@@ -92,10 +84,6 @@ class HabitatConfigurator(BaseConfigurator):
             logger=self.logger,
         )
 
-    # ------------------------------------------------------------------
-    # HabitatMapAnalyzer (feature extraction from habitat maps)
-    # ------------------------------------------------------------------
-
     def create_feature_extractor(self, config: Optional[Any] = None) -> Any:
         """Return a configured :class:`HabitatMapAnalyzer`."""
         from habit.core.habitat_analysis.habitat_features.habitat_analyzer import HabitatMapAnalyzer
@@ -123,10 +111,6 @@ class HabitatConfigurator(BaseConfigurator):
             habitat_pattern=cfg.habitat_pattern,
         )
 
-    # ------------------------------------------------------------------
-    # Traditional radiomics extractor
-    # ------------------------------------------------------------------
-
     def create_radiomics_extractor(self, config: Optional[Any] = None) -> Any:
         """Return a configured :class:`TraditionalRadiomicsExtractor`."""
         from habit.core.habitat_analysis.habitat_features.traditional_radiomics_extractor import (
@@ -146,8 +130,6 @@ class HabitatConfigurator(BaseConfigurator):
                     f"Invalid configuration for Radiomics Extraction: {exc}"
                 ) from exc
 
-        # Both nested and flat config forms are still valid (pydantic schema
-        # exposes both shapes).
         params_file = cfg.params_file or cfg.paths.params_file
         images_folder = cfg.images_folder or cfg.paths.images_folder
         out_dir = cfg.out_dir or cfg.paths.out_dir
@@ -160,9 +142,6 @@ class HabitatConfigurator(BaseConfigurator):
             n_processes=n_processes,
         )
 
-        # Apply additional config knobs after construction. Kept as direct
-        # attribute writes for now to mirror the original ServiceConfigurator
-        # behaviour; a follow-up could move these into the class __init__.
         extractor.save_every_n_files = cfg.processing.save_every_n_files
         extractor.process_image_types = cfg.processing.process_image_types
         extractor.target_labels = cfg.processing.target_labels
@@ -175,10 +154,6 @@ class HabitatConfigurator(BaseConfigurator):
         extractor.file_output = cfg.logging.file_output
 
         return extractor
-
-    # ------------------------------------------------------------------
-    # Test-retest analysis
-    # ------------------------------------------------------------------
 
     def create_test_retest_analyzer(self, config: Optional[Any] = None) -> Any:
         """

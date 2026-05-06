@@ -21,7 +21,7 @@ from typing import Dict
 
 import joblib
 
-from ..core.results import KFoldRunResult, RunResult
+from ..contracts.results import KFoldRunResult, RunResult
 from ..models.ensemble import HabitEnsembleModel
 
 

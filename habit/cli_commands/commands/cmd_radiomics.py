@@ -18,7 +18,7 @@ def run_radiomics(config_file: str) -> None:
         config_file (str): Path to configuration YAML file
     """
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.configurators import HabitatConfigurator
+    from habit.core.habitat_analysis.configurator import HabitatConfigurator
     from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
     
     if not config_file:

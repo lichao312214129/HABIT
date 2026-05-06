@@ -7,12 +7,13 @@ falls back to a temporary synthetic CSV when the demo file is absent.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import ValidationError
+
+from habit.core.common.configs.base import ConfigValidationError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BREAST_CANCER_CSV = PROJECT_ROOT / "demo_data" / "ml_data" / "breast_cancer_dataset.csv"
@@ -43,9 +44,20 @@ def _get_csv_path(tmp_path: Path) -> str:
     return str(synthetic)
 
 
+def _subject_and_label_cols(csv_path: str) -> tuple[str, str]:
+    """
+    Demo breast cancer CSV uses ``subjID``; synthetic fixtures use ``subject_id``.
+    """
+    name = Path(csv_path).name
+    if "breast_cancer_dataset" in name:
+        return "subjID", "label"
+    return "subject_id", "label"
+
+
 def _make_config_dict(csv_path: str, output_dir: str) -> dict:
+    sid_col, lbl_col = _subject_and_label_cols(csv_path)
     return {
-        "input": [{"path": csv_path, "subject_id_col": "subject_id", "label_col": "label"}],
+        "input": [{"path": csv_path, "subject_id_col": sid_col, "label_col": lbl_col}],
         "output": output_dir,
         "feature_selection_methods": [{"method": "variance", "params": {"threshold": 0.0}}],
         "models": {"LogisticRegression": {"params": {"max_iter": 200}}},
@@ -153,16 +165,13 @@ class TestHoldoutWorkflowTrain:
 class TestHoldoutWorkflowPredict:
     def test_predict_mode_requires_pipeline_path(self, tmp_path: Path) -> None:
         from habit.core.machine_learning.config_schemas import MLConfig
-        from habit.core.machine_learning.workflows.holdout_workflow import HoldoutWorkflow
 
         csv = _get_csv_path(tmp_path)
         config_dict = _make_config_dict(csv, str(tmp_path / "out"))
         config_dict["run_mode"] = "predict"
-        # No pipeline_path provided → InferenceRunner should raise or workflow should fail gracefully
-        cfg = MLConfig.model_validate(config_dict)
-        wf = HoldoutWorkflow(config=cfg)
-        with pytest.raises(Exception):
-            wf.predict()
+        # Missing pipeline_path: MLConfig rejects at validation time (BaseConfig wraps errors).
+        with pytest.raises((ValidationError, ConfigValidationError)):
+            MLConfig.model_validate(config_dict)
 
     def test_predict_after_train(self, tmp_path: Path) -> None:
         """Train first, then run predict mode using the saved pipeline."""

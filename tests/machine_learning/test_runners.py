@@ -20,8 +20,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from habit.core.machine_learning.core.plan import WorkflowPlan
-from habit.core.machine_learning.core.results import KFoldRunResult, RunResult
+from habit.core.machine_learning.contracts.plan import WorkflowPlan
+from habit.core.machine_learning.contracts.results import KFoldRunResult, RunResult
 from habit.core.machine_learning.runners.context import RunnerContext
 
 

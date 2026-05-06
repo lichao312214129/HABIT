@@ -6,7 +6,7 @@ Uses Pydantic for robust validation and type safety.
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
-from habit.core.common.config_base import BaseConfig
+from habit.core.common.configs.base import BaseConfig
 
 
 class SaveOptionsConfig(BaseModel):

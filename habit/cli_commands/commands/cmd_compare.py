@@ -27,7 +27,7 @@ def run_compare(config_file: str) -> None:
     
     from habit.utils.log_utils import setup_logger
     from habit.core.machine_learning.config_schemas import ModelComparisonConfig
-    from habit.core.common.configurators import MLConfigurator
+    from habit.core.machine_learning.configurator import MLConfigurator
     
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)

@@ -1,5 +1,5 @@
 """
-Core machine-learning data contracts.
+Machine-learning run data contracts.
 """
 
 from .dataset import DatasetSnapshot

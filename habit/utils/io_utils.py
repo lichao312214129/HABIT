@@ -10,7 +10,7 @@ import numpy as np
 from typing import Dict, Any, Optional, List
 import yaml
 import logging
-from habit.core.common.config_loader import load_config, save_config, validate_config
+from habit.core.common.configs.loader import load_config, save_config, validate_config
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
 

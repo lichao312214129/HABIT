@@ -27,7 +27,7 @@ def run_habitat(
     from pathlib import Path
 
     from habit.utils.log_utils import setup_logger
-    from habit.core.common.configurators import HabitatConfigurator
+    from habit.core.habitat_analysis.configurator import HabitatConfigurator
     from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
     
     if not config_file:

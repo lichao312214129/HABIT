@@ -10,6 +10,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from habit.core.common.configs.base import ConfigValidationError
 from habit.core.machine_learning.config_schemas import (
     InputFileConfig,
     MLConfig,
@@ -129,7 +130,7 @@ class TestMLConfig:
     def test_output_required(self) -> None:
         d = _minimal_dict()
         d.pop("output")
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, ConfigValidationError)):
             MLConfig.model_validate(d)
 
     def test_resampling_block_accepted(self) -> None:

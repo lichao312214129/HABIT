@@ -9,8 +9,8 @@ from pathlib import Path
 import logging
 from pydantic import ValidationError
 
-from .config_base import BaseConfig, ConfigValidationError, ConfigAccessor
-from habit.core.common.config_loader import load_config, resolve_config_paths
+from .base import BaseConfig, ConfigValidationError
+from .loader import load_config, resolve_config_paths
 
 logger = logging.getLogger(__name__)
 

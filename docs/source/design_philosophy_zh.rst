@@ -266,7 +266,7 @@ YAML 格式更加灵活，适合复杂的数据组织：
 
 .. code-block:: python
 
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load configuration

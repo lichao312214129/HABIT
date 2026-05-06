@@ -183,7 +183,7 @@ V1 起，仓库不再有"一个上帝类"装配三个域。``habit/core/common/c
 按业务域拆成三个并列的 configurator，全部继承同一个抽象基类
 :py:class:`habit.core.common.configurators.base.BaseConfigurator`：
 
-* :py:class:`habit.core.common.configurators.habitat.HabitatConfigurator`
+* :py:class:`habit.core.habitat_analysis.configurator.HabitatConfigurator`
   —— habitat 域的工厂方法：
   
   - ``create_feature_manager()``
@@ -195,7 +195,7 @@ V1 起，仓库不再有"一个上帝类"装配三个域。``habit/core/common/c
   - ``create_radiomics_extractor()``
   - ``create_test_retest_analyzer()``
 
-* :py:class:`habit.core.common.configurators.ml.MLConfigurator`
+* :py:class:`habit.core.machine_learning.configurator.MLConfigurator`
   —— ML 域的工厂方法：
 
   - ``create_evaluator()``
@@ -207,30 +207,28 @@ V1 起，仓库不再有"一个上帝类"装配三个域。``habit/core/common/c
   - ``create_ml_workflow()`` （同时覆盖 train + predict）
   - ``create_kfold_workflow()``
 
-* :py:class:`habit.core.common.configurators.preprocessing.PreprocessingConfigurator`
+* :py:class:`habit.core.preprocessing.configurator.PreprocessingConfigurator`
   —— preprocessing 域的工厂方法：
 
   - ``create_batch_processor()``
 
 设计要点：
 
-* **域内深、域间隔**。三个 configurator 互不 import；CLI 子命令只
-  挑自己需要的那一个。
+* **域内深、域间隔**。三个 domain configurator 与对应配置 schema 同放在
+  各自业务子包；CLI 子命令只挑自己需要的那一个。
 * **共享只放在基类**。日志接管、``output_dir`` 处理、轻量服务缓存
   留在 ``BaseConfigurator``，避免三个子类重复实现。
-* **延迟导入**。所有业务 import 在 factory 方法内部，避免
-  ``common`` 模块顶层重型依赖。
+* **装配不承载业务运行逻辑**。domain configurator 可以直接导入本域实现，
+  但只负责把已验证配置组装成可运行对象。
 
 .. note::
-   ``habit.core.common.dependency_injection.DIContainer`` 是更通用的 DI 容器，
-   但当前仓库内 **几乎未被使用**。V1 装配的实际事实是上面三个域专用的
-   configurator 类。
+   V1 的服务装配走各域的 **configurator**（见上），不再维护通用 DI 容器。
 
 
 配置体系：``BaseConfig`` + Pydantic
 -----------------------------------
 
-所有需要从 YAML 加载的配置都继承 ``habit.core.common.config_base.BaseConfig``：
+所有需要从 YAML 加载的配置都继承 ``habit.core.common.configs.base.BaseConfig``：
 
 .. graphviz::
 
@@ -497,10 +495,9 @@ Layer 4：基础设施层
 
 业务无关的「装配 + 配置 + 横切」工具：
 
-* ``config_base.py`` —— Pydantic ``BaseConfig`` 基类与 ``from_file``。
+* ``configs/base.py`` —— Pydantic ``BaseConfig`` 基类与 ``from_file``。
 * ``configurators/`` —— 服务装配（见 Layer 2）。
-* ``dependency_injection.DIContainer`` —— 通用 DI 容器（当前非主路径）。
-* ``dataframe_utils.py`` —— DataFrame/数组横切清洗。
+* ``dataframe/`` —— DataFrame/数组横切清洗。
 
 ### ``habit.utils``
 
@@ -578,7 +575,7 @@ V1 重构后，项目使用的设计模式如下（**已移除过时的策略模
            self.result_manager = result_manager
 
    # 使用 HabitatConfigurator 装配
-   from habit.core.common.configurators import HabitatConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
    configurator = HabitatConfigurator(config=config)
    analysis = configurator.create_habitat_analysis()
 

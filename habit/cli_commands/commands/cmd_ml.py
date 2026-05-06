@@ -27,7 +27,7 @@ def run_ml(config_path: str, mode: str) -> None:
         mode: Operation mode (``'train'`` or ``'predict'``). Overrides the
             ``run_mode`` field inside the config.
     """
-    from habit.core.common.configurators import MLConfigurator
+    from habit.core.machine_learning.configurator import MLConfigurator
 
     if mode not in ('train', 'predict'):
         click.echo(
@@ -100,7 +100,7 @@ def run_kfold(config_file: str) -> None:
     Args:
         config_file: Path to configuration YAML file.
     """
-    from habit.core.common.configurators import MLConfigurator
+    from habit.core.machine_learning.configurator import MLConfigurator
 
     if not config_file:
         click.echo("Error: Configuration file is required. Use --config option.", err=True)

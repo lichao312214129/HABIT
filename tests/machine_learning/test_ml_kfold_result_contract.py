@@ -25,7 +25,7 @@ def _class_node(module: ast.Module, class_name: str) -> ast.ClassDef:
 
 def test_kfold_result_contract_exists() -> None:
     """K-Fold should have a structured result object beside holdout results."""
-    module = _parse("habit/core/machine_learning/core/results.py")
+    module = _parse("habit/core/machine_learning/contracts/results.py")
     class_names = {node.name for node in module.body if isinstance(node, ast.ClassDef)}
     result_class = _class_node(module, "KFoldRunResult")
     method_names = {

@@ -16,32 +16,17 @@ HABIT 使用一套基于 YAML 的强类型配置系统。
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: habit.core.common.configurators.habitat
+.. automodule:: habit.core.common.configs.loader
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: habit.core.common.configurators.ml
+.. automodule:: habit.core.common.configs.validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: habit.core.common.configurators.preprocessing
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.common.config_loader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.common.config_validator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.common.config_base
+.. automodule:: habit.core.common.configs.base
    :members:
    :undoc-members:
    :show-inheritance:
@@ -49,7 +34,7 @@ HABIT 使用一套基于 YAML 的强类型配置系统。
 数据工具 (Data Utilities)
 --------------------------
 
-.. automodule:: habit.core.common.dataframe_utils
+.. automodule:: habit.core.common.dataframe
    :members:
    :undoc-members:
    :show-inheritance:

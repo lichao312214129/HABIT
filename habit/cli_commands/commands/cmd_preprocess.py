@@ -22,7 +22,7 @@ def run_preprocess(config_path: str) -> None:
     Args:
         config_path (str): Path to configuration YAML file
     """
-    from habit.core.common.configurators import PreprocessingConfigurator
+    from habit.core.preprocessing.configurator import PreprocessingConfigurator
     
     # Check if config file exists first
     if not os.path.exists(config_path):

@@ -18,7 +18,8 @@ The legacy class names ``MachineLearningWorkflow`` /
 existing scripts keep working; new code should prefer the new names.
 """
 
-from .core import (
+from .configurator import MLConfigurator
+from .contracts import (
     AggregatedModelResult,
     DatasetSnapshot,
     InferenceResult,
@@ -43,6 +44,7 @@ __all__ = [
     # Workflows (preferred names).
     "HoldoutWorkflow",
     "KFoldWorkflow",
+    "MLConfigurator",
     # Workflows (deprecated aliases).
     "MachineLearningWorkflow",
     "MachineLearningKFoldWorkflow",
@@ -51,7 +53,7 @@ __all__ = [
     "KFoldRunner",
     "InferenceRunner",
     "RunnerContext",
-    # Core data contracts.
+    # Run data contracts.
     "WorkflowPlan",
     "WorkflowResult",
     "DatasetSnapshot",
