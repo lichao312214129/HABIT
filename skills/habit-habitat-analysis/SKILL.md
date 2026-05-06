@@ -31,7 +31,7 @@ Before generating a config, confirm:
 | `data_dir` (preprocessed) | output of `habit preprocess` |
 | `out_dir` | output root |
 | Modalities to cluster | drives `voxel_level.method` |
-| `clustering_mode` | one_step or two_step (see below) |
+| `clustering_mode` | `one_step`, `two_step`, or `direct_pooling` (see below) |
 | (kinetic only) timestamps Excel | required |
 | (voxel_radiomics only) PyRadiomics params YAML | required |
 | Expected habitat count | typical 3-5 |

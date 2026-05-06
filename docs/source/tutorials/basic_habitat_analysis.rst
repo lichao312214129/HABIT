@@ -50,18 +50,16 @@
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis import HabitatAnalysis
-   
-   # 加载配置
-   import yaml
-   with open('config.yaml', 'r') as f:
-       config = yaml.safe_load(f)
-   
-   # 运行分析
-   analysis = HabitatAnalysis(config)
-   results = analysis.run()
-   
-   # 查看结果
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
+   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+
+   # Load and validate against the Pydantic schema (preferred over raw yaml dicts)
+   config = HabitatAnalysisConfig.from_file('config.yaml')
+
+   analysis = HabitatConfigurator(config=config).create_habitat_analysis()
+   results = analysis.fit()
+
+   # Inspect results
    print(results.head())
 
 结果解释

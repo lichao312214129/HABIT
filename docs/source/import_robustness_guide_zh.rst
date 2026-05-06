@@ -54,7 +54,12 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
 
    import habit
 
-   analysis = habit.HabitatAnalysis(config, ...)
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
+   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+
+   config = HabitatAnalysisConfig.from_file("config.yaml")
+   # HabitatAnalysis.__init__ requires injected services — use HabitatConfigurator.
+   analysis = HabitatConfigurator(config=config).create_habitat_analysis()
    analysis.fit()
 
    model = habit.Modeling(config_path)
@@ -139,5 +144,8 @@ V1 的导入策略以"接口诚实"为目标：
 - **可选依赖** —— 白名单 + 显式 ``is_available`` / ``import_error``。
 - **业务无关的临时探测** —— 用 ``habit.utils.import_utils`` 的 ``ImportManager``。
 
-调用方因此可以放心写 ``import habit; habit.HabitatAnalysis(...)``，
-不需要再被 "万一是 None" 这种历史遗留迫使写防御代码。
+调用方可以放心 ``import habit`` 并访问 ``habit.HabitatAnalysis`` 等符号
+（懒加载、非 ``None``）；**构造可运行实例**仍需经
+``HabitatConfigurator(...).create_habitat_analysis()`` 注入
+``FeatureService`` / ``ClusteringService`` / ``ResultWriter``，不要假设
+``HabitatAnalysis(config)`` 单参数构造可用。

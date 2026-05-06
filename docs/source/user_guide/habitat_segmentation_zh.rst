@@ -120,17 +120,16 @@ Python API 使用方法
    from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # Load configuration
+   # Load and validate YAML into HabitatAnalysisConfig
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # Build the habitat configurator
+   # Wires collaborator services + logging (mirror: habit.cli habitat command)
    configurator = HabitatConfigurator(config=config)
 
-   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # Run
-   habitat_analysis.run()
+   # Train path; predict: habitat_analysis.predict(pipeline_path=config.pipeline_path, ...)
+   habitat_analysis.fit()
 
 **详细示例：**
 
@@ -152,18 +151,15 @@ Python API 使用方法
        level=logging.INFO
    )
 
-   # Load configuration
+   # Load and validate YAML into HabitatAnalysisConfig
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # Build the habitat configurator
    configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
 
-   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # Run
    logger.info("开始生境分析")
-   habitat_analysis.run(save_results_csv=True)
+   habitat_analysis.fit(save_results_csv=True)
    logger.info("生境分析完成！")
 
 YAML 配置详解
@@ -562,17 +558,16 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
    from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # Load configuration
+   # Load and validate YAML into HabitatAnalysisConfig
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # Build the habitat configurator
+   # Wires collaborator services + logging (mirror: habit.cli habitat command)
    configurator = HabitatConfigurator(config=config)
 
-   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # Run
-   habitat_analysis.run()
+   # Train path; predict: habitat_analysis.predict(pipeline_path=config.pipeline_path, ...)
+   habitat_analysis.fit()
 
 **关键要点：**
 
@@ -583,8 +578,9 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
 底层 sklearn 风格 API
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-CLI 与 ``HabitatAnalysis.run()`` 已经是日常推荐的入口；如果要在 notebook 或
-脚本里直接调用底层 pipeline，可使用与 sklearn 一致的接口：
+日常推荐 CLI（``habit get-habitat``）或 Python 中的 ``HabitatAnalysis.fit()`` /
+``predict()``（``run()`` 仍可按配置分发，但已标注为遗留入口）。若要直接操纵
+序列化后的 ``HabitatPipeline``，可使用与 sklearn 一致的接口：
 
 .. code-block:: python
 

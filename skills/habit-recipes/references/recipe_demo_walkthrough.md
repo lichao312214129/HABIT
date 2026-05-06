@@ -61,10 +61,10 @@ After step 5, the user should open these to verify success:
 | `demo_data/ml_data/model_comparison/roc_curves.pdf` | radiomics vs clinical comparison |
 | `demo_data/ml_data/model_comparison/delong_results.json` | DeLong p-value |
 
-## Optional: alternative habitat strategies
+## Optional: alternative `clustering_mode` recipes
 
-The demo also ships configs for one_step and direct_pooling — useful for
-comparing habitat strategies on the same data:
+The demo also ships configs for `one_step` and `direct_pooling` — useful for
+comparing clustering modes on the same data (not the removed V0 Strategy classes):
 
 ```bash
 habit get-habitat --config demo_data/config_habitat_one_step.yaml

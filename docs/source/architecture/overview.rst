@@ -12,12 +12,14 @@ High-level layers
   ``habit/cli_commands/commands/``). The CLI is the recommended path
   for end users; the legacy ``scripts/app_*.py`` dual-track runners
   have been removed in V1.
-- **Service layer** — domain-specific configurators in
-  ``habit.core.common.configurators``: ``HabitatConfigurator`` /
-  ``MLConfigurator`` / ``PreprocessingConfigurator``, each extending
-  ``BaseConfigurator``. Each cmd_* entry imports only the domain
-  configurator it actually needs; ``common`` no longer pulls every
-  business subpackage into the import surface.
+- **Configurator layer** — shared base in
+  :py:mod:`habit.core.common.configurators.base` (``BaseConfigurator``);
+  domain factories live next to their packages:
+  ``habit.core.habitat_analysis.configurator.HabitatConfigurator``,
+  ``habit.core.machine_learning.configurator.MLConfigurator``,
+  ``habit.core.preprocessing.configurator.PreprocessingConfigurator``.
+  Each cmd_* entry imports only the domain configurator it needs; ``common``
+  does not re-export the three domain factories at package root.
 - **Domain subpackages** — ``habitat_analysis``, ``machine_learning``, and
   ``preprocessing``. The three never import one another; they exchange data
   through file artefacts (CSV, NRRD, ``.pkl``).
@@ -44,8 +46,10 @@ known architecture concerns), see:
   rules for every pipeline step in ``habitat_analysis``.
 
 .. note::
-   The pre-V1 "Strategy Layer" (``TwoStepStrategy`` / ``OneStepStrategy``
-   / ``DirectPoolingStrategy``) and the standalone ``pipeline_builder`` module
-   have been removed. Mode dispatch is now handled by a recipe dictionary
-   inside ``HabitatAnalysis``. Older docs that mention those classes are
-   out of date.
+   In **habitat_analysis**, the pre-V1 "Strategy Layer"
+   (``TwoStepStrategy`` / ``OneStepStrategy`` / ``DirectPoolingStrategy``)
+   and the habitat ``pipeline_builder`` helper are gone: mode dispatch is a
+   recipe map inside :class:`~habit.core.habitat_analysis.HabitatAnalysis`.
+   The **machine_learning** subpackage still has its own
+   ``PipelineBuilder`` (unrelated to the removed habitat helper). Docs that
+   conflate the two are outdated.

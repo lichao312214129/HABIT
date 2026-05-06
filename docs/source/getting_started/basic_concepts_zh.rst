@@ -76,17 +76,17 @@ HABIT 继承了 scikit-learn 的 Pipeline 机制，这是避免数据泄露的�
    from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # Load configuration
+   # Load and validate YAML into HabitatAnalysisConfig
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # Build the habitat configurator
+   # HabitatConfigurator builds FeatureService, ClusteringService, ResultWriter + logger hooks
    configurator = HabitatConfigurator(config=config)
 
-   # Build the HabitatAnalysis service
+   # Wired HabitatAnalysis (clustering_mode → step recipe lives inside HabitatAnalysis)
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # Run
-   habitat_analysis.run()
+   # Prefer explicit verbs: train with fit(); load saved pipeline with predict()
+   habitat_analysis.fit()
 
 **机器学习中的 Pipeline:**
 
@@ -224,11 +224,9 @@ HABIT 提供两种使用方式：CLI 和 Python API。
 
 .. code-block:: python
 
-   from habit.core.common.configurators import (
-       HabitatConfigurator,
-       MLConfigurator,
-       PreprocessingConfigurator,
-   )
+   from habit.core.preprocessing.configurator import PreprocessingConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
+   from habit.core.machine_learning.configurator import MLConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
    from habit.core.machine_learning.config_schemas import MLConfig
@@ -241,7 +239,7 @@ HABIT 提供两种使用方式：CLI 和 Python API。
    # Habitat analysis
    habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
    habitat_analysis = HabitatConfigurator(config=habitat_cfg).create_habitat_analysis()
-   habitat_analysis.run()
+   habitat_analysis.fit()
 
    # Machine learning
    ml_cfg = MLConfig.from_file('config_machine_learning.yaml')

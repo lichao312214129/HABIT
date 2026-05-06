@@ -120,7 +120,7 @@ When creating new annotated configuration files:
 ## 📚 Related Documentation
 
 - **Main README**: [README.md](../README.md) / [README_en.md](../README_en.md)
-- **Habitat Analysis**: [doc/app_habitat_analysis.md](../doc/app_habitat_analysis.md) / [doc_en/app_habitat_analysis.md](../doc_en/app_habitat_analysis.md)
+- **Habitat Analysis**: [docs/source/user_guide/habitat_segmentation_zh.rst](../docs/source/user_guide/habitat_segmentation_zh.rst)
 - **Machine Learning**: see `docs/source/user_guide/machine_learning_modeling_zh.rst`
 
 ---

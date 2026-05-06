@@ -230,17 +230,27 @@ class BatchProcessor:
         )
 ```
 
-### HabitatAnalysis (habitat analysis)
+### HabitatAnalysis (via CLI-style wiring)
+
+Logging is configured at the entry point, then injected through ``HabitatConfigurator``:
 
 ```python
-class HabitatAnalysis:
-    def _setup_logging(self, log_level):
-        self.logger = setup_logger(
-            name='habitat',
-            output_dir=self.out_dir,
-            log_filename='habitat_analysis.log',
-            level=getattr(logging, log_level.upper())
-        )
+from pathlib import Path
+import logging
+
+from habit.utils.log_utils import setup_logger
+from habit.core.habitat_analysis.configurator import HabitatConfigurator
+from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+
+output_path = Path("./results/habitat")
+config = HabitatAnalysisConfig.from_file("config_habitat.yaml")
+logger = setup_logger(
+    name="cli.habitat",
+    output_dir=output_path,
+    log_filename="habitat_analysis.log",
+    level=logging.INFO,
+)
+HabitatConfigurator(config=config, logger=logger, output_dir=str(output_path)).create_habitat_analysis()
 ```
 
 ### N4BiasFieldCorrection (module)

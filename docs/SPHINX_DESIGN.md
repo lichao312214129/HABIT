@@ -220,18 +220,10 @@ Habitat Analysis Module
    :undoc-members:
    :show-inheritance:
 
-Strategies
-----------
+Services (collaborators)
+------------------------
 
-.. automodule:: habit.core.habitat_analysis.strategies
-   :members:
-
-.. autoclass:: habit.core.habitat_analysis.strategies.base_strategy.BaseClusteringStrategy
-   :members:
-   :show-inheritance:
-
-Managers
---------
+V1 removed the ``strategies/`` subpackage; document runtime collaborators:
 
 .. automodule:: habit.core.habitat_analysis.services
    :members:
@@ -450,10 +442,12 @@ def run_habitat(
    :linenos:
    :emphasize-lines: 3,5
 
-   from habit.core.habitat_analysis import HabitatAnalysis
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
+   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+
    config = HabitatAnalysisConfig.from_file('config.yaml')
-   analysis = HabitatAnalysis(config)
-   results = analysis.run()
+   analysis = HabitatConfigurator(config=config).create_habitat_analysis()
+   results = analysis.fit()
 ```
 
 ### 4. 使用 admonitions

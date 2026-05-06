@@ -10,7 +10,7 @@ import pandas as pd
 from typing import Dict, List, Any, Tuple, Optional, Union
 
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
-from ..clustering.base_clustering import get_clustering_algorithm
+from ..clustering.base_clustering import ClusteringAlgorithmFactory
 from ..clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
@@ -112,7 +112,7 @@ class ClusteringService:
             n_clusters: Target number of clusters/supervoxels.
 
         Returns:
-            Dict[str, Any]: Parameters passed to get_clustering_algorithm.
+            Dict[str, Any]: Parameters passed to ClusteringAlgorithmFactory.create_algorithm.
         """
         supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
         params: Dict[str, Any] = {
@@ -197,12 +197,12 @@ class ClusteringService:
         supervoxel_params = self._build_supervoxel_clustering_params(
             n_clusters=supervoxel_cfg.n_clusters
         )
-        self.voxel2supervoxel_clustering = get_clustering_algorithm(
+        self.voxel2supervoxel_clustering = ClusteringAlgorithmFactory.create_algorithm(
             supervoxel_cfg.algorithm,
             **supervoxel_params
         )
         
-        self.supervoxel2habitat_clustering = get_clustering_algorithm(
+        self.supervoxel2habitat_clustering = ClusteringAlgorithmFactory.create_algorithm(
             habitat_cfg.algorithm,
             n_clusters=habitat_cfg.max_clusters,
             random_state=habitat_cfg.random_state,
@@ -305,7 +305,7 @@ class ClusteringService:
             if n_clusters is not None:
                 # Custom number of clusters (e.g. one-step optimal clusters);
                 # build a fresh clusterer instance with the requested k.
-                clusterer = get_clustering_algorithm(
+                clusterer = ClusteringAlgorithmFactory.create_algorithm(
                     supervoxel_cfg.algorithm,
                     **self._build_supervoxel_clustering_params(n_clusters),
                 )
@@ -355,7 +355,7 @@ class ClusteringService:
         )
         
         supervoxel_cfg = self.config.HabitatsSegmention.supervoxel
-        clusterer = get_clustering_algorithm(
+        clusterer = ClusteringAlgorithmFactory.create_algorithm(
             supervoxel_cfg.algorithm,
             **self._build_supervoxel_clustering_params(max_clusters),
         )

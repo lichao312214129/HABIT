@@ -34,7 +34,7 @@ HABIT 提供丰富的内置组件，用户可以直接使用：
 - **自定义预处理器**: 添加自定义的图像预处理方法
 - **自定义特征提取器**: 添加自定义的聚类特征提取方法
 - **自定义聚类算法**: 添加自定义的聚类算法
-- **自定义策略**: 添加自定义的生境分割策略
+- **自定义流水线组件**: 在既有 ``clustering_mode`` recipe 下扩展 step、聚类特征提取器或后端
 - **自定义模型**: 添加自定义的机器学习模型
 - **自定义特征选择器**: 添加自定义的特征选择方法
 
@@ -81,11 +81,9 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
 
 .. code-block:: python
 
-   from habit.core.common.configurators import (
-       HabitatConfigurator,
-       MLConfigurator,
-       PreprocessingConfigurator,
-   )
+   from habit.core.preprocessing.configurator import PreprocessingConfigurator
+   from habit.core.habitat_analysis.configurator import HabitatConfigurator
+   from habit.core.machine_learning.configurator import MLConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
    from habit.core.machine_learning.config_schemas import MLConfig
@@ -98,7 +96,7 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
    # Habitat analysis
    habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
    habitat_analysis = HabitatConfigurator(config=habitat_cfg).create_habitat_analysis()
-   habitat_analysis.run()
+   habitat_analysis.fit()
 
    # Machine learning
    ml_cfg = MLConfig.from_file('config_machine_learning.yaml')
@@ -269,17 +267,16 @@ YAML 格式更加灵活，适合复杂的数据组织：
    from habit.core.habitat_analysis.configurator import HabitatConfigurator
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
-   # Load configuration
+   # Load and validate YAML into HabitatAnalysisConfig
    config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
 
-   # Build the habitat configurator
+   # Builds collaborator services; same wiring as CLI (habit get-habitat)
    configurator = HabitatConfigurator(config=config)
 
-   # Build the HabitatAnalysis service
    habitat_analysis = configurator.create_habitat_analysis()
 
-   # 运行生境分析
-   habitat_analysis.run()
+   # Explicit train API (predict: habitat_analysis.predict(pipeline_path=...))
+   habitat_analysis.fit()
 
 **机器学习 Pipeline：**
 
