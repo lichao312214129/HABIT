@@ -249,6 +249,7 @@ We sincerely thank the following experts and institutions for their support and 
 - **Dr. Huang Teng** - Ganzhou People's Hospital
 - **Dr. Wang Yaqi** - Anhui Medical University Third Affiliated Hospital
 - **Dr. Li Mengsi** - Central South University Xiangya Hospital
+- **Dr. Tang Junjie** - Southern Medical University Zhujiang Hospital
 
 Their valuable feedback and insights in clinical applications, algorithm improvements, and project optimization have been instrumental to the development of HABIT.
 
