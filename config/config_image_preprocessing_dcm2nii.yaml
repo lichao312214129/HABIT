@@ -19,9 +19,9 @@ Preprocessing:
     anonymize: false
     merge_slices: "2"  # "y"=default, "2"=by series, "n"=no merge
     single_file_mode: null  # null=don't specify (recommended for 3D)
+    generate_json: true
     
   # n4_correction:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
   #   num_fitting_levels: 2
 
   # resample:
@@ -45,6 +45,7 @@ Preprocessing:
   #   moving_images: [pre_contrast, LAP, delay_3min]
   #   type_of_transform: SyNRA  # support all ants registration methods
   #   use_mask: false
+  #   # backend: simpleitk  # optional: ants (default) or simpleitk
 
 # General settings
 processes: 1  # Number of parallel processes

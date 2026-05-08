@@ -27,6 +27,15 @@ Preprocessing:
     fixed_image: delay2
     type_of_transform: Rigid
     use_mask: false
+    # backend: simpleitk  # default ants. If simpleitk: optional tuning keys below apply (see docs/user_guide/image_preprocessing_zh.rst)
+    # number_of_histogram_bins: 50
+    # metric_sampling_percentage: 0.01
+    # shrink_factors_per_level: [4, 2, 1]
+    # smoothing_sigmas_per_level: [2.1, 1.0, 0.0]
+    # learning_rate: 1.0
+    # number_of_iterations: 100
+    # bspline_mesh_size: 8
+    # bspline_order: 3
 
   # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   zscore_normalization:

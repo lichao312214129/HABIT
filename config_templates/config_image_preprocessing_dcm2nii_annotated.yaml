@@ -51,6 +51,10 @@ Preprocessing:
     # For getting 3D instead of 4D: Use "2" or null
     merge_slices: "2"
     
+    # Generate JSON sidecar metadata files.
+    # Metadata is saved under processed_images/metadata and is not mixed into images/.
+    generate_json: true
+    
     # Single file mode
     # Options:
     #   true: Force single file output (-s y) - may preserve 4D structure
@@ -76,6 +80,7 @@ Preprocessing:
   #   moving_images: [T2, DWI, ADC]
   #   type_of_transform: SyNRA
   #   use_mask: false
+  #   # backend: simpleitk  # optional: ants (default) or simpleitk
 
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings

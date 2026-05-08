@@ -5,8 +5,6 @@ This module provides functionality to batch convert DICOM files to NIfTI format
 using the dcm2niix tool, with integration into the HABIT preprocessing pipeline.
 """
 
-import os
-import subprocess
 import shutil
 from typing import Dict, Any, Optional, Union, List
 from pathlib import Path
@@ -15,6 +13,7 @@ import SimpleITK as sitk
 import json
 
 from .base_preprocessor import BasePreprocessor
+from .dcm2niix_runner import Dcm2niixRunner
 from .preprocessor_factory import PreprocessorFactory
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.file_system_utils import safe_mkdir
@@ -40,7 +39,7 @@ class Dcm2niixConverter(BasePreprocessor):
         anonymize: bool = False, # 默认不匿名化文件名
         ignore_derived: bool = False, # 默认不忽略衍生图像
         crop_images: bool = False, # 默认裁剪图像
-        generate_json: bool = False, # 默认不生成JSON文件
+        generate_json: bool = True, # 默认生成JSON元信息文件
         verbose: bool = False, # 默认不输出详细信息
         batch_mode: bool = True, # 默认启用批处理模式
         merge_slices: Optional[str] = "2", # 合并模式: "y"/"1"=默认, "2"=按序列, "n"/"0"=不合并, None=不指定
@@ -59,7 +58,7 @@ class Dcm2niixConverter(BasePreprocessor):
             anonymize (bool): Anonymize filenames (default: False)
             ignore_derived (bool): Ignore derived images (default: False)
             crop_images (bool): Crop images (default: False)
-            generate_json (bool): Generate BIDS JSON sidecar files (default: False)
+            generate_json (bool): Generate BIDS JSON sidecar files (default: True)
             verbose (bool): Verbose output (default: False)
             batch_mode (bool): Enable batch mode (default: True)
             merge_slices (Optional[str]): Merge mode - "y"/"1"=default merge, "2"=merge by series, 
@@ -75,8 +74,7 @@ class Dcm2niixConverter(BasePreprocessor):
         from habit.utils.log_utils import get_module_logger
         self.logger = get_module_logger(__name__)
         
-        # Setup dcm2niix path and environment
-        self.dcm2niix_executable = self._setup_dcm2niix_environment(dcm2niix_path)
+        self.runner = Dcm2niixRunner(dcm2niix_path)
         
         self.filename_format = filename_format
         self.compress = compress
@@ -89,106 +87,6 @@ class Dcm2niixConverter(BasePreprocessor):
         self.batch_mode = batch_mode
         self.merge_slices = merge_slices
         self.single_file_mode = single_file_mode
-        
-        # Verify dcm2niix is available
-        self._verify_dcm2niix()
-    
-    def _setup_dcm2niix_environment(self, dcm2niix_path: Optional[str]) -> str:
-        """
-        Setup dcm2niix environment by adding the executable path to PATH if provided.
-        
-        Args:
-            dcm2niix_path (Optional[str]): Path to dcm2niix executable or directory containing it
-            
-        Returns:
-            str: Name of the dcm2niix executable to use
-        """
-        if not dcm2niix_path:
-            # Use default executable name if no path provided
-            return "dcm2niix"
-            
-        dcm2niix_path_obj = Path(dcm2niix_path)
-        
-        if dcm2niix_path_obj.is_file():
-            # If path points to the executable itself
-            executable_name = dcm2niix_path_obj.name
-            dcm2niix_dir = dcm2niix_path_obj.parent
-        elif dcm2niix_path_obj.is_dir():
-            # If path points to directory containing the executable
-            executable_name = "dcm2niix"
-            dcm2niix_dir = dcm2niix_path_obj
-        else:
-            self.logger.warning(f"Specified dcm2niix path does not exist: {dcm2niix_path}")
-            return "dcm2niix"
-        
-        # Add to PATH environment variable
-        current_path = os.environ.get('PATH', '')
-        dcm2niix_path_str = str(dcm2niix_dir)
-        
-        # Check if path is already in PATH
-        if dcm2niix_path_str not in current_path:
-            # Add to beginning of PATH
-            new_path = f"{dcm2niix_path_str}{os.pathsep}{current_path}"
-            os.environ['PATH'] = new_path
-            self.logger.info(f"Added dcm2niix path to environment: {dcm2niix_path_str}")
-        else:
-            self.logger.info(f"dcm2niix path already in environment: {dcm2niix_path_str}")
-        
-        return executable_name
-    
-    def _verify_dcm2niix(self) -> None:
-        """
-        Verify that dcm2niix executable is available.
-        
-        Raises:
-            RuntimeError: If dcm2niix is not found or not executable
-        """
-        try:
-            result = subprocess.run(
-                [self.dcm2niix_executable, "--help"],
-                capture_output=True,
-                text=True,
-                check=False
-            )
-            if result.returncode != 0 and "dcm2niix" not in result.stderr.lower():
-                raise RuntimeError(self._get_dcm2niix_not_found_message())
-            self.logger.info(f"dcm2niix executable verified: {self.dcm2niix_executable}")
-        except FileNotFoundError:
-            raise RuntimeError(self._get_dcm2niix_not_found_message())
-    
-    def _get_dcm2niix_not_found_message(self) -> str:
-        """
-        Generate helpful error message with installation instructions when dcm2niix is not found.
-        
-        Returns:
-            str: Error message with installation instructions
-        """
-        return f"""dcm2niix executable not found: {self.dcm2niix_executable}
-
-Please install dcm2niix using one of the following methods:
-
-1. Using pip (recommended):
-   python -m pip install dcm2niix
-
-2. Using conda:
-   conda install -c conda-forge dcm2niix
-
-3. Using package manager:
-   - Debian/Ubuntu: sudo apt-get install dcm2niix
-   - MacOS Homebrew: brew install dcm2niix
-   - MacOS MacPorts: sudo port install dcm2niix
-
-4. Download pre-built binaries:
-   - Linux:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip
-   - MacOS:   curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/macos_dcm2niix.pkg
-   - Windows: curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_win.zip
-
-5. MRIcroGL includes dcm2niix:
-   - NITRC: https://www.nitrc.org/projects/mricrogl
-   - GitHub: https://github.com/rordenlab/MRIcroGL
-
-For more information, visit: https://github.com/rordenlab/dcm2niix
-"""
     
     def _build_dcm2niix_command(
         self, 
@@ -207,7 +105,7 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
         Returns:
             List[str]: Command components for subprocess execution
         """
-        cmd = [self.dcm2niix_executable]
+        cmd = []
         
         # Add filename format if specified
         if filename_format:
@@ -331,77 +229,8 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
                 filename_format
             )
             
-            # Convert command list to string for os.system()
-            # Need to quote paths that may contain spaces
-            cmd_parts = []
-            for i, part in enumerate(cmd_list):
-                # Quote the executable path and directory paths
-                if i == 0 or part in [str(input_path), str(subject_output_dir)]:
-                    # Check if path contains spaces
-                    if ' ' in part:
-                        cmd_parts.append(f'"{part}"')
-                    else:
-                        cmd_parts.append(part)
-                else:
-                    cmd_parts.append(part)
-            
-            cmd_string = ' '.join(cmd_parts)
-            
             self.logger.info(f"[{subject_id}] Converting DICOM directory: {input_dir}")
-            self.logger.debug(f"[{subject_id}] Command: {cmd_string}")
-
-            # Select execution method
-            # Different methods may produce different results with dcm2niix
-            # Try "os.system" if subprocess methods give unexpected 4D output
-            execution_method = "subprocess.Popen"  # Options: "os.system", "subprocess.run", "subprocess.Popen"
-            
-            if execution_method == "os.system":
-                # Method 1: os.system() - Most similar to terminal behavior
-                # This is the closest to typing the command directly in terminal
-                # Recommended for dcm2niix to avoid 3D/4D conversion issues
-                exit_code = os.system(cmd_string)
-                # os.system returns the exit status in platform-specific format
-                # On Windows, it's the actual exit code; on Unix, it may be shifted
-                if exit_code != 0:
-                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
-            
-            elif execution_method == "subprocess.run":
-                # Method 2: subprocess.run() with shell=True
-                result = subprocess.run(
-                    cmd_string,
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                exit_code = result.returncode
-                if exit_code != 0:
-                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
-            
-            elif execution_method == "subprocess.Popen":
-                # Method 3: subprocess.Popen() - Real-time output
-                process = subprocess.Popen(
-                    cmd_string,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-                
-                # Wait for completion and capture output
-                stdout, stderr = process.communicate()
-                exit_code = process.returncode
-                
-                if exit_code != 0:
-                    self.logger.error(f"[{subject_id}] dcm2niix stderr: {stderr}")
-                    raise RuntimeError(f"dcm2niix conversion failed with exit code {exit_code}")
-                
-                # Log output at debug level
-                if stdout:
-                    self.logger.debug(f"[{subject_id}] dcm2niix output: {stdout}")
-            
-            else:
-                raise ValueError(f"Unknown execution method: {execution_method}")
+            self.runner.run_convert(cmd_list, subject_id=subject_id)
             
             # Find converted files and load as SimpleITK Image objects
             converted_images = {}
@@ -429,8 +258,11 @@ For more information, visit: https://github.com/rordenlab/dcm2niix
                         # Store the output file path
                         converted_images[f"{key}_output_path"] = str(nifti_file)
                         
-                        # Find corresponding JSON file
-                        json_file = nifti_file.with_suffix('.json')
+                        # Find corresponding JSON file (supports .nii.gz -> .json)
+                        if str(nifti_file).endswith('.nii.gz'):
+                            json_file = Path(str(nifti_file)[:-7] + '.json')
+                        else:
+                            json_file = nifti_file.with_suffix('.json')
                         if json_file.exists():
                             with open(json_file, 'r') as f:
                                 json_metadata = json.load(f)

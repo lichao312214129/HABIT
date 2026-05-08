@@ -24,9 +24,10 @@ Preprocessing:
   registration:
     images: [T2, T1, DWI, ADC, FLAIR]    # 'images' lists ALL modalities involved
     fixed_image: T2                      # reference (stays put)
-    moving_images: [T1, DWI, ADC, FLAIR] # warped to fixed
+    # moving_images is NOT read by HABIT; movers = images minus fixed_image
     type_of_transform: SyNRA             # ANTs deformable; use 'Rigid' if only translation/rotation suffices
     use_mask: false                      # set true if you want mask-guided registration
+    # backend: simpleitk                 # optional: ants (default) or simpleitk; if simpleitk see config_image_preprocessing_annotated.yaml for tuning keys
     # mask_key: tumor_mask               # required if use_mask: true
 
   # 4) Intensity normalization (after registration so all modalities share grid).

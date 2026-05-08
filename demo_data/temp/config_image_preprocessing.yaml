@@ -1,0 +1,60 @@
+# Habitat Analysis Configuration
+
+# python enviroment new2_habit_py38
+
+# Data paths
+data_dir: F:\work\habit_project\demo_data\temp\data
+out_dir: F:\work\habit_project\demo_data\temp\out
+
+# Preprocessing settings
+Preprocessing:
+   
+  # n4_correction:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   num_fitting_levels: 2
+
+  resample:
+     #images: [pre_contrast, LAP, PVP, delay_3min]
+     #images: [A, P, PS] 
+     #images: [ SAG_PDW_SPAIR, SAG_T1] # 波波
+     images: [COR_PDW_SPAIR,HR,SAG_T1] #  高清非压脂序列ROI 实验
+
+     target_spacing: [2, 2, 2]  # Target voxel spacing in x, y, z
+
+  # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
+  zscore_normalization:
+  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
+     #images: [A, P, PS] # 要处理的图像序列
+     #images: [SAG_PDW_SPAIR, SAG_T1] # 波波
+     images: [COR_PDW_SPAIR,HR,SAG_T1] # 高清非压脂序列ROI 实验
+     only_inmask: false  # 是否仅在掩码内计算统计量
+     mask_key: masks  # 当only_inmask为true时使用的掩码名称
+
+  # 直方图标准化 - 简化版  FIXME 调试版本
+  # histogram_standardization:
+  #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
+  #   reference_key: PVP  # 参考图像的键名
+ 
+  registration:
+    #images: [T2WI, ADC]
+    #images: [A, P, PS] 
+    #images: [ SAG_PDW_SPAIR, SAG_T1] # 波波
+    images: [COR_PDW_SPAIR, HR, SAG_T1]
+    #fixed_image: T2WI
+    # fixed_image: SAG_PDW_SPAIR
+    fixed_image: HR
+    type_of_transform: Rigid
+    backend: simpleitk
+
+    #moving_images: [ADC]
+    # moving_images: [P, PS]
+    #moving_images: [SAG_T1]
+    # moving_images: [COR_PDW_SPAIR,SAG_T1]
+    # type_of_transform: SyNRA   # Affine  # support all ants registration methods
+    use_mask: true  # 是否使用掩码进行配准
+
+save_options:
+  save_intermediate: true
+# General settings
+processes: 1  # Number of parallel processes
+random_state: 42  # Random seed for reproducibility

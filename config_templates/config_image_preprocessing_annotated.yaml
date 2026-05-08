@@ -60,12 +60,28 @@ Preprocessing:
   
   # Image Registration
   registration:
-    images: [T2, ADC]  # All images involved
-    fixed_image: T2  # Reference image (stays fixed)
-    moving_images: [ADC]  # Images to align to fixed_image
-    type_of_transform: SyNRA  # ANTs transform type
-    use_mask: false  # Use mask to guide registration
-    # mask_key: tumor_mask  # Mask name if use_mask: true
+    images: [T2, ADC]  # All modalities in this step; movers = images minus fixed_image (omit moving_images)
+    fixed_image: T2  # Reference grid (does not move)
+    # moving_images: [ADC]  # NOT READ by HABIT; do not use (extra keys may confuse ANTs if backend: ants)
+    type_of_transform: SyNRA  # ants: ANTs name; simpleitk: mapped (SyN* -> BSpline approx.; see user_guide)
+    metric: MI  # ants: ANTs metric name; simpleitk: MI | CC | MeanSquares
+    # optimizer: gradient_descent  # ants: ANTs optimizers; simpleitk: use substring lbfgs for LBFGSB else gradient descent
+    use_mask: false  # If true, uses mask_<modality> when present
+    replace_by_fixed_image_mask: true  # If true, after registration replace moving masks with fixed mask
+    #
+    # backend: ants  # default: ANTsPy. Use simpleitk to avoid ANTsPy / use ImageRegistrationMethod only.
+    #
+    # --- Optional tuning keys ONLY when backend: simpleitk (ignored for ants; see registration.py _SITK_OPTION_KEYS) ---
+    # number_of_histogram_bins: 50       # Mattes MI bins
+    # metric_sampling_percentage: 0.01   # random metric subsample fraction
+    # shrink_factors_per_level: [4, 2, 1]
+    # smoothing_sigmas_per_level: [2.1, 1.0, 0.0]  # physical units (mm)
+    # learning_rate: 1.0                 # gradient descent only
+    # number_of_iterations: 100
+    # bspline_mesh_size: 8               # int or per-axis list; BSpline / deformable-mapped modes
+    # bspline_order: 3
+    #
+    # mask_key: tumor_mask  # If use_mask: true, typically mask_<modality> is used; see user guide
 
 # ─────────────────────────────────────────────────────────────────────────
 # Save Options (Intermediate Results)

@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 _SCENARIOS: dict[str, list[str]] = {
-    "preprocess-demo": ["preprocess", "-c", "demo_data/config_preprocessing.yaml"],
+    "preprocess-demo": ["preprocess", "-c", "demo_data/temp/config_image_preprocessing.yaml"],
     "preprocess-help": ["preprocess", "--help"],
 }
 
@@ -29,6 +29,8 @@ def _repository_root() -> Path:
 def _invoke_cli(argv_tail: list[str]) -> None:
     root = _repository_root()
     os.chdir(root)
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
     sys.argv = ["habit", *argv_tail]
     from habit.cli import cli
 

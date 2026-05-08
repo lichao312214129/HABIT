@@ -63,6 +63,11 @@ preprocessing 模块
 格式转换 (Format Conversion)
 -----------------------------
 
+.. automodule:: habit.core.preprocessing.dicom_sorter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: habit.core.preprocessing.dcm2niix_converter
    :members:
    :undoc-members:

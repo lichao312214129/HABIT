@@ -29,8 +29,9 @@ Preprocessing:
   registration:
     images: [pre_contrast, LAP, PVP, delay_3min]
     fixed_image: pre_contrast
-    moving_images: [LAP, PVP, delay_3min]
+    # moving_images is NOT read; movers = all other entries in images
     type_of_transform: SyNRA             # use 'Rigid' if you trust the breath-hold
+    # backend: simpleitk               # optional; simpleitk tuning keys in user_guide / annotated template
 
   # NOTE: DO NOT z-score normalize DCE phases independently!
   # Doing so destroys the relative enhancement signal that habitat kinetic()

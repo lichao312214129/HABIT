@@ -1,9 +1,14 @@
 from typing import Dict, Any, Optional, Union, List, Tuple, Sequence
+import math
+import logging
 import SimpleITK as sitk
 import os
 import numpy as np
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
+from ...utils.log_utils import get_module_logger
+
+logger: logging.Logger = get_module_logger(__name__)
 
 @PreprocessorFactory.register("load_image")
 class LoadImagePreprocessor(BasePreprocessor):
@@ -56,7 +61,43 @@ class LoadImagePreprocessor(BasePreprocessor):
             return sitk_image
         except Exception as e:
             raise RuntimeError(f"Failed to load image {image_path}: {e}")
-        
+
+    def _warn_if_invalid_spacing(
+        self,
+        sitk_image: sitk.Image,
+        image_path: str,
+        key: str,
+    ) -> None:
+        """Emit log warning when spacing is not strictly positive and finite.
+
+        Negative slice spacing, zeros, NaN, or Inf in metadata (often from bad
+        DICOM/NIfTI export) break or distort resampling and registration.
+
+        Args:
+            sitk_image: Loaded SimpleITK image (spacing is in mm per axis).
+            image_path: Source file path (for diagnostics in log).
+            key: Batch key for the image (e.g. modality name).
+        """
+        spacing_t: Tuple[float, ...] = sitk_image.GetSpacing()
+        bad_dims: List[int] = [
+            i
+            for i, s in enumerate(spacing_t)
+            if (not math.isfinite(s)) or s <= 0
+        ]
+        if not bad_dims:
+            return
+        logger.warning(
+            "Invalid voxel spacing on dimension index(es) %s (each spacing must be "
+            "finite and > 0). Common causes include incorrect DICOM/NIfTI metadata "
+            "(e.g. negative slice spacing) or corrupted headers; downstream "
+            "resampling and registration may fail or be incorrect. key=%s path=%s "
+            "spacing=%s",
+            bad_dims,
+            key,
+            image_path,
+            tuple(spacing_t),
+        )
+
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Load specified keys from the data dictionary as SimpleITK images.
         
@@ -87,7 +128,8 @@ class LoadImagePreprocessor(BasePreprocessor):
             try:
                 # Load the image
                 sitk_image = self._load_sitk_image(image_path)
-                
+                self._warn_if_invalid_spacing(sitk_image, image_path, key)
+
                 # Replace the file path with the SimpleITK image
                 data[key] = sitk_image
                 

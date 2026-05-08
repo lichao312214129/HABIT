@@ -1,6 +1,6 @@
 # Image preprocessing module
 
-Batch pipelines are driven by YAML (`PreprocessingConfig`). Step names under `Preprocessing` must match `PreprocessorFactory` registration names (`dcm2nii`, `n4_correction`, `resample`, `registration`, `zscore_normalization`, `histogram_standardization`, `adaptive_histogram_equalization`, plus your custom registrations).
+Batch pipelines are driven by YAML (`PreprocessingConfig`). Step names under `Preprocessing` must match `PreprocessorFactory` registration names (`sort_dicom`, `dcm2nii`, `n4_correction`, `resample`, `registration`, `zscore_normalization`, `histogram_standardization`, `adaptive_histogram_equalization`, plus your custom registrations).
 
 **Authoritative user documentation:** `docs/source/user_guide/image_preprocessing_zh.rst` and `docs/source/configuration_zh.rst` (preprocessing section).
 
@@ -12,6 +12,12 @@ out_dir: ./preprocessed
 auto_select_first_file: true
 
 Preprocessing:
+  sort_dicom:
+    images: [dicom]
+    dcm2niix_path: ./dcm2niix.exe
+    filename_format: "%n_%g_%x/%s_%d/%r_%o.dcm"
+    output_dir: ./sorted_dicom
+
   n4_correction:
     images: [t1, t2]
     num_fitting_levels: 4
@@ -61,8 +67,10 @@ zscore = PreprocessorFactory.create(
 
 ## Registration stage notes
 
-- Floating series are **all entries in `images` except `fixed_image`**. Do **not** add a `moving_images` field to YAML; it is not read by `RegistrationPreprocessor` and may pollute ANTs kwargs.
-- Registration requires **ANTsPy**. Resampling / N4 / normalization do not.
+- Floating series are **all entries in `images` except `fixed_image`**. Do **not** add a `moving_images` field to YAML; it is not read by `RegistrationPreprocessor` and may pollute ANTs kwargs when `backend: ants`.
+- **`backend`**: `ants` (default, ANTsPy) or `simpleitk` (SimpleITK `ImageRegistrationMethod`; no ANTsPy required).
+- When `backend: ants`, registration requires **ANTsPy**. When `backend: simpleitk`, only **SimpleITK** is used (same stack as resample / N4).
+- **SimpleITK-only YAML tuning keys** (stripped when `backend: ants`): `number_of_histogram_bins`, `metric_sampling_percentage`, `shrink_factors_per_level`, `smoothing_sigmas_per_level`, `learning_rate`, `number_of_iterations`, `bspline_mesh_size`, `bspline_order`. See `habit/core/preprocessing/registration.py` (`_SITK_OPTION_KEYS`) and `docs/source/user_guide/image_preprocessing_zh.rst`.
 
 ## Custom preprocessors
 

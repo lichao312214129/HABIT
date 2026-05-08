@@ -259,14 +259,19 @@ class BatchProcessor:
             subject_id = subject_data['subj']
             self.logger.debug(f"Processing subject: {subject_id}")
             
-            # Step 1: Load images first
-            load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
-            load_keys = [item for sublist in load_keys for item in sublist]
-            load_keys = list(set(load_keys))
-            mask_keys = [f"mask_{mod}" for mod in load_keys]
-            load_keys.extend(mask_keys)
-            load_image = LoadImagePreprocessor(keys=load_keys)
-            load_image(subject_data)
+            # Step 1: Load images first. Steps that organize raw DICOM folders
+            # must run before SimpleITK loading, because their inputs are
+            # directories rather than image files.
+            first_step_name = next(iter(self.config_obj.Preprocessing.keys()), None)
+            skip_initial_load = first_step_name in {"sort_dicom"}
+            if not skip_initial_load:
+                load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
+                load_keys = [item for sublist in load_keys for item in sublist]
+                load_keys = list(set(load_keys))
+                mask_keys = [f"mask_{mod}" for mod in load_keys]
+                load_keys.extend(mask_keys)
+                load_image = LoadImagePreprocessor(keys=load_keys)
+                load_image(subject_data)
 
             # Store original output_dirs for restoration after intermediate saves
             original_output_dirs = subject_data.get('output_dirs', {}).copy()
@@ -317,12 +322,15 @@ class BatchProcessor:
                 processor(subject_data)
                 
                 # Save intermediate results if configured (for preprocessors that don't save directly)
-                # Skip _save_step_results for dcm2nii since it saves files directly to output_dirs
+                # Skip _save_step_results for dcm2nii/sort_dicom since they save files directly to output_dirs
                 if self._should_save_step(step_name):
-                    if step_name != "dcm2nii":
+                    if step_name not in {"dcm2nii", "sort_dicom"}:
                         self._save_step_results(subject_data, step_name, step_index, modalities)
                     else:
-                        self.logger.debug(f"[{subject_id}] Skipping _save_step_results for dcm2nii (already saved directly)")
+                        self.logger.debug(
+                            f"[{subject_id}] Skipping _save_step_results for {step_name} "
+                            "(already saved directly)"
+                        )
                     # Restore original output_dirs after saving
                     subject_data['output_dirs'] = original_output_dirs.copy()
 
@@ -332,33 +340,36 @@ class BatchProcessor:
             return f"Error processing {subject_data.get('subj', 'unknown')}: {str(e)}\n{traceback.format_exc()}", None
 
     def save_processed_images(self, subject_data: Dict) -> None:
-        """Save processed images to their respective output directories.
+        """Save processed images, masks, and metadata to their output directories.
         
         Args:
-            subject_data (Dict): Dictionary containing processed images and their output paths.
-                Expected keys:
-                - 'output_dirs': Dict mapping modality names to output directory paths
-                - Other keys should be modality names containing the processed images
+            subject_data (Dict): Dictionary containing processed images and output paths.
         """
+        subject_id = subject_data.get('subj', 'unknown') if subject_data else 'unknown'
         try:
             output_dirs = subject_data['output_dirs']
+            metadata_root = self.output_root / "processed_images" / "metadata"
+            metadata_root.mkdir(parents=True, exist_ok=True)
             
-            # Save each modality image
+            # Save each modality image and its metadata sidecar
             for key, value in subject_data.items():
                 # Skip non-image keys
-                if key in ['subj', 'output_dirs'] or key.startswith('mask_'):
+                if key in ['subj', 'output_dirs'] or key.startswith('mask_') or key.endswith('_meta_dict'):
                     continue
                     
                 if key in output_dirs:
-                    # Check if this image was already saved by dcm2niix
+                    # Save metadata separately so image folders contain only images.
                     meta_key = f"{key}_meta_dict"
                     if meta_key in subject_data:
-                        meta_dict = subject_data[meta_key]
-
-                        # if meta_dict.get("dcm2niix_converted", False) and "output_file_path" in meta_dict:
-                            # File was already saved by dcm2niix, but does not need to skip saving
-                            # self.logger.info(f"Skipping save for {key}: already saved by dcm2niix at {meta_dict['output_file_path']}")
-                            # pass
+                        meta_dir = metadata_root / subject_id / key
+                        meta_dir.mkdir(parents=True, exist_ok=True)
+                        meta_path = meta_dir / f"{key}.json"
+                        try:
+                            from habit.utils.io_utils import save_json
+                            save_json(subject_data[meta_key], str(meta_path))
+                            self.logger.debug(f"Saved {key} metadata to {meta_path}")
+                        except Exception as meta_error:
+                            self.logger.warning(f"Failed to save metadata for {subject_id}/{key}: {meta_error}")
                     
                     output_path = Path(output_dirs[key])
                     output_path.mkdir(parents=True, exist_ok=True)
@@ -366,7 +377,6 @@ class BatchProcessor:
                     # Get the image data
                     if isinstance(value, (np.ndarray, sitk.Image)):
                         if isinstance(value, np.ndarray):
-                            # Convert numpy array to SimpleITK image if needed
                             image = sitk.GetImageFromArray(value)
                         else:
                             image = value
@@ -392,8 +402,6 @@ class BatchProcessor:
                         self.logger.debug(f"Saved {key} mask to {output_path}")
                         
         except Exception as e:
-            # 报告错误的被试名
-            subject_id = subject_data.get('subj', 'unknown')
             self.logger.error(f"Error saving processed images for subject {subject_id}: {str(e)}")
 
             # raise
@@ -407,8 +415,10 @@ class BatchProcessor:
         out_dir = self.output_root / "processed_images"
         images_dir = out_dir / "images"
         masks_dir = out_dir / "masks"
+        metadata_dir = out_dir / "metadata"
         images_dir.mkdir(parents=True, exist_ok=True)
         masks_dir.mkdir(parents=True, exist_ok=True)
+        metadata_dir.mkdir(parents=True, exist_ok=True)
         
         # 获取所有图像和mask路径
         # 如果配置文件中没有指定 auto_select_first_file，则使用默认值 True

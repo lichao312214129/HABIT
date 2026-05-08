@@ -9,6 +9,7 @@ from .zscore_normalization import ZScoreNormalization
 from .histogram_standardization import HistogramStandardization
 from .adaptive_histogram_equalization import AdaptiveHistogramEqualization
 from .dcm2niix_converter import Dcm2niixConverter, batch_convert_dicom_directories
+from .dicom_sorter import DicomSorter
 
 __all__ = [
     "BasePreprocessor",
@@ -22,5 +23,6 @@ __all__ = [
     "HistogramStandardization",
     "AdaptiveHistogramEqualization",
     "Dcm2niixConverter",
+    "DicomSorter",
     "batch_convert_dicom_directories",
 ]

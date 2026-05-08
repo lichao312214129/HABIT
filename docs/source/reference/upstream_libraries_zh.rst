@@ -13,9 +13,12 @@
    * - 用途
      - 库 / 工具
      - 文档
-   * - 配准
+   * - 配准（``backend: ants``）
      - ANTsPy（``ants.registration``）
      - `Registration <https://antspy.readthedocs.io/en/stable/registration.html>`__ · `ants.registration API <https://antspy.readthedocs.io/en/stable/api/ants.registration.html>`__
+   * - 配准（``backend: simpleitk``）
+     - SimpleITK（``ImageRegistrationMethod``）
+     - `ImageRegistrationMethod <https://simpleitk.readthedocs.io/en/master/registrationOverview.html>`__ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`__
    * - ANTs 核心
      - ANTs
      - `ANTsX/ANTs <https://github.com/ANTsX/ANTs>`__

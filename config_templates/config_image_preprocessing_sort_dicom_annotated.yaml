@@ -1,0 +1,84 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# DICOM Sorting Configuration Template
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Purpose:
+#   Organize raw DICOM files on disk using dcm2niix rename mode (-r y),
+#   without converting them to NIfTI.
+#
+# Default command represented by this YAML:
+#   dcm2niix -r y -f %n_%g_%x/%s_%d/%r_%o.dcm -o <out_dir> <dicom_dir>
+#
+# CLI:
+#   habit preprocess --config config_templates/config_image_preprocessing_sort_dicom_annotated.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Input DICOM directory or YAML file listing DICOM directories.
+data_dir: ./demo_data/dicom
+
+# HABIT output root. If sort_dicom.output_dir is omitted, sorted DICOMs are
+# written below this root using the normal preprocessing subject/modality layout.
+out_dir: ./demo_data/sorteddcm
+
+# DICOM directories are folders, not image files. Keep this false so HABIT does
+# not auto-pick a single file from each directory before sort_dicom runs.
+auto_select_first_file: false
+
+Preprocessing:
+  sort_dicom:
+    # Keys/modalities that contain DICOM directories.
+    # If data_dir is a YAML file, these must match the keys in that YAML.
+    images: [dicom]
+
+    # dcm2niix executable or the directory containing it.
+    # On Windows this can be ./dcm2niix.exe or C:/tools/dcm2niix/dcm2niix.exe.
+    dcm2niix_path: ./dcm2niix.exe
+
+    # Default sorting layout requested for HABIT:
+    #   patient_accession_study/series_description/instance_mediaObject.dcm
+    filename_format: "%n_%g_%x/%s_%d/%r_%o.dcm"
+
+    # Optional: write all sorted DICOMs under a specific root. When omitted,
+    # HABIT uses out_dir/processed_images/images/<subject>/<key>.
+    output_dir: ./demo_data/sorteddcm
+
+    # Optional dcm2niix controls commonly useful for sorting.
+    # directory_depth: 5       # -d 0..9, search subfolders
+    # adjacent_dicoms: true    # -a y/n
+    # ignore_derived: false    # -i y/n
+    # write_behavior: 2        # -w 0 skip duplicates, 1 overwrite, 2 add suffix
+    # progress: false          # --progress y/n
+    # verbose: false           # -v n/y/0/1/2
+
+    # Escape hatch for uncommon dcm2niix flags, for example:
+    # extra_args: ["--terse"]
+    extra_args: []
+
+# DICOM sorting is usually I/O bound; start with one process unless sorting many
+# independent subjects from a fast disk.
+processes: 1
+random_state: 42
+
+# dcm2niix -f token reference:
+#   %a antenna/coil name
+#   %b basename
+#   %c comments
+#   %d description
+#   %e echo number
+#   %f folder name
+#   %g accession number
+#   %i patient ID
+#   %j seriesInstanceUID
+#   %k studyInstanceUID
+#   %m manufacturer
+#   %n patient name
+#   %o mediaObjectInstanceUID
+#   %p protocol
+#   %r instance number
+#   %s series number
+#   %t time
+#   %u acquisition number
+#   %v vendor
+#   %x study ID
+#   %z sequence name
