@@ -3,7 +3,7 @@
 # python enviroment new2_habit_py38
 
 # Data paths
-data_dir: F:\work\habit_project\demo_data\temp\data
+data_dir: F:\work\habit_project\.cursor\processed_images
 out_dir: F:\work\habit_project\demo_data\temp\out
 
 # Preprocessing settings
@@ -35,6 +35,11 @@ Preprocessing:
   #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
   #   reference_key: PVP  # 参考图像的键名
  
+ # 调整方向
+  reorientation:
+    images: [COR_PDW_SPAIR, HR, SAG_T1]
+    target_orientation: RAS
+
   registration:
     #images: [T2WI, ADC]
     #images: [A, P, PS] 
@@ -43,8 +48,8 @@ Preprocessing:
     #fixed_image: T2WI
     # fixed_image: SAG_PDW_SPAIR
     fixed_image: HR
-    type_of_transform: Rigid
-    backend: simpleitk
+    type_of_transform: SyNRA
+    # backend: simpleitk
 
     #moving_images: [ADC]
     # moving_images: [P, PS]

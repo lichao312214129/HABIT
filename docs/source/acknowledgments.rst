@@ -34,6 +34,8 @@ We sincerely thank the following experts and institutions for their support and 
 **汤君杰博士 / Dr. Tang Junjie**
 
 * 所属机构 / Institution: 南方医科大学附属珠江医院 / Southern Medical University Zhujiang Hospital
+
+* 特别贡献 / Special contributions: 图像配准相关算法设计、实现与验证（含测试代码协作）/ Image registration algorithm design, implementation, and validation (including collaborative test code).
 ---
 
 特别感谢 / Special Thanks
