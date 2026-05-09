@@ -30,12 +30,15 @@ _SITK_OPTION_KEYS: Tuple[str, ...] = (
 
 @PreprocessorFactory.register("registration")
 class RegistrationPreprocessor(BasePreprocessor):
-    """Register moving images to a fixed reference using ANTsPy or SimpleITK.
+    """Register moving images to a fixed reference using ANTsPy, SimpleITK, or elastic (SITK).
 
     Pipelines store ``sitk.Image`` volumes in the subject dictionary. The ``ants``
     backend converts to ``ANTsImage`` for ``ants.registration`` / ``ants.apply_transforms``.
     The ``simpleitk`` backend runs ``sitk.ImageRegistrationMethod`` and warps masks with
     ``sitk.ResampleImageFilter``, avoiding ANTsPy when it is unstable or unavailable.
+    The ``elastic`` backend runs a **two-stage** pipeline in SimpleITK only: rigid alignment,
+    then B-spline (deformable) refinement on the rigidly resampled moving image, and writes
+    a composite transform for mask warping. No ANTsPy dependency.
     """
 
     def __init__(
@@ -71,10 +74,12 @@ class RegistrationPreprocessor(BasePreprocessor):
             allow_missing_keys (bool): If True, allows missing keys in the input data.
             replace_by_fixed_image_mask (bool): If True, use fixed image's mask to replace moving
                 image's mask after registration.
-            backend (str): ``"ants"`` (default) or ``"simpleitk"``.
+            backend (str): ``"ants"`` (default), ``"simpleitk"``, or ``"elastic"``.
+                ``elastic`` uses SimpleITK rigid + B-spline (see class docstring).
             **kwargs: Extra parameters. SimpleITK-only tuning keys (see module constant
-                ``_SITK_OPTION_KEYS``) are stripped and applied only when ``backend="simpleitk"``;
-                remaining keys are forwarded to ``ants.registration`` when ``backend="ants"``.
+                ``_SITK_OPTION_KEYS``) are stripped and applied when ``backend`` is
+                ``"simpleitk"`` or ``"elastic"``; remaining keys go to ``ants.registration``
+                only for ``backend="ants"``.
         """
         super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
 
@@ -98,9 +103,16 @@ class RegistrationPreprocessor(BasePreprocessor):
         self.replace_by_fixed_image_mask = replace_by_fixed_image_mask
 
         b = (backend or "ants").strip().lower()
-        if b not in {"ants", "simpleitk"}:
+        # Accept common typo from users / literature ("elastix" sounds like elastic).
+        if b in {"elaxtic", "elactic", "elastix"}:
+            logger.warning(
+                "backend=%r is not a supported name; using 'elastic' (SimpleITK rigid+BSpline).",
+                backend,
+            )
+            b = "elastic"
+        if b not in {"ants", "simpleitk", "elastic"}:
             raise ValueError(
-                f"backend must be 'ants' or 'simpleitk', got {backend!r}"
+                f"backend must be 'ants', 'simpleitk', or 'elastic', got {backend!r}"
             )
         self.backend = b
 
@@ -287,28 +299,27 @@ class RegistrationPreprocessor(BasePreprocessor):
             )
         method.SetOptimizerScalesFromPhysicalShift()
 
-    def _register_image_sitk(
+    def _run_sitk_registration_execute(
         self,
         fixed_image: sitk.Image,
         moving_image: sitk.Image,
-        fixed_mask: Optional[sitk.Image] = None,
-        moving_mask: Optional[sitk.Image] = None,
-    ) -> Tuple[sitk.Image, List[str]]:
-        """Register ``moving_image`` to ``fixed_image`` using ``ImageRegistrationMethod``.
+        kind: str,
+        fixed_mask: Optional[sitk.Image],
+        moving_mask: Optional[sitk.Image],
+    ) -> sitk.Transform:
+        """Run one ``ImageRegistrationMethod`` stage and return the optimised transform.
 
         Args:
-            fixed_image (sitk.Image): Fixed reference image (float32 recommended).
-            moving_image (sitk.Image): Moving image (float32 recommended).
-            fixed_mask (Optional[sitk.Image]): Optional uint8 fixed mask for metric ROI.
-            moving_mask (Optional[sitk.Image]): Optional uint8 moving mask for metric ROI.
+            fixed_image (sitk.Image): Fixed reference image.
+            moving_image (sitk.Image): Moving image for this stage.
+            kind (str): ``"rigid"``, ``"affine"``, or ``"bspline"``.
+            fixed_mask (Optional[sitk.Image]): Optional fixed mask for the metric.
+            moving_mask (Optional[sitk.Image]): Optional moving mask for the metric.
 
         Returns:
-            Tuple[sitk.Image, List[str]]: Warped moving image on the fixed grid, and a one-element
-            list containing the path to a temporary ``.tfm`` written with ``sitk.WriteTransform``.
+            sitk.Transform: Output of ``Execute`` (maps fixed grid sampling to moving image).
         """
-        kind = self._map_ants_transform_name_to_sitk_kind(self.type_of_transform)
         initial = self._build_initial_transform_sitk(fixed_image, moving_image, kind)
-
         method = sitk.ImageRegistrationMethod()
         self._configure_metric_sitk(method)
         method.SetInterpolator(sitk.sitkLinear)
@@ -330,8 +341,97 @@ class RegistrationPreprocessor(BasePreprocessor):
 
         method.SetInitialTransform(initial, inPlace=False)
         self._configure_optimizer_sitk(method)
+        return method.Execute(fixed_image, moving_image)
 
-        final_transform = method.Execute(fixed_image, moving_image)
+    def _register_image_elastic(
+        self,
+        fixed_image: sitk.Image,
+        moving_image: sitk.Image,
+        fixed_mask: Optional[sitk.Image] = None,
+        moving_mask: Optional[sitk.Image] = None,
+    ) -> Tuple[sitk.Image, List[str]]:
+        """Two-stage elastic registration: rigid then B-spline (SimpleITK only).
+
+        The moving image is first aligned with a rigid model, resampled onto the fixed grid,
+        then refined with a B-spline transform. Two transform files are written (rigid, then
+        bspline); masks use the same chain as in ``_apply_transform_masks_chain_sitk``.
+
+        Args:
+            fixed_image (sitk.Image): Fixed reference image (float32 recommended).
+            moving_image (sitk.Image): Moving image (float32 recommended).
+            fixed_mask (Optional[sitk.Image]): Optional fixed mask for both metric stages.
+            moving_mask (Optional[sitk.Image]): Optional moving mask; warped by rigid for stage 2.
+
+        Returns:
+            Tuple[sitk.Image, List[str]]: Registered moving on the fixed grid, and a two-element
+            list of temporary ``.tfm`` paths ``[rigid_path, bspline_path]``.
+        """
+        rigid_transform = self._run_sitk_registration_execute(
+            fixed_image, moving_image, "rigid", fixed_mask, moving_mask
+        )
+
+        resampler_r = sitk.ResampleImageFilter()
+        resampler_r.SetReferenceImage(fixed_image)
+        resampler_r.SetInterpolator(sitk.sitkLinear)
+        resampler_r.SetDefaultPixelValue(0.0)
+        resampler_r.SetTransform(rigid_transform)
+        moving_rigid = resampler_r.Execute(moving_image)
+
+        moving_mask_r: Optional[sitk.Image] = None
+        if moving_mask is not None:
+            mrf = sitk.ResampleImageFilter()
+            mrf.SetReferenceImage(fixed_image)
+            mrf.SetInterpolator(sitk.sitkNearestNeighbor)
+            mrf.SetDefaultPixelValue(0)
+            mrf.SetTransform(rigid_transform)
+            moving_mask_r = mrf.Execute(moving_mask)
+
+        bspline_transform = self._run_sitk_registration_execute(
+            fixed_image, moving_rigid, "bspline", fixed_mask, moving_mask_r
+        )
+
+        resampler_b = sitk.ResampleImageFilter()
+        resampler_b.SetReferenceImage(fixed_image)
+        resampler_b.SetInterpolator(sitk.sitkLinear)
+        resampler_b.SetDefaultPixelValue(0.0)
+        resampler_b.SetTransform(bspline_transform)
+        registered = resampler_b.Execute(moving_rigid)
+
+        fd1, path_rigid = tempfile.mkstemp(
+            suffix="_rigid.tfm", prefix="habit_elastic_reg_"
+        )
+        os.close(fd1)
+        fd2, path_bspline = tempfile.mkstemp(
+            suffix="_bspline.tfm", prefix="habit_elastic_reg_"
+        )
+        os.close(fd2)
+        sitk.WriteTransform(rigid_transform, path_rigid)
+        sitk.WriteTransform(bspline_transform, path_bspline)
+        return registered, [path_rigid, path_bspline]
+
+    def _register_image_sitk(
+        self,
+        fixed_image: sitk.Image,
+        moving_image: sitk.Image,
+        fixed_mask: Optional[sitk.Image] = None,
+        moving_mask: Optional[sitk.Image] = None,
+    ) -> Tuple[sitk.Image, List[str]]:
+        """Register ``moving_image`` to ``fixed_image`` using ``ImageRegistrationMethod``.
+
+        Args:
+            fixed_image (sitk.Image): Fixed reference image (float32 recommended).
+            moving_image (sitk.Image): Moving image (float32 recommended).
+            fixed_mask (Optional[sitk.Image]): Optional uint8 fixed mask for metric ROI.
+            moving_mask (Optional[sitk.Image]): Optional uint8 moving mask for metric ROI.
+
+        Returns:
+            Tuple[sitk.Image, List[str]]: Warped moving image on the fixed grid, and a one-element
+            list containing the path to a temporary ``.tfm`` written with ``sitk.WriteTransform``.
+        """
+        kind = self._map_ants_transform_name_to_sitk_kind(self.type_of_transform)
+        final_transform = self._run_sitk_registration_execute(
+            fixed_image, moving_image, kind, fixed_mask, moving_mask
+        )
 
         resampler = sitk.ResampleImageFilter()
         resampler.SetReferenceImage(fixed_image)
@@ -344,6 +444,36 @@ class RegistrationPreprocessor(BasePreprocessor):
         os.close(fd)
         sitk.WriteTransform(final_transform, path)
         return registered, [path]
+
+    def _apply_transform_masks_chain_sitk(
+        self,
+        fixed_reference: sitk.Image,
+        moving_mask: sitk.Image,
+        transform_files: List[str],
+    ) -> sitk.Image:
+        """Apply several transforms in order (e.g. rigid then B-spline for ``elastic`` backend).
+
+        Each transform is applied with ``ResampleImageFilter`` onto ``fixed_reference``;
+        the intermediate mask lives on the fixed grid after each step.
+
+        Args:
+            fixed_reference (sitk.Image): Fixed (reference) image.
+            moving_mask (sitk.Image): Mask on the original moving grid.
+            transform_files (List[str]): Paths to ``.tfm`` files in application order.
+
+        Returns:
+            sitk.Image: Mask resampled onto the fixed grid.
+        """
+        out: sitk.Image = moving_mask
+        for path in transform_files:
+            transform = sitk.ReadTransform(path)
+            resampler = sitk.ResampleImageFilter()
+            resampler.SetReferenceImage(fixed_reference)
+            resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+            resampler.SetDefaultPixelValue(0)
+            resampler.SetTransform(transform)
+            out = resampler.Execute(out)
+        return out
 
     def _apply_transform_mask_ants(
         self,
@@ -401,6 +531,7 @@ class RegistrationPreprocessor(BasePreprocessor):
             data[self.fixed_image], sitk.sitkFloat32
         )
         use_ants_backend = self.backend == "ants"
+        use_elastic_backend = self.backend == "elastic"
         fixed_image_ants: Optional[Any] = None
         if use_ants_backend:
             fixed_image_ants = ImageConverter.itk_2_ants(fixed_image_sitk)
@@ -440,6 +571,13 @@ class RegistrationPreprocessor(BasePreprocessor):
                         moving_mask_ants,
                     )
                     registered_sitk: sitk.Image = ImageConverter.ants_2_itk(registered_image)
+                elif use_elastic_backend:
+                    registered_sitk, transform_files = self._register_image_elastic(
+                        fixed_image_sitk,
+                        moving_sitk,
+                        fixed_mask_sitk,
+                        moving_mask_sitk,
+                    )
                 else:
                     registered_sitk, transform_files = self._register_image_sitk(
                         fixed_image_sitk,
@@ -519,6 +657,12 @@ class RegistrationPreprocessor(BasePreprocessor):
                     transformed_mask_sitk = self._apply_transform_mask_ants(
                         fixed_image_ants,
                         mov_mask_ants,
+                        transform_files,
+                    )
+                elif len(transform_files) > 1:
+                    transformed_mask_sitk = self._apply_transform_masks_chain_sitk(
+                        fixed_image_sitk,
+                        moving_mask,
                         transform_files,
                     )
                 else:

@@ -26,6 +26,12 @@ Preprocessing:
   #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
   #   reference_key: PVP  # 参考图像的键名
 
+  # reorientation:
+  #   images: [T2WI, ADC]
+  #   target_orientation: LPS  # "LPS", "RAS", etc. Target anatomical orientation.
+  #   mode: closest  # 'closest' (no interpolation) or 'strict' (with interpolation).
+  #   # Masks mask_T2WI, mask_ADC are reoriented if present (nearest neighbor in strict), same as resample
+
   registration:
     images: [T2WI, ADC]
     fixed_image: T2WI

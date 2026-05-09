@@ -19,7 +19,7 @@ Preprocessing:
      #images: [ SAG_PDW_SPAIR, SAG_T1] # 波波
      images: [COR_PDW_SPAIR,HR,SAG_T1] #  高清非压脂序列ROI 实验
 
-     target_spacing: [2, 2, 2]  # Target voxel spacing in x, y, z
+     target_spacing: [1, 1, 1]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   zscore_normalization:
@@ -38,7 +38,9 @@ Preprocessing:
  # 调整方向
   reorientation:
     images: [COR_PDW_SPAIR, HR, SAG_T1]
-    target_orientation: RAS
+    target_orientation: LPS
+    mode: closest  # 可选: 'closest' (无插值，仅翻转) 或 'strict' (有插值，重采样)
+    # Masks: keys mask_COR_PDW_SPAIR, mask_HR, mask_SAG_T1 (if present) follow the same rule as resample
 
   registration:
     #images: [T2WI, ADC]

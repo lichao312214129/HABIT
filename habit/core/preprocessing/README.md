@@ -68,9 +68,9 @@ zscore = PreprocessorFactory.create(
 ## Registration stage notes
 
 - Floating series are **all entries in `images` except `fixed_image`**. Do **not** add a `moving_images` field to YAML; it is not read by `RegistrationPreprocessor` and may pollute ANTs kwargs when `backend: ants`.
-- **`backend`**: `ants` (default, ANTsPy) or `simpleitk` (SimpleITK `ImageRegistrationMethod`; no ANTsPy required).
-- When `backend: ants`, registration requires **ANTsPy**. When `backend: simpleitk`, only **SimpleITK** is used (same stack as resample / N4).
-- **SimpleITK-only YAML tuning keys** (stripped when `backend: ants`): `number_of_histogram_bins`, `metric_sampling_percentage`, `shrink_factors_per_level`, `smoothing_sigmas_per_level`, `learning_rate`, `number_of_iterations`, `bspline_mesh_size`, `bspline_order`. See `habit/core/preprocessing/registration.py` (`_SITK_OPTION_KEYS`) and `docs/source/user_guide/image_preprocessing_zh.rst`.
+- **`backend`**: `ants` (default, ANTsPy), `simpleitk` (SimpleITK `ImageRegistrationMethod`; no ANTsPy), or `elastic` (SimpleITK rigid + B-spline two-stage; no ANTsPy).
+- When `backend: ants`, registration requires **ANTsPy**. When `backend: simpleitk` or `backend: elastic`, only **SimpleITK** is used (same stack as resample / N4).
+- **SimpleITK-only YAML tuning keys** (stripped when `backend: ants`): `number_of_histogram_bins`, `metric_sampling_percentage`, `shrink_factors_per_level`, `smoothing_sigmas_per_level`, `learning_rate`, `number_of_iterations`, `bspline_mesh_size`, `bspline_order`. These apply to `simpleitk` and `elastic`. See `habit/core/preprocessing/registration.py` (`_SITK_OPTION_KEYS`) and `docs/source/user_guide/image_preprocessing_zh.rst`.
 
 ## Custom preprocessors
 

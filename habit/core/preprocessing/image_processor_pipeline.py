@@ -21,6 +21,7 @@ from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
 from habit.core.common.configs.loader import load_config
 from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.utils.sitk_geometry_diagnostics import log_sitk_geometry_for_subject_data
 import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
@@ -272,6 +273,12 @@ class BatchProcessor:
                 load_keys.extend(mask_keys)
                 load_image = LoadImagePreprocessor(keys=load_keys)
                 load_image(subject_data)
+                log_sitk_geometry_for_subject_data(
+                    subject_data,
+                    checkpoint_label="after_load_image",
+                    subject_id=subject_id,
+                    logger=self.logger,
+                )
 
             # Store original output_dirs for restoration after intermediate saves
             original_output_dirs = subject_data.get('output_dirs', {}).copy()
@@ -320,7 +327,13 @@ class BatchProcessor:
                     **{k: v for k, v in params.items() if k != "images"}
                 )
                 processor(subject_data)
-                
+                log_sitk_geometry_for_subject_data(
+                    subject_data,
+                    checkpoint_label=f"after_{step_name}",
+                    subject_id=subject_id,
+                    logger=self.logger,
+                )
+
                 # Save intermediate results if configured (for preprocessors that don't save directly)
                 # Skip _save_step_results for dcm2nii/sort_dicom since they save files directly to output_dirs
                 if self._should_save_step(step_name):
@@ -481,21 +494,24 @@ class BatchProcessor:
         if self.num_workers == 1:
             for subject_data in subject_data_list:
                 subject_id, result = self._process_single_subject(subject_data)
-                # Save processed images
-                self.save_processed_images(result)
+                if not subject_id.startswith("Error") and result is not None:
+                    self.save_processed_images(result)
+                elif subject_id.startswith("Error"):
+                    self.logger.error(subject_id)
 
                 progress_bar.update(1)
-                if subject_id.startswith("Error"):
-                    self.logger.error(subject_id)
         else:
             # 使用进程池并行处理
             try:
                 with multiprocessing.Pool(processes=self.num_workers) as pool:
                     for subject_id, result in pool.imap(self._process_single_subject, subject_data_list):
-                        # Save processed images
-                        if not subject_id.startswith("Error"):  # 只保存成功处理的结果
+                        # Save processed images only on success
+                        if (
+                            not subject_id.startswith("Error")
+                            and result is not None
+                        ):
                             self.save_processed_images(result)
-                        else:
+                        elif subject_id.startswith("Error"):
                             self.logger.error(subject_id)  # 记录错误信息
                         progress_bar.update(1)  # 无论成功或失败都更新进度条
             except Exception as e:

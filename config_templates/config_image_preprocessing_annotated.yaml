@@ -58,6 +58,15 @@ Preprocessing:
   #   beta: 0.3   # Local adaptation degree [0,1]
   #   radius: 5   # Local window radius in pixels
   
+  # Reorientation (方向调整)
+  # Align images to a canonical anatomical orientation (e.g., LPS or RAS).
+  # Important: This step fixes coordinate directions before resampling or registration.
+  # reorientation:
+  #   images: [T1, T2, ADC]
+  #   target_orientation: LPS  # "LPS", "RAS", etc. Target anatomical orientation.
+  #   mode: closest  # 'closest' (flip/permute axes, no interpolation) or 'strict' (resampling with interpolation).
+  #   # Optional masks mask_T1, mask_T2, mask_ADC: nearest neighbor in strict mode (same naming convention as resample)
+  
   # Image Registration
   registration:
     images: [T2, ADC]  # All modalities in this step; movers = images minus fixed_image (omit moving_images)
