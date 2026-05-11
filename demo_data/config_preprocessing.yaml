@@ -1,16 +1,16 @@
 # Habitat Analysis Configuration
 
 # Data paths
-data_dir: ./files_preprocessing.yaml
-out_dir: ./preprocessed
+data_dir: F:\work\habit_project\demo_data\preprocessed\resample_02
+out_dir: ./preprocessed1
 
 # Preprocessing settings   
 Preprocessing:
-  dcm2nii:
-    images: [delay2, delay3, delay5]
-    dcm2niix_path: ./dcm2niix.exe
-    compress: true
-    anonymize: true
+  # dcm2nii:
+  #   images: [delay2, delay3, delay5]
+  #   dcm2niix_path: ./dcm2niix.exe
+  #   compress: true
+  #   anonymize: true
 
   # # N4 Bias Field Correction:
   # n4_correction:
@@ -18,15 +18,15 @@ Preprocessing:
   #   num_fitting_levels: 2
 
   # Resample:
-  resample:
-    images: [delay2, delay3, delay5]
-    target_spacing: [2.0, 2.0, 2.0]
+  # resample:
+  #   images: [delay2, delay3, delay5]
+  #   target_spacing: [2.0, 2.0, 2.0]
 
   registration:
     images: [delay2, delay3, delay5]
     fixed_image: delay2
     type_of_transform: Rigid
-    use_mask: false
+    use_mask: true
     backend: elastix  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
     elastix_parameter_files: ./Par0040affine.txt
 
