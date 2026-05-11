@@ -80,7 +80,7 @@ Preprocessing:
   #   moving_images: [T2, DWI, ADC]
   #   type_of_transform: SyNRA
   #   use_mask: false
-  #   # backend: simpleitk  # optional: ants (default) or simpleitk
+  #   # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
 
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings

@@ -101,8 +101,7 @@ This is the expected input for `habit get-habitat` and `habit extract`.
 4. **Mask files are NOT modified** by preprocessing (only resampled if registration runs).
 5. **N4 + CT is wrong** — N4 is MRI-specific.
 6. **Apply `resample` BEFORE `registration`** so all images share the same grid.
-
-For specific error messages, see `habit-troubleshoot/references/errors_preprocess.md`.
+7. **`registration` backends**: `ants` (default, ANTsPy), `simpleitk` (SimpleITK only), or `elastix` (**elastix** / **transformix** executables; optional `elastix_path` in YAML). See `docs/source/user_guide/image_preprocessing_zh.rst`.
 
 ## Logs
 

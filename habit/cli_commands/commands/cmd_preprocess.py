@@ -8,7 +8,6 @@ import os
 import platform
 import traceback
 import logging
-import multiprocessing
 import click
 from pathlib import Path
 
@@ -56,11 +55,6 @@ def run_preprocess(config_path: str) -> None:
         
         # 3. Initialize Configurator & Service
         try:
-            # Force spawn method on Windows for multiprocessing
-            if platform.system() == 'Windows':
-                multiprocessing.set_start_method('spawn', force=True)
-                logger.info("Set multiprocessing start method to 'spawn' on Windows")
-            
             configurator = PreprocessingConfigurator(config=config, logger=logger)
             processor = configurator.create_batch_processor()
             logger.info("Successfully initialized BatchProcessor")

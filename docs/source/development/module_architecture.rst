@@ -115,7 +115,7 @@ radiomics 可直接读取的标准化影像。它是图像层面的批处理 pip
      - ``LoadImagePreprocessor``，把路径读取成 ``SimpleITK.Image``。
    * - ``dcm2niix_converter.py``
      - ``Dcm2niixConverter``，调用外部 dcm2niix 执行 DICOM 转换。
-   * - ``resample.py`` / ``registration.py`` / ``n4_correction.py`` 等
+   * - ``resample.py`` / ``registration/`` / ``n4_correction.py`` 等
      - 具体预处理步骤，均通过 factory 注册。
 
 数据流

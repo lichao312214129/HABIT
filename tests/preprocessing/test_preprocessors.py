@@ -55,13 +55,13 @@ class TestPreprocessorFactory:
         with pytest.raises(ValueError):
             PreprocessorFactory.create("nonexistent_step_xyz")
 
-    def test_registration_simpleitk_backend_instantiation(self) -> None:
-        """``RegistrationPreprocessor`` must construct when ``backend='simpleitk'``."""
+    def test_registration_elastix_backend_instantiation(self) -> None:
+        """``RegistrationPreprocessor`` must construct when ``backend='elastix'``."""
         step = PreprocessorFactory.create(
             "registration",
             keys=_MODALITY_KEYS,
             fixed_image="t1",
-            backend="simpleitk",
+            backend="elastix",
         )
         assert step is not None
 

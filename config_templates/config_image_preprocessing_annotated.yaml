@@ -72,15 +72,24 @@ Preprocessing:
     images: [T2, ADC]  # All modalities in this step; movers = images minus fixed_image (omit moving_images)
     fixed_image: T2  # Reference grid (does not move)
     # moving_images: [ADC]  # NOT READ by HABIT; do not use (extra keys may confuse ANTs if backend: ants)
-    type_of_transform: SyNRA  # ants: ANTs name; simpleitk: mapped (SyN* -> BSpline approx.; see user_guide)
-    metric: MI  # ants: ANTs metric name; simpleitk: MI | CC | MeanSquares
-    # optimizer: gradient_descent  # ants: ANTs optimizers; simpleitk: use substring lbfgs for LBFGSB else gradient descent
-    use_mask: false  # If true, uses mask_<modality> when present
+    type_of_transform: SyNRA  # ants: ANTs name; simpleitk: mapped (SyN* -> BSpline approx.; see user_guide); elastix: ignored
+    metric: MI  # ants: ANTs metric name; simpleitk: MI | CC | MeanSquares; elastix: ignored
+    # optimizer: gradient_descent  # ants: ANTs optimizers; simpleitk: use substring lbfgs for LBFGSB else gradient descent; elastix: ignored
+    use_mask: false  # If true: ants/simpleitk/elastix pass masks to the registration engine
     replace_by_fixed_image_mask: true  # If true, after registration replace moving masks with fixed mask
     #
-    # backend: ants  # default: ANTsPy. Use simpleitk to avoid ANTsPy / use ImageRegistrationMethod only.
+    # backend: ants  # default: ANTsPy. Use simpleitk (SimpleITK only) or elastix (elastix + transformix CLI; install binaries, optional elastix_path).
     #
-    # --- Optional tuning keys ONLY when backend: simpleitk (ignored for ants; see registration.py _SITK_OPTION_KEYS) ---
+    # --- elastix backend: external elastix / transformix (see user_guide image_preprocessing_zh.rst) ---
+    # elastix_path: /path/to/elastix/dir_or_exe   # optional, like dcm2niix_path
+    # transformix_path: /path/to/transformix/dir_or_exe
+    # elastix_threads: 4                           # optional -> -threads
+    # elastix_parameter_files: /path/to/Par0001bspline.txt   # required at run time; path or list from Model Zoo
+    # elastix_parameter_overrides:                           # optional dict merged into each parameter file
+    #   MaximumNumberOfIterations: 200
+    #   FinalGridSpacingInPhysicalUnits: 8
+    #
+    # --- Optional tuning keys ONLY when backend: simpleitk (stripped for ants; ignored for elastix; see registration_preprocessor.py _SITK_OPTION_KEYS) ---
     # number_of_histogram_bins: 50       # Mattes MI bins
     # metric_sampling_percentage: 0.01   # random metric subsample fraction
     # shrink_factors_per_level: [4, 2, 1]
@@ -156,8 +165,9 @@ random_state: 42
 #
 # registration:
 #   - Align multiple images to same space
-#   - Parameters: images, fixed_image, moving_images, type_of_transform, use_mask, mask_key
-#   - Transform types: Translation, Rigid, Affine, SyN, SyNRA, SyNAggro, BSplineSyN
+#   - Parameters: images, fixed_image, type_of_transform, metric, use_mask, replace_by_fixed_image_mask, backend (ants | simpleitk | elastix)
+#   - Do not use moving_images; movers = images minus fixed_image
+#   - backend elastix: install elastix + transformix; elastix_parameter_files required; optional elastix_path, transformix_path, elastix_parameter_overrides, elastix_threads
 #
 # ═══════════════════════════════════════════════════════════════════════════
 

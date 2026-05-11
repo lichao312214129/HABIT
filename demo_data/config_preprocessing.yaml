@@ -27,21 +27,13 @@ Preprocessing:
     fixed_image: delay2
     type_of_transform: Rigid
     use_mask: false
-    # backend: simpleitk  # default ants. If simpleitk: optional tuning keys below apply (see docs/user_guide/image_preprocessing_zh.rst)
-    # number_of_histogram_bins: 50
-    # metric_sampling_percentage: 0.01
-    # shrink_factors_per_level: [4, 2, 1]
-    # smoothing_sigmas_per_level: [2.1, 1.0, 0.0]
-    # learning_rate: 1.0
-    # number_of_iterations: 100
-    # bspline_mesh_size: 8
-    # bspline_order: 3
+    backend: elastix  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    elastix_parameter_files: ./Par0040affine.txt
 
-  # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
-  zscore_normalization:
-    images: [delay2, delay3, delay5]  # 要处理的图像序列
-    only_inmask: false  # 是否仅在掩码内计算统计量
-    mask_key: mask  # 当only_inmask为true时使用的掩码名称
+  # zscore_normalization:
+  #   images: [delay2, delay3, delay5]
+  #   only_inmask: false
+  #   mask_key: mask
 
   # adaptive_histogram_equalization:
   #   images: [delay2, delay3, delay5]  # 要处理的图像序列
@@ -55,5 +47,5 @@ save_options:
 
 
 # General settings
-processes: 2  # Number of parallel processes
+processes: 1  # Number of parallel processes
 random_state: 42  # Random seed for reproducibility

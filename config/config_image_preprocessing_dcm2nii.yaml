@@ -45,7 +45,7 @@ Preprocessing:
   #   moving_images: [pre_contrast, LAP, delay_3min]
   #   type_of_transform: SyNRA  # support all ants registration methods
   #   use_mask: false
-  #   # backend: simpleitk  # optional: ants (default) or simpleitk
+  #   # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
 
 # General settings
 processes: 1  # Number of parallel processes

@@ -16,7 +16,6 @@ scikit-learn = "*"
 imbalanced-learn = "*"
 scikit-image = "*"
 
-
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 black = "^21.5b2"

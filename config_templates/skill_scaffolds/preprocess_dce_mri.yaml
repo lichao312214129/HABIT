@@ -30,8 +30,11 @@ Preprocessing:
     images: [pre_contrast, LAP, PVP, delay_3min]
     fixed_image: pre_contrast
     # moving_images is NOT read; movers = all other entries in images
-    type_of_transform: SyNRA             # use 'Rigid' if you trust the breath-hold
-    # backend: simpleitk               # optional; simpleitk tuning keys in user_guide / annotated template
+    type_of_transform: SyNRA             # use 'Rigid' if you trust the breath-hold; ignored when backend: elastix
+    # backend: simpleitk               # optional: ants | simpleitk | elastix; uses elastix/transformix CLI when backend: elastix
+    # elastix_parameter_files: /path/to/Par0001bspline.txt  # elastix backend only: path(s) from elastix Model Zoo
+    # elastix_parameter_overrides:                          # elastix backend only: override any parameter key
+    #   MaximumNumberOfIterations: 200
 
   # NOTE: DO NOT z-score normalize DCE phases independently!
   # Doing so destroys the relative enhancement signal that habitat kinetic()

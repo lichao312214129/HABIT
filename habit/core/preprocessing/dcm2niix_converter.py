@@ -39,7 +39,7 @@ class Dcm2niixConverter(BasePreprocessor):
         anonymize: bool = False, # 默认不匿名化文件名
         ignore_derived: bool = False, # 默认不忽略衍生图像
         crop_images: bool = False, # 默认裁剪图像
-        generate_json: bool = True, # 默认生成JSON元信息文件
+        generate_json: bool = False, # Default: no BIDS JSON sidecar (-b n); set True for -b y
         verbose: bool = False, # 默认不输出详细信息
         batch_mode: bool = True, # 默认启用批处理模式
         merge_slices: Optional[str] = "2", # 合并模式: "y"/"1"=默认, "2"=按序列, "n"/"0"=不合并, None=不指定
@@ -58,7 +58,7 @@ class Dcm2niixConverter(BasePreprocessor):
             anonymize (bool): Anonymize filenames (default: False)
             ignore_derived (bool): Ignore derived images (default: False)
             crop_images (bool): Crop images (default: False)
-            generate_json (bool): Generate BIDS JSON sidecar files (default: True)
+            generate_json (bool): Generate BIDS JSON sidecar files (default: False)
             verbose (bool): Verbose output (default: False)
             batch_mode (bool): Enable batch mode (default: True)
             merge_slices (Optional[str]): Merge mode - "y"/"1"=default merge, "2"=merge by series, 

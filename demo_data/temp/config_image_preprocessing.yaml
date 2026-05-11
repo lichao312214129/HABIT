@@ -1,10 +1,14 @@
 # Habitat Analysis Configuration
 
-# python enviroment new2_habit_py38
-
 # Data paths
-data_dir: F:\work\habit_project\.cursor\processed_images
-out_dir: F:\work\habit_project\demo_data\temp\out
+# data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\DATA_2
+# out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data
+
+
+# 高清非压脂序列ROI 实验
+
+data_dir: ./data
+out_dir: ./out
 
 # Preprocessing settings
 Preprocessing:
@@ -14,54 +18,51 @@ Preprocessing:
   #   num_fitting_levels: 2
 
   resample:
-     #images: [pre_contrast, LAP, PVP, delay_3min]
-     #images: [A, P, PS] 
-     #images: [ SAG_PDW_SPAIR, SAG_T1] # 波波
-     images: [COR_PDW_SPAIR,HR,SAG_T1] #  高清非压脂序列ROI 实验
-
-     target_spacing: [1, 1, 1]  # Target voxel spacing in x, y, z
+      images: [COR_PDW_SPAIR,HR,SAG_T1] #  高清非压脂序列ROI 实验
+      target_spacing: [1, 1, 1]  # Target voxel spacing in x, y, z
+  
+  #   images: [pre_contrast, LAP, PVP, delay_3min]
+  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in x, y, z
 
   # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
   zscore_normalization:
+    images: [COR_PDW_SPAIR,HR,SAG_T1] # 高清非压脂序列ROI 实验
+    only_inmask: ture  # 是否仅在掩码内计算统计量
+    mask_key: masks  # 当only_inmask为true时使用的掩码名称
+
+
   #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
-     #images: [A, P, PS] # 要处理的图像序列
-     #images: [SAG_PDW_SPAIR, SAG_T1] # 波波
-     images: [COR_PDW_SPAIR,HR,SAG_T1] # 高清非压脂序列ROI 实验
-     only_inmask: false  # 是否仅在掩码内计算统计量
-     mask_key: masks  # 当only_inmask为true时使用的掩码名称
+  #   only_inmask: false  # 是否仅在掩码内计算统计量
+    # mask_key: mask  # 当only_inmask为true时使用的掩码名称
 
   # 直方图标准化 - 简化版  FIXME 调试版本
   # histogram_standardization:
   #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
   #   reference_key: PVP  # 参考图像的键名
- 
- # 调整方向
-  reorientation:
-    images: [COR_PDW_SPAIR, HR, SAG_T1]
-    target_orientation: LPS
-    mode: closest  # 可选: 'closest' (无插值，仅翻转) 或 'strict' (有插值，重采样)
-    # Masks: keys mask_COR_PDW_SPAIR, mask_HR, mask_SAG_T1 (if present) follow the same rule as resample
+
+  # reorientation:
+  #     images: [COR_PDW_SPAIR,SAG_T1]
+
+  #   images: [T2WI, ADC]
+  #   target_orientation: LPS  # "LPS", "RAS", etc. Target anatomical orientation.
+  #   mode: closest  # 'closest' (no interpolation) or 'strict' (with interpolation).
+  #   # Masks mask_T2WI, mask_ADC are reoriented if present (nearest neighbor in strict), same as resample
 
   registration:
-    #images: [T2WI, ADC]
-    #images: [A, P, PS] 
-    #images: [ SAG_PDW_SPAIR, SAG_T1] # 波波
-    images: [COR_PDW_SPAIR, HR, SAG_T1]
-    #fixed_image: T2WI
-    # fixed_image: SAG_PDW_SPAIR
     fixed_image: HR
-    type_of_transform: SyNRA
-    # backend: simpleitk
 
-    #moving_images: [ADC]
-    # moving_images: [P, PS]
-    #moving_images: [SAG_T1]
-    # moving_images: [COR_PDW_SPAIR,SAG_T1]
-    # type_of_transform: SyNRA   # Affine  # support all ants registration methods
-    use_mask: true  # 是否使用掩码进行配准
+    images: [HR, SAG_T1, COR_PDW_SPAIR]
+    #fixed_image: T2WI
+    # moving_images: not read; movers = images minus fixed_image
+    type_of_transform: Rigid  # support all ants registration methods; ignored when backend: elastix
+    use_mask: false
+    backend: elastix  # optional: ants (default) | simpleitk | elastix — see user_guide/image_preprocessing_zh.rst
+    elastix_parameter_files: ../Par0040affine.txt
+    # SimpleITK-only tuning (backend: simpleitk; ignored for ants and elastix):
+    # number_of_histogram_bins, metric_sampling_percentage,
+    # shrink_factors_per_level, smoothing_sigmas_per_level, learning_rate, number_of_iterations,
+    # bspline_mesh_size, bspline_order — see docs/source/user_guide/image_preprocessing_zh.rst
 
-save_options:
-  save_intermediate: true
 # General settings
 processes: 1  # Number of parallel processes
 random_state: 42  # Random seed for reproducibility

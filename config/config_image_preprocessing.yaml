@@ -36,11 +36,11 @@ Preprocessing:
     images: [T2WI, ADC]
     fixed_image: T2WI
     # moving_images: not read; movers = images minus fixed_image
-    type_of_transform: SyNRA  # support all ants registration methods
+    type_of_transform: SyNRA  # support all ants registration methods; ignored when backend: elastix
     use_mask: false
-    # backend: simpleitk  # optional: ants (default) or simpleitk
-    # SimpleITK-only (when backend: simpleitk): number_of_histogram_bins, metric_sampling_percentage,
-    # shrink_factors_per_level, smoothing_sigmas_per_level, learning_rate, number_of_iterations,
+    # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    # SimpleITK-only tuning (backend: simpleitk; ignored for ants and elastix):
+    # number_of_histogram_bins, metric_sampling_percentage,
     # bspline_mesh_size, bspline_order — see docs/source/user_guide/image_preprocessing_zh.rst
 
 # General settings

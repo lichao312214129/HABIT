@@ -68,9 +68,10 @@ zscore = PreprocessorFactory.create(
 ## Registration stage notes
 
 - Floating series are **all entries in `images` except `fixed_image`**. Do **not** add a `moving_images` field to YAML; it is not read by `RegistrationPreprocessor` and may pollute ANTs kwargs when `backend: ants`.
-- **`backend`**: `ants` (default, ANTsPy), `simpleitk` (SimpleITK `ImageRegistrationMethod`; no ANTsPy), or `elastic` (SimpleITK rigid + B-spline two-stage; no ANTsPy).
-- When `backend: ants`, registration requires **ANTsPy**. When `backend: simpleitk` or `backend: elastic`, only **SimpleITK** is used (same stack as resample / N4).
-- **SimpleITK-only YAML tuning keys** (stripped when `backend: ants`): `number_of_histogram_bins`, `metric_sampling_percentage`, `shrink_factors_per_level`, `smoothing_sigmas_per_level`, `learning_rate`, `number_of_iterations`, `bspline_mesh_size`, `bspline_order`. These apply to `simpleitk` and `elastic`. See `habit/core/preprocessing/registration.py` (`_SITK_OPTION_KEYS`) and `docs/source/user_guide/image_preprocessing_zh.rst`.
+- **`backend`**: `ants` (default, ANTsPy), `simpleitk` (SimpleITK `ImageRegistrationMethod`; no ANTsPy), or `elastix` (CLI **elastix** / **transformix**; install official binaries, optional `elastix_path` / `transformix_path` in YAML like `dcm2niix_path`).
+- When `backend: ants`, registration requires **ANTsPy**. When `backend: simpleitk`, only **SimpleITK** is required. When `backend: elastix`, **elastix** and **transformix** must be on `PATH` (or configured explicitly).
+- **`elastix` backend YAML keys**: `elastix_parameter_files` (path or list of paths to elastix `.txt` parameter files from [Model Zoo](https://elastix.lumc.nl/modelzoo/)), `elastix_parameter_overrides` (dict of parameter key→value overrides merged into each file before `-p`), optional `elastix_path`, `transformix_path`, `elastix_threads`.
+- **SimpleITK-only YAML tuning keys** (stripped when `backend: ants`): `number_of_histogram_bins`, `metric_sampling_percentage`, `shrink_factors_per_level`, `smoothing_sigmas_per_level`, `learning_rate`, `number_of_iterations`, `bspline_mesh_size`, `bspline_order`. These apply to **`simpleitk` only**; for `elastix` they are accepted for YAML compatibility but **not** passed to the elastix executable. See `habit/core/preprocessing/registration/registration_preprocessor.py` (`_SITK_OPTION_KEYS`) and `docs/source/user_guide/image_preprocessing_zh.rst`.
 
 ## Custom preprocessors
 
