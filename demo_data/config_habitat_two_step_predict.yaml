@@ -18,6 +18,7 @@ HabitatSegmentation:
 
 # General settings
 processes: 2  # Number of parallel processes
+individual_subject_timeout_sec: 1800  # 30 min cap per subject; null disables
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 random_state: 42  # Random seed for reproducibility (should match training)

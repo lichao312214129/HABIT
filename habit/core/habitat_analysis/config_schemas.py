@@ -4,7 +4,7 @@ Uses Pydantic for robust validation and type safety.
 """
 
 from typing import List, Dict, Any, Optional, Union, Literal, FrozenSet
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 
 from habit.core.common.configs.base import BaseConfig
 
@@ -67,6 +67,15 @@ class HabitatAnalysisConfig(BaseConfig):
                     "processes=8 (4-8GB). Reduce if memory is limited.", 
         gt=0
     )
+    individual_subject_timeout_sec: Optional[float] = Field(
+        1800.0,
+        description=(
+            "Wall-clock seconds allowed for each subject during the individual-level "
+            "parallel stage before marking that subject as failed and continuing. "
+            "Default 1800 (30 minutes). Set to null in YAML to disable (no per-subject "
+            "timeout). Must be positive when not null."
+        ),
+    )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
     save_results_csv: bool = Field(True, description="Whether to save results as CSV files.")
@@ -74,6 +83,16 @@ class HabitatAnalysisConfig(BaseConfig):
     verbose: bool = Field(True, description="Whether to output detailed logs.")
     debug: bool = Field(False, description="Enable debug mode for verbose logging.")
     
+    @field_validator('individual_subject_timeout_sec')
+    @classmethod
+    def validate_individual_subject_timeout(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and v <= 0:
+            raise ValueError(
+                "individual_subject_timeout_sec must be positive when set; "
+                "use null in YAML to disable per-subject timeout."
+            )
+        return v
+
     @model_validator(mode='after')
     def validate_mode_dependent_fields(self):
         """

@@ -11,6 +11,7 @@ data_dir: <PATH_TO_PREPROCESSED_IMAGES>
 out_dir: <OUTPUT_DIR>                    # e.g. ./results/habitat_voxel_radiomics
 
 processes: 2                              # voxel-radiomics is heavy; lower processes
+individual_subject_timeout_sec: 1800  # seconds; null disables per-subject cap
 random_state: 42
 plot_curves: true
 

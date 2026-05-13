@@ -7,6 +7,7 @@ out_dir: /path/to/output
 
 # General settings
 processes: 4
+individual_subject_timeout_sec: 1800  # seconds; null = no per-subject timeout
 random_state: 42
 plot_curves: true  # Enable all visualizations
 

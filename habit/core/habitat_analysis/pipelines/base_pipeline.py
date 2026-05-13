@@ -493,7 +493,12 @@ class HabitatPipeline:
             n_processes=n_processes,
             desc="Processing subjects (individual-level pipeline)",
             logger=logger,
-            show_progress=True
+            show_progress=True,
+            per_item_timeout_sec=(
+                getattr(self.config, "individual_subject_timeout_sec", None)
+                if self.config is not None
+                else None
+            ),
         )
         
         # Collect results.

@@ -7,12 +7,15 @@ eliminating code duplication across different modules that need multiprocessing.
 
 import logging
 import multiprocessing
+import queue
+import time
 from typing import (
-    TypeVar, Callable, Iterable, List, Tuple, 
-    Optional, Any, Union, Generator
+    TypeVar, Callable, Iterable, List, Tuple,
+    Optional, Any, Union, Generator, Dict
 )
 from dataclasses import dataclass
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.log_utils import restore_logging_in_subprocess, LoggerManager
@@ -96,6 +99,253 @@ def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> Processi
         return ProcessingResult(item_id=item, error=e)
 
 
+def _item_id_from_worker_args(worker_args: Tuple[Any, ...]) -> Any:
+    """
+    Extract a stable item id from parallel_map worker argument tuple.
+
+    worker_args layout: (func, item, log_file_path, log_level). For habitat
+    pipelines, item is (subject_id, subject_data).
+
+    Args:
+        worker_args: Arguments tuple passed to _worker_wrapper.
+
+    Returns:
+        Identifier used in logs and failed_items (typically subject_id).
+    """
+    item = worker_args[1]
+    if isinstance(item, (list, tuple)) and len(item) > 0:
+        return item[0]
+    return item
+
+
+def _put_worker_wrapper_result(
+    worker_args: Tuple[Any, ...],
+    result_queue: Any,
+) -> None:
+    """
+    Child-process entry point (must be top-level for Windows spawn).
+
+    Runs _worker_wrapper once and pushes ProcessingResult to result_queue.
+
+    Args:
+        worker_args: Tuple (func, item, log_file_path, log_level).
+        result_queue: multiprocessing.Queue with maxsize compatible with one put.
+    """
+    result_queue.put(_worker_wrapper(worker_args))
+
+
+def _parallel_map_with_item_timeout(
+    func: Callable[[T], R],
+    items_list: List[T],
+    n_processes: int,
+    total: int,
+    desc: str,
+    logger: Optional[logging.Logger],
+    show_progress: bool,
+    log_file_path: Optional[Path],
+    log_level: int,
+    per_item_timeout_sec: float,
+) -> Tuple[List[ProcessingResult], List[Any]]:
+    """
+    Parallel path: ProcessPoolExecutor + per-future wall-clock timeout.
+
+    Timed-out tasks are counted as failed without waiting for worker completion;
+    executor.shutdown(wait=False) does not block on stuck workers. Orphan
+    processes may continue until they exit naturally.
+
+    Args:
+        func: User function (same contract as parallel_map).
+        items_list: Materialised items.
+        n_processes: Worker count.
+        total: len(items_list).
+        desc: Progress description.
+        logger: Optional logger.
+        show_progress: tqdm flag.
+        log_file_path: Subprocess logging path.
+        log_level: Subprocess log level.
+        per_item_timeout_sec: Seconds from submit before treating as failed.
+
+    Returns:
+        (successful_results, failed_items) same as parallel_map.
+    """
+    successful_results: List[ProcessingResult] = []
+    failed_items: List[Any] = []
+
+    worker_args = [
+        (func, item, log_file_path, log_level)
+        for item in items_list
+    ]
+
+    executor = ProcessPoolExecutor(max_workers=n_processes)
+    future_to_args: Dict[Any, Tuple[Any, ...]] = {}
+    submit_times: Dict[Any, float] = {}
+    try:
+        for wa in worker_args:
+            fut = executor.submit(_worker_wrapper, wa)
+            future_to_args[fut] = wa
+            submit_times[fut] = time.monotonic()
+
+        pending = set(future_to_args.keys())
+        if show_progress:
+            progress_bar = CustomTqdm(total=total, desc=desc)
+
+        while pending:
+            done, still_pending = wait(
+                pending,
+                timeout=0.5,
+                return_when=FIRST_COMPLETED,
+            )
+            now = time.monotonic()
+
+            for future in done:
+                pending.discard(future)
+                item_id = _item_id_from_worker_args(future_to_args[future])
+                try:
+                    proc_result = future.result()
+                except Exception as exc:  # e.g. broken process pool
+                    failed_items.append(item_id)
+                    if logger:
+                        logger.error(
+                            "Error retrieving result for %s: %s",
+                            item_id,
+                            exc,
+                            exc_info=True,
+                        )
+                else:
+                    if proc_result.success:
+                        successful_results.append(proc_result)
+                    else:
+                        failed_items.append(proc_result.item_id)
+                        if logger:
+                            logger.error(
+                                "Error processing %s: %s",
+                                proc_result.item_id,
+                                proc_result.error,
+                            )
+                if show_progress:
+                    progress_bar.update(1)
+
+            timed_out = [
+                fut for fut in still_pending
+                if now - submit_times[fut] > per_item_timeout_sec
+            ]
+            for future in timed_out:
+                pending.discard(future)
+                item_id = _item_id_from_worker_args(future_to_args[future])
+                failed_items.append(item_id)
+                if logger:
+                    logger.error(
+                        "Timeout (>%ss) for item %s; skipping (worker may still run).",
+                        per_item_timeout_sec,
+                        item_id,
+                    )
+                if show_progress:
+                    progress_bar.update(1)
+    finally:
+        # Timed-out futures may still run; do not block shutdown on them.
+        executor.shutdown(wait=False)
+
+    if logger and failed_items:
+        logger.warning("Failed or timed out %s item(s)", len(failed_items))
+
+    return successful_results, failed_items
+
+
+def _sequential_map_with_item_timeout(
+    func: Callable[[T], R],
+    items_list: List[T],
+    total: int,
+    desc: str,
+    logger: Optional[logging.Logger],
+    show_progress: bool,
+    log_file_path: Optional[Path],
+    log_level: int,
+    per_item_timeout_sec: float,
+) -> Tuple[List[ProcessingResult], List[Any]]:
+    """
+    Sequential path with per-item timeout using one spawn child per item.
+
+    After timeout the child is terminated (best-effort skip).
+
+    Args:
+        func: User function.
+        items_list: Items to process.
+        total: Number of items.
+        desc: Progress description.
+        logger: Optional logger.
+        show_progress: tqdm flag.
+        log_file_path: Subprocess logging path.
+        log_level: Subprocess log level.
+        per_item_timeout_sec: Per-item wall-clock limit.
+
+    Returns:
+        (successful_results, failed_items) same as parallel_map.
+    """
+    successful_results: List[ProcessingResult] = []
+    failed_items: List[Any] = []
+    ctx = multiprocessing.get_context("spawn")
+
+    if show_progress:
+        progress_bar = CustomTqdm(total=total, desc=desc)
+
+    for item in items_list:
+        worker_args = (func, item, log_file_path, log_level)
+        item_id = _item_id_from_worker_args(worker_args)
+        result_queue = ctx.Queue(maxsize=1)
+        proc = ctx.Process(
+            target=_put_worker_wrapper_result,
+            args=(worker_args, result_queue),
+        )
+        proc.start()
+        proc.join(timeout=per_item_timeout_sec)
+        if proc.is_alive():
+            if logger:
+                logger.error(
+                    "Timeout (>%ss) for item %s; terminating child process.",
+                    per_item_timeout_sec,
+                    item_id,
+                )
+            proc.terminate()
+            proc.join(timeout=10)
+            failed_items.append(item_id)
+            if show_progress:
+                progress_bar.update(1)
+            continue
+
+        try:
+            proc_result = result_queue.get(timeout=2)
+        except queue.Empty:
+            failed_items.append(item_id)
+            if logger:
+                logger.error(
+                    "Child exited without result for item %s (exit code %s).",
+                    item_id,
+                    proc.exitcode,
+                )
+            if show_progress:
+                progress_bar.update(1)
+            continue
+
+        if proc_result.success:
+            successful_results.append(proc_result)
+        else:
+            failed_items.append(proc_result.item_id)
+            if logger:
+                logger.error(
+                    "Error processing %s: %s",
+                    proc_result.item_id,
+                    proc_result.error,
+                )
+
+        if show_progress:
+            progress_bar.update(1)
+
+    if logger and failed_items:
+        logger.warning("Failed or timed out %s item(s)", len(failed_items))
+
+    return successful_results, failed_items
+
+
 def parallel_map(
     func: Callable[[T], R],
     items: Iterable[T],
@@ -105,6 +355,7 @@ def parallel_map(
     show_progress: bool = True,
     log_file_path: Optional[Path] = None,
     log_level: int = logging.INFO,
+    per_item_timeout_sec: Optional[float] = None,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
     Apply a function to items in parallel or sequentially with unified interface.
@@ -125,7 +376,11 @@ def parallel_map(
         show_progress: Whether to show progress bar
         log_file_path: Path to log file for child process logging restoration
         log_level: Logging level for child processes
-        
+        per_item_timeout_sec: If set to a positive value, items exceeding this wall
+            time since submit (parallel) or since child start (sequential) are
+            recorded as failed and skipped. Parallel mode does not terminate stuck
+            workers; sequential mode calls terminate(). None keeps legacy behaviour.
+
     Returns:
         Tuple[List[ProcessingResult], List[Any]]: 
             - List of successful ProcessingResult objects
@@ -145,10 +400,39 @@ def parallel_map(
     """
     items_list = list(items)
     total = len(items_list)
-    
+
     if total == 0:
         return [], []
-    
+
+    if per_item_timeout_sec is not None and per_item_timeout_sec > 0:
+        if log_file_path is None:
+            manager = LoggerManager()
+            log_file_path = manager.get_log_file()
+        if n_processes > 1 and total > 1:
+            return _parallel_map_with_item_timeout(
+                func=func,
+                items_list=items_list,
+                n_processes=n_processes,
+                total=total,
+                desc=desc,
+                logger=logger,
+                show_progress=show_progress,
+                log_file_path=log_file_path,
+                log_level=log_level,
+                per_item_timeout_sec=per_item_timeout_sec,
+            )
+        return _sequential_map_with_item_timeout(
+            func=func,
+            items_list=items_list,
+            total=total,
+            desc=desc,
+            logger=logger,
+            show_progress=show_progress,
+            log_file_path=log_file_path,
+            log_level=log_level,
+            per_item_timeout_sec=per_item_timeout_sec,
+        )
+
     successful_results: List[ProcessingResult] = []
     failed_items: List[Any] = []
     
@@ -338,16 +622,18 @@ class ParallelProcessor:
         items: Iterable[T],
         desc: str = "Processing",
         show_progress: bool = True,
+        per_item_timeout_sec: Optional[float] = None,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
         """
         Map function over items using the processor's configuration.
-        
+
         Args:
             func: Function to apply to each item
             items: Iterable of items to process
             desc: Description for progress bar
             show_progress: Whether to show progress bar
-            
+            per_item_timeout_sec: Optional per-item wall-clock timeout (see parallel_map).
+
         Returns:
             Tuple of (successful_results, failed_items)
         """
@@ -360,4 +646,5 @@ class ParallelProcessor:
             show_progress=show_progress,
             log_file_path=self._log_file_path,
             log_level=self._log_level,
+            per_item_timeout_sec=per_item_timeout_sec,
         )
