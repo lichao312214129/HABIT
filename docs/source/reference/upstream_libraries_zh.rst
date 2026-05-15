@@ -18,7 +18,7 @@
      - `Registration <https://antspy.readthedocs.io/en/stable/registration.html>`__ · `ants.registration API <https://antspy.readthedocs.io/en/stable/api/ants.registration.html>`__
    * - 配准（``backend: elastix``）
      - 官方 **elastix** / **transformix** 可执行文件（命令行 ``-f`` / ``-m`` / ``-out`` / ``-p`` / ``-tp`` 等，见 `elastix 命令行说明 <https://elastix.dev/doxygen/commandlinearg.html>`__）
-     - `Elastix <https://elastix.lumc.nl/>`__ · `Model Zoo <https://elastix.lumc.nl/modelzoo/>`__
+     - `官网 / 下载 <https://elastix.dev/>`__ · `Model Zoo <https://elastix.dev/modelzoo.html>`__
    * - 配准（``backend: simpleitk``）
      - SimpleITK（``ImageRegistrationMethod``）
      - `ImageRegistrationMethod <https://simpleitk.readthedocs.io/en/master/registrationOverview.html>`__ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`__

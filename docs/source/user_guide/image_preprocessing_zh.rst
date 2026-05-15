@@ -12,7 +12,7 @@
 
 - **DICOM 整理（``sort_dicom``）**：需安装 ``dcm2niix``。该步骤使用 ``dcm2niix -r y`` 只整理/重命名 DICOM 文件，不转换为 NIfTI。
 - **DICOM 转 NIfTI（``dcm2nii``）**：需安装 ``dcm2niix``，并在配置中指定可执行文件路径或将可执行文件加入 ``PATH``（亦可省略 ``dcm2niix_path``，此时使用命令名 ``dcm2niix``）。
-- **配准（``registration``）**：默认 ``backend: ants`` 时需 **ANTsPy**（及底层 ANTs）；``backend: simpleitk`` 时仅需 **SimpleITK**；``backend: elastix`` 时需本机安装 **elastix** / **transformix** 可执行文件（命令行参数见 `elastix 官方说明 <https://elastix.dev/doxygen/commandlinearg.html>`__，例如 ``-f`` / ``-m`` / ``-out`` / ``-p`` / ``-tp``），并可在 YAML 中配置 ``elastix_path`` / ``transformix_path``（用法类 ``dcm2niix_path``）。仅使用重采样 / 标准化等步骤、不配准时也可不装 ANTsPy。
+- **配准（``registration``）**：默认 ``backend: ants`` 时需 **ANTsPy**（及底层 ANTs）；``backend: simpleitk`` 时仅需 **SimpleITK**；``backend: elastix`` 时需本机安装 **elastix** / **transformix** 可执行文件（软件下载见 `elastix.dev <https://elastix.dev/>`__；命令行参数见 `elastix 官方说明 <https://elastix.dev/doxygen/commandlinearg.html>`__，例如 ``-f`` / ``-m`` / ``-out`` / ``-p`` / ``-tp``），并可在 YAML 中配置 ``elastix_path`` / ``transformix_path``（用法类 ``dcm2niix_path``）。仅使用重采样 / 标准化等步骤、不配准时也可不装 ANTsPy。
 - **其余步骤**：基于 SimpleITK 等库（随 HABIT 依赖安装）。
 
 HABIT 提供的预处理方法（配置中 ``Preprocessing`` 下的 **键名** 须与下列注册名一致）包括：
@@ -381,10 +381,10 @@ HABIT 调用 **ANTsPy** ``ants.registration``（底层对应 ANTs ``antsRegistra
 
 **backend: elastix（elastix / transformix 命令行）**
 
-- **依赖**：安装官方 **elastix** 发行包（含 **transformix**），并确保可执行文件在 ``PATH`` 中，或通过 YAML 设置 ``elastix_path`` / ``transformix_path``（可为单一可执行文件路径或其所在目录，行为类似 ``dcm2niix_path``）。实现说明见 ``habit/core/preprocessing/elastix_cli_runner.py`` 与 ``habit/core/preprocessing/registration/elastix_backend.py``（与 elastix 手册 5.x 命令行一致：``elastix`` 的 ``-f``、``-m``、``-out``、``-p``、可选 ``-fMask`` / ``-mMask``；``transformix`` 的 ``-in``、``-out``、``-tp``）。
+- **依赖**：从 `elastix.dev <https://elastix.dev/>`__ 获取并安装官方 **elastix** 发行包（含 **transformix**），并确保可执行文件在 ``PATH`` 中，或通过 YAML 设置 ``elastix_path`` / ``transformix_path``（可为单一可执行文件路径或其所在目录，行为类似 ``dcm2niix_path``）。实现说明见 ``habit/core/preprocessing/elastix_cli_runner.py`` 与 ``habit/core/preprocessing/registration/elastix_backend.py``（与 elastix 手册 5.x 命令行一致：``elastix`` 的 ``-f``、``-m``、``-out``、``-p``、可选 ``-fMask`` / ``-mMask``；``transformix`` 的 ``-in``、``-out``、``-tp``）。
 - **参数来源**：
 
-  - ``elastix_parameter_files``：**运行配准时必填**，一个或多个标准 elastix ``.txt`` 参数文件（例如 `elastix Model Zoo <https://elastix.lumc.nl/modelzoo/>`_）；多个文件时按顺序链式执行（与命令行多次 ``-p`` 对应）。
+  - ``elastix_parameter_files``：**运行配准时必填**，一个或多个标准 elastix ``.txt`` 参数文件（第三方模板见 `elastix Model Zoo <https://elastix.dev/modelzoo.html>`__）；多个文件时按顺序链式执行（与命令行多次 ``-p`` 对应）。
   - ``elastix_parameter_overrides``：可选 ``dict``，对每个参数文件在写入临时副本前合并；``FixedImageDimension`` / ``MovingImageDimension`` 会按当前体数据维数自动覆盖。
   - ``elastix_threads``：可选，映射为 ``-threads``（同时用于 elastix 与 transformix）。
 
