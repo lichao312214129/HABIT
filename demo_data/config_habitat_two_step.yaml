@@ -4,7 +4,7 @@
 run_mode: train
 
 # Data paths
-data_dir: ./preprocessed/processed_images
+data_dir: ./preprocessed1
 out_dir: ./results/habitat_two_step
 
 # Feature extraction settings (only needed for train mode)
@@ -53,7 +53,7 @@ HabitatSegmentation:
     one_step_settings:
       min_clusters: 2           # Minimum number of clusters to test
       max_clusters: 10          # Maximum number of clusters to test
-      fixed_n_clusters: 6       # Fixed number of clusters (if set, automatic selection is disabled)
+      fixed_n_clusters:        # Fixed number of clusters (if set, automatic selection is disabled)
       selection_method: inertia  # Method to determine optimal clusters: silhouette, calinski_harabasz, davies_bouldin, inertia
       plot_validation_curves: true  # Plot validation curves for each tumor
   
@@ -79,7 +79,7 @@ HabitatSegmentation:
 
 # General settings
 processes: 5  # Number of parallel processes
-individual_subject_timeout_sec: 1800  # 30 min cap per subject (individual-level parallel); null disables
+individual_subject_timeout_sec: 300  # 5 min cap per subject (individual-level parallel); null disables
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 random_state: 42  # Random seed for reproducibility

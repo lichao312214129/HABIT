@@ -18,6 +18,7 @@ Supported methods (``sampling.method`` in the config):
 """
 
 import logging
+from habit.utils.log_utils import get_module_logger
 from typing import Any, Optional, Tuple
 
 import numpy as np
@@ -112,7 +113,7 @@ class ResamplingStep(BaseEstimator):
     ) -> None:
         self.resampling_cfg = resampling_cfg
         self.random_state = random_state
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger or get_module_logger(__name__)
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "ResamplingStep":
         """No-op fit for estimator compatibility."""

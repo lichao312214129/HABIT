@@ -5,13 +5,14 @@
 """
 
 import os
-import tqdm
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 # 多进程
 from concurrent.futures import as_completed
 from concurrent.futures import ProcessPoolExecutor
+
+from habit.utils.progress_utils import CustomTqdm
 
 
 
@@ -219,7 +220,11 @@ class GetMsiFeatures:
 
             # 使用as_completed来处理每个文件的结果
             features_dict = {}
-            for future in tqdm.tqdm(as_completed(futures), total=len(futures), desc='Processing subregion files'):
+            for future in CustomTqdm(
+                as_completed(futures),
+                total=len(futures),
+                desc="Processing subregion files",
+            ):
                 msi_feature = future.result()
                 features_dict.update(msi_feature)
         

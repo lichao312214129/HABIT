@@ -36,7 +36,7 @@ import pandas as pd
 warnings.simplefilter('ignore')
 
 from habit.utils.io_utils import get_image_and_mask_paths
-from habit.utils.log_utils import LoggerManager
+from habit.utils.log_utils import LoggerManager, get_module_logger
 
 from .config_schemas import HabitatAnalysisConfig
 from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
@@ -207,7 +207,7 @@ def _build_one_step_steps(
     # Lazily build a minimal HabitatImageWriter when one was not injected.
     # IndividualClusteringStep with target='habitat' needs it for saving maps.
     if habitat_image_writer is None:
-        habitat_image_writer = HabitatImageWriter(config, logging.getLogger(__name__))
+        habitat_image_writer = HabitatImageWriter(config, get_module_logger(__name__))
 
     # In one-step we cluster voxels directly into habitats per subject and we
     # ask the step to find an optimal cluster count for each subject.

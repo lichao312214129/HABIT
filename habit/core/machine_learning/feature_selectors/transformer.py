@@ -4,6 +4,7 @@ import numpy as np
 from typing import List, Optional, Dict, Any
 from .selector_registry import run_selector
 import logging
+from habit.utils.log_utils import get_module_logger
 
 class FeatureSelectorTransformer(BaseEstimator, TransformerMixin):
     """
@@ -23,7 +24,7 @@ class FeatureSelectorTransformer(BaseEstimator, TransformerMixin):
         self.method_name = method_name
         self.params = params or {}
         self.selected_features_ = None
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger or get_module_logger(__name__)
 
     def fit(self, X, y=None):
         """

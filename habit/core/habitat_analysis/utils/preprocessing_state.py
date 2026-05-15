@@ -12,6 +12,7 @@ import pandas as pd
 from typing import Dict, List, Optional, Any, Union, Literal
 from sklearn.preprocessing import KBinsDiscretizer
 from pydantic import BaseModel
+from habit.utils.log_utils import get_module_logger
 
 # Import ResultColumns to identify metadata columns
 from ..config_schemas import ResultColumns
@@ -359,8 +360,7 @@ class PreprocessingState:
         self.methods_config = methods
         self.selected_columns_by_step = {}
         
-        import logging
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
         logger.info(
             f"PreprocessingState.fit() input shape={df.shape}, "
             f"dtypes={df.dtypes.value_counts().to_dict()}"
@@ -543,8 +543,7 @@ class PreprocessingState:
         Returns:
             DataFrame containing only numeric feature columns. Empty DataFrame if none survive.
         """
-        import logging
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
 
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         feature_cols = [col for col in numeric_cols if ResultColumns.is_feature_column(col)]

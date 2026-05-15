@@ -5,6 +5,7 @@ This step applies preprocessing at the individual subject level (stateless).
 """
 
 import logging
+from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
 from ..subject_state import SubjectHabitatState
@@ -22,7 +23,7 @@ class SubjectPreprocessingStep(IndividualLevelStep):
     def __init__(self, feature_service: FeatureService):
         super().__init__()
         self.feature_service = feature_service
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
 
     def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """Apply subject-level preprocessing to one subject's voxel features."""

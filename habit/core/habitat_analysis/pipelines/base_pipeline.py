@@ -10,6 +10,7 @@ from typing import Any, Optional, List, Tuple, Dict
 import pandas as pd
 import joblib
 import logging
+from habit.utils.log_utils import get_module_logger
 
 from habit.utils.parallel_utils import parallel_map
 from .subject_state import SubjectHabitatState
@@ -132,7 +133,7 @@ class IndividualLevelStep(BasePipelineStep):
         :class:`GroupLevelStep` instead).
         """
         results: Dict[str, Any] = {}
-        logger = logging.getLogger(self.__class__.__module__)
+        logger = get_module_logger(self.__class__.__module__)
         for subject_id, subject_data in X.items():
             try:
                 results[subject_id] = self.transform_one(subject_id, subject_data)
@@ -279,7 +280,7 @@ class HabitatPipeline:
                 "or create a new pipeline instance for training."
             )
         
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
         
         # Stage 1: Individual-level processing (chunked parallel)
         if self.individual_steps:
@@ -338,7 +339,7 @@ class HabitatPipeline:
                 "HabitatPipeline.load(path) or HabitatPipeline(load_from=path)"
             )
         
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
         
         # Stage 1: Individual-level processing (chunked parallel)
         if self.individual_steps:
@@ -394,7 +395,7 @@ class HabitatPipeline:
                 "or create a new pipeline instance for training."
             )
         
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
         
         # Stage 1: Individual-level processing (chunked parallel)
         if self.individual_steps:
@@ -446,7 +447,7 @@ class HabitatPipeline:
             try:
                 data = step.transform_one(subject_id, data)
             except Exception:
-                logger = logging.getLogger(__name__)
+                logger = get_module_logger(__name__)
                 logger.error(
                     f"Error processing subject {subject_id} in step '{name}'",
                     exc_info=True,
@@ -477,7 +478,7 @@ class HabitatPipeline:
         Returns:
             Dict of subject_id -> processed data (ready for group-level steps)
         """
-        logger = logging.getLogger(__name__)
+        logger = get_module_logger(__name__)
         n_processes = getattr(self.config, 'processes', 4) if self.config else 4
         
         # Process all subjects in parallel

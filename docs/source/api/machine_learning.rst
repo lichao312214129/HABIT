@@ -2,9 +2,7 @@ machine_learning 模块
 ========================
 
 .. automodule:: habit.core.machine_learning
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
 
 开发者阅读入口
 ----------------
@@ -21,12 +19,7 @@ machine_learning 模块
 核心数据对象 (Core Contracts)
 -----------------------------
 
-.. automodule:: habit.core.machine_learning.core.plan
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.core.machine_learning.core.results
+.. automodule:: habit.core.machine_learning.contracts
    :members:
    :undoc-members:
    :show-inheritance:

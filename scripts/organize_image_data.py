@@ -52,14 +52,10 @@ from pathlib import Path
 import argparse
 import sys
 import logging
+from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.utils.progress_utils import CustomTqdm
 
-# Configure logging format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
-)
-logger = logging.getLogger(__name__)
+_module_logger = get_module_logger(__name__)
 
 def organize_dataset_subject_level(subj_dir, 
                                    series_mapping_table, 
@@ -69,44 +65,38 @@ def organize_dataset_subject_level(subj_dir,
     subj_id = subj_dir.name
         
     if subj_id not in series_mapping_table.index:
-        logger.warning(f"{subj_id} not found in mapping, skipping {subj_dir}")
+        _module_logger.warning(f"{subj_id} not found in mapping, skipping {subj_dir}")
         return
     
-    # Get the sequence mapping for this patient
-    series_map = series_mapping_table.loc[subj_id].to_dict()  # {'pre_contrast':'Series_01', ...}
+    series_map = series_mapping_table.loc[subj_id].to_dict()
     
-    # === Key modification: Find the shared mask file ===
     mask_files = list(subj_dir.glob(mask_keyword))
     if not mask_files:
-        logger.error(f"Mask file not found: {subj_dir}")
+        _module_logger.error(f"Mask file not found: {subj_dir}")
         return
     src_mask = mask_files[0]
-    logger.debug(f"Found mask file: {src_mask}")
+    _module_logger.debug(f"Found mask file: {src_mask}")
     
-    # Process each scan type in order (pre_contrast, LAP, PVP, delay_3min)
     for img_idx, (phase, series_id) in enumerate(series_map.items(), start=1):
-        # Match original image file
         img_pattern = f"*{series_id}*"
         img_files = list(subj_dir.glob(img_pattern))
         
         if not img_files:
-            logger.error(f"Image file not found: {img_pattern} in {subj_dir}")
+            _module_logger.error(f"Image file not found: {img_pattern} in {subj_dir}")
             continue
             
         src_img = img_files[0]
-        logger.debug(f"Found image file: {src_img}")
+        _module_logger.debug(f"Found image file: {src_img}")
         
-        # Create target directories
         target_img_dir = images_dir / subj_id / f"{phase}"
         target_mask_dir = masks_dir / subj_id / f"{phase}"
         target_img_dir.mkdir(parents=True, exist_ok=True)
         target_mask_dir.mkdir(parents=True, exist_ok=True)
         
-        # Copy files
         shutil.copy(src_img, target_img_dir)
-        shutil.copy(src_mask, target_mask_dir)  # Same mask copied to all phases
+        shutil.copy(src_mask, target_mask_dir)
         
-        logger.info(f"Processed: {subj_id} {phase} → {phase}")
+        _module_logger.info(f"Processed: {subj_id} {phase} → {phase}")
 
 def organize_dataset(
                 src_dir: str, 
@@ -127,26 +117,23 @@ def organize_dataset(
     debug: Whether to enable debug mode
     """
     if debug:
-        logger.setLevel(logging.DEBUG)
+        _module_logger.setLevel(logging.DEBUG)
         
-    logger.info(f"Starting dataset processing...")
-    logger.info(f"Source directory: {src_dir}")
-    logger.info(f"Target directory: {dst_dir}")
-    logger.info(f"Excel file: {excel_path}")
+    _module_logger.info(f"Starting dataset processing...")
+    _module_logger.info(f"Source directory: {src_dir}")
+    _module_logger.info(f"Target directory: {dst_dir}")
+    _module_logger.info(f"Excel file: {excel_path}")
     
-    # Read mapping table
     try:
         series_mapping_table = pd.read_excel(excel_path).set_index('Name')
     except Exception as e:
-        logger.error(f"Failed to read Excel file: {e}")
+        _module_logger.error(f"Failed to read Excel file: {e}")
         sys.exit(1)
 
-    # Check each row for empty values, print person name if found
     for name, row in series_mapping_table.iterrows():
         if row.isnull().any():
-            logger.warning(f"Empty value found for: {name}")
+            _module_logger.warning(f"Empty value found for: {name}")
     
-    # Create target directory structure
     images_dir = Path(dst_dir) / 'images'
     masks_dir = Path(dst_dir) / 'masks'
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -154,10 +141,9 @@ def organize_dataset(
 
     subj_dirs = list(Path(src_dir).glob('*'))
     if not subj_dirs:
-        logger.error(f"Source directory is empty: {src_dir}")
+        _module_logger.error(f"Source directory is empty: {src_dir}")
         sys.exit(1)
 
-    # Create processing function
     process_func = partial(organize_dataset_subject_level,
                            series_mapping_table=series_mapping_table,
                            mask_keyword=mask_keyword,
@@ -165,18 +151,12 @@ def organize_dataset(
                            masks_dir=masks_dir
     )               
 
-    # Process each subject
-    total = len(subj_dirs)
     with multiprocessing.Pool(processes=n_processes) as pool:
-        # Use imap_unordered to get results
-        for i, subj in enumerate(pool.imap_unordered(process_func, subj_dirs)):
-                # Create progress bar
-                progress = int((i + 1) / total * 50)  # 50 is the length of the progress bar
-                bar = "█" * progress + "-" * (50 - progress)
-                percent = (i + 1) / total * 100
-                print(f"\r[{bar}] {percent:.2f}% ({i+1}/{total})", end="")
+        for _ in CustomTqdm(pool.imap_unordered(process_func, subj_dirs), 
+                            total=len(subj_dirs), desc="Organizing dataset"):
+            pass
     
-    logger.info("\nProcessing complete!")
+    _module_logger.info("Processing complete!")
 
 def main():
     parser = argparse.ArgumentParser(description='MRI Dataset Structure Reorganization Tool')
@@ -211,8 +191,7 @@ if __name__ == "__main__":
             '--debug'
         ])
         
-    # If debug mode is enabled, set log level to DEBUG
     if '--debug' in sys.argv:
-        logger.setLevel(logging.DEBUG)
-        logger.debug("Debug mode enabled")
+        _module_logger.setLevel(logging.DEBUG)
+        _module_logger.debug("Debug mode enabled")
     main()

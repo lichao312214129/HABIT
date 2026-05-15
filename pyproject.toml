@@ -11,6 +11,7 @@ habit = "habit.cli:cli"
 [tool.poetry.dependencies]
 python = "^3.8"
 click = "^8.0"
+tqdm = "^4.0"
 numpy = "*"
 scikit-learn = "*"
 imbalanced-learn = "*"

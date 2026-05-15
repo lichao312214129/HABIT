@@ -8,6 +8,7 @@ a single DataFrame for population-level processing.
 from typing import Dict, Any, Optional
 import pandas as pd
 import logging
+from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import GroupLevelStep
 from ..subject_state import SubjectHabitatState
@@ -30,7 +31,7 @@ class CombineSupervoxelsStep(GroupLevelStep):
     def __init__(self):
         """Initialize combine supervoxels step."""
         super().__init__()
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
     
     def fit(self, X: Dict[str, SubjectHabitatState], y: Optional[Any] = None, **fit_params) -> 'CombineSupervoxelsStep':
         """Fit the stateless step by marking it as fitted."""

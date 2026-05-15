@@ -209,8 +209,8 @@ class DICOMSorter(object):
             print("Sorting files ...")
 
         try:
-            from tqdm import tqdm
-            pbar = tqdm(total=len(allFiles))
+            from habit.utils.progress_utils import CustomTqdm
+            pbar = CustomTqdm(total=len(allFiles), desc="Sorting DICOM files")
         except ImportError:
             pbar = None
         for file in allFiles:

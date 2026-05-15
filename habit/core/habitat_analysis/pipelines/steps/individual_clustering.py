@@ -6,6 +6,7 @@ This step clusters voxels to supervoxels (or habitats) for each subject independ
 
 from typing import Any, Dict, Literal
 import logging
+from habit.utils.log_utils import get_module_logger
 
 import numpy as np
 
@@ -50,7 +51,7 @@ class IndividualClusteringStep(IndividualLevelStep):
         self.config = config
         self.target = target
         self.find_optimal = find_optimal
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
 
     def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """Cluster one subject's voxels to supervoxels (or habitats)."""

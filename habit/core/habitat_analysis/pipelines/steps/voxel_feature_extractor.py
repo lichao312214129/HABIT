@@ -6,6 +6,7 @@ This step extracts voxel-level features from images for each subject.
 
 from typing import Any, Optional
 import logging
+from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
 from ..subject_state import SubjectHabitatState
@@ -31,7 +32,7 @@ class VoxelFeatureExtractor(IndividualLevelStep):
         super().__init__()
         self.feature_service = feature_service
         self.habitat_image_writer = habitat_image_writer
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
 
     def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """

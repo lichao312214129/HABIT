@@ -65,6 +65,7 @@ from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
 from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.utils.progress_utils import CustomTqdm
 
 # Module logger - will inherit configuration from root logger
 logger = get_module_logger(__name__)
@@ -285,26 +286,16 @@ def batch_process_files(input_dir: str, habitat_mapping: Dict[int, int], out_dir
     
     # Process files using multiprocessing pool
     with multiprocessing.Pool(processes=n_processes) as pool:
-        # Use imap_unordered for better performance
-        for i, (filename, success) in enumerate(pool.imap_unordered(process_func, nrrd_files)):
-            # Update processing statistics
+        for filename, success in CustomTqdm(
+            pool.imap_unordered(process_func, nrrd_files),
+            total=total,
+            desc="Mapping habitats"
+        ):
             if success:
                 success_count += 1
-                status = "Success"
             else:
                 failure_count += 1
-                status = "Failed"
-            
-            # Update progress bar
-            progress = int((i + 1) / total * 50)
-            bar = "█" * progress + "-" * (50 - progress)
-            percent = (i + 1) / total * 100
-            
-            # Display progress
-            print(f"\r[{bar}] {percent:.2f}% ({i+1}/{total}) - {status}: {filename}", end="")
-            sys.stdout.flush()
     
-    print()  # New line after progress bar
     logger.info(f"Processing complete. Success: {success_count}, Failed: {failure_count}")
 
 

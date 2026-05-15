@@ -23,7 +23,8 @@
 """
 
 import numpy as np
-import tqdm
+from pathlib import Path
+from habit.utils.progress_utils import CustomTqdm
 import SimpleITK as sitk
 import time
 import re
@@ -35,8 +36,8 @@ import logging
 from sklearn.cluster import KMeans
 import concurrent.futures
 import concurrent
-# get mask and image
 from habit.utils.io_utils import get_image_and_mask_paths
+from habit.utils.log_utils import setup_logger
 
 import warnings
 
@@ -68,12 +69,16 @@ class GetSuperVoxel:
         self.image_timestamp_file = '../data/scan_time_of_phases.xlsx'  # 里面有Name，Pre_contrast，LAP，PVP，DP的扫描时间
         self.phase_name_file = '../data/final_patient_list.xlsx'  # phase 的名字，用于找原始图像
         self.image_root_path = image_root_path # 原始图像的根目录
-        self.n_clusters = n_clusters  # 超像素的数量
-        self.out_folder = out_folder  # 输出文件夹
+        self.n_clusters = n_clusters
+        self.out_folder = out_folder
 
-        # log保持到本地
         logfile = "../data/kinetic_" + f"features{self.n_clusters}.log"
-        logging.basicConfig(filename=logfile, level=logging.INFO)
+        self.logger = setup_logger(
+            name='get_supervoxel',
+            output_dir=Path("../data"),
+            log_filename=f"kinetic_features{n_clusters}.log",
+            level=logging.INFO
+        )
 
     
     def load_timestamp(self):
@@ -292,7 +297,7 @@ class GetSuperVoxel:
             }
             e = time.time()
             print(f"Time of submit: {e-s}")
-            for future in tqdm.tqdm(concurrent.futures.as_completed(future_to_phase_name), total=len(future_to_phase_name), desc="Calculating kinetic features"):
+            for future in CustomTqdm(concurrent.futures.as_completed(future_to_phase_name), total=len(future_to_phase_name), desc="Calculating kinetic features"):
                 try:
                     # s = time.time()
                     super_voxel, label, name = future.result()
@@ -301,7 +306,7 @@ class GetSuperVoxel:
                     # e = time.time()
                     # print(f"Time of 1 result: {e-s}")
                 except Exception as e:
-                    logging.error(f"Error calculating kinetic features for phase: {name}. Exception: {e}")
+                    self.logger.error(f"Error calculating kinetic features for phase: {name}. Exception: {e}")
 
         # save the super voxels and labels
         np.save(os.path.join(self.out_folder, f"super_voxel_{self.n_clusters}_supervoxels.npy"), super_voxel_dict)

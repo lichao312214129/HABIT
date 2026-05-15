@@ -7,6 +7,7 @@ It's always executed in two-step strategy to provide baseline features.
 
 from typing import Any
 import logging
+from habit.utils.log_utils import get_module_logger
 
 import numpy as np
 
@@ -31,7 +32,7 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
     def __init__(self, config: HabitatAnalysisConfig):
         super().__init__()
         self.config = config
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
 
     def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
         """Compute per-supervoxel mean features for one subject."""

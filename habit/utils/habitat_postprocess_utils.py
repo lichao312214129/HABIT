@@ -14,8 +14,9 @@ import time
 import numpy as np
 import SimpleITK as sitk
 
+from habit.utils.log_utils import get_module_logger
 
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
 
 def _connected_component_keep_large_sitk(

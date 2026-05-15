@@ -11,8 +11,9 @@ from pydantic import ValidationError
 
 from .base import BaseConfig, ConfigValidationError
 from .loader import load_config, resolve_config_paths
+from habit.utils.log_utils import get_module_logger
 
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
 ConfigType = TypeVar('ConfigType', bound=BaseConfig)
 

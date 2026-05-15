@@ -15,7 +15,10 @@ from functools import partial
 import logging
 import time
 import sys
+from pathlib import Path
 from habit.utils.io_utils import get_image_and_mask_paths
+from habit.utils.progress_utils import CustomTqdm
+from habit.utils.log_utils import setup_logger, get_module_logger
 
 
 def read_medical_image(image_path: str) -> Tuple[np.ndarray, Dict]:
@@ -131,37 +134,8 @@ def process_mask_file(args):
         return subj_id, img_type, True
         
     except Exception as e:
-        logging.error(f"Error processing {subj_id}/{img_type}: {file_path}: {str(e)}")
+        get_module_logger(__name__).error(f"Error processing {subj_id}/{img_type}: {file_path}: {str(e)}")
         return subj_id, img_type, False
-
-class ProgressBar:
-    """简单的进度条实现"""
-    
-    def __init__(self, total, desc="Processing"):
-        self.total = total
-        self.desc = desc
-        self.current = 0
-        self.bar_length = 50
-        self.start_time = time.time()
-        
-    def update(self, n=1):
-        self.current += n
-        percent = self.current / self.total
-        filled_length = int(self.bar_length * percent)
-        bar = '█' * filled_length + '-' * (self.bar_length - filled_length)
-        
-        # 计算剩余时间
-        elapsed_time = time.time() - self.start_time
-        if self.current > 0:
-            remaining_time = (elapsed_time / self.current) * (self.total - self.current)
-            time_str = f"ETA: {remaining_time:.1f}s"
-        else:
-            time_str = "ETA: --"
-        
-        print(f'\r{self.desc}: |{bar}| {self.current}/{self.total} {percent:.1%} {time_str}', end='')
-        
-        if self.current == self.total:
-            print(f"\nTotal time: {elapsed_time:.1f}s")
 
 def process_all_files(masks_root: str,
                      output_dir: str,
@@ -185,7 +159,7 @@ def process_all_files(masks_root: str,
     _, masks_paths = get_image_and_mask_paths(masks_root, keyword_of_raw_folder = "images", keyword_of_mask_folder = "masks")
     
     if not masks_paths:
-        logging.warning(f"No mask files found in {masks_root}")
+        get_module_logger(__name__).warning(f"No mask files found in {masks_root}")
         return
     
     # Prepare task list
@@ -229,8 +203,12 @@ def parse_arguments():
 
 def main():
     # Set up logging
-    logging.basicConfig(level=logging.INFO,
-                       format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = setup_logger(
+        name='dilation_erosion',
+        output_dir=Path('../demo_data/results/dilation'),
+        log_filename='processing.log',
+        level=logging.INFO
+    )
     
     # Parse command line arguments
     args = parse_arguments()

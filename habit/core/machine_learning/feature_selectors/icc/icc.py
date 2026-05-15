@@ -21,8 +21,9 @@ from .icc_analyzer import (
     print_summary,
     print_statistics,
 )
+from habit.utils.log_utils import get_module_logger
 
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
 
 def _parse_directories(dir_list: List[str]) -> List[List[str]]:

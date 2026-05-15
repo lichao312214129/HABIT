@@ -1,5 +1,6 @@
 import json
 import logging
+from habit.utils.log_utils import get_module_logger
 import os
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
@@ -279,7 +280,7 @@ class DataManager:
 
     def __init__(self, config: Any, logger: Optional[logging.Logger] = None) -> None:
         self.config = config
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger or get_module_logger(__name__)
 
         self.input_config = config.input
         self.split_method = getattr(config, "split_method", "stratified")

@@ -1,66 +1,62 @@
 """
-Progress bar utilities, providing custom progress bar display
-"""
-import os
-import sys
-import threading
-import time
+Progress bar utilities backed by tqdm.
 
-class CustomTqdm:
+All interactive bars should be created via :class:`CustomTqdm` so habit shares
+one implementation (terminal behavior, defaults, future tweaks).
+
+Multiprocessing note:
+    Only the parent process should own and ``update`` a bar. Workers should
+    write structured logs (files) instead of printing competing ``\\r`` lines.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Iterable, Optional
+
+from tqdm.auto import tqdm as _TqdmAuto
+
+
+class CustomTqdm(_TqdmAuto):
     """
-    Custom progress bar class, used as an alternative to tqdm
-    
-    This class is designed to be safe for multi-processing environments.
+    Thin tqdm wrapper with habit-wide defaults.
+
+    Call sites keep the legacy keyword-style constructor::
+
+        CustomTqdm(total=n, desc="Label")
+
+    Iterator wrapping (e.g. ``as_completed``) is also supported::
+
+        for item in CustomTqdm(items, total=len(items), desc="Work"):
+            ...
+
+    Inherits tqdm's ``update``, ``set_description``, ``close``, etc.
     """
-    _print_lock = threading.Lock()
-    
-    def __init__(self, total: int = None, desc: str = "Progress"):
+
+    def __init__(
+        self,
+        iterable: Optional[Iterable[Any]] = None,
+        *,
+        total: Optional[float] = None,
+        desc: str = "Progress",
+        mininterval: float = 0.1,
+        dynamic_ncols: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
-        Initialize progress bar
-        
         Args:
-            total (int, optional): Total number of iterations
-            desc (str, optional): Progress bar description
+            iterable: Optional iterable to wrap (same semantics as tqdm).
+            total: Expected number of iterations when ``iterable`` length is unknown
+                or when using manual ``update`` mode with ``iterable=None``.
+            desc: Short label shown left of the bar (English recommended for CLI).
+            mininterval: Minimum seconds between refreshes (reduces flicker under load).
+            dynamic_ncols: If True, tqdm adjusts width to the terminal.
+            **kwargs: Forwarded to tqdm (e.g. ``disable``, ``leave``, ``file``).
         """
-        self.total = total
-        self.desc = desc
-        self.n = 0
-        self.last_print_time = 0
-        self.min_print_interval = 0.1  # 最小更新间隔（秒）
-        
-    def update(self, n: int = 1) -> None:
-        """
-        Update progress bar
-        
-        Args:
-            n (int, optional): Number of steps to update
-        """
-        self.n += n
-        if self.total is not None:
-            # 限制打印频率以避免在多进程环境中争用标准输出
-            current_time = time.time()
-            if current_time - self.last_print_time > self.min_print_interval or self.n >= self.total:
-                self._print_progress()
-                self.last_print_time = current_time
-    
-    def set_description(self, desc: str) -> None:
-        """
-        Set progress bar description
-        
-        Args:
-            desc (str): Progress bar description
-        """
-        self.desc = desc
-        
-    def _print_progress(self) -> None:
-        """Print progress bar with thread safety"""
-        with CustomTqdm._print_lock:
-            progress = int(self.n / self.total * 50)  # 50是进度条长度
-            bar = "█" * progress + "-" * (50 - progress)
-            percent = self.n / self.total * 100
-            # 使用sys.stdout直接写入并刷新缓冲区
-            sys.stdout.write(f"\r{self.desc}: [{bar}] {percent:.2f}% ({self.n}/{self.total})")
-            sys.stdout.flush()
-            if self.n >= self.total:
-                sys.stdout.write("\n")
-                sys.stdout.flush()
+        super().__init__(
+            iterable,
+            total=total,
+            desc=desc,
+            mininterval=mininterval,
+            dynamic_ncols=dynamic_ncols,
+            **kwargs,
+        )

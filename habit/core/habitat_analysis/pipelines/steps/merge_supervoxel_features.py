@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional
 import numpy as np
 import pandas as pd
 import logging
+from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
 from ..subject_state import SubjectHabitatState
@@ -60,7 +61,7 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         """
         super().__init__()
         self.config = config
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_module_logger(__name__)
         
         # Determine which feature type to use
         supervoxel_config = config.FeatureConstruction.supervoxel_level

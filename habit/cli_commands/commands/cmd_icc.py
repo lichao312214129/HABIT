@@ -58,8 +58,7 @@ def run_icc(config_file: str) -> None:
         click.echo(f"Error: Configuration file not found at {config_file}", err=True)
         sys.exit(1)
     except Exception as e:
-        # The logger may not be initialised if config loading fails.
-        logging.basicConfig()
-        logging.getLogger().error(f"An unexpected error occurred during ICC analysis: {e}", exc_info=True)
+        from habit.utils.log_utils import get_module_logger
+        get_module_logger(__name__).error(f"An unexpected error occurred during ICC analysis: {e}", exc_info=True)
         click.echo(f"An unexpected error occurred: {e}", err=True)
         sys.exit(1)

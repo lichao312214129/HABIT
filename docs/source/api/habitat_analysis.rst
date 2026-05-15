@@ -2,9 +2,7 @@ habitat_analysis 模块
 ========================
 
 .. automodule:: habit.core.habitat_analysis
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
 
 核心分析类 (Core Analysis)
 ---------------------------
