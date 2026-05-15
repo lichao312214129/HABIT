@@ -1,29 +1,35 @@
 """
-Manual CLI check: ``habit preprocess`` with demo YAML (heavy I/O).
+Manual smoke: ``habit preprocess`` with sort_dicom demo YAML (heavy I/O).
 
-Not auto-collected (``manual_*.py``). Run when needed::
+Not collected by pytest. Run from anywhere::
 
-    pytest tests/preprocessing/manual_cli_preprocess.py -v
+    python tests/preprocessing/manual_cli_preprocess.py
 """
 
 from __future__ import annotations
 
+import os
+import sys
 from pathlib import Path
 
-import pytest
-from click.testing import CliRunner
 
-from habit.cli import cli
+def main() -> None:
+    """Run preprocessing CLI against ``config_image_preprocessing_sort_dicom.yaml``."""
+    root = Path(__file__).resolve().parents[2]
+    os.chdir(root)
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
 
-DEMO_CONFIG = Path(__file__).resolve().parents[2] / "demo_data" / "config_preprocessing.yaml"
+    config = root / "config" / "preprocessing" / "config_image_preprocessing_sort_dicom.yaml"
+    if not config.is_file():
+        print(f"Config not found: {config}", file=sys.stderr)
+        sys.exit(2)
+
+    sys.argv = ["habit", "preprocess", "-c", str(config)]
+    from habit.cli import cli
+
+    cli()
 
 
-def test_preprocess_with_demo_config() -> None:
-    if not DEMO_CONFIG.exists():
-        pytest.skip(f"Demo config not found: {DEMO_CONFIG}")
-
-    runner = CliRunner()
-    result = runner.invoke(cli, ["preprocess", "-c", str(DEMO_CONFIG)])
-    assert result.exit_code in [0, 1], (
-        f"Unexpected exit code {result.exit_code}:\n{result.output}"
-    )
+if __name__ == "__main__":
+    main()

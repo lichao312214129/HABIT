@@ -19,7 +19,7 @@ from click.testing import CliRunner
 from habit.cli import cli
 
 ROOT = Path(__file__).resolve().parents[2]
-CFG = ROOT / "demo_data" / "config_habitat_two_step.yaml"
+CFG = ROOT / "config" / "habitat" / "config_habitat_two_step.yaml"
 
 if __name__ == "__main__":
     os.chdir(ROOT)

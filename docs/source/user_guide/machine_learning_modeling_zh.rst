@@ -203,10 +203,10 @@ CLI 使用方法
 .. code-block:: bash
 
    # 训练模式
-   habit model --config ./demo_data/config_machine_learning.yaml --mode train
+   habit model --config ./config/machine_learning/config_machine_learning.yaml --mode train
 
    # 预测模式
-   habit model --config ./demo_data/config_machine_learning.yaml --mode predict
+   habit model --config ./config/machine_learning/config_machine_learning.yaml --mode predict
 
 **输出：**
 

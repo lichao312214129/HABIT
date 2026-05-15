@@ -11,10 +11,15 @@ extracted it into the project root, so the layout looks like:
 
 ```
 HABIT/
+├── config/
+│   ├── preprocessing/     (demo walkthrough YAML + file manifest)
+│   ├── habitat/
+│   ├── feature_extraction/
+│   ├── machine_learning/
+│   └── ...
 ├── demo_data/
 │   ├── preprocessed/      (already preprocessed, ready)
 │   ├── ml_data/           (clinical CSV for ML)
-│   ├── config_*.yaml      (pre-made configs for every step)
 │   └── ...
 ```
 
@@ -30,22 +35,22 @@ The demo configs are pre-baked; the agent doesn't need to generate any YAML.
 python skills/habit-quickstart/scripts/check_environment.py
 
 # 1) Preprocessing (~2-5 min)
-habit preprocess --config demo_data/config_preprocessing.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 python skills/habit-preprocess/scripts/validate_preprocess_output.py demo_data/preprocessed
 
 # 2) Habitat analysis (two-step, ~5-10 min)
-habit get-habitat --config demo_data/config_habitat_two_step.yaml
+habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 python skills/habit-habitat-analysis/scripts/validate_habitat_output.py demo_data/results/habitat_two_step --two-step
 
 # 3) Feature extraction (~3-8 min)
-habit extract --config demo_data/config_extract_features.yaml
+habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
 # 4) Train two ML models for comparison (radiomics vs clinical, ~2-5 min each)
-habit model --config demo_data/config_machine_learning_radiomics.yaml --mode train
-habit model --config demo_data/config_machine_learning_clinical.yaml --mode train
+habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
+habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
 
 # 5) Multi-model comparison (~1-3 min)
-habit compare --config demo_data/config_model_comparison.yaml
+habit compare --config config/model_comparison/config_model_comparison_demo.yaml
 ```
 
 Total wall time: ~15–30 minutes on a modern laptop.
@@ -67,8 +72,8 @@ The demo also ships configs for `one_step` and `direct_pooling` — useful for
 comparing clustering modes on the same data (not the removed V0 Strategy classes):
 
 ```bash
-habit get-habitat --config demo_data/config_habitat_one_step.yaml
-habit get-habitat --config demo_data/config_habitat_direct_pooling.yaml
+habit get-habitat --config config/habitat/config_habitat_one_step.yaml
+habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 ```
 
 Outputs go to `demo_data/results/habitat_one_step/` and
@@ -81,7 +86,7 @@ user gets "file not found" errors, ask them to confirm:
 
 ```bash
 pwd                                    # should end with .../HABIT
-ls demo_data/config_preprocessing.yaml  # should exist
+ls config/preprocessing/config_preprocessing_demo_elastix.yaml  # should exist
 ```
 
 For other errors, hand off to `habit-troubleshoot`.

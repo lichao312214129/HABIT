@@ -20,14 +20,14 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
+HABITAT_CFG = Path(__file__).resolve().parents[2] / "config" / "habitat"
 
-CONFIG_DIRECT_POOLING = DEMO / "config_habitat_direct_pooling.yaml"
-CONFIG_DIRECT_POOLING_PREDICT = DEMO / "config_habitat_direct_pooling_predict.yaml"
-CONFIG_ONE_STEP = DEMO / "config_habitat_one_step.yaml"
-CONFIG_ONE_STEP_PREDICT = DEMO / "config_habitat_one_step_predict.yaml"
-CONFIG_TWO_STEP = DEMO / "config_habitat_two_step.yaml"
-CONFIG_TWO_STEP_PREDICT = DEMO / "config_habitat_two_step_predict.yaml"
+CONFIG_DIRECT_POOLING = HABITAT_CFG / "config_habitat_direct_pooling.yaml"
+CONFIG_DIRECT_POOLING_PREDICT = HABITAT_CFG / "config_habitat_direct_pooling_predict.yaml"
+CONFIG_ONE_STEP = HABITAT_CFG / "config_habitat_one_step.yaml"
+CONFIG_ONE_STEP_PREDICT = HABITAT_CFG / "config_habitat_one_step_predict.yaml"
+CONFIG_TWO_STEP = HABITAT_CFG / "config_habitat_two_step.yaml"
+CONFIG_TWO_STEP_PREDICT = HABITAT_CFG / "config_habitat_two_step_predict.yaml"
 
 
 # ---------------------------------------------------------------------------
@@ -123,7 +123,12 @@ class TestHabitatTwoStep:
 class TestExtractCLI:
     """Tests for `habit extract` command (habitat feature extraction)."""
 
-    EXTRACT_CONFIG = DEMO / "config_extract_features.yaml"
+    EXTRACT_CONFIG = (
+        Path(__file__).resolve().parents[2]
+        / "config"
+        / "feature_extraction"
+        / "config_extract_features_demo.yaml"
+    )
 
     def test_help_exits_zero(self) -> None:
         runner = CliRunner()

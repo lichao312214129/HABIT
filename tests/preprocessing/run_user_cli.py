@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 _SCENARIOS: dict[str, list[str]] = {
-    "preprocess-demo": ["preprocess", "-c", "demo_data/config_preprocessing.yaml"],
+    "preprocess-demo": ["preprocess", "-c", "config/preprocessing/config_preprocessing_demo_elastix.yaml"],
     "preprocess-help": ["preprocess", "--help"],
 }
 

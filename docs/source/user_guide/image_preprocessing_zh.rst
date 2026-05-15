@@ -52,7 +52,7 @@ CLI 使用方法
 
 .. code-block:: bash
 
-   habit preprocess --config ./demo_data/config_preprocessing.yaml
+   habit preprocess --config ./config/preprocessing/config_preprocessing_demo_elastix.yaml
 
 **输出与日志：**
 
@@ -69,7 +69,7 @@ Python API 使用方法
    from habit.core.preprocessing.configurator import PreprocessingConfigurator
    from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
-   config = PreprocessingConfig.from_file("./demo_data/config_preprocessing.yaml")
+   config = PreprocessingConfig.from_file("./config/preprocessing/config_preprocessing_demo_elastix.yaml")
    configurator = PreprocessingConfigurator(config=config)
    processor = configurator.create_batch_processor()
    processor.run()
@@ -80,7 +80,7 @@ Python API 使用方法
 
    from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
-   processor = BatchProcessor(config_path="./demo_data/config_preprocessing.yaml")
+   processor = BatchProcessor(config_path="./config/preprocessing/config_preprocessing_demo_elastix.yaml")
    processor.run()
 
 **自定义日志**：若在外部调用 ``setup_logger``，请将日志文件名与 ``out_dir`` 约定清楚；CLI 使用 ``cli.preprocessing`` 与 ``processing.log``。
@@ -120,7 +120,7 @@ YAML 配置详解
 
 .. code-block:: yaml
 
-   data_dir: ./files_preprocessing.yaml
+   data_dir: ./config/preprocessing/files_preprocessing.yaml
    out_dir: ./preprocessed
    auto_select_first_file: true
 
@@ -186,7 +186,7 @@ YAML 配置详解
 
 ``sort_dicom`` 用于整理原始 DICOM 文件，等价于调用 ``dcm2niix -r y``。默认文件名模式为 ``%n_%g_%x/%s_%d/%r_%o.dcm``，即按「患者名/Accession/Study ID → 序列号/序列描述 → instance/media object」组织。常用参数：``dcm2niix_path``、``filename_format``、``output_dir``、``directory_depth``、``adjacent_dicoms``、``ignore_derived``、``write_behavior``、``progress``、``verbose``、``extra_args``。如果 ``filename_format`` 中包含 ``/``，dcm2niix 会创建对应子目录。
 
-可自定义的 ``-f`` token 包括：``%n`` 患者名、``%g`` accession number、``%x`` study ID、``%s`` series number、``%d`` description、``%r`` instance number、``%o`` mediaObjectInstanceUID 等；完整列表见 ``config_templates/config_image_preprocessing_sort_dicom_annotated.yaml`` 或 dcm2niix ``-h``。
+可自定义的 ``-f`` token 包括：``%n`` 患者名、``%g`` accession number、``%x`` study ID、``%s`` series number、``%d`` description、``%r`` instance number、``%o`` mediaObjectInstanceUID 等；完整列表见 ``config/preprocessing/config_image_preprocessing_sort_dicom.yaml`` 或 dcm2niix ``-h``。
 
 示例：
 

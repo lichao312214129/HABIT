@@ -58,7 +58,7 @@ pip install -e .
 # 3. Run complete research workflow
 
 # Step 1: Image Preprocessing (standardize images)
-habit preprocess --config demo_data/config_preprocessing.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 # Note: The demo_data already contains a 'preprocessed' folder with images and ROI masks.
 # Outputs are organised by pipeline stage and modality:
 #   preprocessed/<stage>_NN/{images,masks}/<subject>/<modality>/<modality>.nii.gz
@@ -69,21 +69,21 @@ habit preprocess --config demo_data/config_preprocessing.yaml
 # Step 2: Habitat Segmentation (identify tumor sub-regions)
 # The demo's habitat configs point to ./preprocessed/processed_images, so the
 # two-step strategy is the one that runs out-of-the-box on the demo data.
-habit get-habitat --config demo_data/config_habitat_two_step.yaml
+habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 # Step 3: Feature Extraction (extract quantitative features)
 # Feature types (traditional / whole_habitat / msi / ith_score / ...) are
 # controlled by the feature_types field in the YAML config.
-habit extract --config demo_data/config_extract_features.yaml
+habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
 # Step 4: Machine Learning (build predictive model)
 # Train the radiomics model first; train the clinical model too if you want to
 # run the model comparison step below.
-habit model --config demo_data/config_machine_learning_radiomics.yaml --mode train
-habit model --config demo_data/config_machine_learning_clinical.yaml --mode train
+habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
+habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
 
 # Step 5: Model Comparison (compare different models)
-habit compare --config demo_data/config_model_comparison.yaml
+habit compare --config config/model_comparison/config_model_comparison_demo.yaml
 
 # 4. View results
 # Outputs land in three sibling directories under demo_data/:

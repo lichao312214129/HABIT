@@ -66,8 +66,8 @@ HABIT 支持高度的自定义扩展，您可以：
 
 HABIT 使用 YAML 配置文件来控制所有参数。每个步骤都有对应的配置文件模板：
 
-- **预处理配置**: `config_preprocessing.yaml`
-- **生境分析配置**: `config_habitat.yaml`
+- **预处理配置**: `config/preprocessing/config_preprocessing_demo_elastix.yaml`
+- **生境分析配置**: `config/habitat/config_habitat_two_step.yaml`
 - **特征提取配置**: `config_extract_features.yaml`
 - **机器学习配置**: `config_machine_learning.yaml`
 

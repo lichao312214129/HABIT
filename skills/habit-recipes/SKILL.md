@@ -28,8 +28,8 @@ Pre-baked workflows for the most common research scenarios. Each recipe lists:
 2. Open the corresponding recipe file in `references/`.
 3. Walk the user through the **Required Inputs** checklist BEFORE writing
    any config — do not invent paths or modality names.
-4. Generate each YAML config in turn, starting from scaffolds under
-   `config_templates/skill_scaffolds/` (see `skills/CONFIG_SOURCES.md` for the map to annotated templates).
+4. Generate each YAML config in turn, starting from the templates listed in
+   [`skills/CONFIG_SOURCES.md`](../CONFIG_SOURCES.md) under `config/<module>/`.
 5. Run each command, then immediately call the `scripts/validate_*.py` from
    the corresponding skill to verify outputs before moving on.
 6. If a step fails, hand off to `habit-troubleshoot`.

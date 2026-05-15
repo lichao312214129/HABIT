@@ -1,75 +1,75 @@
 # HABIT skill — configuration source map
 
-Agent skills (`skills/*/SKILL.md`) should **not** duplicate long parameter docs.
-Use this table: **scaffold** (short example) → **annotated** (full comments) → **standard** (concise daily config under `config/`).
-
-All scaffold paths are relative to the **repository root**.
+Use these **repository-root paths** for YAML templates. Filenames encode the
+**scenario** (e.g. `_demo`, `demo_elastix`) so agents do not confuse walkthrough
+configs with production templates. See [`config/README_CONFIG.md`](../config/README_CONFIG.md)
+for a full scenario index.
 
 ## Habitat (`habit get-habitat`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| one_step minimal | `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml` | `config_templates/config_getting_habitat_annotated.yaml` | `config/config_getting_habitat.yaml` |
-| two_step minimal | `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml` | same | same |
-| DCE kinetic | `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` | same | same |
-| voxel radiomics | `config_templates/skill_scaffolds/habitat_voxel_radiomics.yaml` | same | same |
-| Legacy one-step syntax sample | `config_templates/config_habitat_one_step_example.yaml` | same | — |
+| Use case | Reference |
+|----------|-----------|
+| Primary template (any `clustering_mode`; your paths) | `config/habitat/config_getting_habitat.yaml` |
+| **Demo** train — two-step on bundled data | `config/habitat/config_habitat_two_step.yaml` |
+| **Demo** train — one_step / direct_pooling | `config/habitat/config_habitat_one_step.yaml`, `config_habitat_direct_pooling.yaml` |
+| **Demo** predict (saved pipeline) | `config/habitat/config_habitat_*_predict.yaml` |
+| **Demo** manifest (images + masks layout) | `config/habitat/file_habitat.yaml` |
+| Legacy syntax-only example | `config/habitat/config_habitat_one_step_example.yaml` |
 
 ## Preprocess (`habit preprocess`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| minimal shell | `config_templates/skill_scaffolds/preprocess_minimal.yaml` | `config_templates/config_image_preprocessing_annotated.yaml` | `config/config_image_preprocessing.yaml` |
-| DICOM → NIfTI | `config_templates/skill_scaffolds/preprocess_dcm2nii.yaml` | `config_templates/config_image_preprocessing_dcm2nii_annotated.yaml` | `config/config_image_preprocessing_dcm2nii.yaml` |
-| MRI multimodal | `config_templates/skill_scaffolds/preprocess_mri_multimodal.yaml` | `config_templates/config_image_preprocessing_annotated.yaml` | `config/config_image_preprocessing.yaml` |
-| DCE-MRI | `config_templates/skill_scaffolds/preprocess_dce_mri.yaml` | same | same |
-| CT only | `config_templates/skill_scaffolds/preprocess_ct_only.yaml` | same | same |
+| Use case | Reference |
+|----------|-----------|
+| Main MRI / multimodal template | `config/preprocessing/config_image_preprocessing.yaml` |
+| DICOM → NIfTI | `config/preprocessing/config_image_preprocessing_dcm2nii.yaml` |
+| DICOM sort / rename only | `config/preprocessing/config_image_preprocessing_sort_dicom.yaml` |
+| **Demo** elastix registration (`demo_data`) | `config/preprocessing/config_preprocessing_demo_elastix.yaml` |
+| **Demo** manifest — DICOM folders (delay phases) | `config/preprocessing/files_preprocessing.yaml` |
+| Example manifest — author T1/T2/DWI/ADC paths | `config/preprocessing/image_files.yaml` |
 
 ## Feature extraction (`habit extract`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| minimal | `config_templates/skill_scaffolds/extract_features_minimal.yaml` | `config_templates/config_extract_features_annotated.yaml` | `config/config_extract_features.yaml` |
-| publication set | `config_templates/skill_scaffolds/extract_features_publication.yaml` | same | same |
-| MSI + ITH only | `config_templates/skill_scaffolds/extract_features_msi_ith_only.yaml` | same | same |
+| Use case | Reference |
+|----------|-----------|
+| habitat + traditional / MSI / ITH (full template) | `config/feature_extraction/config_extract_features.yaml` |
+| bundled demo dataset paths | `config/feature_extraction/config_extract_features_demo.yaml` |
 
-## PyRadiomics parameter YAMLs (shared)
+## PyRadiomics parameter YAMLs (`habit extract` / `habit radiomics`)
 
-| Profile | Scaffold |
-|---------|----------|
-| basic (~70 features) | `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` |
-| + LoG + Wavelet | `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` |
-| full-class example | `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` |
-
-Shipped defaults in the package (often referenced from configs): `config/parameter.yaml`, `config/parameter_habitat.yaml`.
+| Profile | Reference |
+|---------|-----------|
+| package default (MRI-oriented starter) | `config/radiomics/parameter.yaml` |
+| habitat maps (when distinct) | `config/radiomics/parameter_habitat.yaml` |
+| minimal (~70 features) | `config/radiomics/parameter_basic.yaml` |
+| LoG + Wavelet (~1000+ features) | `config/radiomics/parameter_with_filters.yaml` |
+| voxel / supervoxel presets | `config/radiomics/params_voxel_radiomics.yaml`, `params_supervoxel_radiomics.yaml` |
 
 ## Machine learning (`habit model` / `habit cv`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| train minimal | `config_templates/skill_scaffolds/ml_train_minimal.yaml` | `config_templates/config_machine_learning_annotated.yaml` | `config/config_machine_learning.yaml` |
-| predict | `config_templates/skill_scaffolds/ml_predict_minimal.yaml` | same | — |
-| k-fold | `config_templates/skill_scaffolds/ml_kfold_minimal.yaml` | `config_templates/config_machine_learning_kfold_annotated.yaml` | `config/config_machine_learning_kfold.yaml` |
-| full pipeline (radiomics) | `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` | `config_templates/config_machine_learning_annotated.yaml` | `config/config_machine_learning.yaml` |
-| high-dim pipeline | `config_templates/skill_scaffolds/ml_pipeline_high_dim.yaml` | same | same |
+| Use case | Reference |
+|----------|-----------|
+| holdout train + templates | `config/machine_learning/config_machine_learning.yaml` |
+| k-fold | `config/machine_learning/config_machine_learning_kfold.yaml` |
+| predict on new data | `config/machine_learning/config_machine_learning_predict.yaml` |
+| **Demo** radiomics / clinical / k-fold CSV paths | `config/machine_learning/config_machine_learning_radiomics.yaml`, `config_machine_learning_clinical.yaml`, `config_machine_learning_kfold_demo.yaml` |
 
 ## Model comparison (`habit compare`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| minimal | `config_templates/skill_scaffolds/model_comparison_minimal.yaml` | `config_templates/config_model_comparison_annotated.yaml` | `config/config_model_comparison.yaml` |
-| two models | `config_templates/skill_scaffolds/model_comparison_two_models.yaml` | same | same |
-| three models | `config_templates/skill_scaffolds/model_comparison_three_models.yaml` | same | same |
+| Use case | Reference |
+|----------|-----------|
+| template | `config/model_comparison/config_model_comparison.yaml` |
+| demo paths | `config/model_comparison/config_model_comparison_demo.yaml` |
 
 ## Traditional radiomics (`habit radiomics`)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| minimal | `config_templates/skill_scaffolds/radiomics_minimal.yaml` | `config_templates/config_traditional_radiomics_annotated.yaml` | `config/config_traditional_radiomics.yaml` |
+| Use case | Reference |
+|----------|-----------|
+| CLI template | `config/radiomics/config_traditional_radiomics.yaml` |
 
 ## Auxiliary CLIs (`habit icc`, `habit retest`, …)
 
-| Use case | Scaffold | Annotated | Standard |
-|----------|----------|-----------|----------|
-| ICC | `config_templates/skill_scaffolds/auxiliary_icc_minimal.yaml` | `config_templates/config_icc_analysis_annotated.yaml` | `config/config_icc_analysis.yaml` |
-| test–retest remap | `config_templates/skill_scaffolds/auxiliary_test_retest_minimal.yaml` | — | `demo_data/config_test_retest.yaml` |
+| Use case | Reference |
+|----------|-----------|
+| ICC — full template (your paths, many groups) | `config/auxiliary/config_icc_analysis.yaml` |
+| ICC — **demo** two CSVs under `demo_data` | `config/auxiliary/config_icc_demo.yaml` |
+| test–retest remap | `config/auxiliary/config_test_retest.yaml` |

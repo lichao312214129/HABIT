@@ -31,9 +31,9 @@ Three options for the params file:
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` | generic full set |
-| `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` | minimal (~70 features) |
-| `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` | full with LoG+Wavelet (~1500 features) |
+| `config/radiomics/parameter.yaml` | generic full set |
+| `config/radiomics/parameter_basic.yaml` | minimal (~70 features) |
+| `config/radiomics/parameter_with_filters.yaml` | full with LoG+Wavelet (~1500 features) |
 
 Choosing guide: `references/parameter_choice_guide.md`.
 
@@ -43,7 +43,7 @@ If the user has no params file, use the basic template as a starting point.
 
 ```yaml
 paths:
-  params_file: ./config/parameter.yaml
+  params_file: ./config/radiomics/parameter.yaml
   images_folder: ./data/preprocessed_images
   out_dir: ./results/radiomics
 
@@ -74,11 +74,11 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/radiomics_minimal.yaml` | scaffold |
-| `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` | starter PyRadiomics params |
+| `config/radiomics/config_traditional_radiomics.yaml` | scaffold |
+| `config/radiomics/parameter.yaml` | starter PyRadiomics params |
 | `references/parameter_choice_guide.md` | how to pick filters and feature classes |
 
-Full annotated reference: `config_templates/config_traditional_radiomics_annotated.yaml`.
+Full annotated reference: `config/radiomics/config_traditional_radiomics.yaml`.
 
 ## Validate output (after run)
 

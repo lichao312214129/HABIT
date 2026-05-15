@@ -20,25 +20,25 @@ _SCENARIOS: dict[str, list[str]] = {
     "get-habitat-two-step": [
         "get-habitat",
         "-c",
-        "demo_data/config_habitat_two_step.yaml",
+        "config/habitat/config_habitat_two_step.yaml",
     ],
     "get-habitat-one-step": [
         "get-habitat",
         "-c",
-        "demo_data/config_habitat_one_step.yaml",
+        "config/habitat/config_habitat_one_step.yaml",
     ],
     "get-habitat-direct-pooling": [
         "get-habitat",
         "-c",
-        "demo_data/config_habitat_direct_pooling.yaml",
+        "config/habitat/config_habitat_direct_pooling.yaml",
     ],
     "get-habitat-two-step-debug": [
         "get-habitat",
         "-c",
-        "demo_data/config_habitat_two_step.yaml",
+        "config/habitat/config_habitat_two_step.yaml",
         "--debug",
     ],
-    "extract-demo": ["extract", "-c", "demo_data/config_extract_features.yaml"],
+    "extract-demo": ["extract", "-c", "config/feature_extraction/config_extract_features_demo.yaml"],
     "get-habitat-help": ["get-habitat", "--help"],
     "extract-help": ["extract", "--help"],
 }

@@ -14,7 +14,9 @@ from click.testing import CliRunner
 from habit.cli import cli
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_TEST_RETEST = PROJECT_ROOT / "demo_data" / "config_test_retest.yaml"
+CONFIG_TEST_RETEST = (
+    PROJECT_ROOT / "config" / "auxiliary" / "config_test_retest.yaml"
+)
 
 
 class TestTestRetestCLI:

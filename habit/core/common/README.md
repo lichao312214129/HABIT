@@ -73,14 +73,14 @@ from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 # 方式1: 使用便捷函数
 config = load_and_validate_config(
-    'demo_data/config_habitat.yaml',
+    'config/habitat/config_habitat_two_step.yaml',
     HabitatAnalysisConfig
 )
 
 # 方式2: 使用验证器
 from habit.core.common.configs.validator import ConfigValidator
 config = ConfigValidator.validate_and_load(
-    'demo_data/config_habitat.yaml',
+    'config/habitat/config_habitat_two_step.yaml',
     HabitatAnalysisConfig
 )
 

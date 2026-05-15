@@ -112,8 +112,8 @@ habit icc --config <config_icc_analysis.yaml>
 
 ### Config
 
-Use `config_templates/skill_scaffolds/auxiliary_icc_minimal.yaml` as scaffold. Full template:
-`config_templates/config_icc_analysis_annotated.yaml`.
+Use `config/auxiliary/config_icc_analysis.yaml` as scaffold. Full template:
+`config/auxiliary/config_icc_analysis.yaml`.
 
 ```yaml
 input:
@@ -163,7 +163,7 @@ habit retest --config <config_test_retest.yaml>
 
 ### Config
 
-Use `config_templates/skill_scaffolds/auxiliary_test_retest_minimal.yaml` as scaffold.
+Use `config/auxiliary/config_test_retest.yaml` as scaffold.
 
 ```yaml
 out_dir: ./results/test_retest
@@ -235,7 +235,7 @@ habit dice --input1 ./scan1/masks --input2 ./scan2/masks -o dice_masks.csv
 habit retest --config config_test_retest.yaml
 
 # 4. Compute ICC on extracted features
-habit icc --config config_icc.yaml
+habit icc --config config/auxiliary/config_icc_demo.yaml
 
 # 5. Use ICC in ML feature selection (filter unstable features)
 habit model --config config_ml.yaml
@@ -252,6 +252,6 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/auxiliary_icc_minimal.yaml` | ICC scaffold |
-| `config_templates/skill_scaffolds/auxiliary_test_retest_minimal.yaml` | habitat re-mapping scaffold |
+| `config/auxiliary/config_icc_analysis.yaml` | ICC scaffold |
+| `config/auxiliary/config_test_retest.yaml` | habitat re-mapping scaffold |
 | `references/dicom_tags_cheatsheet.md` | common DICOM tags |

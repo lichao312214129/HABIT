@@ -39,23 +39,23 @@ habit extract --config <config_extract_features.yaml>
 ### Recommendations
 
 - **Standard publication setup**: `[traditional, non_radiomics, whole_habitat, msi, ith_score]`
-  - Use template `config_templates/skill_scaffolds/extract_features_publication.yaml`.
+  - Use template `config/feature_extraction/config_extract_features.yaml`.
 - **Maximum features (slow, high-dim)**: add `each_habitat`. Only do this for cohorts >200.
 - **No PyRadiomics installed**: `[non_radiomics, msi, ith_score]`
-  - Use template `config_templates/skill_scaffolds/extract_features_msi_ith_only.yaml`.
+  - Use template `config/feature_extraction/config_extract_features.yaml`.
 
 ## PyRadiomics parameter files
 
 When using radiomics-based feature types, two params files are required:
 
 ```yaml
-params_file_of_non_habitat: ./config/parameter.yaml         # for traditional
-params_file_of_habitat: ./config/parameter_habitat.yaml     # for whole/each habitat
+params_file_of_non_habitat: ./config/radiomics/parameter.yaml         # for traditional
+params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml     # for whole/each habitat
 ```
 
 PyRadiomics starter YAMLs (copy or reference by path):
-- `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` — Original only, ~70 features
-- `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` — + LoG + Wavelet, ~1500 features
+- `config/radiomics/parameter_basic.yaml` — Original only, ~70 features
+- `config/radiomics/parameter_with_filters.yaml` — + LoG + Wavelet, ~1500 features
 
 Even when not using radiomics types, both keys must exist in the config
 (point them at any valid YAML to satisfy parsing).
@@ -63,8 +63,8 @@ Even when not using radiomics types, both keys must exist in the config
 ## Standard config
 
 ```yaml
-params_file_of_non_habitat: ./config/parameter.yaml
-params_file_of_habitat: ./config/parameter_habitat.yaml
+params_file_of_non_habitat: ./config/radiomics/parameter.yaml
+params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml
 
 raw_img_folder: ./data/preprocessed_images
 habitats_map_folder: ./results/habitat_analysis
@@ -90,13 +90,13 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/extract_features_minimal.yaml` | scaffold |
-| `config_templates/skill_scaffolds/extract_features_publication.yaml` | full publication setup |
-| `config_templates/skill_scaffolds/extract_features_msi_ith_only.yaml` | quick path, no PyRadiomics |
-| `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` | minimal PyRadiomics params |
-| `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` | full PyRadiomics with LoG+Wavelet |
+| `config/feature_extraction/config_extract_features.yaml` | scaffold |
+| `config/feature_extraction/config_extract_features.yaml` | full publication setup |
+| `config/feature_extraction/config_extract_features.yaml` | quick path, no PyRadiomics |
+| `config/radiomics/parameter_basic.yaml` | minimal PyRadiomics params |
+| `config/radiomics/parameter_with_filters.yaml` | full PyRadiomics with LoG+Wavelet |
 
-Full annotated reference: `config_templates/config_extract_features_annotated.yaml`.
+Full annotated reference: `config/feature_extraction/config_extract_features.yaml`.
 
 ## Voxel-based GLCM auto-protection
 

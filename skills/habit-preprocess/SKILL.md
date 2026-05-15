@@ -42,11 +42,11 @@ Before generating a config, confirm:
 
 ## Decision tree
 
-1. **DICOM input?** → use `dcm2nii` first. See `config_templates/skill_scaffolds/preprocess_dcm2nii.yaml`.
+1. **DICOM input?** → use `dcm2nii` first. See `config/preprocessing/config_image_preprocessing_dcm2nii.yaml`.
 2. **MRI?** → enable `n4_correction` then `resample` then `zscore_normalization`.
-3. **CT?** → just `resample`. NEVER N4 (CT has no bias field). See `config_templates/skill_scaffolds/preprocess_ct_only.yaml`.
+3. **CT?** → just `resample`. NEVER N4 (CT has no bias field). See `config/preprocessing/config_image_preprocessing.yaml`.
 4. **Multi-modal?** → add `registration` with one image as `fixed_image` (usually T2).
-5. **DCE-MRI?** → use `config_templates/skill_scaffolds/preprocess_dce_mri.yaml`. **Do NOT z-score phases independently.**
+5. **DCE-MRI?** → use `config/preprocessing/config_image_preprocessing.yaml`. **Do NOT z-score phases independently.**
 6. **Multi-center cohort?** → add `histogram_standardization` after N4.
 
 ## Reference templates
@@ -55,13 +55,13 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use for |
 |---|---|
-| `config_templates/skill_scaffolds/preprocess_minimal.yaml` | starting scaffold (any) |
-| `config_templates/skill_scaffolds/preprocess_dcm2nii.yaml` | DICOM → NIfTI |
-| `config_templates/skill_scaffolds/preprocess_mri_multimodal.yaml` | T1+T2(+DWI/ADC) standard MRI |
-| `config_templates/skill_scaffolds/preprocess_dce_mri.yaml` | DCE-MRI dynamic |
-| `config_templates/skill_scaffolds/preprocess_ct_only.yaml` | CT (resample only) |
+| `config/preprocessing/config_image_preprocessing.yaml` | starting scaffold (any) |
+| `config/preprocessing/config_image_preprocessing_dcm2nii.yaml` | DICOM → NIfTI |
+| `config/preprocessing/config_image_preprocessing.yaml` | T1+T2(+DWI/ADC) standard MRI |
+| `config/preprocessing/config_image_preprocessing.yaml` | DCE-MRI dynamic |
+| `config/preprocessing/config_image_preprocessing.yaml` | CT (resample only) |
 
-Full annotated reference: `config_templates/config_image_preprocessing_annotated.yaml`.
+Full annotated reference: `config/preprocessing/config_image_preprocessing.yaml`.
 
 ## Save intermediate outputs (debugging)
 

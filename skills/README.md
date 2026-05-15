@@ -25,7 +25,7 @@ Reference: [Anthropic Agent Skills documentation](https://docs.anthropic.com/en/
 ```
 skills/
 ├── README.md                       # this file
-├── CONFIG_SOURCES.md               # index: YAML scaffolds → annotated → config/ (single source map)
+├── CONFIG_SOURCES.md               # index: canonical YAML paths under config/<module>/
 ├── INSTALL.md                      # how to plug skills into different AI tools
 │
 ├── habit-quickstart/               # ★ entry router — read this first
@@ -53,7 +53,7 @@ Each skill is a self-contained directory:
 ```
 <skill-name>/
 ├── SKILL.md                        # main instructions (loaded when triggered)
-├── references/                     # Markdown guides only (YAML scaffolds live in config_templates/skill_scaffolds/)
+├── references/                     # Markdown guides only (see CONFIG_SOURCES.md for YAML paths)
 └── scripts/                        # optional Python helpers (the AI runs these)
 ```
 
@@ -88,10 +88,9 @@ Each skill is a self-contained directory:
    after each step before continuing, so failures are caught early
    rather than cascading.
 
-4. **No-config-from-scratch policy** — Every skill points at minimal
-   YAML scaffolds in its `references/` folder. The agent fills in
-   `<PLACEHOLDER>` values from user-confirmed inputs rather than
-   inventing field names.
+4. **No-config-from-scratch policy** — Every skill points at canonical YAML
+   templates under `config/<module>/` (see `CONFIG_SOURCES.md`). The agent adapts
+   paths and options from user-confirmed inputs rather than inventing field names.
 
 5. **Project-rule compliance** — Every skill enforces the project rules:
    English plot labels, YAML 2-space indent, output directory

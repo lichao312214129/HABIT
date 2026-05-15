@@ -1,52 +1,107 @@
-# Habitat Analysis Configuration
+# ----------------------------------------------------------------------------
+# DICOM to NIfTI Conversion Configuration Template
+# ----------------------------------------------------------------------------
+#
+# Based on actual code: habit/utils/image_converter.py
+#
+# Quick Start:
+#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing_dcm2nii.yaml
+#
+# ----------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────
+# Data Paths
+# ─────────────────────────────────────────────────────────────────────────
 
-# Data paths
-data_dir: ./config/image_files.yaml
+# Input configuration
+# Can be a YAML file listing DICOM directories or a directory path
+data_dir: ./image_files.yaml
+
+# Output directory
 out_dir: ../demo_data/results/preprocessed
 
-# 控制是否自动读取目录中的第一个文件
-# true: 自动读取目录中的第一个文件 (适用于已转换的nii文件等场景)
-# false: 保持目录路径不变 (适用于dcm2nii等需要整个文件夹的任务)
-# 对于dcm2nii任务，必须设置为false
-auto_select_first_file: false
+# ─────────────────────────────────────────────────────────────────────────
+# Preprocessing Pipeline
+# ─────────────────────────────────────────────────────────────────────────
 
-# Preprocessing settings
 Preprocessing:
+  # DICOM to NIfTI conversion
   dcm2nii:
+    # Images to convert
     images: [T1, T2, DWI, ADC]
+    # Path to dcm2niix executable
+    # Download from: https://github.com/rordenlab/dcm2niix/releases
     dcm2niix_path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\software\dcm2nii\dcm2niix.exe
+
+    # Compress output (gzip)
     compress: true
+
+    # Anonymize output (remove patient info)
     anonymize: false
-    merge_slices: "2"  # "y"=default, "2"=by series, "n"=no merge
-    single_file_mode: null  # null=don't specify (recommended for 3D)
+
+    # Merge slices into 3D volumes
+    # Options:
+    #   "y" or "1": Default merge behavior (merge 2D slices)
+    #   "2": Merge based on series (more aggressive, recommended for 3D output)
+    #   "n" or "0": No merging (keep original structure)
+    #   null: Don't specify, use dcm2niix default
+    # For getting 3D instead of 4D: Use "2" or null
+    merge_slices: "2"
+
+    # Generate JSON sidecar metadata files.
+    # Metadata is saved under processed_images/metadata and is not mixed into images/.
     generate_json: true
-    
+
+    # Single file mode
+    # Options:
+    #   true: Force single file output (-s y) - may preserve 4D structure
+    #   false: Allow multiple output files (-s n) - may split volumes
+    #   null: Don't specify (recommended) - let dcm2niix decide best format
+    # For getting 3D instead of 4D: Use null (don't specify)
+    single_file_mode:
+
+  # Optional: Additional preprocessing steps after conversion
+  # Can include any preprocessing methods from config_image_preprocessing.yaml
   # n4_correction:
-  #   num_fitting_levels: 2
-
+  #   images: [T1, T2]
+  #   num_fitting_levels: 4
   # resample:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   target_spacing: [3.0, 3.0, 3.0]  # Target voxel spacing in x, y, z
-
-  # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
-  # zscore_normalization:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
-  #   only_inmask: false  # 是否仅在掩码内计算统计量
-  #   # mask_key: mask  # 当only_inmask为true时使用的掩码名称
-
-  # # 直方图标准化 - 简化版  FIXME 调试版本
-  # # histogram_standardization:
-  # #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
-  # #   reference_key: PVP  # 参考图像的键名
-
+  #   images: [T1, T2, DWI, ADC]
+  #   target_spacing: [1.0, 1.0, 1.0]
   # registration:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   fixed_image: PVP
-  #   moving_images: [pre_contrast, LAP, delay_3min]
-  #   type_of_transform: SyNRA  # support all ants registration methods
+  #   images: [T1, T2, DWI, ADC]
+  #   fixed_image: T1
+  #   moving_images: [T2, DWI, ADC]
+  #   type_of_transform: SyNRA
   #   use_mask: false
   #   # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
 
-# General settings
-processes: 1  # Number of parallel processes
-random_state: 42  # Random seed for reproducibility
+# ─────────────────────────────────────────────────────────────────────────
+# General Settings
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+processes: 1
+
+# Random seed for reproducibility
+random_state: 42
+
+# ----------------------------------------------------------------------------
+# Notes
+# ----------------------------------------------------------------------------
+#
+# dcm2niix is required for DICOM conversion
+# Download from: https://github.com/rordenlab/dcm2niix/releases
+#
+# Expected input structure (if data_dir is a directory):
+#   data_dir/
+#     ├── subject_001/
+#     │   ├── T1_DICOM/
+#     │   ├── T2_DICOM/
+#     │   └── ...
+#     └── subject_002/
+#         └── ...
+#
+# Or use a YAML file (image_files.yaml) to specify exact DICOM directories
+#
+# ----------------------------------------------------------------------------
+auto_select_first_file: false

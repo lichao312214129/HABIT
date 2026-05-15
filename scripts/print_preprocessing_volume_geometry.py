@@ -9,7 +9,7 @@ issues (spacing, dimension, direction) on disk **before** any resampling step.
 Usage (from repository root):
 
     python scripts/print_preprocessing_volume_geometry.py
-    python scripts/print_preprocessing_volume_geometry.py -c demo_data/temp/config_image_preprocessing.yaml
+    python scripts/print_preprocessing_volume_geometry.py -c config/preprocessing/config_preprocessing_demo_elastix.yaml
 """
 
 from __future__ import annotations
@@ -117,8 +117,10 @@ def main() -> None:
         "-c",
         "--config",
         type=str,
-        default=str(_PROJECT_ROOT / "demo_data" / "temp" / "config_image_preprocessing.yaml"),
-        help="Path to preprocessing YAML (default: demo_data/temp/config_image_preprocessing.yaml).",
+        default=str(
+            _PROJECT_ROOT / "config" / "preprocessing" / "config_preprocessing_demo_elastix.yaml"
+        ),
+        help="Path to preprocessing YAML (default: config/preprocessing/config_preprocessing_demo_elastix.yaml).",
     )
     args = parser.parse_args()
 

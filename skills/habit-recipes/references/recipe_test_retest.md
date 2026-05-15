@@ -74,11 +74,11 @@ habit model --config configs/06_ml_icc_filtered.yaml --mode train
 
 | Step | Template |
 |---|---|
-| 01_preprocess_* | `config_templates/skill_scaffolds/preprocess_mri_multimodal.yaml` (or CT) |
-| 02_habitat_* | `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml` |
-| 03_test_retest | `config_templates/skill_scaffolds/auxiliary_test_retest_minimal.yaml` |
-| 04_extract_* | `config_templates/skill_scaffolds/extract_features_publication.yaml` |
-| 05_icc | `config_templates/skill_scaffolds/auxiliary_icc_minimal.yaml` |
+| 01_preprocess_* | `config/preprocessing/config_image_preprocessing.yaml` (or CT) |
+| 02_habitat_* | `config/habitat/config_getting_habitat.yaml` |
+| 03_test_retest | `config/auxiliary/config_test_retest.yaml` |
+| 04_extract_* | `config/feature_extraction/config_extract_features.yaml` |
+| 05_icc | `config/auxiliary/config_icc_analysis.yaml` |
 | 06_ml_icc_filtered | Custom — see below |
 
 ## ICC-filtered ML config snippet

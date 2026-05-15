@@ -63,10 +63,10 @@ habit model --config configs/04_ml_train.yaml --mode train
 
 | Step | Template |
 |---|---|
-| 01_dce_preprocess | `config_templates/skill_scaffolds/preprocess_dce_mri.yaml` |
-| 02_dce_habitat | `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` |
-| 03_extract | `config_templates/skill_scaffolds/extract_features_publication.yaml` |
-| 04_ml_train | `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` |
+| 01_dce_preprocess | `config/preprocessing/config_image_preprocessing.yaml` |
+| 02_dce_habitat | `config/habitat/config_getting_habitat.yaml` |
+| 03_extract | `config/feature_extraction/config_extract_features.yaml` |
+| 04_ml_train | `config/machine_learning/config_machine_learning.yaml` |
 
 ## Output highlights
 

@@ -22,9 +22,9 @@ setting:      # discretization, masks, normalization
 
 See `skills/CONFIG_SOURCES.md`. PyRadiomics starter files:
 
-- `config_templates/skill_scaffolds/pyradiomics_parameter_example.yaml` — generic full set
-- `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` — minimal (~70 features)
-- `config_templates/skill_scaffolds/pyradiomics_parameter_with_filters.yaml` — LoG + Wavelet (~1500 features)
+- `config/radiomics/parameter.yaml` — generic full set
+- `config/radiomics/parameter_basic.yaml` — minimal (~70 features)
+- `config/radiomics/parameter_with_filters.yaml` — LoG + Wavelet (~1500 features)
 
 ## Critical settings
 

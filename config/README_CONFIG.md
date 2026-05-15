@@ -2,51 +2,63 @@
 
 ## Overview
 
-HABIT toolkit uses YAML configuration files to control all functionalities. Each module has **two versions**:
+Configs live under **`config/<module>/`**. Each file aims at **one primary
+scenario** so templates do not duplicate each other without a clear name.
+Shipped YAMLs should start with a **banner** (CLI, purpose, non-overlapping files).
 
-1. **Standard Version** (`config_xxx.yaml`) - Concise configuration for daily use
-2. **Annotated Version** (`config_xxx_annotated.yaml`) - Detailed English comments explaining all parameters
+See [`skills/CONFIG_SOURCES.md`](../skills/CONFIG_SOURCES.md) for the same paths in quick-reference tables.
 
-## 📂 Configuration Files Overview
+Walkthrough files that reference **`demo_data/`** use explicit names
+(`*_demo.yaml`, `config_preprocessing_demo_elastix.yaml`, `config_icc_demo.yaml`, …)
+next to production templates in the same folder.
 
-All annotated templates are located in the [`config_templates/`](../config_templates/) directory.
+## Scenario index (distinct roles)
 
-Short **agent/OpenClaw** YAML scaffolds (placeholders, per scenario) live in
-[`config_templates/skill_scaffolds/`](../config_templates/skill_scaffolds/); the index linking scaffold → annotated → this folder is [`skills/CONFIG_SOURCES.md`](../skills/CONFIG_SOURCES.md).
+| File | Module | Scenario |
+|------|--------|----------|
+| `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
+| `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | DICOM → NIfTI (+ optional follow-on steps). |
+| `preprocessing/config_image_preprocessing_sort_dicom.yaml` | preprocess | DICOM sort/rename only. |
+| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo**: elastix rigid registration on bundled NIfTI. |
+| `preprocessing/files_preprocessing.yaml` | preprocess | **Demo manifest**: raw DICOM folders (delay phases). |
+| `preprocessing/image_files.yaml` | preprocess | **Example manifest**: T1/T2/DWI/ADC paths (replace with yours). |
+| `habitat/config_getting_habitat.yaml` | habitat | **Primary** habitat template (any `clustering_mode`). |
+| `habitat/config_habitat_two_step.yaml` | habitat | **Demo train**: two-step on `demo_data` inputs. |
+| `habitat/config_habitat_one_step.yaml` | habitat | One-step train (set paths locally). |
+| `habitat/config_habitat_direct_pooling.yaml` | habitat | Direct-pooling train; often uses `file_habitat.yaml` as `data_dir`. |
+| `habitat/config_habitat_*_predict.yaml` | habitat | Predict-only (saved pipeline + manifest paths). |
+| `habitat/config_habitat_one_step_example.yaml` | habitat | Legacy **syntax** sample only. |
+| `habitat/file_habitat.yaml` | habitat | **Demo manifest** of processed images + masks for `get-habitat`. |
+| `feature_extraction/config_extract_features.yaml` | extract | Full extraction template (your paths). |
+| `feature_extraction/config_extract_features_demo.yaml` | extract | **Demo** extraction into `demo_data` trees. |
+| `machine_learning/config_machine_learning.yaml` | ML | Holdout train (generic). |
+| `machine_learning/config_machine_learning_kfold.yaml` | ML | K-fold CV template. |
+| `machine_learning/config_machine_learning_predict.yaml` | ML | **Only** predict config (load `.pkl` / joblib). |
+| `machine_learning/config_machine_learning_radiomics.yaml` | ML | **Demo** training from radiomics CSV + demo splits. |
+| `machine_learning/config_machine_learning_clinical.yaml` | ML | **Demo** training from clinical CSV + demo splits. |
+| `machine_learning/config_machine_learning_kfold_demo.yaml` | ML | **Demo** k-fold on bundled CSV. |
+| `model_comparison/config_model_comparison.yaml` | compare | Model comparison template (your prediction CSVs). |
+| `model_comparison/config_model_comparison_demo.yaml` | compare | **Demo** compare on `demo_data/ml_data` outputs. |
+| `auxiliary/config_icc_analysis.yaml` | auxiliary | ICC template (multi-group; your absolute paths). |
+| `auxiliary/config_icc_demo.yaml` | auxiliary | **Demo** ICC on two bundled feature CSVs. |
+| `auxiliary/config_test_retest.yaml` | auxiliary | Test–retest remap + tables (demo paths). |
+| `radiomics/config_traditional_radiomics.yaml` | radiomics | Classical PyRadiomics CLI template. |
 
-## Available Configuration Files
+Shared PyRadiomics parameter YAMLs: `radiomics/parameter.yaml`, `radiomics/parameter_habitat.yaml`,
+`radiomics/parameter_basic.yaml`, `radiomics/parameter_with_filters.yaml`,
+`radiomics/params_voxel_radiomics.yaml`, `radiomics/params_supervoxel_radiomics.yaml`.
 
-| Config File | Annotated Template | Module | Status |
-|-------------|-------------------|--------|--------|
-| `config_getting_habitat.yaml` | [`config_getting_habitat_annotated.yaml`](../config_templates/config_getting_habitat_annotated.yaml) | Habitat Analysis | ✅ Complete |
-| `config_extract_features.yaml` | [`config_extract_features_annotated.yaml`](../config_templates/config_extract_features_annotated.yaml) | Feature Extraction | ✅ Complete |
-| `config_machine_learning.yaml` | [`config_machine_learning_annotated.yaml`](../config_templates/config_machine_learning_annotated.yaml) | Machine Learning | ✅ Complete |
-| `config_machine_learning_kfold.yaml` | [`config_machine_learning_kfold_annotated.yaml`](../config_templates/config_machine_learning_kfold_annotated.yaml) | K-Fold Cross-Validation | ✅ Complete |
-| `config_model_comparison.yaml` | [`config_model_comparison_annotated.yaml`](../config_templates/config_model_comparison_annotated.yaml) | Model Comparison | ✅ Complete |
-| `config_icc_analysis.yaml` | [`config_icc_analysis_annotated.yaml`](../config_templates/config_icc_analysis_annotated.yaml) | ICC Analysis | ✅ Complete |
-| `config_image_preprocessing.yaml` | [`config_image_preprocessing_annotated.yaml`](../config_templates/config_image_preprocessing_annotated.yaml) | Image Preprocessing | ✅ Complete |
-| `config_image_preprocessing_dcm2nii.yaml` | [`config_image_preprocessing_dcm2nii_annotated.yaml`](../config_templates/config_image_preprocessing_dcm2nii_annotated.yaml) | DICOM Conversion | ✅ Complete |
-| `config_traditional_radiomics.yaml` | [`config_traditional_radiomics_annotated.yaml`](../config_templates/config_traditional_radiomics_annotated.yaml) | Traditional Radiomics | ✅ Complete |
+## How to use
 
-## 💡 How to Use
+Open the YAML for the command you are running; section headers and comments
+explain options. Adjust `data_dir`, `out_dir`, and paths to match your machine.
 
-### For Quick Start
-Use the **standard version** (e.g., `config_getting_habitat.yaml`) for quick execution.
-
-### For Learning & Customization
-Refer to the **annotated template** in `config_templates/` (e.g., `config_templates/config_getting_habitat_annotated.yaml`) to:
-- Understand each parameter's purpose and options
-- See usage examples and recommendations
-- Learn valid value ranges and default settings
-- Get tips on parameter tuning
-
-## ⚠️ YAML Format Specification
+## YAML format specification
 
 **Important formatting rules**:
 
 1. **Indentation**:
-   - ✅ Use **2 spaces** (DO NOT use Tab)
-   - ❌ Never use Tab key
+   - Use **2 spaces** (do not use Tab)
    - Keep hierarchy clear
 
 2. **Colon**:
@@ -68,7 +80,7 @@ Refer to the **annotated template** in `config_templates/` (e.g., `config_templa
 ### Example
 
 ```yaml
-# ✅ Correct Format
+# Correct format
 data_dir: ./data
 output: ./results
 settings:
@@ -77,52 +89,21 @@ settings:
   list:
     - item1
     - item2
-
-# ❌ Wrong Format
-data_dir:./data                 # Missing space after colon
-output: ./results
-settings:
-    key1: value1                # Wrong indentation (4 spaces instead of 2)
-  key2: value2                  # Inconsistent indentation
-    list:
-    -item1                      # Missing space after dash
 ```
 
-## 🔧 Configuration Usage
-
-### Using CLI (Recommended)
+## Configuration usage (CLI)
 
 ```bash
-# Use default configuration
-habit get-habitat
-
-# Use specified configuration file
-habit get-habitat --config config/config_getting_habitat.yaml
-
-# Short form
-habit get-habitat -c config/config_getting_habitat.yaml
+habit get-habitat --config config/habitat/config_getting_habitat.yaml
+habit get-habitat -c config/habitat/config_getting_habitat.yaml
 ```
 
-## 📝 Creating New Annotated Files
-
-When creating new annotated configuration files:
-
-1. **Use Template**: Refer to [`config_templates/config_getting_habitat_annotated.yaml`](../config_templates/config_getting_habitat_annotated.yaml) as template
-2. **Follow Structure**: Include headers, sections with clear dividers, detailed comments
-3. **Document Parameters**: For each parameter, include:
-   - Purpose and function
-   - Valid options/values
-   - Default values
-   - Usage examples
-   - Tips and warnings
-4. **Update This File**: Add entry to the table above after completion
-
-## 📚 Related Documentation
+## Related documentation
 
 - **Main README**: [README.md](../README.md) / [README_en.md](../README_en.md)
 - **Habitat Analysis**: [docs/source/user_guide/habitat_segmentation_zh.rst](../docs/source/user_guide/habitat_segmentation_zh.rst)
-- **Machine Learning**: see `docs/source/user_guide/machine_learning_modeling_zh.rst`
+- **Machine Learning**: `docs/source/user_guide/machine_learning_modeling_zh.rst`
 
 ---
 
-*Last Updated: 2025-10-19*
+*Last Updated: 2026-05-15*

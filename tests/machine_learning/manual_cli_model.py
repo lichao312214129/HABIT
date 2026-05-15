@@ -15,10 +15,16 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
-CONFIG_CLINICAL = DEMO / "config_machine_learning_clinical.yaml"
-CONFIG_RADIOMICS = DEMO / "config_machine_learning_radiomics.yaml"
-CONFIG_PREDICT = DEMO / "config_machine_learning_predict.yaml"
+CONFIG_ROOT = Path(__file__).resolve().parents[2] / "config"
+CONFIG_CLINICAL = (
+    CONFIG_ROOT / "machine_learning" / "config_machine_learning_clinical.yaml"
+)
+CONFIG_RADIOMICS = (
+    CONFIG_ROOT / "machine_learning" / "config_machine_learning_radiomics.yaml"
+)
+CONFIG_PREDICT = (
+    CONFIG_ROOT / "machine_learning" / "config_machine_learning_predict.yaml"
+)
 
 
 def test_clinical_train() -> None:

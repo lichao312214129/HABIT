@@ -143,7 +143,7 @@ class TestICCAnalyzer:
 
 
 class TestICCCLI:
-    CONFIG_ICC = PROJECT_ROOT / "demo_data" / "config_icc.yaml"
+    CONFIG_ICC = PROJECT_ROOT / "config" / "auxiliary" / "config_icc_demo.yaml"
 
     def test_icc_help_exits_zero(self) -> None:
         from click.testing import CliRunner

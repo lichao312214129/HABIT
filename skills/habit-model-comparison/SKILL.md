@@ -86,12 +86,12 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/model_comparison_minimal.yaml` | scaffold |
-| `config_templates/skill_scaffolds/model_comparison_two_models.yaml` | 2-model (clinical vs radiomics) |
-| `config_templates/skill_scaffolds/model_comparison_three_models.yaml` | 3-model (clinical vs radiomics vs habitat) |
+| `config/model_comparison/config_model_comparison.yaml` | scaffold |
+| `config/model_comparison/config_model_comparison.yaml` | 2-model (clinical vs radiomics) |
+| `config/model_comparison/config_model_comparison.yaml` | 3-model (clinical vs radiomics vs habitat) |
 | `references/interpretation_guide.md` | how to read every output |
 
-Full annotated reference: `config_templates/config_model_comparison_annotated.yaml`.
+Full annotated reference: `config/model_comparison/config_model_comparison.yaml`.
 
 ## Decision helpers
 

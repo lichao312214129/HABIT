@@ -58,11 +58,11 @@ habit compare --config configs/05_compare.yaml
 
 | Step | Template to start from | Notes |
 |---|---|---|
-| 01_preprocess | `config_templates/skill_scaffolds/preprocess_mri_multimodal.yaml` | Pick fixed_image (usually T2) |
-| 02_habitat | `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml` for one_step, or `habitat_two_step_minimal.yaml` for two_step | Use `concat(raw(T1), raw(T2), ...)` |
-| 03_extract | `config_templates/skill_scaffolds/extract_features_publication.yaml` | Need PyRadiomics params |
-| 04_ml_train | `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` | At least LogisticRegression + RandomForest |
-| 05_compare | `config_templates/skill_scaffolds/model_comparison_two_models.yaml` | Only if comparing to clinical baseline |
+| 01_preprocess | `config/preprocessing/config_image_preprocessing.yaml` | Pick fixed_image (usually T2) |
+| 02_habitat | `config/habitat/config_getting_habitat.yaml` | Set `HabitatSegmentation.clustering_mode` to `one_step` or `two_step`; use `concat(raw(T1), raw(T2), ...)` in `FeatureConstruction` |
+| 03_extract | `config/feature_extraction/config_extract_features.yaml` | Need PyRadiomics params |
+| 04_ml_train | `config/machine_learning/config_machine_learning.yaml` | At least LogisticRegression + RandomForest |
+| 05_compare | `config/model_comparison/config_model_comparison.yaml` | Only if comparing to clinical baseline |
 
 ## Expected outputs
 
@@ -102,5 +102,5 @@ After each step, the agent should verify before continuing:
 ## Common deviations from this recipe
 
 - User has only T2 (single modality) → swap step 2 to `voxel_level.method: raw(T2)`, skip registration
-- User wants k-fold CV → replace step 5 with `habit cv` and use `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` as base (remove `split_method` / train-test fields for `habit cv`; see `config_templates/skill_scaffolds/ml_kfold_minimal.yaml`)
+- User wants k-fold CV → replace step 5 with `habit cv` and use `config/machine_learning/config_machine_learning.yaml` as base (remove `split_method` / train-test fields for `habit cv`; see `config/machine_learning/config_machine_learning_kfold.yaml`)
 - User has external test cohort → use `split_method: custom` with explicit train/test ID files; generate via `habit-machine-learning/scripts/prepare_split_files.py`

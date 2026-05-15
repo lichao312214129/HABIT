@@ -15,8 +15,10 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
-CONFIG_COMPARE = DEMO / "config_model_comparison.yaml"
+CONFIG_ROOT = Path(__file__).resolve().parents[2] / "config"
+CONFIG_COMPARE = (
+    CONFIG_ROOT / "model_comparison" / "config_model_comparison_demo.yaml"
+)
 
 
 def test_compare_with_demo_config() -> None:

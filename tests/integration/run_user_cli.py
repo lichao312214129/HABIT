@@ -23,24 +23,24 @@ import sys
 from pathlib import Path
 
 _SINGLE_SCENARIOS: dict[str, list[str]] = {
-    "icc-demo": ["icc", "-c", "demo_data/config_icc.yaml"],
+    "icc-demo": ["icc", "-c", "config/auxiliary/config_icc_demo.yaml"],
     "icc-help": ["icc", "--help"],
-    "retest-demo": ["retest", "-c", "demo_data/config_test_retest.yaml"],
+    "retest-demo": ["retest", "-c", "config/auxiliary/config_test_retest.yaml"],
     "retest-help": ["retest", "--help"],
 }
 
 _WORKFLOW_CHAIN: list[list[str]] = [
-    ["preprocess", "-c", "demo_data/config_preprocessing.yaml"],
-    ["get-habitat", "-c", "demo_data/config_habitat_two_step.yaml"],
-    ["extract", "-c", "demo_data/config_extract_features.yaml"],
+    ["preprocess", "-c", "config/preprocessing/config_preprocessing_demo_elastix.yaml"],
+    ["get-habitat", "-c", "config/habitat/config_habitat_two_step.yaml"],
+    ["extract", "-c", "config/feature_extraction/config_extract_features_demo.yaml"],
     [
         "model",
         "-c",
-        "demo_data/config_machine_learning_clinical.yaml",
+        "config/machine_learning/config_machine_learning_clinical.yaml",
         "-m",
         "train",
     ],
-    ["compare", "-c", "demo_data/config_model_comparison.yaml"],
+    ["compare", "-c", "config/model_comparison/config_model_comparison_demo.yaml"],
 ]
 
 

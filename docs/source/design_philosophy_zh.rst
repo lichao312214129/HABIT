@@ -68,8 +68,8 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
 
 .. code-block:: bash
 
-   habit preprocess --config config_preprocessing.yaml
-   habit get-habitat --config config_habitat.yaml --mode predict
+   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml --mode predict
    habit extract --config config_extract_features.yaml
    habit model --config config_machine_learning.yaml --mode train
 
@@ -89,12 +89,12 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
    from habit.core.machine_learning.config_schemas import MLConfig
 
    # Preprocessing
-   pre_cfg = PreprocessingConfig.from_file('config_preprocessing.yaml')
+   pre_cfg = PreprocessingConfig.from_file('config/preprocessing/config_preprocessing_demo_elastix.yaml')
    processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
    processor.run()
 
    # Habitat analysis
-   habitat_cfg = HabitatAnalysisConfig.from_file('config_habitat.yaml')
+   habitat_cfg = HabitatAnalysisConfig.from_file('config/habitat/config_habitat_two_step.yaml')
    habitat_analysis = HabitatConfigurator(config=habitat_cfg).create_habitat_analysis()
    habitat_analysis.fit()
 
@@ -268,7 +268,7 @@ YAML 格式更加灵活，适合复杂的数据组织：
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load and validate YAML into HabitatAnalysisConfig
-   config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
+   config = HabitatAnalysisConfig.from_file('./config/habitat/config_habitat_two_step.yaml')
 
    # Builds collaborator services; same wiring as CLI (habit get-habitat)
    configurator = HabitatConfigurator(config=config)

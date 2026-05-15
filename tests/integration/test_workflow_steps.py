@@ -60,38 +60,38 @@ def run_cli_workflow_step(
 
 def main() -> int:
     """Run all workflow steps sequentially from demo YAML paths."""
-    demo_data_dir = Path(__file__).resolve().parents[2] / "demo_data"
+    cfg_root = Path(__file__).resolve().parents[2] / "config"
     results: dict[str, bool] = {}
 
     results["preprocess"] = run_cli_workflow_step(
         "Preprocess",
         ["preprocess"],
-        demo_data_dir / "config_preprocessing.yaml",
+        cfg_root / "preprocessing" / "config_preprocessing_demo_elastix.yaml",
     )
 
     results["get_habitat"] = run_cli_workflow_step(
         "Get Habitat",
         ["get-habitat"],
-        demo_data_dir / "config_habitat.yaml",
+        cfg_root / "habitat" / "config/habitat/config_habitat_two_step.yaml",
     )
 
     results["extract"] = run_cli_workflow_step(
         "Extract Features",
         ["extract"],
-        demo_data_dir / "config_extract_features.yaml",
+        cfg_root / "feature_extraction" / "config_extract_features_demo.yaml",
     )
 
     results["model_train"] = run_cli_workflow_step(
         "Model Train",
         ["model"],
-        demo_data_dir / "config_machine_learning_clinical.yaml",
+        cfg_root / "machine_learning" / "config_machine_learning_clinical.yaml",
         extra_args=["-m", "train"],
     )
 
     results["compare"] = run_cli_workflow_step(
         "Compare",
         ["compare"],
-        demo_data_dir / "config_model_comparison.yaml",
+        cfg_root / "model_comparison" / "config_model_comparison_demo.yaml",
     )
 
     print(f"\n{'=' * 80}")

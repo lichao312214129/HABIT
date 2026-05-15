@@ -55,9 +55,9 @@ habit model --config configs/03_ct_ml.yaml --mode train
 
 | Step | Template |
 |---|---|
-| 01_ct_preprocess | `config_templates/skill_scaffolds/preprocess_ct_only.yaml` |
-| 02_ct_radiomics | `config_templates/skill_scaffolds/radiomics_minimal.yaml` |
-| 03_ct_ml | `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` |
+| 01_ct_preprocess | `config/preprocessing/config_image_preprocessing.yaml` |
+| 02_ct_radiomics | `config/radiomics/config_traditional_radiomics.yaml` |
+| 03_ct_ml | `config/machine_learning/config_machine_learning.yaml` |
 
 ## Notes specific to CT
 

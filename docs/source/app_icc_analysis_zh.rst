@@ -61,7 +61,7 @@ ICC 值解释：
 
 .. code-block:: bash
 
-   habit icc --config config_icc.yaml
+   habit icc --config config/auxiliary/config_icc_demo.yaml
 
 配置说明
 --------

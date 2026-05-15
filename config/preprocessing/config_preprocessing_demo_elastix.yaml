@@ -1,0 +1,68 @@
+# =============================================================================
+# Image preprocessing — DEMO: multiphase registration with elastix
+# =============================================================================
+# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+#
+# Purpose:
+#   Walkthrough scenario on bundled demo_data: register delay2/delay3/delay5 to
+#   delay2 using rigid elastix and repository demo parameter file.
+#
+# Data layout:
+#   data_dir points at already-resampled NIfTI under demo_data (not raw DICOM).
+#
+# NOT overlapping with:
+#   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
+#   full step zoo: N4, resample, registration, etc.).
+#   config_image_preprocessing_dcm2nii.yaml — DICOM → NIfTI first.
+#   config_image_preprocessing_sort_dicom.yaml — rename/sort DICOM only.
+#   config_preprocessing_from_dicom_manifest.yaml — if re-added: manifest-driven DICOM tree.
+# =============================================================================
+
+# Data paths (relative to this file)
+data_dir: ../../demo_data/preprocessed/resample_02
+out_dir: ../../demo_data/preprocessed1
+
+# Preprocessing settings
+Preprocessing:
+  # dcm2nii:
+  #   images: [delay2, delay3, delay5]
+  #   dcm2niix_path: ./dcm2niix.exe
+  #   compress: true
+  #   anonymize: true
+
+  # # N4 Bias Field Correction:
+  # n4_correction:
+  #   images: [delay2, delay3, delay5]
+  #   num_fitting_levels: 2
+
+  # Resample:
+  # resample:
+  #   images: [delay2, delay3, delay5]
+  #   target_spacing: [2.0, 2.0, 2.0]
+
+  registration:
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
+    type_of_transform: Rigid
+    use_mask: true
+    backend: elastix  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    elastix_parameter_files: ../../demo_data/Par0040affine.txt
+
+  # zscore_normalization:
+  #   images: [delay2, delay3, delay5]
+  #   only_inmask: false
+  #   mask_key: mask
+
+  # adaptive_histogram_equalization:
+  #   images: [delay2, delay3, delay5]
+  #   alpha: 0.3
+  #   beta: 0.3
+  #   radius: 5
+
+save_options:
+  save_intermediate: true
+  # intermediate_steps: [dcm2nii, n4_correction, resample, registration, zscore_normalization]
+
+# General settings
+processes: 1  # Number of parallel processes
+random_state: 42  # Random seed for reproducibility

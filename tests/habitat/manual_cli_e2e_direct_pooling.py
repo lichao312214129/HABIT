@@ -20,7 +20,7 @@ DEMO_DATA: Path = PROJECT_ROOT / "demo_data"
 
 
 def _config(filename: str) -> Path:
-    return DEMO_DATA / filename
+    return PROJECT_ROOT / "config" / "habitat" / filename
 
 
 def _skip_if_missing(path: Path) -> None:

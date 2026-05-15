@@ -5,15 +5,10 @@
 
 ## 发现的问题
 
-### 1. 缺失的配置文件
+### 1. 历史记录：`config_test_retest.yaml` 路径迁移
 
-#### 问题：`config_test_retest.yaml` 不存在
-- **文件**: `test_test_retest.py`
-- **引用的配置**: `../demo_data/config_test_retest.yaml`
-- **状态**: ❌ 文件不存在
-- **影响**: 测试会被跳过，但不会失败
-
-**解决方案**: 创建 `../demo_data/config_test_retest.yaml` 配置文件 ✅ **已创建**
+- **当前路径**: `config/auxiliary/config_test_retest.yaml`
+- **说明**: 早期报告中的「文件不存在」已解决；演示用配置已按模块放在 `config/preprocessing/`、`config/habitat/` 等目录。
 
 ### 2. 硬编码的绝对路径
 
@@ -74,29 +69,29 @@
 ## 配置文件清单
 
 ### ✅ 存在的配置文件
-- `../demo_data/config_extract_features.yaml`
-- `../demo_data/config_habitat.yaml`
-- `../demo_data/config_habitat_direct_pooling.yaml`
-- `../demo_data/config_habitat_direct_pooling_predict.yaml`
-- `../demo_data/config_habitat_one_step.yaml`
-- `../demo_data/config_habitat_one_step_predict.yaml`
-- `../demo_data/config_icc.yaml`
-- `../demo_data/config_machine_learning_clinical.yaml`
-- `../demo_data/config_machine_learning_kfold.yaml`
-- `../demo_data/config_machine_learning_radiomics.yaml`
-- `../demo_data/config_model_comparison.yaml`
-- `../demo_data/config_predict.yaml`
-- `../demo_data/config_preprocessing.yaml`
+- `../config/feature_extraction/config_extract_features_demo.yaml`
+- `../config/habitat/config_habitat_two_step.yaml`
+- `../config/habitat/config_habitat_direct_pooling.yaml`
+- `../config/habitat/config_habitat_direct_pooling_predict.yaml`
+- `../config/habitat/config_habitat_one_step.yaml`
+- `../config/habitat/config_habitat_two_step.yaml`
+- `../config/habitat/config_habitat_two_step_predict.yaml`
+- `../config/machine_learning/config_machine_learning_clinical.yaml`
+- `../config/machine_learning/config_machine_learning_kfold_demo.yaml`
+- `../config/machine_learning/config_machine_learning_radiomics.yaml`
+- `../config/model_comparison/config_model_comparison_demo.yaml`
+- `../config/machine_learning/config_machine_learning_predict.yaml`
+- `../config/preprocessing/config_preprocessing_demo_elastix.yaml`
 
 ### ✅ 已创建的配置文件
-- `../demo_data/config_test_retest.yaml` ✅ **已创建**
+- `../config/auxiliary/config_test_retest.yaml` ✅ **已创建**
 
 ## 修复状态
 
 ### ✅ 已修复的问题
 
 #### 1. 创建缺失的配置文件 ✅
-- **文件**: `../demo_data/config_test_retest.yaml`
+- **文件**: `../config/auxiliary/config_test_retest.yaml`
 - **状态**: ✅ 已创建
 - **内容**: 包含test-retest分析所需的基本配置项
 

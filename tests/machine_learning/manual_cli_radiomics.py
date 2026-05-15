@@ -17,7 +17,12 @@ from click.testing import CliRunner
 from habit.cli import cli
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEMO_CONFIG = PROJECT_ROOT / "demo_data" / "config_machine_learning_radiomics.yaml"
+DEMO_CONFIG = (
+    PROJECT_ROOT
+    / "config"
+    / "machine_learning"
+    / "config_machine_learning_radiomics.yaml"
+)
 
 
 def test_radiomics_with_config(cwd_repo_root: None) -> None:

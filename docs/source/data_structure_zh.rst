@@ -9,7 +9,7 @@
 
 - **DICOM 原始数据**: ``demo_data/dicom/``
 - **预处理后的数据**: ``demo_data/preprocessed/``（包含 processed_images 子目录）
-- **配置文件**: ``demo_data/config_preprocessing.yaml``、``demo_data/files_preprocessing.yaml`` 等
+- **配置文件**: ``config/preprocessing/config_preprocessing_demo_elastix.yaml``、``config/preprocessing/files_preprocessing.yaml`` 等
 
 **解压后的目录结构**：
 
@@ -35,11 +35,17 @@
    │           │   ├── delay3/
    │           │   └── delay5/
    │           └── subj002/
-   ├── config_preprocessing.yaml              # 预处理配置
-   ├── files_preprocessing.yaml               # 文件列表
-   ├── file_habitat.yaml                   # 生境分析数据配置
-   ├── config_habitat_one_step.yaml          # 生境分析配置（一步法）
-   └── ...                                # 其他配置文件
+   ├── ml_data/                            # 机器学习演示 CSV
+   ├── configs/                            # 按流程分类的 YAML（推荐从这里选用）
+   │   ├── preprocess/
+   │   ├── habitat/
+   │   ├── extract/
+   │   ├── machine_learning/
+   │   ├── model_comparison/
+   │   ├── auxiliary/
+   │   ├── parameters/
+   │   └── manifests/
+   └── ...                                 # 其他数据与输出目录（results 等）
 
 数据输入方式概述
 ----------------
@@ -303,7 +309,7 @@ auto_select_first_file 参数详解
 
 **示例 1: 预处理数据配置**
 
-基于 `demo_data/files_preprocessing.yaml`：
+基于 `config/preprocessing/files_preprocessing.yaml`：
 
 .. code-block:: yaml
 
@@ -322,7 +328,7 @@ auto_select_first_file 参数详解
 
 **示例 2: 生境分析数据配置**
 
-基于 `demo_data/file_habitat.yaml`：
+基于 `config/habitat/file_habitat.yaml`：
 
 .. code-block:: yaml
 

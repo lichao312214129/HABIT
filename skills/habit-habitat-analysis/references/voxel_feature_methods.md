@@ -63,7 +63,7 @@ crashes on small neighborhoods.
 voxel_level:
   method: voxel_radiomics(T2)
   params:
-    params_file: ./config/params_voxel_radiomics.yaml
+    params_file: ./config/radiomics/params_voxel_radiomics.yaml
 ```
 
 Recommended `params_voxel_radiomics.yaml`:

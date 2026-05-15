@@ -243,7 +243,7 @@ from habit.core.habitat_analysis.configurator import HabitatConfigurator
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 output_path = Path("./results/habitat")
-config = HabitatAnalysisConfig.from_file("config_habitat.yaml")
+config = HabitatAnalysisConfig.from_file("config/habitat/config_habitat_two_step.yaml")
 logger = setup_logger(
     name="cli.habitat",
     output_dir=output_path,

@@ -115,5 +115,4 @@ Do NOT proceed silently if:
 - Configuration encyclopedia: `docs/source/configuration_zh.rst`
 - Online docs: https://lichao312214129.github.io/HABIT
 - Demo dataset: see `README.md` Step 2
-- Annotated config templates: `config_templates/config_*_annotated.yaml`
-- Agent YAML scaffold index (paths for skills / OpenClaw): `skills/CONFIG_SOURCES.md`
+- YAML path index (`config/<module>/` templates): `skills/CONFIG_SOURCES.md`

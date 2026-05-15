@@ -504,8 +504,8 @@ def resolve_config_paths(
         New configuration dictionary with resolved paths
         
     Example:
-        >>> config = load_config('demo_data/config.yaml')
-        >>> config = resolve_config_paths(config, 'demo_data/config.yaml')
+        >>> config = load_config('config/preprocessing/config_preprocessing_demo_elastix.yaml')
+        >>> config = resolve_config_paths(config, 'config/preprocessing/config_preprocessing_demo_elastix.yaml')
     """
     resolver = PathResolver(
         config_path=config_path,
@@ -541,7 +541,7 @@ def load_config_with_paths(
         Configuration dictionary with resolved paths
         
     Example:
-        >>> config = load_config_with_paths('demo_data/config.yaml')
+        >>> config = load_config_with_paths('config/preprocessing/config_preprocessing_demo_elastix.yaml')
     """
     # Direct call since they are now in the same module
     config = load_config(config_path)

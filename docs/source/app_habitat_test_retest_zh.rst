@@ -132,7 +132,7 @@ Test-Retest 映射后，可以使用 ICC 分析评估特征稳定性：
    habit retest --config config_test_retest.yaml
 
    # 2. 使用 ICC 分析评估特征稳定性
-   habit icc --config config_icc.yaml
+   habit icc --config config/auxiliary/config_icc_demo.yaml
 
 注意事项
 --------

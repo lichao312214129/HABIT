@@ -29,8 +29,8 @@
 解压后会得到以下 demo 数据：
 
 - **DICOM 数据**: ``demo_data/dicom/sub001``、``demo_data/dicom/sub002``
-- **预处理配置**: ``demo_data/config_preprocessing.yaml``
-- **文件列表**: ``demo_data/files_preprocessing.yaml``
+- **预处理配置**: ``config/preprocessing/config_preprocessing_demo_elastix.yaml``
+- **文件列表**: ``config/preprocessing/files_preprocessing.yaml``
 
 如果使用自己的数据，请按"受试者/期相/序列"的结构整理 DICOM，
 并参照 ``files_preprocessing.yaml`` 填写每个受试者对应的序列路径。
@@ -55,7 +55,7 @@
 
 .. code-block:: bash
 
-   habit preprocess --config ./demo_data/config_preprocessing.yaml
+   habit preprocess --config ./config/preprocessing/config_preprocessing_demo_elastix.yaml
 
 **使用 Python API:**
 
@@ -63,7 +63,7 @@
 
    from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
 
-   processor = BatchProcessor(config_path='./demo_data/config_preprocessing.yaml')
+   processor = BatchProcessor(config_path='./config/preprocessing/config_preprocessing_demo_elastix.yaml')
    processor.run()
 
 **输出:**
@@ -84,11 +84,11 @@
 
 HABIT 使用 YAML 配置文件来控制所有参数。配置文件的结构如下：
 
-**预处理配置 (config_preprocessing.yaml):**
+**预处理配置 (config/preprocessing/config_preprocessing_demo_elastix.yaml):**
 
 .. code-block:: yaml
 
-   data_dir: ./files_preprocessing.yaml
+   data_dir: ./config/preprocessing/files_preprocessing.yaml
    out_dir: ./preprocessed
 
    Preprocessing:

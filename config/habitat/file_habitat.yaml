@@ -1,0 +1,38 @@
+# =============================================================================
+# Habitat input manifest — DEMO: processed images + masks per phase (get-habitat)
+# =============================================================================
+#
+# Use as `data_dir` when it points to this YAML (not a raw directory). Keys
+# under `images` / `masks` must match modality names used in your habitat config
+# (e.g. delay2, delay3, delay5).
+#
+# NOT overlapping with:
+#   files_preprocessing.yaml — raw DICOM *folders* for preprocess.
+#   image_files.yaml — workstation DICOM example for dcm2nii path.
+#   config_getting_habitat.yaml — habitat *pipeline* parameters (this file is only data layout).
+#
+# `auto_select_first_file`: see preprocessing manifests; same semantics when a
+# path is a directory containing NIfTI vs DICOM tree.
+# =============================================================================
+
+auto_select_first_file: true
+
+images:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2  # paths: no spaces or odd characters
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
+
+masks:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5

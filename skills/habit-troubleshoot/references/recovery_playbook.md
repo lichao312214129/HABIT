@@ -11,7 +11,7 @@ which step caused it.
 | `command not found: habit` | HABIT not installed | `pip install -e .` from repo root |
 | `ImportError: No module named 'X'` | Missing dependency | `pip install X` (or check `requirements.txt`) |
 | `FileNotFoundError: <path>` | Wrong path in config | Check `ls <path>` and edit YAML |
-| `KeyError: '<field>'` in YAML loading | Required field missing | Compare against the matching annotated template |
+| `KeyError: '<field>'` in YAML loading | Required field missing | Compare against the matching shipped config under `config/` |
 | Silent crash, empty output dir | Process killed (OOM) | Reduce `processes`, smaller `n_clusters`, or smaller PyRadiomics filter set |
 | Result CSV has no rows | Subject ID mismatch upstream | Run `inspect_feature_csv.py` on every input CSV |
 | Plot files all 0 bytes | matplotlib backend issue | Try `MPLBACKEND=Agg habit ...` |

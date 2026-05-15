@@ -15,8 +15,10 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
-CONFIG_KFOLD = DEMO / "config_machine_learning_kfold.yaml"
+CONFIG_ROOT = Path(__file__).resolve().parents[2] / "config"
+CONFIG_KFOLD = (
+    CONFIG_ROOT / "machine_learning" / "config_machine_learning_kfold_demo.yaml"
+)
 
 
 def test_kfold_with_demo_config() -> None:

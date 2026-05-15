@@ -9,9 +9,9 @@ Train classification models on extracted features. Three sub-commands:
 
 | Command | Purpose | Template |
 |---|---|---|
-| `habit model --mode train` | Train on a fixed train/test split | `config_templates/skill_scaffolds/ml_train_minimal.yaml` |
-| `habit model --mode predict` | Apply a trained model to new data | `config_templates/skill_scaffolds/ml_predict_minimal.yaml` |
-| `habit cv` | K-fold cross-validation | `config_templates/skill_scaffolds/ml_kfold_minimal.yaml` |
+| `habit model --mode train` | Train on a fixed train/test split | `config/machine_learning/config_machine_learning.yaml` |
+| `habit model --mode predict` | Apply a trained model to new data | `config/machine_learning/config_machine_learning_predict.yaml` |
+| `habit cv` | K-fold cross-validation | `config/machine_learning/config_machine_learning_kfold.yaml` |
 
 ## Required Information
 
@@ -40,18 +40,18 @@ python skills/habit-machine-learning/scripts/prepare_split_files.py <csv_path> \
 - No, single cohort → use `habit cv` (more robust for small datasets)
 
 **Already have a trained model?**
-- Yes → `habit model --mode predict` with `config_templates/skill_scaffolds/ml_predict_minimal.yaml`
+- Yes → `habit model --mode predict` with `config/machine_learning/config_machine_learning_predict.yaml`
 
 ## Standard train pipeline
 
-Use `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml`. The selection chain is:
+Use `config/machine_learning/config_machine_learning.yaml`. The selection chain is:
 
 1. `variance(0.2)` — drop near-constant features (set `before_z_score: true`)
 2. `correlation(0.85)` — drop redundant features (Spearman)
 3. `statistical_test(p<0.05)` — keep label-relevant features
 4. `lasso(cv=10)` — final L1 selection
 
-For high-dimensional cases (>1000 features), use `config_templates/skill_scaffolds/ml_pipeline_high_dim.yaml`
+For high-dimensional cases (>1000 features), use `config/machine_learning/config_machine_learning.yaml`
 which inserts `mrmr` between step 3 and step 4.
 
 Detailed feature selection guidance: `references/feature_selection_guide.md`.
@@ -96,7 +96,7 @@ Predict config needs:
 - Path to the saved `.pkl` model (`<output>/<ModelName>_model.pkl`)
 - Output directory for predictions
 
-See `config_templates/skill_scaffolds/ml_predict_minimal.yaml`.
+See `config/machine_learning/config_machine_learning_predict.yaml`.
 
 ## Reference templates
 
@@ -104,17 +104,17 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/ml_train_minimal.yaml` | scaffold |
-| `config_templates/skill_scaffolds/ml_kfold_minimal.yaml` | k-fold |
-| `config_templates/skill_scaffolds/ml_predict_minimal.yaml` | predict on new data |
-| `config_templates/skill_scaffolds/ml_pipeline_radiomics_std.yaml` | standard radiomics pipeline (battle-tested) |
-| `config_templates/skill_scaffolds/ml_pipeline_high_dim.yaml` | for >1000 features |
+| `config/machine_learning/config_machine_learning.yaml` | scaffold |
+| `config/machine_learning/config_machine_learning_kfold.yaml` | k-fold |
+| `config/machine_learning/config_machine_learning_predict.yaml` | predict on new data |
+| `config/machine_learning/config_machine_learning.yaml` | standard radiomics pipeline (battle-tested) |
+| `config/machine_learning/config_machine_learning.yaml` | for >1000 features |
 | `references/feature_selection_guide.md` | selection chain recipes |
 | `references/model_choice_guide.md` | which model to pick |
 
 Full annotated references:
-- `config_templates/config_machine_learning_annotated.yaml`
-- `config_templates/config_machine_learning_kfold_annotated.yaml`
+- `config/machine_learning/config_machine_learning.yaml`
+- `config/machine_learning/config_machine_learning_kfold.yaml`
 
 ## Validate inputs (MANDATORY before run)
 

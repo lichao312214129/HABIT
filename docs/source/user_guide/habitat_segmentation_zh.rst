@@ -98,13 +98,13 @@ CLI 使用方法
    habit get-habitat --config ./config_habitat_train.yaml --mode train
 
    # 预测模式
-   habit get-habitat --config ./config_habitat.yaml --mode predict
+   habit get-habitat --config ./config/habitat/config_habitat_two_step.yaml --mode predict
 
    # 使用指定的Pipeline 文件
-   habit get-habitat --config ./config_habitat.yaml --mode predict --pipeline ./custom_pipeline.pkl
+   habit get-habitat --config ./config/habitat/config_habitat_two_step.yaml --mode predict --pipeline ./custom_pipeline.pkl
 
    # 启用调试模式
-   habit get-habitat --config ./config_habitat.yaml --debug
+   habit get-habitat --config ./config/habitat/config_habitat_two_step.yaml --debug
 
 **输出：**
 
@@ -121,7 +121,7 @@ Python API 使用方法
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load and validate YAML into HabitatAnalysisConfig
-   config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
+   config = HabitatAnalysisConfig.from_file('./config/habitat/config_habitat_two_step.yaml')
 
    # Wires collaborator services + logging (mirror: habit.cli habitat command)
    configurator = HabitatConfigurator(config=config)
@@ -152,7 +152,7 @@ Python API 使用方法
    )
 
    # Load and validate YAML into HabitatAnalysisConfig
-   config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
+   config = HabitatAnalysisConfig.from_file('./config/habitat/config_habitat_two_step.yaml')
 
    configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
 
@@ -571,7 +571,7 @@ HABIT 继承于scikit-learn 的Pipeline 机制，这是避免数据泄露的关�
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    # Load and validate YAML into HabitatAnalysisConfig
-   config = HabitatAnalysisConfig.from_file('./config_habitat.yaml')
+   config = HabitatAnalysisConfig.from_file('./config/habitat/config_habitat_two_step.yaml')
 
    # Wires collaborator services + logging (mirror: habit.cli habitat command)
    configurator = HabitatConfigurator(config=config)

@@ -1,35 +1,67 @@
-# Configuration file for ICC analysis
-
-# Input configuration
+# ----------------------------------------------------------------------------
+# ICC Analysis Configuration Template
+# ----------------------------------------------------------------------------
+#
+# Based on actual code: habit/core/machine_learning/icc_analysis.py
+#
+# Quick Start:
+#   CLI:    habit icc --config config/auxiliary/config_icc_analysis.yaml
+#
+# This is the LONG annotated template for real projects (absolute paths, many
+# file_groups). It does not overlap with:
+#   config_icc_demo.yaml — minimal two-table demo under ../../demo_data/ml_data/.
+#
+# ----------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────
+# Input Configuration
+# ─────────────────────────────────────────────────────────────────────────
 input:
-  # Type of input: 'files' or 'directories'
-  type: "files"
-  
-  # File groups configuration (used when type is 'files')
-  # Each inner list represents a group of files to be analyzed together
-  file_groups:
-    # FIXME 切记：label列不能参与icc计算，如果参与了计算要从json中删除
-    - [H:\results\features\ith_scores.csv, H:\results_icc_remapping\ith_scores.csv]
-    - [H:\results\features\msi_features.csv, H:\results_icc_remapping\msi_features.csv]
-    - [H:\results\features\whole_habitat_radiomics.csv, H:\results_icc_remapping\whole_habitat_radiomics.csv]
-    - [H:\results\features\habitat_basic_features.csv, H:\results_icc_remapping\habitat_basic_features.csv]
-    - [H:\results\features\raw_image_radiomics.csv, H:\results_icc_remapping\raw_image_radiomics.csv]
-  
-  # Directory list configuration (used when type is 'directories')
-  # The system will match same-named files across directories
-  # dir_list:
-  #   - path/to/dir1
-  #   - path/to/dir2
-  #   - path/to/dir3
+  # Type of input
+  # Options: files, directories
+  type: files
 
-# Output configuration
+  # File groups configuration (used when type is 'files')
+  # Each list represents files to compare (test-retest, inter-rater, etc.)
+  file_groups:
+  - - H:\results\features\ith_scores.csv
+    - H:\results_icc_remapping\ith_scores.csv
+  - - H:\results\features\msi_features.csv
+    - H:\results_icc_remapping\msi_features.csv
+  - - H:\results\features\whole_habitat_radiomics.csv
+    - H:\results_icc_remapping\whole_habitat_radiomics.csv
+  - - H:\results\features\habitat_basic_features.csv
+    - H:\results_icc_remapping\habitat_basic_features.csv
+  - - H:\results\features\raw_image_radiomics.csv
+    - H:\results_icc_remapping\raw_image_radiomics.csv
 output:
   # Path to output JSON file
+  # Contains ICC values, confidence intervals, reliability classification
   path: H:\results\icc_results_remapped.json
 
-# Processing configuration
-# Number of processes to use (null/None for using all available CPU cores)
+# ─────────────────────────────────────────────────────────────────────────
+# Processing Configuration
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+# null = use all available CPU cores
 processes: 6
 
-# Debug mode (enables additional logging)
-debug: false 
+# Debug mode
+debug: false
+
+# ----------------------------------------------------------------------------
+# Notes
+# ----------------------------------------------------------------------------
+#
+# - All files in a group must have same subjects (matched by first column)
+# - Exclude non-numeric columns (labels, categories)
+# - Column names must match across files
+# - ICC type used: ICC(3,1) - Two-way mixed effects, absolute agreement
+#
+# ICC Interpretation:
+#   < 0.40: Poor
+#   0.40-0.59: Fair
+#   0.60-0.74: Good
+#   0.75-1.00: Excellent
+#
+# ----------------------------------------------------------------------------

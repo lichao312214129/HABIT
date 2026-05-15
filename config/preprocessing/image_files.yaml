@@ -1,3 +1,14 @@
+# =============================================================================
+# Preprocessing manifest — EXAMPLE: author workstation DICOM layout (T1/T2/DWI/ADC)
+# =============================================================================
+#
+# Used as data_dir target from config_image_preprocessing_dcm2nii.yaml (see
+# that file's data_dir). Replace ALL paths with your site layout before running.
+#
+# NOT overlapping with:
+#   files_preprocessing.yaml — bundled demo_data delay-phase keys (subj001/subj002).
+# =============================================================================
+
 images:
   subj003:
     T1: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_dcm\images\subj003\AxT1FLAIR

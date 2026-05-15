@@ -12,7 +12,7 @@ def test_supervoxel_parser():
     config = {
         "method": "concat(supervoxel_radiomics(pre_contrast, parameter), supervoxel_radiomics(LAP, parameter), supervoxel_radiomics(PVP, parameter), supervoxel_radiomics(delay_3min, parameter))",
         "params": {
-            "parameter": "./config/parameter.yaml"
+            "parameter": "./config/radiomics/parameter.yaml"
         }
     }
 
@@ -32,10 +32,10 @@ def test_supervoxel_parser():
 
     # Check each processing step
     for i, (image_name, expected_params) in enumerate([
-        ("pre_contrast", {"parameter": "./config/parameter.yaml"}),
-        ("LAP", {"parameter": "./config/parameter.yaml"}),
-        ("PVP", {"parameter": "./config/parameter.yaml"}),
-        ("delay_3min", {"parameter": "./config/parameter.yaml"})
+        ("pre_contrast", {"parameter": "./config/radiomics/parameter.yaml"}),
+        ("LAP", {"parameter": "./config/radiomics/parameter.yaml"}),
+        ("PVP", {"parameter": "./config/radiomics/parameter.yaml"}),
+        ("delay_3min", {"parameter": "./config/radiomics/parameter.yaml"})
     ]):
         step = processing_steps[i]
         assert step["method"] == "supervoxel_radiomics", f"Expected method to be 'supervoxel_radiomics', got '{step['method']}'"

@@ -7,8 +7,8 @@ don't extract radiomics-based features.
 
 **Fix**: Add both keys (point them at any existing PyRadiomics file):
 ```yaml
-params_file_of_non_habitat: ./config/parameter.yaml
-params_file_of_habitat: ./config/parameter_habitat.yaml
+params_file_of_non_habitat: ./config/radiomics/parameter.yaml
+params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml
 ```
 
 ## Symptom: `No habitat files found matching pattern '*_habitats_remapped.nrrd'`
@@ -57,7 +57,7 @@ habitats.
 
 **Cause**: `parameter.yaml` has Wavelet + LoG + all 7 feature classes.
 
-**Fix**: Use `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` for testing:
+**Fix**: Use `config/radiomics/parameter_basic.yaml` for testing:
 ```yaml
 imageType:
   Original: {}
@@ -91,7 +91,7 @@ Then enable Wavelet/LoG only after the rest works.
 
 **Fix** (if undesirable):
 - Remove `each_habitat` from `feature_types`
-- OR use `config_templates/skill_scaffolds/pyradiomics_parameter_basic.yaml` to lower per-habitat feature count
+- OR use `config/radiomics/parameter_basic.yaml` to lower per-habitat feature count
 
 ## Symptom: `whole_habitat_radiomics.csv` is empty (0 rows)
 

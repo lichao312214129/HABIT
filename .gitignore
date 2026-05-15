@@ -189,10 +189,8 @@ demo_data/dicom/*
 # 2. Allow csv and txt in ml_data root
 !demo_data/ml_data/*.csv
 !demo_data/ml_data/*.txt
-!demo_data/config_*.yaml
-!demo_data/files_*.yaml
-!config/*.yaml
-!config_templates/*.yaml
+!config/**/*.yaml
+!config/**/*.yml
 !requirements.txt
 !README.md
 !LICENSE

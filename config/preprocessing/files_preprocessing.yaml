@@ -1,0 +1,29 @@
+# =============================================================================
+# Preprocessing manifest — DEMO: DICOM folder paths for multiphase (delay2/3/5)
+# =============================================================================
+#
+# Referenced when `data_dir` in a preprocessing YAML points at this file.
+# Paths are relative to the repository root.
+#
+# Keys (`delay2`, ...) must match `images:` modality names inside Preprocessing
+# steps (registration, resample, etc.).
+#
+# NOT overlapping with:
+#   image_files.yaml — workstation example with T1/T2/DWI/ADC paths.
+#   file_habitat.yaml — manifest for get-habitat on processed images/masks.
+#
+# Field `auto_select_first_file`: if true, a directory path may resolve to a
+# single file; if false, keep full directory trees (required for dcm2nii inputs).
+# =============================================================================
+
+auto_select_first_file: false
+
+images:
+  subj001:
+    delay2: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-2min_Series0012  # no spaces or odd characters in paths
+    delay3: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014
+    delay5: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
+  subj002:
+    delay2: ../../demo_data/dicom/sub002/013_WATERBHAxLAVAFlex2min
+    delay3: ../../demo_data/dicom/sub002/015_WATERBHAxLAVAFlex3min
+    delay5: ../../demo_data/dicom/sub002/016_WATERWATERBHAxLAVAFlex5min

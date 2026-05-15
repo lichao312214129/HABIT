@@ -1,48 +1,165 @@
-# Habitat Analysis Configuration
+# ----------------------------------------------------------------------------
+# Image Preprocessing Configuration Template
+# ----------------------------------------------------------------------------
+#
+# Based on actual code: habit/core/preprocessing/
+#
+# Quick Start:
+#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing.yaml
+#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing.yaml
+#
+# ----------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────
+# Data Paths
+# ─────────────────────────────────────────────────────────────────────────
 
-# Data paths
+# Input data directory
+# Expected structure: data_dir/subject_id/images/ and masks/
 data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\DATA_2
+
+# Output directory
 out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data
 
-# Preprocessing settings
+# ─────────────────────────────────────────────────────────────────────────
+# Preprocessing Pipeline
+# ─────────────────────────────────────────────────────────────────────────
+
 Preprocessing:
-   
+  # N4 Bias Field Correction (for MRI)
   # n4_correction:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   num_fitting_levels: 2
-
+  #   images: [T1, T2, FLAIR]
+  #   num_fitting_levels: 4  # Number of fitting levels (2-4 typical)
+  # Resampling
   # resample:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]
-  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing in x, y, z
-
-  # # Z-Score标准化 - 将图像强度标准化为均值0、标准差1的分布
+  #   images: [T1, T2, DWI, ADC]
+  #   target_spacing: [1.0, 1.0, 1.0]  # Target voxel spacing [x, y, z] in mm
+  # Z-Score Normalization
   # zscore_normalization:
-  #   images: [pre_contrast, LAP, PVP, delay_3min]  # 要处理的图像序列
-  #   only_inmask: false  # 是否仅在掩码内计算统计量
-    # mask_key: mask  # 当only_inmask为true时使用的掩码名称
-
-  # 直方图标准化 - 简化版  FIXME 调试版本
+  #   images: [T1, T2]
+  #   only_inmask: false  # Use whole image or masked region only
+  #   # mask_key: tumor_mask  # Mask name if only_inmask: true
+  # Histogram Standardization (Nyúl method)
   # histogram_standardization:
-  #   images: [pre_contrast, LAP, delay_3min]  # 要处理的图像序列
-  #   reference_key: PVP  # 参考图像的键名
-
+  #   images: [T1, T2, FLAIR]
+  #   percentiles: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99]  # Percentile landmarks
+  #   target_min: 0.0  # Target minimum value
+  #   target_max: 100.0  # Target maximum value
+  #   mask_key: tumor_mask  # Optional: mask for percentile computation
+  # Adaptive Histogram Equalization (CLAHE)
+  # adaptive_histogram_equalization:
+  #   images: [T1, T2]
+  #   alpha: 0.3  # Classical histogram equalization degree [0,1]
+  #   beta: 0.3   # Local adaptation degree [0,1]
+  #   radius: 5   # Local window radius in pixels
+  # Reorientation (方向调整)
+  # Align images to a canonical anatomical orientation (e.g., LPS or RAS).
+  # Important: This step fixes coordinate directions before resampling or registration.
   # reorientation:
-  #   images: [T2WI, ADC]
+  #   images: [T1, T2, ADC]
   #   target_orientation: LPS  # "LPS", "RAS", etc. Target anatomical orientation.
-  #   mode: closest  # 'closest' (no interpolation) or 'strict' (with interpolation).
-  #   # Masks mask_T2WI, mask_ADC are reoriented if present (nearest neighbor in strict), same as resample
-
+  #   mode: closest  # 'closest' (flip/permute axes, no interpolation) or 'strict' (resampling with interpolation).
+  #   # Optional masks mask_T1, mask_T2, mask_ADC: nearest neighbor in strict mode (same naming convention as resample)
+  # Image Registration
   registration:
+    # All modalities in this step; movers = images minus fixed_image (omit moving_images)
     images: [T2WI, ADC]
-    fixed_image: T2WI
-    # moving_images: not read; movers = images minus fixed_image
-    type_of_transform: SyNRA  # support all ants registration methods; ignored when backend: elastix
-    use_mask: false
-    # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
-    # SimpleITK-only tuning (backend: simpleitk; ignored for ants and elastix):
-    # number_of_histogram_bins, metric_sampling_percentage,
-    # bspline_mesh_size, bspline_order — see docs/source/user_guide/image_preprocessing_zh.rst
+    fixed_image: T2WI # Reference grid (does not move)
+    # moving_images: [ADC]  # NOT READ by HABIT; do not use (extra keys may confuse ANTs if backend: ants)
+    type_of_transform: SyNRA  # ants: ANTs name; simpleitk: mapped (SyN* -> BSpline approx.; see user_guide); elastix: ignored
+    metric: MI  # ants: ANTs metric name; simpleitk: MI | CC | MeanSquares; elastix: ignored
+    # optimizer: gradient_descent  # ants: ANTs optimizers; simpleitk: use substring lbfgs for LBFGSB else gradient descent; elastix: ignored
+    use_mask: false  # If true: ants/simpleitk/elastix pass masks to the registration engine
+    replace_by_fixed_image_mask: true  # If true, after registration replace moving masks with fixed mask
+    #
+    # backend: ants  # default: ANTsPy. Use simpleitk (SimpleITK only) or elastix (elastix + transformix CLI; install binaries, optional elastix_path).
+    #
+    # --- elastix backend: external elastix / transformix (see user_guide image_preprocessing_zh.rst) ---
+    # elastix_path: /path/to/elastix/dir_or_exe   # optional, like dcm2niix_path
+    # transformix_path: /path/to/transformix/dir_or_exe
+    # elastix_threads: 4                           # optional -> -threads
+    # elastix_parameter_files: /path/to/Par0001bspline.txt   # required at run time; path or list from Model Zoo
+    # elastix_parameter_overrides:                           # optional dict merged into each parameter file
+    #   MaximumNumberOfIterations: 200
+    #   FinalGridSpacingInPhysicalUnits: 8
+    #
+    # --- Optional tuning keys ONLY when backend: simpleitk (stripped for ants; ignored for elastix; see registration_preprocessor.py _SITK_OPTION_KEYS) ---
+    # number_of_histogram_bins: 50       # Mattes MI bins
+    # metric_sampling_percentage: 0.01   # random metric subsample fraction
+    # shrink_factors_per_level: [4, 2, 1]
+    # smoothing_sigmas_per_level: [2.1, 1.0, 0.0]  # physical units (mm)
+    # learning_rate: 1.0                 # gradient descent only
+    # number_of_iterations: 100
+    # bspline_mesh_size: 8               # int or per-axis list; BSpline / deformable-mapped modes
+    # bspline_order: 3
+    #
+    # mask_key: tumor_mask  # If use_mask: true, typically mask_<modality> is used; see user guide
 
-# General settings
-processes: 1  # Number of parallel processes
-random_state: 42  # Random seed for reproducibility
+# ─────────────────────────────────────────────────────────────────────────
+# Save Options (Intermediate Results)
+# ─────────────────────────────────────────────────────────────────────────
+
+save_options:
+  # Whether to save intermediate results after each preprocessing step
+  save_intermediate: false
+
+  # Which steps to save (empty list = save all steps)
+  # Example: [n4_correction, resample]  # Only save these steps
+  intermediate_steps: []
+
+# Output directory structure when save_intermediate: true
+# out_dir/
+# ├── n4_correction_01/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   │              └── T2/T2.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# │                └── T2/mask_T2.nii.gz
+# ├── resample_02/
+# │   ├── images/sub001/T1/T1.nii.gz
+# │   └── masks/sub001/T1/mask_T1.nii.gz
+# └── processed_images/  (final results, always saved)
+#     ├── images/sub001/T1/T1.nii.gz
+#     └── masks/sub001/T1/mask_T1.nii.gz
+
+# ─────────────────────────────────────────────────────────────────────────
+# General Settings
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+processes: 1
+
+# Random seed for reproducibility
+random_state: 42
+
+# ----------------------------------------------------------------------------
+# Available Preprocessing Methods
+# ----------------------------------------------------------------------------
+#
+# n4_correction:
+#   - For MRI bias field correction
+#   - Parameters: images, num_fitting_levels
+#
+# resample:
+#   - Standardize voxel spacing
+#   - Parameters: images, target_spacing
+#
+# zscore_normalization:
+#   - Standardize intensity distribution
+#   - Parameters: images, only_inmask, mask_key
+#
+# histogram_standardization:
+#   - Nyúl histogram standardization using percentile landmarks
+#   - Maps intensities to standard scale without reference image
+#   - Parameters: images, percentiles, target_min, target_max, mask_key
+#
+# adaptive_histogram_equalization:
+#   - CLAHE (Contrast Limited Adaptive Histogram Equalization)
+#   - Enhances local contrast while limiting noise amplification
+#   - Parameters: images, alpha, beta, radius
+#
+# registration:
+#   - Align multiple images to same space
+#   - Parameters: images, fixed_image, type_of_transform, metric, use_mask, replace_by_fixed_image_mask, backend (ants | simpleitk | elastix)
+#   - Do not use moving_images; movers = images minus fixed_image
+#   - backend elastix: install elastix + transformix; elastix_parameter_files required; optional elastix_path, transformix_path, elastix_parameter_overrides, elastix_threads
+#
+# ----------------------------------------------------------------------------

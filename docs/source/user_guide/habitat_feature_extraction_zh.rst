@@ -38,7 +38,7 @@ CLI 使用方法
 
 .. code-block:: bash
 
-   habit extract --config ./demo_data/config_extract_features.yaml
+   habit extract --config ./config/feature_extraction/config_extract_features_demo.yaml
 
 **输出：**
 

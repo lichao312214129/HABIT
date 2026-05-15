@@ -176,7 +176,7 @@ pip install -e .
 
 ```bash
 # 运行预处理（包括：DICOM转换、重采样、配准、标准化）
-habit preprocess --config demo_data/config_preprocessing.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 ```
 
 **⏱️ 预计用时**：约 2-5 分钟
@@ -208,11 +208,11 @@ habit preprocess --config demo_data/config_preprocessing.yaml
 
 ```bash
 # 二步法生境分析（demo 默认演示策略：先个体级超体素，再群体级生境）
-habit get-habitat --config demo_data/config_habitat_two_step.yaml
+habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 # （可选）一步法 / direct-pooling 策略
-# habit get-habitat --config demo_data/config_habitat_one_step.yaml
-# habit get-habitat --config demo_data/config_habitat_direct_pooling.yaml
+# habit get-habitat --config config/habitat/config_habitat_one_step.yaml
+# habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 ```
 
 **⏱️ 预计用时**：约 5-10 分钟
@@ -233,7 +233,7 @@ habit get-habitat --config demo_data/config_habitat_two_step.yaml
 ```bash
 # 同时提取传统影像组学 + 生境组学 + MSI + ITH 等特征
 # 提取的特征类型在 config 中通过 feature_types 字段控制（traditional / whole_habitat / msi / ith_score 等）
-habit extract --config demo_data/config_extract_features.yaml
+habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 ```
 
 **⏱️ 预计用时**：约 3-8 分钟
@@ -255,10 +255,10 @@ habit extract --config demo_data/config_extract_features.yaml
 ```bash
 # 运行机器学习建模（包括特征选择、模型训练、性能评估）
 # 该 demo 使用乳腺癌数据 (demo_data/ml_data/breast_cancer_dataset.csv) 训练 LogisticRegression
-habit model --config demo_data/config_machine_learning_radiomics.yaml --mode train
+habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
 
 # （可选）K 折交叉验证版本
-# habit model --config demo_data/config_machine_learning_kfold.yaml --mode train
+# habit model --config config/machine_learning/config_machine_learning_kfold_demo.yaml --mode train
 ```
 
 **⏱️ 预计用时**：约 2-5 分钟
@@ -287,7 +287,7 @@ habit model --config demo_data/config_machine_learning_radiomics.yaml --mode tra
 # 注意：运行前需要分别用 config_machine_learning_radiomics.yaml 与
 # config_machine_learning_clinical.yaml 训练好两个模型，生成各自的
 # all_prediction_results.csv
-habit compare --config demo_data/config_model_comparison.yaml
+habit compare --config config/model_comparison/config_model_comparison_demo.yaml
 ```
 
 **⏱️ 预计用时**：约 1-3 分钟
@@ -311,12 +311,12 @@ habit compare --config demo_data/config_model_comparison.yaml
 # 依次运行所有步骤（适合熟悉流程后使用）
 # 注意：模型对比 (habit compare) 需要 radiomics 与 clinical 两个模型都训练完毕，
 # 因此下面分别用两个 ML 配置训练后再做对比
-habit preprocess --config demo_data/config_preprocessing.yaml && \
-habit get-habitat --config demo_data/config_habitat_two_step.yaml && \
-habit extract --config demo_data/config_extract_features.yaml && \
-habit model --config demo_data/config_machine_learning_radiomics.yaml --mode train && \
-habit model --config demo_data/config_machine_learning_clinical.yaml --mode train && \
-habit compare --config demo_data/config_model_comparison.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml && \
+habit get-habitat --config config/habitat/config_habitat_two_step.yaml && \
+habit extract --config config/feature_extraction/config_extract_features_demo.yaml && \
+habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train && \
+habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train && \
+habit compare --config config/model_comparison/config_model_comparison_demo.yaml
 ```
 
 **⚠️ 注意**：全流程运行约需 15-30 分钟，建议首次使用时逐步运行，熟悉每一步的输出结果。

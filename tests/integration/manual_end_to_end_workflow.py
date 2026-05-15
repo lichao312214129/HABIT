@@ -26,11 +26,11 @@ class TestEndToEndWorkflow:
 
     def setup_method(self) -> None:
         self.runner = CliRunner()
-        self.demo_data_dir = Path(__file__).resolve().parents[2] / "demo_data"
+        self.config_root = Path(__file__).resolve().parents[2] / "config"
         self.results: dict = {}
 
     def test_step1_preprocess(self, cwd_repo_root: None) -> None:
-        config_path = self.demo_data_dir / "config_preprocessing.yaml"
+        config_path = self.config_root / "preprocessing" / "config_preprocessing_demo_elastix.yaml"
 
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -51,7 +51,7 @@ class TestEndToEndWorkflow:
         )
 
     def test_step2_get_habitat(self, cwd_repo_root: None) -> None:
-        config_path = self.demo_data_dir / "config_habitat.yaml"
+        config_path = self.config_root / "habitat" / "config/habitat/config_habitat_two_step.yaml"
 
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -72,7 +72,7 @@ class TestEndToEndWorkflow:
         )
 
     def test_step3_extract_features(self, cwd_repo_root: None) -> None:
-        config_path = self.demo_data_dir / "config_extract_features.yaml"
+        config_path = self.config_root / "feature_extraction" / "config_extract_features_demo.yaml"
 
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -91,7 +91,7 @@ class TestEndToEndWorkflow:
         assert result.exit_code in [0, 1], f"Extract failed with exit code {result.exit_code}"
 
     def test_step4_model_train(self, cwd_repo_root: None) -> None:
-        config_path = self.demo_data_dir / "config_machine_learning_clinical.yaml"
+        config_path = self.config_root / "machine_learning" / "config_machine_learning_clinical.yaml"
 
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")
@@ -114,7 +114,7 @@ class TestEndToEndWorkflow:
         )
 
     def test_step5_compare(self, cwd_repo_root: None) -> None:
-        config_path = self.demo_data_dir / "config_model_comparison.yaml"
+        config_path = self.config_root / "model_comparison" / "config_model_comparison_demo.yaml"
 
         if not config_path.exists():
             pytest.skip(f"Config file not found: {config_path}")

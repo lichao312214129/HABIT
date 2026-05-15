@@ -13,8 +13,10 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-DEMO = Path(__file__).resolve().parents[2] / "demo_data"
-CONFIG_CLINICAL = DEMO / "config_machine_learning_clinical.yaml"
+CONFIG_ROOT = Path(__file__).resolve().parents[2] / "config"
+CONFIG_CLINICAL = (
+    CONFIG_ROOT / "machine_learning" / "config_machine_learning_clinical.yaml"
+)
 
 
 class TestModelCLI:

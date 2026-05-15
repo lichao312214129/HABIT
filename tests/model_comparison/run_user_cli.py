@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 _SCENARIOS: dict[str, list[str]] = {
-    "compare-demo": ["compare", "-c", "demo_data/config_model_comparison.yaml"],
+    "compare-demo": ["compare", "-c", "config/model_comparison/config_model_comparison_demo.yaml"],
     "compare-help": ["compare", "--help"],
 }
 

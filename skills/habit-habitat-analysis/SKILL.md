@@ -44,14 +44,14 @@ ALWAYS ask the user this first.
 - Each tumor independently determines its optimal cluster number (silhouette / elbow)
 - No population-level model — habitat labels are per-subject local meaning
 - Faster, simpler
-- Use template: `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml`
+- Use template: `config/habitat/config_getting_habitat.yaml`
 
 ### two_step (publications / predictive modeling)
 - **Step 1**: voxel → supervoxel (per subject; e.g. 50 supervoxels per tumor)
 - **Step 2**: supervoxel → habitat (population-level model; same habitat label = same biology across all patients)
 - Slower, requires train+test cohort
 - Generates `supervoxel2habitat_clustering_model.pkl` for `--mode predict`
-- Use template: `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml`
+- Use template: `config/habitat/config_getting_habitat.yaml`
 
 If unsure → start with **one_step**.
 
@@ -64,8 +64,8 @@ This is the most important biological choice.
 |---|---|---|
 | Single modality | `raw(<seq>)` | one_step / two_step minimal |
 | Multi-modal (most common) | `concat(raw(M1), raw(M2), ...)` | one_step / two_step minimal |
-| DCE-MRI | `kinetic(raw(p1), ..., timestamps)` | `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` |
-| Texture-based | `voxel_radiomics(<seq>)` | `config_templates/skill_scaffolds/habitat_voxel_radiomics.yaml` |
+| DCE-MRI | `kinetic(raw(p1), ..., timestamps)` | `config/habitat/config_getting_habitat.yaml` |
+| Texture-based | `voxel_radiomics(<seq>)` | `config/habitat/config_getting_habitat.yaml` |
 | Local entropy | `local_entropy(<seq>)` | (manual) |
 
 Detailed comparison: `references/voxel_feature_methods.md`.
@@ -126,18 +126,18 @@ and habitats.csv fractions sum to ~1.
 
 ## Reference templates
 
-Config index (scaffold → annotated → standard): `skills/CONFIG_SOURCES.md`.
+Config index (canonical YAML paths): `skills/CONFIG_SOURCES.md`.
 
 | File | Use |
 |---|---|
-| `config_templates/skill_scaffolds/habitat_one_step_minimal.yaml` | beginner one_step |
-| `config_templates/skill_scaffolds/habitat_two_step_minimal.yaml` | publication two_step |
-| `config_templates/skill_scaffolds/habitat_kinetic_dce.yaml` | DCE multi-phase |
-| `config_templates/skill_scaffolds/habitat_voxel_radiomics.yaml` | texture clustering |
+| `config/habitat/config_getting_habitat.yaml` | beginner one_step |
+| `config/habitat/config_getting_habitat.yaml` | publication two_step |
+| `config/habitat/config_getting_habitat.yaml` | DCE multi-phase |
+| `config/habitat/config_getting_habitat.yaml` | texture clustering |
 | `references/voxel_feature_methods.md` | how to choose `voxel_level.method` |
 | `references/cluster_validity_guide.md` | reading the validation plots |
 
-Full annotated reference: `config_templates/config_getting_habitat_annotated.yaml`.
+Full annotated reference: `config/habitat/config_getting_habitat.yaml`.
 
 ## Output files
 
