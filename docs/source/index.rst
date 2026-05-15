@@ -95,14 +95,6 @@ HABIT 识别并表征具有不同影像表型的肿瘤亚区域（即 Habitat）
 
 .. toctree::
    :maxdepth: 2
-   :caption: 开发指南
-   :hidden:
-
-   import_robustness_guide_zh
-   python_subprocess_methods_zh
-
-.. toctree::
-   :maxdepth: 2
    :caption: 开发与架构
    :hidden:
 

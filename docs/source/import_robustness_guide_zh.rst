@@ -1,22 +1,22 @@
-HABIT 包导入策略指单
+HABIT 包导入策略指南
 ========================
 
 V1 导入策略
 -----------
 
 HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` /
-``HabitatFeatureExtractor`` / ``Modeling``）的导入失败会*直接抛出 ``ImportError``**，
+``HabitatFeatureExtractor`` / ``Modeling``）的导入失败会直接抛出 ``ImportError``，
 不会被静默吞掉为 ``None``。
 
 这是设计决定。原因：
 
-1. ``HabitatAnalysis`` / ``Modeling`` 都是 HABIT 的核心能力。它件import
-   失败必然意味着环境损坏或依赖缺失，调用方拿分``None`` 后再触发的下清
+1. ``HabitatAnalysis`` / ``Modeling`` 都是 HABIT 的核心能力。它们 import
+   失败必然意味着环境损坏或依赖缺失，调用方拿到 ``None`` 后再触发的后续
    报错只会让排错更困难。
-2. 让接可半透明"（有时是类、有时是 ``None``）会迫使每个调用方都做
+2. 让接口"半透明"（有时是类、有时是 ``None``）会迫使每个调用方都做
    ``if foo is not None`` 防御：**locality** 跨调用方分散。
 
-只有 **真正可选的第三方依赖*（V1 当前件``autogluon``）才暴露显式的
+只有 **真正可选的第三方依赖**（V1 当前仅 ``autogluon``）才暴露显式的
 查询接口，
 
 .. code-block:: python
@@ -24,7 +24,7 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
    import habit
 
    if habit.is_available('autogluon'):
-       # AutoGluon 装上了，可以用AutoGluonTabularModel
+       # AutoGluon 装上了，可以用 AutoGluonTabularModel
        ...
    else:
        err = habit.import_error('autogluon')
@@ -34,21 +34,21 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
 --------
 
 ``habit.is_available(name: str) -> bool``
-    查询某个**已登记的可选依赖*是否可被 import。
+    查询某个已登记的可选依赖是否可被 import。
 
 ``habit.import_error(name: str) -> Optional[ImportError]``
-    返回该可选依赖在最近一次探测时缓存的``ImportError``；可用则返回 ``None``。
+    返回该可选依赖在最近一次探测时缓存的 ``ImportError``；可用则返回 ``None``。
 
-可选依赖白名单存放在``habit._OPTIONAL_DEPENDENCIES``（V1 = ``("autogluon",)``）。
-向白名单加项**必须是刻意修支*——这是为了避免新依赖被悄悄当作可选。
+可选依赖白名单存放在 ``habit._OPTIONAL_DEPENDENCIES``（V1 = ``("autogluon",)``）。
+向白名单加项必须是刻意修改——这是为了避免新依赖被悄悄当作可选。
 
-调用 ``is_available`` / ``import_error`` 时若传入未登记的名字，会把
+调用 ``is_available`` / ``import_error`` 时若传入未登记的名字，会抛出
 ``ValueError``，提示当前白名单内容。
 
 正确的使用模式
 --------------
 
-**核心能力使用** ——直接import，不需要做任何"是否可用"判断，
+**核心能力使用** ——直接 import，不需要做任何"是否可用"判断，
 
 .. code-block:: python
 
@@ -58,14 +58,14 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    config = HabitatAnalysisConfig.from_file("config.yaml")
-   # HabitatAnalysis.__init__ requires injected services —use HabitatConfigurator.
+   # HabitatAnalysis.__init__ requires injected services — use HabitatConfigurator.
    analysis = HabitatConfigurator(config=config).create_habitat_analysis()
    analysis.fit()
 
    model = habit.Modeling(config_path)
    model.run()
 
-如果上述 import 失败，你拿到的是真正的``ImportError``，traceback 会指向
+如果上述 import 失败，你拿到的是真正的 ``ImportError``，traceback 会指向
 真正的问题（例如缺少 ``SimpleITK`` 或 ``pyradiomics`` 等依赖），而不是模糊的 "object
 has no attribute"。
 
@@ -85,8 +85,8 @@ has no attribute"。
 通用 ImportManager（utils 层）
 -----------------------------
 
-如果你在写自己的脚本/工具，需要**批量、临时* 探测一组依赖（不限于HABIT
-登记的可选项），可以直接用``habit.utils.import_utils`` 提供的工具：
+如果你在写自己的脚本/工具，需要批量、临时探测一组依赖（不限于 HABIT
+登记的可选项），可以直接用 ``habit.utils.import_utils`` 提供的工具：
 
 .. code-block:: python
 
@@ -104,7 +104,7 @@ has no attribute"。
    for name, ok in status.items():
        print('OK' if ok else 'MISS', name)
 
-注意：``ImportManager`` 是**utils 展* 的通用工具，与上面的
+注意：``ImportManager`` 是 utils 层的通用工具，与上面的
 ``habit.is_available`` / ``habit.import_error`` **不是同一回事**。前者是
 你自己的脚本可以随手用的"safe import 容器"；后者是 HABIT 暴露给用户的
 **显式接口**，仅覆盖经过白名单登记的可选依赖。
@@ -112,13 +112,13 @@ has no attribute"。
 V0 行为已移除
 -------------
 
-V0 曾在 ``habit/core/__init__.py`` 个``habit/core/habitat_analysis/__init__.py``
-里维把``_import_errors`` / ``_available_classes`` 字典并暴需
+V0 曾在 ``habit/core/__init__.py`` 和 ``habit/core/habitat_analysis/__init__.py``
+里维护 ``_import_errors`` / ``_available_classes`` 字典并暴露
 ``get_import_errors`` / ``get_available_classes`` / ``is_class_available``
-三个函数。V1 已经移除这套机制：核必import 直接 fail-fast，可选dep 赖
+三个函数。V1 已经移除这套机制：核心 import 直接 fail-fast，可选依赖用
 ``is_available`` / ``import_error``。
 
-如果你的旧代码用过下分API，请按映射改写：
+如果你的旧代码用过下列 API，请按映射改写：
 
 .. list-table::
    :header-rows: 1
@@ -141,11 +141,11 @@ V0 曾在 ``habit/core/__init__.py`` 个``habit/core/habitat_analysis/__init__.p
 V1 的导入策略以"接口诚实"为目标：
 
 - **核心模块** ——fail-fast，错误信息清晰。
-- **可选依赖* ——白名单+ 显式 ``is_available`` / ``import_error``。
-- **业务无关的临时探测* ——用``habit.utils.import_utils`` 的``ImportManager``。
+- **可选依赖** ——白名单 + 显式 ``is_available`` / ``import_error``。
+- **业务无关的临时探测** ——用 ``habit.utils.import_utils`` 的 ``ImportManager``。
 
-调用方可以放必``import habit`` 并访间``habit.HabitatAnalysis`` 等符可
-（懒加载、非 ``None``）；**构造可运行实例**仍需组
+调用方可以放心 ``import habit`` 并访问 ``habit.HabitatAnalysis`` 等符号
+（懒加载、非 ``None``）；**构造可运行实例**仍需通过
 ``HabitatConfigurator(...).create_habitat_analysis()`` 注入
-``FeatureService`` / ``ClusteringService`` / ``HabitatImageWriter``，不要假训
+``FeatureService`` / ``ClusteringService`` / ``HabitatImageWriter``，不要假设
 ``HabitatAnalysis(config)`` 单参数构造可用。

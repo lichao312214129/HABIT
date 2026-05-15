@@ -8,7 +8,6 @@
 .. toctree::
    :maxdepth: 2
 
-   roi_preparation_zh
    image_preprocessing_zh
    habitat_segmentation_zh
    habitat_feature_extraction_zh
@@ -35,7 +34,7 @@ HABIT 的完整工作流程包括以下步骤：
 **步骤顺序说明：**
 
 - **预处理和 ROI 准备可以互换**: 可以先进行预处理，也可以先勾画 ROI
-- **勾画不是 HABIT 的重点**: 推荐使用 ITK-SNAP、3D Slicer 等专业工具
+- **勾画不是 HABIT 的重点**: 推荐使用 ITK-SNAP、3D Slicer 等专业工具完成 ROI 勾画
 - **生境分割是核心**: HABIT 的核心功能是生境分割和特征提取
 - **机器学习是可选的**: 可以使用提取的特征进行其他分析
 
@@ -89,7 +88,6 @@ HABIT 支持两种数据输入方式：
 
 选择您感兴趣的步骤，查看详细文档：
 
-- :doc:`roi_preparation_zh`: ROI 文件准备
 - :doc:`image_preprocessing_zh`: 图像预处理
 - :doc:`habitat_segmentation_zh`: 生境分割
 - :doc:`habitat_feature_extraction_zh`: 生境特征提取
