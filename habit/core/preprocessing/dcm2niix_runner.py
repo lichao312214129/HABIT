@@ -2,7 +2,7 @@
 共享的 dcm2niix 执行工具，用于 DICOM 整理和转换。
 
 这个 Module 把 dcm2niix 路径解析、可用性检查、命令格式化和进程执行集中在一处。
-``sort_dicom`` 和 ``dcm2nii`` 仍然是两个独立的预处理步骤，但底层都使用这个 runner。
+``dcm2nii`` conversion uses this runner; standalone DICOM rename/sort uses ``habit.core.dicom_sort`` / ``habit sort-dicom``.
 """
 
 from __future__ import annotations

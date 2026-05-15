@@ -34,6 +34,20 @@ def preprocess(config):
     run_preprocess(config)
 
 
+@cli.command('sort-dicom')
+@click.option(
+    '--config',
+    '-c',
+    type=click.Path(exists=True),
+    default=None,
+    help='Path to DicomSortConfig YAML (standalone dcm2niix sort)',
+)
+def sort_dicom(config):
+    """Sort/rename DICOM files with dcm2niix (separate from batch preprocessing)"""
+    from habit.cli_commands.commands.cmd_sort_dicom import run_sort_dicom
+    run_sort_dicom(config)
+
+
 @cli.command('get-habitat')
 @click.option('--config', '-c',
               type=click.Path(exists=True),

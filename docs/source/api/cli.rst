@@ -13,6 +13,7 @@ Main Commands
 
    habit get-habitat    # Run habitat analysis
    habit preprocess     # Preprocess images
+   habit sort-dicom     # DICOM rename/sort only (dcm2niix -r y)
    habit extract        # Extract features
    habit model          # Train/predict ML models
 

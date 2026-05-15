@@ -3,7 +3,7 @@ Configuration Schemas for Image Preprocessing
 Uses Pydantic for robust validation and type safety.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Literal, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from habit.core.common.configs.base import BaseConfig
@@ -17,17 +17,15 @@ class SaveOptionsConfig(BaseModel):
 
 
 class PreprocessingStepConfig(BaseModel):
-    """Generic preprocessing step config with required images list."""
+    """Generic preprocessing step config; ``images`` lists modality keys to process."""
 
     model_config = ConfigDict(extra="allow")
 
     images: List[str] = Field(default_factory=list)
 
     @field_validator("images")
-    def images_required(cls, v: List[str]) -> List[str]:
-        if not v:
-            raise ValueError("images must not be empty")
-        return v
+    def normalize_images(cls, v: List[str]) -> List[str]:
+        return list(v)
 
 
 class PreprocessingConfig(BaseConfig):
@@ -42,6 +40,8 @@ class PreprocessingConfig(BaseConfig):
     processes: int = 1
     random_state: int = 42
     auto_select_first_file: bool = True
+    # habit_default: data_dir/images/<subject>/<modality>/ (optional masks/ tree).
+    preprocessing_input_layout: Literal["habit_default"] = "habit_default"
 
     @field_validator("data_dir", "out_dir")
     def path_required(cls, v: str, info) -> str:

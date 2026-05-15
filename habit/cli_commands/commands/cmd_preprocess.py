@@ -52,8 +52,8 @@ def run_preprocess(config_path: str) -> None:
         msg = f"Starting image preprocessing with config: {config_path}"
         logger.info(msg)
         click.echo(msg)
-        
-        # 3. Initialize Configurator & Service
+
+        # 3. Full preprocessing pipeline (BatchProcessor)
         try:
             configurator = PreprocessingConfigurator(config=config, logger=logger)
             processor = configurator.create_batch_processor()
@@ -85,4 +85,3 @@ def run_preprocess(config_path: str) -> None:
         click.echo(f"Fatal error: {e}", err=True)
         click.echo(traceback.format_exc(), err=True)
         sys.exit(1)
-

@@ -22,7 +22,7 @@ for a full scenario index.
 |----------|-----------|
 | Main MRI / multimodal template | `config/preprocessing/config_image_preprocessing.yaml` |
 | DICOM → NIfTI | `config/preprocessing/config_image_preprocessing_dcm2nii.yaml` |
-| DICOM sort / rename only | `config/preprocessing/config_image_preprocessing_sort_dicom.yaml` |
+| DICOM sort / rename only (`habit sort-dicom`) | `config/dicom_sort/config_sort_dicom.yaml` |
 | **Demo** elastix registration (`demo_data`) | `config/preprocessing/config_preprocessing_demo_elastix.yaml` |
 | **Demo** manifest — DICOM folders (delay phases) | `config/preprocessing/files_preprocessing.yaml` |
 | Example manifest — author T1/T2/DWI/ADC paths | `config/preprocessing/image_files.yaml` |

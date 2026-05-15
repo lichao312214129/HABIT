@@ -1,6 +1,6 @@
 # Image preprocessing module
 
-Batch pipelines are driven by YAML (`PreprocessingConfig`). Step names under `Preprocessing` must match `PreprocessorFactory` registration names (`sort_dicom`, `dcm2nii`, `n4_correction`, `resample`, `registration`, `zscore_normalization`, `histogram_standardization`, `adaptive_histogram_equalization`, plus your custom registrations).
+Batch pipelines are driven by YAML (`PreprocessingConfig`). Step names under `Preprocessing` must match `PreprocessorFactory` registration names (`dcm2nii`, `n4_correction`, `resample`, `registration`, `zscore_normalization`, `histogram_standardization`, `adaptive_histogram_equalization`, plus your custom registrations). **DICOM rename/sort** is not part of `habit preprocess`: use `habit sort-dicom` with `DicomSortConfig` YAML (`habit.core.dicom_sort`).
 
 **Authoritative user documentation:** `docs/source/user_guide/image_preprocessing_zh.rst` and `docs/source/configuration_zh.rst` (preprocessing section).
 
@@ -12,12 +12,6 @@ out_dir: ./preprocessed
 auto_select_first_file: true
 
 Preprocessing:
-  sort_dicom:
-    images: [dicom]
-    dcm2niix_path: ./dcm2niix.exe
-    filename_format: "%n_%g_%x/%s_%d/%r_%o.dcm"
-    output_dir: ./sorted_dicom
-
   n4_correction:
     images: [t1, t2]
     num_fitting_levels: 4

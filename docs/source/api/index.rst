@@ -7,6 +7,7 @@ API 文档
    habitat_analysis
    machine_learning
    preprocessing
+   dicom_sort
    common
    utils
    cli

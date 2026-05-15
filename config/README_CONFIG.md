@@ -18,7 +18,8 @@ next to production templates in the same folder.
 |------|--------|----------|
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | DICOM → NIfTI (+ optional follow-on steps). |
-| `preprocessing/config_image_preprocessing_sort_dicom.yaml` | preprocess | DICOM sort/rename only. |
+| `dicom_sort/config_sort_dicom.yaml` | sort-dicom | DICOM sort/rename only (``DicomSortConfig``). |
+| `preprocessing/config_image_preprocessing_sort_dicom.yaml` | sort-dicom | Legacy copy / same schema; prefer ``dicom_sort/config_sort_dicom.yaml``. |
 | `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo**: elastix rigid registration on bundled NIfTI. |
 | `preprocessing/files_preprocessing.yaml` | preprocess | **Demo manifest**: raw DICOM folders (delay phases). |
 | `preprocessing/image_files.yaml` | preprocess | **Example manifest**: T1/T2/DWI/ADC paths (replace with yours). |

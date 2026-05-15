@@ -68,7 +68,7 @@ HABIT 的主干能力可以按下面的数据链理解：
 
 命令组织有两类：
 
-* **业务流程命令**：``preprocess``、``get-habitat``、``extract``、``model``、
+* **业务流程命令**：``preprocess``、``sort-dicom``、``get-habitat``、``extract``、``model``、
   ``cv``、``compare``、``icc``、``radiomics``、``retest``。这些命令通常
   走 YAML 配置和 domain configurator。
 * **辅助工具命令**：``dicom-info``、``merge-csv``、``dice``。它们主要由命令行

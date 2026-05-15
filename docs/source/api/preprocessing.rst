@@ -63,10 +63,7 @@ preprocessing 模块
 格式转换 (Format Conversion)
 -----------------------------
 
-.. automodule:: habit.core.preprocessing.dicom_sorter
-   :members:
-   :undoc-members:
-   :show-inheritance:
+DICOM **仅整理**（非 NIfTI 转换）：见独立包 :doc:`dicom_sort` 与 CLI ``habit sort-dicom``。
 
 .. automodule:: habit.core.preprocessing.dcm2niix_converter
    :members:

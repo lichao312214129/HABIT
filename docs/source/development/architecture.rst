@@ -152,6 +152,7 @@ CLI 子命令清单（节选自 ``habit/cli.py``）：
 .. code-block:: text
 
    habit preprocess     -> cmd_preprocess.run     (BatchProcessor)
+   habit sort-dicom     -> cmd_sort_dicom.run     (DicomSortConfig + dcm2niix)
    habit get-habitat    -> cmd_habitat.run        (HabitatAnalysis.fit/predict)
    habit extract        -> cmd_extract.run        (habitat 特征表)
    habit model          -> cmd_ml.run             (Holdout 训练/预测)

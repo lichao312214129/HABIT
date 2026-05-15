@@ -14,7 +14,7 @@
 #   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
 #   full step zoo: N4, resample, registration, etc.).
 #   config_image_preprocessing_dcm2nii.yaml — DICOM → NIfTI first.
-#   config_image_preprocessing_sort_dicom.yaml — rename/sort DICOM only.
+#   config/dicom_sort/config_sort_dicom.yaml — DICOM rename/sort only (habit sort-dicom).
 #   config_preprocessing_from_dicom_manifest.yaml — if re-added: manifest-driven DICOM tree.
 # =============================================================================
 

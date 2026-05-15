@@ -260,25 +260,20 @@ class BatchProcessor:
             subject_id = subject_data['subj']
             self.logger.debug(f"Processing subject: {subject_id}")
             
-            # Step 1: Load images first. Steps that organize raw DICOM folders
-            # must run before SimpleITK loading, because their inputs are
-            # directories rather than image files.
-            first_step_name = next(iter(self.config_obj.Preprocessing.keys()), None)
-            skip_initial_load = first_step_name in {"sort_dicom"}
-            if not skip_initial_load:
-                load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
-                load_keys = [item for sublist in load_keys for item in sublist]
-                load_keys = list(set(load_keys))
-                mask_keys = [f"mask_{mod}" for mod in load_keys]
-                load_keys.extend(mask_keys)
-                load_image = LoadImagePreprocessor(keys=load_keys)
-                load_image(subject_data)
-                log_sitk_geometry_for_subject_data(
-                    subject_data,
-                    checkpoint_label="after_load_image",
-                    subject_id=subject_id,
-                    logger=self.logger,
-                )
+            # Load images before numeric preprocessing steps (NIfTI inputs).
+            load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
+            load_keys = [item for sublist in load_keys for item in sublist]
+            load_keys = list(set(load_keys))
+            mask_keys = [f"mask_{mod}" for mod in load_keys]
+            load_keys.extend(mask_keys)
+            load_image = LoadImagePreprocessor(keys=load_keys)
+            load_image(subject_data)
+            log_sitk_geometry_for_subject_data(
+                subject_data,
+                checkpoint_label="after_load_image",
+                subject_id=subject_id,
+                logger=self.logger,
+            )
 
             # Store original output_dirs for restoration after intermediate saves
             original_output_dirs = subject_data.get('output_dirs', {}).copy()
@@ -289,8 +284,13 @@ class BatchProcessor:
                 step_index += 1
                 
                 # Extract modalities from params
-                modalities = step_config.images
+                modalities = list(step_config.images)
                 if not modalities:
+                    self.logger.warning(
+                        "[%s] Step %s has empty images list; skipping",
+                        subject_id,
+                        step_name,
+                    )
                     continue
                 
                 # Only process modalities that exist in current subject_data
@@ -321,10 +321,11 @@ class BatchProcessor:
                 
                 # Create and execute preprocessor
                 params = self._model_to_dict(step_config)
+                filtered_params = {k: v for k, v in params.items() if k != "images"}
                 processor = PreprocessorFactory.create(
                     name=step_name,
                     keys=modalities,
-                    **{k: v for k, v in params.items() if k != "images"}
+                    **filtered_params,
                 )
                 processor(subject_data)
                 log_sitk_geometry_for_subject_data(
@@ -335,9 +336,9 @@ class BatchProcessor:
                 )
 
                 # Save intermediate results if configured (for preprocessors that don't save directly)
-                # Skip _save_step_results for dcm2nii/sort_dicom since they save files directly to output_dirs
+                # Skip _save_step_results for dcm2nii since it writes NIfTI directly to output_dirs
                 if self._should_save_step(step_name):
-                    if step_name not in {"dcm2nii", "sort_dicom"}:
+                    if step_name != "dcm2nii":
                         self._save_step_results(subject_data, step_name, step_index, modalities)
                     else:
                         self.logger.debug(
@@ -433,13 +434,16 @@ class BatchProcessor:
         masks_dir.mkdir(parents=True, exist_ok=True)
         metadata_dir.mkdir(parents=True, exist_ok=True)
         
-        # 获取所有图像和mask路径
-        # 如果配置文件中没有指定 auto_select_first_file，则使用默认值 True
+        # Discover subjects: standard images/ tree or YAML manifest.
         auto_select = self.config_obj.auto_select_first_file
-        images_paths, mask_paths = get_image_and_mask_paths(self.config_obj.data_dir, auto_select_first_file=auto_select)
+        data_dir = self.config_obj.data_dir
+        images_paths, mask_paths = get_image_and_mask_paths(
+            data_dir,
+            auto_select_first_file=auto_select,
+        )
         
         subject_data_list = []
-        
+
         for subject in images_paths.keys():
             data_entry = {"subj": subject}
             output_dirs = {}
@@ -449,7 +453,6 @@ class BatchProcessor:
                 # 确保路径是字符串
                 data_entry[scan_type] = str(img_path)
                 
-                # 创建该模态的输出目录
                 output_dir = images_dir / subject / scan_type
                 output_dir.mkdir(parents=True, exist_ok=True)
                 output_dirs[scan_type] = str(output_dir)
@@ -475,10 +478,10 @@ class BatchProcessor:
             
             # 将生成的数据条目加入到列表中
             subject_data_list.append(data_entry)
-            if has_mask:  # 确保至少有一个mask才添加
+            if has_mask:
                 self.logger.debug(f"Subject with mask: {subject}")
             else:
-                self.logger.warning(f"No mask found for subject {subject}, skipping")
+                self.logger.warning(f"No mask found for subject {subject}")
             
         if not subject_data_list:
             self.logger.warning("No valid subjects found")

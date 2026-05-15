@@ -7,10 +7,6 @@ invalid inputs — without touching the filesystem or any image library.
 
 from __future__ import annotations
 
-import pytest
-from pydantic import ValidationError
-
-from habit.core.common.configs.base import ConfigValidationError
 from habit.core.preprocessing.config_schemas import (
     PreprocessingConfig,
     PreprocessingStepConfig,
@@ -45,9 +41,9 @@ class TestPreprocessingStepConfig:
         cfg = PreprocessingStepConfig(images=["T1w.nii.gz"])
         assert cfg.images == ["T1w.nii.gz"]
 
-    def test_empty_images_rejected(self) -> None:
-        with pytest.raises(ValidationError, match="images must not be empty"):
-            PreprocessingStepConfig(images=[])
+    def test_empty_images_allowed(self) -> None:
+        cfg = PreprocessingStepConfig(images=[])
+        assert cfg.images == []
 
     def test_extra_fields_allowed(self) -> None:
         """extra='allow' means arbitrary step params should not raise."""
@@ -71,6 +67,7 @@ class TestPreprocessingConfig:
         assert cfg.processes == 1
         assert cfg.random_state == 42
         assert cfg.auto_select_first_file is True
+        assert cfg.preprocessing_input_layout == "habit_default"
 
     def test_missing_data_dir_rejected(self) -> None:
         # BaseConfig wraps Pydantic ValidationError in ConfigValidationError.
