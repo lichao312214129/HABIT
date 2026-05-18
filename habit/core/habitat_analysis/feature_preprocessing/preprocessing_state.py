@@ -2,8 +2,8 @@
 Preprocessing State Management for Habitat Analysis.
 
 This module provides **stateful** preprocessing (group-level operations with
-train/test separation). All stateless algorithms — both value transforms
-and column-dropping filters — live in :mod:`..feature_preprocessing`.
+train/test separation). The stateless algorithms it delegates to live in
+sibling modules within this package.
 """
 
 import os
@@ -16,15 +16,14 @@ from pydantic import BaseModel
 from habit.utils.log_utils import get_module_logger
 
 from ..config_schemas import ResultColumns
-from ..feature_preprocessing import (
+from .correlation_filter import select_correlation_columns
+from .frame_method_handlers import (
     FRAME_LEVEL_METHOD_NAMES,
-    create_discretizer,
-    handle_extreme_values,
     resolve_correlation_filter_params,
     resolve_variance_threshold,
-    select_correlation_columns,
-    select_variance_columns,
 )
+from .value_transforms import create_discretizer, handle_extreme_values
+from .variance_filter import select_variance_columns
 
 
 def _get_method_attr(method_config: Union[Dict[str, Any], BaseModel], attr: str, default: Any = None) -> Any:
@@ -48,7 +47,7 @@ class PreprocessingState:
     Manages state for group-level preprocessing operations.
 
     Supports capturing parameters during training and applying them during testing.
-    Leverages shared utility functions from :mod:`..feature_preprocessing`.
+    Leverages shared utility functions from sibling modules in this package.
     """
 
     def __init__(self):

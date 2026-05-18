@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 
 from ..base_pipeline import GroupLevelStep
-from ...utils.preprocessing_state import PreprocessingState
+from ...feature_preprocessing import PreprocessingState
 
 
 class GroupPreprocessingStep(GroupLevelStep):

@@ -1,9 +1,13 @@
 """
-Feature-preprocessing algorithms used between feature extraction and clustering.
+Feature-preprocessing package for habitat analysis.
+
+This package houses **all** preprocessing logic — both stateless algorithms
+and the stateful :class:`PreprocessingState` manager used for group-level
+train/test consistency.
 
 Column-dropping operations (variance / correlation filter) change the
 DataFrame shape, which is why they cannot be expressed through the
-value-only ``process_features_pipeline`` utility used for scaling /
+value-only :func:`process_features_pipeline` utility used for scaling /
 discretisation.
 
 Each column-dropping algorithm comes in two forms:
@@ -18,6 +22,9 @@ between the subject-level and group-level code paths.
 
 Value-only transforms (minmax, zscore, robust, binning, winsorize, log)
 live in :mod:`value_transforms` and operate on ``np.ndarray``.
+
+Stateful group-level preprocessing (fit/transform with parameter caching)
+lives in :mod:`preprocessing_state`.
 """
 from .correlation_filter import apply_correlation_filter, select_correlation_columns
 from .frame_method_handlers import (
@@ -35,9 +42,18 @@ from .value_transforms import (
 )
 from .variance_filter import apply_variance_filter, select_variance_columns
 
+
+def __getattr__(name: str):
+    if name == "PreprocessingState":
+        from .preprocessing_state import PreprocessingState
+        return PreprocessingState
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 __all__ = [
     "FRAME_LEVEL_METHOD_NAMES",
     "FRAME_METHOD_HANDLERS",
+    "PreprocessingState",
     "apply_correlation_filter",
     "apply_registered_frame_method",
     "apply_variance_filter",
