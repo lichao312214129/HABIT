@@ -18,12 +18,10 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-ROOT = Path(__file__).resolve().parents[2]
-CFG = ROOT / "config" / "habitat" / "config_habitat_two_step.yaml"
+CFG = r'F:\work\habit_project\.cursor\test\config_habitat_two_step.yaml'
 
 if __name__ == "__main__":
-    os.chdir(ROOT)
-    argv = ["get-habitat", "-c", str(CFG), *sys.argv[1:]]
+    argv = ["get-habitat", "-c", CFG, *sys.argv[1:]]
     r = CliRunner().invoke(cli, argv)
     print(r.output, end="")
     sys.exit(r.exit_code)

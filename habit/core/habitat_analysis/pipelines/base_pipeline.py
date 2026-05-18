@@ -251,26 +251,27 @@ class HabitatPipeline:
             # right before image saving.
             self.mask_info_cache: Dict[str, Any] = {}
     
-    def fit(
+    def _fit_process(
         self,
-        X_train: Dict[str, Any],  # Dict of subject_id -> data
+        X: Dict[str, Any],
         y: Optional[Any] = None,
         **fit_params
-    ) -> 'HabitatPipeline':
+    ) -> Dict[str, Any]:
         """
-        Fit pipeline on training data using per-subject parallel processing.
-        
-        Similar to fit_transform but discards the transformed output.
-        Useful when you need to fit the pipeline and then transform different data.
-        
+        Shared implementation for fit() and fit_transform().
+
+        Executes the two-stage pipeline:
+        1. Individual-level: per-subject parallel processing
+        2. Group-level: fit + transform on aggregated results
+
         Args:
-            X_train: Training data (dict of subject_id -> image/mask paths or features)
+            X: Input data (dict of subject_id -> data)
             y: Optional target data
             **fit_params: Additional fitting parameters
-            
+
         Returns:
-            self
-            
+            Transformed data after all stages
+
         Raises:
             ValueError: If pipeline is already fitted
         """
@@ -279,37 +280,57 @@ class HabitatPipeline:
                 "Pipeline already fitted. Use transform() for new data, "
                 "or create a new pipeline instance for training."
             )
-        
+
         logger = get_module_logger(__name__)
-        
+
         # Stage 1: Individual-level processing (chunked parallel)
         if self.individual_steps:
             logger.info(
-                f"Stage 1: Processing {len(X_train)} subjects through "
+                f"Stage 1: Processing {len(X)} subjects through "
                 f"{len(self.individual_steps)} individual-level steps..."
             )
-            
-            # Mark all individual-level steps as fitted (they are stateless)
+
             for name, step in self.individual_steps:
                 step.fitted_ = True
-            
-            # Process subjects in parallel to control memory
-            X_individual = self._process_subjects_parallel(X_train)
+
+            X_individual = self._process_subjects_parallel(X)
         else:
-            X_individual = X_train
-        
+            X_individual = X
+
         # Stage 2: Group-level processing (all subjects together)
-        X = X_individual
+        X_out = X_individual
         if self.group_steps:
             logger.info(
-                f"Stage 2: Fitting {len(self.group_steps)} group-level steps "
-                f"on all subjects..."
+                f"Stage 2: Processing all subjects through "
+                f"{len(self.group_steps)} group-level steps..."
             )
             for name, step in self.group_steps:
-                step.fit(X, y, **fit_params)
-                X = step.transform(X)
-        
+                X_out = step.fit_transform(X_out, y, **fit_params)
+
         self.fitted_ = True
+        return X_out
+
+    def fit(
+        self,
+        X_train: Dict[str, Any],
+        y: Optional[Any] = None,
+        **fit_params
+    ) -> 'HabitatPipeline':
+        """
+        Fit pipeline on training data using per-subject parallel processing.
+
+        Similar to fit_transform but discards the transformed output.
+        Useful when you need to fit the pipeline and then transform different data.
+
+        Args:
+            X_train: Training data (dict of subject_id -> image/mask paths or features)
+            y: Optional target data
+            **fit_params: Additional fitting parameters
+
+        Returns:
+            self
+        """
+        self._fit_process(X_train, y, **fit_params)
         return self
     
     def transform(
@@ -371,60 +392,18 @@ class HabitatPipeline:
     ) -> pd.DataFrame:
         """
         Fit and transform in one call using per-subject parallel processing.
-        
-        **Processing Strategy**:
-        1. Individual-level stage: Each subject goes through all 5 individual-level steps
-           as an atomic operation (Step1→Step2→Step3→Step4→Step5). Multiple subjects
-           are processed in parallel (controlled by `processes` parameter).
-        2. Group-level stage: After all subjects complete, group-level steps are executed
-           on the aggregated results.
-        
-        This ensures peak memory = processes × single_subject_memory, bounded and predictable.
-        
+
+        Delegates to _fit_process which handles both stages.
+
         Args:
             X: Input data (dict of subject_id -> data)
             y: Optional target data
             **fit_params: Additional fitting parameters
-            
+
         Returns:
             Transformed data (DataFrame with habitat labels)
         """
-        if self.fitted_:
-            raise ValueError(
-                "Pipeline already fitted. Use transform() for new data, "
-                "or create a new pipeline instance for training."
-            )
-        
-        logger = get_module_logger(__name__)
-        
-        # Stage 1: Individual-level processing (chunked parallel)
-        if self.individual_steps:
-            logger.info(
-                f"Stage 1: Processing {len(X)} subjects through "
-                f"{len(self.individual_steps)} individual-level steps..."
-            )
-            
-            # Mark all individual-level steps as fitted (they are stateless)
-            for name, step in self.individual_steps:
-                step.fitted_ = True
-            
-            # Process subjects in parallel to control memory
-            X_individual = self._process_subjects_parallel(X)
-        else:
-            X_individual = X
-        
-        # Stage 2: Group-level processing (all subjects together)
-        X_out = X_individual
-        if self.group_steps:
-            logger.info(
-                f"Stage 2: Processing all subjects through "
-                f"{len(self.group_steps)} group-level steps..."
-            )
-            for name, step in self.group_steps:
-                X_out = step.fit_transform(X_out, y, **fit_params)
-        
-        self.fitted_ = True
-        return X_out
+        return self._fit_process(X, y, **fit_params)
     
     def _process_single_subject(self, item: Tuple[str, Any]) -> Tuple[str, Any]:
         """
@@ -443,16 +422,24 @@ class HabitatPipeline:
         """
         subject_id, subject_data = item
         data = subject_data
+        logger = get_module_logger(__name__)
         for name, step in self.individual_steps:
             try:
+                logger.info(
+                f"Individual-level step '{name}' started for subject '{subject_id}'."
+                )
                 data = step.transform_one(subject_id, data)
             except Exception:
-                logger = get_module_logger(__name__)
                 logger.error(
                     f"Error processing subject {subject_id} in step '{name}'",
                     exc_info=True,
                 )
                 raise
+            # One line per (subject, step) after successful transform_one so parallel
+            # workers remain traceable in logs (subject id + pipeline step name).
+            logger.info(
+                f"Individual-level step '{name}' finished for subject '{subject_id}'."
+            )
         return (subject_id, data)
     
     def _process_subjects_parallel(self, X: Dict[str, Any]) -> Dict[str, Any]:
@@ -485,7 +472,7 @@ class HabitatPipeline:
         n_subjects = len(X)
         logger.info(
             f"Processing {n_subjects} subjects with {n_processes} parallel workers "
-            f"(Step1-5 as atomic operation for each subject)..."
+            f"(Step 1-5 as atomic operation for each subject)..."
         )
         
         successful_results, failed_subjects = parallel_map(

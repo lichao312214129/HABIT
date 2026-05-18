@@ -8,6 +8,7 @@ eliminating code duplication across different modules that need multiprocessing.
 import logging
 import multiprocessing
 import queue
+import threading
 import time
 from typing import (
     TypeVar, Callable, Iterable, List, Tuple,
@@ -267,6 +268,13 @@ def _sequential_map_with_item_timeout(
 
     After timeout the child is terminated (best-effort skip).
 
+    **Queue / pipe deadlock**: ``multiprocessing.Queue.put`` can block until the
+    receiver drains the underlying pipe when the pickled payload is larger than
+    the OS pipe buffer. If the parent calls ``Process.join`` before any
+    ``queue.get``, the child may never finish ``put`` and never exit, while the
+    parent waits on ``join`` forever. A background thread calls ``get`` as soon
+    as the child starts so ``put`` can always complete.
+
     Args:
         func: User function.
         items_list: Items to process.
@@ -296,6 +304,17 @@ def _sequential_map_with_item_timeout(
             target=_put_worker_wrapper_result,
             args=(worker_args, result_queue),
         )
+        recv_bucket: List[Optional[ProcessingResult]] = [None]
+
+        def _drain_worker_result_queue() -> None:
+            recv_bucket[0] = result_queue.get()
+
+        reader = threading.Thread(
+            target=_drain_worker_result_queue,
+            name="habit-parallel_map-queue-reader",
+            daemon=True,
+        )
+        reader.start()
         proc.start()
         proc.join(timeout=per_item_timeout_sec)
         if proc.is_alive():
@@ -308,17 +327,20 @@ def _sequential_map_with_item_timeout(
             proc.terminate()
             proc.join(timeout=10)
             failed_items.append(item_id)
+            reader.join(timeout=2)
             if show_progress:
                 progress_bar.update(1)
             continue
 
-        try:
-            proc_result = result_queue.get(timeout=2)
-        except queue.Empty:
+        join_post_sec = max(30.0, float(per_item_timeout_sec) + 10.0)
+        reader.join(timeout=join_post_sec)
+        proc_result = recv_bucket[0]
+        if proc_result is None:
             failed_items.append(item_id)
             if logger:
                 logger.error(
-                    "Child exited without result for item %s (exit code %s).",
+                    "Child exited without a queue result for item %s "
+                    "(exit code %s); reader timed out or child never sent.",
                     item_id,
                     proc.exitcode,
                 )
