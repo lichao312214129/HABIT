@@ -151,8 +151,10 @@ def _parallel_map_with_item_timeout(
     Parallel path: ProcessPoolExecutor + per-future wall-clock timeout.
 
     Timed-out tasks are counted as failed without waiting for worker completion;
-    executor.shutdown(wait=False) does not block on stuck workers. Orphan
-    processes may continue until they exit naturally.
+    ``executor.shutdown(wait=False)`` is used only in that case so shutdown does
+    not block on orphan workers. When every task finished normally,
+    ``shutdown(wait=True)`` avoids Windows ``ProcessPoolExecutor`` teardown races
+    (e.g. ``QueueManagerThread`` / WinError 6).
 
     Args:
         func: User function (same contract as parallel_map).
@@ -180,6 +182,12 @@ def _parallel_map_with_item_timeout(
     executor = ProcessPoolExecutor(max_workers=n_processes)
     future_to_args: Dict[Any, Tuple[Any, ...]] = {}
     submit_times: Dict[Any, float] = {}
+    # If True, at least one item was abandoned after wall-clock timeout while the
+    # worker might still be running; shutdown(wait=False) avoids blocking on those
+    # orphans. If False, every submitted future was finished via wait/result; on
+    # Windows, shutdown(wait=True) avoids QueueManagerThread teardown races that
+    # surface as WinError 6 / "handle is closed" when using wait=False.
+    had_wallclock_timeout_skip = False
     try:
         for wa in worker_args:
             fut = executor.submit(_worker_wrapper, wa)
@@ -231,6 +239,7 @@ def _parallel_map_with_item_timeout(
                 if now - submit_times[fut] > per_item_timeout_sec
             ]
             for future in timed_out:
+                had_wallclock_timeout_skip = True
                 pending.discard(future)
                 item_id = _item_id_from_worker_args(future_to_args[future])
                 failed_items.append(item_id)
@@ -243,8 +252,9 @@ def _parallel_map_with_item_timeout(
                 if show_progress:
                     progress_bar.update(1)
     finally:
-        # Timed-out futures may still run; do not block shutdown on them.
-        executor.shutdown(wait=False)
+        # Orphan workers may still run after a wall-clock skip; avoid blocking.
+        # Otherwise prefer a graceful shutdown to reduce Windows teardown noise.
+        executor.shutdown(wait=not had_wallclock_timeout_skip)
 
     if logger and failed_items:
         logger.warning("Failed or timed out %s item(s)", len(failed_items))

@@ -146,7 +146,7 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             # Get mask coordinates and prepare data structure
             # Get 3D coordinates (z,y,x) of non-zero voxels in the mask
             coords = list(zip(*np.where(mask_array > 0)))
-            num_voxels = len(coords)
+            # num_voxels = len(coords)
 
             # Process each feature map and organize into DataFrame
             feature_names = []
