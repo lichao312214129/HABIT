@@ -25,14 +25,14 @@ from habit.core.habitat_analysis.pipelines.steps import (
     CalculateMeanVoxelFeaturesStep,
     IndividualClusteringStep,
     MergeSupervoxelFeaturesStep,
-    SubjectPreprocessingStep,
+    IndividualPreprocessingStep,
     SupervoxelFeatureExtractionStep,
     VoxelFeatureExtractor,
 )
 
 INDIVIDUAL_STEP_TYPES = [
     VoxelFeatureExtractor,
-    SubjectPreprocessingStep,
+    IndividualPreprocessingStep,
     IndividualClusteringStep,
     SupervoxelFeatureExtractionStep,
     CalculateMeanVoxelFeaturesStep,

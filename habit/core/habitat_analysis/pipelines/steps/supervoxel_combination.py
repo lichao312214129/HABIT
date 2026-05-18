@@ -2,7 +2,7 @@
 Combine supervoxels step for habitat analysis pipeline.
 
 This group-level step combines supervoxel features from all subjects into
-a single DataFrame for population-level processing.
+a single DataFrame for group-level processing.
 """
 
 from typing import Dict, Any, Optional

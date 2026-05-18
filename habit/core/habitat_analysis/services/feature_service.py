@@ -15,8 +15,7 @@ from habit.utils.parallel_utils import parallel_map
 from ..config_schemas import HabitatAnalysisConfig, DROPPING_PREPROCESSING_METHODS
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
-from ..feature_preprocessing import apply_variance_filter, apply_correlation_filter
-from ..utils.preprocessing_state import process_features_pipeline
+from ..feature_preprocessing import apply_registered_frame_method, process_features_pipeline
 
 class FeatureService:
     """
@@ -346,9 +345,9 @@ class FeatureService:
           across subjects. This prevents subjects with extreme intensity values from dominating 
           the clustering.
         - **Example**: If one subject has MRI intensities ranging [0, 1000] and another [0, 100], 
-          normalization ensures both contribute equally to population-level clustering.
+          normalization ensures both contribute equally to group-level clustering.
         
-        **Group-level preprocessing (Population-level)**:
+        **Group-level preprocessing (cohort-wide)**:
         - **Goal**: Reduce micro-noise and discretize features to capture stable patterns
         - **Methods**: Binning/Discretization (e.g., uniform bins, quantile bins)
         - **Purpose**: Transform continuous features into discrete bins, making clustering more 
@@ -395,30 +394,9 @@ class FeatureService:
             processed_df = feature_df.copy()
 
             for method in methods:
-                method_name = method.method
-
-                # Column-dropping preprocessors live in feature_preprocessing/
-                # because they cannot be expressed through the value-only
-                # process_features_pipeline path used for the else branch.
-                if method_name == 'variance_filter':
-                    threshold = (
-                        float(method.variance_threshold)
-                        if method.variance_threshold is not None
-                        else 0.0
-                    )
-                    processed_df = apply_variance_filter(processed_df, threshold)
-
-                elif method_name == 'correlation_filter':
-                    threshold = (
-                        float(method.corr_threshold)
-                        if method.corr_threshold is not None
-                        else 0.95
-                    )
-                    corr_method = method.corr_method or 'spearman'
-                    processed_df = apply_correlation_filter(
-                        processed_df, threshold, corr_method
-                    )
-
+                frame_out = apply_registered_frame_method(processed_df, method)
+                if frame_out is not None:
+                    processed_df = frame_out
                 else:
                     # Stateless value-transform methods (scaling, binning, ...).
                     transformed = process_features_pipeline(processed_df.values, methods=[method])
@@ -444,7 +422,7 @@ class FeatureService:
         
         Args:
             feature_df: DataFrame to preprocess
-            level: 'subject' for individual level, 'group' for population level
+            level: 'subject' for individual level, 'group' for cohort / group level
             
         Returns:
             Preprocessed DataFrame

@@ -17,7 +17,7 @@ class ConcatenateVoxelsStep(GroupLevelStep):
     Concatenate all voxels from all subjects into a single DataFrame.
     
     Used in direct pooling strategy where all voxels are pooled together
-    before population-level clustering.
+    before group-level clustering.
     
     Stateless: simple concatenation operation.
     

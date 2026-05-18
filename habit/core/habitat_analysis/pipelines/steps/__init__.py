@@ -4,20 +4,20 @@ Pipeline steps for habitat analysis.
 This module contains all concrete pipeline step implementations.
 """
 
-from .voxel_feature_extractor import VoxelFeatureExtractor
-from .subject_preprocessing import SubjectPreprocessingStep
+from .voxel_feature_extraction import VoxelFeatureExtractor
+from .individual_preprocessing import IndividualPreprocessingStep
 from .individual_clustering import IndividualClusteringStep
 from .supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
-from .calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
-from .merge_supervoxel_features import MergeSupervoxelFeaturesStep
-from .combine_supervoxels import CombineSupervoxelsStep
-from .concatenate_voxels import ConcatenateVoxelsStep
+from .mean_voxel_features import CalculateMeanVoxelFeaturesStep
+from .supervoxel_feature_merge import MergeSupervoxelFeaturesStep
+from .supervoxel_combination import CombineSupervoxelsStep
+from .voxel_concatenation import ConcatenateVoxelsStep
 from .group_preprocessing import GroupPreprocessingStep
-from .population_clustering import PopulationClusteringStep
+from .group_clustering import GroupClusteringStep
 
 __all__ = [
     'VoxelFeatureExtractor',
-    'SubjectPreprocessingStep',
+    'IndividualPreprocessingStep',
     'IndividualClusteringStep',
     'SupervoxelFeatureExtractionStep',
     'CalculateMeanVoxelFeaturesStep',
@@ -25,5 +25,5 @@ __all__ = [
     'CombineSupervoxelsStep',
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',
-    'PopulationClusteringStep',
+    'GroupClusteringStep',
 ]

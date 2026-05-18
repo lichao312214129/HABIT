@@ -16,7 +16,7 @@ Public surface:
     - :class:`HabitatPipeline` /
       :class:`BasePipelineStep`        : sklearn-style pipeline primitives.
     - :class:`GroupPreprocessingStep` /
-      :class:`PopulationClusteringStep`: re-exported pipeline steps.
+      :class:`GroupClusteringStep`: re-exported pipeline steps.
 """
 
 from .habitat_analysis import HabitatAnalysis
@@ -25,8 +25,8 @@ from .config_schemas import HabitatAnalysisConfig, ResultColumns
 from .habitat_features.habitat_analyzer import HabitatMapAnalyzer
 from .pipelines import BasePipelineStep, HabitatPipeline
 from .pipelines.steps import (
+    GroupClusteringStep,
     GroupPreprocessingStep,
-    PopulationClusteringStep,
 )
 
 HabitatFeatureExtractor = HabitatMapAnalyzer
@@ -40,6 +40,6 @@ __all__ = [
     "HabitatFeatureExtractor",
     "BasePipelineStep",
     "HabitatPipeline",
+    "GroupClusteringStep",
     "GroupPreprocessingStep",
-    "PopulationClusteringStep",
 ]

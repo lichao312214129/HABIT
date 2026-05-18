@@ -150,7 +150,7 @@ class GroupLevelStep(BasePipelineStep):
     """
     Marker class for group-level pipeline steps.
     
-    Group-level steps process all subjects together (e.g., population clustering,
+    Group-level steps process all subjects together (e.g., group clustering,
     group-level preprocessing). They operate on aggregated data from all subjects.
     """
     pass
@@ -171,12 +171,12 @@ class HabitatPipeline:
     The pipeline uses a two-stage processing strategy:
     
     1. **Individual-level stage**: Each subject independently goes through all 
-       individual-level steps as an atomic operation (voxel extraction �?preprocessing �?
-       clustering �?supervoxel extraction �?aggregation). Multiple subjects are 
+       individual-level steps as an atomic operation (voxel extraction ->
+       preprocessing -> clustering -> supervoxel extraction -> aggregation). Multiple subjects are
        processed in parallel (controlled by `processes` parameter).
        
     2. **Group-level stage**: After all subjects complete individual processing,
-       group-level steps (group preprocessing �?population clustering) are executed
+       group-level steps (group preprocessing -> group clustering) are executed
        on the aggregated results.
     
     **Memory Control**:

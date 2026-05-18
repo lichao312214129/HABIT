@@ -11,14 +11,14 @@ via the ``_PIPELINE_RECIPES`` dictionary; there is no longer a separate
 from .base_pipeline import BasePipelineStep, HabitatPipeline
 from .steps import (
     VoxelFeatureExtractor,
-    SubjectPreprocessingStep,
+    IndividualPreprocessingStep,
     IndividualClusteringStep,
     SupervoxelFeatureExtractionStep,
     CalculateMeanVoxelFeaturesStep,
     MergeSupervoxelFeaturesStep,
     ConcatenateVoxelsStep,
     GroupPreprocessingStep,
-    PopulationClusteringStep,
+    GroupClusteringStep,
 )
 
 __all__ = [
@@ -26,12 +26,12 @@ __all__ = [
     'HabitatPipeline',
     # Steps
     'VoxelFeatureExtractor',
-    'SubjectPreprocessingStep',
+    'IndividualPreprocessingStep',
     'IndividualClusteringStep',
     'SupervoxelFeatureExtractionStep',
     'CalculateMeanVoxelFeaturesStep',
     'MergeSupervoxelFeaturesStep',
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',
-    'PopulationClusteringStep',
+    'GroupClusteringStep',
 ]

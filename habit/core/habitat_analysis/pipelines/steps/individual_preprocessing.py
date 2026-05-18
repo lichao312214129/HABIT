@@ -1,10 +1,9 @@
 """
-Subject-level preprocessing step for habitat analysis pipeline.
+Individual-level preprocessing step for habitat analysis pipeline.
 
-This step applies preprocessing at the individual subject level (stateless).
+This step applies preprocessing at the per-subject level (stateless).
 """
 
-import logging
 from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
@@ -12,9 +11,9 @@ from ..subject_state import SubjectHabitatState
 from ...services.feature_service import FeatureService
 
 
-class SubjectPreprocessingStep(IndividualLevelStep):
+class IndividualPreprocessingStep(IndividualLevelStep):
     """
-    Subject-level preprocessing (stateless).
+    Individual-level preprocessing (stateless).
 
     Each subject is preprocessed independently using its own statistics.
     No state needs to be saved between training and testing.
@@ -26,7 +25,7 @@ class SubjectPreprocessingStep(IndividualLevelStep):
         self.logger = get_module_logger(__name__)
 
     def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
-        """Apply subject-level preprocessing to one subject's voxel features."""
+        """Apply individual-level preprocessing to one subject's voxel features."""
         feature_df = subject_data.require_features(self.__class__.__name__)
         processed = self.feature_service.apply_preprocessing(feature_df, level='subject')
         processed = self.feature_service.clean_features(processed)

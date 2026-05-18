@@ -1,59 +1,62 @@
 """
-Population-level clustering step for habitat analysis pipeline.
+Group-level clustering step for habitat analysis pipeline.
 
-This step manages the clustering model internally for population-level
-habitat identification.
+Clusters pooled cohort-level features (typically supervoxel rows) into habitat labels.
+Stateful: ``fit()`` trains the clustering model; ``transform()`` applies it.
 """
 
-from typing import Any, Optional, Tuple, Dict
-import pandas as pd
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
-import logging
+import pandas as pd
 
 from ..base_pipeline import GroupLevelStep
 from ...clustering.base_clustering import ClusteringAlgorithmFactory
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 
-class PopulationClusteringStep(GroupLevelStep):
+class GroupClusteringStep(GroupLevelStep):
     """
-    Population-level clustering (supervoxel to habitat).
-    
-    Stateful: fit() trains clustering model, transform() applies to new data.
-    
-    Note: This step manages clustering model internally, no need for external Mode classes.
-    
+    Group-level clustering (supervoxel rows to habitat labels).
+
+    Stateful: ``fit()`` trains the clustering model; ``transform()`` applies it.
+
+    This step manages the clustering model internally (no separate orchestration Mode).
+
     Attributes:
-        clustering_service: ClusteringService instance (for accessing algorithm instances)
-        config: Configuration object
-        out_dir: Output directory for saving model (if needed)
-        clustering_model: Fitted clustering model
-        optimal_n_clusters_: Optimal number of clusters found during fit
-        fitted_: bool indicating whether the step has been fitted
+        clustering_service: ClusteringService instance (algorithm instances).
+        config: Habitat analysis configuration.
+        out_dir: Output directory for saving artefacts when applicable.
+        clustering_model: Fitted clustering model (trained in ``fit()``).
+        optimal_n_clusters_: Selected cluster count.
+        fitted_: Whether ``fit()`` has completed successfully.
     """
-    
+
     def __init__(
-        self, 
-        clustering_service: Any, 
+        self,
+        clustering_service: Any,
         config: HabitatAnalysisConfig,
-        out_dir: str
-    ):
+        out_dir: str,
+    ) -> None:
         """
-        Initialize population clustering step.
-        
         Args:
-            clustering_service: ClusteringService instance
-            config: Configuration object
-            out_dir: Output directory for saving model (if needed)
+            clustering_service: ClusteringService instance.
+            config: Validated habitat-analysis configuration.
+            out_dir: Output directory for saved models or diagnostics.
         """
         super().__init__()
         self.clustering_service = clustering_service
         self.config = config
         self.out_dir = out_dir
-        self.clustering_model = None  # Will be created in fit()
-        self.optimal_n_clusters_ = None
-    
-    def fit(self, X: pd.DataFrame, y: Optional[Any] = None, **fit_params) -> 'PopulationClusteringStep':
+        self.clustering_model = None  # Assigned in fit()
+        self.optimal_n_clusters_: Optional[int] = None
+
+    def fit(
+        self,
+        X: pd.DataFrame,
+        y: Optional[Any] = None,
+        **fit_params: Any,
+    ) -> "GroupClusteringStep":
         """
         Fit clustering model on data (train model and find optimal clusters).
         
@@ -84,7 +87,7 @@ class PopulationClusteringStep(GroupLevelStep):
         # Note: This is optional, but useful for debugging
         if self.config.verbose:
             self.clustering_service.logger.info(
-                f"Fitted population clustering model with {optimal_n} clusters"
+                f"Fitted group-level clustering model with {optimal_n} clusters"
             )
         
         self.fitted_ = True

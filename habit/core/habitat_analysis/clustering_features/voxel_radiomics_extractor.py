@@ -7,7 +7,6 @@ import logging
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-import six
 from typing import Union, List, Dict, Optional, Tuple
 from radiomics import featureextractor
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
@@ -48,6 +47,9 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             **kwargs: Additional parameters
                 subj: subject name
                 img_name: Name of the image to append to feature names
+                kernelRadius: Neighborhood radius in voxels for voxel-based extraction.
+                output_float32: If True, cast the returned DataFrame to float32 to halve
+                    downstream memory (may affect numerical parity vs float64).
             
         Returns:
             pd.DataFrame: Extracted voxel-level radiomics features
@@ -136,40 +138,43 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             # Extract voxel-based features  计算GLCM时会报错，可能是由于局部太均质所致
             result = extractor.execute(image, mask, voxelBased=True)
 
-            # # mask中多少不为0的voxels
-            # num_non_zero_voxels = np.sum(mask_array > 0)
-            # logging.info(f"Mask has {num_non_zero_voxels} non-zero voxels")
+            # Release extractor before materialising many per-feature arrays; peak RAM
+            # inside execute() is unchanged, but we avoid holding extractor + all maps.
+            del extractor
 
-            # Filter out diagnostic features
-            result = {k: v for k, v in result.items() if not k.startswith('diagnostic')}
-            
-            # Get mask coordinates and prepare data structure
-            # Get 3D coordinates (z,y,x) of non-zero voxels in the mask
-            coords = list(zip(*np.where(mask_array > 0)))
-            # num_voxels = len(coords)
+            # Pop each feature map from the result dict so we do not keep every
+            # sitk.Image alive at once while building the feature matrix.
+            keys = [
+                k for k in result.keys()
+                if not str(k).startswith('diagnostic')
+            ]
+            feature_names: List[str] = []
+            feature_matrix: List[np.ndarray] = []
 
-            # Process each feature map and organize into DataFrame
-            feature_names = []
-            feature_matrix = []
-            
-            for key, val in six.iteritems(result):
-                if isinstance(val, sitk.Image):  # Feature map
-                    # Append image name to feature name
+            for key in keys:
+                val = result.pop(key, None)
+                if val is None:
+                    continue
+                if isinstance(val, sitk.Image):
                     feature_name = f"{key}-{image_name}" if image_name else key
                     feature_names.append(feature_name)
                     feature_array = sitk.GetArrayFromImage(val)
-                    # Extract values none zero voxels
                     values = feature_array[feature_array > 0]
                     feature_matrix.append(values)
-        
-            # Store feature names
+                    del val, feature_array
+
+            del result
+
             self.feature_names = feature_names
             
             # Create DataFrame with voxels as rows and features as columns
             feature_df = pd.DataFrame(feature_matrix)
             feature_df = feature_df.T
             feature_df.columns = feature_names
-            
+
+            if kwargs.get("output_float32", True):
+                feature_df = feature_df.astype(np.float32)
+
             return feature_df
             
         except Exception as e:
@@ -184,4 +189,3 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             List[str]: List of feature names
         """
         return self.feature_names
-

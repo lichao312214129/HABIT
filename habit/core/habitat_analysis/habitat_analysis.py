@@ -42,16 +42,16 @@ from .config_schemas import HabitatAnalysisConfig
 from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
 from .pipelines.base_pipeline import BasePipelineStep, HabitatPipeline
 from .pipelines.subject_state import SubjectHabitatState
-from .pipelines.steps.calculate_mean_voxel_features import CalculateMeanVoxelFeaturesStep
-from .pipelines.steps.combine_supervoxels import CombineSupervoxelsStep
-from .pipelines.steps.concatenate_voxels import ConcatenateVoxelsStep
+from .pipelines.steps.mean_voxel_features import CalculateMeanVoxelFeaturesStep
+from .pipelines.steps.supervoxel_combination import CombineSupervoxelsStep
+from .pipelines.steps.voxel_concatenation import ConcatenateVoxelsStep
 from .pipelines.steps.group_preprocessing import GroupPreprocessingStep
 from .pipelines.steps.individual_clustering import IndividualClusteringStep
-from .pipelines.steps.merge_supervoxel_features import MergeSupervoxelFeaturesStep
-from .pipelines.steps.population_clustering import PopulationClusteringStep
-from .pipelines.steps.subject_preprocessing import SubjectPreprocessingStep
+from .pipelines.steps.supervoxel_feature_merge import MergeSupervoxelFeaturesStep
+from .pipelines.steps.group_clustering import GroupClusteringStep
+from .pipelines.steps.individual_preprocessing import IndividualPreprocessingStep
 from .pipelines.steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
-from .pipelines.steps.voxel_feature_extractor import VoxelFeatureExtractor
+from .pipelines.steps.voxel_feature_extraction import VoxelFeatureExtractor
 
 
 # =============================================================================
@@ -71,10 +71,10 @@ def _build_two_step_steps(
     """
     Build the ordered step list for the ``two_step`` clustering mode.
 
-    Two-step flow: voxel features -> subject preprocessing -> individual
+    Two-step flow: voxel features -> individual preprocessing -> individual
     clustering (voxel -> supervoxel) -> mean voxel features -> optional advanced
     supervoxel features -> select supervoxel features -> combine subjects ->
-    optional group-level preprocessing -> population clustering.
+    optional group-level preprocessing -> group clustering.
 
     Args:
         config: Validated habitat-analysis configuration.
@@ -96,8 +96,8 @@ def _build_two_step_steps(
     ))
 
     steps.append((
-        'subject_preprocessing',
-        SubjectPreprocessingStep(feature_service),
+        'individual_preprocessing',
+        IndividualPreprocessingStep(feature_service),
     ))
 
     # Individual-level clustering: voxel -> supervoxel (one cluster set per subject).
@@ -156,10 +156,10 @@ def _build_two_step_steps(
                 ),
             ))
 
-    # Population clustering: supervoxel -> habitat.
+    # Group clustering: supervoxel rows -> habitat labels.
     steps.append((
-        'population_clustering',
-        PopulationClusteringStep(
+        'group_clustering',
+        GroupClusteringStep(
             clustering_service=clustering_service,
             config=config,
             out_dir=config.out_dir,
@@ -178,7 +178,7 @@ def _build_one_step_steps(
     """
     Build the ordered step list for the ``one_step`` clustering mode.
 
-    One-step flow: voxel features -> subject preprocessing -> individual
+    One-step flow: voxel features -> individual preprocessing -> individual
     clustering (voxel -> habitat, per subject) -> mean voxel features ->
     select supervoxel features -> combine subjects.
 
@@ -200,8 +200,8 @@ def _build_one_step_steps(
     ))
 
     steps.append((
-        'subject_preprocessing',
-        SubjectPreprocessingStep(feature_service),
+        'individual_preprocessing',
+        IndividualPreprocessingStep(feature_service),
     ))
 
     # Lazily build a minimal HabitatImageWriter when one was not injected.
@@ -253,8 +253,8 @@ def _build_pooling_steps(
     """
     Build the ordered step list for the ``direct_pooling`` clustering mode.
 
-    Direct-pooling flow: voxel features -> subject preprocessing -> concatenate
-    voxels across subjects -> optional group-level preprocessing -> population
+    Direct-pooling flow: voxel features -> individual preprocessing -> concatenate
+    voxels across subjects -> optional group-level preprocessing -> group
     clustering on the pooled voxels.
 
     Args:
@@ -275,8 +275,8 @@ def _build_pooling_steps(
     ))
 
     steps.append((
-        'subject_preprocessing',
-        SubjectPreprocessingStep(feature_service),
+        'individual_preprocessing',
+        IndividualPreprocessingStep(feature_service),
     ))
 
     steps.append((
@@ -296,8 +296,8 @@ def _build_pooling_steps(
             ))
 
     steps.append((
-        'population_clustering',
-        PopulationClusteringStep(
+        'group_clustering',
+        GroupClusteringStep(
             clustering_service=clustering_service,
             config=config,
             out_dir=config.out_dir,
@@ -551,7 +551,7 @@ class HabitatAnalysis:
         Load a previously trained pipeline and transform new subjects.
 
         ``plot_curves`` is forced off in predict mode regardless of config:
-        in predict mode the population-clustering step has no validation
+        in predict mode the group-clustering step has no validation
         scores cached, and emitting them would consume an uninitialised
         ``selection_methods`` (this used to be a real ``TypeError`` trigger).
 
