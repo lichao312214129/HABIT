@@ -4,7 +4,7 @@ Multi-image feature extractor that concatenates features from multiple images
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Union, Any
+from typing import List, Set, Union
 
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
 
@@ -44,37 +44,40 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
         """
         if not image_data:
             raise ValueError("At least one image is required")
-            
-        # Convert image_data list to DataFrame
-        image_df = pd.DataFrame()
+
+        # Build per-modality frames first, then a single horizontal concat. Repeated
+        # pd.concat in a loop creates O(n_modality) full-width temporary DataFrames;
+        # batching cuts peak memory when many modalities are merged.
+        frames: List[pd.DataFrame] = []
+        columns_so_far: Set[str] = set()
+
         for i, values in enumerate(image_data):
-            # Generate a key for naming features
             key = f"img{i+1}"
-            
-            # If values is already a DataFrame, use its column names
+
             if isinstance(values, pd.DataFrame):
-                # Remove duplicate index columns (like SupervoxelID) that already exist
-                # in image_df to avoid multiple columns with the same name after concat
-                if not image_df.empty:
-                    # Find columns that already exist in image_df (e.g., SupervoxelID)
-                    duplicate_cols = [col for col in values.columns if col in image_df.columns]
+                # Drop columns that already appeared on a previous modality (e.g. SupervoxelID)
+                # so the final table has one copy, matching incremental concat semantics.
+                if columns_so_far:
+                    duplicate_cols = [
+                        col for col in values.columns if col in columns_so_far
+                    ]
                     if duplicate_cols:
                         values = values.drop(columns=duplicate_cols)
-                
-                image_df = pd.concat([image_df, values], axis=1)
+                columns_so_far.update(values.columns)
+                frames.append(values)
             else:
-                # If values is a numpy array, convert to DataFrame with prefixed column name
                 if len(values.shape) == 1:
-                    # For 1D arrays, create a single column
                     col_name = f"feature_{key}"
                     df = pd.DataFrame(values, columns=[col_name])
                 else:
-                    # For 2D arrays, create multiple columns with prefixed names
                     n_cols = values.shape[1]
                     col_names = [f"feature{j+1}_{key}" for j in range(n_cols)]
                     df = pd.DataFrame(values, columns=col_names)
-                image_df = pd.concat([image_df, df], axis=1)
-        
+                columns_so_far.update(df.columns)
+                frames.append(df)
+
+        image_df = pd.concat(frames, axis=1) if frames else pd.DataFrame()
+
         # Check if all images have the same number of voxels
         if image_df.empty:
             raise ValueError("No valid data found in input list")
