@@ -1,14 +1,9 @@
 """
-Value-only (numpy) preprocessing transforms.
+Value-only (numpy) preprocessing helpers.
 
-These functions operate on ``np.ndarray`` without any column-identity
-information. They are used by the stateless subject-level path where
-features pass through as raw arrays.
-
-Column-dropping operations (variance / correlation filter) are **not**
-included here — they belong in the sibling ``variance_filter`` /
-``correlation_filter`` modules because they require DataFrame column
-names and must be routed through the frame-method registry.
+These low-level utilities are used internally by registered DataFrame handlers
+and the unified preprocessing pipeline. External callers should prefer
+:func:`pipeline.apply_stateless_preprocessing` or :class:`PreprocessingState`.
 """
 
 from __future__ import annotations

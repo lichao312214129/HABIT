@@ -127,9 +127,7 @@ class TestHabitatAnalyzer:
 
 class TestFeaturePreprocessing:
     def test_variance_filter_removes_zero_variance(self) -> None:
-        from habit.core.habitat_analysis.feature_preprocessing.variance_filter import (
-            apply_variance_filter,
-        )
+        from habit.core.habitat_analysis.feature_preprocessing import apply_variance_filter
 
         df = pd.DataFrame(
             {"const": [1.0] * 20, "vary": np.linspace(0, 1, 20)}
@@ -139,18 +137,14 @@ class TestFeaturePreprocessing:
         assert "vary" in filtered.columns
 
     def test_variance_filter_keeps_all_when_threshold_zero_and_no_const(self) -> None:
-        from habit.core.habitat_analysis.feature_preprocessing.variance_filter import (
-            apply_variance_filter,
-        )
+        from habit.core.habitat_analysis.feature_preprocessing import apply_variance_filter
 
         df = pd.DataFrame(np.random.randn(20, 5), columns=list("ABCDE"))
         filtered = apply_variance_filter(df, threshold=0.0)
         assert filtered.shape[1] == 5
 
     def test_correlation_filter_removes_redundant_features(self) -> None:
-        from habit.core.habitat_analysis.feature_preprocessing.correlation_filter import (
-            apply_correlation_filter,
-        )
+        from habit.core.habitat_analysis.feature_preprocessing import apply_correlation_filter
 
         base = np.linspace(0, 1, 30)
         df = pd.DataFrame(

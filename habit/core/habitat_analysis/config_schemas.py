@@ -8,16 +8,12 @@ from pydantic import BaseModel, Field, model_validator, field_validator
 
 from habit.core.common.configs.base import BaseConfig
 
-from .feature_preprocessing.frame_method_handlers import FRAME_LEVEL_METHOD_NAMES
-
-# Preprocessing methods that DROP feature columns (variance / correlation
-# filtering). They cannot legally run at subject level when the pipeline is
-# in two-step mode, because each subject would survive a different column
-# subset and group concatenation would be left with NaN-heavy gaps.
-#
-# Registry keys live in ``feature_preprocessing.frame_method_handlers``; this
-# alias keeps existing imports stable for validators and FeatureService.
-DROPPING_PREPROCESSING_METHODS: FrozenSet[str] = FRAME_LEVEL_METHOD_NAMES
+# Preprocessing methods that DROP feature columns (variance / correlation filtering).
+# Keep in sync with handlers that set ``changes_columns=True`` in builtin_methods.
+DROPPING_PREPROCESSING_METHODS: FrozenSet[str] = frozenset({
+    "variance_filter",
+    "correlation_filter",
+})
 
 # -----------------------------------------------------------------------------
 # General/Root Configuration

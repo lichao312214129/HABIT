@@ -447,7 +447,8 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
   - **类型**: 列表
   - **必需**: 否
   - **默认值**: ``[]``
-  - **说明**: 在个体水平对特征进行预处理，消除个体内异常值和尺度差异。
+  - **说明**: 在个体水平对特征进行预处理，消除个体内异常值和尺度差异。底层由
+    ``PreprocessingMethodFactory`` 统一调度，DataFrame 进/出（见下文「生境特征预处理实现与扩展」）。
   - **注意**: ``two_step`` 与 ``direct_pooling`` 模式下，个体级别不应使用会删列的方法（``variance_filter``、``correlation_filter``），否则跨受试者拼接后会出现列不一致；``two_step`` 会在配置校验阶段直接拒绝。``one_step`` 模式可在个体级别使用删列型方法（每例独立聚类）。
   - **支持方法及参数**:
 
@@ -553,6 +554,26 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
          n_bins: 20
          bin_strategy: quantile
          global_normalize: false
+
+**生境特征预处理实现与扩展**
+
+- **统一接口**: 所有内置与自定义方法均实现 ``BaseFeaturePreprocessing``，
+  通过 ``@register_preprocessing`` 注册到 ``PreprocessingMethodFactory``。
+- **执行路径**: ``preprocessing_for_subject_level`` → 个体级无状态
+  ``apply_stateless_preprocessing``；``preprocessing_for_group_level`` →
+  ``PreprocessingState.fit/transform``（训练期缓存 ``baseline`` 与各步
+  ``step_states``，预测期复用）。
+- **删列型方法**: ``variance_filter``、``correlation_filter`` 设
+  ``changes_columns=True``；``two_step`` 禁止在 subject 级使用（见上文注意事项）。
+- **新增方法**:
+
+  1. 参考 ``habit/core/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
+  2. 在 ``config_schemas.PreprocessingMethod.method`` Literal 中追加方法名
+  3. 若删列，同步更新 ``DROPPING_PREPROCESSING_METHODS``
+  4. 确保模块被 import，使注册装饰器执行
+
+- **兼容性**: YAML 配置格式未变；旧版 ``habitat_pipeline.pkl`` 若含重构前的
+  ``PreprocessingState`` 结构，需重新 train。
 
 **HabitatsSegmention**: 生境分割设置
 

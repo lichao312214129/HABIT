@@ -15,7 +15,7 @@ from habit.utils.parallel_utils import parallel_map
 from ..config_schemas import HabitatAnalysisConfig, DROPPING_PREPROCESSING_METHODS
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
-from ..feature_preprocessing import apply_registered_frame_method, process_features_pipeline
+from ..feature_preprocessing.pipeline import apply_stateless_preprocessing
 
 class FeatureService:
     """
@@ -391,20 +391,7 @@ class FeatureService:
                         f"{methods_text}. Please move them to preprocessing_for_group_level."
                     )
 
-            processed_df = feature_df.copy()
-
-            for method in methods:
-                frame_out = apply_registered_frame_method(processed_df, method)
-                if frame_out is not None:
-                    processed_df = frame_out
-                else:
-                    # Stateless value-transform methods (scaling, binning, ...).
-                    transformed = process_features_pipeline(processed_df.values, methods=[method])
-                    processed_df = pd.DataFrame(
-                        transformed,
-                        columns=processed_df.columns,
-                        index=processed_df.index
-                    )
+            processed_df = apply_stateless_preprocessing(feature_df, methods)
 
             return processed_df
         

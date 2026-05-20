@@ -1,68 +1,64 @@
 """
 Feature-preprocessing package for habitat analysis.
 
-This package houses **all** preprocessing logic — both stateless algorithms
-and the stateful :class:`PreprocessingState` manager used for group-level
-train/test consistency.
-
-Column-dropping operations (variance / correlation filter) change the
-DataFrame shape, which is why they cannot be expressed through the
-value-only :func:`process_features_pipeline` utility used for scaling /
-discretisation.
-
-Each column-dropping algorithm comes in two forms:
-
-* ``select_*_columns``  -> returns the surviving column names. Useful when
-  a stateful preprocessor must cache the column list at fit time and
-  replay it at predict time.
-* ``apply_*_filter``    -> returns the filtered DataFrame directly.
-
-Both forms share a single source of truth so the algorithm cannot drift
-between the subject-level and group-level code paths.
-
-Value-only transforms (minmax, zscore, robust, binning, winsorize, log)
-live in :mod:`value_transforms` and operate on ``np.ndarray``.
-
-Stateful group-level preprocessing (fit/transform with parameter caching)
-lives in :mod:`preprocessing_state`.
+All preprocessing uses a unified DataFrame pipeline backed by
+``PreprocessingMethodFactory`` and ``@register_preprocessing``. Built-in
+methods (including variance / correlation filters) live in :mod:`builtin_methods`.
 """
-from .correlation_filter import apply_correlation_filter, select_correlation_columns
-from .frame_method_handlers import (
-    FRAME_LEVEL_METHOD_NAMES,
-    FRAME_METHOD_HANDLERS,
-    apply_registered_frame_method,
-    resolve_correlation_filter_params,
-    resolve_variance_threshold,
+
+from .base_preprocessing import (
+    BaseFeaturePreprocessing,
+    BaselineStats,
+    PreprocessingMethodFactory,
+    register_preprocessing,
 )
-from .value_transforms import (
-    handle_extreme_values,
-    create_discretizer,
-    preprocess_features,
-    process_features_pipeline,
+from .builtin_methods import (
+    apply_correlation_filter,
+    apply_variance_filter,
+    select_correlation_columns,
+    select_variance_columns,
 )
-from .variance_filter import apply_variance_filter, select_variance_columns
 
 
 def __getattr__(name: str):
     if name == "PreprocessingState":
         from .preprocessing_state import PreprocessingState
         return PreprocessingState
+    if name == "apply_preprocessing_pipeline":
+        from .pipeline import apply_preprocessing_pipeline
+        return apply_preprocessing_pipeline
+    if name == "apply_stateless_preprocessing":
+        from .pipeline import apply_stateless_preprocessing
+        return apply_stateless_preprocessing
+    if name == "handle_extreme_values":
+        from .value_transforms import handle_extreme_values
+        return handle_extreme_values
+    if name == "create_discretizer":
+        from .value_transforms import create_discretizer
+        return create_discretizer
+    if name == "preprocess_features":
+        from .value_transforms import preprocess_features
+        return preprocess_features
+    if name == "process_features_pipeline":
+        from .value_transforms import process_features_pipeline
+        return process_features_pipeline
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = [
-    "FRAME_LEVEL_METHOD_NAMES",
-    "FRAME_METHOD_HANDLERS",
+    "BaseFeaturePreprocessing",
+    "BaselineStats",
+    "PreprocessingMethodFactory",
     "PreprocessingState",
     "apply_correlation_filter",
-    "apply_registered_frame_method",
+    "apply_preprocessing_pipeline",
+    "apply_stateless_preprocessing",
     "apply_variance_filter",
     "create_discretizer",
     "handle_extreme_values",
     "preprocess_features",
     "process_features_pipeline",
-    "resolve_correlation_filter_params",
-    "resolve_variance_threshold",
+    "register_preprocessing",
     "select_correlation_columns",
     "select_variance_columns",
 ]
