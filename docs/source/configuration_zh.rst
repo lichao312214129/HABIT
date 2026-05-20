@@ -448,7 +448,7 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
   - **必需**: 否
   - **默认值**: ``[]``
   - **说明**: 在个体水平对特征进行预处理，消除个体内异常值和尺度差异。
-  - **注意**: ``two_step`` 模式下，个体级别不允许使用会删列的方法（``variance_filter``、``correlation_filter``），否则会导致跨受试者拼接后出现大量缺失列。
+  - **注意**: ``two_step`` 与 ``direct_pooling`` 模式下，个体级别不应使用会删列的方法（``variance_filter``、``correlation_filter``），否则跨受试者拼接后会出现列不一致；``two_step`` 会在配置校验阶段直接拒绝。``one_step`` 模式可在个体级别使用删列型方法（每例独立聚类）。
   - **支持方法及参数**:
 
     **winsorize (缩尾处理)**:
@@ -508,6 +508,7 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
   - **必需**: 否
   - **默认值**: ``[]``
   - **说明**: 在群体水平对特征进行预处理，通常用于离散化以提高聚类的稳定性。
+  - **适用模式**: 仅 ``two_step`` 与 ``direct_pooling``；``one_step`` 模式的 pipeline 不含群体级预处理步骤，配置了也不会生效。
   - **支持方法及参数**:
 
     **binning (特征离散化/分箱)**:
