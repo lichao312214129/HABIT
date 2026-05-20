@@ -14,7 +14,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
 
 
@@ -106,7 +106,7 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         self.fitted_ = True
         return self
 
-    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+    def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """
         Pick advanced or mean-voxel supervoxel features for one subject and
         normalise them into the ``supervoxel_df`` contract consumed by
@@ -144,12 +144,12 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
                 f"feature columns: {true_feature_columns})"
             )
 
-        return SubjectHabitatState(supervoxel_df=supervoxel_df)
+        return HabitatSubjectData(supervoxel_df=supervoxel_df)
 
     def _build_advanced_supervoxel_df(
         self,
         subject_id: str,
-        subject_data: SubjectHabitatState,
+        subject_data: HabitatSubjectData,
     ) -> pd.DataFrame:
         supervoxel_df = subject_data.require_supervoxel_features(self.__class__.__name__).copy()
 
@@ -189,6 +189,6 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
     def _build_mean_supervoxel_df(
         self,
         subject_id: str,
-        subject_data: SubjectHabitatState,
+        subject_data: HabitatSubjectData,
     ) -> pd.DataFrame:
         return subject_data.require_mean_voxel_features(self.__class__.__name__).copy()

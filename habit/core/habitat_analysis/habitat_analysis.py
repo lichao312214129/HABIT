@@ -41,7 +41,7 @@ from habit.utils.log_utils import LoggerManager, get_module_logger
 from .config_schemas import HabitatAnalysisConfig
 from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
 from .pipelines.base_pipeline import BasePipelineStep, HabitatPipeline
-from .pipelines.subject_state import SubjectHabitatState
+from .pipelines.habitat_subject_data import HabitatSubjectData
 from .pipelines.steps.mean_voxel_features import CalculateMeanVoxelFeaturesStep
 from .pipelines.steps.supervoxel_combination import CombineSupervoxelsStep
 from .pipelines.steps.voxel_concatenation import ConcatenateVoxelsStep
@@ -516,8 +516,8 @@ class HabitatAnalysis:
         subjects_list = self._prepare_subjects(subjects)
         # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
         # so we just hand it an empty stub per subject.
-        X: Dict[str, SubjectHabitatState] = {
-            subject: SubjectHabitatState.empty()
+        X: Dict[str, HabitatSubjectData] = {
+            subject: HabitatSubjectData.empty()
             for subject in subjects_list
         }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
@@ -580,8 +580,8 @@ class HabitatAnalysis:
         subjects_list = self._prepare_subjects(subjects)
         # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
         # so we just hand it an empty stub per subject.
-        X: Dict[str, SubjectHabitatState] = {
-            subject: SubjectHabitatState.empty()
+        X: Dict[str, HabitatSubjectData] = {
+            subject: HabitatSubjectData.empty()
             for subject in subjects_list
         }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)

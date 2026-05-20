@@ -11,7 +11,7 @@ from habit.utils.log_utils import get_module_logger
 import numpy as np
 
 from ..base_pipeline import IndividualLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...services.clustering_service import ClusteringService
 from ...services.habitat_image_writer import HabitatImageWriter
 from ...config_schemas import HabitatAnalysisConfig
@@ -53,7 +53,7 @@ class IndividualClusteringStep(IndividualLevelStep):
         self.find_optimal = find_optimal
         self.logger = get_module_logger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+    def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """Cluster one subject's voxels to supervoxels (or habitats)."""
         feature_df = subject_data.require_features(self.__class__.__name__)
         raw_df = subject_data.require_raw(self.__class__.__name__)
@@ -74,7 +74,7 @@ class IndividualClusteringStep(IndividualLevelStep):
         if self.config.plot_curves:
             self._visualize(subject_id, feature_df, labels, n_clusters)
 
-        return SubjectHabitatState(
+        return HabitatSubjectData(
             features=feature_df,
             raw=raw_df,
             mask_info=mask_info,

@@ -1,379 +1,93 @@
 """
 Parallel processing utilities for HABIT project.
 
-This module provides a unified interface for parallel and sequential processing,
-eliminating code duplication across different modules that need multiprocessing.
+Heavy work uses :class:`~habit.utils.isolated_runner.IsolatedTaskRunner`:
+one spawn child process per item, bounded concurrency, and real per-item timeouts.
 """
 
+from __future__ import annotations
+
 import logging
-import multiprocessing
-import queue
-import threading
-import time
 from typing import (
-    TypeVar, Callable, Iterable, List, Tuple,
-    Optional, Any, Union, Generator, Dict
+    TypeVar,
+    Callable,
+    Iterable,
+    List,
+    Tuple,
+    Optional,
+    Any,
+    Generator,
 )
-from dataclasses import dataclass
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 
-from habit.utils.progress_utils import CustomTqdm
-from habit.utils.log_utils import restore_logging_in_subprocess, LoggerManager
+from habit.utils.log_utils import LoggerManager
+from habit.utils.isolated_runner import (
+    DEFAULT_GRACEFUL_SHUTDOWN_SEC,
+    IsolatedTaskRunner,
+    ProcessingResult,
+    _item_id_from_worker_args,
+    _put_worker_wrapper_result,
+    _worker_wrapper,
+)
 
-# Type variable for generic processing
-T = TypeVar('T')  # Input type
-R = TypeVar('R')  # Result type
+# Re-export for backward compatibility
+__all__ = [
+    "ProcessingResult",
+    "parallel_map",
+    "parallel_map_simple",
+    "ParallelProcessor",
+    "_worker_wrapper",
+    "_put_worker_wrapper_result",
+    "_item_id_from_worker_args",
+]
 
-
-@dataclass
-class ProcessingResult:
-    """
-    Container for processing result with error handling.
-    
-    Attributes:
-        item_id: Identifier for the processed item
-        result: The processing result (None if failed)
-        error: Exception if processing failed (None if successful)
-        success: Whether processing was successful
-    """
-    item_id: Any
-    result: Optional[Any] = None
-    error: Optional[Exception] = None
-    
-    @property
-    def success(self) -> bool:
-        """Check if processing was successful."""
-        return self.error is None
-    
-    def unwrap(self) -> Any:
-        """
-        Get the result, raising the error if processing failed.
-        
-        Returns:
-            The processing result
-            
-        Raises:
-            Exception: The original exception if processing failed
-        """
-        if self.error is not None:
-            raise self.error
-        return self.result
+T = TypeVar("T")
+R = TypeVar("R")
 
 
-def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> ProcessingResult:
-    """
-    Internal wrapper for worker function that handles logging restoration
-    and exception catching in child processes.
-    
-    Args:
-        args: Tuple of (function, item, log_file_path, log_level)
-        
-    Returns:
-        ProcessingResult: Container with result or error
-    """
-    func, item, log_file_path, log_level = args
-    
-    # Restore logging in subprocess (for Windows spawn mode)
-    if log_file_path is not None:
-        restore_logging_in_subprocess(log_file_path, log_level)
-    
-    try:
-        # Get item_id from item if it has one, otherwise use item itself
-        if hasattr(item, '__getitem__') and len(item) > 0:
-            item_id = item[0] if isinstance(item, (list, tuple)) else item
-        else:
-            item_id = item
-            
-        result = func(item)
-        
-        # Handle tuple returns where first element is ID
-        if isinstance(result, tuple) and len(result) == 2:
-            item_id, actual_result = result
-            if isinstance(actual_result, Exception):
-                return ProcessingResult(item_id=item_id, error=actual_result)
-            return ProcessingResult(item_id=item_id, result=actual_result)
-        
-        return ProcessingResult(item_id=item_id, result=result)
-        
-    except Exception as e:
-        return ProcessingResult(item_id=item, error=e)
-
-
-def _item_id_from_worker_args(worker_args: Tuple[Any, ...]) -> Any:
-    """
-    Extract a stable item id from parallel_map worker argument tuple.
-
-    worker_args layout: (func, item, log_file_path, log_level). For habitat
-    pipelines, item is (subject_id, subject_data).
-
-    Args:
-        worker_args: Arguments tuple passed to _worker_wrapper.
-
-    Returns:
-        Identifier used in logs and failed_items (typically subject_id).
-    """
-    item = worker_args[1]
-    if isinstance(item, (list, tuple)) and len(item) > 0:
-        return item[0]
-    return item
-
-
-def _put_worker_wrapper_result(
-    worker_args: Tuple[Any, ...],
-    result_queue: Any,
-) -> None:
-    """
-    Child-process entry point (must be top-level for Windows spawn).
-
-    Runs _worker_wrapper once and pushes ProcessingResult to result_queue.
-
-    Args:
-        worker_args: Tuple (func, item, log_file_path, log_level).
-        result_queue: multiprocessing.Queue with maxsize compatible with one put.
-    """
-    result_queue.put(_worker_wrapper(worker_args))
-
-
-def _parallel_map_with_item_timeout(
+def _run_inprocess_sequential(
     func: Callable[[T], R],
     items_list: List[T],
-    n_processes: int,
-    total: int,
     desc: str,
     logger: Optional[logging.Logger],
     show_progress: bool,
-    log_file_path: Optional[Path],
-    log_level: int,
-    per_item_timeout_sec: float,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
-    """
-    Parallel path: ProcessPoolExecutor + per-future wall-clock timeout.
+    """Sequential in-process path (no spawn overhead)."""
+    from habit.utils.progress_utils import CustomTqdm
 
-    Timed-out tasks are counted as failed without waiting for worker completion;
-    ``executor.shutdown(wait=False)`` is used only in that case so shutdown does
-    not block on orphan workers. When every task finished normally,
-    ``shutdown(wait=True)`` avoids Windows ``ProcessPoolExecutor`` teardown races
-    (e.g. ``QueueManagerThread`` / WinError 6).
-
-    Args:
-        func: User function (same contract as parallel_map).
-        items_list: Materialised items.
-        n_processes: Worker count.
-        total: len(items_list).
-        desc: Progress description.
-        logger: Optional logger.
-        show_progress: tqdm flag.
-        log_file_path: Subprocess logging path.
-        log_level: Subprocess log level.
-        per_item_timeout_sec: Seconds from submit before treating as failed.
-
-    Returns:
-        (successful_results, failed_items) same as parallel_map.
-    """
     successful_results: List[ProcessingResult] = []
     failed_items: List[Any] = []
+    total = len(items_list)
 
-    worker_args = [
-        (func, item, log_file_path, log_level)
-        for item in items_list
-    ]
-
-    executor = ProcessPoolExecutor(max_workers=n_processes)
-    future_to_args: Dict[Any, Tuple[Any, ...]] = {}
-    submit_times: Dict[Any, float] = {}
-    # If True, at least one item was abandoned after wall-clock timeout while the
-    # worker might still be running; shutdown(wait=False) avoids blocking on those
-    # orphans. If False, every submitted future was finished via wait/result; on
-    # Windows, shutdown(wait=True) avoids QueueManagerThread teardown races that
-    # surface as WinError 6 / "handle is closed" when using wait=False.
-    had_wallclock_timeout_skip = False
-    try:
-        for wa in worker_args:
-            fut = executor.submit(_worker_wrapper, wa)
-            future_to_args[fut] = wa
-            submit_times[fut] = time.monotonic()
-
-        pending = set(future_to_args.keys())
-        if show_progress:
-            progress_bar = CustomTqdm(total=total, desc=desc)
-
-        while pending:
-            done, still_pending = wait(
-                pending,
-                timeout=0.5,
-                return_when=FIRST_COMPLETED,
-            )
-            now = time.monotonic()
-
-            for future in done:
-                pending.discard(future)
-                item_id = _item_id_from_worker_args(future_to_args[future])
-                try:
-                    proc_result = future.result()
-                except Exception as exc:  # e.g. broken process pool
-                    failed_items.append(item_id)
-                    if logger:
-                        logger.error(
-                            "Error retrieving result for %s: %s",
-                            item_id,
-                            exc,
-                            exc_info=True,
-                        )
-                else:
-                    if proc_result.success:
-                        successful_results.append(proc_result)
-                    else:
-                        failed_items.append(proc_result.item_id)
-                        if logger:
-                            logger.error(
-                                "Error processing %s: %s",
-                                proc_result.item_id,
-                                proc_result.error,
-                            )
-                if show_progress:
-                    progress_bar.update(1)
-
-            timed_out = [
-                fut for fut in still_pending
-                if now - submit_times[fut] > per_item_timeout_sec
-            ]
-            for future in timed_out:
-                had_wallclock_timeout_skip = True
-                pending.discard(future)
-                item_id = _item_id_from_worker_args(future_to_args[future])
-                failed_items.append(item_id)
-                if logger:
-                    logger.error(
-                        "Timeout (>%ss) for item %s; skipping (worker may still run).",
-                        per_item_timeout_sec,
-                        item_id,
-                    )
-                if show_progress:
-                    progress_bar.update(1)
-    finally:
-        # Orphan workers may still run after a wall-clock skip; avoid blocking.
-        # Otherwise prefer a graceful shutdown to reduce Windows teardown noise.
-        executor.shutdown(wait=not had_wallclock_timeout_skip)
-
-    if logger and failed_items:
-        logger.warning("Failed or timed out %s item(s)", len(failed_items))
-
-    return successful_results, failed_items
-
-
-def _sequential_map_with_item_timeout(
-    func: Callable[[T], R],
-    items_list: List[T],
-    total: int,
-    desc: str,
-    logger: Optional[logging.Logger],
-    show_progress: bool,
-    log_file_path: Optional[Path],
-    log_level: int,
-    per_item_timeout_sec: float,
-) -> Tuple[List[ProcessingResult], List[Any]]:
-    """
-    Sequential path with per-item timeout using one spawn child per item.
-
-    After timeout the child is terminated (best-effort skip).
-
-    **Queue / pipe deadlock**: ``multiprocessing.Queue.put`` can block until the
-    receiver drains the underlying pipe when the pickled payload is larger than
-    the OS pipe buffer. If the parent calls ``Process.join`` before any
-    ``queue.get``, the child may never finish ``put`` and never exit, while the
-    parent waits on ``join`` forever. A background thread calls ``get`` as soon
-    as the child starts so ``put`` can always complete.
-
-    Args:
-        func: User function.
-        items_list: Items to process.
-        total: Number of items.
-        desc: Progress description.
-        logger: Optional logger.
-        show_progress: tqdm flag.
-        log_file_path: Subprocess logging path.
-        log_level: Subprocess log level.
-        per_item_timeout_sec: Per-item wall-clock limit.
-
-    Returns:
-        (successful_results, failed_items) same as parallel_map.
-    """
-    successful_results: List[ProcessingResult] = []
-    failed_items: List[Any] = []
-    ctx = multiprocessing.get_context("spawn")
-
-    if show_progress:
-        progress_bar = CustomTqdm(total=total, desc=desc)
+    progress_bar = CustomTqdm(total=total, desc=desc) if show_progress else None
 
     for item in items_list:
-        worker_args = (func, item, log_file_path, log_level)
-        item_id = _item_id_from_worker_args(worker_args)
-        result_queue = ctx.Queue(maxsize=1)
-        proc = ctx.Process(
-            target=_put_worker_wrapper_result,
-            args=(worker_args, result_queue),
-        )
-        recv_bucket: List[Optional[ProcessingResult]] = [None]
-
-        def _drain_worker_result_queue() -> None:
-            recv_bucket[0] = result_queue.get()
-
-        reader = threading.Thread(
-            target=_drain_worker_result_queue,
-            name="habit-parallel_map-queue-reader",
-            daemon=True,
-        )
-        reader.start()
-        proc.start()
-        proc.join(timeout=per_item_timeout_sec)
-        if proc.is_alive():
-            if logger:
-                logger.error(
-                    "Timeout (>%ss) for item %s; terminating child process.",
-                    per_item_timeout_sec,
-                    item_id,
+        try:
+            raw_result = func(item)
+            if isinstance(raw_result, tuple) and len(raw_result) == 2:
+                item_id, actual_result = raw_result
+                if isinstance(actual_result, Exception):
+                    failed_items.append(item_id)
+                    if logger:
+                        logger.error("Error processing %s: %s", item_id, actual_result)
+                else:
+                    successful_results.append(
+                        ProcessingResult(item_id=item_id, result=actual_result)
+                    )
+            else:
+                successful_results.append(
+                    ProcessingResult(item_id=item, result=raw_result)
                 )
-            proc.terminate()
-            proc.join(timeout=10)
-            failed_items.append(item_id)
-            reader.join(timeout=2)
-            if show_progress:
-                progress_bar.update(1)
-            continue
-
-        join_post_sec = max(30.0, float(per_item_timeout_sec) + 10.0)
-        reader.join(timeout=join_post_sec)
-        proc_result = recv_bucket[0]
-        if proc_result is None:
-            failed_items.append(item_id)
+        except Exception as exc:
+            failed_items.append(item)
             if logger:
-                logger.error(
-                    "Child exited without a queue result for item %s "
-                    "(exit code %s); reader timed out or child never sent.",
-                    item_id,
-                    proc.exitcode,
-                )
-            if show_progress:
-                progress_bar.update(1)
-            continue
+                logger.error("Error processing %s: %s", item, exc)
 
-        if proc_result.success:
-            successful_results.append(proc_result)
-        else:
-            failed_items.append(proc_result.item_id)
-            if logger:
-                logger.error(
-                    "Error processing %s: %s",
-                    proc_result.item_id,
-                    proc_result.error,
-                )
-
-        if show_progress:
+        if progress_bar is not None:
             progress_bar.update(1)
 
     if logger and failed_items:
-        logger.warning("Failed or timed out %s item(s)", len(failed_items))
+        logger.warning("Failed to process %s item(s)", len(failed_items))
 
     return successful_results, failed_items
 
@@ -388,47 +102,33 @@ def parallel_map(
     log_file_path: Optional[Path] = None,
     log_level: int = logging.INFO,
     per_item_timeout_sec: Optional[float] = None,
+    graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
-    Apply a function to items in parallel or sequentially with unified interface.
-    
-    This function provides:
-    - Automatic switching between parallel and sequential processing
-    - Progress bar display
-    - Error collection without stopping processing
-    - Logging restoration in child processes (Windows compatibility)
-    
+    Apply a function to items with bounded isolated subprocesses.
+
+    When ``n_processes > 1`` or a positive ``per_item_timeout_sec`` is set, each item
+    runs in its own ``spawn`` child process (at most ``n_processes`` at once).
+    Timeouts call ``terminate`` then ``kill`` on that child only.
+
+    When ``n_processes == 1`` and timeout is disabled, runs in-process sequentially
+    without spawn overhead.
+
     Args:
-        func: Function to apply to each item. Should return (item_id, result) tuple
-              or just result. If processing fails, can return (item_id, Exception).
-        items: Iterable of items to process
-        n_processes: Number of parallel processes (1 = sequential)
-        desc: Description for progress bar
-        logger: Logger for status messages
-        show_progress: Whether to show progress bar
-        log_file_path: Path to log file for child process logging restoration
-        log_level: Logging level for child processes
-        per_item_timeout_sec: If set to a positive value, items exceeding this wall
-            time since submit (parallel) or since child start (sequential) are
-            recorded as failed and skipped. Parallel mode does not terminate stuck
-            workers; sequential mode calls terminate(). None keeps legacy behaviour.
+        func: Function applied per item; may return ``result`` or ``(item_id, result)``.
+        items: Iterable of items to process.
+        n_processes: Maximum concurrent child processes (>= 1).
+        desc: Progress bar description.
+        logger: Optional logger.
+        show_progress: Whether to show a progress bar.
+        log_file_path: Log file path restored in each child.
+        log_level: Logging level for children.
+        per_item_timeout_sec: Wall-clock limit per item from child ``start()``; ``None``
+            disables timeout.
+        graceful_shutdown_sec: Seconds to wait after ``terminate`` before ``kill``.
 
     Returns:
-        Tuple[List[ProcessingResult], List[Any]]: 
-            - List of successful ProcessingResult objects
-            - List of failed item IDs
-            
-    Example:
-        >>> def process_subject(subject_id):
-        ...     # Do processing
-        ...     return subject_id, processed_data
-        >>> 
-        >>> results, failed = parallel_map(
-        ...     process_subject,
-        ...     subject_list,
-        ...     n_processes=4,
-        ...     desc="Processing subjects"
-        ... )
+        ``(successful_results, failed_item_ids)``.
     """
     items_list = list(items)
     total = len(items_list)
@@ -436,112 +136,41 @@ def parallel_map(
     if total == 0:
         return [], []
 
-    if per_item_timeout_sec is not None and per_item_timeout_sec > 0:
-        if log_file_path is None:
-            manager = LoggerManager()
-            log_file_path = manager.get_log_file()
-        if n_processes > 1 and total > 1:
-            return _parallel_map_with_item_timeout(
-                func=func,
-                items_list=items_list,
-                n_processes=n_processes,
-                total=total,
-                desc=desc,
-                logger=logger,
-                show_progress=show_progress,
-                log_file_path=log_file_path,
-                log_level=log_level,
-                per_item_timeout_sec=per_item_timeout_sec,
-            )
-        return _sequential_map_with_item_timeout(
+    use_isolated = (n_processes > 1 and total > 1) or (
+        per_item_timeout_sec is not None and per_item_timeout_sec > 0
+    )
+
+    if not use_isolated:
+        return _run_inprocess_sequential(
             func=func,
             items_list=items_list,
-            total=total,
             desc=desc,
             logger=logger,
             show_progress=show_progress,
-            log_file_path=log_file_path,
-            log_level=log_level,
-            per_item_timeout_sec=per_item_timeout_sec,
         )
 
-    successful_results: List[ProcessingResult] = []
-    failed_items: List[Any] = []
-    
-    # Get logging configuration if not provided
     if log_file_path is None:
         manager = LoggerManager()
         log_file_path = manager.get_log_file()
-    
-    # Use parallel processing
-    if n_processes > 1 and total > 1:
-        if logger:
-            logger.info(f"Using {n_processes} processes for parallel processing...")
-        
-        # Prepare arguments with logging info
-        worker_args = [
-            (func, item, log_file_path, log_level) 
-            for item in items_list
-        ]
-        
-        with multiprocessing.Pool(processes=n_processes) as pool:
-            results_iter = pool.imap_unordered(_worker_wrapper, worker_args)
-            
-            if show_progress:
-                progress_bar = CustomTqdm(total=total, desc=desc)
-            
-            for result in results_iter:
-                if result.success:
-                    successful_results.append(result)
-                else:
-                    failed_items.append(result.item_id)
-                    if logger:
-                        logger.error(
-                            f"Error processing {result.item_id}: {result.error}"
-                        )
-                
-                if show_progress:
-                    progress_bar.update(1)
-    
-    # Use sequential processing
-    else:
-        if show_progress:
-            progress_bar = CustomTqdm(total=total, desc=desc)
-        
-        for item in items_list:
-            # Call function directly (no wrapper needed for sequential)
-            try:
-                raw_result = func(item)
-                
-                # Handle tuple returns
-                if isinstance(raw_result, tuple) and len(raw_result) == 2:
-                    item_id, actual_result = raw_result
-                    if isinstance(actual_result, Exception):
-                        failed_items.append(item_id)
-                        if logger:
-                            logger.error(f"Error processing {item_id}: {actual_result}")
-                    else:
-                        successful_results.append(
-                            ProcessingResult(item_id=item_id, result=actual_result)
-                        )
-                else:
-                    successful_results.append(
-                        ProcessingResult(item_id=item, result=raw_result)
-                    )
-                    
-            except Exception as e:
-                failed_items.append(item)
-                if logger:
-                    logger.error(f"Error processing {item}: {e}")
-            
-            if show_progress:
-                progress_bar.update(1)
-    
-    # Log summary
-    if logger and failed_items:
-        logger.warning(f"Failed to process {len(failed_items)} item(s)")
-    
-    return successful_results, failed_items
+
+    runner = IsolatedTaskRunner(
+        max_workers=max(1, n_processes),
+        per_item_timeout_sec=(
+            per_item_timeout_sec
+            if per_item_timeout_sec is not None and per_item_timeout_sec > 0
+            else None
+        ),
+        graceful_shutdown_sec=graceful_shutdown_sec,
+    )
+    return runner.map_items(
+        func=func,
+        items_list=items_list,
+        desc=desc,
+        logger=logger,
+        show_progress=show_progress,
+        log_file_path=log_file_path,
+        log_level=log_level,
+    )
 
 
 def parallel_map_simple(
@@ -550,104 +179,74 @@ def parallel_map_simple(
     n_processes: int = 1,
     desc: str = "Processing",
     show_progress: bool = True,
+    per_item_timeout_sec: Optional[float] = None,
 ) -> Generator[R, None, None]:
     """
-    Simplified parallel map that yields results directly.
-    
-    This is a simpler alternative to parallel_map when you don't need
-    detailed error tracking. Results are yielded as they complete.
-    
-    Args:
-        func: Function to apply to each item
-        items: Iterable of items to process
-        n_processes: Number of parallel processes (1 = sequential)
-        desc: Description for progress bar
-        show_progress: Whether to show progress bar
-        
-    Yields:
-        Results from the function (may include exceptions)
-        
-    Example:
-        >>> for result in parallel_map_simple(process_fn, items, n_processes=4):
-        ...     if isinstance(result, Exception):
-        ...         handle_error(result)
-        ...     else:
-        ...         handle_success(result)
+    Simplified parallel map that yields raw results (or exceptions) per item.
+
+    Uses the same isolated runner as :func:`parallel_map` when subprocesses are required.
     """
     items_list = list(items)
-    total = len(items_list)
-    
-    if total == 0:
+    if not items_list:
         return
-    
-    if show_progress:
-        progress_bar = CustomTqdm(total=total, desc=desc)
-    
-    if n_processes > 1 and total > 1:
-        with multiprocessing.Pool(processes=n_processes) as pool:
-            for result in pool.imap_unordered(func, items_list):
-                yield result
-                if show_progress:
-                    progress_bar.update(1)
-    else:
+
+    use_isolated = (n_processes > 1 and len(items_list) > 1) or (
+        per_item_timeout_sec is not None and per_item_timeout_sec > 0
+    )
+
+    if not use_isolated:
+        from habit.utils.progress_utils import CustomTqdm
+
+        progress_bar = CustomTqdm(total=len(items_list), desc=desc) if show_progress else None
         for item in items_list:
             try:
                 yield func(item)
-            except Exception as e:
-                yield e
-            if show_progress:
+            except Exception as exc:
+                yield exc  # type: ignore[misc]
+            if progress_bar is not None:
                 progress_bar.update(1)
+        return
+
+    successful, _failed = parallel_map(
+        func=func,
+        items=items_list,
+        n_processes=n_processes,
+        desc=desc,
+        show_progress=show_progress,
+        per_item_timeout_sec=per_item_timeout_sec,
+    )
+    for proc_result in successful:
+        if proc_result.result is not None:
+            yield proc_result.result
 
 
 class ParallelProcessor:
     """
-    Context manager for parallel processing with automatic resource management.
-    
-    This class provides a cleaner interface for batch parallel processing
-    with proper resource cleanup and logging configuration.
-    
-    Example:
-        >>> with ParallelProcessor(n_processes=4) as processor:
-        ...     results = processor.map(process_fn, items, desc="Processing")
+    Thin wrapper around :func:`parallel_map` with logging configuration.
     """
-    
+
     def __init__(
         self,
         n_processes: int = 1,
         logger: Optional[logging.Logger] = None,
-    ):
-        """
-        Initialize parallel processor.
-        
-        Args:
-            n_processes: Number of parallel processes
-            logger: Logger for status messages
-        """
+        graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
+    ) -> None:
         self.n_processes = n_processes
         self.logger = logger
-        self._pool: Optional[multiprocessing.Pool] = None
-        
-        # Get logging configuration
+        self.graceful_shutdown_sec = graceful_shutdown_sec
+
         manager = LoggerManager()
         self._log_file_path = manager.get_log_file()
         self._log_level = logging.INFO
         if manager._root_logger:
             self._log_level = manager._root_logger.getEffectiveLevel()
-    
-    def __enter__(self) -> 'ParallelProcessor':
-        """Enter context manager."""
-        if self.n_processes > 1:
-            self._pool = multiprocessing.Pool(processes=self.n_processes)
+
+    def __enter__(self) -> ParallelProcessor:
         return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager and cleanup resources."""
-        if self._pool is not None:
-            self._pool.close()
-            self._pool.join()
-            self._pool = None
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         return False
-    
+
     def map(
         self,
         func: Callable[[T], R],
@@ -656,19 +255,6 @@ class ParallelProcessor:
         show_progress: bool = True,
         per_item_timeout_sec: Optional[float] = None,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
-        """
-        Map function over items using the processor's configuration.
-
-        Args:
-            func: Function to apply to each item
-            items: Iterable of items to process
-            desc: Description for progress bar
-            show_progress: Whether to show progress bar
-            per_item_timeout_sec: Optional per-item wall-clock timeout (see parallel_map).
-
-        Returns:
-            Tuple of (successful_results, failed_items)
-        """
         return parallel_map(
             func=func,
             items=items,
@@ -679,4 +265,5 @@ class ParallelProcessor:
             log_file_path=self._log_file_path,
             log_level=self._log_level,
             per_item_timeout_sec=per_item_timeout_sec,
+            graceful_shutdown_sec=self.graceful_shutdown_sec,
         )

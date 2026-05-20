@@ -30,7 +30,7 @@ from habit.core.habitat_analysis.pipelines.base_pipeline import (
     HabitatPipeline,
     IndividualLevelStep,
 )
-from habit.core.habitat_analysis.pipelines.subject_state import SubjectHabitatState
+from habit.core.habitat_analysis.pipelines.habitat_subject_data import HabitatSubjectData
 from habit.core.habitat_analysis.pipelines.steps import (
     CalculateMeanVoxelFeaturesStep,
     IndividualClusteringStep,
@@ -187,8 +187,8 @@ def test_merge_step_keeps_explicit_fit_validation() -> None:
     assert step.use_advanced_features is True
 
     with pytest.raises(ValueError, match="advanced supervoxel features"):
-        step.fit({"S1": SubjectHabitatState(mean_voxel_features=object())})
+        step.fit({"S1": HabitatSubjectData(mean_voxel_features=object())})
 
     # Same step, but a subject DOES carry advanced features -> fit succeeds.
-    step.fit({"S1": SubjectHabitatState(supervoxel_features=object())})
+    step.fit({"S1": HabitatSubjectData(supervoxel_features=object())})
     assert step.fitted_ is True

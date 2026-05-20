@@ -74,6 +74,22 @@ class HabitatAnalysisConfig(BaseConfig):
             "timeout). Must be positive when not null."
         ),
     )
+    individual_subject_graceful_shutdown_sec: float = Field(
+        15.0,
+        description=(
+            "Seconds to wait after terminate() before kill() when a subject exceeds "
+            "individual_subject_timeout_sec. Applies to isolated per-subject child processes."
+        ),
+        gt=0,
+    )
+    on_subject_failure: Literal["continue", "fail_fast"] = Field(
+        "continue",
+        description=(
+            "Individual-level parallel failure policy. 'continue': log failures and "
+            "proceed with successful subjects when possible. 'fail_fast': abort the run "
+            "if any subject fails or times out."
+        ),
+    )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
     save_results_csv: bool = Field(True, description="Whether to save results as CSV files.")

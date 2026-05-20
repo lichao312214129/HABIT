@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 import pandas as pd
 
 from ..base_pipeline import GroupLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...config_schemas import ResultColumns
 
 
@@ -29,12 +29,12 @@ class ConcatenateVoxelsStep(GroupLevelStep):
         """Initialize concatenate voxels step."""
         super().__init__()
     
-    def fit(self, X: Dict[str, SubjectHabitatState], y: Optional[Any] = None, **fit_params) -> 'ConcatenateVoxelsStep':
+    def fit(self, X: Dict[str, HabitatSubjectData], y: Optional[Any] = None, **fit_params) -> 'ConcatenateVoxelsStep':
         """Fit the stateless step by marking it as fitted."""
         self.fitted_ = True
         return self
     
-    def transform(self, X: Dict[str, SubjectHabitatState]) -> pd.DataFrame:
+    def transform(self, X: Dict[str, HabitatSubjectData]) -> pd.DataFrame:
         """Concatenate all voxel features from all subjects."""
         all_voxels = []
         

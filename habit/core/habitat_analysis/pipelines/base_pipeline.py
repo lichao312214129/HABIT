@@ -13,7 +13,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from habit.utils.parallel_utils import parallel_map
-from .subject_state import SubjectHabitatState
+from .habitat_subject_data import HabitatSubjectData
 
 
 class BasePipelineStep(BaseEstimator, TransformerMixin, ABC):
@@ -116,7 +116,7 @@ class IndividualLevelStep(BasePipelineStep):
         Args:
             subject_id: Subject ID being processed.
             subject_data: Explicit per-subject payload. Habitat-analysis
-                steps normally pass :class:`SubjectHabitatState`, which carries
+                steps normally pass :class:`HabitatSubjectData`, which carries
                 progressively-populated fields such as ``features``, ``raw``,
                 ``mask_info`` and ``supervoxel_labels``.
 
@@ -475,6 +475,14 @@ class HabitatPipeline:
             f"(Step 1-5 as atomic operation for each subject)..."
         )
         
+        graceful_shutdown_sec = 15.0
+        if self.config is not None:
+            graceful_shutdown_sec = getattr(
+                self.config,
+                "individual_subject_graceful_shutdown_sec",
+                15.0,
+            )
+
         successful_results, failed_subjects = parallel_map(
             func=self._process_single_subject,
             items=list(X.items()),
@@ -487,6 +495,7 @@ class HabitatPipeline:
                 if self.config is not None
                 else None
             ),
+            graceful_shutdown_sec=graceful_shutdown_sec,
         )
         
         # Collect results.
@@ -503,7 +512,7 @@ class HabitatPipeline:
         self.mask_info_cache = {
             subject_id: data.mask_info
             for subject_id, data in results.items()
-            if isinstance(data, SubjectHabitatState) and data.mask_info is not None
+            if isinstance(data, HabitatSubjectData) and data.mask_info is not None
         }
         
         # Log failures
@@ -512,6 +521,17 @@ class HabitatPipeline:
                 f"Failed to process {len(failed_subjects)} subject(s): "
                 f"{', '.join(str(s) for s in failed_subjects)}"
             )
+            on_failure = (
+                getattr(self.config, "on_subject_failure", "continue")
+                if self.config is not None
+                else "continue"
+            )
+            if on_failure == "fail_fast":
+                raise RuntimeError(
+                    f"Individual-level processing failed for {len(failed_subjects)} "
+                    f"subject(s) (on_subject_failure=fail_fast). "
+                    f"Failed: {', '.join(str(s) for s in failed_subjects)}"
+                )
             if not results:
                 raise ValueError(
                     "All subjects failed during individual-level processing. "

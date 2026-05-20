@@ -11,7 +11,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import GroupLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 
 
 class CombineSupervoxelsStep(GroupLevelStep):
@@ -33,12 +33,12 @@ class CombineSupervoxelsStep(GroupLevelStep):
         super().__init__()
         self.logger = get_module_logger(__name__)
     
-    def fit(self, X: Dict[str, SubjectHabitatState], y: Optional[Any] = None, **fit_params) -> 'CombineSupervoxelsStep':
+    def fit(self, X: Dict[str, HabitatSubjectData], y: Optional[Any] = None, **fit_params) -> 'CombineSupervoxelsStep':
         """Fit the stateless step by marking it as fitted."""
         self.fitted_ = True
         return self
     
-    def transform(self, X: Dict[str, SubjectHabitatState]) -> pd.DataFrame:
+    def transform(self, X: Dict[str, HabitatSubjectData]) -> pd.DataFrame:
         """Combine all subjects' supervoxel features into a single DataFrame."""
         all_supervoxel_dfs = []
         

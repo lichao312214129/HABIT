@@ -1,0 +1,99 @@
+"""Tests for isolated per-item spawn execution."""
+
+from __future__ import annotations
+
+import time
+from typing import Any, Tuple
+
+import pytest
+
+from habit.utils.isolated_runner import IsolatedTaskRunner
+from habit.utils.parallel_utils import parallel_map
+
+
+def _task_ok(item: Tuple[str, int]) -> Tuple[str, int]:
+    subject_id, value = item
+    return subject_id, value * 2
+
+
+def _task_slow(item: Tuple[str, float]) -> Tuple[str, str]:
+    subject_id, delay_sec = item
+    time.sleep(delay_sec)
+    return subject_id, "done"
+
+
+def _task_fail(item: Tuple[str, int]) -> Tuple[str, int]:
+    subject_id, _ = item
+    raise ValueError(f"boom-{subject_id}")
+
+
+@pytest.mark.parametrize("n_processes", [1, 2])
+def test_parallel_map_success(n_processes: int) -> None:
+    items = [(f"s{i}", i) for i in range(6)]
+    successful, failed = parallel_map(
+        _task_ok,
+        items,
+        n_processes=n_processes,
+        desc="test",
+        show_progress=False,
+    )
+    assert failed == []
+    assert len(successful) == 6
+    by_id = {r.item_id: r.result for r in successful}
+    assert by_id["s2"] == 4
+
+
+def test_parallel_map_records_exception() -> None:
+    items = [("good", 1), ("bad", 2)]
+    successful, failed = parallel_map(
+        _task_fail,
+        items,
+        n_processes=2,
+        show_progress=False,
+    )
+    assert successful == []
+    assert len(failed) == 2
+
+
+def test_timeout_terminates_slow_item() -> None:
+    items = [("fast", 0.1), ("slow", 5.0)]
+    successful, failed = parallel_map(
+        _task_slow,
+        items,
+        n_processes=2,
+        per_item_timeout_sec=1.0,
+        graceful_shutdown_sec=5.0,
+        show_progress=False,
+    )
+    assert "slow" in failed
+    assert len(successful) == 1
+    assert successful[0].item_id == "fast"
+
+
+def test_isolated_runner_bounded_workers() -> None:
+    runner = IsolatedTaskRunner(max_workers=2, per_item_timeout_sec=None)
+    items = [(f"s{i}", 0.2) for i in range(4)]
+    successful, failed = runner.map_items(
+        func=_task_slow,
+        items_list=items,
+        desc="test",
+        logger=None,
+        show_progress=False,
+        log_file_path=None,
+        log_level=20,
+    )
+    assert failed == []
+    assert len(successful) == 4
+
+
+def test_inprocess_when_single_worker_no_timeout() -> None:
+    items = [("a", 3)]
+    successful, failed = parallel_map(
+        _task_ok,
+        items,
+        n_processes=1,
+        per_item_timeout_sec=None,
+        show_progress=False,
+    )
+    assert failed == []
+    assert successful[0].result == 6

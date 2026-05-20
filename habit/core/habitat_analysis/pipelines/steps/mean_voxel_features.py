@@ -12,7 +12,7 @@ from habit.utils.log_utils import get_module_logger
 import numpy as np
 
 from ..base_pipeline import IndividualLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...clustering_features import calculate_supervoxel_means
 from ...config_schemas import HabitatAnalysisConfig
 
@@ -34,7 +34,7 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
         self.config = config
         self.logger = get_module_logger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+    def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """Compute per-supervoxel mean features for one subject."""
         feature_df = subject_data.require_features(self.__class__.__name__)
         raw_df = subject_data.require_raw(self.__class__.__name__)
@@ -50,7 +50,7 @@ class CalculateMeanVoxelFeaturesStep(IndividualLevelStep):
             n_clusters,
         )
 
-        return SubjectHabitatState(
+        return HabitatSubjectData(
             features=feature_df,
             raw=raw_df,
             mask_info=mask_info,

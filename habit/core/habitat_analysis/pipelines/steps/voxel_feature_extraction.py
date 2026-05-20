@@ -9,7 +9,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...services.feature_service import FeatureService
 
 
@@ -34,7 +34,7 @@ class VoxelFeatureExtractor(IndividualLevelStep):
         self.habitat_image_writer = habitat_image_writer
         self.logger = get_module_logger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+    def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """
         Extract voxel features for a single subject.
 
@@ -42,7 +42,7 @@ class VoxelFeatureExtractor(IndividualLevelStep):
         individual-level step; image and mask paths live on ``feature_service``.
         """
         _, feature_df, raw_df, mask_info = self.feature_service.extract_voxel_features(subject_id)
-        return SubjectHabitatState(
+        return HabitatSubjectData(
             features=feature_df,
             raw=raw_df,
             mask_info=mask_info,

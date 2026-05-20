@@ -17,7 +17,7 @@ import pytest
 
 from habit.core.common.configs.base import ConfigValidationError
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-from habit.core.habitat_analysis.pipelines.subject_state import SubjectHabitatState
+from habit.core.habitat_analysis.pipelines.habitat_subject_data import HabitatSubjectData
 from habit.core.habitat_analysis.services.result_publisher import (
     HabitatResultPublisher,
     canonical_csv_column_order,
@@ -31,16 +31,16 @@ def _minimal_feature_construction() -> dict:
     }
 
 
-def test_subject_state_require_methods_report_missing_field() -> None:
-    state = SubjectHabitatState.empty()
+def test_habitat_subject_data_require_methods_report_missing_field() -> None:
+    state = HabitatSubjectData.empty()
 
     with pytest.raises(ValueError, match="ExampleStep requires 'features'"):
         state.require_features("ExampleStep")
 
 
-def test_subject_state_require_methods_return_present_field() -> None:
+def test_habitat_subject_data_require_methods_return_present_field() -> None:
     features = pd.DataFrame({"SUV": [1.0, 2.0]})
-    state = SubjectHabitatState(features=features)
+    state = HabitatSubjectData(features=features)
 
     assert state.require_features("ExampleStep") is features
 

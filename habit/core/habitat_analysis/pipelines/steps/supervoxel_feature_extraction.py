@@ -10,7 +10,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from ..base_pipeline import IndividualLevelStep
-from ..subject_state import SubjectHabitatState
+from ..habitat_subject_data import HabitatSubjectData
 from ...services.feature_service import FeatureService
 from ...config_schemas import HabitatAnalysisConfig
 
@@ -39,7 +39,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         self.config = config
         self.logger = get_module_logger(__name__)
 
-    def transform_one(self, subject_id: str, subject_data: SubjectHabitatState) -> SubjectHabitatState:
+    def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """
         Extract supervoxel features for one subject.
 
@@ -61,7 +61,7 @@ class SupervoxelFeatureExtractionStep(IndividualLevelStep):
         if isinstance(result, Exception):
             raise result
 
-        return SubjectHabitatState(
+        return HabitatSubjectData(
             features=subject_data.require_features(self.__class__.__name__),
             raw=subject_data.require_raw(self.__class__.__name__),
             mask_info=subject_data.require_mask_info(self.__class__.__name__),
