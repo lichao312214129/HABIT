@@ -12,6 +12,7 @@ High-level layers
   ``habit/cli_commands/commands/``). The CLI is the recommended path
   for end users; the legacy ``scripts/app_*.py`` dual-track runners
   have been removed in V1.
+
 - **Configurator layer** — shared base in
   :py:mod:`habit.core.common.configurators.base` (``BaseConfigurator``);
   domain factories live next to their packages:
@@ -20,13 +21,16 @@ High-level layers
   ``habit.core.preprocessing.configurator.PreprocessingConfigurator``.
   Each cmd_* entry imports only the domain configurator it needs; ``common``
   does not re-export the three domain factories at package root.
+
 - **Domain subpackages** — ``habitat_analysis``, ``machine_learning``, and
   ``preprocessing``. The three never import one another; they exchange data
   through file artefacts (CSV, NRRD, ``.pkl``).
+
 - **Pipeline / manager layer (per domain)** — each domain has its own
   sklearn-style pipeline. In ``habitat_analysis`` the pipeline is
   ``HabitatPipeline`` driven by ``HabitatAnalysis`` (a deep module). In
   ``machine_learning`` it is ``workflows.base.BaseWorkflow`` + ``PipelineBuilder``.
+
 - **Utilities** — ``habit/utils/`` holds I/O, logging, the unified
   ``CustomTqdm`` progress bar, parallel helpers, and visualization style.
 
@@ -41,6 +45,7 @@ known architecture concerns), see:
   the ``habitat_analysis`` ②-a section that describes recipe dispatch,
   service injection (``_PIPELINE_SERVICE_ATTRS``), persistence format
   and design decisions.
+
 - :doc:`../development/module_architecture` — per-subpackage code
   organisation, including the per-step I/O contract and state-management
   rules for every pipeline step in ``habitat_analysis``.

@@ -74,5 +74,5 @@
 下一步
 --------
 
-* 学习 `自定义特征提可<custom_features.html>`_
+* 学习 `自定义特征提取<custom_features.html>`_
 * 了解 `机器学习集成 <ml_integration.html>`_

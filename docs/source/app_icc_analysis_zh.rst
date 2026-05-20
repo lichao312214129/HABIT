@@ -165,12 +165,14 @@ ICC 值解释：
 **Q: ICC 和 Cohen's Kappa 有什么区别？**
 
 A:
+
 - ICC: 适用于连续变量，评估测量值的一致性
 - Cohen's Kappa: 适用于分类变量，校正了随机一致性后的 agreement
 
 **Q: 为什么要用 file_groups 而不是直接列出文件？**
 
 A: file_groups 支持多组配对分析：
+
 - 第1组：dataset1 vs dataset2
 - 第2组：dataset3 vs dataset4
 - 每组独立计算 ICC
@@ -178,6 +180,7 @@ A: file_groups 支持多组配对分析：
 **Q: ICC 值很低怎么办？**
 
 A:
+
 - 检查数据配对是否正确
 - 确认特征计算方法一致
 - 考虑使用更稳定的预处理方法

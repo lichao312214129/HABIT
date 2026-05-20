@@ -43,6 +43,7 @@ Step 5: Review Results
 ----------------------
 
 Check the output directory for:
+
 - ``habitats.csv``: Results with habitat labels
 - ``*_habitats.nrrd``: Habitat maps
 - ``habitat_pipeline.pkl``: Trained pipeline
