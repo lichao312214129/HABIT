@@ -27,6 +27,18 @@ def _task_fail(item: Tuple[str, int]) -> Tuple[str, int]:
     raise ValueError(f"boom-{subject_id}")
 
 
+def _task_memory_error(item: Tuple[str, int]) -> Tuple[str, int]:
+    subject_id, _ = item
+    raise MemoryError(f"simulated OOM-{subject_id}")
+
+
+def _task_ok_or_oom(item: Tuple[str, str]) -> Tuple[str, Any]:
+    subject_id, mode = item
+    if mode == "oom":
+        raise MemoryError(f"simulated OOM-{subject_id}")
+    return _task_ok((subject_id, 1))
+
+
 @pytest.mark.parametrize("n_processes", [1, 2])
 def test_parallel_map_success(n_processes: int) -> None:
     items = [(f"s{i}", i) for i in range(6)]
@@ -97,3 +109,23 @@ def test_inprocess_when_single_worker_no_timeout() -> None:
     )
     assert failed == []
     assert successful[0].result == 6
+
+
+def test_memory_error_releases_slot_without_waiting_for_timeout() -> None:
+    """OOM subjects must fail fast so pending items can start immediately."""
+    items = [("oom-sub", "oom"), ("ok-sub", "ok")]
+    started_at = time.monotonic()
+    successful, failed = parallel_map(
+        _task_ok_or_oom,
+        items,
+        n_processes=2,
+        per_item_timeout_sec=600.0,
+        show_progress=False,
+    )
+    elapsed_sec = time.monotonic() - started_at
+
+    assert elapsed_sec < 10.0
+    assert "oom-sub" in failed
+    assert len(successful) == 1
+    assert successful[0].item_id == "ok-sub"
+    assert successful[0].result == 2

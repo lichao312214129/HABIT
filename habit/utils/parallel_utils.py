@@ -103,6 +103,8 @@ def parallel_map(
     log_level: int = logging.INFO,
     per_item_timeout_sec: Optional[float] = None,
     graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
+    oom_backoff: bool = True,
+    oom_reduce_workers_by: int = 1,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
     Apply a function to items with bounded isolated subprocesses.
@@ -126,6 +128,8 @@ def parallel_map(
         per_item_timeout_sec: Wall-clock limit per item from child ``start()``; ``None``
             disables timeout.
         graceful_shutdown_sec: Seconds to wait after ``terminate`` before ``kill``.
+        oom_backoff: When True, reduce concurrent workers after a fatal memory error.
+        oom_reduce_workers_by: Decrement applied to max workers after each OOM failure.
 
     Returns:
         ``(successful_results, failed_item_ids)``.
@@ -161,6 +165,8 @@ def parallel_map(
             else None
         ),
         graceful_shutdown_sec=graceful_shutdown_sec,
+        oom_backoff=oom_backoff,
+        oom_reduce_workers_by=oom_reduce_workers_by,
     )
     return runner.map_items(
         func=func,
@@ -254,6 +260,8 @@ class ParallelProcessor:
         desc: str = "Processing",
         show_progress: bool = True,
         per_item_timeout_sec: Optional[float] = None,
+        oom_backoff: bool = True,
+        oom_reduce_workers_by: int = 1,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
         return parallel_map(
             func=func,
@@ -266,4 +274,6 @@ class ParallelProcessor:
             log_level=self._log_level,
             per_item_timeout_sec=per_item_timeout_sec,
             graceful_shutdown_sec=self.graceful_shutdown_sec,
+            oom_backoff=oom_backoff,
+            oom_reduce_workers_by=oom_reduce_workers_by,
         )

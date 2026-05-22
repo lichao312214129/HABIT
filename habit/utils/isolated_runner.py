@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
+import os
 import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from queue import Empty
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
 from habit.utils.log_utils import restore_logging_in_subprocess
@@ -49,6 +51,19 @@ class ProcessingResult:
         return self.result
 
 
+def is_fatal_memory_error(exc: Optional[BaseException]) -> bool:
+    """
+    Return True when a worker failure should trigger fast slot release.
+
+    Args:
+        exc: Exception captured in the child process, if any.
+
+    Returns:
+        True for MemoryError and similar unrecoverable allocation failures.
+    """
+    return isinstance(exc, MemoryError)
+
+
 def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> ProcessingResult:
     """
     Run user ``func`` in a child process with logging restored.
@@ -81,7 +96,11 @@ def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> Processi
         return ProcessingResult(item_id=item_id, result=result)
 
     except Exception as exc:
-        return ProcessingResult(item_id=item, error=exc)
+        if hasattr(item, "__getitem__") and len(item) > 0:
+            item_id = item[0] if isinstance(item, (list, tuple)) else item
+        else:
+            item_id = item
+        return ProcessingResult(item_id=item_id, error=exc)
 
 
 def _item_id_from_worker_args(worker_args: Tuple[Any, ...]) -> Any:
@@ -96,12 +115,23 @@ def _put_worker_wrapper_result(
     worker_args: Tuple[Any, ...],
     result_queue: Any,
 ) -> None:
-    """Top-level child entry: run wrapper and put result on the queue (spawn-safe)."""
-    result_queue.put(_worker_wrapper(worker_args))
+    """
+    Top-level child entry: run wrapper, publish result, then hard-exit on OOM.
+
+    After a fatal memory error the child skips Python teardown of large arrays
+    via ``os._exit`` so the parent can release the worker slot immediately.
+    """
+    result = _worker_wrapper(worker_args)
+    result_queue.put(result)
+    if result.error is not None and is_fatal_memory_error(result.error):
+        # Allow the queue pipe to flush before skipping Python teardown.
+        time.sleep(0.05)
+        os._exit(2)
+
 
 DEFAULT_GRACEFUL_SHUTDOWN_SEC: float = 15.0
 DEFAULT_POLL_INTERVAL_SEC: float = 0.25
-DEFAULT_READER_JOIN_AFTER_PROC_SEC: float = 30.0
+QUEUE_RESULT_GRACE_SEC: float = 5.0
 
 
 @dataclass
@@ -113,6 +143,7 @@ class _ActiveSlot:
     reader: threading.Thread
     recv_bucket: List[Optional[ProcessingResult]]
     started_at: float
+    proc_exited_at: Optional[float] = None
 
 
 class IsolatedTaskRunner:
@@ -130,13 +161,19 @@ class IsolatedTaskRunner:
         graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
         poll_interval_sec: float = DEFAULT_POLL_INTERVAL_SEC,
         mp_start_method: str = "spawn",
+        oom_backoff: bool = True,
+        oom_reduce_workers_by: int = 1,
     ) -> None:
         if max_workers < 1:
             raise ValueError("max_workers must be >= 1")
+        if oom_reduce_workers_by < 1:
+            raise ValueError("oom_reduce_workers_by must be >= 1")
         self.max_workers = max_workers
         self.per_item_timeout_sec = per_item_timeout_sec
         self.graceful_shutdown_sec = graceful_shutdown_sec
         self.poll_interval_sec = poll_interval_sec
+        self.oom_backoff = oom_backoff
+        self.oom_reduce_workers_by = oom_reduce_workers_by
         self._ctx = multiprocessing.get_context(mp_start_method)
 
     def map_items(
@@ -180,15 +217,36 @@ class IsolatedTaskRunner:
                 if self.per_item_timeout_sec is not None
                 else ", no per-item timeout"
             )
+            oom_msg = (
+                f", oom_backoff=on (reduce by {self.oom_reduce_workers_by})"
+                if self.oom_backoff
+                else ", oom_backoff=off"
+            )
             logger.info(
-                "Using isolated spawn workers: max_workers=%s%s",
+                "Using isolated spawn workers: max_workers=%s%s%s",
                 self.max_workers,
                 timeout_msg,
+                oom_msg,
             )
 
         progress_bar: Optional[CustomTqdm] = None
         if show_progress:
             progress_bar = CustomTqdm(total=total, desc=desc)
+
+        def _apply_oom_backoff(item_id: Any) -> None:
+            nonlocal max_slots
+            if not self.oom_backoff:
+                return
+            new_max = max(1, max_slots - self.oom_reduce_workers_by)
+            if new_max < max_slots and logger:
+                logger.warning(
+                    "Fatal memory error for item %s; reducing parallel workers "
+                    "%s -> %s",
+                    item_id,
+                    max_slots,
+                    new_max,
+                )
+            max_slots = new_max
 
         def _fill_slots() -> None:
             while len(active) < max_slots and pending_items:
@@ -229,11 +287,20 @@ class IsolatedTaskRunner:
             else:
                 failed_items.append(proc_result.item_id)
                 if logger:
-                    logger.error(
-                        "Error processing %s: %s",
-                        proc_result.item_id,
-                        proc_result.error,
-                    )
+                    if is_fatal_memory_error(proc_result.error):
+                        logger.error(
+                            "Fatal memory error for item %s: %s",
+                            proc_result.item_id,
+                            proc_result.error,
+                        )
+                    else:
+                        logger.error(
+                            "Error processing %s: %s",
+                            proc_result.item_id,
+                            proc_result.error,
+                        )
+                if is_fatal_memory_error(proc_result.error):
+                    _apply_oom_backoff(proc_result.item_id)
             if progress_bar is not None:
                 progress_bar.update(1)
 
@@ -243,6 +310,14 @@ class IsolatedTaskRunner:
             still_active: List[_ActiveSlot] = []
 
             for slot in active:
+                proc_result = slot.recv_bucket[0]
+                if proc_result is not None:
+                    if slot.proc.is_alive():
+                        self._terminate_process(slot.proc)
+                    slot.reader.join(timeout=2.0)
+                    _finish_slot(slot, proc_result, timed_out=False)
+                    continue
+
                 elapsed = now - slot.started_at
                 timed_out = (
                     self.per_item_timeout_sec is not None
@@ -259,10 +334,24 @@ class IsolatedTaskRunner:
                     still_active.append(slot)
                     continue
 
-                reader_timeout = self._reader_join_timeout_sec()
-                slot.reader.join(timeout=reader_timeout)
-                proc_result = slot.recv_bucket[0]
-                _finish_slot(slot, proc_result, timed_out=False)
+                if slot.proc_exited_at is None:
+                    slot.proc_exited_at = now
+
+                # Child exited: poll the queue reader briefly instead of one long join.
+                if proc_result is None and slot.reader.is_alive():
+                    slot.reader.join(timeout=self.poll_interval_sec)
+                    proc_result = slot.recv_bucket[0]
+
+                if proc_result is not None:
+                    _finish_slot(slot, proc_result, timed_out=False)
+                    continue
+
+                grace_elapsed = now - (slot.proc_exited_at or now)
+                if grace_elapsed <= QUEUE_RESULT_GRACE_SEC and slot.reader.is_alive():
+                    still_active.append(slot)
+                    continue
+
+                _finish_slot(slot, None, timed_out=False)
 
             active = still_active
             _fill_slots()
@@ -275,14 +364,6 @@ class IsolatedTaskRunner:
 
         return successful_results, failed_items
 
-    def _reader_join_timeout_sec(self) -> float:
-        if self.per_item_timeout_sec is not None:
-            return max(
-                DEFAULT_READER_JOIN_AFTER_PROC_SEC,
-                float(self.per_item_timeout_sec) + 10.0,
-            )
-        return DEFAULT_READER_JOIN_AFTER_PROC_SEC
-
     def _start_slot(
         self,
         func: Callable[[T], R],
@@ -294,9 +375,22 @@ class IsolatedTaskRunner:
         item_id = _item_id_from_worker_args(worker_args)
         result_queue = self._ctx.Queue(maxsize=1)
         recv_bucket: List[Optional[ProcessingResult]] = [None]
+        poll_interval_sec = self.poll_interval_sec
+        proc_holder: List[Optional[multiprocessing.Process]] = [None]
 
         def _drain_worker_result_queue() -> None:
-            recv_bucket[0] = result_queue.get()
+            grace_deadline: Optional[float] = None
+            while recv_bucket[0] is None:
+                proc_ref = proc_holder[0]
+                if proc_ref is not None and not proc_ref.is_alive():
+                    if grace_deadline is None:
+                        grace_deadline = time.monotonic() + QUEUE_RESULT_GRACE_SEC
+                    elif time.monotonic() >= grace_deadline:
+                        return
+                try:
+                    recv_bucket[0] = result_queue.get(timeout=poll_interval_sec)
+                except Empty:
+                    continue
 
         reader = threading.Thread(
             target=_drain_worker_result_queue,
@@ -307,6 +401,7 @@ class IsolatedTaskRunner:
             target=_put_worker_wrapper_result,
             args=(worker_args, result_queue),
         )
+        proc_holder[0] = proc
         reader.start()
         proc.start()
         return _ActiveSlot(

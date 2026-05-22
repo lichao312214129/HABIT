@@ -86,6 +86,21 @@ class HabitatAnalysisConfig(BaseConfig):
             "if any subject fails or times out."
         ),
     )
+    oom_backoff: bool = Field(
+        True,
+        description=(
+            "When True, reduce individual-level parallel workers after a subject hits "
+            "a fatal memory error (MemoryError) so pending subjects can still run."
+        ),
+    )
+    oom_reduce_workers_by: int = Field(
+        1,
+        description=(
+            "Number of parallel workers to subtract after each fatal memory error when "
+            "oom_backoff is enabled. Minimum effective workers is always 1."
+        ),
+        ge=1,
+    )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
     save_results_csv: bool = Field(True, description="Whether to save results as CSV files.")

@@ -476,12 +476,16 @@ class HabitatPipeline:
         )
         
         graceful_shutdown_sec = 15.0
+        oom_backoff = True
+        oom_reduce_workers_by = 1
         if self.config is not None:
             graceful_shutdown_sec = getattr(
                 self.config,
                 "individual_subject_graceful_shutdown_sec",
                 15.0,
             )
+            oom_backoff = getattr(self.config, "oom_backoff", True)
+            oom_reduce_workers_by = getattr(self.config, "oom_reduce_workers_by", 1)
 
         successful_results, failed_subjects = parallel_map(
             func=self._process_single_subject,
@@ -496,6 +500,8 @@ class HabitatPipeline:
                 else None
             ),
             graceful_shutdown_sec=graceful_shutdown_sec,
+            oom_backoff=oom_backoff,
+            oom_reduce_workers_by=oom_reduce_workers_by,
         )
         
         # Collect results.
