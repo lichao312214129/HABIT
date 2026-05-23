@@ -215,7 +215,8 @@ def plot_cluster_results(
     show_colorbar: bool = True,
     show_grid: bool = True,
     grid_alpha: float = 0.3,
-    max_legend_items: int = 10
+    max_legend_items: int = 10,
+    random_state: int = 42,
 ):
     """
     Plot scatter plot of clustering results (2D or 3D)
@@ -244,6 +245,7 @@ def plot_cluster_results(
         show_grid: Whether to show grid (default True)
         max_legend_items: Maximum number of legend items to show, hide legend if exceeded (default 10)
         grid_alpha: Transparency of grid lines (default 0.3)
+        random_state: Random seed for t-SNE dimensionality reduction (default 42)
     """
     # Convert to numpy array if input is DataFrame
     import pandas as pd
@@ -273,7 +275,11 @@ def plot_cluster_results(
             explained_var = reducer.explained_variance_ratio_
         elif reduction_method.lower() == 'tsne':
             from sklearn.manifold import TSNE
-            reducer = TSNE(n_components=n_components, random_state=42, perplexity=min(30, X.shape[0]-1))
+            reducer = TSNE(
+                n_components=n_components,
+                random_state=random_state,
+                perplexity=min(30, X.shape[0]-1),
+            )
             X_reduced = reducer.fit_transform(X)
             # TSNE cannot transform centers directly, set to None
             centers_reduced = None

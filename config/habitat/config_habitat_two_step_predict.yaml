@@ -19,6 +19,12 @@ HabitatSegmentation:
 processes: 2  # Number of parallel processes
 individual_subject_timeout_sec: 900  # 15 min cap per subject; null disables
 oom_backoff: false
+# Checkpoint / resume (train only; ignored in predict mode)
+resume: true
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+clear_checkpoint_on_success: false
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 random_state: 42  # Random seed for reproducibility (should match training)

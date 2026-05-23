@@ -39,19 +39,25 @@ class AutoGluonTabularModel(BaseModel):
         super().__init__(config)
         
         # Extract parameters from config
-        params = config.get('params', {})
-        
+        params = config.get('params', config)
+
         # Extract predictor specific parameters
         self.label = params.get('label', None)
         self.problem_type = params.get('problem_type', None)  # 'binary', 'multiclass', 'regression'
         self.eval_metric = params.get('eval_metric', None)
         self.path = params.get('path', './AutogluonModels')
-        
+
         # Model training parameters
         self.time_limit = params.get('time_limit', 60)  # Time limit in seconds
         self.presets = params.get('presets', 'medium_quality')  # quality/performance tradeoff
         self.hyperparameters = params.get('hyperparameters', None)
         self.feature_importance = params.get('feature_importance', 'auto')
+        self.random_seed = int(
+            params.get(
+                'random_state',
+                params.get('seed', config.get('random_state', 42)),
+            )
+        )
         
         # Create TabularPredictor instance
         self.model = None  # Will be initialized during fit
@@ -94,7 +100,8 @@ class AutoGluonTabularModel(BaseModel):
             train_data=train_data,
             time_limit=self.time_limit,
             presets=self.presets,
-            hyperparameters=self.hyperparameters
+            hyperparameters=self.hyperparameters,
+            random_seed=self.random_seed,
         )
 
         # Save the leaderboard after model training for later analysis

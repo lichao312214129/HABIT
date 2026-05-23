@@ -127,9 +127,31 @@ CLI 命令与配置 Schema 对照
 
 - **类型**: 整数
 - **必需**: 否
-- **默认值**: 因模块而异（预处理 ``PreprocessingConfig`` 默认为 **42**）
-- **说明**: 用于可重复性；**当前图像预处理流水线未读取该字段**，其它模块（如生境聚类）可能使用
+- **默认值**: ``42``
+- **说明**: 配置文件**顶层**全局随机种子。各子模块未显式设置 ``random_state`` 时**继承**此值；子模块 YAML 中**显式写入**的值**覆盖**顶层。详见下文「随机种子传递规则」。
 - **示例**: `42`
+
+随机种子传递规则
+~~~~~~~~~~~~~~~~
+
+**优先级**（高 → 低）：子模块 YAML 显式 ``random_state`` → 配置文件顶层 ``random_state`` → 代码默认值 ``42``。
+
+**生境分析**（``HabitatAnalysisConfig``）：
+
+- 顶层 ``random_state``：全局默认；t-SNE 可视化等运行时使用。
+- ``HabitatSegmentation.supervoxel.random_state`` / ``habitat.random_state``：省略或 ``null`` 时继承顶层；显式写入则覆盖。
+- **predict 模式**：聚类模型以 pkl 内已训练参数为准，不因 YAML 顶层种子重建模型。
+
+**机器学习**（``MLConfig``）：
+
+- 顶层 ``random_state``：train/test 划分、K-fold、重采样 fallback、模型与特征选择（未在 ``params`` 中写种子时自动注入）。
+- ``resampling.random_state``：省略时继承顶层。
+- ``models.<name>.params.random_state``：显式写入则覆盖顶层（不会被自动改写）。
+- KNN / NaiveBayes 等无 ``random_state`` 参数的模型不受影响。
+
+**图像预处理**（``PreprocessingConfig``）：
+
+- 顶层 ``random_state`` 在 ``BatchProcessor.run()`` 入口调用 ``numpy.random.seed``，供流水线内可能的 NumPy 随机操作使用。
 
 **debug**: 调试模式
 
@@ -204,7 +226,7 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
 
 - ``data_dir`` / ``out_dir``：路径字符串，必填。
 - ``processes``：整数，默认 **1**，须 ``>= 1``；实际并行度 ``min(配置, CPU核心数-2)``，至少 1。
-- ``random_state``：整数，默认 **42**；**当前预处理实现未读取**。
+- ``random_state``：整数，默认 **42**；在 ``BatchProcessor.run()`` 入口生效（``numpy.random.seed``），子流程未单独配置时使用顶层值。
 - ``auto_select_first_file``：布尔，默认 **true**；路径为目录且含多文件时是否自动选首文件（见 ``habit.utils.io_utils.get_image_and_mask_paths``）。
 - ``save_options``：见下文。
 
@@ -330,6 +352,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
    resume: true
    # checkpoint_dir: null
    # force_rerun_subjects: []
+   # retry_failed_subjects: false
    clear_checkpoint_on_success: false
    plot_curves: true
    save_images: true
@@ -725,7 +748,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
   - **类型**: 整数
   - **说明**: ``two_step`` 下每个被试的超像素个数，常用 30–100。
 
-- ``random_state`` / ``max_iter`` / ``n_init``: 与 sklearn/实现一致；``gmm`` 时 ``n_init`` 等仍有效。
+- ``random_state`` / ``max_iter`` / ``n_init``: 与 sklearn/实现一致；``random_state`` 省略或 ``null`` 时继承顶层 ``HabitatAnalysisConfig.random_state``；显式写入则覆盖顶层。
 
 - ``compactness`` (float, 默认 ``0.1``): **仅 ``slic``**，特征与空间紧致度权衡。
 
@@ -844,8 +867,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
 - ``random_state``: 随机种子
 
-  - **类型**: 整数
-  - **默认值**: ``42``
+  - **类型**: 整数或 ``null``
+  - **默认值**: ``null``（继承 ``HabitatAnalysisConfig.random_state``）
+  - **说明**: 显式写入时覆盖顶层全局种子。
 
 - ``max_iter``: 最大迭代次数
 
@@ -980,6 +1004,12 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **默认值**: ``[]``
 - **说明**: ``resume: true`` 时仍重新处理列表中的被试（从 completed/failed 中移除并重跑）。
 
+**retry_failed_subjects**（生境分析顶层）: 自动重跑 checkpoint 中全部失败被试
+
+- **类型**: 布尔值
+- **默认值**: ``false``
+- **说明**: ``resume: true`` 时，将 ``manifest.json`` 里 ``failed_subjects`` 中的被试自动加入待处理队列并重新跑个体级 Stage 1。已成功被试仍跳过（除非同时出现在 ``force_rerun_subjects`` 中）。
+
 **clear_checkpoint_on_success**（生境分析顶层）: 训练成功后删除 checkpoint
 
 - **类型**: 布尔值
@@ -989,7 +1019,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 **config_hash 与续训兼容性**
 
 - **参与 hash**（变更则清空 checkpoint）：``data_dir``、``FeatureConstruction``、``HabitatSegmentation``（含 ``clustering_mode``）。
-- **不参与 hash**（可安全修改后续训）：``processes``、``individual_subject_timeout_sec``、``plot_curves``、``save_results_csv``、``save_images``、``verbose``、``debug``、``on_subject_failure``、``oom_backoff`` 等。
+- **不参与 hash**（可安全修改后续训）：``processes``、``individual_subject_timeout_sec``、``plot_curves``、``save_results_csv``、``save_images``、``verbose``、``debug``、``on_subject_failure``、``oom_backoff``、``retry_failed_subjects``、``force_rerun_subjects`` 等。
 - 程序在 ``resume: true`` 启动时自动比较 hash；不一致时日志警告并删除 checkpoint。
 
 **checkpoint 目录结构**
@@ -1360,7 +1390,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
   - **默认值**: ``1.0``
 
-- ``random_state``: 随机种子（默认 ``42``）
+- ``random_state``: 随机种子（默认 ``null``，继承 ``MLConfig.random_state``；显式写入则覆盖顶层）
 
 - **执行时机**: 训练流程在拟合模型前调用内部 ``_resample_training_data``；Holdout 与 K-Fold 共用该逻辑。
 

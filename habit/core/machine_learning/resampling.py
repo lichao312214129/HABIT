@@ -19,6 +19,7 @@ Supported methods (``sampling.method`` in the config):
 
 import logging
 from habit.utils.log_utils import get_module_logger
+from habit.utils.random_utils import resolve_random_state
 from typing import Any, Optional, Tuple
 
 import numpy as np
@@ -192,7 +193,10 @@ def apply_resampling(
 
     method = str(getattr(sampling_cfg, "method", "random_over")).strip().lower()
     ratio = float(getattr(sampling_cfg, "ratio", 1.0))
-    seed = int(getattr(sampling_cfg, "random_state", random_state))
+    explicit_seed = (
+        getattr(sampling_cfg, "random_state", None) if sampling_cfg is not None else None
+    )
+    seed = resolve_random_state(explicit_seed, random_state)
 
     logger.info(
         "Resampling: method=%s, ratio=%.4f, counts_before={%s: %d, %s: %d}",

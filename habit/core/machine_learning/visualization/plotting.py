@@ -8,7 +8,6 @@ from typing import Dict, List, Tuple, Union, Any
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import shap
 from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix, auc
 from sklearn.calibration import calibration_curve  # Calibration curve related
 from ..evaluation.metrics import calculate_net_benefit
@@ -398,6 +397,8 @@ class Plotter:
             feature_names (List[str]): List of feature names
             save_name (str): Name of the file to save the plot
         """
+        import shap
+
         # Get model type - if not available, try to infer from model object
         model_type = getattr(model, 'model_type', None)
         

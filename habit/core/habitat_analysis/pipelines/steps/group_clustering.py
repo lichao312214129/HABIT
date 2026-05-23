@@ -204,7 +204,7 @@ class GroupClusteringStep(GroupLevelStep):
             # for final fitting, so model selection reflects the configured model.
             cluster_for_best_n = ClusteringAlgorithmFactory.create_algorithm(
                 habitat_cfg.algorithm,
-                random_state=habitat_cfg.random_state,
+                random_state=self.config.effective_habitat_random_state(),
                 max_iter=habitat_cfg.max_iter,
                 n_init=habitat_cfg.n_init
             )

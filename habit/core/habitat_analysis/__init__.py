@@ -6,30 +6,28 @@ package will raise ``ImportError`` at first import, not silently set
 attributes to ``None``. For genuinely optional dependencies (e.g. optional
 extractor backends), prefer ``habit.is_available(name)``.
 
-Public surface:
-    - :class:`HabitatAnalysis`         : main analysis entry point.
-    - :class:`HabitatConfigurator`     : domain service assembly entry point.
-    - :class:`HabitatAnalysisConfig`   : Pydantic root configuration.
-    - :class:`ResultColumns`           : reserved DataFrame column names.
-    - :class:`HabitatMapAnalyzer`      : post-clustering feature analyser
-                                         (alias :class:`HabitatFeatureExtractor`).
-    - :class:`HabitatPipeline` /
-      :class:`BasePipelineStep`        : sklearn-style pipeline primitives.
-    - :class:`GroupPreprocessingStep` /
-      :class:`GroupClusteringStep`: re-exported pipeline steps.
+Public exports are lazy so lightweight imports such as
+``habit.core.habitat_analysis.config_schemas`` do not pull PyRadiomics or
+pipeline orchestration until the symbol is actually used.
 """
 
-from .habitat_analysis import HabitatAnalysis
-from .configurator import HabitatConfigurator
-from .config_schemas import HabitatAnalysisConfig, ResultColumns
-from .habitat_features.habitat_analyzer import HabitatMapAnalyzer
-from .pipelines import BasePipelineStep, HabitatPipeline
-from .pipelines.steps import (
-    GroupClusteringStep,
-    GroupPreprocessingStep,
-)
+from __future__ import annotations
 
-HabitatFeatureExtractor = HabitatMapAnalyzer
+from typing import Any, Dict, Tuple
+
+from habit.utils.lazy_exports import lazy_getattr
+
+_LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {
+    "HabitatAnalysis": (".habitat_analysis", "HabitatAnalysis"),
+    "HabitatConfigurator": (".configurator", "HabitatConfigurator"),
+    "HabitatAnalysisConfig": (".config_schemas", "HabitatAnalysisConfig"),
+    "ResultColumns": (".config_schemas", "ResultColumns"),
+    "HabitatMapAnalyzer": (".habitat_features.habitat_analyzer", "HabitatMapAnalyzer"),
+    "BasePipelineStep": (".pipelines", "BasePipelineStep"),
+    "HabitatPipeline": (".pipelines", "HabitatPipeline"),
+    "GroupClusteringStep": (".pipelines.steps", "GroupClusteringStep"),
+    "GroupPreprocessingStep": (".pipelines.steps", "GroupPreprocessingStep"),
+}
 
 __all__ = [
     "HabitatAnalysis",
@@ -43,3 +41,10 @@ __all__ = [
     "GroupClusteringStep",
     "GroupPreprocessingStep",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve habitat-analysis exports on first access."""
+    if name == "HabitatFeatureExtractor":
+        return lazy_getattr("HabitatMapAnalyzer", globals(), _LAZY_EXPORTS)
+    return lazy_getattr(name, globals(), _LAZY_EXPORTS)

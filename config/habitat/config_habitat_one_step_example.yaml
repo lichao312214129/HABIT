@@ -10,6 +10,9 @@ processes: 4
 individual_subject_timeout_sec: 900  # seconds; default 15 min; null = no per-subject timeout
 oom_backoff: false
 resume: true
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
 clear_checkpoint_on_success: false
 random_state: 42
 plot_curves: true  # Enable all visualizations

@@ -59,7 +59,12 @@ class ResamplingConfig(BaseModel):
         'before_model',
     ] = 'before_model'
     ratio: float = 1.0
-    random_state: int = 42
+    random_state: Optional[int] = Field(
+        None,
+        description=(
+            "Random seed for resampling. When null/omitted, inherits MLConfig.random_state."
+        ),
+    )
 
     @validator('ratio')
     def ratio_range(cls, v: float) -> float:

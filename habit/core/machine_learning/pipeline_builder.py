@@ -1,9 +1,10 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 import pandas as pd
 import numpy as np
 from .feature_selectors.selector_registry import run_selector, get_selector_info
 from habit.utils.log_utils import get_module_logger
+from habit.utils.random_utils import merge_random_state_into_params, resolve_random_state
 
 from sklearn.pipeline import Pipeline as SklearnPipeline
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
@@ -63,6 +64,8 @@ class PipelineBuilder:
         resampling) has been resolved, so insertion indices stay stable.
         """
         selection_methods = self._parse_selection_methods()
+        global_seed = int(getattr(self.config, 'random_state', 42))
+        model_params = merge_random_state_into_params(model_params, global_seed)
 
         # Build base steps — model is intentionally excluded here so that
         # _insert_resampling_step can use stable indices without len(steps)-1.
@@ -72,6 +75,7 @@ class PipelineBuilder:
                 feature_names=feature_names,
                 before_z_score_only=True,
                 outdir=self.output_dir,
+                global_random_state=global_seed,
             )),
             ('scaler', self.get_scaler()),
             ('selector_after', FeatureSelectTransformer(
@@ -79,6 +83,7 @@ class PipelineBuilder:
                 feature_names=feature_names,
                 after_z_score_only=True,
                 outdir=self.output_dir,
+                global_random_state=global_seed,
             )),
         ]
 
@@ -152,12 +157,16 @@ class PipelineBuilder:
             len(steps) → before_model (append at the end, just before model)
         """
         position = getattr(resampling_cfg, 'position', 'before_model')
-        random_state = int(getattr(self.config, 'random_state', 42))
+        global_seed = int(getattr(self.config, 'random_state', 42))
+        resampling_seed = resolve_random_state(
+            getattr(resampling_cfg, 'random_state', None),
+            global_seed,
+        )
         resampler_step = (
             'resampler',
             ResamplingStep(
                 resampling_cfg=resampling_cfg,
-                random_state=random_state,
+                random_state=resampling_seed,
                 logger=get_module_logger('ml.resampling'),
             ),
         )
@@ -182,12 +191,13 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
     """
     def __init__(self, methods_config: List[Dict[str, Any]], feature_names: List[str] = None, 
                  before_z_score_only: bool = False, after_z_score_only: bool = False,
-                 outdir: str = None):
+                 outdir: str = None, global_random_state: Optional[int] = None):
         self.methods_config = methods_config
         self.feature_names = feature_names
         self.before_z_score_only = before_z_score_only
         self.after_z_score_only = after_z_score_only
         self.outdir = outdir
+        self.global_random_state = global_random_state
         self.selected_features_ = None
         self.fitted_feature_names_ = None  # Store actual feature names from fit
         self.logger = get_module_logger('ml.feature_selection')  # Logger for detailed feature selection tracking
@@ -247,7 +257,10 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
         step_count = 0
         for conf in self.methods_config:
             method = conf['method']
-            params = conf.get('params', {}).copy()
+            params = merge_random_state_into_params(
+                conf.get('params', {}).copy(),
+                self.global_random_state,
+            )
             
             # Determine selection timing:
             # 1. Check user override in config params

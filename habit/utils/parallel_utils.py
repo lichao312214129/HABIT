@@ -23,6 +23,7 @@ from pathlib import Path
 from habit.utils.log_utils import LoggerManager
 from habit.utils.isolated_runner import (
     DEFAULT_GRACEFUL_SHUTDOWN_SEC,
+    DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC,
     IsolatedTaskRunner,
     ProcessingResult,
     _item_id_from_worker_args,
@@ -114,6 +115,7 @@ def parallel_map(
     graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
     oom_backoff: bool = True,
     oom_reduce_workers_by: int = 1,
+    spawn_startup_timeout_sec: Optional[float] = DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC,
     on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
@@ -140,6 +142,8 @@ def parallel_map(
         graceful_shutdown_sec: Seconds to wait after ``terminate`` before ``kill``.
         oom_backoff: When True, reduce concurrent workers after a fatal memory error.
         oom_reduce_workers_by: Decrement applied to max workers after each OOM failure.
+        spawn_startup_timeout_sec: Wall-clock limit for child ``proc.start()``; ``None``
+            disables spawn startup timeout.
         on_item_done: Optional callback invoked in the parent after each item finishes.
 
     Returns:
@@ -179,6 +183,11 @@ def parallel_map(
         graceful_shutdown_sec=graceful_shutdown_sec,
         oom_backoff=oom_backoff,
         oom_reduce_workers_by=oom_reduce_workers_by,
+        spawn_startup_timeout_sec=(
+            spawn_startup_timeout_sec
+            if spawn_startup_timeout_sec is not None and spawn_startup_timeout_sec > 0
+            else None
+        ),
     )
     return runner.map_items(
         func=func,
@@ -275,6 +284,7 @@ class ParallelProcessor:
         per_item_timeout_sec: Optional[float] = None,
         oom_backoff: bool = True,
         oom_reduce_workers_by: int = 1,
+        spawn_startup_timeout_sec: Optional[float] = DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
         return parallel_map(
             func=func,
@@ -289,4 +299,5 @@ class ParallelProcessor:
             graceful_shutdown_sec=self.graceful_shutdown_sec,
             oom_backoff=oom_backoff,
             oom_reduce_workers_by=oom_reduce_workers_by,
+            spawn_startup_timeout_sec=spawn_startup_timeout_sec,
         )

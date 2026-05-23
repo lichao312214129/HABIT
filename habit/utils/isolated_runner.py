@@ -3,6 +3,9 @@ Bounded parallel execution with one OS process per work item (spawn).
 
 Each item runs in a dedicated child process so timeouts terminate only that
 process and failures do not break a shared ProcessPoolExecutor.
+
+Child startup (``proc.start()``) runs in a background thread so the poll loop
+can still enforce per-item and spawn-startup timeouts while other workers run.
 """
 
 from __future__ import annotations
@@ -12,7 +15,7 @@ import multiprocessing
 import os
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from queue import Empty
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
@@ -144,19 +147,25 @@ def _put_worker_wrapper_result(
 
 DEFAULT_GRACEFUL_SHUTDOWN_SEC: float = 15.0
 DEFAULT_POLL_INTERVAL_SEC: float = 0.25
+DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC: float = 120.0
 QUEUE_RESULT_GRACE_SEC: float = 15.0
 
 
 @dataclass
 class _ActiveSlot:
-    """One in-flight isolated child process."""
+    """One in-flight isolated child process (spawn may still be starting)."""
 
     item_id: Any
-    proc: multiprocessing.Process
-    reader: threading.Thread
-    recv_bucket: List[Optional[ProcessingResult]]
-    started_at: float
+    worker_args: Tuple[Any, ...]
+    spawn_started_at: float
+    proc: Optional[multiprocessing.Process] = None
+    reader: Optional[threading.Thread] = None
+    recv_bucket: Optional[List[Optional[ProcessingResult]]] = None
+    started_at: Optional[float] = None
     proc_exited_at: Optional[float] = None
+    spawn_complete: bool = False
+    spawn_error: Optional[BaseException] = None
+    _spawn_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
 
 class IsolatedTaskRunner:
@@ -176,17 +185,21 @@ class IsolatedTaskRunner:
         mp_start_method: str = "spawn",
         oom_backoff: bool = True,
         oom_reduce_workers_by: int = 1,
+        spawn_startup_timeout_sec: Optional[float] = DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC,
     ) -> None:
         if max_workers < 1:
             raise ValueError("max_workers must be >= 1")
         if oom_reduce_workers_by < 1:
             raise ValueError("oom_reduce_workers_by must be >= 1")
+        if spawn_startup_timeout_sec is not None and spawn_startup_timeout_sec <= 0:
+            raise ValueError("spawn_startup_timeout_sec must be positive when set")
         self.max_workers = max_workers
         self.per_item_timeout_sec = per_item_timeout_sec
         self.graceful_shutdown_sec = graceful_shutdown_sec
         self.poll_interval_sec = poll_interval_sec
         self.oom_backoff = oom_backoff
         self.oom_reduce_workers_by = oom_reduce_workers_by
+        self.spawn_startup_timeout_sec = spawn_startup_timeout_sec
         self._ctx = multiprocessing.get_context(mp_start_method)
 
     def map_items(
@@ -231,15 +244,21 @@ class IsolatedTaskRunner:
                 if self.per_item_timeout_sec is not None
                 else ", no per-item timeout"
             )
+            spawn_msg = (
+                f", spawn startup timeout={self.spawn_startup_timeout_sec}s"
+                if self.spawn_startup_timeout_sec is not None
+                else ", no spawn startup timeout"
+            )
             oom_msg = (
                 f", oom_backoff=on (reduce by {self.oom_reduce_workers_by})"
                 if self.oom_backoff
                 else ", oom_backoff=off"
             )
             logger.info(
-                "Using isolated spawn workers: max_workers=%s%s%s",
+                "Using isolated spawn workers: max_workers=%s%s%s%s",
                 self.max_workers,
                 timeout_msg,
+                spawn_msg,
                 oom_msg,
             )
 
@@ -265,7 +284,7 @@ class IsolatedTaskRunner:
         def _fill_slots() -> None:
             while len(active) < max_slots and pending_items:
                 active.append(
-                    self._start_slot(
+                    self._begin_slot_async(
                         func=func,
                         item=pending_items.pop(0),
                         log_file_path=log_file_path,
@@ -278,8 +297,28 @@ class IsolatedTaskRunner:
             proc_result: Optional[ProcessingResult],
             *,
             timed_out: bool,
+            spawn_timed_out: bool = False,
         ) -> None:
-            if timed_out:
+            if spawn_timed_out:
+                failed_items.append(slot.item_id)
+                if logger:
+                    logger.error(
+                        "Spawn startup timeout (>%ss) for item %s; "
+                        "releasing worker slot.",
+                        self.spawn_startup_timeout_sec,
+                        slot.item_id,
+                    )
+                if on_item_done is not None:
+                    on_item_done(
+                        ProcessingResult(
+                            item_id=slot.item_id,
+                            error=TimeoutError(
+                                f"Item {slot.item_id} spawn startup exceeded "
+                                f"{self.spawn_startup_timeout_sec}s"
+                            ),
+                        )
+                    )
+            elif timed_out:
                 failed_items.append(slot.item_id)
                 if logger:
                     logger.error(
@@ -299,12 +338,13 @@ class IsolatedTaskRunner:
                     )
             elif proc_result is None:
                 failed_items.append(slot.item_id)
+                exit_code = slot.proc.exitcode if slot.proc is not None else "unknown"
                 if logger:
                     logger.error(
                         "Child exited without a queue result for item %s "
                         "(exit code %s).",
                         slot.item_id,
-                        slot.proc.exitcode,
+                        exit_code,
                     )
                 if on_item_done is not None:
                     on_item_done(
@@ -312,7 +352,7 @@ class IsolatedTaskRunner:
                             item_id=slot.item_id,
                             error=RuntimeError(
                                 f"Child exited without queue result "
-                                f"(exit code {slot.proc.exitcode})"
+                                f"(exit code {exit_code})"
                             ),
                         )
                     )
@@ -343,20 +383,51 @@ class IsolatedTaskRunner:
                 progress_bar.update(1)
 
         _fill_slots()
-        while active:
+        while active or pending_items:
             now = time.monotonic()
             still_active: List[_ActiveSlot] = []
 
             for slot in active:
+                if not slot.spawn_complete:
+                    spawn_elapsed = now - slot.spawn_started_at
+                    spawn_limit = self.spawn_startup_timeout_sec
+                    if spawn_limit is not None and spawn_elapsed > spawn_limit:
+                        if slot.proc is not None and slot.proc.is_alive():
+                            self._terminate_process(slot.proc)
+                        if slot.reader is not None:
+                            slot.reader.join(timeout=2.0)
+                        _finish_slot(slot, None, timed_out=False, spawn_timed_out=True)
+                        continue
+                    still_active.append(slot)
+                    continue
+
+                if slot.spawn_error is not None:
+                    if slot.reader is not None:
+                        slot.reader.join(timeout=2.0)
+                    _finish_slot(
+                        slot,
+                        ProcessingResult(item_id=slot.item_id, error=slot.spawn_error),
+                        timed_out=False,
+                    )
+                    continue
+
+                if slot.proc is None or slot.recv_bucket is None:
+                    if slot.reader is not None:
+                        slot.reader.join(timeout=2.0)
+                    _finish_slot(slot, None, timed_out=False)
+                    continue
+
                 proc_result = slot.recv_bucket[0]
                 if proc_result is not None:
                     if slot.proc.is_alive():
                         self._terminate_process(slot.proc)
-                    slot.reader.join(timeout=2.0)
+                    if slot.reader is not None:
+                        slot.reader.join(timeout=2.0)
                     _finish_slot(slot, proc_result, timed_out=False)
                     continue
 
-                elapsed = now - slot.started_at
+                work_started_at = slot.started_at or slot.spawn_started_at
+                elapsed = now - work_started_at
                 timed_out = (
                     self.per_item_timeout_sec is not None
                     and elapsed > self.per_item_timeout_sec
@@ -364,7 +435,8 @@ class IsolatedTaskRunner:
 
                 if timed_out and slot.proc.is_alive():
                     self._terminate_process(slot.proc)
-                    slot.reader.join(timeout=2.0)
+                    if slot.reader is not None:
+                        slot.reader.join(timeout=2.0)
                     _finish_slot(slot, None, timed_out=True)
                     continue
 
@@ -375,8 +447,7 @@ class IsolatedTaskRunner:
                 if slot.proc_exited_at is None:
                     slot.proc_exited_at = now
 
-                # Child exited: poll the queue reader briefly instead of one long join.
-                if proc_result is None and slot.reader.is_alive():
+                if proc_result is None and slot.reader is not None and slot.reader.is_alive():
                     slot.reader.join(timeout=self.poll_interval_sec)
                     proc_result = slot.recv_bucket[0]
 
@@ -385,7 +456,11 @@ class IsolatedTaskRunner:
                     continue
 
                 grace_elapsed = now - (slot.proc_exited_at or now)
-                if grace_elapsed <= QUEUE_RESULT_GRACE_SEC and slot.reader.is_alive():
+                if (
+                    grace_elapsed <= QUEUE_RESULT_GRACE_SEC
+                    and slot.reader is not None
+                    and slot.reader.is_alive()
+                ):
                     still_active.append(slot)
                     continue
 
@@ -394,7 +469,7 @@ class IsolatedTaskRunner:
             active = still_active
             _fill_slots()
 
-            if active:
+            if active or pending_items:
                 time.sleep(self.poll_interval_sec)
 
         if logger and failed_items:
@@ -402,53 +477,87 @@ class IsolatedTaskRunner:
 
         return successful_results, failed_items
 
-    def _start_slot(
+    def _begin_slot_async(
         self,
         func: Callable[[T], R],
         item: T,
         log_file_path: Optional[Path],
         log_level: int,
     ) -> _ActiveSlot:
+        """
+        Begin spawning a child process without blocking the poll loop.
+
+        Args:
+            func: User callable for the work item.
+            item: Work item passed to ``func``.
+            log_file_path: Optional log file restored in the child.
+            log_level: Logging level for the child.
+
+        Returns:
+            Slot handle tracked by :meth:`map_items`.
+        """
         worker_args = (func, item, log_file_path, log_level)
         item_id = _item_id_from_worker_args(worker_args)
-        result_queue = self._ctx.Queue(maxsize=1)
-        recv_bucket: List[Optional[ProcessingResult]] = [None]
-        poll_interval_sec = self.poll_interval_sec
-        proc_holder: List[Optional[multiprocessing.Process]] = [None]
-
-        def _drain_worker_result_queue() -> None:
-            grace_deadline: Optional[float] = None
-            while recv_bucket[0] is None:
-                proc_ref = proc_holder[0]
-                if proc_ref is not None and not proc_ref.is_alive():
-                    if grace_deadline is None:
-                        grace_deadline = time.monotonic() + QUEUE_RESULT_GRACE_SEC
-                    elif time.monotonic() >= grace_deadline:
-                        return
-                try:
-                    recv_bucket[0] = result_queue.get(timeout=poll_interval_sec)
-                except Empty:
-                    continue
-
-        reader = threading.Thread(
-            target=_drain_worker_result_queue,
-            name="habit-isolated-runner-queue-reader",
-            daemon=True,
-        )
-        proc = self._ctx.Process(
-            target=_put_worker_wrapper_result,
-            args=(worker_args, result_queue),
-        )
-        proc_holder[0] = proc
-        reader.start()
-        proc.start()
-        return _ActiveSlot(
+        slot = _ActiveSlot(
             item_id=item_id,
-            proc=proc,
-            reader=reader,
-            recv_bucket=recv_bucket,
-            started_at=time.monotonic(),
+            worker_args=worker_args,
+            spawn_started_at=time.monotonic(),
         )
+
+        def _spawn_worker() -> None:
+            try:
+                result_queue = self._ctx.Queue(maxsize=1)
+                recv_bucket: List[Optional[ProcessingResult]] = [None]
+                poll_interval_sec = self.poll_interval_sec
+                proc_holder: List[Optional[multiprocessing.Process]] = [None]
+
+                def _drain_worker_result_queue() -> None:
+                    grace_deadline: Optional[float] = None
+                    while recv_bucket[0] is None:
+                        proc_ref = proc_holder[0]
+                        if proc_ref is not None and not proc_ref.is_alive():
+                            if grace_deadline is None:
+                                grace_deadline = (
+                                    time.monotonic() + QUEUE_RESULT_GRACE_SEC
+                                )
+                            elif time.monotonic() >= grace_deadline:
+                                return
+                        try:
+                            recv_bucket[0] = result_queue.get(
+                                timeout=poll_interval_sec
+                            )
+                        except Empty:
+                            continue
+
+                reader = threading.Thread(
+                    target=_drain_worker_result_queue,
+                    name="habit-isolated-runner-queue-reader",
+                    daemon=True,
+                )
+                proc = self._ctx.Process(
+                    target=_put_worker_wrapper_result,
+                    args=(worker_args, result_queue),
+                )
+                proc_holder[0] = proc
+                reader.start()
+                proc.start()
+                with slot._spawn_lock:
+                    slot.proc = proc
+                    slot.reader = reader
+                    slot.recv_bucket = recv_bucket
+                    slot.started_at = time.monotonic()
+                    slot.spawn_complete = True
+            except BaseException as exc:
+                with slot._spawn_lock:
+                    slot.spawn_error = exc
+                    slot.spawn_complete = True
+
+        threading.Thread(
+            target=_spawn_worker,
+            name=f"habit-isolated-spawn-{item_id}",
+            daemon=True,
+        ).start()
+        return slot
 
     def _terminate_process(self, proc: multiprocessing.Process) -> None:
         if not proc.is_alive():

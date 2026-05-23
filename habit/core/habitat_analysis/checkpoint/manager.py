@@ -166,6 +166,7 @@ class HabitatTrainCheckpoint:
         *,
         resume: bool,
         force_rerun_subjects: Optional[Iterable[str]] = None,
+        retry_failed_subjects: bool = False,
     ) -> List[str]:
         """
         Return subject IDs that still need individual-level processing.
@@ -174,6 +175,7 @@ class HabitatTrainCheckpoint:
             all_subjects: Full subject list for the current run.
             resume: Whether completed/failed subjects should be skipped.
             force_rerun_subjects: Subject IDs to remove from cache and reprocess.
+            retry_failed_subjects: When True, also reprocess manifest failed subjects.
 
         Returns:
             Ordered list of subject IDs to dispatch to parallel workers.
@@ -182,7 +184,15 @@ class HabitatTrainCheckpoint:
         if not resume:
             return subject_list
 
+        subject_set = set(subject_list)
         force_rerun: Set[str] = set(force_rerun_subjects or [])
+        if retry_failed_subjects:
+            force_rerun.update(
+                subject_id
+                for subject_id in self.manifest.failed_subjects
+                if subject_id in subject_set
+            )
+
         for subject_id in force_rerun:
             self._remove_completed_subject(subject_id)
             if subject_id in self.manifest.failed_subjects:
@@ -194,9 +204,7 @@ class HabitatTrainCheckpoint:
         pending = [
             subject_id
             for subject_id in subject_list
-            if subject_id not in completed
-            and subject_id not in failed
-            and subject_id not in force_rerun
+            if subject_id not in completed and subject_id not in failed
         ]
         return pending
 

@@ -78,6 +78,15 @@ class HabitatAnalysisConfig(BaseConfig):
         ),
         gt=0,
     )
+    individual_subject_spawn_timeout_sec: Optional[float] = Field(
+        120.0,
+        description=(
+            "Wall-clock seconds allowed for a spawn child process to start before "
+            "marking that subject as failed. Prevents the parent poll loop from "
+            "blocking when startup imports hang under memory pressure. Set to null "
+            "to disable spawn startup timeout."
+        ),
+    )
     on_subject_failure: Literal["continue", "fail_fast"] = Field(
         "continue",
         description=(
@@ -105,7 +114,8 @@ class HabitatAnalysisConfig(BaseConfig):
         True,
         description=(
             "When True, skip individual-level processing for subjects already present "
-            "in the checkpoint directory. Failed checkpoint subjects are not retried."
+            "in the checkpoint directory. Failed checkpoint subjects are skipped unless "
+            "retry_failed_subjects is True or they appear in force_rerun_subjects."
         ),
     )
     checkpoint_dir: Optional[str] = Field(
@@ -119,6 +129,14 @@ class HabitatAnalysisConfig(BaseConfig):
         default_factory=list,
         description=(
             "Subject IDs to reprocess even when resume=True and a checkpoint exists."
+        ),
+    )
+    retry_failed_subjects: bool = Field(
+        False,
+        description=(
+            "When True with resume=True, automatically re-queue every subject listed "
+            "in the checkpoint manifest failed_subjects for individual-level processing. "
+            "Successful subjects remain skipped unless also listed in force_rerun_subjects."
         ),
     )
     clear_checkpoint_on_success: bool = Field(
@@ -141,6 +159,19 @@ class HabitatAnalysisConfig(BaseConfig):
             raise ValueError(
                 "individual_subject_timeout_sec must be positive when set; "
                 "use null in YAML to disable per-subject timeout."
+            )
+        return v
+
+    @field_validator('individual_subject_spawn_timeout_sec')
+    @classmethod
+    def validate_individual_subject_spawn_timeout(
+        cls,
+        v: Optional[float],
+    ) -> Optional[float]:
+        if v is not None and v <= 0:
+            raise ValueError(
+                "individual_subject_spawn_timeout_sec must be positive when set; "
+                "use null in YAML to disable spawn startup timeout."
             )
         return v
 
@@ -192,6 +223,34 @@ class HabitatAnalysisConfig(BaseConfig):
                     "Please move these methods to preprocessing_for_group_level."
                 )
         return self
+
+    def effective_supervoxel_random_state(self) -> int:
+        """
+        Resolve supervoxel clustering seed: submodule YAML overrides top-level.
+
+        Returns:
+            int: Effective random seed for supervoxel clustering.
+        """
+        from habit.utils.random_utils import resolve_random_state
+
+        explicit: Optional[int] = None
+        if self.HabitatSegmentation is not None:
+            explicit = self.HabitatSegmentation.supervoxel.random_state
+        return resolve_random_state(explicit, self.random_state)
+
+    def effective_habitat_random_state(self) -> int:
+        """
+        Resolve habitat clustering seed: submodule YAML overrides top-level.
+
+        Returns:
+            int: Effective random seed for habitat / group clustering.
+        """
+        from habit.utils.random_utils import resolve_random_state
+
+        explicit: Optional[int] = None
+        if self.HabitatSegmentation is not None:
+            explicit = self.HabitatSegmentation.habitat.random_state
+        return resolve_random_state(explicit, self.random_state)
 
 # -----------------------------------------------------------------------------
 # Feature Construction Schemas
@@ -289,7 +348,13 @@ class ConnectedComponentPostprocessConfig(BaseModel):
 class SupervoxelClusteringConfig(BaseModel):
     algorithm: Literal['kmeans', 'gmm', 'slic'] = 'kmeans'
     n_clusters: int = 50
-    random_state: int = 42
+    random_state: Optional[int] = Field(
+        None,
+        description=(
+            "Random seed for supervoxel clustering. When null/omitted, inherits "
+            "HabitatAnalysisConfig.random_state."
+        ),
+    )
     max_iter: int = 300
     n_init: int = 10
     compactness: float = Field(
@@ -315,7 +380,13 @@ class HabitatClusteringConfig(BaseModel):
         None,
         description="Fixed number of habitat clusters. If specified, automatic selection is disabled."
     )
-    random_state: int = 42
+    random_state: Optional[int] = Field(
+        None,
+        description=(
+            "Random seed for habitat clustering. When null/omitted, inherits "
+            "HabitatAnalysisConfig.random_state."
+        ),
+    )
     max_iter: int = 300
     n_init: int = 10
 

@@ -117,6 +117,9 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 # force_rerun_subjects: []
 #   When resume=true, re-process these IDs even if already completed or failed
 #
+# retry_failed_subjects: false
+#   When resume=true, automatically re-queue all manifest failed_subjects
+#
 # clear_checkpoint_on_success: false
 #   false — keep checkpoint after a fully successful train (default)
 #   true  — delete checkpoint directory when train finishes without error
@@ -125,16 +128,18 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 #   Included in hash: data_dir, FeatureConstruction, HabitatSegmentation
 #   NOT in hash (safe to change): processes, timeout, plot_curves, verbose, out_dir, ...
 #
-# Failed subjects are NOT auto-retried on resume. To retry: use force_rerun_subjects,
-# set resume=false, or delete the checkpoint directory.
+# Failed subjects are NOT auto-retried on resume unless retry_failed_subjects=true.
+# To retry: use retry_failed_subjects, force_rerun_subjects, set resume=false,
+# or delete the checkpoint directory.
 #
 # two_step checkpoint boundary: after merge_supervoxel_features (supervoxel_df in .pkl)
 # Group-level steps (combine / group clustering) are NOT checkpointed.
 # CLI equivalent: habit get-habitat -c <yaml> --resume
 # ---------------------------------------------------------------------------
 resume: true
-# checkpoint_dir: null
-# force_rerun_subjects: []
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
 clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots

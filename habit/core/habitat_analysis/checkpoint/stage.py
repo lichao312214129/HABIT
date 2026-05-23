@@ -136,10 +136,13 @@ class IndividualCheckpointStage:
 
         resume = bool(getattr(self.config, "resume", True))
         force_rerun = getattr(self.config, "force_rerun_subjects", None) or []
+        retry_failed = bool(getattr(self.config, "retry_failed_subjects", False))
+        failed_snapshot = list(self.checkpoint.manifest.failed_subjects)
         pending_ids = self.checkpoint.pending_subjects(
             X.keys(),
             resume=resume,
             force_rerun_subjects=force_rerun,
+            retry_failed_subjects=retry_failed,
         )
         cached_results = self.checkpoint.load_completed_results()
         pending_items = [(subject_id, X[subject_id]) for subject_id in pending_ids]
@@ -149,7 +152,15 @@ class IndividualCheckpointStage:
                 "Resume: loaded %s completed subject(s) from checkpoint.",
                 len(cached_results),
             )
-        if resume and self.checkpoint.manifest.failed_subjects:
+        if retry_failed and failed_snapshot:
+            retried = [subject_id for subject_id in failed_snapshot if subject_id in pending_ids]
+            if retried:
+                self.logger.info(
+                    "Resume: retrying %s previously failed subject(s): %s",
+                    len(retried),
+                    ", ".join(str(subject_id) for subject_id in retried),
+                )
+        elif resume and self.checkpoint.manifest.failed_subjects:
             self.logger.info(
                 "Resume: skipping %s previously failed subject(s): %s",
                 len(self.checkpoint.manifest.failed_subjects),
@@ -180,6 +191,11 @@ class IndividualCheckpointStage:
             "graceful_shutdown_sec": graceful_shutdown_sec,
             "oom_backoff": oom_backoff,
             "oom_reduce_workers_by": oom_reduce_workers_by,
+            "spawn_startup_timeout_sec": (
+                getattr(self.config, "individual_subject_spawn_timeout_sec", None)
+                if self.config is not None
+                else None
+            ),
         }
 
     def _build_on_item_done_callback(

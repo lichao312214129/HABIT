@@ -425,6 +425,10 @@ class BatchProcessor:
         
         使用多进程方式进行批处理。
         """
+        from habit.utils.random_utils import seed_numpy_global
+
+        seed_numpy_global(self.config_obj.random_state)
+
         # 创建输出目录
         out_dir = self.output_root / "processed_images"
         images_dir = out_dir / "images"

@@ -52,8 +52,9 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 # Checkpoint / resume — see config_habitat_two_step.yaml for full comments (train only).
 # Default dir: <out_dir>/.habitat_checkpoint/  |  one_step saves supervoxel_df after individual clustering
 resume: true
-# checkpoint_dir: null
-# force_rerun_subjects: []
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
 clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots

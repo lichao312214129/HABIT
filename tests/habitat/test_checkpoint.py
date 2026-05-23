@@ -90,6 +90,43 @@ def test_force_rerun_subjects_requeues_completed_subject(tmp_path: Path) -> None
     assert "sub001" not in manager.manifest.completed_subjects
 
 
+def test_retry_failed_subjects_requeues_all_failed(tmp_path: Path) -> None:
+    config = _minimal_train_config(tmp_path)
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config)
+    manager.initialize_for_run(resume=False)
+    manager.record_success("sub001", HabitatSubjectData())
+    manager.record_failure("sub002")
+    manager.record_failure("sub003")
+
+    manager.initialize_for_run(resume=True)
+    pending = manager.pending_subjects(
+        ["sub001", "sub002", "sub003", "sub004"],
+        resume=True,
+        retry_failed_subjects=True,
+    )
+    assert pending == ["sub002", "sub003", "sub004"]
+    assert manager.manifest.failed_subjects == []
+    assert "sub001" in manager.manifest.completed_subjects
+
+
+def test_retry_failed_subjects_false_skips_failed(tmp_path: Path) -> None:
+    config = _minimal_train_config(tmp_path)
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config)
+    manager.initialize_for_run(resume=False)
+    manager.record_failure("sub002")
+
+    manager.initialize_for_run(resume=True)
+    pending = manager.pending_subjects(
+        ["sub001", "sub002"],
+        resume=True,
+        retry_failed_subjects=False,
+    )
+    assert pending == ["sub001"]
+    assert manager.manifest.failed_subjects == ["sub002"]
+
+
 def test_load_subject_pkl_reads_single_subject(tmp_path: Path) -> None:
     config = _minimal_train_config(tmp_path)
     checkpoint_dir = tmp_path / "ckpt"

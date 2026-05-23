@@ -149,3 +149,19 @@ def test_memory_error_releases_slot_without_waiting_for_timeout() -> None:
     assert len(successful) == 1
     assert successful[0].item_id == "ok-sub"
     assert successful[0].result == 2
+
+
+def test_work_timeout_fires_while_other_slot_still_running() -> None:
+    """Per-item timeout must be polled even when another worker is active."""
+    items = [("slow", 8.0), ("fast", 0.05)]
+    successful, failed = parallel_map(
+        _task_slow,
+        items,
+        n_processes=2,
+        per_item_timeout_sec=1.0,
+        graceful_shutdown_sec=5.0,
+        show_progress=False,
+    )
+    assert "slow" in failed
+    assert len(successful) == 1
+    assert successful[0].item_id == "fast"

@@ -260,8 +260,9 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 # Checkpoint / resume (train mode only) — individual-level Stage 1 only.
 # Default: <out_dir>/.habitat_checkpoint/  (manifest.json + subjects/{id}.pkl)
 resume: true
-# checkpoint_dir: null
-# force_rerun_subjects: []          # e.g. [sub706] to retry after a failure
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
 clear_checkpoint_on_success: false
 # Config hash must match on resume (data_dir + FeatureConstruction + HabitatSegmentation).
 # Full documentation: docs/source/user_guide/habitat_segmentation_zh.rst (断点续训)

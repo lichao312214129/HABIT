@@ -117,7 +117,7 @@ class ClusteringService:
         supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
         params: Dict[str, Any] = {
             "n_clusters": n_clusters,
-            "random_state": supervoxel_cfg.random_state,
+            "random_state": self.config.effective_supervoxel_random_state(),
         }
 
         # Keep existing KMeans/GMM behavior and extend for SLIC.
@@ -205,7 +205,7 @@ class ClusteringService:
         self.supervoxel2habitat_clustering = ClusteringAlgorithmFactory.create_algorithm(
             habitat_cfg.algorithm,
             n_clusters=habitat_cfg.max_clusters,
-            random_state=habitat_cfg.random_state,
+            random_state=self.config.effective_habitat_random_state(),
             max_iter=habitat_cfg.max_iter,
             n_init=habitat_cfg.n_init
         )
@@ -513,7 +513,8 @@ class ClusteringService:
                 save_path=os.path.join(viz_dir, f'{subject}_supervoxel_clustering_2D.png'),
                 show=False,
                 dpi=600,
-                plot_3d=False
+                plot_3d=False,
+                random_state=self.config.random_state,
             )
             
             # 3D scatter
@@ -525,7 +526,8 @@ class ClusteringService:
                 save_path=os.path.join(viz_dir, f'{subject}_supervoxel_clustering_3D.png'),
                 show=False,
                 dpi=600,
-                plot_3d=True
+                plot_3d=True,
+                random_state=self.config.random_state,
             )
             
             if self.config.verbose:
@@ -588,7 +590,8 @@ class ClusteringService:
                 save_path=os.path.join(viz_dir, f'{file_prefix}_2D.png'),
                 show=False,
                 dpi=600,
-                plot_3d=False
+                plot_3d=False,
+                random_state=self.config.random_state,
             )
             
             # 3D scatter
@@ -600,7 +603,8 @@ class ClusteringService:
                 save_path=os.path.join(viz_dir, f'{file_prefix}_3D.png'),
                 show=False,
                 dpi=600,
-                plot_3d=True
+                plot_3d=True,
+                random_state=self.config.random_state,
             )
             
             if self.config.verbose:
