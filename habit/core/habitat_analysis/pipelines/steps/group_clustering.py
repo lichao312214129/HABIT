@@ -10,6 +10,8 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from habit.utils.log_utils import get_module_logger
+
 from ..base_pipeline import GroupLevelStep
 from ...clustering.base_clustering import ClusteringAlgorithmFactory
 from ...config_schemas import HabitatAnalysisConfig, ResultColumns
@@ -50,6 +52,7 @@ class GroupClusteringStep(GroupLevelStep):
         self.out_dir = out_dir
         self.clustering_model = None  # Assigned in fit()
         self.optimal_n_clusters_: Optional[int] = None
+        self.logger = get_module_logger(__name__)
 
     def fit(
         self,
@@ -69,6 +72,10 @@ class GroupClusteringStep(GroupLevelStep):
             self
         """
         feature_matrix = self._extract_feature_matrix(X)
+        self.logger.info(
+            f"GroupClusteringStep.fit: input rows={len(feature_matrix)}, "
+            f"feature_columns={feature_matrix.shape[1]}"
+        )
 
         # Find optimal number of clusters
         optimal_n, scores = self._find_optimal_clusters(feature_matrix)
@@ -82,6 +89,10 @@ class GroupClusteringStep(GroupLevelStep):
         # Set optimal number of clusters and fit
         self.clustering_model.n_clusters = optimal_n
         self.clustering_model.fit(feature_matrix)
+
+        self.logger.info(
+            f"GroupClusteringStep.fit: fitted with {optimal_n} habitat cluster(s)"
+        )
         
         # Predict on training data (for consistency)
         # Note: This is optional, but useful for debugging

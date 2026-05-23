@@ -8,6 +8,9 @@ out_dir: /path/to/output
 # General settings
 processes: 4
 individual_subject_timeout_sec: 900  # seconds; default 15 min; null = no per-subject timeout
+oom_backoff: false
+resume: true
+clear_checkpoint_on_success: false
 random_state: 42
 plot_curves: true  # Enable all visualizations
 

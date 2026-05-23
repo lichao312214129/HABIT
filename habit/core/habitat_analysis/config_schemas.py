@@ -102,7 +102,7 @@ class HabitatAnalysisConfig(BaseConfig):
         ge=1,
     )
     resume: bool = Field(
-        False,
+        True,
         description=(
             "When True, skip individual-level processing for subjects already present "
             "in the checkpoint directory. Failed checkpoint subjects are not retried."

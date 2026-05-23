@@ -96,6 +96,7 @@ HabitatSegmentation:
 # General settings
 processes: 5  # Number of parallel processes
 individual_subject_timeout_sec: 900  # Per-subject wall time (seconds) in Stage 1; default 15 min; null disables timeout
+oom_backoff: false  # Do not reduce parallel workers after MemoryError
 
 # ---------------------------------------------------------------------------
 # Checkpoint / resume (train mode only; ignored in predict mode)
@@ -131,10 +132,10 @@ individual_subject_timeout_sec: 900  # Per-subject wall time (seconds) in Stage 
 # Group-level steps (combine / group clustering) are NOT checkpointed.
 # CLI equivalent: habit get-habitat -c <yaml> --resume
 # ---------------------------------------------------------------------------
-# resume: false
+resume: true
 # checkpoint_dir: null
 # force_rerun_subjects: []
-# clear_checkpoint_on_success: false
+clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files

@@ -96,7 +96,7 @@ HABIT 支持两种数据输入方式：
 
 或者查看：
 
-- :doc:`../tutorials/index_zh`: 完整的教程
+- :doc:`../tutorials/index`: 完整的教程（英文索引）
 - :doc:`../customization/index_zh`: 自定义扩展指南
 - :doc:`../configuration_zh`: 配置参考
 - :doc:`../index`: 实用工具与其他入口

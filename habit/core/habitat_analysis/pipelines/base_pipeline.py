@@ -308,7 +308,15 @@ class HabitatPipeline:
                 f"{len(self.group_steps)} group-level steps..."
             )
             for name, step in self.group_steps:
+                logger.info(
+                    f"Group-level step '{name}' ({step.__class__.__name__}) started; "
+                    f"input: {self._describe_group_step_data(X_out)}"
+                )
                 X_out = step.fit_transform(X_out, y, **fit_params)
+                logger.info(
+                    f"Group-level step '{name}' finished; "
+                    f"output: {self._describe_group_step_data(X_out)}"
+                )
 
         self.fitted_ = True
         return X_out
@@ -383,7 +391,15 @@ class HabitatPipeline:
                 f"{len(self.group_steps)} group-level steps..."
             )
             for name, step in self.group_steps:
+                logger.info(
+                    f"Group-level step '{name}' ({step.__class__.__name__}) started; "
+                    f"input: {self._describe_group_step_data(X_out)}"
+                )
                 X_out = step.transform(X_out)
+                logger.info(
+                    f"Group-level step '{name}' finished; "
+                    f"output: {self._describe_group_step_data(X_out)}"
+                )
         
         return X_out  # Final output should be DataFrame with habitat labels
     
@@ -407,6 +423,30 @@ class HabitatPipeline:
             Transformed data (DataFrame with habitat labels)
         """
         return self._fit_process(X, y, **fit_params)
+    
+    @staticmethod
+    def _describe_group_step_data(data: Any) -> str:
+        """
+        Build a compact summary of group-level step input/output for logging.
+
+        Args:
+            data: Dict of per-subject payloads or a cohort-level DataFrame.
+
+        Returns:
+            Human-readable summary string (subject count, row count, feature count).
+        """
+        if isinstance(data, dict):
+            return f"{len(data)} subject(s)"
+        if isinstance(data, pd.DataFrame):
+            from habit.core.habitat_analysis.feature_preprocessing.dataframe_utils import (
+                split_metadata_and_features,
+            )
+            _, feature_df = split_metadata_and_features(data)
+            return (
+                f"rows={len(data)}, feature_columns={feature_df.shape[1]}, "
+                f"total_columns={data.shape[1]}"
+            )
+        return type(data).__name__
     
     def _process_single_subject(self, item: Tuple[str, Any]) -> Tuple[str, Any]:
         """

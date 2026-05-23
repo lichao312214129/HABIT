@@ -209,10 +209,10 @@ DICOM 整理命令
 
    processes: 2
    individual_subject_timeout_sec: 900
-   # resume: false
+   resume: true
    # checkpoint_dir: null
    # force_rerun_subjects: []
-   # clear_checkpoint_on_success: false
+   clear_checkpoint_on_success: false
    plot_curves: true
    save_results_csv: true
    random_state: 42
@@ -320,24 +320,28 @@ DICOM 整理命令
          solver: liblinear
          random_state: 42
 
-**配置文件示例** (预测模式):
+**配置文件示例** (预测模式，``MLConfig``)：
 
 .. code-block:: yaml
 
-   model_path: ./results/ml/train/models/LogisticRegression_final_pipeline.pkl
-   data_path: ./ml_data/new_data.csv
-   output_dir: ./results/ml/predict
-   evaluate: true
-   label_col: Label
+   run_mode: predict
+   pipeline_path: ./results/ml/train/models/LogisticRegression_final_pipeline.pkl
 
+   input:
+     - path: ./ml_data/new_data.csv
+       subject_id_col: PatientID
+       label_col: Label
+
+   output: ./results/ml/predict
+
+   evaluate: true
    output_label_col: predicted_label
    output_prob_col: predicted_probability
 
 **输出**:
 
-- 训练输出保存在训练配置中的`output` 目录
-- 预测输出保存在预测配置中的`output_dir` 目录
-- 预测结果文件默认为 `prediction_results.csv`
+- 训练输出保存在配置中的 ``output`` 目录（含 ``*_final_pipeline.pkl``、图表等）
+- 预测输出保存在 ``output`` 目录；日志默认为 ``prediction.log``
 
 帮助命令
 ---------
@@ -504,8 +508,33 @@ HABIT 会记录详细的日志信息，便于调试和问题排查。
 
 .. code-block:: bash
 
-   # 提取 DICOM 信息
+   # 基本用法：提取指定 tag
    habit dicom-info -i ./dicom_directory -o dicom_info.csv --tags "PatientName,StudyDate,Modality"
+
+   # 列出样本文件中可用 tag（不导出表）
+   habit dicom-info -i ./dicom_directory --list-tags --num-samples 3
+
+   # 加速：每个 Series 只读一个文件；每个文件夹只取一个 DICOM
+   habit dicom-info -i ./root --group-by-series --one-file-per-folder -o series_summary.csv
+
+   # 输出 Excel / JSON；禁用递归；限制扫描深度
+   habit dicom-info -i ./root -o out.xlsx --output-format excel --no-recursive --max-depth 2
+
+**``habit dicom-info`` 主要参数**（无 YAML 配置）：
+
+- ``--input, -i`` (**必填**): DICOM 文件或目录
+- ``--output, -o``: 输出路径；省略则仅打印到终端
+- ``--tags, -t``: 逗号分隔的 tag 名或 ``(group,element)`` 十六进制
+- ``--recursive / --no-recursive`` (默认递归)
+- ``--output-format``: ``csv``、``excel``、``json``
+- ``--list-tags``: 列出可用 tag 后退出
+- ``--num-samples``: ``--list-tags`` 时抽样文件数（默认 1）
+- ``--group-by-series / --no-group-by-series``: 按 SeriesInstanceUID 每组只读一个文件（默认开启）
+- ``--one-file-per-folder``: 每个文件夹只扫描一个 DICOM（加速）
+- ``--dicom-extensions``: 逗号分隔扩展名，配合 ``--one-file-per-folder``
+- ``--include-no-extension``: 无扩展名文件也尝试按 DICOM magic 读取
+- ``--num-workers``: 并行线程数（默认 ``min(32, cpu+4)``；``1`` 禁用并行）
+- ``--max-depth``: 配合 ``--one-file-per-folder`` 时的最大递归深度
 
 **示例 9: Dice 系数计算**
 
@@ -547,8 +576,8 @@ HABIT 会记录详细的日志信息，便于调试和问题排查。
   - 功能: 基于索引列水平合并多个CSV/Excel 文件
 
 - `habit dicom-info`: DICOM 信息提取
-  - 参数: `--input, -i` (必需), `--tags, -t` (可选, `--output, -o` (可选
-  - 功能: 提取 DICOM 文件的元数据信息
+  - 参数: ``--input, -i`` (必需), ``--output, -o``, ``--tags, -t``, ``--list-tags``, ``--group-by-series``, ``--one-file-per-folder``, ``--output-format``, ``--num-workers`` 等（**无** ``--config``）
+  - 功能: 批量读取 DICOM 元数据并导出 CSV/Excel/JSON
 
 - `habit dice`: Dice 系数计算
   - 参数: `--input1` (必需), `--input2` (必需), `--output` (可选

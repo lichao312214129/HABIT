@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 from pydantic import BaseModel
 
+from habit.utils.log_utils import get_module_logger
+
 from .base_preprocessing import BaselineStats, PreprocessingMethodFactory
 from .dataframe_utils import merge_metadata_and_features, split_metadata_and_features
 from .method_config_utils import resolve_method_name
@@ -83,12 +85,37 @@ def apply_preprocessing_pipeline(
         baseline = BaselineStats.from_dataframe(feature_df)
         feature_df = _prepare_feature_block(feature_df, baseline)
         new_states: List[Any] = []
+        logger = get_module_logger(__name__)
+        n_features_in = feature_df.shape[1]
+        logger.info(
+            f"Group-level preprocessing pipeline started (fit): "
+            f"rows={len(feature_df)}, feature_columns={n_features_in}, "
+            f"steps={len(methods)}"
+        )
 
-        for method_config in methods:
+        for step_idx, method_config in enumerate(methods, start=1):
+            method_name = resolve_method_name(method_config)
+            n_before = feature_df.shape[1]
             handler = PreprocessingMethodFactory.get_handler_for_config(method_config)
             state = handler.fit(feature_df, method_config, baseline)
             feature_df = handler.transform(feature_df, method_config, state, baseline)
             new_states.append(state)
+            n_after = feature_df.shape[1]
+            logger.info(
+                f"Group-level preprocessing step {step_idx}/{len(methods)} "
+                f"'{method_name}': feature_columns {n_before} -> {n_after} "
+                f"(rows={len(feature_df)})"
+            )
+            if n_after != n_before:
+                logger.info(
+                    f"Group-level preprocessing '{method_name}' filtered "
+                    f"{n_before - n_after} feature column(s)"
+                )
+
+        logger.info(
+            f"Group-level preprocessing pipeline finished (fit): "
+            f"feature_columns {n_features_in} -> {feature_df.shape[1]}"
+        )
 
         output = merge_metadata_and_features(metadata_df, feature_df, df.columns)
         return output, baseline, new_states
@@ -104,10 +131,37 @@ def apply_preprocessing_pipeline(
         )
 
     feature_df = _prepare_feature_block(feature_df, baseline)
+    logger = get_module_logger(__name__)
+    n_features_in = feature_df.shape[1]
+    logger.info(
+        f"Group-level preprocessing pipeline started (transform): "
+        f"rows={len(feature_df)}, feature_columns={n_features_in}, "
+        f"steps={len(methods)}"
+    )
 
-    for method_config, state in zip(methods, step_states):
+    for step_idx, (method_config, state) in enumerate(
+        zip(methods, step_states), start=1
+    ):
+        method_name = resolve_method_name(method_config)
+        n_before = feature_df.shape[1]
         handler = PreprocessingMethodFactory.get_handler_for_config(method_config)
         feature_df = handler.transform(feature_df, method_config, state, baseline)
+        n_after = feature_df.shape[1]
+        logger.info(
+            f"Group-level preprocessing step {step_idx}/{len(methods)} "
+            f"'{method_name}': feature_columns {n_before} -> {n_after} "
+            f"(rows={len(feature_df)})"
+        )
+        if n_after != n_before:
+            logger.info(
+                f"Group-level preprocessing '{method_name}' filtered "
+                f"{n_before - n_after} feature column(s)"
+            )
+
+    logger.info(
+        f"Group-level preprocessing pipeline finished (transform): "
+        f"feature_columns {n_features_in} -> {feature_df.shape[1]}"
+    )
 
     output = merge_metadata_and_features(metadata_df, feature_df, df.columns)
     return output, baseline, step_states

@@ -18,7 +18,7 @@ FeatureConstruction:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
     params:
-      params_file: {}
+      params_file: ../radiomics/parameter.yaml
 
   preprocessing_for_group_level:
     methods:
@@ -63,13 +63,14 @@ HabitatSegmentation:
 # General settings
 processes: 2  # Number of parallel processes
 individual_subject_timeout_sec: 900  # Per-subject wall time (seconds) in Stage 1; default 15 min; null disables timeout
+oom_backoff: false  # Do not reduce parallel workers after MemoryError
 
 # Checkpoint / resume — see config_habitat_two_step.yaml for full comments (train only).
 # direct_pooling saves after individual_preprocessing (voxel features; larger .pkl than two_step)
-# resume: false
+resume: true
 # checkpoint_dir: null
 # force_rerun_subjects: []
-# clear_checkpoint_on_success: false
+clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files

@@ -491,5 +491,5 @@ HABIT 会自动验证数据路径的有效性：
 现在您已经了解了 HABIT 的数据结构，可以：
 
 - 阅读 :doc:`../user_guide/index_zh` 了解详细的使用指南
-- 查看 :doc:`../tutorials/index_zh` 学习完整的教程
+- 查看 :doc:`tutorials/index` 学习完整的教程（英文教程索引）
 - 参考 :doc:`configuration_zh` 了解配置文件的详细说明

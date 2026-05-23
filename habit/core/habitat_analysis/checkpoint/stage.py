@@ -112,7 +112,7 @@ class IndividualCheckpointStage:
             getattr(self.config, "checkpoint_dir", None),
         )
         checkpoint = HabitatTrainCheckpoint(checkpoint_dir, self.config, self.logger)
-        resume = bool(getattr(self.config, "resume", False))
+        resume = bool(getattr(self.config, "resume", True))
         checkpoint.initialize_for_run(resume=resume)
         return checkpoint
 
@@ -134,7 +134,7 @@ class IndividualCheckpointStage:
         if self.checkpoint is None:
             return cached_results, pending_items
 
-        resume = bool(getattr(self.config, "resume", False))
+        resume = bool(getattr(self.config, "resume", True))
         force_rerun = getattr(self.config, "force_rerun_subjects", None) or []
         pending_ids = self.checkpoint.pending_subjects(
             X.keys(),
