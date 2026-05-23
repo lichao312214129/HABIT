@@ -30,10 +30,10 @@
 核心模块
 --------
 
-- ``habit.core.preprocessing``: 图像预处理
-- ``habit.core.habitat_analysis``: 生境分析
-- ``habit.core.machine_learning``: 机器学习
-- ``habit.utils``: 通用工具
+- ``habit.core.preprocessing`` : 图像预处理
+- ``habit.core.habitat_analysis`` : 生境分析
+- ``habit.core.machine_learning`` : 机器学习
+- ``habit.utils`` : 通用工具
 
 联系方式
 --------

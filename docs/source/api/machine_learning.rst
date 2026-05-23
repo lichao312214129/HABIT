@@ -7,8 +7,8 @@ machine_learning 模块
 开发者阅读入口
 ----------------
 
-理解机器学习模块时，建议先从 ``MLConfig``、``MLConfigurator``、``BaseWorkflow``、
-``PipelineBuilder``、``ModelFactory`` 和 ``run_selector`` 读起。整体代码架构
+理解机器学习模块时，建议先从 ``MLConfig`` 、``MLConfigurator`` 、``BaseWorkflow`` 、
+``PipelineBuilder`` 、``ModelFactory`` 和 ``run_selector`` 读起。整体代码架构
 和模块边界见 :doc:`../development/module_architecture`。
 
 .. automodule:: habit.core.machine_learning.configurator

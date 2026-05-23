@@ -97,9 +97,9 @@ Metrics Module Optimization
 
 **距离度量**：
 
-* ``euclidean``: √Σ(actual - target)²（默认）
-* ``manhattan``: Σ|actual - target|
-* ``max``: max(|actual - target|)
+* ``euclidean`` : √Σ(actual - target)²（默认）
+* ``manhattan`` : Σ|actual - target|
+* ``max`` : max(|actual - target|)
 
 .. warning::
    **严格避免数据泄露**：

@@ -1,0 +1,2743 @@
+﻿Running Sphinx v9.1.0
+loading translations [zh_CN]... done
+making output directory... done
+Converting `source_suffix = '.rst'` to `source_suffix = {'.rst': 'restructuredtext'}`.
+loading intersphinx inventory 'python' from https://docs.python.org/3/objects.inv ...
+loading intersphinx inventory 'numpy' from https://numpy.org/doc/stable/objects.inv ...
+loading intersphinx inventory 'pandas' from https://pandas.pydata.org/docs/objects.inv ...
+loading intersphinx inventory 'sklearn' from https://scikit-learn.org/stable/objects.inv ...
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 58 source files that are out of date
+updating environment: [new config] 58 added, 0 changed, 0 removed
+reading sources... [  2%] acknowledgments
+reading sources... [  3%] algorithms/clustering
+reading sources... [  5%] algorithms/feature_extraction
+reading sources... [  7%] algorithms/index
+reading sources... [  9%] algorithms/validation_methods
+reading sources... [ 10%] api/cli
+reading sources... [ 12%] api/common
+reading sources... [ 14%] api/dicom_sort
+reading sources... [ 16%] api/habitat_analysis
+reading sources... [ 17%] api/index
+reading sources... [ 19%] api/machine_learning
+reading sources... [ 21%] api/preprocessing
+reading sources... [ 22%] api/utils
+reading sources... [ 24%] app_dice_calculator_zh
+reading sources... [ 26%] app_dicom_info_zh
+reading sources... [ 28%] app_habitat_test_retest_zh
+reading sources... [ 29%] app_icc_analysis_zh
+reading sources... [ 31%] app_merge_csv_zh
+reading sources... [ 33%] app_model_comparison_zh
+reading sources... [ 34%] architecture/index
+reading sources... [ 36%] architecture/overview
+reading sources... [ 38%] changelog
+reading sources... [ 40%] cli_zh
+reading sources... [ 41%] configuration_zh
+reading sources... [ 43%] customization/index_zh
+reading sources... [ 45%] data_structure_zh
+reading sources... [ 47%] design_philosophy_zh
+reading sources... [ 48%] development/architecture
+reading sources... [ 50%] development/contributing
+reading sources... [ 52%] development/design_patterns
+reading sources... [ 53%] development/index
+reading sources... [ 55%] development/metrics_optimization
+reading sources... [ 57%] development/module_architecture
+reading sources... [ 59%] development/testing
+reading sources... [ 60%] getting_started/basic_concepts_zh
+reading sources... [ 62%] getting_started/extensibility_overview_zh
+reading sources... [ 64%] getting_started/index_zh
+reading sources... [ 66%] getting_started/installation_zh
+reading sources... [ 67%] getting_started/quickstart_zh
+reading sources... [ 69%] import_robustness_guide_zh
+reading sources... [ 71%] index
+reading sources... [ 72%] python_subprocess_methods_zh
+reading sources... [ 74%] reference/upstream_libraries_zh
+reading sources... [ 76%] tutorials/basic_habitat_analysis
+reading sources... [ 78%] tutorials/basic_workflow
+reading sources... [ 79%] tutorials/custom_features
+reading sources... [ 81%] tutorials/index
+reading sources... [ 83%] tutorials/ml_integration
+reading sources... [ 84%] user_guide/feature_extraction
+reading sources... [ 86%] user_guide/habitat_feature_extraction_zh
+reading sources... [ 88%] user_guide/habitat_segmentation_zh
+reading sources... [ 90%] user_guide/image_preprocessing_zh
+reading sources... [ 91%] user_guide/index_zh
+reading sources... [ 93%] user_guide/machine_learning
+reading sources... [ 95%] user_guide/machine_learning_modeling_zh
+reading sources... [ 97%] user_guide/model_comparison_zh
+reading sources... [ 98%] user_guide/preprocessing
+reading sources... [100%] user_guide/roi_preparation_zh
+
+python : F:\work\habit_project\docs\source\acknowledgments.rst:39: WARNING: Bullet list ends without a blank line; unex
+pected unindent. [docutils]
+所在位置 C:\Users\dongm\AppData\Local\Temp\ps-script-50b8509e-643a-4d8f-a79f-8ff4e14673b1.ps1:93 字符: 77
++ ... -Force build; python -m sphinx -b html source build/html 2>&1 | Out-F ...
++                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (F:\work\habit_p...ent. [docutils]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+F:\work\habit_project\habit\core\habitat_analysis\clustering_features\voxel_radiomics_extractor.py:docstring of habit.c
+ore.habitat_analysis.clustering_features.voxel_radiomics_extractor.VoxelRadiomicsExtractor.extract_features:10: ERROR: 
+Unexpected indentation. [docutils]
+WARNING: autodoc: failed to import 'base_feature_extractor.BaseFeatureExtractor' from module 'habit.core.habitat_analys
+is.clustering_features'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+18, in _import_module
+    raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'habit.core.habitat_analysis.clustering_features.base_feature_extractor'
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'silhouette_score' from module 'habit.core.habitat_analysis.clustering.cluster_valid
+ation_methods'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 461, in safe_getatt
+r
+    return getattr(obj, name, *defargs)
+AttributeError: module 'habit.core.habitat_analysis.clustering.cluster_validation_methods' has no attribute 'silhouette
+_score'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+50, in _import_from_module_and_path
+    obj = get_attr(obj, mangled_name)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_shared.py", line 142, in __ca
+ll__
+    return safe_getattr(obj, name, *defargs)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 477, in safe_getatt
+r
+    raise AttributeError(name) from exc
+AttributeError: silhouette_score
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'calinski_harabasz_score' from module 'habit.core.habitat_analysis.clustering.cluste
+r_validation_methods'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 461, in safe_getatt
+r
+    return getattr(obj, name, *defargs)
+AttributeError: module 'habit.core.habitat_analysis.clustering.cluster_validation_methods' has no attribute 'calinski_h
+arabasz_score'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+50, in _import_from_module_and_path
+    obj = get_attr(obj, mangled_name)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_shared.py", line 142, in __ca
+ll__
+    return safe_getattr(obj, name, *defargs)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 477, in safe_getatt
+r
+    raise AttributeError(name) from exc
+AttributeError: calinski_harabasz_score
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'davies_bouldin_score' from module 'habit.core.habitat_analysis.clustering.cluster_v
+alidation_methods'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 461, in safe_getatt
+r
+    return getattr(obj, name, *defargs)
+AttributeError: module 'habit.core.habitat_analysis.clustering.cluster_validation_methods' has no attribute 'davies_bou
+ldin_score'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+50, in _import_from_module_and_path
+    obj = get_attr(obj, mangled_name)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_shared.py", line 142, in __ca
+ll__
+    return safe_getattr(obj, name, *defargs)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\util\inspect.py", line 477, in safe_getatt
+r
+    raise AttributeError(name) from exc
+AttributeError: davies_bouldin_score
+ [autodoc.import_object]
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.voxel_radiomics_e
+xtractor.VoxelRadiomicsExtractor, other instance in algorithms/feature_extraction, use :no-index: for one of them
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.voxel_radiomics_e
+xtractor.VoxelRadiomicsExtractor.__init__, other instance in algorithms/feature_extraction, use :no-index: for one of t
+hem
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.voxel_radiomics_e
+xtractor.VoxelRadiomicsExtractor.extract_features, other instance in algorithms/feature_extraction, use :no-index: for 
+one of them
+F:\work\habit_project\habit\core\habitat_analysis\clustering_features\voxel_radiomics_extractor.py:docstring of habit.c
+ore.habitat_analysis.clustering_features.voxel_radiomics_extractor.VoxelRadiomicsExtractor.extract_features:10: ERROR: 
+Unexpected indentation. [docutils]
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.voxel_radiomics_e
+xtractor.VoxelRadiomicsExtractor.get_feature_names, other instance in algorithms/feature_extraction, use :no-index: for
+ one of them
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.supervoxel_radiom
+ics_extractor.SupervoxelRadiomicsExtractor, other instance in algorithms/feature_extraction, use :no-index: for one of 
+them
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.supervoxel_radiom
+ics_extractor.SupervoxelRadiomicsExtractor.__init__, other instance in algorithms/feature_extraction, use :no-index: fo
+r one of them
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.supervoxel_radiom
+ics_extractor.SupervoxelRadiomicsExtractor.extract_features, other instance in algorithms/feature_extraction, use :no-i
+ndex: for one of them
+<unknown>:1: WARNING: duplicate object description of habit.core.habitat_analysis.clustering_features.supervoxel_radiom
+ics_extractor.SupervoxelRadiomicsExtractor.get_feature_names, other instance in algorithms/feature_extraction, use :no-
+index: for one of them
+F:\work\habit_project\habit\core\habitat_analysis\pipelines\base_pipeline.py:docstring of habit.core.habitat_analysis.p
+ipelines.base_pipeline.HabitatPipeline:5: ERROR: Unknown target name: "fitted". [docutils]
+WARNING: autodoc: failed to import 'machine_learning' from module 'habit.core'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.contracts' from module 'habit.core'; the following exception was r
+aised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.workflows.holdout_workflow' from module 'habit.core'; the followin
+g exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.workflows.kfold_workflow' from module 'habit.core'; the following 
+exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.workflows.base' from module 'habit.core'; the following exception 
+was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.runners.kfold' from module 'habit.core'; the following exception w
+as raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.runners.holdout' from module 'habit.core'; the following exception
+ was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.reporting.model_store' from module 'habit.core'; the following exc
+eption was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.reporting.report_writer' from module 'habit.core'; the following e
+xception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.reporting.plot_composer' from module 'habit.core'; the following e
+xception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.models.factory' from module 'habit.core'; the following exception 
+was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.models.ensemble' from module 'habit.core'; the following exception
+ was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.evaluation.model_evaluation' from module 'habit.core'; the followi
+ng exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.evaluation.metrics' from module 'habit.core'; the following except
+ion was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.workflows.comparison_workflow' from module 'habit.core'; the follo
+wing exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.visualization.plotting' from module 'habit.core'; the following ex
+ception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'machine_learning.visualization.km_survival' from module 'habit.core'; the following
+ exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\machine_learning\__init__.py", line 16, in <module>
+    from .contracts import (
+    ...<9 lines>...
+    )
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\__init__.py", line 6, in <module>
+    from .plan import WorkflowPlan
+  File "F:\work\habit_project\habit\core\machine_learning\contracts\plan.py", line 9, in <module>
+    from ..config_schemas import MLConfig
+  File "F:\work\habit_project\habit\core\machine_learning\config_schemas.py", line 209, in <module>
+    class ModelComparisonConfig(BaseConfig):
+    ...<14 lines>...
+            return v
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\_
+_init__.py", line 16, in <module>\n    from .contracts import (\n    ...<9 lines>...\n    )\n  File "F:\\work\\habit_pr
+oject\\habit\\core\\machine_learning\\contracts\\__init__.py", line 6, in <module>\n    from .plan import WorkflowPlan\
+n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\contracts\\plan.py", line 9, in <module>\n    from ..c
+onfig_schemas import MLConfig\n  File "F:\\work\\habit_project\\habit\\core\\machine_learning\\config_schemas.py", line
+ 209, in <module>\n    class ModelComparisonConfig(BaseConfig):\n    ...<14 lines>...\n            return v\n  File "C:
+\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 
+256, in __new__\n    complete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\
+n        create_model_module=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  
+File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py
+", line 667, in complete_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\
+Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n   
+ schema = self._generate_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-package
+s\\pydantic\\_internal\\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\
+n           ~~~~~~~~~~~~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pyda
+ntic\\_internal\\_generate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'
+The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGeneratio
+nError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://
+errors.pydantic.dev/2.13/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+WARNING: autodoc: failed to import 'image_processor_pipeline' from module 'habit.core.preprocessing'; the following exc
+eption was raised:
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+21, in _import_module
+    module = importlib.import_module(modname)
+  File "C:\Python314\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "F:\work\habit_project\habit\core\preprocessing\image_processor_pipeline.py", line 28, in <module>
+    from habit.core.preprocessing.config_schemas import PreprocessingConfig
+  File "F:\work\habit_project\habit\core\preprocessing\config_schemas.py", line 19, in <module>
+    class PreprocessingStepConfig(BaseModel):
+    ...<8 lines>...
+            return list(v)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+256, in __new__
+    complete_model_class(
+    ~~~~~~~~~~~~~~~~~~~~^
+        cls,
+        ^^^^
+    ...<3 lines>...
+        create_model_module=_create_model_module,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_model_construction.py", line 
+667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 744
+, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 102
+8, in _generate_schema_inner
+    return self._model_schema(obj)
+           ~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\pydantic\_internal\_generate_schema.py", line 826
+, in _model_schema
+    raise PydanticSchemaGenerationError(
+        'The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'
+    )
+pydantic.errors.PydanticSchemaGenerationError: The type annotation for `__pydantic_extra__` must be `dict[str, ...]`
+
+For further information visit https://errors.pydantic.dev/2.13/u/schema-for-unknown-type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 1
+31, in _import_from_module_and_path
+    module = _import_module(module_name, try_reload=True)
+  File "C:\Users\dongm\AppData\Roaming\Python\Python314\site-packages\sphinx\ext\autodoc\_dynamic\_importer.py", line 2
+33, in _import_module
+    raise ImportError(exc, traceback.format_exc()) from exc
+ImportError: (PydanticSchemaGenerationError('The type annotation for `__pydantic_extra__` must be `dict[str, ...]`'), '
+Traceback (most recent call last):\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\sphin
+x\\ext\\autodoc\\_dynamic\\_importer.py", line 221, in _import_module\n    module = importlib.import_module(modname)\n 
+ File "C:\\Python314\\Lib\\importlib\\__init__.py", line 88, in import_module\n    return _bootstrap._gcd_import(name[l
+evel:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "<frozen importlib._bo
+otstrap>", line 1406, in _gcd_import\n  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load\n  File "<fr
+ozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked\n  File "<frozen importlib._bootstrap>", line 938, i
+n _load_unlocked\n  File "<frozen importlib._bootstrap_external>", line 759, in exec_module\n  File "<frozen importlib.
+_bootstrap>", line 491, in _call_with_frames_removed\n  File "F:\\work\\habit_project\\habit\\core\\preprocessing\\imag
+e_processor_pipeline.py", line 28, in <module>\n    from habit.core.preprocessing.config_schemas import PreprocessingCo
+nfig\n  File "F:\\work\\habit_project\\habit\\core\\preprocessing\\config_schemas.py", line 19, in <module>\n    class 
+PreprocessingStepConfig(BaseModel):\n    ...<8 lines>...\n            return list(v)\n  File "C:\\Users\\dongm\\AppData
+\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 256, in __new__\n    co
+mplete_model_class(\n    ~~~~~~~~~~~~~~~~~~~~^\n        cls,\n        ^^^^\n    ...<3 lines>...\n        create_model_m
+odule=_create_model_module,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File "C:\\Users\\dongm\
+\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_model_construction.py", line 667, in complet
+e_model_class\n    schema = gen_schema.generate_schema(cls)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python
+314\\site-packages\\pydantic\\_internal\\_generate_schema.py", line 744, in generate_schema\n    schema = self._generat
+e_schema_inner(obj)\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\
+\_generate_schema.py", line 1028, in _generate_schema_inner\n    return self._model_schema(obj)\n           ~~~~~~~~~~~
+~~~~~~~^^^^^\n  File "C:\\Users\\dongm\\AppData\\Roaming\\Python\\Python314\\site-packages\\pydantic\\_internal\\_gener
+ate_schema.py", line 826, in _model_schema\n    raise PydanticSchemaGenerationError(\n        \'The type annotation for
+ `__pydantic_extra__` must be `dict[str, ...]`\'\n    )\npydantic.errors.PydanticSchemaGenerationError: The type annota
+tion for `__pydantic_extra__` must be `dict[str, ...]`\n\nFor further information visit https://errors.pydantic.dev/2.1
+3/u/schema-for-unknown-type\n')
+ [autodoc.import_object]
+F:\work\habit_project\docs\source\api\preprocessing.rst:66: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor:14: ERROR: Unexpected indentation. [docutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor:14: WARNING: Inline strong start-string without end-string. [docutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor:22: ERROR: Unexpected indentation. [docutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor:23: WARNING: Block quote ends without a blank line; unexpected unindent. 
+[docutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor.__call__:18: ERROR: Unexpected indentation. [docutils]
+F:\work\habit_project\habit\core\preprocessing\custom_preprocessor_template.py:docstring of habit.core.preprocessing.cu
+stom_preprocessor_template.CustomPreprocessor.__call__:30: ERROR: Unexpected indentation. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:21: ERROR: Une
+xpected indentation. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:18: WARNING: I
+nline literal start-string without end-string. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:18: WARNING: I
+nline interpreted text or phrase reference start-string without end-string. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:26: WARNING: B
+lock quote ends without a blank line; unexpected unindent. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:33: WARNING: I
+nline literal start-string without end-string. [docutils]
+F:\work\habit_project\habit\utils\io_utils.py:docstring of habit.utils.io_utils.get_image_and_mask_paths:33: WARNING: I
+nline interpreted text or phrase reference start-string without end-string. [docutils]
+F:\work\habit_project\habit\utils\dicom_utils.py:docstring of habit.utils.dicom_utils.get_one_dicom_per_folder:26: WARN
+ING: Inline emphasis start-string without end-string. [docutils]
+F:\work\habit_project\habit\utils\log_utils.py:docstring of habit.utils.log_utils.restore_logging_in_subprocess:18: ERR
+OR: Unexpected indentation. [docutils]
+F:\work\habit_project\docs\source\app_dice_calculator_zh.rst:114: ERROR: Malformed table.
+Right border not aligned or missing.
+
++-----------+-----------+-------+---------------------------------------------+----------------------------------------
+-----+
+| Subject   | MaskType  | Dice  | Path1                                       | Path2                                  
+     |
++===========+===========+=======+=============================================+========================================
+=====+
+| subject001| tumor     | 0.88  | dir1/masks/subject001/tumor/mask.nii.gz      | dir2/masks/subject001/tumor/mask.nii.g
+z      |
++-----------+-----------+-------+---------------------------------------------+----------------------------------------
+-----+
+| subject002| tumor     | 0.85  | dir1/masks/subject002/tumor/mask.nii.gz      | dir2/masks/subject002/tumor/mask.nii.g
+z      |
++-----------+-----------+-------+---------------------------------------------+----------------------------------------
+-----+
+| ...       | ...       | ...   | ...                                         | ...                                    
+     |
++-----------+-----------+-------+---------------------------------------------+----------------------------------------
+-----+ [docutils]
+F:\work\habit_project\docs\source\cli_zh.rst:222: WARNING: Inline interpreted text or phrase reference start-string wit
+hout end-string. [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:78: WARNING: Inline strong start-string without end-string. [doc
+utils]
+F:\work\habit_project\docs\source\configuration_zh.rst:137: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:139: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:145: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:152: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:165: WARNING: Title underline too short.
+
+预处理配置参数
+------------ [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:298: WARNING: Title underline too short.
+
+生境分析配置参数
+------------ [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:747: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:924: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:956: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:961: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:967: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:973: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:982: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:988: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:994: WARNING: Inline strong start-string without end-string. [do
+cutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1002: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1008: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1014: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1020: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1028: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1029: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1064: WARNING: Title underline too short.
+
+特征提取配置参数
+------------ [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1162: WARNING: Title underline too short.
+
+机器学习配置参数
+------------ [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1218: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1236: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1251: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1404: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1650: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1724: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1730: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1763: WARNING: Title underline too short.
+
+传统影像组学 CLI 配置（``habit radiomics``）
+------------------------------------------ [docutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1767: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\configuration_zh.rst:1788: WARNING: Inline strong start-string without end-string. [d
+ocutils]
+F:\work\habit_project\docs\source\customization\index_zh.rst:2: WARNING: Title underline too short.
+
+自定义扩展指南
+============ [docutils]
+F:\work\habit_project\docs\source\customization\index_zh.rst:73: WARNING: Title underline too short.
+
+自定义预处理器
+------------ [docutils]
+F:\work\habit_project\docs\source\customization\index_zh.rst:141: WARNING: Title underline too short.
+
+自定义特征提取器
+------------ [docutils]
+F:\work\habit_project\docs\source\customization\index_zh.rst:210: WARNING: Title underline too short.
+
+自定义聚类算法
+------------ [docutils]
+F:\work\habit_project\docs\source\customization\index_zh.rst:364: WARNING: Title underline too short.
+
+自定义特征选择器
+------------ [docutils]
+F:\work\habit_project\docs\source\data_structure_zh.rst:234: WARNING: Title underline too short.
+
+auto_select_first_file 参数详解
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\data_structure_zh.rst:280: WARNING: Title underline too short.
+
+路径和文件名规则
+~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:227: WARNING: Inline strong start-string without end-str
+ing. [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:309: ERROR: Error parsing content block for the "list-ta
+ble" directive: uniform two-level bullet list expected, but row 10 does not contain the same number of items as row 1 (
+3 vs 2).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - 模块
+     - 职责
+   * - ``habitat_analysis.py`` (**deep**)
+     - V1 的 **唯一编排入口**。串联 build、fit/predict、pipeline 持久化；训练/预测末尾通过
+       ``HabitatResultPublisher`` 写出 ``habitats.csv`` 并按配置发布标签图。
+       内部用 ``_PIPELINE_RECIPES`` 按 ``clustering_mode`` 分发 step 列表；用
+       ``_PIPELINE_SERVICE_ATTRS`` 白名单向已加载的 pipeline 注入
+       ``FeatureService`` / ``ClusteringService`` / ``HabitatImageWriter``。
+   * - ``services/{feature_service,clustering_service,habitat_image_writer,result_publisher}.py``
+     - 特征与预处理、聚类、NRRD 标签图落盘；``HabitatResultPublisher`` 负责 CSV 与结果发布（在 ``HabitatAnalysis`` 内构造，不注入各 step）。
+       前三个 service 构造时注入 ``HabitatAnalysis`` ，再注入到各 pipeline step。
+   * - ``pipelines/base_pipeline.py``
+     - sklearn 风格的 ``HabitatPipeline`` + ``BasePipelineStep``。
+       ``fit_transform`` / ``transform`` / ``save`` / ``load`` 接口。
+   * - ``pipelines/steps/*.py``
+     - 多个具体步骤（由 recipe 决定顺序与是否包含可选步；常见全流程约 10 步，见 :doc:`module_architecture`）：
+       体素特征、subject 预处理、supervoxel/habitat 个体聚类、supervoxel 级特征合并、跨 subject 拼接、群体预处理与群体聚类等。
+   * - ``pipelines/habitat_subject_data.py``
+     - ``HabitatSubjectData`` ：个体级 step 之间的显式数据契约。
+   * - ``clustering/``
+     - K-Means / GMM / SLIC **聚类算法**（与 ``config_schemas.py`` 中 ``algorithm`` 可选值一致；更多算法可通过 ``@register_clustering`` 扩展）
+       （注意：此处的 strategy 指算法实现接口：***不是** 已废弃的旧策略模式）。
+   * - ``clustering_features/``
+     - 体素级 / supervoxel 级聚类前特征抽取实现，由 factory 按配置选择。
+   * - ``habitat_features/habitat_analyzer.py``
+     - ``HabitatMapAnalyzer`` ：在已生成的生境图上做多进程特征抽取。
+   * - ``config_schemas.py``
+     - ``HabitatAnalysisConfig`` / ``FeatureExtractionConfig`` /
+     - ``RadiomicsConfig``。 [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:565: WARNING: Title underline too short.
+
+依赖注入 (Dependency Injection)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:569: WARNING: Inline strong start-string without end-str
+ing. [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:618: WARNING: Title underline too short.
+
+注册表模式 (Registry Pattern)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:647: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+运行测试
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:657: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+编写测试
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:662: WARNING: Inline strong start-string without end-str
+ing. [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:688: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+使用 Fixtures
+~~~~~~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:710: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+测试最佳实践
+~~~~~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:726: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+主要改进
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:735: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+使用示例
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:760: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+向后兼容性 \u2705
+~~~~~~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:767: WARNING: Title underline too short.
+
+架构摩擦点与技术债务（2026 年识别）
+---------------------------------- [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:771: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+高优先级
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:794: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+中优先级
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:817: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+低优先级
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:831: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+通用规则
+~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:837: WARNING: Inline strong start-string without end-str
+ing. [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:839: ERROR: Inconsistent title style: skip from level 2 
+to 4.
+
+Per-Domain 注意事项
+~~~~~~~~~~~~~~~~~~~
+
+Established title styles: = - ^ [docutils]
+F:\work\habit_project\docs\source\development\architecture.rst:897: WARNING: Line block ends without a blank line. [doc
+utils]
+F:\work\habit_project\docs\source\development\architecture.rst:897: ERROR: Undefined substitution referenced: "------".
+ [docutils]
+F:\work\habit_project\docs\source\development\contributing.rst:72: WARNING: Title underline too short.
+
+提交 Pull Request
+---------------- [docutils]
+F:\work\habit_project\docs\source\development\design_patterns.rst:21: WARNING: Title underline too short.
+
+工厂模式 (Factory Pattern)
+^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\design_patterns.rst:46: WARNING: Title underline too short.
+
+依赖注入 (Dependency Injection)
+^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\design_patterns.rst:74: WARNING: Title underline too short.
+
+观察者模式 (Observer Pattern)
+^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\design_patterns.rst:94: WARNING: Title underline too short.
+
+模板方法模式 (Template Method Pattern)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\design_patterns.rst:120: WARNING: Title underline too short.
+
+适配器模式 (Adapter Pattern)
+^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\development\metrics_optimization.rst:102: ERROR: Undefined substitution referenced: "
+actual - target". [docutils]
+F:\work\habit_project\docs\source\getting_started\basic_concepts_zh.rst:7: WARNING: Title underline too short.
+
+生境（Habitat，
+-------------- [docutils]
+F:\work\habit_project\docs\source\getting_started\basic_concepts_zh.rst:19: WARNING: image file not readable: user_guid
+e/images/habitat_concept_workflow.png [image.not_readable]
+F:\work\habit_project\docs\source\getting_started\quickstart_zh.rst:15: WARNING: Title underline too short.
+
+快速入门示例
+----------- [docutils]
+F:\work\habit_project\docs\source\getting_started\quickstart_zh.rst:20: WARNING: Title underline too short.
+
+数据准备（demo_data）
+~~~~~~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\getting_started\quickstart_zh.rst:83: WARNING: Title underline too short.
+
+配置文件说明
+----------- [docutils]
+F:\work\habit_project\docs\source\import_robustness_guide_zh.rst:19: WARNING: Inline strong start-string without end-st
+ring. [docutils]
+F:\work\habit_project\docs\source\import_robustness_guide_zh.rst:86: WARNING: Title underline too short.
+
+通用 ImportManager（utils 层）
+----------------------------- [docutils]
+F:\work\habit_project\docs\source\import_robustness_guide_zh.rst:147: WARNING: Inline strong start-string without end-s
+tring. [docutils]
+F:\work\habit_project\docs\source\index.rst:2: WARNING: Title underline too short.
+
+HABIT: Habitat Analysis: Biomedical Imaging Toolkit
+================================================== [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:20: ERROR: Malformed table.
+Right border not aligned or missing.
+
++---------------------+--------+-----------+---------+------------------------+
+| 方法                | 简易度 | 终端相似度 | 输出控制 | 推荐用于dcm2niix     |
++=====================+========+===========+=========+========================+
+| ``os.system()``     | \u2b50\u2b50\u2b50\u2b50\u2b50 | \u2b50\u2b50\u2b50\u2b50\u2b50 | \u2b50      | \u2705 **强烈推荐**
+        |
++---------------------+--------+-----------+---------+------------------------+
+| ``subprocess.run()`` | \u2b50\u2b50\u2b50\u2b50 | \u2b50\u2b50\u2b50    | \u2b50\u2b50\u2b50\u2b50 | \u26a0\ufe0f 可能有
+问题         |
++---------------------+--------+-----------+---------+------------------------+
+| ``subprocess.Popen()``| \u2b50\u2b50  | \u2b50\u2b50\u2b50    | \u2b50\u2b50\u2b50\u2b50\u2b50| \u2705 可尝试           
+  |
++---------------------+--------+-----------+---------+------------------------+
+| ``subprocess.call()``| \u2b50\u2b50\u2b50\u2b50 | \u2b50\u2b50\u2b50    | \u2b50\u2b50    | \u26a0\ufe0f 已过时         
+    |
++---------------------+--------+-----------+---------+------------------------+
+| ``os.popen()``      | \u2b50\u2b50\u2b50 | \u2b50\u2b50      | \u2b50\u2b50    | \u274c 已弃用             |
++---------------------+--------+-----------+---------+------------------------+ [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:187: WARNING: Title underline too short.
+
+4. subprocess.call() - 旧式方法
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:211: WARNING: Title underline too short.
+
+在 habit 中的实现
+---------------- [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:237: WARNING: Title underline too short.
+
+方案 1：使用 os.system（首选）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:277: WARNING: Inline strong start-string without end
+-string. [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:306: WARNING: Title underline too short.
+
+Q: 为什么 os.system 最接近终端？
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst:311: WARNING: Title underline too short.
+
+Q: os.system 安全吗？
+^^^^^^^^^^^^^^^^^^^ [docutils]
+F:\work\habit_project\docs\source\reference\upstream_libraries_zh.rst:4: WARNING: Inline strong start-string without en
+d-string. [docutils]
+F:\work\habit_project\docs\source\reference\upstream_libraries_zh.rst:55: WARNING: Title underline too short.
+
+生境特征与传统影像组学（``habit extract`` / ``habit radiomics``）
+---------------------------------------------------------------- [docutils]
+F:\work\habit_project\docs\source\reference\upstream_libraries_zh.rst:89: WARNING: Inline interpreted text or phrase re
+ference start-string without end-string. [docutils]
+F:\work\habit_project\docs\source\reference\upstream_libraries_zh.rst:98: WARNING: Title underline too short.
+
+模型对比（``habit compare``）
+---------------------------- [docutils]
+F:\work\habit_project\docs\source\tutorials\basic_habitat_analysis.rst:77: ERROR: Unknown target name: "自定义特征提取<custom_
+features.html>".
+
+Did you want to embed a URI or alias?
+The embedded reference must be preceded by whitespace. [docutils]
+F:\work\habit_project\docs\source\tutorials\ml_integration.rst:37: WARNING: Title underline too short.
+
+使用 sklearn Pipeline
+------------------- [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_feature_extraction_zh.rst:48: WARNING: Title underline too short.
+
+Python API 使用方法
+------------------ [docutils]
+looking for now-outdated files... none found
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:8: WARNING: Inline interpreted text or phrase 
+reference start-string without end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:33: WARNING: Title underline too short.
+
+1. 生境地图 (*_habitats.nrrd)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:32: WARNING: Inline emphasis start-string with
+out end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:45: WARNING: Title underline too short.
+
+2. 聚类验证图(visualizations/optimal_clusters/)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:56: WARNING: Title underline too short.
+
+3. 聚类可视化图 (visualizations/*_clustering/)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:55: WARNING: Inline emphasis start-string with
+out end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:118: WARNING: Title underline too short.
+
+Python API 使用方法
+------------------ [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:320: WARNING: Inline strong start-string witho
+ut end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:389: WARNING: Inline strong start-string witho
+ut end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:392: WARNING: Inline strong start-string witho
+ut end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:420: WARNING: Inline strong start-string witho
+ut end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:694: WARNING: Title underline too short.
+
+Pipeline 机制
+------------ [docutils]
+F:\work\habit_project\docs\source\user_guide\habitat_segmentation_zh.rst:697: WARNING: Title underline too short.
+
+连通域后处理（减少碎块）
+---------------------- [docutils]
+F:\work\habit_project\docs\source\user_guide\image_preprocessing_zh.rst:245: WARNING: Inline strong start-string withou
+t end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\image_preprocessing_zh.rst:368: WARNING: Inline strong start-string withou
+t end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\index_zh.rst:30: WARNING: image file not readable: images/habitat_concept_
+workflow.png [image.not_readable]
+F:\work\habit_project\docs\source\user_guide\machine_learning_modeling_zh.rst:102: WARNING: Inline interpreted text or 
+phrase reference start-string without end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\machine_learning_modeling_zh.rst:216: WARNING: Title underline too short.
+
+Python API 使用方法
+------------------ [docutils]
+F:\work\habit_project\docs\source\user_guide\machine_learning_modeling_zh.rst:770: WARNING: Title underline too short.
+
+Pipeline 机制
+------------ [docutils]
+F:\work\habit_project\docs\source\user_guide\machine_learning_modeling_zh.rst:894: WARNING: Inline interpreted text or 
+phrase reference start-string without end-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:16: WARNING: Inline strong start-string without en
+d-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:17: WARNING: Inline strong start-string without en
+d-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:18: WARNING: Inline strong start-string without en
+d-string. [docutils]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:244: WARNING: image file not readable: images/roc_
+curves_example.png [image.not_readable]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:257: WARNING: image file not readable: images/cali
+bration_curves_example.png [image.not_readable]
+F:\work\habit_project\docs\source\user_guide\model_comparison_zh.rst:269: WARNING: image file not readable: images/dca_
+curves_example.png [image.not_readable]
+F:\work\habit_project\docs\source\user_guide\roi_preparation_zh.rst:8: WARNING: Inline interpreted text or phrase refer
+ence start-string without end-string. [docutils]
+pickling environment... done
+F:\work\habit_project\docs\source\algorithms\clustering.rst: WARNING: document isn't included in any toctree [toc.not_i
+ncluded]
+F:\work\habit_project\docs\source\algorithms\feature_extraction.rst: WARNING: document isn't included in any toctree [t
+oc.not_included]
+F:\work\habit_project\docs\source\algorithms\validation_methods.rst: WARNING: document isn't included in any toctree [t
+oc.not_included]
+F:\work\habit_project\docs\source\architecture\index.rst: WARNING: document isn't included in any toctree [toc.not_incl
+uded]
+F:\work\habit_project\docs\source\development\design_patterns.rst: WARNING: document isn't included in any toctree [toc
+.not_included]
+F:\work\habit_project\docs\source\development\testing.rst: WARNING: document isn't included in any toctree [toc.not_inc
+luded]
+F:\work\habit_project\docs\source\import_robustness_guide_zh.rst: WARNING: document isn't included in any toctree [toc.
+not_included]
+F:\work\habit_project\docs\source\python_subprocess_methods_zh.rst: WARNING: document isn't included in any toctree [to
+c.not_included]
+F:\work\habit_project\docs\source\tutorials\basic_habitat_analysis.rst: WARNING: document isn't included in any toctree
+ [toc.not_included]
+F:\work\habit_project\docs\source\tutorials\custom_features.rst: WARNING: document isn't included in any toctree [toc.n
+ot_included]
+F:\work\habit_project\docs\source\tutorials\index.rst: WARNING: document isn't included in any toctree [toc.not_include
+d]
+F:\work\habit_project\docs\source\tutorials\ml_integration.rst: WARNING: document isn't included in any toctree [toc.no
+t_included]
+F:\work\habit_project\docs\source\user_guide\feature_extraction.rst: WARNING: document isn't included in any toctree [t
+oc.not_included]
+F:\work\habit_project\docs\source\user_guide\machine_learning.rst: WARNING: document isn't included in any toctree [toc
+.not_included]
+F:\work\habit_project\docs\source\user_guide\preprocessing.rst: WARNING: document isn't included in any toctree [toc.no
+t_included]
+F:\work\habit_project\docs\source\user_guide\roi_preparation_zh.rst: WARNING: document isn't included in any toctree [t
+oc.not_included]
+checking consistency... done
+WARNING: unsupported theme option 'display_version' given
+preparing documents... done
+copying assets... 
+copying static files... 
+Writing evaluated template result to F:\work\habit_project\docs\build\html\_static\basic.css
+Writing evaluated template result to F:\work\habit_project\docs\build\html\_static\documentation_options.js
+Writing evaluated template result to F:\work\habit_project\docs\build\html\_static\language_data.js
+Writing evaluated template result to F:\work\habit_project\docs\build\html\_static\js\versions.js
+copying static files: done
+copying extra files... 
+copying extra files: done
+copying assets: done
+writing output... [  2%] acknowledgments
+writing output... [  3%] algorithms/clustering
+writing output... [  5%] algorithms/feature_extraction
+writing output... [  7%] algorithms/index
+writing output... [  9%] algorithms/validation_methods
+writing output... [ 10%] api/cli
+writing output... [ 12%] api/common
+writing output... [ 14%] api/dicom_sort
+writing output... [ 16%] api/habitat_analysis
+writing output... [ 17%] api/index
+writing output... [ 19%] api/machine_learning
+writing output... [ 21%] api/preprocessing
+writing output... [ 22%] api/utils
+writing output... [ 24%] app_dice_calculator_zh
+writing output... [ 26%] app_dicom_info_zh
+writing output... [ 28%] app_habitat_test_retest_zh
+writing output... [ 29%] app_icc_analysis_zh
+writing output... [ 31%] app_merge_csv_zh
+writing output... [ 33%] app_model_comparison_zh
+writing output... [ 34%] architecture/index
+writing output... [ 36%] architecture/overview
+writing output... [ 38%] changelog
+writing output... [ 40%] cli_zh
+writing output... [ 41%] configuration_zh
+writing output... [ 43%] customization/index_zh
+writing output... [ 45%] data_structure_zh
+writing output... [ 47%] design_philosophy_zh
+writing output... [ 48%] development/architecture
+writing output... [ 50%] development/contributing
+writing output... [ 52%] development/design_patterns
+writing output... [ 53%] development/index
+writing output... [ 55%] development/metrics_optimization
+writing output... [ 57%] development/module_architecture
+writing output... [ 59%] development/testing
+writing output... [ 60%] getting_started/basic_concepts_zh
+writing output... [ 62%] getting_started/extensibility_overview_zh
+writing output... [ 64%] getting_started/index_zh
+writing output... [ 66%] getting_started/installation_zh
+writing output... [ 67%] getting_started/quickstart_zh
+writing output... [ 69%] import_robustness_guide_zh
+writing output... [ 71%] index
+writing output... [ 72%] python_subprocess_methods_zh
+writing output... [ 74%] reference/upstream_libraries_zh
+writing output... [ 76%] tutorials/basic_habitat_analysis
+writing output... [ 78%] tutorials/basic_workflow
+writing output... [ 79%] tutorials/custom_features
+writing output... [ 81%] tutorials/index
+writing output... [ 83%] tutorials/ml_integration
+writing output... [ 84%] user_guide/feature_extraction
+writing output... [ 86%] user_guide/habitat_feature_extraction_zh
+writing output... [ 88%] user_guide/habitat_segmentation_zh
+writing output... [ 90%] user_guide/image_preprocessing_zh
+writing output... [ 91%] user_guide/index_zh
+writing output... [ 93%] user_guide/machine_learning
+writing output... [ 95%] user_guide/machine_learning_modeling_zh
+writing output... [ 97%] user_guide/model_comparison_zh
+writing output... [ 98%] user_guide/preprocessing
+writing output... [100%] user_guide/roi_preparation_zh
+
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+WARNING: dot command 'dot' cannot be run (needed for graphviz output), check the graphviz_dot setting
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+generating indices... genindex py-modindex done
+highlighting module code... [  2%] habit.core.common.configs.base
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [  5%] habit.core.common.configs.loader
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [  7%] habit.core.common.configs.validator
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [  9%] habit.core.common.configurators.base
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 11%] habit.core.common.dataframe
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 14%] habit.core.dicom_sort.config_schema
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 16%] habit.core.dicom_sort.run
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 18%] habit.core.habitat_analysis.clustering.gmm_clustering
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 20%] habit.core.habitat_analysis.clustering.kmeans_clustering
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 23%] habit.core.habitat_analysis.clustering.slic_clustering
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 25%] habit.core.habitat_analysis.clustering_features.kinetic_feature_extractor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 27%] habit.core.habitat_analysis.clustering_features.local_entropy_extractor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 30%] habit.core.habitat_analysis.clustering_features.mean_voxel_features_extractor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 32%] habit.core.habitat_analysis.clustering_features.supervoxel_radiomics_extractor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 34%] habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 36%] habit.core.habitat_analysis.config_schemas
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 39%] habit.core.habitat_analysis.configurator
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 41%] habit.core.habitat_analysis.habitat_analysis
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 43%] habit.core.habitat_analysis.habitat_features.habitat_analyzer
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 45%] habit.core.habitat_analysis.pipelines.base_pipeline
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 48%] habit.core.habitat_analysis.pipelines.habitat_subject_data
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 50%] habit.core.habitat_analysis.services.clustering_service
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 52%] habit.core.habitat_analysis.services.feature_service
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 55%] habit.core.habitat_analysis.services.habitat_image_writer
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 57%] habit.core.habitat_analysis.services.result_publisher
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 59%] habit.core.machine_learning.configurator
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 61%] habit.core.preprocessing.adaptive_histogram_equalization
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 64%] habit.core.preprocessing.base_preprocessor
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 66%] habit.core.preprocessing.configurator
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 68%] habit.core.preprocessing.custom_preprocessor_template
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 70%] habit.core.preprocessing.dcm2niix_converter
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 73%] habit.core.preprocessing.histogram_standardization
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 75%] habit.core.preprocessing.n4_correction
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 77%] habit.core.preprocessing.preprocessor_factory
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 80%] habit.core.preprocessing.resample
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 82%] habit.core.preprocessing.zscore_normalization
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 84%] habit.utils.dice_calculator
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 86%] habit.utils.dicom_utils
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 89%] habit.utils.image_converter
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 91%] habit.utils.io_utils
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 93%] habit.utils.log_utils
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 95%] habit.utils.parallel_utils
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [ 98%] habit.utils.progress_utils
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+highlighting module code... [100%] habit.utils.visualization
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+F:\work\habit_project\docs\source\index.rst:96: WARNING: toctree contains reference to document 'algorithms/index' that
+ doesn't have a title: no link will be generated [toc.no_title]
+writing additional pages... search done
+dumping search index in Chinese (code: zh)... done
+dumping object inventory... done
+build succeeded, 295 warnings.
+
+The HTML pages are in build\html.

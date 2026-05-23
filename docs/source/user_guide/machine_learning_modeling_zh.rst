@@ -5,7 +5,7 @@
 
 .. seealso::
 
-   sklearn / XGBoost / 采样 / SHAP 等权威文档见 :doc:`../reference/upstream_libraries_zh`；字段级说明见 :doc:`../configuration_zh`「机器学习配置参数」。
+   sklearn / XGBoost / 采样 / SHAP 等权威文档见 :doc:`../reference/upstream_libraries_zh`；字段级说明见 :doc:`../configuration_zh` 「机器学习配置参数」。
 
 使用场景
 --------
@@ -19,7 +19,7 @@
 **2. 预测场景 (Predict Mode)**
    *   **目的**：将训练好的模型应用于全新的、未见过的数据，获取预测结果（如 Radscore）。
    *   **操作**：仍然使用 `MLConfig`，把 ``run_mode`` 设为 ``predict`` 并提供
-       ``pipeline_path``（已训练的 ``*_final_pipeline.pkl``）；运行
+       ``pipeline_path`` （已训练的 ``*_final_pipeline.pkl``）；运行
        `habit model --mode predict`。CLI 上的 ``--mode`` 会覆盖 YAML 中
        的 ``run_mode``。
 

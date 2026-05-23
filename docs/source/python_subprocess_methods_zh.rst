@@ -332,7 +332,7 @@ Q: 我应该使用哪个方法？
 
 A: 对于 dcm2niix 的 3D/4D 问题：
 
-1. **首选**：``os.system``（已设为默认）
+1. **首选**：``os.system`` （已设为默认）
 2. **备选 1**：``subprocess.Popen``
 3. **备选 2**：调整 dcm2niix 参数（merge_slices, single_file_mode）
 4. **最后手段**：直接在终端运行，手动复制结果

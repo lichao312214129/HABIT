@@ -5,7 +5,7 @@ V1 导入策略
 -----------
 
 HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` /
-``HabitatFeatureExtractor`` / ``Modeling``）的导入失败会直接抛出 ``ImportError``，
+``HabitatFeatureExtractor`` / ``Modeling``）的导入失败会直接抛出 ``ImportError`` ，
 不会被静默吞掉为 ``None``。
 
 这是设计决定。原因：
@@ -39,11 +39,11 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
 ``habit.import_error(name: str) -> Optional[ImportError]``
     返回该可选依赖在最近一次探测时缓存的 ``ImportError``；可用则返回 ``None``。
 
-可选依赖白名单存放在 ``habit._OPTIONAL_DEPENDENCIES``（V1 = ``("autogluon",)``）。
+可选依赖白名单存放在 ``habit._OPTIONAL_DEPENDENCIES`` （V1 = ``("autogluon",)``）。
 向白名单加项必须是刻意修改——这是为了避免新依赖被悄悄当作可选。
 
 调用 ``is_available`` / ``import_error`` 时若传入未登记的名字，会抛出
-``ValueError``，提示当前白名单内容。
+``ValueError`` ，提示当前白名单内容。
 
 正确的使用模式
 --------------
@@ -65,7 +65,7 @@ HABIT V1 采用 **fail-fast** 导入策略：核心模块（``HabitatAnalysis`` 
    model = habit.Modeling(config_path)
    model.run()
 
-如果上述 import 失败，你拿到的是真正的 ``ImportError``，traceback 会指向
+如果上述 import 失败，你拿到的是真正的 ``ImportError`` ，traceback 会指向
 真正的问题（例如缺少 ``SimpleITK`` 或 ``pyradiomics`` 等依赖），而不是模糊的 "object
 has no attribute"。
 
@@ -127,7 +127,7 @@ V0 曾在 ``habit/core/__init__.py`` 和 ``habit/core/habitat_analysis/__init__.
    * - V0
      - V1
    * - ``habit.get_import_errors()``
-     - 直接 ``import habit``，失败会抛真正的 ``ImportError``。
+     - 直接 ``import habit`` ，失败会抛真正的 ``ImportError``。
    * - ``habit.get_available_classes()``
      - 不再需要——核心类是必然可用的。
    * - ``habit.is_class_available('HabitatAnalysis')``
@@ -147,5 +147,5 @@ V1 的导入策略以"接口诚实"为目标：
 调用方可以放心 ``import habit`` 并访问 ``habit.HabitatAnalysis`` 等符号
 （懒加载、非 ``None``）；**构造可运行实例**仍需通过
 ``HabitatConfigurator(...).create_habitat_analysis()`` 注入
-``FeatureService`` / ``ClusteringService`` / ``HabitatImageWriter``，不要假设
+``FeatureService`` / ``ClusteringService`` / ``HabitatImageWriter`` ，不要假设
 ``HabitatAnalysis(config)`` 单参数构造可用。

@@ -5,7 +5,7 @@
 
 .. seealso::
 
-   PyRadiomics 参数文件、特征类定义见 `PyRadiomics 文档 <https://pyradiomics.readthedocs.io/>`__；库索引见 :doc:`../reference/upstream_libraries_zh`。
+   PyRadiomics 参数文件、特征类定义见 `PyRadiomics 文档  <https://pyradiomics.readthedocs.io/>`_；库索引见 :doc:`../reference/upstream_libraries_zh`。
 
 概述
 ----

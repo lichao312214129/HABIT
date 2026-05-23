@@ -15,22 +15,22 @@
      - 文档
    * - 配准（``backend: ants``）
      - ANTsPy（``ants.registration``）
-     - `Registration <https://antspy.readthedocs.io/en/stable/registration.html>`__ · `ants.registration API <https://antspy.readthedocs.io/en/stable/api/ants.registration.html>`__
+     - `Registration  <https://antspy.readthedocs.io/en/stable/registration.html>`_ · `ants.registration API  <https://antspy.readthedocs.io/en/stable/api/ants.registration.html>`_
    * - 配准（``backend: elastix``）
-     - 官方 **elastix** / **transformix** 可执行文件（命令行 ``-f`` / ``-m`` / ``-out`` / ``-p`` / ``-tp`` 等，见 `elastix 命令行说明 <https://elastix.dev/doxygen/commandlinearg.html>`__）
-     - `官网 / 下载 <https://elastix.dev/>`__ · `Model Zoo（LKEB，按数据/任务说明与模板） <https://lkeb.ml/modelzoo/>`__ · `Model Zoo（elastix.dev） <https://elastix.dev/modelzoo.html>`__
+     - 官方 **elastix** / **transformix** 可执行文件（命令行 ``-f`` / ``-m`` / ``-out`` / ``-p`` / ``-tp`` 等，见 `elastix 命令行说明  <https://elastix.dev/doxygen/commandlinearg.html>`_）
+     - `官网 / 下载  <https://elastix.dev/>`_ · `Model Zoo（LKEB，按数据/任务说明与模板）  <https://lkeb.ml/modelzoo/>`_ · `Model Zoo（elastix.dev）  <https://elastix.dev/modelzoo.html>`_
    * - 配准（``backend: simpleitk``）
      - SimpleITK（``ImageRegistrationMethod``）
-     - `ImageRegistrationMethod <https://simpleitk.readthedocs.io/en/master/registrationOverview.html>`__ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`__
+     - `ImageRegistrationMethod  <https://simpleitk.readthedocs.io/en/master/registrationOverview.html>`_ · `Fundamental Concepts  <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`_
    * - ANTs 核心
      - ANTs
-     - `ANTsX/ANTs <https://github.com/ANTsX/ANTs>`__
+     - `ANTsX/ANTs  <https://github.com/ANTsX/ANTs>`_
    * - 重采样 / N4 / 多数滤波
      - SimpleITK
-     - `User Guide <https://simpleitk.readthedocs.io/>`__ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`__ · `ResampleImageFilter <https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1ResampleImageFilter.html>`__
+     - `User Guide  <https://simpleitk.readthedocs.io/>`_ · `Fundamental Concepts  <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`_ · `ResampleImageFilter  <https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1ResampleImageFilter.html>`_
    * - DICOM 转 NIfTI
      - dcm2niix
-     - `rordenlab/dcm2niix <https://github.com/rordenlab/dcm2niix>`__
+     - `rordenlab/dcm2niix  <https://github.com/rordenlab/dcm2niix>`_
 
 生境分割（``habit get-habitat``）
 ----------------------------------
@@ -46,10 +46,10 @@
      - 文档
    * - K-Means / GMM / 流程与指标
      - scikit-learn
-     - `Clustering <https://scikit-learn.org/stable/modules/clustering.html>`__ · `Metrics <https://scikit-learn.org/stable/modules/clustering.html#clustering-performance-evaluation>`__
+     - `Clustering  <https://scikit-learn.org/stable/modules/clustering.html>`_ · `Metrics  <https://scikit-learn.org/stable/modules/clustering.html#clustering-performance-evaluation>`_
    * - 特征缩放、无监督预处理（与 sklearn 管线概念对应）
      - scikit-learn
-     - `Preprocessing <https://scikit-learn.org/stable/modules/preprocessing.html>`__
+     - `Preprocessing  <https://scikit-learn.org/stable/modules/preprocessing.html>`_
 
 生境特征与传统影像组学（``habit extract`` / ``habit radiomics``）
 ----------------------------------------------------------------
@@ -63,7 +63,7 @@
      - 文档
    * - 影像组学特征
      - PyRadiomics
-     - `PyRadiomics <https://pyradiomics.readthedocs.io/>`__
+     - `PyRadiomics  <https://pyradiomics.readthedocs.io/>`_
    * - 图像读写 / 部分几何
      - SimpleITK
      - 同预处理节
@@ -80,19 +80,19 @@
      - 文档
    * - 预处理、分类器、流水线、度量
      - scikit-learn
-     - `User Guide <https://scikit-learn.org/stable/user_guide.html>`__ · `API Reference <https://scikit-learn.org/stable/modules/classes.html>`__
+     - `User Guide  <https://scikit-learn.org/stable/user_guide.html>`_ · `API Reference  <https://scikit-learn.org/stable/modules/classes.html>`_
    * - 类别不平衡重采样（若启用）
      - imbalanced-learn（可选）
-     - `imbalanced-learn <https://imbalanced-learn.org/stable/>`__
+     - `imbalanced-learn  <https://imbalanced-learn.org/stable/>`_
    * - 梯度提升等模型（若配置）
      - XGBoost / LightGBM 等
-     - `XGBoost Python <https://xgboost.readthedocs.io/>`__（按需）
+     - `XGBoost Python  <https://xgboost.readthedocs.io/>`_（按需）
    * - AutoML（若配置）
      - AutoGluon
-     - `AutoGluon Tabular <https://auto.gluon.ai/stable/tutorials/tabular_prediction/index.html>`__
+     - `AutoGluon Tabular  <https://auto.gluon.ai/stable/tutorials/tabular_prediction/index.html>`_
    * - SHAP 图（若启用）
      - shap
-     - `SHAP <https://shap.readthedocs.io/>`__
+     - `SHAP  <https://shap.readthedocs.io/>`_
 
 模型对比（``habit compare``）
 ----------------------------
@@ -123,12 +123,12 @@ ICC / Test–retest / 其它
      - 文档
    * - 统计与矩阵运算
      - NumPy / SciPy / pandas
-     - `NumPy <https://numpy.org/doc/>`__ · `SciPy <https://docs.scipy.org/doc/scipy/>`__ · `pandas <https://pandas.pydata.org/docs/>`__
+     - `NumPy  <https://numpy.org/doc/>`_ · `SciPy  <https://docs.scipy.org/doc/scipy/>`_ · `pandas  <https://pandas.pydata.org/docs/>`_
 
 ROI 勾画（外部工具）
 --------------------
 
 HABIT 不内置勾画功能，常见工具：
 
-- `ITK-SNAP <http://www.itksnap.org/>`__
-- `3D Slicer <https://www.slicer.org/>`__
+- `ITK-SNAP  <http://www.itksnap.org/>`_
+- `3D Slicer  <https://www.slicer.org/>`_

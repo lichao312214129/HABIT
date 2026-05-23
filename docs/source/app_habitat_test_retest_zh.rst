@@ -86,8 +86,8 @@ Test-Retest 工具使用配置文件：
 
 **数据文件：**
 
-- ``remapped_habitats.csv``: 重新映射后的生境表
-- ``mapping_quality.csv``: 映射质量评估结果
+- ``remapped_habitats.csv`` : 重新映射后的生境表
+- ``mapping_quality.csv`` : 映射质量评估结果
 
 **映射质量报告示例：**
 

@@ -182,7 +182,7 @@ HABIT 的模块相互独立，职责明确：
 
 所有自定义组件都遵循统一的接口规范：
 
-- **预处理器**: 继承 `BasePreprocessor`，实现 `__call__` 方法
+- **预处理器**: 继承 ``BasePreprocessor``，实现 ``__call__`` 方法
 - **特征提取器**: 继承 `BaseClusteringExtractor`，实现 `extract_features` 方法
 - **聚类算法**: 继承 `BaseClustering`，实现 `fit_predict` 方法
 - **模型**: 继承 `BaseModel`，实现 `fit`、`predict`、`predict_proba` 方法

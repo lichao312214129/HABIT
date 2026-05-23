@@ -5,7 +5,7 @@
 
 .. seealso::
 
-   基类与接口以源码为准；若自定义模型度量依赖 **scikit-learn 约定**，见 `sklearn 指南 <https://scikit-learn.org/stable/developers/develop.html>`__ ；详见 :doc:`../reference/upstream_libraries_zh`。
+   基类与接口以源码为准；若自定义模型度量依赖 **scikit-learn 约定**，见 `sklearn 指南  <https://scikit-learn.org/stable/developers/develop.html>`_ ；详见 :doc:`../reference/upstream_libraries_zh`。
 
 概述
 ----
@@ -37,7 +37,7 @@ HABIT 使用工厂模式和注册机制实现扩展：
 
 所有自定义组件都必须继承相应的基类并实现必需的方法：
 
-- **预处理器**: 继承 `BasePreprocessor`，实现`__call__` 方法
+- **预处理器**: 继承 ``BasePreprocessor``，实现 ``__call__`` 方法
 - **特征提取器**: 继承 `BaseClusteringExtractor`，实现`extract_features` 方法
 - **聚类算法**: 继承 `BaseClustering`，实现`fit_predict` 方法
 - **模型**: 继承 `BaseModel`，实现`fit`、`predict`、`predict_proba` 方法

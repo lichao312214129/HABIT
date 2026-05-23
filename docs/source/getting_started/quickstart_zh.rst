@@ -28,7 +28,7 @@
 
 解压后会得到以下 demo 数据：
 
-- **DICOM 数据**: ``demo_data/dicom/sub001``、``demo_data/dicom/sub002``
+- **DICOM 数据**: ``demo_data/dicom/sub001`` 、``demo_data/dicom/sub002``
 - **预处理配置**: ``config/preprocessing/config_preprocessing_demo_elastix.yaml``
 - **文件列表**: ``config/preprocessing/files_preprocessing.yaml``
 
