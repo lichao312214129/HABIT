@@ -52,6 +52,7 @@ from .pipelines.steps.group_clustering import GroupClusteringStep
 from .pipelines.steps.individual_preprocessing import IndividualPreprocessingStep
 from .pipelines.steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
 from .pipelines.steps.voxel_feature_extraction import VoxelFeatureExtractor
+from .checkpoint import append_checkpoint_save_step
 
 
 # =============================================================================
@@ -137,6 +138,7 @@ def _build_two_step_steps(
         'merge_supervoxel_features',
         MergeSupervoxelFeaturesStep(config),
     ))
+    append_checkpoint_save_step(steps, config)
 
     # Group-level: stitch all subjects' supervoxels into one DataFrame.
     steps.append((
@@ -233,6 +235,7 @@ def _build_one_step_steps(
         'merge_supervoxel_features',
         MergeSupervoxelFeaturesStep(config),
     ))
+    append_checkpoint_save_step(steps, config)
 
     # Group-level concatenation across subjects so the downstream CSV layout
     # is consistent with the two-step mode.
@@ -278,6 +281,7 @@ def _build_pooling_steps(
         'individual_preprocessing',
         IndividualPreprocessingStep(feature_service),
     ))
+    append_checkpoint_save_step(steps, config)
 
     steps.append((
         'concatenate_voxels',
@@ -529,6 +533,17 @@ class HabitatAnalysis:
 
         self.pipeline = self._build_pipeline()
         results_df = self.pipeline.fit_transform(X)
+
+        train_checkpoint = getattr(self.pipeline, "_train_checkpoint", None)
+        if train_checkpoint is not None:
+            train_checkpoint.mark_training_complete()
+            if getattr(self.config, "clear_checkpoint_on_success", False):
+                if self.config.verbose:
+                    self.logger.info(
+                        "Training succeeded; clearing checkpoint at %s",
+                        train_checkpoint.checkpoint_dir,
+                    )
+                train_checkpoint.clear()
 
         pipeline_path = Path(self.config.out_dir) / "habitat_pipeline.pkl"
         if self.config.verbose:

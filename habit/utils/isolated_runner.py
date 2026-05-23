@@ -111,6 +111,20 @@ def _item_id_from_worker_args(worker_args: Tuple[Any, ...]) -> Any:
     return item
 
 
+def _flush_result_queue(result_queue: Any) -> None:
+    """
+    Ensure the queue payload is fully sent before the child process exits.
+
+    On Windows ``spawn``, the child can exit while the queue feeder thread is
+    still pickling/sending, which makes the parent see exit code 0 with no result.
+    """
+    try:
+        result_queue.close()
+        result_queue.join_thread()
+    except (OSError, ValueError, AttributeError):
+        pass
+
+
 def _put_worker_wrapper_result(
     worker_args: Tuple[Any, ...],
     result_queue: Any,
@@ -123,15 +137,14 @@ def _put_worker_wrapper_result(
     """
     result = _worker_wrapper(worker_args)
     result_queue.put(result)
+    _flush_result_queue(result_queue)
     if result.error is not None and is_fatal_memory_error(result.error):
-        # Allow the queue pipe to flush before skipping Python teardown.
-        time.sleep(0.05)
         os._exit(2)
 
 
 DEFAULT_GRACEFUL_SHUTDOWN_SEC: float = 15.0
 DEFAULT_POLL_INTERVAL_SEC: float = 0.25
-QUEUE_RESULT_GRACE_SEC: float = 5.0
+QUEUE_RESULT_GRACE_SEC: float = 15.0
 
 
 @dataclass
@@ -185,6 +198,7 @@ class IsolatedTaskRunner:
         show_progress: bool,
         log_file_path: Optional[Path],
         log_level: int,
+        on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
         """
         Map ``func`` over ``items_list`` with bounded isolated processes.
@@ -273,6 +287,16 @@ class IsolatedTaskRunner:
                         self.per_item_timeout_sec,
                         slot.item_id,
                     )
+                if on_item_done is not None:
+                    on_item_done(
+                        ProcessingResult(
+                            item_id=slot.item_id,
+                            error=TimeoutError(
+                                f"Item {slot.item_id} exceeded "
+                                f"{self.per_item_timeout_sec}s"
+                            ),
+                        )
+                    )
             elif proc_result is None:
                 failed_items.append(slot.item_id)
                 if logger:
@@ -282,8 +306,20 @@ class IsolatedTaskRunner:
                         slot.item_id,
                         slot.proc.exitcode,
                     )
+                if on_item_done is not None:
+                    on_item_done(
+                        ProcessingResult(
+                            item_id=slot.item_id,
+                            error=RuntimeError(
+                                f"Child exited without queue result "
+                                f"(exit code {slot.proc.exitcode})"
+                            ),
+                        )
+                    )
             elif proc_result.success:
                 successful_results.append(proc_result)
+                if on_item_done is not None:
+                    on_item_done(proc_result)
             else:
                 failed_items.append(proc_result.item_id)
                 if logger:
@@ -301,6 +337,8 @@ class IsolatedTaskRunner:
                         )
                 if is_fatal_memory_error(proc_result.error):
                     _apply_oom_backoff(proc_result.item_id)
+                if on_item_done is not None:
+                    on_item_done(proc_result)
             if progress_bar is not None:
                 progress_bar.update(1)
 

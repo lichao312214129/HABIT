@@ -258,7 +258,11 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
        n_init: 10
 
    processes: 2
-   individual_subject_timeout_sec: 1800
+   individual_subject_timeout_sec: 900
+   # resume: false
+   # checkpoint_dir: null
+   # force_rerun_subjects: []
+   # clear_checkpoint_on_success: false
    plot_curves: true
    save_images: true
    save_results_csv: true
@@ -812,8 +816,55 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
 **individual_subject_timeout_sec**（生境分析顶层）: 个体级并行阶段单被试墙钟时间上限
 
 - **类型**: 浮点数 / 整数（秒）或 ``null``
-- **默认值**: ``1800``（30 分钟）；YAML 可省略以使用默认。
+- **默认值**: ``900``（15 分钟）；YAML 可省略以使用默认。
 - **说明**: 超时则跳过该被试（记入失败）并继续；``null`` 表示不启用单被试超时。多进程下子进程可能仍在后台运行直至自行结束。
+
+**resume**（生境分析顶层）: 个体级断点续训（Stage 1）
+
+- **类型**: 布尔值
+- **默认值**: ``false``
+- **说明**: 为 ``true`` 时从 ``checkpoint_dir``（默认 ``<out_dir>/.habitat_checkpoint``）读取 ``manifest.json``，跳过 ``completed_subjects`` 并从 ``subjects/{id}.pkl`` 加载结果；``failed_subjects`` 中的被试**不会自动重试**。仅 ``run_mode: train`` 生效。
+- **CLI**: ``habit get-habitat --resume`` 等效于 ``resume: true``。
+- **详见**: :doc:`user_guide/habitat_segmentation_zh` 中「断点续训详解」。
+
+**checkpoint_dir**（生境分析顶层）: checkpoint 根目录
+
+- **类型**: 字符串或 ``null``
+- **默认值**: ``null``（即 ``<out_dir>/.habitat_checkpoint``）
+- **说明**: 续训时必须与上次使用同一目录；可与 ``out_dir`` 分离（显式指定路径）。
+
+**force_rerun_subjects**（生境分析顶层）: 强制重跑的被试 ID
+
+- **类型**: 字符串列表
+- **默认值**: ``[]``
+- **说明**: ``resume: true`` 时仍重新处理列表中的被试（从 completed/failed 中移除并重跑）。
+
+**clear_checkpoint_on_success**（生境分析顶层）: 训练成功后删除 checkpoint
+
+- **类型**: 布尔值
+- **默认值**: ``false``
+- **说明**: 为 ``true`` 时 Stage 1 + Stage 2 全部成功后删除整个 checkpoint 目录。
+
+**config_hash 与续训兼容性**
+
+- **参与 hash**（变更则清空 checkpoint）：``data_dir``、``FeatureConstruction``、``HabitatSegmentation``（含 ``clustering_mode``）。
+- **不参与 hash**（可安全修改后续训）：``processes``、``individual_subject_timeout_sec``、``plot_curves``、``save_results_csv``、``save_images``、``verbose``、``debug``、``on_subject_failure``、``oom_backoff`` 等。
+- 程序在 ``resume: true`` 启动时自动比较 hash；不一致时日志警告并删除 checkpoint。
+
+**checkpoint 目录结构**
+
+.. code-block:: text
+
+   <checkpoint_dir>/
+   ├── manifest.json      # completed_subjects, failed_subjects, config_hash, stage
+   └── subjects/
+       └── {subject_id}.pkl
+
+**三种 clustering_mode 的 checkpoint 边界**
+
+- ``two_step`` / ``one_step``：在 ``merge_supervoxel_features`` 之后保存（``supervoxel_df``）
+- ``direct_pooling``：在 ``individual_preprocessing`` 之后保存（体素级 ``features``，pkl 较大）
+- Stage 2（combine / concat / group 聚类）均**无** checkpoint
 
 **save_results_csv**: 是否将结果保存为 CSV 文件
 

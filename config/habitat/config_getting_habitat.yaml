@@ -252,9 +252,18 @@ HabitatSegmentation:
 # Set to 1 for sequential processing
 processes: 2
 
-# Per-subject wall time (seconds) for individual-level parallel stage; default 30 min.
+# Per-subject wall time (seconds) for individual-level parallel stage; default 15 min.
 # Set to null to disable timeout (wait until each subject finishes or errors).
-individual_subject_timeout_sec: 1800
+individual_subject_timeout_sec: 900
+
+# Checkpoint / resume (train mode only) — individual-level Stage 1 only.
+# Default: <out_dir>/.habitat_checkpoint/  (manifest.json + subjects/{id}.pkl)
+# resume: false       # true = skip completed subjects; failed subjects are NOT auto-retried
+# checkpoint_dir: null
+# force_rerun_subjects: []          # e.g. [sub706] to retry after a failure
+# clear_checkpoint_on_success: false  # true = delete checkpoint after full train success
+# Config hash must match on resume (data_dir + FeatureConstruction + HabitatSegmentation).
+# Full documentation: docs/source/user_guide/habitat_segmentation_zh.rst (断点续训)
 
 # Whether to generate and save plots
 # Includes cluster validation curves, habitat distributions, etc.

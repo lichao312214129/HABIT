@@ -62,15 +62,18 @@ def sort_dicom(config):
               help='Override pipeline path for predict mode')
 @click.option('--debug', is_flag=True,
               help='Enable debug mode')
+@click.option('--resume', is_flag=True,
+              help='Resume train run from individual-level checkpoint')
 def get_habitat(
     config: str,
     mode: Optional[str],
     pipeline: Optional[str],
-    debug: bool
+    debug: bool,
+    resume: bool,
 ) -> None:
     """Generate habitat maps from medical images"""
     from habit.cli_commands.commands.cmd_habitat import run_habitat
-    run_habitat(config, debug, mode, pipeline)
+    run_habitat(config, debug, mode, pipeline, resume)
 
 
 @cli.command('extract')

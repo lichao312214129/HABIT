@@ -51,6 +51,7 @@ def _run_inprocess_sequential(
     desc: str,
     logger: Optional[logging.Logger],
     show_progress: bool,
+    on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """Sequential in-process path (no spawn overhead)."""
     from habit.utils.progress_utils import CustomTqdm
@@ -68,20 +69,28 @@ def _run_inprocess_sequential(
                 item_id, actual_result = raw_result
                 if isinstance(actual_result, Exception):
                     failed_items.append(item_id)
+                    proc_result = ProcessingResult(item_id=item_id, error=actual_result)
                     if logger:
                         logger.error("Error processing %s: %s", item_id, actual_result)
+                    if on_item_done is not None:
+                        on_item_done(proc_result)
                 else:
-                    successful_results.append(
-                        ProcessingResult(item_id=item_id, result=actual_result)
-                    )
+                    proc_result = ProcessingResult(item_id=item_id, result=actual_result)
+                    successful_results.append(proc_result)
+                    if on_item_done is not None:
+                        on_item_done(proc_result)
             else:
-                successful_results.append(
-                    ProcessingResult(item_id=item, result=raw_result)
-                )
+                proc_result = ProcessingResult(item_id=item, result=raw_result)
+                successful_results.append(proc_result)
+                if on_item_done is not None:
+                    on_item_done(proc_result)
         except Exception as exc:
             failed_items.append(item)
+            proc_result = ProcessingResult(item_id=item, error=exc)
             if logger:
                 logger.error("Error processing %s: %s", item, exc)
+            if on_item_done is not None:
+                on_item_done(proc_result)
 
         if progress_bar is not None:
             progress_bar.update(1)
@@ -105,6 +114,7 @@ def parallel_map(
     graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
     oom_backoff: bool = True,
     oom_reduce_workers_by: int = 1,
+    on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
     Apply a function to items with bounded isolated subprocesses.
@@ -130,6 +140,7 @@ def parallel_map(
         graceful_shutdown_sec: Seconds to wait after ``terminate`` before ``kill``.
         oom_backoff: When True, reduce concurrent workers after a fatal memory error.
         oom_reduce_workers_by: Decrement applied to max workers after each OOM failure.
+        on_item_done: Optional callback invoked in the parent after each item finishes.
 
     Returns:
         ``(successful_results, failed_item_ids)``.
@@ -151,6 +162,7 @@ def parallel_map(
             desc=desc,
             logger=logger,
             show_progress=show_progress,
+            on_item_done=on_item_done,
         )
 
     if log_file_path is None:
@@ -176,6 +188,7 @@ def parallel_map(
         show_progress=show_progress,
         log_file_path=log_file_path,
         log_level=log_level,
+        on_item_done=on_item_done,
     )
 
 

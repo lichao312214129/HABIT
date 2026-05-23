@@ -13,6 +13,7 @@ import logging
 from habit.utils.log_utils import get_module_logger
 
 from habit.utils.parallel_utils import parallel_map
+from habit.core.habitat_analysis.checkpoint.manager import HabitatTrainCheckpoint
 from .habitat_subject_data import HabitatSubjectData
 
 
@@ -228,6 +229,7 @@ class HabitatPipeline:
             # Loaded pipelines may pre-date the explicit attribute; keep a
             # dict on hand so downstream code never needs hasattr() guards.
             self.mask_info_cache: Dict[str, Any] = getattr(loaded, 'mask_info_cache', {}) or {}
+            self._train_checkpoint = getattr(loaded, '_train_checkpoint', None)
         else:
             if not steps:
                 raise ValueError("steps cannot be empty if load_from is not provided")
@@ -250,6 +252,7 @@ class HabitatPipeline:
             # ``HabitatResultPublisher`` hands this off to ``HabitatImageWriter`` once,
             # right before image saving.
             self.mask_info_cache: Dict[str, Any] = {}
+            self._train_checkpoint: Optional[HabitatTrainCheckpoint] = None
     
     def _fit_process(
         self,
@@ -445,111 +448,14 @@ class HabitatPipeline:
     def _process_subjects_parallel(self, X: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process subjects through all individual-level steps using parallel processing.
-        
-        **Architecture Design**:
-        - Pipeline layer: Handles parallelization (this method)
-        - Step layer: Processes single subject sequentially (no parallel logic)
-        
-        Strategy: Each subject goes through all individual-level steps as an atomic
-        operation (step1→step2→step3→step4→step5). Multiple subjects are processed
-        in parallel using parallel_map.
-        
-        This ensures:
-        - Peak memory = processes × single_subject_memory (controlled by parallel workers)
-        - Clean separation: Steps focus on logic, Pipeline handles parallelization
-        - Easy to maintain: No parallel logic scattered in steps
-        
-        Args:
-            X: Dict of subject_id -> input data
-            
-        Returns:
-            Dict of subject_id -> processed data (ready for group-level steps)
+
+        Delegates checkpoint resume, manifest updates, and parallel dispatch to
+        :class:`IndividualCheckpointStage`.
         """
-        logger = get_module_logger(__name__)
-        n_processes = getattr(self.config, 'processes', 4) if self.config else 4
-        
-        # Process all subjects in parallel
-        n_subjects = len(X)
-        logger.info(
-            f"Processing {n_subjects} subjects with {n_processes} parallel workers "
-            f"(Step 1-5 as atomic operation for each subject)..."
-        )
-        
-        graceful_shutdown_sec = 15.0
-        oom_backoff = True
-        oom_reduce_workers_by = 1
-        if self.config is not None:
-            graceful_shutdown_sec = getattr(
-                self.config,
-                "individual_subject_graceful_shutdown_sec",
-                15.0,
-            )
-            oom_backoff = getattr(self.config, "oom_backoff", True)
-            oom_reduce_workers_by = getattr(self.config, "oom_reduce_workers_by", 1)
+        from habit.core.habitat_analysis.checkpoint.stage import IndividualCheckpointStage
 
-        successful_results, failed_subjects = parallel_map(
-            func=self._process_single_subject,
-            items=list(X.items()),
-            n_processes=n_processes,
-            desc="Processing subjects (individual-level pipeline)",
-            logger=logger,
-            show_progress=True,
-            per_item_timeout_sec=(
-                getattr(self.config, "individual_subject_timeout_sec", None)
-                if self.config is not None
-                else None
-            ),
-            graceful_shutdown_sec=graceful_shutdown_sec,
-            oom_backoff=oom_backoff,
-            oom_reduce_workers_by=oom_reduce_workers_by,
-        )
-        
-        # Collect results.
-        # Note: parallel_map automatically unpacks (subject_id, data) tuples;
-        # subject_id is in proc_result.item_id, data is in proc_result.result.
-        results: Dict[str, Any] = {}
-        for proc_result in successful_results:
-            results[proc_result.item_id] = proc_result.result
-
-        # Cache mask_info in the main process for downstream image saving.
-        # Workers cannot publish state back to the parent (forked copies of
-        # HabitatImageWriter are dropped on worker exit), so we extract mask_info
-        # from the per-subject result dict here, in the parent.
-        self.mask_info_cache = {
-            subject_id: data.mask_info
-            for subject_id, data in results.items()
-            if isinstance(data, HabitatSubjectData) and data.mask_info is not None
-        }
-        
-        # Log failures
-        if failed_subjects:
-            logger.error(
-                f"Failed to process {len(failed_subjects)} subject(s): "
-                f"{', '.join(str(s) for s in failed_subjects)}"
-            )
-            on_failure = (
-                getattr(self.config, "on_subject_failure", "continue")
-                if self.config is not None
-                else "continue"
-            )
-            if on_failure == "fail_fast":
-                raise RuntimeError(
-                    f"Individual-level processing failed for {len(failed_subjects)} "
-                    f"subject(s) (on_subject_failure=fail_fast). "
-                    f"Failed: {', '.join(str(s) for s in failed_subjects)}"
-                )
-            if not results:
-                raise ValueError(
-                    "All subjects failed during individual-level processing. "
-                    "Check the errors above before running group-level pipeline steps."
-                )
-        
-        logger.info(
-            f"Individual-level processing completed: "
-            f"{len(results)}/{n_subjects} subjects successful"
-        )
-        
-        return results
+        stage = IndividualCheckpointStage(self, get_module_logger(__name__))
+        return stage.run(X)
     
     def save(self, filepath: str) -> None:
         """

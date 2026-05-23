@@ -14,6 +14,7 @@ from .supervoxel_combination import CombineSupervoxelsStep
 from .voxel_concatenation import ConcatenateVoxelsStep
 from .group_preprocessing import GroupPreprocessingStep
 from .group_clustering import GroupClusteringStep
+from habit.core.habitat_analysis.checkpoint.step import CheckpointSaveStep
 
 __all__ = [
     'VoxelFeatureExtractor',
@@ -22,6 +23,7 @@ __all__ = [
     'SupervoxelFeatureExtractionStep',
     'CalculateMeanVoxelFeaturesStep',
     'MergeSupervoxelFeaturesStep',
+    'CheckpointSaveStep',
     'CombineSupervoxelsStep',
     'ConcatenateVoxelsStep',
     'GroupPreprocessingStep',

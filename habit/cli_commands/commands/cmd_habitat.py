@@ -10,7 +10,8 @@ def run_habitat(
     config_file: str,
     debug_mode: bool,
     mode: Optional[str],
-    pipeline_path: Optional[str]
+    pipeline_path: Optional[str],
+    resume: bool = False,
 ) -> None:
     """
     Run habitat analysis pipeline in train or predict mode.
@@ -51,6 +52,8 @@ def run_habitat(
         config.run_mode = mode
     if pipeline_path:
         config.pipeline_path = pipeline_path
+    if resume:
+        config.resume = True
 
     output_path = Path(config.out_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -71,6 +74,8 @@ def run_habitat(
     click.echo("Starting habitat analysis...")
     click.echo(f"  Mode: {config.run_mode}")
     click.echo(f"  Output directory: {config.out_dir}")
+    if config.run_mode != "predict" and config.resume:
+        click.echo("  Resume: enabled (skip checkpointed subjects)")
     if config.run_mode == "predict":
         click.echo(f"  Pipeline path: {config.pipeline_path or 'auto'}")
     click.echo(f"  Log file at: {output_path / 'habitat_analysis.log'}")

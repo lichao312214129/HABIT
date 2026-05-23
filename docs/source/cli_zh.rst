@@ -159,6 +159,9 @@ DICOM 整理命令
    # 预测模式（需要pipeline_path 或--pipeline，
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml --mode predict --pipeline ./results/habitat_pipeline.pkl
 
+   # 断点续训（train 模式；跳过 manifest 中已完成被试；失败被试需 force_rerun_subjects 重试）
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml --resume
+
 **参数**:
 
 - `--config, -c`: 配置文件路径（必需，
@@ -166,6 +169,7 @@ DICOM 整理命令
   - `train`: 训练新的生境分割模型
   - `predict`: 使用预训练模型进行预测
 - `--pipeline`: Pipeline 文件路径（predict 模式必需，用于覆盖配置文件中的`pipeline_path`，
+- `--resume`: 启用个体级断点续训（可选，等效于 YAML ``resume: true``；覆盖 YAML 中的 ``resume`` 值）。checkpoint 默认目录为 ``<out_dir>/.habitat_checkpoint``；详见 :doc:`user_guide/habitat_segmentation_zh`「断点续训详解」。
 - `--debug`: 启用调试模式（可选）
 
 **配置文件示例**:
@@ -204,6 +208,11 @@ DICOM 整理命令
        random_state: 42
 
    processes: 2
+   individual_subject_timeout_sec: 900
+   # resume: false
+   # checkpoint_dir: null
+   # force_rerun_subjects: []
+   # clear_checkpoint_on_success: false
    plot_curves: true
    save_results_csv: true
    random_state: 42

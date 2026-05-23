@@ -95,7 +95,47 @@ HabitatSegmentation:
 
 # General settings
 processes: 5  # Number of parallel processes
-individual_subject_timeout_sec: 300  # 5 min cap per subject (individual-level parallel); null disables
+individual_subject_timeout_sec: 900  # Per-subject wall time (seconds) in Stage 1; default 15 min; null disables timeout
+
+# ---------------------------------------------------------------------------
+# Checkpoint / resume (train mode only; ignored in predict mode)
+# ---------------------------------------------------------------------------
+# Saves individual-level (Stage 1) progress so a interrupted run can continue.
+# Default directory: <out_dir>/.habitat_checkpoint/
+#   manifest.json         — completed/failed subject IDs, config_hash, stage
+#   subjects/{id}.pkl     — per-subject result written by checkpoint_save step
+#
+# resume: false
+#   false — remove existing checkpoint and process ALL subjects from scratch
+#   true  — load manifest; skip completed subjects (reuse .pkl); skip failed subjects
+#
+# checkpoint_dir: null
+#   null — use <out_dir>/.habitat_checkpoint
+#   path — custom checkpoint root (keep the same path across resume runs)
+#
+# force_rerun_subjects: []
+#   When resume=true, re-process these IDs even if already completed or failed
+#
+# clear_checkpoint_on_success: false
+#   false — keep checkpoint after a fully successful train (default)
+#   true  — delete checkpoint directory when train finishes without error
+#
+# Config hash (resume=true): must match manifest.config_hash or checkpoint is cleared.
+#   Included in hash: data_dir, FeatureConstruction, HabitatSegmentation
+#   NOT in hash (safe to change): processes, timeout, plot_curves, verbose, out_dir, ...
+#
+# Failed subjects are NOT auto-retried on resume. To retry: use force_rerun_subjects,
+# set resume=false, or delete the checkpoint directory.
+#
+# two_step checkpoint boundary: after merge_supervoxel_features (supervoxel_df in .pkl)
+# Group-level steps (combine / group clustering) are NOT checkpointed.
+# CLI equivalent: habit get-habitat -c <yaml> --resume
+# ---------------------------------------------------------------------------
+# resume: false
+# checkpoint_dir: null
+# force_rerun_subjects: []
+# clear_checkpoint_on_success: false
+
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 random_state: 42  # Random seed for reproducibility

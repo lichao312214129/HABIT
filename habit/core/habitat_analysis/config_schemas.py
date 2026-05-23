@@ -62,11 +62,11 @@ class HabitatAnalysisConfig(BaseConfig):
         gt=0
     )
     individual_subject_timeout_sec: Optional[float] = Field(
-        1800.0,
+        900.0,
         description=(
             "Wall-clock seconds allowed for each subject during the individual-level "
             "parallel stage before marking that subject as failed and continuing. "
-            "Default 1800 (30 minutes). Set to null in YAML to disable (no per-subject "
+            "Default 900 (15 minutes). Set to null in YAML to disable (no per-subject "
             "timeout). Must be positive when not null."
         ),
     )
@@ -100,6 +100,32 @@ class HabitatAnalysisConfig(BaseConfig):
             "oom_backoff is enabled. Minimum effective workers is always 1."
         ),
         ge=1,
+    )
+    resume: bool = Field(
+        False,
+        description=(
+            "When True, skip individual-level processing for subjects already present "
+            "in the checkpoint directory. Failed checkpoint subjects are not retried."
+        ),
+    )
+    checkpoint_dir: Optional[str] = Field(
+        None,
+        description=(
+            "Directory for training checkpoints. Defaults to "
+            "`<out_dir>/.habitat_checkpoint` when null."
+        ),
+    )
+    force_rerun_subjects: List[str] = Field(
+        default_factory=list,
+        description=(
+            "Subject IDs to reprocess even when resume=True and a checkpoint exists."
+        ),
+    )
+    clear_checkpoint_on_success: bool = Field(
+        False,
+        description=(
+            "Remove the training checkpoint directory after a successful train run."
+        ),
     )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")

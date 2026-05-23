@@ -111,6 +111,26 @@ def test_inprocess_when_single_worker_no_timeout() -> None:
     assert successful[0].result == 6
 
 
+def _task_large_payload(item: Tuple[str, int]) -> Tuple[str, bytes]:
+    """Return a multi-megabyte payload to stress queue IPC on Windows spawn."""
+    subject_id, nbytes = item
+    return subject_id, b"x" * nbytes
+
+
+def test_large_result_survives_queue_ipc() -> None:
+    """Large worker payloads must reach the parent (Windows queue flush)."""
+    items = [(f"large-{i}", 4 * 1024 * 1024) for i in range(3)]
+    successful, failed = parallel_map(
+        _task_large_payload,
+        items,
+        n_processes=2,
+        show_progress=False,
+    )
+    assert failed == []
+    assert len(successful) == 3
+    assert len(successful[0].result) == 4 * 1024 * 1024
+
+
 def test_memory_error_releases_slot_without_waiting_for_timeout() -> None:
     """OOM subjects must fail fast so pending items can start immediately."""
     items = [("oom-sub", "oom"), ("ok-sub", "ok")]
