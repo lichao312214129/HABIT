@@ -10,7 +10,7 @@ Usage Instructions:
 """
 
 import numpy as np
-from habitat_clustering.clustering.base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, register_clustering
 
 
 @register_clustering('custom_template')  # Register clustering algorithm (please change to your algorithm name)

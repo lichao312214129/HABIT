@@ -626,17 +626,9 @@ Pipeline 分两阶段；checkpoint **只覆盖 Stage 1（个体级）**：
 支持的聚类算法
 ----------------
 
-下表列出 ``habit/core/habitat_analysis/clustering/`` 内置注册的聚类算法。
+下表列出 ``habit/core/habitat_analysis/clustering/`` 内置、且与 YAML Schema 一致的聚类算法。
 配置时把对应的 key 填到 ``HabitatSegmentation.supervoxel.algorithm`` 或
 ``HabitatSegmentation.habitat.algorithm`` 即可。
-
-.. important::
-
-   **Pydantic 校验（``config_schemas.py``）与工厂注册并不完全一致**：
-
-   - ``supervoxel.algorithm`` 允许：``kmeans``、``gmm``、``slic``
-   - ``habitat.algorithm`` 允许：``kmeans``、``gmm``
-   - 下列 ``hierarchical``、``spectral``、``dbscan`` 等已在工厂注册，但 **当前 YAML 若填写会被 schema 拒绝**；如需使用须先扩展 ``Literal`` 或改用已允许的算法。
 
 .. list-table::
    :header-rows: 1
@@ -647,28 +639,13 @@ Pipeline 分两阶段；checkpoint **只覆盖 Stage 1（个体级）**：
      - 说明
    * - K-Means
      - ``kmeans``
-     - 默认；速度快，适合球形簇结构。
+     - 默认；速度快，适合球形簇结构。可用于 supervoxel 与 habitat。
    * - Gaussian Mixture
      - ``gmm``
-     - 概率模型；可输出后验概率，支持椭球簇个AIC/BIC 选数。
+     - 概率模型；支持 AIC/BIC 选数。可用于 supervoxel 与 habitat。
    * - SLIC
      - ``slic``
-     - 体素 →supervoxel 的空间感知超像素分割（仅用于 supervoxel 聚类）。
-   * - Hierarchical
-     - ``hierarchical``
-     - 凝聚式层次聚类；可看 dendrogram。
-   * - Spectral
-     - ``spectral``
-     - 谱聚类，适合非凸/流形结构。
-   * - DBSCAN
-     - ``dbscan``
-     - 基于密度，自动决定簇数；不强制每个点都被分簇。
-   * - Mean Shift
-     - ``mean_shift``
-     - 基于密度，自动确定簇数。
-   * - Affinity Propagation
-     - ``affinity_propagation``
-     - 基于代表性样本，自动确定簇数（**未在工厂注册**；仅出现在部分验证方法映射中，不可作为 ``algorithm`` 配置）
+     - 体素 → supervoxel 的空间感知超像素分割（仅用于 ``supervoxel.algorithm``）。
 
 要新增自定义聚类算法，参见
 ``habit/core/habitat_analysis/clustering/custom_clustering_template.py``。

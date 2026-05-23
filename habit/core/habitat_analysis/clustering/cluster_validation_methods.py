@@ -61,82 +61,6 @@ CLUSTERING_VALIDATION_METHODS = {
         }
     },
     
-    # Methods supported by Spectral Clustering
-    'spectral': {
-        'default': ['silhouette', 'calinski_harabasz'],
-        'methods': {
-            'silhouette': {
-                'description': 'Silhouette Score, higher is better',
-                'optimization': 'maximize'
-            },
-            'calinski_harabasz': {
-                'description': 'Calinski-Harabasz Index, higher is better',
-                'optimization': 'maximize'
-            },
-            'davies_bouldin': {
-                'description': 'Davies-Bouldin Index, lower is better',
-                'optimization': 'minimize'
-            }
-        }
-    },
-    
-    # Methods supported by Hierarchical Clustering
-    'hierarchical': {
-        'default': ['silhouette', 'calinski_harabasz'],
-        'methods': {
-            'silhouette': {
-                'description': 'Silhouette Score, higher is better',
-                'optimization': 'maximize'
-            },
-            'calinski_harabasz': {
-                'description': 'Calinski-Harabasz Index, higher is better',
-                'optimization': 'maximize'
-            },
-            'davies_bouldin': {
-                'description': 'Davies-Bouldin Index, lower is better',
-                'optimization': 'minimize'
-            },
-            'cophenetic': {
-                'description': 'Cophenetic Correlation Coefficient, higher is better',
-                'optimization': 'maximize'
-            }
-        }
-    },
-    
-    # Methods supported by DBSCAN density-based clustering
-    'dbscan': {
-        'default': ['silhouette', 'calinski_harabasz'],
-        'methods': {
-            'silhouette': {
-                'description': 'Silhouette Score, higher is better',
-                'optimization': 'maximize'
-            },
-            'calinski_harabasz': {
-                'description': 'Calinski-Harabasz Index, higher is better',
-                'optimization': 'maximize'
-            }
-        }
-    },
-    
-    # Methods supported by Mean Shift Clustering
-    'mean_shift': {
-        'default': ['silhouette', 'calinski_harabasz'],
-        'methods': {
-            'silhouette': {
-                'description': 'Silhouette Score, higher is better',
-                'optimization': 'maximize'
-            },
-            'calinski_harabasz': {
-                'description': 'Calinski-Harabasz Index, higher is better',
-                'optimization': 'maximize'
-            },
-            'davies_bouldin': {
-                'description': 'Davies-Bouldin Index, lower is better',
-                'optimization': 'minimize'
-            }
-        }
-    },
-
     # Methods supported by SLIC clustering
     'slic': {
         'default': ['silhouette', 'kneedle'],
@@ -160,25 +84,6 @@ CLUSTERING_VALIDATION_METHODS = {
             'kneedle': {
                 'description': 'Kneedle elbow detection on the SLIC-regularized inertia curve',
                 'optimization': 'kneedle'
-            }
-        }
-    },
-    
-    # Methods supported by Affinity Propagation
-    'affinity_propagation': {
-        'default': ['silhouette', 'calinski_harabasz'],
-        'methods': {
-            'silhouette': {
-                'description': 'Silhouette Score, higher is better',
-                'optimization': 'maximize'
-            },
-            'calinski_harabasz': {
-                'description': 'Calinski-Harabasz Index, higher is better',
-                'optimization': 'maximize'
-            },
-            'davies_bouldin': {
-                'description': 'Davies-Bouldin Index, lower is better',
-                'optimization': 'minimize'
             }
         }
     }

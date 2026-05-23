@@ -23,7 +23,7 @@ HABIT 提供丰富的内置组件，用户可以直接使用：
 
 - **预处理方法**: dcm2nii、N4 偏置场校正、重采样、配准、标准化等
 - **特征提取器**: 原始特征、动力学特征、局部熵、体素特征、超像素特征等
-- **聚类算法**: K-Means、GMM、DBSCAN、谱聚类、层次聚类等
+- **聚类算法**: K-Means、GMM、SLIC（生境分析 YAML 可直接配置）；更多算法可通过 ``@register_clustering`` 扩展
 - **机器学习模型**: 逻辑回归、随机森林、XGBoost、SVM、KNN 等
 - **特征选择器**: 相关性、方差、ANOVA、Chi2、LASSO、RFECV 等
 

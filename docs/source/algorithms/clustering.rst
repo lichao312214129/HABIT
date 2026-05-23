@@ -20,42 +20,10 @@ GMM (Gaussian Mixture Model)
    :undoc-members:
    :no-index:
 
-层次聚类
-^^^^^^^^
+SLIC
+^^^^
 
-.. autoclass:: habit.core.habitat_analysis.clustering.hierarchical_clustering.HierarchicalClustering
-   :members:
-   :undoc-members:
-   :no-index:
-
-DBSCAN
-^^^^^^
-
-.. autoclass:: habit.core.habitat_analysis.clustering.dbscan_clustering.DBSCANClustering
-   :members:
-   :undoc-members:
-   :no-index:
-
-Spectral Clustering
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: habit.core.habitat_analysis.clustering.spectral_clustering.SpectralClustering
-   :members:
-   :undoc-members:
-   :no-index:
-
-Mean Shift
-^^^^^^^^^^
-
-.. autoclass:: habit.core.habitat_analysis.clustering.mean_shift_clustering.MeanShiftClustering
-   :members:
-   :undoc-members:
-   :no-index:
-
-Affinity Propagation
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: habit.core.habitat_analysis.clustering.affinity_propagation.AffinityPropagationClustering
+.. autoclass:: habit.core.habitat_analysis.clustering.slic_clustering.SLICClustering
    :members:
    :undoc-members:
    :no-index:

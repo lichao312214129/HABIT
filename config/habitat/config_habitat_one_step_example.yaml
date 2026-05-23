@@ -39,7 +39,7 @@ HabitatSegmentation:
   
   # Supervoxel clustering configuration
   supervoxel:
-    algorithm: kmeans  # Clustering algorithm: kmeans, gmm, hierarchical, etc.
+    algorithm: kmeans  # Clustering algorithm: kmeans, gmm, or slic (supervoxel)
     # Note: n_clusters is not used in one_step mode, as it's determined automatically
   
   # One-step mode specific settings

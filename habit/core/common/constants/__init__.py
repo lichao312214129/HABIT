@@ -104,11 +104,10 @@ class ValidationMethods(str, Enum):
 
 
 class ClusteringMethods(str, Enum):
-    """Clustering algorithm names."""
+    """Clustering algorithm names supported by habitat YAML configs."""
     KMEANS = 'kmeans'
-    HIERARCHICAL = 'hierarchical'
-    DBSCAN = 'dbscan'
-    MEAN_SHIFT = 'mean_shift'
+    GMM = 'gmm'
+    SLIC = 'slic'
 
 
 class FeatureTypes(str, Enum):

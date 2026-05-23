@@ -112,49 +112,6 @@ class TestGMMClustering:
 
 
 # ---------------------------------------------------------------------------
-# Hierarchical clustering
-# ---------------------------------------------------------------------------
-
-
-class TestHierarchicalClustering:
-    def _make_step(self, n_clusters: int = 3):
-        from habit.core.habitat_analysis.clustering.hierarchical_clustering import (
-            HierarchicalClustering,
-        )
-
-        return HierarchicalClustering(n_clusters=n_clusters)
-
-    def test_instantiation(self) -> None:
-        step = self._make_step()
-        assert step is not None
-
-    def test_fit_predict(self) -> None:
-        step = self._make_step(n_clusters=3)
-        X = _make_voxel_data(60)
-        step.fit(X)
-        labels = step.predict(X)
-        assert labels.shape == (60,)
-
-
-# ---------------------------------------------------------------------------
-# Spectral clustering
-# ---------------------------------------------------------------------------
-
-
-class TestSpectralClustering:
-    def _make_step(self, n_clusters: int = 3):
-        from habit.core.habitat_analysis.clustering.spectral_clustering import (
-            SpectralClustering,
-        )
-
-        return SpectralClustering(n_clusters=n_clusters, random_state=0)
-
-    def test_instantiation(self) -> None:
-        step = self._make_step()
-        assert step is not None
-
-
-# ---------------------------------------------------------------------------
 # Cluster validation methods
 # ---------------------------------------------------------------------------
 
