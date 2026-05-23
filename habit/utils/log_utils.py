@@ -18,8 +18,9 @@ Design principles:
 
 import logging
 import sys
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Optional
+from typing import Iterator, Optional
 import threading
 
 # Global lock for thread-safe logger initialization
@@ -260,6 +261,33 @@ def disable_external_loggers():
     
     for logger_name in external_loggers:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+
+RADIOMICS_LOGGER_NAME = "radiomics"
+
+
+@contextmanager
+def radiomics_feature_class_logging(level: int = logging.INFO) -> Iterator[None]:
+    """
+    Temporarily raise the PyRadiomics logger level during voxel feature extraction.
+
+    Habit sets ``radiomics`` to WARNING in :func:`disable_external_loggers`; this
+    context manager restores INFO so PyRadiomics emits lines such as
+    ``Computing glcm`` while extracting.
+
+    Args:
+        level: Logging level to apply to the radiomics logger (default: INFO).
+
+    Yields:
+        None
+    """
+    radiomics_logger = logging.getLogger(RADIOMICS_LOGGER_NAME)
+    previous_level = radiomics_logger.level
+    radiomics_logger.setLevel(level)
+    try:
+        yield
+    finally:
+        radiomics_logger.setLevel(previous_level)
 
 
 def restore_logging_in_subprocess(

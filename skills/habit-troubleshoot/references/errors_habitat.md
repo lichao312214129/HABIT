@@ -59,8 +59,25 @@ Excel.
 processes: 1   # or 2 for very small ROIs
 ```
 
-Also check `kernelRadius` in the params YAML — `kernelRadius: 3` extracts
-features from 7x7x7 neighborhoods which is 343 voxels per voxel.
+Also check `kernelRadius` in `FeatureConstruction.voxel_level.params` — `kernelRadius: 3` extracts
+features from 7×7×7 neighborhoods which is 343 voxels per voxel.
+
+For large ROIs or GPU-accelerated torch radiomics, reduce `voxelBatch` from the habit
+default `1000` (or set `-1` for no batching) to e.g. `512` to limit peak memory.
+When using multiple GPUs, set `torchGpus`
+and align `processes` with `torchGpuCount`:
+
+```yaml
+FeatureConstruction:
+  voxel_level:
+    params:
+      useTorchRadiomics: auto
+      torchGpus: [0, 1]
+      torchGpuCount: 2
+      voxelBatch: 512
+
+processes: 2
+```
 
 ## Symptom: predict mode fails with `pipeline file not found`
 

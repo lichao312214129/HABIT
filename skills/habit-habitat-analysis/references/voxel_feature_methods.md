@@ -64,9 +64,14 @@ voxel_level:
   method: voxel_radiomics(T2)
   params:
     params_file: ./config/radiomics/params_voxel_radiomics.yaml
+    kernelRadius: 1          # 1=3x3x3 ; 2=5x5x5 (habit param, not in params_file)
+    voxelBatch: 1000         # habit default; -1 = no batching
+    useTorchRadiomics: auto  # auto uses torch+CUDA when available
+    # torchGpus: [0, 1]      # allowed GPU indices
+    # torchGpuCount: 2       # optional: use first N GPUs from torchGpus
 ```
 
-Recommended `params_voxel_radiomics.yaml`:
+Recommended `params_voxel_radiomics.yaml` (PyRadiomics settings only):
 
 ```yaml
 featureClass:
@@ -74,7 +79,6 @@ featureClass:
   glcm:                    # auto-restricted
 setting:
   binWidth: 25
-  kernelRadius: 1          # 1=3x3x3 ; 2=5x5x5
   maskedKernel: true
 ```
 

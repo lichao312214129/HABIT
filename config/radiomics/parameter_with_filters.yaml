@@ -1,4 +1,6 @@
 # Comprehensive PyRadiomics parameter file — adds LoG and Wavelet filters.
+# NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, etc. belong in
+# FeatureConstruction.voxel_level.params in your habitat config (default voxelBatch: 1000).
 # Generates ~1000+ features per image (Original x 7 classes
 #                                      + LoG x 3 sigmas x 7 classes
 #                                      + Wavelet x 8 decompositions x 7 classes)

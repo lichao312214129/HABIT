@@ -77,6 +77,14 @@ FeatureConstruction:
       #
       # Kernel radius for voxel-based extraction (default: 1)
       # kernelRadius: 1     # 1 = 3x3x3 neighborhood, 2 = 5x5x5, etc.
+      # voxelBatch: 1000    # habit default; -1 = no batching; lower for GPU / large ROI
+      # Params below are forwarded even when omitted from the method expression string.
+      # TorchRadiomics acceleration (optional; requires torch + CUDA for auto)
+      # useTorchRadiomics: auto   # auto | true | false
+      # torchGpus: [0, 1, 2]      # which GPU indices are allowed
+      # torchGpuCount: 2          # use at most N GPUs from torchGpus
+      # torchDevice: auto         # single-GPU fallback when torchGpus is omitted
+      # torchDtype: float64
       # Window size for local_entropy method
       # window_size: [3, 3, 3]
 

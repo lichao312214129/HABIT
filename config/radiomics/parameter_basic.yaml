@@ -1,4 +1,6 @@
 # Basic PyRadiomics parameter file — first-order + shape + GLCM only.
+# NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, etc. belong in
+# FeatureConstruction.voxel_level.params in your habitat config (default voxelBatch: 1000).
 # Use as `params_file_of_non_habitat` and/or `params_file_of_habitat`.
 # Keeps feature count modest (~70 features per image) and avoids
 # expensive multi-scale filters.

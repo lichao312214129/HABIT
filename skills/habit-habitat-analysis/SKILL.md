@@ -34,6 +34,8 @@ Before generating a config, confirm:
 | `clustering_mode` | `one_step`, `two_step`, or `direct_pooling` (see below) |
 | (kinetic only) timestamps Excel | required |
 | (voxel_radiomics only) PyRadiomics params YAML | required |
+| (voxel_radiomics only) `kernelRadius` / `voxelBatch` | optional; defaults 1 / 1000 (`-1` = no batching) |
+| (voxel_radiomics only) `useTorchRadiomics` / `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
 | Expected habitat count | typical 3-5 |
 
 ## Decision 1 — one_step vs two_step
@@ -75,7 +77,9 @@ per-phase scan times. Without this, fail fast.
 
 For `voxel_radiomics`: HABIT auto-restricts GLCM to safe features
 (Contrast, Correlation, JointEnergy, Idm) when `kernelRadius<=3`. Tell the
-user this is automatic.
+user this is automatic. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
+limits how many of them are active. Subjects are mapped to GPUs via a stable hash
+of the subject ID. Set `processes` to the number of GPUs for best throughput.
 
 ## Population-level preprocessing (two_step only)
 
@@ -158,7 +162,7 @@ The `*_habitats.nrrd` is the file users open in ITK-SNAP / 3D Slicer.
 ## Common pitfalls
 
 1. **Mask not found** → check `data_dir/<subject>/masks/`.
-2. **Memory error during voxel_radiomics** → reduce `processes`, switch to `concat(raw(...))`.
+2. **Memory error during voxel_radiomics** → reduce `processes`, set `voxelBatch: 512` (or lower), use `useTorchRadiomics: auto` only with `processes: 1` on GPU, switch to `concat(raw(...))`.
 3. **Cluster number 1 returned** → tumor too homogeneous; add modalities or switch to `voxel_radiomics`/`kinetic`.
 4. **kinetic fails** → verify Excel timestamps file IDs match folder names.
 5. **Predict mode without pipeline** → require `--pipeline` or `pipeline_path` in config.

@@ -109,6 +109,25 @@ If users want full GLCM:
 - Increase `kernelRadius` to 2 or 3
 - OR explicitly list GLCM features in their `parameter.yaml`
 
+## Voxel batch size (`voxelBatch`)
+
+`FeatureConstruction.voxel_level.params.voxelBatch` controls how many ROI voxels
+PyRadiomics processes per batch during `voxel_radiomics`. Habit default is `1000`.
+Use `-1` to process all ROI voxels at once (PyRadiomics native, no batching).
+For large ROIs or GPU/torch paths, users may set a lower positive value (e.g. `512`)
+to cap peak memory. These params are forwarded even when omitted from the `method`
+expression string.
+
+## TorchRadiomics acceleration (`useTorchRadiomics`)
+
+Optional in-tree TorchRadiomics injection is controlled by `useTorchRadiomics`:
+- `auto` (default): use torch+CUDA when available, else CPU PyRadiomics
+- `true`: require torch (fail if missing)
+- `false`: always CPU PyRadiomics
+
+Related params: `torchDevice` (`auto`, `cuda:0`, `cpu`), `torchDtype` (`float64`).
+Torch is **not** a core habit dependency.
+
 ## Validate output (MANDATORY after run)
 
 ```bash

@@ -25,6 +25,11 @@ and ask the user explicitly. Do not invent paths or modality names.
 | `clustering_mode`: one_step / two_step | core algorithmic choice |
 | (kinetic only) timestamps Excel path | required for DCE kinetic features |
 | (voxel_radiomics only) `params_file` | required PyRadiomics params |
+| (voxel_radiomics only) `kernelRadius` | optional; default 1 |
+| (voxel_radiomics only) `voxelBatch` | optional; default 1000 (`-1` = no batching) |
+| (voxel_radiomics only) `useTorchRadiomics` | optional; default auto |
+| (voxel_radiomics only) `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
+| (voxel_radiomics only) `torchDevice` | optional; default auto |
 | (two_step) `fixed_n_clusters` for habitat | typical: 3-5 |
 
 ## habit-feature-extraction

@@ -49,6 +49,12 @@ Shared PyRadiomics parameter YAMLs: `radiomics/parameter.yaml`, `radiomics/param
 `radiomics/parameter_basic.yaml`, `radiomics/parameter_with_filters.yaml`,
 `radiomics/params_voxel_radiomics.yaml`, `radiomics/params_supervoxel_radiomics.yaml`.
 
+For `voxel_radiomics` in habitat, `kernelRadius`, `voxelBatch`, `useTorchRadiomics`,
+`torchGpus`, `torchGpuCount`, `torchDevice`, and `torchDtype` belong in
+`FeatureConstruction.voxel_level.params` (not in the PyRadiomics parameter YAML).
+They are forwarded to the extractor even when omitted from the `method` expression.
+Default `voxelBatch` is `1000`; use `-1` for no batching. Default `useTorchRadiomics` is `auto`.
+
 ## How to use
 
 Open the YAML for the command you are running; section headers and comments

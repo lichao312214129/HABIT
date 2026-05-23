@@ -17,6 +17,41 @@ from ..clustering_features.feature_expression_parser import FeatureExpressionPar
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
 from ..feature_preprocessing.pipeline import apply_stateless_preprocessing
 
+
+def resolve_voxel_step_params(
+    step_params: Dict[str, Any],
+    voxel_params: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """
+    Resolve method-expression placeholders and merge global voxel_level.params.
+
+    Parameters listed only under ``FeatureConstruction.voxel_level.params`` (such as
+    ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) are forwarded even when they
+    are omitted from the ``method`` expression string.
+
+    Args:
+        step_params: Params parsed from one processing step expression.
+        voxel_params: Global params from ``FeatureConstruction.voxel_level.params``.
+
+    Returns:
+        Dict[str, Any]: Resolved params passed to voxel feature extractors.
+    """
+    resolved = step_params.copy()
+    global_params = voxel_params or {}
+
+    for param_name, param_value in list(resolved.items()):
+        if param_value == param_name and param_name in global_params:
+            resolved[param_name] = global_params[param_name]
+        elif isinstance(param_value, str) and param_value in global_params:
+            resolved[param_name] = global_params[param_value]
+
+    for param_name, param_value in global_params.items():
+        if param_name not in resolved:
+            resolved[param_name] = param_value
+
+    return resolved
+
+
 class FeatureService:
     """
     Orchestrates feature extraction and preprocessing for habitat analysis.
@@ -248,15 +283,10 @@ class FeatureService:
             method = step['method']
             img_name = step['image']
             step_params = step['params'].copy()
-            
-            # Resolve parameter values
-            if step_params:
-                voxel_params = self.config.FeatureConstruction.voxel_level.params
-                for param_name, param_value in list(step_params.items()):
-                    if param_value == param_name and param_name in voxel_params:
-                        step_params[param_name] = voxel_params[param_name]
-                    elif isinstance(param_value, str) and param_value in voxel_params:
-                        step_params[param_name] = voxel_params[param_value]
+
+            # Resolve placeholders and merge global params (voxelBatch, torchGpus, etc.)
+            voxel_params = self.config.FeatureConstruction.voxel_level.params
+            step_params = resolve_voxel_step_params(step_params, voxel_params)
             
             # Create extractor and process
             step_params.update({'subject': subject, 'image': img_name})

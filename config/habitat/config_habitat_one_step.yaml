@@ -15,6 +15,12 @@ FeatureConstruction:
     params:
       params_file: ../radiomics/parameter.yaml
       timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
+      # voxel_radiomics-only (forwarded even if omitted from method expression):
+      # kernelRadius: 1
+      # voxelBatch: 1000
+      # useTorchRadiomics: auto
+      # torchGpus: [0, 1]
+      # torchGpuCount: 2
 
   preprocessing_for_subject_level: 
     methods:

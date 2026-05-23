@@ -44,6 +44,12 @@ for a full scenario index.
 | LoG + Wavelet (~1000+ features) | `config/radiomics/parameter_with_filters.yaml` |
 | voxel / supervoxel presets | `config/radiomics/params_voxel_radiomics.yaml`, `params_supervoxel_radiomics.yaml` |
 
+For **`voxel_radiomics`** in habitat configs, also set in `FeatureConstruction.voxel_level.params`:
+`kernelRadius` (default 1), `voxelBatch` (default 1000; `-1` = no batching),
+`useTorchRadiomics` (default auto), `torchGpus` / `torchGpuCount`, `torchDevice`,
+and `torchDtype` (default float64). These keys are forwarded even when omitted from
+the `method` expression string.
+
 ## Machine learning (`habit model` / `habit cv`)
 
 | Use case | Reference |

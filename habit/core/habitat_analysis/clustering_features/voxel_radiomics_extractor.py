@@ -3,19 +3,110 @@ Voxel-level radiomics feature extractor
 """
 
 import os
-import logging
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from typing import Union, List, Dict, Optional, Tuple
+from typing import Union, List, Dict, Optional, Tuple, Any
 from radiomics import featureextractor
+from habit.utils.log_utils import get_module_logger, radiomics_feature_class_logging
+from habit.utils.torch_radiomics_utils import (
+    DEFAULT_TORCH_DTYPE,
+    injected_torch_radiomics,
+    resolve_torch_dtype,
+    resolve_voxel_radiomics_backend,
+)
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+
+logger = get_module_logger(__name__)
+
+# Habit default batch size; balances memory use on typical 8-16 GB machines vs speed.
+# PyRadiomics accepts -1 for no batching (all ROI voxels at once).
+DEFAULT_VOXEL_BATCH = 1000
+
+
+def _enabled_voxel_feature_classes(enabled_features: Dict[str, Any]) -> List[str]:
+    """
+    Return sorted feature class names enabled for voxel extraction.
+
+    Shape features are excluded because PyRadiomics does not compute them in
+    voxel-based mode.
+
+    Args:
+        enabled_features: ``RadiomicsFeatureExtractor.enabledFeatures`` mapping.
+
+    Returns:
+        List[str]: Feature class names, e.g. ``["firstorder", "glcm"]``.
+    """
+    return sorted(
+        feature_class
+        for feature_class in enabled_features.keys()
+        if not str(feature_class).startswith("shape")
+    )
+
+
+def _group_voxel_feature_keys_by_class(
+    feature_keys: List[str],
+    feature_classes: List[str],
+) -> Dict[str, List[str]]:
+    """
+    Group PyRadiomics voxel result keys by feature class.
+
+    Keys follow ``{imageType}_{featureClass}_{featureName}`` (see PyRadiomics
+    ``computeFeatures``).
+
+    Args:
+        feature_keys: Non-diagnostic keys from ``execute(voxelBased=True)``.
+        feature_classes: Enabled feature class names.
+
+    Returns:
+        Dict[str, List[str]]: Feature class name to matching result keys.
+    """
+    grouped: Dict[str, List[str]] = {feature_class: [] for feature_class in feature_classes}
+    for key in feature_keys:
+        for feature_class in feature_classes:
+            if f"_{feature_class}_" in key:
+                grouped[feature_class].append(key)
+                break
+    return grouped
+
+
+def _log_voxel_feature_class_summary(
+    feature_keys: List[str],
+    feature_classes: List[str],
+    *,
+    subject: str,
+    image_name: str,
+) -> None:
+    """
+    Log how many voxel feature maps were produced per feature class.
+
+    Args:
+        feature_keys: Non-diagnostic keys from PyRadiomics voxel extraction.
+        feature_classes: Enabled feature class names.
+        subject: Subject identifier for log context.
+        image_name: Image/modality name for log context.
+    """
+    grouped = _group_voxel_feature_keys_by_class(feature_keys, feature_classes)
+    for feature_class in feature_classes:
+        class_keys = grouped.get(feature_class, [])
+        if not class_keys:
+            continue
+        logger.info(
+            "voxel_radiomics feature class finished: subject=%s image=%s "
+            "class=%s feature_maps=%d",
+            subject,
+            image_name,
+            feature_class,
+            len(class_keys),
+        )
+
 
 @register_feature_extractor('voxel_radiomics')
 class VoxelRadiomicsExtractor(BaseClusteringExtractor):
     """
     Extract voxel-level radiomics features from image within mask region
-    using PyRadiomics' voxel-based extraction
+    using PyRadiomics' voxel-based extraction, optionally accelerated via
+    in-tree TorchRadiomics injection when torch/CUDA are available.
     """
     
     def __init__(self, **kwargs):
@@ -48,6 +139,17 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                 subj: subject name
                 img_name: Name of the image to append to feature names
                 kernelRadius: Neighborhood radius in voxels for voxel-based extraction.
+                voxelBatch: Number of voxels per batch during voxel-based extraction.
+                    Default is 1000. Use -1 to process all ROI voxels at once (PyRadiomics
+                    native default). Lower values (e.g. 512) reduce peak memory on GPU or
+                    large ROIs.
+                useTorchRadiomics: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
+                    TorchRadiomics when torch and CUDA are available, otherwise CPU PyRadiomics.
+                torchDevice: Single torch device when ``torchGpus`` is not set (``auto``, ``cuda:0``, ``cpu``).
+                torchGpus: Allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``. Overrides ``torchDevice``.
+                torchGpuCount: Use at most this many GPUs from the front of ``torchGpus``.
+                gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
+                torchDtype: Torch dtype name for the torch backend (``float64`` or ``float32``).
                 output_float32: If True, cast the returned DataFrame to float32 to halve
                     downstream memory (may affect numerical parity vs float64).
             
@@ -102,7 +204,11 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                     # These features are robust even with small kernel sizes
                     safe_glcm_features = ['Contrast', 'Correlation', 'JointEnergy', 'Idm']
                     
-                    logging.info(f"GLCM enabled with all features. Restricting to safe features for voxel-based extraction: {safe_glcm_features}")
+                    logger.info(
+                        "GLCM enabled with all features. Restricting to safe features "
+                        "for voxel-based extraction: %s",
+                        safe_glcm_features,
+                    )
                     
                     # Store original enabled features
                     original_enabled_features = extractor.enabledFeatures.copy()
@@ -122,21 +228,83 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                     
                     # Enable only safe GLCM features
                     extractor.enableFeaturesByName(glcm=safe_glcm_features)
-                    logging.info(f"Enabled GLCM features: {safe_glcm_features}")
+                    logger.info("Enabled GLCM features: %s", safe_glcm_features)
                 else:
-                    logging.info(f"GLCM features explicitly specified: {glcm_features}")
+                    logger.info("GLCM features explicitly specified: %s", glcm_features)
             
             # kernelRadius controls the size of the local neighborhood (in voxels) 
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
             # centered on each voxel, radius of 2 means 5×5×5, etc.
             kernelRadius = kwargs.get('kernelRadius', 1)
-            extractor.settings.update({
+            voxelBatch = kwargs.get('voxelBatch', DEFAULT_VOXEL_BATCH)
+            backend, torch_device = resolve_voxel_radiomics_backend(
+                use_torch_radiomics=kwargs.get('useTorchRadiomics', 'auto'),
+                torch_device=kwargs.get('torchDevice', 'auto'),
+                torch_gpus=kwargs.get('torchGpus'),
+                torch_gpu_count=kwargs.get('torchGpuCount'),
+                subject=kwargs.get('subject'),
+                gpu_slot_index=kwargs.get('gpuSlotIndex'),
+            )
+            settings_update: Dict[str, Any] = {
                 'kernelRadius': kernelRadius,
+                'voxelBatch': voxelBatch,
                 'geometryTolerance': 1e-3  # Allow small geometric differences
-            })
-            
-            # Extract voxel-based features  计算GLCM时会报错，可能是由于局部太均质所致
-            result = extractor.execute(image, mask, voxelBased=True)
+            }
+            if backend == "torch" and torch_device is not None:
+                settings_update['device'] = torch_device
+                settings_update['dtype'] = resolve_torch_dtype(
+                    kwargs.get('torchDtype', DEFAULT_TORCH_DTYPE)
+                )
+                if str(torch_device).startswith("cuda"):
+                    logger.info(
+                        "voxel_radiomics extraction using TorchRadiomics GPU: "
+                        "subject=%s image=%s device=%s torchGpus=%s torchGpuCount=%s "
+                        "kernelRadius=%s voxelBatch=%s dtype=%s",
+                        kwargs.get("subject", "unknown"),
+                        image_name,
+                        torch_device,
+                        kwargs.get("torchGpus"),
+                        kwargs.get("torchGpuCount"),
+                        kernelRadius,
+                        voxelBatch,
+                        kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE),
+                    )
+                else:
+                    logger.info(
+                        "voxel_radiomics extraction using TorchRadiomics CPU: "
+                        "subject=%s image=%s device=%s kernelRadius=%s voxelBatch=%s",
+                        kwargs.get("subject", "unknown"),
+                        image_name,
+                        torch_device,
+                        kernelRadius,
+                        voxelBatch,
+                    )
+            else:
+                logger.info(
+                    "voxel_radiomics extraction using CPU PyRadiomics: "
+                    "subject=%s image=%s kernelRadius=%s voxelBatch=%s",
+                    kwargs.get("subject", "unknown"),
+                    image_name,
+                    kernelRadius,
+                    voxelBatch,
+                )
+            extractor.settings.update(settings_update)
+
+            enabled_feature_classes = _enabled_voxel_feature_classes(
+                extractor.enabledFeatures
+            )
+            subject_id = str(kwargs.get("subject", "unknown"))
+            logger.info(
+                "voxel_radiomics feature classes to extract: subject=%s image=%s classes=%s",
+                subject_id,
+                image_name,
+                enabled_feature_classes,
+            )
+
+            # Extract voxel-based features; inject TorchRadiomics only when resolved.
+            with injected_torch_radiomics(enabled=(backend == "torch")):
+                with radiomics_feature_class_logging():
+                    result = extractor.execute(image, mask, voxelBased=True)
 
             # Release extractor before materialising many per-feature arrays; peak RAM
             # inside execute() is unchanged, but we avoid holding extractor + all maps.
@@ -148,6 +316,12 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                 k for k in result.keys()
                 if not str(k).startswith('diagnostic')
             ]
+            _log_voxel_feature_class_summary(
+                keys,
+                enabled_feature_classes,
+                subject=subject_id,
+                image_name=image_name,
+            )
             feature_names: List[str] = []
             feature_matrix: List[np.ndarray] = []
 
@@ -178,7 +352,7 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             return feature_df
             
         except Exception as e:
-            logging.error(f"Failed to extract voxel-based features: {str(e)}")
+            logger.error("Failed to extract voxel-based features: %s", str(e))
             raise
     
     def get_feature_names(self) -> List[str]:

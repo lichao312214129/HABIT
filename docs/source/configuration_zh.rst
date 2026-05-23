@@ -439,6 +439,12 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
         - ``params_file`` (str, 必需): PyRadiomics 参数文件路径
         - ``kernelRadius`` (int, 默认: ``1``): 局部邻域半径（1=3×3×3, 2=5×5×5）
+        - ``voxelBatch`` (int, 默认: ``1000``): 体素批处理大小；``-1`` 表示一次处理 ROI 内全部体素（PyRadiomics 原生不分批）。设为正整数可限制内存占用（GPU 或大 ROI 时建议 ``512``–``1000``）
+        - ``useTorchRadiomics`` (str, 默认: ``auto``): ``auto`` 在已安装 torch 且 CUDA 可用时使用 TorchRadiomics，否则回退 CPU PyRadiomics；``true`` 强制 torch；``false`` 始终 CPU
+        - ``torchDevice`` (str, 默认: ``auto``): 单 GPU 设备；未设置 ``torchGpus`` 时生效
+        - ``torchGpus`` (list/int/str): 允许使用的 GPU 编号，如 ``[0, 1, 2]`` 或 ``"0,1,2"``；设置后覆盖 ``torchDevice``
+        - ``torchGpuCount`` (int, 可选): 从 ``torchGpus`` 中实际使用前 N 张卡
+        - ``torchDtype`` (str, 默认: ``float64``): Torch 计算 dtype（``float64`` 或 ``float32``）
 
       - **示例**: ``voxel_radiomics(raw(delay2), params_file='./parameter.yaml', kernelRadius=1)``
 
@@ -464,12 +470,23 @@ DICOM 整理配置参数（``habit sort-dicom``）
            kernel_size: 5
            bins: 32
 
+       # 体素级影像组学（纹理特征，计算较慢）
+       voxel_level:
+         method: voxel_radiomics(T2)
+         params:
+           params_file: ./parameter.yaml
+           kernelRadius: 3
+           voxelBatch: 1000
+           useTorchRadiomics: auto
+           # torchGpus: [0, 1]
+           # torchGpuCount: 2
+
 - ``params`` : 全局参数
 
   - **类型**: 字典
   - **必需**: 否
   - **默认值**: ``{}``
-  - **说明**: 传递给所有特征提取器的公共参数。
+  - **说明**: 传递给所有特征提取器的公共参数。``voxel_radiomics`` 专用项（如 ``voxelBatch``、``useTorchRadiomics``）写在 ``params`` 中即可，**不必**出现在 ``method`` 表达式字符串里；未在表达式中列出的键会自动合并转发。
   - **常用参数**:
 
     - ``timestamps`` (str): 时间戳文件路径（用于 kinetic 方法）
@@ -477,6 +494,12 @@ DICOM 整理配置参数（``habit sort-dicom``）
     - ``bins`` (int): 直方图分箱数（用于 local_entropy）
     - ``params_file`` (str): PyRadiomics 参数文件（用于 voxel_radiomics）
     - ``kernelRadius`` (int): 体素级组学邻域半径（用于 voxel_radiomics）
+    - ``voxelBatch`` (int): 体素级组学批大小（用于 voxel_radiomics；默认 ``1000``；``-1`` 表示不分批）
+    - ``useTorchRadiomics`` (str): 是否使用 TorchRadiomics 加速（``auto`` / ``true`` / ``false``）
+    - ``torchDevice`` (str): 单 GPU 设备（未设置 ``torchGpus`` 时）
+    - ``torchGpus`` (list/int/str): 允许使用的 GPU 列表
+    - ``torchGpuCount`` (int): 实际使用的 GPU 数量上限
+    - ``torchDtype`` (str): Torch dtype（用于 voxel_radiomics torch 后端）
 
 **supervoxel_level**: 超像素级特征提取 (可选)
 

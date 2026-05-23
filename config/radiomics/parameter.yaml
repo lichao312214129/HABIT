@@ -2,6 +2,10 @@
 # This file contains settings for extracting radiomics features from medical images.
 # It defines which features to extract and how to process the images before feature extraction.
 #
+# NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, torchGpus, etc.
+# are set in the habitat config (FeatureConstruction.voxel_level.params), not in this file.
+# Habit default voxelBatch: 1000; use -1 for no batching (PyRadiomics native).
+#
 # This configuration is set up for analyzing MR data with small (~3mm) slice thickness.
 # These settings can be used as a starting point but may need optimization for specific datasets.
 

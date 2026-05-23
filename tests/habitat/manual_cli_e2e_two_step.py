@@ -18,7 +18,7 @@ from click.testing import CliRunner
 
 from habit.cli import cli
 
-CFG = r'F:\work\habit_project\.cursor\test\config_habitat_two_step.yaml'
+CFG = r'F:\work\habit_project\.cursor\test\config_habitat_direct_pooling.yaml'
 
 if __name__ == "__main__":
     argv = ["get-habitat", "-c", CFG, *sys.argv[1:]]
