@@ -40,11 +40,11 @@ HabitatSegmentation:
   # Clustering strategy: "one_step", "two_step", or "direct_pooling"
   clustering_mode: direct_pooling
   
-  # Supervoxel clustering settings (kept for schema consistency)
+  # Schema placeholder (direct_pooling does not run supervoxel clustering).
+  # random_state here is ignored; use habitat.random_state or top-level random_state.
   supervoxel:
     algorithm: kmeans
     n_clusters: 50
-    random_state: 42
     max_iter: 300
     n_init: 10
     one_step_settings:
@@ -64,7 +64,7 @@ HabitatSegmentation:
       # - bic
       # - davies_bouldin
     fixed_n_clusters:    # Fixed number of habitat clusters (set to null for automatic selection)
-    random_state: 42
+    # random_state: null  # omit to inherit top-level random_state below
     max_iter: 300
     n_init: 10
 
@@ -84,5 +84,5 @@ clear_checkpoint_on_success: false
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
 save_images: true  # Save *_habitats.nrrd; masks loaded from data_dir at export time (not stored in pkl)
-random_state: 42  # Random seed for reproducibility
+random_state: 42  # Global default; group habitat clustering inherits when habitat.random_state is omitted
 debug: false  # Enable debug mode for detailed logging

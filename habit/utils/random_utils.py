@@ -42,6 +42,31 @@ def resolve_random_state(
     return int(default)
 
 
+def resolve_random_state_chain(
+    *explicit_candidates: Optional[int],
+    global_seed: Optional[int] = None,
+    default: int = DEFAULT_RANDOM_STATE,
+) -> int:
+    """
+    Resolve a seed from an ordered list of optional submodule values, then global.
+
+    The first non-``None`` candidate wins; otherwise fall back to
+    :func:`resolve_random_state` with ``explicit=None``.
+
+    Args:
+        *explicit_candidates: Submodule seeds in priority order (highest first).
+        global_seed: Top-level config ``random_state``.
+        default: Final fallback when no candidate and no global seed are set.
+
+    Returns:
+        int: Resolved non-negative integer seed.
+    """
+    for candidate in explicit_candidates:
+        if candidate is not None:
+            return int(candidate)
+    return resolve_random_state(None, global_seed, default=default)
+
+
 def merge_random_state_into_params(
     params: Optional[Dict[str, Any]],
     global_seed: Optional[int],

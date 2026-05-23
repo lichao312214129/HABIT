@@ -138,8 +138,10 @@ CLI 命令与配置 Schema 对照
 
 **生境分析**（``HabitatAnalysisConfig``）：
 
-- 顶层 ``random_state`` ：全局默认；t-SNE 可视化等运行时使用。
-- ``HabitatSegmentation.supervoxel.random_state`` / ``habitat.random_state`` ：省略或 ``null`` 时继承顶层；显式写入则覆盖。
+- 顶层 ``random_state`` ：全局默认；训练入口 ``numpy.random.seed``；未被子模块覆盖的可视化 fallback。
+- ``HabitatSegmentation.supervoxel.random_state`` ：**two_step** 个体超像素聚类；**one_step** 时在 ``habitat.random_state`` 未设置时作为 fallback。
+- ``HabitatSegmentation.habitat.random_state`` ：**direct_pooling / two_step** 群体生境聚类；**one_step** 个体体素→生境聚类（优先于 ``supervoxel``）。
+- 个体聚类与对应散点/t-SNE 图使用同一 effective seed；群体聚类图使用 ``habitat`` effective seed。
 - **predict 模式**：聚类模型以 pkl 内已训练参数为准，不因 YAML 顶层种子重建模型。
 
 **机器学习**（``MLConfig``）：
@@ -444,7 +446,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
         - ``torchDevice`` (str, 默认: ``auto``): 单 GPU 设备；未设置 ``torchGpus`` 时生效
         - ``torchGpus`` (list/int/str): 允许使用的 GPU 编号，如 ``[0, 1, 2]`` 或 ``"0,1,2"``；设置后覆盖 ``torchDevice``
         - ``torchGpuCount`` (int, 可选): 从 ``torchGpus`` 中实际使用前 N 张卡
-        - ``torchDtype`` (str, 默认: ``float64``): Torch 计算 dtype（``float64`` 或 ``float32``）
+        - ``torchDtype`` (str, 默认: ``float32``): Torch 计算 dtype（``float32`` 或 ``float64``；``float64`` 更接近 CPU PyRadiomics）
 
       - **示例**: ``voxel_radiomics(raw(delay2), params_file='./parameter.yaml', kernelRadius=1)``
 
@@ -778,7 +780,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
   - **类型**: 整数
   - **说明**: ``two_step`` 下每个被试的超像素个数，常用 30–100。
 
-- ``random_state`` / ``max_iter`` / ``n_init`` : 与 sklearn/实现一致；``random_state`` 省略或 ``null`` 时继承顶层 ``HabitatAnalysisConfig.random_state``；显式写入则覆盖顶层。
+- ``random_state`` / ``max_iter`` / ``n_init`` : 与 sklearn/实现一致。``two_step`` 下控制超像素聚类；``one_step`` 下 ``habitat.random_state`` 优先、``supervoxel.random_state`` 为 fallback；省略或 ``null`` 时继承顶层。
 
 - ``compactness`` (float, 默认 ``0.1``): **仅 ``slic``**，特征与空间紧致度权衡。
 
@@ -899,7 +901,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
   - **类型**: 整数或 ``null``
   - **默认值**: ``null`` （继承 ``HabitatAnalysisConfig.random_state``）
-  - **说明**: 显式写入时覆盖顶层全局种子。
+  - **说明**: **direct_pooling / two_step** 群体生境聚类；**one_step** 个体体素→生境聚类（优先于 ``supervoxel.random_state``）。显式写入时覆盖顶层。
 
 - ``max_iter`` : 最大迭代次数
 

@@ -125,7 +125,7 @@ Optional in-tree TorchRadiomics injection is controlled by `useTorchRadiomics`:
 - `true`: require torch (fail if missing)
 - `false`: always CPU PyRadiomics
 
-Related params: `torchDevice` (`auto`, `cuda:0`, `cpu`), `torchDtype` (`float64`).
+Related params: `torchDevice` (`auto`, `cuda:0`, `cpu`), `torchDtype` (default `float32`; use `float64` for CPU parity).
 Torch is **not** a core habit dependency.
 
 ## Validate output (MANDATORY after run)

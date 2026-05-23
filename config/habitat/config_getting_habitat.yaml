@@ -84,7 +84,7 @@ FeatureConstruction:
       # torchGpus: [0, 1, 2]      # which GPU indices are allowed
       # torchGpuCount: 2          # use at most N GPUs from torchGpus
       # torchDevice: auto         # single-GPU fallback when torchGpus is omitted
-      # torchDtype: float64
+      # torchDtype: float32   # default; use float64 for strict CPU PyRadiomics parity
       # Window size for local_entropy method
       # window_size: [3, 3, 3]
 
@@ -157,7 +157,7 @@ HabitatSegmentation:
     # - For one_step: maximum number to test (actual number determined automatically)
     n_clusters: 50
 
-    # Random seed for reproducibility
+    # two_step: individual supervoxel clustering seed (omit to inherit top-level random_state)
     random_state: 42
 
     # Maximum iterations for clustering algorithm
@@ -218,7 +218,7 @@ HabitatSegmentation:
     # Set to null or omit for automatic selection
     fixed_n_clusters: 4
 
-    # Random seed for reproducibility
+    # Group habitat (two_step/direct_pooling) or one_step individual clustering (preferred over supervoxel)
     random_state: 42
 
     # Maximum iterations for clustering algorithm
@@ -279,7 +279,7 @@ clear_checkpoint_on_success: false
 # Includes cluster validation curves, habitat distributions, etc.
 plot_curves: true
 
-# Random seed for reproducibility
+# Global default; sub-module random_state overrides when explicitly set (see configuration_zh.rst)
 random_state: 42
 
 # Debug mode (enables detailed logging)

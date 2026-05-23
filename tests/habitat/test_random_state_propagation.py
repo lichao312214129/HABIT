@@ -58,3 +58,78 @@ def test_effective_habitat_yaml_override() -> None:
     )
     assert config.effective_habitat_random_state() == 9
     assert config.effective_supervoxel_random_state() == 100
+
+
+def test_one_step_individual_prefers_habitat_random_state() -> None:
+    config = _minimal_habitat_config(
+        HabitatSegmentation={
+            "clustering_mode": "one_step",
+            "supervoxel": {
+                "algorithm": "kmeans",
+                "n_clusters": 5,
+                "random_state": 7,
+            },
+            "habitat": {
+                "algorithm": "kmeans",
+                "max_clusters": 4,
+                "random_state": 9,
+            },
+        }
+    )
+    assert config.effective_individual_clustering_random_state() == 9
+    assert config.effective_habitat_random_state() == 9
+
+
+def test_one_step_individual_falls_back_to_supervoxel() -> None:
+    config = _minimal_habitat_config(
+        HabitatSegmentation={
+            "clustering_mode": "one_step",
+            "supervoxel": {
+                "algorithm": "kmeans",
+                "n_clusters": 5,
+                "random_state": 7,
+            },
+            "habitat": {"algorithm": "kmeans", "max_clusters": 4},
+        }
+    )
+    assert config.effective_individual_clustering_random_state() == 7
+
+
+def test_two_step_individual_uses_supervoxel_only() -> None:
+    config = _minimal_habitat_config(
+        HabitatSegmentation={
+            "clustering_mode": "two_step",
+            "supervoxel": {
+                "algorithm": "kmeans",
+                "n_clusters": 5,
+                "random_state": 7,
+            },
+            "habitat": {
+                "algorithm": "kmeans",
+                "max_clusters": 4,
+                "random_state": 9,
+            },
+        }
+    )
+    assert config.effective_individual_clustering_random_state() == 7
+    assert config.effective_habitat_random_state() == 9
+
+
+def test_plot_random_state_scopes() -> None:
+    config = _minimal_habitat_config(
+        HabitatSegmentation={
+            "clustering_mode": "two_step",
+            "supervoxel": {
+                "algorithm": "kmeans",
+                "n_clusters": 5,
+                "random_state": 7,
+            },
+            "habitat": {
+                "algorithm": "kmeans",
+                "max_clusters": 4,
+                "random_state": 9,
+            },
+        }
+    )
+    assert config.effective_clustering_plot_random_state("individual") == 7
+    assert config.effective_clustering_plot_random_state("group") == 9

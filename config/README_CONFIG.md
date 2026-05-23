@@ -54,6 +54,7 @@ For `voxel_radiomics` in habitat, `kernelRadius`, `voxelBatch`, `useTorchRadiomi
 `FeatureConstruction.voxel_level.params` (not in the PyRadiomics parameter YAML).
 They are forwarded to the extractor even when omitted from the `method` expression.
 Default `voxelBatch` is `1000`; use `-1` for no batching. Default `useTorchRadiomics` is `auto`.
+Default `torchDtype` is `float32`.
 
 ## How to use
 

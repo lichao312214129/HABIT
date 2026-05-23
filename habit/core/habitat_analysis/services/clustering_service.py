@@ -117,7 +117,7 @@ class ClusteringService:
         supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
         params: Dict[str, Any] = {
             "n_clusters": n_clusters,
-            "random_state": self.config.effective_supervoxel_random_state(),
+            "random_state": self.config.effective_individual_clustering_random_state(),
         }
 
         # Keep existing KMeans/GMM behavior and extend for SLIC.
@@ -515,7 +515,9 @@ class ClusteringService:
                 show=False,
                 dpi=600,
                 plot_3d=False,
-                random_state=self.config.random_state,
+                random_state=self.config.effective_clustering_plot_random_state(
+                    "individual"
+                ),
             )
             
             # 3D scatter
@@ -528,7 +530,9 @@ class ClusteringService:
                 show=False,
                 dpi=600,
                 plot_3d=True,
-                random_state=self.config.random_state,
+                random_state=self.config.effective_clustering_plot_random_state(
+                    "individual"
+                ),
             )
             
             if self.config.verbose:
@@ -581,6 +585,10 @@ class ClusteringService:
                 f'Habitat Clustering (Population Level)\n'
                 f'(n_clusters={optimal_n_clusters})'
             )
+            plot_scope = "individual" if subject else "group"
+            plot_random_state = self.config.effective_clustering_plot_random_state(
+                plot_scope
+            )
             
             # 2D scatter
             plot_cluster_results(
@@ -592,7 +600,7 @@ class ClusteringService:
                 show=False,
                 dpi=600,
                 plot_3d=False,
-                random_state=self.config.random_state,
+                random_state=plot_random_state,
             )
             
             # 3D scatter
@@ -605,7 +613,7 @@ class ClusteringService:
                 show=False,
                 dpi=600,
                 plot_3d=True,
-                random_state=self.config.random_state,
+                random_state=plot_random_state,
             )
             
             if self.config.verbose:

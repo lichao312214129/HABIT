@@ -22,7 +22,7 @@ TorchGpuSetting = Union[int, str, Sequence[Union[int, str]], None]
 
 DEFAULT_USE_TORCH_RADIOMICS = "auto"
 DEFAULT_TORCH_DEVICE = "auto"
-DEFAULT_TORCH_DTYPE = "float64"
+DEFAULT_TORCH_DTYPE = "float32"
 
 # Shown once per process when GPU TorchRadiomics is unavailable but would be used in auto mode.
 _TORCH_GPU_INSTALL_HINT_LOGGED = False

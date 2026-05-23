@@ -27,5 +27,5 @@ retry_failed_subjects: false
 clear_checkpoint_on_success: false
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
-random_state: 42  # Random seed for reproducibility (should match training)
+random_state: 42  # Must match training top-level seed (predict uses serialized pipeline; seed mainly for numpy/plots)
 debug: false  # Enable debug mode for detailed logging

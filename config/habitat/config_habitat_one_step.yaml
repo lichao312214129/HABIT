@@ -34,11 +34,18 @@ HabitatSegmentation:
   # Clustering strategy: "one_step", "two_step", or "direct_pooling"
   clustering_mode: one_step
   
-  # Supervoxel clustering settings (used as habitat clustering in one_step mode)
+  # one_step: per-subject voxel->habitat clustering uses habitat.random_state (then supervoxel fallback).
+  habitat:
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method: inertia
+    # random_state: null  # omit to inherit top-level random_state below
+  
+  # Fallback seed for one_step when habitat.random_state is omitted; also holds one_step_settings.
   supervoxel:
     algorithm: kmeans
     n_clusters: 50
-    random_state: 42
+    # random_state: null
     max_iter: 300
     n_init: 10
     
@@ -65,5 +72,5 @@ clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
-random_state: 42  # Random seed for reproducibility
+random_state: 42  # Global default; one_step individual clustering inherits via habitat block
 debug: false  # Enable debug mode for detailed logging

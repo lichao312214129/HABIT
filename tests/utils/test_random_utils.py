@@ -37,6 +37,14 @@ def test_merge_random_state_injects_global() -> None:
     assert merged["random_state"] == 11
 
 
+def test_resolve_random_state_chain_first_non_null_wins() -> None:
+    from habit.utils.random_utils import resolve_random_state_chain
+
+    assert resolve_random_state_chain(9, 7, global_seed=100) == 9
+    assert resolve_random_state_chain(None, 7, global_seed=100) == 7
+    assert resolve_random_state_chain(None, None, global_seed=100) == 100
+
+
 def test_seed_numpy_global_is_deterministic() -> None:
     seed_numpy_global(42)
     first = np.random.randint(0, 1000, size=3)

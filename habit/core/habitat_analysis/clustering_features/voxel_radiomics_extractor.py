@@ -149,7 +149,8 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                 torchGpus: Allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``. Overrides ``torchDevice``.
                 torchGpuCount: Use at most this many GPUs from the front of ``torchGpus``.
                 gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
-                torchDtype: Torch dtype name for the torch backend (``float64`` or ``float32``).
+                torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``;
+                    default ``float32``).
                 output_float32: If True, cast the returned DataFrame to float32 to halve
                     downstream memory (may affect numerical parity vs float64).
             

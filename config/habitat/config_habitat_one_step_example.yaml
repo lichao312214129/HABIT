@@ -14,7 +14,7 @@ checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
 clear_checkpoint_on_success: false
-random_state: 42
+random_state: 42  # Global default; one_step uses habitat.random_state when set
 plot_curves: true  # Enable all visualizations
 
 # Feature Construction Configuration
@@ -58,9 +58,10 @@ HabitatSegmentation:
                                  # Options: silhouette, davies_bouldin, calinski_harabasz, inertia
     plot_validation_curves: true  # Whether to plot validation curves for each sample
   
-  # Habitat configuration (not used in one_step mode, but kept for compatibility)
+  # one_step individual clustering seed (preferred); omit to inherit top-level random_state
   habitat:
     mode: training  # Mode: 'training' or 'testing'
+    # random_state: null
 
   # Optional connected-component cleanup for final one-step habitat maps
   # Current implementation uses a fast SimpleITK path:

@@ -226,10 +226,13 @@ class HabitatAnalysisConfig(BaseConfig):
 
     def effective_supervoxel_random_state(self) -> int:
         """
-        Resolve supervoxel clustering seed: submodule YAML overrides top-level.
+        Resolve the ``supervoxel`` block seed (two_step supervoxel clustering).
+
+        For per-subject clustering in any mode, prefer
+        :meth:`effective_individual_clustering_random_state`.
 
         Returns:
-            int: Effective random seed for supervoxel clustering.
+            int: Effective random seed from ``HabitatSegmentation.supervoxel``.
         """
         from habit.utils.random_utils import resolve_random_state
 
@@ -240,10 +243,10 @@ class HabitatAnalysisConfig(BaseConfig):
 
     def effective_habitat_random_state(self) -> int:
         """
-        Resolve habitat clustering seed: submodule YAML overrides top-level.
+        Resolve group-level habitat clustering seed (two_step / direct_pooling).
 
         Returns:
-            int: Effective random seed for habitat / group clustering.
+            int: Effective random seed for population / group habitat clustering.
         """
         from habit.utils.random_utils import resolve_random_state
 
@@ -251,6 +254,60 @@ class HabitatAnalysisConfig(BaseConfig):
         if self.HabitatSegmentation is not None:
             explicit = self.HabitatSegmentation.habitat.random_state
         return resolve_random_state(explicit, self.random_state)
+
+    def effective_individual_clustering_random_state(self) -> int:
+        """
+        Resolve the seed for per-subject voxel-level clustering.
+
+        Mode-specific priority:
+        - ``one_step`` (voxel -> habitat per subject):
+          ``habitat.random_state`` > ``supervoxel.random_state`` > top-level
+        - ``two_step`` (voxel -> supervoxel per subject):
+          ``supervoxel.random_state`` > top-level
+
+        ``direct_pooling`` does not run individual clustering; this method is
+        unused there but still resolves consistently if called.
+
+        Returns:
+            int: Effective random seed for individual-level clustering steps.
+        """
+        from habit.utils.random_utils import resolve_random_state_chain
+
+        if self.HabitatSegmentation is None:
+            return resolve_random_state_chain(global_seed=self.random_state)
+
+        seg = self.HabitatSegmentation
+        if seg.clustering_mode == "one_step":
+            return resolve_random_state_chain(
+                seg.habitat.random_state,
+                seg.supervoxel.random_state,
+                global_seed=self.random_state,
+            )
+        return resolve_random_state_chain(
+            seg.supervoxel.random_state,
+            global_seed=self.random_state,
+        )
+
+    def effective_clustering_plot_random_state(
+        self,
+        scope: Literal["individual", "group"],
+    ) -> int:
+        """
+        Resolve the random seed used for clustering scatter / t-SNE plots.
+
+        Plot seeds follow the same clustering scope so figures stay aligned
+        with the clustering step that produced the labels.
+
+        Args:
+            scope: ``individual`` for per-subject plots; ``group`` for
+                population-level habitat plots.
+
+        Returns:
+            int: Effective plot random seed.
+        """
+        if scope == "individual":
+            return self.effective_individual_clustering_random_state()
+        return self.effective_habitat_random_state()
 
 # -----------------------------------------------------------------------------
 # Feature Construction Schemas
@@ -351,8 +408,9 @@ class SupervoxelClusteringConfig(BaseModel):
     random_state: Optional[int] = Field(
         None,
         description=(
-            "Random seed for supervoxel clustering. When null/omitted, inherits "
-            "HabitatAnalysisConfig.random_state."
+            "Random seed for two_step supervoxel clustering and one_step fallback "
+            "when habitat.random_state is omitted. Inherits "
+            "HabitatAnalysisConfig.random_state when null."
         ),
     )
     max_iter: int = 300
@@ -383,8 +441,9 @@ class HabitatClusteringConfig(BaseModel):
     random_state: Optional[int] = Field(
         None,
         description=(
-            "Random seed for habitat clustering. When null/omitted, inherits "
-            "HabitatAnalysisConfig.random_state."
+            "Random seed for group-level habitat clustering (two_step / "
+            "direct_pooling) and one_step per-subject voxel->habitat clustering. "
+            "Inherits HabitatAnalysisConfig.random_state when null."
         ),
     )
     max_iter: int = 300

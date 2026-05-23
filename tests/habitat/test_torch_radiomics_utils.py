@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from habit.utils.torch_radiomics_utils import (
+    DEFAULT_TORCH_DTYPE,
     apply_torch_gpu_count,
     log_torch_gpu_install_hint,
     normalize_use_torch_radiomics,
@@ -18,6 +19,9 @@ from habit.utils.torch_radiomics_utils import (
 
 
 class TestTorchRadiomicsUtils(unittest.TestCase):
+    def test_default_torch_dtype(self) -> None:
+        self.assertEqual(DEFAULT_TORCH_DTYPE, "float32")
+
     def test_normalize_use_torch_radiomics(self) -> None:
         self.assertEqual(normalize_use_torch_radiomics("auto"), "auto")
         self.assertEqual(normalize_use_torch_radiomics("true"), "true")

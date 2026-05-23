@@ -37,6 +37,7 @@ warnings.simplefilter('ignore')
 
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.log_utils import LoggerManager, get_module_logger
+from habit.utils.random_utils import seed_numpy_global
 
 from .config_schemas import HabitatAnalysisConfig
 from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
@@ -526,6 +527,16 @@ class HabitatAnalysis:
             for subject in subjects_list
         }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
+
+        seed_numpy_global(self.config.random_state)
+        if self.config.verbose:
+            self.logger.info(
+                "Random seeds: global=%s individual_clustering=%s "
+                "group_habitat=%s",
+                self.config.random_state,
+                self.config.effective_individual_clustering_random_state(),
+                self.config.effective_habitat_random_state(),
+            )
 
         if self.config.verbose:
             self.logger.info(

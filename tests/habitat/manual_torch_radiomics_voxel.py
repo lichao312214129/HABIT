@@ -140,6 +140,7 @@ def apply_voxel_settings(
         }
     )
     if device is not None:
+        # Use float64 here for CPU vs GPU parity validation (habit default is float32).
         extractor.settings["dtype"] = torch.float64
         extractor.settings["device"] = device
     return extractor
