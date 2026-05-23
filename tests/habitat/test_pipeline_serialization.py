@@ -62,7 +62,7 @@ def test_strip_clustering_training_artifacts_clears_labels() -> None:
     assert clusterer.model.labels_ is None
 
 
-def test_prepare_pipeline_for_save_slims_masks_and_strips_labels() -> None:
+def test_prepare_pipeline_for_save_clears_masks_and_strips_labels() -> None:
     mask_img = MagicMock()
     mask_img.GetSpacing.return_value = (1.0, 1.0, 1.0)
     mask_img.GetOrigin.return_value = (0.0, 0.0, 0.0)
@@ -82,22 +82,9 @@ def test_prepare_pipeline_for_save_slims_masks_and_strips_labels() -> None:
         "sub1": {"mask": mask_img, "mask_array": mask_array},
     }
     pipeline.steps = [("group_clustering", group_step)]
-    pipeline.config = MagicMock(save_images=True)
 
-    prepare_pipeline_for_save(pipeline, persist_mask_cache=True)
+    prepare_pipeline_for_save(pipeline)
 
     assert pipeline._train_checkpoint is None
-    assert "mask" not in pipeline.mask_info_cache["sub1"]
-    assert group_step.clustering_model.labels_ is None
-
-
-def test_prepare_pipeline_for_save_drops_mask_cache_when_images_disabled() -> None:
-    pipeline = MagicMock()
-    pipeline._train_checkpoint = object()
-    pipeline.mask_info_cache = {"sub1": {"mask_array": np.ones((2, 2, 2))}}
-    pipeline.steps = []
-    pipeline.config = MagicMock(save_images=False)
-
-    prepare_pipeline_for_save(pipeline, persist_mask_cache=False)
-
     assert pipeline.mask_info_cache == {}
+    assert group_step.clustering_model.labels_ is None

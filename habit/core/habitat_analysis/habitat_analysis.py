@@ -414,6 +414,7 @@ class HabitatAnalysis:
             habitat_image_writer=self.habitat_image_writer,
             logger=self.logger,
             pipeline_getter=lambda: self.pipeline,
+            feature_service_getter=lambda: self.feature_service,
         )
 
     # ------------------------------------------------------------------

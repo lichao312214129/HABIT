@@ -75,6 +75,6 @@ clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files
-save_images: true  # Save *_habitats.nrrd; false shrinks habitat_pipeline.pkl (no mask cache in pkl)
+save_images: true  # Save *_habitats.nrrd; masks loaded from data_dir at export time (not stored in pkl)
 random_state: 42  # Random seed for reproducibility
 debug: false  # Enable debug mode for detailed logging

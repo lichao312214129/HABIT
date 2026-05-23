@@ -121,6 +121,42 @@ class FeatureService:
         self._log_file_path = log_file_path
         self._log_level = log_level
 
+    def load_mask_info(self, subject_id: str) -> Dict[str, Any]:
+        """
+        Load ROI mask metadata for one subject from ``mask_paths``.
+
+        Returns a slim, pickle-friendly dict (``mask_array`` plus physical-space
+        fields) suitable for habitat NRRD export without embedding masks in
+        ``habitat_pipeline.pkl``.
+
+        Args:
+            subject_id: Subject identifier present in ``mask_paths``.
+
+        Returns:
+            Dict[str, Any]: Slim mask metadata for image reconstruction.
+
+        Raises:
+            ValueError: When data paths have not been configured.
+            KeyError: When ``subject_id`` is missing from ``mask_paths``.
+        """
+        from ..pipelines.pipeline_serialization import slim_mask_info_for_storage
+
+        if not self.mask_paths:
+            raise ValueError("Data paths not set. Call set_data_paths first.")
+        if subject_id not in self.mask_paths:
+            raise KeyError(f"Mask paths not found for subject '{subject_id}'.")
+
+        mask_path_map = self.mask_paths[subject_id]
+        mask_file = list(mask_path_map.values())[0]
+        mask_img = sitk.ReadImage(mask_file)
+        mask_array = sitk.GetArrayFromImage(mask_img)
+        return slim_mask_info_for_storage(
+            {
+                "mask": mask_img,
+                "mask_array": mask_array,
+            }
+        )
+
     def _ensure_logging_in_subprocess(self) -> None:
         """
         Ensure logging is properly configured in child processes.
@@ -245,18 +281,10 @@ class FeatureService:
         # Get raw data
         raw_df = pd.concat(processed_images, axis=1)
         
-        # Save mask information for image reconstruction
-        mask = self.mask_paths[subject]
-        mask = list(mask.values())[0]
-        mask_img = sitk.ReadImage(mask)
-        mask_array = sitk.GetArrayFromImage(mask_img)
-        mask_info = {
-            'mask': mask_img,
-            'mask_array': mask_array
-        }
-        
-        del processed_images, mask_img, mask_array
-        
+        mask_info = self.load_mask_info(subject)
+
+        del processed_images
+
         return subject, features, raw_df, mask_info
 
     def extract_supervoxel_features(

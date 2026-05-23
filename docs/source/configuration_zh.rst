@@ -1056,20 +1056,19 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **保存时自动瘦身**（``HabitatPipeline.save()`` 调用 ``prepare_pipeline_for_save``）:
 
   - 移除训练集 ``labels_`` （预测只需聚类中心/模型参数）
-  - ``mask_info_cache`` 去掉 SimpleITK ``mask`` 对象，仅保留 ``mask_array`` 与 spacing/origin/direction
+  - **不写入** ``mask_info_cache`` （写 NRRD 时从 ``data_dir`` 按需读取 mask，见 ``FeatureService.load_mask_info``）
   - 不写入 ``_train_checkpoint`` （断点仍在 ``checkpoint_dir`` 目录）
 
 - **体积**:
 
-  - ``direct_pooling`` + 被试多 + ``save_images: true`` 时，pkl 仍可能达 **数 GB**（每个被试的 ``mask_array`` 需保留以供 predict 写 NRRD）
-  - 若 **不需要** 在 predict 阶段写 ``*_habitats.nrrd`` ，设 ``save_images: false`` 可显著缩小 pkl（通常降至 **几十～几百 MB** 量级，取决于聚类特征维数）
-  - 旧版未瘦身的 pkl 需 **重新 train 并 save** 后才会变小
+  - 不再因 ``save_images: true`` 而膨胀：mask 体积与 pkl 解耦，``direct_pooling`` 大规模队列下 pkl 通常为 **几十～几百 MB**（主要取决于聚类特征维数与被试数相关的模型参数）
+  - 旧版在 pkl 内嵌 ``mask_array`` 的 pkl 需 **重新 train 并 save** 后才会变小
 
 **save_images**: 是否保存运行中生成的图像类输出（``*_habitats.nrrd`` 等）
 
 - **类型**: 布尔值
 - **默认值**: ``true``
-- **说明**: 对应 ``HabitatAnalysisConfig.save_images`` 。为 ``true`` 时 train/predict 会写 habitat 标签图；**同时** ``habitat_pipeline.pkl`` 会嵌入 slim 版 ``mask_info_cache`` 供 predict 重建 NRRD。为 ``false`` 时仍可通过 ``habitats.csv`` 做下游分析，但 predict 默认不写 NRRD，且 pkl 不含 mask 缓存。
+- **说明**: 对应 ``HabitatAnalysisConfig.save_images`` 。为 ``true`` 时 train/predict 会写 habitat 标签图；mask 在写图时从 ``config.data_dir`` 加载，**不**写入 ``habitat_pipeline.pkl`` 。为 ``false`` 时仍可通过 ``habitats.csv`` 做下游分析，且不写 NRRD。
 
 **verbose**: 是否输出较详细的运行日志
 

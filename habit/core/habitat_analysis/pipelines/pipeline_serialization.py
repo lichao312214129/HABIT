@@ -106,38 +106,25 @@ def strip_clustering_training_artifacts(clusterer: Any) -> None:
         model.labels_ = None
 
 
-def prepare_pipeline_for_save(
-    pipeline: Any,
-    *,
-    persist_mask_cache: bool = True,
-) -> None:
+def prepare_pipeline_for_save(pipeline: Any) -> None:
     """
     Strip non-essential in-memory payloads before ``joblib.dump``.
 
-    Mutates ``pipeline`` in place so the on-disk artefact stays small. Callers
-    should invoke this immediately before persistence at the end of training.
+    Mutates ``pipeline`` in place so the on-disk artefact stays small. Mask
+    volumes are not persisted; predict-time NRRD export reloads them from
+    ``data_dir`` via :meth:`FeatureService.load_mask_info`.
 
     Args:
         pipeline: Fitted :class:`HabitatPipeline` instance.
-        persist_mask_cache: When False, drop all mask cache entries. When True,
-            keep slim mask metadata for predict-time image export.
     """
     pipeline._train_checkpoint = None
-
-    if persist_mask_cache:
-        raw_cache = getattr(pipeline, "mask_info_cache", None) or {}
-        pipeline.mask_info_cache = {
-            subject_id: slim_mask_info_for_storage(mask_info)
-            for subject_id, mask_info in raw_cache.items()
-        }
-    else:
-        pipeline.mask_info_cache = {}
+    pipeline.mask_info_cache = {}
 
     for _, step in getattr(pipeline, "steps", []):
-        _prepare_step_for_save(step, persist_mask_cache=persist_mask_cache)
+        _prepare_step_for_save(step)
 
 
-def _prepare_step_for_save(step: Any, *, persist_mask_cache: bool) -> None:
+def _prepare_step_for_save(step: Any) -> None:
     clustering_model = getattr(step, "clustering_model", None)
     strip_clustering_training_artifacts(clustering_model)
 
@@ -153,11 +140,4 @@ def _prepare_step_for_save(step: Any, *, persist_mask_cache: bool) -> None:
     habitat_image_writer = getattr(step, "habitat_image_writer", None)
     if habitat_image_writer is not None:
         habitat_image_writer.results_df = None
-        if persist_mask_cache:
-            writer_cache = getattr(habitat_image_writer, "mask_info_cache", None) or {}
-            habitat_image_writer.mask_info_cache = {
-                subject_id: slim_mask_info_for_storage(mask_info)
-                for subject_id, mask_info in writer_cache.items()
-            }
-        else:
-            habitat_image_writer.mask_info_cache = {}
+        habitat_image_writer.mask_info_cache = {}
