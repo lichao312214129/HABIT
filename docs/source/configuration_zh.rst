@@ -350,9 +350,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
    processes: 2
    individual_subject_timeout_sec: 900
    resume: true
-   # checkpoint_dir: null
-   # force_rerun_subjects: []
-   # retry_failed_subjects: false
+   checkpoint_dir: null
+   force_rerun_subjects: []
+   retry_failed_subjects: false
    clear_checkpoint_on_success: false
    plot_curves: true
    save_images: true
