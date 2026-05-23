@@ -144,7 +144,7 @@ CLI 命令与配置 Schema 对照
 
 对应模式类：``habit.core.preprocessing.config_schemas.PreprocessingConfig``。顶层字段 ``Preprocessing`` 的 **键名** 必须与 ``PreprocessorFactory`` 注册名一致；YAML 中书写的子块顺序即执行顺序。
 
-DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 与 CLI ``habit sort-dicom``，**不在本小节**：字段说明与路径解析规则见本节下方「``DICOM 整理配置（sort-dicom）``」，用户指南详见 :doc:`user_guide/image_preprocessing_zh`。
+DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 与 CLI ``habit sort-dicom``，**不在本小节**：字段说明与路径解析规则见下文 **「DICOM 整理配置参数（sort-dicom）」**，用户指南详见 :doc:`user_guide/image_preprocessing_zh`。
 
 **配置文件示例：**
 
@@ -247,8 +247,8 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
 - ``save_intermediate``：是否写中间目录；默认 ``false``（与模式类 ``SaveOptionsConfig`` 一致）。
 - ``intermediate_steps``：若为非空列表，仅这些步骤写中间结果；**空列表** 表示启用中间保存时 **每一步** 都写。``dcm2nii`` 步由转换器直接写盘，管线不再对其重复 ``_save_step_results``。
 
-``DICOM 整理配置（sort-dicom）``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+DICOM 整理配置参数（``habit sort-dicom``）
+------------------------------------------
 
 对应模式类 ``habit.core.dicom_sort.DicomSortConfig``； Sphinx API 见 :doc:`api/dicom_sort`。CLI：``habit sort-dicom -c <yaml>``。
 
