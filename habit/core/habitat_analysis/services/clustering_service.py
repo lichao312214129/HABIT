@@ -374,7 +374,8 @@ class ClusteringService:
             "min_clusters": min_clusters,
             "max_clusters": max_clusters,
             "methods": [selection_method],
-            "show_progress": False,
+            "show_progress": True,
+            "logger": self.logger,
         }
         if supervoxel_cfg.algorithm == "slic":
             find_kwargs["spatial_coords"] = spatial_coords

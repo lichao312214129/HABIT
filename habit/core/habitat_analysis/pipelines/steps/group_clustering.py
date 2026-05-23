@@ -214,7 +214,8 @@ class GroupClusteringStep(GroupLevelStep):
                 min_clusters=min_clusters,
                 max_clusters=max_clusters,
                 methods=selection_methods,
-                show_progress=True
+                show_progress=True,
+                logger=self.logger,
             )
             
             if self.config.verbose:

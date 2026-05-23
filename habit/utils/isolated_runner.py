@@ -64,7 +64,12 @@ def is_fatal_memory_error(exc: Optional[BaseException]) -> bool:
     Returns:
         True for MemoryError and similar unrecoverable allocation failures.
     """
-    return isinstance(exc, MemoryError)
+    if exc is None:
+        return False
+    if isinstance(exc, MemoryError):
+        return True
+    # NumPy may expose ArrayMemoryError under different module paths across versions.
+    return type(exc).__name__ == "ArrayMemoryError"
 
 
 def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> ProcessingResult:
@@ -393,7 +398,7 @@ class IsolatedTaskRunner:
                     spawn_limit = self.spawn_startup_timeout_sec
                     if spawn_limit is not None and spawn_elapsed > spawn_limit:
                         if slot.proc is not None and slot.proc.is_alive():
-                            self._terminate_process(slot.proc)
+                            self._terminate_process(slot.proc, logger=logger)
                         if slot.reader is not None:
                             slot.reader.join(timeout=2.0)
                         _finish_slot(slot, None, timed_out=False, spawn_timed_out=True)
@@ -419,8 +424,12 @@ class IsolatedTaskRunner:
 
                 proc_result = slot.recv_bucket[0]
                 if proc_result is not None:
-                    if slot.proc.is_alive():
-                        self._terminate_process(slot.proc)
+                    if slot.proc is not None and slot.proc.is_alive():
+                        self._release_child_after_queue_result(
+                            slot.proc,
+                            proc_result,
+                            logger=logger,
+                        )
                     if slot.reader is not None:
                         slot.reader.join(timeout=2.0)
                     _finish_slot(slot, proc_result, timed_out=False)
@@ -434,7 +443,7 @@ class IsolatedTaskRunner:
                 )
 
                 if timed_out and slot.proc.is_alive():
-                    self._terminate_process(slot.proc)
+                    self._terminate_process(slot.proc, logger=logger)
                     if slot.reader is not None:
                         slot.reader.join(timeout=2.0)
                     _finish_slot(slot, None, timed_out=True)
@@ -559,11 +568,59 @@ class IsolatedTaskRunner:
         ).start()
         return slot
 
-    def _terminate_process(self, proc: multiprocessing.Process) -> None:
+    def _release_child_after_queue_result(
+        self,
+        proc: multiprocessing.Process,
+        proc_result: ProcessingResult,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
+        """
+        Reclaim a child process after its queue result was delivered.
+
+        Fatal memory errors use ``os._exit(2)`` in the child after queue flush.
+        Calling ``terminate()`` here races that exit and often raises WinError 5
+        on Windows, which would abort the entire ``map_items`` batch.
+        """
         if not proc.is_alive():
             return
-        proc.terminate()
+        if is_fatal_memory_error(proc_result.error):
+            proc.join(timeout=self.graceful_shutdown_sec)
+            if proc.is_alive() and logger is not None:
+                logger.warning(
+                    "Child for item %s still alive after fatal memory error; "
+                    "waiting for self-exit instead of terminate()",
+                    proc_result.item_id,
+                )
+            return
+        self._terminate_process(proc, logger=logger)
+
+    def _terminate_process(
+        self,
+        proc: multiprocessing.Process,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
+        if not proc.is_alive():
+            return
+        try:
+            proc.terminate()
+        except OSError as exc:
+            if logger is not None:
+                logger.warning(
+                    "terminate() failed for pid %s (process may already be exiting): %s",
+                    proc.pid,
+                    exc,
+                )
+            return
         proc.join(timeout=self.graceful_shutdown_sec)
         if proc.is_alive():
-            proc.kill()
+            try:
+                proc.kill()
+            except OSError as exc:
+                if logger is not None:
+                    logger.warning(
+                        "kill() failed for pid %s (process may already be exiting): %s",
+                        proc.pid,
+                        exc,
+                    )
+                return
             proc.join(timeout=10.0)

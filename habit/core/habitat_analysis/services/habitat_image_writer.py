@@ -16,6 +16,7 @@ from habit.utils.io_utils import save_habitat_image
 from habit.utils.parallel_utils import parallel_map
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
+from ..pipelines.pipeline_serialization import apply_mask_metadata_to_sitk_image
 
 class HabitatImageWriter:
     """
@@ -73,7 +74,7 @@ class HabitatImageWriter:
         """Save supervoxel labels as an image file."""
         if not isinstance(mask_info, dict):
             return
-        if 'mask_array' not in mask_info or 'mask' not in mask_info:
+        if "mask_array" not in mask_info:
             return
         
         supervoxel_map = np.zeros_like(mask_info['mask_array'])
@@ -81,7 +82,7 @@ class HabitatImageWriter:
         supervoxel_map[mask_indices] = supervoxel_labels
         
         supervoxel_img = sitk.GetImageFromArray(supervoxel_map)
-        supervoxel_img.CopyInformation(mask_info['mask'])
+        apply_mask_metadata_to_sitk_image(supervoxel_img, mask_info)
         
         output_path = os.path.join(
             self.config.out_dir, f"{subject}_supervoxel.nrrd"
@@ -231,7 +232,7 @@ class HabitatImageWriter:
         )
 
         habitat_img = sitk.GetImageFromArray(habitat_map)
-        habitat_img.CopyInformation(mask_info["mask"])
+        apply_mask_metadata_to_sitk_image(habitat_img, mask_info)
 
         output_path = os.path.join(self.config.out_dir, f"{subject}_habitats.nrrd")
         sitk.WriteImage(habitat_img, output_path)

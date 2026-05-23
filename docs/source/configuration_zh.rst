@@ -952,6 +952,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
 - **类型**: 布尔值
 - **默认值**: ``true``
+- **说明**: 群体聚类自动寻优 k 时，若传入 logger，日志会输出 ``Trying N cluster(s) [i/total]`` 与 ``Cluster search finished: selected k=...`` ，便于判断寻优进度（``predict`` 模式强制关闭绘图）。
 
 **processes**（生境分析顶层）: 个体级步骤并行进程数
 
@@ -1049,11 +1050,26 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **类型**: 布尔值
 - **默认值**: ``true``
 
-**save_images**: 是否保存运行中生成的图像类输出
+**habitat_pipeline.pkl**（训练产物，位于 ``<out_dir>/habitat_pipeline.pkl``）
+
+- **内容**: joblib 序列化的已拟合 ``HabitatPipeline``（群体聚类模型、``PreprocessingState``、配置等）。
+- **保存时自动瘦身**（``HabitatPipeline.save()`` 调用 ``prepare_pipeline_for_save``）:
+
+  - 移除训练集 ``labels_`` （预测只需聚类中心/模型参数）
+  - ``mask_info_cache`` 去掉 SimpleITK ``mask`` 对象，仅保留 ``mask_array`` 与 spacing/origin/direction
+  - 不写入 ``_train_checkpoint`` （断点仍在 ``checkpoint_dir`` 目录）
+
+- **体积**:
+
+  - ``direct_pooling`` + 被试多 + ``save_images: true`` 时，pkl 仍可能达 **数 GB**（每个被试的 ``mask_array`` 需保留以供 predict 写 NRRD）
+  - 若 **不需要** 在 predict 阶段写 ``*_habitats.nrrd`` ，设 ``save_images: false`` 可显著缩小 pkl（通常降至 **几十～几百 MB** 量级，取决于聚类特征维数）
+  - 旧版未瘦身的 pkl 需 **重新 train 并 save** 后才会变小
+
+**save_images**: 是否保存运行中生成的图像类输出（``*_habitats.nrrd`` 等）
 
 - **类型**: 布尔值
 - **默认值**: ``true``
-- **说明**: 对应 ``HabitatAnalysisConfig.save_images``。
+- **说明**: 对应 ``HabitatAnalysisConfig.save_images`` 。为 ``true`` 时 train/predict 会写 habitat 标签图；**同时** ``habitat_pipeline.pkl`` 会嵌入 slim 版 ``mask_info_cache`` 供 predict 重建 NRRD。为 ``false`` 时仍可通过 ``habitats.csv`` 做下游分析，但 predict 默认不写 NRRD，且 pkl 不含 mask 缓存。
 
 **verbose**: 是否输出较详细的运行日志
 

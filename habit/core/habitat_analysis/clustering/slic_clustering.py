@@ -8,6 +8,7 @@ supports one-step cluster-number selection with spatially regularized features.
 
 from __future__ import annotations
 
+import logging
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -294,6 +295,7 @@ class SLICClustering(BaseClustering):
         show_progress: bool = True,
         spatial_coords: Optional[np.ndarray] = None,
         spacing: Optional[Tuple[float, float, float]] = None,
+        logger: Optional[logging.Logger] = None,
     ) -> Tuple[int, Dict[str, List[float]]]:
         """
         Find optimal cluster number using spatially regularized features.
@@ -308,9 +310,10 @@ class SLICClustering(BaseClustering):
             max_clusters: Maximum cluster number to evaluate.
             methods: Validation methods; supports silhouette, calinski_harabasz,
                 davies_bouldin, inertia, kneedle.
-            show_progress: Keep argument for interface compatibility.
+            show_progress: Whether to emit search progress logs.
             spatial_coords: Optional voxel coordinates for spatial regularization.
             spacing: Optional voxel spacing (z, y, x). Reserved for API compatibility.
+            logger: Optional logger for per-k search progress.
 
         Returns:
             Tuple[int, Dict[str, List[float]]]: Best cluster number and score dict.
@@ -346,8 +349,16 @@ class SLICClustering(BaseClustering):
         embedded = self._build_regularized_features(X, spatial_coords)
         self.cluster_range = list(range(min_clusters, max_clusters + 1))
         self.scores = {m: [] for m in methods}
+        self._begin_cluster_search_logging(
+            min_clusters=min_clusters,
+            max_clusters=max_clusters,
+            methods=list(methods),
+            show_progress=show_progress,
+            logger=logger,
+        )
+        self._set_cluster_search_method(", ".join(methods))
 
-        for n_clusters in self.cluster_range:
+        for n_clusters in self._iter_cluster_range(self.cluster_range):
             km = KMeans(
                 n_clusters=n_clusters,
                 random_state=self.random_state,
@@ -387,4 +398,5 @@ class SLICClustering(BaseClustering):
 
         best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
         self.n_clusters = best_n_clusters
+        self._finish_cluster_search_logging(best_n_clusters, show_progress, logger)
         return best_n_clusters, self.scores

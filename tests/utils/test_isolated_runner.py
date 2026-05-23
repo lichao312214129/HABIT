@@ -7,7 +7,11 @@ from typing import Any, Tuple
 
 import pytest
 
-from habit.utils.isolated_runner import IsolatedTaskRunner
+from habit.utils.isolated_runner import (
+    IsolatedTaskRunner,
+    ProcessingResult,
+    is_fatal_memory_error,
+)
 from habit.utils.parallel_utils import parallel_map
 
 
@@ -149,6 +153,66 @@ def test_memory_error_releases_slot_without_waiting_for_timeout() -> None:
     assert len(successful) == 1
     assert successful[0].item_id == "ok-sub"
     assert successful[0].result == 2
+
+
+def test_is_fatal_memory_error_recognizes_array_memory_error_by_name() -> None:
+    class ArrayMemoryError(Exception):
+        """Minimal stand-in for numpy.core.exceptions.ArrayMemoryError."""
+
+    exc = ArrayMemoryError("Unable to allocate 15.7 GiB")
+    assert is_fatal_memory_error(exc)
+
+
+def test_release_child_skips_terminate_on_fatal_memory_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    terminate_calls: list[Any] = []
+
+    def _track_terminate(
+        self: IsolatedTaskRunner,
+        proc: Any,
+        logger: Any = None,
+    ) -> None:
+        terminate_calls.append(proc)
+
+    monkeypatch.setattr(
+        IsolatedTaskRunner,
+        "_terminate_process",
+        _track_terminate,
+    )
+
+    class _FakeProc:
+        def is_alive(self) -> bool:
+            return True
+
+        def join(self, timeout: float | None = None) -> None:
+            return None
+
+    runner = IsolatedTaskRunner(max_workers=1)
+    oom_result = ProcessingResult(item_id="oom-sub", error=MemoryError("simulated OOM"))
+    runner._release_child_after_queue_result(_FakeProc(), oom_result)
+
+    assert terminate_calls == []
+
+
+def test_terminate_process_swallows_oserror() -> None:
+    class _FakeProc:
+        pid = 4242
+
+        def is_alive(self) -> bool:
+            return True
+
+        def terminate(self) -> None:
+            raise PermissionError(5, "Access is denied")
+
+        def join(self, timeout: float | None = None) -> None:
+            return None
+
+        def kill(self) -> None:
+            raise PermissionError(5, "Access is denied")
+
+    runner = IsolatedTaskRunner(max_workers=1)
+    runner._terminate_process(_FakeProc())
 
 
 def test_work_timeout_fires_while_other_slot_still_running() -> None:

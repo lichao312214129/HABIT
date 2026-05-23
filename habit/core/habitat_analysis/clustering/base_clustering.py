@@ -2,10 +2,11 @@
 Base clustering module for habitat analysis.
 """
 
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Tuple, Optional, Union, Callable
+from typing import Dict, List, Any, Tuple, Optional, Union, Callable, Iterator
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
 import warnings
@@ -228,6 +229,88 @@ class BaseClustering(ABC):
         params.update(getattr(self, "kwargs", {}))
         return self.__class__(**params)
 
+    def _begin_cluster_search_logging(
+        self,
+        *,
+        min_clusters: int,
+        max_clusters: int,
+        methods: List[str],
+        show_progress: bool,
+        logger: Optional[logging.Logger],
+    ) -> None:
+        """Store logger context for per-k progress messages during model selection."""
+        self._cluster_search_logger = logger
+        self._cluster_search_show_progress = show_progress
+        self._cluster_search_method = None
+        if logger is None or not show_progress:
+            return
+        candidate_count = max_clusters - min_clusters + 1
+        logger.info(
+            "Searching optimal cluster count: evaluating k=%s..%s "
+            "(%s candidate(s), methods=%s)",
+            min_clusters,
+            max_clusters,
+            candidate_count,
+            ", ".join(methods),
+        )
+
+    def _set_cluster_search_method(self, method_name: str) -> None:
+        """Record the active validation method for per-k log lines."""
+        self._cluster_search_method = method_name
+        logger = getattr(self, "_cluster_search_logger", None)
+        show_progress = getattr(self, "_cluster_search_show_progress", False)
+        if logger is not None and show_progress:
+            logger.info("Validation method: %s", method_name)
+
+    def _iter_cluster_range(self, cluster_range: List[int]) -> Iterator[int]:
+        """
+        Yield cluster counts in ``cluster_range`` and emit try-k progress logs.
+
+        Args:
+            cluster_range: Cluster counts to evaluate.
+
+        Yields:
+            int: Next cluster count to fit.
+        """
+        total_steps = len(cluster_range)
+        for step_index, n_clusters in enumerate(cluster_range, start=1):
+            logger = getattr(self, "_cluster_search_logger", None)
+            show_progress = getattr(self, "_cluster_search_show_progress", False)
+            method_name = getattr(self, "_cluster_search_method", None)
+            if logger is not None and show_progress:
+                if method_name:
+                    logger.info(
+                        "Trying %s cluster(s) [%s/%s] (%s)",
+                        n_clusters,
+                        step_index,
+                        total_steps,
+                        method_name,
+                    )
+                else:
+                    logger.info(
+                        "Trying %s cluster(s) [%s/%s]",
+                        n_clusters,
+                        step_index,
+                        total_steps,
+                    )
+            yield n_clusters
+
+    def _finish_cluster_search_logging(
+        self,
+        best_n_clusters: int,
+        show_progress: bool,
+        logger: Optional[logging.Logger],
+    ) -> None:
+        """Log the end of cluster-count search."""
+        if logger is not None and show_progress:
+            logger.info(
+                "Cluster search finished: selected k=%s",
+                best_n_clusters,
+            )
+        self._cluster_search_logger = None
+        self._cluster_search_show_progress = False
+        self._cluster_search_method = None
+
     def calculate_inertia_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
         """
         Calculate inertia (SSE) for different numbers of clusters (for K-Means)
@@ -245,7 +328,7 @@ class BaseClustering(ABC):
                 warnings.warn(f"calculate_inertia_scores is primarily for KMeans algorithm, but was called on {self.__class__.__name__}")
             
             inertias = []
-            for n_clusters in cluster_range:
+            for n_clusters in self._iter_cluster_range(cluster_range):
                 kmeans = KMeans(
                     n_clusters=n_clusters,
                     random_state=self.random_state,
@@ -302,7 +385,7 @@ class BaseClustering(ABC):
             from sklearn.mixture import GaussianMixture
             
             bic_scores = []
-            for n_clusters in cluster_range:
+            for n_clusters in self._iter_cluster_range(cluster_range):
                 gmm = GaussianMixture(
                     n_components=n_clusters,
                     random_state=self.random_state,
@@ -344,7 +427,7 @@ class BaseClustering(ABC):
             from sklearn.mixture import GaussianMixture
             
             aic_scores = []
-            for n_clusters in cluster_range:
+            for n_clusters in self._iter_cluster_range(cluster_range):
                 gmm = GaussianMixture(
                     n_components=n_clusters,
                     random_state=self.random_state,
@@ -374,7 +457,7 @@ class BaseClustering(ABC):
             List[float]: List of silhouette scores
         """
         scores = []
-        for n_clusters in cluster_range:
+        for n_clusters in self._iter_cluster_range(cluster_range):
             # Reuse algorithm-specific constructor parameters so validation and final fitting match.
             temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
@@ -401,7 +484,7 @@ class BaseClustering(ABC):
             List[float]: List of Calinski-Harabasz indices
         """
         scores = []
-        for n_clusters in cluster_range:
+        for n_clusters in self._iter_cluster_range(cluster_range):
             # Reuse algorithm-specific constructor parameters so validation and final fitting match.
             temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
@@ -425,7 +508,7 @@ class BaseClustering(ABC):
             cluster_range (List[int]): Range of cluster numbers
         """
         scores = []
-        for n_clusters in cluster_range:
+        for n_clusters in self._iter_cluster_range(cluster_range):
             # Reuse algorithm-specific constructor parameters so validation and final fitting match.
             temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
@@ -449,7 +532,7 @@ class BaseClustering(ABC):
             cluster_range (List[int]): Range of cluster numbers
         """
         scores = []
-        for n_clusters in cluster_range:
+        for n_clusters in self._iter_cluster_range(cluster_range):
             # Reuse algorithm-specific constructor parameters so validation and final fitting match.
             temp_model = self._create_model_for_score(n_clusters)
             temp_model.fit(X)
@@ -467,7 +550,8 @@ class BaseClustering(ABC):
     def find_optimal_clusters(self, X: np.ndarray, min_clusters: int = 2, 
                               max_clusters: int = 10, 
                               methods: Optional[Union[List[str], str]] = None, 
-                              show_progress: bool = True) -> Tuple[int, Dict[str, List[float]]]:
+                              show_progress: bool = True,
+                              logger: Optional[logging.Logger] = None) -> Tuple[int, Dict[str, List[float]]]:
         """
         Find the optimal number of clusters
         
@@ -477,6 +561,7 @@ class BaseClustering(ABC):
             max_clusters (int): Maximum number of clusters
             methods (Optional[Union[List[str], str]]): List of methods to determine the optimal number of clusters. If None, default methods are used
             show_progress (bool): Whether to display progress
+            logger (Optional[logging.Logger]): Logger for search progress; falls back to print when None
             
         Returns:
             Tuple[int, Dict[str, List[float]]]: 
@@ -501,29 +586,34 @@ class BaseClustering(ABC):
             # Get default methods for this algorithm
             methods = get_default_methods(algo_name)
             if show_progress:
-                print(f"Using default validation methods for {algo_name}: {methods}")
-        
-        # Save cluster range
-        self.cluster_range = list(range(min_clusters, max_clusters + 1))
-        
-        # Calculate different scores
-        self.scores: Dict[str, List[float]] = {}
-        
-        if show_progress:
-            print("Starting to calculate evaluation metrics for different numbers of clusters...")
-            total = max_clusters - min_clusters + 1
+                message = f"Using default validation methods for {algo_name}: {methods}"
+                if logger is not None:
+                    logger.info(message)
+                else:
+                    print(message)
         
         # Check and calculate each validation method
         if isinstance(methods, str):
             methods = [methods]
+
+        self.cluster_range = list(range(min_clusters, max_clusters + 1))
+        self._begin_cluster_search_logging(
+            min_clusters=min_clusters,
+            max_clusters=max_clusters,
+            methods=list(methods),
+            show_progress=show_progress,
+            logger=logger,
+        )
+        
+        # Calculate different scores
+        self.scores: Dict[str, List[float]] = {}
         
         # Track which methods were actually calculated
         valid_methods = []
             
         for method in methods:
             if hasattr(self, f'calculate_{method}_scores'):
-                if show_progress:
-                    print(f"Calculating {method}...")
+                self._set_cluster_search_method(method)
                     
                 # Call the specific calculation method
                 # This dynamically gets the method named "calculate_{method}_scores" from the class
@@ -534,20 +624,29 @@ class BaseClustering(ABC):
                 # Skip if method returns None (e.g., AIC/BIC for non-GMM algorithms)
                 if scores is None:
                     if show_progress:
-                        print(f"{method.capitalize()} skipped (not applicable to this algorithm)")
+                        message = f"{method.capitalize()} skipped (not applicable to this algorithm)"
+                        if logger is not None:
+                            logger.info(message)
+                        else:
+                            print(message)
                     continue
                 
                 self.scores[method] = scores
                 valid_methods.append(method)
                 
                 if show_progress:
-                    print(f"{method.capitalize()} calculation completed!")
+                    message = f"{method.capitalize()} calculation completed!"
+                    if logger is not None:
+                        logger.info(message)
+                    else:
+                        print(message)
         
         # Update methods list to only include valid ones
         methods = valid_methods
         
         # Check if any valid methods remain
         if len(methods) == 0:
+            self._finish_cluster_search_logging(min_clusters, show_progress, logger)
             raise ValueError(
                 "No valid validation methods available for this clustering algorithm. "
                 f"Original methods requested: {methods}. "
@@ -559,6 +658,7 @@ class BaseClustering(ABC):
         # Sanity-check: auto-select must return a value from the evaluated range.
         # This prevents subtle index-vs-value bugs from silently propagating.
         if best_n_clusters not in self.cluster_range:
+            self._finish_cluster_search_logging(best_n_clusters, show_progress, logger)
             raise ValueError(
                 "Selected best_n_clusters is not in cluster_range. "
                 f"best_n_clusters={best_n_clusters}, cluster_range={self.cluster_range}"
@@ -569,10 +669,16 @@ class BaseClustering(ABC):
         self.n_clusters = best_n_clusters
         
         if show_progress:
-            print(
+            message = (
                 "Automatically selected best number of clusters: "
                 f"{best_n_clusters} (index={best_idx})"
             )
+            if logger is not None:
+                logger.info(message)
+            else:
+                print(message)
+
+        self._finish_cluster_search_logging(best_n_clusters, show_progress, logger)
         
         return best_n_clusters, self.scores 
     

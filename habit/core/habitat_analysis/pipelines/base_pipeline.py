@@ -511,6 +511,15 @@ class HabitatPipeline:
         """
         if not self.fitted_:
             raise ValueError("Cannot save unfitted pipeline. Call fit() first.")
+        from .pipeline_serialization import prepare_pipeline_for_save
+
+        persist_mask_cache = True
+        if self.config is not None:
+            persist_mask_cache = bool(getattr(self.config, "save_images", True))
+        prepare_pipeline_for_save(
+            self,
+            persist_mask_cache=persist_mask_cache,
+        )
         joblib.dump(self, filepath)
     
     @classmethod
