@@ -19,18 +19,18 @@ data_dir: ./image_files.yaml
 # Output directory
 out_dir: ../demo_data/results/preprocessed
 
-# ─────────────────────────────────────────────────────────────────────────
-# Preprocessing Pipeline
-# ─────────────────────────────────────────────────────────────────────────
+# Keep directory trees for dcm2nii (do not auto-pick a single file from DICOM folders)
+auto_select_first_file: false
 
+# Preprocessing pipeline — YAML key order = execution order
 Preprocessing:
   # DICOM to NIfTI conversion
   dcm2nii:
     # Images to convert
     images: [T1, T2, DWI, ADC]
-    # Path to dcm2niix executable
+    # Path to dcm2niix executable (optional — omit to search PATH)
     # Download from: https://github.com/rordenlab/dcm2niix/releases
-    dcm2niix_path: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\software\dcm2nii\dcm2niix.exe
+    # dcm2niix_path: ./dcm2niix.exe
 
     # Compress output (gzip)
     compress: true
@@ -70,38 +70,15 @@ Preprocessing:
   # registration:
   #   images: [T1, T2, DWI, ADC]
   #   fixed_image: T1
-  #   moving_images: [T2, DWI, ADC]
+  #   # Movers = images minus fixed_image; do NOT use moving_images
   #   type_of_transform: SyNRA
+  #   metric: MI
   #   use_mask: false
-  #   # backend: ants  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+  #   # backend: ants  # ants (default) | simpleitk | elastix
 
-# ─────────────────────────────────────────────────────────────────────────
-# General Settings
-# ─────────────────────────────────────────────────────────────────────────
+save_options:
+  save_intermediate: false
+  # intermediate_steps: [dcm2nii]  # or [] to save all steps when save_intermediate: true
 
-# Number of parallel processes
 processes: 1
-
-# Random seed for reproducibility
 random_state: 42
-
-# ----------------------------------------------------------------------------
-# Notes
-# ----------------------------------------------------------------------------
-#
-# dcm2niix is required for DICOM conversion
-# Download from: https://github.com/rordenlab/dcm2niix/releases
-#
-# Expected input structure (if data_dir is a directory):
-#   data_dir/
-#     ├── subject_001/
-#     │   ├── T1_DICOM/
-#     │   ├── T2_DICOM/
-#     │   └── ...
-#     └── subject_002/
-#         └── ...
-#
-# Or use a YAML file (image_files.yaml) to specify exact DICOM directories
-#
-# ----------------------------------------------------------------------------
-auto_select_first_file: false

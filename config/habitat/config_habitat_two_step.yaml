@@ -30,10 +30,10 @@ FeatureConstruction:
     # voxel_radiomics example (params forwarded even if omitted from method):
     # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
     params:
-      # params_file: ../radiomics/params_voxel_radiomics.yaml
-      # kernelRadius: 1  # Local neighborhood radius for voxel radiomics
-      # voxelBatch: 1000  # Batch size; -1=no batching
-      # useTorchRadiomics: auto  # auto|true|false
+      # params_file: ../radiomics/params_voxel_radiomics.yaml  # Required for voxel_radiomics; GLCM-safe preset
+      # kernelRadius: 1  # Default 1 (3x3x3); local neighborhood radius for voxel radiomics
+      # voxelBatch: 1000  # Default 1000; -1 = no batching
+      # useTorchRadiomics: auto  # auto | true | false
       # torchGpus: [0, 1]
       # torchGpuCount: 2
 
@@ -41,9 +41,12 @@ FeatureConstruction:
     supervoxel_file_keyword: '*_supervoxel.nrrd'  # External supervoxel map glob (optional)
     method: mean_voxel_features()  # Supervoxel feature method after individual clustering
     params:
-      params_file: ../radiomics/parameter.yaml  # Radiomics params for supervoxel features
+      # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
+      params_file: ../radiomics/params_supervoxel_radiomics.yaml
 
-  preprocessing_for_subject_level: 
+  preprocessing_for_subject_level:
+    # Stage 1: per-subject, before checkpoint (included in config_hash).
+    # Do NOT use variance_filter / correlation_filter here — column drops break cross-subject pooling.
     methods:
       - method: winsorize  # Stage 1; in config_hash
         winsor_limits: [0.05, 0.05]  # Lower/upper tail clip fraction
@@ -52,8 +55,10 @@ FeatureConstruction:
         global_normalize: false
 
   preprocessing_for_group_level:
+    # Stage 2 only — NOT in config_hash (safe to change on resume).
+    # variance_filter / correlation_filter recommended here for radiomics-heavy features.
     methods:
-      - method: binning  # Stage 2 only — NOT in config_hash (safe to change)
+      - method: binning  # Default demo — discretize for stable clustering
         n_bins: 10
         bin_strategy: uniform  # uniform | quantile | kmeans
         global_normalize: false

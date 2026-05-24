@@ -22,10 +22,10 @@ FeatureConstruction:
     # Radiomics example:
     # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
     params:
-      # params_file: ../radiomics/params_voxel_radiomics.yaml  # Radiomics parameter file
-      # kernelRadius: 1  # Voxel neighborhood radius for local radiomics
-      # voxelBatch: 1000  # Batch size; -1 disables batching
-      # useTorchRadiomics: auto  # auto|true|false
+      # params_file: ../radiomics/params_voxel_radiomics.yaml  # Required for voxel_radiomics; GLCM-safe preset
+      # kernelRadius: 1  # Default 1 (3x3x3); voxel neighborhood radius
+      # voxelBatch: 1000  # Default 1000; -1 disables batching
+      # useTorchRadiomics: auto  # auto | true | false
       # torchGpus: [0, 1]  # GPU device indices
       # torchGpuCount: 2  # Max GPUs when torchGpus not set
 
@@ -34,15 +34,35 @@ FeatureConstruction:
     supervoxel_file_keyword: '*_supervoxel.nrrd'  # Pattern for optional external supervoxel maps
     method: mean_voxel_features()  # Supervoxel aggregation method (two_step/one_step)
     params:
-      params_file: ../radiomics/parameter.yaml  # Radiomics settings for supervoxel features
+      # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
+      params_file: ../radiomics/params_supervoxel_radiomics.yaml
+
+  preprocessing_for_subject_level:
+    # Stage 1: per-subject, before checkpoint (included in config_hash).
+    # Do NOT use variance_filter / correlation_filter here — column drops break cross-subject pooling.
+    methods:
+      - method: winsorize  # Clip extreme feature values per column
+        winsor_limits: [0.05, 0.05]  # Lower/upper tail fraction to clip (0-1)
+        global_normalize: false  # false=within-subject stats; true=pooled training stats
+      - method: minmax  # Scale features to [0, 1] after prior steps
+        global_normalize: false
 
   preprocessing_for_group_level:
     # Stage 2 only — changing these does NOT invalidate checkpoint (resume: true OK).
+    # variance_filter / correlation_filter are recommended here for radiomics-heavy features.
     methods:
-      - method: binning  # Discretize continuous features
+      - method: binning  # Discretize continuous features (default demo)
         n_bins: 10  # Bins per feature column
         bin_strategy: uniform  # uniform | quantile | kmeans
         global_normalize: false  # Use pooled training statistics when true
+      # Radiomics / high-dimensional features — uncomment instead of binning:
+      # - method: variance_filter
+      #   variance_threshold: 0.01
+      #   global_normalize: false
+      # - method: correlation_filter
+      #   corr_threshold: 0.8
+      #   corr_method: spearman  # pearson | spearman | kendall
+      #   global_normalize: false
 
 HabitatSegmentation:
   clustering_mode: direct_pooling  # Single pooled clustering across all subjects

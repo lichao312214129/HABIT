@@ -15,10 +15,14 @@
 
 # Input data directory
 # Expected structure: data_dir/subject_id/images/ and masks/
+# Or a manifest YAML (see config/preprocessing/files_preprocessing.yaml)
 data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\DATA_2
 
 # Output directory
 out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data
+
+# When a modality path is a directory with multiple files, pick the first file (default: true)
+auto_select_first_file: true
 
 # ─────────────────────────────────────────────────────────────────────────
 # Preprocessing Pipeline
@@ -61,12 +65,11 @@ Preprocessing:
   #   # Optional masks mask_T1, mask_T2, mask_ADC: nearest neighbor in strict mode (same naming convention as resample)
   # Image Registration
   registration:
-    # All modalities in this step; movers = images minus fixed_image (omit moving_images)
+    # All modalities in this step; movers = images minus fixed_image (do NOT use moving_images)
     images: [T2WI, ADC]
-    fixed_image: T2WI # Reference grid (does not move)
-    # moving_images: [ADC]  # NOT READ by HABIT; do not use (extra keys may confuse ANTs if backend: ants)
-    type_of_transform: SyNRA  # ants: ANTs name; simpleitk: mapped (SyN* -> BSpline approx.; see user_guide); elastix: ignored
-    metric: MI  # ants: ANTs metric name; simpleitk: MI | CC | MeanSquares; elastix: ignored
+    fixed_image: T2WI  # Reference grid (does not move)
+    type_of_transform: SyNRA  # ants/simpleitk only; ignored when backend: elastix
+    metric: MI  # ants/simpleitk only; ignored when backend: elastix
     # optimizer: gradient_descent  # ants: ANTs optimizers; simpleitk: use substring lbfgs for LBFGSB else gradient descent; elastix: ignored
     use_mask: false  # If true: ants/simpleitk/elastix pass masks to the registration engine
     replace_by_fixed_image_mask: true  # If true, after registration replace moving masks with fixed mask
@@ -127,7 +130,7 @@ save_options:
 # Number of parallel processes
 processes: 1
 
-# Random seed for reproducibility
+# Reserved for config extension; current pipeline does not read random_state
 random_state: 42
 
 # ----------------------------------------------------------------------------

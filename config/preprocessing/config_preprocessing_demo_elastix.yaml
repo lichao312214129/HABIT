@@ -22,7 +22,10 @@
 data_dir: ../../demo_data/preprocessed/resample_02
 out_dir: ../../demo_data/preprocessed1
 
-# Preprocessing settings
+# NIfTI inputs may be single files per modality; true = pick first file when path is a directory
+auto_select_first_file: true
+
+# Preprocessing settings — YAML key order = execution order (see docs/configuration_zh.rst)
 Preprocessing:
   # dcm2nii:
   #   images: [delay2, delay3, delay5]
@@ -42,11 +45,15 @@ Preprocessing:
 
   registration:
     images: [delay2, delay3, delay5]
-    fixed_image: delay2
-    type_of_transform: Rigid
+    fixed_image: delay2  # Movers = all images except fixed_image
     use_mask: true
-    backend: elastix  # optional: ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    # type_of_transform / metric / optimizer are ignored when backend: elastix
     elastix_parameter_files: ../../demo_data/Par0040affine.txt
+    # elastix_path: /path/to/elastix   # optional; omit to use PATH
+    # transformix_path: /path/to/transformix
+    # elastix_parameter_overrides:
+    #   MaximumNumberOfIterations: 200
 
   # zscore_normalization:
   #   images: [delay2, delay3, delay5]
@@ -61,8 +68,9 @@ Preprocessing:
 
 save_options:
   save_intermediate: true
-  # intermediate_steps: [dcm2nii, n4_correction, resample, registration, zscore_normalization]
+  # Empty list = save every step when save_intermediate is true; or name specific steps:
+  intermediate_steps: [registration]
+  # intermediate_steps: [dcm2nii, n4_correction, resample, registration]
 
-# General settings
-processes: 1  # Number of parallel processes
-random_state: 42  # Random seed for reproducibility
+processes: 1  # Parallel subjects; effective workers = min(processes, CPU cores - 2), at least 1
+random_state: 42  # Reserved; current pipeline does not read this (see image_preprocessing_zh.rst)

@@ -12,10 +12,10 @@
 #   image_files.yaml — workstation example with T1/T2/DWI/ADC paths.
 #   file_habitat.yaml — manifest for get-habitat on processed images/masks.
 #
-# Field `auto_select_first_file`: if true, a directory path may resolve to a
-# single file; if false, keep full directory trees (required for dcm2nii inputs).
-# =============================================================================
-
+# Field `auto_select_first_file` (optional in manifest):
+#   When data_dir points at this file, io_utils may read this flag per subject paths.
+#   Prefer setting the same field on the preprocessing YAML top level (PreprocessingConfig).
+#   Use false for dcm2nii DICOM folder trees; true for post-conversion NIfTI file picks.
 auto_select_first_file: false
 
 images:
