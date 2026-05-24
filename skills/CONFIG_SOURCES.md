@@ -42,7 +42,12 @@ for a full scenario index.
 | habitat maps (when distinct) | `config/radiomics/parameter_habitat.yaml` |
 | minimal (~70 features) | `config/radiomics/parameter_basic.yaml` |
 | LoG + Wavelet (~1000+ features) | `config/radiomics/parameter_with_filters.yaml` |
-| voxel / supervoxel presets | `config/radiomics/params_voxel_radiomics.yaml`, `params_supervoxel_radiomics.yaml` |
+| voxel preset (`voxel_radiomics`) | `config/radiomics/params_voxel_radiomics.yaml` — explicit 21-feature GLCM list |
+| supervoxel preset | `config/radiomics/params_supervoxel_radiomics.yaml` |
+
+For **`voxel_radiomics`**, use `params_voxel_radiomics.yaml` for GLCM (exclude MCC/Imc1/Imc2).
+Bare `glcm:` in a params file enables all 24 features and crashes on small kernels; HABIT
+defaults unrestricted GLCM to the same 21 features when not explicitly listed.
 
 For **`voxel_radiomics`** in habitat configs, also set in `FeatureConstruction.voxel_level.params`:
 `kernelRadius` (default 1), `voxelBatch` (default 1000; `-1` = no batching),

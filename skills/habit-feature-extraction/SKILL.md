@@ -98,16 +98,20 @@ Config index: `skills/CONFIG_SOURCES.md`.
 
 Full annotated reference: `config/feature_extraction/config_extract_features.yaml`.
 
-## Voxel-based GLCM auto-protection
+## Voxel-based GLCM defaults (`voxel_radiomics` only)
 
-When using voxel-level radiomics with small kernels (kernelRadius=1-3), GLCM
-features can fail on overly homogeneous neighborhoods. HABIT silently
-restricts GLCM to: Contrast, Correlation, JointEnergy, Idm. If you see GLCM
-warnings, this is why — intentional and safe.
+Voxel radiomics uses tiny neighborhoods (`kernelRadius=1` → 3×3×3). Many voxels
+produce **degenerate GLCM matrices** (flat patches). If `params_file` enables
+`glcm:` **without listing feature names**, PyRadiomics computes all 24 GLCM
+features; **MCC, Imc1, Imc2** then fail (CUDA/MKL `eigvals` crash or NaN).
 
-If users want full GLCM:
-- Increase `kernelRadius` to 2 or 3
-- OR explicitly list GLCM features in their `parameter.yaml`
+**HABIT behavior**: when `glcm` is unrestricted, substitute the 21 stable
+features from `config/radiomics/params_voxel_radiomics.yaml` and log a warning.
+Explicit feature lists in `params_file` are respected (unsafe names get a
+warning only).
+
+**Recommended**: point `params_file` at `config/radiomics/params_voxel_radiomics.yaml`.
+Do **not** reuse whole-tumor `parameter.yaml` with bare `glcm:` for voxel mode.
 
 ## Voxel batch size (`voxelBatch`)
 

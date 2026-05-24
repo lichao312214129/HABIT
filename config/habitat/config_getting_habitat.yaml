@@ -62,18 +62,19 @@ FeatureConstruction:
       # PyRadiomics parameter file (required for voxel_radiomics method)
       # params_file: ../../config/radiomics/params_voxel_radiomics.yaml
       #
-      # IMPORTANT: For voxel-based radiomics extraction with small kernel sizes (kernelRadius=1-3),
-      # GLCM features may fail due to insufficient local texture. HABIT automatically restricts
-      # GLCM to safe features when using voxel_radiomics():
-      #   - If you enable 'glcm:' without specifying features in your params_file, HABIT will
-      #     automatically use only: Contrast, Correlation, JointEnergy, Idm
-      #   - These features are robust even with small neighborhoods and won't cause extraction failures
-      #   - If you explicitly specify GLCM features in params_file, HABIT will respect your choice
+      # IMPORTANT — voxel GLCM: use params_voxel_radiomics.yaml (or list GLCM features explicitly).
+      # Bare ``glcm:`` enables all 24 GLCM features. At kernelRadius=1–3 each voxel sees only
+      # a 3×3×3–7×7×7 neighborhood; many patches are flat, GLCM degenerates to 1×1, and
+      # MCC/Imc1/Imc2 crash (CUDA/MKL eigvals) or return NaN. The preset lists 21 stable
+      # features; if you omit the list, HABIT defaults to the same set and logs a warning.
       #
-      # Example params_file configuration:
+      # Example params_file (see config/radiomics/params_voxel_radiomics.yaml):
       #   featureClass:
-      #     firstorder:     # Enable all first-order features
-      #     glcm:           # Enable GLCM (auto-restricted to safe features)
+      #     firstorder:
+      #     glcm:
+      #       - Contrast
+      #       - Correlation
+      #       ... (21 stable features; exclude MCC, Imc1, Imc2)
       #
       # Kernel radius for voxel-based extraction (default: 1)
       # kernelRadius: 1     # 1 = 3x3x3 neighborhood, 2 = 5x5x5, etc.

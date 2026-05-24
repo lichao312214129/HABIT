@@ -47,9 +47,12 @@ next to production templates in the same folder.
 
 Shared PyRadiomics parameter YAMLs: `radiomics/parameter.yaml`, `radiomics/parameter_habitat.yaml`,
 `radiomics/parameter_basic.yaml`, `radiomics/parameter_with_filters.yaml`,
-`radiomics/params_voxel_radiomics.yaml`, `radiomics/params_supervoxel_radiomics.yaml`.
+`radiomics/params_voxel_radiomics.yaml` (voxel `voxel_radiomics` preset — explicit 21-feature GLCM list),
+`radiomics/params_supervoxel_radiomics.yaml`.
 
-For `voxel_radiomics` in habitat, `kernelRadius`, `voxelBatch`, `useTorchRadiomics`,
+For `voxel_radiomics` in habitat, use `params_voxel_radiomics.yaml` for GLCM: bare `glcm:` enables all
+24 features and MCC/Imc1/Imc2 crash on small kernels. HABIT defaults unrestricted GLCM to the same
+21 stable features when `glcm` is not explicitly listed. `kernelRadius`, `voxelBatch`, `useTorchRadiomics`,
 `torchGpus`, `torchGpuCount`, `torchDevice`, and `torchDtype` belong in
 `FeatureConstruction.voxel_level.params` (not in the PyRadiomics parameter YAML).
 They are forwarded to the extractor even when omitted from the `method` expression.

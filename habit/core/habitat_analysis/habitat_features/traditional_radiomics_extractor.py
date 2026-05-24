@@ -35,7 +35,7 @@ import logging
 import numpy as np
 import os
 import SimpleITK as sitk
-from radiomics import featureextractor
+from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 import warnings
 import multiprocessing
 from functools import partial
@@ -153,7 +153,7 @@ class TraditionalRadiomicsExtractor:
     def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
         """提取组学特征"""
         try:
-            extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
+            extractor = create_radiomics_feature_extractor(params_file)
 
             mask_img = sitk.ReadImage(mask_path)
             raw_img = sitk.ReadImage(image_path)

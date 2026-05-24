@@ -75,9 +75,10 @@ Detailed comparison: `references/voxel_feature_methods.md`.
 For `kinetic`: user MUST provide a timestamps Excel with subject IDs and
 per-phase scan times. Without this, fail fast.
 
-For `voxel_radiomics`: HABIT auto-restricts GLCM to safe features
-(Contrast, Correlation, JointEnergy, Idm) when `kernelRadius<=3`. Tell the
-user this is automatic. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
+For `voxel_radiomics`: use `config/radiomics/params_voxel_radiomics.yaml` for
+GLCM — bare `glcm:` in a params file enables all 24 features; MCC/Imc1/Imc2
+crash on small kernels. HABIT defaults unrestricted GLCM to 21 stable features
+and logs a warning. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
 limits how many of them are active. Subjects are mapped to GPUs via a stable hash
 of the subject ID. Set `processes` to the number of GPUs for best throughput.
 

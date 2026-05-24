@@ -333,35 +333,80 @@ class FeatureService:
         self._ensure_logging_in_subprocess()
         
         try:
-            self.logger.info(f"Extracting supervoxel-level features for subject {subject}...")
+            self.logger.info(
+                "Extracting supervoxel-level features for subject %s (%d modality step(s))...",
+                subject,
+                len(self.supervoxel_processing_steps),
+            )
             
             if not self.supervoxel_file_dict:
                 raise ValueError("Supervoxel files not set up.")
 
             img_paths = self.images_paths[subject]
             mask_path = self.supervoxel_file_dict[subject]
+            self.logger.info(
+                "Supervoxel map for subject %s: %s",
+                subject,
+                mask_path,
+            )
             
             # Process each image
             processed_images = []
-            for step in self.supervoxel_processing_steps:
+            for step_index, step in enumerate(self.supervoxel_processing_steps, start=1):
                 method = step['method']
                 img_name = step['image']
                 step_params = step['params'].copy()
+
+                # Resolve placeholders and merge global supervoxel_level.params
+                # (useTorchRadiomics, torchGpus, etc.).
+                supervoxel_level_params = self.config.FeatureConstruction.supervoxel_level.params
+                step_params = resolve_voxel_step_params(step_params, supervoxel_level_params)
                 step_params.update({'subject': subject, 'image': img_name})
+
+                self.logger.info(
+                    "Supervoxel feature step %d/%d for subject %s: method=%s image=%s",
+                    step_index,
+                    len(self.supervoxel_processing_steps),
+                    subject,
+                    method,
+                    img_name,
+                )
                 
                 single_image_extractor = create_feature_extractor(method, **step_params)
                 processed_df = single_image_extractor.extract_features(
                     img_paths.get(img_name), mask_path, **step_params
                 )
                 processed_images.append(processed_df)
+                self.logger.info(
+                    "Supervoxel feature step %d/%d finished for subject %s image=%s rows=%d cols=%d",
+                    step_index,
+                    len(self.supervoxel_processing_steps),
+                    subject,
+                    img_name,
+                    len(processed_df),
+                    len(processed_df.columns),
+                )
             
             # Create cross-image extractor
             supervoxel_params = self.supervoxel_params.copy()
+            if len(processed_images) > 1:
+                self.logger.info(
+                    "Combining supervoxel features across %d modalities for subject %s...",
+                    len(processed_images),
+                    subject,
+                )
             cross_image_extractor = create_feature_extractor(
                 self.supervoxel_method_name, **supervoxel_params
             )
             features = cross_image_extractor.extract_features(
                 processed_images, **supervoxel_params
+            )
+
+            self.logger.info(
+                "Supervoxel-level feature extraction finished for subject %s: rows=%d cols=%d",
+                subject,
+                len(features),
+                len(features.columns),
             )
             
             return subject, features

@@ -25,6 +25,15 @@ Excel.
 - Subject IDs are written exactly as folder names (`sub001` not `Sub001`)
 - No extra whitespace in IDs
 
+## Symptom: `voxel_radiomics` crashes on GLCM (MKL / eigvals / MCC)
+
+**Cause**: PyRadiomics params enable all GLCM features (`glcm:` with no list).
+Small kernel neighborhoods produce flat patches → degenerate GLCM → MCC/Imc1/Imc2
+fail.
+
+**Fix**: Set `params_file: ./config/radiomics/params_voxel_radiomics.yaml` or
+copy its 21-feature `glcm` list. See `habit-troubleshoot/references/errors_extraction.md`.
+
 ## Symptom: `voxel_radiomics` crashes with `Failed to initialize firstorder feature class`
 
 **Cause**: PyRadiomics params file path is wrong or YAML is malformed.

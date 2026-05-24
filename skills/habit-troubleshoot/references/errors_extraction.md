@@ -32,6 +32,19 @@ spacing/origin due to floating point rounding.
 this still fails, check that preprocessing wrote both images AND masks to
 `processed_images/` (not just images).
 
+## Symptom: `voxel_radiomics` / TorchRadiomics crash on GLCM (MKL, eigvals, MCC)
+
+**Cause**: `params_file` enables `glcm:` without an explicit feature list (all 24
+GLCM features). Voxel mode uses small neighborhoods (`kernelRadius=1–3`); flat
+patches yield degenerate 1×1 GLCM matrices. **MCC, Imc1, Imc2** need eigenvalue
+or mutual-information statistics and crash on CUDA/MKL or return NaN.
+
+**Fix**:
+1. Use `config/radiomics/params_voxel_radiomics.yaml` (21 stable GLCM features).
+2. Or list GLCM features explicitly — **exclude MCC, Imc1, Imc2** for voxel mode.
+3. HABIT auto-substitutes the safe list when `glcm` is unrestricted and logs a
+   warning; explicit unsafe names are not removed.
+
 ## Symptom: All output CSVs have NaN-only columns
 
 **Cause**: PyRadiomics extraction silently failed for those features —

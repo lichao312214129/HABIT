@@ -55,9 +55,11 @@ Times are in **minutes from injection**. Subject IDs must match folder names.
 
 ### `voxel_radiomics(<img>)`
 Computes PyRadiomics features for each voxel using its local neighborhood.
-**Slow and memory-hungry.** HABIT auto-restricts GLCM to safe features
-(Contrast, Correlation, JointEnergy, Idm) when `kernelRadius<=3` to prevent
-crashes on small neighborhoods.
+**Slow and memory-hungry.** Use `config/radiomics/params_voxel_radiomics.yaml`:
+GLCM must list **21 stable features** (exclude MCC/Imc1/Imc2). Bare `glcm:`
+enables all 24; on `kernelRadius=1–3` many neighborhoods are flat, GLCM
+matrices degenerate, and MCC/Imc1/Imc2 trigger CUDA/MKL `eigvals` errors.
+HABIT substitutes the safe list when `glcm` is unrestricted and logs a warning.
 
 ```yaml
 voxel_level:
@@ -76,10 +78,31 @@ Recommended `params_voxel_radiomics.yaml` (PyRadiomics settings only):
 ```yaml
 featureClass:
   firstorder:
-  glcm:                    # auto-restricted
+  glcm:
+    - Contrast
+    - Correlation
+    - JointEnergy
+    - Idm
+    - Autocorrelation
+    - JointAverage
+    - JointEntropy
+    - DifferenceAverage
+    - DifferenceEntropy
+    - SumAverage
+    - SumEntropy
+    - SumSquares
+    - MaximumProbability
+    - Idmn
+    - Id
+    - Idn
+    - InverseVariance
+    - DifferenceVariance
+    - ClusterTendency
+    - ClusterShade
+    - ClusterProminence
 setting:
   binWidth: 25
-  maskedKernel: true
+  voxelArrayShift: 300
 ```
 
 ### `local_entropy(<img>)`

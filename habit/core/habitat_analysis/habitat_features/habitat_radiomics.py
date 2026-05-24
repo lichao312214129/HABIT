@@ -9,8 +9,7 @@ This module provides functionality for extracting habitat-specific radiomics fea
 import logging
 import SimpleITK as sitk
 import numpy as np
-from radiomics import featureextractor
-from typing import Dict, Optional
+from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger(__name__)
@@ -31,7 +30,7 @@ class HabitatRadiomicsExtractor:
             Dict: Dictionary containing extracted radiomics features
         """
         try:
-            extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
+            extractor = create_radiomics_feature_extractor(params_file)
             
             if isinstance(habitat_img, str):
                 habitat_img = sitk.ReadImage(habitat_img)
@@ -75,7 +74,7 @@ class HabitatRadiomicsExtractor:
         Returns:
             Dict: Dictionary containing extracted radiomics features for each habitat
         """
-        extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
+        extractor = create_radiomics_feature_extractor(params_file)
         
         try:
             habitat_img = sitk.ReadImage(habitat_path)
@@ -131,7 +130,7 @@ class HabitatRadiomicsExtractor:
             Dict: Dictionary containing extracted traditional radiomics features
         """
         try:
-            extractor = featureextractor.RadiomicsFeatureExtractor(params_file)
+            extractor = create_radiomics_feature_extractor(params_file)
             
             habitat_img = sitk.ReadImage(habitat_path)
             raw_img = sitk.ReadImage(image_path)

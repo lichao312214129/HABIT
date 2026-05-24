@@ -16,7 +16,7 @@ setting:      # discretization, masks, normalization
 | Pilot / small cohort | Original only | firstorder + shape + glcm | ~70 |
 | Standard radiomics | Original + LoG | + glrlm + glszm | ~250 |
 | Comprehensive | Original + LoG + Wavelet | All 7 classes | ~1500 |
-| Voxel-radiomics (clustering) | Original | firstorder + glcm | ~25 |
+| Voxel-radiomics (clustering) | Original | firstorder + glcm (21 stable; see `params_voxel_radiomics.yaml`) | ~39 |
 
 ## Templates (repo-wide)
 
@@ -25,6 +25,7 @@ See `skills/CONFIG_SOURCES.md`. PyRadiomics starter files:
 - `config/radiomics/parameter.yaml` — generic full set
 - `config/radiomics/parameter_basic.yaml` — minimal (~70 features)
 - `config/radiomics/parameter_with_filters.yaml` — LoG + Wavelet (~1500 features)
+- `config/radiomics/params_voxel_radiomics.yaml` — **voxel_radiomics only** (21 stable GLCM features)
 
 ## Critical settings
 

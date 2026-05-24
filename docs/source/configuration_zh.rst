@@ -448,7 +448,13 @@ DICOM 整理配置参数（``habit sort-dicom``）
         - ``torchGpuCount`` (int, 可选): 从 ``torchGpus`` 中实际使用前 N 张卡
         - ``torchDtype`` (str, 默认: ``float32``): Torch 计算 dtype（``float32`` 或 ``float64``；``float64`` 更接近 CPU PyRadiomics）
 
-      - **示例**: ``voxel_radiomics(raw(delay2), params_file='./parameter.yaml', kernelRadius=1)``
+      - **体素 GLCM 注意**: 请使用 ``config/radiomics/params_voxel_radiomics.yaml``（显式列出 21 个稳定 GLCM 特征）。
+        若 ``params_file`` 中仅写 ``glcm:`` 而不列特征名，PyRadiomics 会计算全部 24 个 GLCM 特征；在
+        ``kernelRadius=1``–``3`` 的小邻域内大量体素灰度均匀，GLCM 退化为 1×1 矩阵，**MCC / Imc1 / Imc2**
+        的特征值或互信息计算会在 CUDA/MKL 上崩溃或产生 NaN。HABIT 在检测到未限制 GLCM 时会自动替换为
+        上述 21 个稳定特征并记录 warning；若在 ``params_file`` 中已显式列出特征则尊重用户配置。
+
+      - **示例**: ``voxel_radiomics(raw(delay2), params_file='./config/radiomics/params_voxel_radiomics.yaml', kernelRadius=1)``
 
   - **完整示例**:
 
@@ -476,7 +482,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
        voxel_level:
          method: voxel_radiomics(T2)
          params:
-           params_file: ./parameter.yaml
+           params_file: ./config/radiomics/params_voxel_radiomics.yaml
            kernelRadius: 3
            voxelBatch: 1000
            useTorchRadiomics: auto
