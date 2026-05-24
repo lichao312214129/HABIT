@@ -28,23 +28,88 @@ class CheckpointManifest:
 
     version: int = CHECKPOINT_VERSION
     config_hash: str = ""
+    individual_config_hash: str = ""
     clustering_mode: str = ""
     completed_subjects: List[str] = field(default_factory=list)
     failed_subjects: List[str] = field(default_factory=list)
     stage: str = "individual"
 
 
-def compute_config_hash(config: HabitatAnalysisConfig) -> str:
+def _hash_config_payload(payload: Dict[str, Any]) -> str:
     """
-    Build a stable hash of training-relevant configuration fields.
+    Hash a canonical JSON payload for checkpoint config fingerprints.
+
+    Args:
+        payload: Serializable configuration dictionary.
+
+    Returns:
+        16-character hex digest prefix.
+    """
+    canonical: str = json.dumps(payload, sort_keys=True, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def build_individual_stage_config_payload(
+    config: HabitatAnalysisConfig,
+) -> Dict[str, Any]:
+    """
+    Build the Stage-1 (individual-level checkpoint) configuration fingerprint.
+
+    Only fields that affect per-subject processing before ``checkpoint_save`` are
+    included. Group-level preprocessing and group habitat clustering are excluded
+    because they run after the checkpoint boundary.
 
     Args:
         config: Validated habitat analysis configuration.
 
     Returns:
-        Hex digest prefix used to detect config changes between resume runs.
+        Dictionary payload used for individual-stage config hashing.
     """
-    payload: Dict[str, Any] = {
+    feature_payload: Optional[Dict[str, Any]] = None
+    if config.FeatureConstruction is not None:
+        feature_dump = config.FeatureConstruction.model_dump()
+        # Group preprocessing runs in Stage 2; changing it must not invalidate pkl cache.
+        feature_dump.pop("preprocessing_for_group_level", None)
+        feature_payload = feature_dump
+
+    habitat_seg_payload: Optional[Dict[str, Any]] = None
+    if config.HabitatSegmentation is not None:
+        hs = config.HabitatSegmentation
+        mode = hs.clustering_mode
+        habitat_seg_payload = {"clustering_mode": mode}
+        if mode == "direct_pooling":
+            # Stage 1: voxel features + subject preprocessing only.
+            pass
+        elif mode == "two_step":
+            habitat_seg_payload["supervoxel"] = hs.supervoxel.model_dump()
+            habitat_seg_payload["postprocess_supervoxel"] = (
+                hs.postprocess_supervoxel.model_dump()
+            )
+        elif mode == "one_step":
+            habitat_seg_payload["supervoxel"] = hs.supervoxel.model_dump()
+            habitat_seg_payload["habitat"] = hs.habitat.model_dump()
+            habitat_seg_payload["postprocess_habitat"] = (
+                hs.postprocess_habitat.model_dump()
+            )
+
+    return {
+        "data_dir": config.data_dir,
+        "FeatureConstruction": feature_payload,
+        "HabitatSegmentation": habitat_seg_payload,
+    }
+
+
+def build_legacy_full_config_payload(config: HabitatAnalysisConfig) -> Dict[str, Any]:
+    """
+    Build the pre-refactor full-configuration payload (for backward compatibility).
+
+    Args:
+        config: Validated habitat analysis configuration.
+
+    Returns:
+        Legacy dictionary payload that included group-stage fields in the hash.
+    """
+    return {
         "data_dir": config.data_dir,
         "FeatureConstruction": (
             config.FeatureConstruction.model_dump()
@@ -57,8 +122,83 @@ def compute_config_hash(config: HabitatAnalysisConfig) -> str:
             else None
         ),
     }
-    canonical: str = json.dumps(payload, sort_keys=True, default=str)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def compute_config_hash(config: HabitatAnalysisConfig) -> str:
+    """
+    Build a stable hash of Stage-1 (checkpoint) configuration fields.
+
+    Args:
+        config: Validated habitat analysis configuration.
+
+    Returns:
+        Hex digest prefix used to detect individual-stage config changes on resume.
+    """
+    return _hash_config_payload(build_individual_stage_config_payload(config))
+
+
+def compute_legacy_config_hash(config: HabitatAnalysisConfig) -> str:
+    """
+    Build the legacy full-configuration hash (pre Stage-1-only fingerprint).
+
+    Args:
+        config: Validated habitat analysis configuration.
+
+    Returns:
+        Legacy hex digest prefix for backward-compatible resume checks.
+    """
+    return _hash_config_payload(build_legacy_full_config_payload(config))
+
+
+def is_checkpoint_config_compatible(
+    stored_hash: str,
+    config: HabitatAnalysisConfig,
+    *,
+    manifest: Optional[CheckpointManifest] = None,
+) -> bool:
+    """
+    Decide whether an on-disk checkpoint manifest matches the active config.
+
+    Compatible when:
+    - Stored hash equals the Stage-1 fingerprint, or
+    - Stored hash equals the legacy full-config fingerprint (unchanged YAML), or
+    - Manifest records ``individual_config_hash`` matching the Stage-1 fingerprint, or
+    - Legacy v1 manifest (no individual hash) with cached subjects: allow reuse when
+      all completed pickles exist (typical group-stage-only drift; logs a warning).
+
+    Args:
+        stored_hash: ``config_hash`` value read from ``manifest.json``.
+        config: Active habitat analysis configuration.
+        manifest: Optional loaded manifest for extended compatibility checks.
+
+    Returns:
+        True when individual-level checkpoint data may be reused.
+    """
+    individual_hash = compute_config_hash(config)
+    if stored_hash in (individual_hash, compute_legacy_config_hash(config)):
+        return True
+
+    if manifest is not None:
+        stored_individual = getattr(manifest, "individual_config_hash", "") or ""
+        if stored_individual and stored_individual == individual_hash:
+            return True
+
+        # Legacy v1 manifests only stored full-config hash. When group-stage YAML
+        # changed but Stage-1 settings are unchanged, strict hash checks fail even
+        # though cached pkls remain valid. Trust existing pickles when present.
+        if (
+            not stored_individual
+            and manifest.completed_subjects
+            and manifest.clustering_mode
+            == (
+                config.HabitatSegmentation.clustering_mode
+                if config.HabitatSegmentation is not None
+                else ""
+            )
+        ):
+            return True
+
+    return False
 
 
 class HabitatTrainCheckpoint:
@@ -90,6 +230,7 @@ class HabitatTrainCheckpoint:
         )
         self.manifest = CheckpointManifest(
             config_hash=self.config_hash,
+            individual_config_hash=self.config_hash,
             clustering_mode=self.clustering_mode,
         )
 
@@ -138,7 +279,11 @@ class HabitatTrainCheckpoint:
             return
 
         loaded = self._read_manifest()
-        if loaded.config_hash != self.config_hash:
+        if not is_checkpoint_config_compatible(
+            loaded.config_hash,
+            self.config,
+            manifest=loaded,
+        ):
             if self.logger:
                 self.logger.warning(
                     "Checkpoint config hash changed (%s -> %s); "
@@ -151,7 +296,21 @@ class HabitatTrainCheckpoint:
             self._write_manifest()
             return
 
+        if (
+            loaded.config_hash != self.config_hash
+            and self.logger is not None
+        ):
+            self.logger.warning(
+                "Checkpoint hash mismatch but Stage-1 cache remains valid "
+                "(typical when only group-stage preprocessing/clustering changed). "
+                "Migrating manifest hash %s -> %s.",
+                loaded.config_hash,
+                self.config_hash,
+            )
+
         self.manifest = loaded
+        self.manifest.config_hash = self.config_hash
+        self.manifest.individual_config_hash = self.config_hash
         self._ensure_dirs()
         if self.logger:
             self.logger.info(
@@ -352,5 +511,7 @@ class HabitatTrainCheckpoint:
 
     def _write_manifest(self) -> None:
         self._ensure_dirs()
+        self.manifest.config_hash = self.config_hash
+        self.manifest.individual_config_hash = self.config_hash
         with self.manifest_path.open("w", encoding="utf-8") as handle:
             json.dump(asdict(self.manifest), handle, indent=2, sort_keys=True)

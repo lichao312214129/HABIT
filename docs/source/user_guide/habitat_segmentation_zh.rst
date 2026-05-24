@@ -338,10 +338,12 @@ YAML 配置详解
 
 **断点续训与配置一致性（config_hash）**
 
-- 程序用 ``data_dir`` + ``FeatureConstruction`` + ``HabitatSegmentation`` 计算 ``config_hash`` ，写入 ``manifest.json``。
-- 续训时若 hash **与 manifest 不一致**，日志警告并**清空 checkpoint**，全部重跑。
-- **修改以下字段不影响 hash**，可安全续训：``processes`` 、``individual_subject_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 等。
-- **切换** ``clustering_mode`` （``one_step`` / ``two_step`` / ``direct_pooling``）**会改变 hash**，不能共用同一 checkpoint。
+- 程序用 **Stage 1（个体级）** 相关字段计算 ``config_hash`` ，写入 ``manifest.json`` （字段 ``individual_config_hash`` 与之相同）。
+- **纳入 hash**：``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类相关块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
+- **不纳入 hash**（改后可 ``resume: true`` 复用 pkl）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的 ``habitat.*`` （群体聚类）、``processes`` 、``plot_curves`` 、``out_dir`` 等。
+- 续训时 hash **与 manifest 不一致**且无法判定为仅 Stage 2 变更时，日志警告并**清空 checkpoint**。
+- 旧版 manifest（仅含全量 hash）在仅改群体预处理/群体聚类时，会打迁移警告并**保留** Stage 1 缓存。
+- **切换** ``clustering_mode`` **会改变 hash**，不能共用同一 checkpoint。
 
 断点续训详解
 ------------

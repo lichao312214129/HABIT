@@ -1051,16 +1051,17 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
 **config_hash 与续训兼容性**
 
-- **参与 hash**（变更则清空 checkpoint）：``data_dir`` 、``FeatureConstruction`` 、``HabitatSegmentation`` （含 ``clustering_mode``）。
-- **不参与 hash**（可安全修改后续训）：``processes`` 、``individual_subject_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``retry_failed_subjects`` 、``force_rerun_subjects`` 等。
-- 程序在 ``resume: true`` 启动时自动比较 hash；不一致时日志警告并删除 checkpoint。
+- **参与 hash**（Stage 1 个体级；变更则清空 checkpoint）：``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
+- **不参与 hash**（可 ``resume: true`` 继续）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``individual_subject_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``retry_failed_subjects`` 、``force_rerun_subjects`` 、``out_dir`` 等。
+- ``manifest.json`` 另存 ``individual_config_hash`` （与 ``config_hash`` 相同）；旧版仅全量 hash 的 manifest 在仅改 Stage 2 配置时会迁移 hash 并保留 pkl。
+- 程序在 ``resume: true`` 启动时自动比较 hash；个体级 hash 不一致且无法判定为 Stage 2 漂移时，日志警告并删除 checkpoint。
 
 **checkpoint 目录结构**
 
 .. code-block:: text
 
    <checkpoint_dir>/
-   ├── manifest.json      # completed_subjects, failed_subjects, config_hash, stage
+   ├── manifest.json      # completed_subjects, failed_subjects, config_hash, individual_config_hash, stage
    └── subjects/
        └── {subject_id}.pkl
 

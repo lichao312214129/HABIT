@@ -8,12 +8,17 @@ import pytest
 
 from habit.core.habitat_analysis.checkpoint.manager import (
     HabitatTrainCheckpoint,
+    build_individual_stage_config_payload,
     compute_config_hash,
+    compute_legacy_config_hash,
+    is_checkpoint_config_compatible,
 )
 from habit.core.habitat_analysis.config_schemas import (
     FeatureConstructionConfig,
     HabitatAnalysisConfig,
     HabitatSegmentationConfig,
+    PreprocessingConfig,
+    PreprocessingMethod,
     VoxelLevelConfig,
 )
 from habit.core.habitat_analysis.pipelines.habitat_subject_data import HabitatSubjectData
@@ -37,6 +42,103 @@ def test_compute_config_hash_changes_when_feature_config_changes(
     config_b = _minimal_train_config(tmp_path)
     config_b.FeatureConstruction.voxel_level.method = "other_method()"
     assert compute_config_hash(config_a) != compute_config_hash(config_b)
+
+
+def test_compute_config_hash_ignores_group_preprocessing_change(
+    tmp_path: Path,
+) -> None:
+    config_a = _minimal_train_config(tmp_path)
+    config_b = _minimal_train_config(tmp_path)
+    config_b.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[
+            PreprocessingMethod(
+                method="variance_filter",
+                variance_threshold=0.01,
+                global_normalize=False,
+            )
+        ]
+    )
+    assert compute_config_hash(config_a) == compute_config_hash(config_b)
+
+
+def test_compute_config_hash_ignores_group_habitat_change_for_two_step(
+    tmp_path: Path,
+) -> None:
+    config_a = _minimal_train_config(tmp_path)
+    config_b = _minimal_train_config(tmp_path)
+    config_b.HabitatSegmentation.habitat.fixed_n_clusters = 6
+    config_b.HabitatSegmentation.habitat.algorithm = "gmm"
+    assert compute_config_hash(config_a) == compute_config_hash(config_b)
+
+
+def test_legacy_hash_changes_when_group_preprocessing_changes(
+    tmp_path: Path,
+) -> None:
+    config_a = _minimal_train_config(tmp_path)
+    config_b = _minimal_train_config(tmp_path)
+    config_b.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[PreprocessingMethod(method="binning", n_bins=5, global_normalize=False)]
+    )
+    assert compute_legacy_config_hash(config_a) != compute_legacy_config_hash(config_b)
+
+
+def test_resume_keeps_checkpoint_when_only_group_preprocessing_changes(
+    tmp_path: Path,
+) -> None:
+    config_old = _minimal_train_config(tmp_path)
+    config_old.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[PreprocessingMethod(method="binning", n_bins=10, global_normalize=False)]
+    )
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config_old)
+    manager.initialize_for_run(resume=False)
+    manager.record_success("sub001", HabitatSubjectData())
+
+    # Simulate legacy v1 manifest that stored full-config hash.
+    legacy_hash = compute_legacy_config_hash(config_old)
+    manager.manifest.config_hash = legacy_hash
+    manager.manifest.individual_config_hash = ""
+    manager._write_manifest()
+
+    config_new = _minimal_train_config(tmp_path)
+    config_new.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[
+            PreprocessingMethod(
+                method="correlation_filter",
+                corr_threshold=0.9,
+                corr_method="spearman",
+                global_normalize=False,
+            )
+        ]
+    )
+    assert compute_config_hash(config_new) == compute_config_hash(config_old)
+    assert compute_legacy_config_hash(config_new) != legacy_hash
+
+    manager_new = HabitatTrainCheckpoint(checkpoint_dir, config_new)
+    manager_new.initialize_for_run(resume=True)
+    assert manager_new.manifest.completed_subjects == ["sub001"]
+    assert (checkpoint_dir / "subjects" / "sub001.pkl").exists()
+    assert manager_new.manifest.config_hash == compute_config_hash(config_new)
+    assert manager_new.manifest.individual_config_hash == compute_config_hash(config_new)
+
+
+def test_is_checkpoint_config_compatible_with_legacy_manifest(
+    tmp_path: Path,
+) -> None:
+    config = _minimal_train_config(tmp_path)
+    legacy_hash = compute_legacy_config_hash(config)
+    assert is_checkpoint_config_compatible(legacy_hash, config)
+
+
+def test_individual_payload_excludes_group_preprocessing(
+    tmp_path: Path,
+) -> None:
+    config = _minimal_train_config(tmp_path)
+    config.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[PreprocessingMethod(method="binning", n_bins=10, global_normalize=False)]
+    )
+    payload = build_individual_stage_config_payload(config)
+    assert "preprocessing_for_group_level" not in payload["FeatureConstruction"]
 
 
 def test_resume_skips_completed_and_failed_subjects(tmp_path: Path) -> None:
