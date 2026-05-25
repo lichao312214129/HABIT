@@ -107,10 +107,16 @@ def apply_preprocessing_pipeline(
                 f"(rows={len(feature_df)})"
             )
             if n_after != n_before:
-                logger.info(
-                    f"Group-level preprocessing '{method_name}' filtered "
-                    f"{n_before - n_after} feature column(s)"
-                )
+                if handler.changes_columns:
+                    logger.info(
+                        f"Group-level preprocessing '{method_name}' filtered "
+                        f"{n_before - n_after} feature column(s)"
+                    )
+                else:
+                    logger.warning(
+                        f"Group-level preprocessing '{method_name}' changed "
+                        f"feature_columns {n_before} -> {n_after} unexpectedly"
+                    )
 
         logger.info(
             f"Group-level preprocessing pipeline finished (fit): "
@@ -153,10 +159,16 @@ def apply_preprocessing_pipeline(
             f"(rows={len(feature_df)})"
         )
         if n_after != n_before:
-            logger.info(
-                f"Group-level preprocessing '{method_name}' filtered "
-                f"{n_before - n_after} feature column(s)"
-            )
+            if handler.changes_columns:
+                logger.info(
+                    f"Group-level preprocessing '{method_name}' filtered "
+                    f"{n_before - n_after} feature column(s)"
+                )
+            else:
+                logger.warning(
+                    f"Group-level preprocessing '{method_name}' changed "
+                    f"feature_columns {n_before} -> {n_after} unexpectedly"
+                )
 
     logger.info(
         f"Group-level preprocessing pipeline finished (transform): "

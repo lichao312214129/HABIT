@@ -176,8 +176,11 @@ class MinMaxPreprocessing(BaseFeaturePreprocessing):
 
         if baseline is None:
             raise ValueError("baseline is required for per-feature minmax transform.")
-        denom = (baseline.maxs - baseline.mins).replace(0, 1.0)
-        return (feature_df - baseline.mins) / denom
+        # Restrict baseline stats to surviving columns so pandas alignment does not
+        # reintroduce columns dropped by upstream variance/correlation filters.
+        cols = feature_df.columns
+        denom = (baseline.maxs[cols] - baseline.mins[cols]).replace(0, 1.0)
+        return (feature_df - baseline.mins[cols]) / denom
 
 
 @register_preprocessing("zscore")
@@ -216,7 +219,10 @@ class ZScorePreprocessing(BaseFeaturePreprocessing):
 
         if baseline is None:
             raise ValueError("baseline is required for per-feature zscore transform.")
-        return (feature_df - baseline.means) / baseline.stds
+        # Restrict baseline stats to surviving columns so pandas alignment does not
+        # reintroduce columns dropped by upstream variance/correlation filters.
+        cols = feature_df.columns
+        return (feature_df - baseline.means[cols]) / baseline.stds[cols]
 
 
 @register_preprocessing("robust")

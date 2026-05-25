@@ -142,3 +142,35 @@ Want texture-driven habitats?
    subject folder name.
 4. For `voxel_radiomics`, the params file must exist and be valid PyRadiomics
    YAML.
+5. For `supervoxel_radiomics`, use `params_supervoxel_radiomics.yaml` and set
+   `supervoxelBatch` / torch keys under `supervoxel_level.params` (see below).
+
+## Supervoxel-level: `supervoxel_radiomics(<img>)`
+
+Extracts **whole-ROI** PyRadiomics texture per supervoxel label (not a local kernel).
+
+```yaml
+supervoxel_level:
+  supervoxel_file_keyword: '*_supervoxel.nrrd'
+  method: supervoxel_radiomics(T2)
+  params:
+    params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
+    supervoxelBatch: 64          # habit default; batch group size for label loops
+    useTorchRadiomics: auto      # inherits from voxel_level.params if omitted
+    # torchGpus: [0, 1]
+    # torchGpuCount: 2
+    # torchDtype: float32
+```
+
+**Binning semantics:** one PyRadiomics discretization on the union mask (`sv_map > 0`),
+then per-label `cMatrices` ROI matrices — analogous in spirit to voxel-level whole-mask
+binning, but each unit is a supervoxel ROI. Values differ from legacy per-label
+`execute()` (per-label bin).
+
+**Not used:** `kernelRadius` (voxel_radiomics only).
+
+**Backend:** `useTorchRadiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
+PyRadiomics with the same union-mask bin path.
+
+Compare with `mean_voxel_features()` when you already have `voxel_level` features and
+only need aggregation (faster, consistent with voxel pipeline).

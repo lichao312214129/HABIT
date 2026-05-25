@@ -536,18 +536,24 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
     **supervoxel_radiomics(params_file=...)**:
 
-      - **说明**: 直接从原始图像的超像素块提取影像组学特征
-      - **参数**:
+      - **说明**: 对每个超体素 label 提取 **整 ROI** 影像组学纹理（非体素 kernel 邻域）
+      - **离散化**: 在全部超体素并集 mask（``sv_map > 0``）上 **一次** PyRadiomics ``_applyBinning``，再逐 label 用 ``cMatrices`` 建矩阵
+      - **后端**: ``useTorchRadiomics`` 解析为 torch 时用 TorchRadiomics（GPU/CPU torch）；否则 CPU PyRadiomics（语义相同）
+      - **参数**（写在 ``FeatureConstruction.supervoxel_level.params``，可继承 ``voxel_level.params`` 中的 torch 项）:
 
-        - ``params_file`` (str, 必需): PyRadiomics 参数文件路径
+        - ``params_file`` (str, 必需): PyRadiomics 参数 YAML（仅 featureClass / setting）
+        - ``supervoxelBatch`` (int): 批分组大小，默认 ``64``（非 kernel 半径）
+        - ``useTorchRadiomics`` (str): ``auto`` / ``true`` / ``false``
+        - ``torchGpus`` / ``torchGpuCount`` / ``torchDevice`` / ``torchDtype``: 同体素级
 
-      - **用途**: 不依赖 ``voxel_level`` 特征，直接从超像素区域提取纹理、形状等组学特征
-      - **示例**: ``supervoxel_radiomics(params_file='./parameter.yaml')``
+      - **注意**: ``kernelRadius`` 仅用于 ``voxel_radiomics``，``supervoxel_radiomics`` 不使用
+      - **用途**: 不依赖 ``voxel_level`` 特征，直接从超体素区域提取纹理等组学特征
+      - **示例**: ``supervoxel_radiomics(T2)`` 且 ``params_file: ./config/radiomics/params_supervoxel_radiomics.yaml``
 
   - **方法对比**:
 
     - ``mean_voxel_features()`` : 依赖 ``voxel_level`` 特征，速度快，适合大多数场景
-    - ``supervoxel_radiomics()`` : 独立提取，特征更丰富但计算量大
+    - ``supervoxel_radiomics()`` : 独立 ROI 组学；union-mask 一次 bin + 逐 label 提取；特征数值与旧版逐 label ``execute``（per-label bin）**不一致**
 
   - **完整示例**:
 
@@ -562,16 +568,21 @@ DICOM 整理配置参数（``habit sort-dicom``）
        # 场景2：直接提取影像组学特征
        supervoxel_level:
          supervoxel_file_keyword: '*_supervoxel.nrrd'
-         method: supervoxel_radiomics()
+         method: supervoxel_radiomics(T2)
          params:
-           params_file: ./parameter_supervoxel.yaml
+           params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
+           supervoxelBatch: 64
+           useTorchRadiomics: auto
+           # torchGpus: [0, 1]
 
 - ``params`` : 参数
 
   - **类型**: 字典
   - **必需**: 否
   - **默认值**: ``{}``
-  - **说明**: 传递给特征提取器的参数（如 ``params_file``）。
+  - **说明**: 传递给特征提取器的参数。``supervoxel_radiomics`` 常用键：
+    ``params_file``、``supervoxelBatch``、``useTorchRadiomics``、``torchGpus``、
+    ``torchGpuCount``、``torchDtype``（后几项可继承 ``voxel_level.params``）。
 
 **preprocessing_for_subject_level**: 个体级别预处理 (可选)
 

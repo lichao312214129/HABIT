@@ -98,8 +98,15 @@ FeatureConstruction:
     # Aggregation method for supervoxel features
     # Supported methods:
     #   - mean_voxel_features(): Mean of voxel features within each supervoxel
-    #   - supervoxel_radiomics(image_name): PyRadiomics features from supervoxel regions
-    # 
+    #   - supervoxel_radiomics(image_name): PyRadiomics ROI texture per supervoxel label
+    #
+    # supervoxel_radiomics notes (habit implementation):
+    #   - Discretization: PyRadiomics _applyBinning once on union mask (all labels > 0)
+    #   - Matrices: native cMatrices per label (_initCalculation ROI path)
+    #   - Torch backend when useTorchRadiomics resolves to torch (CUDA or CPU torch)
+    #   - supervoxelBatch (default 64): batch group size; not voxel kernel radius
+    #   - kernelRadius in method expression is for voxel_radiomics only; ignored here
+    #
     # Examples:
     #   Mean features:  mean_voxel_features()
     #   Radiomics:      supervoxel_radiomics(T2)
@@ -109,6 +116,11 @@ FeatureConstruction:
     params:
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
       # PyRadiomics parameter file (required if method is supervoxel_radiomics)
+      # supervoxelBatch: 64
+      # useTorchRadiomics: auto   # inherits from voxel_level.params when omitted
+      # torchGpus: [0, 1]
+      # torchGpuCount: 2
+      # torchDtype: float32
 
   # Feature preprocessing at individual subject level (Optional)
   # Applied before clustering, within each subject

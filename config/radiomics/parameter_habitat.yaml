@@ -2,6 +2,8 @@
 #
 # NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, torchGpus, etc.
 # are set in the habitat config (FeatureConstruction.voxel_level.params), not in this file.
+# NOTE (habit supervoxel_radiomics): supervoxelBatch, useTorchRadiomics, etc. belong in
+# FeatureConstruction.supervoxel_level.params (or inherit from voxel_level.params).
 # Habit default voxelBatch: 1000; use -1 for no batching (PyRadiomics native).
 #
 # This is an example of settings that can be used as a starting point for analyzing MR data with small (~3mm) slice

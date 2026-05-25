@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import unittest
 
-from habit.core.habitat_analysis.services.feature_service import resolve_voxel_step_params
+from habit.core.habitat_analysis.services.feature_service import (
+    resolve_radiomics_step_params,
+    resolve_voxel_step_params,
+)
 
 
 class TestResolveVoxelStepParams(unittest.TestCase):
@@ -36,6 +39,44 @@ class TestResolveVoxelStepParams(unittest.TestCase):
         self.assertEqual(resolved["params_file"], "./parameter.yaml")
         self.assertEqual(resolved["kernelRadius"], 3)
         self.assertEqual(resolved["voxelBatch"], 512)
+
+
+class TestResolveRadiomicsStepParams(unittest.TestCase):
+    def test_supervoxel_inherits_torch_backend_from_voxel_level(self) -> None:
+        step_params = {
+            "params_file": "./parameter.yaml",
+            "kernelRadius": 3,
+        }
+        supervoxel_params = {
+            "params_file": "./parameter.yaml",
+            "kernelRadius": 3,
+        }
+        voxel_params = {
+            "useTorchRadiomics": "auto",
+            "torchGpus": [0],
+        }
+        resolved = resolve_radiomics_step_params(
+            step_params,
+            supervoxel_params,
+            fallback_params=voxel_params,
+        )
+        self.assertEqual(resolved["useTorchRadiomics"], "auto")
+        self.assertEqual(resolved["torchGpus"], [0])
+
+    def test_supervoxel_level_overrides_voxel_fallback(self) -> None:
+        step_params = {"params_file": "./parameter.yaml"}
+        supervoxel_params = {
+            "params_file": "./parameter.yaml",
+            "useTorchRadiomics": "false",
+        }
+        voxel_params = {"useTorchRadiomics": "auto", "torchGpus": [0, 1]}
+        resolved = resolve_radiomics_step_params(
+            step_params,
+            supervoxel_params,
+            fallback_params=voxel_params,
+        )
+        self.assertEqual(resolved["useTorchRadiomics"], "false")
+        self.assertEqual(resolved["torchGpus"], [0, 1])
 
 
 if __name__ == "__main__":

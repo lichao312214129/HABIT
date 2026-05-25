@@ -92,6 +92,33 @@ class TestStatefulPipeline:
         with pytest.raises(ValueError, match="has not been fitted"):
             state.transform(pd.DataFrame({"A": [1.0, 2.0]}))
 
+    def test_zscore_after_filters_keeps_surviving_columns_without_nan(self) -> None:
+        rng = np.random.default_rng(42)
+        n_rows = 20
+        base_cols = {
+            f"feat_{idx}": rng.normal(loc=idx, scale=1.0, size=n_rows)
+            for idx in range(6)
+        }
+        base_cols["const"] = np.ones(n_rows)
+        base_cols["dup_a"] = base_cols["feat_0"] * 1.01 + 0.001
+        train_df = pd.DataFrame(base_cols)
+
+        methods = [
+            {"method": "variance_filter", "variance_threshold": 0.0},
+            {"method": "correlation_filter", "corr_threshold": 0.95},
+            {"method": "zscore", "global_normalize": False},
+        ]
+
+        state = PreprocessingState()
+        state.fit(train_df, methods)
+        out = state.transform(train_df)
+
+        feature_cols = [col for col in out.columns if col.startswith("feat_")]
+        assert "const" not in out.columns
+        assert "dup_a" not in out.columns
+        assert len(feature_cols) < train_df.shape[1]
+        assert not out[feature_cols].isna().any().any()
+
 
 class TestCustomRegistration:
     def test_register_decorator_adds_handler(self) -> None:

@@ -7,15 +7,19 @@ import time
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from typing import Union, List, Dict, Optional
+from typing import Union, List, Dict, Optional, Tuple
 from habit.utils.log_utils import get_module_logger, radiomics_feature_class_logging
-from habit.utils.progress_utils import CustomTqdm
 from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 from habit.utils.torch_radiomics_utils import (
     DEFAULT_TORCH_DTYPE,
     injected_torch_radiomics,
     resolve_torch_dtype,
     resolve_voxel_radiomics_backend,
+)
+from .batched_supervoxel_radiomics import (
+    DEFAULT_SUPERVOXEL_BATCH,
+    extract_batched_supervoxel_features,
+    extract_supervoxel_features_pyradiomics,
 )
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
 
@@ -33,6 +37,66 @@ def _enabled_supervoxel_feature_classes(enabled_features: Dict[str, object]) -> 
         List[str]: Feature class names, e.g. ``["firstorder", "glcm"]``.
     """
     return sorted(str(feature_class) for feature_class in enabled_features.keys())
+
+
+def _group_supervoxel_feature_names_by_class(
+    feature_names: List[str],
+    feature_classes: List[str],
+) -> Dict[str, List[str]]:
+    """
+    Group supervoxel result column names by PyRadiomics feature class.
+
+    Column names follow ``original_{class}_{name}`` or
+    ``original_{class}_{name}-{image}``.
+
+    Args:
+        feature_names: Feature column names collected from the first supervoxel.
+        feature_classes: Enabled feature class names.
+
+    Returns:
+        Dict[str, List[str]]: Feature class name to matching column names.
+    """
+    grouped: Dict[str, List[str]] = {feature_class: [] for feature_class in feature_classes}
+    for name in feature_names:
+        for feature_class in feature_classes:
+            if f"_{feature_class}_" in name:
+                grouped[feature_class].append(name)
+                break
+    return grouped
+
+
+def _log_supervoxel_feature_class_summary(
+    feature_names: List[str],
+    feature_classes: List[str],
+    *,
+    subject: str,
+    image_name: str,
+    backend: str,
+) -> None:
+    """
+    Log how many supervoxel feature columns were produced per feature class.
+
+    Args:
+        feature_names: Feature column names from extraction.
+        feature_classes: Enabled feature class names.
+        subject: Subject identifier for log context.
+        image_name: Image/modality name for log context.
+        backend: Resolved backend name (``torch`` or ``pyradiomics``).
+    """
+    grouped = _group_supervoxel_feature_names_by_class(feature_names, feature_classes)
+    for feature_class in feature_classes:
+        class_names = grouped.get(feature_class, [])
+        if not class_names:
+            continue
+        logger.info(
+            "supervoxel_radiomics feature class finished: subject=%s image=%s "
+            "backend=%s class=%s features=%d",
+            subject,
+            image_name,
+            backend,
+            feature_class,
+            len(class_names),
+        )
 
 
 def _should_log_supervoxel_progress(current_index: int, total: int) -> bool:
@@ -97,12 +161,14 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             **kwargs: Additional parameters
                 subject: Subject identifier for logging and GPU assignment.
                 image: Image/modality name appended to feature names.
-                useTorchRadiomics: ``auto`` (default), ``true``, or ``false``.
+                useTorchRadiomics: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
+                    TorchRadiomics when torch and CUDA are available, otherwise CPU PyRadiomics.
                 torchDevice: Single torch device when ``torchGpus`` is not set.
                 torchGpus: Allowed GPU indices, e.g. ``[0, 1]`` or ``"0,1"``.
                 torchGpuCount: Use at most this many GPUs from the front of ``torchGpus``.
                 gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
                 torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``).
+                supervoxelBatch: Supervoxels per batch group (union-mask binning path).
                 output_float32: If True, cast numeric feature columns to float32.
 
         Returns:
@@ -143,12 +209,13 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 f"Failed to initialize radiomics extractor with {params_file}: {exc}"
             ) from exc
 
+        use_torch_setting: str = str(kwargs.get("useTorchRadiomics", "auto"))
         backend, torch_device = resolve_voxel_radiomics_backend(
-            use_torch_radiomics=kwargs.get('useTorchRadiomics', 'auto'),
+            use_torch_radiomics=use_torch_setting,
             torch_device=kwargs.get('torchDevice', 'auto'),
             torch_gpus=kwargs.get('torchGpus'),
             torch_gpu_count=kwargs.get('torchGpuCount'),
-            subject=kwargs.get('subject'),
+            subject=kwargs.get('subject', subject_id),
             gpu_slot_index=kwargs.get('gpuSlotIndex'),
         )
         settings_update: Dict[str, object] = {
@@ -162,9 +229,11 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             if str(torch_device).startswith("cuda"):
                 logger.info(
                     "supervoxel_radiomics extraction using TorchRadiomics GPU: "
-                    "subject=%s image=%s device=%s torchGpus=%s torchGpuCount=%s dtype=%s",
+                    "subject=%s image=%s useTorchRadiomics=%s device=%s "
+                    "torchGpus=%s torchGpuCount=%s dtype=%s",
                     subject_id,
                     img_name,
+                    use_torch_setting,
                     torch_device,
                     kwargs.get("torchGpus"),
                     kwargs.get("torchGpuCount"),
@@ -173,17 +242,19 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             else:
                 logger.info(
                     "supervoxel_radiomics extraction using TorchRadiomics CPU: "
-                    "subject=%s image=%s device=%s",
+                    "subject=%s image=%s useTorchRadiomics=%s device=%s",
                     subject_id,
                     img_name,
+                    use_torch_setting,
                     torch_device,
                 )
         else:
             logger.info(
                 "supervoxel_radiomics extraction using CPU PyRadiomics: "
-                "subject=%s image=%s",
+                "subject=%s image=%s useTorchRadiomics=%s",
                 subject_id,
                 img_name,
+                use_torch_setting,
             )
         extractor.settings.update(settings_update)
 
@@ -196,13 +267,19 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
 
         n_supervoxels: int = len(sv_labels)
         enabled_feature_classes = _enabled_supervoxel_feature_classes(extractor.enabledFeatures)
-        progress_desc = f"supervoxel_radiomics {subject_id}"
-        if img_name:
-            progress_desc = f"{progress_desc} {img_name}"
+
+        logger.info(
+            "supervoxel_radiomics feature classes to extract: subject=%s image=%s "
+            "classes=%s backend=%s",
+            subject_id,
+            img_name,
+            enabled_feature_classes,
+            backend,
+        )
 
         logger.info(
             "supervoxel_radiomics start: subject=%s image=%s supervoxels=%d "
-            "label_range=[%d..%d] backend=%s device=%s feature_classes=%s",
+            "label_range=[%d..%d] backend=%s device=%s",
             subject_id,
             img_name,
             n_supervoxels,
@@ -210,98 +287,74 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             int(sv_labels.max()),
             backend,
             torch_device if backend == "torch" else "cpu_pyradiomics",
-            enabled_feature_classes,
         )
 
-        feature_data: List[Dict[str, object]] = []
+        if backend == "torch":
+            logger.info(
+                "supervoxel_radiomics TorchRadiomics injection enabled: "
+                "subject=%s image=%s device=%s",
+                subject_id,
+                img_name,
+                torch_device,
+            )
+
         self.feature_names = []
         n_succeeded: int = 0
         n_failed: int = 0
         extraction_started_at = time.monotonic()
+        supervoxel_batch: int = int(kwargs.get("supervoxelBatch", DEFAULT_SUPERVOXEL_BATCH))
+
+        logger.info(
+            "supervoxel_radiomics union-mask binning enabled: subject=%s image=%s "
+            "supervoxelBatch=%d",
+            subject_id,
+            img_name,
+            supervoxel_batch,
+        )
 
         with injected_torch_radiomics(enabled=(backend == "torch")):
             with radiomics_feature_class_logging():
-                with CustomTqdm(total=n_supervoxels, desc=progress_desc) as progress_bar:
-                    for sv_idx, sv_label in enumerate(sv_labels):
-                        sv_voxel_count: int = int(np.sum(sv_array == sv_label))
-                        if _should_log_supervoxel_progress(sv_idx, n_supervoxels):
-                            logger.info(
-                                "supervoxel_radiomics progress: subject=%s image=%s "
-                                "step=%d/%d label=%d voxels=%d",
-                                subject_id,
-                                img_name,
-                                sv_idx + 1,
-                                n_supervoxels,
-                                int(sv_label),
-                                sv_voxel_count,
-                            )
-
-                        try:
-                            label_started_at = time.monotonic()
-                            features = extractor.execute(image, sv_map, label=int(sv_label))
-                            label_elapsed_sec = time.monotonic() - label_started_at
-                            feature_row: Dict[str, object] = {"SupervoxelID": int(sv_label)}
-
-                            for feature_name, feature_value in features.items():
-                                if feature_name.startswith('diagnostics_'):
-                                    continue
-
-                                new_feature_name = (
-                                    f"{feature_name}-{img_name}" if img_name else feature_name
-                                )
-
-                                if sv_idx == 0 and new_feature_name not in self.feature_names:
-                                    self.feature_names.append(new_feature_name)
-
-                                if hasattr(feature_value, 'item'):
-                                    feature_value = feature_value.item()
-                                elif isinstance(feature_value, np.ndarray):
-                                    feature_value = (
-                                        float(feature_value.flat[0])
-                                        if feature_value.size > 0
-                                        else np.nan
-                                    )
-
-                                feature_row[new_feature_name] = feature_value
-
-                            feature_data.append(feature_row)
-                            n_succeeded += 1
-
-                            if _should_log_supervoxel_progress(sv_idx, n_supervoxels):
-                                logger.info(
-                                    "supervoxel_radiomics label finished: subject=%s image=%s "
-                                    "label=%d elapsed_sec=%.2f features=%d",
-                                    subject_id,
-                                    img_name,
-                                    int(sv_label),
-                                    label_elapsed_sec,
-                                    len(self.feature_names),
-                                )
-
-                        except Exception as exc:
-                            n_failed += 1
-                            logger.warning(
-                                "Failed to extract supervoxel radiomics for label %s: %s",
-                                sv_label,
-                                exc,
-                            )
-                            if self.feature_names:
-                                feature_row = {"SupervoxelID": int(sv_label)}
-                                for name in self.feature_names:
-                                    feature_row[name] = np.nan
-                                feature_data.append(feature_row)
-
-                        progress_bar.update(1)
-                        progress_bar.set_postfix(
-                            label=int(sv_label),
-                            ok=n_succeeded,
-                            fail=n_failed,
-                            refresh=False,
-                        )
+                if backend == "torch":
+                    feature_df = extract_batched_supervoxel_features(
+                        image,
+                        sv_map,
+                        sv_labels,
+                        enabled_features=extractor.enabledFeatures,
+                        image_name=img_name,
+                        settings=dict(extractor.settings),
+                        device=str(torch_device),
+                        dtype_name=str(
+                            kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE)
+                        ),
+                        batch_size=supervoxel_batch,
+                    )
+                else:
+                    feature_df = extract_supervoxel_features_pyradiomics(
+                        image,
+                        sv_map,
+                        sv_labels,
+                        enabled_features=extractor.enabledFeatures,
+                        image_name=img_name,
+                        settings=dict(extractor.settings),
+                        batch_size=supervoxel_batch,
+                    )
 
         del extractor
 
-        feature_df = pd.DataFrame(feature_data)
+        if not feature_df.empty:
+            self.feature_names = [
+                col for col in feature_df.columns if col != "SupervoxelID"
+            ]
+            numeric_cols = [col for col in self.feature_names]
+            if numeric_cols:
+                valid_rows = feature_df[numeric_cols].notna().any(axis=1)
+                n_succeeded = int(valid_rows.sum())
+                n_failed = int(len(feature_df) - n_succeeded)
+            else:
+                n_succeeded = len(feature_df)
+        else:
+            n_succeeded = 0
+            n_failed = n_supervoxels
 
         for col in feature_df.columns:
             if col != 'SupervoxelID':
@@ -311,6 +364,14 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             numeric_cols = [col for col in feature_df.columns if col != "SupervoxelID"]
             if numeric_cols:
                 feature_df[numeric_cols] = feature_df[numeric_cols].astype(np.float32)
+
+        _log_supervoxel_feature_class_summary(
+            self.feature_names,
+            enabled_feature_classes,
+            subject=subject_id,
+            image_name=img_name,
+            backend=backend,
+        )
 
         logger.info(
             "supervoxel_radiomics finished: subject=%s image=%s supervoxels=%d "

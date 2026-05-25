@@ -36,6 +36,9 @@ Before generating a config, confirm:
 | (voxel_radiomics only) PyRadiomics params YAML | required |
 | (voxel_radiomics only) `kernelRadius` / `voxelBatch` | optional; defaults 1 / 1000 (`-1` = no batching) |
 | (voxel_radiomics only) `useTorchRadiomics` / `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
+| (supervoxel_radiomics only) PyRadiomics params YAML | `params_supervoxel_radiomics.yaml` |
+| (supervoxel_radiomics only) `supervoxelBatch` | optional; default 64 |
+| (supervoxel_radiomics only) torch keys | inherit from `voxel_level.params` if omitted |
 | Expected habitat count | typical 3-5 |
 
 ## Decision 1 — one_step vs two_step
@@ -81,6 +84,13 @@ crash on small kernels. HABIT defaults unrestricted GLCM to 21 stable features
 and logs a warning. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
 limits how many of them are active. Subjects are mapped to GPUs via a stable hash
 of the subject ID. Set `processes` to the number of GPUs for best throughput.
+See `references/voxel_feature_methods.md`.
+
+For `supervoxel_radiomics` (two_step Step 2 input): use
+`config/radiomics/params_supervoxel_radiomics.yaml`; union-mask binning + per-label
+ROI extraction. Set `supervoxelBatch` / torch keys under `supervoxel_level.params`
+(inherit torch keys from `voxel_level.params` when omitted).
+See `references/voxel_feature_methods.md` (Supervoxel-level section).
 
 ## Population-level preprocessing (two_step only)
 

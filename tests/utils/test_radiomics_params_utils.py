@@ -9,6 +9,7 @@ from pathlib import Path
 from habit.utils.radiomics_params_utils import (
     VOXEL_SAFE_GLCM_FEATURES,
     apply_voxel_glcm_defaults,
+    configure_voxel_glcm_on_extractor,
     create_radiomics_feature_extractor,
     load_radiomics_params_yaml,
 )
@@ -78,6 +79,26 @@ class TestVoxelGlcmDefaults(unittest.TestCase):
         enabled: dict = {"firstorder": None}
         updated = apply_voxel_glcm_defaults(enabled, logger=None)
         self.assertIs(updated, enabled)
+
+    def test_configure_voxel_glcm_uses_enable_features_by_name(self) -> None:
+        from unittest.mock import MagicMock
+
+        extractor = MagicMock()
+        extractor.enabledFeatures = {"firstorder": None, "glcm": None}
+        configure_voxel_glcm_on_extractor(extractor, logger=None)
+        extractor.enableFeaturesByName.assert_called_once_with(
+            glcm=list(VOXEL_SAFE_GLCM_FEATURES),
+        )
+        extractor.enableFeatureClassByName.assert_not_called()
+
+    def test_configure_voxel_glcm_skips_explicit_list(self) -> None:
+        from unittest.mock import MagicMock
+
+        explicit: list[str] = ["Contrast", "Correlation"]
+        extractor = MagicMock()
+        extractor.enabledFeatures = {"glcm": explicit}
+        configure_voxel_glcm_on_extractor(extractor, logger=None)
+        extractor.enableFeaturesByName.assert_not_called()
 
 
 if __name__ == "__main__":

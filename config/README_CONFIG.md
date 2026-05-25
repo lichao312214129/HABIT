@@ -59,6 +59,15 @@ They are forwarded to the extractor even when omitted from the `method` expressi
 Default `voxelBatch` is `1000`; use `-1` for no batching. Default `useTorchRadiomics` is `auto`.
 Default `torchDtype` is `float32`.
 
+For `supervoxel_radiomics` in habitat, use `params_supervoxel_radiomics.yaml` for feature classes
+(firstorder, glcm, …). Habit-specific keys belong in
+`FeatureConstruction.supervoxel_level.params` (not in the PyRadiomics parameter YAML):
+`supervoxelBatch` (default `64`), `useTorchRadiomics`, `torchGpus`, `torchGpuCount`,
+`torchDevice`, and `torchDtype`. When omitted under `supervoxel_level`, torch keys inherit from
+`voxel_level.params`. Extraction uses **union-mask binning** (one PyRadiomics discretization on
+all supervoxel labels), then per-label ROI matrices via `cMatrices`. `kernelRadius` applies to
+`voxel_radiomics` only, not `supervoxel_radiomics`.
+
 ## How to use
 
 Open the YAML for the command you are running; section headers and comments
@@ -117,4 +126,4 @@ habit get-habitat -c config/habitat/config_getting_habitat.yaml
 
 ---
 
-*Last Updated: 2026-05-15*
+*Last Updated: 2026-05-25*

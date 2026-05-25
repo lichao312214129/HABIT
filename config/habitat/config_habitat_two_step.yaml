@@ -43,6 +43,15 @@ FeatureConstruction:
     params:
       # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
+      # supervoxel_radiomics example (params forwarded even if omitted from method):
+      # method: concat(supervoxel_radiomics(T2, params_file))
+      # supervoxelBatch: 64  # Default 64; batch group size for union-mask binning extraction
+      # useTorchRadiomics: auto  # auto | true | false; inherits from voxel_level.params when omitted
+      # torchGpus: [0, 1]
+      # torchGpuCount: 2
+      # torchDtype: float32
+      # Union-mask binning: one PyRadiomics discretization on all labels (sv_map>0), then per-label ROI cMatrices
+      # kernelRadius is for voxel_radiomics only (not used by supervoxel_radiomics ROI path)
 
   preprocessing_for_subject_level:
     # Stage 1: per-subject, before checkpoint (included in config_hash).

@@ -55,6 +55,13 @@ For **`voxel_radiomics`** in habitat configs, also set in `FeatureConstruction.v
 and `torchDtype` (default float32). These keys are forwarded even when omitted from
 the `method` expression string.
 
+For **`supervoxel_radiomics`**, set in `FeatureConstruction.supervoxel_level.params`:
+`params_file` (required), `supervoxelBatch` (default 64), and the same torch keys as above
+(inherit from `voxel_level.params` when omitted). Extraction discretizes once on the union
+supervoxel mask (`sv_map > 0`), then runs PyRadiomics ROI `cMatrices` per label. Torch path
+uses in-tree TorchRadiomics when `useTorchRadiomics` resolves to torch. `kernelRadius` is
+**not** used by `supervoxel_radiomics` (whole-ROI texture, not voxel kernel).
+
 ## Machine learning (`habit model` / `habit cv`)
 
 | Use case | Reference |

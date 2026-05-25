@@ -280,8 +280,10 @@ def configure_voxel_glcm_on_extractor(
     if updated is extractor.enabledFeatures:
         return
 
-    extractor.enabledFeatures = updated
-    extractor.enableFeatureClassByName(
-        "glcm",
-        customFeatures=updated["glcm"],
-    )
+    glcm_features: Any = updated.get("glcm")
+    if glcm_features is None:
+        return
+
+    # PyRadiomics 3.x: enableFeatureClassByName(featureClass, enabled=True) toggles a
+    # whole class only. Per-feature lists must go through enableFeaturesByName(**kwargs).
+    extractor.enableFeaturesByName(glcm=glcm_features)

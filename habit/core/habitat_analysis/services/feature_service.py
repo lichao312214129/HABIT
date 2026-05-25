@@ -26,8 +26,9 @@ def resolve_voxel_step_params(
     Resolve method-expression placeholders and merge global voxel_level.params.
 
     Parameters listed only under ``FeatureConstruction.voxel_level.params`` (such as
-    ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) are forwarded even when they
-    are omitted from the ``method`` expression string.
+    ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) or
+    ``FeatureConstruction.supervoxel_level.params`` (such as ``supervoxelBatch``)
+    are forwarded even when they are omitted from the ``method`` expression string.
 
     Args:
         step_params: Params parsed from one processing step expression.
@@ -49,6 +50,46 @@ def resolve_voxel_step_params(
         if param_name not in resolved:
             resolved[param_name] = param_value
 
+    return resolved
+
+
+# Torch / GPU backend keys shared by voxel_radiomics and supervoxel_radiomics.
+TORCH_BACKEND_PARAM_KEYS: Tuple[str, ...] = (
+    "useTorchRadiomics",
+    "torchDevice",
+    "torchGpus",
+    "torchGpuCount",
+    "torchDtype",
+    "gpuSlotIndex",
+)
+
+
+def resolve_radiomics_step_params(
+    step_params: Dict[str, Any],
+    section_params: Optional[Dict[str, Any]],
+    fallback_params: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Resolve step params and inherit torch backend settings when absent.
+
+    First merges ``section_params`` (e.g. ``supervoxel_level.params``), then
+    fills missing torch/GPU keys from ``fallback_params`` (e.g. ``voxel_level.params``).
+    Extractors still default ``useTorchRadiomics`` to ``auto`` when a key is missing
+    everywhere.
+
+    Args:
+        step_params: Params parsed from one processing step expression.
+        section_params: Global params for the current feature level.
+        fallback_params: Optional lower-priority params (typically voxel_level).
+
+    Returns:
+        Dict[str, Any]: Resolved params passed to radiomics feature extractors.
+    """
+    resolved = resolve_voxel_step_params(step_params, section_params)
+    fallback = fallback_params or {}
+    for key in TORCH_BACKEND_PARAM_KEYS:
+        if key not in resolved and key in fallback:
+            resolved[key] = fallback[key]
     return resolved
 
 
@@ -357,10 +398,20 @@ class FeatureService:
                 img_name = step['image']
                 step_params = step['params'].copy()
 
-                # Resolve placeholders and merge global supervoxel_level.params
-                # (useTorchRadiomics, torchGpus, etc.).
+                # Resolve placeholders, merge supervoxel_level.params, then inherit
+                # torch backend keys (useTorchRadiomics, torchGpus, etc.)
+                # from voxel_level.params when not set explicitly.
                 supervoxel_level_params = self.config.FeatureConstruction.supervoxel_level.params
-                step_params = resolve_voxel_step_params(step_params, supervoxel_level_params)
+                voxel_level_params = (
+                    self.config.FeatureConstruction.voxel_level.params
+                    if self.config.FeatureConstruction.voxel_level
+                    else None
+                )
+                step_params = resolve_radiomics_step_params(
+                    step_params,
+                    supervoxel_level_params,
+                    fallback_params=voxel_level_params,
+                )
                 step_params.update({'subject': subject, 'image': img_name})
 
                 self.logger.info(
