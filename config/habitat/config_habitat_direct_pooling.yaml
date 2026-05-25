@@ -36,6 +36,7 @@ FeatureConstruction:
     params:
       # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
+      supervoxelUnionBboxCrop: true
       # supervoxel_radiomics: see config_getting_habitat.yaml for supervoxelBatch / useTorchRadiomics notes
 
   preprocessing_for_subject_level:

@@ -27,7 +27,8 @@ def resolve_voxel_step_params(
 
     Parameters listed only under ``FeatureConstruction.voxel_level.params`` (such as
     ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) or
-    ``FeatureConstruction.supervoxel_level.params`` (such as ``supervoxelBatch``)
+    ``FeatureConstruction.supervoxel_level.params`` (such as ``supervoxelBatch``,
+    ``supervoxelUnionBboxCrop``)
     are forwarded even when they are omitted from the ``method`` expression string.
 
     Args:

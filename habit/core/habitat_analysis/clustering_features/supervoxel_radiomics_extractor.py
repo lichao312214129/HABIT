@@ -7,7 +7,7 @@ import time
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from typing import Union, List, Dict, Optional, Tuple
+from typing import Union, List, Dict, Optional, Tuple, Mapping
 from habit.utils.log_utils import get_module_logger, radiomics_feature_class_logging
 from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 from habit.utils.torch_radiomics_utils import (
@@ -24,6 +24,33 @@ from .batched_supervoxel_radiomics import (
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
 
 logger = get_module_logger(__name__)
+
+# Habit-only keys forwarded from habitat YAML into PyRadiomics ``settings`` dict.
+_SUPERVOXEL_SETTING_KEYS: Tuple[str, ...] = (
+    "supervoxelUnionBboxCrop",
+    "supervoxelPadDistance",
+)
+
+
+def _merge_supervoxel_settings(
+    extractor_settings: Mapping[str, object],
+    kwargs: Mapping[str, object],
+) -> Dict[str, object]:
+    """
+    Merge habit supervoxel extraction keys from YAML kwargs into settings.
+
+    Args:
+        extractor_settings: Settings loaded from ``params_file``.
+        kwargs: Resolved ``supervoxel_level.params`` forwarded by FeatureService.
+
+    Returns:
+        Dict[str, object]: Settings passed to batched supervoxel radiomics helpers.
+    """
+    settings = dict(extractor_settings)
+    for key in _SUPERVOXEL_SETTING_KEYS:
+        if key in kwargs:
+            settings[key] = kwargs[key]
+    return settings
 
 
 def _enabled_supervoxel_feature_classes(enabled_features: Dict[str, object]) -> List[str]:
@@ -169,6 +196,8 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
                 torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``).
                 supervoxelBatch: Supervoxels per batch group (union-mask binning path).
+                supervoxelUnionBboxCrop: Crop to union supervoxel bbox before extraction.
+                supervoxelPadDistance: Optional bbox pad override (voxels); else padDistance.
                 output_float32: If True, cast numeric feature columns to float32.
 
         Returns:
@@ -303,13 +332,15 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         n_failed: int = 0
         extraction_started_at = time.monotonic()
         supervoxel_batch: int = int(kwargs.get("supervoxelBatch", DEFAULT_SUPERVOXEL_BATCH))
+        radiomics_settings = _merge_supervoxel_settings(extractor.settings, kwargs)
 
         logger.info(
             "supervoxel_radiomics union-mask binning enabled: subject=%s image=%s "
-            "supervoxelBatch=%d",
+            "supervoxelBatch=%d union_bbox_crop=%s",
             subject_id,
             img_name,
             supervoxel_batch,
+            radiomics_settings.get("supervoxelUnionBboxCrop", True),
         )
 
         with injected_torch_radiomics(enabled=(backend == "torch")):
@@ -321,7 +352,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                         sv_labels,
                         enabled_features=extractor.enabledFeatures,
                         image_name=img_name,
-                        settings=dict(extractor.settings),
+                        settings=radiomics_settings,
                         device=str(torch_device),
                         dtype_name=str(
                             kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE)
@@ -335,7 +366,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                         sv_labels,
                         enabled_features=extractor.enabledFeatures,
                         image_name=img_name,
-                        settings=dict(extractor.settings),
+                        settings=radiomics_settings,
                         batch_size=supervoxel_batch,
                     )
 

@@ -1,7 +1,8 @@
 # This is an example of settings that can be used as a starting point for analyzing MR data with small (~3mm) slice
 # thickness. This is only intended as a starting point and is not likely to be the optimal settings for your dataset.
 #
-# NOTE (habit supervoxel_radiomics): supervoxelBatch, useTorchRadiomics, torchGpus, etc. belong in
+# NOTE (habit supervoxel_radiomics): supervoxelBatch, supervoxelUnionBboxCrop,
+# useTorchRadiomics, torchGpus, etc. belong in
 # FeatureConstruction.supervoxel_level.params (or inherit from voxel_level.params), NOT in this file.
 # Habit discretizes once on the union supervoxel mask, then extracts ROI texture per label via PyRadiomics cMatrices.
 # Some points in determining better values are added as comments where appropriate

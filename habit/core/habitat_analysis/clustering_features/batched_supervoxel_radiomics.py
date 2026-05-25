@@ -4,17 +4,18 @@ Batched supervoxel ROI radiomics mirroring PyRadiomics voxelBased orchestration.
 Flow (aligned with ``RadiomicsFeaturesBase._calculateVoxels``):
 
 1. Discretize once on the union supervoxel mask via PyRadiomics ``_applyBinning``.
-2. Iterate supervoxels in batches (``supervoxelBatch``).
-3. For each supervoxel label, swap ``maskArray`` and call ``_initCalculation`` so
-   ``cMatrices`` builds ROI texture matrices (PyRadiomics native, no custom binning).
-4. Run TorchRadiomics (or CPU PyRadiomics) ``get*FeatureValue`` for enabled features.
+2. Crop image/mask/supervoxel map to the union-mask bounding box (+ ``padDistance``).
+3. For each feature class, iterate supervoxel labels in batches (``supervoxelBatch``).
+3. Per label in a batch: ``cMatrices`` via ``_calculateMatrix`` (PyRadiomics native ROI path).
+4. Stack matrices to ``[B, …]`` and run Torch ``_calculateCoefficients`` + ``get*FeatureValue`` once
+   per batch (Torch path). CPU PyRadiomics falls back to per-label scalar formulas.
 
 Torch is lazy-imported so machines without PyTorch can still import this module.
 """
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
@@ -24,8 +25,19 @@ from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger(__name__)
 
-# Default batch size; groups supervoxel row assembly (like voxelBatch for voxel maps).
+# Default batch size; controls matrix/formula batch width (like voxelBatch for voxel maps).
 DEFAULT_SUPERVOXEL_BATCH = 64
+
+# Default padding around union-mask bbox for ROI texture (not voxel kernelRadius).
+DEFAULT_SUPERVOXEL_PAD_DISTANCE = 1
+
+# Torch texture classes: matrix attribute on calculator after ``_calculateMatrix``.
+_TEXTURE_MATRIX_ATTR: Dict[str, str] = {
+    "glcm": "P_glcm",
+    "glrlm": "P_glrlm",
+    "glszm": "P_glszm",
+    "ngtdm": "P_ngtdm",
+}
 
 # PyRadiomics feature names enabled by default when a whole class is requested.
 DEFAULT_FEATURES_BY_CLASS: Dict[str, List[str]] = {
@@ -123,6 +135,127 @@ def _build_union_mask(
     return union_mask, label_array
 
 
+def _resolve_supervoxel_pad_distance(settings: Mapping[str, object]) -> int:
+    """
+    Resolve padding for union-mask bbox crop.
+
+    Supervoxel ROI extraction uses ``padDistance`` (PyRadiomics crop padding), not
+    ``kernelRadius`` (voxel-based kernel only). ``supervoxelPadDistance`` overrides
+    ``padDistance`` when present.
+
+    Args:
+        settings: PyRadiomics / habit radiomics settings dict.
+
+    Returns:
+        int: Non-negative pad distance in voxels.
+    """
+    if "supervoxelPadDistance" in settings:
+        return max(0, int(settings["supervoxelPadDistance"]))
+    if "padDistance" in settings:
+        return max(0, int(settings["padDistance"]))
+    return DEFAULT_SUPERVOXEL_PAD_DISTANCE
+
+
+def _should_crop_union_bbox(settings: Mapping[str, object]) -> bool:
+    """
+    Return whether union-mask bbox cropping is enabled.
+
+    Args:
+        settings: PyRadiomics / habit radiomics settings dict.
+
+    Returns:
+        bool: True unless ``supervoxelUnionBboxCrop`` is explicitly False.
+    """
+    return bool(settings.get("supervoxelUnionBboxCrop", True))
+
+
+def _crop_to_union_bounding_box(
+    image: sitk.Image,
+    union_mask: sitk.Image,
+    supervoxel_map: sitk.Image,
+    settings: Mapping[str, object],
+) -> Tuple[sitk.Image, sitk.Image, sitk.Image, int]:
+    """
+    Crop volumes to the union supervoxel mask bounding box using PyRadiomics helpers.
+
+    Mirrors ``RadiomicsFeatureExtractor.execute`` cropping semantics:
+    ``checkMask`` for the bounding box, then ``cropToTumorMask`` with ``padDistance``.
+
+    Args:
+        image: Input intensity image.
+        union_mask: Binary union mask (label 1 = foreground).
+        supervoxel_map: Multi-label supervoxel map aligned with ``image``.
+        settings: PyRadiomics settings (``label``, ``padDistance``, geometry keys).
+
+    Returns:
+        Tuple[sitk.Image, sitk.Image, sitk.Image, int]:
+            Cropped image, cropped union mask, cropped supervoxel map, pad distance.
+    """
+    from radiomics import imageoperations
+
+    pad_distance = _resolve_supervoxel_pad_distance(settings)
+    crop_settings = dict(settings)
+    crop_settings.setdefault("label", 1)
+
+    bounding_box, corrected_mask = imageoperations.checkMask(
+        image,
+        union_mask,
+        **crop_settings,
+    )
+    mask_for_crop = corrected_mask if corrected_mask is not None else union_mask
+
+    cropped_image, cropped_union_mask = imageoperations.cropToTumorMask(
+        image,
+        mask_for_crop,
+        bounding_box,
+        padDistance=pad_distance,
+    )
+    # cropToTumorMask returns (croppedImage, croppedMask); pass supervoxel_map as
+    # both nodes so the first output is the cropped label map (not intensity image).
+    cropped_supervoxel_map, _ = imageoperations.cropToTumorMask(
+        supervoxel_map,
+        supervoxel_map,
+        bounding_box,
+        padDistance=pad_distance,
+    )
+
+    logger.debug(
+        "Union bbox crop: padDistance=%d full_size=%s cropped_size=%s",
+        pad_distance,
+        image.GetSize(),
+        cropped_image.GetSize(),
+    )
+    return cropped_image, cropped_union_mask, cropped_supervoxel_map, pad_distance
+
+
+def _prepare_supervoxel_volumes(
+    image: sitk.Image,
+    supervoxel_map: sitk.Image,
+    settings: Mapping[str, object],
+) -> Tuple[sitk.Image, sitk.Image, sitk.Image, int, bool]:
+    """
+    Build union mask and optionally crop all volumes to its bounding box.
+
+    Args:
+        image: Input intensity image.
+        supervoxel_map: Multi-label supervoxel map.
+        settings: PyRadiomics settings dict.
+
+    Returns:
+        Tuple[sitk.Image, sitk.Image, sitk.Image, int, bool]:
+            Image, union mask, supervoxel map (possibly cropped), pad distance,
+            whether cropping was applied.
+    """
+    union_mask, _ = _build_union_mask(supervoxel_map, image)
+    if not _should_crop_union_bbox(settings):
+        return image, union_mask, supervoxel_map, 0, False
+
+    cropped_image, cropped_union_mask, cropped_supervoxel_map, pad_distance = (
+        _crop_to_union_bounding_box(image, union_mask, supervoxel_map, settings)
+    )
+    return cropped_image, cropped_union_mask, cropped_supervoxel_map, pad_distance, True
+
+
 def _feature_column_name(
     feature_class: str,
     feature_name: str,
@@ -183,6 +316,524 @@ def _scalar_feature_value(values: np.ndarray) -> float:
     if flat.size == 0:
         return float("nan")
     return float(flat[0])
+
+
+def _assign_batch_feature_values(
+    batch_row_maps: List[Dict[str, object]],
+    feature_class: str,
+    feature_names: Sequence[str],
+    feature_values: Mapping[str, np.ndarray],
+    image_name: str,
+) -> None:
+    """
+    Write batched feature vectors into per-label row dicts.
+
+    Args:
+        batch_row_maps: One dict per supervoxel label in the batch.
+        feature_class: PyRadiomics feature class name.
+        feature_names: Enabled feature names without class prefix.
+        feature_values: Feature name -> array of shape [B].
+        image_name: Optional column suffix.
+    """
+    batch_len = len(batch_row_maps)
+    for feature_name in feature_names:
+        col = _feature_column_name(feature_class, feature_name, image_name)
+        values = np.asarray(feature_values[feature_name], dtype=np.float64).reshape(-1)
+        if values.size == 1 and batch_len > 1:
+            # Some get* methods return a scalar when B=1; duplicate for safety.
+            values = np.full(batch_len, values[0], dtype=np.float64)
+        for row_idx, row in enumerate(batch_row_maps):
+            row[col] = float(values[row_idx]) if row_idx < values.size else float("nan")
+
+
+def _pad_and_stack_torch(
+    tensors: Sequence[object],
+    *,
+    pad_dims: Sequence[int],
+    fill: float = 0.0,
+) -> object:
+    """
+    Pad tensors along selected dimensions and concatenate on batch dim 0.
+
+    Each input tensor is expected to have leading batch dimension 1 (one ROI).
+
+    Args:
+        tensors: Sequence of torch tensors with shape ``(1, ...)``.
+        pad_dims: Dimensions (excluding batch dim 0) to pad to the batch maximum.
+        fill: Padding fill value.
+
+    Returns:
+        torch.Tensor: Stacked tensor with shape ``(B, ...)``.
+    """
+    import torch
+
+    if not tensors:
+        raise ValueError("Cannot stack an empty tensor sequence.")
+
+    torch_tensors = [t if isinstance(t, torch.Tensor) else torch.as_tensor(t) for t in tensors]
+    ndim = torch_tensors[0].ndim
+    max_sizes = list(torch_tensors[0].shape)
+    for tensor in torch_tensors[1:]:
+        for dim_idx in range(ndim):
+            max_sizes[dim_idx] = max(max_sizes[dim_idx], tensor.shape[dim_idx])
+
+    padded: List[torch.Tensor] = []
+    for tensor in torch_tensors:
+        for dim_idx in pad_dims:
+            current = tensor.shape[dim_idx]
+            target = max_sizes[dim_idx]
+            if current < target:
+                pad_shape = list(tensor.shape)
+                pad_shape[dim_idx] = target - current
+                pad_tensor = torch.full(
+                    pad_shape,
+                    fill,
+                    dtype=tensor.dtype,
+                    device=tensor.device,
+                )
+                tensor = torch.cat([tensor, pad_tensor], dim=dim_idx)
+        padded.append(tensor)
+
+    return torch.cat(padded, dim=0)
+
+
+def _extract_torch_texture_batch(
+    calculator: object,
+    feature_class: str,
+    feature_names: Sequence[str],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Stack ROI texture matrices for a label batch and evaluate Torch formulas once.
+
+    GLRLM/GLSZM run ``_calculateCoefficients`` per label first because column
+    pruning is ROI-specific; other texture classes stack raw matrices then batch
+    the coefficient step.
+
+    Args:
+        calculator: TorchRadiomics texture calculator (GLCM/GLRLM/GLSZM/NGTDM).
+        feature_class: Feature class name.
+        feature_names: Enabled features for this class.
+        label_array: Full supervoxel label map.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Mutable row dicts to fill with feature values.
+        image_name: Optional column suffix.
+    """
+    if feature_class == "glrlm":
+        _extract_torch_glrlm_batch(
+            calculator,
+            feature_names,
+            label_array=label_array,
+            batch_labels=batch_labels,
+            batch_row_maps=batch_row_maps,
+            image_name=image_name,
+        )
+        return
+    if feature_class == "glszm":
+        _extract_torch_glszm_batch(
+            calculator,
+            feature_names,
+            label_array=label_array,
+            batch_labels=batch_labels,
+            batch_row_maps=batch_row_maps,
+            image_name=image_name,
+        )
+        return
+
+    import torch
+
+    matrix_attr = _TEXTURE_MATRIX_ATTR[feature_class]
+    pad_dim_by_class: Dict[str, Sequence[int]] = {
+        "glcm": (2, 3),
+        "ngtdm": (1,),
+    }
+    pad_dims = pad_dim_by_class[feature_class]
+
+    matrices: List[torch.Tensor] = []
+    for label in batch_labels:
+        calculator.maskArray = (label_array == label)
+        matrix = calculator._calculateMatrix(None)
+        matrices.append(matrix)
+
+    stacked = _pad_and_stack_torch(matrices, pad_dims=pad_dims, fill=0.0)
+    setattr(calculator, matrix_attr, stacked)
+    calculator._calculateCoefficients()
+    feature_values = _extract_feature_values(calculator, feature_names)
+    _assign_batch_feature_values(
+        batch_row_maps,
+        feature_class,
+        feature_names,
+        feature_values,
+        image_name,
+    )
+
+
+def _extract_torch_glrlm_batch(
+    calculator: object,
+    feature_names: Sequence[str],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Batch GLRLM features after per-label matrix normalization.
+
+    ``_calculateCoefficients`` removes empty run-length columns per ROI; doing
+    that on a stacked batch would mix column sets across supervoxels.
+
+    Args:
+        calculator: TorchRadiomicsGLRLM instance.
+        feature_names: Enabled GLRLM features.
+        label_array: Full supervoxel label map.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Mutable row dicts to fill.
+        image_name: Optional column suffix.
+    """
+    import torch
+
+    per_label_states: List[Dict[str, torch.Tensor]] = []
+    for label in batch_labels:
+        calculator.maskArray = (label_array == label)
+        calculator.P_glrlm = calculator._calculateMatrix(None)
+        nr_tensor = calculator.coefficients["Nr"]
+        calculator._calculateCoefficients()
+        per_label_states.append(
+            {
+                "P_glrlm": calculator.P_glrlm,
+                "pr": calculator.coefficients["pr"],
+                "pg": calculator.coefficients["pg"],
+                "jvector": calculator.coefficients["jvector"],
+                "Nr": nr_tensor,
+            }
+        )
+
+    calculator.P_glrlm = _pad_and_stack_torch(
+        [state["P_glrlm"] for state in per_label_states],
+        pad_dims=(2, 3),
+        fill=0.0,
+    )
+    calculator.coefficients["pr"] = _pad_and_stack_torch(
+        [state["pr"] for state in per_label_states],
+        pad_dims=(1, 2),
+        fill=0.0,
+    )
+    calculator.coefficients["pg"] = _pad_and_stack_torch(
+        [state["pg"] for state in per_label_states],
+        pad_dims=(1, 2),
+        fill=0.0,
+    )
+    calculator.coefficients["Nr"] = _pad_and_stack_torch(
+        [state["Nr"] for state in per_label_states],
+        pad_dims=(1,),
+        fill=float("nan"),
+    )
+
+    max_run_length = max(state["jvector"].shape[0] for state in per_label_states)
+    calculator.coefficients["jvector"] = torch.arange(
+        1,
+        max_run_length + 1,
+        dtype=calculator.P_glrlm.dtype,
+        device=calculator.P_glrlm.device,
+    )
+    calculator.coefficients["ivector"] = calculator.tensor(
+        calculator.coefficients["grayLevels"]
+    )
+
+    feature_values = _extract_feature_values(calculator, feature_names)
+    _assign_batch_feature_values(
+        batch_row_maps,
+        "glrlm",
+        feature_names,
+        feature_values,
+        image_name,
+    )
+
+
+def _extract_torch_glszm_batch(
+    calculator: object,
+    feature_names: Sequence[str],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Batch GLSZM features after per-label zone-size column pruning.
+
+    Args:
+        calculator: TorchRadiomicsGLSZM instance.
+        feature_names: Enabled GLSZM features.
+        label_array: Full supervoxel label map.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Mutable row dicts to fill.
+        image_name: Optional column suffix.
+    """
+    import torch
+
+    per_label_states: List[Dict[str, torch.Tensor]] = []
+    for label in batch_labels:
+        calculator.maskArray = (label_array == label)
+        calculator.P_glszm = calculator._calculateMatrix(None)
+        calculator._calculateCoefficients()
+        per_label_states.append(
+            {
+                "P_glszm": calculator.P_glszm,
+                "ps": calculator.coefficients["ps"],
+                "pg": calculator.coefficients["pg"],
+                "jvector": calculator.coefficients["jvector"],
+                "Nz": calculator.coefficients["Nz"],
+                "Np": calculator.coefficients["Np"],
+            }
+        )
+
+    calculator.P_glszm = _pad_and_stack_torch(
+        [state["P_glszm"] for state in per_label_states],
+        pad_dims=(2,),
+        fill=0.0,
+    )
+    calculator.coefficients["ps"] = _pad_and_stack_torch(
+        [state["ps"] for state in per_label_states],
+        pad_dims=(1,),
+        fill=0.0,
+    )
+    calculator.coefficients["pg"] = _pad_and_stack_torch(
+        [state["pg"] for state in per_label_states],
+        pad_dims=(1,),
+        fill=0.0,
+    )
+    calculator.coefficients["Nz"] = torch.cat(
+        [
+            state["Nz"].reshape(1) if state["Nz"].ndim == 0 else state["Nz"].reshape(1)
+            for state in per_label_states
+        ],
+        dim=0,
+    )
+    calculator.coefficients["Np"] = torch.cat(
+        [
+            state["Np"].reshape(1) if state["Np"].ndim == 0 else state["Np"].reshape(1)
+            for state in per_label_states
+        ],
+        dim=0,
+    )
+
+    max_zone_size = max(state["jvector"].shape[0] for state in per_label_states)
+    calculator.coefficients["jvector"] = torch.arange(
+        1,
+        max_zone_size + 1,
+        dtype=calculator.P_glszm.dtype,
+        device=calculator.P_glszm.device,
+    )
+    calculator.coefficients["ivector"] = calculator.tensor(
+        calculator.coefficients["grayLevels"]
+    )
+
+    feature_values = _extract_feature_values(calculator, feature_names)
+    _assign_batch_feature_values(
+        batch_row_maps,
+        "glszm",
+        feature_names,
+        feature_values,
+        image_name,
+    )
+
+
+def _extract_torch_gldm_batch(
+    calculator: object,
+    feature_names: Sequence[str],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Stack GLDM matrices and coefficient tensors for a label batch.
+
+    GLDM sets ``pd``/``pg``/``Nz``/``jvector`` inside ``_calculateMatrix``; batch by
+    padding the dependence-size dimension and stacking.
+
+    Args:
+        calculator: TorchRadiomicsGLDM instance.
+        feature_names: Enabled GLDM features.
+        label_array: Full supervoxel label map.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Mutable row dicts to fill.
+        image_name: Optional column suffix.
+    """
+    import torch
+
+    p_gldm_list: List[torch.Tensor] = []
+    pd_list: List[torch.Tensor] = []
+    pg_list: List[torch.Tensor] = []
+    nz_list: List[torch.Tensor] = []
+
+    for label in batch_labels:
+        calculator.maskArray = (label_array == label)
+        p_gldm = calculator._calculateMatrix(None)
+        p_gldm_list.append(p_gldm)
+        pd_list.append(calculator.coefficients["pd"])
+        pg_list.append(calculator.coefficients["pg"])
+        nz_list.append(calculator.coefficients["Nz"])
+
+    stacked_p = _pad_and_stack_torch(p_gldm_list, pad_dims=(2,), fill=0.0)
+    stacked_pd = _pad_and_stack_torch(pd_list, pad_dims=(1,), fill=0.0)
+    stacked_pg = _pad_and_stack_torch(pg_list, pad_dims=(1,), fill=0.0)
+    stacked_nz = torch.cat(
+        [nz.reshape(1) if nz.ndim == 0 else nz.reshape(1) for nz in nz_list],
+        dim=0,
+    )
+
+    max_nd = stacked_p.shape[2]
+    jvector = torch.arange(1, max_nd + 1, dtype=stacked_p.dtype, device=stacked_p.device)
+
+    calculator.P_gldm = stacked_p
+    calculator.coefficients["pd"] = stacked_pd
+    calculator.coefficients["pg"] = stacked_pg
+    calculator.coefficients["Nz"] = stacked_nz
+    calculator.coefficients["ivector"] = calculator.tensor(calculator.coefficients["grayLevels"])
+    calculator.coefficients["jvector"] = jvector
+
+    feature_values = _extract_feature_values(calculator, feature_names)
+    _assign_batch_feature_values(
+        batch_row_maps,
+        "gldm",
+        feature_names,
+        feature_values,
+        image_name,
+    )
+
+
+def _extract_torch_firstorder_batch(
+    calculator: object,
+    feature_names: Sequence[str],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Batch first-order statistics by padding ``targetVoxelArray`` per label.
+
+    ``p_i`` histogram features still use per-label ``_initCalculation`` when any
+    histogram-based feature is requested; otherwise voxel arrays are stacked.
+
+    Args:
+        calculator: TorchRadiomicsFirstOrder instance.
+        feature_names: Enabled first-order features.
+        label_array: Full supervoxel label map.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Mutable row dicts to fill.
+        image_name: Optional column suffix.
+    """
+    histogram_features = {"Entropy", "Uniformity", "Energy", "TotalEnergy"}
+    needs_histogram = any(name in histogram_features for name in feature_names)
+
+    if needs_histogram or len(batch_labels) == 1:
+        for label, row in zip(batch_labels, batch_row_maps):
+            calculator.maskArray = (label_array == label)
+            calculator._initCalculation(None)
+            feature_values = _extract_feature_values(calculator, feature_names)
+            for feature_name, values in feature_values.items():
+                col = _feature_column_name("firstorder", feature_name, image_name)
+                row[col] = _scalar_feature_value(values)
+        return
+
+    target_rows: List[np.ndarray] = []
+    for label in batch_labels:
+        calculator.maskArray = (label_array == label)
+        calculator._initCalculation(None)
+        target_rows.append(np.asarray(calculator.targetVoxelArray, dtype=np.float64))
+
+    max_voxels = max(row.shape[1] for row in target_rows)
+    target_batch = np.full((len(batch_labels), max_voxels), np.nan, dtype=np.float64)
+    for row_idx, row in enumerate(target_rows):
+        target_batch[row_idx, : row.shape[1]] = row[0]
+
+    calculator.targetVoxelArray = target_batch
+    feature_values = _extract_feature_values(calculator, feature_names)
+    _assign_batch_feature_values(
+        batch_row_maps,
+        "firstorder",
+        feature_names,
+        feature_values,
+        image_name,
+    )
+
+
+def _extract_supervoxel_label_features_torch_batch(
+    calculators: Mapping[str, object],
+    resolved_features: Mapping[str, Sequence[str]],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Extract enabled features for a supervoxel label batch using Torch formula batching.
+
+    Outer loop is feature class; inner loop builds stacked matrices per batch.
+
+    Args:
+        calculators: Shared Torch calculators binned on the union mask.
+        resolved_features: Enabled feature names per class.
+        label_array: Full supervoxel label map array.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Pre-allocated row dicts (must include SupervoxelID).
+        image_name: Optional column suffix.
+    """
+    for feature_class in sorted(calculators.keys()):
+        feature_names = resolved_features.get(feature_class, [])
+        if not feature_names:
+            continue
+
+        calculator = calculators[feature_class]
+        try:
+            if feature_class in _TEXTURE_MATRIX_ATTR:
+                _extract_torch_texture_batch(
+                    calculator,
+                    feature_class,
+                    feature_names,
+                    label_array=label_array,
+                    batch_labels=batch_labels,
+                    batch_row_maps=batch_row_maps,
+                    image_name=image_name,
+                )
+            elif feature_class == "gldm":
+                _extract_torch_gldm_batch(
+                    calculator,
+                    feature_names,
+                    label_array=label_array,
+                    batch_labels=batch_labels,
+                    batch_row_maps=batch_row_maps,
+                    image_name=image_name,
+                )
+            elif feature_class == "firstorder":
+                _extract_torch_firstorder_batch(
+                    calculator,
+                    feature_names,
+                    label_array=label_array,
+                    batch_labels=batch_labels,
+                    batch_row_maps=batch_row_maps,
+                    image_name=image_name,
+                )
+            else:
+                raise ValueError(f"Unsupported Torch feature class: {feature_class}")
+        except Exception as exc:
+            logger.warning(
+                "Failed Torch batched extraction for class %s labels %s: %s",
+                feature_class,
+                batch_labels,
+                exc,
+            )
 
 
 def _create_torch_calculators(
@@ -329,12 +980,14 @@ def _calculate_supervoxels(
     image_name: str = "",
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
+    enable_torch_formula_batch: bool = False,
 ) -> pd.DataFrame:
     """
     Extract supervoxel features using shared union-mask binning.
 
-    Mirrors PyRadiomics ``_calculateVoxels`` batching: group labels into batches,
-    but compute each supervoxel ROI independently via ``_initCalculation``.
+    When ``enable_torch_formula_batch`` is True, each feature class stacks ROI
+    matrices for ``batch_size`` labels and runs Torch ``_calculateCoefficients``
+    once per class per batch (voxelBased-style formula batching).
 
     Args:
         image: Input SimpleITK image.
@@ -345,6 +998,7 @@ def _calculate_supervoxels(
         image_name: Optional feature column suffix.
         batch_size: Labels per batch group.
         progress_callback: Optional callback invoked once per processed label.
+        enable_torch_formula_batch: Use stacked-matrix Torch formula batching.
 
     Returns:
         pd.DataFrame: One row per supervoxel.
@@ -356,15 +1010,40 @@ def _calculate_supervoxels(
     rows: List[Dict[str, object]] = []
 
     for start in range(0, len(labels), batch_size):
-        batch_labels = labels[start:start + batch_size].astype(np.int64, copy=False)
-        for label in batch_labels.tolist():
-            row: Dict[str, object] = {"SupervoxelID": int(label)}
+        batch_labels_arr = labels[start:start + batch_size].astype(np.int64, copy=False)
+        batch_labels = [int(label) for label in batch_labels_arr.tolist()]
+        batch_row_maps: List[Dict[str, object]] = [
+            {"SupervoxelID": label} for label in batch_labels
+        ]
+
+        if enable_torch_formula_batch:
+            try:
+                _extract_supervoxel_label_features_torch_batch(
+                    calculators,
+                    resolved_features,
+                    label_array=label_array,
+                    batch_labels=batch_labels,
+                    batch_row_maps=batch_row_maps,
+                    image_name=image_name,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Failed Torch batched supervoxel extraction for labels %s: %s",
+                    batch_labels,
+                    exc,
+                )
+            rows.extend(batch_row_maps)
+            if progress_callback is not None:
+                progress_callback(len(batch_labels))
+            continue
+
+        for label, row in zip(batch_labels, batch_row_maps):
             try:
                 feature_row = _extract_supervoxel_label_features(
                     calculators,
                     resolved_features,
                     label_array=label_array,
-                    label=int(label),
+                    label=label,
                     image_name=image_name,
                 )
                 row.update(feature_row)
@@ -374,9 +1053,10 @@ def _calculate_supervoxels(
                     label,
                     exc,
                 )
-            rows.append(row)
             if progress_callback is not None:
                 progress_callback(1)
+
+        rows.extend(batch_row_maps)
 
     return pd.DataFrame(rows)
 
@@ -430,7 +1110,9 @@ def extract_batched_supervoxel_features(
     if not np.any(label_array > 0):
         raise ValueError("Supervoxel map has no non-zero labels.")
 
-    union_mask, _ = _build_union_mask(supervoxel_map, image)
+    image, union_mask, supervoxel_map, pad_distance, union_bbox_crop = (
+        _prepare_supervoxel_volumes(image, supervoxel_map, settings)
+    )
     torch_settings = dict(settings)
     torch_settings["device"] = device
     torch_settings["dtype"] = dtype
@@ -440,21 +1122,28 @@ def extract_batched_supervoxel_features(
         logger.info(
             "batched supervoxel_radiomics using TorchRadiomics GPU: "
             "useTorchRadiomics=%s device=%s dtype=%s labels=%d batch_size=%d "
-            "union_bin=True",
+            "union_bin=True union_bbox_crop=%s padDistance=%d cropped_size=%s",
             use_torch_setting,
             device,
             dtype_name,
             len(labels),
             batch_size,
+            union_bbox_crop,
+            pad_distance,
+            image.GetSize(),
         )
     else:
         logger.info(
             "batched supervoxel_radiomics using TorchRadiomics CPU: "
-            "useTorchRadiomics=%s device=%s labels=%d batch_size=%d union_bin=True",
+            "useTorchRadiomics=%s device=%s labels=%d batch_size=%d "
+            "union_bin=True union_bbox_crop=%s padDistance=%d cropped_size=%s",
             use_torch_setting,
             device,
             len(labels),
             batch_size,
+            union_bbox_crop,
+            pad_distance,
+            image.GetSize(),
         )
 
     calculators = _create_torch_calculators(
@@ -473,6 +1162,7 @@ def extract_batched_supervoxel_features(
         image_name=image_name,
         batch_size=batch_size,
         progress_callback=progress_callback,
+        enable_torch_formula_batch=True,
     )
 
 
@@ -508,7 +1198,13 @@ def extract_supervoxel_features_pyradiomics(
     if not resolved:
         raise ValueError("No enabled supervoxel radiomics feature classes.")
 
-    union_mask, _ = _build_union_mask(supervoxel_map, image)
+    label_array = sitk.GetArrayFromImage(supervoxel_map)
+    if not np.any(label_array > 0):
+        raise ValueError("Supervoxel map has no non-zero labels.")
+
+    image, union_mask, supervoxel_map, pad_distance, union_bbox_crop = (
+        _prepare_supervoxel_volumes(image, supervoxel_map, settings)
+    )
     calculators = _create_pyradiomics_calculators(
         image,
         union_mask,
@@ -517,7 +1213,11 @@ def extract_supervoxel_features_pyradiomics(
     )
 
     logger.info(
-        "supervoxel_radiomics using CPU PyRadiomics union_bin=True labels=%d batch_size=%d",
+        "supervoxel_radiomics using CPU PyRadiomics union_bin=True "
+        "union_bbox_crop=%s padDistance=%d cropped_size=%s labels=%d batch_size=%d",
+        union_bbox_crop,
+        pad_distance,
+        image.GetSize(),
         len(labels),
         batch_size,
     )

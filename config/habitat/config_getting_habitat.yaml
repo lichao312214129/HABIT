@@ -105,6 +105,7 @@ FeatureConstruction:
     #   - Matrices: native cMatrices per label (_initCalculation ROI path)
     #   - Torch backend when useTorchRadiomics resolves to torch (CUDA or CPU torch)
     #   - supervoxelBatch (default 64): batch group size; not voxel kernel radius
+    #   - supervoxelUnionBboxCrop (default true): crop to union supervoxel bbox before extraction
     #   - kernelRadius in method expression is for voxel_radiomics only; ignored here
     #
     # Examples:
@@ -117,6 +118,7 @@ FeatureConstruction:
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
       # PyRadiomics parameter file (required if method is supervoxel_radiomics)
       # supervoxelBatch: 64
+      supervoxelUnionBboxCrop: true
       # useTorchRadiomics: auto   # inherits from voxel_level.params when omitted
       # torchGpus: [0, 1]
       # torchGpuCount: 2
