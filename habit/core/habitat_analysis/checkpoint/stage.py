@@ -41,6 +41,11 @@ class IndividualCheckpointStage:
         """
         Execute individual-level processing with checkpoint orchestration.
 
+        When train-mode checkpointing is enabled and
+        ``individual_subject_auto_retry_rounds`` is greater than zero, subjects
+        that remain in ``manifest.failed_subjects`` after the initial parallel
+        pass are automatically re-dispatched up to that many additional rounds.
+
         Args:
             X: Mapping of subject ID to initial per-subject payload.
 
@@ -53,17 +58,105 @@ class IndividualCheckpointStage:
 
         cached_results, pending_items = self._resolve_pending(X)
         n_subjects = len(X)
-        n_pending = len(pending_items)
-        n_processes = getattr(self.config, "processes", 4) if self.config else 4
+        results: Dict[str, Any] = dict(cached_results)
+
+        if pending_items:
+            self._log_parallel_pass_start(len(pending_items), n_subjects)
+            self._run_parallel_pass(pending_items, results)
+
+        auto_retry_rounds = self._auto_retry_rounds()
+        if self.checkpoint is not None and auto_retry_rounds > 0:
+            self._run_auto_retries(X, results, max_rounds=auto_retry_rounds)
+
+        remaining_failed = self._remaining_failed_subjects(X)
+        if remaining_failed:
+            self.logger.error(
+                "Failed to process %s subject(s) after individual-level processing: %s",
+                len(remaining_failed),
+                ", ".join(str(subject_id) for subject_id in remaining_failed),
+            )
+            self._handle_failures(remaining_failed, results)
 
         self.logger.info(
-            "Processing %s/%s pending subjects with %s parallel workers "
-            "(individual-level pipeline)...",
-            n_pending,
+            "Individual-level processing completed: %s/%s subjects successful",
+            len(results),
             n_subjects,
-            n_processes,
         )
+        return results
 
+    def _run_auto_retries(
+        self,
+        X: Dict[str, Any],
+        results: Dict[str, Any],
+        *,
+        max_rounds: int,
+    ) -> None:
+        """
+        Re-dispatch checkpoint failed subjects within the same train run.
+
+        Args:
+            X: Full subject mapping for the current run.
+            results: Mutable aggregate of successful per-subject outputs.
+            max_rounds: Maximum number of additional retry rounds after the first pass.
+        """
+        assert self.checkpoint is not None
+
+        for round_index in range(1, max_rounds + 1):
+            failed_ids = self._remaining_failed_subjects(X)
+            if not failed_ids:
+                return
+
+            self.logger.info(
+                "Auto-retry round %s/%s for %s failed subject(s): %s",
+                round_index,
+                max_rounds,
+                len(failed_ids),
+                ", ".join(str(subject_id) for subject_id in failed_ids),
+            )
+
+            self.checkpoint.requeue_subjects(failed_ids)
+            retry_items = [
+                (subject_id, X[subject_id])
+                for subject_id in failed_ids
+                if subject_id in X
+            ]
+            if not retry_items:
+                return
+
+            self._log_parallel_pass_start(len(retry_items), len(X))
+            self._run_parallel_pass(retry_items, results)
+
+            if not self._remaining_failed_subjects(X):
+                return
+
+        still_failed = self._remaining_failed_subjects(X)
+        if still_failed:
+            self.logger.error(
+                "Auto-retry exhausted (%s round(s)); %s subject(s) still failed: %s",
+                max_rounds,
+                len(still_failed),
+                ", ".join(str(subject_id) for subject_id in still_failed),
+            )
+
+    def _run_parallel_pass(
+        self,
+        pending_items: List[Tuple[str, Any]],
+        results: Dict[str, Any],
+    ) -> List[Any]:
+        """
+        Execute one bounded parallel batch and merge successful outputs.
+
+        Args:
+            pending_items: Subject items to dispatch to workers.
+            results: Mutable aggregate updated with successful outputs.
+
+        Returns:
+            Subject IDs that failed during this pass.
+        """
+        if not pending_items:
+            return []
+
+        n_processes = getattr(self.config, "processes", 4) if self.config else 4
         parallel_kwargs = self._parallel_kwargs()
         on_item_done = self._build_on_item_done_callback()
 
@@ -78,30 +171,66 @@ class IndividualCheckpointStage:
             **parallel_kwargs,
         )
 
-        results: Dict[str, Any] = dict(cached_results)
         for proc_result in successful_results:
             results[proc_result.item_id] = proc_result.result
 
+        self._refresh_mask_info_cache(results)
+
+        if failed_subjects:
+            self.logger.error(
+                "Failed to process %s subject(s) in this pass: %s",
+                len(failed_subjects),
+                ", ".join(str(subject_id) for subject_id in failed_subjects),
+            )
+
+        return failed_subjects
+
+    def _remaining_failed_subjects(self, X: Dict[str, Any]) -> List[str]:
+        """
+        Return failed subject IDs for the current run, in manifest order when available.
+
+        Args:
+            X: Full subject mapping for the current run.
+
+        Returns:
+            Ordered list of subject IDs still marked failed for this run.
+        """
+        if self.checkpoint is None:
+            return []
+
+        subject_set = set(X.keys())
+        return [
+            subject_id
+            for subject_id in self.checkpoint.manifest.failed_subjects
+            if subject_id in subject_set
+        ]
+
+    def _auto_retry_rounds(self) -> int:
+        """Read configured in-run auto-retry rounds (0 disables)."""
+        if self.config is None:
+            return 0
+        return int(
+            getattr(self.config, "individual_subject_auto_retry_rounds", 0) or 0
+        )
+
+    def _log_parallel_pass_start(self, n_pending: int, n_subjects: int) -> None:
+        """Log worker count for an individual-level parallel pass."""
+        n_processes = getattr(self.config, "processes", 4) if self.config else 4
+        self.logger.info(
+            "Processing %s/%s pending subjects with %s parallel workers "
+            "(individual-level pipeline)...",
+            n_pending,
+            n_subjects,
+            n_processes,
+        )
+
+    def _refresh_mask_info_cache(self, results: Dict[str, Any]) -> None:
+        """Rebuild pipeline mask metadata from successful individual outputs."""
         self.pipeline.mask_info_cache = {
             subject_id: data.mask_info
             for subject_id, data in results.items()
             if isinstance(data, HabitatSubjectData) and data.mask_info is not None
         }
-
-        if failed_subjects:
-            self.logger.error(
-                "Failed to process %s subject(s) in this run: %s",
-                len(failed_subjects),
-                ", ".join(str(subject_id) for subject_id in failed_subjects),
-            )
-            self._handle_failures(failed_subjects, results)
-
-        self.logger.info(
-            "Individual-level processing completed: %s/%s subjects successful",
-            len(results),
-            n_subjects,
-        )
-        return results
 
     def _create_checkpoint(self) -> Optional[HabitatTrainCheckpoint]:
         if self.config is None or getattr(self.config, "run_mode", "train") != "train":

@@ -479,6 +479,47 @@ class HabitatTrainCheckpoint:
         self.manifest.stage = "individual"
         self._write_manifest()
 
+    def requeue_subjects(self, subject_ids: Iterable[str]) -> List[str]:
+        """
+        Clear checkpoint state so subjects can be re-dispatched in a retry pass.
+
+        Removes each subject from ``failed_subjects`` and ``completed_subjects``,
+        deletes any cached pickle, and persists the manifest once.
+
+        Args:
+            subject_ids: Subject identifiers to prepare for another parallel pass.
+
+        Returns:
+            Ordered list of subject IDs that were requeued (deduplicated).
+        """
+        requeued: List[str] = []
+        seen: Set[str] = set()
+        changed = False
+
+        for subject_id in subject_ids:
+            subject_key = str(subject_id)
+            if subject_key in seen:
+                continue
+            seen.add(subject_key)
+
+            if subject_key in self.manifest.failed_subjects:
+                self.manifest.failed_subjects.remove(subject_key)
+                changed = True
+            if (
+                subject_key in self.manifest.completed_subjects
+                or self._subject_path(subject_key).exists()
+            ):
+                self._remove_completed_subject(subject_key)
+                changed = True
+
+            requeued.append(subject_key)
+
+        if changed:
+            self.manifest.stage = "individual"
+            self._write_manifest()
+
+        return requeued
+
     def mark_training_complete(self) -> None:
         """Mark the checkpoint as fully completed before optional cleanup."""
         self.manifest.stage = "done"

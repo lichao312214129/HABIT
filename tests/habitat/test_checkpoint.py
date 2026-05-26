@@ -229,6 +229,50 @@ def test_retry_failed_subjects_false_skips_failed(tmp_path: Path) -> None:
     assert manager.manifest.failed_subjects == ["sub002"]
 
 
+def test_requeue_subjects_clears_failed_and_removes_pkl(tmp_path: Path) -> None:
+    config = _minimal_train_config(tmp_path)
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config)
+    manager.initialize_for_run(resume=False)
+
+    manager.record_success("sub001", HabitatSubjectData())
+    manager.record_failure("sub002")
+    subject_path = checkpoint_dir / "subjects" / "sub002.pkl"
+    assert subject_path.exists() is False
+    manager.save_subject_pkl("sub002", HabitatSubjectData())
+    assert subject_path.exists()
+
+    requeued = manager.requeue_subjects(["sub002"])
+    assert requeued == ["sub002"]
+    assert manager.manifest.failed_subjects == []
+    assert "sub002" not in manager.manifest.completed_subjects
+    assert not subject_path.exists()
+
+
+def test_individual_subject_auto_retry_rounds_defaults_to_two(
+    tmp_path: Path,
+) -> None:
+    config = _minimal_train_config(tmp_path)
+    assert config.individual_subject_auto_retry_rounds == 2
+
+
+def test_individual_subject_auto_retry_rounds_rejects_negative(
+    tmp_path: Path,
+) -> None:
+    from habit.core.common.configs.base import ConfigValidationError
+
+    with pytest.raises(ConfigValidationError):
+        HabitatAnalysisConfig(
+            data_dir=str(tmp_path / "data"),
+            out_dir=str(tmp_path / "out"),
+            individual_subject_auto_retry_rounds=-1,
+            FeatureConstruction=FeatureConstructionConfig(
+                voxel_level=VoxelLevelConfig(method="mean_voxel_features()", params={}),
+            ),
+            HabitatSegmentation=HabitatSegmentationConfig(clustering_mode="two_step"),
+        )
+
+
 def test_load_subject_pkl_reads_single_subject(tmp_path: Path) -> None:
     config = _minimal_train_config(tmp_path)
     checkpoint_dir = tmp_path / "ckpt"

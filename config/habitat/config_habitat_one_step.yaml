@@ -62,6 +62,7 @@ resume: true  # Skip completed subjects (Stage-1 config_hash must match)
 checkpoint_dir: null  # <out_dir>/.habitat_checkpoint when null
 force_rerun_subjects: []
 retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
 clear_checkpoint_on_success: false
 
 plot_curves: true

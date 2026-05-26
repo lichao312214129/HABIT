@@ -13,6 +13,7 @@ resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
 clear_checkpoint_on_success: false
 random_state: 42  # Global default; one_step uses habitat.random_state when set
 plot_curves: true  # Enable all visualizations

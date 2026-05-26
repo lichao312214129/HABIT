@@ -139,6 +139,17 @@ class HabitatAnalysisConfig(BaseConfig):
             "Successful subjects remain skipped unless also listed in force_rerun_subjects."
         ),
     )
+    individual_subject_auto_retry_rounds: int = Field(
+        2,
+        description=(
+            "After the initial individual-level parallel pass in a single train run, "
+            "automatically re-dispatch checkpoint failed subjects up to this many "
+            "additional rounds (0 disables). Only applies when train-mode checkpoint "
+            "tracking is active (IndividualCheckpointStage). Distinct from "
+            "retry_failed_subjects, which only affects the next CLI invocation."
+        ),
+        ge=0,
+    )
     clear_checkpoint_on_success: bool = Field(
         False,
         description=(

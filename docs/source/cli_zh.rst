@@ -212,6 +212,8 @@ DICOM 整理命令
    resume: true
    # checkpoint_dir: null
    # force_rerun_subjects: []
+   # retry_failed_subjects: false
+   individual_subject_auto_retry_rounds: 2
    clear_checkpoint_on_success: false
    plot_curves: true
    save_results_csv: true

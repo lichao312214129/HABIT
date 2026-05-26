@@ -59,6 +59,44 @@ copy its 21-feature `glcm` list. See `habit-troubleshoot/references/errors_extra
 - If all options fail, accept that this tumor is not amenable to habitat
   analysis (biological reality, not a software bug)
 
+## Symptom: a few subjects fail in large batches but succeed when run alone
+
+**Cause**: Intermittent failures during Stage-1 parallel processing — usually
+memory/GPU contention, per-subject timeout under load, or Windows spawn/queue
+races. Not bad subject data.
+
+**Fix** (in order):
+
+1. Rely on default in-run retry (no YAML change needed):
+
+```yaml
+individual_subject_auto_retry_rounds: 2  # default; 0 disables
+```
+
+2. Reduce parallel load:
+
+```yaml
+processes: 1  # or 2
+```
+
+3. Increase timeout if logs show `Timeout (>900s) for item`:
+
+```yaml
+individual_subject_timeout_sec: 1800  # or null to disable
+```
+
+4. For failures left after auto-retry, on the **next** run:
+
+```yaml
+resume: true
+retry_failed_subjects: true
+```
+
+Or retry specific IDs with `force_rerun_subjects: [subXXX]`.
+
+Check `habitat_analysis.log` for `Auto-retry round`, `MemoryError`,
+`Child exited without a queue result`, or `Timeout`.
+
 ## Symptom: `MemoryError` during voxel_radiomics
 
 **Cause**: Voxel-radiomics is heavy; default `processes` is too high.

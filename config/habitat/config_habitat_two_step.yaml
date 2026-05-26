@@ -146,6 +146,11 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 # retry_failed_subjects: false
 #   When resume=true, automatically re-queue all manifest failed_subjects
 #
+# individual_subject_auto_retry_rounds: 2
+#   After the initial Stage-1 parallel pass in one train run, re-dispatch checkpoint
+#   failed subjects up to this many additional rounds (0 disables). Distinct from
+#   retry_failed_subjects, which only applies on the next resume/CLI invocation.
+#
 # clear_checkpoint_on_success: false
 #   false — keep checkpoint after a fully successful train (default)
 #   true  — delete checkpoint directory when train finishes without error
@@ -157,9 +162,10 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 #            processes, timeout, plot_curves, out_dir, ...
 #   Legacy v1 manifests: group-stage-only changes migrate hash and reuse pkl cache.
 #
-# Failed subjects are NOT auto-retried on resume unless retry_failed_subjects=true.
-# To retry: use retry_failed_subjects, force_rerun_subjects, set resume=false,
-# or delete the checkpoint directory.
+# Failed subjects: default individual_subject_auto_retry_rounds=2 retries within the
+# same train run (Stage 1 only). Cross-run resume still skips failed unless
+# retry_failed_subjects=true. Manual retry: retry_failed_subjects,
+# force_rerun_subjects, resume=false, or delete the checkpoint directory.
 #
 # two_step checkpoint boundary: after merge_supervoxel_features (supervoxel_df in .pkl)
 # Group-level steps (combine / group clustering) are NOT checkpointed.
@@ -169,6 +175,7 @@ resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
 clear_checkpoint_on_success: false
 
 plot_curves: true  # Whether to generate and save plots
