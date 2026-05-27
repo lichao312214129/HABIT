@@ -12,6 +12,7 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
+from habit.utils.parallel_gpu_utils import inject_worker_gpu_slot_index
 from ..config_schemas import HabitatAnalysisConfig, DROPPING_PREPROCESSING_METHODS
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
@@ -332,6 +333,7 @@ class FeatureService:
             
             # Create extractor and process
             step_params.update({'subject': subject, 'image': img_name})
+            step_params = inject_worker_gpu_slot_index(step_params)
             extractor = create_feature_extractor(method, **step_params)
             processed_df = extractor.extract_features(
                 img_paths.get(img_name), 
@@ -343,6 +345,7 @@ class FeatureService:
         # Create cross-image feature extractor
         cross_image_kwargs = self.cross_image_kwargs.copy()
         cross_image_kwargs.update({'subject': subject})
+        cross_image_kwargs = inject_worker_gpu_slot_index(cross_image_kwargs)
         cross_image_extractor = create_feature_extractor(
             self.voxel_method, **cross_image_kwargs
         )
@@ -414,6 +417,7 @@ class FeatureService:
                     fallback_params=voxel_level_params,
                 )
                 step_params.update({'subject': subject, 'image': img_name})
+                step_params = inject_worker_gpu_slot_index(step_params)
 
                 self.logger.info(
                     "Supervoxel feature step %d/%d for subject %s: method=%s image=%s",

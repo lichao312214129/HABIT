@@ -115,14 +115,16 @@ class HabitatAnalysisConfig(BaseConfig):
         description=(
             "When True, skip individual-level processing for subjects already present "
             "in the checkpoint directory. Failed checkpoint subjects are skipped unless "
-            "retry_failed_subjects is True or they appear in force_rerun_subjects."
+            "retry_failed_subjects is True or they appear in force_rerun_subjects. "
+            "Applies to both train and predict runs."
         ),
     )
     checkpoint_dir: Optional[str] = Field(
         None,
         description=(
-            "Directory for training checkpoints. Defaults to "
-            "`<out_dir>/.habitat_checkpoint` when null."
+            "Directory for train/predict checkpoints. Defaults to "
+            "`<out_dir>/.habitat_checkpoint` for train and "
+            "`<out_dir>/.habitat_predict_checkpoint` for predict when null."
         ),
     )
     force_rerun_subjects: List[str] = Field(
@@ -136,24 +138,49 @@ class HabitatAnalysisConfig(BaseConfig):
         description=(
             "When True with resume=True, automatically re-queue every subject listed "
             "in the checkpoint manifest failed_subjects for individual-level processing. "
-            "Successful subjects remain skipped unless also listed in force_rerun_subjects."
+            "Successful subjects remain skipped unless also listed in force_rerun_subjects. "
+            "Applies to both train and predict runs."
         ),
     )
     individual_subject_auto_retry_rounds: int = Field(
         2,
         description=(
-            "After the initial individual-level parallel pass in a single train run, "
-            "automatically re-dispatch checkpoint failed subjects up to this many "
-            "additional rounds (0 disables). Only applies when train-mode checkpoint "
-            "tracking is active (IndividualCheckpointStage). Distinct from "
+            "After the initial individual-level parallel pass in a single train or "
+            "predict run, automatically re-dispatch checkpoint failed subjects up to "
+            "this many additional rounds (0 disables). Distinct from "
             "retry_failed_subjects, which only affects the next CLI invocation."
+        ),
+        ge=0,
+    )
+    individual_subject_parallel_mode: Literal["isolated", "persistent"] = Field(
+        "persistent",
+        description=(
+            "Individual-level parallel execution strategy. 'persistent': one long-lived "
+            "worker process per worker slot (default); reduces repeated import/spawn "
+            "overhead. 'isolated': one spawn child process per subject."
+        ),
+    )
+    persistent_worker_max_consecutive_failures: int = Field(
+        1,
+        description=(
+            "When individual_subject_parallel_mode is 'persistent', reserved for "
+            "fatal-class worker restarts. Recoverable subject failures (for example "
+            "NaN validation errors) no longer restart the worker slot."
+        ),
+        ge=1,
+    )
+    persistent_worker_recycle_after_tasks: int = Field(
+        0,
+        description=(
+            "When individual_subject_parallel_mode is 'persistent', restart a worker "
+            "after this many consecutive successful tasks (0 disables periodic recycle)."
         ),
         ge=0,
     )
     clear_checkpoint_on_success: bool = Field(
         False,
         description=(
-            "Remove the training checkpoint directory after a successful train run."
+            "Remove the train/predict checkpoint directory after a successful run."
         ),
     )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")

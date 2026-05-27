@@ -45,6 +45,14 @@ class TestTorchRadiomicsUtils(unittest.TestCase):
         device = select_torch_gpu_device([0, 1, 2], subject="sub164")
         self.assertIn(device, {"cuda:0", "cuda:1", "cuda:2"})
 
+    def test_select_torch_gpu_device_gpu_slot_index_overrides_subject(self) -> None:
+        device = select_torch_gpu_device(
+            [0, 1, 2],
+            subject="sub164",
+            gpu_slot_index=1,
+        )
+        self.assertEqual(device, "cuda:1")
+
     @patch("habit.utils.torch_radiomics_utils.validate_torch_gpu_indices")
     @patch("habit.utils.torch_radiomics_utils.is_cuda_available", return_value=True)
     @patch("habit.utils.torch_radiomics_utils.is_torch_available", return_value=True)

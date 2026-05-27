@@ -214,6 +214,9 @@ DICOM 整理命令
    # force_rerun_subjects: []
    # retry_failed_subjects: false
    individual_subject_auto_retry_rounds: 2
+   individual_subject_parallel_mode: persistent
+   persistent_worker_max_consecutive_failures: 1
+   persistent_worker_recycle_after_tasks: 0
    clear_checkpoint_on_success: false
    plot_curves: true
    save_results_csv: true

@@ -7,8 +7,17 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple, TYPE_CHECKING
 
-from habit.utils.log_utils import get_module_logger
-from habit.utils.parallel_utils import ProcessingResult, parallel_map
+from habit.utils.log_utils import get_module_logger, LoggerManager
+from habit.utils.parallel_gpu_utils import (
+    cap_processes_to_gpu_pool,
+    resolve_habitat_torch_gpu_pool,
+)
+from habit.utils.parallel_utils import (
+    ProcessingResult,
+    _should_use_spawn_workers,
+    parallel_map,
+)
+from habit.utils.persistent_worker_runner import PersistentWorkerPoolSession
 
 from ..pipelines.habitat_subject_data import HabitatSubjectData
 from .manager import HabitatTrainCheckpoint
@@ -36,6 +45,7 @@ class IndividualCheckpointStage:
         self.logger = logger or get_module_logger(__name__)
         self.config = pipeline.config
         self.checkpoint: Optional[HabitatTrainCheckpoint] = None
+        self._persistent_pool: Optional[PersistentWorkerPoolSession] = None
 
     def run(self, X: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -60,13 +70,19 @@ class IndividualCheckpointStage:
         n_subjects = len(X)
         results: Dict[str, Any] = dict(cached_results)
 
-        if pending_items:
-            self._log_parallel_pass_start(len(pending_items), n_subjects)
-            self._run_parallel_pass(pending_items, results)
+        try:
+            if pending_items:
+                self._ensure_persistent_pool(n_subjects)
+                self._log_parallel_pass_start(len(pending_items), n_subjects)
+                self._run_parallel_pass(pending_items, results)
 
-        auto_retry_rounds = self._auto_retry_rounds()
-        if self.checkpoint is not None and auto_retry_rounds > 0:
-            self._run_auto_retries(X, results, max_rounds=auto_retry_rounds)
+            auto_retry_rounds = self._auto_retry_rounds()
+            if self.checkpoint is not None and auto_retry_rounds > 0:
+                self._run_auto_retries(X, results, max_rounds=auto_retry_rounds)
+        finally:
+            if self._persistent_pool is not None:
+                self._persistent_pool.shutdown(logger=self.logger)
+                self._persistent_pool = None
 
         remaining_failed = self._remaining_failed_subjects(X)
         if remaining_failed:
@@ -123,6 +139,7 @@ class IndividualCheckpointStage:
             if not retry_items:
                 return
 
+            self._ensure_persistent_pool(len(X))
             self._log_parallel_pass_start(len(retry_items), len(X))
             self._run_parallel_pass(retry_items, results)
 
@@ -156,7 +173,7 @@ class IndividualCheckpointStage:
         if not pending_items:
             return []
 
-        n_processes = getattr(self.config, "processes", 4) if self.config else 4
+        n_processes = self._resolve_parallel_processes(len(pending_items))
         parallel_kwargs = self._parallel_kwargs()
         on_item_done = self._build_on_item_done_callback()
 
@@ -168,6 +185,10 @@ class IndividualCheckpointStage:
             logger=self.logger,
             show_progress=True,
             on_item_done=on_item_done,
+            parallel_mode=self._parallel_mode(),
+            persistent_pool_session=self._persistent_pool,
+            max_consecutive_failures=self._persistent_max_consecutive_failures(),
+            recycle_after_tasks=self._persistent_recycle_after_tasks(),
             **parallel_kwargs,
         )
 
@@ -213,9 +234,97 @@ class IndividualCheckpointStage:
             getattr(self.config, "individual_subject_auto_retry_rounds", 0) or 0
         )
 
+    def _parallel_mode(self) -> str:
+        """Read configured individual-level parallel execution mode."""
+        if self.config is None:
+            return "persistent"
+        return str(
+            getattr(self.config, "individual_subject_parallel_mode", "persistent")
+            or "persistent"
+        )
+
+    def _persistent_max_consecutive_failures(self) -> int:
+        if self.config is None:
+            return 1
+        return int(
+            getattr(self.config, "persistent_worker_max_consecutive_failures", 1) or 1
+        )
+
+    def _persistent_recycle_after_tasks(self) -> int:
+        if self.config is None:
+            return 0
+        return int(
+            getattr(self.config, "persistent_worker_recycle_after_tasks", 0) or 0
+        )
+
+    def _resolve_max_pool_workers(self, n_subjects: int) -> int:
+        """
+        Resolve worker count for a persistent pool (not limited by one pass batch).
+
+        Args:
+            n_subjects: Total subjects in the current run.
+
+        Returns:
+            int: Configured worker count capped by GPU pool and subject count.
+        """
+        configured = getattr(self.config, "processes", 4) if self.config else 4
+        requested = max(1, int(configured))
+
+        if self.config is not None:
+            gpu_pool = resolve_habitat_torch_gpu_pool(self.config)
+            if gpu_pool:
+                requested = cap_processes_to_gpu_pool(
+                    requested,
+                    len(gpu_pool),
+                    log=self.logger,
+                    gpu_pool=gpu_pool,
+                )
+
+        return min(requested, max(1, n_subjects))
+
+    def _ensure_persistent_pool(self, n_subjects: int) -> None:
+        """
+        Lazily create a persistent worker pool for the current ``run()`` call.
+
+        Args:
+            n_subjects: Total subjects in the current run (pool sizing).
+        """
+        if self._parallel_mode() != "persistent":
+            return
+        if self._persistent_pool is not None:
+            return
+
+        n_workers = self._resolve_max_pool_workers(n_subjects)
+        parallel_kwargs = self._parallel_kwargs()
+        timeout_sec = parallel_kwargs.get("per_item_timeout_sec")
+        if not _should_use_spawn_workers(n_workers, max(1, n_subjects), timeout_sec):
+            return
+
+        manager = LoggerManager()
+        log_file_path = manager.get_log_file()
+        log_level = logging.INFO
+        if manager._root_logger:
+            log_level = manager._root_logger.getEffectiveLevel()
+
+        pool = PersistentWorkerPoolSession(
+            max_workers=n_workers,
+            func=self.pipeline._process_single_subject,
+            log_file_path=log_file_path,
+            log_level=log_level,
+            per_item_timeout_sec=timeout_sec,
+            graceful_shutdown_sec=parallel_kwargs["graceful_shutdown_sec"],
+            max_consecutive_failures=self._persistent_max_consecutive_failures(),
+            recycle_after_tasks=self._persistent_recycle_after_tasks(),
+            spawn_startup_timeout_sec=parallel_kwargs.get("spawn_startup_timeout_sec"),
+            oom_backoff=parallel_kwargs["oom_backoff"],
+            oom_reduce_workers_by=parallel_kwargs["oom_reduce_workers_by"],
+        )
+        pool.start(logger=self.logger)
+        self._persistent_pool = pool
+
     def _log_parallel_pass_start(self, n_pending: int, n_subjects: int) -> None:
         """Log worker count for an individual-level parallel pass."""
-        n_processes = getattr(self.config, "processes", 4) if self.config else 4
+        n_processes = self._resolve_parallel_processes(n_pending)
         self.logger.info(
             "Processing %s/%s pending subjects with %s parallel workers "
             "(individual-level pipeline)...",
@@ -223,6 +332,33 @@ class IndividualCheckpointStage:
             n_subjects,
             n_processes,
         )
+
+    def _resolve_parallel_processes(self, n_pending: int) -> int:
+        """
+        Resolve effective Stage-1 worker count with optional GPU pool capping.
+
+        Args:
+            n_pending: Number of subjects scheduled in this parallel pass.
+
+        Returns:
+            int: Worker count in ``[1, processes]``, capped by Torch GPU pool when set.
+        """
+        configured = getattr(self.config, "processes", 4) if self.config else 4
+        requested = max(1, int(configured))
+
+        if self.config is not None:
+            gpu_pool = resolve_habitat_torch_gpu_pool(self.config)
+            if gpu_pool:
+                requested = cap_processes_to_gpu_pool(
+                    requested,
+                    len(gpu_pool),
+                    log=self.logger,
+                    gpu_pool=gpu_pool,
+                )
+
+        if n_pending > 0:
+            return min(requested, n_pending)
+        return requested
 
     def _refresh_mask_info_cache(self, results: Dict[str, Any]) -> None:
         """Rebuild pipeline mask metadata from successful individual outputs."""
@@ -233,14 +369,30 @@ class IndividualCheckpointStage:
         }
 
     def _create_checkpoint(self) -> Optional[HabitatTrainCheckpoint]:
-        if self.config is None or getattr(self.config, "run_mode", "train") != "train":
+        if self.config is None:
+            return None
+
+        run_mode = getattr(self.config, "run_mode", "train")
+        if run_mode not in {"train", "predict"}:
+            return None
+
+        if run_mode == "predict" and not getattr(self.config, "pipeline_path", None):
+            self.logger.warning(
+                "Predict mode without pipeline_path; checkpoint/resume disabled."
+            )
             return None
 
         checkpoint_dir = HabitatTrainCheckpoint.resolve_checkpoint_dir(
             self.config.out_dir,
             getattr(self.config, "checkpoint_dir", None),
+            run_mode=run_mode,
         )
-        checkpoint = HabitatTrainCheckpoint(checkpoint_dir, self.config, self.logger)
+        checkpoint = HabitatTrainCheckpoint(
+            checkpoint_dir,
+            self.config,
+            self.logger,
+            run_mode=run_mode,
+        )
         resume = bool(getattr(self.config, "resume", True))
         checkpoint.initialize_for_run(resume=resume)
         return checkpoint

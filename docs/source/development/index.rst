@@ -9,6 +9,7 @@
 
    architecture
    module_architecture
+   parallel_optimization
    contributing
 
 快速开始
@@ -34,6 +35,14 @@
 - ``habit.core.habitat_analysis`` : 生境分析
 - ``habit.core.machine_learning`` : 机器学习
 - ``habit.utils`` : 通用工具
+
+架构与可靠性说明
+----------------
+
+- 并发调度优化策略：:doc:`parallel_optimization`
+  （Event 驱动唤醒、OOM backoff、自适应超时、poll 限频等）
+- 生境批量并行可靠性改造计划：``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md``
+  （GPU worker 槽位、processes 与 GPU 池对齐、同次运行 auto-retry 等）
 
 联系方式
 --------

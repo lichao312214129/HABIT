@@ -17,6 +17,7 @@ from typing import (
     Optional,
     Any,
     Generator,
+    Literal,
 )
 from pathlib import Path
 
@@ -30,6 +31,7 @@ from habit.utils.isolated_runner import (
     _put_worker_wrapper_result,
     _worker_wrapper,
 )
+from habit.utils.persistent_worker_runner import PersistentWorkerPoolSession
 
 # Re-export for backward compatibility
 __all__ = [
@@ -37,6 +39,7 @@ __all__ = [
     "parallel_map",
     "parallel_map_simple",
     "ParallelProcessor",
+    "PersistentWorkerPoolSession",
     "_worker_wrapper",
     "_put_worker_wrapper_result",
     "_item_id_from_worker_args",
@@ -102,6 +105,17 @@ def _run_inprocess_sequential(
     return successful_results, failed_items
 
 
+def _should_use_spawn_workers(
+    n_processes: int,
+    total: int,
+    per_item_timeout_sec: Optional[float],
+) -> bool:
+    """Return True when work should leave the main process (isolated or persistent)."""
+    return (n_processes > 1 and total > 1) or (
+        per_item_timeout_sec is not None and per_item_timeout_sec > 0
+    )
+
+
 def parallel_map(
     func: Callable[[T], R],
     items: Iterable[T],
@@ -117,6 +131,10 @@ def parallel_map(
     oom_reduce_workers_by: int = 1,
     spawn_startup_timeout_sec: Optional[float] = DEFAULT_SPAWN_STARTUP_TIMEOUT_SEC,
     on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
+    parallel_mode: Literal["isolated", "persistent"] = "isolated",
+    persistent_pool_session: Optional[PersistentWorkerPoolSession] = None,
+    max_consecutive_failures: int = 1,
+    recycle_after_tasks: int = 0,
 ) -> Tuple[List[ProcessingResult], List[Any]]:
     """
     Apply a function to items with bounded isolated subprocesses.
@@ -145,6 +163,10 @@ def parallel_map(
         spawn_startup_timeout_sec: Wall-clock limit for child ``proc.start()``; ``None``
             disables spawn startup timeout.
         on_item_done: Optional callback invoked in the parent after each item finishes.
+        parallel_mode: ``isolated`` (spawn per item) or ``persistent`` (long-lived workers).
+        persistent_pool_session: Reuse an existing persistent pool (caller owns shutdown).
+        max_consecutive_failures: Restart a persistent worker slot after N consecutive failures.
+        recycle_after_tasks: Restart a persistent worker after N successes (0 disables).
 
     Returns:
         ``(successful_results, failed_item_ids)``.
@@ -155,11 +177,22 @@ def parallel_map(
     if total == 0:
         return [], []
 
-    use_isolated = (n_processes > 1 and total > 1) or (
-        per_item_timeout_sec is not None and per_item_timeout_sec > 0
+    timeout_sec = (
+        per_item_timeout_sec
+        if per_item_timeout_sec is not None and per_item_timeout_sec > 0
+        else None
+    )
+    use_spawn_workers = _should_use_spawn_workers(
+        max(1, n_processes),
+        total,
+        timeout_sec,
     )
 
-    if not use_isolated:
+    if not use_spawn_workers:
+        if logger:
+            logger.info(
+                "Using in-process sequential execution (no spawn subprocesses)."
+            )
         return _run_inprocess_sequential(
             func=func,
             items_list=items_list,
@@ -173,21 +206,49 @@ def parallel_map(
         manager = LoggerManager()
         log_file_path = manager.get_log_file()
 
+    spawn_timeout = (
+        spawn_startup_timeout_sec
+        if spawn_startup_timeout_sec is not None and spawn_startup_timeout_sec > 0
+        else None
+    )
+
+    if parallel_mode == "persistent":
+        owned_pool: Optional[PersistentWorkerPoolSession] = None
+        pool = persistent_pool_session
+        if pool is None:
+            owned_pool = PersistentWorkerPoolSession(
+                max_workers=max(1, n_processes),
+                func=func,
+                log_file_path=log_file_path,
+                log_level=log_level,
+                per_item_timeout_sec=timeout_sec,
+                graceful_shutdown_sec=graceful_shutdown_sec,
+                max_consecutive_failures=max_consecutive_failures,
+                recycle_after_tasks=recycle_after_tasks,
+                spawn_startup_timeout_sec=spawn_timeout,
+                oom_backoff=oom_backoff,
+                oom_reduce_workers_by=oom_reduce_workers_by,
+            )
+            pool = owned_pool
+        try:
+            return pool.map_items(
+                items_list=items_list,
+                desc=desc,
+                logger=logger,
+                show_progress=show_progress,
+                on_item_done=on_item_done,
+            )
+        finally:
+            if owned_pool is not None:
+                owned_pool.shutdown(logger=logger)
+
     runner = IsolatedTaskRunner(
         max_workers=max(1, n_processes),
-        per_item_timeout_sec=(
-            per_item_timeout_sec
-            if per_item_timeout_sec is not None and per_item_timeout_sec > 0
-            else None
-        ),
+        per_item_timeout_sec=timeout_sec,
         graceful_shutdown_sec=graceful_shutdown_sec,
         oom_backoff=oom_backoff,
         oom_reduce_workers_by=oom_reduce_workers_by,
-        spawn_startup_timeout_sec=(
-            spawn_startup_timeout_sec
-            if spawn_startup_timeout_sec is not None and spawn_startup_timeout_sec > 0
-            else None
-        ),
+        spawn_startup_timeout_sec=spawn_timeout,
     )
     return runner.map_items(
         func=func,
@@ -218,8 +279,14 @@ def parallel_map_simple(
     if not items_list:
         return
 
-    use_isolated = (n_processes > 1 and len(items_list) > 1) or (
-        per_item_timeout_sec is not None and per_item_timeout_sec > 0
+    use_isolated = _should_use_spawn_workers(
+        max(1, n_processes),
+        len(items_list),
+        (
+            per_item_timeout_sec
+            if per_item_timeout_sec is not None and per_item_timeout_sec > 0
+            else None
+        ),
     )
 
     if not use_isolated:

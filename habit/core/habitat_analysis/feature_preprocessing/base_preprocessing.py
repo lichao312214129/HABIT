@@ -26,8 +26,9 @@ class BaselineStats:
     """
     Initial numeric summaries captured once at the start of group-level fit.
 
-    Per-feature zscore/minmax at transform time reuse these baseline values so
-    behaviour matches the historical ``PreprocessingState`` implementation.
+    Used only for initial NaN imputation in :func:`pipeline._prepare_feature_block`.
+    Per-feature minmax/zscore steps learn their own state from the current pipeline
+    input at each step (after upstream transforms such as winsorize).
     """
 
     means: pd.Series

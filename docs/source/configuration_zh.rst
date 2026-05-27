@@ -363,6 +363,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
    force_rerun_subjects: []
    retry_failed_subjects: false
    individual_subject_auto_retry_rounds: 2
+   individual_subject_parallel_mode: persistent
+   persistent_worker_max_consecutive_failures: 1
+   persistent_worker_recycle_after_tasks: 0
    clear_checkpoint_on_success: false
    plot_curves: true
    save_images: true
@@ -1042,6 +1045,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **说明**: 为 ``true`` 时从 ``checkpoint_dir`` （默认 ``<out_dir>/.habitat_checkpoint``）读取 ``manifest.json`` ，跳过 ``completed_subjects`` 并从 ``subjects/{id}.pkl`` 加载结果；``failed_subjects`` 中的被试在**下次** ``resume`` 启动时**不会自动重试**（除非 ``retry_failed_subjects: true`` 或 ``force_rerun_subjects``）。**同一次** ``train`` 运行内，默认由 ``individual_subject_auto_retry_rounds`` 自动重试 Stage 1 失败被试。仅 ``run_mode: train`` 生效。
 - **CLI**: ``habit get-habitat --resume`` 等效于 ``resume: true``。
 - **详见**: :doc:`user_guide/habitat_segmentation_zh` 中「断点续训详解」。
+- **并行可靠性计划**: 仓库根下 ``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`` （GPU worker 槽位、processes 上限、Phase 2/3 路线图）。
 
 **checkpoint_dir**（生境分析顶层）: checkpoint 根目录
 
@@ -1067,6 +1071,25 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **默认值**: ``2``
 - **说明**: 个体级 Stage 1 首轮并行结束后，若 checkpoint 中仍有 ``failed_subjects`` ，在同一进程内自动再跑最多该轮数次（仅重试仍失败的被试）。``0`` 表示关闭（保持旧行为）。与 ``retry_failed_subjects`` 不同：后者只在**下次** ``resume`` 启动时生效；本项在**当前** ``get-habitat`` / ``fit()`` 内生效。``on_subject_failure: fail_fast`` 时，会在全部重试轮次用尽后仍失败才报错。
 
+**individual_subject_parallel_mode**（生境分析顶层）: 个体级 Stage 1 并行执行策略
+
+- **类型**: 字符串
+- **默认值**: ``persistent``
+- **可选值**: ``isolated`` 、``persistent``
+- **说明**: ``persistent`` （默认）：每个 worker 槽位一个长生命周期子进程，在同一 ``train`` 运行内复用（含 auto-retry 各轮），减少重复 import/spawn。``isolated`` ：每个被试单独 ``spawn`` 子进程（更强隔离，适合 pipeline 无法 pickle 或排查 spawn 问题时）。单 GPU 时 persistent 仍为串行，主要摊销启动成本。``processes=1`` 且 ``individual_subject_timeout_sec: null`` 时，两种模式均走主进程顺序执行、不 spawn。``predict`` 模式忽略。
+
+**persistent_worker_max_consecutive_failures**（生境分析顶层）: 持久 worker 连续失败重启阈值
+
+- **类型**: 整数
+- **默认值**: ``1``
+- **说明**: 仅 ``individual_subject_parallel_mode: persistent`` 时生效。某 worker 槽位连续失败达到该次数后，父进程终止并重启该槽位 worker，再处理后续被试。
+
+**persistent_worker_recycle_after_tasks**（生境分析顶层）: 持久 worker 定期回收
+
+- **类型**: 整数
+- **默认值**: ``0``
+- **说明**: 仅 ``persistent`` 模式生效。worker 连续成功处理该次数任务后主动退出并由父进程重启，用于缓解 GPU 显存缓慢泄漏。``0`` 表示关闭定期回收。
+
 **clear_checkpoint_on_success**（生境分析顶层）: 训练成功后删除 checkpoint
 
 - **类型**: 布尔值
@@ -1076,7 +1099,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 **config_hash 与续训兼容性**
 
 - **参与 hash**（Stage 1 个体级；变更则清空 checkpoint）：``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
-- **不参与 hash**（可 ``resume: true`` 继续）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``individual_subject_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``force_rerun_subjects`` 、``out_dir`` 等。
+- **不参与 hash**（可 ``resume: true`` 继续）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``individual_subject_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``force_rerun_subjects`` 、``out_dir`` 等。
 - ``manifest.json`` 另存 ``individual_config_hash`` （与 ``config_hash`` 相同）；旧版仅全量 hash 的 manifest 在仅改 Stage 2 配置时会迁移 hash 并保留 pkl。
 - 程序在 ``resume: true`` 启动时自动比较 hash；个体级 hash 不一致且无法判定为 Stage 2 漂移时，日志警告并删除 checkpoint。
 

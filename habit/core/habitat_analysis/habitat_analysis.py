@@ -599,6 +599,7 @@ class HabitatAnalysis:
                 f"Saved pipeline not found at {resolved_path}. "
                 "Provide a valid path or run fit() to train one."
             )
+        resolved_path = resolved_path.resolve()
 
         # Resolve save flag: explicit argument overrides the config default.
         if save_results_csv is None:
@@ -618,6 +619,9 @@ class HabitatAnalysis:
                 f"Loading and running {self.config.HabitatSegmentation.clustering_mode} pipeline..."
             )
 
+        self.config.run_mode = "predict"
+        self.config.pipeline_path = str(resolved_path)
+
         self.pipeline = HabitatPipeline.load(str(resolved_path))
 
         # Reconcile the loaded pipeline's collaborators and config with the
@@ -629,6 +633,17 @@ class HabitatAnalysis:
         self.pipeline.config.plot_curves = False
 
         results_df = self.pipeline.transform(X)
+
+        run_checkpoint = getattr(self.pipeline, "_train_checkpoint", None)
+        if run_checkpoint is not None:
+            run_checkpoint.mark_training_complete()
+            if getattr(self.config, "clear_checkpoint_on_success", False):
+                if self.config.verbose:
+                    self.logger.info(
+                        "Predict run succeeded; clearing checkpoint at %s",
+                        run_checkpoint.checkpoint_dir,
+                    )
+                run_checkpoint.clear()
 
         # Keep the image writer's current result table available for optional image publishing.
         self.habitat_image_writer.results_df = results_df
@@ -727,6 +742,51 @@ class HabitatAnalysis:
     # Loaded-pipeline reconciliation.
     # ------------------------------------------------------------------
 
+    def _apply_runtime_checkpoint_fields(
+        self,
+        target_config: HabitatAnalysisConfig,
+    ) -> None:
+        """
+        Copy resume/checkpoint runtime controls onto a loaded pipeline config.
+
+        Args:
+            target_config: Config object installed on the loaded pipeline.
+        """
+        target_config.run_mode = self.config.run_mode
+        target_config.pipeline_path = self.config.pipeline_path
+        target_config.data_dir = self.config.data_dir
+        if self.config.config_file:
+            target_config.config_file = self.config.config_file
+        target_config.resume = self.config.resume
+        target_config.checkpoint_dir = self.config.checkpoint_dir
+        target_config.force_rerun_subjects = list(self.config.force_rerun_subjects)
+        target_config.retry_failed_subjects = self.config.retry_failed_subjects
+        target_config.individual_subject_auto_retry_rounds = (
+            self.config.individual_subject_auto_retry_rounds
+        )
+        target_config.clear_checkpoint_on_success = self.config.clear_checkpoint_on_success
+        target_config.on_subject_failure = self.config.on_subject_failure
+        target_config.individual_subject_timeout_sec = (
+            self.config.individual_subject_timeout_sec
+        )
+        target_config.individual_subject_graceful_shutdown_sec = (
+            self.config.individual_subject_graceful_shutdown_sec
+        )
+        target_config.individual_subject_spawn_timeout_sec = (
+            self.config.individual_subject_spawn_timeout_sec
+        )
+        target_config.oom_backoff = self.config.oom_backoff
+        target_config.oom_reduce_workers_by = self.config.oom_reduce_workers_by
+        target_config.individual_subject_parallel_mode = (
+            self.config.individual_subject_parallel_mode
+        )
+        target_config.persistent_worker_max_consecutive_failures = (
+            self.config.persistent_worker_max_consecutive_failures
+        )
+        target_config.persistent_worker_recycle_after_tasks = (
+            self.config.persistent_worker_recycle_after_tasks
+        )
+
     def _select_pipeline_config(self, pipeline: HabitatPipeline) -> HabitatAnalysisConfig:
         """
         Pick the config to apply to a loaded pipeline.
@@ -756,9 +816,12 @@ class HabitatAnalysis:
             pipeline_config.random_state = self.config.random_state
             pipeline_config.verbose = self.config.verbose
             pipeline_config.debug = self.config.debug
+            self._apply_runtime_checkpoint_fields(pipeline_config)
             return pipeline_config
 
-        return self.config
+        merged_config = self.config
+        self._apply_runtime_checkpoint_fields(merged_config)
+        return merged_config
 
     def _sync_feature_service(
         self,

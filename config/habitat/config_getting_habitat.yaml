@@ -283,12 +283,17 @@ oom_backoff: false  # Do not reduce parallel workers after MemoryError
 # Checkpoint / resume (train mode only) — individual-level Stage 1 only.
 # Default: <out_dir>/.habitat_checkpoint/  (manifest.json + subjects/{id}.pkl)
 # individual_subject_auto_retry_rounds: same-run auto-retry for Stage-1 failures (default 2).
+# individual_subject_parallel_mode: persistent (default) | isolated (spawn per subject).
+# persistent_worker_max_consecutive_failures / persistent_worker_recycle_after_tasks: persistent-only tuning.
 # retry_failed_subjects: re-queue all failed on the *next* resume/CLI start.
 resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
 individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
+individual_subject_parallel_mode: persistent  # default; use isolated if pickle/spawn issues
+persistent_worker_max_consecutive_failures: 1  # Restart slot after N consecutive failures (persistent only)
+persistent_worker_recycle_after_tasks: 0  # Recycle worker after N successes; 0=off (persistent only)
 clear_checkpoint_on_success: false
 # Config hash must match on resume (data_dir + FeatureConstruction + HabitatSegmentation).
 # Full documentation: docs/source/user_guide/habitat_segmentation_zh.rst (断点续训)

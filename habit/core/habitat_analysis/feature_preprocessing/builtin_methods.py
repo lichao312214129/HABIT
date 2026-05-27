@@ -134,6 +134,77 @@ def apply_correlation_filter(
 
 
 # ---------------------------------------------------------------------------
+# Per-feature scaling helpers (sequential pipeline steps)
+# ---------------------------------------------------------------------------
+
+
+def _per_feature_minmax_state(feature_df: pd.DataFrame) -> Dict[str, pd.Series]:
+    """
+    Capture per-column min/max from the current pipeline step input.
+
+    Args:
+        feature_df: Numeric feature block at the minmax step.
+
+    Returns:
+        State dict with ``mins`` and ``maxs`` series aligned to columns.
+    """
+    return {"mins": feature_df.min(), "maxs": feature_df.max()}
+
+
+def _apply_per_feature_minmax(
+    feature_df: pd.DataFrame,
+    state: Dict[str, pd.Series],
+) -> pd.DataFrame:
+    """
+    Scale columns to [0, 1] using min/max learned on the current pipeline step.
+
+    Args:
+        feature_df: Feature block to transform.
+        state: Output of :func:`_per_feature_minmax_state`.
+
+    Returns:
+        Min-max scaled DataFrame.
+    """
+    cols = feature_df.columns
+    denom = (state["maxs"][cols] - state["mins"][cols]).replace(0, 1.0)
+    return (feature_df - state["mins"][cols]) / denom
+
+
+def _per_feature_zscore_state(feature_df: pd.DataFrame) -> Dict[str, pd.Series]:
+    """
+    Capture per-column mean/std from the current pipeline step input.
+
+    Args:
+        feature_df: Numeric feature block at the zscore step.
+
+    Returns:
+        State dict with ``means`` and ``stds`` series aligned to columns.
+    """
+    return {
+        "means": feature_df.mean(),
+        "stds": feature_df.std().replace(0, 1.0),
+    }
+
+
+def _apply_per_feature_zscore(
+    feature_df: pd.DataFrame,
+    state: Dict[str, pd.Series],
+) -> pd.DataFrame:
+    """
+    Z-score columns using mean/std learned on the current pipeline step.
+
+    Args:
+        feature_df: Feature block to transform.
+        state: Output of :func:`_per_feature_zscore_state`.
+
+    Returns:
+        Standardized DataFrame.
+    """
+    cols = feature_df.columns
+    return (feature_df - state["means"][cols]) / state["stds"][cols]
+
+
+# ---------------------------------------------------------------------------
 # Registered preprocessing handlers
 # ---------------------------------------------------------------------------
 
@@ -160,7 +231,7 @@ class MinMaxPreprocessing(BaseFeaturePreprocessing):
                 "min": float(feature_df.values.min()),
                 "max": float(feature_df.values.max()),
             }
-        return None
+        return _per_feature_minmax_state(feature_df)
 
     def transform(
         self,
@@ -174,13 +245,11 @@ class MinMaxPreprocessing(BaseFeaturePreprocessing):
             denom = (state["max"] - state["min"]) if state["max"] != state["min"] else 1.0
             return (feature_df - state["min"]) / denom
 
-        if baseline is None:
-            raise ValueError("baseline is required for per-feature minmax transform.")
-        # Restrict baseline stats to surviving columns so pandas alignment does not
-        # reintroduce columns dropped by upstream variance/correlation filters.
-        cols = feature_df.columns
-        denom = (baseline.maxs[cols] - baseline.mins[cols]).replace(0, 1.0)
-        return (feature_df - baseline.mins[cols]) / denom
+        if state is None or not isinstance(state, dict) or "mins" not in state:
+            raise ValueError(
+                "Per-feature minmax requires fit state from the current pipeline step."
+            )
+        return _apply_per_feature_minmax(feature_df, state)
 
 
 @register_preprocessing("zscore")
@@ -204,7 +273,7 @@ class ZScorePreprocessing(BaseFeaturePreprocessing):
             values = feature_df.values
             std = float(values.std()) if values.std() != 0 else 1.0
             return {"mean": float(values.mean()), "std": std}
-        return None
+        return _per_feature_zscore_state(feature_df)
 
     def transform(
         self,
@@ -217,12 +286,11 @@ class ZScorePreprocessing(BaseFeaturePreprocessing):
         if global_normalize and state is not None:
             return (feature_df - state["mean"]) / state["std"]
 
-        if baseline is None:
-            raise ValueError("baseline is required for per-feature zscore transform.")
-        # Restrict baseline stats to surviving columns so pandas alignment does not
-        # reintroduce columns dropped by upstream variance/correlation filters.
-        cols = feature_df.columns
-        return (feature_df - baseline.means[cols]) / baseline.stds[cols]
+        if state is None or not isinstance(state, dict) or "means" not in state:
+            raise ValueError(
+                "Per-feature zscore requires fit state from the current pipeline step."
+            )
+        return _apply_per_feature_zscore(feature_df, state)
 
 
 @register_preprocessing("robust")

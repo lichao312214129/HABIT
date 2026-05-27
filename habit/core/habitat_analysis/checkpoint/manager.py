@@ -1,5 +1,5 @@
 """
-Checkpoint storage and manifest management for resumable habitat training.
+Checkpoint storage and manifest management for resumable habitat train/predict runs.
 """
 
 from __future__ import annotations
@@ -20,16 +20,19 @@ from ..pipelines.habitat_subject_data import HabitatSubjectData
 CHECKPOINT_VERSION: int = 1
 MANIFEST_FILENAME: str = "manifest.json"
 SUBJECTS_SUBDIR: str = "subjects"
+TRAIN_CHECKPOINT_DIRNAME: str = ".habitat_checkpoint"
+PREDICT_CHECKPOINT_DIRNAME: str = ".habitat_predict_checkpoint"
 
 
 @dataclass
 class CheckpointManifest:
-    """On-disk metadata for a resumable habitat training run."""
+    """On-disk metadata for a resumable habitat train or predict run."""
 
     version: int = CHECKPOINT_VERSION
     config_hash: str = ""
     individual_config_hash: str = ""
     clustering_mode: str = ""
+    run_mode: str = "train"
     completed_subjects: List[str] = field(default_factory=list)
     failed_subjects: List[str] = field(default_factory=list)
     stage: str = "individual"
@@ -137,6 +140,101 @@ def compute_config_hash(config: HabitatAnalysisConfig) -> str:
     return _hash_config_payload(build_individual_stage_config_payload(config))
 
 
+def resolve_predict_pipeline_path(config: HabitatAnalysisConfig) -> Path:
+    """
+    Resolve the trained pipeline path used for predict-mode checkpoint hashing.
+
+    Args:
+        config: Active habitat analysis configuration with ``pipeline_path`` set.
+
+    Returns:
+        Absolute path to the serialized pipeline file.
+
+    Raises:
+        ValueError: When ``pipeline_path`` is missing.
+        FileNotFoundError: When the resolved pipeline file does not exist.
+    """
+    raw_path = getattr(config, "pipeline_path", None)
+    if not raw_path:
+        raise ValueError(
+            "pipeline_path is required for predict-mode checkpoint fingerprinting."
+        )
+
+    path = Path(str(raw_path))
+    if not path.is_absolute() and config.config_file:
+        path = Path(config.config_file).resolve().parent / path
+    resolved = path.resolve()
+    if not resolved.exists():
+        raise FileNotFoundError(
+            f"Predict pipeline file not found for checkpoint hashing: {resolved}"
+        )
+    return resolved
+
+
+def _pipeline_file_fingerprint(path: Path) -> Dict[str, Any]:
+    """
+    Build a stable fingerprint for a serialized pipeline file on disk.
+
+    Args:
+        path: Absolute path to ``habitat_pipeline.pkl``.
+
+    Returns:
+        Dictionary with resolved path, byte size, and modification time.
+    """
+    stat = path.stat()
+    return {
+        "path": str(path),
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+    }
+
+
+def build_predict_stage_config_payload(
+    config: HabitatAnalysisConfig,
+) -> Dict[str, Any]:
+    """
+    Build the Stage-1 predict checkpoint configuration fingerprint.
+
+    Predict resume must invalidate when the trained pipeline file or input
+    manifest changes, not when group-stage-only YAML drifts.
+
+    Args:
+        config: Validated habitat analysis configuration for a predict run.
+
+    Returns:
+        Dictionary payload used for predict-mode config hashing.
+
+    Raises:
+        ValueError: When ``pipeline_path`` is missing.
+        FileNotFoundError: When the pipeline file does not exist.
+    """
+    pipeline_path = resolve_predict_pipeline_path(config)
+    clustering_mode = (
+        config.HabitatSegmentation.clustering_mode
+        if config.HabitatSegmentation is not None
+        else ""
+    )
+    return {
+        "run_mode": "predict",
+        "data_dir": config.data_dir,
+        "pipeline": _pipeline_file_fingerprint(pipeline_path),
+        "clustering_mode": clustering_mode,
+    }
+
+
+def compute_predict_config_hash(config: HabitatAnalysisConfig) -> str:
+    """
+    Build a stable hash of predict Stage-1 checkpoint configuration fields.
+
+    Args:
+        config: Validated habitat analysis configuration for a predict run.
+
+    Returns:
+        Hex digest prefix used to detect predict resume invalidation.
+    """
+    return _hash_config_payload(build_predict_stage_config_payload(config))
+
+
 def compute_legacy_config_hash(config: HabitatAnalysisConfig) -> str:
     """
     Build the legacy full-configuration hash (pre Stage-1-only fingerprint).
@@ -201,14 +299,48 @@ def is_checkpoint_config_compatible(
     return False
 
 
+def is_predict_checkpoint_config_compatible(
+    stored_hash: str,
+    config: HabitatAnalysisConfig,
+    *,
+    manifest: Optional[CheckpointManifest] = None,
+) -> bool:
+    """
+    Decide whether an on-disk predict checkpoint matches the active predict run.
+
+    Args:
+        stored_hash: ``config_hash`` value read from ``manifest.json``.
+        config: Active habitat analysis configuration.
+        manifest: Optional loaded manifest for run-mode validation.
+
+    Returns:
+        True when predict individual-level checkpoint data may be reused.
+    """
+    try:
+        current_hash = compute_predict_config_hash(config)
+    except (ValueError, FileNotFoundError):
+        return False
+
+    if stored_hash != current_hash:
+        return False
+
+    if manifest is not None:
+        stored_run_mode = getattr(manifest, "run_mode", "train") or "train"
+        if stored_run_mode != "predict":
+            return False
+
+    return True
+
+
 class HabitatTrainCheckpoint:
     """
-    Manage per-subject individual-level checkpoints for habitat training.
+    Manage per-subject individual-level checkpoints for habitat train/predict runs.
 
     Args:
         checkpoint_dir: Root directory for manifest and subject cache files.
         config: Active habitat analysis configuration.
         logger: Optional logger for resume warnings and progress messages.
+        run_mode: ``"train"`` or ``"predict"``; controls hashing and manifest metadata.
     """
 
     def __init__(
@@ -216,13 +348,22 @@ class HabitatTrainCheckpoint:
         checkpoint_dir: Path,
         config: HabitatAnalysisConfig,
         logger: Optional[logging.Logger] = None,
+        *,
+        run_mode: str = "train",
     ) -> None:
+        if run_mode not in {"train", "predict"}:
+            raise ValueError(f"Unsupported checkpoint run_mode: {run_mode!r}")
+
         self.checkpoint_dir = Path(checkpoint_dir)
         self.subjects_dir = self.checkpoint_dir / SUBJECTS_SUBDIR
         self.manifest_path = self.checkpoint_dir / MANIFEST_FILENAME
         self.config = config
         self.logger = logger
-        self.config_hash = compute_config_hash(config)
+        self.run_mode = run_mode
+        if run_mode == "predict":
+            self.config_hash = compute_predict_config_hash(config)
+        else:
+            self.config_hash = compute_config_hash(config)
         self.clustering_mode = (
             config.HabitatSegmentation.clustering_mode
             if config.HabitatSegmentation is not None
@@ -232,23 +373,35 @@ class HabitatTrainCheckpoint:
             config_hash=self.config_hash,
             individual_config_hash=self.config_hash,
             clustering_mode=self.clustering_mode,
+            run_mode=run_mode,
         )
 
     @staticmethod
-    def resolve_checkpoint_dir(out_dir: str, checkpoint_dir: Optional[str]) -> Path:
+    def resolve_checkpoint_dir(
+        out_dir: str,
+        checkpoint_dir: Optional[str],
+        *,
+        run_mode: str = "train",
+    ) -> Path:
         """
         Resolve the checkpoint directory from config overrides.
 
         Args:
             out_dir: Pipeline output directory.
             checkpoint_dir: Optional explicit checkpoint path from config.
+            run_mode: ``"train"`` or ``"predict"``; selects the default subdirectory.
 
         Returns:
             Absolute checkpoint directory path.
         """
         if checkpoint_dir:
             return Path(checkpoint_dir)
-        return Path(out_dir) / ".habitat_checkpoint"
+        subdir = (
+            PREDICT_CHECKPOINT_DIRNAME
+            if run_mode == "predict"
+            else TRAIN_CHECKPOINT_DIRNAME
+        )
+        return Path(out_dir) / subdir
 
     def initialize_for_run(self, *, resume: bool) -> None:
         """
@@ -279,11 +432,34 @@ class HabitatTrainCheckpoint:
             return
 
         loaded = self._read_manifest()
-        if not is_checkpoint_config_compatible(
-            loaded.config_hash,
-            self.config,
-            manifest=loaded,
-        ):
+        loaded_run_mode = getattr(loaded, "run_mode", "train") or "train"
+        if loaded_run_mode != self.run_mode:
+            if self.logger:
+                self.logger.warning(
+                    "Checkpoint run_mode mismatch (%s -> %s); "
+                    "discarding checkpoint and restarting all subjects.",
+                    loaded_run_mode,
+                    self.run_mode,
+                )
+            shutil.rmtree(self.checkpoint_dir)
+            self._ensure_dirs()
+            self._write_manifest()
+            return
+
+        if self.run_mode == "predict":
+            compatible = is_predict_checkpoint_config_compatible(
+                loaded.config_hash,
+                self.config,
+                manifest=loaded,
+            )
+        else:
+            compatible = is_checkpoint_config_compatible(
+                loaded.config_hash,
+                self.config,
+                manifest=loaded,
+            )
+
+        if not compatible:
             if self.logger:
                 self.logger.warning(
                     "Checkpoint config hash changed (%s -> %s); "
@@ -297,7 +473,8 @@ class HabitatTrainCheckpoint:
             return
 
         if (
-            loaded.config_hash != self.config_hash
+            self.run_mode == "train"
+            and loaded.config_hash != self.config_hash
             and self.logger is not None
         ):
             self.logger.warning(
@@ -311,10 +488,12 @@ class HabitatTrainCheckpoint:
         self.manifest = loaded
         self.manifest.config_hash = self.config_hash
         self.manifest.individual_config_hash = self.config_hash
+        self.manifest.run_mode = self.run_mode
         self._ensure_dirs()
         if self.logger:
             self.logger.info(
-                "Loaded checkpoint: %s completed, %s failed subject(s).",
+                "Loaded %s checkpoint: %s completed, %s failed subject(s).",
+                self.run_mode,
                 len(self.manifest.completed_subjects),
                 len(self.manifest.failed_subjects),
             )
@@ -523,6 +702,7 @@ class HabitatTrainCheckpoint:
     def mark_training_complete(self) -> None:
         """Mark the checkpoint as fully completed before optional cleanup."""
         self.manifest.stage = "done"
+        self.manifest.run_mode = self.run_mode
         self._write_manifest()
 
     def clear(self) -> None:
@@ -554,5 +734,6 @@ class HabitatTrainCheckpoint:
         self._ensure_dirs()
         self.manifest.config_hash = self.config_hash
         self.manifest.individual_config_hash = self.config_hash
+        self.manifest.run_mode = self.run_mode
         with self.manifest_path.open("w", encoding="utf-8") as handle:
             json.dump(asdict(self.manifest), handle, indent=2, sort_keys=True)

@@ -38,7 +38,7 @@ class CheckpointSaveStep(IndividualLevelStep):
 
         Args:
             checkpoint: Checkpoint manager created in the parent process, or
-                ``None`` when checkpointing is disabled (e.g. predict mode).
+                ``None`` when checkpointing is disabled.
         """
         self._checkpoint = checkpoint
 
@@ -48,7 +48,7 @@ class CheckpointSaveStep(IndividualLevelStep):
         subject_data: HabitatSubjectData,
     ) -> HabitatSubjectData:
         """
-        Write ``subject_data`` to ``subjects/{subject_id}.pkl`` in train mode.
+        Write ``subject_data`` to ``subjects/{subject_id}.pkl`` when checkpointing is active.
 
         Args:
             subject_id: Subject identifier.
@@ -57,8 +57,6 @@ class CheckpointSaveStep(IndividualLevelStep):
         Returns:
             Unmodified ``subject_data`` (small post-merge payload for group stage).
         """
-        if getattr(self.config, "run_mode", "train") != "train":
-            return subject_data
         if self._checkpoint is None:
             return subject_data
 

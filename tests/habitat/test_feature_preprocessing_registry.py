@@ -60,6 +60,33 @@ class TestStatelessPipeline:
         assert "const" not in out.columns
         assert "vary" in out.columns
 
+    def test_winsorize_then_minmax_uses_post_winsorize_stats(self) -> None:
+        df = pd.DataFrame({"A": [0.0, 1.0, 2.0, 3.0, 100.0]})
+        methods = [
+            {"method": "winsorize", "winsor_limits": [0.2, 0.2], "global_normalize": False},
+            {"method": "minmax", "global_normalize": False},
+        ]
+        out = apply_stateless_preprocessing(df, methods)
+        assert out["A"].min() == pytest.approx(0.0)
+        assert out["A"].max() == pytest.approx(1.0)
+        # Old bug: minmax used raw max=100, so clipped tail would stay near 0.03.
+        assert out["A"].iloc[-1] == pytest.approx(1.0)
+
+    def test_winsorize_then_minmax_does_not_reintroduce_nan(self) -> None:
+        df = pd.DataFrame(
+            {
+                "valid": [1.0, 2.0, 3.0, 4.0, 5.0],
+                "all_nan": [np.nan, np.nan, np.nan, np.nan, np.nan],
+            }
+        )
+        methods = [
+            {"method": "winsorize", "winsor_limits": [0.05, 0.05], "global_normalize": False},
+            {"method": "minmax", "global_normalize": False},
+        ]
+        out = apply_stateless_preprocessing(df, methods)
+        assert not out.isna().any().any()
+        assert out["all_nan"].tolist() == pytest.approx([0.0] * 5)
+
 
 class TestStatefulPipeline:
     def test_fit_transform_replays_column_selection(self) -> None:

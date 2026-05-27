@@ -92,6 +92,12 @@ resume: true
 retry_failed_subjects: true
 ```
 
+5. If persistent worker fails to start (pipeline not picklable), fall back to:
+
+```yaml
+individual_subject_parallel_mode: isolated
+```
+
 Or retry specific IDs with `force_rerun_subjects: [subXXX]`.
 
 Check `habitat_analysis.log` for `Auto-retry round`, `MemoryError`,

@@ -19,12 +19,17 @@ HabitatSegmentation:
 processes: 2  # Number of parallel processes
 individual_subject_timeout_sec: 900  # 15 min cap per subject; null disables
 oom_backoff: false
-# Checkpoint / resume (train only; ignored in predict mode)
+# Checkpoint / resume (train and predict) — default dirs:
+#   train:   <out_dir>/.habitat_checkpoint/
+#   predict: <out_dir>/.habitat_predict_checkpoint/
 resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2  # Train only; ignored in predict mode
+individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off)
+individual_subject_parallel_mode: persistent  # default; use isolated if pickle/spawn issues
+persistent_worker_max_consecutive_failures: 1  # Restart slot after N consecutive failures (persistent only)
+persistent_worker_recycle_after_tasks: 0  # Recycle worker after N successes; 0=off (persistent only)
 clear_checkpoint_on_success: false
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files

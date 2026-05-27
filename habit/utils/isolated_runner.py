@@ -21,6 +21,7 @@ from queue import Empty
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
 from habit.utils.log_utils import restore_logging_in_subprocess
+from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
 from habit.utils.progress_utils import CustomTqdm
 
 T = TypeVar("T")
@@ -72,21 +73,51 @@ def is_fatal_memory_error(exc: Optional[BaseException]) -> bool:
     return type(exc).__name__ == "ArrayMemoryError"
 
 
-def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> ProcessingResult:
+def requires_worker_restart(
+    proc_result: Optional[ProcessingResult],
+    *,
+    worker_alive: bool,
+) -> bool:
+    """
+    Decide whether a persistent worker slot must be replaced after a task.
+
+    Recoverable Python exceptions (for example NaN validation errors) keep the
+    long-lived worker running. Restarts are reserved for missing results, fatal
+    memory failures, and worker process death.
+
+    Args:
+        proc_result: Result received from the worker, if any.
+        worker_alive: Whether the worker process is still alive.
+
+    Returns:
+        True when the parent should terminate and respawn the slot worker.
+    """
+    if not worker_alive:
+        return True
+    if proc_result is None:
+        return True
+    if not proc_result.success and is_fatal_memory_error(proc_result.error):
+        return True
+    return False
+
+
+def _worker_wrapper(args: Tuple[Any, ...]) -> ProcessingResult:
     """
     Run user ``func`` in a child process with logging restored.
 
     Args:
-        args: ``(func, item, log_file_path, log_level)``.
+        args: ``(func, item, log_file_path, log_level, gpu_slot_index)``.
 
     Returns:
         ``ProcessingResult`` for the item (success or caught exception).
     """
-    func, item, log_file_path, log_level = args
+    func, item, log_file_path, log_level, gpu_slot_index = _unpack_worker_args(args)
 
     if log_file_path is not None:
         restore_logging_in_subprocess(log_file_path, log_level)
 
+    previous_slot = os.environ.get(HABIT_GPU_SLOT_INDEX_ENV)
+    os.environ[HABIT_GPU_SLOT_INDEX_ENV] = str(gpu_slot_index)
     try:
         if hasattr(item, "__getitem__") and len(item) > 0:
             item_id = item[0] if isinstance(item, (list, tuple)) else item
@@ -109,6 +140,34 @@ def _worker_wrapper(args: Tuple[Callable, Any, Optional[Path], int]) -> Processi
         else:
             item_id = item
         return ProcessingResult(item_id=item_id, error=exc)
+    finally:
+        if previous_slot is None:
+            os.environ.pop(HABIT_GPU_SLOT_INDEX_ENV, None)
+        else:
+            os.environ[HABIT_GPU_SLOT_INDEX_ENV] = previous_slot
+
+
+def _unpack_worker_args(
+    args: Tuple[Any, ...],
+) -> Tuple[Callable[..., Any], Any, Optional[Path], int, int]:
+    """
+    Normalize worker argument tuples for isolated child processes.
+
+    Args:
+        args: ``(func, item, log_file_path, log_level[, gpu_slot_index])``.
+
+    Returns:
+        Tuple of func, item, log path, log level, and zero-based GPU slot index.
+    """
+    if len(args) == 4:
+        func, item, log_file_path, log_level = args
+        return func, item, log_file_path, log_level, 0
+    if len(args) == 5:
+        func, item, log_file_path, log_level, gpu_slot_index = args
+        return func, item, log_file_path, log_level, int(gpu_slot_index)
+    raise ValueError(
+        f"worker args must be length 4 or 5; got {len(args)} element(s)"
+    )
 
 
 def _item_id_from_worker_args(worker_args: Tuple[Any, ...]) -> Any:
@@ -163,6 +222,7 @@ class _ActiveSlot:
     item_id: Any
     worker_args: Tuple[Any, ...]
     spawn_started_at: float
+    result_ready_event: threading.Event = field(default_factory=threading.Event, repr=False)
     proc: Optional[multiprocessing.Process] = None
     reader: Optional[threading.Thread] = None
     recv_bucket: Optional[List[Optional[ProcessingResult]]] = None
@@ -171,6 +231,30 @@ class _ActiveSlot:
     spawn_complete: bool = False
     spawn_error: Optional[BaseException] = None
     _spawn_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+
+def _wait_for_any_result(
+    active_slots: List[_ActiveSlot],
+    max_wait_sec: float,
+) -> None:
+    """
+    Block until at least one active slot receives a result or *max_wait_sec* elapses.
+
+    Uses per-slot :class:`threading.Event` set by reader threads so the main poll
+    loop reacts to newly-available results within milliseconds instead of waiting
+    for the full poll interval.
+    """
+    deadline = time.monotonic() + max_wait_sec
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return
+        for slot in active_slots:
+            if slot.result_ready_event.is_set():
+                slot.result_ready_event.clear()
+                return
+        wait_sec = min(remaining, 0.05)
+        time.sleep(wait_sec)
 
 
 class IsolatedTaskRunner:
@@ -271,6 +355,8 @@ class IsolatedTaskRunner:
         if show_progress:
             progress_bar = CustomTqdm(total=total, desc=desc)
 
+        slot_counter = 0
+
         def _apply_oom_backoff(item_id: Any) -> None:
             nonlocal max_slots
             if not self.oom_backoff:
@@ -287,13 +373,17 @@ class IsolatedTaskRunner:
             max_slots = new_max
 
         def _fill_slots() -> None:
+            nonlocal slot_counter
             while len(active) < max_slots and pending_items:
+                gpu_slot_index = slot_counter % max_slots
+                slot_counter += 1
                 active.append(
                     self._begin_slot_async(
                         func=func,
                         item=pending_items.pop(0),
                         log_file_path=log_file_path,
                         log_level=log_level,
+                        gpu_slot_index=gpu_slot_index,
                     )
                 )
 
@@ -479,7 +569,7 @@ class IsolatedTaskRunner:
             _fill_slots()
 
             if active or pending_items:
-                time.sleep(self.poll_interval_sec)
+                _wait_for_any_result(active, self.poll_interval_sec)
 
         if logger and failed_items:
             logger.warning("Failed or timed out %s item(s)", len(failed_items))
@@ -492,6 +582,7 @@ class IsolatedTaskRunner:
         item: T,
         log_file_path: Optional[Path],
         log_level: int,
+        gpu_slot_index: int,
     ) -> _ActiveSlot:
         """
         Begin spawning a child process without blocking the poll loop.
@@ -501,11 +592,12 @@ class IsolatedTaskRunner:
             item: Work item passed to ``func``.
             log_file_path: Optional log file restored in the child.
             log_level: Logging level for the child.
+            gpu_slot_index: Zero-based worker slot mapped to ``gpuSlotIndex`` in children.
 
         Returns:
             Slot handle tracked by :meth:`map_items`.
         """
-        worker_args = (func, item, log_file_path, log_level)
+        worker_args = (func, item, log_file_path, log_level, gpu_slot_index)
         item_id = _item_id_from_worker_args(worker_args)
         slot = _ActiveSlot(
             item_id=item_id,
@@ -530,11 +622,14 @@ class IsolatedTaskRunner:
                                     time.monotonic() + QUEUE_RESULT_GRACE_SEC
                                 )
                             elif time.monotonic() >= grace_deadline:
+                                slot.result_ready_event.set()
                                 return
                         try:
                             recv_bucket[0] = result_queue.get(
                                 timeout=poll_interval_sec
                             )
+                            if recv_bucket[0] is not None:
+                                slot.result_ready_event.set()
                         except Empty:
                             continue
 

@@ -14,6 +14,9 @@ checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
 individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
+individual_subject_parallel_mode: persistent  # default; use isolated if pickle/spawn issues
+persistent_worker_max_consecutive_failures: 1  # Restart slot after N consecutive failures (persistent only)
+persistent_worker_recycle_after_tasks: 0  # Recycle worker after N successes; 0=off (persistent only)
 clear_checkpoint_on_success: false
 random_state: 42  # Global default; one_step uses habitat.random_state when set
 plot_curves: true  # Enable all visualizations

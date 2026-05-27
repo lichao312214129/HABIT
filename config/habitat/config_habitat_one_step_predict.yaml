@@ -26,6 +26,9 @@ checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
 individual_subject_auto_retry_rounds: 2  # Train only; ignored in predict mode
+individual_subject_parallel_mode: persistent  # Train only; ignored in predict mode
+persistent_worker_max_consecutive_failures: 1  # Train only; ignored in predict mode
+persistent_worker_recycle_after_tasks: 0  # Train only; ignored in predict mode
 clear_checkpoint_on_success: false
 plot_curves: true  # Whether to generate and save plots
 save_results_csv: true  # Whether to save results as CSV files

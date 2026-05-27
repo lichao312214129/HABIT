@@ -174,7 +174,7 @@ The `*_habitats.nrrd` is the file users open in ITK-SNAP / 3D Slicer.
 
 1. **Mask not found** → check `data_dir/<subject>/masks/`.
 2. **Memory error during voxel_radiomics** → reduce `processes`, set `voxelBatch: 512` (or lower), use `useTorchRadiomics: auto` only with `processes: 1` on GPU, switch to `concat(raw(...))`.
-3. **A few subjects fail in large batches but succeed alone** → default `individual_subject_auto_retry_rounds: 2` retries Stage 1 in the same run; reduce `processes` or raise `individual_subject_timeout_sec`; see `errors_habitat.md`.
+3. **A few subjects fail in large batches but succeed alone** → default `individual_subject_auto_retry_rounds: 2` retries Stage 1 in the same run; reduce `processes` or raise `individual_subject_timeout_sec`; default `individual_subject_parallel_mode: persistent` (use `isolated` if pickle fails); see `errors_habitat.md`.
 4. **Cluster number 1 returned** → tumor too homogeneous; add modalities or switch to `voxel_radiomics`/`kinetic`.
 5. **kinetic fails** → verify Excel timestamps file IDs match folder names.
 6. **Predict mode without pipeline** → require `--pipeline` or `pipeline_path` in config.
