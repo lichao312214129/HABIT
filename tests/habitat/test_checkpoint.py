@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from habit.core.habitat_analysis.checkpoint.manager import (
+    CheckpointConfigHashError,
     HabitatTrainCheckpoint,
     PREDICT_CHECKPOINT_DIRNAME,
     TRAIN_CHECKPOINT_DIRNAME,
@@ -188,11 +189,58 @@ def test_config_change_clears_checkpoint_and_restarts(tmp_path: Path) -> None:
 
     changed = _minimal_train_config(tmp_path)
     changed.FeatureConstruction.voxel_level.method = "changed_method()"
+    changed.strict_checkpoint_hash = False
     manager_changed = HabitatTrainCheckpoint(checkpoint_dir, changed)
     manager_changed.initialize_for_run(resume=True)
 
     assert manager_changed.manifest.completed_subjects == []
     assert not (checkpoint_dir / "subjects" / "sub001.pkl").exists()
+
+
+def test_strict_checkpoint_hash_raises_on_individual_config_change(
+    tmp_path: Path,
+) -> None:
+    config = _minimal_train_config(tmp_path)
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config)
+    manager.initialize_for_run(resume=False)
+    manager.record_success("sub001", HabitatSubjectData())
+
+    changed = _minimal_train_config(tmp_path)
+    changed.FeatureConstruction.voxel_level.method = "changed_method()"
+    manager_changed = HabitatTrainCheckpoint(checkpoint_dir, changed)
+
+    with pytest.raises(CheckpointConfigHashError, match="config hash changed"):
+        manager_changed.initialize_for_run(resume=True)
+
+    assert (checkpoint_dir / "subjects" / "sub001.pkl").exists()
+
+
+def test_strict_checkpoint_hash_allows_legacy_stage1_compatible_migration(
+    tmp_path: Path,
+) -> None:
+    config_old = _minimal_train_config(tmp_path)
+    config_old.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[PreprocessingMethod(method="binning", n_bins=10, global_normalize=False)]
+    )
+    checkpoint_dir = tmp_path / "ckpt"
+    manager = HabitatTrainCheckpoint(checkpoint_dir, config_old)
+    manager.initialize_for_run(resume=False)
+    manager.record_success("sub001", HabitatSubjectData())
+
+    legacy_hash = compute_legacy_config_hash(config_old)
+    manager.manifest.config_hash = legacy_hash
+    manager.manifest.individual_config_hash = ""
+    manager._write_manifest()
+
+    config_new = _minimal_train_config(tmp_path)
+    config_new.FeatureConstruction.preprocessing_for_group_level = PreprocessingConfig(
+        methods=[PreprocessingMethod(method="binning", n_bins=5, global_normalize=False)]
+    )
+    manager_new = HabitatTrainCheckpoint(checkpoint_dir, config_new)
+    manager_new.initialize_for_run(resume=True)
+
+    assert manager_new.manifest.completed_subjects == ["sub001"]
 
 
 def test_force_rerun_subjects_requeues_completed_subject(tmp_path: Path) -> None:

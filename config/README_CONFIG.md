@@ -111,14 +111,15 @@ These keys live at the **root** of habitat configs (see `config/habitat/config_g
 | Key | Default | Role |
 |-----|---------|------|
 | `processes` | `2` | Max concurrent subject workers in Stage 1; peak RAM ≈ `processes × per-subject memory`. |
-| `cap_processes_to_gpu_pool` | `true` | When Torch CUDA radiomics is active: `true` caps workers to `len(torchGpus)` (one slot per GPU); `false` keeps full `processes` and shares GPUs via `gpuSlotIndex` (better CPU use on 1-GPU / many-CPU hosts; more GPU contention risk). |
+| `cap_processes_to_gpu_pool` | `false` | When Torch CUDA radiomics is active: `true` caps workers to `len(torchGpus)` (one slot per GPU); `false` keeps full `processes` and shares GPUs via `gpuSlotIndex` (better CPU use on 1-GPU / many-CPU hosts; more GPU contention risk). |
 | `individual_subject_timeout_sec` | `900` | Per-subject wall clock in Stage 1; `null` disables. Positive value forces spawn even when `processes: 1`. |
 | `individual_subject_parallel_mode` | `persistent` | `persistent` (long-lived workers) or `isolated` (spawn per subject). |
 | `individual_subject_auto_retry_rounds` | `2` | Same-run auto-retry for Stage-1 failures; `0` disables. |
 | `oom_backoff` | `true` | Reduce workers after `MemoryError` when enabled. |
 | `resume` / `checkpoint_dir` / `retry_failed_subjects` | — | Checkpoint resume; see habitat user guide. |
+| `strict_checkpoint_hash` | `true` | With `resume: true`: when `true` (default), incompatible manifest hash or `run_mode` raises `CheckpointConfigHashError` instead of discarding checkpoint and starting fresh. Set `false` to auto-discard and restart. Stage-1-compatible legacy hash migration still resumes. |
 
-Not in checkpoint `config_hash` (safe to change on resume): `processes`, `cap_processes_to_gpu_pool`, timeout, parallel mode, retry flags, `plot_curves`, `out_dir`, group-stage blocks.
+Not in checkpoint `config_hash` (safe to change on resume): `processes`, `cap_processes_to_gpu_pool`, `strict_checkpoint_hash`, timeout, parallel mode, retry flags, `plot_curves`, `out_dir`, group-stage blocks.
 
 ## How to use
 

@@ -329,7 +329,13 @@ Pipeline 分两阶段；checkpoint **只覆盖 Stage 1（个体级）**：
 
    Loaded checkpoint: 120 completed, 3 failed subject(s).
 
-不一致时：
+不一致时（``strict_checkpoint_hash: true`` ，默认）：
+
+.. code-block:: text
+
+   CheckpointConfigHashError: Checkpoint config hash changed (abc -> def); cannot resume with strict_checkpoint_hash=True.
+
+若需自动清空 checkpoint 并全量重跑，在 YAML 中设置 ``strict_checkpoint_hash: false`` 。旧行为日志类似：
 
 .. code-block:: text
 

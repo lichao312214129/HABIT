@@ -248,6 +248,13 @@ def compute_legacy_config_hash(config: HabitatAnalysisConfig) -> str:
     return _hash_config_payload(build_legacy_full_config_payload(config))
 
 
+class CheckpointConfigHashError(RuntimeError):
+    """
+    Raised when resume=True, strict_checkpoint_hash=True, and the on-disk
+    checkpoint manifest is incompatible with the active configuration.
+    """
+
+
 def is_checkpoint_config_compatible(
     stored_hash: str,
     config: HabitatAnalysisConfig,
@@ -410,11 +417,15 @@ class HabitatTrainCheckpoint:
         When ``resume`` is False, any existing checkpoint directory is removed.
         When ``resume`` is True, an existing manifest is loaded; if the stored
         config hash differs from the current config, a warning is logged and the
-        checkpoint is cleared before restarting.
+        checkpoint is cleared before restarting, unless
+        ``config.strict_checkpoint_hash`` is True (then
+        :class:`CheckpointConfigHashError` is raised instead).
 
         Args:
             resume: Whether to reuse completed subjects from disk.
         """
+        strict_hash: bool = bool(getattr(self.config, "strict_checkpoint_hash", True))
+
         if not resume:
             if self.checkpoint_dir.exists():
                 shutil.rmtree(self.checkpoint_dir)
@@ -434,6 +445,12 @@ class HabitatTrainCheckpoint:
         loaded = self._read_manifest()
         loaded_run_mode = getattr(loaded, "run_mode", "train") or "train"
         if loaded_run_mode != self.run_mode:
+            message = (
+                f"Checkpoint run_mode mismatch ({loaded_run_mode} -> {self.run_mode}); "
+                "cannot resume with strict_checkpoint_hash=True."
+            )
+            if strict_hash:
+                raise CheckpointConfigHashError(message)
             if self.logger:
                 self.logger.warning(
                     "Checkpoint run_mode mismatch (%s -> %s); "
@@ -460,6 +477,12 @@ class HabitatTrainCheckpoint:
             )
 
         if not compatible:
+            message = (
+                f"Checkpoint config hash changed ({loaded.config_hash} -> "
+                f"{self.config_hash}); cannot resume with strict_checkpoint_hash=True."
+            )
+            if strict_hash:
+                raise CheckpointConfigHashError(message)
             if self.logger:
                 self.logger.warning(
                     "Checkpoint config hash changed (%s -> %s); "

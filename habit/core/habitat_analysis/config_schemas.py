@@ -62,7 +62,7 @@ class HabitatAnalysisConfig(BaseConfig):
         gt=0
     )
     cap_processes_to_gpu_pool: bool = Field(
-        True,
+        False,
         description=(
             "When True and Torch GPU radiomics is active, cap Stage-1 parallel workers "
             "to the configured torchGpus pool size (one worker slot per GPU). When False, "
@@ -127,6 +127,15 @@ class HabitatAnalysisConfig(BaseConfig):
             "in the checkpoint directory. Failed checkpoint subjects are skipped unless "
             "retry_failed_subjects is True or they appear in force_rerun_subjects. "
             "Applies to both train and predict runs."
+        ),
+    )
+    strict_checkpoint_hash: bool = Field(
+        True,
+        description=(
+            "When True with resume=True, raise an error instead of discarding the "
+            "checkpoint when the manifest config hash or run_mode is incompatible "
+            "with the current YAML. Legacy Stage-1-compatible manifests that only "
+            "differ in group-stage settings still resume with a hash migration warning."
         ),
     )
     checkpoint_dir: Optional[str] = Field(

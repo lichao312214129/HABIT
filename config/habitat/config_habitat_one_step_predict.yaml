@@ -13,11 +13,12 @@ HabitatSegmentation:
   clustering_mode: one_step
 
 processes: 2
-cap_processes_to_gpu_pool: true
+cap_processes_to_gpu_pool: false
 individual_subject_timeout_sec: 900
 oom_backoff: false
 
 resume: true
+strict_checkpoint_hash: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false

@@ -119,7 +119,7 @@ HabitatSegmentation:
     n_init: 10
 
 processes: 5
-cap_processes_to_gpu_pool: true
+cap_processes_to_gpu_pool: false
 individual_subject_timeout_sec: 900
 oom_backoff: false
 
@@ -144,6 +144,10 @@ oom_backoff: false
 #
 # retry_failed_subjects: false
 #   When resume=true, automatically re-queue all manifest failed_subjects
+#
+# strict_checkpoint_hash: true
+#   When resume=true (default true): raise CheckpointConfigHashError if manifest
+#   config hash or run_mode is incompatible. Set false to discard checkpoint and restart.
 #
 # individual_subject_auto_retry_rounds: 2
 #   After the initial Stage-1 parallel pass in one train run, re-dispatch checkpoint
@@ -180,6 +184,7 @@ oom_backoff: false
 # CLI equivalent: habit get-habitat -c <yaml> --resume
 # ---------------------------------------------------------------------------
 resume: true
+strict_checkpoint_hash: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false

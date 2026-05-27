@@ -130,7 +130,7 @@ def apply_gpu_pool_process_cap(
     if config is None:
         return requested
 
-    if not getattr(config, "cap_processes_to_gpu_pool", True):
+    if not getattr(config, "cap_processes_to_gpu_pool", False):
         return requested
 
     gpu_pool = resolve_habitat_torch_gpu_pool(config)

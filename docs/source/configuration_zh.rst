@@ -1312,6 +1312,13 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **详见**: :doc:`user_guide/habitat_segmentation_zh` 中「断点续训详解」。
 - **并行可靠性计划**: 仓库根下 ``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`` （GPU worker 槽位、processes 上限、Phase 2/3 路线图）。
 
+**strict_checkpoint_hash**（生境分析顶层）: checkpoint hash 不兼容时是否报错
+
+- **类型**: 布尔值
+- **默认值**: ``true``
+- **说明**: 与 ``resume: true`` 联用。为 ``true`` （默认）时，若 ``manifest.json`` 的 ``config_hash`` 或 ``run_mode`` 与当前 YAML 不兼容，抛出 ``CheckpointConfigHashError`` 并保留 checkpoint 目录；为 ``false`` 时记录警告并删除 checkpoint 后 fresh 重跑。仅 Stage-2 配置变更导致的 legacy hash 迁移仍允许续训。
+- **不纳入 config_hash** ；续训时可改。
+
 **checkpoint_dir**（生境分析顶层）: checkpoint 根目录
 
 - **类型**: 字符串或 ``null``
@@ -1364,9 +1371,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
 **config_hash 与续训兼容性**
 
 - **参与 hash**（Stage 1 个体级；变更则清空 checkpoint）：``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
-- **不参与 hash**（可 ``resume: true`` 继续）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``cap_processes_to_gpu_pool`` 、``individual_subject_timeout_sec`` 、``individual_subject_graceful_shutdown_sec`` 、``individual_subject_spawn_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``oom_reduce_workers_by`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``force_rerun_subjects`` 、``out_dir`` 等。
+- **不参与 hash**（可 ``resume: true`` 继续）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``cap_processes_to_gpu_pool`` 、``strict_checkpoint_hash`` 、``individual_subject_timeout_sec`` 、``individual_subject_graceful_shutdown_sec`` 、``individual_subject_spawn_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``oom_reduce_workers_by`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``force_rerun_subjects`` 、``out_dir`` 等。
 - ``manifest.json`` 另存 ``individual_config_hash`` （与 ``config_hash`` 相同）；旧版仅全量 hash 的 manifest 在仅改 Stage 2 配置时会迁移 hash 并保留 pkl。
-- 程序在 ``resume: true`` 启动时自动比较 hash；个体级 hash 不一致且无法判定为 Stage 2 漂移时，日志警告并删除 checkpoint。
+- 程序在 ``resume: true`` 启动时自动比较 hash。个体级 hash 不一致且无法判定为 Stage 2 漂移时，默认（``strict_checkpoint_hash: true``）抛出 ``CheckpointConfigHashError`` ；设为 ``false`` 时记录警告并删除 checkpoint。
 
 **checkpoint 目录结构**
 
