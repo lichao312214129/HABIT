@@ -501,9 +501,18 @@ def test_predict_checkpoint_rejects_train_manifest(tmp_path: Path) -> None:
         predict_config,
         run_mode="predict",
     )
-    predict_manager.initialize_for_run(resume=True)
-    assert predict_manager.manifest.completed_subjects == []
-    assert predict_manager.manifest.run_mode == "predict"
+    with pytest.raises(CheckpointConfigHashError, match="run_mode mismatch"):
+        predict_manager.initialize_for_run(resume=True)
+
+    predict_config.strict_checkpoint_hash = False
+    predict_manager_loose = HabitatTrainCheckpoint(
+        checkpoint_dir,
+        predict_config,
+        run_mode="predict",
+    )
+    predict_manager_loose.initialize_for_run(resume=True)
+    assert predict_manager_loose.manifest.completed_subjects == []
+    assert predict_manager_loose.manifest.run_mode == "predict"
 
 
 def test_is_predict_checkpoint_config_compatible(tmp_path: Path) -> None:

@@ -463,6 +463,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
    individual_subject_timeout_sec: 900
    individual_subject_spawn_timeout_sec: 120
    resume: true
+   strict_checkpoint_hash: true
    checkpoint_dir: null
    force_rerun_subjects: []
    retry_failed_subjects: false
