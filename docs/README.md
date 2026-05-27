@@ -4,7 +4,7 @@
 
 ## YAML 配置参数（权威参考）
 
-所有 CLI 功能的 **YAML 字段说明**（类型、默认值、子块参数、路径解析、`config_hash` 等）集中在 Sphinx 源文件：
+所有 CLI 功能的 **YAML 字段说明**（类型、**默认值**、子块参数、路径解析、`config_hash` 等）集中在 Sphinx 源文件：
 
 - **`docs/source/configuration_zh.rst`** → 构建后为 HTML 目录 **「配置参考」**
 

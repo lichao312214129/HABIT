@@ -2,7 +2,7 @@
 
 ## YAML parameter reference (authoritative)
 
-**Full field documentation** (types, defaults, nested keys, path resolution, habitat `config_hash`, etc.) is in the Sphinx page built from:
+**Full field documentation** (types, **schema defaults**, nested keys, path resolution, habitat `config_hash`, etc.) is in the Sphinx page built from:
 
 - [`docs/source/configuration_zh.rst`](../docs/source/configuration_zh.rst) → **「配置参考」** in the HTML docs (`configuration_zh.html` after `make html`)
 
