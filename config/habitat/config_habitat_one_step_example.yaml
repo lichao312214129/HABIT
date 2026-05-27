@@ -1,99 +1,56 @@
 # Habitat Analysis Configuration - One-Step Mode Example
-# One-step模式：每个样本独立确定最优聚类数
+# Legacy YAML syntax illustration (not the primary template).
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 
-# Basic paths
-data_dir: /path/to/your/data
-out_dir: /path/to/output
+#%%================================================================================
+data_dir: CHANGE_ME
+out_dir: CHANGE_ME
+#%%================================================================================
 
-# General settings — parallelism, checkpoint, outputs
-# processes: Stage-1 parallel worker count; peak RAM ≈ processes × per-subject memory.
-processes: 4
-# cap_processes_to_gpu_pool: true (default) caps workers to len(torchGpus) under Torch CUDA;
-#   false keeps full processes and shares GPUs (1 GPU + many CPUs).
-cap_processes_to_gpu_pool: true
-# individual_subject_timeout_sec: Per-subject wall clock (seconds); default 900; null=unlimited.
-individual_subject_timeout_sec: 900
-# oom_backoff: Reduce workers after MemoryError when true (schema default true).
-oom_backoff: false
-# resume: Skip completed Stage-1 subjects when config_hash matches checkpoint manifest.
-resume: true
-# checkpoint_dir: null → <out_dir>/.habitat_checkpoint
-checkpoint_dir: null
-# force_rerun_subjects: Subject IDs to reprocess despite checkpoint.
-force_rerun_subjects: []
-# retry_failed_subjects: Re-queue manifest failed_subjects on next CLI start.
-retry_failed_subjects: false
-# individual_subject_auto_retry_rounds: In-run Stage-1 auto-retry rounds (default 2; 0=off).
-individual_subject_auto_retry_rounds: 2
-# individual_subject_parallel_mode: persistent (default) | isolated.
-individual_subject_parallel_mode: persistent
-# persistent_worker_max_consecutive_failures: Restart slot after N consecutive fatal failures.
-persistent_worker_max_consecutive_failures: 1
-# persistent_worker_recycle_after_tasks: Recycle worker after N successes; 0=off.
-persistent_worker_recycle_after_tasks: 0
-# clear_checkpoint_on_success: Delete checkpoint after fully successful train.
-clear_checkpoint_on_success: false
-# random_state: Global default; one_step uses habitat.random_state when set.
-random_state: 42
-# plot_curves: Enable validation and habitat visualizations under out_dir.
-plot_curves: true
-
-# Feature Construction Configuration
 FeatureConstruction:
-  # Voxel-level feature extraction
   voxel_level:
-    # Define processing steps for each image
     steps:
-      - method: raw_feature  # Extract raw intensity values
+      - method: raw_feature
         image: T1
         params: {}
-      
       - method: raw_feature
         image: T2
         params: {}
-    
-    # Cross-image feature extraction method
-    method: concat_image  # Concatenate features from all images
+    method: concat_image
     params: {}
 
-# Habitat Segmentation Configuration
 HabitatSegmentation:
-  # Clustering mode: 'one_step', 'two_step', or 'direct_pooling'
   clustering_mode: one_step
-  
-  # Supervoxel clustering configuration
   supervoxel:
-    algorithm: kmeans  # Clustering algorithm: kmeans, gmm, or slic (supervoxel)
-    # Note: n_clusters is not used in one_step mode, as it's determined automatically
-  
-  # One-step mode specific settings
+    algorithm: kmeans
   one_step_settings:
-    # Option 1: Use fixed cluster number (skip optimal search, similar to two_step mode)
-    fixed_n_clusters: null  # If specified, use this fixed number for all samples, skip optimization
-                            # Set to null for automatic cluster number selection
-    
-    # Option 2: Automatically find optimal clusters for each sample (default when fixed_n_clusters is null)
-    min_clusters: 2           # Minimum number of clusters to test
-    max_clusters: 10          # Maximum number of clusters to test
-    selection_method: silhouette  # Method to determine optimal clusters
-                                 # Options: silhouette, davies_bouldin, calinski_harabasz, inertia
-    plot_validation_curves: true  # Whether to plot validation curves for each sample
-  
-  # one_step individual clustering seed (preferred); omit to inherit top-level random_state
+    fixed_n_clusters: null
+    min_clusters: 2
+    max_clusters: 10
+    selection_method: silhouette
+    plot_validation_curves: true
   habitat:
-    mode: training  # Mode: 'training' or 'testing'
-    # random_state: null
-
-  # Optional connected-component cleanup for final one-step habitat maps
-  # Current implementation uses a fast SimpleITK path:
-  # - Tiny components are identified per label by component size
-  # - Removed ROI voxels are refilled by nearest large-component seed label
-  # - ROI voxels are preserved (no permanent voxel drop inside ROI)
+    mode: training
   postprocess_habitat:
     enabled: false
     min_component_size: 30
-    connectivity: 1          # 1=face-neighbor only, 2/3=full-connected behavior in current SITK path
-    debug_postprocess: false # true: print per-label detailed logs for troubleshooting
-    reassign_method: neighbor_vote  # Deprecated/ignored in current fast path (kept for compatibility)
-    max_iterations: 3               # Deprecated/ignored in current fast path (kept for compatibility)
+    connectivity: 1
+    debug_postprocess: false
+    reassign_method: neighbor_vote
+    max_iterations: 3
 
+processes: 4
+cap_processes_to_gpu_pool: true
+individual_subject_timeout_sec: 900
+oom_backoff: false
+resume: true
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
+clear_checkpoint_on_success: false
+random_state: 42
+plot_curves: true

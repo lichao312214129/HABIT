@@ -1,5 +1,13 @@
 # Configuration Files Guide
 
+## YAML parameter reference (authoritative)
+
+**Full field documentation** (types, defaults, nested keys, path resolution, habitat `config_hash`, etc.) is in the Sphinx page built from:
+
+- [`docs/source/configuration_zh.rst`](../docs/source/configuration_zh.rst) → **「配置参考」** in the HTML docs (`configuration_zh.html` after `make html`)
+
+This file is a **template index** and habitat-specific notes (`#%%` markers, Stage-1 parallelism). Prefer the configuration reference for per-key semantics; user guides link there for YAML details.
+
 ## Overview
 
 Configs live under **`config/<module>/`**. Each file aims at **one primary
@@ -67,6 +75,34 @@ For `supervoxel_radiomics` in habitat, use `params_supervoxel_radiomics.yaml` fo
 `voxel_level.params`. Extraction uses **union-mask binning** (one PyRadiomics discretization on
 all supervoxel labels), then per-label ROI matrices via `cMatrices`. `kernelRadius` applies to
 `voxel_radiomics` only, not `supervoxel_radiomics`.
+
+### Habitat YAML comment markers
+
+Must-edit parameters are wrapped in **`#%%================================================================================` … `#%%================================================================================` pairs**. Everything else is normal comments (no box).
+
+| Marker | Meaning |
+|--------|---------|
+| `#%%================================================================================` (opening) | Start of must-edit block |
+| `#%%================================================================================` (closing) | End of must-edit block |
+| `CHANGE_ME` | Placeholder — replace before first run |
+
+Example:
+
+```yaml
+#%%================================================================================
+data_dir: CHANGE_ME
+out_dir: CHANGE_ME
+#%%================================================================================
+```
+
+Train templates may use a **second pair** for study-specific feature settings (e.g. `method` + `timestamps` in `config_getting_habitat.yaml`).
+
+Quick audit:
+
+```bash
+rg "#%%====" config/habitat/
+rg "CHANGE_ME" config/habitat/
+```
 
 ### Habitat Stage-1 parallelism (top-level YAML keys)
 
@@ -136,9 +172,10 @@ habit get-habitat -c config/habitat/config_getting_habitat.yaml
 
 ## Related documentation
 
+- **YAML parameters (all modules)**: [docs/source/configuration_zh.rst](../docs/source/configuration_zh.rst) — build with `docs/make html`
 - **Main README**: [README.md](../README.md) / [README_en.md](../README_en.md)
-- **Habitat Analysis**: [docs/source/user_guide/habitat_segmentation_zh.rst](../docs/source/user_guide/habitat_segmentation_zh.rst)
-- **Machine Learning**: `docs/source/user_guide/machine_learning_modeling_zh.rst`
+- **Habitat workflow** (checkpoint, clustering modes): [docs/source/user_guide/habitat_segmentation_zh.rst](../docs/source/user_guide/habitat_segmentation_zh.rst)
+- **Machine Learning**: [docs/source/user_guide/machine_learning_modeling_zh.rst](../docs/source/user_guide/machine_learning_modeling_zh.rst)
 
 ---
 

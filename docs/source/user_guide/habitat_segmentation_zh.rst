@@ -166,232 +166,38 @@ Python API 使用方法
    habitat_analysis.fit(save_results_csv=True)
    logger.info("生境分析完成。")
 
-YAML 配置详解
---------------
+YAML 配置
+---------
 
-**配置文件结构：**
+**字段级说明（类型、默认值、各子块参数）** 见 :doc:`../configuration_zh` 中的 **「生境分析配置参数」** 与 **「生境 Stage-1 并行与断点续训（顶层字段总表）」** 。本页只保留操作流程与策略说明。
+
+**推荐模板**：``config/habitat/config_getting_habitat.yaml``（主模板）；演示见 ``config_habitat_two_step.yaml`` 等。``data_dir`` 常指向 ``file_habitat.yaml`` 被试清单，结构见 :doc:`../data_structure_zh`。
+
+**YAML 注释标记（``config/habitat/*.yaml``）**：首次必改项用 ``#%%================================================================================`` 成对框住；路径占位 ``CHANGE_ME`` 。图例见 ``config/README_CONFIG.md``。
+
+**最小训练示例**（完整键名与注释见模板文件）：
 
 .. code-block:: yaml
 
-   # 运行模式和Pipeline 设置（首先检查这些！，
-   run_mode: predict  # train（如果要训练新模型，设置个train）或 predict（如果要使用预训练模型，设置个predict，
-   pipeline_path: ./results/habitat_pipeline.pkl  # predict 模式的Pipeline 路径（predict 模式必需，
-
-   # 数据路径
+   run_mode: train
    data_dir: ./file_habitat.yaml
-   out_dir: ./results/habitat/predict
-
-   # 特征提取设置（仅在train 模式需要）
+   out_dir: ./results/habitat/train
    FeatureConstruction:
      voxel_level:
-       method: concat(raw(delay2), raw(delay3), raw(delay5))
+       method: concat(raw(delay2), raw(delay3))
        params: {}
-
-     supervoxel_level:
-       supervoxel_file_keyword: '*_supervoxel.nrrd'
-       method: mean_voxel_features()
-       params:
-         params_file: {}
-
-     preprocessing_for_subject_level:
-       methods:
-         - method: winsorize
-           winsor_limits: [0.05, 0.05]
-           global_normalize: true
-         - method: minmax
-           global_normalize: true
-
-     preprocessing_for_group_level:
-       methods:
-         - method: binning
-           n_bins: 10
-           bin_strategy: uniform
-           global_normalize: false
-
-   # 生境分割设置（仅在train 模式需要）
    HabitatSegmentation:
-     # 聚类策略，one_step"。two_step" 或"direct_pooling"
      clustering_mode: two_step
+     supervoxel: { algorithm: kmeans, n_clusters: 50 }
+     habitat: { algorithm: kmeans, max_clusters: 10 }
+   processes: 2
+   cap_processes_to_gpu_pool: true
+   resume: true
+   random_state: 42
 
-     # 超像素聚类设置（第一步：个体级别聚类，
-     supervoxel:
-       algorithm: kmeans
-       n_clusters: 50  # two_step 模式使用，或 one_step 模式的最大值
-       # random_state: null  # two_step 个体超像素；省略则继承顶层
-       max_iter: 300
-       n_init: 10
+**随机种子**：子块 ``random_state`` → 顶层 ``random_state`` → 默认 ``42`` ；详见 :doc:`../configuration_zh` 「随机种子传递规则」。
 
-       # one_step 模式设置：每个肿瘤的自动聚类数选择
-       one_step_settings:
-         min_clusters: 2           # 要测试的最小聚类数
-         max_clusters: 10          # 要测试的最大聚类数
-         selection_method: inertia  # 确定最佳聚类数的方法：silhouette、calinski_harabasz、davies_bouldin、inertia、kneedle
-         plot_validation_curves: true  # 为每个肿瘤绘制验证曲级
-
-     # 生境聚类设置（第二步：群体级别聚类，仅在 two_step 模式使用，
-     habitat:
-       algorithm: kmeans  # kmeans 或gmm
-       max_clusters: 10
-       # - 'silhouette' / 'calinski_harabasz': 选择最大分数（越高越好）
-       # - 'davies_bouldin': 选择最小分数（越低越好）
-       # - 'inertia' / 'kneedle': 都是在 Inertia 曲线上使用 Kneedle 选拐点
-       # - 'aic' / 'bic': GMM 常用，选择最小分数（越低越好）
-       habitat_cluster_selection_method:
-         - inertia
-         # - silhouette
-         # - calinski_harabasz
-         # - aic
-         # - bic
-         # - davies_bouldin
-
-       fixed_n_clusters:    # 固定的聚类数（设置为 null 则自动选择，
-       # random_state: null  # two_step 群体生境；省略则继承顶层
-       max_iter: 300
-       n_init: 10
-
-   # 通用设置
-   processes: 2  # 并行进程数（Stage 1 个体级 worker 数）
-   cap_processes_to_gpu_pool: true  # true：Torch CUDA 时 worker 数不超过 torchGpus 数量；false：保留 processes，多 worker 共享 GPU
-   individual_subject_timeout_sec: 900  # 个体级 Stage 1 单被试墙钟上限（秒）；默认 15 分钟；null 表示不限时
-   resume: true  # 断点续训：跳过 manifest 中已完成被试；曾失败被试默认不重试
-   # checkpoint_dir: null  # 默认 <out_dir>/.habitat_checkpoint
-   # force_rerun_subjects: []  # resume=true 时强制重跑列表中的被试
-   # retry_failed_subjects: false  # 下次 resume 启动时重跑全部 failed
-   individual_subject_auto_retry_rounds: 2  # 同一次 train 内 Stage 1 失败自动重试轮数（0=关）
-   individual_subject_parallel_mode: persistent  # persistent | isolated（每被试 spawn，排查/pickle 失败时用）
-   persistent_worker_max_consecutive_failures: 1  # persistent 模式：连续失败 N 次后重启槽位
-   persistent_worker_recycle_after_tasks: 0  # persistent 模式：成功 N 次后回收 worker（0=关）
-   clear_checkpoint_on_success: false  # 训练全部成功后是否删除 checkpoint（默认保留）
-   plot_curves: true  # 是否生成和保存图行
-   save_results_csv: true  # 是否将结果保存为 CSV 文件
-   save_images: true  # 是否保存 *_habitats.nrrd（mask 从 data_dir 按需加载，不写入 pkl）
-   random_state: 42  # 可重复性的随机种子
-   debug: false  # 启用详细日志的调试模式
-
-**random_state（随机种子）**
-
-优先级（高 → 低）：``HabitatSegmentation`` 子块内显式 ``random_state`` → 配置文件顶层 ``random_state`` → 代码默认 ``42``。
-
-- **顶层** ``random_state``：全局默认；训练入口 ``numpy.random.seed``；可视化等未单独配置时的 fallback。
-- **``supervoxel.random_state``**：``two_step`` 个体超像素聚类；``one_step`` 时在 ``habitat.random_state`` 未设置时作为 fallback。
-- **``habitat.random_state``**：``direct_pooling`` / ``two_step`` 群体生境聚类；``one_step`` 个体体素→生境聚类（优先于 ``supervoxel``）。
-- 子块中**省略**或设为 ``null`` 时继承顶层；**显式写入**则覆盖顶层（三者可设不同值）。
-
-完整说明见 :doc:`../configuration_zh` 中「随机种子传递规则」。
-
-**字段说明：**
-
-**run_mode**: 运行模式
-
-- `train`: 训练新模型
-- `predict`: 使用预训练模型进行预测
-
-**pipeline_path**: Pipeline 文件路径
-
-- predict 模式必需
-- 指定训练好的 Pipeline 文件路径
-
-**data_dir**: 数据目录路径
-
-- 可以是文件夹或YAML 配置文件
-- 参见 :doc:`../data_structure_zh` 了解数据结构
-
-**out_dir**: 输出目录路径
-
-- 生境图和结果将保存在此目录
-
-**save_images**: 是否保存 habitat 标签图（``*_habitats.nrrd`` 等）
-
-- **类型**: 布尔值，默认 ``true``
-- **说明**: 为 ``false`` 时仍可输出 ``habitats.csv`` ，但不写 NRRD。mask 在写图时从 ``data_dir`` 加载，不写入 ``habitat_pipeline.pkl`` （见下文「与最终产物的关系」）。
-
-**processes**: 个体级步骤并行进程数
-
-- 对应 ``HabitatAnalysisConfig.processes`` ，默认 ``2`` ，须为正整数。
-- 峰值内存约等于 ``processes × 单被试内存`` ；radiomics -heavy 队列建议从 ``2`` 起步。
-
-**cap_processes_to_gpu_pool**: 是否将 Stage 1 worker 数限制为 GPU 池大小
-
-- **类型**: 布尔值
-- **默认**: ``true``
-- **说明**: 当 ``useTorchRadiomics`` 启用 CUDA（``true`` 或 ``auto`` 且检测到 CUDA）时：
-  - ``true`` （默认）：``processes`` 会被限制为 ``len(torchGpus)`` （每 worker 槽位绑定一张 GPU，稳定、少争抢）；
-  - ``false`` ：保留完整 ``processes`` ；多个 worker 通过 ``gpuSlotIndex % len(torchGpus)`` **共享** GPU，使预处理、聚类等 **CPU 步骤** 能在「单 GPU、多 CPU」机器上并行，但 GPU radiomics 步骤可能同时占用同一张卡，显存争抢/OOM 风险上升。
-- **不纳入 config_hash** ；可在续训时修改。
-- **CPU-only** （``useTorchRadiomics: false`` 或 ``auto`` 无 CUDA）时本项无效果。
-
-**individual_subject_timeout_sec**: 个体级并行阶段单被试墙钟时间上限
-
-- **类型**: 数值（秒）或 ``null``
-- **默认**: ``900`` （15 分钟）；在 YAML 中省略该键时与代码默认值一致。
-- **说明**: 从任务提交（多进程）或子进程启动（单进程）起计时，超时则将该被试记为失败并继续其余被试；详见实现与并行行为说明。设为 ``null`` 表示**不启用**单被试超时（一直等到结束或报错）。
-- **注意**: 多进程并行时无法可靠终止已卡住的子进程，超时后主流程不再等待，但子进程可能仍在后台运行直至退出。
-
-**resume**: 是否启用断点续训（个体级 Stage 1）
-
-- **类型**: 布尔值
-- **默认**: ``true``
-- **说明**: 为 ``true`` 时读取 ``checkpoint_dir`` （默认 ``<out_dir>/.habitat_checkpoint``）中的 ``manifest.json`` ，**跳过** ``completed_subjects`` 中的被试（直接从 ``subjects/{id}.pkl`` 加载）；**曾失败被试**（``failed_subjects``）在**下次**续训启动时**不会自动重试**，除非 ``retry_failed_subjects: true`` 、列入 ``force_rerun_subjects`` 或清空 checkpoint。**同一次** ``train`` 运行内，默认由 ``individual_subject_auto_retry_rounds`` 对 Stage 1 仍失败的被试自动重试。
-- **CLI**: ``habit get-habitat --resume`` 等效于 YAML 中 ``resume: true`` （CLI 优先覆盖 YAML）。
-- **predict 模式**: 忽略 ``resume`` 及相关字段。
-
-**checkpoint_dir**: 断点续训缓存根目录
-
-- **类型**: 字符串或 ``null``
-- **默认**: ``null`` （使用 ``<out_dir>/.habitat_checkpoint``）
-- **说明**: 续训时必须指向**同一目录**；更换 ``out_dir`` 而不改 ``checkpoint_dir`` 会找不到旧 checkpoint。
-
-**force_rerun_subjects**: 强制重跑的被试 ID 列表
-
-- **类型**: 字符串列表
-- **默认**: ``[]``
-- **说明**: 在 ``resume: true`` 时仍重新处理列表中的被试（从 manifest 的 completed/failed 中移除并重跑）。
-
-**retry_failed_subjects**: 下次续训启动时自动重跑全部失败被试
-
-- **类型**: 布尔值
-- **默认**: ``false``
-- **说明**: ``resume: true`` 时，将 ``manifest.json`` 里 ``failed_subjects`` 中的被试加入 Stage 1 待处理队列。与 ``individual_subject_auto_retry_rounds`` 不同：本项只在**下一次** CLI/进程启动时生效。
-
-**individual_subject_auto_retry_rounds**: 同一次 train 运行内自动重试 Stage 1 失败被试
-
-- **类型**: 整数
-- **默认**: ``2``
-- **说明**: 个体级 Stage 1 首轮并行结束后，若 checkpoint 中仍有 ``failed_subjects`` ，在**当前** ``get-habitat`` / ``fit()`` 内最多再自动重试该轮数次（仅重试仍失败的被试）。``0`` 表示关闭。``on_subject_failure: fail_fast`` 时，全部重试轮次用尽后仍失败才报错。``predict`` 模式忽略。
-
-**individual_subject_parallel_mode**: 个体级 Stage 1 并行执行策略
-
-- **类型**: 字符串
-- **默认**: ``persistent``
-- **可选值**: ``isolated`` 、``persistent``
-- **说明**: ``persistent`` （默认）：每个 worker 槽位一个长生命周期子进程，在同一 ``train`` / ``predict`` Stage 1 运行内（含 auto-retry）复用，减少重复 import/spawn。当 ``cap_processes_to_gpu_pool: true`` 且仅配置一张 GPU 时，**同时活跃** 的 worker 仍被限制为 1；设为 ``false`` 可让多个 worker 并行跑不同被试的 CPU 步骤并共享 GPU。``isolated`` ：每被试单独 spawn 子进程（pipeline 无法 pickle 或需更强隔离时使用）。``processes=1`` 且 ``individual_subject_timeout_sec: null`` 时不 spawn。
-
-**persistent_worker_max_consecutive_failures**: 持久 worker 连续失败重启阈值
-
-- **类型**: 整数
-- **默认**: ``1``
-- **说明**: 仅 ``persistent`` 模式生效。某 worker 槽位连续失败达到该次数后重启该槽位 worker。
-
-**persistent_worker_recycle_after_tasks**: 持久 worker 定期回收
-
-- **类型**: 整数
-- **默认**: ``0``
-- **说明**: 仅 ``persistent`` 模式生效。worker 连续成功处理该次数任务后退出并由父进程重启；``0`` 关闭。可用于缓解 GPU 显存缓慢泄漏。
-
-**clear_checkpoint_on_success**: 训练成功后是否删除 checkpoint
-
-- **类型**: 布尔值
-- **默认**: ``false``
-- **说明**: 为 ``true`` 时，Stage 1 + Stage 2 **全部成功**后删除整个 checkpoint 目录。大规模队列建议 ``false`` ，便于排查或保留中间结果。
-
-**断点续训与配置一致性（config_hash）**
-
-- 程序用 **Stage 1（个体级）** 相关字段计算 ``config_hash`` ，写入 ``manifest.json`` （字段 ``individual_config_hash`` 与之相同）。
-- **纳入 hash**：``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类相关块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
-- **不纳入 hash**（改后可 ``resume: true`` 复用 pkl）：``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的 ``habitat.*`` （群体聚类）、``processes`` 、``cap_processes_to_gpu_pool`` 、``individual_subject_timeout_sec`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``retry_failed_subjects`` 、``plot_curves`` 、``out_dir`` 等。
-- 续训时 hash **与 manifest 不一致**且无法判定为仅 Stage 2 变更时，日志警告并**清空 checkpoint**。
-- 旧版 manifest（仅含全量 hash）在仅改群体预处理/群体聚类时，会打迁移警告并**保留** Stage 1 缓存。
-- **切换** ``clustering_mode`` **会改变 hash**，不能共用同一 checkpoint。
+**config_hash**：Stage 1 个体级字段参与 hash；并行与群体聚类等多数顶层项不参与。完整列表见 :doc:`../configuration_zh` 「config_hash 与续训兼容性」。
 
 断点续训详解
 ------------
@@ -578,18 +384,7 @@ Pipeline 分两阶段；checkpoint **只覆盖 Stage 1（个体级）**：
 - **pkl 体积**：mask 不再写入 pkl；``save_images: true`` 写 NRRD 时从 ``data_dir`` 按需读 mask。大规模 ``direct_pooling`` 下 pkl 通常为几十～几百 MB。旧 pkl 需重新 train 后才会应用最新瘦身。
 - Stage 2（group 聚类等）**没有** checkpoint：若在 Stage 2 失败，Stage 1 的 checkpoint 仍保留，修复问题后 ``resume: true`` 可跳过已完成被试并**重新执行 Stage 2**。
 
-**FeatureConstruction**: 特征提取设置
-
-- `voxel_level`: 体素级特征提取
-- `supervoxel_level`: 超像素级特征提取
-- `preprocessing_for_subject_level`: 个体级别预处理
-- `preprocessing_for_group_level`: 群体级别预处理
-
-**HabitatSegmentation**: 生境分割设置
-
-- `clustering_mode`: 聚类策略（one_step、two_step、direct_pooling）
-- `supervoxel`: 超像素聚类设置
-- `habitat`: 生境聚类设置
+``FeatureConstruction`` / ``HabitatSegmentation`` 各键含义与 ``method`` 表达式语法见 :doc:`../configuration_zh` 「生境分析配置参数」。
 
 聚类策略详解
 ----------------

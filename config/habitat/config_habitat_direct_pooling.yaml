@@ -5,19 +5,20 @@
 #
 # Flow: voxel features -> subject preprocessing -> [checkpoint]
 #       -> concat all voxels -> group preprocessing -> group habitat clustering
+#
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 # =============================================================================
 
-# --- Run mode ---
-run_mode: train  # train: fit pipeline | predict: apply saved pipeline (requires pipeline_path)
-pipeline_path:   # Path to habitat_pipeline.pkl (required when run_mode=predict)
+run_mode: train
+pipeline_path:
 
-# --- Paths (relative to this file unless absolute) ---
-data_dir: file_habitat.yaml  # Subject list YAML or data root with images/masks
-out_dir: ../../demo_data/results/habitat_direct_pooling  # Output directory for all artifacts
+#%%================================================================================
+data_dir: file_habitat.yaml
+out_dir: ../../demo_data/results/habitat_direct_pooling
+#%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    # Per-voxel feature expression (Stage 1; included in checkpoint config_hash).
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     # Radiomics example:
     # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
@@ -67,7 +68,7 @@ FeatureConstruction:
       #   global_normalize: false
 
 HabitatSegmentation:
-  clustering_mode: direct_pooling  # Single pooled clustering across all subjects
+  clustering_mode: direct_pooling
 
   supervoxel:
     # Placeholder block (direct_pooling skips supervoxel clustering).
@@ -92,40 +93,23 @@ HabitatSegmentation:
     max_iter: 300
     n_init: 10
 
-# --- Parallelism & Stage-1 scheduling ---
-# processes: Max concurrent subject workers in Stage 1; peak RAM ≈ processes × per-subject memory.
 processes: 2
-# cap_processes_to_gpu_pool: true (default) caps workers to len(torchGpus) when Torch CUDA is active;
-#   false keeps full processes and shares GPUs via gpuSlotIndex (1 GPU + many CPUs).
 cap_processes_to_gpu_pool: true
-# individual_subject_timeout_sec: Per-subject wall clock (seconds); default 900; null=unlimited.
 individual_subject_timeout_sec: 900
-# oom_backoff: Reduce worker count after MemoryError when true (schema default true).
 oom_backoff: false
 
-# --- Checkpoint (train only; full notes in config_habitat_two_step.yaml) ---
-# resume: Skip completed Stage-1 subjects when config_hash matches manifest.
 resume: true
-# checkpoint_dir: null → <out_dir>/.habitat_checkpoint
 checkpoint_dir: null
-# force_rerun_subjects: Subject IDs to reprocess despite checkpoint.
 force_rerun_subjects: []
-# retry_failed_subjects: Re-queue manifest failed_subjects on next CLI start.
 retry_failed_subjects: false
-# individual_subject_auto_retry_rounds: In-run Stage-1 auto-retry rounds (default 2; 0=off).
 individual_subject_auto_retry_rounds: 2
-# individual_subject_parallel_mode: persistent (default) | isolated.
 individual_subject_parallel_mode: persistent
-# persistent_worker_max_consecutive_failures: Restart slot after N consecutive fatal failures.
 persistent_worker_max_consecutive_failures: 1
-# persistent_worker_recycle_after_tasks: Recycle worker after N successes; 0=off.
 persistent_worker_recycle_after_tasks: 0
-# clear_checkpoint_on_success: Delete checkpoint after fully successful train.
 clear_checkpoint_on_success: false
 
-# --- Outputs & reproducibility ---
-plot_curves: true  # Validation plots under out_dir
-save_results_csv: true  # CSV summaries
-save_images: true  # *_habitats.nrrd label maps
-random_state: 42  # Global seed; group habitat inherits when habitat.random_state omitted
-debug: false  # Debug-level logging
+plot_curves: true
+save_results_csv: true
+save_images: true
+random_state: 42
+debug: false

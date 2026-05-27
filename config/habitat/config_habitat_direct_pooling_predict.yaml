@@ -1,36 +1,23 @@
 # Habitat Analysis Configuration (Direct Pooling Strategy) - Predict Mode
 # Usage: habit get-habitat --config config/habitat/config_habitat_direct_pooling_predict.yaml
-#
-# Markers: #%% boxes = sections | # >>> REQUIRED / REVIEW | # (default OK)
-# Legend: config/README_CONFIG.md
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 
-#%% ============================================================
-#%% USER REQUIRED (predict — edit before first run)
-#%% ============================================================
-# >>> REQUIRED: must be predict
+#%%================================================================================
 run_mode: predict
-# >>> REQUIRED: path to trained habitat_pipeline.pkl
 pipeline_path: CHANGE_ME
-
-# >>> REVIEW: demo uses file_habitat.yaml manifest; set to your data root or manifest
 data_dir: file_habitat.yaml
-# >>> REVIEW: predict output directory
 out_dir: ../../demo_data/results/habitat_direct_pooling/predict
+#%%================================================================================
 
 HabitatSegmentation:
   clustering_mode: direct_pooling
-#%% ========== END USER REQUIRED ==========
 
+processes: 2
+cap_processes_to_gpu_pool: true
+individual_subject_timeout_sec: 900
+oom_backoff: false
 
-#%% ============================================================
-#%% DEFAULT OK (change only if needed)
-#%% ============================================================
-processes: 2  # (default OK)
-cap_processes_to_gpu_pool: true  # (default OK)
-individual_subject_timeout_sec: 900  # (default OK)
-oom_backoff: false  # (default OK)
-
-resume: true  # (default OK)
+resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
@@ -40,8 +27,7 @@ persistent_worker_max_consecutive_failures: 1
 persistent_worker_recycle_after_tasks: 0
 clear_checkpoint_on_success: false
 
-plot_curves: true  # (default OK)
-save_results_csv: true  # (default OK)
-random_state: 42  # (default OK) match training top-level seed when possible
-debug: false  # (default OK)
-#%% ========== END DEFAULT OK ==========
+plot_curves: true
+save_results_csv: true
+random_state: 42
+debug: false

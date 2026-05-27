@@ -93,6 +93,10 @@ Python API 使用方法
 YAML 配置详解
 --------------
 
+.. seealso::
+
+   各步骤全部字段（``dcm2nii`` 、``registration`` 、``save_options`` 等）的类型与默认值见 :doc:`../configuration_zh` 「预处理配置参数」。本页侧重步骤选型与 ANTs/elastix 后端说明。
+
 **顶层字段** （``PreprocessingConfig``）
 
 .. list-table::

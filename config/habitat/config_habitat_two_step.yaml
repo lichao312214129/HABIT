@@ -14,28 +14,19 @@
 #   *_predict.yaml — predict-only stubs (run_mode: predict).
 #   config_habitat_one_step_example.yaml — legacy YAML shape example (syntactic).
 #   file_habitat.yaml — manifest of subjects/phases for CLI when using list input.
-# ----------------------------------------------------------------------------
-# Markers: #%% boxes = sections | # >>> REQUIRED / REVIEW | # (default OK)
-# Legend: config/README_CONFIG.md
-# ----------------------------------------------------------------------------
-#%% ============================================================
-#%% USER REQUIRED (edit before first run)
-#%% ============================================================
-# >>> REQUIRED: preprocessed root or file_habitat.yaml manifest
-# Expected structure: data_dir/subject_id/images/ and data_dir/subject_id/masks/
-data_dir: CHANGE_ME
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
+# =============================================================================
 
-# >>> REQUIRED: output directory (created if missing)
-out_dir: CHANGE_ME
+run_mode: train
 
+#%%================================================================================
+data_dir: ../../demo_data/preprocessed1
+out_dir: ../../demo_data/results/habitat_two_step
+#%%================================================================================
 
-# ----------------------------------------------------------------------------
-# Feature Construction Configuration
-# ----------------------------------------------------------------------------
 FeatureConstruction:
   voxel_level:
-    # >>> REVIEW: feature expression (Stage 1; in config_hash)
-    method: concat(raw(delay2), raw(delay3), raw(delay5))  # Stage 1; in config_hash
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
     # voxel_radiomics example (params forwarded even if omitted from method):
     # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
     params:
@@ -92,7 +83,6 @@ HabitatSegmentation:
   # - direct_pooling: Pool all voxels and cluster once
   clustering_mode: two_step
   
-  # >>> REVIEW: individual supervoxel clustering (Stage 1; in config_hash)
   supervoxel:
     algorithm: kmeans  # kmeans | gmm | slic
     n_clusters: 50  # Supervoxels per subject (two_step) or max K (one_step)
@@ -127,16 +117,11 @@ HabitatSegmentation:
     # random_state: null
     max_iter: 300
     n_init: 10
-#%% ========== END USER REQUIRED ==========
 
-
-#%% ============================================================
-#%% DEFAULT OK (change only if needed)
-#%% ============================================================
-processes: 5  # (default OK) Stage-1 parallel workers
-cap_processes_to_gpu_pool: true  # (default OK)
-individual_subject_timeout_sec: 900  # (default OK)
-oom_backoff: false  # (default OK)
+processes: 5
+cap_processes_to_gpu_pool: true
+individual_subject_timeout_sec: 900
+oom_backoff: false
 
 # ---------------------------------------------------------------------------
 # Checkpoint / resume (train mode only; ignored in predict mode)
@@ -194,7 +179,7 @@ oom_backoff: false  # (default OK)
 # Group-level steps (combine / group clustering) are NOT checkpointed.
 # CLI equivalent: habit get-habitat -c <yaml> --resume
 # ---------------------------------------------------------------------------
-resume: true  # (default OK)
+resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
@@ -204,8 +189,7 @@ persistent_worker_max_consecutive_failures: 1
 persistent_worker_recycle_after_tasks: 0
 clear_checkpoint_on_success: false
 
-plot_curves: true  # (default OK)
-save_results_csv: true  # (default OK)
-random_state: 42  # (default OK)
-debug: false  # (default OK)
-#%% ========== END DEFAULT OK ========== 
+plot_curves: true
+save_results_csv: true
+random_state: 42
+debug: false 

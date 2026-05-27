@@ -1,34 +1,24 @@
 # Habitat Analysis Configuration (One-Step Strategy)
 # Per-subject voxel -> habitat clustering (no population-level habitat clustering)
-#
-# Markers: #%% boxes = sections | # >>> REQUIRED / REVIEW | # (default OK)
-# Legend: config/README_CONFIG.md
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 
-#%% ============================================================
-#%% USER REQUIRED (edit before first run)
-#%% ============================================================
-# >>> REQUIRED: train | predict (predict also needs pipeline_path below)
 run_mode: train
-# >>> REQUIRED (predict only): path to habitat_pipeline.pkl
 pipeline_path:
 
-# >>> REQUIRED: preprocessed data root or subject manifest YAML
+#%%================================================================================
 data_dir: CHANGE_ME
-# >>> REQUIRED: output directory (created if missing)
 out_dir: CHANGE_ME
+#%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    # >>> REVIEW: feature expression + params (included in checkpoint config_hash)
+    #%%================================================================================
     method: kinetic(raw(pre_contrast,params_file), raw(LAP,params_file), raw(PVP,params_file), raw(delay_3min,params_file), timestamps)
     params:
       params_file: ../radiomics/parameter.yaml
-      # >>> REQUIRED (kinetic): Excel with phase scan times per subject
       timestamps: CHANGE_ME
-      # kernelRadius: 1
-      # voxelBatch: 1000
-      # useTorchRadiomics: auto
-      # torchGpus: [0, 1]
+    #%%================================================================================
+    # Optional under params: kernelRadius, voxelBatch, useTorchRadiomics, torchGpus
 
   preprocessing_for_subject_level:
     methods:
@@ -39,7 +29,6 @@ FeatureConstruction:
         global_normalize: false
 
 HabitatSegmentation:
-  # >>> REVIEW: one_step = per-subject voxel -> habitat clustering
   clustering_mode: one_step
 
   habitat:
@@ -58,18 +47,13 @@ HabitatSegmentation:
       max_clusters: 10
       selection_method: inertia
       plot_validation_curves: true
-#%% ========== END USER REQUIRED ==========
 
+processes: 2
+cap_processes_to_gpu_pool: true
+individual_subject_timeout_sec: 900
+oom_backoff: false
 
-#%% ============================================================
-#%% DEFAULT OK (change only if needed)
-#%% ============================================================
-processes: 2  # (default OK) Stage-1 parallel workers
-cap_processes_to_gpu_pool: true  # (default OK) cap workers to len(torchGpus) under Torch CUDA
-individual_subject_timeout_sec: 900  # (default OK) per-subject wall clock (seconds); null=unlimited
-oom_backoff: false  # (default OK) reduce workers after MemoryError when true
-
-resume: true  # (default OK) skip completed checkpoint subjects
+resume: true
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
@@ -79,8 +63,7 @@ persistent_worker_max_consecutive_failures: 1
 persistent_worker_recycle_after_tasks: 0
 clear_checkpoint_on_success: false
 
-plot_curves: true  # (default OK)
-save_results_csv: true  # (default OK)
-random_state: 42  # (default OK)
-debug: false  # (default OK)
-#%% ========== END DEFAULT OK ==========
+plot_curves: true
+save_results_csv: true
+random_state: 42
+debug: false

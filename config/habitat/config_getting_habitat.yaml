@@ -17,16 +17,12 @@
 #   config_habitat_*_predict.yaml — predict-only stubs.
 #   config_habitat_one_step_example.yaml — legacy YAML syntax illustration.
 #   file_habitat.yaml — manifest of subjects/phases for CLI when using list input.
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 # ----------------------------------------------------------------------------
-# Data Paths (Required)
-# ----------------------------------------------------------------------------
-# Root directory containing subject data
-# Expected structure: data_dir/subject_id/images/ and data_dir/subject_id/masks/
-data_dir: H:\Registration_ICC_structured
-
-# Output directory for results
-# Will be created if it doesn't exist
-out_dir: H:\results_icc_testing
+#%%================================================================================
+data_dir: CHANGE_ME
+out_dir: CHANGE_ME
+#%%================================================================================
 
 
 # ----------------------------------------------------------------------------
@@ -51,13 +47,12 @@ FeatureConstruction:
     #   Multiple images: concat(raw(T1), raw(T2), raw(DWI))
     #   Kinetic (DCE):   kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
     #   Radiomics:       voxel_radiomics(T2)
+    #%%================================================================================
     method: kinetic(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min), timestamps)
 
-    # Parameters for feature extraction
     params:
-      # Path to Excel file with timestamps (required for kinetic method)
-      # File should contain patient IDs and scan times for each phase
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx
+      timestamps: CHANGE_ME
+    #%%================================================================================
 
       # PyRadiomics parameter file (required for voxel_radiomics method)
       # params_file: ../../config/radiomics/params_voxel_radiomics.yaml
@@ -271,81 +266,27 @@ HabitatSegmentation:
 # ----------------------------------------------------------------------------
 # General Settings — parallelism, checkpoint, outputs
 # ----------------------------------------------------------------------------
-# processes: Stage-1 (individual-level) parallel worker count. Each worker runs one
-#   subject through all individual steps (features, preprocess, clustering, ...).
-#   Peak RAM ≈ processes × per-subject memory. Default 2. Must be > 0.
 processes: 2
-
-# cap_processes_to_gpu_pool: When true (default) and useTorchRadiomics uses CUDA,
-#   workers are capped to len(torchGpus) so each slot binds one GPU (stable, less OOM).
-#   When false, keep full processes; workers share GPUs via gpuSlotIndex % len(torchGpus)
-#   so CPU-heavy steps can use all cores on 1-GPU / many-CPU machines. Ignored on CPU-only.
 cap_processes_to_gpu_pool: true
-
-# individual_subject_timeout_sec: Wall-clock seconds per subject in Stage-1 parallel pass;
-#   default 900 (15 min). null disables timeout. Any positive value forces spawn even when
-#   processes=1.
 individual_subject_timeout_sec: 900
+oom_backoff: false
 
-# individual_subject_graceful_shutdown_sec: Seconds after terminate() before kill() when
-#   a subject exceeds individual_subject_timeout_sec. Default 15.
-# individual_subject_graceful_shutdown_sec: 15
-
-# individual_subject_spawn_timeout_sec: Max seconds for spawn child startup; default 120.
-#   null disables spawn startup timeout.
-# individual_subject_spawn_timeout_sec: 120
-
-# on_subject_failure: continue (default) — proceed with successful subjects when possible.
-#   fail_fast — abort the run if any subject fails or times out.
-# on_subject_failure: continue
-
-# oom_backoff: When true, reduce parallel workers after MemoryError (default true in schema).
-oom_backoff: false  # Demo template: do not shrink worker pool on MemoryError
-
-# oom_reduce_workers_by: Workers to subtract per MemoryError when oom_backoff is true. Default 1.
-# oom_reduce_workers_by: 1
-
-# Checkpoint / resume (train and predict Stage-1) — default dirs:
-#   train:   <out_dir>/.habitat_checkpoint/
-#   predict: <out_dir>/.habitat_predict_checkpoint/
-# resume: true — skip manifest completed subjects; failed subjects skipped unless retry flags set.
 resume: true
-# checkpoint_dir: null — use default under out_dir; set an absolute path to share across runs.
 checkpoint_dir: null
-# force_rerun_subjects: Subject IDs to reprocess even when resume=true and checkpoint exists.
 force_rerun_subjects: []
-# retry_failed_subjects: On next CLI start, re-queue all manifest failed_subjects (not in-run retry).
 retry_failed_subjects: false
-# individual_subject_auto_retry_rounds: Same-run Stage-1 auto-retry rounds for failed subjects. Default 2; 0=off.
 individual_subject_auto_retry_rounds: 2
-# individual_subject_parallel_mode: persistent (default) | isolated (spawn per subject).
 individual_subject_parallel_mode: persistent
-# persistent_worker_max_consecutive_failures: Restart persistent slot after N consecutive fatal failures.
 persistent_worker_max_consecutive_failures: 1
-# persistent_worker_recycle_after_tasks: Restart persistent worker after N successes; 0=off.
 persistent_worker_recycle_after_tasks: 0
-# clear_checkpoint_on_success: Delete checkpoint after a fully successful run. Default false.
 clear_checkpoint_on_success: false
-# Config hash must match on resume (data_dir + FeatureConstruction + HabitatSegmentation).
-# Full documentation: docs/source/user_guide/habitat_segmentation_zh.rst (断点续训)
 
-# plot_curves: Generate cluster validation curves and related plots under out_dir.
 plot_curves: true
-
-# save_results_csv: Write habitat/feature summary CSV files. Default true.
-# save_results_csv: true
-
-# save_images: Write *_habitats.nrrd maps (masks loaded from data_dir at export). Default true.
-# save_images: true
-
-# random_state: Global seed; HabitatSegmentation sub-blocks inherit when random_state omitted.
 random_state: 42
-
-# verbose: Detailed progress logs. Default true in schema.
-# verbose: true
-
-# debug: Enable debug-level logging.
 debug: false
+
+# Config hash must match on resume (data_dir + FeatureConstruction + HabitatSegmentation).
+# Full documentation: docs/source/user_guide/habitat_segmentation_zh.rst
 
 
 # ----------------------------------------------------------------------------
