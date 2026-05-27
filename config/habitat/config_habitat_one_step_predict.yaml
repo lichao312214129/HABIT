@@ -1,36 +1,47 @@
 # Habitat Analysis Configuration (One-Step Strategy) - Predict Mode
-# This configuration is used for prediction using a pre-trained one-step habitat analysis pipeline
 # Usage: habit get-habitat --config config/habitat/config_habitat_one_step_predict.yaml
-# Note: All configuration is in YAML file, no command-line mode override needed
+#
+# Markers: #%% boxes = sections | # >>> REQUIRED / REVIEW | # (default OK)
+# Legend: config/README_CONFIG.md
 
-# Run mode and pipeline settings (REQUIRED for predict mode)
-run_mode: predict  # train (if you want to train a new model, set to train) or predict (if you want to use a pre-trained model, set to predict)
-pipeline_path: ../../demo_data/results/habitat_one_step/habitat_pipeline.pkl  # Path to trained pipeline for predict mode (REQUIRED for predict mode)
+#%% ============================================================
+#%% USER REQUIRED (predict — edit before first run)
+#%% ============================================================
+# >>> REQUIRED: must be predict
+run_mode: predict
+# >>> REQUIRED: path to trained habitat_pipeline.pkl
+pipeline_path: CHANGE_ME
 
-# Data paths (relative to this file: config/habitat/)
-data_dir: file_habitat.yaml  # Path to data configuration file (same format as training)
-out_dir: ../../demo_data/results/habitat_one_step/predict  # Output directory for prediction results
+# >>> REVIEW: demo uses file_habitat.yaml manifest; set to your data root or manifest
+data_dir: file_habitat.yaml
+# >>> REVIEW: predict output directory
+out_dir: ../../demo_data/results/habitat_one_step/predict
 
-# Habitat segmentation settings (minimal required for predict mode)
 HabitatSegmentation:
   clustering_mode: one_step
+#%% ========== END USER REQUIRED ==========
 
 
-# General settings
-processes: 2  # Number of parallel processes
-individual_subject_timeout_sec: 900  # 15 min cap per subject; null disables
-oom_backoff: false
-# Checkpoint / resume (train only; ignored in predict mode)
-resume: true
+#%% ============================================================
+#%% DEFAULT OK (change only if needed)
+#%% ============================================================
+processes: 2  # (default OK)
+cap_processes_to_gpu_pool: true  # (default OK)
+individual_subject_timeout_sec: 900  # (default OK)
+oom_backoff: false  # (default OK)
+
+resume: true  # (default OK)
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2  # Train only; ignored in predict mode
-individual_subject_parallel_mode: persistent  # Train only; ignored in predict mode
-persistent_worker_max_consecutive_failures: 1  # Train only; ignored in predict mode
-persistent_worker_recycle_after_tasks: 0  # Train only; ignored in predict mode
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
 clear_checkpoint_on_success: false
-plot_curves: true  # Whether to generate and save plots
-save_results_csv: true  # Whether to save results as CSV files
-random_state: 42  # Must match training top-level seed (predict uses serialized pipeline; seed mainly for numpy/plots)
-debug: false  # Enable debug mode for detailed logging
+
+plot_curves: true  # (default OK)
+save_results_csv: true  # (default OK)
+random_state: 42  # (default OK) match training top-level seed when possible
+debug: false  # (default OK)
+#%% ========== END DEFAULT OK ==========

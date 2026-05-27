@@ -1,74 +1,86 @@
 # Habitat Analysis Configuration (One-Step Strategy)
 # Per-subject voxel -> habitat clustering (no population-level habitat clustering)
+#
+# Markers: #%% boxes = sections | # >>> REQUIRED / REVIEW | # (default OK)
+# Legend: config/README_CONFIG.md
 
-# --- Run mode ---
-run_mode: train  # train: fit pipeline | predict: apply pipeline_path
-pipeline_path:   # habitat_pipeline.pkl path (required for predict)
+#%% ============================================================
+#%% USER REQUIRED (edit before first run)
+#%% ============================================================
+# >>> REQUIRED: train | predict (predict also needs pipeline_path below)
+run_mode: train
+# >>> REQUIRED (predict only): path to habitat_pipeline.pkl
+pipeline_path:
 
-# --- Paths ---
-data_dir: H:\young_funding_dms  # Data root or subject manifest
-out_dir: H:\young_funding_dms_results  # Output directory
+# >>> REQUIRED: preprocessed data root or subject manifest YAML
+data_dir: CHANGE_ME
+# >>> REQUIRED: output directory (created if missing)
+out_dir: CHANGE_ME
 
 FeatureConstruction:
   voxel_level:
-    # Stage 1 features (included in checkpoint config_hash).
+    # >>> REVIEW: feature expression + params (included in checkpoint config_hash)
     method: kinetic(raw(pre_contrast,params_file), raw(LAP,params_file), raw(PVP,params_file), raw(delay_3min,params_file), timestamps)
     params:
-      params_file: ../radiomics/parameter.yaml  # Radiomics parameter YAML
-      timestamps: F:\work\research\radiomics_TLSs\data\scan_time_of_phases.xlsx  # Phase scan times (kinetic)
-      # kernelRadius: 1  # For voxel_radiomics
-      # voxelBatch: 1000  # Voxels per batch (-1 = no batching)
+      params_file: ../radiomics/parameter.yaml
+      # >>> REQUIRED (kinetic): Excel with phase scan times per subject
+      timestamps: CHANGE_ME
+      # kernelRadius: 1
+      # voxelBatch: 1000
       # useTorchRadiomics: auto
       # torchGpus: [0, 1]
 
   preprocessing_for_subject_level:
-    # Per-subject preprocessing before clustering (Stage 1; in config_hash).
     methods:
       - method: winsorize
-        winsor_limits: [0.01, 0.01]  # Tail fractions to clip
-        global_normalize: false  # false=within-subject stats
+        winsor_limits: [0.01, 0.01]
+        global_normalize: false
       - method: minmax
         global_normalize: false
 
 HabitatSegmentation:
-  clustering_mode: one_step  # Each subject clustered independently (voxel -> habitat)
+  # >>> REVIEW: one_step = per-subject voxel -> habitat clustering
+  clustering_mode: one_step
 
   habitat:
-    # Individual clustering settings (Stage 1; included in config_hash).
-    algorithm: kmeans  # kmeans | gmm
-    max_clusters: 10  # Max K when auto-selecting per subject
-    habitat_cluster_selection_method: inertia  # Metric for optimal K search
-    # random_state: null  # Omit to inherit top-level random_state
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method: inertia
 
   supervoxel:
-    # Holds one_step_settings; random_state is fallback when habitat.random_state omitted.
     algorithm: kmeans
-    n_clusters: 50  # Upper cap for auto K search in one_step
-    # random_state: null
+    n_clusters: 50
     max_iter: 300
     n_init: 10
     one_step_settings:
-      fixed_n_clusters: 10  # int or null — fixed K skips auto search per subject
-      min_clusters: 2  # Min K for auto search (when fixed_n_clusters null)
-      max_clusters: 10  # Max K for auto search
-      selection_method: inertia  # silhouette | calinski_harabasz | davies_bouldin | inertia | kneedle
-      plot_validation_curves: true  # Per-subject validation plots
+      fixed_n_clusters: 10
+      min_clusters: 2
+      max_clusters: 10
+      selection_method: inertia
+      plot_validation_curves: true
+#%% ========== END USER REQUIRED ==========
 
-processes: 2  # Stage 1 parallel workers
-individual_subject_timeout_sec: 900  # Per-subject timeout (seconds); null=unlimited
-oom_backoff: false  # Halve workers on MemoryError when true
 
-resume: true  # Skip completed subjects (Stage-1 config_hash must match)
-checkpoint_dir: null  # <out_dir>/.habitat_checkpoint when null
+#%% ============================================================
+#%% DEFAULT OK (change only if needed)
+#%% ============================================================
+processes: 2  # (default OK) Stage-1 parallel workers
+cap_processes_to_gpu_pool: true  # (default OK) cap workers to len(torchGpus) under Torch CUDA
+individual_subject_timeout_sec: 900  # (default OK) per-subject wall clock (seconds); null=unlimited
+oom_backoff: false  # (default OK) reduce workers after MemoryError when true
+
+resume: true  # (default OK) skip completed checkpoint subjects
+checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
-individual_subject_parallel_mode: persistent  # default; use isolated if pickle/spawn issues
-persistent_worker_max_consecutive_failures: 1  # Restart slot after N consecutive failures (persistent only)
-persistent_worker_recycle_after_tasks: 0  # Recycle worker after N successes; 0=off (persistent only)
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
 clear_checkpoint_on_success: false
 
-plot_curves: true
-save_results_csv: true
-random_state: 42  # Global seed; one_step uses habitat.random_state first
-debug: false
+plot_curves: true  # (default OK)
+save_results_csv: true  # (default OK)
+random_state: 42  # (default OK)
+debug: false  # (default OK)
+#%% ========== END DEFAULT OK ==========

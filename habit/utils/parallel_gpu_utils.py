@@ -105,6 +105,46 @@ def resolve_habitat_torch_gpu_pool(config: Any) -> List[int]:
     return gpu_indices
 
 
+def apply_gpu_pool_process_cap(
+    requested_processes: int,
+    config: Any,
+    *,
+    log: Optional[logging.Logger] = None,
+) -> int:
+    """
+    Apply optional GPU-pool capping to a configured parallel worker count.
+
+    When ``config.cap_processes_to_gpu_pool`` is False, returns the requested count
+    unchanged so CPU-heavy individual steps can use the full ``processes`` value while
+    Torch radiomics workers share GPUs via ``gpu_slot_index % len(gpu_pool)``.
+
+    Args:
+        requested_processes: User-configured ``processes`` value (or equivalent).
+        config: Habitat analysis config object.
+        log: Optional logger for a one-line warning when capping occurs.
+
+    Returns:
+        int: Effective worker count (>= 1 when ``requested_processes`` >= 1).
+    """
+    requested = max(1, int(requested_processes))
+    if config is None:
+        return requested
+
+    if not getattr(config, "cap_processes_to_gpu_pool", True):
+        return requested
+
+    gpu_pool = resolve_habitat_torch_gpu_pool(config)
+    if not gpu_pool:
+        return requested
+
+    return cap_processes_to_gpu_pool(
+        requested,
+        len(gpu_pool),
+        log=log,
+        gpu_pool=gpu_pool,
+    )
+
+
 def cap_processes_to_gpu_pool(
     requested_processes: int,
     gpu_pool_size: int,

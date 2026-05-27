@@ -80,7 +80,12 @@ class HabitatResultPublisher:
         if not self.config.save_images:
             return
 
-        self._populate_mask_cache_for_results(results_df)
+        # two_step reads existing *_supervoxel.nrrd files; only direct_pooling
+        # (voxel-level rows) needs mask arrays in memory for image export.
+        if clustering_mode == "direct_pooling":
+            self._populate_mask_cache_for_results(results_df)
+        else:
+            self.habitat_image_writer.mask_info_cache = {}
 
         self.habitat_image_writer.results_df = results_df.copy(deep=False)
         self.habitat_image_writer.save_all_habitat_images(failed_subjects=[])

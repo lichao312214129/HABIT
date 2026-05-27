@@ -7,16 +7,74 @@ habitat maps reconstructed from pipeline label outputs.
 
 import os
 import logging
+import pickle
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import SimpleITK as sitk
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Tuple, Dict, Any, Union
 
 from habit.utils.io_utils import save_habitat_image
 from habit.utils.parallel_utils import parallel_map
 from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 from ..pipelines.pipeline_serialization import apply_mask_metadata_to_sitk_image
+
+# Lightweight per-subject payload for spawn workers. Must stay picklable without
+# binding HabitatImageWriter (bound methods pickle the whole writer instance).
+HabitatImageSaveTask = Tuple[
+    str,
+    pd.DataFrame,
+    str,
+    Dict[str, Any],
+    Optional[Union[str, Path]],
+    int,
+]
+
+
+def _save_habitat_image_worker(
+    item: HabitatImageSaveTask,
+) -> Tuple[str, Optional[Exception]]:
+    """
+    Save one subject habitat NRRD in an isolated spawn child.
+
+    Args:
+        item: ``(subject_id, subject_df, out_dir, postprocess_settings,
+            log_file_path, log_level)``.
+
+    Returns:
+        ``(subject_id, None)`` on success or ``(subject_id, Exception)`` on failure.
+    """
+    subject, subject_df, out_dir, postprocess_settings, log_file_path, log_level = item
+
+    if log_file_path is not None:
+        from habit.utils.log_utils import restore_logging_in_subprocess
+
+        restore_logging_in_subprocess(log_file_path, log_level)
+
+    try:
+        supervoxel_path = os.path.join(out_dir, f"{subject}_supervoxel.nrrd")
+        save_habitat_image(
+            subject,
+            subject_df,
+            supervoxel_path,
+            out_dir,
+            postprocess_settings=postprocess_settings,
+        )
+        return subject, None
+    except Exception as exc:
+        return subject, Exception(str(exc))
+
+
+def estimate_habitat_image_worker_pickle_bytes(item: HabitatImageSaveTask) -> int:
+    """
+    Estimate unpickled payload size for one spawn worker item.
+
+    Used in tests to guard against accidentally reintroducing large bound-method
+    payloads when saving habitat images in parallel.
+    """
+    return len(pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL))
+
 
 class HabitatImageWriter:
     """
@@ -94,34 +152,23 @@ class HabitatImageWriter:
         item: Tuple[str, pd.DataFrame],
     ) -> Tuple[str, Optional[Exception]]:
         """
-        Save the habitat NRRD for one subject (parallel worker entry).
+        Save the habitat NRRD for one subject (in-process helper).
 
-        Args:
-            item: ``(subject_id, subject_df)`` - a small DataFrame indexed by
-                ``Subject`` containing only this subject's rows. We pass the
-                slice explicitly instead of relying on ``self.results_df`` so
-                ``parallel_map`` only pickles per-subject data into each
-                worker, not the full results table.
-
-        Returns:
-            Tuple of (subject_id, None on success / Exception on failure).
+        Parallel saves use :func:`_save_habitat_image_worker` instead of this
+        bound method so spawn workers do not pickle ``self.results_df`` or
+        ``self.mask_info_cache``.
         """
         subject, subject_df = item
-        self._ensure_logging_in_subprocess()
-        try:
-            supervoxel_path = os.path.join(
-                self.config.out_dir, f"{subject}_supervoxel.nrrd"
-            )
-            save_habitat_image(
+        return _save_habitat_image_worker(
+            (
                 subject,
                 subject_df,
-                supervoxel_path,
                 self.config.out_dir,
-                postprocess_settings=self.config.HabitatSegmentation.postprocess_habitat.model_dump(),
+                self.config.HabitatSegmentation.postprocess_habitat.model_dump(),
+                self._log_file_path,
+                self._log_level,
             )
-            return subject, None
-        except Exception as exc:
-            return subject, Exception(str(exc))
+        )
 
     def save_all_habitat_images(self, failed_subjects: List[str]) -> None:
         """Save habitat images for all successfully processed subjects."""
@@ -149,13 +196,24 @@ class HabitatImageWriter:
                 f"Saving habitat images for {len(subjects_to_save)} subjects..."
             )
 
-        items: List[Tuple[str, pd.DataFrame]] = [
-            (subject, results_df.loc[[subject]])
+        postprocess_settings = (
+            self.config.HabitatSegmentation.postprocess_habitat.model_dump()
+        )
+        out_dir = self.config.out_dir
+        items: List[HabitatImageSaveTask] = [
+            (
+                subject,
+                results_df.loc[[subject]],
+                out_dir,
+                postprocess_settings,
+                self._log_file_path,
+                self._log_level,
+            )
             for subject in subjects_to_save
         ]
 
         _, failed = parallel_map(
-            func=self.save_habitat_for_subject,
+            func=_save_habitat_image_worker,
             items=items,
             n_processes=self.config.processes,
             desc="Saving habitat images",
@@ -163,6 +221,7 @@ class HabitatImageWriter:
             show_progress=True,
             log_file_path=self._log_file_path,
             log_level=self._log_level,
+            oom_backoff=getattr(self.config, "oom_backoff", True),
         )
 
         if failed and self.config.verbose:

@@ -12,7 +12,7 @@ Root causes identified in code:
 | Layer | Issue |
 |-------|--------|
 | GPU assignment | `gpuSlotIndex` reserved but never wired from parallel workers; concurrent workers map by subject hash and can share one GPU |
-| Process count | `processes` can exceed configured `torchGpus` pool size |
+| Process count | `processes` can exceed configured `torchGpus` pool size when `cap_processes_to_gpu_pool: false` |
 | Spawn model | Default `individual_subject_timeout_sec=900` forces spawn even when `processes=1` (500 subjects → 500 spawns) |
 | OOM handling | `oom_backoff` only reacts to Python `MemoryError`, not native CUDA / Windows crashes |
 | Mitigation (done) | `individual_subject_auto_retry_rounds` — same-run retry of checkpoint failures |
@@ -24,8 +24,10 @@ shipped). Auto-retry remains the safety net; Phase 1+ reduce how often it is nee
 
 ## Phase 1 — Worker GPU slots and process cap (implemented)
 
-**Goal:** At most one active Stage-1 worker per configured GPU; worker slot
-index drives `gpuSlotIndex` instead of subject hash under parallelism.
+**Goal:** At most one active Stage-1 worker per configured GPU by default; worker slot
+index drives `gpuSlotIndex` instead of subject hash under parallelism. Set
+`cap_processes_to_gpu_pool: false` to keep full `processes` and share GPUs via
+`gpuSlotIndex % len(gpu_pool)` when CPU-heavy steps should use all cores on 1-GPU machines.
 
 ### Changes
 
@@ -33,7 +35,8 @@ index drives `gpuSlotIndex` instead of subject hash under parallelism.
    - `HABIT_GPU_SLOT_INDEX` env var contract for spawn children
    - `read_worker_gpu_slot_index()` / `inject_worker_gpu_slot_index()`
    - `resolve_habitat_torch_gpu_pool(config)` — parse `torchGpus` / implicit `[0]` for torch auto on CUDA
-   - `cap_processes_to_gpu_pool(requested, pool_size)` — cap with logging
+   - `cap_processes_to_gpu_pool(requested, pool_size)` — cap with logging (skipped when config flag is false)
+   - `apply_gpu_pool_process_cap(requested, config)` — honor `cap_processes_to_gpu_pool` before capping
 
 2. **`habit/utils/isolated_runner.py`**
    - Assign monotonic `gpu_slot_index` (`slot_counter % max_workers`) per spawned child
@@ -43,7 +46,8 @@ index drives `gpuSlotIndex` instead of subject hash under parallelism.
    - Inject `gpuSlotIndex` from worker env into voxel / supervoxel step params
 
 4. **`habit/core/habitat_analysis/checkpoint/stage.py`**
-   - Cap `n_processes` to `len(torch_gpu_pool)` when pool is non-empty
+   - Cap `n_processes` to `len(torch_gpu_pool)` when pool is non-empty **and**
+     `cap_processes_to_gpu_pool: true` (default)
 
 5. **`habit/utils/parallel_utils.py`**
    - Log when using in-process sequential path (no spawn); existing rule unchanged:
@@ -337,11 +341,12 @@ Requires splitting `_process_single_subject` into schedulable steps with interme
 
 ```yaml
 processes: 2
+cap_processes_to_gpu_pool: true   # default; set false on 1-GPU / many-CPU hosts
 FeatureConstruction:
   voxel_level:
     params:
       useTorchRadiomics: auto
-      torchGpus: [0, 1]   # explicit pool; processes auto-capped to pool size
+      torchGpus: [0, 1]   # explicit pool; processes auto-capped when cap_processes_to_gpu_pool: true
       torchGpuCount: 2
 
 individual_subject_auto_retry_rounds: 2  # same-run retry (default)

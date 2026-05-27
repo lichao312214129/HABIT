@@ -68,6 +68,22 @@ For `supervoxel_radiomics` in habitat, use `params_supervoxel_radiomics.yaml` fo
 all supervoxel labels), then per-label ROI matrices via `cMatrices`. `kernelRadius` applies to
 `voxel_radiomics` only, not `supervoxel_radiomics`.
 
+### Habitat Stage-1 parallelism (top-level YAML keys)
+
+These keys live at the **root** of habitat configs (see `config/habitat/config_getting_habitat.yaml`):
+
+| Key | Default | Role |
+|-----|---------|------|
+| `processes` | `2` | Max concurrent subject workers in Stage 1; peak RAM ≈ `processes × per-subject memory`. |
+| `cap_processes_to_gpu_pool` | `true` | When Torch CUDA radiomics is active: `true` caps workers to `len(torchGpus)` (one slot per GPU); `false` keeps full `processes` and shares GPUs via `gpuSlotIndex` (better CPU use on 1-GPU / many-CPU hosts; more GPU contention risk). |
+| `individual_subject_timeout_sec` | `900` | Per-subject wall clock in Stage 1; `null` disables. Positive value forces spawn even when `processes: 1`. |
+| `individual_subject_parallel_mode` | `persistent` | `persistent` (long-lived workers) or `isolated` (spawn per subject). |
+| `individual_subject_auto_retry_rounds` | `2` | Same-run auto-retry for Stage-1 failures; `0` disables. |
+| `oom_backoff` | `true` | Reduce workers after `MemoryError` when enabled. |
+| `resume` / `checkpoint_dir` / `retry_failed_subjects` | — | Checkpoint resume; see habitat user guide. |
+
+Not in checkpoint `config_hash` (safe to change on resume): `processes`, `cap_processes_to_gpu_pool`, timeout, parallel mode, retry flags, `plot_curves`, `out_dir`, group-stage blocks.
+
 ## How to use
 
 Open the YAML for the command you are running; section headers and comments
@@ -126,4 +142,4 @@ habit get-habitat -c config/habitat/config_getting_habitat.yaml
 
 ---
 
-*Last Updated: 2026-05-25*
+*Last Updated: 2026-05-27*

@@ -61,6 +61,16 @@ class HabitatAnalysisConfig(BaseConfig):
                     "processes=8 (4-8GB). Reduce if memory is limited.", 
         gt=0
     )
+    cap_processes_to_gpu_pool: bool = Field(
+        True,
+        description=(
+            "When True and Torch GPU radiomics is active, cap Stage-1 parallel workers "
+            "to the configured torchGpus pool size (one worker slot per GPU). When False, "
+            "keep the full processes count; multiple workers share GPUs via "
+            "gpuSlotIndex modulo mapping so CPU-heavy steps can run in parallel on "
+            "machines with fewer GPUs than CPU cores. May increase GPU memory contention."
+        ),
+    )
     individual_subject_timeout_sec: Optional[float] = Field(
         900.0,
         description=(

@@ -8,10 +8,7 @@ import logging
 from typing import Any, Callable, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from habit.utils.log_utils import get_module_logger, LoggerManager
-from habit.utils.parallel_gpu_utils import (
-    cap_processes_to_gpu_pool,
-    resolve_habitat_torch_gpu_pool,
-)
+from habit.utils.parallel_gpu_utils import apply_gpu_pool_process_cap
 from habit.utils.parallel_utils import (
     ProcessingResult,
     _should_use_spawn_workers,
@@ -268,17 +265,11 @@ class IndividualCheckpointStage:
             int: Configured worker count capped by GPU pool and subject count.
         """
         configured = getattr(self.config, "processes", 4) if self.config else 4
-        requested = max(1, int(configured))
-
-        if self.config is not None:
-            gpu_pool = resolve_habitat_torch_gpu_pool(self.config)
-            if gpu_pool:
-                requested = cap_processes_to_gpu_pool(
-                    requested,
-                    len(gpu_pool),
-                    log=self.logger,
-                    gpu_pool=gpu_pool,
-                )
+        requested = apply_gpu_pool_process_cap(
+            configured,
+            self.config,
+            log=self.logger,
+        )
 
         return min(requested, max(1, n_subjects))
 
@@ -341,20 +332,14 @@ class IndividualCheckpointStage:
             n_pending: Number of subjects scheduled in this parallel pass.
 
         Returns:
-            int: Worker count in ``[1, processes]``, capped by Torch GPU pool when set.
+            int: Worker count in ``[1, processes]``, optionally capped by Torch GPU pool.
         """
         configured = getattr(self.config, "processes", 4) if self.config else 4
-        requested = max(1, int(configured))
-
-        if self.config is not None:
-            gpu_pool = resolve_habitat_torch_gpu_pool(self.config)
-            if gpu_pool:
-                requested = cap_processes_to_gpu_pool(
-                    requested,
-                    len(gpu_pool),
-                    log=self.logger,
-                    gpu_pool=gpu_pool,
-                )
+        requested = apply_gpu_pool_process_cap(
+            configured,
+            self.config,
+            log=self.logger,
+        )
 
         if n_pending > 0:
             return min(requested, n_pending)

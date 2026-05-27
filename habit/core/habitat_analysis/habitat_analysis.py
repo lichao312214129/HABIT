@@ -777,6 +777,7 @@ class HabitatAnalysis:
         )
         target_config.oom_backoff = self.config.oom_backoff
         target_config.oom_reduce_workers_by = self.config.oom_reduce_workers_by
+        target_config.cap_processes_to_gpu_pool = self.config.cap_processes_to_gpu_pool
         target_config.individual_subject_parallel_mode = (
             self.config.individual_subject_parallel_mode
         )

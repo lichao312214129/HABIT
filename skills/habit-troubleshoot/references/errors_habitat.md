@@ -77,6 +77,14 @@ individual_subject_auto_retry_rounds: 2  # default; 0 disables
 
 ```yaml
 processes: 1  # or 2
+cap_processes_to_gpu_pool: true  # default; caps workers to len(torchGpus) under Torch CUDA
+```
+
+On **1 GPU + many CPUs**, if CPU steps (preprocess, clustering) are the bottleneck and GPU OOM is rare:
+
+```yaml
+processes: 8
+cap_processes_to_gpu_pool: false  # share cuda:0 across workers; monitor GPU memory
 ```
 
 3. Increase timeout if logs show `Timeout (>900s) for item`:
@@ -118,7 +126,7 @@ features from 7×7×7 neighborhoods which is 343 voxels per voxel.
 For large ROIs or GPU-accelerated torch radiomics, reduce `voxelBatch` from the habit
 default `1000` (or set `-1` for no batching) to e.g. `512` to limit peak memory.
 When using multiple GPUs, set `torchGpus`
-and align `processes` with `torchGpuCount`:
+and align `processes` with `torchGpuCount` (or keep `cap_processes_to_gpu_pool: true`, default):
 
 ```yaml
 FeatureConstruction:
@@ -130,6 +138,7 @@ FeatureConstruction:
       voxelBatch: 512
 
 processes: 2
+cap_processes_to_gpu_pool: true
 ```
 
 ## Symptom: predict mode fails with `pipeline file not found`

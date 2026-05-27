@@ -269,6 +269,42 @@ def test_parallel_processes_capped_to_torch_gpu_pool(
     assert observed_processes == [2]
 
 
+def test_parallel_processes_not_capped_when_flag_disabled(
+    monkeypatch: pytest.MonkeyPatch,
+    stub_pipeline_factory,
+    tmp_path: Path,
+) -> None:
+    pipeline = stub_pipeline_factory(auto_retry_rounds=0)
+    pipeline.config.processes = 4
+    pipeline.config.cap_processes_to_gpu_pool = False
+    pipeline.config.FeatureConstruction.voxel_level.params = {
+        "useTorchRadiomics": "true",
+        "torchGpus": [0],
+    }
+    stage = IndividualCheckpointStage(pipeline, logger=MagicMock())
+
+    observed_processes: list[int] = []
+
+    def _parallel_map(*args, **kwargs):
+        observed_processes.append(kwargs["n_processes"])
+        return _build_parallel_map_side_effect({0: []})(*args, **kwargs)
+
+    monkeypatch.setattr(
+        "habit.core.habitat_analysis.checkpoint.stage.parallel_map",
+        _parallel_map,
+    )
+
+    stage.run(
+        {
+            "sub001": HabitatSubjectData.empty(),
+            "sub002": HabitatSubjectData.empty(),
+            "sub003": HabitatSubjectData.empty(),
+        }
+    )
+
+    assert observed_processes == [3]
+
+
 def test_predict_auto_retry_succeeds_on_second_pass(
     monkeypatch: pytest.MonkeyPatch,
     stub_pipeline_factory,

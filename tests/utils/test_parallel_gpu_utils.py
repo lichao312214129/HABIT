@@ -17,6 +17,7 @@ from habit.core.habitat_analysis.config_schemas import (
 )
 from habit.utils.parallel_gpu_utils import (
     HABIT_GPU_SLOT_INDEX_ENV,
+    apply_gpu_pool_process_cap,
     cap_processes_to_gpu_pool,
     inject_worker_gpu_slot_index,
     read_worker_gpu_slot_index,
@@ -97,6 +98,27 @@ def test_cap_processes_to_gpu_pool() -> None:
     capped = cap_processes_to_gpu_pool(4, 2, log=logger, gpu_pool=[0, 1])
     assert capped == 2
     logger.warning.assert_called_once()
+
+
+def test_apply_gpu_pool_process_cap_respects_flag(tmp_path: Path) -> None:
+    config = _minimal_config(
+        tmp_path,
+        useTorchRadiomics="true",
+        torchGpus=[0],
+    )
+    config.processes = 8
+    config.cap_processes_to_gpu_pool = True
+    assert apply_gpu_pool_process_cap(8, config) == 1
+
+    config.cap_processes_to_gpu_pool = False
+    assert apply_gpu_pool_process_cap(8, config) == 8
+
+
+def test_apply_gpu_pool_process_cap_skips_cpu_only_backend(tmp_path: Path) -> None:
+    config = _minimal_config(tmp_path, useTorchRadiomics="false")
+    config.processes = 8
+    config.cap_processes_to_gpu_pool = True
+    assert apply_gpu_pool_process_cap(8, config) == 8
 
 
 def _capture_gpu_slot_task(item: tuple[str, int]) -> tuple[str, int]:

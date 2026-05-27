@@ -5,21 +5,38 @@
 data_dir: /path/to/your/data
 out_dir: /path/to/output
 
-# General settings
+# General settings — parallelism, checkpoint, outputs
+# processes: Stage-1 parallel worker count; peak RAM ≈ processes × per-subject memory.
 processes: 4
-individual_subject_timeout_sec: 900  # seconds; default 15 min; null = no per-subject timeout
+# cap_processes_to_gpu_pool: true (default) caps workers to len(torchGpus) under Torch CUDA;
+#   false keeps full processes and shares GPUs (1 GPU + many CPUs).
+cap_processes_to_gpu_pool: true
+# individual_subject_timeout_sec: Per-subject wall clock (seconds); default 900; null=unlimited.
+individual_subject_timeout_sec: 900
+# oom_backoff: Reduce workers after MemoryError when true (schema default true).
 oom_backoff: false
+# resume: Skip completed Stage-1 subjects when config_hash matches checkpoint manifest.
 resume: true
+# checkpoint_dir: null → <out_dir>/.habitat_checkpoint
 checkpoint_dir: null
+# force_rerun_subjects: Subject IDs to reprocess despite checkpoint.
 force_rerun_subjects: []
+# retry_failed_subjects: Re-queue manifest failed_subjects on next CLI start.
 retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2  # In-run Stage-1 auto-retry rounds (0=off; train only)
-individual_subject_parallel_mode: persistent  # default; use isolated if pickle/spawn issues
-persistent_worker_max_consecutive_failures: 1  # Restart slot after N consecutive failures (persistent only)
-persistent_worker_recycle_after_tasks: 0  # Recycle worker after N successes; 0=off (persistent only)
+# individual_subject_auto_retry_rounds: In-run Stage-1 auto-retry rounds (default 2; 0=off).
+individual_subject_auto_retry_rounds: 2
+# individual_subject_parallel_mode: persistent (default) | isolated.
+individual_subject_parallel_mode: persistent
+# persistent_worker_max_consecutive_failures: Restart slot after N consecutive fatal failures.
+persistent_worker_max_consecutive_failures: 1
+# persistent_worker_recycle_after_tasks: Recycle worker after N successes; 0=off.
+persistent_worker_recycle_after_tasks: 0
+# clear_checkpoint_on_success: Delete checkpoint after fully successful train.
 clear_checkpoint_on_success: false
-random_state: 42  # Global default; one_step uses habitat.random_state when set
-plot_curves: true  # Enable all visualizations
+# random_state: Global default; one_step uses habitat.random_state when set.
+random_state: 42
+# plot_curves: Enable validation and habitat visualizations under out_dir.
+plot_curves: true
 
 # Feature Construction Configuration
 FeatureConstruction:
