@@ -2,7 +2,7 @@
 # NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, etc. belong in
 # FeatureConstruction.voxel_level.params in your habitat config (default voxelBatch: 1000).
 # NOTE (habit supervoxel_radiomics): supervoxelBatch, supervoxelUnionBboxCrop,
-# useTorchRadiomics, etc. belong in
+# useSupervoxelCext, useTorchRadiomics, etc. belong in
 # FeatureConstruction.supervoxel_level.params (or inherit from voxel_level.params).
 # Use as `params_file_of_non_habitat` and/or `params_file_of_habitat`.
 # Keeps feature count modest (~70 features per image) and avoids

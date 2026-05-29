@@ -22,6 +22,15 @@ import pandas as pd
 import SimpleITK as sitk
 
 from habit.utils.log_utils import get_module_logger
+from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
+    cext_backend,
+    is_cext_available,
+    resolve_use_supervoxel_cext,
+    supervoxel_cext_matrix_backend_label,
+)
+from habit.core.habitat_analysis.clustering_features.supervoxel_cext.torch_batch import (
+    extract_supervoxel_batch_via_cext,
+)
 
 logger = get_module_logger(__name__)
 
@@ -61,7 +70,7 @@ DEFAULT_FEATURES_BY_CLASS: Dict[str, List[str]] = {
         "RunVariance", "RunEntropy", "LowGrayLevelRunEmphasis",
         "HighGrayLevelRunEmphasis", "ShortRunLowGrayLevelEmphasis",
         "ShortRunHighGrayLevelEmphasis", "LongRunLowGrayLevelEmphasis",
-        "LongRunHighGrayLevelRunEmphasis",
+        "LongRunHighGrayLevelEmphasis",
     ],
     "glszm": [
         "SmallAreaEmphasis", "LargeAreaEmphasis", "GrayLevelNonUniformity",
@@ -768,6 +777,40 @@ def _extract_torch_firstorder_batch(
     )
 
 
+def _extract_supervoxel_label_features_cext_batch(
+    calculators: Mapping[str, object],
+    resolved_features: Mapping[str, Sequence[str]],
+    *,
+    label_array: np.ndarray,
+    batch_labels: Sequence[int],
+    batch_row_maps: List[Dict[str, object]],
+    image_name: str,
+) -> None:
+    """
+    Extract enabled features for a label batch via habit C-extension matrix batching.
+
+    Args:
+        calculators: Shared Torch calculators binned on the union mask.
+        resolved_features: Enabled feature names per class.
+        label_array: Full supervoxel label map array.
+        batch_labels: Label ids in this batch.
+        batch_row_maps: Pre-allocated row dicts (must include SupervoxelID).
+        image_name: Optional column suffix.
+    """
+    extract_supervoxel_batch_via_cext(
+        calculators,
+        resolved_features,
+        label_array=label_array,
+        batch_labels=batch_labels,
+        batch_row_maps=batch_row_maps,
+        image_name=image_name,
+        assign_batch_feature_values=_assign_batch_feature_values,
+        extract_feature_values=_extract_feature_values,
+        feature_column_name=_feature_column_name,
+        pad_and_stack_torch=_pad_and_stack_torch,
+    )
+
+
 def _extract_supervoxel_label_features_torch_batch(
     calculators: Mapping[str, object],
     resolved_features: Mapping[str, Sequence[str]],
@@ -981,6 +1024,7 @@ def _calculate_supervoxels(
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
     enable_torch_formula_batch: bool = False,
+    use_cext_batch: bool = False,
 ) -> pd.DataFrame:
     """
     Extract supervoxel features using shared union-mask binning.
@@ -999,6 +1043,7 @@ def _calculate_supervoxels(
         batch_size: Labels per batch group.
         progress_callback: Optional callback invoked once per processed label.
         enable_torch_formula_batch: Use stacked-matrix Torch formula batching.
+        use_cext_batch: Use habit C-extension batched matrix path when True.
 
     Returns:
         pd.DataFrame: One row per supervoxel.
@@ -1018,14 +1063,24 @@ def _calculate_supervoxels(
 
         if enable_torch_formula_batch:
             try:
-                _extract_supervoxel_label_features_torch_batch(
-                    calculators,
-                    resolved_features,
-                    label_array=label_array,
-                    batch_labels=batch_labels,
-                    batch_row_maps=batch_row_maps,
-                    image_name=image_name,
-                )
+                if use_cext_batch:
+                    _extract_supervoxel_label_features_cext_batch(
+                        calculators,
+                        resolved_features,
+                        label_array=label_array,
+                        batch_labels=batch_labels,
+                        batch_row_maps=batch_row_maps,
+                        image_name=image_name,
+                    )
+                else:
+                    _extract_supervoxel_label_features_torch_batch(
+                        calculators,
+                        resolved_features,
+                        label_array=label_array,
+                        batch_labels=batch_labels,
+                        batch_row_maps=batch_row_maps,
+                        image_name=image_name,
+                    )
             except Exception as exc:
                 logger.warning(
                     "Failed Torch batched supervoxel extraction for labels %s: %s",
@@ -1078,7 +1133,9 @@ def extract_batched_supervoxel_features(
     Extract supervoxel ROI radiomics on GPU/CPU via TorchRadiomics.
 
     Discretization uses PyRadiomics ``_applyBinning`` once on the union supervoxel
-    mask; per-label matrices use ``cMatrices`` inside ``_initCalculation``.
+    mask; per-label matrices use ``cMatrices`` inside ``_initCalculation``, or the
+    habit C-extension batch path when ``useSupervoxelCext`` resolves to true (default
+    ``auto`` when ``_sv_cmatrices`` is compiled).
 
     Args:
         image: Input SimpleITK image.
@@ -1153,6 +1210,39 @@ def extract_batched_supervoxel_features(
         torch_settings,
     )
 
+    use_cext_batch = resolve_use_supervoxel_cext(settings)
+    matrix_backend = supervoxel_cext_matrix_backend_label(settings)
+    use_supervoxel_cext_flag = settings.get("useSupervoxelCext", "auto")
+    if matrix_backend == "habit_native_c":
+        logger.info(
+            "supervoxel_radiomics using habit native C extension for texture matrices: "
+            "useSupervoxelCext=%s module=supervoxel_cext._sv_cmatrices backend=%s "
+            "labels=%d batch_size=%d",
+            use_supervoxel_cext_flag,
+            cext_backend(),
+            len(labels),
+            batch_size,
+        )
+    elif matrix_backend == "habit_fallback_cmatrices":
+        logger.warning(
+            "supervoxel_radiomics useSupervoxelCext=%s but native extension is not built; "
+            "using PyRadiomics cMatrices fallback (labels=%d batch_size=%d). "
+            "Run: pip install -e .",
+            use_supervoxel_cext_flag,
+            len(labels),
+            batch_size,
+        )
+    elif use_supervoxel_cext_flag not in (False, "false", "False"):
+        logger.info(
+            "supervoxel_radiomics habit native C extension not selected: "
+            "useSupervoxelCext=%s native_available=%s matrix_backend=%s labels=%d batch_size=%d",
+            use_supervoxel_cext_flag,
+            is_cext_available(),
+            matrix_backend,
+            len(labels),
+            batch_size,
+        )
+
     return _calculate_supervoxels(
         image,
         supervoxel_map,
@@ -1163,6 +1253,7 @@ def extract_batched_supervoxel_features(
         batch_size=batch_size,
         progress_callback=progress_callback,
         enable_torch_formula_batch=True,
+        use_cext_batch=use_cext_batch,
     )
 
 

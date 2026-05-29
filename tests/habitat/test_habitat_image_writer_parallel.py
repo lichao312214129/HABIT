@@ -1,4 +1,4 @@
-"""Tests for lightweight spawn payloads when saving habitat images."""
+"""Tests for unified habitat image batch export."""
 
 from __future__ import annotations
 
@@ -12,9 +12,10 @@ import pandas as pd
 from habit.core.habitat_analysis.config_schemas import ResultColumns
 from habit.core.habitat_analysis.services.habitat_image_writer import (
     HabitatImageWriter,
-    estimate_habitat_image_worker_pickle_bytes,
+    _save_habitat_from_supervoxel_mapping_worker,
 )
 from habit.core.habitat_analysis.services.result_publisher import HabitatResultPublisher
+from habit.utils.parallel_utils import default_thread_worker_count
 
 
 def _make_writer(tmp_path) -> HabitatImageWriter:
@@ -32,28 +33,7 @@ def _make_writer(tmp_path) -> HabitatImageWriter:
     return HabitatImageWriter(config=cfg, logger=logging.getLogger(__name__))
 
 
-def test_habitat_image_worker_pickle_stays_small() -> None:
-    """Spawn items must not embed cohort-scale tables or mask caches."""
-    subject_df = pd.DataFrame(
-        {
-            ResultColumns.SUBJECT: ["sub1"] * 3,
-            ResultColumns.SUPERVOXEL: [1, 2, 3],
-            ResultColumns.HABITATS: [1, 1, 2],
-            ResultColumns.COUNT: [10, 20, 30],
-        }
-    ).set_index(ResultColumns.SUBJECT, drop=False)
-    item = (
-        "sub1",
-        subject_df,
-        "/tmp/out",
-        {"enabled": False},
-        None,
-        logging.INFO,
-    )
-    assert estimate_habitat_image_worker_pickle_bytes(item) < 16_384
-
-
-def test_save_all_habitat_images_uses_module_worker(tmp_path) -> None:
+def test_save_all_habitat_images_uses_thread_map_for_two_step(tmp_path) -> None:
     writer = _make_writer(tmp_path)
     writer.results_df = pd.DataFrame(
         {
@@ -63,25 +43,44 @@ def test_save_all_habitat_images_uses_module_worker(tmp_path) -> None:
             ResultColumns.COUNT: [5, 6],
         }
     )
+
+    with patch(
+        "habit.core.habitat_analysis.services.habitat_image_writer.thread_map"
+    ) as thread_map_mock:
+        thread_map_mock.return_value = ([], [])
+        writer.save_all_habitat_images(failed_subjects=[])
+
+    thread_map_mock.assert_called_once()
+    assert (
+        thread_map_mock.call_args.kwargs["func"].__name__
+        == "_save_habitat_from_supervoxel_mapping_worker"
+    )
+    assert thread_map_mock.call_args.kwargs["max_workers"] == default_thread_worker_count()
+
+
+def test_save_all_habitat_images_uses_voxel_worker_for_pooling(tmp_path) -> None:
+    writer = _make_writer(tmp_path)
+    writer.results_df = pd.DataFrame(
+        {
+            ResultColumns.SUBJECT: ["sub1", "sub1"],
+            ResultColumns.HABITATS: [1, 2],
+        }
+    )
     writer.mask_info_cache = {
-        "sub1": {"mask_array": np.ones((512, 512, 200), dtype=np.uint8)},
+        "sub1": {"mask_array": np.ones((4, 4, 2), dtype=np.uint8)},
     }
 
     with patch(
-        "habit.core.habitat_analysis.services.habitat_image_writer.parallel_map"
-    ) as parallel_map_mock:
-        parallel_map_mock.return_value = ([], [])
+        "habit.core.habitat_analysis.services.habitat_image_writer.thread_map"
+    ) as thread_map_mock:
+        thread_map_mock.return_value = ([], [])
         writer.save_all_habitat_images(failed_subjects=[])
 
-    parallel_map_mock.assert_called_once()
+    thread_map_mock.assert_called_once()
     assert (
-        parallel_map_mock.call_args.kwargs["func"].__name__
-        == "_save_habitat_image_worker"
+        thread_map_mock.call_args.kwargs["func"].__name__
+        == "_save_habitat_from_voxel_labels_worker"
     )
-    pickled = estimate_habitat_image_worker_pickle_bytes(
-        parallel_map_mock.call_args.kwargs["items"][0]
-    )
-    assert pickled < 16_384
 
 
 def test_two_step_publish_skips_mask_cache_load(tmp_path) -> None:

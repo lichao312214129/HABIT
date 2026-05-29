@@ -374,10 +374,52 @@ class VoxelLevelConfig(BaseModel):
     method: str = Field(..., description="Feature extraction method expression for voxels.")
     params: Dict[str, Any] = Field(default_factory=dict, description="Parameters for the voxel-level feature extractor.")
 
+def _validate_use_supervoxel_cext_value(value: object) -> None:
+    """
+    Validate ``useSupervoxelCext`` when present under ``supervoxel_level.params``.
+
+    Args:
+        value: Raw YAML value (bool or str).
+
+    Raises:
+        ValueError: When the value is not ``auto`` / ``true`` / ``false`` (case-insensitive).
+    """
+    if value is True or value is False:
+        return
+    if isinstance(value, str) and value.lower() in ("auto", "true", "false"):
+        return
+    raise ValueError(
+        "FeatureConstruction.supervoxel_level.params.useSupervoxelCext must be "
+        "auto, true, or false (bool or str)."
+    )
+
+
 class SupervoxelLevelConfig(BaseModel):
     supervoxel_file_keyword: str = Field("*_supervoxel.nrrd", description="Glob pattern to find supervoxel files.")
     method: str = Field("mean_voxel_features()", description="Aggregation method for supervoxel features.")
-    params: Dict[str, Any] = Field(default_factory=dict, description="Parameters for the supervoxel-level feature aggregator.")
+    params: Dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Parameters for the supervoxel-level feature aggregator. "
+            "For supervoxel_radiomics, habit keys include params_file, supervoxelBatch "
+            "(default 64), supervoxelUnionBboxCrop (default true), supervoxelPadDistance, "
+            "useSupervoxelCext (default auto: native C extension when built; false forces "
+            "Torch/PyRadiomics stacked-matrix path), useTorchRadiomics, torchGpus, "
+            "torchGpuCount, torchDevice, and torchDtype (torch keys may inherit from "
+            "voxel_level.params)."
+        ),
+    )
+
+    @field_validator("params")
+    @classmethod
+    def validate_supervoxel_params(cls, value: Dict[str, Any]) -> Dict[str, Any]:
+        """Reject invalid useSupervoxelCext values early at config load time."""
+        if not value:
+            return value
+        flag = value.get("useSupervoxelCext")
+        if flag is not None:
+            _validate_use_supervoxel_cext_value(flag)
+        return value
 
 class PreprocessingMethod(BaseModel):
     method: Literal[

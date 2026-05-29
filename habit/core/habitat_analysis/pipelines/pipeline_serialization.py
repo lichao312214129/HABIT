@@ -141,3 +141,9 @@ def _prepare_step_for_save(step: Any) -> None:
     if habitat_image_writer is not None:
         habitat_image_writer.results_df = None
         habitat_image_writer.mask_info_cache = {}
+        if hasattr(habitat_image_writer, "_log_queue"):
+            habitat_image_writer._log_queue = None
+
+    feature_service = getattr(step, "feature_service", None)
+    if feature_service is not None and hasattr(feature_service, "_log_queue"):
+        feature_service._log_queue = None

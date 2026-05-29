@@ -42,11 +42,13 @@ class TestSupervoxelFeatureClassLogging(unittest.TestCase):
             subject="sub1",
             image_name="T2",
             backend="torch",
+            matrix_backend="habit_native_c",
         )
         self.assertEqual(mock_logger.info.call_count, 2)
         first_message = mock_logger.info.call_args_list[0][0][0]
         self.assertIn("feature class finished", first_message)
         self.assertEqual(mock_logger.info.call_args_list[0][0][3], "torch")
+        self.assertEqual(mock_logger.info.call_args_list[0][0][4], "habit_native_c")
 
 
 class TestSupervoxelRadiomicsTorchBackend(unittest.TestCase):

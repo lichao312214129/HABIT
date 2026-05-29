@@ -10,7 +10,7 @@ from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor i
     _group_voxel_feature_keys_by_class,
     _log_voxel_feature_class_summary,
 )
-from habit.utils.log_utils import radiomics_feature_class_logging
+from habit.utils.log_utils import radiomics_feature_class_logging, resolve_radiomics_logging_level
 
 
 class TestVoxelRadiomicsExtractorHelpers(unittest.TestCase):
@@ -51,6 +51,23 @@ class TestVoxelRadiomicsExtractorHelpers(unittest.TestCase):
         radiomics_logger.setLevel(logging.WARNING)
         with radiomics_feature_class_logging():
             self.assertEqual(radiomics_logger.level, logging.INFO)
+        self.assertEqual(radiomics_logger.level, logging.WARNING)
+
+    def test_resolve_radiomics_logging_level_debug(self) -> None:
+        self.assertEqual(
+            resolve_radiomics_logging_level(True),
+            logging.DEBUG,
+        )
+        self.assertEqual(
+            resolve_radiomics_logging_level(False),
+            logging.INFO,
+        )
+
+    def test_radiomics_feature_class_logging_debug_level(self) -> None:
+        radiomics_logger = logging.getLogger("radiomics")
+        radiomics_logger.setLevel(logging.WARNING)
+        with radiomics_feature_class_logging(level=logging.DEBUG):
+            self.assertEqual(radiomics_logger.level, logging.DEBUG)
         self.assertEqual(radiomics_logger.level, logging.WARNING)
 
 

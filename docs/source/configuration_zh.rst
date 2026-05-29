@@ -670,11 +670,14 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
       - **说明**: 对每个超体素 label 提取 **整 ROI** 影像组学纹理（非体素 kernel 邻域）
       - **离散化**: 在全部超体素并集 mask（``sv_map > 0``）上 **一次** PyRadiomics ``_applyBinning``，再逐 label 用 ``cMatrices`` 建矩阵
-      - **后端**: ``useTorchRadiomics`` 解析为 torch 时用 TorchRadiomics（GPU/CPU torch）；否则 CPU PyRadiomics（语义相同）
+      - **矩阵后端**: ``useSupervoxelCext`` 默认 ``auto``：已编译 ``supervoxel_cext``（``pip install -e .``）时用 C 扩展批量建矩阵；否则回退到原有 Torch/PyRadiomics 堆叠矩阵路径。设为 ``false`` 时 **强制** 使用 Torch/PyRadiomics 堆叠矩阵（``matrix_backend=torch_cmatrices``），即使 C 扩展已编译
+      - **特征后端**: ``useTorchRadiomics`` 解析为 torch 时用 TorchRadiomics（GPU/CPU torch）；否则 CPU PyRadiomics（语义相同）
       - **参数**（写在 ``FeatureConstruction.supervoxel_level.params``，可继承 ``voxel_level.params`` 中的 torch 项）:
 
         - ``params_file`` (str, 必需): PyRadiomics 参数 YAML（仅 featureClass / setting）
         - ``supervoxelBatch`` (int): 批分组大小，默认 ``64``（非 kernel 半径）
+        - ``supervoxelUnionBboxCrop`` (bool): 是否裁切到并集 bbox，默认 ``true``
+        - ``useSupervoxelCext`` (str | bool): ``auto`` / ``true`` / ``false``，默认 ``auto``；须写在 ``supervoxel_level.params``（不要写在 ``params_file``）
         - ``useTorchRadiomics`` (str): ``auto`` / ``true`` / ``false``
         - ``torchGpus`` / ``torchGpuCount`` / ``torchDevice`` / ``torchDtype``: 同体素级
 
@@ -704,6 +707,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
          params:
            params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
            supervoxelBatch: 64
+           useSupervoxelCext: auto
            useTorchRadiomics: auto
            # torchGpus: [0, 1]
 
@@ -713,8 +717,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
   - **必需**: 否
   - **默认值**: ``{}``
   - **说明**: 传递给特征提取器的参数。``supervoxel_radiomics`` 常用键：
-    ``params_file``、``supervoxelBatch``、``useTorchRadiomics``、``torchGpus``、
-    ``torchGpuCount``、``torchDtype``（后几项可继承 ``voxel_level.params``）。
+    ``params_file``、``supervoxelBatch``、``supervoxelUnionBboxCrop``、``useSupervoxelCext``、
+    ``useTorchRadiomics``、``torchGpus``、``torchGpuCount``、``torchDtype``（torch 项可继承
+    ``voxel_level.params``）。
 
 **preprocessing_for_subject_level**: 个体级别预处理 (可选)
 

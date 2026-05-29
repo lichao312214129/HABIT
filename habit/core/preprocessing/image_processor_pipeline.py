@@ -239,10 +239,14 @@ class BatchProcessor:
         the parent's logging configuration. This method restores it.
         """
         from habit.utils.log_utils import restore_logging_in_subprocess
-        
-        # Restore logging if we have stored config
+
+        if logging.getLogger('habit').handlers:
+            return
         if hasattr(self, '_log_file_path') and self._log_file_path:
-            restore_logging_in_subprocess(self._log_file_path, self._log_level)
+            restore_logging_in_subprocess(
+                log_file_path=self._log_file_path,
+                log_level=self._log_level,
+            )
         
     def _process_single_subject(self, subject_data):
         """Process a single subject's data through the preprocessing pipeline.

@@ -29,7 +29,7 @@ def resolve_voxel_step_params(
     Parameters listed only under ``FeatureConstruction.voxel_level.params`` (such as
     ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) or
     ``FeatureConstruction.supervoxel_level.params`` (such as ``supervoxelBatch``,
-    ``supervoxelUnionBboxCrop``)
+    ``supervoxelUnionBboxCrop``, ``useSupervoxelCext``)
     are forwarded even when they are omitted from the ``method`` expression string.
 
     Args:
@@ -135,7 +135,7 @@ class FeatureService:
         self.mask_paths: Optional[Dict[str, Any]] = None
         self.supervoxel_file_dict: Optional[Dict[str, str]] = None
 
-        # Log file path for subprocesses
+        # Log file path for subprocesses (queue is resolved at worker spawn, not stored here).
         self._log_file_path: Optional[str] = None
         self._log_level: int = logging.INFO
 
@@ -194,7 +194,7 @@ class FeatureService:
         self.images_paths = images_paths
         self.mask_paths = mask_paths
 
-    def set_logging_info(self, log_file_path: str, log_level: int):
+    def set_logging_info(self, log_file_path: str, log_level: int) -> None:
         """Set logging info for subprocesses."""
         self._log_file_path = log_file_path
         self._log_level = log_level
@@ -239,10 +239,18 @@ class FeatureService:
         """
         Ensure logging is properly configured in child processes.
         """
+        from pathlib import Path
+
         from habit.utils.log_utils import restore_logging_in_subprocess
-        
+
+        # Persistent/isolated workers configure queue logging at process entry.
+        if logging.getLogger('habit').handlers:
+            return
         if self._log_file_path:
-            restore_logging_in_subprocess(self._log_file_path, self._log_level)
+            restore_logging_in_subprocess(
+                log_file_path=Path(self._log_file_path),
+                log_level=self._log_level,
+            )
 
     def _validate_FeatureConstruction(self) -> None:
         """Validate feature configuration."""
@@ -332,7 +340,11 @@ class FeatureService:
             step_params = resolve_voxel_step_params(step_params, voxel_params)
             
             # Create extractor and process
-            step_params.update({'subject': subject, 'image': img_name})
+            step_params.update({
+                'subject': subject,
+                'image': img_name,
+                'debug': self.config.debug,
+            })
             step_params = inject_worker_gpu_slot_index(step_params)
             extractor = create_feature_extractor(method, **step_params)
             processed_df = extractor.extract_features(
@@ -344,7 +356,7 @@ class FeatureService:
         
         # Create cross-image feature extractor
         cross_image_kwargs = self.cross_image_kwargs.copy()
-        cross_image_kwargs.update({'subject': subject})
+        cross_image_kwargs.update({'subject': subject, 'debug': self.config.debug})
         cross_image_kwargs = inject_worker_gpu_slot_index(cross_image_kwargs)
         cross_image_extractor = create_feature_extractor(
             self.voxel_method, **cross_image_kwargs
@@ -416,7 +428,11 @@ class FeatureService:
                     supervoxel_level_params,
                     fallback_params=voxel_level_params,
                 )
-                step_params.update({'subject': subject, 'image': img_name})
+                step_params.update({
+                'subject': subject,
+                'image': img_name,
+                'debug': self.config.debug,
+            })
                 step_params = inject_worker_gpu_slot_index(step_params)
 
                 self.logger.info(
@@ -445,6 +461,7 @@ class FeatureService:
             
             # Create cross-image extractor
             supervoxel_params = self.supervoxel_params.copy()
+            supervoxel_params['debug'] = self.config.debug
             if len(processed_images) > 1:
                 self.logger.info(
                     "Combining supervoxel features across %d modalities for subject %s...",

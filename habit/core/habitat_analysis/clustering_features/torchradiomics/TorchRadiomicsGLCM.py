@@ -627,9 +627,10 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
       :ref:`here <radiomics-excluded-sumvariance-label>` for the proof that :math:`\text{Sum Average} = \mu_x + \mu_y`.
       In the default parameter files provided in the ``examples/exampleSettings``, this feature has been disabled.
     """
-    # warn the user if the GLCM is symmetrical and this feature is calculated (as it is then linearly correlated to Joint Average)
+    # Symmetrical GLCM makes SumAverage linearly correlated to JointAverage; log at debug only
+    # to avoid flooding voxel/batch extraction logs (habit config intentionally keeps both).
     if self.symmetricalGLCM:
-      self.logger.warning('GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated')
+      self.logger.debug('GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated')
 
     pxAddy = self.coefficients['pxAddy']
     kValuesSum = self.coefficients['kValuesSum']

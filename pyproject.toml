@@ -25,8 +25,8 @@ pylint = "^2.9.0"
 pre-commit = "^2.13.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=64", "wheel", "numpy"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88

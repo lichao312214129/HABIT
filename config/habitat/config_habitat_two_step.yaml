@@ -47,6 +47,7 @@ FeatureConstruction:
       # method: concat(supervoxel_radiomics(T2, params_file))
       # supervoxelBatch: 64  # Default 64; batch group size for union-mask binning extraction
       supervoxelUnionBboxCrop: true  # Crop to union supervoxel bbox before extraction
+      useSupervoxelCext: auto  # auto | true | false; auto = habit C extension when built; false = force Torch/PyRadiomics path
       # supervoxelPadDistance: 1  # Optional override; else uses padDistance from params_file (default 1)
       # useTorchRadiomics: auto  # auto | true | false; inherits from voxel_level.params when omitted
       # torchGpus: [0, 1]

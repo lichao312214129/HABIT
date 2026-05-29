@@ -7,8 +7,16 @@ import time
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from typing import Union, List, Dict, Optional, Tuple, Mapping
-from habit.utils.log_utils import get_module_logger, radiomics_feature_class_logging
+from typing import Union, List, Dict, Optional
+from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
+    is_cext_available,
+    supervoxel_cext_matrix_backend_label,
+)
+from habit.utils.log_utils import (
+    get_module_logger,
+    radiomics_feature_class_logging,
+    resolve_radiomics_logging_level,
+)
 from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 from habit.utils.torch_radiomics_utils import (
     DEFAULT_TORCH_DTYPE,
@@ -22,36 +30,9 @@ from .batched_supervoxel_radiomics import (
     extract_supervoxel_features_pyradiomics,
 )
 from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .supervoxel_radiomics_settings import merge_supervoxel_settings
 
 logger = get_module_logger(__name__)
-
-# Habit-only keys forwarded from habitat YAML into PyRadiomics ``settings`` dict.
-_SUPERVOXEL_SETTING_KEYS: Tuple[str, ...] = (
-    "supervoxelUnionBboxCrop",
-    "supervoxelPadDistance",
-)
-
-
-def _merge_supervoxel_settings(
-    extractor_settings: Mapping[str, object],
-    kwargs: Mapping[str, object],
-) -> Dict[str, object]:
-    """
-    Merge habit supervoxel extraction keys from YAML kwargs into settings.
-
-    Args:
-        extractor_settings: Settings loaded from ``params_file``.
-        kwargs: Resolved ``supervoxel_level.params`` forwarded by FeatureService.
-
-    Returns:
-        Dict[str, object]: Settings passed to batched supervoxel radiomics helpers.
-    """
-    settings = dict(extractor_settings)
-    for key in _SUPERVOXEL_SETTING_KEYS:
-        if key in kwargs:
-            settings[key] = kwargs[key]
-    return settings
-
 
 def _enabled_supervoxel_feature_classes(enabled_features: Dict[str, object]) -> List[str]:
     """
@@ -99,6 +80,7 @@ def _log_supervoxel_feature_class_summary(
     subject: str,
     image_name: str,
     backend: str,
+    matrix_backend: str,
 ) -> None:
     """
     Log how many supervoxel feature columns were produced per feature class.
@@ -109,6 +91,7 @@ def _log_supervoxel_feature_class_summary(
         subject: Subject identifier for log context.
         image_name: Image/modality name for log context.
         backend: Resolved backend name (``torch`` or ``pyradiomics``).
+        matrix_backend: Texture matrix backend label (``habit_native_c``, etc.).
     """
     grouped = _group_supervoxel_feature_names_by_class(feature_names, feature_classes)
     for feature_class in feature_classes:
@@ -117,10 +100,11 @@ def _log_supervoxel_feature_class_summary(
             continue
         logger.info(
             "supervoxel_radiomics feature class finished: subject=%s image=%s "
-            "backend=%s class=%s features=%d",
+            "backend=%s matrix_backend=%s class=%s features=%d",
             subject,
             image_name,
             backend,
+            matrix_backend,
             feature_class,
             len(class_names),
         )
@@ -197,6 +181,9 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``).
                 supervoxelBatch: Supervoxels per batch group (union-mask binning path).
                 supervoxelUnionBboxCrop: Crop to union supervoxel bbox before extraction.
+                useSupervoxelCext: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
+                    the habit C-extension batched matrix path when compiled; otherwise the
+                    prior Torch/PyRadiomics stacked-matrix path.
                 supervoxelPadDistance: Optional bbox pad override (voxels); else padDistance.
                 output_float32: If True, cast numeric feature columns to float32.
 
@@ -332,19 +319,44 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         n_failed: int = 0
         extraction_started_at = time.monotonic()
         supervoxel_batch: int = int(kwargs.get("supervoxelBatch", DEFAULT_SUPERVOXEL_BATCH))
-        radiomics_settings = _merge_supervoxel_settings(extractor.settings, kwargs)
+        radiomics_settings = merge_supervoxel_settings(extractor.settings, kwargs)
+        matrix_backend = supervoxel_cext_matrix_backend_label(radiomics_settings)
+        use_supervoxel_cext_flag = radiomics_settings.get("useSupervoxelCext", "auto")
+
+        if matrix_backend == "habit_native_c":
+            logger.info(
+                "supervoxel_radiomics habit native C extension ENABLED: subject=%s image=%s "
+                "useSupervoxelCext=%s module=supervoxel_cext._sv_cmatrices",
+                subject_id,
+                img_name,
+                use_supervoxel_cext_flag,
+            )
+        elif matrix_backend == "habit_fallback_cmatrices":
+            logger.warning(
+                "supervoxel_radiomics habit C extension requested but not built: "
+                "subject=%s image=%s useSupervoxelCext=%s native_available=%s. "
+                "Run: pip install -e .",
+                subject_id,
+                img_name,
+                use_supervoxel_cext_flag,
+                is_cext_available(),
+            )
 
         logger.info(
             "supervoxel_radiomics union-mask binning enabled: subject=%s image=%s "
-            "supervoxelBatch=%d union_bbox_crop=%s",
+            "supervoxelBatch=%d union_bbox_crop=%s matrix_backend=%s",
             subject_id,
             img_name,
             supervoxel_batch,
             radiomics_settings.get("supervoxelUnionBboxCrop", True),
+            matrix_backend,
         )
 
+        radiomics_log_level = resolve_radiomics_logging_level(
+            bool(kwargs.get("debug", False))
+        )
         with injected_torch_radiomics(enabled=(backend == "torch")):
-            with radiomics_feature_class_logging():
+            with radiomics_feature_class_logging(level=radiomics_log_level):
                 if backend == "torch":
                     feature_df = extract_batched_supervoxel_features(
                         image,
@@ -402,6 +414,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             subject=subject_id,
             image_name=img_name,
             backend=backend,
+            matrix_backend=matrix_backend,
         )
 
         logger.info(

@@ -11,7 +11,6 @@ from typing import Dict, Any, Optional, List
 import yaml
 import logging
 from habit.core.common.configs.loader import load_config, save_config, validate_config
-from habit.utils.habitat_postprocess_utils import remove_small_connected_components
 
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
@@ -248,51 +247,31 @@ def save_habitat_image(
     postprocess_settings: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
-    Save habitat image
-    
+    Save habitat image.
+
+    Deprecated wrapper kept for backward compatibility. Prefer
+    :func:`habit.core.habitat_analysis.services.habitat_image_writer.save_habitat_from_supervoxel_mapping`.
+
     Args:
         subject (str): Subject name
         habitats_df (DataFrame): Habitat DataFrame containing Supervoxel and Habitats columns
         supervoxel_path (str): Path to the supervoxel image
         out_folder (str): Output directory
-    
+
     Returns:
         str: Path to the saved file
-
-    TODO: 
-    1. 某个团块的体素只有很少的几个，是否需要删除，或者归位其他相似的团块中去
     """
-    # Load supervoxel image
-    supervoxel = sitk.ReadImage(supervoxel_path)
-    supervoxel_array = sitk.GetArrayFromImage(supervoxel)
-    
-    # Create habitat image
-    habitats_array = np.zeros_like(supervoxel_array)
-    habitats_subj = habitats_df.loc[subject]
-    n_clusters_supervoxel = habitats_subj.shape[0]
-    for i in range(n_clusters_supervoxel):
-        # Assert that habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'] has exactly one value
-        # assert habitats_subj[habitats_subj['Supervoxel'] == i+1].shape[0] == 1, f"Multiple rows for supervoxel {i+1} in subject {subject}, please check the data table"
-        if (supervoxel_array == i+1).sum() > 0:
-            habitats_array[supervoxel_array == i+1] = habitats_subj[habitats_subj['Supervoxel'] == i+1]['Habitats'].values[0]
-    
+    from habit.core.habitat_analysis.services.habitat_image_writer import (
+        save_habitat_from_supervoxel_mapping,
+    )
 
-    roi_mask = supervoxel_array > 0
-    if postprocess_settings and postprocess_settings.get("enabled", False):
-        habitats_array = remove_small_connected_components(
-            label_map=habitats_array.astype(np.int32, copy=False),
-            roi_mask=roi_mask,
-            settings=postprocess_settings
-        )
-
-    # Convert to SimpleITK image and save
-    habitats_img = sitk.GetImageFromArray(habitats_array)
-    habitats_img.CopyInformation(supervoxel)
-    
-    output_path = os.path.join(out_folder, f"{subject}_habitats.nrrd")
-    sitk.WriteImage(habitats_img, output_path)
-    
-    return output_path
+    return save_habitat_from_supervoxel_mapping(
+        subject=subject,
+        habitats_df=habitats_df,
+        supervoxel_path=supervoxel_path,
+        out_dir=out_folder,
+        postprocess_settings=postprocess_settings,
+    )
 
 def save_json(data: Any, file_path: str) -> None:
     """Saves data to a JSON file."""

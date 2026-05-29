@@ -56,11 +56,13 @@ and `torchDtype` (default float32). These keys are forwarded even when omitted f
 the `method` expression string.
 
 For **`supervoxel_radiomics`**, set in `FeatureConstruction.supervoxel_level.params`:
-`params_file` (required), `supervoxelBatch` (default 64), and the same torch keys as above
-(inherit from `voxel_level.params` when omitted). Extraction discretizes once on the union
-supervoxel mask (`sv_map > 0`), then runs PyRadiomics ROI `cMatrices` per label. Torch path
-uses in-tree TorchRadiomics when `useTorchRadiomics` resolves to torch. `kernelRadius` is
-**not** used by `supervoxel_radiomics` (whole-ROI texture, not voxel kernel).
+`params_file` (required), `supervoxelBatch` (default 64), `useSupervoxelCext` (default auto),
+and the same torch keys as above (inherit from `voxel_level.params` when omitted). Extraction
+discretizes once on the union supervoxel mask (`sv_map > 0`), then runs per-label ROI matrices.
+With `useSupervoxelCext: auto`, habit uses the native C-extension batched matrix path when
+`_sv_cmatrices` is built; otherwise it falls back to the prior Torch/PyRadiomics stacked-matrix
+path. Torch feature evaluation still follows `useTorchRadiomics`. `kernelRadius` is **not** used
+by `supervoxel_radiomics` (whole-ROI texture, not voxel kernel).
 
 ## Machine learning (`habit model` / `habit cv`)
 

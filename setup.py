@@ -2,7 +2,24 @@
 Setup script for HABIT package
 """
 
-from setuptools import setup, find_packages
+import os
+
+import numpy as np
+from setuptools import Extension, find_packages, setup
+
+_ROOT = os.path.dirname(os.path.abspath(__file__))
+_CEXT_SRC = os.path.join(
+    _ROOT,
+    "habit",
+    "core",
+    "habitat_analysis",
+    "clustering_features",
+    "supervoxel_cext",
+    "src",
+)
+_SV_CMATRICES_MODULE = (
+    "habit.core.habitat_analysis.clustering_features.supervoxel_cext._sv_cmatrices"
+)
 
 setup(
     name='HABIT',
@@ -10,6 +27,16 @@ setup(
     description='Habitat Analysis: Biomedical Imaging Toolkit',
     author='lichao19870617@163.com',
     packages=find_packages(),
+    ext_modules=[
+        Extension(
+            _SV_CMATRICES_MODULE,
+            [
+                os.path.join(_CEXT_SRC, "_sv_cmatrices.c"),
+                os.path.join(_CEXT_SRC, "sv_cmatrices.c"),
+            ],
+            include_dirs=[_CEXT_SRC, np.get_include()],
+        ),
+    ],
     install_requires=[
         'click>=8.0',
         'SimpleITK==2.2.1',

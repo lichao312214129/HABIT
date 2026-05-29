@@ -8,6 +8,8 @@ one spawn child process per item, bounded concurrency, and real per-item timeout
 from __future__ import annotations
 
 import logging
+import multiprocessing
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import (
     TypeVar,
     Callable,
@@ -36,10 +38,12 @@ from habit.utils.persistent_worker_runner import PersistentWorkerPoolSession
 # Re-export for backward compatibility
 __all__ = [
     "ProcessingResult",
+    "default_thread_worker_count",
     "parallel_map",
     "parallel_map_simple",
     "ParallelProcessor",
     "PersistentWorkerPoolSession",
+    "thread_map",
     "_worker_wrapper",
     "_put_worker_wrapper_result",
     "_item_id_from_worker_args",
@@ -47,6 +51,108 @@ __all__ = [
 
 T = TypeVar("T")
 R = TypeVar("R")
+
+
+def default_thread_worker_count() -> int:
+    """
+    Default thread-pool size for I/O-heavy batch work.
+
+    Reserves two CPU cores for the main process and system overhead.
+    """
+    return max(1, multiprocessing.cpu_count() - 2)
+
+
+def thread_map(
+    func: Callable[[T], R],
+    items: Iterable[T],
+    max_workers: Optional[int] = None,
+    desc: str = "Processing",
+    logger: Optional[logging.Logger] = None,
+    show_progress: bool = True,
+) -> Tuple[List[ProcessingResult], List[Any]]:
+    """
+    Apply a function to items with bounded ``ThreadPoolExecutor`` concurrency.
+
+    Each worker invocation may return either a raw result or a pair
+    ``(item_id, result_or_exception)``. When the second element is an
+    ``Exception``, the item is recorded as failed.
+
+    Args:
+        func: Callable applied to each item.
+        items: Iterable of work items.
+        max_workers: Maximum concurrent threads; ``None`` uses
+            :func:`default_thread_worker_count`.
+        desc: Progress bar description.
+        logger: Optional logger for per-item failures.
+        show_progress: Whether to show a progress bar in the parent process.
+
+    Returns:
+        ``(successful_results, failed_item_ids)``.
+    """
+    items_list = list(items)
+    total = len(items_list)
+    if total == 0:
+        return [], []
+
+    worker_count = max(1, max_workers or default_thread_worker_count())
+    worker_count = min(worker_count, total)
+
+    from habit.utils.progress_utils import CustomTqdm
+
+    successful_results: List[ProcessingResult] = []
+    failed_items: List[Any] = []
+    progress_bar = CustomTqdm(total=total, desc=desc) if show_progress else None
+
+    def _record_result(raw_result: R, fallback_item_id: T) -> None:
+        if isinstance(raw_result, tuple) and len(raw_result) == 2:
+            item_id, actual_result = raw_result
+            if isinstance(actual_result, Exception):
+                failed_items.append(item_id)
+                if logger:
+                    logger.error("Error processing %s: %s", item_id, actual_result)
+                return
+            successful_results.append(
+                ProcessingResult(item_id=item_id, result=actual_result)
+            )
+            return
+
+        successful_results.append(
+            ProcessingResult(item_id=fallback_item_id, result=raw_result)
+        )
+
+    if worker_count == 1:
+        for item in items_list:
+            try:
+                _record_result(func(item), item)
+            except Exception as exc:
+                failed_items.append(item)
+                if logger:
+                    logger.error("Error processing %s: %s", item, exc)
+            if progress_bar is not None:
+                progress_bar.update(1)
+    else:
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            future_to_item = {
+                executor.submit(func, item): item for item in items_list
+            }
+            for future in as_completed(future_to_item):
+                item = future_to_item[future]
+                try:
+                    _record_result(future.result(), item)
+                except Exception as exc:
+                    failed_items.append(item)
+                    if logger:
+                        logger.error("Error processing %s: %s", item, exc)
+                if progress_bar is not None:
+                    progress_bar.update(1)
+
+    if progress_bar is not None:
+        progress_bar.close()
+
+    if logger and failed_items:
+        logger.warning("Failed to process %s item(s)", len(failed_items))
+
+    return successful_results, failed_items
 
 
 def _run_inprocess_sequential(
@@ -124,6 +230,7 @@ def parallel_map(
     logger: Optional[logging.Logger] = None,
     show_progress: bool = True,
     log_file_path: Optional[Path] = None,
+    log_queue: Any = None,
     log_level: int = logging.INFO,
     per_item_timeout_sec: Optional[float] = None,
     graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
@@ -153,7 +260,8 @@ def parallel_map(
         desc: Progress bar description.
         logger: Optional logger.
         show_progress: Whether to show a progress bar.
-        log_file_path: Log file path restored in each child.
+        log_file_path: Log file path restored in each child when queue mode is off.
+        log_queue: Multiprocessing queue for ordered logging in the parent.
         log_level: Logging level for children.
         per_item_timeout_sec: Wall-clock limit per item from child ``start()``; ``None``
             disables timeout.
@@ -202,9 +310,12 @@ def parallel_map(
             on_item_done=on_item_done,
         )
 
-    if log_file_path is None:
+    if log_file_path is None or log_queue is None:
         manager = LoggerManager()
-        log_file_path = manager.get_log_file()
+        if log_file_path is None:
+            log_file_path = manager.get_log_file()
+        if log_queue is None:
+            log_queue = manager.get_log_queue()
 
     spawn_timeout = (
         spawn_startup_timeout_sec
@@ -220,6 +331,7 @@ def parallel_map(
                 max_workers=max(1, n_processes),
                 func=func,
                 log_file_path=log_file_path,
+                log_queue=log_queue,
                 log_level=log_level,
                 per_item_timeout_sec=timeout_sec,
                 graceful_shutdown_sec=graceful_shutdown_sec,
@@ -257,6 +369,7 @@ def parallel_map(
         logger=logger,
         show_progress=show_progress,
         log_file_path=log_file_path,
+        log_queue=log_queue,
         log_level=log_level,
         on_item_done=on_item_done,
     )
@@ -332,6 +445,7 @@ class ParallelProcessor:
 
         manager = LoggerManager()
         self._log_file_path = manager.get_log_file()
+        self._log_queue = manager.get_log_queue()
         self._log_level = logging.INFO
         if manager._root_logger:
             self._log_level = manager._root_logger.getEffectiveLevel()
@@ -361,6 +475,7 @@ class ParallelProcessor:
             logger=self.logger,
             show_progress=show_progress,
             log_file_path=self._log_file_path,
+            log_queue=self._log_queue,
             log_level=self._log_level,
             per_item_timeout_sec=per_item_timeout_sec,
             graceful_shutdown_sec=self.graceful_shutdown_sec,

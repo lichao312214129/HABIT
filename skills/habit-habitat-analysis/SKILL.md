@@ -39,6 +39,7 @@ Before generating a config, confirm:
 | `processes` / `cap_processes_to_gpu_pool` | Stage-1 parallelism; default `processes: 2`, `cap_processes_to_gpu_pool: true` |
 | (supervoxel_radiomics only) PyRadiomics params YAML | `params_supervoxel_radiomics.yaml` |
 | (supervoxel_radiomics only) `supervoxelBatch` | optional; default 64 |
+| (supervoxel_radiomics only) `useSupervoxelCext` | optional; default auto (C extension when built, else prior path) |
 | (supervoxel_radiomics only) torch keys | inherit from `voxel_level.params` if omitted |
 | Expected habitat count | typical 3-5 |
 
@@ -90,8 +91,8 @@ share GPUs via modulo mapping). See `references/voxel_feature_methods.md`.
 
 For `supervoxel_radiomics` (two_step Step 2 input): use
 `config/radiomics/params_supervoxel_radiomics.yaml`; union-mask binning + per-label
-ROI extraction. Set `supervoxelBatch` / torch keys under `supervoxel_level.params`
-(inherit torch keys from `voxel_level.params` when omitted).
+ROI extraction. Set `supervoxelBatch`, `useSupervoxelCext` (default auto), and torch keys
+under `supervoxel_level.params` (inherit torch keys from `voxel_level.params` when omitted).
 See `references/voxel_feature_methods.md` (Supervoxel-level section).
 
 ## Population-level preprocessing (two_step only)

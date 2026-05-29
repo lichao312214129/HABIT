@@ -7,7 +7,11 @@ import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 from typing import Union, List, Dict, Optional, Tuple, Any
-from habit.utils.log_utils import get_module_logger, radiomics_feature_class_logging
+from habit.utils.log_utils import (
+    get_module_logger,
+    radiomics_feature_class_logging,
+    resolve_radiomics_logging_level,
+)
 from habit.utils.radiomics_params_utils import (
     create_radiomics_feature_extractor,
     configure_voxel_glcm_on_extractor,
@@ -267,8 +271,11 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             )
 
             # Extract voxel-based features; inject TorchRadiomics only when resolved.
+            radiomics_log_level = resolve_radiomics_logging_level(
+                bool(kwargs.get("debug", False))
+            )
             with injected_torch_radiomics(enabled=(backend == "torch")):
-                with radiomics_feature_class_logging():
+                with radiomics_feature_class_logging(level=radiomics_log_level):
                     result = extractor.execute(image, mask, voxelBased=True)
 
             # Release extractor before materialising many per-feature arrays; peak RAM

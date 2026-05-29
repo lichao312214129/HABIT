@@ -156,6 +156,7 @@ supervoxel_level:
   params:
     params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
     supervoxelBatch: 64          # habit default; batch group size for label loops
+    useSupervoxelCext: auto        # auto = C extension when built, else prior Torch/PyRadiomics path
     useTorchRadiomics: auto      # inherits from voxel_level.params if omitted
     # torchGpus: [0, 1]
     # torchGpuCount: 2
@@ -169,7 +170,10 @@ binning, but each unit is a supervoxel ROI. Values differ from legacy per-label
 
 **Not used:** `kernelRadius` (voxel_radiomics only).
 
-**Backend:** `useTorchRadiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
+**Matrix backend:** `useSupervoxelCext: auto` (default) uses habit native C-extension batched
+matrices when compiled; otherwise the prior Torch/PyRadiomics stacked-matrix path.
+
+**Feature backend:** `useTorchRadiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
 PyRadiomics with the same union-mask bin path.
 
 Compare with `mean_voxel_features()` when you already have `voxel_level` features and

@@ -137,6 +137,8 @@ class HabitatMapAnalyzer:
         """Ensure logging is properly configured in child processes."""
         from habit.utils.log_utils import restore_logging_in_subprocess
         
+        if logging.getLogger('habit').handlers:
+            return
         if hasattr(self, '_log_file_path') and self._log_file_path:
             restore_logging_in_subprocess(self._log_file_path, self._log_level)
 

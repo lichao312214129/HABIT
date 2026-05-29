@@ -38,6 +38,7 @@ FeatureConstruction:
       # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
       supervoxelUnionBboxCrop: true
+      useSupervoxelCext: auto  # auto | true | false; auto = habit C extension when built; false = force Torch/PyRadiomics path
       # supervoxel_radiomics: see config_getting_habitat.yaml for supervoxelBatch / useTorchRadiomics notes
 
   preprocessing_for_subject_level:

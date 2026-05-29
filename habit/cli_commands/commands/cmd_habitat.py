@@ -27,7 +27,7 @@ def run_habitat(
     import click
     from pathlib import Path
 
-    from habit.utils.log_utils import setup_logger
+    from habit.utils.log_utils import setup_logger, stop_queue_listener
     from habit.core.habitat_analysis.configurator import HabitatConfigurator
     from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
     
@@ -106,9 +106,11 @@ def run_habitat(
             habitat_analysis.fit(save_results_csv=config.save_results_csv)
 
         logger.info("Habitat analysis completed successfully")
-        click.secho("✓ Habitat analysis completed successfully!", fg='green')
+        click.secho("Habitat analysis completed successfully!", fg='green')
     except Exception as e:
         logger.error("Error during habitat analysis: %s", str(e), exc_info=True)
         click.echo(f"An error occurred. See log file for details: {e}", err=True)
         sys.exit(1)
+    finally:
+        stop_queue_listener()
 

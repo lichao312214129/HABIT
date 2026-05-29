@@ -1,0 +1,3 @@
+# Include C sources for supervoxel texture matrix extension in sdists.
+recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.c
+recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.h

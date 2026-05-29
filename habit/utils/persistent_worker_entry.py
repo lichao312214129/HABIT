@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 from habit.utils.isolated_runner import ProcessingResult, is_fatal_memory_error
-from habit.utils.log_utils import restore_logging_in_subprocess
+from habit.utils.log_utils import restore_logging_in_subprocess, shutdown_subprocess_logging
 from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
 from habit.utils.persistent_worker_protocol import (
     WorkerExitReply,
@@ -72,6 +72,7 @@ def _maybe_empty_cuda_cache(logger: Optional[logging.Logger]) -> None:
 def persistent_worker_main(
     worker_slot: int,
     log_file_path: Optional[str],
+    log_queue: Any,
     log_level: int,
     task_queue: Any,
     result_queue: Any,
@@ -84,7 +85,8 @@ def persistent_worker_main(
 
     Args:
         worker_slot: Zero-based slot index (maps to ``HABIT_GPU_SLOT_INDEX``).
-        log_file_path: Optional log file restored in this child.
+        log_file_path: Optional legacy log file path when queue logging is unavailable.
+        log_queue: Optional multiprocessing queue for ordered logging in the parent.
         log_level: Logging level for this child.
         task_queue: Dedicated task queue for this worker.
         result_queue: Shared parent result queue.
@@ -92,7 +94,9 @@ def persistent_worker_main(
         recycle_after_tasks: Exit cleanly after this many successful tasks (0=never).
     """
     logger = logging.getLogger(__name__)
-    if log_file_path is not None:
+    if log_queue is not None:
+        restore_logging_in_subprocess(log_queue=log_queue, log_level=log_level)
+    elif log_file_path is not None:
         restore_logging_in_subprocess(Path(log_file_path), log_level)
 
     previous_slot = os.environ.get(HABIT_GPU_SLOT_INDEX_ENV)
@@ -134,4 +138,5 @@ def persistent_worker_main(
             os.environ.pop(HABIT_GPU_SLOT_INDEX_ENV, None)
         else:
             os.environ[HABIT_GPU_SLOT_INDEX_ENV] = previous_slot
+        shutdown_subprocess_logging()
         result_queue.put(WorkerExitReply(worker_slot=worker_slot))

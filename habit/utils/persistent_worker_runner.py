@@ -77,6 +77,7 @@ class PersistentWorkerPoolSession:
         func: Callable[[Any], Any],
         *,
         log_file_path: Optional[Path] = None,
+        log_queue: Any = None,
         log_level: int = logging.INFO,
         per_item_timeout_sec: Optional[float] = None,
         graceful_shutdown_sec: float = DEFAULT_GRACEFUL_SHUTDOWN_SEC,
@@ -97,6 +98,7 @@ class PersistentWorkerPoolSession:
         self.max_workers = max_workers
         self.func = func
         self.log_file_path = log_file_path
+        self.log_queue = log_queue
         self.log_level = log_level
         self.per_item_timeout_sec = per_item_timeout_sec
         self.graceful_shutdown_sec = graceful_shutdown_sec
@@ -125,7 +127,6 @@ class PersistentWorkerPoolSession:
         if self._started:
             return
 
-        log_path_str = str(self.log_file_path) if self.log_file_path else None
         for slot_index in range(self.max_workers):
             task_queue = self._ctx.Queue()
             self._slots.append(
@@ -319,6 +320,7 @@ class PersistentWorkerPoolSession:
             args=(
                 slot.worker_slot,
                 log_path_str,
+                self.log_queue,
                 self.log_level,
                 slot.task_queue,
                 self._result_queue,

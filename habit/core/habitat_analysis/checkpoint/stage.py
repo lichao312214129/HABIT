@@ -293,6 +293,7 @@ class IndividualCheckpointStage:
 
         manager = LoggerManager()
         log_file_path = manager.get_log_file()
+        log_queue = manager.get_log_queue()
         log_level = logging.INFO
         if manager._root_logger:
             log_level = manager._root_logger.getEffectiveLevel()
@@ -301,6 +302,7 @@ class IndividualCheckpointStage:
             max_workers=n_workers,
             func=self.pipeline._process_single_subject,
             log_file_path=log_file_path,
+            log_queue=log_queue,
             log_level=log_level,
             per_item_timeout_sec=timeout_sec,
             graceful_shutdown_sec=parallel_kwargs["graceful_shutdown_sec"],

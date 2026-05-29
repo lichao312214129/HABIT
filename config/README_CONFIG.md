@@ -70,11 +70,16 @@ Default `torchDtype` is `float32`.
 For `supervoxel_radiomics` in habitat, use `params_supervoxel_radiomics.yaml` for feature classes
 (firstorder, glcm, …). Habit-specific keys belong in
 `FeatureConstruction.supervoxel_level.params` (not in the PyRadiomics parameter YAML):
-`supervoxelBatch` (default `64`), `useTorchRadiomics`, `torchGpus`, `torchGpuCount`,
-`torchDevice`, and `torchDtype`. When omitted under `supervoxel_level`, torch keys inherit from
-`voxel_level.params`. Extraction uses **union-mask binning** (one PyRadiomics discretization on
-all supervoxel labels), then per-label ROI matrices via `cMatrices`. `kernelRadius` applies to
-`voxel_radiomics` only, not `supervoxel_radiomics`.
+`supervoxelBatch` (default `64`), `useSupervoxelCext` (default `auto`), `useTorchRadiomics`,
+`torchGpus`, `torchGpuCount`, `torchDevice`, and `torchDtype`. When omitted under
+`supervoxel_level`, torch keys inherit from `voxel_level.params`. Extraction uses
+**union-mask binning** (one PyRadiomics discretization on all supervoxel labels), then
+per-label ROI matrices. With `useSupervoxelCext: auto`, habit tries the native C-extension
+batched matrix path when `_sv_cmatrices` is built; otherwise it falls back to the prior
+Torch/PyRadiomics stacked-matrix path. With `useSupervoxelCext: false`, habit always uses
+the Torch/PyRadiomics stacked-matrix path even when the C extension is built. Set this key
+under `FeatureConstruction.supervoxel_level.params` (not in the PyRadiomics `params_file`).
+`kernelRadius` applies to `voxel_radiomics` only, not `supervoxel_radiomics`.
 
 ### Habitat YAML comment markers
 

@@ -20,7 +20,7 @@ from pathlib import Path
 from queue import Empty
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
-from habit.utils.log_utils import restore_logging_in_subprocess
+from habit.utils.log_utils import restore_logging_in_subprocess, shutdown_subprocess_logging
 from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
 from habit.utils.progress_utils import CustomTqdm
 
@@ -106,15 +106,20 @@ def _worker_wrapper(args: Tuple[Any, ...]) -> ProcessingResult:
     Run user ``func`` in a child process with logging restored.
 
     Args:
-        args: ``(func, item, log_file_path, log_level, gpu_slot_index)``.
+        args: ``(func, item, log_queue, log_level, gpu_slot_index)`` or
+        ``(func, item, log_queue, log_file_path, log_level, gpu_slot_index)``.
 
     Returns:
         ``ProcessingResult`` for the item (success or caught exception).
     """
-    func, item, log_file_path, log_level, gpu_slot_index = _unpack_worker_args(args)
+    func, item, log_queue, log_file_path, log_level, gpu_slot_index = _unpack_worker_args(args)
 
-    if log_file_path is not None:
-        restore_logging_in_subprocess(log_file_path, log_level)
+    if log_queue is not None or log_file_path is not None:
+        restore_logging_in_subprocess(
+            log_file_path=log_file_path,
+            log_level=log_level,
+            log_queue=log_queue,
+        )
 
     previous_slot = os.environ.get(HABIT_GPU_SLOT_INDEX_ENV)
     os.environ[HABIT_GPU_SLOT_INDEX_ENV] = str(gpu_slot_index)
@@ -145,28 +150,30 @@ def _worker_wrapper(args: Tuple[Any, ...]) -> ProcessingResult:
             os.environ.pop(HABIT_GPU_SLOT_INDEX_ENV, None)
         else:
             os.environ[HABIT_GPU_SLOT_INDEX_ENV] = previous_slot
+        shutdown_subprocess_logging()
 
 
 def _unpack_worker_args(
     args: Tuple[Any, ...],
-) -> Tuple[Callable[..., Any], Any, Optional[Path], int, int]:
+) -> Tuple[Callable[..., Any], Any, Any, Optional[Path], int, int]:
     """
     Normalize worker argument tuples for isolated child processes.
 
     Args:
-        args: ``(func, item, log_file_path, log_level[, gpu_slot_index])``.
+        args: ``(func, item, log_queue, log_level[, gpu_slot_index])`` or
+        ``(func, item, log_queue, log_file_path, log_level[, gpu_slot_index])``.
 
     Returns:
-        Tuple of func, item, log path, log level, and zero-based GPU slot index.
+        Tuple of func, item, log queue, optional log path, log level, GPU slot index.
     """
-    if len(args) == 4:
-        func, item, log_file_path, log_level = args
-        return func, item, log_file_path, log_level, 0
     if len(args) == 5:
-        func, item, log_file_path, log_level, gpu_slot_index = args
-        return func, item, log_file_path, log_level, int(gpu_slot_index)
+        func, item, log_queue, log_level, gpu_slot_index = args
+        return func, item, log_queue, None, log_level, int(gpu_slot_index)
+    if len(args) == 6:
+        func, item, log_queue, log_file_path, log_level, gpu_slot_index = args
+        return func, item, log_queue, log_file_path, log_level, int(gpu_slot_index)
     raise ValueError(
-        f"worker args must be length 4 or 5; got {len(args)} element(s)"
+        f"worker args must be length 5 or 6; got {len(args)} element(s)"
     )
 
 
@@ -298,8 +305,9 @@ class IsolatedTaskRunner:
         desc: str,
         logger: Optional[logging.Logger],
         show_progress: bool,
-        log_file_path: Optional[Path],
-        log_level: int,
+        log_file_path: Optional[Path] = None,
+        log_queue: Any = None,
+        log_level: int = logging.INFO,
         on_item_done: Optional[Callable[[ProcessingResult], None]] = None,
     ) -> Tuple[List[ProcessingResult], List[Any]]:
         """
@@ -311,7 +319,8 @@ class IsolatedTaskRunner:
             desc: Progress bar description.
             logger: Optional logger for failures and timeouts.
             show_progress: Whether to show ``CustomTqdm``.
-            log_file_path: Log file restored in each child.
+            log_file_path: Legacy log file restored in each child when queue is unavailable.
+            log_queue: Multiprocessing queue for ordered logging in the parent.
             log_level: Logging level for children.
 
         Returns:
@@ -381,6 +390,7 @@ class IsolatedTaskRunner:
                     self._begin_slot_async(
                         func=func,
                         item=pending_items.pop(0),
+                        log_queue=log_queue,
                         log_file_path=log_file_path,
                         log_level=log_level,
                         gpu_slot_index=gpu_slot_index,
@@ -580,6 +590,7 @@ class IsolatedTaskRunner:
         self,
         func: Callable[[T], R],
         item: T,
+        log_queue: Any,
         log_file_path: Optional[Path],
         log_level: int,
         gpu_slot_index: int,
@@ -590,14 +601,22 @@ class IsolatedTaskRunner:
         Args:
             func: User callable for the work item.
             item: Work item passed to ``func``.
-            log_file_path: Optional log file restored in the child.
+            log_queue: Optional multiprocessing queue for ordered logging.
+            log_file_path: Optional legacy log file restored in the child.
             log_level: Logging level for the child.
             gpu_slot_index: Zero-based worker slot mapped to ``gpuSlotIndex`` in children.
 
         Returns:
             Slot handle tracked by :meth:`map_items`.
         """
-        worker_args = (func, item, log_file_path, log_level, gpu_slot_index)
+        worker_args = (
+            func,
+            item,
+            log_queue,
+            log_file_path,
+            log_level,
+            gpu_slot_index,
+        )
         item_id = _item_id_from_worker_args(worker_args)
         slot = _ActiveSlot(
             item_id=item_id,
