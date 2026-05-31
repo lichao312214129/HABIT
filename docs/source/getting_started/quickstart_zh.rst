@@ -37,7 +37,7 @@
    ├── config/
    ├── demo_data/          <-- 演示数据解压到此（与 config 同级）
    │   ├── dicom/
-   │   ├── preprocessed/   <-- 已含预处理结果，可跳过步骤 1
+   │   ├── preprocessed/processed_images/   <-- Demo 影像与 mask（步骤 2–4 的输入；可跳过步骤 1）
    │   └── ...
    └── habit/
 
@@ -58,7 +58,7 @@ demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。
 
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
-将 ``subj001_habitats.nrrd`` 拖入 ITK-SNAP 叠加在原图上查看。
+将 ``demo_data/results/habitat_two_step/subj001_habitats.nrrd`` 拖入 ITK-SNAP，叠加在 ``demo_data/preprocessed/processed_images/images/subj001/delay2/`` 下的参考序列上查看。步骤 2–4 的输入影像均来自 ``demo_data/preprocessed/processed_images/``。
 
 **步骤 3 — 特征提取**（约 3–8 分钟）→ ``demo_data/results/features/``
 

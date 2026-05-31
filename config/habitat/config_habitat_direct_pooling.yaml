@@ -8,13 +8,13 @@ run_mode: train
 pipeline_path:
 
 #%%================================================================================
-data_dir: file_habitat.yaml
+data_dir: file_habitat_demo.yaml
 out_dir: ../../demo_data/results/habitat_direct_pooling
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(T1), raw(T2))
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
 
   preprocessing_for_subject_level:

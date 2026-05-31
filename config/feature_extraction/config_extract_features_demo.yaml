@@ -7,9 +7,9 @@
 # =============================================================================
 
 #%%================================================================================
-raw_img_folder: ../../.cursor/test/resample_02
+raw_img_folder: ../../demo_data/preprocessed/processed_images
 habitats_map_folder: ../../demo_data/results/habitat_two_step
-out_dir: ../../demo_data/results/features_demo
+out_dir: ../../demo_data/results/features
 #%%================================================================================
 
 params_file_of_non_habitat: ../radiomics/parameter.yaml

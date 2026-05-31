@@ -24,6 +24,7 @@
 
 - 生境地图：``*_habitats.nrrd``（及 two-step 时的 ``*_supervoxel.nrrd``）
 - 在 **ITK-SNAP** 或 **3D Slicer** 中打开原始 MRI，将上述文件作为 Segmentation/Overlay 叠加；不同颜色代表不同生境，需结合各序列信号自行解读（如强化区、坏死区等）
+- 输入影像：``demo_data/preprocessed/processed_images/``（``subj001`` / ``subj002``，序列 ``delay2`` / ``delay3`` / ``delay5``）
 - Demo 结果目录：``demo_data/results/habitat_two_step/``
 
 配置

@@ -93,7 +93,9 @@ CLI 命令与配置 Schema 对照
      - 示例配置文件
    * - ``habit preprocess``
      - ``PreprocessingConfig``
-     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo 默认，``backend: simpleitk``）；可选 ``config_preprocessing_demo_elastix.yaml``（需安装 elastix/transformix）
+     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo 默认；数据 ``demo_data/preprocessed/processed_images``，``backend: simpleitk``）；可选 ``config_preprocessing_demo_elastix.yaml``
+     - ``config/habitat/config_habitat_two_step.yaml``（Demo 生境；输入同上 ``processed_images``）
+     - ``config/habitat/file_habitat_demo.yaml``（Demo 被试清单 manifest）
    * - ``habit sort-dicom``
      - ``DicomSortConfig``
      - ``config/dicom_sort/config_sort_dicom.yaml``
@@ -1448,7 +1450,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
    params_file_of_non_habitat: ./parameter.yaml
    params_file_of_habitat: ./parameter_habitat.yaml
 
-   raw_img_folder: ./preprocessed/processed_images
+   raw_img_folder: ./demo_data/preprocessed/processed_images
    habitats_map_folder: ./results/habitat
    out_dir: ./results/features
 

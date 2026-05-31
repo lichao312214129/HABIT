@@ -1,43 +1,30 @@
-﻿# =============================================================================
-# Habitat — 二步法生境 — 体素纹理（影像组学）特征 — 训练
 # =============================================================================
-# CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_voxel_radiomics_train.yaml
-#       python tests/habitat/habitat_two_step_voxel_radiomics_train.py
+# Habitat — DEMO: two-step clustering on demo_data/preprocessed/processed_images
+# =============================================================================
+# CLI:  habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 #
-# Purpose:
-#   Two-step clustering (supervoxel then population habitat)
-#   Feature: voxel texture — voxel_radiomics(T2, params_file, kernelRadius)
-#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
-#
-# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
+# Input: ../../demo_data/preprocessed/processed_images (subj001/subj002; delay2/3/5)
+# Output: ../../demo_data/results/habitat_two_step
 # =============================================================================
 
-#%%================================================================================
 run_mode: train
+
+#%%================================================================================
 data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_two_step_voxel_radiomics
+out_dir: ../../demo_data/results/habitat_two_step
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 1
-      voxelBatch: 1000
-      useTorchRadiomics: auto
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    params: {}
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
-    params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
-
+    params: {}
 
   preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
       - method: winsorize
         winsor_limits: [0.05, 0.05]
@@ -46,14 +33,11 @@ FeatureConstruction:
         global_normalize: false
 
   preprocessing_for_group_level:
-    # Stage 2 only — NOT in config_hash. Prefer for radiomics-heavy features.
     methods:
-      - method: variance_filter
-        variance_threshold: 0.01
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
         global_normalize: false
-      - method: zscore
-        global_normalize: false
-
 
 HabitatSegmentation:
   clustering_mode: two_step
@@ -70,7 +54,6 @@ HabitatSegmentation:
       selection_method: elbow
       plot_validation_curves: true
 
-
   habitat:
     algorithm: kmeans
     max_clusters: 10
@@ -79,7 +62,6 @@ HabitatSegmentation:
     fixed_n_clusters:
     max_iter: 300
     n_init: 10
-
 
 processes: 2
 cap_processes_to_gpu_pool: false
@@ -101,4 +83,3 @@ plot_curves: true
 save_results_csv: true
 random_state: 42
 debug: false
-

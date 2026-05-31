@@ -177,7 +177,7 @@ DICOM 整理命令
 .. code-block:: yaml
 
    run_mode: train
-   data_dir: ./file_habitat.yaml
+   data_dir: ./demo_data/preprocessed/processed_images
    out_dir: ./results/habitat/train
 
    FeatureConstruction:

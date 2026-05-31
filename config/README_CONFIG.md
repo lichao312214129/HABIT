@@ -41,18 +41,20 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | resample_02 demo resample (T1/T2); dcm2nii commented for production. |
 | `dicom_sort/config_sort_dicom.yaml` | sort-dicom | Production DICOM only (not resample_02). |
-| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: SimpleITK rigid registration on `.cursor/test/resample_02` (T1/T2). |
-| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo (optional)**: elastix CLI registration; requires elastix/transformix on PATH. |
-| `preprocessing/files_preprocessing.yaml` | preprocess | **Demo manifest**: resample_02 NIfTI paths (T1, T2). |
-| `preprocessing/image_files.yaml` | preprocess | Same resample_02 manifest as `files_preprocessing.yaml` (legacy name). |
+| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: SimpleITK on `demo_data/preprocessed/processed_images` (delay2/3/5). |
+| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo (optional)**: elastix on same `processed_images` tree. |
+| `preprocessing/files_preprocessing_demo.yaml` | preprocess | **Demo manifest**: `processed_images` (subj001/subj002). |
+| `preprocessing/files_preprocessing.yaml` | preprocess | Legacy dev manifest (`.cursor/test/resample_02`, T1/T2). |
+| `preprocessing/image_files.yaml` | preprocess | Same as `files_preprocessing.yaml` (legacy name). |
 | `habitat/config_getting_habitat.yaml` | habitat | **Primary** habitat template (any `clustering_mode`). |
-| `habitat/config_habitat_two_step.yaml` | habitat | **Demo train**: two-step on resample_02 inputs. |
+| `habitat/file_habitat_demo.yaml` | habitat | **Demo manifest**: `processed_images` (subj001/subj002, delay2/3/5). |
+| `habitat/config_habitat_two_step.yaml` | habitat | **Demo train**: two-step on `processed_images`. |
 | `habitat/config_habitat_one_step_*_{train,predict}.yaml` | habitat | One-step demo configs per feature recipe (`raw_concat`, `voxel_radiomics`, …). |
 | `habitat/config_habitat_direct_pooling.yaml` | habitat | Direct-pooling train; often uses `file_habitat.yaml` as `data_dir`. |
 | `habitat/config_habitat_*_predict.yaml` | habitat | Predict-only (saved pipeline + manifest paths). |
 | `habitat/file_habitat.yaml` | habitat | **Demo manifest** of processed images + masks for `get-habitat`. |
 | `feature_extraction/config_extract_features.yaml` | extract | Full extraction template (your paths). |
-| `feature_extraction/config_extract_features_demo.yaml` | extract | **Demo** all standard `feature_types` (resample_02). |
+| `feature_extraction/config_extract_features_demo.yaml` | extract | **Demo** all standard `feature_types` (`processed_images` + habitat_two_step). |
 | `machine_learning/config_machine_learning.yaml` | ML | Holdout train (generic). |
 | `machine_learning/config_machine_learning_kfold.yaml` | ML | K-fold CV template. |
 | `machine_learning/config_machine_learning_predict.yaml` | ML | **Only** predict config (load `.pkl` / joblib). |

@@ -15,7 +15,7 @@
 前置
 ----
 
-配置中 ``habitats_map_folder`` 须指向生境分割的实际输出目录（two-step demo 一般为 ``./results/habitat_two_step``）。
+``raw_img_folder`` 为 ``demo_data/preprocessed/processed_images``；``habitats_map_folder`` 指向步骤 2 输出（``demo_data/results/habitat_two_step``）。
 
 输出
 ----

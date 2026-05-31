@@ -25,5 +25,6 @@
 --------
 
 - 每次运行前：``conda activate habit``，``cd`` 到项目目录（ZIP 解压默认为 ``HABIT-main``）。
+- Demo 影像根目录：``demo_data/preprocessed/processed_images/``（被试 ``subj001`` / ``subj002``，序列 ``delay2`` / ``delay3`` / ``delay5``）。
 - 修改 ``config/`` 下 YAML 中的路径与参数；勿在本文重复罗列参数。
 - ROI 请用 **ITK-SNAP** 或 **3D Slicer** 勾画，保存为 NIfTI；数据目录结构见 :doc:`../data_structure_zh`。

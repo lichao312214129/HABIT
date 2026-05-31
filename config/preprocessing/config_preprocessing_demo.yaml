@@ -1,37 +1,25 @@
 # =============================================================================
-# Image preprocessing — DEMO (default): multiphase registration with SimpleITK
+# Image preprocessing — DEMO (default): SimpleITK registration on demo bundle
 # =============================================================================
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 #
-# Purpose:
-#   Register T2 to T1 using backend: simpleitk (no elastix/transformix install).
-#   For elastix CLI registration, use config_preprocessing_demo_elastix.yaml instead.
-#
-# Data layout:
-#   data_dir points at resample_02 NIfTI tree (images/ + masks/, modalities T1/T2).
+# Input / output: demo_data/preprocessed/processed_images (delay2, delay3, delay5).
+# Demo 包通常已含预处理结果，首次跑通可跳过本步；需重跑配准时使用。
 # =============================================================================
 
-# Data paths (relative to this file)
-data_dir: ../../.cursor/test/resample_02
+data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/preprocessed
 
-# NIfTI inputs may be single files per modality; true = pick first file when path is a directory
 auto_select_first_file: true
 
-# Preprocessing settings — YAML key order = execution order (see docs/configuration_zh.rst)
 Preprocessing:
   registration:
-    images: [T1, T2]
-    fixed_image: T1  # Movers = all images except fixed_image
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
     use_mask: true
     backend: simpleitk
     type_of_transform: Rigid
     metric: MI
-
-  # zscore_normalization:
-  #   images: [T1, T2]
-  #   only_inmask: false
-  #   mask_key: mask
 
 save_options:
   save_intermediate: true

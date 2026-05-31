@@ -6,10 +6,10 @@
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 #
 # Purpose:
-#   Walkthrough on .cursor/test/resample_02: register T2 to T1 (elastix + transformix).
+#   Optional elastix registration on demo_data/preprocessed/processed_images (delay2/3/5).
 #
 # Data layout:
-#   data_dir points at resample_02 NIfTI tree (images/ + masks/, modalities T1/T2).
+#   Same as config_preprocessing_demo.yaml; requires elastix + transformix on PATH.
 #
 # NOT overlapping with:
 #   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
@@ -20,8 +20,8 @@
 # =============================================================================
 
 # Data paths (relative to this file)
-data_dir: ../../.cursor/test/resample_02
-out_dir: ../../demo_data/preprocessed1
+data_dir: ../../demo_data/preprocessed/processed_images
+out_dir: ../../demo_data/preprocessed
 
 # NIfTI inputs may be single files per modality; true = pick first file when path is a directory
 auto_select_first_file: true
@@ -45,8 +45,8 @@ Preprocessing:
   #   target_spacing: [2.0, 2.0, 2.0]
 
   registration:
-    images: [T1, T2]
-    fixed_image: T1  # Movers = all images except fixed_image
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
     use_mask: true
     backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
     # type_of_transform / metric / optimizer are ignored when backend: elastix

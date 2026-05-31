@@ -1,0 +1,28 @@
+# =============================================================================
+# Preprocessing manifest — DEMO: demo_data/preprocessed/processed_images
+# =============================================================================
+# Referenced when preprocessing YAML sets data_dir to this file.
+# Modality keys (delay2, delay3, delay5) must match Preprocessing steps.
+# =============================================================================
+
+auto_select_first_file: true
+
+images:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
+
+masks:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5

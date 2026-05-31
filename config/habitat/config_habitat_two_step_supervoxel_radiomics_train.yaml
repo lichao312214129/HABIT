@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Habitat — 二步法生境 — 超体素纹理（影像组学）特征 — 训练
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_supervoxel_radiomics_train.yaml
@@ -6,26 +6,26 @@
 #
 # Purpose:
 #   Two-step clustering (supervoxel then population habitat)
-#   Feature: supervoxel texture — supervoxel_radiomics(T2, params_file)
-#   Demo data: .cursor/test/resample_02 (T1, T2; images/ + masks/ under data_dir root)
+#   Feature: supervoxel texture — supervoxel_radiomics(delay2, params_file)
+#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
 #
 # Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
 # =============================================================================
 
 #%%================================================================================
 run_mode: train
-data_dir: ../../.cursor/test/resample_02
+data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_two_step_supervoxel_radiomics
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(T1), raw(T2))
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: concat(supervoxel_radiomics(T2, params_file))
+    method: concat(supervoxel_radiomics(delay2, params_file))
     params:
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
       supervoxelUnionBboxCrop: true

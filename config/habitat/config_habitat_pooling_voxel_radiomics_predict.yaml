@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Habitat — 直接池化生境 — 体素纹理（影像组学）特征 — 预测
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_pooling_voxel_radiomics_predict.yaml
@@ -7,7 +7,7 @@
 # Purpose:
 #   Direct pooling (pool all voxels, cluster once)
 #   Feature: voxel texture — voxel_radiomics(T2, params_file, kernelRadius)
-#   Demo data: .cursor/test/resample_02 (T1, T2; images/ + masks/ under data_dir root)
+#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
 #
 # Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
 # =============================================================================
@@ -15,7 +15,7 @@
 #%%================================================================================
 run_mode: predict
 pipeline_path: ../../demo_data/results/habitat_pooling_voxel_radiomics/habitat_pipeline.pkl
-data_dir: ../../.cursor/test/resample_02
+data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_pooling_voxel_radiomics/predict
 #%%================================================================================
 

@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Habitat — 一步法生境 — 原始强度拼接特征 — 预测
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_predict.yaml
@@ -6,8 +6,8 @@
 #
 # Purpose:
 #   One-step clustering (voxel to habitat per subject)
-#   Feature: raw intensity concat — concat(raw(T1), raw(T2))
-#   Demo data: .cursor/test/resample_02 (T1, T2; images/ + masks/ under data_dir root)
+#   Feature: raw intensity concat — concat(raw(delay2), raw(delay3), raw(delay5))
+#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
 #
 # Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
 # =============================================================================
@@ -15,13 +15,13 @@
 #%%================================================================================
 run_mode: predict
 pipeline_path: ../../demo_data/results/habitat_one_step_raw_concat/habitat_pipeline.pkl
-data_dir: ../../.cursor/test/resample_02
+data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_one_step_raw_concat/predict
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(T1), raw(T2))
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
 
   preprocessing_for_subject_level:

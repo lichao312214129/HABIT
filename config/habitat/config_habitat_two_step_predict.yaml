@@ -5,7 +5,7 @@
 #%%================================================================================
 run_mode: predict
 pipeline_path: ../../demo_data/results/habitat_two_step/habitat_pipeline.pkl
-data_dir: file_habitat.yaml
+data_dir: file_habitat_demo.yaml
 out_dir: ../../demo_data/results/habitat_two_step/predict
 #%%================================================================================
 
