@@ -40,7 +40,7 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 |------|--------|----------|
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | resample_02 demo resample (T1/T2); dcm2nii commented for production. |
-| `dicom_sort/config_sort_dicom.yaml` | sort-dicom | Production DICOM only (not resample_02). |
+| `dicom_sort/config_sort_dicom.yaml` | sort-dicom | DICOM sort; `data_dir` = DICOM root (e.g. `demo_data/dicom`). |
 | `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: resample + SimpleITK registration + z-score; input `demo_data/preprocessed/processed_images`, output `demo_data/results/preprocessed/`. |
 | `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | Optional: elastix registration; requires elastix/transformix. |
 | `preprocessing/files_preprocessing_demo.yaml` | preprocess | **Demo manifest**: `processed_images` (subj001/subj002). |

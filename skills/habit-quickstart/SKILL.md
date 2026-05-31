@@ -30,7 +30,7 @@ This verifies:
 
 If exit code is 1 (failure), tell the user to install HABIT:
 ```bash
-conda create -n habit python=3.8 -y
+conda create -n habit python=3.8
 conda activate habit
 pip install -r requirements.txt
 pip install -e .

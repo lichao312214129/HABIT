@@ -7,12 +7,14 @@
 --------
 
 1. 已完成 :doc:`installation_zh` 中的环境配置与 HABIT 安装
-2. 每次运行前激活环境，并 ``cd`` 进入项目目录。下载 ZIP 解压后**默认目录名为 ``HABIT-main``**（不是 ``HABIT``）；仅 Git 克隆时目录名为 ``HABIT``。
+2. 每次运行前激活环境，并 ``cd`` 进入项目目录。ZIP 解压后目录名为 ``HABIT-main``（Git 克隆为 ``HABIT``）。若解压软件造成 ``HABIT-main/HABIT-main`` 嵌套，须 ``cd`` 到**最内层**且含 ``config/``、``habit/`` 的那一级（详见 :doc:`installation_zh` 中 ZIP 说明）。
 
    .. code-block:: bash
 
       conda activate habit
       cd D:\HABIT-main
+      # Windows CMD 若 cd 无效: 先输入 D: 回车，再 cd \HABIT-main（见 installation_zh）
+      # 若嵌套: cd D:\HABIT-main\HABIT-main
       # macOS（解压到「下载」）: cd ~/Downloads/HABIT-main
 
 下载演示数据

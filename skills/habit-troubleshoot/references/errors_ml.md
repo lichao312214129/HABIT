@@ -64,7 +64,7 @@ removed everything informative.
 
 **Fix**:
 - Either remove `AutoGluonTabular:` from `models:`
-- Or create a new env: `conda create -n habit310 python=3.10 -y && conda activate habit310 && pip install -e . autogluon`
+- Or create a new env: `conda create -n habit310 python=3.10 && conda activate habit310 && pip install -e . autogluon`
 
 ## Symptom: train AUC = 1.0 but test AUC = 0.5
 

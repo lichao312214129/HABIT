@@ -18,7 +18,7 @@
 1. Fork 项目仓库
 2. 使用 py310 环境（与 :doc:`../getting_started/installation_zh` 一致）::
 
-      conda create -n habit python=3.10 -y
+      conda create -n habit python=3.10
       conda activate habit
       pip install -r requirements.txt
       pip install -e ".[dev]"

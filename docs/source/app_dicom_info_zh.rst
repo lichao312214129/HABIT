@@ -18,8 +18,8 @@ DICOM 信息查看器 (habit dicom-info)
 
 .. code-block:: bash
 
-   # 扫描 "data/dicom" 文件夹，提取信息并保存为 info.csv
-   habit dicom-info -i ./data/dicom -o info.csv
+   # Demo DICOM 根目录（需先解压 demo_data.rar 到项目根目录）
+   habit dicom-info -i ./demo_data/dicom -o info.csv
 
 **常用参数：**
 
@@ -34,7 +34,7 @@ DICOM 信息查看器 (habit dicom-info)
 
 .. code-block:: bash
 
-   habit dicom-info -i ./data/dicom -o result.xlsx -t "SliceThickness,Manufacturer,ModelName" -f excel
+   habit dicom-info -i ./demo_data/dicom -o result.xlsx -t "SliceThickness,Manufacturer,ModelName" -f excel
 
 输出结果
 --------
@@ -45,8 +45,8 @@ DICOM 信息查看器 (habit dicom-info)
    :header: "FilePath", "PatientID", "Modality", "SliceThickness", "Manufacturer"
    :widths: 30, 15, 10, 15, 20
 
-   "./data/dicom/sub1/1.dcm", "sub-001", "MR", "5.0", "GE MEDICAL SYSTEMS"
-   "./data/dicom/sub1/2.dcm", "sub-001", "MR", "5.0", "GE MEDICAL SYSTEMS"
+   "./demo_data/dicom/sub001/.../1.dcm", "sub-001", "MR", "5.0", "GE MEDICAL SYSTEMS"
+   "./demo_data/dicom/sub001/.../2.dcm", "sub-001", "MR", "5.0", "GE MEDICAL SYSTEMS"
    "...", "...", "...", "...", "..."
 
 这对于整理数据集、筛选符合入组标准的病例非常有用。

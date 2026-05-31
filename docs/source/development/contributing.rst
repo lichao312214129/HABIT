@@ -56,7 +56,7 @@
 
    git clone https://github.com/lichao312214129/HABIT.git
    cd HABIT
-   conda create -n habit python=3.10 -y
+   conda create -n habit python=3.10
    conda activate habit
    pip install -r requirements.txt
    pip install -e ".[dev]"

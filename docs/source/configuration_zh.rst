@@ -379,7 +379,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
      - 说明
    * - ``data_dir`` / ``out_dir``
      - 无（必填）
-     - 输入树 / 默认输出根；相对路径相对于 YAML 目录解析
+     - 输入 DICOM 根目录；相对路径相对于 YAML 目录解析
    * - ``f``
      - 无（必填，与 ``filename_format`` 二选一）
      - dcm2niix ``-f`` **原样**传递，不做路径解析

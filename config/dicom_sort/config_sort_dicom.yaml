@@ -8,12 +8,12 @@
 #
 #   habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
 #
-# Paths resolve relative to this YAML file. Replace data_dir with your DICOM tree.
+# Paths resolve relative to this YAML file. data_dir: DICOM root directory only.
 # =============================================================================
 
-data_dir: CHANGE_ME_DICOM_INPUT
-out_dir: ../../demo_data/results/sorted_dicom
+data_dir: ../../demo_data/dicom  # DICOM root directory
+out_dir: ../../demo_data/results/sorted_dicom  # Output directory
 
-dcm2niix_path: ../../demo_data/dcm2niix.exe
-f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"
-extra_args: []
+dcm2niix_path: ../../demo_data/dcm2niix.exe  # dcm2niix path
+f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"  # dcm2niix -f pattern
+extra_args: []  # extra arguments for dcm2niix
