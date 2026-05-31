@@ -7,7 +7,6 @@
 # Output: demo_data/preprocessed/processed_images (overwrites after full pipeline)
 #
 # Demo bundle may already include preprocessed data — skip step 1 on first run if desired.
-# Elastix backend (optional): config_preprocessing_demo_elastix.yaml — NOT used in full demo.
 # =============================================================================
 
 data_dir: ../../demo_data/preprocessed/processed_images
@@ -19,16 +18,16 @@ auto_select_first_file: true
 Preprocessing:
   resample:
     images: [delay2, delay3, delay5]
-    target_spacing: [1.0, 1.0, 1.0]
+    target_spacing: [3.0, 3.0, 3.0]
     img_mode: bilinear
 
   registration:
     images: [delay2, delay3, delay5]
     fixed_image: delay2
     use_mask: true
-    backend: simpleitk
+    backend: ants
     type_of_transform: Rigid
-    metric: MI
+
 
   zscore_normalization:
     images: [delay2, delay3, delay5]
@@ -37,7 +36,7 @@ Preprocessing:
 
 save_options:
   save_intermediate: true
-  intermediate_steps: [resample, registration, zscore_normalization]
+  intermediate_steps: []
 
 processes: 2
 random_state: 42

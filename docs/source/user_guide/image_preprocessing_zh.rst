@@ -26,4 +26,4 @@
 配置
 ----
 
-Demo 使用 ``config/preprocessing/config_preprocessing_demo.yaml``：重采样 → SimpleITK 配准 → Z-score（数据 ``demo_data/preprocessed/processed_images``）。完整 Demo **不要**使用 ``config_preprocessing_demo_elastix.yaml``。字段说明见 :doc:`../configuration_zh`。
+Demo 使用 ``config/preprocessing/config_preprocessing_demo.yaml``：重采样 → SimpleITK 配准 → Z-score（数据 ``demo_data/preprocessed/processed_images``）。字段说明见 :doc:`../configuration_zh`。

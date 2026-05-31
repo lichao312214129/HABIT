@@ -93,7 +93,7 @@ CLI 命令与配置文件对照
      - 示例配置文件
    * - ``habit preprocess``
      - 预处理配置
-     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo 默认：重采样 + SimpleITK 配准 + Z-score；``demo_data/preprocessed/processed_images``）。elastix 仅见 ``config_preprocessing_demo_elastix.yaml``（**不在**完整 Demo 中使用）
+     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo：重采样 + SimpleITK 配准 + Z-score；``demo_data/preprocessed/processed_images``）
    * - ``habit sort-dicom``
      - DICOM 整理配置
      - ``config/dicom_sort/config_sort_dicom.yaml``
@@ -1536,6 +1536,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **说明**: 未在列表中的类型不会提取
 - **可选值**: ``traditional``, ``non_radiomics``, ``whole_habitat``, ``each_habitat``, ``msi``, ``ith_score``
 - **示例**: ``[traditional, non_radiomics, whole_habitat]``
+- **各类型含义与文献**: 见 :doc:`user_guide/habitat_feature_extraction_zh` 中「特征类型说明」
 
 **n_habitats**: 生境数量
 
