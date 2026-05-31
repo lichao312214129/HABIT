@@ -13,9 +13,7 @@
 
       conda activate habit
       cd D:\HABIT-main
-      # Windows CMD 若 cd 无效: 先输入 D: 回车，再 cd \HABIT-main（见 installation_zh）
-      # 若嵌套: cd D:\HABIT-main\HABIT-main
-      # macOS（解压到「下载」）: cd ~/Downloads/HABIT-main
+      # macOS: cd ~/Downloads/HABIT-main
 
 下载演示数据
 ------------

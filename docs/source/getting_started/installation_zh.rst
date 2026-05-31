@@ -1,7 +1,7 @@
 安装指南
 ========
 
-面向临床与研究人员：从零安装 **Miniconda 或 Anaconda**，创建 **Python 3.10** 环境 ``habit``，再安装 HABIT。无需 IDE，在 **Anaconda Powershell Prompt**（Windows，推荐）或系统终端中即可完成。
+面向临床与研究人员：从零安装 **Miniconda 或 Anaconda**，创建 **Python 3.10** 环境 ``habit``，再安装 HABIT。Windows 请在 **Anaconda Powershell Prompt** 中操作；macOS / Linux 用系统终端。
 
 系统要求
 ---------
@@ -35,31 +35,13 @@ Anaconda（备选）
 打开终端
 ~~~~~~~~
 
-**Windows（推荐 PowerShell）**
+**Windows**
 
-安装完成后，从开始菜单打开 **Anaconda Powershell Prompt**（推荐）。也可使用 **Anaconda Prompt**（传统 CMD 窗口），但跨盘符 ``cd`` 更容易踩坑（见下文）。
+从开始菜单打开 **Anaconda Powershell Prompt**（不要用 Anaconda Prompt）：
 
 .. code-block:: text
 
-   [开始] 搜索: Anaconda
-   > Anaconda Powershell Prompt    <-- 推荐
-   > Anaconda Prompt               <-- 备选（CMD）
-
-.. note:: 跨盘符切换目录（仅 Windows CMD 常见）
-
-   若项目在 **D 盘**（如 ``D:\HABIT-main``），而当前提示符在 **C 盘**（``(base) C:\Users\...>``）：
-
-   - **Anaconda Powershell Prompt**：可直接 ``cd D:\HABIT-main``，一般无需先换盘符。
-   - **Anaconda Prompt（CMD）**：仅执行 ``cd D:\HABIT-main`` 往往**不会**切到 D 盘。请先输入盘符再 ``cd``：
-
-     .. code-block:: text
-
-        D:
-        cd \HABIT-main
-
-     或一行：``cd /d D:\HABIT-main``（``/d`` 表示同时切换盘符与目录）。
-
-   若 ``cd`` 后仍找不到 ``requirements.txt``，用 ``cd`` 进入含 ``config``、``habit`` 的最内层 ``HABIT-main``（见下文 ZIP 嵌套说明），并用 ``dir requirements.txt``（CMD）或 ``ls requirements.txt``（PowerShell）确认。
+   [开始] 搜索: Anaconda Powershell Prompt
 
 **macOS / Linux**
 
@@ -130,12 +112,8 @@ Anaconda（备选）
 
 .. code-block:: bash
 
-   # Windows + PowerShell（ZIP 解压到 D:\ 后）
+   # Windows（路径按本机修改，示例为解压到 D:\）
    cd D:\HABIT-main
-
-   # Windows + Anaconda Prompt（CMD）：先 D: 再 cd，或 cd /d D:\HABIT-main
-   # D:
-   # cd \HABIT-main
 
    # macOS / Linux（例如解压到「下载」）
    cd ~/Downloads/HABIT-main
