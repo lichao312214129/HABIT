@@ -59,7 +59,7 @@ Open **Anaconda Prompt** (Windows) or **Terminal** (macOS/Linux). You should see
 
 ### Step 1: Create environment and install HABIT
 
-Download [HABIT ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip), extract (e.g. `D:\HABIT`), then run:
+Download [HABIT ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) and **extract it directly** (e.g. to `D:\`). Do not create or rename a folder—the archive unpacks to **`HABIT-main`**. Then run:
 
 ```bash
 conda create -n habit python=3.10 -y
@@ -71,7 +71,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 pip config set global.extra-index-url https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
 pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
-cd D:\HABIT
+cd D:\HABIT-main
 pip install -r requirements.txt
 pip install -e .
 habit --version
@@ -86,7 +86,7 @@ Python **3.10** is recommended for PyTorch, AutoGluon, and related dependencies.
 
 ```bash
 conda activate habit
-cd D:\HABIT
+cd D:\HABIT-main
 habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 ```
 

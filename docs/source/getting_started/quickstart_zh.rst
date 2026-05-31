@@ -12,7 +12,7 @@
    .. code-block:: bash
 
       conda activate habit
-      cd D:\HABIT   # 改为您的项目路径
+      cd D:\HABIT-main   # ZIP 解压后的目录；Git 克隆多为 HABIT
 
 下载演示数据
 ------------
@@ -32,9 +32,9 @@
 
 .. code-block:: text
 
-   habit_project/
+   HABIT-main/
    ├── config/
-   ├── demo_data/          <-- 解压目标
+   ├── demo_data/          <-- 演示数据解压到此（与 config 同级）
    │   ├── dicom/
    │   ├── preprocessed/   <-- 已含预处理结果，可跳过步骤 1
    │   └── ...
