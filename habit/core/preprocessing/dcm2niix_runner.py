@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional, Sequence
 
 from habit.utils.log_utils import get_module_logger
+from habit.utils.subprocess_utils import run_capture_text
 
 
 class Dcm2niixRunner:
@@ -54,10 +55,8 @@ class Dcm2niixRunner:
                 f"{self.executable}. Set dcm2niix_path in the preprocessing step."
             )
 
-        result = subprocess.run(
+        result = run_capture_text(
             [self.executable, "--version"],
-            capture_output=True,
-            text=True,
             check=False,
         )
         if result.returncode != 0:
@@ -76,9 +75,9 @@ class Dcm2niixRunner:
 
         if shell:
             command = self.format_command(cmd)
-            result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+            result = run_capture_text(command, shell=True, check=False)
         else:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+            result = run_capture_text(cmd, check=False)
 
         if result.stdout:
             self.logger.debug("[%s] %s stdout: %s", subject_id, context, result.stdout)

@@ -2,10 +2,7 @@
 CLI-level tests for the `habit preprocess` command.
 
 Tests verify argument parsing, help output, and error handling for missing
-config. Heavy demo-data runs live in ``manual_cli_preprocess.py`` (not
-auto-collected)::
-
-    pytest tests/preprocessing/manual_cli_preprocess.py -v
+config. Heavy demo-data runs: ``tests/preprocessing/preprocess_registration_elastix.py`` (not auto-collected).
 """
 from __future__ import annotations
 

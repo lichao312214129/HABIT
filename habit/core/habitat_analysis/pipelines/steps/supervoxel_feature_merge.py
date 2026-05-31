@@ -63,16 +63,31 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         self.config = config
         self.logger = get_module_logger(__name__)
         
-        # Determine which feature type to use
+        clustering_mode = (
+            config.HabitatSegmentation.clustering_mode
+            if config.HabitatSegmentation is not None
+            else None
+        )
         supervoxel_config = config.FeatureConstruction.supervoxel_level
         method = supervoxel_config.method if supervoxel_config else None
-        
-        # Check if advanced features are requested
-        self.use_advanced_features = (
-            method is not None and 
-            'mean_voxel_features' not in method
+        advanced_requested = (
+            method is not None and 'mean_voxel_features' not in method
         )
-        
+
+        # one_step clusters voxels directly into habitats and always aggregates
+        # per-habitat mean voxel features. supervoxel_level (radiomics/texture)
+        # applies only in two_step; ignore the block here instead of failing.
+        if clustering_mode == 'one_step':
+            if advanced_requested:
+                self.logger.warning(
+                    "one_step mode ignores FeatureConstruction.supervoxel_level.method "
+                    f"({method!r}); using mean_voxel_features() from "
+                    "CalculateMeanVoxelFeaturesStep."
+                )
+            self.use_advanced_features = False
+        else:
+            self.use_advanced_features = advanced_requested
+
         if self.use_advanced_features:
             self.logger.info("Will use ADVANCED supervoxel features for clustering")
         else:

@@ -1,38 +1,96 @@
 # =============================================================================
-# Habitat input manifest — DEMO: processed images + masks per phase (get-habitat)
+# Habitat input manifest — DEMO: .cursor/test/resample_02 (T1, T2)
 # =============================================================================
 #
 # Use as `data_dir` when it points to this YAML (not a raw directory). Keys
 # under `images` / `masks` must match modality names used in your habitat config
-# (e.g. delay2, delay3, delay5).
+# (T1, T2).
 #
 # NOT overlapping with:
-#   files_preprocessing.yaml — raw DICOM *folders* for preprocess.
-#   image_files.yaml — workstation DICOM example for dcm2nii path.
-#   config_getting_habitat.yaml — habitat *pipeline* parameters (this file is only data layout).
-#
-# `auto_select_first_file`: see preprocessing manifests; same semantics when a
-# path is a directory containing NIfTI vs DICOM tree.
+#   files_preprocessing.yaml — identical resample_02 manifest (preferred name).
+#   image_files.yaml — same resample_02 manifest (legacy filename).
 # =============================================================================
 
 auto_select_first_file: true
 
 images:
-  subj001:
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2  # paths: no spaces or odd characters
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
-  subj002:
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
+  sub1:
+    T1: ../../.cursor/test/resample_02/images/sub1/T1
+    T2: ../../.cursor/test/resample_02/images/sub1/T2
+  sub19:
+    T1: ../../.cursor/test/resample_02/images/sub19/T1
+    T2: ../../.cursor/test/resample_02/images/sub19/T2
+  sub20:
+    T1: ../../.cursor/test/resample_02/images/sub20/T1
+    T2: ../../.cursor/test/resample_02/images/sub20/T2
+  sub21:
+    T1: ../../.cursor/test/resample_02/images/sub21/T1
+    T2: ../../.cursor/test/resample_02/images/sub21/T2
+  sub22:
+    T1: ../../.cursor/test/resample_02/images/sub22/T1
+    T2: ../../.cursor/test/resample_02/images/sub22/T2
+  sub229:
+    T1: ../../.cursor/test/resample_02/images/sub229/T1
+    T2: ../../.cursor/test/resample_02/images/sub229/T2
+  sub24:
+    T1: ../../.cursor/test/resample_02/images/sub24/T1
+    T2: ../../.cursor/test/resample_02/images/sub24/T2
+  sub25:
+    T1: ../../.cursor/test/resample_02/images/sub25/T1
+    T2: ../../.cursor/test/resample_02/images/sub25/T2
+  sub26:
+    T1: ../../.cursor/test/resample_02/images/sub26/T1
+    T2: ../../.cursor/test/resample_02/images/sub26/T2
+  sub28:
+    T1: ../../.cursor/test/resample_02/images/sub28/T1
+    T2: ../../.cursor/test/resample_02/images/sub28/T2
+  sub29:
+    T1: ../../.cursor/test/resample_02/images/sub29/T1
+    T2: ../../.cursor/test/resample_02/images/sub29/T2
+  sub30:
+    T1: ../../.cursor/test/resample_02/images/sub30/T1
+    T2: ../../.cursor/test/resample_02/images/sub30/T2
+  sub620:
+    T1: ../../.cursor/test/resample_02/images/sub620/T1
+    T2: ../../.cursor/test/resample_02/images/sub620/T2
 
 masks:
-  subj001:
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
-  subj002:
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5
+  sub1:
+    T1: ../../.cursor/test/resample_02/masks/sub1/T1
+    T2: ../../.cursor/test/resample_02/masks/sub1/T2
+  sub19:
+    T1: ../../.cursor/test/resample_02/masks/sub19/T1
+    T2: ../../.cursor/test/resample_02/masks/sub19/T2
+  sub20:
+    T1: ../../.cursor/test/resample_02/masks/sub20/T1
+    T2: ../../.cursor/test/resample_02/masks/sub20/T2
+  sub21:
+    T1: ../../.cursor/test/resample_02/masks/sub21/T1
+    T2: ../../.cursor/test/resample_02/masks/sub21/T2
+  sub22:
+    T1: ../../.cursor/test/resample_02/masks/sub22/T1
+    T2: ../../.cursor/test/resample_02/masks/sub22/T2
+  sub229:
+    T1: ../../.cursor/test/resample_02/masks/sub229/T1
+    T2: ../../.cursor/test/resample_02/masks/sub229/T2
+  sub24:
+    T1: ../../.cursor/test/resample_02/masks/sub24/T1
+    T2: ../../.cursor/test/resample_02/masks/sub24/T2
+  sub25:
+    T1: ../../.cursor/test/resample_02/masks/sub25/T1
+    T2: ../../.cursor/test/resample_02/masks/sub25/T2
+  sub26:
+    T1: ../../.cursor/test/resample_02/masks/sub26/T1
+    T2: ../../.cursor/test/resample_02/masks/sub26/T2
+  sub28:
+    T1: ../../.cursor/test/resample_02/masks/sub28/T1
+    T2: ../../.cursor/test/resample_02/masks/sub28/T2
+  sub29:
+    T1: ../../.cursor/test/resample_02/masks/sub29/T1
+    T2: ../../.cursor/test/resample_02/masks/sub29/T2
+  sub30:
+    T1: ../../.cursor/test/resample_02/masks/sub30/T1
+    T2: ../../.cursor/test/resample_02/masks/sub30/T2
+  sub620:
+    T1: ../../.cursor/test/resample_02/masks/sub620/T1
+    T2: ../../.cursor/test/resample_02/masks/sub620/T2

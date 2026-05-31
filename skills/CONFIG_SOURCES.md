@@ -11,10 +11,9 @@ for a full scenario index.
 |----------|-----------|
 | Primary template (any `clustering_mode`; your paths) | `config/habitat/config_getting_habitat.yaml` |
 | **Demo** train — two-step on bundled data | `config/habitat/config_habitat_two_step.yaml` |
-| **Demo** train — one_step / direct_pooling | `config/habitat/config_habitat_one_step.yaml`, `config_habitat_direct_pooling.yaml` |
+| **Demo** train — one_step / direct_pooling | `config/habitat/config_habitat_one_step_raw_concat_train.yaml`, `config_habitat_direct_pooling.yaml` |
 | **Demo** predict (saved pipeline) | `config/habitat/config_habitat_*_predict.yaml` |
 | **Demo** manifest (images + masks layout) | `config/habitat/file_habitat.yaml` |
-| Legacy syntax-only example | `config/habitat/config_habitat_one_step_example.yaml` |
 
 ## Preprocess (`habit preprocess`)
 

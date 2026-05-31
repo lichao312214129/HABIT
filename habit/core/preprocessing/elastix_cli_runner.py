@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, List, Optional, Sequence, Union
 
 from habit.utils.log_utils import get_module_logger
+from habit.utils.subprocess_utils import run_capture_text
 
 
 def format_elastix_parameter_value(value: Any) -> str:
@@ -176,7 +177,7 @@ class ElastixCliRunner:
     ) -> subprocess.CompletedProcess:
         cmd: List[str] = [executable, *[str(a) for a in args]]
         self.logger.debug("%s command: %s", context, self._format_command(cmd))
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = run_capture_text(cmd, check=False)
         if result.stdout:
             self.logger.debug("%s stdout: %s", context, result.stdout[:4000])
         if result.stderr:

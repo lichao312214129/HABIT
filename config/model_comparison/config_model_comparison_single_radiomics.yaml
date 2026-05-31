@@ -1,0 +1,40 @@
+# =============================================================================
+# Model comparison — manual debug: single radiomics model
+# =============================================================================
+# CLI:  habit compare --config config/model_comparison/config_model_comparison_single_radiomics.yaml
+#       python tests/model_comparison/compare_single.py
+# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
+# =============================================================================
+
+#%%================================================================================
+output_dir: ../../demo_data/results/model_comparison_single_radiomics
+#%%================================================================================
+
+files_config:
+  - path: ../../demo_data/ml_data/radiomics/all_prediction_results.csv
+    model_name: radiomics
+    subject_id_col: subject_id
+    label_col: label
+    prob_col: LogisticRegression_prob
+    pred_col: LogisticRegression_pred
+    split_col: dataset
+
+merged_data:
+  enabled: false
+
+split:
+  enabled: true
+
+visualization:
+  roc:
+    enabled: true
+  calibration:
+    enabled: true
+    n_bins: 10
+
+delong_test:
+  enabled: false
+
+metrics:
+  basic_metrics:
+    enabled: true

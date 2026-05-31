@@ -20,6 +20,7 @@ Design principles:
 
 from __future__ import annotations
 
+import atexit
 import logging
 import multiprocessing
 import sys
@@ -82,6 +83,7 @@ class LoggerManager:
             self._log_queue: Any = None
             self._queue_listener: Optional[QueueListener] = None
             self._mp_context: Optional[multiprocessing.context.BaseContext] = None
+            self._listener_atexit_registered: bool = False
             self._initialized = True
 
     def setup_root_logger(
@@ -150,6 +152,9 @@ class LoggerManager:
                     respect_handler_level=True,
                 )
                 self._queue_listener.start()
+                if not self._listener_atexit_registered:
+                    atexit.register(self.stop_queue_listener)
+                    self._listener_atexit_registered = True
 
                 queue_handler = QueueHandler(self._log_queue)
                 queue_handler.setLevel(logging.DEBUG)

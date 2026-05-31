@@ -1,17 +1,19 @@
-# ----------------------------------------------------------------------------
-# One shell call:  dcm2niix -r y -f "<f>"  [extra_args...]  -o <out_dir> <data_dir>
-# Key `f` is exactly dcm2niix -f (deprecated YAML alias: filename_format).
-# ----------------------------------------------------------------------------
+# =============================================================================
+# DICOM sort / rename — NOT used with resample_02 test data (NIfTI only)
+# =============================================================================
+#
+# resample_02 (.cursor/test/resample_02) contains NIfTI, not DICOM.
+# This config is kept for production DICOM workflows only.
+# There is no resample_02-based test script for sort-dicom.
 #
 #   habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
 #
-# Paths resolve relative to this YAML file.
-# ----------------------------------------------------------------------------
+# Paths resolve relative to this YAML file. Replace data_dir with your DICOM tree.
+# =============================================================================
 
-data_dir: ../../demo_data/dicom
-out_dir: ../../demo_data/sorteddcm
+data_dir: CHANGE_ME_DICOM_INPUT
+out_dir: ../../demo_data/results/sorted_dicom
 
 dcm2niix_path: ../../demo_data/dcm2niix.exe
 f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"
-# extra_args: ["-d", "5"]
 extra_args: []

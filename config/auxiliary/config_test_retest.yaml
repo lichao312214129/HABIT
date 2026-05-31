@@ -1,19 +1,13 @@
 # Configuration file for Test-Retest Reproducibility Analysis
 # This configuration is used by habit retest command
 
-# Output directory for test-retest analysis results
-out_dir: ../../demo_data/ml_data/test_retest
+# Output directory for remapped NRRD files and logs
+out_dir: ../../demo_data/ml_data/test_retest/remapped
 
-# Input configuration for test-retest mapping
-# Note: The CLI command (`habit retest`) consumes this config file.
-# This config file is mainly for CLI integration and logging setup
+# Test habitat table (from resample_02 two-step habitat train output)
+test_habitat_table: ../../demo_data/results/habitat_two_step/habitats.csv
 
-# Test habitat table (CSV or Excel format)
-# Contains habitat features from the test (first) scan
-test_habitat_table: ../../demo_data/ml_data/habitats_test.csv
-
-# Retest habitat table (CSV or Excel format)  
-# Contains habitat features from the retest (second) scan
+# Retest habitat table (demo: same table for label-mapping smoke test)
 retest_habitat_table: ../../demo_data/ml_data/habitats_retest.csv
 
 # Features to use for similarity calculation
@@ -27,9 +21,6 @@ similarity_method: pearson
 
 # Input directory containing retest NRRD files
 input_dir: ../../demo_data/habitat_maps/retest
-
-# Output directory for processed files
-output_dir: ../../demo_data/ml_data/test_retest/remapped
 
 # Number of parallel processes to use
 processes: 4

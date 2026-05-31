@@ -1,0 +1,25 @@
+# =============================================================================
+# Preprocessing — resample only
+# =============================================================================
+# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_resample_only.yaml
+#       python tests/preprocessing/preprocess_resample_only.py
+# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
+# =============================================================================
+
+#%%================================================================================
+data_dir: ../../.cursor/test/resample_02
+out_dir: ../../demo_data/results/preprocessing_resample_only
+#%%================================================================================
+
+auto_select_first_file: true
+
+Preprocessing:
+  resample:
+    images: [T1, T2]
+    target_spacing: [2.0, 2.0, 2.0]
+
+save_options:
+  save_intermediate: false
+
+processes: 1
+random_state: 42

@@ -4,11 +4,10 @@
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 #
 # Purpose:
-#   Walkthrough scenario on bundled demo_data: register delay2/delay3/delay5 to
-#   delay2 using rigid elastix and repository demo parameter file.
+#   Walkthrough on .cursor/test/resample_02: register T2 to T1 (elastix).
 #
 # Data layout:
-#   data_dir points at already-resampled NIfTI under demo_data (not raw DICOM).
+#   data_dir points at resample_02 NIfTI tree (images/ + masks/, modalities T1/T2).
 #
 # NOT overlapping with:
 #   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
@@ -19,7 +18,7 @@
 # =============================================================================
 
 # Data paths (relative to this file)
-data_dir: ../../demo_data/preprocessed/resample_02
+data_dir: ../../.cursor/test/resample_02
 out_dir: ../../demo_data/preprocessed1
 
 # NIfTI inputs may be single files per modality; true = pick first file when path is a directory
@@ -28,24 +27,24 @@ auto_select_first_file: true
 # Preprocessing settings — YAML key order = execution order (see docs/configuration_zh.rst)
 Preprocessing:
   # dcm2nii:
-  #   images: [delay2, delay3, delay5]
+  #   images: [T1, T2]
   #   dcm2niix_path: ./dcm2niix.exe
   #   compress: true
   #   anonymize: true
 
   # # N4 Bias Field Correction:
   # n4_correction:
-  #   images: [delay2, delay3, delay5]
+  #   images: [T1, T2]
   #   num_fitting_levels: 2
 
   # Resample:
   # resample:
-  #   images: [delay2, delay3, delay5]
+  #   images: [T1, T2]
   #   target_spacing: [2.0, 2.0, 2.0]
 
   registration:
-    images: [delay2, delay3, delay5]
-    fixed_image: delay2  # Movers = all images except fixed_image
+    images: [T1, T2]
+    fixed_image: T1  # Movers = all images except fixed_image
     use_mask: true
     backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
     # type_of_transform / metric / optimizer are ignored when backend: elastix
@@ -56,12 +55,12 @@ Preprocessing:
     #   MaximumNumberOfIterations: 200
 
   # zscore_normalization:
-  #   images: [delay2, delay3, delay5]
+  #   images: [T1, T2]
   #   only_inmask: false
   #   mask_key: mask
 
   # adaptive_histogram_equalization:
-  #   images: [delay2, delay3, delay5]
+  #   images: [T1, T2]
   #   alpha: 0.3
   #   beta: 0.3
   #   radius: 5

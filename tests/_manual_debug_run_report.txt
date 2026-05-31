@@ -1,0 +1,1607 @@
+One-script test run report
+========================================================================
+
+SCRIPT: tests/preprocessing/preprocess_n4_resample_registration.py
+EXIT: 0  ELAPSED: 162.5s  TIMEOUT: False
+------------------------------------------------------------------------
+exist at all.
+
+  The default value "0" is used instead.
+
+WARNING: The parameter "NumberOfJacobianMeasurements", requested at entry number 0, does not exist at all.
+
+  The default value "1000" is used instead.
+
+WARNING: The parameter "NumberOfSamplesForExactGradient", requested at entry number 0, does not exist at all.
+
+  The default value "100000" is used instead.
+
+WARNING: The parameter "SigmoidScaleFactor", requested at entry number 0, does not exist at all.
+
+  The default value "0.1" is used instead.
+
+Elastix initialization of all components (for this resolution) took: 2 ms.
+
+  Computing the fixed image extrema took 3 ms.
+
+  Computing the moving image extrema took 3 ms.
+
+Initialization of AdvancedMattesMutualInformation metric took: 20 ms.
+
+Starting automatic parameter estimation for AdaptiveStochasticGradientDescent ...
+
+WARNING: The parameter "ASGDParameterEstimationMethod", requested at entry number 0, does not exist at all.
+
+  The default value "Original" is used instead.
+
+  Computing JacobianTerms ...
+
+  Computing the Jacobian terms took 0.000397s
+
+  NumberOfGradientMeasurements to estimate sigma_i: 11
+
+  Sampling gradients ...
+
+
+  Progress: 100%  Sampling the gradients took 0.029503s
+
+Automatic parameter estimation took 0.03s
+
+1:ItNr	2:Metric	3a:Time	3b:StepSize	4:||Gradient||	Time[ms]
+
+0	-1.138939	0.000000	15.251948	0.076929	52.1
+
+1	-1.154614	0.000000	15.251948	0.037979	2.4
+
+2	-1.150026	1.000000	14.558678	0.141299	2.0
+
+3	-1.204318	0.945152	14.595064	0.129998	2.1
+
+4	-1.293920	0.890305	14.631633	0.100704	1.7
+
+5	-1.342444	0.835457	14.668385	0.195375	1.7
+
+6	-1.487615	0.780610	14.705323	0.045195	1.8
+
+7	-1.536136	1.780610	14.059804	0.083823	1.6
+
+8	-1.480081	1.725762	14.093737	0.051633	1.8
+
+9	-1.472714	2.725762	13.499710	0.076138	1.8
+
+10	-1.477529	3.725762	12.953732	0.210033	2.0
+
+11	-1.547851	4.725762	12.450201	0.062236	1.6
+
+Time spent in resolution 0 (ITK initialization and iterating): 0.077 s.
+
+Stopping condition: Error in metric.
+
+Settings of AdaptiveStochasticGradientDescent in resolution 0:
+
+( SP_a 320.290907 )
+
+( SP_A 20.000000 )
+
+( SP_alpha 1.000000 )
+
+( SigmoidMax 1.000000 )
+
+( SigmoidMin -0.054848 )
+
+( SigmoidScale 0.000015 )
+
+
+
+
+
+itk::ExceptionObject (000000984F6FC620)
+
+Location: "ElastixTemplate - Run()" 
+
+File: D:\a\elastix\elastix\Elastix-source\Common\CostFunctions\itkAdvancedImageToImageMetric.hxx
+
+Line: 916
+
+Description: ITK ERROR: AdvancedMattesMutualInformationMetric(000001B03962F6E0): Too many samples map outside moving image buffer: 307 / 2048
+
+
+
+
+
+Error occurred during actual registration.
+
+
+
+
+
+Errors occurred!
+
+2026-05-31 13:20:28 - INFO - Batch processing completed: 13 subjects
+✓ Image preprocessing completed successfully!
+2026-05-31 13:20:28 - INFO - Image preprocessing completed successfully!
+E:\conda\mconda\envs\py310\lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (7.4.3)/charset_normalizer (3.4.2) doesn't match a supported version!
+  warnings.warn(
+
+Processing subjects:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects:   8%|▊         | 1/13 [00:11<02:15, 11.27s/it]
+Processing subjects:  15%|█▌        | 2/13 [00:19<01:45,  9.56s/it]
+Processing subjects:  23%|██▎       | 3/13 [00:25<01:16,  7.68s/it]
+Processing subjects:  31%|███       | 4/13 [00:39<01:32, 10.28s/it]
+Processing subjects:  38%|███▊      | 5/13 [00:47<01:15,  9.44s/it]
+Processing subjects:  46%|████▌     | 6/13 [01:09<01:37, 13.94s/it]
+Processing subjects:  54%|█████▍    | 7/13 [01:24<01:24, 14.14s/it]
+Processing subjects:  62%|██████▏   | 8/13 [01:36<01:07, 13.41s/it]
+Processing subjects:  69%|██████▉   | 9/13 [01:42<00:44, 11.04s/it]
+Processing subjects:  77%|███████▋  | 10/13 [01:55<00:35, 11.69s/it]
+Processing subjects:  85%|████████▍ | 11/13 [02:22<00:32, 16.30s/it]
+Processing subjects:  92%|█████████▏| 12/13 [02:27<00:13, 13.11s/it]
+Processing subjects: 100%|██████████| 13/13 [02:33<00:00, 10.83s/it]
+Processing subjects: 100%|██████████| 13/13 [02:33<00:00, 11.81s/it]
+
+
+SCRIPT: tests/preprocessing/preprocess_registration_elastix.py
+EXIT: 0  ELAPSED: 46.6s  TIMEOUT: False
+------------------------------------------------------------------------
+	0.065591	1.7
+
+58	-1.548554	1.857804	1.698173	0.019141	1.6
+
+59	-1.540394	1.845120	1.699116	0.030387	1.6
+
+60	-1.494335	1.832435	1.700060	0.039480	1.7
+
+61	-1.530358	2.832184	1.628743	0.025724	1.8
+
+62	-1.460572	2.819499	1.629610	0.024731	1.8
+
+63	-1.458237	2.806815	1.630479	0.035705	1.6
+
+64	-1.430807	2.794130	1.631348	0.039388	1.6
+
+65	-1.460123	2.781445	1.632218	0.046255	1.6
+
+66	-1.473172	2.768761	1.633089	0.084140	1.5
+
+67	-1.514162	3.768761	1.567156	0.042721	1.7
+
+68	-1.514130	4.768761	1.506340	0.016164	1.7
+
+69	-1.566105	4.756076	1.507081	0.019307	1.7
+
+70	-1.529949	4.743392	1.507824	0.025954	1.7
+
+71	-1.528092	4.730707	1.508567	0.031717	1.7
+
+72	-1.503310	5.730707	1.452132	0.017924	1.7
+
+73	-1.514172	5.718023	1.452821	0.020884	1.6
+
+74	-1.521522	5.705338	1.453511	0.018966	1.7
+
+75	-1.496881	5.692653	1.454202	0.026493	1.6
+
+76	-1.483657	5.679969	1.454893	0.021515	1.6
+
+77	-1.457577	5.667284	1.455585	0.028622	1.8
+
+78	-1.492346	5.654600	1.456278	0.026093	1.8
+
+79	-1.479984	5.641915	1.456971	0.036517	1.7
+
+80	-1.497795	5.629230	1.457665	0.030308	1.6
+
+81	-1.443781	5.616546	1.458360	0.048164	1.8
+
+82	-1.526952	6.616546	1.405552	0.018149	2.1
+
+83	-1.472314	7.616546	1.356436	0.032397	1.6
+
+84	-1.493672	7.603861	1.357037	0.024912	1.6
+
+85	-1.439216	7.591177	1.357639	0.042883	1.7
+
+86	-1.428768	7.578492	1.358242	0.044565	1.7
+
+87	-1.410224	7.565808	1.358845	0.060257	1.6
+
+88	-1.463479	8.565808	1.312885	0.022559	1.6
+
+89	-1.443878	9.565808	1.269932	0.055149	1.7
+
+90	-1.415029	9.553123	1.270459	0.033636	1.8
+
+91	-1.399338	9.540438	1.270987	0.039888	1.7
+
+92	-1.415291	9.527754	1.271515	0.032416	1.7
+
+93	-1.503810	9.515069	1.272044	0.017894	1.7
+
+94	-1.481643	9.502385	1.272573	0.022068	1.6
+
+95	-1.461995	9.489700	1.273102	0.024393	1.6
+
+96	-1.442308	9.477016	1.273632	0.044059	1.8
+
+97	-1.489847	9.464331	1.274162	0.037256	1.6
+
+98	-1.395525	10.464331	1.233667	0.035818	1.7
+
+Time spent in resolution 0 (ITK initialization and iterating): 0.324 s.
+
+Stopping condition: Error in metric.
+
+Settings of AdaptiveStochasticGradientDescent in resolution 0:
+
+( SP_a 38.816503 )
+
+( SP_A 20.000000 )
+
+( SP_alpha 1.000000 )
+
+( SigmoidMax 1.000000 )
+
+( SigmoidMin -0.012685 )
+
+( SigmoidScale 0.000004 )
+
+
+
+
+
+itk::ExceptionObject (0000005F7BEFC450)
+
+Location: "ElastixTemplate - Run()" 
+
+File: D:\a\elastix\elastix\Elastix-source\Common\CostFunctions\itkAdvancedImageToImageMetric.hxx
+
+Line: 916
+
+Description: ITK ERROR: AdvancedMattesMutualInformationMetric(000001D5AB87D3B0): Too many samples map outside moving image buffer: 493 / 2048
+
+
+
+
+
+Error occurred during actual registration.
+
+
+
+
+
+Errors occurred!
+
+2026-05-31 13:21:14 - INFO - Batch processing completed: 13 subjects
+✓ Image preprocessing completed successfully!
+2026-05-31 13:21:15 - INFO - Image preprocessing completed successfully!
+E:\conda\mconda\envs\py310\lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (7.4.3)/charset_normalizer (3.4.2) doesn't match a supported version!
+  warnings.warn(
+
+Processing subjects:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects:   8%|▊         | 1/13 [00:02<00:30,  2.53s/it]
+Processing subjects:  15%|█▌        | 2/13 [00:06<00:39,  3.59s/it]
+Processing subjects:  23%|██▎       | 3/13 [00:12<00:43,  4.37s/it]
+Processing subjects:  31%|███       | 4/13 [00:14<00:32,  3.65s/it]
+Processing subjects:  38%|███▊      | 5/13 [00:17<00:25,  3.17s/it]
+Processing subjects:  46%|████▌     | 6/13 [00:19<00:20,  2.93s/it]
+Processing subjects:  54%|█████▍    | 7/13 [00:23<00:20,  3.43s/it]
+Processing subjects:  62%|██████▏   | 8/13 [00:25<00:14,  2.92s/it]
+Processing subjects:  69%|██████▉   | 9/13 [00:28<00:11,  2.76s/it]
+Processing subjects:  77%|███████▋  | 10/13 [00:30<00:08,  2.69s/it]
+Processing subjects:  85%|████████▍ | 11/13 [00:33<00:05,  2.66s/it]
+Processing subjects:  92%|█████████▏| 12/13 [00:35<00:02,  2.40s/it]
+Processing subjects: 100%|██████████| 13/13 [00:37<00:00,  2.32s/it]
+Processing subjects: 100%|██████████| 13/13 [00:37<00:00,  2.87s/it]
+
+
+SCRIPT: tests/preprocessing/preprocess_resample02.py
+EXIT: 0  ELAPSED: 13.4s  TIMEOUT: False
+------------------------------------------------------------------------
+2026-05-31 13:21:23 - INFO - Log file initialized: F:\work\habit_project\config\preprocessing\..\..\demo_data\results\preprocessing_resample_02\processing.log
+2026-05-31 13:21:23 - INFO - Python version: 3.10.16 | packaged by Anaconda, Inc. | (main, Dec 11 2024, 16:19:12) [MSC v.1929 64 bit (AMD64)]
+Starting image preprocessing with config: config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+2026-05-31 13:21:23 - INFO - Platform: Windows-10-10.0.19041-SP0
+2026-05-31 13:21:23 - INFO - Using configuration file: config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+2026-05-31 13:21:23 - INFO - Starting image preprocessing with config: config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+2026-05-31 13:21:23 - INFO - Using existing logging configuration from CLI entry point
+2026-05-31 13:21:23 - INFO - Intermediate results will be saved for steps: ['resample']
+2026-05-31 13:21:23 - INFO - Using 1 worker processes.
+2026-05-31 13:21:23 - INFO - Successfully initialized BatchProcessor
+2026-05-31 13:21:23 - INFO - Starting batch processing
+2026-05-31 13:21:23 - INFO - Processing 13 subjects with 1 workers
+2026-05-31 13:21:23 - INFO - [sub1] Saved intermediate results for step: resample
+2026-05-31 13:21:24 - INFO - [sub19] Saved intermediate results for step: resample
+2026-05-31 13:21:24 - INFO - [sub20] Saved intermediate results for step: resample
+2026-05-31 13:21:25 - INFO - [sub21] Saved intermediate results for step: resample
+2026-05-31 13:21:25 - INFO - [sub22] Saved intermediate results for step: resample
+2026-05-31 13:21:25 - INFO - [sub229] Saved intermediate results for step: resample
+2026-05-31 13:21:26 - INFO - [sub24] Saved intermediate results for step: resample
+2026-05-31 13:21:26 - INFO - [sub25] Saved intermediate results for step: resample
+2026-05-31 13:21:26 - INFO - [sub26] Saved intermediate results for step: resample
+2026-05-31 13:21:27 - INFO - [sub28] Saved intermediate results for step: resample
+2026-05-31 13:21:27 - INFO - [sub29] Saved intermediate results for step: resample
+2026-05-31 13:21:28 - INFO - [sub30] Saved intermediate results for step: resample
+2026-05-31 13:21:28 - INFO - [sub620] Saved intermediate results for step: resample
+2026-05-31 13:21:28 - INFO - Batch processing completed: 13 subjects
+✓ Image preprocessing completed successfully!
+2026-05-31 13:21:28 - INFO - Image preprocessing completed successfully!
+E:\conda\mconda\envs\py310\lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (7.4.3)/charset_normalizer (3.4.2) doesn't match a supported version!
+  warnings.warn(
+
+Processing subjects:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects:   8%|▊         | 1/13 [00:00<00:04,  2.56it/s]
+Processing subjects:  15%|█▌        | 2/13 [00:00<00:05,  1.99it/s]
+Processing subjects:  23%|██▎       | 3/13 [00:01<00:04,  2.34it/s]
+Processing subjects:  31%|███       | 4/13 [00:01<00:03,  2.37it/s]
+Processing subjects:  38%|███▊      | 5/13 [00:02<00:03,  2.49it/s]
+Processing subjects:  46%|████▌     | 6/13 [00:02<00:02,  2.46it/s]
+Processing subjects:  54%|█████▍    | 7/13 [00:02<00:02,  2.44it/s]
+Processing subjects:  62%|██████▏   | 8/13 [00:03<00:01,  2.75it/s]
+Processing subjects:  69%|██████▉   | 9/13 [00:03<00:01,  2.70it/s]
+Processing subjects:  77%|███████▋  | 10/13 [00:03<00:01,  2.58it/s]
+Processing subjects:  85%|████████▍ | 11/13 [00:04<00:00,  2.51it/s]
+Processing subjects:  92%|█████████▏| 12/13 [00:04<00:00,  2.80it/s]
+Processing subjects: 100%|██████████| 13/13 [00:05<00:00,  2.86it/s]
+Processing subjects: 100%|██████████| 13/13 [00:05<00:00,  2.59it/s]
+
+
+SCRIPT: tests/preprocessing/preprocess_resample_only.py
+EXIT: 0  ELAPSED: 11.9s  TIMEOUT: False
+------------------------------------------------------------------------
+2026-05-31 13:21:36 - INFO - Log file initialized: F:\work\habit_project\config\preprocessing\..\..\demo_data\results\preprocessing_resample_only\processing.log
+2026-05-31 13:21:36 - INFO - Python version: 3.10.16 | packaged by Anaconda, Inc. | (main, Dec 11 2024, 16:19:12) [MSC v.1929 64 bit (AMD64)]
+Starting image preprocessing with config: config/preprocessing/config_preprocessing_resample_only.yaml
+2026-05-31 13:21:36 - INFO - Platform: Windows-10-10.0.19041-SP0
+2026-05-31 13:21:36 - INFO - Using configuration file: config/preprocessing/config_preprocessing_resample_only.yaml
+2026-05-31 13:21:36 - INFO - Starting image preprocessing with config: config/preprocessing/config_preprocessing_resample_only.yaml
+2026-05-31 13:21:36 - INFO - Using existing logging configuration from CLI entry point
+2026-05-31 13:21:36 - INFO - Using 1 worker processes.
+2026-05-31 13:21:36 - INFO - Successfully initialized BatchProcessor
+2026-05-31 13:21:36 - INFO - Starting batch processing
+2026-05-31 13:21:36 - INFO - Processing 13 subjects with 1 workers
+2026-05-31 13:21:40 - INFO - Batch processing completed: 13 subjects
+✓ Image preprocessing completed successfully!
+2026-05-31 13:21:40 - INFO - Image preprocessing completed successfully!
+E:\conda\mconda\envs\py310\lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (7.4.3)/charset_normalizer (3.4.2) doesn't match a supported version!
+  warnings.warn(
+
+Processing subjects:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects:   8%|▊         | 1/13 [00:00<00:03,  3.47it/s]
+Processing subjects:  15%|█▌        | 2/13 [00:00<00:03,  2.75it/s]
+Processing subjects:  23%|██▎       | 3/13 [00:00<00:03,  3.21it/s]
+Processing subjects:  31%|███       | 4/13 [00:01<00:02,  3.28it/s]
+Processing subjects:  38%|███▊      | 5/13 [00:01<00:02,  3.48it/s]
+Processing subjects:  46%|████▌     | 6/13 [00:01<00:02,  3.47it/s]
+Processing subjects:  54%|█████▍    | 7/13 [00:02<00:01,  3.42it/s]
+Processing subjects:  62%|██████▏   | 8/13 [00:02<00:01,  3.82it/s]
+Processing subjects:  69%|██████▉   | 9/13 [00:02<00:01,  3.83it/s]
+Processing subjects:  77%|███████▋  | 10/13 [00:02<00:00,  3.70it/s]
+Processing subjects:  85%|████████▍ | 11/13 [00:03<00:00,  3.54it/s]
+Processing subjects:  92%|█████████▏| 12/13 [00:03<00:00,  3.90it/s]
+Processing subjects: 100%|██████████| 13/13 [00:03<00:00,  4.00it/s]
+Processing subjects: 100%|██████████| 13/13 [00:03<00:00,  3.62it/s]
+
+
+SCRIPT: tests/habitat/habitat_direct_pooling_raw_concat_predict.py
+EXIT: 0  ELAPSED: 4.2s  TIMEOUT: False
+------------------------------------------------------------------------
+er_selection_method': 'elbow', 'fixed_n_clusters': None, 'random_state': None, 'max_iter': 300, 'n_init': 10}, 'postprocess_supervoxel': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}, 'postprocess_habitat': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}}, 'processes': 2, 'cap_processes_to_gpu_pool': False, 'individual_subject_timeout_sec': 900.0, 'individual_subject_graceful_shutdown_sec': 15.0, 'individual_subject_spawn_timeout_sec': 120.0, 'on_subject_failure': 'continue', 'oom_backoff': False, 'oom_reduce_workers_by': 1, 'resume': True, 'strict_checkpoint_hash': True, 'checkpoint_dir': None, 'force_rerun_subjects': [], 'retry_failed_subjects': False, 'individual_subject_auto_retry_rounds': 2, 'individual_subject_parallel_mode': 'persistent', 'persistent_worker_max_consecutive_failures': 1, 'persistent_worker_recycle_after_tasks': 0, 'clear_checkpoint_on_success': False, 'plot_curves': True, 'save_images': True, 'save_results_csv': True, 'random_state': 42, 'verbose': True, 'debug': False}
+2026-05-31 13:21:41 - INFO - =====================================
+2026-05-31 13:21:42 - INFO - Loaded 8 feature extractors: ['ConcatImageFeatureExtractor', 'KineticFeatureExtractor', 'LocalEntropyExtractor', 'MeanVoxelFeaturesExtractor', 'MyFeatureExtractor', 'RawFeatureExtractor', 'SupervoxelRadiomicsExtractor', 'VoxelRadiomicsExtractor']
+2026-05-31 13:21:44 - INFO - Loading and running direct_pooling pipeline...
+2026-05-31 13:21:44 - INFO - Stage 1: Processing 13 test subjects through 3 individual-level steps...
+2026-05-31 13:21:44 - INFO - Loaded predict checkpoint: 13 completed, 0 failed subject(s).
+2026-05-31 13:21:44 - INFO - Resume: loaded 13 completed subject(s) from checkpoint.
+2026-05-31 13:21:44 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:21:44 - INFO - Stage 2: Processing all test subjects through 3 group-level steps...
+2026-05-31 13:21:44 - INFO - Group-level step 'concatenate_voxels' (ConcatenateVoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:21:44 - INFO - Concatenated voxel features from 13 subject(s) (rows=153127, feature_columns=2)
+2026-05-31 13:21:44 - INFO - Group-level step 'concatenate_voxels' finished; output: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:44 - INFO - Group-level step 'group_preprocessing' (GroupPreprocessingStep) started; input: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:44 - INFO - Group-level preprocessing pipeline started (transform): rows=153127, feature_columns=2, steps=1
+2026-05-31 13:21:44 - INFO - Group-level preprocessing step 1/1 'binning': feature_columns 2 -> 2 (rows=153127)
+2026-05-31 13:21:44 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 2 -> 2
+2026-05-31 13:21:44 - INFO - Group-level step 'group_preprocessing' finished; output: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:44 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:44 - INFO - Group-level step 'group_clustering' finished; output: rows=153127, feature_columns=3, total_columns=4
+2026-05-31 13:21:44 - INFO - Saving predict results...
+2026-05-31 13:21:44 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_direct_pooling\predict\habitats.csv
+2026-05-31 13:21:44 - INFO - Saving voxel-level habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:21:45 - INFO - Habitat analysis completed successfully
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:  15%|█▌        | 2/13 [00:00<00:00, 17.12it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 56.63it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 51.18it/s]
+
+
+SCRIPT: tests/habitat/habitat_direct_pooling_raw_concat_train.py
+EXIT: 0  ELAPSED: 21.2s  TIMEOUT: False
+------------------------------------------------------------------------
+ows=153127)
+2026-05-31 13:21:48 - INFO - Group-level preprocessing pipeline finished (fit): feature_columns 2 -> 2
+2026-05-31 13:21:48 - INFO - PreprocessingState.fit() completed with 1 step state(s), baseline feature count=2
+2026-05-31 13:21:48 - INFO - Group-level preprocessing pipeline started (transform): rows=153127, feature_columns=2, steps=1
+2026-05-31 13:21:48 - INFO - Group-level preprocessing step 1/1 'binning': feature_columns 2 -> 2 (rows=153127)
+2026-05-31 13:21:48 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 2 -> 2
+2026-05-31 13:21:48 - INFO - Group-level step 'group_preprocessing' finished; output: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:48 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=153127, feature_columns=2, total_columns=3
+2026-05-31 13:21:48 - INFO - GroupClusteringStep.fit: input rows=153127, feature_columns=2
+2026-05-31 13:21:48 - INFO - Finding optimal number of clusters...
+2026-05-31 13:21:48 - INFO - Searching optimal cluster count: evaluating k=2..10 (9 candidate(s), methods=elbow)
+2026-05-31 13:21:48 - INFO - Validation method: elbow
+2026-05-31 13:21:48 - INFO - Trying 2 cluster(s) [1/9] (elbow)
+2026-05-31 13:21:51 - INFO - Trying 3 cluster(s) [2/9] (elbow)
+2026-05-31 13:21:52 - INFO - Trying 4 cluster(s) [3/9] (elbow)
+2026-05-31 13:21:52 - INFO - Trying 5 cluster(s) [4/9] (elbow)
+2026-05-31 13:21:52 - INFO - Trying 6 cluster(s) [5/9] (elbow)
+2026-05-31 13:21:53 - INFO - Trying 7 cluster(s) [6/9] (elbow)
+2026-05-31 13:21:53 - INFO - Trying 8 cluster(s) [7/9] (elbow)
+2026-05-31 13:21:54 - INFO - Trying 9 cluster(s) [8/9] (elbow)
+2026-05-31 13:21:55 - INFO - Trying 10 cluster(s) [9/9] (elbow)
+2026-05-31 13:21:55 - INFO - Elbow calculation completed!
+2026-05-31 13:21:55 - INFO - Automatically selected best number of clusters: 3 (index=1)
+2026-05-31 13:21:55 - INFO - Cluster search finished: selected k=3
+2026-05-31 13:21:55 - INFO - Optimal number of clusters: 3
+2026-05-31 13:21:56 - INFO - GroupClusteringStep.fit: fitted with 3 habitat cluster(s)
+2026-05-31 13:21:56 - INFO - Fitted group-level clustering model with 3 clusters
+2026-05-31 13:21:56 - INFO - Clustering scores plot saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_direct_pooling
+2026-05-31 13:22:05 - WARNING - Failed to create habitat clustering visualization: index 2 is out of bounds for axis 1 with size 2
+2026-05-31 13:22:05 - INFO - Group-level step 'group_clustering' finished; output: rows=153127, feature_columns=3, total_columns=4
+2026-05-31 13:22:05 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_direct_pooling\habitat_pipeline.pkl
+2026-05-31 13:22:05 - INFO - Saving train results...
+2026-05-31 13:22:05 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_direct_pooling\habitats.csv
+2026-05-31 13:22:06 - INFO - Saving voxel-level habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:22:06 - INFO - Habitat analysis completed successfully
+Exception in thread Thread-3 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:00<00:01,  6.68it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 58.38it/s]
+
+
+SCRIPT: tests/habitat/habitat_direct_pooling_voxel_radiomics_predict.py
+EXIT: 0  ELAPSED: 68.9s  TIMEOUT: False
+------------------------------------------------------------------------
+ - INFO - Individual-level step 'checkpoint_save' started for subject 'sub30'.
+2026-05-31 13:22:50 - INFO - Checkpoint saved individual-level result for subject 'sub30'.
+2026-05-31 13:22:50 - INFO - Individual-level step 'checkpoint_save' finished for subject 'sub30'.
+2026-05-31 13:22:51 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:22:51 - INFO - Stage 2: Processing all test subjects through 3 group-level steps...
+2026-05-31 13:22:51 - INFO - Group-level step 'concatenate_voxels' (ConcatenateVoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:22:52 - INFO - Concatenated voxel features from 13 subject(s) (rows=153127, feature_columns=90)
+2026-05-31 13:22:52 - INFO - Group-level step 'concatenate_voxels' finished; output: rows=153127, feature_columns=90, total_columns=91
+2026-05-31 13:22:52 - INFO - Group-level step 'group_preprocessing' (GroupPreprocessingStep) started; input: rows=153127, feature_columns=90, total_columns=91
+2026-05-31 13:22:52 - INFO - Group-level preprocessing pipeline started (transform): rows=153127, feature_columns=90, steps=2
+2026-05-31 13:22:52 - INFO - Group-level preprocessing step 1/2 'variance_filter': feature_columns 90 -> 90 (rows=153127)
+2026-05-31 13:22:52 - INFO - Group-level preprocessing step 2/2 'zscore': feature_columns 90 -> 90 (rows=153127)
+2026-05-31 13:22:52 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 90 -> 90
+2026-05-31 13:22:53 - INFO - Group-level step 'group_preprocessing' finished; output: rows=153127, feature_columns=90, total_columns=91
+2026-05-31 13:22:53 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=153127, feature_columns=90, total_columns=91
+2026-05-31 13:22:53 - INFO - Group-level step 'group_clustering' finished; output: rows=153127, feature_columns=91, total_columns=92
+2026-05-31 13:22:53 - INFO - Saving predict results...
+2026-05-31 13:23:14 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_pooling_voxel_radiomics\predict\habitats.csv
+2026-05-31 13:23:14 - INFO - Saving voxel-level habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:23:15 - INFO - Habitat analysis completed successfully
+
+Processing subjects (individual-level pipeline):   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects (individual-level pipeline):   8%|▊         | 1/13 [00:05<01:04,  5.40s/it]
+Processing subjects (individual-level pipeline):  15%|█▌        | 2/13 [00:11<01:03,  5.74s/it]
+Processing subjects (individual-level pipeline):  23%|██▎       | 3/13 [00:15<00:49,  4.99s/it]
+Processing subjects (individual-level pipeline):  31%|███       | 4/13 [00:16<00:31,  3.46s/it]
+Processing subjects (individual-level pipeline):  38%|███▊      | 5/13 [00:18<00:22,  2.83s/it]
+Processing subjects (individual-level pipeline):  46%|████▌     | 6/13 [00:21<00:20,  2.93s/it]
+Processing subjects (individual-level pipeline):  54%|█████▍    | 7/13 [00:24<00:18,  3.05s/it]
+Processing subjects (individual-level pipeline):  62%|██████▏   | 8/13 [00:26<00:12,  2.54s/it]
+Processing subjects (individual-level pipeline):  69%|██████▉   | 9/13 [00:27<00:08,  2.24s/it]
+Processing subjects (individual-level pipeline):  77%|███████▋  | 10/13 [00:32<00:08,  2.87s/it]
+Processing subjects (individual-level pipeline):  85%|████████▍ | 11/13 [00:32<00:04,  2.26s/it]
+Processing subjects (individual-level pipeline):  92%|█████████▏| 12/13 [00:34<00:01,  1.93s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:38<00:00,  2.76s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:38<00:00,  2.98s/it]
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:00<00:01,  7.03it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 57.94it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 49.64it/s]
+
+
+SCRIPT: tests/habitat/habitat_direct_pooling_voxel_radiomics_train.py
+EXIT: 0  ELAPSED: 142.4s  TIMEOUT: False
+------------------------------------------------------------------------
+s) [7/9] (elbow)
+2026-05-31 13:24:34 - INFO - Trying 9 cluster(s) [8/9] (elbow)
+2026-05-31 13:24:44 - INFO - Trying 10 cluster(s) [9/9] (elbow)
+2026-05-31 13:24:51 - INFO - Elbow calculation completed!
+2026-05-31 13:24:51 - INFO - Automatically selected best number of clusters: 3 (index=1)
+2026-05-31 13:24:51 - INFO - Cluster search finished: selected k=3
+2026-05-31 13:24:51 - INFO - Optimal number of clusters: 3
+2026-05-31 13:24:54 - INFO - GroupClusteringStep.fit: fitted with 3 habitat cluster(s)
+2026-05-31 13:24:54 - INFO - Fitted group-level clustering model with 3 clusters
+2026-05-31 13:24:55 - INFO - Clustering scores plot saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_pooling_voxel_radiomics
+2026-05-31 13:25:17 - INFO - Saved habitat clustering visualizations to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_pooling_voxel_radiomics\visualizations\habitat_clustering
+2026-05-31 13:25:17 - INFO - Group-level step 'group_clustering' finished; output: rows=153127, feature_columns=91, total_columns=92
+2026-05-31 13:25:17 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_pooling_voxel_radiomics\habitat_pipeline.pkl
+2026-05-31 13:25:17 - INFO - Saving train results...
+2026-05-31 13:25:36 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_pooling_voxel_radiomics\habitats.csv
+2026-05-31 13:25:37 - INFO - Saving voxel-level habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:25:37 - INFO - Habitat analysis completed successfully
+
+Processing subjects (individual-level pipeline):   0%|          | 0/13 [00:00<?, ?it/s]
+Processing subjects (individual-level pipeline):   8%|▊         | 1/13 [00:04<00:56,  4.70s/it]
+Processing subjects (individual-level pipeline):  15%|█▌        | 2/13 [00:10<01:00,  5.53s/it]
+Processing subjects (individual-level pipeline):  23%|██▎       | 3/13 [00:14<00:47,  4.76s/it]
+Processing subjects (individual-level pipeline):  31%|███       | 4/13 [00:15<00:29,  3.29s/it]
+Processing subjects (individual-level pipeline):  38%|███▊      | 5/13 [00:17<00:22,  2.77s/it]
+Processing subjects (individual-level pipeline):  46%|████▌     | 6/13 [00:20<00:20,  2.89s/it]
+Processing subjects (individual-level pipeline):  54%|█████▍    | 7/13 [00:23<00:18,  3.00s/it]
+Processing subjects (individual-level pipeline):  62%|██████▏   | 8/13 [00:25<00:12,  2.53s/it]
+Processing subjects (individual-level pipeline):  69%|██████▉   | 9/13 [00:26<00:08,  2.22s/it]
+Processing subjects (individual-level pipeline):  77%|███████▋  | 10/13 [00:30<00:07,  2.65s/it]
+Processing subjects (individual-level pipeline):  85%|████████▍ | 11/13 [00:32<00:04,  2.28s/it]
+Processing subjects (individual-level pipeline):  92%|█████████▏| 12/13 [00:33<00:01,  1.90s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:37<00:00,  2.56s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:37<00:00,  2.86s/it]
+Exception in thread Thread-4 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:00<00:01,  7.38it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 57.79it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:00<00:00, 49.73it/s]
+
+
+SCRIPT: tests/habitat/habitat_one_step_raw_concat_predict.py
+EXIT: 0  ELAPSED: 2.9s  TIMEOUT: False
+------------------------------------------------------------------------
+method': 'concat(raw(T1), raw(T2))', 'params': {}}, 'supervoxel_level': None, 'preprocessing_for_subject_level': {'methods': [{'method': 'winsorize', 'global_normalize': False, 'winsor_limits': [0.05, 0.05], 'n_bins': None, 'bin_strategy': None, 'variance_threshold': None, 'corr_threshold': None, 'corr_method': None}, {'method': 'minmax', 'global_normalize': False, 'winsor_limits': None, 'n_bins': None, 'bin_strategy': None, 'variance_threshold': None, 'corr_threshold': None, 'corr_method': None}]}, 'preprocessing_for_group_level': {'methods': [{'method': 'binning', 'global_normalize': False, 'winsor_limits': None, 'n_bins': 10, 'bin_strategy': 'uniform', 'variance_threshold': None, 'corr_threshold': None, 'corr_method': None}]}}, 'HabitatSegmentation': {'clustering_mode': 'one_step', 'supervoxel': {'algorithm': 'kmeans', 'n_clusters': 50, 'random_state': None, 'max_iter': 300, 'n_init': 10, 'compactness': 0.1, 'sigma': 0.0, 'enforce_connectivity': True, 'one_step_settings': {'min_clusters': 2, 'max_clusters': 10, 'fixed_n_clusters': None, 'selection_method': 'elbow', 'plot_validation_curves': True}}, 'habitat': {'algorithm': 'kmeans', 'max_clusters': 10, 'min_clusters': 2, 'habitat_cluster_selection_method': ['elbow'], 'fixed_n_clusters': None, 'random_state': None, 'max_iter': 300, 'n_init': 10}, 'postprocess_supervoxel': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}, 'postprocess_habitat': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}}, 'processes': 2, 'cap_processes_to_gpu_pool': False, 'individual_subject_timeout_sec': 900.0, 'individual_subject_graceful_shutdown_sec': 15.0, 'individual_subject_spawn_timeout_sec': 120.0, 'on_subject_failure': 'continue', 'oom_backoff': False, 'oom_reduce_workers_by': 1, 'resume': True, 'strict_checkpoint_hash': True, 'checkpoint_dir': None, 'force_rerun_subjects': [], 'retry_failed_subjects': False, 'individual_subject_auto_retry_rounds': 2, 'individual_subject_parallel_mode': 'persistent', 'persistent_worker_max_consecutive_failures': 1, 'persistent_worker_recycle_after_tasks': 0, 'clear_checkpoint_on_success': False, 'plot_curves': True, 'save_images': True, 'save_results_csv': True, 'random_state': 42, 'verbose': True, 'debug': False}
+2026-05-31 13:25:38 - INFO - =====================================
+2026-05-31 13:25:39 - INFO - Loaded 8 feature extractors: ['ConcatImageFeatureExtractor', 'KineticFeatureExtractor', 'LocalEntropyExtractor', 'MeanVoxelFeaturesExtractor', 'MyFeatureExtractor', 'RawFeatureExtractor', 'SupervoxelRadiomicsExtractor', 'VoxelRadiomicsExtractor']
+2026-05-31 13:25:40 - INFO - Loading and running one_step pipeline...
+2026-05-31 13:25:40 - INFO - Stage 1: Processing 13 test subjects through 6 individual-level steps...
+2026-05-31 13:25:40 - INFO - Loaded predict checkpoint: 13 completed, 0 failed subject(s).
+2026-05-31 13:25:40 - INFO - Resume: loaded 13 completed subject(s) from checkpoint.
+2026-05-31 13:25:40 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:25:40 - INFO - Stage 2: Processing all test subjects through 1 group-level steps...
+2026-05-31 13:25:40 - INFO - Group-level step 'combine_supervoxels' (CombineSupervoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:25:40 - INFO - Combined supervoxel features from 13 subjects (shape=(42, 8))
+2026-05-31 13:25:40 - INFO - Group-level step 'combine_supervoxels' finished; output: rows=42, feature_columns=3, total_columns=8
+2026-05-31 13:25:40 - INFO - Saving predict results...
+Habitat analysis completed successfully!
+2026-05-31 13:25:40 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_raw_concat\predict\habitats.csv
+2026-05-31 13:25:40 - INFO - One-Step mode: habitat maps were saved during clustering.
+2026-05-31 13:25:40 - INFO - Habitat analysis completed successfully
+
+
+SCRIPT: tests/habitat/habitat_one_step_raw_concat_train.py
+EXIT: 0  ELAPSED: 2.8s  TIMEOUT: False
+------------------------------------------------------------------------
+_clusters': 50, 'random_state': None, 'max_iter': 300, 'n_init': 10, 'compactness': 0.1, 'sigma': 0.0, 'enforce_connectivity': True, 'one_step_settings': {'min_clusters': 2, 'max_clusters': 10, 'fixed_n_clusters': None, 'selection_method': 'elbow', 'plot_validation_curves': True}}, 'habitat': {'algorithm': 'kmeans', 'max_clusters': 10, 'min_clusters': 2, 'habitat_cluster_selection_method': ['elbow'], 'fixed_n_clusters': None, 'random_state': None, 'max_iter': 300, 'n_init': 10}, 'postprocess_supervoxel': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}, 'postprocess_habitat': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}}, 'processes': 2, 'cap_processes_to_gpu_pool': False, 'individual_subject_timeout_sec': 900.0, 'individual_subject_graceful_shutdown_sec': 15.0, 'individual_subject_spawn_timeout_sec': 120.0, 'on_subject_failure': 'continue', 'oom_backoff': False, 'oom_reduce_workers_by': 1, 'resume': True, 'strict_checkpoint_hash': True, 'checkpoint_dir': None, 'force_rerun_subjects': [], 'retry_failed_subjects': False, 'individual_subject_auto_retry_rounds': 2, 'individual_subject_parallel_mode': 'persistent', 'persistent_worker_max_consecutive_failures': 1, 'persistent_worker_recycle_after_tasks': 0, 'clear_checkpoint_on_success': False, 'plot_curves': True, 'save_images': True, 'save_results_csv': True, 'random_state': 42, 'verbose': True, 'debug': False}
+  Output directory: F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_raw_concat
+  Resume: enabled (skip checkpointed subjects)
+2026-05-31 13:25:41 - INFO - =====================================
+  Log file at: F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_raw_concat\habitat_analysis.log
+2026-05-31 13:25:42 - INFO - Loaded 8 feature extractors: ['ConcatImageFeatureExtractor', 'KineticFeatureExtractor', 'LocalEntropyExtractor', 'MeanVoxelFeaturesExtractor', 'MyFeatureExtractor', 'RawFeatureExtractor', 'SupervoxelRadiomicsExtractor', 'VoxelRadiomicsExtractor']
+2026-05-31 13:25:43 - INFO - Validation methods supported by 'kmeans': silhouette, calinski_harabasz, inertia, kneedle, elbow, gap, davies_bouldin
+2026-05-31 13:25:43 - INFO - Default validation methods: silhouette, calinski_harabasz, kneedle
+2026-05-31 13:25:43 - INFO - Random seeds: global=42 individual_clustering=42 group_habitat=42
+2026-05-31 13:25:43 - INFO - Building and fitting one_step pipeline...
+2026-05-31 13:25:43 - INFO - Will use MEAN VOXEL features for clustering
+2026-05-31 13:25:43 - INFO - Stage 1: Processing 13 subjects through 6 individual-level steps...
+2026-05-31 13:25:43 - INFO - Loaded train checkpoint: 13 completed, 0 failed subject(s).
+2026-05-31 13:25:43 - INFO - Resume: loaded 13 completed subject(s) from checkpoint.
+2026-05-31 13:25:43 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:25:43 - INFO - Stage 2: Processing all subjects through 1 group-level steps...
+2026-05-31 13:25:43 - INFO - Group-level step 'combine_supervoxels' (CombineSupervoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:25:43 - INFO - Combined supervoxel features from 13 subjects (shape=(42, 8))
+2026-05-31 13:25:43 - INFO - Group-level step 'combine_supervoxels' finished; output: rows=42, feature_columns=3, total_columns=8
+2026-05-31 13:25:43 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_raw_concat\habitat_pipeline.pkl
+2026-05-31 13:25:43 - INFO - Saving train results...
+Habitat analysis completed successfully!
+2026-05-31 13:25:43 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_raw_concat\habitats.csv
+2026-05-31 13:25:43 - INFO - One-Step mode: habitat maps were saved during clustering.
+2026-05-31 13:25:43 - INFO - Habitat analysis completed successfully
+
+
+SCRIPT: tests/habitat/habitat_one_step_voxel_radiomics_predict.py
+EXIT: 0  ELAPSED: 79.0s  TIMEOUT: False
+------------------------------------------------------------------------
+or subject 'sub30'.
+2026-05-31 13:27:01 - INFO - Individual-level step 'checkpoint_save' started for subject 'sub30'.
+2026-05-31 13:27:01 - INFO - Checkpoint saved individual-level result for subject 'sub30'.
+2026-05-31 13:27:01 - INFO - Individual-level step 'checkpoint_save' finished for subject 'sub30'.
+2026-05-31 13:27:02 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:27:02 - INFO - Stage 2: Processing all test subjects through 1 group-level steps...
+2026-05-31 13:27:02 - INFO - Group-level step 'combine_supervoxels' (CombineSupervoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:27:02 - INFO - Combined supervoxel features from 13 subjects (shape=(41, 184))
+2026-05-31 13:27:02 - INFO - Group-level step 'combine_supervoxels' finished; output: rows=41, feature_columns=91, total_columns=184
+2026-05-31 13:27:02 - INFO - Saving predict results...
+Habitat analysis completed successfully!
+2026-05-31 13:27:02 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_voxel_radiomics\predict\habitats.csv
+2026-05-31 13:27:02 - INFO - One-Step mode: habitat maps were saved during clustering.
+2026-05-31 13:27:02 - INFO - Habitat analysis completed successfully
+
+Processing subjects (individual-level pipeline):   0%|          | 0/13 [00:00<?, ?it/s]Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Processing subjects (individual-level pipeline):   8%|▊         | 1/13 [00:08<01:43,  8.66s/it]Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Processing subjects (individual-level pipeline):  15%|█▌        | 2/13 [00:15<01:25,  7.78s/it]
+Processing subjects (individual-level pipeline):  23%|██▎       | 3/13 [00:21<01:07,  6.71s/it]
+Processing subjects (individual-level pipeline):  31%|███       | 4/13 [00:23<00:43,  4.85s/it]
+Processing subjects (individual-level pipeline):  38%|███▊      | 5/13 [00:26<00:32,  4.12s/it]
+Processing subjects (individual-level pipeline):  46%|████▌     | 6/13 [00:30<00:30,  4.37s/it]
+Processing subjects (individual-level pipeline):  54%|█████▍    | 7/13 [00:38<00:32,  5.41s/it]
+Processing subjects (individual-level pipeline):  62%|██████▏   | 8/13 [00:42<00:24,  4.94s/it]
+Processing subjects (individual-level pipeline):  69%|██████▉   | 9/13 [00:46<00:19,  4.78s/it]
+Processing subjects (individual-level pipeline):  77%|███████▋  | 10/13 [00:59<00:21,  7.20s/it]
+Processing subjects (individual-level pipeline):  85%|████████▍ | 11/13 [01:00<00:10,  5.43s/it]
+Processing subjects (individual-level pipeline):  92%|█████████▏| 12/13 [01:02<00:04,  4.38s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [01:12<00:00,  6.00s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [01:12<00:00,  5.59s/it]
+
+
+SCRIPT: tests/habitat/habitat_one_step_voxel_radiomics_train.py
+EXIT: 0  ELAPSED: 3.0s  TIMEOUT: False
+------------------------------------------------------------------------
+ore', 'global_normalize': False, 'winsor_limits': None, 'n_bins': None, 'bin_strategy': None, 'variance_threshold': None, 'corr_threshold': None, 'corr_method': None}]}}, 'HabitatSegmentation': {'clustering_mode': 'one_step', 'supervoxel': {'algorithm': 'kmeans', 'n_clusters': 50, 'random_state': None, 'max_iter': 300, 'n_init': 10, 'compactness': 0.1, 'sigma': 0.0, 'enforce_connectivity': True, 'one_step_settings': {'min_clusters': 2, 'max_clusters': 10, 'fixed_n_clusters': None, 'selection_method': 'elbow', 'plot_validation_curves': True}}, 'habitat': {'algorithm': 'kmeans', 'max_clusters': 10, 'min_clusters': 2, 'habitat_cluster_selection_method': ['elbow'], 'fixed_n_clusters': None, 'random_state': None, 'max_iter': 300, 'n_init': 10}, 'postprocess_supervoxel': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}, 'postprocess_habitat': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}}, 'processes': 2, 'cap_processes_to_gpu_pool': False, 'individual_subject_timeout_sec': 900.0, 'individual_subject_graceful_shutdown_sec': 15.0, 'individual_subject_spawn_timeout_sec': 120.0, 'on_subject_failure': 'continue', 'oom_backoff': False, 'oom_reduce_workers_by': 1, 'resume': True, 'strict_checkpoint_hash': True, 'checkpoint_dir': None, 'force_rerun_subjects': [], 'retry_failed_subjects': False, 'individual_subject_auto_retry_rounds': 2, 'individual_subject_parallel_mode': 'persistent', 'persistent_worker_max_consecutive_failures': 1, 'persistent_worker_recycle_after_tasks': 0, 'clear_checkpoint_on_success': False, 'plot_curves': True, 'save_images': True, 'save_results_csv': True, 'random_state': 42, 'verbose': True, 'debug': False}
+2026-05-31 13:27:03 - INFO - =====================================
+2026-05-31 13:27:04 - INFO - Loaded 8 feature extractors: ['ConcatImageFeatureExtractor', 'KineticFeatureExtractor', 'LocalEntropyExtractor', 'MeanVoxelFeaturesExtractor', 'MyFeatureExtractor', 'RawFeatureExtractor', 'SupervoxelRadiomicsExtractor', 'VoxelRadiomicsExtractor']
+2026-05-31 13:27:05 - INFO - Validation methods supported by 'kmeans': silhouette, calinski_harabasz, inertia, kneedle, elbow, gap, davies_bouldin
+2026-05-31 13:27:05 - INFO - Default validation methods: silhouette, calinski_harabasz, kneedle
+2026-05-31 13:27:05 - INFO - Random seeds: global=42 individual_clustering=42 group_habitat=42
+2026-05-31 13:27:05 - INFO - Building and fitting one_step pipeline...
+2026-05-31 13:27:05 - INFO - Will use MEAN VOXEL features for clustering
+2026-05-31 13:27:05 - INFO - Stage 1: Processing 13 subjects through 6 individual-level steps...
+2026-05-31 13:27:05 - INFO - Loaded train checkpoint: 13 completed, 0 failed subject(s).
+2026-05-31 13:27:05 - INFO - Resume: loaded 13 completed subject(s) from checkpoint.
+2026-05-31 13:27:05 - INFO - Individual-level processing completed: 13/13 subjects successful
+2026-05-31 13:27:05 - INFO - Stage 2: Processing all subjects through 1 group-level steps...
+2026-05-31 13:27:05 - INFO - Group-level step 'combine_supervoxels' (CombineSupervoxelsStep) started; input: 13 subject(s)
+2026-05-31 13:27:05 - INFO - Combined supervoxel features from 13 subjects (shape=(41, 184))
+2026-05-31 13:27:05 - INFO - Group-level step 'combine_supervoxels' finished; output: rows=41, feature_columns=91, total_columns=184
+2026-05-31 13:27:05 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_voxel_radiomics\habitat_pipeline.pkl
+2026-05-31 13:27:05 - INFO - Saving train results...
+Habitat analysis completed successfully!
+2026-05-31 13:27:05 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_one_step_voxel_radiomics\habitats.csv
+2026-05-31 13:27:05 - INFO - One-Step mode: habitat maps were saved during clustering.
+2026-05-31 13:27:05 - INFO - Habitat analysis completed successfully
+
+
+SCRIPT: tests/habitat/habitat_two_step_raw_concat_predict.py
+EXIT: 1  ELAPSED: 3.0s  TIMEOUT: False
+------------------------------------------------------------------------
+.\\demo_data\\results\\habitat_two_step\\predict', 'run_mode': 'predict', 'pipeline_path': 'F:\\work\\habit_project\\config\\habitat\\..\\..\\demo_data\\results\\habitat_two_step\\habitat_pipeline.pkl', 'FeatureConstruction': None, 'HabitatSegmentation': {'clustering_mode': 'two_step', 'supervoxel': {'algorithm': 'kmeans', 'n_clusters': 50, 'random_state': None, 'max_iter': 300, 'n_init': 10, 'compactness': 0.1, 'sigma': 0.0, 'enforce_connectivity': True, 'one_step_settings': {'min_clusters': 2, 'max_clusters': 10, 'fixed_n_clusters': None, 'selection_method': 'elbow', 'plot_validation_curves': True}}, 'habitat': {'algorithm': 'kmeans', 'max_clusters': 10, 'min_clusters': 2, 'habitat_cluster_selection_method': 'elbow', 'fixed_n_clusters': None, 'random_state': None, 'max_iter': 300, 'n_init': 10}, 'postprocess_supervoxel': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}, 'postprocess_habitat': {'enabled': False, 'min_component_size': 30, 'connectivity': 1, 'reassign_method': 'neighbor_vote', 'max_iterations': 3}}, 'processes': 2, 'cap_processes_to_gpu_pool': False, 'individual_subject_timeout_sec': 900.0, 'individual_subject_graceful_shutdown_sec': 15.0, 'individual_subject_spawn_timeout_sec': 120.0, 'on_subject_failure': 'continue', 'oom_backoff': False, 'oom_reduce_workers_by': 1, 'resume': True, 'strict_checkpoint_hash': True, 'checkpoint_dir': None, 'force_rerun_subjects': [], 'retry_failed_subjects': False, 'individual_subject_auto_retry_rounds': 2, 'individual_subject_parallel_mode': 'persistent', 'persistent_worker_max_consecutive_failures': 1, 'persistent_worker_recycle_after_tasks': 0, 'clear_checkpoint_on_success': False, 'plot_curves': True, 'save_images': True, 'save_results_csv': True, 'random_state': 42, 'verbose': True, 'debug': False}
+2026-05-31 13:27:06 - INFO - =====================================
+2026-05-31 13:27:07 - INFO - Loaded 8 feature extractors: ['ConcatImageFeatureExtractor', 'KineticFeatureExtractor', 'LocalEntropyExtractor', 'MeanVoxelFeaturesExtractor', 'MyFeatureExtractor', 'RawFeatureExtractor', 'SupervoxelRadiomicsExtractor', 'VoxelRadiomicsExtractor']
+2026-05-31 13:27:08 - INFO - Loading and running two_step pipeline...
+2026-05-31 13:27:08 - INFO - Stage 1: Processing 13 test subjects through 6 individual-level steps...
+2026-05-31 13:27:08 - ERROR - Error during habitat analysis: Checkpoint config hash changed (331438b13affd520 -> 0f1eef60185d1fab); cannot resume with strict_checkpoint_hash=True.
+Traceback (most recent call last):
+  File "F:\work\habit_project\habit\cli_commands\commands\cmd_habitat.py", line 101, in run_habitat
+    habitat_analysis.predict(
+  File "F:\work\habit_project\habit\core\habitat_analysis\habitat_analysis.py", line 635, in predict
+    results_df = self.pipeline.transform(X)
+  File "F:\work\habit_project\habit\core\habitat_analysis\pipelines\base_pipeline.py", line 382, in transform
+    X_individual = self._process_subjects_parallel(X_test)
+  File "F:\work\habit_project\habit\core\habitat_analysis\pipelines\base_pipeline.py", line 498, in _process_subjects_parallel
+    return stage.run(X)
+  File "F:\work\habit_project\habit\core\habitat_analysis\checkpoint\stage.py", line 62, in run
+    self.checkpoint = self._create_checkpoint()
+  File "F:\work\habit_project\habit\core\habitat_analysis\checkpoint\stage.py", line 384, in _create_checkpoint
+    checkpoint.initialize_for_run(resume=resume)
+  File "F:\work\habit_project\habit\core\habitat_analysis\checkpoint\manager.py", line 485, in initialize_for_run
+    raise CheckpointConfigHashError(message)
+habit.core.habitat_analysis.checkpoint.manager.CheckpointConfigHashError: Checkpoint config hash changed (331438b13affd520 -> 0f1eef60185d1fab); cannot resume with strict_checkpoint_hash=True.
+An error occurred. See log file for details: Checkpoint config hash changed (331438b13affd520 -> 0f1eef60185d1fab); cannot resume with strict_checkpoint_hash=True.
+
+
+SCRIPT: tests/habitat/habitat_two_step_raw_concat_train.py
+EXIT: 0  ELAPSED: 10.8s  TIMEOUT: False
+------------------------------------------------------------------------
+fit() completed with 1 step state(s), baseline feature count=2
+2026-05-31 13:27:11 - INFO - Group-level preprocessing pipeline started (transform): rows=650, feature_columns=2, steps=1
+2026-05-31 13:27:11 - INFO - Group-level preprocessing step 1/1 'binning': feature_columns 2 -> 2 (rows=650)
+2026-05-31 13:27:11 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 2 -> 2
+2026-05-31 13:27:11 - INFO - Group-level step 'group_preprocessing' finished; output: rows=650, feature_columns=2, total_columns=7
+2026-05-31 13:27:11 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=650, feature_columns=2, total_columns=7
+2026-05-31 13:27:11 - INFO - GroupClusteringStep.fit: input rows=650, feature_columns=2
+2026-05-31 13:27:11 - INFO - Finding optimal number of clusters...
+2026-05-31 13:27:11 - INFO - Searching optimal cluster count: evaluating k=2..10 (9 candidate(s), methods=elbow)
+2026-05-31 13:27:11 - INFO - Validation method: elbow
+2026-05-31 13:27:11 - INFO - Trying 2 cluster(s) [1/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 3 cluster(s) [2/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 4 cluster(s) [3/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 5 cluster(s) [4/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 6 cluster(s) [5/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 7 cluster(s) [6/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 8 cluster(s) [7/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 9 cluster(s) [8/9] (elbow)
+2026-05-31 13:27:14 - INFO - Trying 10 cluster(s) [9/9] (elbow)
+2026-05-31 13:27:14 - INFO - Elbow calculation completed!
+2026-05-31 13:27:14 - INFO - Automatically selected best number of clusters: 4 (index=2)
+2026-05-31 13:27:14 - INFO - Cluster search finished: selected k=4
+2026-05-31 13:27:14 - INFO - Optimal number of clusters: 4
+2026-05-31 13:27:14 - INFO - GroupClusteringStep.fit: fitted with 4 habitat cluster(s)
+2026-05-31 13:27:14 - INFO - Fitted group-level clustering model with 4 clusters
+2026-05-31 13:27:15 - INFO - Clustering scores plot saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step
+2026-05-31 13:27:16 - WARNING - Failed to create habitat clustering visualization: index 2 is out of bounds for axis 1 with size 2
+2026-05-31 13:27:16 - INFO - Group-level step 'group_clustering' finished; output: rows=650, feature_columns=3, total_columns=8
+2026-05-31 13:27:16 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step\habitat_pipeline.pkl
+2026-05-31 13:27:16 - INFO - Saving train results...
+2026-05-31 13:27:16 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step\habitats.csv
+2026-05-31 13:27:16 - INFO - Saving habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:27:19 - INFO - Habitat analysis completed successfully
+Exception in thread Thread-3 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:01<00:23,  1.95s/it]
+Saving habitat images:  23%|██▎       | 3/13 [00:02<00:05,  1.70it/s]
+Saving habitat images:  54%|█████▍    | 7/13 [00:02<00:01,  4.85it/s]
+Saving habitat images:  92%|█████████▏| 12/13 [00:02<00:00,  9.43it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  4.57it/s]
+
+
+SCRIPT: tests/habitat/habitat_two_step_supervoxel_radiomics_predict.py
+EXIT: 0  ELAPSED: 50.3s  TIMEOUT: False
+------------------------------------------------------------------------
+sform): feature_columns 91 -> 67
+2026-05-31 13:28:06 - INFO - Group-level step 'group_preprocessing' finished; output: rows=650, feature_columns=67, total_columns=70
+2026-05-31 13:28:06 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=650, feature_columns=67, total_columns=70
+2026-05-31 13:28:06 - INFO - Group-level step 'group_clustering' finished; output: rows=650, feature_columns=68, total_columns=71
+2026-05-31 13:28:06 - INFO - Saving predict results...
+2026-05-31 13:28:06 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_supervoxel_radiomics\predict\habitats.csv
+2026-05-31 13:28:06 - INFO - Saving habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:28:09 - INFO - Habitat analysis completed successfully
+
+Processing subjects (individual-level pipeline):   0%|          | 0/13 [00:00<?, ?it/s]Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Processing subjects (individual-level pipeline):   8%|▊         | 1/13 [00:10<02:03, 10.33s/it]
+Processing subjects (individual-level pipeline):  15%|█▌        | 2/13 [00:12<01:00,  5.51s/it]
+Processing subjects (individual-level pipeline):  23%|██▎       | 3/13 [00:17<00:54,  5.48s/it]
+Processing subjects (individual-level pipeline):  31%|███       | 4/13 [00:18<00:33,  3.74s/it]
+Processing subjects (individual-level pipeline):  38%|███▊      | 5/13 [00:22<00:30,  3.78s/it]
+Processing subjects (individual-level pipeline):  46%|████▌     | 6/13 [00:24<00:20,  2.96s/it]
+Processing subjects (individual-level pipeline):  54%|█████▍    | 7/13 [00:27<00:17,  2.97s/it]
+Processing subjects (individual-level pipeline):  62%|██████▏   | 8/13 [00:28<00:11,  2.36s/it]
+Processing subjects (individual-level pipeline):  69%|██████▉   | 9/13 [00:32<00:11,  2.97s/it]
+Processing subjects (individual-level pipeline):  77%|███████▋  | 10/13 [00:33<00:06,  2.23s/it]
+Processing subjects (individual-level pipeline):  85%|████████▍ | 11/13 [00:37<00:05,  2.84s/it]
+Processing subjects (individual-level pipeline):  92%|█████████▏| 12/13 [00:37<00:02,  2.03s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:40<00:00,  2.39s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:40<00:00,  3.13s/it]
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:01<00:23,  1.92s/it]
+Saving habitat images:  23%|██▎       | 3/13 [00:02<00:05,  1.70it/s]
+Saving habitat images:  38%|███▊      | 5/13 [00:02<00:02,  3.11it/s]
+Saving habitat images:  85%|████████▍ | 11/13 [00:02<00:00,  8.77it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  4.40it/s]
+
+
+SCRIPT: tests/habitat/habitat_two_step_supervoxel_radiomics_train.py
+EXIT: 0  ELAPSED: 12.1s  TIMEOUT: False
+------------------------------------------------------------------------
+filter' filtered 24 feature column(s)
+2026-05-31 13:28:12 - INFO - Group-level preprocessing step 2/2 'zscore': feature_columns 67 -> 67 (rows=650)
+2026-05-31 13:28:12 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 91 -> 67
+2026-05-31 13:28:12 - INFO - Group-level step 'group_preprocessing' finished; output: rows=650, feature_columns=67, total_columns=70
+2026-05-31 13:28:12 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=650, feature_columns=67, total_columns=70
+2026-05-31 13:28:12 - INFO - GroupClusteringStep.fit: input rows=650, feature_columns=67
+2026-05-31 13:28:12 - INFO - Finding optimal number of clusters...
+2026-05-31 13:28:12 - INFO - Searching optimal cluster count: evaluating k=2..10 (9 candidate(s), methods=elbow)
+2026-05-31 13:28:12 - INFO - Validation method: elbow
+2026-05-31 13:28:12 - INFO - Trying 2 cluster(s) [1/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 3 cluster(s) [2/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 4 cluster(s) [3/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 5 cluster(s) [4/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 6 cluster(s) [5/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 7 cluster(s) [6/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 8 cluster(s) [7/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 9 cluster(s) [8/9] (elbow)
+2026-05-31 13:28:15 - INFO - Trying 10 cluster(s) [9/9] (elbow)
+2026-05-31 13:28:16 - INFO - Elbow calculation completed!
+2026-05-31 13:28:16 - INFO - Automatically selected best number of clusters: 3 (index=1)
+2026-05-31 13:28:16 - INFO - Cluster search finished: selected k=3
+2026-05-31 13:28:16 - INFO - Optimal number of clusters: 3
+2026-05-31 13:28:16 - INFO - GroupClusteringStep.fit: fitted with 3 habitat cluster(s)
+2026-05-31 13:28:16 - INFO - Fitted group-level clustering model with 3 clusters
+2026-05-31 13:28:16 - INFO - Clustering scores plot saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_supervoxel_radiomics
+2026-05-31 13:28:18 - INFO - Saved habitat clustering visualizations to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_supervoxel_radiomics\visualizations\habitat_clustering
+2026-05-31 13:28:18 - INFO - Group-level step 'group_clustering' finished; output: rows=650, feature_columns=68, total_columns=71
+2026-05-31 13:28:18 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_supervoxel_radiomics\habitat_pipeline.pkl
+2026-05-31 13:28:18 - INFO - Saving train results...
+2026-05-31 13:28:18 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_supervoxel_radiomics\habitats.csv
+2026-05-31 13:28:18 - INFO - Saving habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:28:21 - INFO - Habitat analysis completed successfully
+Exception in thread Thread-3 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:01<00:22,  1.90s/it]
+Saving habitat images:  23%|██▎       | 3/13 [00:02<00:05,  1.72it/s]
+Saving habitat images:  54%|█████▍    | 7/13 [00:02<00:01,  4.86it/s]
+Saving habitat images:  85%|████████▍ | 11/13 [00:02<00:00,  8.49it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  4.59it/s]
+
+
+SCRIPT: tests/habitat/habitat_two_step_voxel_radiomics_predict.py
+EXIT: 0  ELAPSED: 67.7s  TIMEOUT: False
+------------------------------------------------------------------------
+ansform): feature_columns 90 -> 89
+2026-05-31 13:29:26 - INFO - Group-level step 'group_preprocessing' finished; output: rows=650, feature_columns=89, total_columns=182
+2026-05-31 13:29:26 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=650, feature_columns=89, total_columns=182
+2026-05-31 13:29:26 - INFO - Group-level step 'group_clustering' finished; output: rows=650, feature_columns=90, total_columns=183
+2026-05-31 13:29:26 - INFO - Saving predict results...
+2026-05-31 13:29:26 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_voxel_radiomics\predict\habitats.csv
+2026-05-31 13:29:26 - INFO - Saving habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:29:29 - INFO - Habitat analysis completed successfully
+
+Processing subjects (individual-level pipeline):   0%|          | 0/13 [00:00<?, ?it/s]Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Processing subjects (individual-level pipeline):   8%|▊         | 1/13 [00:08<01:37,  8.11s/it]Exception in thread Thread-2 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Processing subjects (individual-level pipeline):  15%|█▌        | 2/13 [00:14<01:18,  7.17s/it]
+Processing subjects (individual-level pipeline):  23%|██▎       | 3/13 [00:19<01:00,  6.03s/it]
+Processing subjects (individual-level pipeline):  31%|███       | 4/13 [00:20<00:38,  4.31s/it]
+Processing subjects (individual-level pipeline):  38%|███▊      | 5/13 [00:23<00:28,  3.57s/it]
+Processing subjects (individual-level pipeline):  46%|████▌     | 6/13 [00:27<00:26,  3.81s/it]
+Processing subjects (individual-level pipeline):  54%|█████▍    | 7/13 [00:31<00:23,  3.99s/it]
+Processing subjects (individual-level pipeline):  62%|██████▏   | 8/13 [00:34<00:17,  3.44s/it]
+Processing subjects (individual-level pipeline):  69%|██████▉   | 9/13 [00:36<00:12,  3.22s/it]
+Processing subjects (individual-level pipeline):  77%|███████▋  | 10/13 [00:48<00:17,  5.86s/it]
+Processing subjects (individual-level pipeline):  85%|████████▍ | 11/13 [00:49<00:08,  4.29s/it]
+Processing subjects (individual-level pipeline):  92%|█████████▏| 12/13 [00:51<00:03,  3.51s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:58<00:00,  4.56s/it]
+Processing subjects (individual-level pipeline): 100%|██████████| 13/13 [00:58<00:00,  4.47s/it]
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:01<00:22,  1.86s/it]
+Saving habitat images:  23%|██▎       | 3/13 [00:02<00:05,  1.74it/s]
+Saving habitat images:  31%|███       | 4/13 [00:02<00:03,  2.26it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  7.45it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  4.50it/s]
+
+
+SCRIPT: tests/habitat/habitat_two_step_voxel_radiomics_train.py
+EXIT: 0  ELAPSED: 11.9s  TIMEOUT: False
+------------------------------------------------------------------------
+9:32 - INFO - Group-level preprocessing step 2/2 'zscore': feature_columns 89 -> 89 (rows=650)
+2026-05-31 13:29:32 - INFO - Group-level preprocessing pipeline finished (transform): feature_columns 90 -> 89
+2026-05-31 13:29:32 - INFO - Group-level step 'group_preprocessing' finished; output: rows=650, feature_columns=89, total_columns=182
+2026-05-31 13:29:32 - INFO - Group-level step 'group_clustering' (GroupClusteringStep) started; input: rows=650, feature_columns=89, total_columns=182
+2026-05-31 13:29:32 - INFO - GroupClusteringStep.fit: input rows=650, feature_columns=89
+2026-05-31 13:29:32 - INFO - Finding optimal number of clusters...
+2026-05-31 13:29:32 - INFO - Searching optimal cluster count: evaluating k=2..10 (9 candidate(s), methods=elbow)
+2026-05-31 13:29:32 - INFO - Validation method: elbow
+2026-05-31 13:29:32 - INFO - Trying 2 cluster(s) [1/9] (elbow)
+2026-05-31 13:29:34 - INFO - Trying 3 cluster(s) [2/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 4 cluster(s) [3/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 5 cluster(s) [4/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 6 cluster(s) [5/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 7 cluster(s) [6/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 8 cluster(s) [7/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 9 cluster(s) [8/9] (elbow)
+2026-05-31 13:29:35 - INFO - Trying 10 cluster(s) [9/9] (elbow)
+2026-05-31 13:29:35 - INFO - Elbow calculation completed!
+2026-05-31 13:29:35 - INFO - Automatically selected best number of clusters: 3 (index=1)
+2026-05-31 13:29:35 - INFO - Cluster search finished: selected k=3
+2026-05-31 13:29:35 - INFO - Optimal number of clusters: 3
+2026-05-31 13:29:35 - INFO - GroupClusteringStep.fit: fitted with 3 habitat cluster(s)
+2026-05-31 13:29:35 - INFO - Fitted group-level clustering model with 3 clusters
+2026-05-31 13:29:36 - INFO - Clustering scores plot saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_voxel_radiomics
+2026-05-31 13:29:38 - INFO - Saved habitat clustering visualizations to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_voxel_radiomics\visualizations\habitat_clustering
+2026-05-31 13:29:38 - INFO - Group-level step 'group_clustering' finished; output: rows=650, feature_columns=90, total_columns=183
+2026-05-31 13:29:38 - INFO - Saving fitted pipeline to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_voxel_radiomics\habitat_pipeline.pkl
+2026-05-31 13:29:38 - INFO - Saving train results...
+2026-05-31 13:29:38 - INFO - Results saved to F:\work\habit_project\config\habitat\..\..\demo_data\results\habitat_two_step_voxel_radiomics\habitats.csv
+2026-05-31 13:29:38 - INFO - Saving habitat images for 13 subjects...
+Habitat analysis completed successfully!
+2026-05-31 13:29:41 - INFO - Habitat analysis completed successfully
+Exception in thread Thread-3 (_readerthread):
+Traceback (most recent call last):
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "E:\conda\mconda\envs\py310\lib\threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\conda\mconda\envs\py310\lib\subprocess.py", line 1515, in _readerthread
+    buffer.append(fh.read())
+  File "E:\conda\mconda\envs\py310\lib\codecs.py", line 322, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xce in position 4: invalid continuation byte
+
+Saving habitat images:   0%|          | 0/13 [00:00<?, ?it/s]
+Saving habitat images:   8%|▊         | 1/13 [00:01<00:23,  1.94s/it]
+Saving habitat images:  15%|█▌        | 2/13 [00:02<00:10,  1.10it/s]
+Saving habitat images:  23%|██▎       | 3/13 [00:02<00:05,  1.79it/s]
+Saving habitat images:  62%|██████▏   | 8/13 [00:02<00:00,  6.60it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  7.99it/s]
+Saving habitat images: 100%|██████████| 13/13 [00:02<00:00,  4.46it/s]
+
+
+SCRIPT: tests/feature_extraction/extract_features_all.py
+EXIT: 0  ELAPSED: 24.7s  TIMEOUT: False
+------------------------------------------------------------------------
+ firstorder
+INFO:radiomics.featureextractor:Computing glcm
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+WARNING:radiomics.glcm:GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+INFO:radiomics.featureextractor:Computing glrlm
+INFO:radiomics.featureextractor:Computing glszm
+INFO:radiomics.featureextractor:Computing ngtdm
+INFO:radiomics.featureextractor:Computing gldm
+INFO:radiomics.featureextractor:Loading parameter dictionary
+INFO:radiomics.featureextractor:Computing shape
+INFO:radiomics.featureextractor:Calculating features with label: 1
+INFO:radiomics.featureextractor:Loading image and mask
+INFO:radiomics.featureextractor:Adding image type "Original" with custom settings: {}
+INFO:radiomics.featureextractor:Calculating features for original image
+INFO:radiomics.featureextractor:Computing firstorder
+INFO:radiomics.featureextractor:Computing glcm
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+WARNING:radiomics.glcm:GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+INFO:radiomics.featureextractor:Computing glrlm
+INFO:radiomics.featureextractor:Computing glszm
+INFO:radiomics.featureextractor:Computing ngtdm
+INFO:radiomics.featureextractor:Computing gldm
+
+Extracting Features:  92%|█████████▏| 12/13 [00:18<00:01,  1.59s/it]INFO:radiomics.featureextractor:Computing shape
+INFO:radiomics.featureextractor:Adding image type "Original" with custom settings: {}
+INFO:radiomics.featureextractor:Calculating features for original image
+INFO:radiomics.featureextractor:Computing firstorder
+INFO:radiomics.featureextractor:Computing glcm
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+WARNING:radiomics.glcm:GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+INFO:radiomics.featureextractor:Computing glrlm
+INFO:radiomics.featureextractor:Computing glszm
+INFO:radiomics.featureextractor:Computing ngtdm
+INFO:radiomics.featureextractor:Computing gldm
+INFO:radiomics.featureextractor:Loading parameter dictionary
+INFO:radiomics.featureextractor:Calculating features with label: 1
+INFO:radiomics.featureextractor:Loading image and mask
+INFO:radiomics.featureextractor:Computing shape
+INFO:radiomics.featureextractor:Adding image type "Original" with custom settings: {}
+INFO:radiomics.featureextractor:Calculating features for original image
+INFO:radiomics.featureextractor:Computing firstorder
+INFO:radiomics.featureextractor:Computing glcm
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+WARNING:radiomics.glcm:GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+INFO:radiomics.featureextractor:Computing glrlm
+INFO:radiomics.featureextractor:Computing glszm
+INFO:radiomics.featureextractor:Computing ngtdm
+INFO:radiomics.featureextractor:Computing gldm
+
+Extracting Features: 100%|██████████| 13/13 [00:23<00:00,  2.56s/it]
+Extracting Features: 100%|██████████| 13/13 [00:23<00:00,  1.77s/it]
+
+Processing Traditional Radiomics:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing Traditional Radiomics:  85%|████████▍ | 11/13 [00:00<00:00, 105.57it/s]
+Processing Traditional Radiomics: 100%|██████████| 13/13 [00:00<00:00, 85.16it/s] 
+
+Processing Basic Habitat Features:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing Basic Habitat Features: 100%|██████████| 13/13 [00:00<00:00, 1072.44it/s]
+
+Processing Whole Habitat Radiomics:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing Whole Habitat Radiomics: 100%|██████████| 13/13 [00:00<00:00, 751.29it/s]
+
+Processing MSI Features:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing MSI Features: 100%|██████████| 13/13 [00:00<00:00, 2932.13it/s]
+
+Processing ITH Features:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing ITH Features: 100%|██████████| 13/13 [00:00<00:00, 6835.40it/s]
+
+
+SCRIPT: tests/feature_extraction/extract_features_habitat_radiomics.py
+EXIT: 0  ELAPSED: 46.4s  TIMEOUT: False
+------------------------------------------------------------------------
+rage, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  77%|███████▋  | 10/13 [00:29<00:08,  2.82s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  85%|████████▍ | 11/13 [00:34<00:07,  3.52s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  92%|█████████▏| 12/13 [00:38<00:03,  3.82s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features: 100%|██████████| 13/13 [00:44<00:00,  4.36s/it]
+Extracting Features: 100%|██████████| 13/13 [00:44<00:00,  3.42s/it]
+
+Processing Whole Habitat Radiomics:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing Whole Habitat Radiomics: 100%|██████████| 13/13 [00:00<00:00, 626.22it/s]
+
+Processing Habitats:   0%|          | 0/4 [00:00<?, ?it/s]
+Processing Habitats:  50%|█████     | 2/4 [00:00<00:00, 15.08it/s]
+Processing Habitats: 100%|██████████| 4/4 [00:00<00:00, 10.43it/s]
+Processing Habitats: 100%|██████████| 4/4 [00:00<00:00,  8.26it/s]
+
+
+SCRIPT: tests/feature_extraction/extract_features_traditional.py
+EXIT: 0  ELAPSED: 13.6s  TIMEOUT: False
+------------------------------------------------------------------------
+ect\config\feature_extraction\..\..\demo_data\results\features_demo_traditional\raw_image_radiomics.csv
+2026-05-31 13:31:06 - INFO - Traditional radiomics features saved to F:\work\habit_project\config\feature_extraction\..\..\demo_data\results\features_demo_traditional\raw_image_radiomics.csv
+2026-05-31 13:31:06 - INFO - Feature extraction completed successfully
+
+Extracting Features:   0%|          | 0/13 [00:00<?, ?it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:   8%|▊         | 1/13 [00:02<00:32,  2.70s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  15%|█▌        | 2/13 [00:03<00:20,  1.85s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  23%|██▎       | 3/13 [00:05<00:16,  1.64s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  31%|███       | 4/13 [00:05<00:10,  1.12s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  38%|███▊      | 5/13 [00:06<00:07,  1.02it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  46%|████▌     | 6/13 [00:07<00:07,  1.13s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  54%|█████▍    | 7/13 [00:08<00:05,  1.14it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  62%|██████▏   | 8/13 [00:09<00:04,  1.09it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  77%|███████▋  | 10/13 [00:10<00:02,  1.26it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  85%|████████▍ | 11/13 [00:10<00:01,  1.47it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features:  92%|█████████▏| 12/13 [00:11<00:00,  1.35it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Features: 100%|██████████| 13/13 [00:12<00:00,  1.59it/s]
+Extracting Features: 100%|██████████| 13/13 [00:12<00:00,  1.07it/s]
+
+Processing Traditional Radiomics:   0%|          | 0/13 [00:00<?, ?it/s]
+Processing Traditional Radiomics:  85%|████████▍ | 11/13 [00:00<00:00, 105.65it/s]
+Processing Traditional Radiomics: 100%|██████████| 13/13 [00:00<00:00, 88.46it/s] 
+
+
+SCRIPT: tests/machine_learning/ml_kfold_cross_validation.py
+EXIT: 0  ELAPSED: 20.2s  TIMEOUT: False
+------------------------------------------------------------------------
+rror', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-05-31 13:31:21 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:21 - INFO - 
+Feature Selection Summary (Before Normalization):
+2026-05-31 13:31:21 - INFO -   Total steps executed: 1
+2026-05-31 13:31:21 - INFO -   Initial features: 12
+2026-05-31 13:31:21 - INFO -   Final features: 12
+2026-05-31 13:31:21 - INFO -   Total features removed: 0
+2026-05-31 13:31:21 - INFO -   Retention rate: 100.00%
+2026-05-31 13:31:21 - INFO -   Final selected features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+Correlation selection: Selected 9 features from 12 features (removed 3 features)
+2026-05-31 13:31:21 - INFO - ================================================================================
+2026-05-31 13:31:21 - INFO - ================================================================================
+2026-05-31 13:31:21 - INFO - Feature Selection Stage: After Normalization
+2026-05-31 13:31:21 - INFO - ================================================================================
+2026-05-31 13:31:21 - INFO - Initial number of features: 12
+2026-05-31 13:31:21 - INFO - Initial features: ['compactness error', 'concavity error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst perimeter', 'worst area', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-05-31 13:31:21 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:21 - INFO - 
+Step 1: Applying 'correlation' feature selection
+2026-05-31 13:31:21 - INFO -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False, 'random_state': 42}
+2026-05-31 13:31:21 - INFO -   Features before this step: 12
+2026-05-31 13:31:21 - INFO - Running feature selector: Correlation on 12 features...
+2026-05-31 13:31:21 - INFO - Selector correlation completed: 9 features retained.
+2026-05-31 13:31:21 - INFO -   Features after this step: 9
+2026-05-31 13:31:21 - INFO -   Number of features removed: 3
+2026-05-31 13:31:21 - INFO -   Removed features: ['concavity error', 'worst perimeter', 'worst area']
+2026-05-31 13:31:21 - INFO -   Retained features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-05-31 13:31:21 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:21 - INFO - 
+Feature Selection Summary (After Normalization):
+2026-05-31 13:31:21 - INFO -   Total steps executed: 1
+2026-05-31 13:31:21 - INFO -   Initial features: 12
+2026-05-31 13:31:21 - INFO -   Final features: 9
+2026-05-31 13:31:21 - INFO -   Total features removed: 3
+2026-05-31 13:31:21 - INFO -   Retention rate: 75.00%
+2026-05-31 13:31:21 - INFO -   Final selected features: ['compactness error', 'concave points error', 'symmetry error', 'fractal dimension error', 'worst radius', 'worst texture', 'worst smoothness', 'worst compactness', 'worst fractal dimension']
+2026-05-31 13:31:21 - INFO - ================================================================================
+2026-05-31 13:31:22 - INFO - Generating evaluation plots for kfold_ workflow (test set)...
+OK K-fold cross-validation completed successfully!
+2026-05-31 13:31:25 - INFO - K-Fold workflow completed. Results saved to F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\kfold_results
+2026-05-31 13:31:25 - INFO - K-fold cross-validation completed successfully
+
+
+SCRIPT: tests/machine_learning/ml_predict.py
+EXIT: 0  ELAPSED: 3.9s  TIMEOUT: False
+------------------------------------------------------------------------
+Loaded configuration from: config/machine_learning/config_machine_learning_predict.yaml
+Initialising machine learning pipeline (mode=predict)...
+2026-05-31 13:31:27 - INFO - Log file initialized: F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical\predictions\prediction.log
+2026-05-31 13:31:27 - INFO - Starting machine learning pipeline (mode=predict) with config: config/machine_learning/config_machine_learning_predict.yaml
+2026-05-31 13:31:27 - INFO - Full configuration: {'config_file': 'config\\machine_learning\\config_machine_learning_predict.yaml', 'config_version': None, 'run_mode': 'predict', 'pipeline_path': 'F:\\work\\habit_project\\config\\machine_learning\\..\\..\\demo_data\\ml_data\\clinical\\models\\LogisticRegression_final_pipeline.pkl', 'input': [{'path': 'F:\\work\\habit_project\\config\\machine_learning\\..\\..\\demo_data\\ml_data\\clinical_feature.csv', 'name': 'clinical_', 'subject_id_col': 'subjID', 'label_col': 'label', 'features': None, 'features_from_log': None, 'split_col': None, 'pred_col': None}], 'output': 'F:\\work\\habit_project\\config\\machine_learning\\..\\..\\demo_data\\ml_data\\clinical\\predictions', 'random_state': 42, 'split_method': 'stratified', 'test_size': 0.3, 'train_ids_file': None, 'test_ids_file': None, 'n_splits': 5, 'stratified': True, 'normalization': {'method': 'z_score', 'params': {}}, 'resampling': {'enabled': False, 'method': 'random_over', 'position': 'before_model', 'ratio': 1.0, 'random_state': None}, 'feature_selection_methods': [], 'models': None, 'is_visualize': True, 'is_save_model': True, 'visualization': {'enabled': True, 'plot_types': ['roc', 'dca', 'calibration', 'pr', 'confusion', 'shap'], 'dpi': 600, 'format': 'pdf'}, 'evaluate': True, 'output_label_col': 'predicted_label', 'output_prob_col': 'predicted_probability', 'probability_class_index': None, 'binary_positive_class_index': 1}
+2026-05-31 13:31:29 - INFO - Starting Holdout ML pipeline (mode=predict)...
+2026-05-31 13:31:29 - INFO - Loading data from F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical_feature.csv
+2026-05-31 13:31:29 - INFO - Data loaded: 569 rows, 8 columns
+2026-05-31 13:31:29 - INFO - Loading pipeline from F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical\models\LogisticRegression_final_pipeline.pkl
+2026-05-31 13:31:29 - INFO - Evaluation Metrics:
+2026-05-31 13:31:29 - INFO -   accuracy: 0.9367311072056239
+2026-05-31 13:31:29 - INFO -   sensitivity: 0.9439775910364145
+2026-05-31 13:31:29 - INFO -   specificity: 0.9245283018867925
+2026-05-31 13:31:29 - INFO -   ppv: 0.9546742209631728
+2026-05-31 13:31:29 - INFO -   npv: 0.9074074074074074
+2026-05-31 13:31:29 - INFO -   f1_score: 0.9492957746478874
+2026-05-31 13:31:29 - INFO -   auc: 0.9831140003171079
+2026-05-31 13:31:29 - INFO -   hosmer_lemeshow_p_value: 0.012377686027473356
+2026-05-31 13:31:29 - INFO -   spiegelhalter_z_p_value: 0.0009030468316211238
+OK Prediction completed successfully!
+2026-05-31 13:31:29 - INFO - Holdout ML workflow completed (predict). Output dir: F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical\predictions
+
+
+SCRIPT: tests/machine_learning/ml_radiomics_standalone.py
+EXIT: 0  ELAPSED: 13.0s  TIMEOUT: False
+------------------------------------------------------------------------
+o_data\results\radiomics_traditional_resample02\radiomics_features_T1.csv
+已将 T2 的组学特征保存到 F:\work\habit_project\config\radiomics\..\..\demo_data\results\radiomics_traditional_resample02\radiomics_features_T2.csv
+已将所有组学特征保存到 F:\work\habit_project\config\radiomics\..\..\demo_data\results\radiomics_traditional_resample02\radiomics_features_all.csv
+✓ Radiomics extraction completed successfully!
+2026-05-31 13:31:43 - INFO - Radiomics extraction completed successfully
+
+Extracting Radiomics Features:   0%|          | 0/13 [00:00<?, ?it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:   8%|▊         | 1/13 [00:02<00:26,  2.21s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  23%|██▎       | 3/13 [00:03<00:09,  1.01it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  31%|███       | 4/13 [00:03<00:06,  1.45it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  38%|███▊      | 5/13 [00:04<00:06,  1.19it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  46%|████▌     | 6/13 [00:04<00:04,  1.60it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  54%|█████▍    | 7/13 [00:05<00:04,  1.26it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  62%|██████▏   | 8/13 [00:08<00:06,  1.26s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  69%|██████▉   | 9/13 [00:08<00:04,  1.10s/it]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  77%|███████▋  | 10/13 [00:09<00:02,  1.11it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  85%|████████▍ | 11/13 [00:10<00:01,  1.09it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features:  92%|█████████▏| 12/13 [00:10<00:00,  1.43it/s]GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+GLCM is symmetrical, therefore Sum Average = 2 * Joint Average, only 1 needs to be calculated
+
+Extracting Radiomics Features: 100%|██████████| 13/13 [00:11<00:00,  1.32it/s]
+Extracting Radiomics Features: 100%|██████████| 13/13 [00:11<00:00,  1.12it/s]
+
+
+SCRIPT: tests/machine_learning/ml_train_clinical.py
+EXIT: 0  ELAPSED: 13.4s  TIMEOUT: False
+------------------------------------------------------------------------
+================================
+2026-05-31 13:31:46 - INFO - Feature Selection Stage: Before Normalization
+2026-05-31 13:31:46 - INFO - ================================================================================
+2026-05-31 13:31:46 - INFO - Initial number of features: 6
+2026-05-31 13:31:46 - INFO - Initial features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-05-31 13:31:46 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:46 - INFO - 
+Feature Selection Summary (Before Normalization):
+2026-05-31 13:31:46 - INFO -   Total steps executed: 0
+2026-05-31 13:31:46 - INFO -   Initial features: 6
+2026-05-31 13:31:46 - INFO -   Final features: 6
+2026-05-31 13:31:46 - INFO -   Total features removed: 0
+2026-05-31 13:31:46 - INFO -   Retention rate: 100.00%
+2026-05-31 13:31:46 - INFO -   Final selected features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-05-31 13:31:46 - INFO - ================================================================================
+2026-05-31 13:31:46 - INFO - ================================================================================
+2026-05-31 13:31:46 - INFO - Feature Selection Stage: After Normalization
+2026-05-31 13:31:46 - INFO - ================================================================================
+2026-05-31 13:31:46 - INFO - Initial number of features: 6
+2026-05-31 13:31:46 - INFO - Initial features: ['AFP', 'PLT', 'BMI', 'X', 'Y', 'Z']
+2026-05-31 13:31:46 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:46 - INFO - 
+Step 1: Applying 'correlation' feature selection
+2026-05-31 13:31:46 - INFO -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False, 'random_state': 42}
+2026-05-31 13:31:46 - INFO -   Features before this step: 6
+2026-05-31 13:31:46 - INFO - Running feature selector: Correlation on 6 features...
+2026-05-31 13:31:46 - INFO - Selector correlation completed: 4 features retained.
+2026-05-31 13:31:46 - INFO -   Features after this step: 4
+2026-05-31 13:31:46 - INFO -   Number of features removed: 2
+2026-05-31 13:31:46 - INFO -   Removed features: ['PLT', 'Z']
+2026-05-31 13:31:46 - INFO -   Retained features: ['AFP', 'BMI', 'X', 'Y']
+2026-05-31 13:31:46 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:31:46 - INFO - 
+Feature Selection Summary (After Normalization):
+2026-05-31 13:31:46 - INFO -   Total steps executed: 1
+2026-05-31 13:31:46 - INFO -   Initial features: 6
+2026-05-31 13:31:46 - INFO -   Final features: 4
+2026-05-31 13:31:46 - INFO -   Total features removed: 2
+2026-05-31 13:31:46 - INFO -   Retention rate: 66.67%
+2026-05-31 13:31:46 - INFO -   Final selected features: ['AFP', 'BMI', 'X', 'Y']
+2026-05-31 13:31:46 - INFO - ================================================================================
+2026-05-31 13:31:46 - INFO - Pipeline fit complete for LogisticRegression
+2026-05-31 13:31:46 - INFO - [LogisticRegression] Train AUC=0.9782 | Test AUC=0.9942
+2026-05-31 13:31:46 - INFO - Model saved [LogisticRegression]: F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical\models\LogisticRegression_final_pipeline.pkl
+2026-05-31 13:31:46 - INFO - Generating evaluation plots for standard_train_ workflow (train set)...
+2026-05-31 13:31:49 - INFO - Generating SHAP plot for LogisticRegression...
+2026-05-31 13:31:51 - INFO - SHAP plot saved: standard_train_LogisticRegression_shap.pdf
+2026-05-31 13:31:51 - INFO - Generating evaluation plots for standard_test_ workflow (test set)...
+2026-05-31 13:31:54 - INFO - Generating SHAP plot for LogisticRegression...
+OK Training completed successfully!
+2026-05-31 13:31:56 - INFO - SHAP plot saved: standard_test_LogisticRegression_shap.pdf
+2026-05-31 13:31:56 - INFO - Holdout ML workflow completed (train). Results saved to F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\clinical
+
+
+SCRIPT: tests/machine_learning/ml_train_radiomics.py
+EXIT: 0  ELAPSED: 12.1s  TIMEOUT: False
+------------------------------------------------------------------------
+orst texture', 'worst perimeter', 'worst area']
+2026-05-31 13:32:01 - INFO - ================================================================================
+2026-05-31 13:32:01 - INFO - ================================================================================
+2026-05-31 13:32:01 - INFO - Feature Selection Stage: After Normalization
+2026-05-31 13:32:01 - INFO - ================================================================================
+2026-05-31 13:32:01 - INFO - Initial number of features: 4
+2026-05-31 13:32:01 - INFO - Initial features: ['worst radius', 'worst texture', 'worst perimeter', 'worst area']
+2026-05-31 13:32:01 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:32:01 - INFO - 
+Step 1: Applying 'correlation' feature selection
+2026-05-31 13:32:01 - INFO -   Parameters: {'threshold': 0.8, 'method': 'spearman', 'visualize': False, 'before_z_score': False, 'random_state': 42}
+2026-05-31 13:32:01 - INFO -   Features before this step: 4
+2026-05-31 13:32:01 - INFO - Running feature selector: Correlation on 4 features...
+2026-05-31 13:32:01 - INFO - Selector correlation completed: 2 features retained.
+2026-05-31 13:32:01 - INFO -   Features after this step: 2
+2026-05-31 13:32:01 - INFO -   Number of features removed: 2
+2026-05-31 13:32:01 - INFO -   Removed features: ['worst perimeter', 'worst area']
+2026-05-31 13:32:01 - INFO -   Retained features: ['worst radius', 'worst texture']
+2026-05-31 13:32:01 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:32:01 - INFO - 
+Step 2: Applying 'lasso' feature selection
+2026-05-31 13:32:01 - INFO -   Parameters: {'cv': 10, 'n_alphas': 100, 'alphas': [0.01, 0.1, 1.0, 10, 100], 'random_state': 42, 'visualize': True, 'before_z_score': False}
+2026-05-31 13:32:01 - INFO -   Features before this step: 2
+2026-05-31 13:32:01 - INFO - Running feature selector: Lasso on 2 features...
+Lasso selection: Optimal alpha value is 0.010000
+Lasso selection: Selected 2 features from 2 features
+2026-05-31 13:32:03 - INFO - Selector lasso completed: 2 features retained.
+2026-05-31 13:32:03 - INFO -   Features after this step: 2
+2026-05-31 13:32:03 - INFO -   Number of features removed: 0
+2026-05-31 13:32:03 - INFO -   No features removed in this step
+2026-05-31 13:32:03 - INFO -   Retained features: ['worst radius', 'worst texture']
+2026-05-31 13:32:03 - INFO - --------------------------------------------------------------------------------
+2026-05-31 13:32:03 - INFO - 
+Feature Selection Summary (After Normalization):
+2026-05-31 13:32:03 - INFO -   Total steps executed: 2
+2026-05-31 13:32:03 - INFO -   Initial features: 4
+2026-05-31 13:32:03 - INFO -   Final features: 2
+2026-05-31 13:32:03 - INFO -   Total features removed: 2
+2026-05-31 13:32:03 - INFO -   Retention rate: 50.00%
+2026-05-31 13:32:03 - INFO -   Final selected features: ['worst radius', 'worst texture']
+2026-05-31 13:32:03 - INFO - ================================================================================
+2026-05-31 13:32:03 - INFO - Resampling: method=random_over, ratio=1.0000, counts_before={1: 154, 0: 146}
+2026-05-31 13:32:03 - INFO - Resampling done: counts_after={1: 154, 0: 154}
+2026-05-31 13:32:03 - INFO - Pipeline fit complete for LogisticRegression
+2026-05-31 13:32:03 - INFO - [LogisticRegression] Train AUC=0.9836 | Test AUC=0.9913
+2026-05-31 13:32:03 - INFO - Model saved [LogisticRegression]: F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\radiomics\models\LogisticRegression_final_pipeline.pkl
+2026-05-31 13:32:03 - INFO - Generating evaluation plots for standard_train_ workflow (train set)...
+2026-05-31 13:32:06 - INFO - Generating evaluation plots for standard_test_ workflow (test set)...
+OK Training completed successfully!
+2026-05-31 13:32:08 - INFO - Holdout ML workflow completed (train). Results saved to F:\work\habit_project\config\machine_learning\..\..\demo_data\ml_data\radiomics
+
+
+SCRIPT: tests/model_comparison/compare_models_multi.py
+EXIT: 0  ELAPSED: 8.8s  TIMEOUT: False
+------------------------------------------------------------------------
+future default and silence this warning.
+  y_total = data['y_true'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:148: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_p = data['y_pred_proba'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:149: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_total = data['y_pred_proba'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:144: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_p = data['y_true'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:145: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_total = data['y_true'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:148: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_p = data['y_pred_proba'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:149: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_total = data['y_pred_proba'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:144: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_p = data['y_true'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:145: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_total = data['y_true'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:148: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_p = data['y_pred_proba'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:149: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_total = data['y_pred_proba'].groupby(data.Q_group).count()
+
+
+SCRIPT: tests/model_comparison/compare_models_single_radiomics.py
+EXIT: 0  ELAPSED: 8.2s  TIMEOUT: False
+------------------------------------------------------------------------
+adiomics (train组) 计算基本指标，有效样本数: 300
+2026-05-31 13:32:25 - INFO - 计算 test 数据集的基本指标...
+2026-05-31 13:32:25 - INFO - radiomics (test组) 计算基本指标，有效样本数: 269
+2026-05-31 13:32:25 - INFO - 所有数据集的基本指标计算完成
+Model comparison completed successfully!
+2026-05-31 13:32:25 - INFO - Metrics saved to F:\work\habit_project\config\model_comparison\..\..\demo_data\results\model_comparison_single_radiomics\metrics\metrics.json
+2026-05-31 13:32:25 - INFO - 保存的指标分组数量: 2
+2026-05-31 13:32:25 - INFO -   分组 train 中的模型数量: 1
+2026-05-31 13:32:25 - INFO -   模型 radiomics 的指标类型: basic_metrics
+2026-05-31 13:32:25 - INFO -   分组 test 中的模型数量: 1
+2026-05-31 13:32:25 - INFO -   模型 radiomics 的指标类型: basic_metrics
+2026-05-31 13:32:25 - INFO - 评估完成！所有结果已保存到F:\work\habit_project\config\model_comparison\..\..\demo_data\results\model_comparison_single_radiomics
+2026-05-31 13:32:25 - INFO - Model comparison completed successfully
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:144: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_p = data['y_true'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:145: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_total = data['y_true'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:148: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_p = data['y_pred_proba'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:149: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_total = data['y_pred_proba'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:144: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_p = data['y_true'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:145: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_total = data['y_true'].groupby(data.Q_group).count()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:148: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_p = data['y_pred_proba'].groupby(data.Q_group).sum()
+F:\work\habit_project\habit\core\machine_learning\statistics\hosmer_lemeshow_test.py:149: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  y_pred_proba_total = data['y_pred_proba'].groupby(data.Q_group).count()
+
+
+SCRIPT: tests/integration/analysis_icc.py
+EXIT: 0  ELAPSED: 5.4s  TIMEOUT: False
+------------------------------------------------------------------------
+l krippendorff'.
+2026-05-31 13:32:30 - WARNING - Could not calculate metric 'cohen' for feature 'worst texture': continuous is not supported
+2026-05-31 13:32:30 - ERROR - krippendorff package is not installed. Please install it via 'pip install krippendorff'.
+2026-05-31 13:32:30 - INFO - Progress: 100.0%
+2026-05-31 13:32:30 - INFO - Analysis complete.
+OK ICC analysis completed successfully!
+2026-05-31 13:32:30 - INFO - Results successfully saved to F:\work\habit_project\config\auxiliary\..\..\demo_data\ml_data\icc_radiomics.json
+2026-05-31 13:32:30 - INFO - 
+Group: breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated
+2026-05-31 13:32:30 - INFO -   - Total features analyzed: 13
+2026-05-31 13:32:30 - INFO -   - Features with valid results: 13
+2026-05-31 13:32:30 - INFO -   - Sample feature 'compactness error': {'ICC2': {'value': 0.9403620326397929, 'metric_type': 'ICC2', 'ci95': [0.9, 0.97], 'p_value': 6.801910431461417e-25, 'additional_info': {'F': 32.53568353395093, 'df1': 49, 'df2': 49}}, 'ICC3': {'value': 0.9403620326397929, 'metric_type': 'ICC3', 'ci95': [0.9, 0.97], 'p_value': 6.801910431461417e-25, 'additional_info': {'F': 32.53568353395093, 'df1': 49, 'df2': 49}}, 'cohen': {'error': 'continuous is not supported'}, 'FleissKappa': {'value': 0.9795793342862977, 'metric_type': 'FleissKappa', 'ci95': [0.9402075833412356, 1.01895108523136], 'p_value': 0.0, 'additional_info': {'z_value': 48.765306320265154, 'se': 0.02008762803319496}}, 'KrippendorffAlpha_interval': {'value': nan, 'metric_type': 'KrippendorffAlpha_interval', 'additional_info': {'error': "krippendorff package is not installed. Please install it via 'pip install krippendorff'."}}}
+2026-05-31 13:32:30 - INFO -   - Sample feature 'concave points error': {'ICC2': {'value': 1.0000000000000004, 'metric_type': 'ICC2', 'ci95': [1.0, 1.0], 'p_value': 1.0, 'additional_info': {'F': -8208750996317516.0, 'df1': 49, 'df2': 49}}, 'ICC3': {'value': 1.0000000000000004, 'metric_type': 'ICC3', 'ci95': [1.0, 1.0], 'p_value': 1.0, 'additional_info': {'F': -8208750996317516.0, 'df1': 49, 'df2': 49}}, 'cohen': {'error': 'continuous is not supported'}, 'FleissKappa': {'value': 1.0, 'metric_type': 'FleissKappa', 'ci95': [0.9611939798484823, 1.0388060201515177], 'p_value': 0.0, 'additional_info': {'z_value': 50.50762722761053, 'se': 0.019798989873223333}}, 'KrippendorffAlpha_interval': {'value': nan, 'metric_type': 'KrippendorffAlpha_interval', 'additional_info': {'error': "krippendorff package is not installed. Please install it via 'pip install krippendorff'."}}}
+2026-05-31 13:32:30 - INFO -   - Sample feature 'concavity error': {'ICC2': {'value': 1.0, 'metric_type': 'ICC2', 'ci95': [None, None], 'p_value': 0.0, 'additional_info': {'F': inf, 'df1': 49, 'df2': 49}}, 'ICC3': {'value': 1.0, 'metric_type': 'ICC3', 'ci95': [None, None], 'p_value': 0.0, 'additional_info': {'F': inf, 'df1': 49, 'df2': 49}}, 'cohen': {'error': 'continuous is not supported'}, 'FleissKappa': {'value': 1.0, 'metric_type': 'FleissKappa', 'ci95': [0.9611939798484823, 1.0388060201515177], 'p_value': 0.0, 'additional_info': {'z_value': 50.50762722761053, 'se': 0.019798989873223333}}, 'KrippendorffAlpha_interval': {'value': nan, 'metric_type': 'KrippendorffAlpha_interval', 'additional_info': {'error': "krippendorff package is not installed. Please install it via 'pip install krippendorff'."}}}
+2026-05-31 13:32:30 - INFO -   ... and 10 more features.
+2026-05-31 13:32:30 - INFO - 
+--- Overall Statistics ---
+2026-05-31 13:32:30 - INFO - Stats for group: breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated
+2026-05-31 13:32:30 - INFO -   - Features with good ICC (>= 0.75): 13 / 13
+2026-05-31 13:32:30 - INFO - ------------------------
+2026-05-31 13:32:30 - INFO - Total unique features with good ICC (>= 0.75) across all groups: 13
+2026-05-31 13:32:30 - INFO - --- End of Statistics ---
+
+2026-05-31 13:32:30 - INFO - ICC analysis process finished.
+2026-05-31 13:32:30 - INFO - ICC analysis process finished.
+
+
+SCRIPT: tests/integration/analysis_test_retest.py
+EXIT: 0  ELAPSED: 3.6s  TIMEOUT: False
+------------------------------------------------------------------------
+Starting test-retest analysis with config: config/auxiliary/config_test_retest.yaml
+2026-05-31 13:32:34 - INFO - Log file initialized: F:\work\habit_project\config\auxiliary\..\..\demo_data\ml_data\test_retest\remapped\test_retest.log
+2026-05-31 13:32:34 - INFO - Starting test-retest analysis with config: config/auxiliary/config_test_retest.yaml
+Computing habitat mapping between test and retest data...
+2026-05-31 13:32:34 - INFO - Log file initialized: F:\work\habit_project\config\auxiliary\..\..\demo_data\ml_data\test_retest\remapped\habitat_mapping.log
+2026-05-31 13:32:34 - INFO - Using default feature columns: ['Count', 'raw-T1', 'raw-T2', 'raw-T1-original']
+Habitat mapping:
+  Retest Habitat 1 -> Test Habitat 3
+  Retest Habitat 2 -> Test Habitat 2
+  Retest Habitat 3 -> Test Habitat 4
+  Retest Habitat 4 -> Test Habitat 1
+Processing files using 4 processes...
+2026-05-31 13:32:34 - INFO - Habitat mapping: {1: 3, 2: 2, 3: 4, 4: 1}
+✓ Test-retest analysis completed successfully!
+2026-05-31 13:32:34 - INFO - Found 0 files to process
+2026-05-31 13:32:34 - WARNING - No files found in F:\work\habit_project\config\auxiliary\..\..\demo_data\habitat_maps\retest matching pattern *habitats.nrrd
+2026-05-31 13:32:34 - INFO - Test-retest analysis completed successfully
+
+
+SCRIPT: tests/utils/util_dice_overlap.py
+EXIT: 0  ELAPSED: 3.2s  TIMEOUT: False
+------------------------------------------------------------------------
+Loading paths from .cursor/test/resample_02...
+Loading paths from .cursor/test/resample_02...
+Found 13 subjects in batch 1.
+Found 13 subjects in batch 2.
+Found 13 common subjects to compare.
+Calculating Dice
+
+Results saved to demo_data/results/dice_resample02_demo.csv
+Mean Dice: 1.0000
+Std Dice: 0.0000
+Min Dice: 1.0000
+Max Dice: 1.0000
+
+
+SCRIPT: tests/utils/util_merge_csv.py
+EXIT: 0  ELAPSED: 0.8s  TIMEOUT: False
+------------------------------------------------------------------------
+2026-05-31 13:32:38 - INFO - Log file initialized: F:\work\habit_project\demo_data\results\merge_csv.log
+2026-05-31 13:32:38 - INFO - Starting CSV merge process...
+Starting to merge 2 files...
+Processing file 1/2: C:\Users\dongm\AppData\Local\Temp\tmp8g94rvqw\part_a.csv
+2026-05-31 13:32:38 - INFO - Input files: ('C:\\Users\\dongm\\AppData\\Local\\Temp\\tmp8g94rvqw\\part_a.csv', 'C:\\Users\\dongm\\AppData\\Local\\Temp\\tmp8g94rvqw\\part_b.csv')
+2026-05-31 13:32:38 - INFO - Output file: F:\work\habit_project\demo_data\results\merge_csv_demo.csv
+2026-05-31 13:32:38 - INFO - Reading file: C:\Users\dongm\AppData\Local\Temp\tmp8g94rvqw\part_a.csv
+  Successfully processed: part_a.csv
+Processing file 2/2: C:\Users\dongm\AppData\Local\Temp\tmp8g94rvqw\part_b.csv
+2026-05-31 13:32:38 - INFO - Loaded part_a.csv: rows=2, columns=1
+2026-05-31 13:32:38 - INFO - Index column 'subjID' has been set during file read.
+2026-05-31 13:32:38 - INFO - After setting index: part_a.csv, index_dtype=object, index_preview=['sub1', 'sub2']
+2026-05-31 13:32:38 - INFO - Reading file: C:\Users\dongm\AppData\Local\Temp\tmp8g94rvqw\part_b.csv
+  Successfully processed: part_b.csv
+2026-05-31 13:32:38 - INFO - Loaded part_b.csv: rows=2, columns=1
+All files processed!
+2026-05-31 13:32:38 - INFO - Index column 'subjID' has been set during file read.
+2026-05-31 13:32:38 - INFO - After setting index: part_b.csv, index_dtype=object, index_preview=['sub1', 'sub2']
+
+==================================================
+Merge Summary:
+  Files processed: 2/2
+  Output file: F:\work\habit_project\demo_data\results\merge_csv_demo.csv
+  Final shape: (2, 2)
+  Index column: subjID
+  Join type: inner
+
+✓ Merge completed successfully!
+2026-05-31 13:32:38 - INFO - Successfully merged 2 files
+2026-05-31 13:32:38 - INFO - Output saved to: F:\work\habit_project\demo_data\results\merge_csv_demo.csv
+2026-05-31 13:32:38 - INFO - Final dataframe shape: (2, 2)
+

@@ -21,7 +21,7 @@ def run_test_retest(config_file: str) -> None:
     from habit.core.habitat_analysis.configurator import HabitatConfigurator
     from habit.core.machine_learning.config_schemas import TestRetestConfig
     from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
-        find_habitat_mapping, batch_process_files, setup_logger as setup_test_retest_logger
+        find_habitat_mapping, batch_process_files, configure_logging
     )
     
     if not config_file:
@@ -56,8 +56,8 @@ def run_test_retest(config_file: str) -> None:
         configurator = HabitatConfigurator(config=config, logger=logger, output_dir=str(output_dir))
         cfg = configurator.create_test_retest_analyzer()
         
-        # Setup debug logging for test-retest mapper module
-        setup_test_retest_logger(cfg.debug)
+        # Optional debug logging for habitat test-retest mapper module
+        configure_logging(output_dir, cfg.debug)
         
         # Find habitat mapping
         click.echo("Computing habitat mapping between test and retest data...")

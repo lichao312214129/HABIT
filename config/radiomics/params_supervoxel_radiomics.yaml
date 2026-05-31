@@ -31,11 +31,12 @@ featureClass:
   # enabled by specifying individual feature names (as is done for glcm) and including them in the list.
   # shape:
   firstorder:
-  glcm: 
-  # glrlm:
-  # glszm:
-  # ngtdm:
-  # gldm:
+  glcm:                             # List stable GLCM features only (avoid MCC/Imc1/Imc2 — crash on small ROIs)
+  glrlm:
+  glszm:
+  ngtdm:
+  gldm:
+# Excluded: MCC, Imc1, Imc2 (unstable or eigvals/MKL crash on small supervoxel ROIs)
 
 setting:
   # Normalization:

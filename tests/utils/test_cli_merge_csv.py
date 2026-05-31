@@ -12,6 +12,7 @@ import pandas as pd
 from click.testing import CliRunner
 
 from habit.cli import cli
+from habit.utils.log_utils import stop_queue_listener
 
 
 class TestMergeCsvCLI:
@@ -37,27 +38,31 @@ class TestMergeCsvCLI:
 
             output_file = Path(tmpdir) / "merged.csv"
 
-            result = runner.invoke(
-                cli,
-                [
-                    "merge-csv",
-                    str(file1),
-                    str(file2),
-                    "-o",
-                    str(output_file),
-                    "--index-col",
-                    "id",
-                ],
-            )
+            try:
+                result = runner.invoke(
+                    cli,
+                    [
+                        "merge-csv",
+                        str(file1),
+                        str(file2),
+                        "-o",
+                        str(output_file),
+                        "--index-col",
+                        "id",
+                    ],
+                )
 
-            assert result.exit_code == 0
-            assert output_file.exists()
+                assert result.exit_code == 0
+                assert output_file.exists()
 
-            merged = pd.read_csv(output_file)
-            assert "id" in merged.columns
-            assert "value1" in merged.columns
-            assert "value2" in merged.columns
-            assert len(merged) == 3
+                merged = pd.read_csv(output_file)
+                assert "id" in merged.columns
+                assert "value1" in merged.columns
+                assert "value2" in merged.columns
+                assert len(merged) == 3
+            finally:
+                # Release merge_csv.log file handle before TemporaryDirectory cleanup (Windows).
+                stop_queue_listener()
 
     def test_merge_csv_missing_files(self) -> None:
         runner = CliRunner()

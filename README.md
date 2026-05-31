@@ -211,7 +211,7 @@ habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix
 habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 # （可选）一步法 / direct-pooling 策略
-# habit get-habitat --config config/habitat/config_habitat_one_step.yaml
+# habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
 # habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 ```
 

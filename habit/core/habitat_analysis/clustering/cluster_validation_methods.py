@@ -27,6 +27,10 @@ CLUSTERING_VALIDATION_METHODS = {
                 'description': 'Kneedle elbow detection on the inertia curve',
                 'optimization': 'kneedle'
             },
+            'elbow': {
+                'description': 'Inertia curve, selected by second-derivative elbow detection',
+                'optimization': 'elbow'
+            },
             'gap': {
                 'description': 'Gap Statistic, higher is better',
                 'optimization': 'maximize'
@@ -84,6 +88,10 @@ CLUSTERING_VALIDATION_METHODS = {
             'kneedle': {
                 'description': 'Kneedle elbow detection on the SLIC-regularized inertia curve',
                 'optimization': 'kneedle'
+            },
+            'elbow': {
+                'description': 'SLIC-regularized inertia curve, selected by second-derivative elbow detection',
+                'optimization': 'elbow'
             }
         }
     }

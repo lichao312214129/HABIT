@@ -1,7 +1,7 @@
 """
 CLI-level tests for `habit compare` command (model comparison).
 
-Heavy demo YAML run: ``tests/model_comparison/manual_cli_compare.py``.
+Heavy demo YAML run: ``tests/model_comparison/compare_models_multi.py``.
 """
 
 from __future__ import annotations

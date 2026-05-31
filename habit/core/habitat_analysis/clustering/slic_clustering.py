@@ -389,12 +389,14 @@ class SLICClustering(BaseClustering):
                 else:
                     self.scores["davies_bouldin"].append(0.0)
 
-            if "inertia" in self.scores or "kneedle" in self.scores:
+            if "inertia" in self.scores or "kneedle" in self.scores or "elbow" in self.scores:
                 inertia_val = float(km.inertia_)
                 if "inertia" in self.scores:
                     self.scores["inertia"].append(inertia_val)
                 if "kneedle" in self.scores:
                     self.scores["kneedle"].append(inertia_val)
+                if "elbow" in self.scores:
+                    self.scores["elbow"].append(inertia_val)
 
         best_n_clusters = self.auto_select_best_n_clusters(self.scores, methods)
         self.n_clusters = best_n_clusters

@@ -1,18 +1,18 @@
 # =============================================================================
-# Habitat analysis — DEMO: two-step clustering (train) on bundled demo_data
+# Habitat analysis — DEMO: two-step clustering (train) on resample_02
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 #
 # Purpose:
 #   Supervoxel then population habitat clustering on preprocessed multiphase
-#   inputs (delay2/3/5) with outputs under ../../demo_data/results/habitat_two_step.
+#   inputs (T1/T2) with outputs under ../../demo_data/results/habitat_two_step.
 #
 # NOT overlapping with:
 #   config_getting_habitat.yaml — fully commented reference / starting point for
 #   ANY clustering_mode (one_step, two_step, direct_pooling) on YOUR paths.
 #   config_habitat_one_step*.yaml / config_habitat_direct_pooling*.yaml — other modes.
 #   *_predict.yaml — predict-only stubs (run_mode: predict).
-#   config_habitat_one_step_example.yaml — legacy YAML shape example (syntactic).
+#   config_habitat_one_step_raw_concat_train.yaml — one-step demo YAML shape.
 #   file_habitat.yaml — manifest of subjects/phases for CLI when using list input.
 # Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 # =============================================================================
@@ -20,22 +20,22 @@
 run_mode: train
 
 #%%================================================================================
-data_dir: ../../demo_data/preprocessed1
+data_dir: ../../.cursor/test/resample_02
 out_dir: ../../demo_data/results/habitat_two_step
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    method: concat(raw(T1), raw(T2))
     # voxel_radiomics example (params forwarded even if omitted from method):
     # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-    params:
-      # params_file: ../radiomics/params_voxel_radiomics.yaml  # Required for voxel_radiomics; GLCM-safe preset
-      # kernelRadius: 1  # Default 1 (3x3x3); local neighborhood radius for voxel radiomics
-      # voxelBatch: 1000  # Default 1000; -1 = no batching
-      # useTorchRadiomics: auto  # auto | true | false
-      # torchGpus: [0, 1]
-      # torchGpuCount: 2
+    # params_file: ../radiomics/params_voxel_radiomics.yaml  # Required for voxel_radiomics; GLCM-safe preset
+    # kernelRadius: 1  # Default 1 (3x3x3); local neighborhood radius for voxel radiomics
+    # voxelBatch: 1000  # Default 1000; -1 = no batching
+    # useTorchRadiomics: auto  # auto | true | false
+    # torchGpus: [0, 1]
+    # torchGpuCount: 2
+    params: {}
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'  # External supervoxel map glob (optional)
@@ -86,36 +86,15 @@ HabitatSegmentation:
   
   supervoxel:
     algorithm: kmeans  # kmeans | gmm | slic
-    n_clusters: 50  # Supervoxels per subject (two_step) or max K (one_step)
-    # random_state: null  # Omit to inherit top-level random_state
-    max_iter: 300  # Max clustering iterations
-    n_init: 10  # kmeans restarts
-    
-    # Settings for one_step mode: automatic cluster number selection for each tumor
-    one_step_settings:
-      min_clusters: 2           # Minimum number of clusters to test
-      max_clusters: 10          # Maximum number of clusters to test
-      fixed_n_clusters:        # Fixed number of clusters (if set, automatic selection is disabled)
-      selection_method: inertia  # Method to determine optimal clusters: silhouette, calinski_harabasz, davies_bouldin, inertia
-      plot_validation_curves: true  # Plot validation curves for each tumor
-  
-  # Group habitat clustering (Stage 2). NOT in config_hash — safe to change.
+    n_clusters: 50  # Supervoxels per subject (two_step only)
+    max_iter: 300
+    n_init: 10
+
   habitat:
     algorithm: kmeans  # kmeans | gmm
-    max_clusters: 10  # Max K for automatic habitat count selection
-    # - 'silhouette', 'calinski_harabasz': Select max score (higher is better)
-    # - 'inertia', 'aic', 'bic': Select elbow point using 2nd derivative (lower is better)
-    habitat_cluster_selection_method: 
-      - inertia  # Selection Logic: 
-      # - silhouette
-      # - calinski_harabasz
-      # - aic
-      # - bic
-      # - davies_bouldin
-
-                                               
-    fixed_n_clusters:     # Fixed number of habitat clusters (set to null for automatic selection)
-    # random_state: null
+    max_clusters: 10
+    habitat_cluster_selection_method:
+      - elbow
     max_iter: 300
     n_init: 10
 

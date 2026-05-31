@@ -68,8 +68,10 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         # Prefer externally provided best_n_clusters to avoid recomputing the selection logic.
         best_n_clusters_value: Optional[int] = None
         # Provide a readable criterion label even when the best index is supplied.
-        if optimization in ['kneedle', 'inertia', 'elbow']:
+        if optimization in ['kneedle', 'inertia']:
             criterion = "Kneedle"
+        elif optimization == 'elbow':
+            criterion = "Elbow"
         elif optimization == 'maximize':
             criterion = "Maximum"
         elif optimization == 'minimize':

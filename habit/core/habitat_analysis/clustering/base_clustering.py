@@ -361,6 +361,23 @@ class BaseClustering(ABC):
             List[float]: List of inertia values used for Kneedle detection
         """
         return self.calculate_inertia_scores(X, cluster_range)
+
+    def calculate_elbow_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
+        """
+        Calculate scores for second-derivative elbow selection.
+
+        The elbow method uses the same inertia curve as Kneedle; only the
+        post-processing rule for picking the optimal k differs.
+
+        Args:
+            X (np.ndarray): Input data with shape (n_samples, n_features)
+            cluster_range (List[int]): Range of cluster numbers to evaluate
+
+        Returns:
+            List[float]: List of inertia values used for elbow detection
+        """
+        return self.calculate_inertia_scores(X, cluster_range)
+
     def calculate_bic_scores(self, X: np.ndarray, cluster_range: List[int]) -> Optional[List[float]]:
         """
         Calculate BIC scores for different numbers of clusters (for GMM only)
@@ -766,14 +783,10 @@ class BaseClustering(ABC):
             best_idx = np.argmax(scores)
         elif optimization == 'minimize':
             best_idx = np.argmin(scores)
-        elif optimization == 'inertia':
-            # Inertia uses Kneedle to detect the elbow on a decreasing curve.
+        elif optimization in ('inertia', 'kneedle'):
             best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
         elif optimization == 'elbow':
-            # Backward compatibility: treat elbow as Kneedle.
-            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
-        elif optimization == 'kneedle':
-            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
+            best_idx = self._find_best_n_clusters_for_elbow_method(scores)
         else:
             # Default to maximum value
             best_idx = np.argmax(scores)

@@ -2,11 +2,6 @@
 # Habitat Analysis Configuration (Direct Pooling Strategy)
 # =============================================================================
 # CLI: habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
-#
-# Flow: voxel features -> subject preprocessing -> [checkpoint]
-#       -> concat all voxels -> group preprocessing -> group habitat clustering
-#
-# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
 # =============================================================================
 
 run_mode: train
@@ -19,78 +14,32 @@ out_dir: ../../demo_data/results/habitat_direct_pooling
 
 FeatureConstruction:
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
-    # Radiomics example:
-    # method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-    params:
-      # params_file: ../radiomics/params_voxel_radiomics.yaml  # Required for voxel_radiomics; GLCM-safe preset
-      # kernelRadius: 1  # Default 1 (3x3x3); voxel neighborhood radius
-      # voxelBatch: 1000  # Default 1000; -1 disables batching
-      # useTorchRadiomics: auto  # auto | true | false
-      # torchGpus: [0, 1]  # GPU device indices
-      # torchGpuCount: 2  # Max GPUs when torchGpus not set
-
-  supervoxel_level:
-    # Not used in direct_pooling Stage 1; kept for schema compatibility.
-    supervoxel_file_keyword: '*_supervoxel.nrrd'  # Pattern for optional external supervoxel maps
-    method: mean_voxel_features()  # Supervoxel aggregation method (two_step/one_step)
-    params:
-      # Required when method is supervoxel_radiomics(); ignored by mean_voxel_features()
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto  # auto | true | false; auto = habit C extension when built; false = force Torch/PyRadiomics path
-      # supervoxel_radiomics: see config_getting_habitat.yaml for supervoxelBatch / useTorchRadiomics notes
+    method: concat(raw(T1), raw(T2))
+    params: {}
 
   preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
-    # Do NOT use variance_filter / correlation_filter here — column drops break cross-subject pooling.
     methods:
-      - method: winsorize  # Clip extreme feature values per column
-        winsor_limits: [0.05, 0.05]  # Lower/upper tail fraction to clip (0-1)
-        global_normalize: false  # false=within-subject stats; true=pooled training stats
-      - method: minmax  # Scale features to [0, 1] after prior steps
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: minmax
         global_normalize: false
 
   preprocessing_for_group_level:
-    # Stage 2 only — changing these does NOT invalidate checkpoint (resume: true OK).
-    # variance_filter / correlation_filter are recommended here for radiomics-heavy features.
     methods:
-      - method: binning  # Discretize continuous features (default demo)
-        n_bins: 10  # Bins per feature column
-        bin_strategy: uniform  # uniform | quantile | kmeans
-        global_normalize: false  # Use pooled training statistics when true
-      # Radiomics / high-dimensional features — uncomment instead of binning:
-      # - method: variance_filter
-      #   variance_threshold: 0.01
-      #   global_normalize: false
-      # - method: correlation_filter
-      #   corr_threshold: 0.8
-      #   corr_method: spearman  # pearson | spearman | kendall
-      #   global_normalize: false
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
 
 HabitatSegmentation:
   clustering_mode: direct_pooling
 
-  supervoxel:
-    # Placeholder block (direct_pooling skips supervoxel clustering).
-    algorithm: kmeans
-    n_clusters: 50
-    max_iter: 300
-    n_init: 10
-    one_step_settings:
-      min_clusters: 2
-      max_clusters: 10
-      selection_method: inertia
-      plot_validation_curves: true
-
   habitat:
-    # Group habitat clustering (Stage 2; NOT in checkpoint hash).
-    algorithm: kmeans  # kmeans | gmm
-    max_clusters: 10  # Max K for automatic cluster-count search
+    algorithm: kmeans
+    max_clusters: 10
     habitat_cluster_selection_method:
-      - inertia  # Also: silhouette, calinski_harabasz, aic, bic, davies_bouldin
-    fixed_n_clusters:  # int or null — fixed cluster count (null=auto)
-    # random_state: null  # Omit to inherit top-level random_state
+      - elbow
     max_iter: 300
     n_init: 10
 

@@ -1,7 +1,7 @@
 """
 CLI-level tests for ``habit radiomics`` command (standalone radiomics pipeline entry).
 
-Heavy demo invocation: ``manual_cli_radiomics.py``.
+Heavy demo invocation: ``tests/machine_learning/ml_radiomics_standalone.py``.
 """
 
 from __future__ import annotations

@@ -9,12 +9,12 @@ from __future__ import annotations
 import logging
 import os
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from habit.core.dicom_sort.config_schema import DicomSortConfig
 from habit.utils.log_utils import get_module_logger
+from habit.utils.subprocess_utils import run_capture_text
 
 
 def _f_value(raw: Dict[str, Any]) -> str:
@@ -94,7 +94,7 @@ def _run(exe: str, argv: List[str], log: logging.Logger) -> None:
     """
     cmd: List[str] = [exe, *argv]
     log.info("dcm2niix sort cwd=%s cmd=%r", os.getcwd(), cmd)
-    p = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    p = run_capture_text(cmd, check=False)
     if p.stdout:
         log.debug("stdout: %s", p.stdout)
     if p.stderr:

@@ -473,8 +473,9 @@ class OneStepSettings(BaseModel):
         'calinski_harabasz',
         'davies_bouldin',
         'inertia',
-        'kneedle'
-    ] = 'silhouette'
+        'kneedle',
+        'elbow',
+    ] = 'elbow'
     plot_validation_curves: bool = True
 
 class ConnectedComponentPostprocessConfig(BaseModel):
@@ -532,7 +533,7 @@ class HabitatClusteringConfig(BaseModel):
     algorithm: Literal['kmeans', 'gmm'] = 'kmeans'
     max_clusters: int = 10
     min_clusters: Optional[int] = 2
-    habitat_cluster_selection_method: Union[str, List[str]] = 'inertia'
+    habitat_cluster_selection_method: Union[str, List[str]] = 'elbow'
     fixed_n_clusters: Optional[int] = Field(
         None,
         description="Fixed number of habitat clusters. If specified, automatic selection is disabled."

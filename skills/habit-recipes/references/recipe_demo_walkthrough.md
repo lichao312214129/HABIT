@@ -72,7 +72,7 @@ The demo also ships configs for `one_step` and `direct_pooling` — useful for
 comparing clustering modes on the same data (not the removed V0 Strategy classes):
 
 ```bash
-habit get-habitat --config config/habitat/config_habitat_one_step.yaml
+habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
 habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 ```
 

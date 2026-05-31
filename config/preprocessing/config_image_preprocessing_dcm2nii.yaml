@@ -1,84 +1,52 @@
-# ----------------------------------------------------------------------------
-# DICOM to NIfTI Conversion Configuration Template
-# ----------------------------------------------------------------------------
+# =============================================================================
+# Image preprocessing — resample_02 demo (NIfTI resample, T1/T2)
+# =============================================================================
 #
-# Based on actual code: habit/utils/image_converter.py
+# Demo/test data: .cursor/test/resample_02 (already NIfTI; no DICOM conversion).
+# For raw DICOM → NIfTI on your site, uncomment the dcm2nii block below and
+# point data_dir at your DICOM manifest or folder.
 #
 # Quick Start:
 #   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing_dcm2nii.yaml
 #
-# ----------------------------------------------------------------------------
-# ─────────────────────────────────────────────────────────────────────────
-# Data Paths
-# ─────────────────────────────────────────────────────────────────────────
+# Based on: habit/utils/image_converter.py (dcm2nii step when enabled)
+# =============================================================================
 
-# Input configuration
-# Can be a YAML file listing DICOM directories or a directory path
-data_dir: ./image_files.yaml
+# Input: manifest YAML or directory (.cursor/test/resample_02 layout)
+data_dir: ./files_preprocessing.yaml
 
-# Output directory
-out_dir: ../demo_data/results/preprocessed
+out_dir: ../../demo_data/results/preprocessing_image_template
 
-# Keep directory trees for dcm2nii (do not auto-pick a single file from DICOM folders)
-auto_select_first_file: false
+auto_select_first_file: true
 
-# Preprocessing pipeline — YAML key order = execution order
 Preprocessing:
-  # DICOM to NIfTI conversion
-  dcm2nii:
-    # Images to convert
-    images: [T1, T2, DWI, ADC]
-    # Path to dcm2niix executable (optional — omit to search PATH)
-    # Download from: https://github.com/rordenlab/dcm2niix/releases
-    # dcm2niix_path: ./dcm2niix.exe
+  # --- resample_02 demo: NIfTI inputs, T1 + T2 only ---
+  resample:
+    images: [T1, T2]
+    target_spacing: [2.0, 2.0, 2.0]
 
-    # Compress output (gzip)
-    compress: true
+  # --- Production: DICOM → NIfTI (disable resample above when using this) ---
+  # dcm2nii:
+  #   images: [T1, T2]
+  #   # dcm2niix_path: ./dcm2niix.exe
+  #   compress: true
+  #   anonymize: false
+  #   merge_slices: "2"
+  #   generate_json: true
+  #   single_file_mode:
 
-    # Anonymize output (remove patient info)
-    anonymize: false
-
-    # Merge slices into 3D volumes
-    # Options:
-    #   "y" or "1": Default merge behavior (merge 2D slices)
-    #   "2": Merge based on series (more aggressive, recommended for 3D output)
-    #   "n" or "0": No merging (keep original structure)
-    #   null: Don't specify, use dcm2niix default
-    # For getting 3D instead of 4D: Use "2" or null
-    merge_slices: "2"
-
-    # Generate JSON sidecar metadata files.
-    # Metadata is saved under processed_images/metadata and is not mixed into images/.
-    generate_json: true
-
-    # Single file mode
-    # Options:
-    #   true: Force single file output (-s y) - may preserve 4D structure
-    #   false: Allow multiple output files (-s n) - may split volumes
-    #   null: Don't specify (recommended) - let dcm2niix decide best format
-    # For getting 3D instead of 4D: Use null (don't specify)
-    single_file_mode:
-
-  # Optional: Additional preprocessing steps after conversion
-  # Can include any preprocessing methods from config_image_preprocessing.yaml
+  # Optional follow-on steps (see config_image_preprocessing.yaml):
   # n4_correction:
   #   images: [T1, T2]
   #   num_fitting_levels: 4
-  # resample:
-  #   images: [T1, T2, DWI, ADC]
-  #   target_spacing: [1.0, 1.0, 1.0]
   # registration:
-  #   images: [T1, T2, DWI, ADC]
+  #   images: [T1, T2]
   #   fixed_image: T1
-  #   # Movers = images minus fixed_image; do NOT use moving_images
-  #   type_of_transform: SyNRA
-  #   metric: MI
-  #   use_mask: false
-  #   # backend: ants  # ants (default) | simpleitk | elastix
+  #   backend: elastix
 
 save_options:
-  save_intermediate: false
-  # intermediate_steps: [dcm2nii]  # or [] to save all steps when save_intermediate: true
+  save_intermediate: true
+  intermediate_steps: [resample]
 
 processes: 1
 random_state: 42

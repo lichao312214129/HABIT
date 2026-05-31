@@ -1,82 +1,32 @@
-# ----------------------------------------------------------------------------
-# Traditional Radiomics Configuration Template
-# ----------------------------------------------------------------------------
+# =============================================================================
+# Traditional Radiomics — DEMO: resample_02 (T1, T2)
+# =============================================================================
 #
-# Used by:  habit radiomics  (entry: habit/cli_commands/commands/cmd_radiomics.py)
+# Used by:  habit radiomics
+#           python tests/machine_learning/ml_radiomics_standalone.py
 #
-# Quick Start:
-#   CLI:    habit radiomics --config config/radiomics/config_traditional_radiomics.yaml
-#   CLI:    habit radiomics --config config/radiomics/config_traditional_radiomics.yaml
-#
-# ----------------------------------------------------------------------------
-# ─────────────────────────────────────────────────────────────────────────
-# Path Settings
-# ─────────────────────────────────────────────────────────────────────────
+# Data: .cursor/test/resample_02 (images/ + masks/, modalities T1/T2)
+# =============================================================================
+
 paths:
-  # PyRadiomics parameter file
   params_file: ./parameter.yaml
+  images_folder: ../../.cursor/test/resample_02
+  out_dir: ../../demo_data/results/radiomics_traditional_resample02
 
-  # Image dataset directory
-  # Expected structure: images_folder/subject_id/images/ and masks/
-  images_folder: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\datasets_icc
-
-  # Output directory
-  out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\results
-
-# ─────────────────────────────────────────────────────────────────────────
-# Processing Settings
-# ─────────────────────────────────────────────────────────────────────────
 processing:
-  # Number of CPU processes
-  # 0 = auto (use half of available cores)
-  n_processes: 4
-
-  # Save frequency
-  # Saves intermediate results every N files
+  n_processes: 2
   save_every_n_files: 5
-
-  # Image types to process
-  # Only images matching these names will be processed
   process_image_types:
-  - pre_contrast
-  - LAP
-  - PVP
-  - delay_3min
+    - T1
+    - T2
+
 export:
-  # Export separate CSV for each image type
   export_by_image_type: true
-
-  # Export combined CSV with all features
   export_combined: true
-
-  # Export format
-  # Options: csv, json, pickle
   export_format: csv
+  add_timestamp: false
 
-  # Add timestamp to filenames
-  add_timestamp: true
-
-# ─────────────────────────────────────────────────────────────────────────
-# Logging Settings
-# ─────────────────────────────────────────────────────────────────────────
 logging:
-  # Log level
-  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
   level: INFO
-
-  # Print logs to console
   console_output: true
-
-  # Save logs to file
   file_output: true
-
-# ----------------------------------------------------------------------------
-# Output Files Generated
-# ----------------------------------------------------------------------------
-#
-# Based on export settings:
-# - radiomics_features_<image_type>_<timestamp>.csv (per image type)
-# - radiomics_features_combined_<timestamp>.csv (all features)
-# - extraction.log (if file_output: true)
-#
-# ----------------------------------------------------------------------------

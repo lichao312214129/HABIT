@@ -1,7 +1,7 @@
 """
 CLI-level tests for `habit cv` command (K-Fold cross-validation).
 
-Heavy K-fold demo run: ``tests/machine_learning/manual_cli_kfold.py``.
+Heavy K-fold demo run: ``tests/machine_learning/ml_kfold_cross_validation.py``.
 """
 
 from __future__ import annotations

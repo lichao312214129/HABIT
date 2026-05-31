@@ -1,7 +1,7 @@
 """
 CLI-level tests for `habit model` command (holdout train + predict).
 
-Heavy demo train/predict: ``tests/machine_learning/manual_cli_model.py``.
+Heavy demo train/predict: ``tests/machine_learning/ml_train_clinical.py``.
 """
 
 from __future__ import annotations

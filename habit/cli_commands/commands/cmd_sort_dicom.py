@@ -13,7 +13,7 @@ from pathlib import Path
 import click
 
 from habit.core.dicom_sort import DicomSortConfig, run_dicom_sort
-from habit.utils.log_utils import setup_logger
+from habit.utils.log_utils import setup_logger, stop_queue_listener
 
 
 def run_sort_dicom(config_path: str) -> None:
@@ -59,10 +59,12 @@ def run_sort_dicom(config_path: str) -> None:
             logger.error(traceback.format_exc())
             click.echo(error_msg, err=True)
             sys.exit(1)
-
-        success_msg = "DICOM sorting completed successfully!"
-        logger.info(success_msg)
-        click.secho(f"✓ {success_msg}", fg="green")
+        else:
+            success_msg = "DICOM sorting completed successfully!"
+            logger.info(success_msg)
+            click.secho(f"✓ {success_msg}", fg="green")
+        finally:
+            stop_queue_listener()
 
     except Exception as e:
         click.echo(f"Fatal error: {e}", err=True)
