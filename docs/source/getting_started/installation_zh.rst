@@ -65,14 +65,23 @@ Anaconda（备选）
 二、创建 py310 环境并安装 HABIT
 -------------------------------
 
+若尚未创建过 ``habit`` 环境，执行：
+
 .. code-block:: bash
 
    conda create -n habit python=3.10
-   conda activate habit
 
 若出现 ``Proceed ([y]/n)?`` 或类似确认，输入 ``y`` 回车即可。
 
-**中国大陆用户（可选，加速 pip）**：
+**若您之前已经创建过名为 ``habit`` 的 Python 3.10 环境**（例如重装过 HABIT、或按旧文档装过一遍），**不必再执行** ``conda create``，直接激活即可：
+
+.. code-block:: bash
+
+   conda activate habit
+
+可用 ``conda env list`` 查看是否已有 ``habit`` 环境。
+
+**中国大陆用户（可选，加速 pip）**：以下四条**只需配置一次**（写入本机 pip 全局设置）；若此前已设置过清华镜像，可跳过。
 
 .. code-block:: bash
 
@@ -105,7 +114,17 @@ Anaconda（备选）
    cd ~/Downloads/HABIT-main
 
    pip install -r requirements.txt
+
    pip install -e .
+
+安装完依赖后，可在终端检查 PyTorch 是否识别到 GPU（**不是 GPU 也能正常用 HABIT**，只是部分步骤会慢一些）：
+
+.. code-block:: bash
+
+   python -c "import torch; print('torch', torch.__version__); print('CUDA available', torch.cuda.is_available())"
+
+- ``CUDA available True``：已安装 GPU 版 PyTorch（见下文 ``requirements-gpu.txt``；版本号常含 ``+cu121``）。
+- ``CUDA available False``：默认 **CPU** 版 torch（``requirements.txt``），HABIT 仍可用，部分计算会慢一些。有 NVIDIA 显卡且需 GPU 加速时，见下文 **可选：GPU 版 PyTorch**。
 
 .. warning:: ZIP 解压后可能出现 ``HABIT-main`` 嵌套
 
@@ -119,15 +138,16 @@ Anaconda（备选）
    ├── config/
    ├── habit/
    ├── requirements.txt
+   ├── requirements-gpu.txt
    └── setup.py
 
-``requirements.txt`` 含 ``numpy==1.26.1`` 与 GPU 版 ``torch==2.4.0+cu121``（CUDA 12.1，py310 环境）。**无 NVIDIA GPU 或 macOS**：先注释文件末尾 3 行（``--extra-index-url`` 与 ``torch==...``），再执行：
+``requirements.txt`` 默认安装 **CPU 版** ``torch==2.4.0``（体积较小、下载较快，适合多数用户）。**有 NVIDIA 显卡且需要 GPU 加速**（TorchRadiomics / 生境 GPU）时，在装好 ``requirements.txt`` 与 ``pip install -e .`` 之后，再执行：
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
-   pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu
-   pip install -e .
+   pip install -r requirements-gpu.txt --upgrade --force-reinstall
+
+``requirements-gpu.txt`` 提供 **CUDA 12.1** 的 ``torch==2.4.0+cu121``（下载较慢，请耐心等待）。**无独显或 macOS** 用户无需执行上述命令。
 
 验证安装
 --------
@@ -157,9 +177,57 @@ Anaconda（备选）
 常见问题
 --------
 
-- 必须使用 **``conda create -n habit python=3.10``**；其它版本易与 PyTorch 等冲突
+- 环境须为 **Python 3.10**，conda 环境名建议 ``habit``；首次安装执行 ``conda create``，已有 ``habit`` 环境则只 ``conda activate habit``
 - 安装失败：``pip install --upgrade pip``；或按 ``requirements.txt`` 逐行 ``pip install``
 - 网络超时：配置上文清华镜像；仍失败请 `提交 Issue <https://github.com/lichao312214129/HABIT/issues>`_ 或邮件 **lichao19870617@163.com**
+
+Windows：安装 ``pyradiomics`` 时报缺少 C++（仅 Windows）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**何时会出现**
+
+在 **Windows** 且环境为 **Python 3.10** 时，``pip install -r requirements.txt`` 可能在安装 ``pyradiomics`` 时从源码编译 C 扩展。若本机未安装 C++ 编译工具，终端会出现类似报错：
+
+.. code-block:: text
+
+   error: Microsoft Visual C++ 14.0 or greater is required.
+   Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+   ERROR: Failed building wheel for pyradiomics
+
+说明：报错中的 **「14.0 或更高」** 指 **MSVC 编译器工具集**（用于编译 Python 扩展），**不是** Windows 系统版本号。仅安装 **Microsoft Visual C++ 可再发行组件（Redistributable）** 只能运行已编译程序，**不能** 用于本次编译，仍会失败。
+
+**推荐处理（已有多位用户验证）**
+
+1. 下载并安装 `Microsoft C++ Build Tools <https://visualstudio.microsoft.com/visual-cpp-build-tools/>`_（体积约数 GB，安装需一些时间）。
+2. 在安装器 **「工作负载」** 页勾选：
+
+   - **使用 C++ 的桌面开发**（英文界面：**Desktop development with C++**）
+
+   该工作负载会自动包含编译 ``pyradiomics`` 所需的 **MSVC** 与 **Windows SDK**。无需勾选 .NET、Python 开发等其它工作负载。
+
+3. 若使用自定义安装且未选上述工作负载，请在 **「单个组件」** 中至少勾选：
+
+   - **MSVC v143 - VS 2022 C++ x64/x86 生成工具**（或更新的 v14x 工具集）
+   - **Windows 10 SDK** 或 **Windows 11 SDK**（任选其一即可）
+
+4. 安装完成后 **关闭并重新打开** **Anaconda Powershell Prompt**，再执行：
+
+   .. code-block:: bash
+
+      conda activate habit
+      cd "D:\HABIT-main"    # 换成你的项目路径
+      pip install --upgrade pip setuptools wheel
+      pip install numpy==1.26.1
+      pip install -r requirements.txt
+      pip install -e .
+
+5. （可选）确认编译器是否可用：在新终端执行 ``where cl``，若显示 ``...\VC\Tools\MSVC\...\cl.exe`` 路径，一般表示 C++ 工具已就绪。
+
+**其它说明**
+
+- 仅 **Windows + Python 3.10** 通过 pip 安装 ``pyradiomics`` 时常见此问题；macOS / Linux 用户通常无需安装 Visual Studio。
+- 若已安装 Build Tools 仍报错，请确认安装时勾选了 **「使用 C++ 的桌面开发」** 或上文的 MSVC + Windows SDK，并 **重启终端** 后再试。
+- 也可尝试 ``conda install -c conda-forge pyradiomics`` 后再 ``pip install -r requirements.txt``（需本机 conda 能访问 conda-forge）；若仍失败，按上文安装 Build Tools 最稳妥。
 
 下一步
 ------

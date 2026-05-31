@@ -9,6 +9,8 @@ scipy
 openpyxl
 pandas
 tqdm
+# Build-time helper for pyradiomics sdist (bundled versioneer.py); install before pyradiomics if build fails
+versioneer>=0.29
 pyradiomics
 scikit-learn
 scikit-image
@@ -26,9 +28,7 @@ pydicom
 pydantic
 kneed
 
-# PyTorch GPU (CUDA 12.1) for TorchRadiomics / habitat GPU acceleration.
-# Matches py310 env: torch 2.4.0+cu121.
-# CPU-only or macOS: omit the block below and run instead:
-#   pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu
---extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.4.0+cu121
+# PyTorch CPU (default; smaller/faster download). HABIT runs on CPU torch.
+# NVIDIA GPU + CUDA 12.1: after this file, run: pip install -r requirements-gpu.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.0
