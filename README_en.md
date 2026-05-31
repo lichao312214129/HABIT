@@ -11,7 +11,7 @@
 
 <p align="center">
     <a href="https://github.com/lichao312214129/HABIT/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
-    <a href="#"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Python-3.10+-brightgreen.svg"></a>
     <a href="#"><img src="https://img.shields.io/badge/Status-Active-green.svg"></a>
 </p>
 
@@ -37,67 +37,64 @@ Tumors are not homogeneous; they consist of multiple sub-regions with distinct r
 
 ## ⚡ 5-Minute Quick Start
 
-**No data preparation needed, try it now!**
+**Learning path**: Install environment → Install HABIT → Run demo. Full steps: [Installation Guide](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) | [Complete Demo Tutorial](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
-```bash
-# 1. Install HABIT (if not already installed)
-git clone https://github.com/lichao312214129/HABIT.git
-cd HABIT
-conda create -n habit python=3.8
-conda activate habit
-pip install -r requirements.txt
-pip install -e .
+### Step 0: Install Miniconda or Anaconda (one-time)
 
-# 2. Download demo data
-# Shared file: demo_data.rar
-# Download from Baidu Netdisk: https://pan.baidu.com/s/1bHTLvVMHnfiApArmZf8wrQ
-# Extraction code: kbmd
-# Extract the downloaded files to the demo_data directory
-# Note: All privacy information has been removed. For academic research and demo use only. Commercial use is strictly prohibited.
+Skip if you already have Miniconda or Anaconda.
 
-# 3. Run complete research workflow
+| Option | Download |
+|--------|----------|
+| **Miniconda** (recommended) | [Official page](https://docs.anaconda.com/miniconda) |
+| **Anaconda** | [Anaconda download](https://www.anaconda.com/download) |
 
-# Step 1: Image Preprocessing (standardize images)
-habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
-# Note: The demo_data already contains a 'preprocessed' folder with images and ROI masks.
-# Outputs are organised by pipeline stage and modality:
-#   preprocessed/<stage>_NN/{images,masks}/<subject>/<modality>/<modality>.nii.gz
-#   (e.g. preprocessed/zscore_normalization_04/images/subj001/delay2/delay2.nii.gz)
-# Re-running this command overwrites images per stage; ROI masks under masks/ are
-# preserved (only resampled along with the images during registration).
+Open **Anaconda Prompt** (Windows) or **Terminal** (macOS/Linux). You should see `(base)` in the prompt:
 
-# Step 2: Habitat Segmentation (identify tumor sub-regions)
-# The demo's habitat configs point to ./preprocessed/processed_images, so the
-# two-step strategy is the one that runs out-of-the-box on the demo data.
-habit get-habitat --config config/habitat/config_habitat_two_step.yaml
-
-# Step 3: Feature Extraction (extract quantitative features)
-# Feature types (traditional / whole_habitat / msi / ith_score / ...) are
-# controlled by the feature_types field in the YAML config.
-habit extract --config config/feature_extraction/config_extract_features_demo.yaml
-
-# Step 4: Machine Learning (build predictive model)
-# Train the radiomics model first; train the clinical model too if you want to
-# run the model comparison step below.
-habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
-habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
-
-# Step 5: Model Comparison (compare different models)
-habit compare --config config/model_comparison/config_model_comparison_demo.yaml
-
-# 4. View results
-# Outputs land in three sibling directories under demo_data/:
-#   - demo_data/preprocessed/   : preprocessed images & ROI masks
-#   - demo_data/results/        : habitat maps, visualizations, extracted features
-#   - demo_data/ml_data/        : trained models, predictions, model-comparison plots
+```text
++--------------------------------------------------+
+| (base) C:\Users\YourName>_                       |
+|       ^^^^  conda is ready                       |
++--------------------------------------------------+
 ```
 
-**Expected Results**:
-- `demo_data/preprocessed/` - Preprocessed images & ROI masks, organised by pipeline stage; the final products live in `processed_images/`
-- `demo_data/results/habitat_two_step/` - 3D habitat / supervoxel maps (`*_habitats.nrrd`, `*_supervoxel.nrrd`), `habitats.csv`, and 2D/3D clustering visualisations
-- `demo_data/results/features/` - Per-feature-type CSV tables: `raw_image_radiomics.csv`, `whole_habitat_radiomics.csv`, `msi_features.csv`, `ith_scores.csv`, `habitat_basic_features.csv`
-- `demo_data/ml_data/radiomics/` (and `ml_data/clinical/`) - `prediction_results.csv`, `evaluation_metrics.csv`, ROC / calibration / decision / PR curves (PDF), confusion matrix, trained model `*.pkl`
-- `demo_data/ml_data/model_comparison/` - Multi-model `roc_curves.pdf`, `decision_curves.pdf`, `calibration_curves.pdf`, `precision_recall_curves.pdf`, `delong_results.json`, `combined_predictions.csv`
+### Step 1: Create environment and install HABIT
+
+Download [HABIT ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip), extract (e.g. `D:\HABIT`), then run:
+
+```bash
+conda create -n habit python=3.10 -y
+conda activate habit
+
+# Optional: Tsinghua mirror (recommended in mainland China)
+pip config set global.timeout 6000
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+pip config set global.extra-index-url https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+
+cd D:\HABIT
+pip install -r requirements.txt
+pip install -e .
+habit --version
+```
+
+Python **3.10** is recommended for PyTorch, AutoGluon, and related dependencies.
+
+### Step 2: Download demo and run your first command
+
+- **Baidu Netdisk**: [demo_data.rar](https://pan.baidu.com/s/1bHTLvVMHnfiApArmZf8wrQ) — extraction code: `kbmd`
+- Extract to `demo_data/` under the project root
+
+```bash
+conda activate habit
+cd D:\HABIT
+habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+```
+
+The demo bundle already includes `demo_data/preprocessed/`; you may skip preprocessing and start with habitat analysis.
+
+### Next: Full 5-step workflow
+
+See the [Complete Demo Tutorial](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) for preprocessing → habitat → features → ML → model comparison, output layout, and ITK-SNAP viewing.
 
 ---
 
@@ -131,7 +128,7 @@ HABIT can be used for the following clinical and research scenarios:
 
 ### System Requirements
 - **Operating System**: Windows, macOS, Linux
-- **Python Version**: 3.8 or higher
+- **Python Version**: **3.10** (recommended; supports PyTorch, AutoGluon, etc.)
 - **Memory**: Recommended 8GB or more (depends on data volume)
 - **Dependencies**: See [requirements.txt](requirements.txt)
 
@@ -143,7 +140,7 @@ git clone https://github.com/lichao312214129/HABIT.git
 cd HABIT
 
 # 2. Create Conda environment
-conda create -n habit python=3.8
+conda create -n habit python=3.10 -y
 conda activate habit
 
 # 3. Install dependencies

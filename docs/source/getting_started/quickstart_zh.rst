@@ -1,116 +1,242 @@
-快速入门
-========
+完整 Demo 教程
+==============
 
-本指南将帮助您快速上手 HABIT，优先完成图像预处理流程。
+本教程带您走完典型的影像组学研究全流程：从原始影像到预测模型与模型对比。
 
 前提条件
-----------
+--------
 
-确保您已经：
+1. 已完成 :doc:`installation_zh` 中的环境配置与 HABIT 安装
+2. 每次运行前激活环境：
 
-1. 安装了 HABIT（参考 :doc:`installation_zh`）
-2. 准备了医学图像数据（DICOM 或 NIfTI 格式）
+   .. code-block:: bash
 
-快速入门示例
------------
+      conda activate habit
+      cd D:\HABIT   # 改为您的项目路径
 
-我们将使用 demo_data 中的示例数据完成图像预处理，并说明如何准备数据。
+下载演示数据
+------------
 
-数据准备（demo_data）
-~~~~~~~~~~~~~~~~~~~~
-
-**重要提示**: 使用前需要先通过以下链接下载 `demo_data` 并解压到项目根目录。
-
-**📦 演示数据下载**
+**演示数据下载**
 
 - **链接**: |demo_data_link|
 - **提取码**: |demo_data_code|
+- 解压到项目根目录下的 ``demo_data/``（与 ``config/`` 同级）
 
-解压后会得到以下 demo 数据：
+**重要说明**：
 
-- **DICOM 数据**: ``demo_data/dicom/sub001`` 、``demo_data/dicom/sub002``
-- **预处理配置**: ``config/preprocessing/config_preprocessing_demo_elastix.yaml``
-- **文件列表**: ``config/preprocessing/files_preprocessing.yaml``
+- 所有隐私信息已完全去除
+- **严禁商业用途，仅供学术研究和 Demo 演示使用**
 
-如果使用自己的数据，请按"受试者/期相/序列"的结构整理 DICOM，
-并参照 ``files_preprocessing.yaml`` 填写每个受试者对应的序列路径。
+解压后目录示意：
 
-示例（节选）：
+.. code-block:: text
 
-.. code-block:: yaml
+   habit_project/
+   ├── config/
+   ├── demo_data/          <-- 解压目标
+   │   ├── dicom/
+   │   ├── preprocessed/   <-- 已含预处理结果，可跳过步骤 1
+   │   └── ...
+   └── habit/
 
-   auto_select_first_file: false
-   images:
-     subj001:
-       delay2: ./dicom/sub001/WATER_BHAxLAVA-Flex-2min_Series0012
-       delay3: ./dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014
-       delay5: ./dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
+完整研究流程（5 步）
+--------------------
 
-步骤 1: 图像预处理
-~~~~~~~~~~~~~~~~~~~~
+下面每一步均说明**临床意义**、**命令**、**预计用时**与**输出位置**。
 
-首先，我们需要对原始 DICOM 图像进行预处理。
+步骤 1：影像预处理
+~~~~~~~~~~~~~~~~~~
 
-**使用 CLI:**
+**临床意义**
+
+- 确保所有病例的影像在同一"标尺"下分析，消除设备与扫描参数差异
+- 类似于实验室检查前的标准化操作
+
+**命令**
 
 .. code-block:: bash
 
-   habit preprocess --config ./config/preprocessing/config_preprocessing_demo_elastix.yaml
+   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 
-**使用 Python API:**
+**预计用时**：约 2–5 分钟
 
-.. code-block:: python
+**结果位置**：``demo_data/preprocessed/``（最终产物在 ``processed_images/``）
 
-   from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
+**重要提示**
 
-   processor = BatchProcessor(config_path='./config/preprocessing/config_preprocessing_demo_elastix.yaml')
-   processor.run()
+- demo 包内 ``preprocessed/`` 已含预处理影像与 ROI，**可直接进入步骤 2**
+- 重新运行预处理会**覆盖**各阶段目录中的影像文件，但不会改变 ROI 勾画语义
+- ROI mask 是后续生境分析的必需输入，请勿删除
 
-**输出:**
+步骤 2：生境聚类分析
+~~~~~~~~~~~~~~~~~~~~
 
-预处理后的图像将保存在 `./demo_data/preprocessed/processed_images/` 目录下；日志默认写在 `./demo_data/preprocessed/processing.log`（``out_dir`` 与 CLI 设置一致时）。
+**临床意义**
 
-下一步建议
-~~~~~~~~~~
+- 自动识别肿瘤内部亚区（坏死区、活跃增殖区、缺氧区等）
+- 不同亚区对治疗反应与预后可能不同
 
-完成预处理后，可继续阅读用户指南，进入生境分割与特征提取流程：
+**命令**
 
-- :doc:`../user_guide/habitat_segmentation_zh`
-- :doc:`../user_guide/habitat_feature_extraction_zh`
-- :doc:`../user_guide/machine_learning_modeling_zh`
+.. code-block:: bash
 
-配置文件说明
------------
+   # 二步法（demo 默认：个体级超体素 + 群体级生境）
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
-HABIT 使用 YAML 配置文件来控制所有参数。配置文件的结构如下：
+   # （可选）一步法 / direct-pooling
+   # habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
+   # habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 
-**预处理配置 (config/preprocessing/config_preprocessing_demo_elastix.yaml):**
+**预计用时**：约 5–10 分钟
 
-.. code-block:: yaml
+**结果位置**：``demo_data/results/habitat_two_step/``
 
-   data_dir: ./config/preprocessing/files_preprocessing.yaml
-   out_dir: ./preprocessed
+**如何查看**：将 ``subj001_habitats.nrrd``、``subj001_supervoxel.nrrd`` 拖入 ITK-SNAP，叠加在原始影像上
 
-   Preprocessing:
-     dcm2nii:
-       images: [delay2, delay3, delay5]
-       dcm2niix_path: ./dcm2niix.exe
-       compress: true
+步骤 3：特征提取
+~~~~~~~~~~~~~~~~
 
-     resample:
-       images: [delay2, delay3, delay5]
-       target_spacing: [1.0, 1.0, 1.0]
+**临床意义**
 
-   processes: 2
-   random_state: 42
+- 从影像中提取纹理、形状、强度等定量指标
+- 量化肿瘤异质性，捕捉肉眼难以识别的信息
+
+**命令**
+
+.. code-block:: bash
+
+   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
+
+**预计用时**：约 3–8 分钟
+
+**结果位置**：``demo_data/results/features/``（每类特征一个 CSV）
+
+**前置条件**：配置中 ``habitats_map_folder`` 需指向步骤 2 实际输出目录（two-step 时为 ``./results/habitat_two_step``）
+
+步骤 4：机器学习建模
+~~~~~~~~~~~~~~~~~~~~
+
+**临床意义**
+
+- 从众多特征中筛选与预后/疗效相关的生物标志物
+- 构建预测模型，辅助个体化治疗决策
+
+**命令**
+
+.. code-block:: bash
+
+   habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
+
+   # （可选）K 折交叉验证
+   # habit model --config config/machine_learning/config_machine_learning_kfold_demo.yaml --mode train
+
+**预计用时**：约 2–5 分钟
+
+**结果位置**：``demo_data/ml_data/radiomics/``
+
+**生成内容**：``prediction_results.csv``、``evaluation_metrics.csv``、ROC/校准/DCA/PR 曲线 PDF、混淆矩阵等
+
+步骤 5：模型比较
+~~~~~~~~~~~~~~~~
+
+**临床意义**
+
+- 比较不同模型（如 radiomics vs clinical）的预测性能
+- 用于方法学对比与论文撰写
+
+**命令**
+
+运行前需分别用 ``config_machine_learning_radiomics.yaml`` 与 ``config_machine_learning_clinical.yaml`` 训练两个模型：
+
+.. code-block:: bash
+
+   habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
+   habit compare --config config/model_comparison/config_model_comparison_demo.yaml
+
+**预计用时**：约 1–3 分钟
+
+**结果位置**：``demo_data/ml_data/model_comparison/``
+
+一键运行全流程
+--------------
+
+熟悉各步输出后，可依次执行（约 15–30 分钟）：
+
+.. code-block:: bash
+
+   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml && \
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml && \
+   habit extract --config config/feature_extraction/config_extract_features_demo.yaml && \
+   habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train && \
+   habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train && \
+   habit compare --config config/model_comparison/config_model_comparison_demo.yaml
+
+建议首次使用时**逐步运行**，便于理解每步产物。
+
+结果文件夹结构
+--------------
+
+运行完成后，``demo_data/`` 下形成三块输出：
+
+.. code-block:: text
+
+   demo_data/
+   │
+   ├── preprocessed/                    <-- 预处理产物
+   │   ├── processing.log
+   │   ├── dcm2nii_01/ ... zscore_normalization_04/
+   │   └── processed_images/            <-- 供下游使用的最终产物
+   │       ├── images/<subject>/<modality>/<modality>.nii.gz
+   │       └── masks/<subject>/<modality>/<modality>.nii.gz
+   │
+   ├── results/
+   │   ├── habitat_two_step/            <-- 生境地图、聚类图、habitats.csv
+   │   └── features/                    <-- 各类特征 CSV
+   │
+   └── ml_data/
+       ├── radiomics/ / clinical/       <-- 单模型训练结果
+       └── model_comparison/            <-- 多模型对比图与 DeLong 检验
+
+如何查看和使用结果
+------------------
+
+1. **生境地图（ITK-SNAP / 3D Slicer）**
+
+   - 影像：``demo_data/preprocessed/processed_images/images/subj001/delay2/delay2.nii.gz``
+   - 叠加：``demo_data/results/habitat_two_step/subj001_habitats.nrrd``
+
+2. **特征数据（Excel / SPSS）**
+
+   - ``demo_data/results/features/raw_image_radiomics.csv``
+   - ``whole_habitat_radiomics.csv``、``msi_features.csv``、``ith_scores.csv`` 等
+
+3. **模型性能**
+
+   - 曲线：``demo_data/ml_data/radiomics/roc_curve.pdf`` 等
+   - 指标：``evaluation_metrics.csv``（AUC > 0.8 通常视为较好）
+
+4. **论文撰写**
+
+   - 图表为 PDF 矢量格式，可直接插入稿件
+   - ``delong_results.json`` 提供模型间 AUC 差异的统计学检验
+
+结果解读小贴士
+--------------
+
+**对于医生**
+
+- 生境地图直观展示肿瘤内部异质性，不同颜色区域可能对应不同生物学行为
+
+**对于研究人员**
+
+- 特征 CSV 与模型指标可用于进一步统计与方法学对比
+- 各步骤均有日志，便于复现
 
 下一步
--------
+------
 
-恭喜您完成了快速入门！接下来您可以：
-
-- 阅读 :doc:`../user_guide/habitat_segmentation_zh` 了解生境分析
-- 阅读 :doc:`../user_guide/machine_learning_modeling_zh` 了解机器学习建模
-- 阅读 :doc:`../user_guide/index_zh` 了解详细的使用指南
-- 查看 :doc:`../tutorials/index` 学习更多教程
-- 探索 :doc:`../customization/index_zh` 了解如何自定义扩展功能
+- :doc:`../user_guide/habitat_segmentation_zh` — 生境分割详解
+- :doc:`../user_guide/habitat_feature_extraction_zh` — 特征提取详解
+- :doc:`../user_guide/machine_learning_modeling_zh` — 机器学习建模
+- :doc:`../user_guide/index_zh` — 完整用户指南

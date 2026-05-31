@@ -1,7 +1,7 @@
 HABIT: Habitat Analysis: Biomedical Imaging Toolkit
 ==================================================
 
-.. image:: https://img.shields.io/badge/Python-3.8+-blue.svg
+.. image:: https://img.shields.io/badge/Python-3.10+-blue.svg
    :target: https://www.python.org/downloads/
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
    :target: https://opensource.org/licenses/MIT

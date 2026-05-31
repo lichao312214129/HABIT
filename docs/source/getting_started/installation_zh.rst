@@ -1,12 +1,160 @@
 安装指南
 ========
 
+本指南面向**首次使用 Python** 的临床与研究人员，从零完成 Miniconda/Anaconda 安装与 HABIT 配置。无需安装 VS Code 等 IDE，在终端中即可完成全部操作。
+
 系统要求
 ---------
 
-- **Python**: 3.8 或更高版本。
-- **注意**: 基础功能（影像处理、生境分析、传统机器学习）完全支持 Python 3.8。
-- **AutoGluon 特别说明**: 如果您计划使用 **AutoGluon** 进行自动机器学习建模，该模块要求 **Python 3.10** 环境。您可以先在 Python 3.8 环境下完成特征提取，然后创建一个新的 Python 3.10 环境来专门运行 AutoGluon。
+- **Python**: **3.10**（推荐；兼容 PyTorch、AutoGluon 等依赖）
+- **操作系统**: Windows / macOS / Linux
+- **内存**: 建议 8 GB 及以上（视数据量而定）
+
+一、安装 Miniconda 或 Anaconda
+-------------------------------
+
+**Miniconda** 与 **Anaconda** 二选一即可；Miniconda 体积更小，推荐新用户使用。
+
+Miniconda
+~~~~~~~~~
+
+1. 打开官方下载页：`Miniconda 官方下载 <https://docs.anaconda.com/miniconda>`_
+2. 选择对应系统的安装包并下载。
+3. Windows 用户也可直接下载 exe：
+
+   `Miniconda3 Windows x86_64 <https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe>`_
+
+4. 双击安装包，按向导一路 **Next / 继续** 完成安装。
+
+Anaconda（备选）
+~~~~~~~~~~~~~~~~
+
+若您更习惯 Anaconda 全家桶，可从 `Anaconda 下载页 <https://www.anaconda.com/download>`_ 下载并安装，后续步骤相同。
+
+打开终端（Windows）
+~~~~~~~~~~~~~~~~~~~
+
+安装完成后，从开始菜单打开 **Anaconda Prompt** 或 **Anaconda Powershell Prompt**：
+
+.. code-block:: text
+
+   +--------------------------------------------------+
+   |  [开始]  搜索: Anaconda Prompt                    |
+   +--------------------------------------------------+
+   |  > Anaconda Prompt                               |
+   |  > Anaconda Powershell Prompt   <-- 任选其一     |
+   +--------------------------------------------------+
+
+macOS / Linux
+~~~~~~~~~~~~~
+
+打开系统自带的 **Terminal（终端）**。macOS 首次安装 Miniconda 后，请执行：
+
+.. code-block:: bash
+
+   conda init
+   # 关闭并重新打开终端
+
+验证 conda 是否可用
+~~~~~~~~~~~~~~~~~~~
+
+命令行前缀出现 ``(base)`` 即表示成功：
+
+.. code-block:: text
+
+   +--------------------------------------------------+
+   | Anaconda Prompt                          - x     |
+   +--------------------------------------------------+
+   | (base) C:\Users\YourName>_                       |
+   |       ^^^^                                       |
+   |       出现 (base) 表示 conda 已就绪               |
+   +--------------------------------------------------+
+
+二、创建 HABIT 专用环境
+-----------------------
+
+推荐使用 **Python 3.10**，以便 PyTorch、AutoGluon 等组件正常工作。
+
+.. code-block:: bash
+
+   conda create -n habit python=3.10 -y
+   conda activate habit
+
+激活后前缀由 ``(base)`` 变为 ``(habit)``：
+
+.. code-block:: text
+
+   (base) C:\Users\YourName> conda activate habit
+   (habit) C:\Users\YourName>_
+          ^^^^^^
+
+创建环境时若提示 ``Proceed ([y]/n)?``，输入 ``y`` 并回车。
+
+三、配置 pip 镜像（中国大陆推荐）
+---------------------------------
+
+可显著加快依赖下载，并减少超时错误：
+
+.. code-block:: bash
+
+   pip config set global.timeout 6000
+   pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+   pip config set global.extra-index-url https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+   pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+
+四、下载源码并安装 HABIT
+------------------------
+
+下载源码
+~~~~~~~~
+
+**方式 A：ZIP 下载（推荐普通用户）**
+
+打开 `HABIT GitHub 页面 <https://github.com/lichao312214129/HABIT>`_，点击 **Code → Download ZIP**，或直接访问：
+
+`https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_
+
+解压到固定路径，例如 ``D:\HABIT`` 或 ``D:\HABIT-main``。
+
+**方式 B：Git 克隆（适合开发者）**
+
+.. code-block:: bash
+
+   git clone --depth 1 --single-branch https://github.com/lichao312214129/HABIT.git
+   cd HABIT
+
+进入项目目录
+~~~~~~~~~~~~
+
+在 **Anaconda Prompt** 中使用 ``cd`` 切换到包含 ``requirements.txt`` 的目录：
+
+.. code-block:: bash
+
+   cd D:\HABIT
+   # 若文件夹名为 HABIT-main: cd D:\HABIT-main
+   # Windows 跨盘符: 先输入 D: 回车，再 cd
+
+确认目录结构（模拟界面）：
+
+.. code-block:: text
+
+     D:\HABIT\
+     ├── config\
+     ├── habit\
+     ├── requirements.txt   <-- 必须存在
+     └── setup.py
+
+   (habit) D:\HABIT> dir requirements.txt
+
+安装依赖与 HABIT
+~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   pip install -r requirements.txt
+   pip install -e .
+
+安装成功时终端末尾会出现类似 ``Successfully installed habit-...`` 的输出。
 
 主要依赖
 ---------
@@ -14,186 +162,47 @@
 HABIT 的主要依赖包括：
 
 - SimpleITK: 医学图像处理
-- numpy: 数值计算
-- pandas: 数据处理
+- numpy / pandas: 数值与表格处理
 - scikit-learn: 机器学习
 - pyradiomics: 影像组学特征提取
-- click: 命令行接口
-- pyyaml: 配置文件解析
-- pydantic: 配置验证
+- click / pyyaml / pydantic: CLI 与配置
 
-推荐安装步骤（使用 Conda）
---------------------------
-
-为了确保环境的稳定性，我们强烈建议使用 **Miniconda** 或 **Anaconda** 创建独立的虚拟环境。
-
-1. **创建虚拟环境**：
-
-   .. code-block:: bash
-
-      # 推荐使用 Python 3.8。如果需要 AutoGluon，请使用 3.10
-      conda create -n habit python=3.8 -y
-
-2. **激活环境**：
-
-   .. code-block:: bash
-
-      conda activate habit
-
-3. **下载源码并安装**：
-
-   推荐普通用户直接从 GitHub 下载 ZIP 压缩包，这通常比 ``git clone`` 更快，尤其是在网络访问 GitHub Git 服务较慢时。
-
-   **方式 A：快速下载 ZIP（推荐）**
-
-   打开 `HABIT GitHub 页面 <https://github.com/lichao312214129/HABIT>`_，点击 **Code** -> **Download ZIP**，下载后解压。
-
-   也可以直接下载当前主分支源码：
-
-   `https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_
-
-   解压后进入项目目录并安装：
-
-   .. code-block:: bash
-
-      cd HABIT-main
-      pip install -r requirements.txt
-      pip install -e .
-
-   **方式 B：使用 Git 下载（适合开发者或需要后续 git pull 更新的用户）**
-
-   如果您需要保留 Git 历史或后续使用 ``git pull`` 更新代码，可以使用浅克隆来减少下载量：
-
-   .. code-block:: bash
-
-      git clone --depth 1 --single-branch https://github.com/lichao312214129/HABIT.git
-      cd HABIT
-      pip install -r requirements.txt
-      pip install -e .
+完整列表见仓库根目录 ``requirements.txt``。
 
 验证安装
 --------
-
-验证安装是否成功：
 
 .. code-block:: bash
 
    habit --version
 
-如果安装成功，您应该看到版本号输出。
+若输出版本号，说明安装成功。
 
 卸载 HABIT
 -----------
 
-如果需要卸载 HABIT 包，可以使用以下方法：
+.. code-block:: bash
 
-1. **查看已安装的包名**：
+   pip uninstall HABIT -y
 
-   .. code-block:: bash
-
-      # 查看所有已安装的包
-      pip list | grep -i habit
-
-      # 或者查看包的详细信息
-      pip show HABIT
-
-2. **卸载包**：
-
-   .. code-block:: bash
-
-      # 卸载 HABIT 包（使用 -y 参数自动确认，避免交互提示）
-      pip uninstall HABIT -y
-
-3. **验证卸载**：
-
-   .. code-block:: bash
-
-      # 检查是否已卸载
-      pip show HABIT
-
-      # 如果包已卸载，上述命令会提示 "Package(s) not found"
-
-**注意事项**：
-
-- 卸载包不会删除源代码目录，只会移除 Python 环境中的安装链接。
-- 卸载包不会自动卸载依赖包，如果需要清理所有依赖，需要手动处理。
-- 如果使用 Conda 环境，建议在对应的环境中执行卸载命令。
+**注意**：卸载不会删除源码目录，也不会自动移除其他依赖包。
 
 更新 HABIT
 -----------
 
-如果 HABIT 包有新版本发布，您可以通过以下方法更新到最新版本：
-
-**方法 1：从 Git 仓库更新（适合通过 Git 安装的用户）**
-
-如果您是通过 ``git clone`` 安装的，进入项目目录并拉取最新代码：
+**Git 用户**：
 
 .. code-block:: bash
 
-   # 进入 HABIT 项目目录
    cd HABIT
-
-   # 拉取最新代码
    git pull
-
-   # 如果依赖有更新，重新安装依赖
    pip install -r requirements.txt --upgrade
-
-   # 重新安装包（确保安装是最新的）
    pip install -e .
 
-**方法 2：重新下载源码**
-
-如果您想完全重新安装，或者使用 Git 更新时遇到合并冲突：
-
-.. code-block:: bash
-
-   # 备份您的配置文件（如果有自定义配置）
-   # cp -r HABIT/config my_config_backup
-
-   # 删除旧目录
-   # rm -rf HABIT-main
-
-   # 重新下载 ZIP 后解压，并进入项目目录
-   cd HABIT-main
-   pip install -r requirements.txt
-   pip install -e .
-
-如果您使用 Git 重新下载，建议使用浅克隆以加快速度：
-
-.. code-block:: bash
-
-   git clone --depth 1 --single-branch https://github.com/lichao312214129/HABIT.git
-   cd HABIT
-   pip install -r requirements.txt
-   pip install -e .
-
-**方法 3：仅更新依赖包**
-
-如果只是依赖包有更新，而代码没有变化：
-
-.. code-block:: bash
-
-   # 更新所有依赖到最新版本
-   pip install -r requirements.txt --upgrade
-
-**注意事项**：
-
-- 使用 `git pull` 更新时，如果本地有未提交的修改，可能会遇到冲突。建议先提交或暂存本地修改。
-- 如果更新后遇到问题，可以查看 `CHANGELOG.md` 或 GitHub Releases 了解版本变更。
-- 更新后建议运行 `habit --version` 验证安装是否成功。
+**ZIP 用户**：重新下载并解压，在项目目录中再次执行 ``pip install -r requirements.txt`` 与 ``pip install -e .``。
 
 可选依赖
 ---------
-
-某些功能需要额外的依赖包：
-
-- **antspyx**: 用于高级图像配准（可选）
-- **shap**: 用于模型解释（可选）
-- **matplotlib**: 用于可视化（推荐）
-- **seaborn**: 用于高级可视化（推荐）
-
-如果需要这些功能，可以单独安装：
 
 .. code-block:: bash
 
@@ -202,33 +211,32 @@ HABIT 的主要依赖包括：
 安装问题排查
 ------------
 
-如果在安装依赖（``pip install -r requirements.txt``）时遇到错误，您可以尝试以下步骤：
+逐个排查依赖
+~~~~~~~~~~~~
 
-1. **逐个排查依赖**
-   
-   有时某个特定的包可能因为系统环境原因无法安装。您可以打开 ``requirements.txt`` 文件，尝试逐行手动安装，以找出具体是哪个包出了问题：
+若 ``pip install -r requirements.txt`` 报错，可打开 ``requirements.txt`` 逐行安装：
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      # 例如：
-      pip install SimpleITK
-      pip install pyradiomics
-      # ... 针对文件中的每一行执行
+   pip install SimpleITK
+   pip install pyradiomics
+   # 针对每一行重复执行
 
-2. **常见问题检查**
+常见问题
+~~~~~~~~
 
-   - **Python 版本**: 确保使用 Python 3.8 或更高版本。
-   - **pip 版本**: 建议升级到最新版本 (``pip install --upgrade pip``)。
-   - **C++ 构建工具**: 某些包（如 pyradiomics）可能需要系统安装 C++ 编译器。
-   - **网络问题**: 如果下载速度慢或超时，可以使用国内镜像源：
+- **Python 版本**: 请使用 **3.10** 环境（``conda create -n habit python=3.10``）。
+- **pip 版本**: ``pip install --upgrade pip``
+- **网络超时**: 确认已配置第三节中的清华镜像。
+- **C++ 编译器**: 部分包（如 pyradiomics）在 Windows 上可能需要 Visual Studio Build Tools。
 
-     .. code-block:: bash
+获取支持
+~~~~~~~~
 
-        pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+- **GitHub Issue**: `提交 Issue <https://github.com/lichao312214129/HABIT/issues>`_
+- **电子邮件**: **lichao19870617@163.com**
 
-3. **获取支持**
+下一步
+------
 
-   如果问题依然无法解决，请通过以下方式联系我们，并提供报错截图：
-
-   - **GitHub Issue**: `提交一个新的 Issue <https://github.com/lichao312214129/HABIT/issues>`_
-   - **电子邮件**: 发送邮件至 **lichao19870617@163.com**
+安装完成后，请阅读 :doc:`quickstart_zh` 下载 demo 数据并跑通完整流程。
