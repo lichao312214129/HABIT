@@ -43,7 +43,7 @@ metrics:
 # Output configuration
 output:
   # Path to output JSON file
-  path: ../../demo_data/ml_data/icc_radiomics.json
+  path: ../../demo_data/results/icc/icc_radiomics.json
 
 # Processing configuration
 # Number of processes to use (null/None for using all available CPU cores)

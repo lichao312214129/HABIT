@@ -46,7 +46,7 @@
 
 demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。改参数见 :doc:`../configuration_zh`。
 
-**步骤 1 — 预处理**（约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score）→ ``demo_data/preprocessed/processed_images/``
+**步骤 1 — 预处理**（约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score）→ ``demo_data/results/preprocessed/processed_images/``（输入可仍用包内 ``demo_data/preprocessed/processed_images/``）
 
 .. code-block:: bash
 
@@ -66,34 +66,18 @@ demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-**步骤 4 — 机器学习**（约 2–5 分钟）→ ``demo_data/ml_data/radiomics/``
+**步骤 4 — 机器学习**（约 2–5 分钟）→ ``demo_data/results/ml/radiomics/``
 
 .. code-block:: bash
 
    habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
 
-**步骤 5 — 模型对比**（约 1–3 分钟，需先训练 radiomics 与 clinical 两个模型）→ ``demo_data/ml_data/model_comparison/``
+**步骤 5 — 模型对比**（约 1–3 分钟，需先训练 radiomics 与 clinical 两个模型）→ ``demo_data/results/model_comparison/``
 
 .. code-block:: bash
 
    habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
    habit compare --config config/model_comparison/config_model_comparison_demo.yaml
-
-一键运行全流程
---------------
-
-熟悉各步输出后，可依次执行（约 15–30 分钟）：
-
-.. code-block:: bash
-
-   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml && \
-   habit get-habitat --config config/habitat/config_habitat_two_step.yaml && \
-   habit extract --config config/feature_extraction/config_extract_features_demo.yaml && \
-   habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train && \
-   habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train && \
-   habit compare --config config/model_comparison/config_model_comparison_demo.yaml
-
-建议首次使用时**逐步运行**，便于理解每步产物。
 
 主要输出目录
 ------------
@@ -101,7 +85,8 @@ demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。
 - ``demo_data/preprocessed/processed_images/`` — 预处理影像与 mask
 - ``demo_data/results/habitat_two_step/`` — 生境地图（ITK-SNAP 叠加查看）
 - ``demo_data/results/features/`` — 特征 CSV（Excel / SPSS）
-- ``demo_data/ml_data/`` — 模型结果与对比图（含 ROC 等 PDF）
+- ``demo_data/results/ml/`` — 模型训练输出（含 ROC 等 PDF）
+- ``demo_data/results/model_comparison/`` — 多模型对比图与指标
 
 下一步
 ------

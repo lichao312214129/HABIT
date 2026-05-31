@@ -21,9 +21,9 @@
 输出
 ----
 
-预处理结果在配置 ``out_dir`` 下的 ``processed_images/``；日志为 ``processing.log``。
+预处理结果在配置 ``out_dir`` 下的 ``processed_images/``；日志为 ``<out_dir>/processing.log``。Demo 写入 ``demo_data/results/preprocessed/processed_images/``。
 
 配置
 ----
 
-Demo 使用 ``config/preprocessing/config_preprocessing_demo.yaml``：重采样 → SimpleITK 配准 → Z-score（数据 ``demo_data/preprocessed/processed_images``）。字段说明见 :doc:`../configuration_zh`。
+Demo 使用 ``config/preprocessing/config_preprocessing_demo.yaml``：重采样 → SimpleITK 配准 → Z-score；**输入** ``demo_data/preprocessed/processed_images``，**输出** ``demo_data/results/preprocessed/``。字段说明见 :doc:`../configuration_zh`。

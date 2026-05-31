@@ -35,7 +35,13 @@
    │           │   ├── delay3/
    │           │   └── delay5/
    │           └── subj002/
-   ├── ml_data/                            # 机器学习演示 CSV
+   ├── ml_data/                            # 机器学习演示 CSV（输入表、train/test ID，非运行输出）
+   ├── results/                            # 文档 Demo YAML 的运行输出（预处理、生境、特征、ML、对比等）
+   │   ├── preprocessed/processed_images/  # 步骤 1 输出（可选；包内亦可直接用 preprocessed/ 下数据）
+   │   ├── habitat_two_step/               # 步骤 2
+   │   ├── features/                       # 步骤 3
+   │   ├── ml/                             # 步骤 4（radiomics、clinical、kfold 等）
+   │   └── model_comparison/               # 步骤 5
    ├── configs/                            # 按流程分类的 YAML（推荐从这里选用）
    │   ├── preprocess/
    │   ├── habitat/

@@ -12,7 +12,7 @@ input:
 
 #%%================================================================================
 # Output Directory Configuration
-output: ../../demo_data/ml_data/kfold_results
+output: ../../demo_data/results/ml/kfold
 
 #%%================================================================================
 # K-Fold Cross-Validation Configuration

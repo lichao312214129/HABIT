@@ -21,7 +21,7 @@
 
 # Data paths (relative to this file)
 data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/preprocessed
+out_dir: ../../demo_data/results/preprocessed
 
 # NIfTI inputs may be single files per modality; true = pick first file when path is a directory
 auto_select_first_file: true

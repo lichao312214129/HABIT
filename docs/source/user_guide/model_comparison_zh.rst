@@ -19,7 +19,7 @@
 输出
 ----
 
-结果保存在配置 ``out_dir``（demo 为 ``demo_data/ml_data/model_comparison/``）。
+结果保存在配置 ``output_dir``（demo 为 ``demo_data/results/model_comparison/``）；需先完成步骤 4，使 ``demo_data/results/ml/radiomics/`` 与 ``clinical/`` 下各有 ``all_prediction_results.csv``。
 
 配置
 ----

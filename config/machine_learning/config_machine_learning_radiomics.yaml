@@ -27,7 +27,7 @@ input:
 
 #%%================================================================================
 # Output Directory Configuration
-output: ../../demo_data/ml_data/radiomics  # Directory where all results will be saved (models, plots, statistics)
+output: ../../demo_data/results/ml/radiomics  # Directory where all results will be saved (models, plots, statistics)
 
 #%%================================================================================
 # Data Splitting Configuration
@@ -205,14 +205,14 @@ models:
   #     verbosity: 4  # Verbosity level for AutoGluonTabular
   #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
   
-  # # Support Vector Machine configuration
-  # SVM:  # Model type: Support Vector Machine classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     C: 1.0  # Regularization parameter
-  #     kernel: "rbf"  # Kernel type: linear, poly, rbf, sigmoid
-  #     gamma: "scale"  # Kernel coefficient
-  #     probability: true  # Enable probability estimates
+  # Support Vector Machine configuration
+  SVM:  # Model type: Support Vector Machine classifier
+    params:
+      random_state: 42  # Random seed for reproducibility
+      C: 1.0  # Regularization parameter
+      kernel: "rbf"  # Kernel type: linear, poly, rbf, sigmoid
+      gamma: "scale"  # Kernel coefficient
+      probability: true  # Enable probability estimates
 
   # # Random Forest configuration
   # RandomForest:  # Model type: Random Forest classifier

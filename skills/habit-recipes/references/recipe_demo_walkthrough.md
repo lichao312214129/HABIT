@@ -62,9 +62,9 @@ After step 5, the user should open these to verify success:
 | File | What it shows |
 |---|---|
 | `demo_data/results/habitat_two_step/subj001_habitats.nrrd` | ITK-SNAP overlay on `demo_data/preprocessed/processed_images/images/subj001/delay2/*.nii.gz` |
-| `demo_data/ml_data/radiomics/roc_curve.pdf` | per-model ROC |
-| `demo_data/ml_data/model_comparison/roc_curves.pdf` | radiomics vs clinical comparison |
-| `demo_data/ml_data/model_comparison/delong_results.json` | DeLong p-value |
+| `demo_data/results/ml/radiomics/roc_curve.pdf` | per-model ROC |
+| `demo_data/results/model_comparison/roc_curves.pdf` | radiomics vs clinical comparison |
+| `demo_data/results/model_comparison/delong_results.json` | DeLong p-value |
 
 ## Optional: alternative `clustering_mode` recipes
 

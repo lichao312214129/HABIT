@@ -23,7 +23,7 @@
 输出
 ----
 
-模型、``prediction_results.csv``、``evaluation_metrics.csv`` 及 ROC/校准等图表 PDF，目录由配置 ``out_dir`` 决定。
+模型、``all_prediction_results.csv``、``evaluation_metrics.csv`` 及 ROC/校准等图表 PDF，目录由配置 ``output`` 决定。Demo：``demo_data/results/ml/radiomics/``、``demo_data/results/ml/clinical/``（特征表仍从 ``demo_data/ml_data/`` 读取）。
 
 配置
 ----

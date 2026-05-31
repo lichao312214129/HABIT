@@ -93,7 +93,7 @@ CLI 命令与配置文件对照
      - 示例配置文件
    * - ``habit preprocess``
      - 预处理配置
-     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo：重采样 + SimpleITK 配准 + Z-score；``demo_data/preprocessed/processed_images``）
+     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo：重采样 + SimpleITK 配准 + Z-score；输入 ``demo_data/preprocessed/processed_images``，输出 ``demo_data/results/preprocessed/``）
    * - ``habit sort-dicom``
      - DICOM 整理配置
      - ``config/dicom_sort/config_sort_dicom.yaml``
@@ -1449,8 +1449,8 @@ DICOM 整理配置参数（``habit sort-dicom``）
    params_file_of_habitat: ./parameter_habitat.yaml
 
    raw_img_folder: ./demo_data/preprocessed/processed_images
-   habitats_map_folder: ./results/habitat
-   out_dir: ./results/features
+   habitats_map_folder: ./demo_data/results/habitat_two_step
+   out_dir: ./demo_data/results/features
 
    n_processes: 3
    habitat_pattern: '*_habitats.nrrd'
@@ -1561,7 +1561,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
        name: training_data
        subject_id_col: Subject
        label_col: label
-   output: ./results/ml/train
+   output: ./demo_data/results/ml/train
    random_state: 42
 
    split_method: stratified
@@ -1608,14 +1608,14 @@ DICOM 整理配置参数（``habit sort-dicom``）
 .. code-block:: yaml
 
    run_mode: predict
-   pipeline_path: ./ml_data/models/LogisticRegression_final_pipeline.pkl
+   pipeline_path: ./demo_data/results/ml/clinical/models/LogisticRegression_final_pipeline.pkl
 
    input:
-     - path: ./ml_data/new_subjects.csv
+     - path: ./demo_data/ml_data/clinical_feature.csv
        subject_id_col: subjID
        label_col: label   # evaluate: true 时需要
 
-   output: ./ml_data/predictions
+   output: ./demo_data/results/ml/clinical/predictions
 
    evaluate: true
    output_label_col: predicted_label

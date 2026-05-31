@@ -20,7 +20,7 @@ input:
     subject_id_col: subjID
     label_col: label
 
-output: ../../demo_data/ml_data/multi_tables
+output: ../../demo_data/results/ml/multi_tables
 #%%================================================================================
 
 split_method: custom

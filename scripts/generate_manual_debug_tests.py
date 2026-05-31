@@ -640,7 +640,7 @@ output_dir: ../../demo_data/results/model_comparison_single_radiomics
 {MARKER}
 
 files_config:
-  - path: ../../demo_data/ml_data/radiomics/all_prediction_results.csv
+  - path: ../../demo_data/results/ml/radiomics/all_prediction_results.csv
     model_name: radiomics
     subject_id_col: subject_id
     label_col: label

@@ -14,7 +14,7 @@
 run_mode: predict
 
 # Path to saved pipeline (*_final_pipeline.pkl); resolved relative to this YAML file
-pipeline_path: ../../demo_data/ml_data/clinical/models/LogisticRegression_final_pipeline.pkl
+pipeline_path: ../../demo_data/results/ml/clinical/models/LogisticRegression_final_pipeline.pkl
 
 # Predict mode uses input[0] only
 input:
@@ -23,7 +23,7 @@ input:
     subject_id_col: subjID
     label_col: label
 
-output: ../../demo_data/ml_data/clinical/predictions
+output: ../../demo_data/results/ml/clinical/predictions
 
 # Optional: compute metrics when label_col is present in the data file
 evaluate: true

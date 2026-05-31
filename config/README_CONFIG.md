@@ -41,7 +41,7 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | resample_02 demo resample (T1/T2); dcm2nii commented for production. |
 | `dicom_sort/config_sort_dicom.yaml` | sort-dicom | Production DICOM only (not resample_02). |
-| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: resample + SimpleITK registration + z-score on `demo_data/preprocessed/processed_images`. |
+| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: resample + SimpleITK registration + z-score; input `demo_data/preprocessed/processed_images`, output `demo_data/results/preprocessed/`. |
 | `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | Optional: elastix registration; requires elastix/transformix. |
 | `preprocessing/files_preprocessing_demo.yaml` | preprocess | **Demo manifest**: `processed_images` (subj001/subj002). |
 | `preprocessing/files_preprocessing.yaml` | preprocess | Legacy dev manifest (`.cursor/test/resample_02`, T1/T2). |
@@ -58,14 +58,14 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 | `machine_learning/config_machine_learning.yaml` | ML | Holdout train (generic). |
 | `machine_learning/config_machine_learning_kfold.yaml` | ML | K-fold CV template. |
 | `machine_learning/config_machine_learning_predict.yaml` | ML | **Only** predict config (load `.pkl` / joblib). |
-| `machine_learning/config_machine_learning_radiomics.yaml` | ML | **Demo** single-table radiomics CSV + demo splits. |
-| `machine_learning/config_machine_learning_clinical.yaml` | ML | **Demo** single-table clinical CSV + demo splits. |
-| `machine_learning/config_machine_learning_multi_tables_demo.yaml` | ML | **Demo** multi-table merge (clinical + radiomics). |
-| `machine_learning/config_machine_learning_kfold_demo.yaml` | ML | **Demo** k-fold on bundled CSV. |
+| `machine_learning/config_machine_learning_radiomics.yaml` | ML | **Demo** radiomics CSV → output `demo_data/results/ml/radiomics/`. |
+| `machine_learning/config_machine_learning_clinical.yaml` | ML | **Demo** clinical CSV → output `demo_data/results/ml/clinical/`. |
+| `machine_learning/config_machine_learning_multi_tables_demo.yaml` | ML | **Demo** multi-table merge → `demo_data/results/ml/multi_tables/`. |
+| `machine_learning/config_machine_learning_kfold_demo.yaml` | ML | **Demo** k-fold → `demo_data/results/ml/kfold/`. |
 | `model_comparison/config_model_comparison.yaml` | compare | Model comparison template (your prediction CSVs). |
-| `model_comparison/config_model_comparison_demo.yaml` | compare | **Demo** compare on `demo_data/ml_data` outputs. |
+| `model_comparison/config_model_comparison_demo.yaml` | compare | **Demo** compare on `demo_data/results/ml/` predictions; writes `demo_data/results/model_comparison/`. |
 | `auxiliary/config_icc_analysis.yaml` | auxiliary | ICC template (multi-group; your absolute paths). |
-| `auxiliary/config_icc_demo.yaml` | auxiliary | **Demo** ICC on two bundled feature CSVs. |
+| `auxiliary/config_icc_demo.yaml` | auxiliary | **Demo** ICC → `demo_data/results/icc/icc_radiomics.json`. |
 | `auxiliary/config_test_retest.yaml` | auxiliary | Test–retest remap + tables (demo paths). |
 | `radiomics/config_traditional_radiomics.yaml` | radiomics | Classical PyRadiomics CLI template. |
 

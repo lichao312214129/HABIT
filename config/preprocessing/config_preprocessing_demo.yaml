@@ -4,13 +4,13 @@
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 #
 # Input:  demo_data/preprocessed/processed_images (subj001/subj002; delay2/3/5)
-# Output: demo_data/preprocessed/processed_images (overwrites after full pipeline)
+# Output: demo_data/results/preprocessed/processed_images
 #
 # Demo bundle may already include preprocessed data — skip step 1 on first run if desired.
 # =============================================================================
 
 data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/preprocessed
+out_dir: ../../demo_data/results/preprocessed
 
 auto_select_first_file: true
 
