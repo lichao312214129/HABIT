@@ -35,7 +35,7 @@ The demo configs are pre-baked; the agent doesn't need to generate any YAML.
 python skills/habit-quickstart/scripts/check_environment.py
 
 # 1) Preprocessing (~2-5 min)
-habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 python skills/habit-preprocess/scripts/validate_preprocess_output.py demo_data/preprocessed
 
 # 2) Habitat analysis (two-step, ~5-10 min)
@@ -86,7 +86,7 @@ user gets "file not found" errors, ask them to confirm:
 
 ```bash
 pwd                                    # should end with .../HABIT
-ls config/preprocessing/config_preprocessing_demo_elastix.yaml  # should exist
+ls config/preprocessing/config_preprocessing_demo.yaml  # should exist
 ```
 
 For other errors, hand off to `habit-troubleshoot`.

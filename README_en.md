@@ -92,7 +92,7 @@ Python **3.10** is recommended for PyTorch, AutoGluon, and related dependencies.
 conda activate habit
 cd D:\HABIT-main          # Windows
 # cd ~/Downloads/HABIT-main   # macOS / Linux
-habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 ```
 
 The demo bundle already includes `demo_data/preprocessed/`; you may skip preprocessing and start with habitat analysis.

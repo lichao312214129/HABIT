@@ -68,7 +68,7 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
 
 .. code-block:: bash
 
-   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml --mode predict
    habit extract --config config_extract_features.yaml
    habit model --config config_machine_learning.yaml --mode train
@@ -89,7 +89,7 @@ HABIT 的所有参数都通过 YAML 配置文件控制：
    from habit.core.machine_learning.config_schemas import MLConfig
 
    # Preprocessing
-   pre_cfg = PreprocessingConfig.from_file('config/preprocessing/config_preprocessing_demo_elastix.yaml')
+   pre_cfg = PreprocessingConfig.from_file('config/preprocessing/config_preprocessing_demo.yaml')
    processor = PreprocessingConfigurator(config=pre_cfg).create_batch_processor()
    processor.run()
 

@@ -10,7 +10,7 @@
 
    conda activate habit
    cd D:\HABIT-main
-   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 
 仅整理 DICOM 目录（不转 NIfTI）：
 
@@ -26,4 +26,4 @@
 配置
 ----
 
-YAML 步骤顺序、配准后端、路径等见 :doc:`../configuration_zh` 中 **Preprocessing** 相关章节。Demo 模板：`config/preprocessing/config_preprocessing_demo_elastix.yaml`。
+YAML 步骤顺序、配准后端、路径等见 :doc:`../configuration_zh` 中 **Preprocessing** 相关章节。Demo 默认使用 SimpleITK（``config/preprocessing/config_preprocessing_demo.yaml``）；需 elastix 时可改用 ``config_preprocessing_demo_elastix.yaml``。

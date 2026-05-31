@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-STEPS = [['preprocess', '-c', 'config/preprocessing/config_preprocessing_demo_elastix.yaml'], ['get-habitat', '-c', 'config/habitat/config_habitat_two_step.yaml'], ['extract', '-c', 'config/feature_extraction/config_extract_features_demo.yaml'], ['model', '-c', 'config/machine_learning/config_machine_learning_clinical.yaml', '-m', 'train'], ['compare', '-c', 'config/model_comparison/config_model_comparison_demo.yaml']]
+STEPS = [['preprocess', '-c', 'config/preprocessing/config_preprocessing_demo.yaml'], ['get-habitat', '-c', 'config/habitat/config_habitat_two_step.yaml'], ['extract', '-c', 'config/feature_extraction/config_extract_features_demo.yaml'], ['model', '-c', 'config/machine_learning/config_machine_learning_clinical.yaml', '-m', 'train'], ['compare', '-c', 'config/model_comparison/config_model_comparison_demo.yaml']]
 
 
 def main() -> None:

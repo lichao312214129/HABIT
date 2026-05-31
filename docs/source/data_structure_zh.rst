@@ -9,7 +9,7 @@
 
 - **DICOM 原始数据**: ``demo_data/dicom/``
 - **预处理后的数据**: ``demo_data/preprocessed/`` （包含 processed_images 子目录）
-- **配置文件**: ``config/preprocessing/config_preprocessing_demo_elastix.yaml`` 、``config/preprocessing/files_preprocessing.yaml`` 等
+- **配置文件**: ``config/preprocessing/config_preprocessing_demo.yaml`` 、``config/preprocessing/files_preprocessing.yaml`` 等
 
 **解压后的目录结构**：
 

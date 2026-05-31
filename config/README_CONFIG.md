@@ -17,7 +17,7 @@ Shipped YAMLs should start with a **banner** (CLI, purpose, non-overlapping file
 See [`skills/CONFIG_SOURCES.md`](../skills/CONFIG_SOURCES.md) for the same paths in quick-reference tables.
 
 Walkthrough files that reference **`demo_data/`** use explicit names
-(`*_demo.yaml`, `config_preprocessing_demo_elastix.yaml`, `config_icc_demo.yaml`, …)
+(`*_demo.yaml`, `config_preprocessing_demo.yaml`, `config_icc_demo.yaml`, …)
 next to production templates in the same folder.
 
 ### Running on your data
@@ -41,7 +41,8 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | resample_02 demo resample (T1/T2); dcm2nii commented for production. |
 | `dicom_sort/config_sort_dicom.yaml` | sort-dicom | Production DICOM only (not resample_02). |
-| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo**: elastix rigid registration on `.cursor/test/resample_02` (T1/T2). |
+| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: SimpleITK rigid registration on `.cursor/test/resample_02` (T1/T2). |
+| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo (optional)**: elastix CLI registration; requires elastix/transformix on PATH. |
 | `preprocessing/files_preprocessing.yaml` | preprocess | **Demo manifest**: resample_02 NIfTI paths (T1, T2). |
 | `preprocessing/image_files.yaml` | preprocess | Same resample_02 manifest as `files_preprocessing.yaml` (legacy name). |
 | `habitat/config_getting_habitat.yaml` | habitat | **Primary** habitat template (any `clustering_mode`). |

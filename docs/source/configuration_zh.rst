@@ -93,7 +93,7 @@ CLI 命令与配置 Schema 对照
      - 示例配置文件
    * - ``habit preprocess``
      - ``PreprocessingConfig``
-     - ``config/preprocessing/config_preprocessing_demo_elastix.yaml``
+     - ``config/preprocessing/config_preprocessing_demo.yaml``（Demo 默认，``backend: simpleitk``）；可选 ``config_preprocessing_demo_elastix.yaml``（需安装 elastix/transformix）
    * - ``habit sort-dicom``
      - ``DicomSortConfig``
      - ``config/dicom_sort/config_sort_dicom.yaml``

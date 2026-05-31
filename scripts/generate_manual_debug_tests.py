@@ -436,7 +436,7 @@ def generate_preprocessing() -> None:
 
     cases: dict[str, tuple[str, str | None, str, str]] = {
         "preprocess_registration_elastix": (
-            "config_preprocessing_demo_elastix.yaml",
+            "config_preprocessing_demo.yaml",
             None,
             "preprocess",
             "预处理 — Elastix 配准（resample_02, T1/T2）",
@@ -696,7 +696,7 @@ def generate_integration() -> None:
     )
 
     workflow_full = [
-        ["preprocess", "-c", "config/preprocessing/config_preprocessing_demo_elastix.yaml"],
+        ["preprocess", "-c", "config/preprocessing/config_preprocessing_demo.yaml"],
         ["get-habitat", "-c", "config/habitat/config_habitat_two_step.yaml"],
         ["extract", "-c", "config/feature_extraction/config_extract_features_demo.yaml"],
         ["model", "-c", "config/machine_learning/config_machine_learning_clinical.yaml", "-m", "train"],

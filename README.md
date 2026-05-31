@@ -180,7 +180,7 @@ habit --version
 conda activate habit
 cd D:\HABIT-main          # Windows
 # cd ~/Downloads/HABIT-main   # macOS / Linux
-habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 ```
 
 > demo 包内已含 `demo_data/preprocessed/`，也可跳过预处理，直接从生境分析开始。

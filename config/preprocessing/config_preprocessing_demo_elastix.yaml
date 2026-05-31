@@ -1,10 +1,12 @@
 # =============================================================================
-# Image preprocessing — DEMO: multiphase registration with elastix
+# Image preprocessing — DEMO (optional): multiphase registration with elastix CLI
 # =============================================================================
+# Default demo (SimpleITK, no extra binaries): config_preprocessing_demo.yaml
+#
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 #
 # Purpose:
-#   Walkthrough on .cursor/test/resample_02: register T2 to T1 (elastix).
+#   Walkthrough on .cursor/test/resample_02: register T2 to T1 (elastix + transformix).
 #
 # Data layout:
 #   data_dir points at resample_02 NIfTI tree (images/ + masks/, modalities T1/T2).

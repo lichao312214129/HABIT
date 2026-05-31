@@ -46,11 +46,11 @@
 
 demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。改参数见 :doc:`../configuration_zh`。
 
-**步骤 1 — 预处理**（约 2–5 分钟）→ ``demo_data/preprocessed/processed_images/``
+**步骤 1 — 预处理**（约 2–5 分钟，SimpleITK 配准，无需安装 elastix）→ ``demo_data/preprocessed/processed_images/``
 
 .. code-block:: bash
 
-   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 
 **步骤 2 — 生境分割**（约 5–10 分钟）→ ``demo_data/results/habitat_two_step/``
 
@@ -86,7 +86,7 @@ demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。
 
 .. code-block:: bash
 
-   habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml && \
+   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml && \
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml && \
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml && \
    habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train && \
