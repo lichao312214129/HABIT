@@ -50,22 +50,16 @@
 开发环境设置
 ------------
 
+与用户使用相同的 **Python 3.10** conda 环境 ``habit``（详见 :doc:`../getting_started/installation_zh`）。
+
 .. code-block:: bash
 
-   # 克隆仓库
    git clone https://github.com/lichao312214129/HABIT.git
-   cd habit_project
-   
-   # 创建虚拟环境
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # 或
-   venv\Scripts\activate  # Windows
-   
-   # 安装开发依赖
+   cd HABIT
+   conda create -n habit python=3.10 -y
+   conda activate habit
+   pip install -r requirements.txt
    pip install -e ".[dev]"
-   
-   # 运行测试
    pytest tests/
 
 提交 Pull Request

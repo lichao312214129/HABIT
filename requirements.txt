@@ -1,7 +1,8 @@
+# Pinned for Python 3.10 compatibility (tested in py310 conda env)
+numpy==1.26.1
 SimpleITK==2.2.1
 antspyx==0.4.2
 opencv-python
-numpy
 matplotlib
 trimesh
 scipy
@@ -24,3 +25,10 @@ lifelines
 pydicom
 pydantic
 kneed
+
+# PyTorch GPU (CUDA 12.1) for TorchRadiomics / habitat GPU acceleration.
+# Matches py310 env: torch 2.4.0+cu121.
+# CPU-only or macOS: omit the block below and run instead:
+#   pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.4.0+cu121

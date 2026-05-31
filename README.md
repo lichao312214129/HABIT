@@ -144,6 +144,8 @@ cd D:\HABIT
 (habit) D:\HABIT> pip install -e .
 ```
 
+> ``requirements.txt`` 含 ``numpy==1.26.1`` 与 GPU 版 ``torch==2.4.0+cu121``（CUDA 12.1）。无 NVIDIA GPU 时请先注释文件末尾 torch 相关行，再单独安装 CPU 版 torch。
+
 安装成功示例：
 
 ```text

@@ -16,7 +16,13 @@
 --------
 
 1. Fork 项目仓库
-2. 安装依赖: ``pip install -e ".[dev]"``
+2. 使用 py310 环境（与 :doc:`../getting_started/installation_zh` 一致）::
+
+      conda create -n habit python=3.10 -y
+      conda activate habit
+      pip install -r requirements.txt
+      pip install -e ".[dev]"
+
 3. 运行测试: ``pytest tests/``
 4. 提交 Pull Request
 
