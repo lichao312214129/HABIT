@@ -12,8 +12,8 @@
    .. code-block:: bash
 
       conda activate habit
-      cd D:\HABIT-main
-      # macOS: cd ~/Downloads/HABIT-main
+      cd "D:\HABIT-main"
+      # 使用资源管理器地址栏复制的完整路径；macOS 可将文件夹拖入终端
 
 下载演示数据
 ------------

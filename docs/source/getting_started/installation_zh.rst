@@ -86,40 +86,30 @@ Anaconda（备选）
 - **ZIP（推荐普通用户）**：`下载 main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_，**直接解压**到任意位置（Windows 如 ``D:\``，macOS 如「下载」），无需新建或重命名；解压后自动得到 **`HABIT-main`**。
 - **Git 克隆**：``git clone --depth 1 https://github.com/lichao312214129/HABIT.git``，目录名为 ``HABIT``。
 
-.. warning:: ZIP 解压后可能出现 ``HABIT-main`` 嵌套
+进入项目目录并安装
+~~~~~~~~~~~~~~~~~~
 
-   部分解压软件（如 WinRAR、360 压缩等）会再套一层目录，得到 ``HABIT-main/HABIT-main/``。
-   请 ``cd`` 到**最内层**、且**直接包含** ``habit/``、``config/``、``requirements.txt`` 的那一级 ``HABIT-main`` 再安装与运行命令。
+在 **Anaconda Powershell Prompt** 中，先找到项目根的**完整路径**（打开该文件夹后应能直接看到 ``config``、``habit``、``requirements.txt``）：
 
-   **如何判断是否嵌套**：进入 ``HABIT-main`` 后若只看到另一个 ``HABIT-main`` 子文件夹、而没有 ``habit`` 与 ``config``，说明还在外层，需再进入内层：
-
-   .. code-block:: text
-
-      # 错误（外层，仅多包一层壳）
-      HABIT-main/
-      └── HABIT-main/          <-- 还要 cd 进这里
-          ├── config/
-          ├── habit/
-          └── requirements.txt
-
-      # 正确（当前目录即项目根）
-      HABIT-main/
-      ├── config/
-      ├── habit/
-      └── requirements.txt
-
-进入含 ``requirements.txt`` 的目录后安装：
+- **Windows**：资源管理器中进入 ``HABIT-main`` → 点击窗口上方**地址栏** → 复制整段路径（示例 ``D:\HABIT-main``），在终端执行 ``cd "粘贴的路径"``（路径含空格时必须加引号）。
+- **macOS**：Finder 中把 ``HABIT-main`` **拖入**终端窗口，会自动填入完整路径；或进入该文件夹后于终端执行 ``pwd`` 查看。
 
 .. code-block:: bash
 
-   # Windows（路径按本机修改，示例为解压到 D:\）
-   cd D:\HABIT-main
+   conda activate habit
 
-   # macOS / Linux（例如解压到「下载」）
+   # Windows：换成你复制的完整路径
+   cd "D:\HABIT-main"
+
+   # macOS / Linux：换成你的完整路径
    cd ~/Downloads/HABIT-main
 
    pip install -r requirements.txt
    pip install -e .
+
+.. warning:: ZIP 解压后可能出现 ``HABIT-main`` 嵌套
+
+   部分解压软件会多出一层 ``HABIT-main/HABIT-main/``。若当前目录里**只有**子文件夹 ``HABIT-main``、没有 ``config`` 和 ``habit``，请再进入内层，重新复制地址栏的**完整路径**后再 ``cd``（例如 ``cd "D:\HABIT-main\HABIT-main"``）。
 
 目录结构示意（ZIP 解压后，文件夹名均为 ``HABIT-main``）：
 
