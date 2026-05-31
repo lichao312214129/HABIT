@@ -95,7 +95,9 @@ cd D:\HABIT-main          # Windows
 habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 ```
 
-The demo bundle already includes `demo_data/preprocessed/`; you may skip preprocessing and start with habitat analysis.
+The demo bundle already includes `demo_data/preprocessed/processed_images/`; you may skip preprocessing and start with habitat analysis.
+
+> Demo preprocessing uses `config_preprocessing_demo.yaml` (resample → SimpleITK registration → Z-score). Do not use `config_preprocessing_demo_elastix.yaml` in the walkthrough.
 
 ### Next: Full 5-step workflow
 

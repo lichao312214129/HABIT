@@ -41,8 +41,8 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 | `preprocessing/config_image_preprocessing.yaml` | preprocess | Main MRI pipeline template (your paths). |
 | `preprocessing/config_image_preprocessing_dcm2nii.yaml` | preprocess | resample_02 demo resample (T1/T2); dcm2nii commented for production. |
 | `dicom_sort/config_sort_dicom.yaml` | sort-dicom | Production DICOM only (not resample_02). |
-| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: SimpleITK on `demo_data/preprocessed/processed_images` (delay2/3/5). |
-| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Demo (optional)**: elastix on same `processed_images` tree. |
+| `preprocessing/config_preprocessing_demo.yaml` | preprocess | **Demo (default)**: resample + SimpleITK registration + z-score on `demo_data/preprocessed/processed_images`. |
+| `preprocessing/config_preprocessing_demo_elastix.yaml` | preprocess | **Optional only** (not full demo): elastix registration; requires elastix/transformix. |
 | `preprocessing/files_preprocessing_demo.yaml` | preprocess | **Demo manifest**: `processed_images` (subj001/subj002). |
 | `preprocessing/files_preprocessing.yaml` | preprocess | Legacy dev manifest (`.cursor/test/resample_02`, T1/T2). |
 | `preprocessing/image_files.yaml` | preprocess | Same as `files_preprocessing.yaml` (legacy name). |

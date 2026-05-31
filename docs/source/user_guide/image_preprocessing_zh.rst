@@ -26,4 +26,4 @@
 配置
 ----
 
-YAML 步骤顺序、配准后端、路径等见 :doc:`../configuration_zh` 中 **Preprocessing** 相关章节。Demo 默认使用 SimpleITK（``config/preprocessing/config_preprocessing_demo.yaml``）；需 elastix 时可改用 ``config_preprocessing_demo_elastix.yaml``。
+Demo 使用 ``config/preprocessing/config_preprocessing_demo.yaml``：重采样 → SimpleITK 配准 → Z-score（数据 ``demo_data/preprocessed/processed_images``）。完整 Demo **不要**使用 ``config_preprocessing_demo_elastix.yaml``。字段说明见 :doc:`../configuration_zh`。

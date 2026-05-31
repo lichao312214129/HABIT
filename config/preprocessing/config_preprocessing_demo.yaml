@@ -1,10 +1,13 @@
 # =============================================================================
-# Image preprocessing — DEMO (default): SimpleITK registration on demo bundle
+# Image preprocessing — DEMO (default): resample + SimpleITK registration + z-score
 # =============================================================================
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 #
-# Input / output: demo_data/preprocessed/processed_images (delay2, delay3, delay5).
-# Demo 包通常已含预处理结果，首次跑通可跳过本步；需重跑配准时使用。
+# Input:  demo_data/preprocessed/processed_images (subj001/subj002; delay2/3/5)
+# Output: demo_data/preprocessed/processed_images (overwrites after full pipeline)
+#
+# Demo bundle may already include preprocessed data — skip step 1 on first run if desired.
+# Elastix backend (optional): config_preprocessing_demo_elastix.yaml — NOT used in full demo.
 # =============================================================================
 
 data_dir: ../../demo_data/preprocessed/processed_images
@@ -12,7 +15,13 @@ out_dir: ../../demo_data/preprocessed
 
 auto_select_first_file: true
 
+# Step order in YAML = execution order: resample -> registration -> zscore_normalization
 Preprocessing:
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [1.0, 1.0, 1.0]
+    img_mode: bilinear
+
   registration:
     images: [delay2, delay3, delay5]
     fixed_image: delay2
@@ -21,9 +30,14 @@ Preprocessing:
     type_of_transform: Rigid
     metric: MI
 
+  zscore_normalization:
+    images: [delay2, delay3, delay5]
+    only_inmask: false
+    clip_values: [-3, 3]
+
 save_options:
   save_intermediate: true
-  intermediate_steps: [registration]
+  intermediate_steps: [resample, registration, zscore_normalization]
 
-processes: 1
+processes: 2
 random_state: 42

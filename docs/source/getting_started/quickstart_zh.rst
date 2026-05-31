@@ -46,7 +46,7 @@
 
 demo 已含预处理结果，**首次可跳过步骤 1**，从步骤 2 开始。改参数见 :doc:`../configuration_zh`。
 
-**步骤 1 — 预处理**（约 2–5 分钟，SimpleITK 配准，无需安装 elastix）→ ``demo_data/preprocessed/processed_images/``
+**步骤 1 — 预处理**（约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score；**勿用** ``config_preprocessing_demo_elastix.yaml``）→ ``demo_data/preprocessed/processed_images/``
 
 .. code-block:: bash
 

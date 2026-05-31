@@ -183,7 +183,7 @@ cd D:\HABIT-main          # Windows
 habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 ```
 
-> demo 包内已含 `demo_data/preprocessed/`，也可跳过预处理，直接从生境分析开始。
+> 上述配置为 **重采样 → SimpleITK 配准 → Z-score**（勿用 `config_preprocessing_demo_elastix.yaml`）。demo 包内已含 `demo_data/preprocessed/processed_images/`，也可跳过本步，直接从生境分析开始。
 
 ---
 
