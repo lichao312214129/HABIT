@@ -103,28 +103,42 @@ Anaconda（备选）
 - **Windows**：资源管理器中进入 ``HABIT-main`` → 点击窗口上方**地址栏** → 复制整段路径（示例 ``D:\HABIT-main``），在终端执行 ``cd "粘贴的路径"``（路径含空格时必须加引号）。
 - **macOS**：Finder 中把 ``HABIT-main`` **拖入**终端窗口，会自动填入完整路径；或进入该文件夹后于终端执行 ``pwd`` 查看。
 
+**Windows**（``cd`` 到项目根，须能看到 ``pyradiomics-3.0.1-cp310-cp310-win_amd64.whl``）：
+
 .. code-block:: bash
 
    conda activate habit
-
-   # Windows：换成你复制的完整路径
    cd "D:\HABIT-main"
 
-   # macOS / Linux：换成你的完整路径
-   cd ~/Downloads/HABIT-main
-
+   pip install numpy==1.26.1
+   pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
    pip install -r requirements.txt
-
+   pip install -r requirements-cpu.txt
    pip install -e .
 
-安装完依赖后，可在终端检查 PyTorch 是否识别到 GPU（**不是 GPU 也能正常用 HABIT**，只是部分步骤会慢一些）：
+**macOS / Linux**：
+
+.. code-block:: bash
+
+   conda activate habit
+   cd ~/Downloads/HABIT-main
+
+   pip install numpy==1.26.1
+   pip install pyradiomics
+   pip install -r requirements.txt
+   pip install -r requirements-cpu.txt
+   pip install -e .
+
+有 NVIDIA GPU 时，将 ``requirements-cpu.txt`` 换成 ``requirements-gpu.txt``（见下文「安装 PyTorch」）。
+
+安装完依赖后，可在终端检查 PyTorch（**未装 torch 时部分功能不可用**；**不是 GPU 也能正常用 HABIT**，只是部分步骤会慢一些）：
 
 .. code-block:: bash
 
    python -c "import torch; print('torch', torch.__version__); print('CUDA available', torch.cuda.is_available())"
 
-- ``CUDA available True``：已安装 GPU 版 PyTorch（见下文 ``requirements-gpu.txt``；版本号常含 ``+cu121``）。
-- ``CUDA available False``：默认 **CPU** 版 torch（``requirements.txt``），HABIT 仍可用，部分计算会慢一些。有 NVIDIA 显卡且需 GPU 加速时，见下文 **可选：GPU 版 PyTorch**。
+- ``CUDA available True``：已安装 ``requirements-gpu.txt``（版本号常含 ``+cu121``）。
+- ``CUDA available False``：已安装 ``requirements-cpu.txt`` 或未装 GPU 版；HABIT 仍可用，部分计算会慢一些。
 
 .. warning:: ZIP 解压后可能出现 ``HABIT-main`` 嵌套
 
@@ -137,17 +151,37 @@ Anaconda（备选）
    HABIT-main/
    ├── config/
    ├── habit/
+   ├── pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
    ├── requirements.txt
+   ├── requirements-cpu.txt
    ├── requirements-gpu.txt
    └── setup.py
 
-``requirements.txt`` 默认安装 **CPU 版** ``torch==2.4.0``（体积较小、下载较快，适合多数用户）。**有 NVIDIA 显卡且需要 GPU 加速**（TorchRadiomics / 生境 GPU）时，在装好 ``requirements.txt`` 与 ``pip install -e .`` 之后，再执行：
+安装 PyTorch（``requirements.txt`` 不含 torch）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: bash
+``requirements.txt`` 只安装 HABIT 的常规依赖（体积大、耗时的 **PyTorch 单独安装**）。在 ``pip install -r requirements.txt`` 之后、``pip install -e .`` 之前，**必须二选一** 安装 PyTorch（均使用 **阿里云** wheels 镜像）：
 
-   pip install -r requirements-gpu.txt --upgrade --force-reinstall
+.. list-table::
+   :header-rows: 1
+   :widths: 22 38 40
 
-``requirements-gpu.txt`` 提供 **CUDA 12.1** 的 ``torch==2.4.0+cu121``（下载较慢，请耐心等待）。**无独显或 macOS** 用户无需执行上述命令。
+   * - 用户类型
+     - 命令
+     - 说明
+   * - **大多数用户（推荐）**
+     - ``pip install -r requirements-cpu.txt``
+     - CPU 版 ``torch==2.4.0+cpu``，体积较小，无 NVIDIA 显卡或不需要 GPU 加速时选此项
+   * - **有 NVIDIA GPU 且需加速**
+     - ``pip install -r requirements-gpu.txt``
+     - CUDA 12.1 的 ``torch==2.4.0+cu121``，约 2 GB；**不要** 再装 ``requirements-cpu.txt``
+   * - **先装 CPU 再换 GPU**
+     - 先 ``requirements-cpu.txt``，再 ``pip install -r requirements-gpu.txt --upgrade --force-reinstall``
+     - 仅当已误装 CPU 版、需要改用 GPU 时
+
+**macOS / 无独显 Windows**：安装 ``requirements-cpu.txt`` 即可，不要安装 ``requirements-gpu.txt``。
+
+若跳过上述两步直接 ``pip install -e .``，环境中可能没有 ``torch``，生境 GPU / TorchRadiomics 相关功能将无法使用。
 
 验证安装
 --------
@@ -168,9 +202,10 @@ Anaconda（备选）
    # cd ~/Projects/HABIT    # macOS / Linux 示例
    git pull
    pip install -r requirements.txt --upgrade
+   pip install -r requirements-cpu.txt --upgrade
    pip install -e .
 
-**ZIP 用户**：重新下载并解压（仍会得到 ``HABIT-main``），``cd`` 到该目录（Windows ``cd D:\HABIT-main``；macOS ``cd ~/Downloads/HABIT-main`` 等）后重复 ``pip install -r requirements.txt`` 与 ``pip install -e .``。
+**ZIP 用户**：重新下载并解压（仍会得到 ``HABIT-main``），``cd`` 到该目录后重复 ``pip install -r requirements.txt``、``requirements-cpu.txt``（或 ``requirements-gpu.txt``）与 ``pip install -e .``。
 
 卸载：``pip uninstall HABIT -y``（不删除源码与其它依赖）。
 
@@ -181,53 +216,38 @@ Anaconda（备选）
 - 安装失败：``pip install --upgrade pip``；或按 ``requirements.txt`` 逐行 ``pip install``
 - 网络超时：配置上文清华镜像；仍失败请 `提交 Issue <https://github.com/lichao312214129/HABIT/issues>`_ 或邮件 **lichao19870617@163.com**
 
-Windows：安装 ``pyradiomics`` 时报缺少 C++（仅 Windows）
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Windows：安装 ``pyradiomics``（免 C++ 编译器）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**何时会出现**
+**推荐（ZIP / 源码包自带 wheel）**
 
-在 **Windows** 且环境为 **Python 3.10** 时，``pip install -r requirements.txt`` 可能在安装 ``pyradiomics`` 时从源码编译 C 扩展。若本机未安装 C++ 编译工具，终端会出现类似报错：
+HABIT 主目录（与 ``requirements.txt`` 同级）自带预编译文件：
 
-.. code-block:: text
+``pyradiomics-3.0.1-cp310-cp310-win_amd64.whl``
 
-   error: Microsoft Visual C++ 14.0 or greater is required.
-   Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
-   ERROR: Failed building wheel for pyradiomics
+在 **Python 3.10** 的 ``habit`` 环境中，于项目根目录执行（**先于** ``pip install -r requirements.txt``）：
 
-说明：报错中的 **「14.0 或更高」** 指 **MSVC 编译器工具集**（用于编译 Python 扩展），**不是** Windows 系统版本号。仅安装 **Microsoft Visual C++ 可再发行组件（Redistributable）** 只能运行已编译程序，**不能** 用于本次编译，仍会失败。
+.. code-block:: bash
 
-**推荐处理（已有多位用户验证）**
+   conda activate habit
+   cd "D:\HABIT-main"    # 换成你的路径；须能看到上述 .whl 文件
+   pip install numpy==1.26.1
+   pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
+   python -c "import radiomics; print('pyradiomics OK')"
 
-1. 下载并安装 `Microsoft C++ Build Tools <https://visualstudio.microsoft.com/visual-cpp-build-tools/>`_（体积约数 GB，安装需一些时间）。
-2. 在安装器 **「工作负载」** 页勾选：
+``requirements.txt`` **不包含** ``pyradiomics``，避免 pip 从源码编译。装完 wheel 后再执行 ``pip install -r requirements.txt`` 与其余步骤。
 
-   - **使用 C++ 的桌面开发**（英文界面：**Desktop development with C++**）
+若提示找不到 ``.whl`` 文件：确认 ``cd`` 在含 ``config``、``habit`` 的项目根；若 ZIP 多嵌套一层 ``HABIT-main``，进入内层再安装。
 
-   该工作负载会自动包含编译 ``pyradiomics`` 所需的 **MSVC** 与 **Windows SDK**。无需勾选 .NET、Python 开发等其它工作负载。
+**仍报错「缺少 C++ / Failed building wheel」时**
 
-3. 若使用自定义安装且未选上述工作负载，请在 **「单个组件」** 中至少勾选：
+说明 pip 仍在尝试**源码编译** ``pyradiomics``（例如未先装 wheel、或误执行了 ``pip install pyradiomics``）。请改用上文 wheel 命令；勿在 ``requirements.txt`` 中自行加回 ``pyradiomics``。
 
-   - **MSVC v143 - VS 2022 C++ x64/x86 生成工具**（或更新的 v14x 工具集）
-   - **Windows 10 SDK** 或 **Windows 11 SDK**（任选其一即可）
+若必须自行编译（无自带 wheel 的 Git 浅克隆等），可安装 `Microsoft C++ Build Tools <https://visualstudio.microsoft.com/visual-cpp-build-tools/>`_，工作负载勾选 **使用 C++ 的桌面开发**（**Desktop development with C++**），安装后重启终端再 ``pip install pyradiomics``。或尝试 ``conda install -c conda-forge pyradiomics``。
 
-4. 安装完成后 **关闭并重新打开** **Anaconda Powershell Prompt**，再执行：
+**macOS / Linux**
 
-   .. code-block:: bash
-
-      conda activate habit
-      cd "D:\HABIT-main"    # 换成你的项目路径
-      pip install --upgrade pip setuptools wheel
-      pip install numpy==1.26.1
-      pip install -r requirements.txt
-      pip install -e .
-
-5. （可选）确认编译器是否可用：在新终端执行 ``where cl``，若显示 ``...\VC\Tools\MSVC\...\cl.exe`` 路径，一般表示 C++ 工具已就绪。
-
-**其它说明**
-
-- 仅 **Windows + Python 3.10** 通过 pip 安装 ``pyradiomics`` 时常见此问题；macOS / Linux 用户通常无需安装 Visual Studio。
-- 若已安装 Build Tools 仍报错，请确认安装时勾选了 **「使用 C++ 的桌面开发」** 或上文的 MSVC + Windows SDK，并 **重启终端** 后再试。
-- 也可尝试 ``conda install -c conda-forge pyradiomics`` 后再 ``pip install -r requirements.txt``（需本机 conda 能访问 conda-forge）；若仍失败，按上文安装 Build Tools 最稳妥。
+无自带 Windows wheel；在 ``pip install -r requirements.txt`` 前或后执行 ``pip install pyradiomics``（需 **Python 3.10**）。部分环境仍需 C++ 工具链或 conda 预编译包。
 
 下一步
 ------

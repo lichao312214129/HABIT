@@ -22,7 +22,7 @@
 
 - **链接**: |demo_data_link|
 - **提取码**: |demo_data_code|
-- 解压到项目根目录下的 ``demo_data/``（与 ``config/`` 同级）
+- 解压到项目根目录下的 ``demo_data/``
 
 **重要说明**：
 
@@ -35,7 +35,7 @@
 
    HABIT-main/
    ├── config/
-   ├── demo_data/          <-- 演示数据解压到此（与 config 同级）
+   ├── demo_data/          <-- 演示数据解压到此
    │   ├── dicom/
    │   ├── preprocessed/processed_images/   <-- Demo 影像与 mask（步骤 2–4 的输入；可跳过步骤 1）
    │   └── ...

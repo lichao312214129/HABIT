@@ -1,14 +1,20 @@
-# HABIT optional GPU PyTorch (CUDA 12.1, Python 3.10).
-# Large download — use only when you have an NVIDIA GPU and want TorchRadiomics GPU acceleration.
+# HABIT PyTorch GPU (CUDA 12.1, Python 3.10). NVIDIA GPU only; ~2 GB download.
+# Aliyun mirror. Install after requirements.txt. Do NOT install requirements-cpu.txt.
 #
-# Install base dependencies first (includes CPU torch):
 #   pip install -r requirements.txt
+#   pip install -r requirements-gpu.txt
 #   pip install -e .
-# Then replace CPU torch with the CUDA build:
+#
+# If CPU torch was installed earlier, this replaces it:
 #   pip install -r requirements-gpu.txt --upgrade --force-reinstall
 #
-# Verify: python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
-# Expect version containing +cu121 and CUDA available True.
+# Verify:
+#   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+# Expect +cu121 in version and CUDA available True.
+#
+# Mirror: https://mirrors.aliyun.com/pytorch-wheels/cu121/
+# Alternative: pip install torch==2.4.0+cu121 -f https://mirror.sjtu.edu.cn/pytorch-wheels/cu121/
 
---extra-index-url https://download.pytorch.org/whl/cu121
+--find-links https://mirrors.aliyun.com/pytorch-wheels/cu121/
+--trusted-host mirrors.aliyun.com
 torch==2.4.0+cu121

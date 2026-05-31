@@ -1,4 +1,7 @@
-# Pinned for Python 3.10 compatibility (tested in py310 conda env)
+# Pinned for Python 3.10 compatibility (tested in py310 conda env).
+# Does NOT include PyTorch (large download). After this file, install ONE of:
+#   pip install -r requirements-cpu.txt   # recommended for most users
+#   pip install -r requirements-gpu.txt   # NVIDIA GPU + CUDA 12.1 only
 numpy==1.26.1
 SimpleITK==2.2.1
 antspyx==0.4.2
@@ -9,9 +12,9 @@ scipy
 openpyxl
 pandas
 tqdm
-# Build-time helper for pyradiomics sdist (bundled versioneer.py); install before pyradiomics if build fails
-versioneer>=0.29
-pyradiomics
+# pyradiomics: not listed here (avoid Windows source build / MSVC).
+#   Windows py310: pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl  (wheel in project root)
+#   macOS / Linux: pip install pyradiomics  (before or after this file; see installation_zh.rst)
 scikit-learn
 scikit-image
 mrmr_selection
@@ -27,8 +30,3 @@ lifelines
 pydicom
 pydantic
 kneed
-
-# PyTorch CPU (default; smaller/faster download). HABIT runs on CPU torch.
-# NVIDIA GPU + CUDA 12.1: after this file, run: pip install -r requirements-gpu.txt
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.4.0
