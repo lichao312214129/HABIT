@@ -1,12 +1,19 @@
 用户指南
 ========
 
-本指南按照生境分析的逻辑顺序组织，帮助您从数据准备到模型部署完成整个工作流程。
+面向临床用户的**最短路径**：先完成 :doc:`../getting_started/quickstart_zh` 跑通 demo，再按需打开下面各步。各命令的 YAML **字段、默认值** 见 :doc:`../configuration_zh`（配置参考）。
 
-**文档与上游库**：各步骤的 **完整算法说明** 分布在 ANTs、SimpleITK、PyRadiomics、scikit-learn 等项目中。HABIT 手册侧重 **YAML/CLI 与数据流**；理论、全量超参数与版本差异请配合 :doc:`../reference/upstream_libraries_zh`。
+工作流程
+--------
+
+1. **预处理** — :doc:`image_preprocessing_zh`
+2. **生境分割** — :doc:`habitat_segmentation_zh`
+3. **特征提取** — :doc:`habitat_feature_extraction_zh`
+4. **机器学习** — :doc:`machine_learning_modeling_zh`
+5. **模型对比**（可选）— :doc:`model_comparison_zh`
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    image_preprocessing_zh
    habitat_segmentation_zh
@@ -14,89 +21,9 @@
    machine_learning_modeling_zh
    model_comparison_zh
 
-工作流程概述
-------------
+通用约定
+--------
 
-HABIT 的完整工作流程包括以下步骤：
-
-1. **数据准备**: 准备医学图像数据和 ROI 掩码；若需先按规范重命名/归档原始 DICOM，可使用 ``habit sort-dicom`` （详见 :doc:`image_preprocessing_zh`）
-2. **图像预处理**: 对原始图像进行预处理（重采样、配准、标准化等）
-3. **生境分割**: 使用聚类算法将肿瘤分割为多个生境
-4. **生境特征提取**: 从生境图中提取各种特征
-5. **机器学习建模**: 使用提取的特征进行机器学习建模
-
-**工作流程图：**
-
-.. image:: ../images/habitat_concept_workflow.png
-   :alt: 生境分析工作流程
-   :align: center
-
-**步骤顺序说明：**
-
-- **预处理和 ROI 准备可以互换**: 可以先进行预处理，也可以先勾画 ROI
-- **勾画不是 HABIT 的重点**: 推荐使用 ITK-SNAP、3D Slicer 等专业工具完成 ROI 勾画
-- **生境分割是核心**: HABIT 的核心功能是生境分割和特征提取
-- **机器学习是可选的**: 可以使用提取的特征进行其他分析
-
-**CLI 和 Python API：**
-
-每个步骤都支持两种使用方式：
-
-- **CLI**: 适合批处理和自动化任务
-- **Python API**: 适合集成到其他项目或进行定制化开发
-
-选择适合您的使用方式，参考每个步骤的详细文档。
-
-自定义扩展
-------------
-
-HABIT 支持高度的自定义扩展，您可以：
-
-- **自定义预处理器***: 添加自定义的图像预处理方法
-- **自定义特征提取器**: 添加自定义的聚类特征提取方法
-- **自定义聚类算法***: 添加自定义的聚类算法
-- **自定义策略**: 添加自定义的生境分割策略
-- **自定义模型**: 添加自定义的机器学习模型
-- **自定义特征选择器***: 添加自定义的特征选择方法
-
-参考 :doc:`../customization/index_zh` 了解详细的扩展指南。
-
-配置文件
----------
-
-HABIT 使用 YAML 配置文件来控制所有参数。每个步骤都有对应的配置文件模板：
-
-- **预处理配置**: `config/preprocessing/config_preprocessing_demo_elastix.yaml`
-- **生境分析配置**: `config/habitat/config_habitat_two_step.yaml`
-- **特征提取配置**: `config_extract_features.yaml`
-- **机器学习配置**: `config_machine_learning.yaml`
-
-**YAML 各字段的类型、默认值与子块参数** 以 :doc:`../configuration_zh`（配置参考）为准；本指南各章侧重操作步骤与示例。
-
-数据结构
----------
-
-HABIT 支持两种数据输入方式：
-
-1. **文件夹方式**: 按照固定的文件夹结构组织数据
-2. **YAML 配置文件方式**: 通过 YAML 文件指定数据路径（推荐）
-
-参考 :doc:`../data_structure_zh` 了解数据结构的详细说明。
-
-下一步
--------
-
-选择您感兴趣的步骤，查看详细文档：
-
-- :doc:`image_preprocessing_zh`: 图像预处理
-- :doc:`habitat_segmentation_zh`: 生境分割
-- :doc:`habitat_feature_extraction_zh`: 生境特征提取
-- :doc:`machine_learning_modeling_zh`: 机器学习建模
-- :doc:`model_comparison_zh`: 模型对比与统计检验
-
-或者查看：
-
-- :doc:`../tutorials/index`: 完整的教程（英文索引）
-- :doc:`../customization/index_zh`: 自定义扩展指南
-- :doc:`../configuration_zh`: 配置参考
-- :doc:`../index`: 实用工具与其他入口
+- 每次运行前：``conda activate habit``，``cd`` 到项目目录（ZIP 解压默认为 ``HABIT-main``）。
+- 修改 ``config/`` 下 YAML 中的路径与参数；勿在本文重复罗列参数。
+- ROI 请用 **ITK-SNAP** 或 **3D Slicer** 勾画，保存为 NIfTI；数据目录结构见 :doc:`../data_structure_zh`。

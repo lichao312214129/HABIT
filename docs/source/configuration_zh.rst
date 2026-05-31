@@ -323,12 +323,12 @@ DICOM **仅整理**使用独立配置 ``habit.core.dicom_sort.DicomSortConfig`` 
 **registration**
 
 - ``images`` （必填，须包含 ``fixed_image`` ）； ``fixed_image`` （必填）；浮动序列为 ``images`` 去掉 ``fixed_image`` 后的全部键，**不要使用** YAML 字段 ``moving_images`` （实现不读取，且可能作为多余关键字传入 ANTs）。
-- ``backend`` （可选）： ``ants`` （默认）、 ``simpleitk`` 、 ``elastix`` （调用官方 elastix / transformix 可执行文件；可选 ``elastix_path`` / ``transformix_path`` ）；详见 :doc:`user_guide/image_preprocessing_zh` 「registration」。
+- ``backend`` （可选）： ``ants`` （默认）、 ``simpleitk`` 、 ``elastix`` （调用官方 elastix / transformix 可执行文件；可选 ``elastix_path`` / ``transformix_path`` ）；详见本页 ``registration`` 字段说明。
 - ``type_of_transform`` 、 ``metric`` 、 ``optimizer`` 等对 **ants / simpleitk** 有意义； ``elastix`` 后端不使用这些键驱动配准。**全部可选值** （ANTS 路径）见同文档列表；常见如 ``Rigid`` 、 ``Affine`` 、 ``SyN`` 、 ``SyNRA`` 等。
 - ``use_mask`` ；可选 ``mask_keys`` ； ``replace_by_fixed_image_mask``。
 - **elastix 专属** （``elastix`` 后端）：
 
-  - ``elastix_parameter_files`` ：参数模板 ``.txt`` ，宜从 `LKEB elastix Model Zoo <https://lkeb.ml/modelzoo/>`_ 等按数据类型与配准任务选取（说明见 :doc:`user_guide/image_preprocessing_zh` elastix「参数与数据类型」）。
+  - ``elastix_parameter_files`` ：参数模板 ``.txt`` ，宜从 `LKEB elastix Model Zoo <https://lkeb.ml/modelzoo/>`_ 等按数据类型与配准任务选取。
   - ``elastix_parameter_overrides`` ：dict，覆盖参数值。
   - ``elastix_path`` 、``transformix_path`` 、``elastix_threads``。
 - 余下 ANTs 允许的参数可通过额外键传入（谨慎使用）。
@@ -396,7 +396,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
      - ``null``
      - 若设置则用作 ``-o``；否则用 ``out_dir``
 
-详见 :doc:`user_guide/image_preprocessing_zh`。
+命令用法见 :doc:`user_guide/image_preprocessing_zh`；字段以本页为准。
 
 生境分析配置参数
 ------------
@@ -1155,7 +1155,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 生境 Stage-1 并行与断点续训（顶层字段总表）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-下列字段位于生境 YAML **顶层**（与 ``data_dir`` 同级）。``predict`` 模式忽略并行与 checkpoint 相关项。续训操作步骤见 :doc:`user_guide/habitat_segmentation_zh` 「断点续训详解」。
+下列字段位于生境 YAML **顶层**（与 ``data_dir`` 同级）。``predict`` 模式忽略并行与 checkpoint 相关项。续训相关字段见本页下文（``resume``、``strict_checkpoint_hash``、``.habitat_checkpoint`` 等）；命令行可加 ``habit get-habitat --resume``。
 
 .. list-table::
    :header-rows: 1
@@ -1315,7 +1315,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
 - **默认值**: ``true``
 - **说明**: 为 ``true`` 时从 ``checkpoint_dir`` （默认 ``<out_dir>/.habitat_checkpoint``）读取 ``manifest.json`` ，跳过 ``completed_subjects`` 并从 ``subjects/{id}.pkl`` 加载结果；``failed_subjects`` 中的被试在**下次** ``resume`` 启动时**不会自动重试**（除非 ``retry_failed_subjects: true`` 或 ``force_rerun_subjects``）。**同一次** ``train`` 运行内，默认由 ``individual_subject_auto_retry_rounds`` 自动重试 Stage 1 失败被试。仅 ``run_mode: train`` 生效。
 - **CLI**: ``habit get-habitat --resume`` 等效于 ``resume: true``。
-- **详见**: :doc:`user_guide/habitat_segmentation_zh` 中「断点续训详解」。
+- **详见**: 本页 checkpoint / ``resume`` 相关字段说明。
 - **并行可靠性计划**: 仓库根下 ``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`` （GPU worker 槽位、processes 上限、Phase 2/3 路线图）。
 
 **strict_checkpoint_hash**（生境分析顶层）: checkpoint hash 不兼容时是否报错

@@ -83,24 +83,29 @@ Anaconda（备选）
 
 **获取源码**
 
-- **ZIP（推荐普通用户）**：`下载 main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_，**直接解压**到任意位置（如 ``D:\``），无需新建或重命名文件夹；解压后会自动得到 **`HABIT-main`** 目录。
+- **ZIP（推荐普通用户）**：`下载 main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_，**直接解压**到任意位置（Windows 如 ``D:\``，macOS 如「下载」），无需新建或重命名；解压后自动得到 **`HABIT-main`**。
 - **Git 克隆**：``git clone --depth 1 https://github.com/lichao312214129/HABIT.git``，目录名为 ``HABIT``。
 
-进入含 ``requirements.txt`` 的目录后安装（ZIP 用户示例）：
+进入含 ``requirements.txt`` 的目录后安装：
 
 .. code-block:: bash
 
+   # Windows（ZIP 解压到 D:\ 后）
    cd D:\HABIT-main
+
+   # macOS / Linux（例如解压到「下载」）
+   cd ~/Downloads/HABIT-main
+
    pip install -r requirements.txt
    pip install -e .
 
-目录结构示意（ZIP 解压后）：
+目录结构示意（ZIP 解压后，文件夹名均为 ``HABIT-main``）：
 
 .. code-block:: text
 
-   D:\HABIT-main\
-   ├── config\
-   ├── habit\
+   HABIT-main/
+   ├── config/
+   ├── habit/
    ├── requirements.txt
    └── setup.py
 
@@ -127,12 +132,13 @@ Anaconda（备选）
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT
+   cd D:\HABIT              # Windows
+   # cd ~/Projects/HABIT    # macOS / Linux 示例
    git pull
    pip install -r requirements.txt --upgrade
    pip install -e .
 
-**ZIP 用户**：重新下载并解压（仍会得到 ``HABIT-main``），``cd`` 进入该目录后重复 ``pip install -r requirements.txt`` 与 ``pip install -e .``。
+**ZIP 用户**：重新下载并解压（仍会得到 ``HABIT-main``），``cd`` 到该目录（Windows ``cd D:\HABIT-main``；macOS ``cd ~/Downloads/HABIT-main`` 等）后重复 ``pip install -r requirements.txt`` 与 ``pip install -e .``。
 
 卸载：``pip uninstall HABIT -y``（不删除源码与其它依赖）。
 

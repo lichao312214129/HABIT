@@ -7,14 +7,13 @@
 
 1. :doc:`installation_zh` — 安装 Miniconda/Anaconda 与 HABIT（Python 3.10）
 2. :doc:`quickstart_zh` — 下载 demo 并跑通完整 5 步流程
-3. :doc:`../user_guide/index_zh` — 各模块详细说明
+3. :doc:`../user_guide/index_zh` — 各步命令速查
 
 第三方库（ANTs、PyRadiomics、scikit-learn 等）的权威文档索引见 :doc:`../reference/upstream_libraries_zh`。
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    installation_zh
    quickstart_zh
    basic_concepts_zh
-   extensibility_overview_zh

@@ -92,7 +92,7 @@ Windows 用户请从开始菜单打开 **Anaconda Prompt** 或 **Anaconda Powers
 
 **（1）下载源码**
 
-👉 **[点击下载 HABIT 压缩包](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)**，**直接解压**到任意位置（如 `D:\`），无需新建或重命名文件夹；解压后会自动出现 **`HABIT-main`** 目录。
+👉 **[点击下载 HABIT 压缩包](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)**，**直接解压**到任意位置（Windows 如 `D:\`，macOS 如「下载」文件夹），无需新建或重命名文件夹；解压后会自动出现 **`HABIT-main`** 目录。
 
 **（2）在终端中依次执行**
 
@@ -122,35 +122,39 @@ pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
 **（4）进入项目目录并安装**
 
-`cd` 到解压后的 **`HABIT-main`** 目录（Git 克隆时目录名为 `HABIT`，请按实际路径修改）：
+`cd` 到解压后的 **`HABIT-main`** 目录（Git 克隆时目录名为 `HABIT`，路径按本机实际位置修改）：
 
 ```bash
+# Windows（ZIP 解压到 D:\ 后）
 cd D:\HABIT-main
 # Windows 跨盘符时先输入 D: 再 cd
+
+# macOS / Linux（例如解压到「下载」/ Downloads）
+cd ~/Downloads/HABIT-main
+# 若在桌面: cd ~/Desktop/HABIT-main
 ```
 
 确认当前目录（ZIP 解压后典型结构）：
 
 ```text
-  D:\HABIT-main\
-  ├── config\
-  ├── habit\
+  HABIT-main/
+  ├── config/
+  ├── habit/
   ├── requirements.txt   <-- 必须能看到此文件
   └── setup.py
+```
 
-(habit) D:\HABIT-main> dir requirements.txt
-(habit) D:\HABIT-main> pip install -r requirements.txt
-(habit) D:\HABIT-main> pip install -e .
+```bash
+# Windows: dir requirements.txt
+# macOS / Linux: ls requirements.txt
+pip install -r requirements.txt
+pip install -e .
+habit --version
 ```
 
 > ``requirements.txt`` 含 ``numpy==1.26.1`` 与 GPU 版 ``torch==2.4.0+cu121``（CUDA 12.1）。无 NVIDIA GPU 时请先注释文件末尾 torch 相关行，再单独安装 CPU 版 torch。
 
-安装成功示例：
-
-```text
-Successfully installed habit-1.0.0
-(habit) D:\HABIT-main> habit --version
-```
+安装成功时终端会出现 ``Successfully installed habit-...``，且 ``habit --version`` 能输出版本号。
 
 **❌ 安装失败？**
 
@@ -174,7 +178,8 @@ Successfully installed habit-1.0.0
 
 ```bash
 conda activate habit
-cd D:\HABIT-main
+cd D:\HABIT-main          # Windows
+# cd ~/Downloads/HABIT-main   # macOS / Linux
 habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 ```
 

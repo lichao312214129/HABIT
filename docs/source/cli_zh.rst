@@ -169,7 +169,7 @@ DICOM 整理命令
   - `train`: 训练新的生境分割模型
   - `predict`: 使用预训练模型进行预测
 - `--pipeline`: Pipeline 文件路径（predict 模式必需，用于覆盖配置文件中的`pipeline_path`，
-- `--resume`: 启用个体级断点续训（可选，等效于 YAML ``resume: true``；覆盖 YAML 中的 ``resume`` 值）。checkpoint 默认目录为 ``<out_dir>/.habitat_checkpoint``；详见 :doc:`user_guide/habitat_segmentation_zh` 「断点续训详解」。
+- `--resume`: 启用个体级断点续训（可选，等效于 YAML ``resume: true``；覆盖 YAML 中的 ``resume`` 值）。checkpoint 默认目录为 ``<out_dir>/.habitat_checkpoint``；详见 :doc:`configuration_zh` 中生境 checkpoint / ``resume`` 相关字段。
 - `--debug`: 启用调试模式（可选）
 
 **配置文件示例**:

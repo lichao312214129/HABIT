@@ -6,23 +6,16 @@ HABIT: Habitat Analysis: Biomedical Imaging Toolkit
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
    :target: https://opensource.org/licenses/MIT
 
-**HABIT** 是一个综合性的肿瘤"生境"（Habitat）分析工具包，旨在通过医疗影像挖掘肿瘤内部的异质性。它涵盖了从影像预处理、特征提取、聚类分析到机器学习建模的完整放射组学（Radiomics）流水线。
+**HABIT** 用于肿瘤**生境（Habitat）**分析：从医学影像中划分肿瘤亚区并提取定量特征，可选构建预测模型。
 
-核心工作流
-----------
+**推荐路径**
 
-HABIT 识别并表征具有不同影像表型的肿瘤亚区域（即 Habitat）。
+1. :doc:`getting_started/installation_zh` — 安装环境
+2. :doc:`getting_started/quickstart_zh` — 跑通 demo（5 步命令）
+3. :doc:`user_guide/index_zh` — 各步骤最短用法
+4. :doc:`configuration_zh` — YAML 参数全集（改配置时查阅）
 
-**影像输入 → 像素级特征提取 → 超像素分割 (可选) → Habitat 聚类 → Habitat 特征提取 → 临床预测模型 (可选)**
-
-主要功能
---------
-
-*   **影像预处理**: DICOM 转换、重采样、配准、归一化、N4 偏置场校正。
-*   **特征工程**: 提供像素级、超像素级、Habitat 级的特征提取。
-*   **聚类策略**: 支持 One-Step (个性化)、Two-Step (群组一致性) 和 Direct Pooling 三种策略。
-*   **机器学习**: 内置特征选择、模型训练（XGBoost, AutoGluon 等）及验证体系。
-*   **统计验证**: 提供 ICC 分析、Test-Retest 重复性验证及可视化工具。
+**流程**：预处理 → 生境分割 → 特征提取 → 机器学习（可选）
 
 .. toctree::
    :maxdepth: 2
