@@ -346,37 +346,37 @@ class PathResolver:
             path_value: The path string to resolve
             
         Returns:
-            Absolute path if the input was relative and exists, otherwise original path
+            Normalized absolute path when resolvable; otherwise the original value
         """
         if not isinstance(path_value, str):
             return path_value
-        
-        # Skip if already absolute
-        if os.path.isabs(path_value):
-            return path_value
-        
+
         # Skip URLs and special paths
         if path_value.startswith(('http://', 'https://', 'ftp://', 's3://')):
             return path_value
-        
-        # Try to resolve relative to base_dir
+
+        def _normalize(path: Path) -> str:
+            """Collapse ``..`` / ``.`` and return a stable absolute path for logging."""
+            return str(path.resolve(strict=False))
+
+        # Already absolute: still normalize (e.g. strip ``config/../demo_data`` segments)
+        if os.path.isabs(path_value):
+            return _normalize(Path(path_value))
+
+        # Resolve relative paths against the config file directory
         resolved = self.base_dir / path_value
-        
-        # Return resolved path if it exists, otherwise return original
-        # (to avoid breaking paths that are meant to be created later)
+
         if resolved.exists():
-            return str(resolved)
-        
-        # Even if doesn't exist, if it looks like a relative path that should be resolved
-        # (starts with ./ or ../ or is a simple filename), resolve it
+            return _normalize(resolved)
+
+        # Even if the target does not exist yet, resolve relative segments for output dirs
         if path_value.startswith(('./', '../')) or '/' in path_value or '\\' in path_value:
-            return str(resolved)
-        
-        # For simple filenames without path separators, check if they exist in base_dir
+            return _normalize(resolved)
+
         potential = self.base_dir / path_value
         if potential.exists():
-            return str(potential)
-        
+            return _normalize(potential)
+
         return path_value
     
     def resolve(

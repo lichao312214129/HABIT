@@ -1,20 +1,22 @@
 # Pinned for Python 3.10 compatibility (tested in py310 conda env).
-# Does NOT include PyTorch (large download). After this file, install ONE of:
-#   pip install -r requirements-cpu.txt   # recommended for most users
-#   pip install -r requirements-gpu.txt   # NVIDIA GPU + CUDA 12.1 only
+# Default includes CPU PyTorch (Aliyun mirror). NVIDIA GPU: pip install -r requirements-gpu.txt
 numpy==1.26.1
 SimpleITK==2.2.1
 antspyx==0.4.2
+imbalanced-learn
 opencv-python
 matplotlib
+versioneer
 trimesh
 scipy
 openpyxl
 pandas
 tqdm
-# pyradiomics: not listed here (avoid Windows source build / MSVC).
-#   Windows py310: pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl  (wheel in project root)
-#   macOS / Linux: pip install pyradiomics  (before or after this file; see installation_zh.rst)
+# pyradiomics: not listed here. Install AFTER this file (numpy is installed above):
+#   Windows (64-bit, Python 3.10): pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
+#   If wheel fails: install MSVC Build Tools, then:
+#     pip install pyradiomics --no-build-isolation
+#   macOS / Linux: pip install pyradiomics
 scikit-learn
 scikit-image
 mrmr_selection
@@ -30,3 +32,5 @@ lifelines
 pydicom
 pydantic
 kneed
+# PyTorch CPU (default; Aliyun mirror). GPU: requirements-gpu.txt after this file
+torch

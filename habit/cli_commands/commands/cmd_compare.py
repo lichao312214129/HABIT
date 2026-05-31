@@ -42,7 +42,7 @@ def run_compare(config_file: str) -> None:
         sys.exit(1)
     
     try:
-        output_dir = Path(config.output_dir)
+        output_dir = Path(config.output_dir).resolve()
         output_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         click.echo(f"Error: Failed to create output directory: {e}", err=True)

@@ -1,19 +1,14 @@
-# HABIT PyTorch GPU (CUDA 12.1, Python 3.10). NVIDIA GPU only; ~2 GB download.
-# Aliyun mirror. Install after requirements.txt. Do NOT install requirements-cpu.txt.
+# HABIT optional GPU PyTorch (CUDA 12.1, Python 3.10). NVIDIA GPU only; ~2 GB download.
+# Install after requirements.txt (which already includes CPU torch). Replaces CPU build.
 #
 #   pip install -r requirements.txt
-#   pip install -r requirements-gpu.txt
-#   pip install -e .
-#
-# If CPU torch was installed earlier, this replaces it:
 #   pip install -r requirements-gpu.txt --upgrade --force-reinstall
+#   pip install -e .
 #
 # Verify:
 #   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
-# Expect +cu121 in version and CUDA available True.
 #
 # Mirror: https://mirrors.aliyun.com/pytorch-wheels/cu121/
-# Alternative: pip install torch==2.4.0+cu121 -f https://mirror.sjtu.edu.cn/pytorch-wheels/cu121/
 
 --find-links https://mirrors.aliyun.com/pytorch-wheels/cu121/
 --trusted-host mirrors.aliyun.com

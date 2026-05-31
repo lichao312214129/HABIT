@@ -77,7 +77,7 @@ normalization:
 # automatically during validation, testing, and prediction so row counts stay
 # unchanged outside the training fold.
 resampling:
-  enabled: true  # Set to true to enable class-imbalance resampling
+  enabled: false  # Demo/quickstart: false avoids imbalanced-learn (imblearn); set true for SMOTE etc.
   method: random_over  # Options: random_over, random_under, smote
   position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
   ratio: 1.0  # Target sampling ratio passed to the selected resampling method

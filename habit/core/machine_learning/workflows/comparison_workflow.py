@@ -84,7 +84,7 @@ class ModelComparison:
                 f"Config must be ModelComparisonConfig or dict, got {type(config)}"
             )
 
-        self.output_dir = self.config.output_dir
+        self.output_dir = os.path.abspath(self.config.output_dir)
         os.makedirs(self.output_dir, exist_ok=True)
         
         self.evaluator = evaluator
