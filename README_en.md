@@ -18,7 +18,7 @@ Local build: `cd docs && make html`, then open `docs/build/html/index.html`.
 
 | Step | Topic | Link |
 |------|--------|------|
-| 1 | Install conda & HABIT (ZIP extract, nested `HABIT-main` folders) | [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
+| 1 | Install conda & HABIT | [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
 | 2 | Demo data & 5-step workflow | [Quickstart / Demo](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) |
 | 3 | Per-step commands | [User guide index](https://lichao312214129.github.io/HABIT/user_guide/index_zh.html) |
 | 4 | YAML parameters | [Configuration reference](https://lichao312214129.github.io/HABIT/configuration_zh.html) |
@@ -46,7 +46,7 @@ Local build: `cd docs && make html`, then open `docs/build/html/index.html`.
 
 ## Source & demo data
 
-- **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) for extract paths
+- **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
 - **Demo bundle**：see [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
 ---

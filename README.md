@@ -16,7 +16,7 @@
 
 | 顺序 | 说明 | 链接 |
 |------|------|------|
-| 1 | 安装 Miniconda/Anaconda 与 HABIT（含 ZIP 解压、嵌套目录说明） | [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
+| 1 | 安装 Miniconda/Anaconda 与 HABIT | [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
 | 2 | 下载 demo 并跑通 5 步流程 | [完整 Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) |
 | 3 | 各步骤命令速查 | [用户指南](https://lichao312214129.github.io/HABIT/user_guide/index_zh.html) |
 | 4 | 修改 YAML 参数 | [配置参考](https://lichao312214129.github.io/HABIT/configuration_zh.html) |
@@ -45,7 +45,7 @@
 
 ## 源码与演示数据
 
-- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（解压与路径说明见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
+- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
 - **演示数据**：`demo_data.rar` — 链接与提取码见 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
 ---

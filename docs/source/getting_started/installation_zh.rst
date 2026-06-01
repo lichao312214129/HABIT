@@ -92,7 +92,7 @@ Anaconda（备选）
 
 **获取源码**
 
-- **ZIP（推荐普通用户）**：`下载 main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_，** 直接解压**到任意位置（Windows 如 ``D:\``，macOS 如「下载」），无需新建或重命名；解压后自动得到**`HABIT-main`** 。
+- **ZIP（推荐普通用户）** ：`下载 main.zip <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_，**直接解压** 到任意位置（Windows 如 ``D:\``，macOS 如「下载」），无需新建或重命名；解压后自动得到 **`HABIT-main`** 。
 - **Git 克隆** ： ``git clone --depth 1 https://github.com/lichao312214129/HABIT.git``，目录名为 ``HABIT``。
 
 进入项目目录并安装
