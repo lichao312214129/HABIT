@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python 运行外部命令的方法比较 &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34088549"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=540d3cec"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python 运行外部命令的方法比较</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/python_subprocess_methods_zh.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python">
+<h1>Python 运行外部命令的方法比较<a class="headerlink" href="#python" title="链接到此标题。"></a></h1>
+<section id="id1">
+<h2>问题背景<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<p>在调用 dcm2niix 时，不同的 Python 执行方法可能产生不同的结果：</p>
+<ul class="simple">
+<li><p><strong>终端直接运行</strong> ：得到 3D 图像 (512, 512, 80)</p></li>
+<li><p><strong>Python subprocess.run</strong> ：得到 4D 图像 (512, 512, 40, 2)</p></li>
+</ul>
+<p>本文档比较各种 Python 执行外部命令的方法。</p>
+</section>
+<section id="id2">
+<h2>方法对比表<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+</section>
+<section id="id3">
+<h2>详细说明<a class="headerlink" href="#id3" title="链接到此标题。"></a></h2>
+<section id="os-system-dcm2niix">
+<h3>1. os.system() - 最推荐用于 dcm2niix ✅<a class="headerlink" href="#os-system-dcm2niix" title="链接到此标题。"></a></h3>
+<p><strong>特点</strong> ：</p>
+<ul class="simple">
+<li><p>最接近在终端直接输入命令</p></li>
+<li><p>行为与 shell 完全一致</p></li>
+<li><p>输出直接显示在控制台</p></li>
+<li><p>无法捕获输出内容</p></li>
+</ul>
+<p><strong>示例</strong> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;dcm2niix.exe -b n -m 2 -z y -o output input&#39;</span>
+<span class="n">exit_code</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;命令失败，退出码: </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>优点</strong> ：</p>
+<ul class="simple">
+<li><p>✅ 与终端行为完全一致</p></li>
+<li><p>✅ 最简单直接</p></li>
+<li><p>✅ 对 dcm2niix 问题最有效</p></li>
+</ul>
+<p><strong>缺点</strong> ：</p>
+<ul class="simple">
+<li><p>❌ 无法捕获输出内容</p></li>
+<li><p>❌ 安全性较低（shell 注入风险）</p></li>
+<li><p>❌ 返回码在不同平台可能不同</p></li>
+</ul>
+<p><strong>适用场景</strong> ：</p>
+<ul class="simple">
+<li><p><strong>解决 dcm2niix 3D/4D 问题的首选方案</strong></p></li>
+<li><p>不需要处理命令输出</p></li>
+<li><p>命令来自可信源</p></li>
+</ul>
+</section>
+<section id="subprocess-run">
+<h3>2. subprocess.run() - 标准方法 ⚠️<a class="headerlink" href="#subprocess-run" title="链接到此标题。"></a></h3>
+<p><strong>特点</strong> ：</p>
+<ul class="simple">
+<li><p>Python 3.5+ 推荐的标准方法</p></li>
+<li><p>可以捕获输出</p></li>
+<li><p>更好的错误处理</p></li>
+</ul>
+<p><strong>示例</strong> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;dcm2niix.exe -b n -m 2 -z y -o output input&#39;</span>
+
+<span class="c1"># 方式A: 直接显示输出</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">,</span>
+    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># 方式B: 捕获输出</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">,</span>
+    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>优点</strong> ：</p>
+<ul class="simple">
+<li><p>✅ 标准推荐方法</p></li>
+<li><p>✅ 可以捕获输出</p></li>
+<li><p>✅ 更好的错误处理</p></li>
+<li><p>✅ 支持超时控制</p></li>
+</ul>
+<p><strong>缺点</strong> ：</p>
+<ul class="simple">
+<li><p>❌ 可能与终端行为略有不同</p></li>
+<li><p>❌ 对 dcm2niix 可能产生意外的 4D 输出</p></li>
+</ul>
+<p><strong>适用场景</strong> ：</p>
+<ul class="simple">
+<li><p>需要处理命令输出</p></li>
+<li><p>需要错误处理</p></li>
+<li><p>一般情况下的命令执行</p></li>
+</ul>
+</section>
+<section id="subprocess-popen">
+<h3>3. subprocess.Popen() - 高级控制 ✅<a class="headerlink" href="#subprocess-popen" title="链接到此标题。"></a></h3>
+<p><strong>特点</strong> ：</p>
+<ul class="simple">
+<li><p>最灵活的方法</p></li>
+<li><p>可以实时读取输出</p></li>
+<li><p>可以进行进程间通信</p></li>
+</ul>
+<p><strong>示例</strong> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;dcm2niix.exe -b n -m 2 -z y -o output input&#39;</span>
+
+<span class="c1"># 实时输出</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">,</span>
+    <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+    <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+
+<span class="c1"># 逐行打印输出</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1"># 等待完成</span>
+<span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span>
+
+<span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;命令失败，退出码: </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>优点</strong> ：</p>
+<ul class="simple">
+<li><p>✅ 最灵活的控制</p></li>
+<li><p>✅ 可以实时处理输出</p></li>
+<li><p>✅ 可以与进程交互</p></li>
+<li><p>✅ 可能比 subprocess.run 更接近终端行为</p></li>
+</ul>
+<p><strong>缺点</strong> ：</p>
+<ul class="simple">
+<li><p>❌ 代码较复杂</p></li>
+<li><p>❌ 需要手动处理进程通信</p></li>
+</ul>
+<p><strong>适用场景</strong> ：</p>
+<ul class="simple">
+<li><p>需要实时处理命令输出</p></li>
+<li><p>需要长时间运行的进程</p></li>
+<li><p>需要与进程交互</p></li>
+<li><p>subprocess.run 无法解决问题时的备选方案</p></li>
+</ul>
+</section>
+<section id="subprocess-call">
+<h3>4. subprocess.call() - 旧式方法<a class="headerlink" href="#subprocess-call" title="链接到此标题。"></a></h3>
+<p><strong>特点</strong> ：</p>
+<ul class="simple">
+<li><p>Python 2.x 的标准方法</p></li>
+<li><p>Python 3.5+ 已被 subprocess.run 替代</p></li>
+</ul>
+<p><strong>示例</strong> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;dcm2niix.exe -b n -m 2 -z y -o output input&#39;</span>
+<span class="n">exit_code</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>推荐</strong> ：使用 <code class="docutils literal notranslate"><span class="pre">subprocess.run()</span></code> 代替</p>
+</section>
+<section id="os-popen">
+<h3>5. os.popen() - 已弃用<a class="headerlink" href="#os-popen" title="链接到此标题。"></a></h3>
+<p>不推荐使用，已被 subprocess 模块替代。</p>
+</section>
+</section>
+<section id="habit">
+<h2>在 habit 中的实现<a class="headerlink" href="#habit" title="链接到此标题。"></a></h2>
+<p>当前代码位置： <code class="docutils literal notranslate"><span class="pre">habit/core/preprocessing/dcm2niix_converter.py</span></code> (第 321 行)</p>
+<section id="id4">
+<h3>快速切换执行方法<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>在代码第 321 行修改 <code class="docutils literal notranslate"><span class="pre">execution_method</span></code> 变量：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;os.system&quot;</span>  <span class="c1"># 推荐：最接近终端行为</span>
+<span class="c1"># execution_method = &quot;subprocess.run&quot;  # 备选：标准方法</span>
+<span class="c1"># execution_method = &quot;subprocess.Popen&quot;  # 备选：实时输出</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>当前默认设置<a class="headerlink" href="#id5" title="链接到此标题。"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;os.system&quot;</span>  <span class="c1"># 默认使用os.system解决3D/4D问题</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dcm2niix-3d-4d">
+<h2>解决 dcm2niix 3D/4D 问题的推荐方案<a class="headerlink" href="#dcm2niix-3d-4d" title="链接到此标题。"></a></h2>
+<section id="os-system">
+<h3>方案 1：使用 os.system（首选）<a class="headerlink" href="#os-system" title="链接到此标题。"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;os.system&quot;</span>
+</pre></div>
+</div>
+<p><strong>理由</strong> ：</p>
+<ul class="simple">
+<li><p>与终端行为完全一致</p></li>
+<li><p>已在代码中实现</p></li>
+<li><p>无需修改，直接运行即可</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>方案 2：使用 subprocess.Popen<a class="headerlink" href="#id6" title="链接到此标题。"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;subprocess.Popen&quot;</span>
+</pre></div>
+</div>
+<p><strong>理由</strong> ：</p>
+<ul class="simple">
+<li><p>如果 os.system 也有问题，尝试这个</p></li>
+<li><p>保留了输出捕获能力</p></li>
+<li><p>比 subprocess.run 更接近终端</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>方案 3：直接在终端运行命令<a class="headerlink" href="#id7" title="链接到此标题。"></a></h3>
+<p>查看程序输出的命令，复制到终端直接运行：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 复制Python输出的这段命令</span>
+dcm2niix.exe<span class="w"> </span>-b<span class="w"> </span>n<span class="w"> </span>-l<span class="w"> </span>y<span class="w"> </span>-m<span class="w"> </span><span class="m">2</span><span class="w"> </span>-p<span class="w"> </span>n<span class="w"> </span>-v<span class="w"> </span>y<span class="w"> </span>-z<span class="w"> </span>y<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;output_dir&quot;</span><span class="w"> </span><span class="s2">&quot;input_dir&quot;</span>
+
+<span class="c1"># 直接在PowerShell或CMD中粘贴运行</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h2>测试步骤<a class="headerlink" href="#id8" title="链接到此标题。"></a></h2>
+<ol class="arabic">
+<li><p><strong>使用 os.system 运行</strong> （默认）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>debug_preprocess.py
+</pre></div>
+</div>
+</li>
+<li><p><strong>检查输出维度</strong> ：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>verify_nifti_dimension.py
+</pre></div>
+</div>
+</li>
+<li><p><strong>如果还是 4D，修改代码第 321 行</strong> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_method</span> <span class="o">=</span> <span class="s2">&quot;subprocess.Popen&quot;</span>
+</pre></div>
+</div>
+<p>然后重新运行步骤 1-2</p>
+</li>
+<li><p><strong>如果都不行，检查参数</strong> ：</p>
+<ul class="simple">
+<li><p>修改 <code class="docutils literal notranslate"><span class="pre">dcm2nii.yaml</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">merge_slices</span></code> 和 <code class="docutils literal notranslate"><span class="pre">single_file_mode</span></code></p></li>
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">test_dcm2nii_params.py</span></code> 测试所有参数组合</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id9">
+<h2>常见问题<a class="headerlink" href="#id9" title="链接到此标题。"></a></h2>
+<section id="q-os-system">
+<h3>Q: 为什么 os.system 最接近终端？<a class="headerlink" href="#q-os-system" title="链接到此标题。"></a></h3>
+<p>A: 因为 os.system 直接调用系统 shell 执行命令，没有任何 Python 的封装层，就像你在终端直接输入命令一样。subprocess 模块虽然也可以使用 shell=True，但增加了额外的处理层。</p>
+</section>
+<section id="id10">
+<h3>Q: os.system 安全吗？<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<p>A: 如果命令字符串来自用户输入，存在 shell 注入风险。但在我们的场景中：</p>
+<ul class="simple">
+<li><p>命令是程序内部构建的</p></li>
+<li><p>路径来自配置文件</p></li>
+<li><p>不接受不可信的用户输入</p></li>
+<li><p>因此是安全的</p></li>
+</ul>
+</section>
+<section id="q">
+<h3>Q: 为什么不同方法会产生不同结果？<a class="headerlink" href="#q" title="链接到此标题。"></a></h3>
+<p>A: 可能的原因：</p>
+<ol class="arabic simple">
+<li><p><strong>环境变量差异</strong> ：subprocess 可能继承不同的环境变量</p></li>
+<li><p><strong>工作目录</strong> ：不同方法的默认工作目录可能不同</p></li>
+<li><p><strong>Shell 解析差异</strong> ：引号、空格等的处理方式可能略有不同</p></li>
+<li><p><strong>缓冲区处理</strong> ：输出缓冲的处理可能影响某些程序的行为</p></li>
+</ol>
+</section>
+<section id="id11">
+<h3>Q: 我应该使用哪个方法？<a class="headerlink" href="#id11" title="链接到此标题。"></a></h3>
+<p>A: 对于 dcm2niix 的 3D/4D 问题：</p>
+<ol class="arabic simple">
+<li><p><strong>首选</strong> ： <code class="docutils literal notranslate"><span class="pre">os.system</span></code> （已设为默认）</p></li>
+<li><p><strong>备选 1</strong> ： <code class="docutils literal notranslate"><span class="pre">subprocess.Popen</span></code></p></li>
+<li><p><strong>备选 2</strong> ：调整 dcm2niix 参数（merge_slices, single_file_mode）</p></li>
+<li><p><strong>最后手段</strong> ：直接在终端运行，手动复制结果</p></li>
+</ol>
+</section>
+</section>
+<section id="id12">
+<h2>参考资料<a class="headerlink" href="#id12" title="链接到此标题。"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/subprocess.html">Python subprocess 官方文档</a></p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/os.html#os.system">os.system 官方文档</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rordenlab/dcm2niix">dcm2niix GitHub</a></p></li>
+</ul>
+</section>
+<section id="id14">
+<h2>更新日志<a class="headerlink" href="#id14" title="链接到此标题。"></a></h2>
+<ul class="simple">
+<li><p><strong>2025-10-29</strong>:
+- 添加多种执行方法支持
+- 默认使用 os.system 解决 3D/4D 问题
+- 提供方法切换机制</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.utils.image_converter &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=34088549"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=540d3cec"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.utils.image_converter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.utils.image_converter 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ants</span>
+
+<span class="c1"># Optional torch import for tensor conversion methods (not used in core functionality)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+    <span class="n">TORCH_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">TORCH_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">torch</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ImageConverter">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageConverter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility class for converting between different image formats.&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="ImageConverter.get_metadata">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter.get_metadata">[文档]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="n">meta_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">ndim</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract and validate metadata from dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            meta_dict (Dict[str, Any]): Metadata dictionary.</span>
+<span class="sd">            ndim (int): Number of dimensions.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[tuple, tuple, tuple]: Validated spacing, origin, and direction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Default values</span>
+        <span class="n">default_spacing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">)</span>
+        <span class="n">default_origin</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">)</span>
+        <span class="n">default_direction</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)])</span>
+        
+        <span class="c1"># Get metadata with defaults</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="n">meta_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spacing&quot;</span><span class="p">,</span> <span class="n">default_spacing</span><span class="p">)</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">meta_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="n">default_origin</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">meta_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="n">default_direction</span><span class="p">)</span>
+        
+        <span class="c1"># Convert to tuples if necessary</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">spacing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">spacing</span><span class="p">[:</span><span class="n">ndim</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">origin</span><span class="p">[:</span><span class="n">ndim</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+            
+        <span class="c1"># Validate direction matrix size</span>
+        <span class="n">direction_size</span> <span class="o">=</span> <span class="n">ndim</span> <span class="o">*</span> <span class="n">ndim</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span> <span class="o">!=</span> <span class="n">direction_size</span><span class="p">:</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="n">default_direction</span>
+            
+        <span class="k">return</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">direction</span></div>
+
+    
+<div class="viewcode-block" id="ImageConverter.tensor_to_numpy">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter.tensor_to_numpy">[文档]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tensor_to_numpy</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert torch tensor to numpy array.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            tensor: Input tensor in format [C,Z,Y,X] or [C,H,W].</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Numpy array with channel dimension removed if single channel.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ImportError: If torch is not installed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">TORCH_AVAILABLE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;torch is required for tensor_to_numpy. Install it with: pip install torch&quot;</span><span class="p">)</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># If single channel</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Remove channel dimension</span>
+        <span class="k">return</span> <span class="n">array</span></div>
+
+    
+<div class="viewcode-block" id="ImageConverter.numpy_to_tensor">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter.numpy_to_tensor">[文档]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numpy_to_tensor</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert numpy array to torch tensor.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            array (np.ndarray): Input array in [Z,Y,X] format.</span>
+<span class="sd">            dtype: Target tensor dtype (requires torch).</span>
+<span class="sd">            device: Target tensor device (requires torch).</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Torch tensor with added channel dimension [1,Z,Y,X].</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ImportError: If torch is not installed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">TORCH_AVAILABLE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;torch is required for numpy_to_tensor. Install it with: pip install torch&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>  <span class="c1"># Add channel dim for 2D</span>
+        <span class="k">elif</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>  <span class="c1"># Add channel dim for 3D</span>
+            
+        <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tensor</span> </div>
+
+    
+<div class="viewcode-block" id="ImageConverter.ants_2_itk">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter.ants_2_itk">[文档]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ants_2_itk</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+        <span class="n">imageITK</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">imageITK</span><span class="o">.</span><span class="n">SetOrigin</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+        <span class="n">imageITK</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span>
+        <span class="n">imageITK</span><span class="o">.</span><span class="n">SetDirection</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">imageITK</span></div>
+
+
+<div class="viewcode-block" id="ImageConverter.itk_2_ants">
+<a class="viewcode-back" href="../../../api/utils.html#habit.utils.image_converter.ImageConverter.itk_2_ants">[文档]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">itk_2_ants</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+        <span class="n">image_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> 
+                                    <span class="n">origin</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">GetOrigin</span><span class="p">(),</span> 
+                                    <span class="n">spacing</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">(),</span> 
+                                    <span class="n">direction</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetDirection</span><span class="p">())</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">image_ants</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

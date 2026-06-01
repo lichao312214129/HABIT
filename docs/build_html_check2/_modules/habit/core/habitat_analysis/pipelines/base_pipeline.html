@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.habitat_analysis.pipelines.base_pipeline &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=34088549"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../../_static/translations.js?v=540d3cec"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.core.habitat_analysis.pipelines.base_pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.habitat_analysis.pipelines.base_pipeline 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base pipeline classes for habitat analysis.</span>
+
+<span class="sd">This module provides the core pipeline infrastructure following sklearn design patterns.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.log_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_module_logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.parallel_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallel_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.core.habitat_analysis.checkpoint.manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatTrainCheckpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.habitat_subject_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSubjectData</span>
+
+
+<div class="viewcode-block" id="BasePipelineStep">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.BasePipelineStep">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BasePipelineStep</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all pipeline steps.</span>
+<span class="sd">    </span>
+<span class="sd">    Follows sklearn interface: fit() and transform()</span>
+<span class="sd">    All steps should inherit from this class and implement the abstract methods.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        fitted_: bool indicating whether the step has been fitted</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="BasePipelineStep.__init__">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.BasePipelineStep.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the pipeline step.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="BasePipelineStep.fit">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.BasePipelineStep.fit">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BasePipelineStep&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the step on training data.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X: Input data (can be DataFrame, dict, or other types depending on step)</span>
+<span class="sd">            y: Optional target data</span>
+<span class="sd">            **fit_params: Additional fitting parameters</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="BasePipelineStep.transform">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.BasePipelineStep.transform">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform data using fitted parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X: Input data</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Transformed data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="BasePipelineStep.fit_transform">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.BasePipelineStep.fit_transform">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit and transform in one call.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X: Input data</span>
+<span class="sd">            y: Optional target data</span>
+<span class="sd">            **fit_params: Additional fitting parameters</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Transformed data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IndividualLevelStep">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.IndividualLevelStep">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IndividualLevelStep</span><span class="p">(</span><span class="n">BasePipelineStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for individual-level pipeline steps.</span>
+
+<span class="sd">    Individual-level steps process each subject independently. Subclasses</span>
+<span class="sd">    only need to implement :meth:`transform_one`; the per-subject</span>
+<span class="sd">    transformation. The base class provides:</span>
+
+<span class="sd">    * a default stateless :meth:`fit` (individual-level steps do not learn</span>
+<span class="sd">      cross-subject parameters; their per-subject behaviour is fully</span>
+<span class="sd">      determined by configuration);</span>
+<span class="sd">    * a default :meth:`transform` that loops over the input dict and</span>
+<span class="sd">      delegates to :meth:`transform_one`, with uniform error handling.</span>
+
+<span class="sd">    The pipeline orchestrator can also call :meth:`transform_one` directly</span>
+<span class="sd">    on a single subject (this is what enables per-subject parallelism</span>
+<span class="sd">    without each step having to write its own ``for`` loop).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IndividualLevelStep.fit">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.IndividualLevelStep.fit">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">fit_params</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;IndividualLevelStep&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stateless fit: individual-level steps do not learn cross-subject</span>
+<span class="sd">        parameters, so this just marks the step as fitted.</span>
+
+<span class="sd">        Subclasses with genuine per-step state may override this.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="IndividualLevelStep.transform_one">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.IndividualLevelStep.transform_one">[文档]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subject_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform a single subject&#39;s data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject_id: Subject ID being processed.</span>
+<span class="sd">            subject_data: Explicit per-subject payload. Habitat-analysis</span>
+<span class="sd">                steps normally pass :class:`HabitatSubjectData`, which carries</span>
+<span class="sd">                progressively-populated fields such as ``features``, ``raw``,</span>
+<span class="sd">                ``mask_info`` and ``supervoxel_labels``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The transformed per-subject payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="IndividualLevelStep.transform">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.IndividualLevelStep.transform">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Default transform: iterate subjects, delegate to ``transform_one``.</span>
+
+<span class="sd">        Subclasses should NOT override this unless they need cross-subject</span>
+<span class="sd">        behaviour during transform (in which case they should probably be a</span>
+<span class="sd">        :class:`GroupLevelStep` instead).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">subject_data</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_one</span><span class="p">(</span><span class="n">subject_id</span><span class="p">,</span> <span class="n">subject_data</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for subject </span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GroupLevelStep">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.GroupLevelStep">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupLevelStep</span><span class="p">(</span><span class="n">BasePipelineStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Marker class for group-level pipeline steps.</span>
+<span class="sd">    </span>
+<span class="sd">    Group-level steps process all subjects together (e.g., group clustering,</span>
+<span class="sd">    group-level preprocessing). They operate on aggregated data from all subjects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="HabitatPipeline">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatPipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main pipeline for habitat analysis.</span>
+<span class="sd">    </span>
+<span class="sd">    Similar to sklearn Pipeline but adapted for habitat-specific workflow.</span>
+<span class="sd">    </span>
+<span class="sd">    Follows sklearn design philosophy:</span>
+<span class="sd">    - fit() for training: learn parameters and save state</span>
+<span class="sd">    - transform() for testing: use saved state to transform data</span>
+<span class="sd">    - No mode parameter needed: state is managed via fitted_ attribute</span>
+<span class="sd">    </span>
+<span class="sd">    **Memory Management Strategy (Per-Subject Parallel Processing)**:</span>
+<span class="sd">    The pipeline uses a two-stage processing strategy:</span>
+<span class="sd">    </span>
+<span class="sd">    1. **Individual-level stage**: Each subject independently goes through all </span>
+<span class="sd">       individual-level steps as an atomic operation (voxel extraction -&gt;</span>
+<span class="sd">       preprocessing -&gt; clustering -&gt; supervoxel extraction -&gt; aggregation). Multiple subjects are</span>
+<span class="sd">       processed in parallel (controlled by `processes` parameter).</span>
+<span class="sd">       </span>
+<span class="sd">    2. **Group-level stage**: After all subjects complete individual processing,</span>
+<span class="sd">       group-level steps (group preprocessing -&gt; group clustering) are executed</span>
+<span class="sd">       on the aggregated results.</span>
+<span class="sd">    </span>
+<span class="sd">    **Memory Control**:</span>
+<span class="sd">    Peak memory = processes × single_subject_memory</span>
+<span class="sd">    - processes=8: Fast, ~800MB-1.6GB (8 subjects processed simultaneously)</span>
+<span class="sd">    - processes=4: Balanced, ~400MB-800MB (default)</span>
+<span class="sd">    - processes=2: Memory-efficient, ~200MB-400MB</span>
+<span class="sd">    - processes=1: Minimum memory, ~100MB-200MB</span>
+<span class="sd">    </span>
+<span class="sd">    **Why This Design**:</span>
+<span class="sd">    - Clean architecture: Steps focus on single-subject logic, Pipeline handles parallelization</span>
+<span class="sd">    - Memory bounded by `processes` parameter (max N subjects in memory at once)</span>
+<span class="sd">    - No nested parallelization or complex coordination</span>
+<span class="sd">    - Easy to maintain and extend</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        steps: List of (name, step) tuples</span>
+<span class="sd">        config: Configuration object</span>
+<span class="sd">        fitted_: bool indicating whether the pipeline has been fitted</span>
+<span class="sd">        individual_steps: List of individual-level steps</span>
+<span class="sd">        group_steps: List of group-level steps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="HabitatPipeline.__init__">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]],</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">load_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize pipeline with steps.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            steps: List of (name, step) tuples (ignored if load_from is provided)</span>
+<span class="sd">            config: Configuration object</span>
+<span class="sd">            load_from: Optional path to load saved pipeline state</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If load_from is provided but file doesn&#39;t exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">load_from</span><span class="p">:</span>
+            <span class="c1"># Load saved pipeline</span>
+            <span class="n">loaded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">load_from</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">steps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">fitted_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">individual_steps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">group_steps</span>
+            <span class="c1"># Loaded pipelines may pre-date the explicit attribute; keep a</span>
+            <span class="c1"># dict on hand so downstream code never needs hasattr() guards.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_info_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="s1">&#39;mask_info_cache&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_checkpoint</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="s1">&#39;_train_checkpoint&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">steps</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;steps cannot be empty if load_from is not provided&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Automatically separate individual-level and group-level steps by type.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">IndividualLevelStep</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">GroupLevelStep</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Transient parent-side cache populated by</span>
+            <span class="c1"># :meth:`_process_subjects_parallel` after each fit/transform run.</span>
+            <span class="c1"># ``HabitatResultPublisher`` hands this off to ``HabitatImageWriter`` once,</span>
+            <span class="c1"># right before image saving.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_info_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatTrainCheckpoint</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">fit_params</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shared implementation for fit() and fit_transform().</span>
+
+<span class="sd">        Executes the two-stage pipeline:</span>
+<span class="sd">        1. Individual-level: per-subject parallel processing</span>
+<span class="sd">        2. Group-level: fit + transform on aggregated results</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X: Input data (dict of subject_id -&gt; data)</span>
+<span class="sd">            y: Optional target data</span>
+<span class="sd">            **fit_params: Additional fitting parameters</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Transformed data after all stages</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If pipeline is already fitted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Pipeline already fitted. Use transform() for new data, &quot;</span>
+                <span class="s2">&quot;or create a new pipeline instance for training.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="c1"># Stage 1: Individual-level processing (chunked parallel)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage 1: Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">}</span><span class="s2"> subjects through &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">)</span><span class="si">}</span><span class="s2"> individual-level steps...&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">:</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">X_individual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_subjects_parallel</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_individual</span> <span class="o">=</span> <span class="n">X</span>
+
+        <span class="c1"># Stage 2: Group-level processing (all subjects together)</span>
+        <span class="n">X_out</span> <span class="o">=</span> <span class="n">X_individual</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage 2: Processing all subjects through &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">)</span><span class="si">}</span><span class="s2"> group-level steps...&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Group-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">) started; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;input: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_group_step_data</span><span class="p">(</span><span class="n">X_out</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">X_out</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_out</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Group-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; finished; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;output: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_group_step_data</span><span class="p">(</span><span class="n">X_out</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">X_out</span>
+
+<div class="viewcode-block" id="HabitatPipeline.fit">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.fit">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X_train</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">fit_params</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;HabitatPipeline&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit pipeline on training data using per-subject parallel processing.</span>
+
+<span class="sd">        Similar to fit_transform but discards the transformed output.</span>
+<span class="sd">        Useful when you need to fit the pipeline and then transform different data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X_train: Training data (dict of subject_id -&gt; image/mask paths or features)</span>
+<span class="sd">            y: Optional target data</span>
+<span class="sd">            **fit_params: Additional fitting parameters</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_process</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    
+<div class="viewcode-block" id="HabitatPipeline.transform">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.transform">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X_test</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform test data using fitted pipeline with per-subject parallel processing.</span>
+<span class="sd">        </span>
+<span class="sd">        Applies the same two-stage processing as fit_transform:</span>
+<span class="sd">        1. Individual-level: Each subject through all steps (atomic operation), parallelized</span>
+<span class="sd">        2. Group-level: All subjects processed together</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            X_test: Test data (dict of subject_id -&gt; image/mask paths or features)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Results DataFrame with habitat labels</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If pipeline has not been fitted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Pipeline must be fitted before transform(). &quot;</span>
+                <span class="s2">&quot;Either call fit() first, or load a saved pipeline using &quot;</span>
+                <span class="s2">&quot;HabitatPipeline.load(path) or HabitatPipeline(load_from=path)&quot;</span>
+            <span class="p">)</span>
+        
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        
+        <span class="c1"># Stage 1: Individual-level processing (chunked parallel)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage 1: Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="si">}</span><span class="s2"> test subjects through &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">)</span><span class="si">}</span><span class="s2"> individual-level steps...&quot;</span>
+            <span class="p">)</span>
+            <span class="n">X_individual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_subjects_parallel</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_individual</span> <span class="o">=</span> <span class="n">X_test</span>
+        
+        <span class="c1"># Stage 2: Group-level processing (all subjects together)</span>
+        <span class="n">X_out</span> <span class="o">=</span> <span class="n">X_individual</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage 2: Processing all test subjects through &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">)</span><span class="si">}</span><span class="s2"> group-level steps...&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_steps</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Group-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">) started; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;input: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_group_step_data</span><span class="p">(</span><span class="n">X_out</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">X_out</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_out</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Group-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; finished; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;output: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_group_step_data</span><span class="p">(</span><span class="n">X_out</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">X_out</span>  <span class="c1"># Final output should be DataFrame with habitat labels</span></div>
+
+    
+<div class="viewcode-block" id="HabitatPipeline.fit_transform">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.fit_transform">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">fit_params</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit and transform in one call using per-subject parallel processing.</span>
+
+<span class="sd">        Delegates to _fit_process which handles both stages.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X: Input data (dict of subject_id -&gt; data)</span>
+<span class="sd">            y: Optional target data</span>
+<span class="sd">            **fit_params: Additional fitting parameters</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Transformed data (DataFrame with habitat labels)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_process</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span></div>
+
+    
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_describe_group_step_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a compact summary of group-level step input/output for logging.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Dict of per-subject payloads or a cohort-level DataFrame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Human-readable summary string (subject count, row count, feature count).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> subject(s)&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">habit.core.habitat_analysis.feature_preprocessing.dataframe_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                <span class="n">split_metadata_and_features</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">feature_df</span> <span class="o">=</span> <span class="n">split_metadata_and_features</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;rows=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">, feature_columns=</span><span class="si">{</span><span class="n">feature_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;total_columns=</span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_single_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process one subject through all individual-level steps sequentially.</span>
+
+<span class="sd">        This is the atomic operation unit for parallelization. Each step&#39;s</span>
+<span class="sd">        single-subject contract is :meth:`IndividualLevelStep.transform_one`,</span>
+<span class="sd">        so no per-step dict-wrapping/unwrapping is needed here.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            item: Tuple of (subject_id, input_data).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (subject_id, output_data) after all individual-level</span>
+<span class="sd">            steps have run on this subject.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subject_id</span><span class="p">,</span> <span class="n">subject_data</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">subject_data</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_steps</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Individual-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; started for subject &#39;</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform_one</span><span class="p">(</span><span class="n">subject_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error processing subject </span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2"> in step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">raise</span>
+            <span class="c1"># One line per (subject, step) after successful transform_one so parallel</span>
+            <span class="c1"># workers remain traceable in logs (subject id + pipeline step name).</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Individual-level step &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; finished for subject &#39;</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">subject_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_subjects_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process subjects through all individual-level steps using parallel processing.</span>
+
+<span class="sd">        Delegates checkpoint resume, manifest updates, and parallel dispatch to</span>
+<span class="sd">        :class:`IndividualCheckpointStage`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.core.habitat_analysis.checkpoint.stage</span><span class="w"> </span><span class="kn">import</span> <span class="n">IndividualCheckpointStage</span>
+
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">IndividualCheckpointStage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">stage</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="HabitatPipeline.save">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.save">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save fitted pipeline to disk.</span>
+<span class="sd">        </span>
+<span class="sd">        Uses joblib to serialize the entire pipeline including all fitted steps.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Path to save pipeline</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If pipeline has not been fitted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot save unfitted pipeline. Call fit() first.&quot;</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_pipeline_for_save</span>
+
+        <span class="n">prepare_pipeline_for_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="HabitatPipeline.load">
+<a class="viewcode-back" href="../../../../../api/habitat_analysis.html#habit.core.habitat_analysis.pipelines.base_pipeline.HabitatPipeline.load">[文档]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;HabitatPipeline&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load pipeline from disk.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Path to saved pipeline</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Loaded HabitatPipeline instance</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If file doesn&#39;t exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

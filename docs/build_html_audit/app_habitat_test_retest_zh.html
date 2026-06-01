@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test-Retest 分析工具 (habit retest) &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34088549"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=540d3cec"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="模型比较工具 (habit compare)" href="app_model_comparison_zh.html" />
+    <link rel="prev" title="CSV 合并工具 (habit merge-csv)" href="app_merge_csv_zh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Test-Retest 分析工具 (habit retest)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">使用方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">参数说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">配置方式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">生境表文件格式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">输出文件说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">相似性方法说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#icc">与 ICC 分析的结合</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">注意事项</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">常见问题</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Test-Retest 分析工具 (habit retest)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/app_habitat_test_retest_zh.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="test-retest-habit-retest">
+<h1>Test-Retest 分析工具 (habit retest)<a class="headerlink" href="#test-retest-habit-retest" title="链接到此标题。"></a></h1>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<p>配置字段见 <a class="reference internal" href="configuration_zh.html"><span class="doc">配置参考</span></a> 文末 Test-Retest 小节；相似性度量与 NumPy/SciPy 见 <a class="reference internal" href="reference/upstream_libraries_zh.html"><span class="doc">上游依赖与文档链接</span></a>。</p>
+</div>
+<section id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<p>Test-Retest 分析用于评估生境映射在不同扫描条件下的可重复性，特别适用于：</p>
+<ul class="simple">
+<li><p>评估测试-重测扫描中生境标签的映射质量</p></li>
+<li><p>识别生境分割的稳定性</p></li>
+<li><p>为后续分析筛选可靠的生境映射结果</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>使用方法<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<p>Test-Retest 工具使用配置文件：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>retest<span class="w"> </span>--config<span class="w"> </span>config_test_retest.yaml
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>参数说明<a class="headerlink" href="#id3" title="链接到此标题。"></a></h2>
+<ul class="simple">
+<li><p><strong>--config, -c</strong>: 配置文件路径</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>配置方式<a class="headerlink" href="#id4" title="链接到此标题。"></a></h2>
+<p>配置文件示例：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># config_test_retest.yaml</span>
+
+<span class="nt">out_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./ml_data/test_retest</span>
+<span class="nt">test_habitat_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./ml_data/habitats_test.csv</span>
+<span class="nt">retest_habitat_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./ml_data/habitats_retest.csv</span>
+<span class="nt">similarity_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pearson</span>
+<span class="nt">input_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./demo_data/habitat_maps/retest</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./ml_data/test_retest/remapped</span>
+<span class="nt">processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>然后运行：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>retest<span class="w"> </span>--config<span class="w"> </span>config_test_retest.yaml
+</pre></div>
+</div>
+<p>配置文件字段说明：</p>
+<ul class="simple">
+<li><p><strong>out_dir</strong>: 结果输出根目录</p></li>
+<li><p><strong>test_habitat_table</strong>: 测试扫描生境表路径</p></li>
+<li><p><strong>retest_habitat_table</strong>: 重测扫描生境表路径</p></li>
+<li><p><strong>similarity_method</strong>: 相似性计算方法</p></li>
+<li><p><strong>input_dir</strong>: 重测 NRRD 文件目录</p></li>
+<li><p><strong>output_dir</strong>: 重新映射文件输出目录</p></li>
+<li><p><strong>processes</strong>: 并行进程数</p></li>
+<li><p><strong>debug</strong>: 调试模式</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>生境表文件格式<a class="headerlink" href="#id5" title="链接到此标题。"></a></h2>
+<p>生境表文件应包含以下列：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>subject_id</p></th>
+<th class="head"><p>habitat_1</p></th>
+<th class="head"><p>habitat_2</p></th>
+<th class="head"><p>habitat_3</p></th>
+<th class="head"><p>...</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sub-001</p></td>
+<td><p>0.12</p></td>
+<td><p>0.45</p></td>
+<td><p>0.33</p></td>
+<td><p>...</p></td>
+</tr>
+<tr class="row-odd"><td><p>sub-002</p></td>
+<td><p>0.23</p></td>
+<td><p>0.56</p></td>
+<td><p>0.21</p></td>
+<td><p>...</p></td>
+</tr>
+<tr class="row-even"><td><p>sub-003</p></td>
+<td><p>0.15</p></td>
+<td><p>0.38</p></td>
+<td><p>0.47</p></td>
+<td><p>...</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p><strong>subject_id</strong>: 患者ID</p></li>
+<li><p><strong>habitat_X</strong>: 每个生境的特征值</p></li>
+</ul>
+</section>
+<section id="id6">
+<h2>输出文件说明<a class="headerlink" href="#id6" title="链接到此标题。"></a></h2>
+<p>运行完成后，在输出目录下生成：</p>
+<p><strong>数据文件：</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">remapped_habitats.csv</span></code> : 重新映射后的生境表</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapping_quality.csv</span></code> : 映射质量评估结果</p></li>
+</ul>
+<p><strong>映射质量报告示例：</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28.6%" />
+<col style="width: 21.4%" />
+<col style="width: 28.6%" />
+<col style="width: 21.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>subject_id</p></th>
+<th class="head"><p>mapping_score</p></th>
+<th class="head"><p>features_used</p></th>
+<th class="head"><p>status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sub-001</p></td>
+<td><p>0.95</p></td>
+<td><p>45</p></td>
+<td><p>success</p></td>
+</tr>
+<tr class="row-odd"><td><p>sub-002</p></td>
+<td><p>0.88</p></td>
+<td><p>45</p></td>
+<td><p>success</p></td>
+</tr>
+<tr class="row-even"><td><p>sub-003</p></td>
+<td><p>0.72</p></td>
+<td><p>42</p></td>
+<td><p>partial</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h2>相似性方法说明<a class="headerlink" href="#id7" title="链接到此标题。"></a></h2>
+<p><strong>相关系数方法（适用于连续特征）：</strong></p>
+<ul class="simple">
+<li><p><strong>pearson</strong>: 皮尔逊相关系数（线性关系）</p></li>
+<li><p><strong>spearman</strong>: 斯皮尔曼相关系数（单调关系）</p></li>
+<li><p><strong>kendall</strong>: 肯德尔相关系数（秩相关）</p></li>
+</ul>
+<p><strong>距离方法（适用于生境概率图）：</strong></p>
+<ul class="simple">
+<li><p><strong>euclidean</strong>: 欧氏距离</p></li>
+<li><p><strong>cosine</strong>: 余弦相似度</p></li>
+<li><p><strong>manhattan</strong>: 曼哈顿距离</p></li>
+<li><p><strong>chebyshev</strong>: 切比雪夫距离</p></li>
+</ul>
+<p>使用建议：</p>
+<ul class="simple">
+<li><p>连续特征值推荐使用 <code class="docutils literal notranslate"><span class="pre">pearson</span></code> 或 <code class="docutils literal notranslate"><span class="pre">spearman</span></code></p></li>
+<li><p>生境概率图推荐使用 <code class="docutils literal notranslate"><span class="pre">cosine</span></code> 或 <code class="docutils literal notranslate"><span class="pre">euclidean</span></code></p></li>
+<li><p>不确定性较高时尝试多种方法比较</p></li>
+</ul>
+</section>
+<section id="icc">
+<h2>与 ICC 分析的结合<a class="headerlink" href="#icc" title="链接到此标题。"></a></h2>
+<p>Test-Retest 映射后，可以使用 ICC 分析评估特征稳定性：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 先进行 Test-Retest 映射</span>
+habit<span class="w"> </span>retest<span class="w"> </span>--config<span class="w"> </span>config_test_retest.yaml
+
+<span class="c1"># 2. 使用 ICC 分析评估特征稳定性</span>
+habit<span class="w"> </span>icc<span class="w"> </span>--config<span class="w"> </span>config/auxiliary/config_icc_demo.yaml
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>注意事项<a class="headerlink" href="#id8" title="链接到此标题。"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>样本配对</strong>: 确保测试和重测扫描来自同一患者</p></li>
+<li><p><strong>特征一致性</strong>: 两个生境表应具有相同的特征列</p></li>
+<li><p><strong>文件格式</strong>: 支持 CSV 和 Excel 格式</p></li>
+<li><p><strong>相似性阈值</strong>: 根据相似性方法设置合适的阈值</p></li>
+<li><p><strong>并行处理</strong>: 大数据量时增加进程数以加速</p></li>
+</ol>
+</section>
+<section id="id9">
+<h2>常见问题<a class="headerlink" href="#id9" title="链接到此标题。"></a></h2>
+<p><strong>Q: 映射失败怎么办？</strong></p>
+<p>A: 可能原因：</p>
+<ul class="simple">
+<li><p>生境表格式不一致</p></li>
+<li><p>患者ID不匹配</p></li>
+<li><p>相似性阈值设置过高</p></li>
+<li><p>检查日志文件获取详细错误信息</p></li>
+</ul>
+<p><strong>Q: 选择哪个相似性方法？</strong></p>
+<p>A: 建议：</p>
+<ul class="simple">
+<li><p>特征值比较： <code class="docutils literal notranslate"><span class="pre">pearson</span></code></p></li>
+<li><p>生境概率图： <code class="docutils literal notranslate"><span class="pre">cosine</span></code> 或 <code class="docutils literal notranslate"><span class="pre">euclidean</span></code></p></li>
+<li><p>不确定时：尝试多种方法</p></li>
+</ul>
+<p><strong>Q: 可以只映射部分特征吗？</strong></p>
+<p>A: 可以，在配置文件的 <code class="docutils literal notranslate"><span class="pre">features</span></code> 字段中指定特征列表。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="app_merge_csv_zh.html" class="btn btn-neutral float-left" title="CSV 合并工具 (habit merge-csv)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="app_model_comparison_zh.html" class="btn btn-neutral float-right" title="模型比较工具 (habit compare)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

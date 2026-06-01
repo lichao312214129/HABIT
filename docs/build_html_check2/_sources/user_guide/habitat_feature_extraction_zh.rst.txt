@@ -1,0 +1,141 @@
+生境特征提取
+============
+
+从生境地图（及可选的原始影像）提取定量特征表（CSV），供机器学习或统计分析。
+
+运行
+----
+
+.. code-block:: bash
+
+   conda activate habit
+   cd D:\HABIT-main
+   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
+
+前置
+----
+
+``raw_img_folder`` 为 ``demo_data/preprocessed/processed_images``；``habitats_map_folder`` 指向步骤 2 输出（``demo_data/results/habitat_two_step``）。
+
+输出
+----
+
+特征 CSV 保存在配置指定的输出目录（demo 为 ``demo_data/results/features/``）。
+
+配置
+----
+
+特征类型、PyRadiomics 参数文件等见 :doc:`../configuration_zh` 中「特征提取配置参数」。Demo 模板：``config/feature_extraction/config_extract_features_demo.yaml``。
+
+特征类型说明
+------------
+
+下列类型由配置项 ``feature_types`` 控制；未列入的类型不会生成对应 CSV。
+
+**参考文献（方法学背景）**
+
+- 乳腺癌灌注 MRI 瘤内空间异质性（生境、MSI 等）与无复发生存：Wu J 等，*Radiology* 2018。
+  `PubMed <https://pubmed.ncbi.nlm.nih.gov/29714680/>`__ ·
+  `DOI <https://doi.org/10.1148/radiol.2018172462>`__ ·
+  `PMC 全文 <https://pmc.ncbi.nlm.nih.gov/articles/PMC6029132/>`__
+- 肝细胞癌 DCE-MRI 瘤内空间异质性与三级淋巴结构（TLS）：Dong M 等，*J Magn Reson Imaging* 2026。
+  `PubMed <https://pubmed.ncbi.nlm.nih.gov/41619313/>`__ ·
+  `DOI <https://doi.org/10.1002/jmri.70254>`__
+- 瘤内异质性评分 ITHscore（NSCLC 多尺度影像组学）：Li J 等，*European Radiology* 2023。
+  `PubMed <https://pubmed.ncbi.nlm.nih.gov/36001124/>`__ ·
+  `DOI <https://doi.org/10.1007/s00330-022-09055-0>`__
+
+traditional（传统影像组学）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**含义** ：在肿瘤 ROI 内，对**原始预处理影像** （如各延迟相）用 PyRadiomics 提取常规组学特征（一阶统计、纹理等），不区分生境标签，反映整体瘤内信号/纹理。
+
+**输出** ：``raw_image_radiomics.csv``（行：受试者；列：各时相/序列下的组学特征名）。
+
+**临床解读** ：概括肿瘤整体增强与纹理，可与病理、分子分型等联合用于预后或疗效预测；乳腺癌灌注异质性研究中，整体与分区特征常一并纳入多区域模型（见上文 Wu 2018）。
+
+non_radiomics（生境形态学，非组学）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**含义** ：仅根据**生境标签图**统计，不用 PyRadiomics：
+
+- ``num_habitats``：生境个数；
+- ``{k}_num_regions``：第 *k* 号生境的连通域个数（同一灌注/信号亚区被拆成多块时升高，提示空间破碎）；
+- ``{k}_volume_ratio``：第 *k* 号生境体素占肿瘤生境总体积的比例。
+
+**输出** ：``habitat_basic_features.csv``
+
+**临床解读** ：描述各灌注/信号亚区在瘤内的**占比**与**空间连续性** ；亚区体积极小或高度破碎时，异质性往往更明显。HCC TLS 工作中，DCE 生境划分用于刻画瘤内免疫相关空间模式（见上文 Dong 2026）。
+
+whole_habitat（整幅生境图组学）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**含义** ：把生境图当作一幅“图像”，在肿瘤 ROI 掩膜内对**整张生境标签图**做 PyRadiomics（参数文件 ``parameter_habitat.yaml``），刻画标签空间分布的纹理与统计（而非各时相原始强度）。
+
+**输出** ：``whole_habitat_radiomics.csv``
+
+**临床解读** ：量化生境标签在空间上的**排列与纹理** （如相邻生境交界、标签梯度），对应文献中的多区域/生境图层面异质性指标。
+
+each_habitat（分生境原始影像组学，可选）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**含义** ：对每个生境标签，在**原始影像**上仅保留该生境体素为 ROI，再提取 PyRadiomics；每个生境一张表。
+
+**输出** ：``radiomics_of_habitat_{k}.csv``（*k* 为生境编号）
+
+**临床解读** ：分别描述“高灌注区”“低灌注区”等各亚区的局部纹理与强度，便于比较亚区间差异；Demo 默认配置未启用，需要时在 ``feature_types`` 中加入 ``each_habitat``。
+
+msi（多区域空间相互作用，MSI）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**含义** ：统计生境图中**相邻体素**属于不同生境标签的共现，构成 MSI 矩阵，并导出：
+
+- 一阶：各生境“体内”体素数、生境两两**交界**体素数（含归一化）；
+- 二阶：基于归一化矩阵的 contrast、homogeneity、correlation、energy（类似纹理矩阵思想）。
+
+**输出** ：``msi_features.csv``
+
+**临床解读** ：刻画亚区之间是**紧密镶嵌**还是**孤立分散** ；乳腺癌研究中 MSI 相关指标与无复发生存独立相关（Wu 2018）。HCC TLS 工作中，DCE 生境的空间共现模式用于反映瘤内免疫微环境异质性（Dong 2026）。
+
+ith_score（瘤内异质性评分 ITH）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**文献** ：Li J 等，*ITHscore: comprehensive quantification of intra-tumor heterogeneity in NSCLC by multi-scale radiomic features*，*European Radiology* 2023（`PubMed <https://pubmed.ncbi.nlm.nih.gov/36001124/>`__ · `DOI <https://doi.org/10.1007/s00330-022-09055-0>`__）。原文通过体素/像素级组学聚类得到标签图，再计算 ITHscore；在 NSCLC 中与分期进展、脉管/胸膜侵犯、总生存与无病生存等相关。
+
+**含义** ：在 HABIT 中，将**生境构建得到的标签图**视为 ITHscore 流程中的聚类标签图，对每个生境标签统计连通域个数与最大连通域体素数，按 ITHscore 拓扑公式计算：
+
+.. math::
+
+   \mathrm{ITHscore} = 1 - \frac{1}{S_{\mathrm{total}}} \sum_i \frac{S_{i,\max}}{n_i}
+
+其中 :math:`S_{\mathrm{total}}` 为瘤内总体素数，:math:`S_{i,\max}` 为第 :math:`i` 类标签最大连通域体素数，:math:`n_i` 为该标签的连通域个数。输出列 ``ith_score`` 即该值（通常在 0–1 附近；**越高**表示亚区越破碎、空间异质性越强）。另含各生境连通域数、最大域面积等辅助列。
+
+**与原文差异** ：ITHscore 原文含 CT 像素级组学提取与无监督聚类；本步骤**不再重复聚类** ，直接对已生成的生境图 ``*_habitats.nrrd`` 计算拓扑 ITH，便于与 MSI、生境组学等同批导出。
+
+**输出** ：``ith_scores.csv``
+
+**临床解读** ：单一标量量化瘤内**空间拓扑异质性** ，可用于表型分层、预后或疗效相关分析；除 NSCLC 外，原文亦报道可推广至头颈癌等瘤种，具体阈值与结局关联需结合本中心数据验证。
+
+输出文件一览
+------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 72
+
+   * - ``feature_types`` 项
+     - 输出 CSV
+   * - ``traditional``
+     - ``raw_image_radiomics.csv``
+   * - ``non_radiomics``
+     - ``habitat_basic_features.csv``
+   * - ``whole_habitat``
+     - ``whole_habitat_radiomics.csv``
+   * - ``each_habitat``
+     - ``radiomics_of_habitat_*.csv``
+   * - ``msi``
+     - ``msi_features.csv``
+   * - ``ith_score``
+     - ``ith_scores.csv``
+
+另可能生成 ``habitat_count.csv``（生境计数汇总，供核查）。

@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API 文档 &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=34088549"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=540d3cec"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="habitat_analysis 模块" href="habitat_analysis.html" />
+    <link rel="prev" title="CLI 参考文档" href="../cli_zh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API 文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html">habitat_analysis 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html">machine_learning 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html">preprocessing 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_sort.html"><code class="docutils literal notranslate"><span class="pre">habit.core.dicom_sort</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">common 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html">CLI Commands API</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API 文档</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api">
+<h1>API 文档<a class="headerlink" href="#api" title="链接到此标题。"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="habitat_analysis.html">habitat_analysis 模块</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#core-analysis">核心分析类 (Core Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#configuration">配置管理 (Configuration)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#pipeline-pipeline-steps">Pipeline 与步骤 (Pipeline &amp; Steps)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#domain-services">领域服务 (Domain services)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#module-habit.core.habitat_analysis.habitat_features.habitat_analyzer">分析器与提取器 (Analyzers &amp; Extractors)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="machine_learning.html">machine_learning 模块</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#id1">开发者阅读入口</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#module-habit.core.machine_learning.contracts">核心数据对象 (Core Contracts)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#workflows">工作流 (Workflows)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#runners">执行器层 (Runners)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#id2">输出组件说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#module-habit.core.machine_learning.models.factory">模型工厂 (Model Factory)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#module-habit.core.machine_learning.evaluation.model_evaluation">评估工具 (Evaluation)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning.html#module-habit.core.machine_learning.visualization.plotting">可视化 (Visualization)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">preprocessing 模块</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#core-pipeline">核心处理流程 (Core Pipeline)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#module-habit.core.preprocessing.n4_correction">图像校正 (Correction)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#module-habit.core.preprocessing.histogram_standardization">标准化与归一化 (Normalization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#module-habit.core.preprocessing.resample">空间变换 (Spatial Transform)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#format-conversion">格式转换 (Format Conversion)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing.html#module-habit.core.preprocessing.base_preprocessor">基类与工厂 (Base &amp; Factory)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dicom_sort.html"><code class="docutils literal notranslate"><span class="pre">habit.core.dicom_sort</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dicom_sort.html#module-habit.core.dicom_sort">API 导出</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_sort.html#module-habit.core.dicom_sort.config_schema">实现子模块（按需展开）</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="common.html">common 模块</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="common.html#configuration-system">配置系统 (Configuration System)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-habit.core.common.dataframe">数据工具 (Data Utilities)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils 模块</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.io_utils">输入输出 (I/O)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.dicom_utils">DICOM 处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.parallel_utils">并行处理 (Parallel Processing)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.log_utils">日志与监控 (Logging &amp; Monitoring)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.visualization">可视化工具 (Visualization Utils)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-habit.utils.dice_calculator">数学与计算 (Math &amp; Calculation)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Commands API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#main-commands">Main Commands</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../cli_zh.html" class="btn btn-neutral float-left" title="CLI 参考文档" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="habitat_analysis.html" class="btn btn-neutral float-right" title="habitat_analysis 模块" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

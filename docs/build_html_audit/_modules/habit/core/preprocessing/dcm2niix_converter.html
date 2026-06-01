@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.preprocessing.dcm2niix_converter &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=34088549"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../_static/translations.js?v=540d3cec"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.core.preprocessing.dcm2niix_converter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.preprocessing.dcm2niix_converter 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DICOM to NIfTI converter using dcm2niix tool.</span>
+
+<span class="sd">This module provides functionality to batch convert DICOM files to NIfTI format</span>
+<span class="sd">using the dcm2niix tool, with integration into the HABIT preprocessing pipeline.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_preprocessor</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePreprocessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dcm2niix_runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dcm2niixRunner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.preprocessor_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">PreprocessorFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.progress_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomTqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.file_system_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_mkdir</span>
+
+
+<div class="viewcode-block" id="Dcm2niixConverter">
+<a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.dcm2niix_converter.Dcm2niixConverter">[文档]</a>
+<span class="nd">@PreprocessorFactory</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;dcm2nii&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dcm2niixConverter</span><span class="p">(</span><span class="n">BasePreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert DICOM files to NIfTI format using dcm2niix tool.</span>
+<span class="sd">    </span>
+<span class="sd">    This preprocessor takes DICOM directories and converts them to NIfTI format</span>
+<span class="sd">    using the dcm2niix command-line tool. It supports batch processing and</span>
+<span class="sd">    integrates with the HABIT preprocessing pipeline.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="Dcm2niixConverter.__init__">
+<a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.dcm2niix_converter.Dcm2niixConverter.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">keys</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="c1"># 默认不指定键</span>
+        <span class="n">dcm2niix_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 默认不指定dcm2niix可执行文件路径</span>
+        <span class="n">filename_format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 默认不指定输出文件名格式</span>
+        <span class="n">adjacent_dicoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认相邻DICOMs在同一文件夹</span>
+        <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认压缩输出文件</span>
+        <span class="n">anonymize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不匿名化文件名</span>
+        <span class="n">ignore_derived</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不忽略衍生图像</span>
+        <span class="n">crop_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认裁剪图像</span>
+        <span class="n">generate_json</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># Default: no BIDS JSON sidecar (-b n); set True for -b y</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不输出详细信息</span>
+        <span class="n">batch_mode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># 默认启用批处理模式</span>
+        <span class="n">merge_slices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="c1"># 合并模式: &quot;y&quot;/&quot;1&quot;=默认, &quot;2&quot;=按序列, &quot;n&quot;/&quot;0&quot;=不合并, None=不指定</span>
+        <span class="n">single_file_mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># 单文件模式: True=强制单文件(-s y), False=允许多文件(-s n), None=不指定(推荐)</span>
+        <span class="n">allow_missing_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># 默认不允许缺失键</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the dcm2niix converter.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            keys (Union[str, List[str]]): Keys containing DICOM directory paths to convert</span>
+<span class="sd">            dcm2niix_path (Optional[str]): Full path to dcm2niix executable or directory containing it</span>
+<span class="sd">            filename_format (Optional[str]): Output filename format (default: uses subject name)</span>
+<span class="sd">            compress (bool): Compress output files (default: True)</span>
+<span class="sd">            anonymize (bool): Anonymize filenames (default: False)</span>
+<span class="sd">            ignore_derived (bool): Ignore derived images (default: False)</span>
+<span class="sd">            crop_images (bool): Crop images (default: False)</span>
+<span class="sd">            generate_json (bool): Generate BIDS JSON sidecar files (default: False)</span>
+<span class="sd">            verbose (bool): Verbose output (default: False)</span>
+<span class="sd">            batch_mode (bool): Enable batch mode (default: True)</span>
+<span class="sd">            merge_slices (Optional[str]): Merge mode - &quot;y&quot;/&quot;1&quot;=default merge, &quot;2&quot;=merge by series, </span>
+<span class="sd">                                         &quot;n&quot;/&quot;0&quot;=no merge, None=don&#39;t specify (default: &quot;2&quot;)</span>
+<span class="sd">            single_file_mode (Optional[bool]): Single file mode - True=force single file (-s y), </span>
+<span class="sd">                                              False=allow multiple (-s n), None=don&#39;t specify/use default (default: None)</span>
+<span class="sd">            allow_missing_keys (bool): Allow missing keys (default: False)</span>
+<span class="sd">            **kwargs: Additional parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">allow_missing_keys</span><span class="o">=</span><span class="n">allow_missing_keys</span><span class="p">)</span>
+        
+        <span class="c1"># Setup logging first</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.log_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_module_logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="o">=</span> <span class="n">Dcm2niixRunner</span><span class="p">(</span><span class="n">dcm2niix_path</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename_format</span> <span class="o">=</span> <span class="n">filename_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compress</span> <span class="o">=</span> <span class="n">compress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacent_dicoms</span> <span class="o">=</span> <span class="n">adjacent_dicoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span> <span class="o">=</span> <span class="n">anonymize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span> <span class="o">=</span> <span class="n">ignore_derived</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span> <span class="o">=</span> <span class="n">crop_images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span> <span class="o">=</span> <span class="n">generate_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_mode</span> <span class="o">=</span> <span class="n">batch_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span> <span class="o">=</span> <span class="n">merge_slices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span> <span class="o">=</span> <span class="n">single_file_mode</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_dcm2niix_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">input_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">filename_format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build dcm2niix command with specified parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_dir (str): Input DICOM directory</span>
+<span class="sd">            output_dir (str): Output directory for NIfTI files</span>
+<span class="sd">            filename_format (Optional[str]): Output filename format</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: Command components for subprocess execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Add filename format if specified</span>
+        <span class="k">if</span> <span class="n">filename_format</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="n">filename_format</span><span class="p">])</span>
+        
+        <span class="c1"># -a  adjacent DICOMs (images from same series always in same folder) for faster conversion (n/y, default n)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacent_dicoms</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Control JSON generation (BIDS sidecar)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Add boolean options</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_mode</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Merge 2D slices into 3D volumes</span>
+        <span class="c1"># Note: -m parameter controls slice merging behavior</span>
+        <span class="c1"># -m 0 or -m n: no merging</span>
+        <span class="c1"># -m 1 or -m y: merge 2D slices (default)</span>
+        <span class="c1"># -m 2: merge based on series (more aggressive)</span>
+        <span class="c1"># None: don&#39;t specify, use dcm2niix default</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">merge_slices</span><span class="p">)])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Single file mode</span>
+        <span class="c1"># Note: -s y may force 4D structure, -s n splits volumes</span>
+        <span class="c1"># For 3D output, it&#39;s often best to NOT specify this parameter</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_file_mode</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compress</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-z&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Add output directory</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">])</span>
+        
+        <span class="c1"># Add input directory</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">cmd</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_single_dicom_dir</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">input_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+        <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sequence_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a single DICOM directory to NIfTI format and return as SimpleITK Image objects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_dir (str): Input DICOM directory path</span>
+<span class="sd">            subject_id (str): Subject identifier</span>
+<span class="sd">            sequence_name (Optional[str]): Sequence name for filename formatting</span>
+<span class="sd">            output_dir (Optional[str]): Output directory for converted files. If None, uses temporary directory</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, sitk.Image]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If conversion fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory does not exist: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input path is not a directory: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Determine output directory</span>
+        <span class="k">if</span> <span class="n">output_dir</span><span class="p">:</span>
+            <span class="c1"># Use provided output directory</span>
+            <span class="n">subject_output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">safe_mkdir</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">))</span>
+            <span class="n">use_temp_dir</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using output directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create temporary directory for conversion</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dcm2niix_</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">)</span>
+            <span class="n">subject_output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="n">use_temp_dir</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using temporary directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Determine filename format</span>
+            <span class="n">filename_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename_format</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filename_format</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sequence_name</span><span class="p">:</span>
+                    <span class="n">filename_format</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">sequence_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">filename_format</span> <span class="o">=</span> <span class="n">subject_id</span>
+            
+            <span class="c1"># Build dcm2niix command as list</span>
+            <span class="n">cmd_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_dcm2niix_command</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span> 
+                <span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">),</span> 
+                <span class="n">filename_format</span>
+            <span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Converting DICOM directory: </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_convert</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">,</span> <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">)</span>
+            
+            <span class="c1"># Find converted files and load as SimpleITK Image objects</span>
+            <span class="n">converted_images</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">]:</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">nifti_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+                
+                <span class="k">for</span> <span class="n">nifti_file</span> <span class="ow">in</span> <span class="n">nifti_files</span><span class="p">:</span>
+                    <span class="c1"># Extract sequence name from filename if possible</span>
+                    <span class="n">file_stem</span> <span class="o">=</span> <span class="n">nifti_file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sequence_name</span><span class="p">:</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">sequence_name</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Try to extract sequence info from filename</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">file_stem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">subject_id</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span>
+                    
+                    <span class="c1"># Load as SimpleITK Image object</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">sitk_image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">))</span>
+                        <span class="n">converted_images</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sitk_image</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Loaded </span><span class="si">{</span><span class="n">nifti_file</span><span class="si">}</span><span class="s2"> as SimpleITK Image&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># Store the output file path</span>
+                        <span class="n">converted_images</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_output_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">)</span>
+                        
+                        <span class="c1"># Find corresponding JSON file (supports .nii.gz -&gt; .json)</span>
+                        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.nii.gz&#39;</span><span class="p">):</span>
+                            <span class="n">json_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nifti_file</span><span class="p">)[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">json_file</span> <span class="o">=</span> <span class="n">nifti_file</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">json_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                                <span class="n">json_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            
+                            <span class="c1"># Add JSON metadata to image metadata</span>
+                            <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                            <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                                <span class="n">converted_images</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                            
+                            <span class="n">converted_images</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s1">&#39;dcm2niix_json&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_metadata</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Loaded JSON metadata for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to load </span><span class="si">{</span><span class="n">nifti_file</span><span class="si">}</span><span class="s2"> as SimpleITK Image: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load converted NIfTI file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">converted_images</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No NIfTI files were created for </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Conversion saved to </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">converted_images</span>
+            
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="c1"># Re-raise RuntimeError as is</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] dcm2niix conversion failed for </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Clean up temporary directory only if using temp directory</span>
+            <span class="k">if</span> <span class="n">use_temp_dir</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subject_output_dir</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Cleaned up temporary directory: </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to clean up temporary directory </span><span class="si">{</span><span class="n">subject_output_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="Dcm2niixConverter.batch_convert_subjects">
+<a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.dcm2niix_converter.Dcm2niixConverter.batch_convert_subjects">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batch_convert_subjects</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">subjects_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Batch convert DICOM directories for multiple subjects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            subjects_data (Dict[str, Dict[str, str]]): </span>
+<span class="sd">                Dictionary with subject IDs as keys and sequence dictionaries as values</span>
+<span class="sd">                Format: {subject_id: {sequence_name: dicom_dir_path}}</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Dict[str, sitk.Image]]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">                Format: {subject_id: {sequence_name: sitk_image}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_converted_files</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># Calculate total number of conversions for progress bar</span>
+        <span class="n">total_conversions</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequences</span> <span class="ow">in</span> <span class="n">subjects_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total_conversions</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Converting DICOM to NIfTI&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">sequences</span> <span class="ow">in</span> <span class="n">subjects_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">subject_converted</span> <span class="o">=</span> <span class="p">{}</span>
+                
+                <span class="k">for</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">dicom_dir</span> <span class="ow">in</span> <span class="n">sequences</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">converted_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_single_dicom_dir</span><span class="p">(</span>
+                            <span class="n">dicom_dir</span><span class="p">,</span> 
+                            <span class="n">subject_id</span><span class="p">,</span> 
+                            <span class="n">sequence_name</span>
+                        <span class="p">)</span>
+                        <span class="n">subject_converted</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">converted_images</span><span class="p">)</span>
+                        
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Failed to convert </span><span class="si">{</span><span class="n">sequence_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                            <span class="k">raise</span>
+                    
+                    <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">subject_converted</span><span class="p">:</span>
+                    <span class="n">all_converted_files</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject_converted</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Progress bar automatically handles completion display</span>
+            <span class="k">pass</span>
+        
+        <span class="k">return</span> <span class="n">all_converted_files</span></div>
+
+    
+<div class="viewcode-block" id="Dcm2niixConverter.__call__">
+<a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.dcm2niix_converter.Dcm2niixConverter.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the input data to convert DICOM directories to SimpleITK Image objects.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (Dict[str, Any]): Input data dictionary containing DICOM directory paths</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Data dictionary with SimpleITK Image objects added</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="c1"># Extract subject ID if available (try different common keys)</span>
+        <span class="n">subject_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subj&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subject_id&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown_subject&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Process each specified key</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found in data dictionary&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Get the value from data[key]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            
+            <span class="c1"># Case 1: If already a SimpleITK Image, skip (already processed)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is already a SimpleITK Image, skipping dcm2niix conversion&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Case 2: If not a string, skip (invalid type)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> has invalid type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">, expected str or sitk.Image&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Case 3: value is a string path (file or directory)</span>
+            <span class="n">dicom_path</span> <span class="o">=</span> <span class="n">value</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Get output directory from data if available</span>
+                <span class="c1"># The pipeline will set output_dirs to intermediate directory if save_intermediate is enabled</span>
+                <span class="n">output_dir</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="s1">&#39;output_dirs&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output_dirs&#39;</span><span class="p">]:</span>
+                    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output_dirs&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Using output directory for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Convert single DICOM directory</span>
+                <span class="n">converted_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_single_dicom_dir</span><span class="p">(</span>
+                    <span class="n">dicom_path</span><span class="p">,</span> 
+                    <span class="n">subject_id</span><span class="p">,</span> 
+                    <span class="n">key</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Update data with SimpleITK Image objects</span>
+                <span class="k">for</span> <span class="n">seq_name</span><span class="p">,</span> <span class="n">sitk_image</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="c1"># Skip metadata entries and output path entries</span>
+                    <span class="k">if</span> <span class="n">seq_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_meta_dict&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">seq_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_output_path&#39;</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    
+                    <span class="c1"># Use the original key name for consistency with other preprocessors</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sitk_image</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Converted </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Store output file path if available</span>
+                    <span class="n">output_path_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seq_name</span><span class="si">}</span><span class="s2">_output_path&quot;</span>
+                    <span class="k">if</span> <span class="n">output_path_key</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                        <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                        <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                            <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;output_file_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted_images</span><span class="p">[</span><span class="n">output_path_key</span><span class="p">]</span>
+                    
+                    <span class="k">break</span>  <span class="c1"># Only use the first image if multiple found</span>
+                
+                <span class="c1"># Store conversion metadata</span>
+                <span class="n">meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;dcm2niix_converted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;original_dicom_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicom_path</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;original_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicom_path</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;converted_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> 
+                                                        <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_meta_dict&#39;</span><span class="p">)</span> 
+                                                        <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_output_path&#39;</span><span class="p">)])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">][</span><span class="s2">&quot;conversion_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compress</span><span class="p">,</span>
+                    <span class="s1">&#39;anonymize&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymize</span><span class="p">,</span>
+                    <span class="s1">&#39;ignore_derived&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_derived</span><span class="p">,</span>
+                    <span class="s1">&#39;crop_images&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_images</span><span class="p">,</span>
+                    <span class="s1">&#39;generate_json&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_json</span>
+                <span class="p">}</span>
+                
+                <span class="c1"># Merge JSON metadata if available</span>
+                <span class="n">json_meta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">_meta_dict&quot;</span>
+                <span class="k">if</span> <span class="n">json_meta_key</span> <span class="ow">in</span> <span class="n">converted_images</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">converted_images</span><span class="p">[</span><span class="n">json_meta_key</span><span class="p">])</span>
+                
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">] Error converting DICOM directory for key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing_keys</span><span class="p">:</span>
+                    <span class="k">raise</span>
+        
+        <span class="k">return</span> <span class="n">data</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="batch_convert_dicom_directories">
+<a class="viewcode-back" href="../../../../api/preprocessing.html#habit.core.preprocessing.dcm2niix_converter.batch_convert_dicom_directories">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">batch_convert_dicom_directories</span><span class="p">(</span>
+    <span class="n">input_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="n">dcm2niix_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility function for batch DICOM to NIfTI conversion.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        input_mapping (Dict[str, Dict[str, str]]): </span>
+<span class="sd">            Mapping of subjects to their DICOM directories</span>
+<span class="sd">            Format: {subject_id: {sequence_name: dicom_dir_path}}</span>
+<span class="sd">        dcm2niix_path (Optional[str]): Full path to dcm2niix executable or directory containing it</span>
+<span class="sd">        **kwargs: Additional parameters for Dcm2niixConverter</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Dict[str, sitk.Image]]: Dictionary containing SimpleITK Image objects</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; input_data = {</span>
+<span class="sd">        ...     &quot;subject_001&quot;: {</span>
+<span class="sd">        ...         &quot;T1&quot;: &quot;/path/to/subject_001/T1_dicom&quot;,</span>
+<span class="sd">        ...         &quot;T2&quot;: &quot;/path/to/subject_001/T2_dicom&quot;</span>
+<span class="sd">        ...     },</span>
+<span class="sd">        ...     &quot;subject_002&quot;: {</span>
+<span class="sd">        ...         &quot;T1&quot;: &quot;/path/to/subject_002/T1_dicom&quot;</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... }</span>
+<span class="sd">        &gt;&gt;&gt; converted = batch_convert_dicom_directories(</span>
+<span class="sd">        ...     input_data, </span>
+<span class="sd">        ...     dcm2niix_path=&quot;/path/to/dcm2niix/bin&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">converter</span> <span class="o">=</span> <span class="n">Dcm2niixConverter</span><span class="p">(</span>
+        <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dummy&quot;</span><span class="p">],</span>  <span class="c1"># Not used in batch mode</span>
+        <span class="n">dcm2niix_path</span><span class="o">=</span><span class="n">dcm2niix_path</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">converter</span><span class="o">.</span><span class="n">batch_convert_subjects</span><span class="p">(</span><span class="n">input_mapping</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

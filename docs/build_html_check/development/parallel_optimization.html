@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>并发调度优化策略 &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=34088549"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=540d3cec"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="贡献指南" href="contributing.html" />
+    <link rel="prev" title="模块代码架构说明" href="module_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">开发指南</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="architecture.html">HABIT 整体架构（V1）- 整合文档</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_architecture.html">模块代码架构说明</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">并发调度优化策略</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">背景</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#event-isolated">优化 1：Event 驱动唤醒（isolated 模式）</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">问题</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">解决方案</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">效果</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">相关文件</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#persistent-worker-pool-oom-backoff">优化 2：Persistent Worker Pool OOM Backoff</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">问题</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">解决方案</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">参数传递链</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">效果</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">相关文件</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#queue-get">优化 3：自适应 queue.get 超时</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id12">问题</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">解决方案</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id14">效果</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">相关文件</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#poll-dead-workers">优化 4：降低 _poll_dead_workers 调用频率</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id16">问题</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">解决方案</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id18">效果</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id19">相关文件</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">未采纳的优化方向</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#per-slot-pipe-select-result-queue">per-slot pipe + select 替代共享 result_queue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ipc-pickle">IPC 共享内存 / 写磁盘替代 pickle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#i-o-gpu">I/O 与 GPU 计算重叠（双缓冲预取）</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lazy-item">lazy item 消费</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id21">配置参考</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id22">测试验证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id23">版本历史</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html">贡献指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id2">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id3">代码规范</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id4">核心模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id5">架构与可靠性说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id6">联系方式</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">开发指南</a></li>
+      <li class="breadcrumb-item active">并发调度优化策略</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/parallel_optimization.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>并发调度优化策略<a class="headerlink" href="#id1" title="链接到此标题。"></a></h1>
+<p>本文档记录 HABIT 项目 <code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code> 并发子系统的调度优化策略、实现细节与性能影响。</p>
+<section id="id2">
+<h2>背景<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<p>HABIT 的生境分析流水线需要处理大规模队列（数百至数千受试者），每个受试者的
+Stage-1（个体级特征提取）是计算密集且内存敏感的操作。项目已经构建了两种并行执行模式：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 25.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>模式</p></th>
+<th class="head"><p>核心类</p></th>
+<th class="head"><p>特点</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>isolated</strong></p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">IsolatedTaskRunner</span></code></p></td>
+<td><p>每个 item 启动独立 spawn 子进程；隔离性最好，但 spawn 开销大</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>persistent</strong></p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">PersistentWorkerPoolSession</span></code></p></td>
+<td><p>长驻 worker 池，通过 task_queue 派发任务；减少 spawn 开销</p></td>
+</tr>
+</tbody>
+</table>
+<p>两种模式共用 GPU slot 管理（<code class="xref py py-mod docutils literal notranslate"><span class="pre">parallel_gpu_utils</span></code>）、
+checkpoint/resume 和 auto-retry 机制。</p>
+<p>本次优化针对调度层延迟和资源弹性两个维度，在不改变外部接口的前提下提升大队列场景的吞吐。</p>
+</section>
+<section id="event-isolated">
+<h2>优化 1：Event 驱动唤醒（isolated 模式）<a class="headerlink" href="#event-isolated" title="链接到此标题。"></a></h2>
+<section id="id3">
+<h3>问题<a class="headerlink" href="#id3" title="链接到此标题。"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">IsolatedTaskRunner.map_items</span></code> 的主轮询循环使用 <code class="docutils literal notranslate"><span class="pre">time.sleep(0.25)</span></code> 固定间隔。
+每个 item 完成后最多等 250ms 才被主循环感知，500 个 subject 累计浪费约 125s。
+<code class="docutils literal notranslate"><span class="pre">_fill_slots()</span></code> 也只在轮询周期后触发，新任务派发同样有 250ms 延迟。</p>
+</section>
+<section id="id4">
+<h3>解决方案<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>在 <code class="xref py py-class docutils literal notranslate"><span class="pre">_ActiveSlot</span></code> 中引入 <code class="docutils literal notranslate"><span class="pre">threading.Event</span></code> 字段 <code class="docutils literal notranslate"><span class="pre">result_ready_event</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ActiveSlot</span><span class="p">:</span>
+    <span class="n">result_ready_event</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># ... 其余字段不变</span>
+</pre></div>
+</div>
+<p>Reader thread 收到结果后立即设置 event：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># _drain_worker_result_queue 内部</span>
+<span class="n">recv_bucket</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">poll_interval_sec</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">recv_bucket</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">slot</span><span class="o">.</span><span class="n">result_ready_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>主循环用 <code class="docutils literal notranslate"><span class="pre">_wait_for_any_result</span></code> 替代固定 sleep：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_any_result</span><span class="p">(</span><span class="n">active_slots</span><span class="p">,</span> <span class="n">max_wait_sec</span><span class="p">):</span>
+    <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_wait_sec</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="n">deadline</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">active_slots</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">result_ready_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="n">slot</span><span class="o">.</span><span class="n">result_ready_event</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="k">return</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">remaining</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>效果<a class="headerlink" href="#id5" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p>每个 item 完成后的感知延迟从 ~250ms 降至 ~50ms</p></li>
+<li><p>500 个 subject 的大队列可节省约 80s 等待时间</p></li>
+<li><p>完全向后兼容，不改变外部 API</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>相关文件<a class="headerlink" href="#id6" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/utils/isolated_runner.py</span></code> — <code class="docutils literal notranslate"><span class="pre">_ActiveSlot</span></code>、<code class="docutils literal notranslate"><span class="pre">_drain_worker_result_queue</span></code>、<code class="docutils literal notranslate"><span class="pre">_wait_for_any_result</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="persistent-worker-pool-oom-backoff">
+<h2>优化 2：Persistent Worker Pool OOM Backoff<a class="headerlink" href="#persistent-worker-pool-oom-backoff" title="链接到此标题。"></a></h2>
+<section id="id7">
+<h3>问题<a class="headerlink" href="#id7" title="链接到此标题。"></a></h3>
+<p>Isolated 模式有 <code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code> 机制：遇到 <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code> 时自动减少
+<code class="docutils literal notranslate"><span class="pre">max_workers</span></code>，让后续 subject 有更多内存空间。但 persistent 模式只在
+<code class="docutils literal notranslate"><span class="pre">_finish_result</span></code> 中重启 worker slot，<strong>不减少活跃 worker 数量</strong>，在内存
+压力下仍可能级联 OOM。</p>
+</section>
+<section id="id8">
+<h3>解决方案<a class="headerlink" href="#id8" title="链接到此标题。"></a></h3>
+<p>为 <code class="xref py py-class docutils literal notranslate"><span class="pre">PersistentWorkerPoolSession</span></code> 添加与 isolated 模式对齐的 OOM backoff：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PersistentWorkerPoolSession</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">oom_backoff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">oom_reduce_workers_by</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oom_backoff</span> <span class="o">=</span> <span class="n">oom_backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span> <span class="o">=</span> <span class="n">oom_reduce_workers_by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">max_workers</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_oom_backoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">oom_backoff</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">new_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_max</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span> <span class="ow">and</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Fatal memory error for item </span><span class="si">%s</span><span class="s2"> in persistent pool; reducing &quot;</span>
+                <span class="s2">&quot;effective parallel workers </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span><span class="p">,</span> <span class="n">new_max</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span> <span class="o">=</span> <span class="n">new_max</span>
+</pre></div>
+</div>
+<p>调度逻辑使用 <code class="docutils literal notranslate"><span class="pre">_effective_max_workers</span></code> 限制并发 busy slot 数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="n">pending_items</span> <span class="ow">and</span> <span class="n">idle_slots</span> <span class="ow">and</span> <span class="n">n_busy</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effective_max_workers</span><span class="p">:</span>
+    <span class="n">slot</span> <span class="o">=</span> <span class="n">idle_slots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_dispatch_to_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+    <span class="n">n_busy</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>参数传递链<a class="headerlink" href="#id9" title="链接到此标题。"></a></h3>
+<p>YAML 配置 → <code class="docutils literal notranslate"><span class="pre">HabitatAnalysisConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">IndividualCheckpointStage._parallel_kwargs()</span></code>
+→ <code class="docutils literal notranslate"><span class="pre">PersistentWorkerPoolSession(oom_backoff=...,</span> <span class="pre">oom_reduce_workers_by=...)</span></code></p>
+</section>
+<section id="id10">
+<h3>效果<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p>Persistent 模式与 isolated 模式行为一致：OOM 后自动降低并发度</p></li>
+<li><p>避免多 worker 同时 OOM 导致整个批次失败</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_effective_max_workers</span></code> 只影响当前 <code class="docutils literal notranslate"><span class="pre">map_items</span></code> 调用，不修改原始 <code class="docutils literal notranslate"><span class="pre">max_workers</span></code></p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>相关文件<a class="headerlink" href="#id11" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/utils/persistent_worker_runner.py</span></code> — <code class="docutils literal notranslate"><span class="pre">_apply_oom_backoff</span></code>、<code class="docutils literal notranslate"><span class="pre">_effective_max_workers</span></code></p></li>
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/utils/parallel_utils.py</span></code> — 传递 <code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code> / <code class="docutils literal notranslate"><span class="pre">oom_reduce_workers_by</span></code></p></li>
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/core/habitat_analysis/checkpoint/stage.py</span></code> — <code class="docutils literal notranslate"><span class="pre">_ensure_persistent_pool</span></code> 传递参数</p></li>
+</ul>
+</section>
+</section>
+<section id="queue-get">
+<h2>优化 3：自适应 queue.get 超时<a class="headerlink" href="#queue-get" title="链接到此标题。"></a></h2>
+<section id="id12">
+<h3>问题<a class="headerlink" href="#id12" title="链接到此标题。"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">PersistentWorkerPoolSession.map_items</span></code> 的主循环使用
+<code class="docutils literal notranslate"><span class="pre">result_queue.get(timeout=0.25)</span></code> 固定超时。当 per-item timeout 接近到期时
+（例如还剩 0.05s），主循环仍需等完整 250ms 才能检测到超时。</p>
+</section>
+<section id="id13">
+<h3>解决方案<a class="headerlink" href="#id13" title="链接到此标题。"></a></h3>
+<p>新增 <code class="docutils literal notranslate"><span class="pre">_next_deadline_wait_sec()</span></code> 方法，计算最近一个即将到期的 deadline，
+返回距离该 deadline 的时间（上限 0.25s）：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_next_deadline_wait_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">max_wait</span> <span class="o">=</span> <span class="n">DEFAULT_POLL_INTERVAL_SEC</span>  <span class="c1"># 0.25</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_item_timeout_sec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">max_wait</span>
+
+    <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slots</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">slot</span><span class="o">.</span><span class="n">busy</span> <span class="ow">or</span> <span class="n">slot</span><span class="o">.</span><span class="n">started_at</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="p">(</span><span class="n">slot</span><span class="o">.</span><span class="n">started_at</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_item_timeout_sec</span><span class="p">)</span> <span class="o">-</span> <span class="n">now</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.001</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;</span> <span class="n">max_wait</span><span class="p">:</span>
+            <span class="n">max_wait</span> <span class="o">=</span> <span class="n">remaining</span>
+
+    <span class="c1"># 也检查 awaiting_ready 的 startup timeout</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spawn_startup_timeout_sec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slots</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">ready</span> <span class="ow">or</span> <span class="n">slot</span><span class="o">.</span><span class="n">awaiting_ready_since</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="p">(</span><span class="n">slot</span><span class="o">.</span><span class="n">awaiting_ready_since</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">spawn_startup_timeout_sec</span><span class="p">)</span> <span class="o">-</span> <span class="n">now</span>
+            <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.001</span>
+            <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;</span> <span class="n">max_wait</span><span class="p">:</span>
+                <span class="n">max_wait</span> <span class="o">=</span> <span class="n">remaining</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_wait</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>主循环使用自适应超时：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wait_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_deadline_wait_sec</span><span class="p">()</span>
+<span class="n">reply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">wait_sec</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>同样优化了 <code class="docutils literal notranslate"><span class="pre">start()</span></code> 方法中的 startup 阶段等待，基于自身 startup deadline。</p>
+</section>
+<section id="id14">
+<h3>效果<a class="headerlink" href="#id14" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p>Timeout 检测精度从 ±250ms 提升到 ±1ms</p></li>
+<li><p>避免在 deadline 已过后的无效等待</p></li>
+<li><p>短 timeout 场景（如测试用例或紧急中断）受益最大</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>相关文件<a class="headerlink" href="#id15" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/utils/persistent_worker_runner.py</span></code> — <code class="docutils literal notranslate"><span class="pre">_next_deadline_wait_sec</span></code>、<code class="docutils literal notranslate"><span class="pre">map_items</span></code>、<code class="docutils literal notranslate"><span class="pre">start</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="poll-dead-workers">
+<h2>优化 4：降低 _poll_dead_workers 调用频率<a class="headerlink" href="#poll-dead-workers" title="链接到此标题。"></a></h2>
+<section id="id16">
+<h3>问题<a class="headerlink" href="#id16" title="链接到此标题。"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">map_items</span></code> 主循环每次迭代都调用 <code class="docutils literal notranslate"><span class="pre">_poll_dead_workers</span></code>，遍历所有 slot
+的 <code class="docutils literal notranslate"><span class="pre">proc.is_alive()</span></code>。在快速结果到达的场景下（如特征提取很快的小 subject），
+主循环迭代频率很高，每次都做 <code class="docutils literal notranslate"><span class="pre">is_alive()</span></code> 检查是不必要的系统调用开销。</p>
+</section>
+<section id="id17">
+<h3>解决方案<a class="headerlink" href="#id17" title="链接到此标题。"></a></h3>
+<p>添加 <code class="docutils literal notranslate"><span class="pre">_last_dead_worker_poll_at</span></code> 时间戳，限制主动调用频率为每 0.25s 一次：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 主动循环中——限频调用</span>
+<span class="n">now_for_poll</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">now_for_poll</span> <span class="o">-</span> <span class="n">_last_dead_worker_poll_at</span> <span class="o">&gt;=</span> <span class="n">DEFAULT_POLL_INTERVAL_SEC</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_poll_dead_workers</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">_last_dead_worker_poll_at</span> <span class="o">=</span> <span class="n">now_for_poll</span>
+</pre></div>
+</div>
+<p>在 <code class="docutils literal notranslate"><span class="pre">queue.get</span></code> 超时（Empty）时强制触发 poll——因为此时无结果到达，
+需要检测意外死亡的 worker：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_poll_dead_workers</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">_last_dead_worker_poll_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+    <span class="k">continue</span>
+</pre></div>
+</div>
+</section>
+<section id="id18">
+<h3>效果<a class="headerlink" href="#id18" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p>主循环因快速结果到达而频繁迭代时，避免每次遍历所有 slot 做 <code class="docutils literal notranslate"><span class="pre">is_alive()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Empty</span></code> 分支仍保证死亡 worker 能被及时检测</p></li>
+<li><p>对大 worker 数（processes=8+）的优化效果更显著</p></li>
+</ul>
+</section>
+<section id="id19">
+<h3>相关文件<a class="headerlink" href="#id19" title="链接到此标题。"></a></h3>
+<ul class="simple">
+<li><p><code class="file docutils literal notranslate"><span class="pre">habit/utils/persistent_worker_runner.py</span></code> — <code class="docutils literal notranslate"><span class="pre">map_items</span></code> 主循环</p></li>
+</ul>
+</section>
+</section>
+<section id="id20">
+<h2>未采纳的优化方向<a class="headerlink" href="#id20" title="链接到此标题。"></a></h2>
+<p>以下优化方向经评估后暂不实施：</p>
+<section id="per-slot-pipe-select-result-queue">
+<h3>per-slot pipe + select 替代共享 result_queue<a class="headerlink" href="#per-slot-pipe-select-result-queue" title="链接到此标题。"></a></h3>
+<p>将每个 slot 的 result 改为独立的 <code class="docutils literal notranslate"><span class="pre">multiprocessing.Pipe</span></code>，主循环用 <code class="docutils literal notranslate"><span class="pre">select</span></code>
+同时监听所有 fd。可消除共享 Queue 的锁竞争，但：</p>
+<ul class="simple">
+<li><p>Windows 上 <code class="docutils literal notranslate"><span class="pre">select</span></code> 仅支持 socket，不支持 pipe fd</p></li>
+<li><p>改动涉及 IPC 协议变更，影响面大</p></li>
+<li><p>当前共享 Queue 在 2-8 worker 规模下锁竞争不构成显著瓶颈</p></li>
+</ul>
+</section>
+<section id="ipc-pickle">
+<h3>IPC 共享内存 / 写磁盘替代 pickle<a class="headerlink" href="#ipc-pickle" title="链接到此标题。"></a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">multiprocessing.shared_memory</span></code> 或 worker 直写磁盘（parquet）来传递大型
+特征矩阵，避免 pickle 序列化开销。但：</p>
+<ul class="simple">
+<li><p>现有的 <code class="docutils literal notranslate"><span class="pre">CheckpointSaveStep</span></code> 已经在子进程写磁盘（pkl），属于部分实现</p></li>
+<li><p>完全替代需要重构 <code class="docutils literal notranslate"><span class="pre">ProcessingResult</span></code> 的数据流，影响所有上游调用者</p></li>
+<li><p>收益主要体现在极大特征矩阵（&gt;100万体素）场景，一般队列不显著</p></li>
+</ul>
+</section>
+<section id="i-o-gpu">
+<h3>I/O 与 GPU 计算重叠（双缓冲预取）<a class="headerlink" href="#i-o-gpu" title="链接到此标题。"></a></h3>
+<p>在 persistent worker 内部实现双缓冲：当前 subject 在 GPU 上做特征提取的同时，
+预取下一个 subject 的图像数据。但：</p>
+<ul class="simple">
+<li><p>需要改造 <code class="docutils literal notranslate"><span class="pre">persistent_worker_main</span></code> 的 run loop，允许在等待 GPU 结果时
+提前拉取下一个 item</p></li>
+<li><p>当前 worker 严格串行处理（取 item → 执行 → 放回结果），改为双缓冲需要
+管理 item 预取状态和错误回滚，复杂度高</p></li>
+<li><p>收益取决于 I/O 占比，GPU-bound 场景收益有限</p></li>
+</ul>
+</section>
+<section id="lazy-item">
+<h3>lazy item 消费<a class="headerlink" href="#lazy-item" title="链接到此标题。"></a></h3>
+<p>将 <code class="docutils literal notranslate"><span class="pre">parallel_map</span></code> 的 <code class="docutils literal notranslate"><span class="pre">list(items)</span></code> 改为按需消费，减少大队列的内存峰值。
+但与现有的 checkpoint/auto-retry 机制冲突——<code class="docutils literal notranslate"><span class="pre">_resolve_pending</span></code> 和
+<code class="docutils literal notranslate"><span class="pre">_run_parallel_pass</span></code> 需要知道完整 pending 列表。改动面太大，收益有限。</p>
+</section>
+</section>
+<section id="id21">
+<h2>配置参考<a class="headerlink" href="#id21" title="链接到此标题。"></a></h2>
+<p>与并发优化相关的 YAML 配置项：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">individual_subject_timeout_sec</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">individual_subject_parallel_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent</span>
+<span class="nt">oom_backoff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">individual_subject_auto_retry_rounds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">persistent_worker_max_consecutive_failures</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">persistent_worker_recycle_after_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</pre></div>
+</div>
+<p>配置说明：</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>配置项</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">processes</span></code></p></td>
+<td><p>并行 worker 数量（自动被 GPU 池大小限制）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_timeout_sec</span></code></p></td>
+<td><p>单个 subject 的墙钟超时（null 禁用）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_parallel_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">isolated</span></code> 或 <code class="docutils literal notranslate"><span class="pre">persistent</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code></p></td>
+<td><p>OOM 后是否自动降低并发度</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_auto_retry_rounds</span></code></p></td>
+<td><p>同次运行中自动重试失败 subject 的轮数</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_max_consecutive_failures</span></code></p></td>
+<td><p>连续失败多少次后重启 worker slot</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_recycle_after_tasks</span></code></p></td>
+<td><p>成功处理多少个 item 后回收 worker（0 禁用）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id22">
+<h2>测试验证<a class="headerlink" href="#id22" title="链接到此标题。"></a></h2>
+<p>运行并发子系统的测试套件：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/utils/test_isolated_runner.py<span class="w"> </span><span class="se">\</span>
+<span class="w">                   </span>tests/utils/test_persistent_worker_runner.py<span class="w"> </span><span class="se">\</span>
+<span class="w">                   </span>tests/utils/test_parallel_gpu_utils.py<span class="w"> </span><span class="se">\</span>
+<span class="w">                   </span>tests/habitat/test_checkpoint.py<span class="w"> </span><span class="se">\</span>
+<span class="w">                   </span>tests/habitat/test_checkpoint_stage.py<span class="w"> </span><span class="se">\</span>
+<span class="w">                   </span>-v<span class="w"> </span>--tb<span class="o">=</span>short
+</pre></div>
+</div>
+</section>
+<section id="id23">
+<h2>版本历史<a class="headerlink" href="#id23" title="链接到此标题。"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 30.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>版本</p></th>
+<th class="head"><p>日期</p></th>
+<th class="head"><p>变更</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>v1</p></td>
+<td><p>2026-05-22</p></td>
+<td><p>Event 驱动唤醒、OOM backoff、自适应超时、poll 限频</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="module_architecture.html" class="btn btn-neutral float-left" title="模块代码架构说明" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="contributing.html" class="btn btn-neutral float-right" title="贡献指南" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

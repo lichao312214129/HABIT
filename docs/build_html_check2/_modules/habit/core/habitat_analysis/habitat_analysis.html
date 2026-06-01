@@ -1,0 +1,1111 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.habitat_analysis.habitat_analysis &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=34088549"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../_static/translations.js?v=540d3cec"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.core.habitat_analysis.habitat_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.habitat_analysis.habitat_analysis 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Habitat Analysis - Deep module unifying clustering-mode dispatch, train/predict</span>
+<span class="sd">orchestration, and pipeline lifecycle (build / fit / save / load / transform).</span>
+
+<span class="sd">Design notes (V1 architecture):</span>
+
+<span class="sd">This module collapses three previously separate layers into a single deep module:</span>
+
+<span class="sd">    HabitatAnalysis(controller)  -&gt; ClusteringStrategy subclass  -&gt; pipeline_builder</span>
+
+<span class="sd">The Strategy layer and the pipeline_builder layer have been removed in V1.</span>
+<span class="sd">All real behaviour lives here:</span>
+
+<span class="sd">- ``clustering_mode`` (``one_step`` / ``two_step`` / ``direct_pooling``) is</span>
+<span class="sd">  branched in exactly one place: ``_build_pipeline``.</span>
+<span class="sd">- Train and predict orchestration are exposed as ``fit()`` / ``predict()``</span>
+<span class="sd">  with ``run()`` kept as a backward-compat alias that dispatches based on</span>
+<span class="sd">  ``load_from`` or ``config.run_mode``.</span>
+<span class="sd">- Service injection into a loaded pipeline is performed via an explicit</span>
+<span class="sd">  attribute whitelist (``_PIPELINE_SERVICE_ATTRS``). The old reflection-based</span>
+<span class="sd">  ``dir()`` discovery is gone (it would silently absorb any future ``*_service``</span>
+<span class="sd">  attribute and inject it into every step).</span>
+<span class="sd">- predict-mode skips ``plot_habitat_scores`` so it can never consume a</span>
+<span class="sd">  ``selection_methods`` value that was never initialised in predict mode.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Suppress noisy library warnings during long-running runs.</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.io_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_image_and_mask_paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.log_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggerManager</span><span class="p">,</span> <span class="n">get_module_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.random_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">seed_numpy_global</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.config_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatAnalysisConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringService</span><span class="p">,</span> <span class="n">FeatureService</span><span class="p">,</span> <span class="n">HabitatResultPublisher</span><span class="p">,</span> <span class="n">HabitatImageWriter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.base_pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePipelineStep</span><span class="p">,</span> <span class="n">HabitatPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.habitat_subject_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSubjectData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.mean_voxel_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalculateMeanVoxelFeaturesStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.supervoxel_combination</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineSupervoxelsStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.voxel_concatenation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConcatenateVoxelsStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.group_preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroupPreprocessingStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.individual_clustering</span><span class="w"> </span><span class="kn">import</span> <span class="n">IndividualClusteringStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.supervoxel_feature_merge</span><span class="w"> </span><span class="kn">import</span> <span class="n">MergeSupervoxelFeaturesStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.group_clustering</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroupClusteringStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.individual_preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IndividualPreprocessingStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.supervoxel_feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">SupervoxelFeatureExtractionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipelines.steps.voxel_feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelFeatureExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">append_checkpoint_save_step</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Pipeline recipes (mode -&gt; step list).</span>
+<span class="c1">#</span>
+<span class="c1"># These are module-level helpers, looked up via ``_PIPELINE_RECIPES``. Mode</span>
+<span class="c1"># branching is contained here (one recipe per mode) and in</span>
+<span class="c1"># ``HabitatAnalysis._build_pipeline`` (one dictionary lookup).</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_two_step_steps</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span>
+    <span class="n">feature_service</span><span class="p">:</span> <span class="n">FeatureService</span><span class="p">,</span>
+    <span class="n">clustering_service</span><span class="p">:</span> <span class="n">ClusteringService</span><span class="p">,</span>
+    <span class="n">habitat_image_writer</span><span class="p">:</span> <span class="n">HabitatImageWriter</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the ordered step list for the ``two_step`` clustering mode.</span>
+
+<span class="sd">    Two-step flow: voxel features -&gt; individual preprocessing -&gt; individual</span>
+<span class="sd">    clustering (voxel -&gt; supervoxel) -&gt; mean voxel features -&gt; optional advanced</span>
+<span class="sd">    supervoxel features -&gt; select supervoxel features -&gt; combine subjects -&gt;</span>
+<span class="sd">    optional group-level preprocessing -&gt; group clustering.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Validated habitat-analysis configuration.</span>
+<span class="sd">        feature_service: Provides voxel/supervoxel feature extraction.</span>
+<span class="sd">        clustering_service: Provides clustering algorithms and validation.</span>
+<span class="sd">        habitat_image_writer: Required for saving supervoxel maps in two-step mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of (name, step) tuples to feed into ``HabitatPipeline``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">habitat_image_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;habitat_image_writer is required for two-step pipeline&quot;</span><span class="p">)</span>
+
+    <span class="n">steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;voxel_features&#39;</span><span class="p">,</span>
+        <span class="n">VoxelFeatureExtractor</span><span class="p">(</span><span class="n">feature_service</span><span class="p">,</span> <span class="n">habitat_image_writer</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;individual_preprocessing&#39;</span><span class="p">,</span>
+        <span class="n">IndividualPreprocessingStep</span><span class="p">(</span><span class="n">feature_service</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Individual-level clustering: voxel -&gt; supervoxel (one cluster set per subject).</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;individual_clustering&#39;</span><span class="p">,</span>
+        <span class="n">IndividualClusteringStep</span><span class="p">(</span>
+            <span class="n">feature_service</span><span class="o">=</span><span class="n">feature_service</span><span class="p">,</span>
+            <span class="n">clustering_service</span><span class="o">=</span><span class="n">clustering_service</span><span class="p">,</span>
+            <span class="n">habitat_image_writer</span><span class="o">=</span><span class="n">habitat_image_writer</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;supervoxel&#39;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Always produce mean-voxel features as a baseline aggregation per supervoxel.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;calculate_mean_voxel_features&#39;</span><span class="p">,</span>
+        <span class="n">CalculateMeanVoxelFeaturesStep</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Conditionally extract advanced supervoxel features (e.g. radiomics) when</span>
+    <span class="c1"># the configured method is not the default ``mean_voxel_features``.</span>
+    <span class="n">supervoxel_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">supervoxel_level</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">supervoxel_config</span><span class="o">.</span><span class="n">method</span> <span class="k">if</span> <span class="n">supervoxel_config</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">should_extract_advanced</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="s1">&#39;mean_voxel_features&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">should_extract_advanced</span><span class="p">:</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+            <span class="s1">&#39;supervoxel_advanced_features&#39;</span><span class="p">,</span>
+            <span class="n">SupervoxelFeatureExtractionStep</span><span class="p">(</span><span class="n">feature_service</span><span class="p">,</span> <span class="n">config</span><span class="p">),</span>
+        <span class="p">))</span>
+
+    <span class="c1"># Choose between mean-voxel and advanced supervoxel features (mutually exclusive).</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;merge_supervoxel_features&#39;</span><span class="p">,</span>
+        <span class="n">MergeSupervoxelFeaturesStep</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+    <span class="p">))</span>
+    <span class="n">append_checkpoint_save_step</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Group-level: stitch all subjects&#39; supervoxels into one DataFrame.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;combine_supervoxels&#39;</span><span class="p">,</span>
+        <span class="n">CombineSupervoxelsStep</span><span class="p">(),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Optional group-level preprocessing (variance/correlation/normalisation).</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_group_level</span><span class="p">:</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_group_level</span><span class="o">.</span><span class="n">methods</span>
+        <span class="k">if</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+                <span class="s1">&#39;group_preprocessing&#39;</span><span class="p">,</span>
+                <span class="n">GroupPreprocessingStep</span><span class="p">(</span>
+                    <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">,</span>
+                    <span class="n">out_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">))</span>
+
+    <span class="c1"># Group clustering: supervoxel rows -&gt; habitat labels.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;group_clustering&#39;</span><span class="p">,</span>
+        <span class="n">GroupClusteringStep</span><span class="p">(</span>
+            <span class="n">clustering_service</span><span class="o">=</span><span class="n">clustering_service</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">steps</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_one_step_steps</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span>
+    <span class="n">feature_service</span><span class="p">:</span> <span class="n">FeatureService</span><span class="p">,</span>
+    <span class="n">clustering_service</span><span class="p">:</span> <span class="n">ClusteringService</span><span class="p">,</span>
+    <span class="n">habitat_image_writer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatImageWriter</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the ordered step list for the ``one_step`` clustering mode.</span>
+
+<span class="sd">    One-step flow: voxel features -&gt; individual preprocessing -&gt; individual</span>
+<span class="sd">    clustering (voxel -&gt; habitat, per subject) -&gt; mean voxel features -&gt;</span>
+<span class="sd">    select supervoxel features -&gt; combine subjects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Validated habitat-analysis configuration.</span>
+<span class="sd">        feature_service: Provides voxel feature extraction.</span>
+<span class="sd">        clustering_service: Provides clustering algorithms and validation.</span>
+<span class="sd">        habitat_image_writer: Optional; created on-the-fly if missing because the</span>
+<span class="sd">            individual-clustering step needs it for saving habitat maps.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of (name, step) tuples to feed into ``HabitatPipeline``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;voxel_features&#39;</span><span class="p">,</span>
+        <span class="n">VoxelFeatureExtractor</span><span class="p">(</span><span class="n">feature_service</span><span class="p">,</span> <span class="n">habitat_image_writer</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;individual_preprocessing&#39;</span><span class="p">,</span>
+        <span class="n">IndividualPreprocessingStep</span><span class="p">(</span><span class="n">feature_service</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Lazily build a minimal HabitatImageWriter when one was not injected.</span>
+    <span class="c1"># IndividualClusteringStep with target=&#39;habitat&#39; needs it for saving maps.</span>
+    <span class="k">if</span> <span class="n">habitat_image_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">habitat_image_writer</span> <span class="o">=</span> <span class="n">HabitatImageWriter</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="c1"># In one-step we cluster voxels directly into habitats per subject and we</span>
+    <span class="c1"># ask the step to find an optimal cluster count for each subject.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;individual_clustering&#39;</span><span class="p">,</span>
+        <span class="n">IndividualClusteringStep</span><span class="p">(</span>
+            <span class="n">feature_service</span><span class="o">=</span><span class="n">feature_service</span><span class="p">,</span>
+            <span class="n">clustering_service</span><span class="o">=</span><span class="n">clustering_service</span><span class="p">,</span>
+            <span class="n">habitat_image_writer</span><span class="o">=</span><span class="n">habitat_image_writer</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;habitat&#39;</span><span class="p">,</span>
+            <span class="n">find_optimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="c1"># Even in one-step we want aggregated per-label features for downstream output.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;calculate_mean_voxel_features&#39;</span><span class="p">,</span>
+        <span class="n">CalculateMeanVoxelFeaturesStep</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;merge_supervoxel_features&#39;</span><span class="p">,</span>
+        <span class="n">MergeSupervoxelFeaturesStep</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+    <span class="p">))</span>
+    <span class="n">append_checkpoint_save_step</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Group-level concatenation across subjects so the downstream CSV layout</span>
+    <span class="c1"># is consistent with the two-step mode.</span>
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;combine_supervoxels&#39;</span><span class="p">,</span>
+        <span class="n">CombineSupervoxelsStep</span><span class="p">(),</span>
+    <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">steps</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_pooling_steps</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span>
+    <span class="n">feature_service</span><span class="p">:</span> <span class="n">FeatureService</span><span class="p">,</span>
+    <span class="n">clustering_service</span><span class="p">:</span> <span class="n">ClusteringService</span><span class="p">,</span>
+    <span class="n">habitat_image_writer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatImageWriter</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the ordered step list for the ``direct_pooling`` clustering mode.</span>
+
+<span class="sd">    Direct-pooling flow: voxel features -&gt; individual preprocessing -&gt; concatenate</span>
+<span class="sd">    voxels across subjects -&gt; optional group-level preprocessing -&gt; group</span>
+<span class="sd">    clustering on the pooled voxels.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Validated habitat-analysis configuration.</span>
+<span class="sd">        feature_service: Provides voxel feature extraction.</span>
+<span class="sd">        clustering_service: Provides clustering algorithms and validation.</span>
+<span class="sd">        habitat_image_writer: Unused for the pooling flow but accepted for parity</span>
+<span class="sd">            with other recipes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of (name, step) tuples to feed into ``HabitatPipeline``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BasePipelineStep</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;voxel_features&#39;</span><span class="p">,</span>
+        <span class="n">VoxelFeatureExtractor</span><span class="p">(</span><span class="n">feature_service</span><span class="p">,</span> <span class="n">habitat_image_writer</span><span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;individual_preprocessing&#39;</span><span class="p">,</span>
+        <span class="n">IndividualPreprocessingStep</span><span class="p">(</span><span class="n">feature_service</span><span class="p">),</span>
+    <span class="p">))</span>
+    <span class="n">append_checkpoint_save_step</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;concatenate_voxels&#39;</span><span class="p">,</span>
+        <span class="n">ConcatenateVoxelsStep</span><span class="p">(),</span>
+    <span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_group_level</span><span class="p">:</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span><span class="o">.</span><span class="n">preprocessing_for_group_level</span><span class="o">.</span><span class="n">methods</span>
+        <span class="k">if</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+                <span class="s1">&#39;group_preprocessing&#39;</span><span class="p">,</span>
+                <span class="n">GroupPreprocessingStep</span><span class="p">(</span>
+                    <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">,</span>
+                    <span class="n">out_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">))</span>
+
+    <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;group_clustering&#39;</span><span class="p">,</span>
+        <span class="n">GroupClusteringStep</span><span class="p">(</span>
+            <span class="n">clustering_service</span><span class="o">=</span><span class="n">clustering_service</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">steps</span>
+
+
+<span class="c1"># Map clustering_mode -&gt; recipe builder. The single source of truth for the</span>
+<span class="c1"># mode dispatch (the rest of the module branches via ``config.HabitatSegmentation</span>
+<span class="c1"># .clustering_mode`` only for save-side variations, which are tiny).</span>
+<span class="n">_PIPELINE_RECIPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;two_step&#39;</span><span class="p">:</span> <span class="n">_build_two_step_steps</span><span class="p">,</span>
+    <span class="s1">&#39;one_step&#39;</span><span class="p">:</span> <span class="n">_build_one_step_steps</span><span class="p">,</span>
+    <span class="s1">&#39;direct_pooling&#39;</span><span class="p">:</span> <span class="n">_build_pooling_steps</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># HabitatAnalysis - the deep module</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="HabitatAnalysis">
+<a class="viewcode-back" href="../../../../api/habitat_analysis.html#habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatAnalysis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run habitat clustering analysis end-to-end.</span>
+
+<span class="sd">    The class owns three responsibilities that used to be spread across three</span>
+<span class="sd">    layers (HabitatAnalysis controller, ClusteringStrategy subclass tree, and</span>
+<span class="sd">    ``pipeline_builder``):</span>
+
+<span class="sd">    1. Build a ``HabitatPipeline`` whose step list depends on</span>
+<span class="sd">       ``config.HabitatSegmentation.clustering_mode``.</span>
+<span class="sd">    2. Train (``fit``) -&gt; persist as ``habitat_pipeline.pkl`` -&gt; return results.</span>
+<span class="sd">    3. Load a saved pipeline (``predict``) -&gt; reconcile runtime config and</span>
+<span class="sd">       data paths -&gt; transform -&gt; return results.</span>
+
+<span class="sd">    Public entry points:</span>
+
+<span class="sd">    - ``fit(subjects=None, save_results_csv=None)``: train and persist.</span>
+<span class="sd">    - ``predict(pipeline_path, subjects=None, save_results_csv=None)``: load</span>
+<span class="sd">      and transform only.</span>
+<span class="sd">    - ``run(subjects=None, save_results_csv=None, load_from=None)``: backward</span>
+<span class="sd">      compatible dispatcher (delegates to ``fit`` / ``predict``).</span>
+
+<span class="sd">    All three return the resulting ``pd.DataFrame``.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        Service injection into a loaded pipeline uses the explicit whitelist</span>
+<span class="sd">        ``_PIPELINE_SERVICE_ATTRS``. Adding a new service type requires a</span>
+<span class="sd">        deliberate change here, which is precisely the goal: new services</span>
+<span class="sd">        should not be silently injected via reflection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Explicit whitelist of service attribute names that are injected into a</span>
+    <span class="c1"># loaded pipeline&#39;s steps. Replaces the previous ``dir(self)`` reflection</span>
+    <span class="c1"># which would absorb any future ``*_service`` attribute. If a new service</span>
+    <span class="c1"># is introduced, it must be added here on purpose.</span>
+    <span class="n">_PIPELINE_SERVICE_ATTRS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;feature_service&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;clustering_service&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;habitat_image_writer&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="HabitatAnalysis.__init__">
+<a class="viewcode-back" href="../../../../api/habitat_analysis.html#habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">HabitatAnalysisConfig</span><span class="p">],</span>
+        <span class="n">feature_service</span><span class="p">:</span> <span class="n">FeatureService</span><span class="p">,</span>
+        <span class="n">clustering_service</span><span class="p">:</span> <span class="n">ClusteringService</span><span class="p">,</span>
+        <span class="n">habitat_image_writer</span><span class="p">:</span> <span class="n">HabitatImageWriter</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize HabitatAnalysis with all required collaborators.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config: Either a dict (validated against ``HabitatAnalysisConfig``)</span>
+<span class="sd">                or an already-validated ``HabitatAnalysisConfig`` instance.</span>
+<span class="sd">            feature_service: Service for voxel/supervoxel feature extraction.</span>
+<span class="sd">            clustering_service: Service for clustering algorithms.</span>
+<span class="sd">            habitat_image_writer: Writer for habitat/supervoxel NRRD images.</span>
+<span class="sd">            logger: A configured logger instance (typically from CLI entry point).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: If ``config`` is neither dict nor ``HabitatAnalysisConfig``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">HabitatAnalysisConfig</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">HabitatAnalysisConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;config must be a dict or HabitatAnalysisConfig&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span> <span class="o">=</span> <span class="n">feature_service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clustering_service</span> <span class="o">=</span> <span class="n">clustering_service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span> <span class="o">=</span> <span class="n">habitat_image_writer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="c1"># Pipeline instance is populated by either ``fit`` or ``predict``.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatPipeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_logging_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_data_paths</span><span class="p">()</span>
+
+        <span class="c1"># Propagate logging targets to services that need to log from subprocesses.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="o">.</span><span class="n">set_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="o">.</span><span class="n">set_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_publisher</span> <span class="o">=</span> <span class="n">HabitatResultPublisher</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">habitat_image_writer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">pipeline_getter</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span>
+            <span class="n">feature_service_getter</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Setup helpers (kept private; ``__init__`` calls them in order).</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_logging_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve the log file path and effective log level for subprocesses.</span>
+
+<span class="sd">        Order of preference: LoggerManager-managed file -&gt; logger&#39;s own</span>
+<span class="sd">        ``log_file`` attribute -&gt; default file inside ``config.out_dir``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">LoggerManager</span><span class="p">()</span>
+
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">get_log_file</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">log_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="n">log_file</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="s1">&#39;log_file&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="s1">&#39;habitat_analysis.log&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">manager</span><span class="o">.</span><span class="n">_root_logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">_root_logger</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_data_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure ``config.out_dir`` exists and pass image/mask paths to FeatureService.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">images_paths</span><span class="p">,</span> <span class="n">mask_paths</span> <span class="o">=</span> <span class="n">get_image_and_mask_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_data_paths</span><span class="p">(</span><span class="n">images_paths</span><span class="p">,</span> <span class="n">mask_paths</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="o">.</span><span class="n">set_data_paths</span><span class="p">(</span><span class="n">images_paths</span><span class="p">,</span> <span class="n">mask_paths</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_data_paths</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">images_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">mask_paths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate discovered image and mask paths before the pipeline starts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images_paths: Mapping from subject ID to image-type path mapping.</span>
+<span class="sd">            mask_paths: Mapping from subject ID to mask-type path mapping.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If no usable image or mask paths are discovered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">images_paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No image paths found under data_dir: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Expected an &#39;images&#39; folder or an image/mask YAML file.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask_paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No mask paths found under data_dir: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Expected a non-empty &#39;masks&#39; folder or a YAML file with a &#39;masks&#39; section.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">subjects_without_masks</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">subject</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">images_paths</span>
+            <span class="k">if</span> <span class="n">subject</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mask_paths</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">mask_paths</span><span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">subjects_without_masks</span><span class="p">:</span>
+            <span class="n">missing_subjects</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_without_masks</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Mask paths are missing for subject(s): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing_subjects</span><span class="si">}</span><span class="s2">. Please check the masks folder or data YAML.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Public entry points.</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="HabitatAnalysis.fit">
+<a class="viewcode-back" href="../../../../api/habitat_analysis.html#habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis.fit">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_results_csv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the habitat clustering pipeline and persist it to disk.</span>
+
+<span class="sd">        Workflow: build pipeline based on ``clustering_mode`` -&gt; ``fit_transform``</span>
+<span class="sd">        -&gt; save pkl to ``&lt;out_dir&gt;/habitat_pipeline.pkl`` -&gt; save results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subjects: Optional explicit subject ID list. ``None`` means use all</span>
+<span class="sd">                subjects discovered from ``config.data_dir``.</span>
+<span class="sd">            save_results_csv: Whether to save ``habitats.csv``. ``None`` falls</span>
+<span class="sd">                back to ``config.save_results_csv``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with habitat clustering results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Resolve save flag: explicit argument overrides the config default.</span>
+        <span class="k">if</span> <span class="n">save_results_csv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">save_results_csv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save_results_csv</span>
+
+        <span class="n">subjects_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_subjects</span><span class="p">(</span><span class="n">subjects</span><span class="p">)</span>
+        <span class="c1"># Pipeline&#39;s first step (VoxelFeatureExtractor) populates each entry,</span>
+        <span class="c1"># so we just hand it an empty stub per subject.</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">HabitatSubjectData</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="n">HabitatSubjectData</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">subjects_list</span>
+        <span class="p">}</span>
+        <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">seed_numpy_global</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Random seeds: global=</span><span class="si">%s</span><span class="s2"> individual_clustering=</span><span class="si">%s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;group_habitat=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">effective_individual_clustering_random_state</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">effective_habitat_random_state</span><span class="p">(),</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Building and fitting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">HabitatSegmentation</span><span class="o">.</span><span class="n">clustering_mode</span><span class="si">}</span><span class="s2"> pipeline...&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_pipeline</span><span class="p">()</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">train_checkpoint</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;_train_checkpoint&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">train_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">train_checkpoint</span><span class="o">.</span><span class="n">mark_training_complete</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;clear_checkpoint_on_success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Training succeeded; clearing checkpoint at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">train_checkpoint</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">train_checkpoint</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="n">pipeline_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;habitat_pipeline.pkl&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving fitted pipeline to </span><span class="si">{</span><span class="n">pipeline_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pipeline_path</span><span class="p">))</span>
+
+        <span class="c1"># Keep the image writer&#39;s current result table available for optional image publishing.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="o">.</span><span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span>
+        <span class="k">if</span> <span class="n">save_results_csv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">results_df</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results_df</span></div>
+
+
+<div class="viewcode-block" id="HabitatAnalysis.predict">
+<a class="viewcode-back" href="../../../../api/habitat_analysis.html#habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis.predict">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pipeline_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+        <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_results_csv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a previously trained pipeline and transform new subjects.</span>
+
+<span class="sd">        ``plot_curves`` is forced off in predict mode regardless of config:</span>
+<span class="sd">        in predict mode the group-clustering step has no validation</span>
+<span class="sd">        scores cached, and emitting them would consume an uninitialised</span>
+<span class="sd">        ``selection_methods`` (this used to be a real ``TypeError`` trigger).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline_path: Path to a saved ``habitat_pipeline.pkl`` file.</span>
+<span class="sd">            subjects: Optional explicit subject ID list.</span>
+<span class="sd">            save_results_csv: Whether to save ``habitats.csv``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with habitat clustering results.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If ``pipeline_path`` does not exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resolved_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pipeline_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saved pipeline not found at </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Provide a valid path or run fit() to train one.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">resolved_path</span> <span class="o">=</span> <span class="n">resolved_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="c1"># Resolve save flag: explicit argument overrides the config default.</span>
+        <span class="k">if</span> <span class="n">save_results_csv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">save_results_csv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save_results_csv</span>
+
+        <span class="n">subjects_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_subjects</span><span class="p">(</span><span class="n">subjects</span><span class="p">)</span>
+        <span class="c1"># Pipeline&#39;s first step (VoxelFeatureExtractor) populates each entry,</span>
+        <span class="c1"># so we just hand it an empty stub per subject.</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">HabitatSubjectData</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="n">HabitatSubjectData</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">subjects_list</span>
+        <span class="p">}</span>
+        <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Loading and running </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">HabitatSegmentation</span><span class="o">.</span><span class="n">clustering_mode</span><span class="si">}</span><span class="s2"> pipeline...&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;predict&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pipeline_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resolved_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">HabitatPipeline</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resolved_path</span><span class="p">))</span>
+
+        <span class="c1"># Reconcile the loaded pipeline&#39;s collaborators and config with the</span>
+        <span class="c1"># current runtime context (paths, loggers, runtime-only flags).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inject_services_into_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span>
+
+        <span class="c1"># Hard guarantee: predict mode must never trigger plot_habitat_scores;</span>
+        <span class="c1"># the validation scores are not part of a loaded pipeline.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">plot_curves</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">results_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">run_checkpoint</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">&quot;_train_checkpoint&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">run_checkpoint</span><span class="o">.</span><span class="n">mark_training_complete</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;clear_checkpoint_on_success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Predict run succeeded; clearing checkpoint at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">run_checkpoint</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">run_checkpoint</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="c1"># Keep the image writer&#39;s current result table available for optional image publishing.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="o">.</span><span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span>
+        <span class="k">if</span> <span class="n">save_results_csv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">results_df</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;predict&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results_df</span></div>
+
+
+<div class="viewcode-block" id="HabitatAnalysis.run">
+<a class="viewcode-back" href="../../../../api/habitat_analysis.html#habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis.run">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_results_csv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">load_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Backward-compatible dispatcher to ``fit`` / ``predict``.</span>
+
+<span class="sd">        .. deprecated::</span>
+<span class="sd">            Prefer calling :meth:`fit` or :meth:`predict` explicitly. ``run``</span>
+<span class="sd">            keeps the old &quot;single entry point + run_mode flag&quot; surface for</span>
+<span class="sd">            existing scripts and notebooks; new code should pick the right</span>
+<span class="sd">            verb at the call site so the data flow is obvious without having</span>
+<span class="sd">            to consult ``run_mode`` / ``pipeline_path`` on the config.</span>
+
+<span class="sd">        Dispatch rules (highest priority first):</span>
+
+<span class="sd">        1. If ``load_from`` is provided -&gt; ``predict(load_from, ...)``.</span>
+<span class="sd">        2. Else if ``config.run_mode == &#39;predict&#39;`` and ``config.pipeline_path``</span>
+<span class="sd">           is set -&gt; ``predict(config.pipeline_path, ...)``.</span>
+<span class="sd">        3. Otherwise -&gt; ``fit(...)``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subjects: Optional explicit subject ID list.</span>
+<span class="sd">            save_results_csv: Whether to save ``habitats.csv``.</span>
+<span class="sd">            load_from: Optional explicit pipeline path; if given, forces predict.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with habitat clustering results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">load_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                <span class="n">pipeline_path</span><span class="o">=</span><span class="n">load_from</span><span class="p">,</span>
+                <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span>
+                <span class="n">save_results_csv</span><span class="o">=</span><span class="n">save_results_csv</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">==</span> <span class="s1">&#39;predict&#39;</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pipeline_path</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                <span class="n">pipeline_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pipeline_path</span><span class="p">,</span>
+                <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span>
+                <span class="n">save_results_csv</span><span class="o">=</span><span class="n">save_results_csv</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span>
+            <span class="n">save_results_csv</span><span class="o">=</span><span class="n">save_results_csv</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Pipeline construction.</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatPipeline</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a fresh ``HabitatPipeline`` for the current ``clustering_mode``.</span>
+
+<span class="sd">        This is the *single* place where mode dispatch lives. Adding a new</span>
+<span class="sd">        clustering mode means: add a recipe function and register it in</span>
+<span class="sd">        ``_PIPELINE_RECIPES``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Configured ``HabitatPipeline`` ready for ``fit_transform``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``clustering_mode`` is not one of the registered modes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">HabitatSegmentation</span><span class="o">.</span><span class="n">clustering_mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_PIPELINE_RECIPES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown clustering_mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Available modes: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_PIPELINE_RECIPES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">recipe</span> <span class="o">=</span> <span class="n">_PIPELINE_RECIPES</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">recipe</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">feature_service</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="p">,</span>
+            <span class="n">clustering_service</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clustering_service</span><span class="p">,</span>
+            <span class="n">habitat_image_writer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">HabitatPipeline</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Loaded-pipeline reconciliation.</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_runtime_checkpoint_fields</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_config</span><span class="p">:</span> <span class="n">HabitatAnalysisConfig</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copy resume/checkpoint runtime controls onto a loaded pipeline config.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_config: Config object installed on the loaded pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">run_mode</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">pipeline_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pipeline_path</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data_dir</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config_file</span><span class="p">:</span>
+            <span class="n">target_config</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config_file</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">resume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">resume</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">checkpoint_dir</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">force_rerun_subjects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">force_rerun_subjects</span><span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">retry_failed_subjects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">retry_failed_subjects</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">individual_subject_auto_retry_rounds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">individual_subject_auto_retry_rounds</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">clear_checkpoint_on_success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">clear_checkpoint_on_success</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">on_subject_failure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">on_subject_failure</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">individual_subject_timeout_sec</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">individual_subject_timeout_sec</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">individual_subject_graceful_shutdown_sec</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">individual_subject_graceful_shutdown_sec</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">individual_subject_spawn_timeout_sec</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">individual_subject_spawn_timeout_sec</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">oom_backoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">oom_backoff</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">cap_processes_to_gpu_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cap_processes_to_gpu_pool</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">individual_subject_parallel_mode</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">individual_subject_parallel_mode</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">persistent_worker_max_consecutive_failures</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">persistent_worker_max_consecutive_failures</span>
+        <span class="p">)</span>
+        <span class="n">target_config</span><span class="o">.</span><span class="n">persistent_worker_recycle_after_tasks</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">persistent_worker_recycle_after_tasks</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_select_pipeline_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">:</span> <span class="n">HabitatPipeline</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatAnalysisConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pick the config to apply to a loaded pipeline.</span>
+
+<span class="sd">        For predict runs that supply a minimal YAML (no ``FeatureConstruction``</span>
+<span class="sd">        block), we keep the trained config that came pickled with the pipeline</span>
+<span class="sd">        and only override runtime-safe fields like output paths and verbosity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline: The just-loaded pipeline (already deserialised).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The config object to install on the pipeline and its steps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">run_mode</span> <span class="o">==</span> <span class="s1">&#39;predict&#39;</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">FeatureConstruction</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">pipeline_config</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">config</span>
+            <span class="c1"># Override runtime fields only; never touch trained-model parameters.</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">out_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">plot_curves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">plot_curves</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">save_results_csv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save_results_csv</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">save_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save_images</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">processes</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">random_state</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span>
+            <span class="n">pipeline_config</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apply_runtime_checkpoint_fields</span><span class="p">(</span><span class="n">pipeline_config</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pipeline_config</span>
+
+        <span class="n">merged_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply_runtime_checkpoint_fields</span><span class="p">(</span><span class="n">merged_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">merged_config</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sync_feature_service</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pipeline_feature_service</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">runtime_feature_service</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Refresh the loaded pipeline&#39;s FeatureService with current paths/logging.</span>
+
+<span class="sd">        We deliberately keep the *trained* FeatureService instance (it carries</span>
+<span class="sd">        the fitted feature-extraction state) and only update the data paths</span>
+<span class="sd">        and logging targets so it works against the current dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline_feature_service: FeatureService loaded from the pkl file.</span>
+<span class="sd">            runtime_feature_service: FeatureService built from the current run config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">runtime_feature_service</span><span class="p">,</span> <span class="s1">&#39;images_paths&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">runtime_feature_service</span><span class="p">,</span> <span class="s1">&#39;mask_paths&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">pipeline_feature_service</span><span class="o">.</span><span class="n">set_data_paths</span><span class="p">(</span>
+                <span class="n">runtime_feature_service</span><span class="o">.</span><span class="n">images_paths</span><span class="p">,</span>
+                <span class="n">runtime_feature_service</span><span class="o">.</span><span class="n">mask_paths</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">runtime_feature_service</span><span class="p">,</span> <span class="s1">&#39;_log_file_path&#39;</span><span class="p">):</span>
+            <span class="n">pipeline_feature_service</span><span class="o">.</span><span class="n">set_logging_info</span><span class="p">(</span>
+                <span class="n">runtime_feature_service</span><span class="o">.</span><span class="n">_log_file_path</span><span class="p">,</span>
+                <span class="n">runtime_feature_service</span><span class="o">.</span><span class="n">_log_level</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inject_services_into_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">:</span> <span class="n">HabitatPipeline</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Push current config and services into a freshly loaded pipeline.</span>
+
+<span class="sd">        Uses an explicit whitelist (``_PIPELINE_SERVICE_ATTRS``) instead of</span>
+<span class="sd">        scanning ``dir(self)`` for ``*_service`` attributes. The whitelist</span>
+<span class="sd">        prevents accidental injection of any future service that doesn&#39;t</span>
+<span class="sd">        belong inside pipeline steps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline: The loaded pipeline whose ``config`` and step references</span>
+<span class="sd">                should be reconciled with the current runtime instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_to_apply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_pipeline_config</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config_to_apply</span>
+
+        <span class="c1"># Build the explicit name -&gt; instance map. Only attributes listed in</span>
+        <span class="c1"># the whitelist participate.</span>
+        <span class="n">attributes_to_update</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="n">config_to_apply</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PIPELINE_SERVICE_ATTRS</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attributes_to_update</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="n">attributes_to_update</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="c1"># FeatureService has fitted state we must keep; only sync</span>
+                <span class="c1"># paths/logging onto the trained instance.</span>
+                <span class="k">if</span> <span class="n">attr_name</span> <span class="o">==</span> <span class="s1">&#39;feature_service&#39;</span><span class="p">:</span>
+                    <span class="n">pipeline_feature_service</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pipeline_feature_service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_feature_service</span><span class="p">(</span><span class="n">pipeline_feature_service</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Small private helpers.</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_subjects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalise the subjects argument and verify it&#39;s not empty.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subjects: Optional list of subject IDs. ``None`` means &quot;use all</span>
+<span class="sd">                subjects discovered from images_paths&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A non-empty list of subject IDs.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If no subjects can be resolved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">subjects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">subjects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="o">.</span><span class="n">images_paths</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subjects</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No subjects provided for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">HabitatSegmentation</span><span class="o">.</span><span class="n">clustering_mode</span><span class="si">}</span><span class="s2"> run.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">subjects</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Property forwarding kept for backward compatibility.</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">results_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward to ``HabitatImageWriter.results_df``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="o">.</span><span class="n">results_df</span>
+
+    <span class="nd">@results_df</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">results_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habitat_image_writer</span><span class="o">.</span><span class="n">results_df</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supervoxel2habitat_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward to ``ClusteringService.supervoxel2habitat_clustering``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_service</span><span class="o">.</span><span class="n">supervoxel2habitat_clustering</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">images_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward to ``FeatureService.images_paths``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="o">.</span><span class="n">images_paths</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mask_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward to ``FeatureService.mask_paths``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_service</span><span class="o">.</span><span class="n">mask_paths</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
