@@ -6,21 +6,7 @@ from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "source"
 
-TARGETS = sorted(
-    set(SOURCE.rglob("*_zh.rst"))
-    | {
-        SOURCE / "configuration_zh.rst",
-        SOURCE / "cli_zh.rst",
-        SOURCE / "import_robustness_guide_zh.rst",
-        SOURCE / "index.rst",
-        SOURCE / "api" / "preprocessing.rst",
-        SOURCE / "development" / "architecture.rst",
-        SOURCE / "development" / "module_architecture.rst",
-        SOURCE / "development" / "metrics_optimization.rst",
-        SOURCE / "development" / "design_patterns.rst",
-        SOURCE / "development" / "parallel_optimization.rst",
-    }
-)
+TARGETS = sorted(SOURCE.rglob("*.rst"))
 
 BOLD_FW = re.compile(r"\*\*([^*]+)\*\*([：，。（；）（])")
 BOLD_THEN_CJK = re.compile(r"\*\*([^*]+)\*\*([\u4e00-\u9fff])")
@@ -28,9 +14,8 @@ DASH_BOLD = re.compile(r"([-\d\.])(\*\*)")
 ARROW_BOLD = re.compile(r"(→)(\*\*)")
 BOLD_COLON_LIT = re.compile(r"(\*\*[^*]+\*\* ：)``")
 COLON_LIT = re.compile(r"(：)``")
-INNER_OPEN = re.compile(r"\*\* +([^*]+?) +\*\*")
-INNER_OPEN2 = re.compile(r"\*\* +([^*]+?)\*\*")
-INNER_CLOSE = re.compile(r"\*\*([^*]+?) +\*\*")
+# Adjacent bold segments: **目录**或**路径** → **目录** 或 **路径**
+BOLD_CJK_BOLD = re.compile(r"(\*\*[^*]+?\*\*)([\u4e00-\u9fff])(\*\*)")
 
 
 def fix_line(line: str) -> str:
@@ -40,9 +25,7 @@ def fix_line(line: str) -> str:
     line = DASH_BOLD.sub(r"\1 \2", line)
     line = ARROW_BOLD.sub(r"\1 \2", line)
     line = BOLD_THEN_CJK.sub(r"**\1** \2", line)
-    line = INNER_OPEN.sub(r"**\1**", line)
-    line = INNER_OPEN2.sub(r"**\1**", line)
-    line = INNER_CLOSE.sub(r"**\1**", line)
+    line = BOLD_CJK_BOLD.sub(r"\1 \2 \3", line)
     line = BOLD_COLON_LIT.sub(r"\1 ``", line)
     line = COLON_LIT.sub(r"\1 ``", line)
     return line

@@ -2,7 +2,9 @@
 # Install after requirements.txt (which already includes CPU torch). Replaces CPU build.
 #
 #   pip install -r requirements.txt
-#   pip install -r requirements-gpu.txt --upgrade --force-reinstall
+#   pip install -r requirements-gpu.txt
+#   # If torch is still +cpu after requirements.txt: pip install -r requirements-gpu.txt --upgrade
+#   # Last resort only: pip install -r requirements-gpu.txt --upgrade --force-reinstall
 #   pip install -e .
 #
 # Verify:

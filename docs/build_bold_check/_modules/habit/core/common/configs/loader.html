@@ -1,0 +1,739 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>habit.core.common.configs.loader &mdash; HABIT 1.0.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=34088549"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../../_static/translations.js?v=540d3cec"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/index_zh.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../data_structure_zh.html">数据结构说明</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">用户指南</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/index_zh.html">用户指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">实用工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_dicom_info_zh.html">DICOM 信息查看器 (habit dicom-info)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_icc_analysis_zh.html">ICC 分析工具 (habit icc)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_merge_csv_zh.html">CSV 合并工具 (habit merge-csv)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_habitat_test_retest_zh.html">Test-Retest 分析工具 (habit retest)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_model_comparison_zh.html">模型比较工具 (habit compare)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../app_dice_calculator_zh.html">Dice 系数计算器使用指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">设计哲学</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_philosophy_zh.html">HABIT 包的设计哲学和理念</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">自定义扩展</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../customization/index_zh.html">自定义扩展指南</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">配置参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../configuration_zh.html">配置参考</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">上游依赖速查</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/upstream_libraries_zh.html">上游依赖与文档链接</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">命令行工具</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli_zh.html">CLI 参考文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 参考</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/index.html">API 文档</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发与架构</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development/index.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../development/metrics_optimization.html">Metrics Module Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../acknowledgments.html">致谢 / Acknowledgments</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">模块代码</a></li>
+      <li class="breadcrumb-item active">habit.core.common.configs.loader</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>habit.core.common.configs.loader 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Configuration utilities for loading, saving, and resolving configurations.</span>
+<span class="sd">This module combines configuration I/O and path resolution capabilities.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Configuration I/O Functions</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="load_config">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.load_config">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resolve_paths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load configuration file and optionally resolve relative paths.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config_path (str): Path to configuration file, supports YAML and JSON</span>
+<span class="sd">        resolve_paths (bool): Whether to resolve relative paths to absolute paths.</span>
+<span class="sd">                              Defaults to True.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: Configuration dictionary</span>
+<span class="sd">        </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: If configuration file is not found</span>
+<span class="sd">        ValueError: If file format is not supported</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration file not found: </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Determine how to load based on file extension</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;.yml&#39;</span><span class="p">]:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported configuration file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Resolve paths if requested</span>
+    <span class="k">if</span> <span class="n">resolve_paths</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">resolve_config_paths</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_path</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+
+<div class="viewcode-block" id="save_config">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.save_config">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save configuration to file</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config (Dict[str, Any]): Configuration dictionary</span>
+<span class="sd">        config_path (str): Path to save configuration file, supports YAML and JSON</span>
+<span class="sd">        </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If file format is not supported</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create directory if it doesn&#39;t exist</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config_path</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Determine how to save based on file extension</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;.yml&#39;</span><span class="p">]:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported configuration file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validate_config">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.validate_config">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">required_keys</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate if configuration contains required keys</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config (Dict[str, Any]): Configuration dictionary</span>
+<span class="sd">        required_keys (Optional[List[str]]): List of required keys</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: Whether the configuration is valid</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If required keys are missing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">required_keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration missing required keys: </span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Path Resolution Logic</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># Default patterns for identifying path fields (case-insensitive matching)</span>
+<span class="n">DEFAULT_PATH_PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Suffix patterns - fields ending with these are likely paths</span>
+    <span class="s1">&#39;suffixes&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;_path&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_dir&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;_file&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_folder&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_directory&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_root&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_config&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_location&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># Exact match patterns - fields with these exact names are paths</span>
+    <span class="s1">&#39;exact&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;path&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;file&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;folder&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;directory&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;data_dir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;out_dir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;output_dir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;input_dir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;config&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;config_file&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mask_path&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;image_path&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;source&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;destination&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;target&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1"># Common file extensions that indicate a path value</span>
+<span class="n">COMMON_FILE_EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Configuration files</span>
+    <span class="s1">&#39;.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;.yml&#39;</span><span class="p">,</span> <span class="s1">&#39;.json&#39;</span><span class="p">,</span> <span class="s1">&#39;.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;.ini&#39;</span><span class="p">,</span> <span class="s1">&#39;.cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;.conf&#39;</span><span class="p">,</span> <span class="s1">&#39;.toml&#39;</span><span class="p">,</span>
+    <span class="c1"># Medical imaging files</span>
+    <span class="s1">&#39;.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;.nrrd&#39;</span><span class="p">,</span> <span class="s1">&#39;.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;.mha&#39;</span><span class="p">,</span> <span class="s1">&#39;.mhd&#39;</span><span class="p">,</span> <span class="s1">&#39;.npy&#39;</span><span class="p">,</span> <span class="s1">&#39;.npz&#39;</span><span class="p">,</span>
+    <span class="c1"># Data files</span>
+    <span class="s1">&#39;.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;.xlsx&#39;</span><span class="p">,</span> <span class="s1">&#39;.xls&#39;</span><span class="p">,</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;.tsv&#39;</span><span class="p">,</span> <span class="s1">&#39;.parquet&#39;</span><span class="p">,</span>
+    <span class="c1"># Image files</span>
+    <span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpeg&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">,</span> <span class="s1">&#39;.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;.bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;.gif&#39;</span><span class="p">,</span>
+    <span class="c1"># Model files</span>
+    <span class="s1">&#39;.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;.joblib&#39;</span><span class="p">,</span> <span class="s1">&#39;.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;.pt&#39;</span><span class="p">,</span> <span class="s1">&#39;.pth&#39;</span><span class="p">,</span> <span class="s1">&#39;.onnx&#39;</span><span class="p">,</span>
+    <span class="c1"># Archive files</span>
+    <span class="s1">&#39;.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;.tar&#39;</span><span class="p">,</span> <span class="s1">&#39;.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">,</span> <span class="s1">&#39;.7z&#39;</span><span class="p">,</span>
+    <span class="c1"># Log files</span>
+    <span class="s1">&#39;.log&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Regex pattern for relative path prefixes</span>
+<span class="n">RELATIVE_PATH_PREFIXES</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\.{1,2}[/</span><span class="se">\\</span><span class="s1">]&#39;</span><span class="p">)</span>
+
+<span class="c1"># Regex pattern for path-like strings (contains path separators and looks like a path)</span>
+<span class="n">PATH_LIKE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[a-zA-Z]:[/\]|^[/\]|^\.{1,2}[/\]|[/</span><span class="se">\\</span><span class="s1">][^/\]+\.[a-zA-Z0-9]+$&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PathResolver">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PathResolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A flexible path resolver for configuration files.</span>
+<span class="sd">    </span>
+<span class="sd">    Resolves relative paths in configuration dictionaries to absolute paths,</span>
+<span class="sd">    using the configuration file&#39;s directory as the base.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        base_dir (Path): Base directory for resolving relative paths</span>
+<span class="sd">        patterns (Dict): Patterns for identifying path fields</span>
+<span class="sd">        resolved_count (int): Number of paths resolved in last operation</span>
+<span class="sd">        </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; resolver = PathResolver(&#39;/path/to/config.yaml&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; resolved_config = resolver.resolve(config_dict)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Resolved {resolver.resolved_count} paths&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="PathResolver.__init__">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extra_suffixes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extra_exact</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_patterns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the PathResolver.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_path: Path to the configuration file (used to determine base_dir)</span>
+<span class="sd">            base_dir: Explicit base directory for resolving paths (overrides config_path)</span>
+<span class="sd">            extra_suffixes: Additional suffix patterns to match (e.g., [&#39;_location&#39;])</span>
+<span class="sd">            extra_exact: Additional exact match patterns (e.g., [&#39;my_path_field&#39;])</span>
+<span class="sd">            custom_patterns: Complete custom patterns dict to replace defaults</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            Either config_path or base_dir must be provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine base directory</span>
+        <span class="k">if</span> <span class="n">base_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">config_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+        
+        <span class="c1"># Setup patterns</span>
+        <span class="k">if</span> <span class="n">custom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="n">custom_patterns</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">DEFAULT_PATH_PATTERNS</span><span class="p">)</span>
+            
+            <span class="c1"># Add extra patterns if provided</span>
+            <span class="k">if</span> <span class="n">extra_suffixes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">[</span><span class="s1">&#39;suffixes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_suffixes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extra_exact</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_exact</span><span class="p">)</span>
+        
+        <span class="c1"># Convert to sets for faster lookup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_suffix_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;suffixes&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exact_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exact&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        
+        <span class="c1"># Statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolved_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+    
+<div class="viewcode-block" id="PathResolver.is_path_field">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.is_path_field">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_path_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a field name represents a path (key-based detection).</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: The field name to check</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the field is likely a path field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key_lower</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        
+        <span class="c1"># Check exact match</span>
+        <span class="k">if</span> <span class="n">key_lower</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exact_set</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Check suffix match</span>
+        <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suffix_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key_lower</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="PathResolver.is_path_value">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.is_path_value">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_path_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a string value looks like a path (value-based detection).</span>
+<span class="sd">        </span>
+<span class="sd">        Detection strategies:</span>
+<span class="sd">        1. Starts with relative path prefix: ./ .\ ../ ..\</span>
+<span class="sd">        2. Ends with common file extension: .yaml, .nii.gz, .csv, etc.</span>
+<span class="sd">        3. Matches path-like pattern: contains path separators in meaningful way</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            value: The string value to check</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the value looks like a path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Skip URLs and special protocols</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="s1">&#39;https://&#39;</span><span class="p">,</span> <span class="s1">&#39;ftp://&#39;</span><span class="p">,</span> <span class="s1">&#39;s3://&#39;</span><span class="p">,</span> <span class="s1">&#39;gs://&#39;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Skip if it&#39;s just a simple word without any path indicators</span>
+        <span class="k">if</span> <span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Strategy 1: Check for relative path prefixes (./ .\ ../ ..\)</span>
+        <span class="k">if</span> <span class="n">RELATIVE_PATH_PREFIXES</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Strategy 2: Check for common file extensions</span>
+        <span class="n">value_lower</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">COMMON_FILE_EXTENSIONS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value_lower</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Special case: .nii.gz (compound extension)</span>
+        <span class="k">if</span> <span class="n">value_lower</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.nii.gz&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Strategy 3: Check if it looks like a path (has separators and file extension)</span>
+        <span class="k">if</span> <span class="n">PATH_LIKE_PATTERN</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Strategy 4: Contains path separators and ends with something that looks like a filename</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
+            <span class="c1"># Check if it ends with something that looks like a filename (word.ext)</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="n">last_part</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">parts</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">last_part</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">last_part</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="PathResolver.should_resolve">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.should_resolve">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if a key-value pair should have its path resolved.</span>
+<span class="sd">        </span>
+<span class="sd">        Combines key-based and value-based detection strategies.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: The field name</span>
+<span class="sd">            value: The field value</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this field should be resolved as a path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># Key-based detection (field name suggests it&#39;s a path)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_path_field</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="c1"># Value-based detection (value content suggests it&#39;s a path)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_path_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="PathResolver.resolve_path">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.resolve_path">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve a single path value.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            path_value: The path string to resolve</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Normalized absolute path when resolvable; otherwise the original value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path_value</span>
+
+        <span class="c1"># Skip URLs and special paths</span>
+        <span class="k">if</span> <span class="n">path_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="s1">&#39;https://&#39;</span><span class="p">,</span> <span class="s1">&#39;ftp://&#39;</span><span class="p">,</span> <span class="s1">&#39;s3://&#39;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">path_value</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_normalize</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Collapse ``..`` / ``.`` and return a stable absolute path for logging.&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="c1"># Already absolute: still normalize (e.g. strip ``config/../demo_data`` segments)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path_value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path_value</span><span class="p">))</span>
+
+        <span class="c1"># Resolve relative paths against the config file directory</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">/</span> <span class="n">path_value</span>
+
+        <span class="k">if</span> <span class="n">resolved</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span>
+
+        <span class="c1"># Even if the target does not exist yet, resolve relative segments for output dirs</span>
+        <span class="k">if</span> <span class="n">path_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;./&#39;</span><span class="p">,</span> <span class="s1">&#39;../&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">path_value</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">path_value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span>
+
+        <span class="n">potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">/</span> <span class="n">path_value</span>
+        <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">potential</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path_value</span></div>
+
+    
+<div class="viewcode-block" id="PathResolver.resolve">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.resolve">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">_path_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve all path fields in a configuration dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config: Configuration dictionary to process</span>
+<span class="sd">            _path_prefix: Internal use for tracking nested paths</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            New dictionary with resolved paths (original dict is not modified)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_path_prefix</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="c1"># Reset statistics at the start of a new resolution</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resolved_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_fields</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">current_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_path_prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">_path_prefix</span> <span class="k">else</span> <span class="n">key</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># Recursively process nested dictionaries</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">current_path</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># Process lists (may contain paths or nested dicts)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">current_path</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_resolve</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                <span class="c1"># Resolve path field (detected by key name or value content)</span>
+                <span class="n">resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">resolved</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">resolved_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_path</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolved</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Keep other values as-is</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">path_prefix</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve paths within a list.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            items: List to process</span>
+<span class="sd">            key: The key name of this list</span>
+<span class="sd">            path_prefix: Current path prefix for tracking</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            New list with resolved paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Check if the parent key suggests this is a list of paths</span>
+        <span class="n">key_suggests_paths</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_path_field</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">or</span> 
+            <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">,</span> <span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="s1">&#39;masks&#39;</span><span class="p">,</span> <span class="s1">&#39;file_groups&#39;</span><span class="p">,</span> <span class="s1">&#39;file_list&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+            <span class="n">item_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path_prefix</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&quot;</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="c1"># Nested dict in list</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">item_path</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># Nested list (e.g., file_groups: [[file1, file2], [file3, file4]])</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolve_list</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">item_path</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Check if this string should be resolved as a path</span>
+                <span class="c1"># Either the parent key suggests paths, or the value itself looks like a path</span>
+                <span class="k">if</span> <span class="n">key_suggests_paths</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_path_value</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                    <span class="n">resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_path</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">resolved</span> <span class="o">!=</span> <span class="n">item</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">resolved_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_path</span><span class="p">)</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span>
+    
+<div class="viewcode-block" id="PathResolver.get_resolved_fields">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.PathResolver.get_resolved_fields">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_resolved_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of field paths that were resolved.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List of field path strings (e.g., [&#39;data_dir&#39;, &#39;input.file_path&#39;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_fields</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="resolve_config_paths">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.resolve_config_paths">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_config_paths</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">extra_patterns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convenience function to resolve paths in a configuration dictionary.</span>
+<span class="sd">    </span>
+<span class="sd">    This is the recommended way to use path resolution in most cases.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config: Configuration dictionary to process</span>
+<span class="sd">        config_path: Path to the configuration file (for determining base directory)</span>
+<span class="sd">        extra_patterns: Additional patterns for path field detection</span>
+<span class="sd">        verbose: If True, print information about resolved paths</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        New configuration dictionary with resolved paths</span>
+<span class="sd">        </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; config = load_config(&#39;config/preprocessing/config_preprocessing_demo.yaml&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; config = resolve_config_paths(config, &#39;config/preprocessing/config_preprocessing_demo.yaml&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resolver</span> <span class="o">=</span> <span class="n">PathResolver</span><span class="p">(</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span>
+        <span class="n">extra_exact</span><span class="o">=</span><span class="n">extra_patterns</span>
+    <span class="p">)</span>
+    
+    <span class="n">resolved_config</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">resolver</span><span class="o">.</span><span class="n">resolved_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resolved </span><span class="si">{</span><span class="n">resolver</span><span class="o">.</span><span class="n">resolved_count</span><span class="si">}</span><span class="s2"> path(s):&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resolver</span><span class="o">.</span><span class="n">get_resolved_fields</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">resolved_config</span></div>
+
+
+
+<div class="viewcode-block" id="load_config_with_paths">
+<a class="viewcode-back" href="../../../../../api/common.html#habit.core.common.configs.loader.load_config_with_paths">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_config_with_paths</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">extra_patterns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolve_paths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a configuration file and optionally resolve relative paths.</span>
+<span class="sd">    </span>
+<span class="sd">    This is a convenience function that combines load_config and path resolution.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config_path: Path to the configuration file</span>
+<span class="sd">        extra_patterns: Additional patterns for path field detection</span>
+<span class="sd">        resolve_paths: Whether to resolve relative paths (default: True)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Configuration dictionary with resolved paths</span>
+<span class="sd">        </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; config = load_config_with_paths(&#39;config/preprocessing/config_preprocessing_demo.yaml&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Direct call since they are now in the same module</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">resolve_paths</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">resolve_config_paths</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_path</span><span class="p">,</span> <span class="n">extra_patterns</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">config</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, HABIT Team。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

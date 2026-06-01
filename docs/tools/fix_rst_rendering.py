@@ -17,6 +17,10 @@ INLINE_LINK = re.compile(r"`([^<`\n]+)\s*<(https?://[^>]+)>`__")
 DOC_TIGHT = re.compile(r"(:doc:`[^`]+`)([「『《])")
 CODE_DOC = re.compile(r"(``[^`]+``)([（(]:doc:`)")
 CLOSED_BOLD_LITERAL = re.compile(r"\*\*([^*\n]+?)\*\*``")
+CLOSED_BOLD_PAREN = re.compile(r"\*\*([^*\n]+?)\*\*([（(])")
+LIT_BEFORE_STAR = re.compile(r"(``[^`\n]+``)(\*\*)")
+# Short literals starting with '+' break docutils when chained after other ``...``.
+PLUS_LITERAL = re.compile(r"常含 ``\+([^`]+)``")
 OPEN_BOLD_LITERAL = re.compile(r"\*\*``([^`]+)``([^*]{0,24}?)\*\*")
 
 BOLD_LITERAL_REPLACEMENTS = {
@@ -54,6 +58,11 @@ def fix_line(line: str) -> str:
     updated = DOC_TIGHT.sub(r"\1 \2", updated)
     updated = CODE_DOC.sub(r"\1 \2", updated)
     updated = CLOSED_BOLD_LITERAL.sub(r"**\1** ``", updated)
+    updated = CLOSED_BOLD_PAREN.sub(r"**\1** \2", updated)
+    updated = LIT_BEFORE_STAR.sub(r"\1 \2", updated)
+    updated = PLUS_LITERAL.sub(
+        r"常带 ``\1`` 后缀（例如 ``torch==2.4.0+\1``）", updated
+    )
     updated = OPEN_BOLD_LITERAL.sub(r"**\2** (``\1``)", updated)
     return updated
 
