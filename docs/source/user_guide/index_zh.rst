@@ -3,8 +3,8 @@
 
 面向临床用户的 **最短路径** ：先完成 :doc:`getting_started/quickstart_zh` 跑通 demo，再按需打开下面各步。各命令的 YAML **字段、默认值** 见 :doc:`配置参考 <../configuration_zh>`。
 
-工作流程
---------
+一、工作流程
+------------
 
 1. **预处理** — :doc:`image_preprocessing_zh`
 2. **生境分割** — :doc:`habitat_segmentation_zh`
@@ -21,8 +21,8 @@
    machine_learning_modeling_zh
    model_comparison_zh
 
-通用约定
---------
+二、通用约定
+------------
 
 - 每次运行前：Windows 用 **Anaconda Powershell Prompt** ，``conda activate habit``，``cd`` 进入项目根（示例 ``cd "D:\HABIT-main"``；路径见 :doc:`../getting_started/installation_zh`）。
 - Demo 影像根目录： ``demo_data/preprocessed/processed_images/``（被试 ``subj001`` / ``subj002``，序列 ``delay2`` / ``delay3`` / ``delay5``）。

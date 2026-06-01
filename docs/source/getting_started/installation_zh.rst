@@ -14,7 +14,7 @@
 
 若已安装其中任一发行版，可跳过本节，直接从第二节开始。
 
-**Miniconda**与**Anaconda** 二选一即可；Miniconda 体积更小，推荐新用户。
+**Miniconda** 与 **Anaconda** 二选一即可；Miniconda 体积更小，推荐新用户。
 
 Miniconda（推荐）
 ~~~~~~~~~~~~~~~~~
@@ -169,15 +169,15 @@ Anaconda（备选）
 
 将 CPU 版替换为 **CUDA 12.1** 的 ``torch==2.4.0+cu121`` （约 2 GB，请耐心等待）。**无独显或 macOS** 用户无需执行此命令。
 
-验证安装
---------
+三、验证安装
+------------
 
 .. code-block:: bash
 
    habit --version
 
-更新与卸载
-----------
+四、更新与卸载
+--------------
 
 **Git 用户** ：
 
@@ -194,19 +194,19 @@ Anaconda（备选）
 
 卸载： ``pip uninstall HABIT -y`` （不删除源码与其它依赖）。
 
-常见问题
---------
+五、常见问题
+------------
 
 - 环境须为 **Python 3.10** ，conda 环境名建议 ``habit``；首次安装执行 ``conda create``，已有 ``habit`` 环境则只 ``conda activate habit``
 - 安装失败： ``pip install --upgrade pip``；或按 ``requirements.txt`` 逐行 ``pip install``
 - 网络超时：配置上文清华镜像；仍失败请 `提交 Issue <https://github.com/lichao312214129/HABIT/issues>`_ 或邮件 **lichao19870617@163.com**
 
-Windows：安装 ``pyradiomics``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+六、Windows：安装 ``pyradiomics``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **推荐（ZIP / 源码包自带 wheel）**
 
-HABIT 主目录（与 ``requirements.txt`` 同级）自带 **预编译**wheel（已在**Windows 64 位 + Python 3.10** 环境下编好，无需本机 C++ 编译器）：
+HABIT 主目录（与 ``requirements.txt`` 同级）自带 **预编译** wheel（已在 **Windows 64 位 + Python 3.10** 环境下编好，无需本机 C++ 编译器）：
 
 ``pyradiomics-3.0.1-cp310-cp310-win_amd64.whl``
 
@@ -214,7 +214,7 @@ HABIT 主目录（与 ``requirements.txt`` 同级）自带 **预编译**wheel（
 - ``win_amd64``：仅适用于 **64 位 Windows** （常见台式机/笔记本）
 - 若为 **Python 3.9/3.11**、**32 位 Windows** 或其它系统，不能使用此文件，请参考下文备选方案
 
-在 **Python 3.10**的 ``habit`` 环境中，于项目根目录执行（**先**``requirements.txt`` 安装 ``numpy`` 等依赖，**再** 装 wheel）：
+在 **Python 3.10** 的 ``habit`` 环境中，于项目根目录执行（**先** ``requirements.txt`` 安装 ``numpy`` 等依赖，**再** 装 wheel）：
 
 .. code-block:: bash
 
@@ -232,7 +232,7 @@ HABIT 主目录（与 ``requirements.txt`` 同级）自带 **预编译**wheel（
 
 若 ``pip install ...whl`` 报错，或包内无该 wheel（如仅 Git 克隆），可在安装 **Microsoft C++ Build Tools** 后从源码安装。**不要** 使用普通 ``pip install pyradiomics``（易因 pip 构建隔离导致缺 ``numpy`` 或仍缺编译器而失败），请使用 ``--no-build-isolation``，并确保已先执行 ``pip install -r requirements.txt``（环境中已有 ``numpy``）。
 
-1. 安装 `Microsoft C++ Build Tools <https://visualstudio.microsoft.com/visual-cpp-build-tools/>`_，工作负载勾选 **使用 C++ 的桌面开发**（**Desktop development with C++**）；安装后**关闭并重新打开** 终端。
+1. 安装 `Microsoft C++ Build Tools <https://visualstudio.microsoft.com/visual-cpp-build-tools/>`_，工作负载勾选 **使用 C++ 的桌面开发** （**Desktop development with C++** ）；安装后 **关闭并重新打开** 终端。
 2. 在项目根目录执行：
 
    .. code-block:: bash

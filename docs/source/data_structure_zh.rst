@@ -56,12 +56,20 @@
 数据输入方式概述
 ----------------
 
-HABIT 支持两种数据输入方式：
+各流程在 **对应模块的 YAML** 里指定数据位置，最常见为顶层 ``data_dir``（与 ``out_dir`` 同级），例如：
 
-1. **文件夹方式**: 按照固定的文件夹结构组织数据
-2. **YAML 配置文件方式**: 通过 YAML 文件指定数据路径（推荐）
+- **预处理**（``habit preprocess``）：``config/preprocessing/*.yaml`` 中的 ``data_dir``
+- **生境分析**（``habit get-habitat``）：``config/habitat/*.yaml`` 中的 ``data_dir``
+- **DICOM 整理**（``habit sort-dicom``）：``config/dicom_sort/*.yaml`` 中的 ``data_dir``
 
-**推荐使用 YAML 配置文件方式** ，因为它更加灵活，适合复杂的数据组织。
+特征提取（``habit extract``）使用 ``raw_img_folder``、``habitats_map_folder`` 等字段，含义与 ``data_dir`` 类似，详见 :doc:`configuration_zh` 中特征提取小节。
+
+``data_dir`` 可填 **目录** 或 **路径清单 YAML**（二者解析规则相同；下文仍称「文件夹方式」「YAML 清单方式」）：
+
+1. **文件夹方式** ：``data_dir`` 指向含固定 ``images/``、``masks/`` 结构的根目录
+2. **YAML 清单方式** ：``data_dir`` 指向列出各受试者/序列路径的 YAML（如 ``files_preprocessing.yaml``、``file_habitat.yaml``；**推荐**，更灵活）
+
+**推荐使用 YAML 清单方式** ，适合复杂目录与非标准命名；字段说明与 Demo 路径见 :doc:`configuration_zh`。
 
 文件夹结构方式
 ---------------
@@ -115,15 +123,16 @@ HABIT 支持两种数据输入方式：
     - 如果文件夹中包含多个 NIfTI (.nii.gz) 或 NRRD 文件，系统**只会自动选择第一个** 。
     - 在进行 `dcm2nii` 转换后，建议每个文件夹只存放一个对应的 NIfTI 文件。
 
-**使用示例：**
+**使用示例（预处理 / 生境分析等 YAML 中的 ``data_dir``）：**
 
-在配置文件中指定根目录：
+文件夹方式 — 在模块配置里将 ``data_dir`` 设为数据根目录：
 
 .. code-block:: yaml
 
    data_dir: ./data_root
+   out_dir: ./results
 
-系统会自动扫描 `images/` 和 `masks/` 文件夹，读取所有受试者的数据。
+系统会自动扫描 ``data_root/images/`` 与 ``data_root/masks/``，读取各受试者数据。
 
 文件夹命名规则
 ~~~~~~~~~~~~~~
@@ -152,13 +161,13 @@ HABIT 支持两种数据输入方式：
 - 推荐使用英文命名，避免编码问题
 - 保持命名的一致性，便于管理和维护
 
-YAML 配置文件方式（推荐）
--------------------------
+YAML 清单方式（推荐）
+---------------------
 
-YAML 配置文件结构
+路径清单 YAML 结构
 ~~~~~~~~~~~~~~~~~~
 
-使用 YAML 配置文件方式时，数据路径通过 YAML 文件指定：
+当 ``data_dir`` 指向一份路径清单 YAML 时，受试者与各序列路径在该文件中列出（再由预处理 / 生境分析等配置引用）：
 
 .. code-block:: yaml
 
@@ -370,7 +379,7 @@ auto_select_first_file 参数详解
 
    * - 特性
      - 文件夹方式
-     - YAML 配置文件方式
+     - YAML 清单方式
    * - **灵活性**
      - 低（必须遵循固定结构）
      - 高（可以自由组织）
@@ -393,7 +402,7 @@ auto_select_first_file 参数详解
      - 低
      - **高**
 
-**推荐使用 YAML 配置文件方式** ，原因如下：
+**推荐使用 YAML 清单方式** ，原因如下：
 
 1. **更灵活**: 可以自由组织数据，不受固定结构限制
 2. **更易维护**: 配置文件易于管理和修改
@@ -404,7 +413,7 @@ auto_select_first_file 参数详解
 转换方法
 --------
 
-**从文件夹方式转换为 YAML 配置文件方式：**
+**从文件夹方式转换为 YAML 清单方式：**
 
 1. 创建一个新的 YAML 文件
 2. 按照上述 YAML 配置文件结构填写路径
@@ -462,11 +471,12 @@ auto_select_first_file 参数详解
        T1: ./data_root/masks/subject2/T1/
        T2: ./data_root/masks/subject2/T2/
 
-然后在配置文件中指定：
+然后在 **预处理 / 生境分析** 等模块 YAML 中指定：
 
 .. code-block:: yaml
 
    data_dir: ./data_config.yaml
+   out_dir: ./results
 
 数据验证
 --------
