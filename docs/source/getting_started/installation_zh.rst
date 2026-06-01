@@ -109,7 +109,7 @@ Anaconda（备选）
 
    该 ``.whl`` 为 **Windows 64 位（win_amd64）+ Python 3.10（cp310）** 预编译包，与上文 ``conda create -n habit python=3.10`` 一致。
    文件名含义： ``3.0.1`` = PyRadiomics 版本；``cp310`` = CPython 3.10；``win_amd64`` = 64 位 Windows。
-**不适用** 于 Python 3.9/3.11、32 位 Windows 或 macOS/Linux（后者请 ``pip install pyradiomics``）。
+   **不适用** 于 Python 3.9/3.11、32 位 Windows 或 macOS/Linux（后者请 ``pip install pyradiomics``）。
 
 .. code-block:: bash
 
@@ -132,7 +132,7 @@ Anaconda（备选）
    pip install pyradiomics
    pip install -e .
 
-``requirements.txt`` 已包含 **CPU 版** PyTorch（``torch==2.4.0+cpu`` ，阿里云镜像）。**有 NVIDIA GPU 且需加速** 时，请先执行 ``pip install -r requirements-gpu.txt`` ，再执行 ``pip install -e .`` （见下文）。
+``requirements.txt`` 已包含 **CPU 版** PyTorch（``torch==2.4.0+cpu`` ，阿里云镜像）。**有 NVIDIA GPU 且需加速** 时，Windows 用户可优先用下文 **网盘 wheel** 安装 GPU 版 torch；其它平台或无法使用网盘时，执行 ``pip install -r requirements-gpu.txt`` ，再 ``pip install -e .`` （见下文）。
 
 安装完依赖后，可在终端检查 PyTorch（**不是 GPU 也能正常用 HABIT** ，只是部分步骤会慢一些）：
 
@@ -155,6 +155,7 @@ Anaconda（备选）
    ├── config/
    ├── habit/
    ├── pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
+   ├── torch-2.4.0+cu121-cp310-cp310-win_amd64.whl   # 可选：从网盘下载的 GPU 版 torch
    ├── requirements.txt
    ├── requirements-gpu.txt
    └── setup.py
@@ -162,15 +163,57 @@ Anaconda（备选）
 可选：GPU 版 PyTorch（仅 NVIDIA 显卡）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-默认 ``pip install -r requirements.txt`` 会安装 **CPU** 版 ``torch==2.4.0+cpu`` （阿里云镜像，体积较小）。**有 NVIDIA GPU** 且需要 TorchRadiomics / 生境 GPU 加速时，须在 ``pip install -e .`` **之前** 执行：
+默认 ``pip install -r requirements.txt`` 会安装 **CPU** 版 ``torch==2.4.0+cpu`` （阿里云镜像，体积较小）。**有 NVIDIA GPU** 且需要 TorchRadiomics / 生境 GPU 加速时，须在 ``pip install -e .`` **之前** 将 torch 换为 **CUDA 12.1** 的 ``torch==2.4.0+cu121`` （约 2 GB）。**无独显或 macOS** 用户无需执行本节。
+
+**方式一：网盘 wheel（Windows 推荐，避免 pip 在线下载过慢）**
+
+GPU 版 torch 体积大，``pip install -r requirements-gpu.txt`` 从镜像在线拉取可能 **很慢或中断** 。维护者在百度网盘提供了 **Windows 64 位（win_amd64）+ Python 3.10（cp310）** 预下载 wheel（与 ``conda create -n habit python=3.10`` 一致；**不适用** 于 Python 3.9/3.11 或 macOS/Linux）：
+
+- `百度网盘 <https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k>`_ ，提取码 **nt7k**
+- 下载 ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl``（约 2 GB）
+
+**wheel 放哪里（必读，否则 ``pip install`` 会报找不到文件）**
+
+网盘文件默认在 **「下载」** 文件夹；``pip install torch-2.4.0+cu121-...whl`` 会在 **当前终端所在目录** 查找该文件，不会自动去「下载」里找。
+
+请任选一种方式：
+
+1. **推荐：复制到 HABIT 项目根目录**（与 ``requirements.txt`` 、``config`` 、``habit`` 文件夹 **同级**），再在终端 ``cd`` 到该目录后安装。目录示意见上文「目录结构示意」。
+2. **不移动文件：在 ``pip install`` 里写 wheel 的完整路径** ，例如网盘下到「下载」时：
+
+   .. code-block:: bash
+
+      pip install "C:\Users\YourName\Downloads\torch-2.4.0+cu121-cp310-cp310-win_amd64.whl"
+
+   路径含空格时用英文双引号包裹；``YourName`` 与 ``Downloads`` 请改为你本机实际路径。
+
+**如何确认目录正确** ：在终端 ``cd`` 到项目根后，Windows 可执行 ``dir torch-2.4.0+cu121-cp310-cp310-win_amd64.whl`` ，应能看到该文件；若提示找不到，说明 ``cd`` 位置不对，或 ``.whl`` 仍在「下载」等其它文件夹。
+
+在 **Python 3.10** 的 ``habit`` 环境中执行（**先** ``requirements.txt`` ，**再** 装 wheel，**最后** ``pip install -e .``；下例假定 ``.whl`` 已放在项目根，与 ``pyradiomics`` wheel 相同做法）：
+
+.. code-block:: bash
+
+   conda activate habit
+   cd "D:\HABIT-main"    # 仅为示例；请改为你本机项目根目录的完整路径（须能看到 requirements.txt 与 .whl）
+
+   dir torch-2.4.0+cu121-cp310-cp310-win_amd64.whl    # 确认文件在当前目录；找不到则先 cd 或改用完整路径
+
+   pip install -r requirements.txt
+   pip install torch-2.4.0+cu121-cp310-cp310-win_amd64.whl
+   python -c "import torch; print('torch', torch.__version__); print('CUDA available', torch.cuda.is_available())"
+   pip install -e .
+
+若提示找不到 ``.whl`` ：确认 ``cd`` 在含 ``config`` 、``habit`` 的项目根；若 ZIP 多嵌套一层 ``HABIT-main`` ，进入内层再安装；或改用上文 **完整路径** 形式的 ``pip install "D:\...\torch-2.4.0+cu121-cp310-cp310-win_amd64.whl"`` 。
+
+**方式二：pip 在线安装（Windows / Linux，或无法使用网盘时）**
 
 .. code-block:: bash
 
    pip install -r requirements-gpu.txt
 
-将 CPU 版替换为 **CUDA 12.1** 的 ``torch==2.4.0+cu121`` （约 2 GB，请耐心等待）。若环境中 **已是** ``torch==2.4.0+cu121``，pip 会显示已满足、不会重复下载。**无独显或 macOS** 用户无需执行此命令。
+若环境中 **已是** ``torch==2.4.0+cu121``，pip 会显示已满足、不会重复下载。
 
-若刚执行完 ``requirements.txt`` 后 ``torch`` 仍为 ``+cpu`` 且 ``CUDA available False``，可先加 ``--upgrade`` 再装一次；**仅当** pip 仍未替换为 GPU 版时，再尝试 ``--force-reinstall``（会强制重装，已有正确版本时不必使用）。
+若刚执行完 ``requirements.txt`` 后 ``torch`` 仍为 ``+cpu`` 且 ``CUDA available False``，可先加 ``--upgrade`` 再装一次；**仅当** pip 仍未替换为 GPU 版时，再尝试 ``--force-reinstall`` （会强制重装，已有正确版本时不必使用）。
 
 三、验证安装
 ------------
