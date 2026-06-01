@@ -1,5 +1,5 @@
 # =============================================================================
-# Habitat input manifest â€” DEMO: .cursor/test/resample_02 (T1, T2)
+# Habitat input manifest â€?DEMO: .cursor/test/resample_02 (T1, T2)
 # =============================================================================
 #
 # Use as `data_dir` when it points to this YAML (not a raw directory). Keys
@@ -7,8 +7,8 @@
 # (T1, T2).
 #
 # NOT overlapping with:
-#   files_preprocessing.yaml â€” identical resample_02 manifest (preferred name).
-#   image_files.yaml â€” same resample_02 manifest (legacy filename).
+#   files_preprocessing.yaml â€?identical resample_02 manifest (preferred name).
+#   image_files.yaml â€?same resample_02 manifest (legacy filename).
 # =============================================================================
 
 auto_select_first_file: true

@@ -16,7 +16,7 @@ individual_subject_timeout_sec: 900
 oom_backoff: false
 
 resume: true
-strict_checkpoint_hash: true
+strict_checkpoint_hash: false
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false

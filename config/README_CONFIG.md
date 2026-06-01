@@ -71,8 +71,14 @@ Regenerate scripts after template changes: `python scripts/generate_manual_debug
 
 Shared PyRadiomics parameter YAMLs: `radiomics/parameter.yaml`, `radiomics/parameter_habitat.yaml`,
 `radiomics/parameter_basic.yaml`, `radiomics/parameter_with_filters.yaml`,
-`radiomics/params_voxel_radiomics.yaml` (voxel `voxel_radiomics` preset — explicit 21-feature GLCM list),
+`radiomics/params_voxel_radiomics.yaml` (voxel `voxel_radiomics` preset — explicit 21-feature GLCM list;
+CT habitat defaults **R3B12**: `binWidth: 12` in this file, `kernelRadius: 3` in habitat YAML),
 `radiomics/params_supervoxel_radiomics.yaml`.
+
+**CT voxel texture (habitat):** Petersen et al. (*Radiol Artif Intell* 2024;6(2):e230118,
+doi:10.1148/ryai.230118) recommend kernel radius 3 mm and bin size 12 HU (R3B12) for stable
+precise 3D CT radiomics in habitat computation. HABIT presets above follow R3B12; whole-tumor
+PyRadiomics templates (`parameter.yaml`, etc.) may still use `binWidth: 25`.
 
 For `voxel_radiomics` in habitat, use `params_voxel_radiomics.yaml` for GLCM: bare `glcm:` enables all
 24 features and MCC/Imc1/Imc2 crash on small kernels. HABIT defaults unrestricted GLCM to the same
@@ -138,7 +144,7 @@ These keys live at the **root** of habitat configs (see `config/habitat/config_g
 | `individual_subject_auto_retry_rounds` | `2` | Same-run auto-retry for Stage-1 failures; `0` disables. |
 | `oom_backoff` | `true` | Reduce workers after `MemoryError` when enabled. |
 | `resume` / `checkpoint_dir` / `retry_failed_subjects` | — | Checkpoint resume; see habitat user guide. |
-| `strict_checkpoint_hash` | `true` | With `resume: true`: when `true` (default), incompatible manifest hash or `run_mode` raises `CheckpointConfigHashError` instead of discarding checkpoint and starting fresh. Set `false` to auto-discard and restart. Stage-1-compatible legacy hash migration still resumes. |
+| `strict_checkpoint_hash` | `false` | With `resume: true`: when `true`, incompatible manifest hash or `run_mode` raises `CheckpointConfigHashError` instead of discarding checkpoint and starting fresh. Default `false` logs a warning and auto-discards checkpoint to restart. Stage-1-compatible legacy hash migration still resumes. |
 
 Not in checkpoint `config_hash` (safe to change on resume): `processes`, `cap_processes_to_gpu_pool`, `strict_checkpoint_hash`, timeout, parallel mode, retry flags, `plot_curves`, `out_dir`, group-stage blocks.
 

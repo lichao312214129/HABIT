@@ -1,21 +1,18 @@
 # =============================================================================
-# Habitat — 一步法生境 — 原始强度拼接特征 — 训练
+# Habitat 鈥?DEMO: two-step K-Means + silhouette optimal-k selection
 # =============================================================================
-# CLI:  habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
-#       python tests/habitat/habitat_one_step_raw_concat_train.py
+# CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_kmeans_silhouette.yaml
+#       python tests/habitat/habitat_two_step_kmeans_silhouette_train.py
 #
-# Purpose:
-#   One-step clustering (voxel to habitat per subject)
-#   Feature: raw intensity concat — concat(raw(delay2), raw(delay3), raw(delay5))
-#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
-#
-# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
+# Input: ../../demo_data/preprocessed/processed_images
+# Output: ../../demo_data/results/habitat_two_step_kmeans_silhouette
 # =============================================================================
 
-#%%================================================================================
 run_mode: train
+
+#%%================================================================================
 data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_one_step_raw_concat
+out_dir: ../../demo_data/results/habitat_two_step_kmeans_silhouette
 #%%================================================================================
 
 FeatureConstruction:
@@ -23,8 +20,12 @@ FeatureConstruction:
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
 
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {}
+
   preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
       - method: winsorize
         winsor_limits: [0.05, 0.05]
@@ -33,16 +34,14 @@ FeatureConstruction:
         global_normalize: false
 
   preprocessing_for_group_level:
-    # Stage 2 only — NOT in config_hash.
     methods:
       - method: binning
         n_bins: 10
         bin_strategy: uniform
         global_normalize: false
 
-
 HabitatSegmentation:
-  clustering_mode: one_step
+  clustering_mode: two_step
 
   supervoxel:
     algorithm: kmeans
@@ -53,19 +52,19 @@ HabitatSegmentation:
       min_clusters: 2
       max_clusters: 10
       fixed_n_clusters:
-      selection_method: elbow
+      selection_method: silhouette
       plot_validation_curves: true
-
 
   habitat:
     algorithm: kmeans
     max_clusters: 10
+    min_clusters: 2
     habitat_cluster_selection_method:
-      - elbow
+      - silhouette
+      - calinski_harabasz
     fixed_n_clusters:
     max_iter: 300
     n_init: 10
-
 
 processes: 2
 cap_processes_to_gpu_pool: false
@@ -87,4 +86,3 @@ plot_curves: true
 save_results_csv: true
 random_state: 42
 debug: false
-

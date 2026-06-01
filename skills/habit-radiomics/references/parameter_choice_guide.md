@@ -18,6 +18,11 @@ setting:      # discretization, masks, normalization
 | Comprehensive | Original + LoG + Wavelet | All 7 classes | ~1500 |
 | Voxel-radiomics (clustering) | Original | firstorder + glcm (21 stable; see `params_voxel_radiomics.yaml`) | ~39 |
 
+**CT habitat voxel texture (R3B12):** `kernelRadius: 3` in habitat YAML,
+`binWidth: 12` in `params_voxel_radiomics.yaml` (Petersen et al.,
+*Radiol Artif Intell* 2024;6(2):e230118, doi:10.1148/ryai.230118). Whole-tumor CT
+radiomics below may still use `binWidth: 25`.
+
 ## Templates (repo-wide)
 
 See `skills/CONFIG_SOURCES.md`. PyRadiomics starter files:
@@ -33,7 +38,8 @@ See `skills/CONFIG_SOURCES.md`. PyRadiomics starter files:
 - `binWidth: 25` — fixed bin width; intensity range divided into bins of size 25
 - `binCount: 32` — fixed number of bins regardless of intensity range
 
-For **CT** (HU): `binWidth: 25` is standard.
+For **CT** (HU) whole-tumor / traditional radiomics: `binWidth: 25` is common.
+For **CT voxel_radiomics** (habitat clustering): use `binWidth: 12` in `params_voxel_radiomics.yaml` (R3B12).
 For **MRI**: depends on z-score normalization. After z-score, intensities are
 roughly ±3, so `binCount: 32` is safer than `binWidth`.
 

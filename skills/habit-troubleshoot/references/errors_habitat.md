@@ -120,8 +120,9 @@ Check `habitat_analysis.log` for `Auto-retry round`, `MemoryError`,
 processes: 1   # or 2 for very small ROIs
 ```
 
-Also check `kernelRadius` in `FeatureConstruction.voxel_level.params` — `kernelRadius: 3` extracts
-features from 7×7×7 neighborhoods which is 343 voxels per voxel.
+Also check `kernelRadius` in `FeatureConstruction.voxel_level.params` — the CT R3B12 preset
+uses `kernelRadius: 3` (7×7×7 = 343 voxels per center voxel; Petersen et al.,
+*Radiol Artif Intell* 2024;6(2):e230118). Larger radii increase memory and runtime.
 
 For large ROIs or GPU-accelerated torch radiomics, reduce `voxelBatch` from the habit
 default `1000` (or set `-1` for no batching) to e.g. `512` to limit peak memory.

@@ -1,5 +1,7 @@
 """
-测试聚类验证方法映射模块
+Manual script for cluster validation-method mapping (legacy).
+
+Prefer pytest: tests/habitat/test_clustering_algorithms.py::TestValidationMethodsMapping
 """
 
 import os

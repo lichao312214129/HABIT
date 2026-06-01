@@ -28,6 +28,11 @@ CONFIG_ONE_STEP = HABITAT_CFG / "config_habitat_one_step_raw_concat_train.yaml"
 CONFIG_ONE_STEP_PREDICT = HABITAT_CFG / "config_habitat_one_step_raw_concat_predict.yaml"
 CONFIG_TWO_STEP = HABITAT_CFG / "config_habitat_two_step.yaml"
 CONFIG_TWO_STEP_PREDICT = HABITAT_CFG / "config_habitat_two_step_predict.yaml"
+CONFIG_TWO_STEP_GMM_BIC = HABITAT_CFG / "config_habitat_two_step_gmm_bic.yaml"
+CONFIG_DIRECT_POOLING_GMM_AIC = HABITAT_CFG / "config_habitat_direct_pooling_gmm_aic.yaml"
+CONFIG_TWO_STEP_KMEANS_SILHOUETTE = HABITAT_CFG / "config_habitat_two_step_kmeans_silhouette.yaml"
+CONFIG_TWO_STEP_SLIC = HABITAT_CFG / "config_habitat_two_step_supervoxel_slic.yaml"
+CONFIG_ONE_STEP_GMM_BIC = HABITAT_CFG / "config_habitat_one_step_gmm_bic.yaml"
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +117,44 @@ class TestHabitatTwoStep:
             pytest.skip(f"Config not found: {CONFIG_TWO_STEP_PREDICT}")
         runner = CliRunner()
         result = runner.invoke(cli, ["get-habitat", "-c", str(CONFIG_TWO_STEP_PREDICT)])
+        assert result.exit_code in [0, 1], result.output
+
+
+# ---------------------------------------------------------------------------
+# GMM / SLIC / alternative selection-method configs
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.habitat
+class TestHabitatClusteringVariants:
+    """Smoke tests for non-default clustering algorithms and selection metrics."""
+
+    @pytest.mark.parametrize(
+        "config_path",
+        [
+            CONFIG_TWO_STEP_GMM_BIC,
+            CONFIG_DIRECT_POOLING_GMM_AIC,
+            CONFIG_TWO_STEP_KMEANS_SILHOUETTE,
+            CONFIG_TWO_STEP_SLIC,
+            CONFIG_ONE_STEP_GMM_BIC,
+        ],
+        ids=[
+            "two_step_gmm_bic",
+            "direct_pooling_gmm_aic",
+            "two_step_kmeans_silhouette",
+            "two_step_slic",
+            "one_step_gmm_bic",
+        ],
+    )
+    def test_train_with_config(
+        self,
+        cwd_repo_root: None,
+        config_path: Path,
+    ) -> None:
+        if not config_path.exists():
+            pytest.skip(f"Config not found: {config_path}")
+        runner = CliRunner()
+        result = runner.invoke(cli, ["get-habitat", "-c", str(config_path)])
         assert result.exit_code in [0, 1], result.output
 
 

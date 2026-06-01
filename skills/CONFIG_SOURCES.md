@@ -41,7 +41,7 @@ for a full scenario index.
 | habitat maps (when distinct) | `config/radiomics/parameter_habitat.yaml` |
 | minimal (~70 features) | `config/radiomics/parameter_basic.yaml` |
 | LoG + Wavelet (~1000+ features) | `config/radiomics/parameter_with_filters.yaml` |
-| voxel preset (`voxel_radiomics`) | `config/radiomics/params_voxel_radiomics.yaml` — explicit 21-feature GLCM list |
+| voxel preset (`voxel_radiomics`) | `config/radiomics/params_voxel_radiomics.yaml` — explicit 21-feature GLCM list; CT R3B12: `binWidth: 12`, habitat `kernelRadius: 3` |
 | supervoxel preset | `config/radiomics/params_supervoxel_radiomics.yaml` |
 
 For **`voxel_radiomics`**, use `params_voxel_radiomics.yaml` for GLCM (exclude MCC/Imc1/Imc2).
@@ -49,7 +49,8 @@ Bare `glcm:` in a params file enables all 24 features and crashes on small kerne
 defaults unrestricted GLCM to the same 21 features when not explicitly listed.
 
 For **`voxel_radiomics`** in habitat configs, also set in `FeatureConstruction.voxel_level.params`:
-`kernelRadius` (default 1), `voxelBatch` (default 1000; `-1` = no batching),
+`kernelRadius` (recommended **3** for CT per Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118;
+code fallback 1), `voxelBatch` (default 1000; `-1` = no batching),
 `useTorchRadiomics` (default auto), `torchGpus` / `torchGpuCount`, `torchDevice`,
 and `torchDtype` (default float32). These keys are forwarded even when omitted from
 the `method` expression string.

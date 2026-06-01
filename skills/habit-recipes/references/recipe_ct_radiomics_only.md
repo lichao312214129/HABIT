@@ -61,8 +61,10 @@ habit model --config configs/03_ct_ml.yaml --mode train
 
 ## Notes specific to CT
 
-- Use `binWidth: 25` in the PyRadiomics params (CT HU values are in a
-  fixed range, fixed-bin-width is the standard choice).
+- Use `binWidth: 25` in traditional whole-tumor PyRadiomics params (CT HU fixed range).
+  For **habitat voxel texture** (`voxel_radiomics`), use R3B12: `kernelRadius: 3` and
+  `binWidth: 12` in `params_voxel_radiomics.yaml` (Petersen et al., *Radiol Artif Intell*
+  2024;6(2):e230118, doi:10.1148/ryai.230118).
 - Do NOT enable `normalize: true` in PyRadiomics — CT HU values already
   carry physical meaning.
 - If multiple kV / different scanners, document this in your methods; HABIT

@@ -1,45 +1,36 @@
 # =============================================================================
-# Habitat ¡ª ¶þ²½·¨Éú¾³ ¡ª ÌåËØÎÆÀí£¨Ó°Ïñ×éÑ§£©ÌØÕ÷ ¡ª Ô¤²â
+# Habitat ï¿½?DEMO: two-step with SLIC supervoxel + K-Means habitat (silhouette)
 # =============================================================================
-# CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_voxel_radiomics_predict.yaml
-#       python tests/habitat/habitat_two_step_voxel_radiomics_predict.py
+# CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_supervoxel_slic.yaml
+#       python tests/habitat/habitat_two_step_supervoxel_slic_train.py
 #
-# Purpose:
-#   Two-step clustering (supervoxel then population habitat)
-#   Feature: voxel texture ¡ª voxel_radiomics(T2, params_file, kernelRadius)
-#   CT defaults (R3B12): kernelRadius 3, params binWidth 12 ¡ª Petersen et al., Radiol Artif Intell 2024;6(2):e230118
-#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
-#
-# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
+# Input: ../../demo_data/preprocessed/processed_images
+# Output: ../../demo_data/results/habitat_two_step_supervoxel_slic
 # =============================================================================
 
+run_mode: train
+
 #%%================================================================================
-run_mode: predict
-pipeline_path: ../../demo_data/results/habitat_two_step_voxel_radiomics/habitat_pipeline.pkl
-data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_two_step_voxel_radiomics/predict
+data_dir: F:\work\habit_project\.cursor\test\resample_02
+out_dir: ../../demo_data/results/habitat_two_step_supervoxel_slic
 #%%================================================================================
 
 FeatureConstruction:
   voxel_level:
-    method: concat(voxel_radiomics(T2, params_file, kernelRadius))
+    method: concat(voxel_radiomics(T1), voxel_radiomics(T2))
     params:
       params_file: ../radiomics/params_voxel_radiomics.yaml
       kernelRadius: 3
       voxelBatch: 1000
       useTorchRadiomics: auto
+      torchGpus: []
 
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
-    params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
-
+    params: {}
 
   preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
       - method: winsorize
         winsor_limits: [0.05, 0.05]
@@ -62,35 +53,36 @@ FeatureConstruction:
         global_normalize: false
       - method: minmax
         global_normalize: false
+      
 
 
 HabitatSegmentation:
   clustering_mode: two_step
 
   supervoxel:
-    algorithm: kmeans
+    algorithm: slic
     n_clusters: 50
-    max_iter: 300
+    compactness: 0.5
+    sigma: 0.5
+    enforce_connectivity: true
+    max_iter: 10
     n_init: 10
     one_step_settings:
       min_clusters: 2
       max_clusters: 10
       fixed_n_clusters:
-      selection_method: elbow
+      selection_method: kneedle
       plot_validation_curves: true
-
 
   habitat:
     algorithm: kmeans
     max_clusters: 10
-    habitat_cluster_selection_method:
-      - elbow
-    fixed_n_clusters:
+    n_clusters: 50
+    random_state: 42
     max_iter: 300
     n_init: 10
 
-
-processes: 2
+processes: 4
 cap_processes_to_gpu_pool: false
 individual_subject_timeout_sec: 900
 oom_backoff: false
@@ -110,4 +102,3 @@ plot_curves: true
 save_results_csv: true
 random_state: 42
 debug: false
-

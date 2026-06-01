@@ -34,7 +34,7 @@ Before generating a config, confirm:
 | `clustering_mode` | `one_step`, `two_step`, or `direct_pooling` (see below) |
 | (kinetic only) timestamps Excel | required |
 | (voxel_radiomics only) PyRadiomics params YAML | required |
-| (voxel_radiomics only) `kernelRadius` / `voxelBatch` | optional; defaults 1 / 1000 (`-1` = no batching) |
+| (voxel_radiomics only) `kernelRadius` / `voxelBatch` | optional; CT preset **3** / 1000 (`-1` = no batching); see R3B12 ref below |
 | (voxel_radiomics only) `useTorchRadiomics` / `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
 | `processes` / `cap_processes_to_gpu_pool` | Stage-1 parallelism; default `processes: 2`, `cap_processes_to_gpu_pool: true` |
 | (supervoxel_radiomics only) PyRadiomics params YAML | `params_supervoxel_radiomics.yaml` |
@@ -82,7 +82,10 @@ per-phase scan times. Without this, fail fast.
 
 For `voxel_radiomics`: use `config/radiomics/params_voxel_radiomics.yaml` for
 GLCM — bare `glcm:` in a params file enables all 24 features; MCC/Imc1/Imc2
-crash on small kernels. HABIT defaults unrestricted GLCM to 21 stable features
+crash on small kernels. HABIT defaults unrestricted GLCM to 21 stable features.
+**CT voxel texture (R3B12):** `kernelRadius: 3` in habitat YAML, `binWidth: 12` in
+`params_voxel_radiomics.yaml` (Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118,
+doi:10.1148/ryai.230118)
 and logs a warning. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
 limits how many of them are active. Stage-1 workers receive `gpuSlotIndex` from the parallel
 pool (default `cap_processes_to_gpu_pool: true` caps workers to `len(torchGpus)`). Set

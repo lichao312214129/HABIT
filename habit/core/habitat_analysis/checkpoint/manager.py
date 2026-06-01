@@ -424,7 +424,7 @@ class HabitatTrainCheckpoint:
         Args:
             resume: Whether to reuse completed subjects from disk.
         """
-        strict_hash: bool = bool(getattr(self.config, "strict_checkpoint_hash", True))
+        strict_hash: bool = bool(getattr(self.config, "strict_checkpoint_hash", False))
 
         if not resume:
             if self.checkpoint_dir.exists():

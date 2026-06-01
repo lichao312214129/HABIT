@@ -100,7 +100,8 @@ Full annotated reference: `config/feature_extraction/config_extract_features.yam
 
 ## Voxel-based GLCM defaults (`voxel_radiomics` only)
 
-Voxel radiomics uses tiny neighborhoods (`kernelRadius=1` → 3×3×3). Many voxels
+Voxel radiomics uses local neighborhoods (`kernelRadius=3` → 7×7×7 for CT R3B12 preset;
+`kernelRadius=1` → 3×3×3). Many voxels
 produce **degenerate GLCM matrices** (flat patches). If `params_file` enables
 `glcm:` **without listing feature names**, PyRadiomics computes all 24 GLCM
 features; **MCC, Imc1, Imc2** then fail (CUDA/MKL `eigvals` crash or NaN).

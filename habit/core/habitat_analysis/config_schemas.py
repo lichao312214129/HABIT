@@ -130,7 +130,7 @@ class HabitatAnalysisConfig(BaseConfig):
         ),
     )
     strict_checkpoint_hash: bool = Field(
-        True,
+        False,
         description=(
             "When True with resume=True, raise an error instead of discarding the "
             "checkpoint when the manifest config hash or run_mode is incompatible "
@@ -475,6 +475,9 @@ class OneStepSettings(BaseModel):
         'inertia',
         'kneedle',
         'elbow',
+        'gap',
+        'aic',
+        'bic',
     ] = 'elbow'
     plot_validation_curves: bool = True
 

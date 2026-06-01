@@ -1,5 +1,5 @@
 # =============================================================================
-# Habitat â€” DEMO: two-step clustering on demo_data/preprocessed/processed_images
+# Habitat â€?DEMO: two-step clustering on demo_data/preprocessed/processed_images
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 #
@@ -69,7 +69,7 @@ individual_subject_timeout_sec: 900
 oom_backoff: false
 
 resume: true
-strict_checkpoint_hash: true
+strict_checkpoint_hash: false
 checkpoint_dir: null
 force_rerun_subjects: []
 retry_failed_subjects: false

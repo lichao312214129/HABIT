@@ -55,7 +55,10 @@ Times are in **minutes from injection**. Subject IDs must match folder names.
 
 ### `voxel_radiomics(<img>)`
 Computes PyRadiomics features for each voxel using its local neighborhood.
-**Slow and memory-hungry.** Use `config/radiomics/params_voxel_radiomics.yaml`:
+**Slow and memory-hungry.** For **CT habitat** voxel texture, use the **R3B12** preset
+(`kernelRadius: 3`, `binWidth: 12` HU) from Petersen et al. (*Radiol Artif Intell*
+2024;6(2):e230118, doi:10.1148/ryai.230118) — better repeatability/reproducibility than R1B25.
+Use `config/radiomics/params_voxel_radiomics.yaml`:
 GLCM must list **21 stable features** (exclude MCC/Imc1/Imc2). Bare `glcm:`
 enables all 24; on `kernelRadius=1–3` many neighborhoods are flat, GLCM
 matrices degenerate, and MCC/Imc1/Imc2 trigger CUDA/MKL `eigvals` errors.
@@ -66,7 +69,7 @@ voxel_level:
   method: voxel_radiomics(T2)
   params:
     params_file: ./config/radiomics/params_voxel_radiomics.yaml
-    kernelRadius: 1          # 1=3x3x3 ; 2=5x5x5 (habit param, not in params_file)
+    kernelRadius: 3          # CT R3B12 default: 3 → 7×7×7; 1=3×3×3 (habit param, not in params_file)
     voxelBatch: 1000         # habit default; -1 = no batching
     useTorchRadiomics: auto  # auto uses torch+CUDA when available
     # torchGpus: [0, 1]      # allowed GPU indices
@@ -101,7 +104,7 @@ featureClass:
     - ClusterShade
     - ClusterProminence
 setting:
-  binWidth: 25
+  binWidth: 12               # CT R3B12 (see params_voxel_radiomics.yaml header reference)
   voxelArrayShift: 300
 ```
 
