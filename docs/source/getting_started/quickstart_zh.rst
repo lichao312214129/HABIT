@@ -45,6 +45,7 @@
 ------------------------
 
 demo 已含预处理结果，**首次可跳过步骤 1** ，从步骤 2 开始。改参数见 :doc:`../configuration_zh`。
+下文各步使用的 YAML 均在项目根目录 **`config/`** 下（与 ``habit/`` 包同级）；完整场景索引见 ``config/README_CONFIG.md`` 。
 
 **步骤 1 — 预处理** （约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score）→ ``demo_data/results/preprocessed/processed_images/`` （输入可仍用包内 ``demo_data/preprocessed/processed_images/``）
 

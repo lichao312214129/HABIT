@@ -43,6 +43,12 @@
 
 ---
 
+## 内置配置模板
+
+获取源码后，在**项目根目录**（与 Python 包 `habit/` 同级，而非 `habit/` 包内部）提供 [`config/`](config/) 目录，内含预处理、生境分割、特征提取、机器学习等**可参考的示例 YAML**。建议先阅读 [`config/README_CONFIG.md`](config/README_CONFIG.md) 中的场景索引，再复制对应文件并按 `#%%====` 块修改路径；各字段含义见 [配置参考](https://lichao312214129.github.io/HABIT/configuration_zh.html)。
+
+---
+
 ## 源码与演示数据
 
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）

@@ -31,8 +31,7 @@
    FeatureConstruction:
      voxel_level:
        method: mean_voxel_features
-       params: {}
-   
+
    HabitatSegmentation:
      clustering_mode: two_step
      supervoxel:

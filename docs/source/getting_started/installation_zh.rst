@@ -98,7 +98,8 @@ Anaconda（备选）
 进入项目目录并安装
 ~~~~~~~~~~~~~~~~~~
 
-在 **Anaconda Powershell Prompt** 中，先找到项目根的 **完整路径** （打开该文件夹后应能直接看到 ``config`` 、``habit`` 、``requirements.txt``）：
+在 **Anaconda Powershell Prompt** 中，先找到项目根的 **完整路径** （打开该文件夹后应能直接看到 ``config`` 、``habit`` 、``requirements.txt``）。
+``config/`` 目录内含各流程 **可参考的示例 YAML** （场景索引见 ``config/README_CONFIG.md`` ），与 :doc:`../configuration_zh` 配置参考配合使用。
 
 - **Windows** ：资源管理器中进入 ``HABIT-main`` → 点击窗口上方 **地址栏** → 复制整段路径（示例 ``D:\HABIT-main``），在终端用 ``cd`` 进入该目录（路径含空格时用英文双引号包裹，例如 ``cd "D:\HABIT-main"``）。
 - **macOS** ：Finder 中把 ``HABIT-main`` **拖入** 终端窗口，会自动填入完整路径；或进入该文件夹后于终端执行 ``pwd`` 查看。

@@ -44,6 +44,12 @@ Local build: `cd docs && make html`, then open `docs/build/html/index.html`.
 
 ---
 
+## Bundled config templates
+
+After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package, not inside the import package). It contains reference YAMLs for preprocessing, habitat, ML, radiomics, etc. Start with [`config/README_CONFIG.md`](config/README_CONFIG.md) for a scenario index; copy a template and edit paths in `#%%====` blocks. Field reference: [Configuration (ZH)](https://lichao312214129.github.io/HABIT/configuration_zh.html).
+
+---
+
 ## Source & demo data
 
 - **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)

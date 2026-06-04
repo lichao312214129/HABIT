@@ -29,7 +29,6 @@ will be clustered together by accident.
 ```yaml
 voxel_level:
   method: concat(raw(T1), raw(T2), raw(DWI), raw(ADC))
-  params: {}
 ```
 
 ### `kinetic(...)`

@@ -8,6 +8,14 @@
 
 This file is a **template index** and habitat-specific notes (`#%%` markers, Stage-1 parallelism). Prefer the configuration reference for per-key semantics; user guides link there for YAML details.
 
+## Where to find these files
+
+After cloning or unpacking HABIT, open the **`config/`** folder at the **repository root**
+(sibling to the `habit/` Python package). These are the **bundled reference YAMLs** users
+should copy and edit—they are **not** inside the importable `habit/` package tree under
+`site-packages`. Chinese docs: [configuration reference](../docs/source/configuration_zh.rst)
+(「内置配置模板」); README also links here.
+
 ## Overview
 
 Configs live under **`config/<module>/`**. Each file aims at **one primary

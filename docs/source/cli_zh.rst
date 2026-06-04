@@ -183,13 +183,10 @@ DICOM 整理命令
    FeatureConstruction:
      voxel_level:
        method: concat(raw(delay2), raw(delay3), raw(delay5))
-       params: {}
 
      supervoxel_level:
        supervoxel_file_keyword: '*_supervoxel.nrrd'
        method: mean_voxel_features()
-       params:
-         params_file: {}
 
    HabitatSegmentation:
      clustering_mode: two_step
