@@ -520,6 +520,11 @@ DICOM 整理配置参数（``habit sort-dicom``）
   - **必需**: 是
   - **默认值**: 无（必填）
   - **说明**: 支持函数式语法组合多个特征提取器。
+  - **表达式约定** （``voxel_level`` / ``supervoxel_level`` 共用）:
+
+    - 对每个模态单独提取时（``raw`` 、``voxel_radiomics`` 、``supervoxel_radiomics`` 等），**即使只有一个模态**，也须用外层组合方法包裹，常用 ``concat(...)`` ；内层为各模态子表达式，外层负责合并各模态结果。
+    - 括号内逗号分隔的是 **参数名占位符** 或 **影像模态名** （与 ``images/<受试者>/<模态名>/`` 子目录一致），**不是** Python 关键字参数；真实路径与数值写在同级 ``params`` 字典中，或由 ``resolve_*_step_params`` 从 ``params`` 自动合并。
+    - 组学类推荐写法：``concat(voxel_radiomics(T2, params_file, kernelRadius))`` 、``concat(supervoxel_radiomics(T2, params_file))`` ；``params_file`` 等也可只写在 ``params`` 中而不出现在表达式里（见下方 ``params`` 说明）。
 
 - ``params`` : 体素级提取器参数字典
 
@@ -593,7 +598,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
         by Machine Learning in Cancer. *Radiol Artif Intell*. 2024;6(2):e230118.
         https://doi.org/10.1148/ryai.230118
 
-      - **示例**: ``voxel_radiomics(raw(delay2), params_file='./config/radiomics/params_voxel_radiomics.yaml', kernelRadius=3)``
+      - **示例**: ``concat(voxel_radiomics(T2, params_file, kernelRadius))`` ，且 ``params`` 中提供 ``params_file`` 、``kernelRadius`` 等
 
   - **完整示例**:
 
@@ -617,9 +622,9 @@ DICOM 整理配置参数（``habit sort-dicom``）
            kernel_size: 5
            bins: 32
 
-       # 体素级影像组学（纹理特征，计算较慢）
+       # 体素级影像组学（纹理特征，计算较慢；单模态也需 concat）
        voxel_level:
-         method: voxel_radiomics(T2)
+         method: concat(voxel_radiomics(T2, params_file, kernelRadius))
          params:
            params_file: ./config/radiomics/params_voxel_radiomics.yaml
            kernelRadius: 3
@@ -665,7 +670,7 @@ DICOM 整理配置参数（``habit sort-dicom``）
   - **类型**: 字符串
   - **必需**: 否（配置 ``supervoxel_level`` 时建议填写）
   - **默认值**: ``mean_voxel_features()``
-  - **说明**: 定义如何从体素特征聚合到超像素，或直接从超像素提取特征。
+  - **说明**: 定义如何从体素特征聚合到超像素，或直接从超像素提取特征。对 ``supervoxel_radiomics`` 等多模态提取，表达式约定与 ``voxel_level`` 相同（单模态亦须 ``concat(...)`` 等外层组合方法；见上文「表达式约定」）。
   - **可用方法及参数**:
 
 **mean_voxel_features()**:
@@ -675,15 +680,15 @@ DICOM 整理配置参数（``habit sort-dicom``）
       - **用途**: 将体素级特征（如 ``voxel_level`` 提取的特征）聚合到超像素级
       - **示例**: ``mean_voxel_features()``
 
-**supervoxel_radiomics(params_file=...)**:
+**concat(supervoxel_radiomics(<模态名>, params_file), ...)**:
 
-      - **说明**: 对每个超体素 label 提取 **整 ROI** 影像组学纹理（非体素 kernel 邻域）
+      - **说明**: 对每个超体素 label 提取 **整 ROI** 影像组学纹理（非体素 kernel 邻域）。须写在 ``concat(...)`` （或其它外层组合方法）内；单模态示例：``concat(supervoxel_radiomics(T2, params_file))`` 。
       - **离散化**: 在全部超体素并集 mask（``sv_map > 0``）上 **一次** PyRadiomics ``_applyBinning`` ，再逐 label 用 ``cMatrices`` 建矩阵
       - **矩阵后端**: ``useSupervoxelCext`` 默认 ``auto`` ：已编译 ``supervoxel_cext`` （``pip install -e .``）时用 C 扩展批量建矩阵；否则回退到原有 Torch/PyRadiomics 堆叠矩阵路径。设为 ``false`` 时 **强制** 使用 Torch/PyRadiomics 堆叠矩阵（``matrix_backend=torch_cmatrices``），即使 C 扩展已编译
       - **特征后端**: ``useTorchRadiomics`` 解析为 torch 时用 TorchRadiomics（GPU/CPU torch）；否则 CPU PyRadiomics（语义相同）
       - **参数** （写在 ``FeatureConstruction.supervoxel_level.params`` ，可继承 ``voxel_level.params`` 中的 torch 项）:
 
-        - ``params_file`` (str, 必需): PyRadiomics 参数 YAML（仅 featureClass / setting）
+        - ``params_file`` (str, 必需): PyRadiomics 参数 YAML（仅 featureClass / setting）；建议在 ``method`` 子表达式中写占位符 ``params_file`` ，实际路径写在 ``supervoxel_level.params`` （亦可仅写在 ``params`` 中由解析器合并）
         - ``supervoxelBatch`` (int): 批分组大小，默认 ``64`` （非 kernel 半径）
         - ``supervoxelUnionBboxCrop`` (bool): 是否裁切到并集 bbox，默认 ``true``
         - ``useSupervoxelCext`` (str | bool): ``auto`` / ``true`` / ``false`` ，默认 ``auto``；须写在 ``supervoxel_level.params`` （不要写在 ``params_file``）
@@ -692,12 +697,12 @@ DICOM 整理配置参数（``habit sort-dicom``）
 
       - **注意**: ``kernelRadius`` 仅用于 ``voxel_radiomics`` ，``supervoxel_radiomics`` 不使用
       - **用途**: 不依赖 ``voxel_level`` 特征，直接从超体素区域提取纹理等组学特征
-      - **示例**: ``supervoxel_radiomics(T2)`` 且 ``params_file: ./config/radiomics/params_supervoxel_radiomics.yaml``
+      - **示例**: ``concat(supervoxel_radiomics(T2, params_file))`` 且 ``params.params_file: ./config/radiomics/params_supervoxel_radiomics.yaml``
 
   - **方法对比**:
 
     - ``mean_voxel_features()`` : 依赖 ``voxel_level`` 特征，速度快，适合大多数场景
-    - ``supervoxel_radiomics()`` : 独立 ROI 组学；union-mask 一次 bin + 逐 label 提取；特征数值与旧版逐 label ``execute`` （per-label bin）**不一致**
+    - ``concat(supervoxel_radiomics(...), ...)`` : 独立 ROI 组学；union-mask 一次 bin + 逐 label 提取；特征数值与旧版逐 label ``execute`` （per-label bin）**不一致**
 
   - **完整示例**:
 
@@ -709,16 +714,27 @@ DICOM 整理配置参数（``habit sort-dicom``）
          method: mean_voxel_features()
          params: {}
        
-       # 场景2：直接提取影像组学特征
+       # 场景2：直接提取影像组学特征（单模态也需 concat；T2 换为 data_dir 下实际模态名）
        supervoxel_level:
          supervoxel_file_keyword: '*_supervoxel.nrrd'
-         method: supervoxel_radiomics(T2)
+         method: concat(supervoxel_radiomics(T2, params_file))
          params:
            params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
            supervoxelBatch: 64
            useSupervoxelCext: auto
            useTorchRadiomics: auto
            # torchGpus: [0, 1]
+
+       # 场景2b：多模态超体素组学
+       supervoxel_level:
+         supervoxel_file_keyword: '*_supervoxel.nrrd'
+         method: concat(
+           supervoxel_radiomics(T1, params_file),
+           supervoxel_radiomics(T2, params_file))
+         params:
+           params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
+           useSupervoxelCext: auto
+           useTorchRadiomics: auto
 
 - ``params`` : 参数
 

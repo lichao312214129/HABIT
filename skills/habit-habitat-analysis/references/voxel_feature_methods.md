@@ -55,7 +55,15 @@ Times are in **minutes from injection**. Subject IDs must match folder names.
 
 ### `voxel_radiomics(<img>)`
 Computes PyRadiomics features for each voxel using its local neighborhood.
-**Slow and memory-hungry.** For **CT habitat** voxel texture, use the **R3B12** preset
+**Slow and memory-hungry.**
+
+**Expression syntax:** HABIT parses `method` as an outer combiner plus inner per-modality
+steps. Use `concat(...)` even for a **single** modality. Parentheses list **modality names**
+or **parameter placeholders** (e.g. `params_file`, `kernelRadius`); actual paths and
+numbers live in `voxel_level.params` (placeholders are resolved from `params`). This is
+not Python `kwargs` syntax (`params_file=...` in the string is invalid).
+
+For **CT habitat** voxel texture, use the **R3B12** preset
 (`kernelRadius: 3`, `binWidth: 12` HU) from Petersen et al. (*Radiol Artif Intell*
 2024;6(2):e230118, doi:10.1148/ryai.230118) — better repeatability/reproducibility than R1B25.
 Use `config/radiomics/params_voxel_radiomics.yaml`:
@@ -66,7 +74,7 @@ HABIT substitutes the safe list when `glcm` is unrestricted and logs a warning.
 
 ```yaml
 voxel_level:
-  method: voxel_radiomics(T2)
+  method: concat(voxel_radiomics(T2, params_file, kernelRadius))
   params:
     params_file: ./config/radiomics/params_voxel_radiomics.yaml
     kernelRadius: 3          # CT R3B12 default: 3 → 7×7×7; 1=3×3×3 (habit param, not in params_file)
@@ -74,6 +82,16 @@ voxel_level:
     useTorchRadiomics: auto  # auto uses torch+CUDA when available
     # torchGpus: [0, 1]      # allowed GPU indices
     # torchGpuCount: 2       # optional: use first N GPUs from torchGpus
+```
+
+Multi-modality voxel radiomics:
+
+```yaml
+voxel_level:
+  method: concat(voxel_radiomics(T1, params_file, kernelRadius), voxel_radiomics(T2, params_file, kernelRadius))
+  params:
+    params_file: ./config/radiomics/params_voxel_radiomics.yaml
+    kernelRadius: 3
 ```
 
 Recommended `params_voxel_radiomics.yaml` (PyRadiomics settings only):
@@ -133,8 +151,8 @@ DCE-MRI or dynamic CT?
   Need an accurate timestamps Excel.
 
 Want texture-driven habitats?
-  -> voxel_radiomics(<seq>) if cohort small (<100) and you can afford runtime
-  -> local_entropy(<seq>) for a faster compromise
+  -> concat(voxel_radiomics(<seq>, params_file, ...)) if cohort small (<100) and you can afford runtime
+  -> concat(local_entropy(<seq>)) for a faster compromise (outer combiner required)
 ```
 
 ## Sanity-checks before launching
@@ -145,17 +163,20 @@ Want texture-driven habitats?
    subject folder name.
 4. For `voxel_radiomics`, the params file must exist and be valid PyRadiomics
    YAML.
-5. For `supervoxel_radiomics`, use `params_supervoxel_radiomics.yaml` and set
-   `supervoxelBatch` / torch keys under `supervoxel_level.params` (see below).
+5. For `supervoxel_radiomics`, wrap with `concat(...)` (even for one modality), use
+   `params_supervoxel_radiomics.yaml`, and set `supervoxelBatch` / torch keys under
+   `supervoxel_level.params` (see below).
 
-## Supervoxel-level: `supervoxel_radiomics(<img>)`
+## Supervoxel-level: `concat(supervoxel_radiomics(<img>, params_file), ...)`
 
 Extracts **whole-ROI** PyRadiomics texture per supervoxel label (not a local kernel).
+Same expression rules as `voxel_level`: outer `concat`, inner modality + `params_file`
+placeholder, values in `supervoxel_level.params`.
 
 ```yaml
 supervoxel_level:
   supervoxel_file_keyword: '*_supervoxel.nrrd'
-  method: supervoxel_radiomics(T2)
+  method: concat(supervoxel_radiomics(T2, params_file))
   params:
     params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
     supervoxelBatch: 64          # habit default; batch group size for label loops
@@ -164,6 +185,15 @@ supervoxel_level:
     # torchGpus: [0, 1]
     # torchGpuCount: 2
     # torchDtype: float32
+```
+
+Multi-modality (reference: `config/habitat/config_habitat_two_step_supervoxel_radiomics_train.yaml` uses `delay2` when demo data has delay phases):
+
+```yaml
+supervoxel_level:
+  method: concat(supervoxel_radiomics(T1, params_file), supervoxel_radiomics(T2, params_file))
+  params:
+    params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
 ```
 
 **Binning semantics:** one PyRadiomics discretization on the union mask (`sv_map > 0`),

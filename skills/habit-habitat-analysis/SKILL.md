@@ -94,9 +94,11 @@ share GPUs via modulo mapping). See `references/voxel_feature_methods.md`.
 
 For `supervoxel_radiomics` (two_step Step 2 input): use
 `config/radiomics/params_supervoxel_radiomics.yaml`; union-mask binning + per-label
-ROI extraction. Set `supervoxelBatch`, `useSupervoxelCext` (default auto), and torch keys
-under `supervoxel_level.params` (inherit torch keys from `voxel_level.params` when omitted).
-See `references/voxel_feature_methods.md` (Supervoxel-level section).
+ROI extraction. **`method` must use an outer combiner** (typically `concat(...)`), even for
+one modality, e.g. `concat(supervoxel_radiomics(T2, params_file))` with `params_file` path
+in `supervoxel_level.params`. Set `supervoxelBatch`, `useSupervoxelCext` (default auto), and
+torch keys under `supervoxel_level.params` (inherit torch keys from `voxel_level.params` when
+omitted). See `references/voxel_feature_methods.md` (Supervoxel-level section).
 
 ## Population-level preprocessing (two_step only)
 

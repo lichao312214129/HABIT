@@ -86,11 +86,16 @@ For `voxel_radiomics` in habitat, use `params_voxel_radiomics.yaml` for GLCM: ba
 `torchGpus`, `torchGpuCount`, `torchDevice`, and `torchDtype` belong in
 `FeatureConstruction.voxel_level.params` (not in the PyRadiomics parameter YAML).
 They are forwarded to the extractor even when omitted from the `method` expression.
-Default `voxelBatch` is `1000`; use `-1` for no batching. Default `useTorchRadiomics` is `auto`.
+Use `concat(voxel_radiomics(<modality>, params_file, kernelRadius))` (or multi-modality `concat(...)`)
+as the `voxel_level.method` pattern; a bare `voxel_radiomics(T2)` without `concat` does not match the
+pipeline merge step. Default `voxelBatch` is `1000`; use `-1` for no batching. Default `useTorchRadiomics` is `auto`.
 Default `torchDtype` is `float32`.
 
 For `supervoxel_radiomics` in habitat, use `params_supervoxel_radiomics.yaml` for feature classes
-(firstorder, glcm, …). Habit-specific keys belong in
+(firstorder, glcm, …). Set `supervoxel_level.method` with an outer combiner (typically `concat(...)`),
+even for a single modality, e.g. `concat(supervoxel_radiomics(T2, params_file))` with the real path in
+`supervoxel_level.params`. Parentheses list modality names and parameter placeholders; values are not
+Python `kwargs` in the string. Habit-specific keys belong in
 `FeatureConstruction.supervoxel_level.params` (not in the PyRadiomics parameter YAML):
 `supervoxelBatch` (default `64`), `useSupervoxelCext` (default `auto`), `useTorchRadiomics`,
 `torchGpus`, `torchGpuCount`, `torchDevice`, and `torchDtype`. When omitted under

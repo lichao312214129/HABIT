@@ -239,7 +239,7 @@ HABIT 支持以下类型的自定义扩展，
 
    FeatureConstruction:
      voxel_level:
-       method: my_feature_extractor(raw(T1), raw(T2))
+       method: concat(my_feature_extractor(T1, param1), my_feature_extractor(T2, param1))
        params:
          param1: value1
 

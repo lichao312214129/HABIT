@@ -41,8 +41,8 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
     FeatureConstruction:
       supervoxel_level:
         method: mean_voxel_features()  # Mode 1
-        # OR
-        method: supervoxel_radiomics()  # Mode 2
+        # OR (Mode 2: outer concat required even for one modality)
+        method: concat(supervoxel_radiomics(T2, params_file))
     ```
     
     **Individual-level step**: Processes each subject independently.
