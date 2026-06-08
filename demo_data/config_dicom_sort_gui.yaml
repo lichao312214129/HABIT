@@ -1,0 +1,4 @@
+data_dir: F:\work\habit_project\demo_data\dicom
+out_dir: F:\work\habit_project\demo_data
+f: subj_%n_%g_%x/%s_%d/%r_%o.dcm
+extra_args: []

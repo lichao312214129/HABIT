@@ -40,3 +40,4 @@ pydantic
 kneed
 # PyTorch CPU (default; Aliyun mirror). GPU: requirements-gpu.txt after this file
 torch
+gradio>=4.0.0

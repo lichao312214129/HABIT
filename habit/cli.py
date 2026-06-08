@@ -385,5 +385,14 @@ def merge_csv(input_files, output, index_col, separator, encoding, join_type):
     )
 
 
+@cli.command('gui')
+@click.option('--host', '-h', default='127.0.0.1', show_default=True, help='Host to bind the Web GUI server to')
+@click.option('--port', '-p', default=8501, show_default=True, help='Local port for Web GUI server')
+def gui(host, port):
+    """Launch the interactive Web GUI for doctors and medical students"""
+    from habit.cli_commands.commands.cmd_gui import run_gui_server
+    run_gui_server(host=host, port=port)
+
+
 if __name__ == '__main__':
     cli()
