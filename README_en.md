@@ -52,6 +52,10 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 
 ## Source & demo data
 
+- **Windows portable pack (recommended)**：[Installation — section 1 (ZH)](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
+  - **CPU** (smaller download): [Baidu Netdisk `habit_portable.tar.gz`](https://pan.baidu.com/s/1zTbYhDm3VnhHP-cMo5bN0A?pwd=8yks) — code **8yks**
+  - **GPU full pack** (optional, ~3 GB): [Baidu Netdisk `HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1xaMy69z-2dZH4nFEwhd4tg?pwd=fxnh) — code **fxnh**
+  - Extract: create an empty folder (e.g. `habit-cpu` / `habit-gpu`) → put the archive inside → **extract to current folder** → run `setup_habit.bat`; CPU + NVIDIA: upgrade GPU torch per ZH guide
 - **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
 - **Demo bundle**：see [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 

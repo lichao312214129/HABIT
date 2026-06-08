@@ -1,14 +1,14 @@
 @echo off
-REM Stage all portable-pack assets into the conda env BEFORE conda pack.
+REM Stage portable-pack assets into the conda env BEFORE conda pack.
+REM Called by pack_habit.bat, or run alone:
 REM
 REM   conda activate habit
-REM   conda_pack\stage_external_tools.bat
-REM   conda pack -n habit -o HABIT-win-py310-gpu-v0.1.0.tar.gz
+REM   developer\stage_external_tools.bat
 REM
 REM Pack root (%%CONDA_PREFIX%%):
-REM   setup_habit.bat, install_gpu_torch.cmd, requirements-gpu-torch-only.txt
+REM   setup_habit.bat, install_gpu_torch.bat
 REM Scripts\:
-REM   dcm2niix.exe, elastix.exe, transformix.exe, Par0040affine.txt  (from demo_data\)
+REM   dcm2niix.exe, elastix.exe, transformix.exe  (from demo_data\)
 REM
 REM Optional argument: conda env root directory (if CONDA_PREFIX is unset).
 
@@ -51,13 +51,13 @@ echo Pack source: !PACK_SRC!
 echo.
 
 set "MISSING=0"
-for %%F in (dcm2niix.exe elastix.exe transformix.exe Par0040affine.txt) do (
+for %%F in (dcm2niix.exe elastix.exe transformix.exe) do (
     if not exist "!TOOL_SRC!\%%F" (
         echo [HABIT] ERROR: Missing "!TOOL_SRC!\%%F"
         set "MISSING=1"
     )
 )
-for %%F in (setup_habit.bat install_gpu_torch.cmd requirements-gpu-torch-only.txt) do (
+for %%F in (setup_habit.bat install_gpu_torch.bat) do (
     if not exist "!PACK_SRC!\%%F" (
         echo [HABIT] ERROR: Missing "!PACK_SRC!\%%F"
         set "MISSING=1"
@@ -66,7 +66,7 @@ for %%F in (setup_habit.bat install_gpu_torch.cmd requirements-gpu-torch-only.tx
 if "!MISSING!"=="1" exit /b 1
 
 echo [1/2] Copy to Scripts\ ...
-for %%F in (dcm2niix.exe elastix.exe transformix.exe Par0040affine.txt) do (
+for %%F in (dcm2niix.exe elastix.exe transformix.exe) do (
     copy /Y "!TOOL_SRC!\%%F" "!SCRIPTS!\%%F" >nul
     if errorlevel 1 (
         echo [HABIT] ERROR: Failed to copy %%F to Scripts
@@ -76,7 +76,7 @@ for %%F in (dcm2niix.exe elastix.exe transformix.exe Par0040affine.txt) do (
 )
 
 echo [2/2] Copy to pack root ...
-for %%F in (setup_habit.bat install_gpu_torch.cmd requirements-gpu-torch-only.txt) do (
+for %%F in (setup_habit.bat install_gpu_torch.bat) do (
     copy /Y "!PACK_SRC!\%%F" "!PACK_ROOT!\%%F" >nul
     if errorlevel 1 (
         echo [HABIT] ERROR: Failed to copy %%F to pack root
@@ -86,5 +86,5 @@ for %%F in (setup_habit.bat install_gpu_torch.cmd requirements-gpu-torch-only.tx
 )
 
 echo.
-echo Done. Next: conda pack -n habit -o your-pack.tar.gz
+echo Staging complete.
 exit /b 0

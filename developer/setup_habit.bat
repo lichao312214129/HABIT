@@ -34,7 +34,7 @@ if not defined PACK_ROOT (
     echo   - double-click setup_habit.bat, OR
     echo   - cd to pack root and run: setup_habit.bat
     echo.
-    echo Do NOT run the copy under conda_pack\ in the source repo.
+    echo Do NOT run the copy under developer\ in the source repo.
     set "EXIT_CODE=1"
     goto :finish
 )
@@ -134,7 +134,8 @@ if "!EXIT_CODE!"=="0" (
     echo   habit --version
     echo.
     echo Optional GPU torch upgrade ^(NVIDIA GPU only^):
-    echo   install_gpu_torch.cmd
+    echo   1. Download torch wheel from Baidu Netdisk ^(code nt7k^) into this folder
+    echo   2. Double-click install_gpu_torch.bat
 )
 
 :finish
