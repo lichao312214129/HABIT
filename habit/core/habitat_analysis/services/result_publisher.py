@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 """
 Result publishing helpers for habitat analysis.
 
@@ -13,6 +27,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 import pandas as pd
+
+from habit.utils.habitats_results_io import save_habitats_results
 
 from ..config_schemas import HabitatAnalysisConfig, ResultColumns
 from .habitat_image_writer import HabitatImageWriter
@@ -62,11 +78,14 @@ class HabitatResultPublisher:
         self._write_images_if_enabled(results_df)
 
     def _write_csv(self, results_df: pd.DataFrame) -> None:
-        csv_path = Path(self.config.out_dir) / "habitats.csv"
         canonical_order = canonical_csv_column_order(results_df)
-        results_df.loc[:, canonical_order].to_csv(str(csv_path), index=False)
-        if self.config.verbose:
-            self.logger.info(f"Results saved to {csv_path}")
+        ordered_df = results_df.loc[:, canonical_order]
+        save_habitats_results(
+            ordered_df,
+            self.config.out_dir,
+            self.config.habitats_results_format,
+            logger=self.logger if self.config.verbose else None,
+        )
 
     def _write_images_if_enabled(self, results_df: pd.DataFrame) -> None:
         clustering_mode = self.config.HabitatSegmentation.clustering_mode

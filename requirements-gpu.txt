@@ -16,6 +16,46 @@
 #   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 #
 # Mirror: https://mirrors.aliyun.com/pytorch-wheels/cu121/
+# Pinned for Python 3.10 compatibility (tested in py310 conda env).
+# Default includes CPU PyTorch (Aliyun mirror). NVIDIA GPU: pip install -r requirements-gpu.txt
+numpy==1.26.1
+SimpleITK==2.2.1
+antspyx==0.4.2
+imbalanced-learn
+opencv-python
+matplotlib
+versioneer
+trimesh
+scipy
+openpyxl
+pandas
+pyarrow
+tqdm
+# pyradiomics: not listed here. Install AFTER this file (numpy is installed above):
+#   Windows (64-bit, Python 3.10): pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
+#   If wheel fails: install MSVC Build Tools, then:
+#     pip install pyradiomics --no-build-isolation
+#   macOS / Linux: pip install pyradiomics
+scikit-learn
+joblib
+scikit-image
+six
+mrmr_selection
+pingouin
+statsmodels
+krippendorff
+xgboost
+autogluon
+seaborn
+shap
+plotly
+pyyaml
+click>=8.0
+chardet
+lifelines
+pydicom
+pydantic
+kneed
 
 --find-links https://mirrors.aliyun.com/pytorch-wheels/cu121/
 --trusted-host mirrors.aliyun.com

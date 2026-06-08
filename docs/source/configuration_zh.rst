@@ -1516,7 +1516,7 @@ HabitatSegmentation.supervoxel — SLIC 超像素配置
 **config_hash 与续训兼容性**
 
 - **参与 hash** （Stage 1 个体级；变更则清空 checkpoint）： ``data_dir`` 、``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level`` 、``HabitatSegmentation.clustering_mode`` 、个体聚类块（``two_step`` → ``supervoxel`` ；``one_step`` → ``supervoxel`` + ``habitat`` ）。
-- **不参与 hash** （可 ``resume: true`` 继续）： ``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``cap_processes_to_gpu_pool`` 、``strict_checkpoint_hash`` 、``individual_subject_timeout_sec`` 、``individual_subject_graceful_shutdown_sec`` 、``individual_subject_spawn_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``oom_reduce_workers_by`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``force_rerun_subjects`` 、``out_dir`` 等。
+- **不参与 hash** （可 ``resume: true`` 继续）： ``preprocessing_for_group_level`` 、``two_step``/``direct_pooling`` 的群体 ``habitat.*`` 、``processes`` 、``cap_processes_to_gpu_pool`` 、``strict_checkpoint_hash`` 、``individual_subject_timeout_sec`` 、``individual_subject_graceful_shutdown_sec`` 、``individual_subject_spawn_timeout_sec`` 、``plot_curves`` 、``save_results_csv`` 、``habitats_results_format`` 、``save_images`` 、``verbose`` 、``debug`` 、``on_subject_failure`` 、``oom_backoff`` 、``oom_reduce_workers_by`` 、``retry_failed_subjects`` 、``individual_subject_auto_retry_rounds`` 、``individual_subject_parallel_mode`` 、``persistent_worker_max_consecutive_failures`` 、``persistent_worker_recycle_after_tasks`` 、``force_rerun_subjects`` 、``out_dir`` 等。
 - ``manifest.json`` 另存 ``individual_config_hash`` （与 ``config_hash`` 相同）；旧版仅全量 hash 的 manifest 在仅改 Stage 2 配置时会迁移 hash 并保留 pkl。
 - 程序在 ``resume: true`` 启动时自动比较 hash。个体级 hash 不一致且无法判定为 Stage 2 漂移时，默认（``strict_checkpoint_hash: false``）记录警告并删除 checkpoint；设为 ``true`` 时抛出 ``CheckpointConfigHashError``。
 
@@ -1535,10 +1535,24 @@ HabitatSegmentation.supervoxel — SLIC 超像素配置
 - ``direct_pooling`` ：在 ``individual_preprocessing`` 之后保存（体素级 ``features`` ，pkl 较大）
 - Stage 2（combine / concat / group 聚类）均 **无** checkpoint
 
-**save_results_csv**: 是否将结果保存为 CSV 文件
+**save_results_csv**: 是否保存生境结果表
 
 - **类型**: 布尔值
 - **默认值**: ``true``
+- **说明**: 为 ``true`` 时写出 ``habitats.parquet`` （默认）或 ``habitats.csv`` ，由 ``habitats_results_format`` 控制。
+
+**habitats_results_format**: 生境结果表文件格式
+
+- **类型**: 字符串
+- **默认值**: ``parquet``
+- **可选值**: ``parquet`` 、 ``csv``
+- **说明**: ``parquet`` 体积更小、读写更快，适合 ``direct_pooling`` 大体素表；``csv`` 便于 Excel 直接打开。输出文件名固定为 ``habitats.parquet`` 或 ``habitats.csv`` 。
+- **示例**:
+
+  .. code-block:: yaml
+
+     save_results_csv: true
+     habitats_results_format: parquet
 
 **random_state** （生境分析顶层）
 
@@ -1568,7 +1582,7 @@ HabitatSegmentation.supervoxel — SLIC 超像素配置
 
 - **类型**: 布尔值
 - **默认值**: ``true``
-- **说明**: 对应 ``HabitatAnalysisConfig.save_images`` 。为 ``true`` 时 train/predict 会写 habitat 标签图；mask 在写图时从 ``config.data_dir`` 加载，**不** 写入 ``habitat_pipeline.pkl`` 。为 ``false`` 时仍可通过 ``habitats.csv`` 做下游分析，且不写 NRRD。
+- **说明**: 对应 ``HabitatAnalysisConfig.save_images`` 。为 ``true`` 时 train/predict 会写 habitat 标签图；mask 在写图时从 ``config.data_dir`` 加载，**不** 写入 ``habitat_pipeline.pkl`` 。为 ``false`` 时仍可通过 ``habitats.parquet`` / ``habitats.csv`` 做下游分析，且不写 NRRD。
 
 **verbose**: 是否输出较详细的运行日志
 

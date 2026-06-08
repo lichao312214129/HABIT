@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 """
 Habitat Analysis - Deep module unifying clustering-mode dispatch, train/predict
 orchestration, and pipeline lifecycle (build / fit / save / load / transform).
@@ -812,6 +826,9 @@ class HabitatAnalysis:
             pipeline_config.out_dir = self.config.out_dir
             pipeline_config.plot_curves = self.config.plot_curves
             pipeline_config.save_results_csv = self.config.save_results_csv
+            pipeline_config.habitats_results_format = (
+                self.config.habitats_results_format
+            )
             pipeline_config.save_images = self.config.save_images
             pipeline_config.processes = self.config.processes
             pipeline_config.random_state = self.config.random_state

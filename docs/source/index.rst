@@ -3,8 +3,8 @@ HABIT: Habitat Analysis: Biomedical Imaging Toolkit
 
 .. image:: https://img.shields.io/badge/Python-3.10+-blue.svg
    :target: https://www.python.org/downloads/
-.. image:: https://img.shields.io/badge/License-MIT-green.svg
-   :target: https://opensource.org/licenses/MIT
+.. image:: https://img.shields.io/badge/License-HABIT%20Custom-blue.svg
+   :target: https://github.com/lichao312214129/HABIT/blob/main/LICENSE
 
 **HABIT** 用于肿瘤 **生境（Habitat）** 分析：从医学影像中划分肿瘤亚区并提取定量特征，可选构建预测模型。
 

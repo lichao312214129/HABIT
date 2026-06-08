@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 """
 Configuration Schemas for Habitat Analysis Workflows
 Uses Pydantic for robust validation and type safety.
@@ -204,7 +218,17 @@ class HabitatAnalysisConfig(BaseConfig):
     )
     plot_curves: bool = Field(True, description="Whether to generate and save plots.")
     save_images: bool = Field(True, description="Whether to save any output images during runs.")
-    save_results_csv: bool = Field(True, description="Whether to save results as CSV files.")
+    save_results_csv: bool = Field(
+        True,
+        description="Whether to save the habitats results table to disk.",
+    )
+    habitats_results_format: Literal["parquet", "csv"] = Field(
+        "parquet",
+        description=(
+            "On-disk format for the habitats results table when "
+            "save_results_csv is true. Writes habitats.parquet or habitats.csv."
+        ),
+    )
     random_state: int = Field(42, description="Global random seed for reproducibility.")
     verbose: bool = Field(True, description="Whether to output detailed logs.")
     debug: bool = Field(False, description="Enable debug mode for verbose logging.")
@@ -551,6 +575,21 @@ class HabitatClusteringConfig(BaseModel):
     )
     max_iter: int = 300
     n_init: int = 10
+    parallel_cluster_search: bool = Field(
+        True,
+        description=(
+            "When True, evaluate candidate habitat cluster counts in parallel "
+            "for direct_pooling and two_step group-level clustering."
+        ),
+    )
+    cluster_search_workers: Optional[int] = Field(
+        None,
+        ge=1,
+        description=(
+            "Worker processes for parallel cluster-count search. "
+            "None uses 2."
+        ),
+    )
 
 class HabitatSegmentationConfig(BaseModel):
     clustering_mode: Literal['one_step', 'two_step', 'direct_pooling'] = 'two_step'

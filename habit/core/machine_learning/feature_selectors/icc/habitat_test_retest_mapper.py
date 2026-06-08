@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 """
 Background: The labels from two habitat analyses (mainly due to the randomness of cluster assignment) may not correspond. 
 For example, label1 in the first analysis and label1 in the second analysis may represent different feature attributes. 
@@ -128,17 +142,25 @@ def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str,
     # Load data
     if test_habitat_table.endswith('.csv'):
         test_df = pd.read_csv(test_habitat_table)
+    elif test_habitat_table.endswith('.parquet'):
+        test_df = pd.read_parquet(test_habitat_table)
     elif test_habitat_table.endswith('.xlsx'):
         test_df = pd.read_excel(test_habitat_table)
     else:
-        raise ValueError('test_habitat_table should be a csv or excel file')
-    
+        raise ValueError(
+            'test_habitat_table should be a csv, parquet, or excel file'
+        )
+
     if retest_habitat_table.endswith('.csv'):
         retest_df = pd.read_csv(retest_habitat_table)
+    elif retest_habitat_table.endswith('.parquet'):
+        retest_df = pd.read_parquet(retest_habitat_table)
     elif retest_habitat_table.endswith('.xlsx'):
         retest_df = pd.read_excel(retest_habitat_table)
     else:
-        raise ValueError('retest_habitat_table should be a csv or excel file')
+        raise ValueError(
+            'retest_habitat_table should be a csv, parquet, or excel file'
+        )
     
     # If features not specified, use columns 4 to second-to-last
     if features is None:

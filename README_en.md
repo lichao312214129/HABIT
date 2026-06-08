@@ -18,7 +18,7 @@ Local build: `cd docs && make html`, then open `docs/build/html/index.html`.
 
 | Step | Topic | Link |
 |------|--------|------|
-| 1 | Install conda & HABIT | [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
+| 1 | Install HABIT (Windows: portable pack in [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html); source build: same page, section 2) | [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
 | 2 | Demo data & 5-step workflow | [Quickstart / Demo](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) |
 | 3 | Per-step commands | [User guide index](https://lichao312214129.github.io/HABIT/user_guide/index_zh.html) |
 | 4 | YAML parameters | [Configuration reference](https://lichao312214129.github.io/HABIT/configuration_zh.html) |
@@ -60,6 +60,6 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Support & license
 
 - **Issues**：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
-- **License**：[MIT](LICENSE)
+- **License**：[HABIT Software License](LICENSE) (non-commercial use with attribution; commercial use requires prior written consent)
 
 **Core developers**：Li Chao, Dong Mengshi

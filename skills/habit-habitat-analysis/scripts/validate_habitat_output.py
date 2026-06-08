@@ -102,17 +102,25 @@ def scan_subjects(out_dir: Path, two_step: bool) -> Dict[str, Any]:
 
 
 def check_habitats_csv(out_dir: Path, tolerance: float = 0.02) -> Dict[str, Any]:
-    """Sanity-check the cohort-level `habitats.csv`."""
-    csv_path = out_dir / "habitats.csv"
-    if not csv_path.is_file():
-        return {"present": False, "issue": f"{csv_path.name} not found"}
+    """Sanity-check the cohort-level habitats results table."""
+    from habit.utils.habitats_results_io import (
+        find_habitats_results_file,
+        load_habitats_results,
+    )
+
+    results_path = find_habitats_results_file(out_dir)
+    if results_path is None:
+        return {
+            "present": False,
+            "issue": "habitats.parquet / habitats.csv not found",
+        }
     try:
-        import pandas as pd
-        df = pd.read_csv(csv_path)
+        df = load_habitats_results(results_path)
     except Exception as exc:
-        return {"present": True, "issue": f"cannot read csv: {exc}"}
+        return {"present": True, "issue": f"cannot read results table: {exc}"}
     info: Dict[str, Any] = {
         "present": True,
+        "results_file": results_path.name,
         "n_rows": int(len(df)),
         "columns": list(df.columns),
     }

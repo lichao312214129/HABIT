@@ -26,6 +26,7 @@ setup(
     version='0.1.0',
     description='Habitat Analysis: Biomedical Imaging Toolkit',
     author='lichao19870617@163.com',
+    license='HABIT Software License',
     packages=find_packages(),
     ext_modules=[
         Extension(
@@ -48,6 +49,7 @@ setup(
         'scipy',
         'openpyxl',
         'pandas',
+        'pyarrow',
         'tqdm',
         'pyradiomics',
         'scikit-learn',
@@ -71,7 +73,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
-        'License :: OSI Approved :: MIT License',
+        'License :: Other/Proprietary License',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',

@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 """
 Base clustering module for habitat analysis.
 """
@@ -18,7 +32,15 @@ from kneed import KneeLocator
 
 warnings.simplefilter('ignore')
 
-from .cluster_validation_methods import get_default_methods, get_method_description, get_optimization_direction
+from .cluster_validation_methods import (
+    get_default_methods,
+    get_method_description,
+    get_optimization_direction,
+)
+from .cluster_search_parallel import (
+    parallel_cluster_search_scores,
+    resolve_cluster_search_workers,
+)
 
 # Registry for clustering algorithms
 _CLUSTERING_REGISTRY = {}
@@ -228,6 +250,43 @@ class BaseClustering(ABC):
                 params[attr_name] = getattr(self, attr_name)
         params.update(getattr(self, "kwargs", {}))
         return self.__class__(**params)
+
+    def _algorithm_name(self) -> str:
+        """
+        Normalize the registered clustering algorithm name for validation lookup.
+
+        Returns:
+            str: Algorithm key such as ``kmeans`` or ``gmm``.
+        """
+        algo_name = self.__class__.__name__.lower()
+        if algo_name.endswith("clustering"):
+            algo_name = algo_name[:-10]
+        return algo_name
+
+    def _cluster_search_model_params(self) -> Dict[str, Any]:
+        """
+        Serialize constructor kwargs used during cluster-count validation.
+
+        Returns:
+            Dict[str, Any]: Parameters shared by every candidate ``k`` fit.
+        """
+        params: Dict[str, Any] = {
+            "random_state": self.random_state,
+            "kwargs": dict(getattr(self, "kwargs", {})),
+        }
+        for attr_name in ("init", "n_init", "max_iter", "covariance_type"):
+            if hasattr(self, attr_name):
+                params[attr_name] = getattr(self, attr_name)
+        return params
+
+    def _supports_parallel_cluster_search(self) -> bool:
+        """
+        Whether this clusterer can use the parallel k-search backend.
+
+        Returns:
+            bool: True for KMeans and GMM group-level search.
+        """
+        return self._algorithm_name() in {"kmeans", "gmm"}
 
     def _begin_cluster_search_logging(
         self,
@@ -568,7 +627,9 @@ class BaseClustering(ABC):
                               max_clusters: int = 10, 
                               methods: Optional[Union[List[str], str]] = None, 
                               show_progress: bool = True,
-                              logger: Optional[logging.Logger] = None) -> Tuple[int, Dict[str, List[float]]]:
+                              logger: Optional[logging.Logger] = None,
+                              parallel_cluster_search: bool = False,
+                              cluster_search_workers: Optional[int] = None) -> Tuple[int, Dict[str, List[float]]]:
         """
         Find the optimal number of clusters
         
@@ -579,6 +640,10 @@ class BaseClustering(ABC):
             methods (Optional[Union[List[str], str]]): List of methods to determine the optimal number of clusters. If None, default methods are used
             show_progress (bool): Whether to display progress
             logger (Optional[logging.Logger]): Logger for search progress; falls back to print when None
+            parallel_cluster_search (bool): When True and the algorithm supports it,
+                evaluate each candidate ``k`` in parallel worker processes.
+            cluster_search_workers (Optional[int]): Worker count for parallel search.
+                ``None`` uses ``2``.
             
         Returns:
             Tuple[int, Dict[str, List[float]]]: 
@@ -624,43 +689,67 @@ class BaseClustering(ABC):
         
         # Calculate different scores
         self.scores: Dict[str, List[float]] = {}
-        
-        # Track which methods were actually calculated
-        valid_methods = []
-            
-        for method in methods:
-            if hasattr(self, f'calculate_{method}_scores'):
-                self._set_cluster_search_method(method)
-                    
-                # Call the specific calculation method
-                # This dynamically gets the method named "calculate_{method}_scores" from the class
-                # For example, if method is "silhouette", it gets "calculate_silhouette_scores" method
-                calculation_method = getattr(self, f'calculate_{method}_scores')
-                scores = calculation_method(X, self.cluster_range)
-                
-                # Skip if method returns None (e.g., AIC/BIC for non-GMM algorithms)
-                if scores is None:
-                    if show_progress:
-                        message = f"{method.capitalize()} skipped (not applicable to this algorithm)"
-                        if logger is not None:
-                            logger.info(message)
-                        else:
-                            print(message)
-                    continue
-                
-                self.scores[method] = scores
-                valid_methods.append(method)
-                
+        valid_methods: List[str] = []
+
+        use_parallel_search = (
+            parallel_cluster_search
+            and self._supports_parallel_cluster_search()
+            and len(self.cluster_range) > 1
+        )
+        if use_parallel_search:
+            n_workers = resolve_cluster_search_workers(cluster_search_workers)
+            n_workers = min(n_workers, len(self.cluster_range))
+            self.scores, valid_methods = parallel_cluster_search_scores(
+                X,
+                self.cluster_range,
+                self._algorithm_name(),
+                self._cluster_search_model_params(),
+                methods,
+                n_workers=n_workers,
+                show_progress=show_progress,
+                log=logger,
+            )
+            for method in valid_methods:
                 if show_progress:
-                    message = f"{method.capitalize()} calculation completed!"
+                    message = f"{method.capitalize()} calculation completed (parallel)!"
                     if logger is not None:
                         logger.info(message)
                     else:
                         print(message)
-        
-        # Update methods list to only include valid ones
-        methods = valid_methods
-        
+            methods = valid_methods
+        else:
+            for method in methods:
+                if hasattr(self, f'calculate_{method}_scores'):
+                    self._set_cluster_search_method(method)
+
+                    # Call the specific calculation method
+                    # This dynamically gets the method named "calculate_{method}_scores" from the class
+                    # For example, if method is "silhouette", it gets "calculate_silhouette_scores" method
+                    calculation_method = getattr(self, f'calculate_{method}_scores')
+                    scores = calculation_method(X, self.cluster_range)
+
+                    # Skip if method returns None (e.g., AIC/BIC for non-GMM algorithms)
+                    if scores is None:
+                        if show_progress:
+                            message = f"{method.capitalize()} skipped (not applicable to this algorithm)"
+                            if logger is not None:
+                                logger.info(message)
+                            else:
+                                print(message)
+                        continue
+
+                    self.scores[method] = scores
+                    valid_methods.append(method)
+
+                    if show_progress:
+                        message = f"{method.capitalize()} calculation completed!"
+                        if logger is not None:
+                            logger.info(message)
+                        else:
+                            print(message)
+
+            methods = valid_methods
+
         # Check if any valid methods remain
         if len(methods) == 0:
             self._finish_cluster_search_logging(min_clusters, show_progress, logger)

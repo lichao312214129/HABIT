@@ -1,16 +1,96 @@
-MIT License
+HABIT Software License
+Version 1.0, June 2026
 
-Copyright (c) 2024 HABIT Contributors
+Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This license governs the HABIT software package ("Software"), including all
+source code, binaries, documentation, and associated materials distributed
+under the HABIT project name.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+---------------------------------------------------------------------------
+1. DEFINITIONS
+---------------------------------------------------------------------------
+
+"Non-Commercial Use" means use for academic research, education, personal
+learning, or other purposes where no direct or indirect commercial advantage
+or monetary compensation is sought or received.
+
+"Commercial Use" means any use of the Software in connection with a business,
+product, or service that is intended for or results in commercial advantage
+or monetary compensation, including but not limited to:
+
+  (a) incorporation into commercial software, medical devices, or SaaS products;
+  (b) use in paid consulting, contract research, or fee-for-service analysis;
+  (c) use within a for-profit organization for internal or external workflows;
+  (d) sublicensing, selling, or licensing access to the Software or derivatives.
+
+"Acknowledgment" means a clear, visible statement that the work, product,
+publication, or service uses HABIT (Habitat Analysis: Biomedical Imaging
+Toolkit), including the version or components used where practicable.
+
+---------------------------------------------------------------------------
+2. NON-COMMERCIAL USE
+---------------------------------------------------------------------------
+
+Permission is hereby granted, free of charge, to any person or organization
+to use, copy, modify, and distribute the Software for Non-Commercial Use,
+subject to the following conditions:
+
+  (a) The above copyright notice and this license notice shall be included
+      in all copies or substantial portions of the Software.
+
+  (b) The user shall provide Acknowledgment of HABIT usage in scientific
+      publications, technical reports, presentations, theses, or other
+      publicly distributed documentation describing work that relies on the
+      Software.
+
+---------------------------------------------------------------------------
+3. COMMERCIAL USE
+---------------------------------------------------------------------------
+
+Commercial Use of the Software is NOT permitted without prior written consent
+from the copyright holder.
+
+Before commencing any Commercial Use, you MUST contact:
+
+    Li Chao <lichao19870617@163.com>
+
+and obtain explicit written authorization. Commercial Use is permitted only
+after such authorization has been granted.
+
+Any authorized Commercial Use additionally requires:
+
+  (a) Acknowledgment of HABIT usage in product documentation, user manuals,
+      release notes, or other user-facing materials; and
+
+  (b) Retention of the above copyright notice and this license notice in
+      all distributed copies or substantial portions of the Software.
+
+---------------------------------------------------------------------------
+4. PROHIBITED ACTIVITIES
+---------------------------------------------------------------------------
+
+You may NOT:
+
+  (a) use the Software for Commercial Use without prior written consent;
+  (b) remove, obscure, or alter copyright notices or license terms;
+  (c) misrepresent the origin of the Software or imply endorsement by the
+      copyright holder without permission.
+
+---------------------------------------------------------------------------
+5. THIRD-PARTY COMPONENTS
+---------------------------------------------------------------------------
+
+The Software may include or depend on third-party components governed by
+their own licenses (for example, components under the MIT License). Those
+components remain subject to their respective licenses. This HABIT Software
+License applies to HABIT-authored code and materials unless otherwise stated
+in the component's own license file.
+
+---------------------------------------------------------------------------
+6. DISCLAIMER OF WARRANTY
+---------------------------------------------------------------------------
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -18,4 +98,13 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE. 
+SOFTWARE.
+
+---------------------------------------------------------------------------
+7. CONTACT
+---------------------------------------------------------------------------
+
+For commercial licensing inquiries, permissions, or questions about this
+license, contact:
+
+    Li Chao <lichao19870617@163.com>

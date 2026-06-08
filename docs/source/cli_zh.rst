@@ -221,7 +221,7 @@ DICOM 整理命令
 
 **输出**:
 
-- 结果表： ``out_dir/habitats.csv`` （若启用保存，
+- 结果表： ``out_dir/habitats.parquet`` （默认；``habitats_results_format: csv`` 时为 ``habitats.csv`` ，若启用保存）
 - 生境图：`out_dir/<subject>_habitats.nrrd`
 - 超像素图（Two-Step）：`out_dir/<subject>_supervoxel.nrrd`
 - 可视化图表：`out_dir/visualizations/`

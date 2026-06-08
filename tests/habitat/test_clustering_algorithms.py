@@ -20,10 +20,13 @@ from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
 )
+from habit.core.habitat_analysis.clustering.cluster_search_parallel import (
+    resolve_cluster_search_workers,
+)
 from habit.core.habitat_analysis.clustering.gmm_clustering import GMMClustering
 from habit.core.habitat_analysis.clustering.kmeans_clustering import KMeansClustering
 from habit.core.habitat_analysis.clustering.slic_clustering import SLICClustering
-from habit.core.habitat_analysis.config_schemas import OneStepSettings
+from habit.core.habitat_analysis.config_schemas import HabitatClusteringConfig, OneStepSettings
 
 
 @pytest.fixture
@@ -252,6 +255,152 @@ class TestSLICClustering:
         assert best_k in model.cluster_range
         assert method in scores
         assert abs(best_k - true_k) <= 3
+
+
+@pytest.mark.unit
+@pytest.mark.habitat
+class TestParallelClusterSearch:
+    """Parallel k-search should match serial results for KMeans and GMM."""
+
+    def test_resolve_cluster_search_workers_default(self) -> None:
+        assert resolve_cluster_search_workers(None) == 2
+
+    def test_resolve_cluster_search_workers_custom(self) -> None:
+        assert resolve_cluster_search_workers(3) == 3
+
+    def test_habitat_config_parallel_defaults(self) -> None:
+        cfg = HabitatClusteringConfig()
+        assert cfg.parallel_cluster_search is True
+        assert cfg.cluster_search_workers is None
+
+    @pytest.mark.parametrize("method", ["silhouette", "elbow"])
+    def test_parallel_matches_serial_kmeans(
+        self,
+        blob_data: Tuple[np.ndarray, np.ndarray, int],
+        method: str,
+    ) -> None:
+        X, _, _ = blob_data
+        serial_model = KMeansClustering(random_state=42, n_init=10)
+        best_serial, scores_serial = serial_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=[method],
+            show_progress=False,
+            parallel_cluster_search=False,
+        )
+
+        parallel_model = KMeansClustering(random_state=42, n_init=10)
+        best_parallel, scores_parallel = parallel_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=[method],
+            show_progress=False,
+            parallel_cluster_search=True,
+            cluster_search_workers=2,
+        )
+
+        assert best_serial == best_parallel
+        for metric_name, serial_values in scores_serial.items():
+            np.testing.assert_allclose(
+                serial_values,
+                scores_parallel[metric_name],
+                rtol=1e-10,
+                atol=1e-10,
+            )
+
+    @pytest.mark.parametrize("method", ["aic", "silhouette"])
+    def test_parallel_matches_serial_gmm(
+        self,
+        blob_data: Tuple[np.ndarray, np.ndarray, int],
+        method: str,
+    ) -> None:
+        X, _, _ = blob_data
+        serial_model = GMMClustering(random_state=42, n_init=5)
+        best_serial, scores_serial = serial_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=[method],
+            show_progress=False,
+            parallel_cluster_search=False,
+        )
+
+        parallel_model = GMMClustering(random_state=42, n_init=5)
+        best_parallel, scores_parallel = parallel_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=[method],
+            show_progress=False,
+            parallel_cluster_search=True,
+            cluster_search_workers=2,
+        )
+
+        assert best_serial == best_parallel
+        for metric_name, serial_values in scores_serial.items():
+            np.testing.assert_allclose(
+                serial_values,
+                scores_parallel[metric_name],
+                rtol=1e-10,
+                atol=1e-10,
+            )
+
+    def test_parallel_kmeans_with_max_iter_in_kwargs(
+        self,
+        blob_data: Tuple[np.ndarray, np.ndarray, int],
+    ) -> None:
+        """Regression: max_iter passed via **kwargs must not duplicate sklearn args."""
+        X, _, _ = blob_data
+        model = KMeansClustering(random_state=42, n_init=10, max_iter=250)
+        best_k, scores = model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=6,
+            methods=["inertia"],
+            show_progress=False,
+            parallel_cluster_search=True,
+            cluster_search_workers=2,
+        )
+        assert best_k in model.cluster_range
+        assert "inertia" in scores
+
+    def test_parallel_multi_method_voting_matches_serial(
+        self,
+        blob_data: Tuple[np.ndarray, np.ndarray, int],
+    ) -> None:
+        X, _, _ = blob_data
+        methods = ["silhouette", "calinski_harabasz"]
+        serial_model = KMeansClustering(random_state=42, n_init=10)
+        best_serial, scores_serial = serial_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=methods,
+            show_progress=False,
+            parallel_cluster_search=False,
+        )
+
+        parallel_model = KMeansClustering(random_state=42, n_init=10)
+        best_parallel, scores_parallel = parallel_model.find_optimal_clusters(
+            X,
+            min_clusters=2,
+            max_clusters=8,
+            methods=methods,
+            show_progress=False,
+            parallel_cluster_search=True,
+            cluster_search_workers=2,
+        )
+
+        assert best_serial == best_parallel
+        for metric_name in methods:
+            np.testing.assert_allclose(
+                scores_serial[metric_name],
+                scores_parallel[metric_name],
+                rtol=1e-10,
+                atol=1e-10,
+            )
 
 
 @pytest.mark.unit

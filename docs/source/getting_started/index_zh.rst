@@ -6,7 +6,7 @@
 一、推荐学习路径
 ----------------
 
-1. :doc:`installation_zh` — 安装 Miniconda/Anaconda 与 HABIT（Python 3.10）
+1. :doc:`installation_zh` — 安装 HABIT（Windows 推荐便携包；源码 / macOS / Linux 见「方式二」）
 2. :doc:`quickstart_zh` — 下载 demo 并跑通完整 5 步流程
 3. :doc:`../user_guide/index_zh` — 各步命令速查
 

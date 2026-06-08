@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
+# Use is governed by the HABIT Software License — see the LICENSE file in the
+# project root for the full text. Summary:
+#
+#   - Non-commercial use (academic, research, education, personal) is permitted
+#     provided that copyright notices are retained and HABIT usage is
+#     acknowledged in publications, reports, or documentation.
+#   - Commercial use requires prior written consent from the copyright holder
+#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
+#     product documentation or user-facing materials.
+#   - Unauthorized commercial use or removal of attribution is prohibited.
+#
 #!/usr/bin/env python
 """
 Utility functions for habitat feature extraction
@@ -36,32 +50,47 @@ class FeatureUtils:
     @staticmethod
     def get_n_habitats_from_csv(habitat_folder: str) -> Optional[int]:
         """
-        Read the number of habitats from habitats.csv file
-        
+        Read the number of habitats from the habitats results table.
+
+        Supports ``habitats.parquet`` (default) and legacy ``habitats.csv``.
+
         Args:
-            habitat_folder: Path to the folder containing habitats.csv
-            
+            habitat_folder: Path to the folder containing the habitats table.
+
         Returns:
-            int: Number of habitats if found, None otherwise
+            int: Number of habitats if found, None otherwise.
         """
-        import os
-        
+        from habit.utils.habitats_results_io import (
+            find_habitats_results_file,
+            load_habitats_results,
+        )
+
         try:
-            csv_path = os.path.join(habitat_folder, 'habitats.csv')
-            if os.path.exists(csv_path):
-                df = pd.read_csv(csv_path)
-                if 'Habitats' in df.columns:
-                    # Assume the Habitats column contains habitat labels, count unique values
-                    unique_habitats = df['Habitats'].nunique()
-                    logging.info(f"Read {unique_habitats} habitats from habitats.csv")
-                    return unique_habitats
-                else:
-                    logging.error("Habitats column not found in habitats.csv")
-            else:
-                logging.error(f"habitats.csv file not found: {csv_path}")
-        except Exception as e:
-            logging.error(f"Error reading habitats.csv: {str(e)}")
-        
+            results_path = find_habitats_results_file(habitat_folder)
+            if results_path is None:
+                logging.error(
+                    "Habitats results file not found in folder: %s",
+                    habitat_folder,
+                )
+                return None
+
+            df = load_habitats_results(results_path)
+            if "Habitats" in df.columns:
+                unique_habitats = int(df["Habitats"].nunique())
+                logging.info(
+                    "Read %s habitats from %s",
+                    unique_habitats,
+                    results_path.name,
+                )
+                return unique_habitats
+
+            logging.error(
+                "Habitats column not found in habitats results file: %s",
+                results_path,
+            )
+        except Exception as exc:
+            logging.error("Error reading habitats results table: %s", exc)
+
         return None
     
     @staticmethod

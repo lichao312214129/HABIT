@@ -11,6 +11,7 @@ trimesh
 scipy
 openpyxl
 pandas
+pyarrow
 tqdm
 # pyradiomics: not listed here. Install AFTER this file (numpy is installed above):
 #   Windows (64-bit, Python 3.10): pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
@@ -18,13 +19,18 @@ tqdm
 #     pip install pyradiomics --no-build-isolation
 #   macOS / Linux: pip install pyradiomics
 scikit-learn
+joblib
 scikit-image
+six
 mrmr_selection
 pingouin
 statsmodels
+krippendorff
 xgboost
+autogluon
 seaborn
 shap
+plotly
 pyyaml
 click>=8.0
 chardet

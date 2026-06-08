@@ -16,7 +16,7 @@
 
 | 顺序 | 说明 | 链接 |
 |------|------|------|
-| 1 | 安装 Miniconda/Anaconda 与 HABIT | [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
+| 1 | 安装 HABIT（Windows 推荐 [便携包](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)；源码见同页「方式二」） | [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
 | 2 | 下载 demo 并跑通 5 步流程 | [完整 Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) |
 | 3 | 各步骤命令速查 | [用户指南](https://lichao312214129.github.io/HABIT/user_guide/index_zh.html) |
 | 4 | 修改 YAML 参数 | [配置参考](https://lichao312214129.github.io/HABIT/configuration_zh.html) |
@@ -51,7 +51,8 @@
 
 ## 源码与演示数据
 
-- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
+- **Windows 便携包（推荐）**：[安装指南 — 方式一](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)（百度网盘 ``HABIT-win-py310-gpu-v0.1.0.tar.gz``，解压后运行 ``setup_habit.bat``）
+- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南 — 方式二](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
 - **演示数据**：`demo_data.rar` — 链接与提取码见 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
 ---
@@ -60,6 +61,6 @@
 
 - **问题反馈**：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
 - **引用**：见文档 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)
-- **许可**：[MIT License](LICENSE)
+- **许可**：[HABIT Software License](LICENSE)（非商业免费使用须署名申明；商业使用须事先书面授权）
 
 **核心开发者**：黎超、董梦实

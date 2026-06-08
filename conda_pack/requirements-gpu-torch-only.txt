@@ -1,0 +1,16 @@
+# Upgrade CPU torch to GPU torch inside an unpacked conda-pack HABIT environment.
+# NVIDIA GPU + driver supporting CUDA 12.1 required. Python 3.10 only.
+#
+# Usage (from pack root, after conda-unpack):
+#   python -m pip install -r requirements-gpu-torch-only.txt
+#
+# Windows offline (recommended if pip download is slow):
+#   Download torch-2.4.0+cu121-cp310-cp310-win_amd64.whl
+#   python -m pip install torch-2.4.0+cu121-cp310-cp310-win_amd64.whl
+#
+# Verify:
+#   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+
+--find-links https://mirrors.aliyun.com/pytorch-wheels/cu121/
+--trusted-host mirrors.aliyun.com
+torch==2.4.0+cu121
