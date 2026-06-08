@@ -3,7 +3,14 @@
 
 本节详细说明 HABIT 支持的数据输入方式，包括文件夹结构和 YAML 配置文件格式。
 
-**重要提示**: 使用前需要先解压 `demo_data` 目录中的 `demo_data.rar` 压缩包。
+**工作根目录**
+
+Demo 与多数 YAML 假定 **工作根目录** 下同时有 ``config/`` 与 ``demo_data/`` ：
+
+- **Windows 便携包**：pack 根目录（如 ``D:\habit-cpu\`` ）；``config.zip`` 、``demo_data.rar`` 从网盘解压到此（见 :doc:`getting_started/installation_zh`）
+- **源码安装**：GitHub 仓库 / ZIP 根目录；``demo_data.rar`` 从网盘解压到 ``demo_data/``
+
+**重要提示**: 使用前需要先解压网盘中的 ``demo_data.rar`` 到工作根目录下的 ``demo_data/`` ；``config.zip`` 解压得到 ``config/`` 。
 
 解压后会得到以下 demo 数据：
 

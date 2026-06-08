@@ -6,48 +6,87 @@
 一、前提条件
 ------------
 
-1. 已完成 :doc:`installation_zh` 中的环境配置与 HABIT 安装
-2. 每次运行前激活环境，并 ``cd`` 进入项目目录。ZIP 解压后目录名为 ``HABIT-main`` （Git 克隆为 ``HABIT``）。若解压软件造成 ``HABIT-main/HABIT-main`` 嵌套，须 ``cd`` 到 **最内层** 且含 ``config/`` 、``habit/`` 的那一级（详见 :doc:`installation_zh` 中 ZIP 说明）。
+1. 已完成 :doc:`installation_zh` 中的 HABIT 安装
+2. 已准备 **工作根目录**：该目录下同时存在 ``config/`` 与 ``demo_data/`` （Demo YAML 使用 ``../../demo_data/...`` 等相对路径，二者须与 **运行 ``habit`` 时的当前目录** 匹配）。
+
+**Windows 便携包用户**（推荐）
+
+1. 便携包解压并完成 ``setup_habit.bat`` （见 :doc:`installation_zh` 方式一）
+2. 从网盘下载 ``config.zip`` 、``demo_data.rar`` ，解压到 **pack 根目录**（与 ``python.exe`` 同级，如 ``D:\habit-cpu\``）
+3. 每次跑 Demo 前 **无需** ``conda activate``；新开终端后：
+
+   .. code-block:: bash
+
+      cd /d D:\habit-cpu
+      habit --version
+
+**源码 / GitHub ZIP 用户**（方式二）
+
+1. ``conda activate habit`` ，``cd`` 到含 ``config/`` 、``habit/`` 的项目根（ZIP 解压后多为 ``HABIT-main``）
+2. 从网盘下载 ``demo_data.rar`` 解压到项目根下的 ``demo_data/``
 
    .. code-block:: bash
 
       conda activate habit
       cd "D:\HABIT-main"
-      # 使用资源管理器地址栏复制的完整路径；macOS 可将文件夹拖入终端
 
-二、下载演示数据
-----------------
+若解压造成 ``HABIT-main/HABIT-main`` 嵌套，须 ``cd`` 到 **最内层** 且含 ``config/`` 、``habit/`` 的那一级（详见 :doc:`installation_zh`）。
 
-**演示数据下载**
+二、下载配置与演示数据
+----------------------
+
+便携包 **不含** ``config/`` 、``demo_data/`` ；请从百度网盘单独下载（链接与提取码见 :doc:`installation_zh` 「配置、演示数据与测试」表格）。
+
++------------------+---------------------+
+| 网盘文件         | 解压目标            |
++==================+=====================+
+| ``config.zip``   | 工作根目录 → ``config/`` |
++------------------+---------------------+
+| ``demo_data.rar``| 工作根目录 → ``demo_data/`` |
++------------------+---------------------+
+
+**演示数据**
 
 - **链接**: |demo_data_link|
 - **提取码**: |demo_data_code|
-- 解压到项目根目录下的 ``demo_data/``
 
-**重要说明** ：
+**重要说明**
 
 - 所有隐私信息已完全去除
 - **严禁商业用途，仅供学术研究和 Demo 演示使用**
 
-解压后目录示意：
+**便携包解压后目录示意**（``D:\habit-cpu\`` 为例）：
+
+.. code-block:: text
+
+   D:\habit-cpu\
+   ├── python.exe
+   ├── setup_habit.bat
+   ├── Scripts\
+   ├── config\               <-- config.zip
+   └── demo_data\            <-- demo_data.rar
+       ├── dicom/
+       ├── preprocessed/processed_images/   <-- Demo 影像与 mask（可跳过步骤 1）
+       └── ...
+
+**源码安装目录示意**：
 
 .. code-block:: text
 
    HABIT-main/
    ├── config/
-   ├── demo_data/          <-- 演示数据解压到此
-   │   ├── dicom/
-   │   ├── preprocessed/processed_images/   <-- Demo 影像与 mask（步骤 2–4 的输入；可跳过步骤 1）
-   │   └── ...
+   ├── demo_data/
    └── habit/
 
 三、完整研究流程（5 步）
 ------------------------
 
 demo 已含预处理结果，**首次可跳过步骤 1** ，从步骤 2 开始。改参数见 :doc:`../configuration_zh`。
-下文各步使用的 YAML 均在项目根目录 **`config/`** 下（与 ``habit/`` 包同级）；完整场景索引见 ``config/README_CONFIG.md`` 。
+下文 YAML 均在 **`config/`** 下；完整场景索引见 ``config/README_CONFIG.md`` 。
 
-**步骤 1 — 预处理** （约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score）→ ``demo_data/results/preprocessed/processed_images/`` （输入可仍用包内 ``demo_data/preprocessed/processed_images/``）
+**请先** ``cd`` **到工作根目录**（便携包为 pack 根，如 ``D:\habit-cpu`` ；源码为 ``HABIT-main`` ）。
+
+**步骤 1 — 预处理** （约 2–5 分钟：重采样 → SimpleITK 配准 → Z-score）→ ``demo_data/results/preprocessed/processed_images/`` （输入可仍用 ``demo_data/preprocessed/processed_images/``）
 
 .. code-block:: bash
 

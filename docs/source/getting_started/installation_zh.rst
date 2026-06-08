@@ -99,7 +99,8 @@ GPU 整包示例：
 
 1. 在 pack 根目录（含 ``python.exe`` 的文件夹）**双击** ``setup_habit.bat`` ，按提示完成（仅需 **一次**）。
 2. **关闭终端，重新打开**，执行 ``habit --version`` 验证（见下文「验证」）。
-3. **仅 CPU 版 + 有 NVIDIA 显卡且需加速**：再按下文「升级 GPU 版 PyTorch」下载 wheel 到同一根目录，双击 ``install_gpu_torch.bat`` 。GPU 整包用户 **跳过** 此步。
+3. 从网盘下载 ``config.zip`` 、``demo_data.rar`` （可选 ``tests.zip``），解压到 **同一 pack 根目录**（见下文「配置、演示数据与测试」）。
+4. **仅 CPU 版 + 有 NVIDIA 显卡且需加速**：再按「升级 GPU 版 PyTorch」下载 wheel 到 pack 根目录，双击 ``install_gpu_torch.bat`` 。GPU 整包用户 **跳过** 此步。
 
 .. note::
 
@@ -185,12 +186,57 @@ GPU 整包示例：
 
 若提示找不到 ``.whl`` ：确认文件与 ``python.exe`` 在同一文件夹，且文件名完全一致（含 ``+cu121`` 后缀）。
 
-配置模板与其它文件
-~~~~~~~~~~~~~~~~~~
+配置、演示数据与测试（网盘，与便携包分开）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **示例 YAML**：便携包 **不含** 仓库根目录的 ``config/`` 。请从 `GitHub 下载 ZIP <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_ 解压，将其中 ``config/`` 复制到任意工作目录，按 ``config/README_CONFIG.md`` 修改路径；字段说明见 :doc:`../configuration_zh` 。
-- **随包外部工具**（官方便携包已内置）：``Scripts\`` 中含 **dcm2niix.exe** 、**elastix.exe** 、**transformix.exe** 。运行 ``setup_habit.bat`` 后 ``Scripts\`` 已在 PATH **最前**，YAML 中 **可省略** ``dcm2niix_path`` 、``elastix_path`` 、``transformix_path`` （留空即走 PATH）。``elastix_parameter_files`` 仍须写 **文件路径** （如 ``config/`` 或 ``demo_data/`` 下的 ``Par0040affine.txt``，按配置文件位置调整）。
-- **演示数据**：见 :doc:`quickstart_zh` 中的 ``demo_data.rar`` 网盘链接。
+便携包 **仅含 HABIT 软件**（Python、依赖、``habit`` 命令、``Scripts\`` 外部工具）。**不含** ``config/`` 、``demo_data/`` 、``tests/`` ，请从百度网盘 **单独下载** 后解压到 **pack 根目录**（与 ``python.exe`` 同级），使 Demo YAML 中的 ``../../demo_data/...`` 等相对路径与源码安装时一致。
+
+**推荐完整目录**（跑 Demo 前）：
+
+.. code-block:: text
+
+   D:\habit-cpu\                    ← 便携包根（工作目录）
+   ├── python.exe
+   ├── setup_habit.bat
+   ├── install_gpu_torch.bat
+   ├── Scripts\
+   ├── config\                      ← config.zip 解压得到
+   ├── demo_data\                   ← demo_data.rar 解压得到
+   └── tests\                       ← tests.zip 解压得到（可选，跑 pytest 时需要）
+
+**网盘资源**（文件名须一致；若维护者将多个文件放在 **同一分享目录**，链接与提取码可能相同）：
+
++------------------+----------------------------+------------------------------------------+--------+
+| 资源             | 网盘文件名                 | 链接                                     | 提取码 |
++==================+============================+==========================================+========+
+| 配置模板         | ``config.zip``             | |config_pack_link|                       | |config_pack_code| |
++------------------+----------------------------+------------------------------------------+--------+
+| 演示数据         | ``demo_data.rar``          | |demo_data_link|                         | |demo_data_code| |
++------------------+----------------------------+------------------------------------------+--------+
+| 测试脚本（可选） | ``tests.zip``              | |tests_pack_link|                        | |tests_pack_code| |
++------------------+----------------------------+------------------------------------------+--------+
+
+**解压要点**
+
+1. 下载后解压到 **pack 根目录**（如 ``D:\habit-cpu\``），解压后应直接出现 ``config\`` 、``demo_data\`` 、``tests\`` 文件夹，而不是多嵌套一层同名目录。
+2. ``config.zip`` / ``tests.zip`` / ``demo_data.rar`` ：均选 **解压到当前文件夹** 。
+3. 跑 Demo 时请在 pack 根目录打开终端（``cd /d D:\habit-cpu``），再执行 ``habit --config config/...`` （详见 :doc:`quickstart_zh`）。
+
+**其它说明**
+
+- **随包外部工具**（官方便携包已内置）：``Scripts\`` 中含 **dcm2niix.exe** 、**elastix.exe** 、**transformix.exe** 。运行 ``setup_habit.bat`` 后 ``Scripts\`` 已在 PATH **最前**，YAML 中 **可省略** ``dcm2niix_path`` 、``elastix_path`` 、``transformix_path`` （留空即走 PATH）。``elastix_parameter_files`` 仍须写 **文件路径** （如 ``config/`` 或 ``demo_data/`` 下的 ``Par0040affine.txt``）。
+- **源码安装用户**（方式二）：``config/`` 、``tests/`` 随 GitHub 仓库；``demo_data.rar`` 仍从网盘下载到项目根。
+- 配置字段说明见 :doc:`../configuration_zh` ；Demo 流程见 :doc:`quickstart_zh` 。
+
+**可选：运行 tests/**
+
+便携包默认未装 ``pytest`` 。需要跑测试时：
+
+.. code-block:: bash
+
+   cd /d D:\habit-cpu
+   python -m pip install pytest
+   python -m pytest tests\ -v
 
 维护者：打包（``developer/`` 目录）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

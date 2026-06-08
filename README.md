@@ -54,9 +54,11 @@
 - **Windows 便携包（推荐）**：[安装指南 — 方式一](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
   - **CPU 版**（优先，体积小）：百度网盘 [`habit_portable.tar.gz`](https://pan.baidu.com/s/1zTbYhDm3VnhHP-cMo5bN0A?pwd=8yks) ，提取码 **8yks**
   - **GPU 整包**（可选，约 3 GB）：百度网盘 [`HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1xaMy69z-2dZH4nFEwhd4tg?pwd=fxnh) ，提取码 **fxnh**
-  - 解压：新建空文件夹（如 `habit-cpu` / `habit-gpu`）→ 压缩包放入该文件夹 → **解压到当前目录** → 运行 `setup_habit.bat`；CPU 版 + NVIDIA 显卡可再按文档用 wheel + `install_gpu_torch.bat`
+  - 解压：新建空文件夹（如 `habit-cpu`）→ 便携包解压到当前目录 → `setup_habit.bat`
+  - **另从网盘下载**（解压到同一 pack 根目录）：`config.zip`、`demo_data.rar`；可选 `tests.zip` — 链接见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
+  - CPU 版 + NVIDIA：wheel + `install_gpu_torch.bat`
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南 — 方式二](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
-- **演示数据**：`demo_data.rar` — 链接与提取码见 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
+- **演示数据 / 配置 / 测试**：网盘 `demo_data.rar`、`config.zip`、`tests.zip`（与便携包分开）— 见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) 与 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
 ---
 
