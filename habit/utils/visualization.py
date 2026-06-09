@@ -207,6 +207,158 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
     plt.show()
 
 
+def _get_cluster_3d_axis_labels(
+    X: np.ndarray,
+    explained_var: Optional[np.ndarray],
+    reduction_method: str,
+) -> Tuple[str, str, str]:
+    """
+    Build axis labels for 3D cluster scatter plots.
+
+    Args:
+        X: Original feature matrix, shape (n_samples, n_features)
+        explained_var: PCA explained variance ratio or None
+        reduction_method: 'pca' or 'tsne'
+
+    Returns:
+        Tuple of (x_label, y_label, z_label)
+    """
+    if explained_var is not None and X.shape[1] > 3:
+        return (
+            f'PC1 ({explained_var[0] * 100:.1f}%)',
+            f'PC2 ({explained_var[1] * 100:.1f}%)',
+            f'PC3 ({explained_var[2] * 100:.1f}%)',
+        )
+    if reduction_method.lower() == 'tsne':
+        return ('t-SNE 1', 't-SNE 2', 't-SNE 3')
+    return ('Feature 1', 'Feature 2', 'Feature 3')
+
+
+def _save_interactive_cluster_3d_html(
+    X_reduced: np.ndarray,
+    labels: np.ndarray,
+    centers_reduced: Optional[np.ndarray],
+    colors: List,
+    unique_labels: np.ndarray,
+    x_label: str,
+    y_label: str,
+    z_label: str,
+    title: Optional[str],
+    n_clusters: int,
+    save_path: str,
+    alpha_3d: float,
+    marker_size: int,
+    marker: str,
+    center_marker: str,
+    center_size: int,
+    center_color: str,
+    max_legend_items: int,
+) -> None:
+    """
+    Save an interactive 3D cluster scatter plot as a self-contained HTML file.
+
+    Scatter points use partial transparency; cluster centers are fully opaque
+    so they remain visible through dense point clouds. Users can rotate the view
+    in a browser to find the best viewing angle.
+
+    Args:
+        X_reduced: Reduced coordinates, shape (n_samples, 3)
+        labels: Cluster labels, shape (n_samples,)
+        centers_reduced: Reduced cluster centers, shape (n_centers, 3) or None
+        colors: Matplotlib colors, one per unique label
+        unique_labels: Sorted unique cluster labels
+        x_label: X-axis title
+        y_label: Y-axis title
+        z_label: Z-axis title
+        title: Plot title
+        n_clusters: Number of clusters
+        save_path: Output HTML file path
+        alpha_3d: Opacity for scatter points in [0, 1]
+        marker_size: Matplotlib-style scatter marker area scale
+        marker: Matplotlib marker style for data points
+        center_marker: Matplotlib marker style for centers
+        center_size: Matplotlib-style center marker area scale
+        center_color: Color for cluster centers
+        max_legend_items: Hide legend when cluster count exceeds this value
+    """
+    try:
+        import matplotlib.colors as mcolors
+        import plotly.graph_objects as go
+    except ImportError:
+        return
+
+    plotly_marker_map = {
+        'o': 'circle',
+        's': 'square',
+        '^': 'triangle-up',
+        'v': 'triangle-down',
+        'X': 'x',
+        'x': 'x',
+        'D': 'diamond',
+    }
+    scatter_symbol = plotly_marker_map.get(marker, 'circle')
+    center_symbol = plotly_marker_map.get(center_marker, 'x')
+    scatter_marker_size = max(2, marker_size // 5)
+    center_marker_size = max(6, center_size // 4)
+
+    fig = go.Figure()
+    for idx, label in enumerate(unique_labels):
+        mask = labels == label
+        hex_color = mcolors.to_hex(mcolors.to_rgba(colors[idx])[:3])
+        fig.add_trace(
+            go.Scatter3d(
+                x=X_reduced[mask, 0],
+                y=X_reduced[mask, 1],
+                z=X_reduced[mask, 2],
+                mode='markers',
+                name=f'Cluster {label}',
+                marker=dict(
+                    size=scatter_marker_size,
+                    color=hex_color,
+                    opacity=alpha_3d,
+                    symbol=scatter_symbol,
+                ),
+            )
+        )
+
+    if centers_reduced is not None:
+        fig.add_trace(
+            go.Scatter3d(
+                x=centers_reduced[:, 0],
+                y=centers_reduced[:, 1],
+                z=centers_reduced[:, 2],
+                mode='markers',
+                name='Centers',
+                marker=dict(
+                    size=center_marker_size,
+                    color=center_color,
+                    opacity=1.0,
+                    symbol=center_symbol,
+                    line=dict(width=2, color=center_color),
+                ),
+            )
+        )
+
+    display_title = title if title else f'Clustering Results (n_clusters={n_clusters})'
+    display_title = display_title.replace('\n', '<br>')
+
+    fig.update_layout(
+        title=dict(text=display_title, font=dict(family='Arial', size=14)),
+        scene=dict(
+            xaxis_title=x_label,
+            yaxis_title=y_label,
+            zaxis_title=z_label,
+        ),
+        showlegend=n_clusters <= max_legend_items,
+        width=900,
+        height=700,
+        font=dict(family='Arial'),
+    )
+
+    os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+    fig.write_html(save_path)
+
+
 def plot_cluster_results(
     X, 
     labels, 
@@ -233,6 +385,9 @@ def plot_cluster_results(
     grid_alpha: float = 0.3,
     max_legend_items: int = 10,
     random_state: int = 42,
+    alpha_3d: float = 0.35,
+    save_interactive_3d: bool = True,
+    interactive_save_path: Optional[str] = None,
 ):
     """
     Plot scatter plot of clustering results (2D or 3D)
@@ -249,7 +404,7 @@ def plot_cluster_results(
         plot_3d: Whether to plot 3D scatter plot (default False)
         explained_variance: Explained variance ratio from PCA (for title)
         figsize: Figure size as (width, height), default (6, 5) for 2D, (7, 6) for 3D
-        alpha: Transparency of scatter points (0-1, default 0.7)
+        alpha: Transparency of 2D scatter points (0-1, default 0.7)
         marker_size: Size of scatter points (default 20)
         marker: Marker style for data points (default 'o')
         center_marker: Marker style for cluster centers (default 'X')
@@ -262,6 +417,9 @@ def plot_cluster_results(
         max_legend_items: Maximum number of legend items to show, hide legend if exceeded (default 10)
         grid_alpha: Transparency of grid lines (default 0.3)
         random_state: Random seed for t-SNE dimensionality reduction (default 42)
+        alpha_3d: Transparency of 3D scatter points (0-1, default 0.35); centers stay opaque
+        save_interactive_3d: When plot_3d is True, also save a rotatable HTML plot (default True)
+        interactive_save_path: HTML output path; defaults to save_path stem + '_interactive.html'
     """
     # Convert to numpy array if input is DataFrame
     import pandas as pd
@@ -323,6 +481,9 @@ def plot_cluster_results(
         from mpl_toolkits.mplot3d import Axes3D
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111, projection='3d')
+        x_label_3d, y_label_3d, z_label_3d = _get_cluster_3d_axis_labels(
+            X, explained_var, reduction_method
+        )
         
         # Plot each cluster with different color (first, so centers appear on top)
         for idx, label in enumerate(unique_labels):
@@ -330,7 +491,7 @@ def plot_cluster_results(
             ax.scatter(
                 X_reduced[mask, 0], X_reduced[mask, 1], X_reduced[mask, 2], 
                 c=[colors[idx]], label=f'Cluster {label}', 
-                alpha=alpha, s=marker_size, marker=marker, zorder=1
+                alpha=alpha_3d, s=marker_size, marker=marker, zorder=1
             )
             # zorder=1 means the points are plotted first, so centers appear on top
         
@@ -344,18 +505,9 @@ def plot_cluster_results(
             )
         
         # Set labels with labelpad for z-axis to ensure visibility
-        if explained_var is not None and X.shape[1] > 3:
-            ax.set_xlabel(f'PC1 ({explained_var[0]*100:.1f}%)', fontfamily='Arial', labelpad=5)
-            ax.set_ylabel(f'PC2 ({explained_var[1]*100:.1f}%)', fontfamily='Arial', labelpad=5)
-            ax.set_zlabel(f'PC3 ({explained_var[2]*100:.1f}%)', fontfamily='Arial', labelpad=5)
-        elif reduction_method.lower() == 'tsne':
-            ax.set_xlabel('t-SNE 1', fontfamily='Arial', labelpad=5)
-            ax.set_ylabel('t-SNE 2', fontfamily='Arial', labelpad=5)
-            ax.set_zlabel('t-SNE 3', fontfamily='Arial', labelpad=5)
-        else:
-            ax.set_xlabel('Feature 1', fontfamily='Arial', labelpad=5)
-            ax.set_ylabel('Feature 2', fontfamily='Arial', labelpad=5)
-            ax.set_zlabel('Feature 3', fontfamily='Arial', labelpad=5)
+        ax.set_xlabel(x_label_3d, fontfamily='Arial', labelpad=5)
+        ax.set_ylabel(y_label_3d, fontfamily='Arial', labelpad=5)
+        ax.set_zlabel(z_label_3d, fontfamily='Arial', labelpad=5)
         
         # Only show legend if number of clusters <= max_legend_items
         if n_clusters <= max_legend_items:
@@ -414,6 +566,32 @@ def plot_cluster_results(
     if save_path:
         os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
         plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+
+    if plot_3d and save_interactive_3d and save_path:
+        html_path = interactive_save_path
+        if html_path is None:
+            base_path, _ = os.path.splitext(save_path)
+            html_path = f'{base_path}_interactive.html'
+        _save_interactive_cluster_3d_html(
+            X_reduced=X_reduced,
+            labels=labels,
+            centers_reduced=centers_reduced,
+            colors=colors,
+            unique_labels=unique_labels,
+            x_label=x_label_3d,
+            y_label=y_label_3d,
+            z_label=z_label_3d,
+            title=title,
+            n_clusters=n_clusters,
+            save_path=html_path,
+            alpha_3d=alpha_3d,
+            marker_size=marker_size,
+            marker=marker,
+            center_marker=center_marker,
+            center_size=center_size,
+            center_color=center_color,
+            max_legend_items=max_legend_items,
+        )
     
     # Show or close figure
     if show:
