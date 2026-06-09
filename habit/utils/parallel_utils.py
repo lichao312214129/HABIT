@@ -76,6 +76,21 @@ def default_thread_worker_count() -> int:
     return max(1, multiprocessing.cpu_count() - 2)
 
 
+def default_cluster_search_workers(cpu_reserve: int = 4) -> int:
+    """
+    Default worker count for CPU-heavy parallel cluster search.
+
+    Leaves ``cpu_reserve`` cores for the main process and system overhead.
+
+    Args:
+        cpu_reserve: Number of CPU cores to keep free (default 4).
+
+    Returns:
+        int: Worker count (at least 1).
+    """
+    return max(1, (multiprocessing.cpu_count() or 1) - cpu_reserve)
+
+
 def thread_map(
     func: Callable[[T], R],
     items: Iterable[T],

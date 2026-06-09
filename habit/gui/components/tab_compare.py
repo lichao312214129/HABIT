@@ -18,6 +18,8 @@ from habit.cli_commands.commands.cmd_compare import run_compare
 from habit.core.machine_learning.config_schemas import ModelComparisonConfig
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
+    abs_path,
+    extract_validation_msgs,
     load_config_yaml,
     open_directory,
     save_config_yaml,
@@ -223,6 +225,9 @@ def render_compare_tab() -> None:
             yield "❌ output_dir is required.", gr.update(visible=False), None
             return
 
+        # Resolve relative paths to absolute before saving YAML.
+        out_abs = abs_path(out_val)
+
         slot_rows = collect_slot_values(*slot_args)
         files_config: List[Dict[str, Any]] = []
         for row in slot_rows:
@@ -232,7 +237,7 @@ def render_compare_tab() -> None:
                 yield "❌ Enabled model slot missing path.", gr.update(visible=False), None
                 return
             entry: Dict[str, Any] = {
-                "path": row["path"],
+                "path": abs_path(row["path"]),
                 "model_name": row["model_name"],
                 "subject_id_col": row["subject_id_col"],
                 "label_col": row["label_col"],
@@ -249,7 +254,7 @@ def render_compare_tab() -> None:
             return
 
         config_data: Dict[str, Any] = {
-            "output_dir": out_val,
+            "output_dir": out_abs,
             "files_config": files_config,
             "merged_data": {"enabled": merged_en, "save_name": merged_save},
             "split": {"enabled": split_en},
@@ -280,15 +285,19 @@ def render_compare_tab() -> None:
 
         try:
             ModelComparisonConfig(**config_data)
-            os.makedirs(out_val, exist_ok=True)
-            gui_path = str(Path(out_val) / "config_compare_gui.yaml")
+            os.makedirs(out_abs, exist_ok=True)
+            gui_path = str(Path(out_abs) / "config_compare_gui.yaml")
             save_config_yaml(config_data, gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running comparison...", gr.update(visible=False), None
 
-            for log_text in run_background_job(run_compare, kwargs={"config_file": gui_path}):
+            for log_text in run_background_job(
+                run_compare,
+                kwargs={"config_file": gui_path},
+                log_file=Path(out_abs) / "processing.log",
+            ):
                 delong_data: Optional[Dict[str, Any]] = None
                 if delong_en:
-                    delong_path = Path(out_val) / "delong_results.json"
+                    delong_path = Path(out_abs) / "delong_results.json"
                     if delong_path.exists():
                         with open(delong_path, "r", encoding="utf-8") as fh:
                             delong_data = json.load(fh)
@@ -297,7 +306,11 @@ def render_compare_tab() -> None:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False), None
         except Exception as exc:  # noqa: BLE001
-            yield f"❌ Failed: {exc}", gr.update(visible=False), None
+            val_msgs = extract_validation_msgs(exc)
+            if val_msgs:
+                yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False), None
+            else:
+                yield f"❌ Failed: {exc}", gr.update(visible=False), None
 
     submit_inputs = [
         output_dir, merged_enabled, merged_name, split_enabled,

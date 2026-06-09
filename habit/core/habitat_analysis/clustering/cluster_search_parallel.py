@@ -58,14 +58,16 @@ def resolve_cluster_search_workers(cluster_search_workers: Optional[int]) -> int
 
     Args:
         cluster_search_workers: Explicit worker count from YAML, or ``None`` for
-            the default ``2``.
+            ``max(1, cpu_count - 4)``.
 
     Returns:
         int: Number of worker processes (at least 1).
     """
     if cluster_search_workers is not None:
         return max(1, int(cluster_search_workers))
-    return 2
+    from habit.utils.parallel_utils import default_cluster_search_workers
+
+    return default_cluster_search_workers()
 
 
 def _limit_blas_threads_in_worker() -> None:

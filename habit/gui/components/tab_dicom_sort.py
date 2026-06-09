@@ -17,6 +17,8 @@ from pydantic import ValidationError
 from habit.core.dicom_sort import DicomSortConfig, run_dicom_sort
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
+    abs_path,
+    extract_validation_msgs,
     load_config_yaml,
     open_directory,
     parse_comma_list,
@@ -123,28 +125,33 @@ def render_dicom_sort_tab() -> None:
             yield "❌ data_dir, out_dir, and -f pattern are required.", gr.update(visible=False)
             return
 
+        # Resolve any relative paths to absolute so the saved YAML is portable
+        # and the pipeline's own path-resolution does not mis-map them.
+        data_dir_abs = abs_path(data_dir_val)
+        out_dir_abs = abs_path(out_dir_val)
+
         config_data: Dict[str, Any] = {
-            "data_dir": data_dir_val,
-            "out_dir": out_dir_val,
+            "data_dir": data_dir_abs,
+            "out_dir": out_dir_abs,
             "f": f_val,
             "extra_args": parse_comma_list(extra_args_val),
         }
         if dcm2niix_path_val.strip():
-            config_data["dcm2niix_path"] = dcm2niix_path_val.strip()
+            config_data["dcm2niix_path"] = abs_path(dcm2niix_path_val.strip())
         if output_dir_val.strip():
-            config_data["output_dir"] = output_dir_val.strip()
+            config_data["output_dir"] = abs_path(output_dir_val.strip())
 
         try:
             config = DicomSortConfig(**config_data)
-            os.makedirs(out_dir_val, exist_ok=True)
-            gui_path = str(Path(out_dir_val) / "config_dicom_sort_gui.yaml")
+            os.makedirs(out_dir_abs, exist_ok=True)
+            gui_path = str(Path(out_dir_abs) / "config_dicom_sort_gui.yaml")
             save_config_yaml(config_data, gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running DICOM sort...", gr.update(visible=False)
 
             def job() -> None:
                 logger = setup_logger(
                     name="cli.dicom_sort",
-                    output_dir=Path(out_dir_val),
+                    output_dir=Path(out_dir_abs),
                     log_filename="processing.log",
                     level=logging.INFO,
                 )
@@ -153,13 +160,20 @@ def render_dicom_sort_tab() -> None:
                 finally:
                     stop_queue_listener()
 
-            for log_text in run_background_job(job):
+            for log_text in run_background_job(
+                job,
+                log_file=Path(out_dir_abs) / "processing.log",
+            ):
                 yield log_text, gr.update(visible=True)
         except ValidationError as err:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False)
         except Exception as exc:  # noqa: BLE001
-            yield f"❌ Failed: {exc}", gr.update(visible=False)
+            val_msgs = extract_validation_msgs(exc)
+            if val_msgs:
+                yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False)
+            else:
+                yield f"❌ Failed: {exc}", gr.update(visible=False)
 
     submit_btn.click(
         run_sort,

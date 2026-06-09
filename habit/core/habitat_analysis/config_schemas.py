@@ -587,7 +587,7 @@ class HabitatClusteringConfig(BaseModel):
         ge=1,
         description=(
             "Worker processes for parallel cluster-count search. "
-            "None uses 2."
+            "None uses max(1, cpu_count - 4)."
         ),
     )
 

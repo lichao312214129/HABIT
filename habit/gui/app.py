@@ -10,19 +10,23 @@ Launches the Gradio application and renders all workflow tabs.
 """
 
 import os
-
 import gradio as gr
 
-from habit.gui.components.tab_compare import render_compare_tab
 from habit.gui.components.tab_dicom_sort import render_dicom_sort_tab
-from habit.gui.components.tab_extract import render_extract_tab
-from habit.gui.components.tab_habitat import render_habitat_tab
-from habit.gui.components.tab_ml import render_ml_tab
 from habit.gui.components.tab_preprocess import render_preprocess_tab
+from habit.gui.components.tab_habitat import render_habitat_tab
+from habit.gui.components.tab_extract import render_extract_tab
+from habit.gui.components.tab_ml import render_ml_tab
+from habit.gui.components.tab_compare import render_compare_tab
 
 
-def main() -> None:
-    """Main app runner: Gradio Blocks with six workflow tabs."""
+def main(inbrowser: bool = False) -> None:
+    """
+    Main app runner: Gradio Blocks with six workflow tabs.
+
+    Args:
+        inbrowser: If True, open the default browser after Gradio binds the port.
+    """
     custom_css = """
     .main-title {
         font-size: 2.5rem;
@@ -63,8 +67,18 @@ def main() -> None:
 
     server_name = os.environ.get("GRADIO_SERVER_NAME", "127.0.0.1")
     server_port = int(os.environ.get("GRADIO_SERVER_PORT", "8501"))
-    demo.launch(server_name=server_name, server_port=server_port, share=False)
+    open_browser: bool = inbrowser or os.environ.get("HABIT_GUI_INBROWSER", "").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    demo.launch(
+        server_name=server_name,
+        server_port=server_port,
+        share=False,
+        inbrowser=open_browser,
+    )
 
 
 if __name__ == "__main__":
-    main()
+    main(inbrowser=True)

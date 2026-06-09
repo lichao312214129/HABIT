@@ -13,9 +13,185 @@ This module is self-contained under habit/gui directory.
 import os
 import sys
 import subprocess
+from pathlib import Path
 from typing import Optional, Any, List, Dict, Union
 import yaml
 from pydantic import ValidationError
+
+
+def coerce_str_list(items: Any) -> List[str]:
+    """
+    Convert a YAML-loaded sequence (possibly containing bytes) to str list.
+
+    Args:
+        items: Raw value from YAML (list, tuple, or scalar).
+
+    Returns:
+        List[str]: Normalized string tokens.
+    """
+    if items is None:
+        return []
+    if isinstance(items, (list, tuple)):
+        return [str(x.decode("utf-8", errors="replace") if isinstance(x, bytes) else x) for x in items]
+    if isinstance(items, bytes):
+        return [items.decode("utf-8", errors="replace")]
+    return [str(items)]
+
+
+def _list_modality_folder_names(images_root: str) -> List[str]:
+    """
+    Collect unique modality folder names under ``images_root/<subject>/<modality>/``.
+
+    Args:
+        images_root: Directory whose immediate children are subject folders.
+
+    Returns:
+        List[str]: Sorted unique modality folder names.
+    """
+    modality_names: set[str] = set()
+    if not os.path.isdir(images_root):
+        return []
+    for subject_name in os.listdir(images_root):
+        if subject_name.startswith("."):
+            continue
+        subject_path = os.path.join(images_root, subject_name)
+        if not os.path.isdir(subject_path):
+            continue
+        for modality_name in os.listdir(subject_path):
+            if modality_name.startswith("."):
+                continue
+            modality_path = os.path.join(subject_path, modality_name)
+            if os.path.isdir(modality_path):
+                modality_names.add(modality_name)
+    return sorted(modality_names)
+
+
+def _looks_like_images_root(path: str) -> bool:
+    """
+    Return True when ``path/<subject>/<modality>/`` folders exist (images root layout).
+
+    Args:
+        path: Candidate images root directory.
+
+    Returns:
+        bool: True when at least one subject/modality folder pair is found.
+    """
+    if not os.path.isdir(path):
+        return False
+    for subject_name in os.listdir(path):
+        if subject_name.startswith("."):
+            continue
+        subject_path = os.path.join(path, subject_name)
+        if not os.path.isdir(subject_path):
+            continue
+        for modality_name in os.listdir(subject_path):
+            if modality_name.startswith("."):
+                continue
+            if os.path.isdir(os.path.join(subject_path, modality_name)):
+                return True
+    return False
+
+
+def discover_modalities_from_data_dir(
+    data_dir: str,
+    auto_select_first_file: bool = True,
+) -> tuple[List[str], str]:
+    """
+    Scan ``data_dir`` for modality folder names.
+
+    Supported layouts:
+    - ``data_dir/images/<subject>/<modality>/`` (habit_default)
+    - ``data_dir/<subject>/<modality>/`` when ``data_dir`` itself is the images root
+    - YAML manifest passed as ``data_dir`` (``images: {subj: {modality: path}}``)
+
+    When the directory follows a flat subject-root DICOM layout (``data_dir/<subject>/`` with no
+    modality subfolders), modality folder names cannot be inferred; callers should use ``dicom``
+    for the dcm2nii step in that case.
+
+    Args:
+        data_dir: Dataset root directory or YAML manifest path entered in the GUI.
+        auto_select_first_file: Passed through to ``get_image_and_mask_paths``.
+
+    Returns:
+        tuple[List[str], str]: Sorted unique modality keys and a short status message for the GUI.
+    """
+    if not data_dir or not str(data_dir).strip():
+        return [], "Set input data root directory to detect modalities."
+
+    data_path = abs_path(str(data_dir).strip())
+
+    if os.path.isfile(data_path) and data_path.lower().endswith((".yaml", ".yml")):
+        try:
+            from habit.utils.io_utils import detect_image_names, get_image_and_mask_paths
+
+            images_paths, _ = get_image_and_mask_paths(
+                data_path,
+                auto_select_first_file=auto_select_first_file,
+            )
+            if images_paths:
+                modalities = detect_image_names(images_paths)
+                if modalities:
+                    return modalities, (
+                        f"Detected {len(modalities)} modality key(s) from YAML manifest: "
+                        f"{', '.join(modalities)}"
+                    )
+        except OSError as exc:
+            return [], f"Failed to read YAML manifest: {exc}"
+        except Exception as exc:  # noqa: BLE001 — surface scan errors in GUI
+            return [], f"Failed to read YAML manifest: {exc}"
+        return [], f"No modalities found in YAML manifest: {data_path}"
+
+    if not os.path.isdir(data_path):
+        return [], f"Directory not found: {data_path}"
+
+    images_root = os.path.join(data_path, "images")
+    scan_roots: List[str] = []
+    if os.path.isdir(images_root):
+        scan_roots.append(images_root)
+    if _looks_like_images_root(data_path):
+        scan_roots.append(data_path)
+
+    for root in scan_roots:
+        try:
+            if root == images_root:
+                from habit.utils.io_utils import detect_image_names, get_image_and_mask_paths
+
+                images_paths, _ = get_image_and_mask_paths(
+                    data_path,
+                    auto_select_first_file=auto_select_first_file,
+                )
+                if images_paths:
+                    modalities = detect_image_names(images_paths)
+                    if modalities:
+                        return modalities, (
+                            f"Detected {len(modalities)} modality folder(s) from images/: "
+                            f"{', '.join(modalities)}"
+                        )
+        except OSError:
+            pass
+        except Exception:  # noqa: BLE001 — fall back to folder-name scan below
+            pass
+
+        folder_modalities = _list_modality_folder_names(root)
+        if folder_modalities:
+            label = "images/" if root == images_root else "data_dir"
+            return folder_modalities, (
+                f"Detected {len(folder_modalities)} modality folder(s) under {label}: "
+                f"{', '.join(folder_modalities)}"
+            )
+
+    subject_dirs = [
+        name
+        for name in os.listdir(data_path)
+        if not name.startswith(".") and os.path.isdir(os.path.join(data_path, name))
+    ]
+    if subject_dirs:
+        return [], (
+            "Subject-root DICOM layout detected (no images/ tree). "
+            'Use modality key "dicom" for the dcm2nii step.'
+        )
+
+    return [], f"No modalities found under {data_path}/images/<subject>/ or {data_path}/<subject>/."
 
 
 def parse_comma_list(value: str) -> List[str]:
@@ -130,6 +306,56 @@ def select_local_path(select_type: str = "folder", title: str = "Select Path") -
     return None
 
 
+def abs_path(val: str) -> str:
+    """
+    Convert a path string to an absolute path using the current working directory.
+    If the path is already absolute or empty, it is returned as-is.
+
+    This is used to normalize user-entered paths in the GUI before saving them
+    to the config YAML, so that the pipeline's path-resolution logic (which
+    resolves relative paths relative to the YAML file directory) does not
+    accidentally map user paths to the wrong location.
+
+    Args:
+        val: Path string that may be relative or absolute.
+
+    Returns:
+        str: Absolute path string, or the original value if it is empty/blank.
+    """
+    if not val or not str(val).strip():
+        return val
+    p = str(val).strip()
+    if os.path.isabs(p):
+        return p
+    return os.path.abspath(p)
+
+
+def extract_validation_msgs(exc: Exception) -> Optional[List[str]]:
+    """
+    Extract user-friendly validation messages from a Pydantic ``ValidationError``
+    or from any exception whose ``__cause__`` is a ``ValidationError``
+    (e.g. ``ConfigValidationError`` raised by ``BaseConfig.__init__``).
+
+    ``BaseConfig.__init__`` wraps Pydantic's ``ValidationError`` in a custom
+    ``ConfigValidationError``.  GUI ``except ValidationError`` handlers therefore
+    miss it; calling this function lets the ``except Exception`` fallback still
+    produce friendly translated messages rather than a raw exception string.
+
+    Args:
+        exc: Any exception caught in a GUI tab run function.
+
+    Returns:
+        List[str] of translated messages when ``exc`` is (or wraps) a
+        Pydantic ``ValidationError``, or ``None`` when it is not.
+    """
+    if isinstance(exc, ValidationError):
+        return translate_pydantic_error(exc)
+    cause = getattr(exc, "__cause__", None)
+    if isinstance(cause, ValidationError):
+        return translate_pydantic_error(cause)
+    return None
+
+
 def translate_pydantic_error(err: ValidationError) -> List[str]:
     """
     Translate raw Pydantic ValidationErrors into clear, user-friendly Chinese messages
@@ -190,6 +416,25 @@ def translate_pydantic_error(err: ValidationError) -> List[str]:
             translated.append(f"【输入格式错误】: 「{field_name}」配置有误。详情: {raw_msg}。")
 
     return translated
+
+
+def read_pipeline_log(log_path: Union[str, Path]) -> str:
+    """
+    Read a pipeline log file for GUI display.
+
+    Args:
+        log_path: Path to ``processing.log``, ``habitat_analysis.log``, etc.
+
+    Returns:
+        str: Log text, or empty string when the file is missing/unreadable.
+    """
+    try:
+        path = Path(log_path)
+        if not path.is_file():
+            return ""
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
 
 
 def save_config_yaml(data: Dict[str, Any], path: str) -> None:

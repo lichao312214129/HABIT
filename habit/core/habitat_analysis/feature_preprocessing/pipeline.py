@@ -70,6 +70,7 @@ def apply_preprocessing_pipeline(
     step_states: Optional[List[Any]] = None,
     baseline: Optional[BaselineStats] = None,
     fit: bool = False,
+    level_label: str = "group-level",
 ) -> Tuple[pd.DataFrame, Optional[BaselineStats], List[Any]]:
     """
     Run a sequence of registered preprocessing methods on a DataFrame.
@@ -81,6 +82,8 @@ def apply_preprocessing_pipeline(
             ``fit=False``).
         baseline: Baseline stats from training (required when ``fit=False``).
         fit: When ``True``, learn ``baseline`` and per-step states from ``df``.
+        level_label: Log prefix distinguishing subject-level vs group-level runs
+            (e.g. ``"subject-level"`` or ``"group-level"``).
 
     Returns:
         ``(output_df, baseline, step_states)``.
@@ -102,7 +105,7 @@ def apply_preprocessing_pipeline(
         logger = get_module_logger(__name__)
         n_features_in = feature_df.shape[1]
         logger.info(
-            f"Group-level preprocessing pipeline started (fit): "
+            f"{level_label} preprocessing pipeline started (fit): "
             f"rows={len(feature_df)}, feature_columns={n_features_in}, "
             f"steps={len(methods)}"
         )
@@ -116,24 +119,24 @@ def apply_preprocessing_pipeline(
             new_states.append(state)
             n_after = feature_df.shape[1]
             logger.info(
-                f"Group-level preprocessing step {step_idx}/{len(methods)} "
+                f"{level_label} preprocessing step {step_idx}/{len(methods)} "
                 f"'{method_name}': feature_columns {n_before} -> {n_after} "
                 f"(rows={len(feature_df)})"
             )
             if n_after != n_before:
                 if handler.changes_columns:
                     logger.info(
-                        f"Group-level preprocessing '{method_name}' filtered "
+                        f"{level_label} preprocessing '{method_name}' filtered "
                         f"{n_before - n_after} feature column(s)"
                     )
                 else:
                     logger.warning(
-                        f"Group-level preprocessing '{method_name}' changed "
+                        f"{level_label} preprocessing '{method_name}' changed "
                         f"feature_columns {n_before} -> {n_after} unexpectedly"
                     )
 
         logger.info(
-            f"Group-level preprocessing pipeline finished (fit): "
+            f"{level_label} preprocessing pipeline finished (fit): "
             f"feature_columns {n_features_in} -> {feature_df.shape[1]}"
         )
 
@@ -154,7 +157,7 @@ def apply_preprocessing_pipeline(
     logger = get_module_logger(__name__)
     n_features_in = feature_df.shape[1]
     logger.info(
-        f"Group-level preprocessing pipeline started (transform): "
+        f"{level_label} preprocessing pipeline started (transform): "
         f"rows={len(feature_df)}, feature_columns={n_features_in}, "
         f"steps={len(methods)}"
     )
@@ -168,24 +171,24 @@ def apply_preprocessing_pipeline(
         feature_df = handler.transform(feature_df, method_config, state, baseline)
         n_after = feature_df.shape[1]
         logger.info(
-            f"Group-level preprocessing step {step_idx}/{len(methods)} "
+            f"{level_label} preprocessing step {step_idx}/{len(methods)} "
             f"'{method_name}': feature_columns {n_before} -> {n_after} "
             f"(rows={len(feature_df)})"
         )
         if n_after != n_before:
             if handler.changes_columns:
                 logger.info(
-                    f"Group-level preprocessing '{method_name}' filtered "
+                    f"{level_label} preprocessing '{method_name}' filtered "
                     f"{n_before - n_after} feature column(s)"
                 )
             else:
                 logger.warning(
-                    f"Group-level preprocessing '{method_name}' changed "
+                    f"{level_label} preprocessing '{method_name}' changed "
                     f"feature_columns {n_before} -> {n_after} unexpectedly"
                 )
 
     logger.info(
-        f"Group-level preprocessing pipeline finished (transform): "
+        f"{level_label} preprocessing pipeline finished (transform): "
         f"feature_columns {n_features_in} -> {feature_df.shape[1]}"
     )
 
@@ -207,5 +210,10 @@ def apply_stateless_preprocessing(
     Returns:
         Transformed DataFrame.
     """
-    output_df, _, _ = apply_preprocessing_pipeline(df, methods, fit=True)
+    output_df, _, _ = apply_preprocessing_pipeline(
+        df,
+        methods,
+        fit=True,
+        level_label="subject-level",
+    )
     return output_df

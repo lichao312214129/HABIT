@@ -26,6 +26,7 @@ def run_habitat(
     mode: Optional[str],
     pipeline_path: Optional[str],
     resume: bool = False,
+    exit_on_error: bool = True,
 ) -> None:
     """
     Run habitat analysis pipeline in train or predict mode.
@@ -35,6 +36,8 @@ def run_habitat(
         debug_mode (bool): Whether to enable debug mode
         mode (Optional[str]): Override run mode ("train" or "predict")
         pipeline_path (Optional[str]): Override pipeline path for prediction
+        exit_on_error (bool): When True (CLI default), call ``sys.exit(1)`` on failure.
+            GUI callers should pass False so exceptions propagate to the log runner.
     """
     import sys
     import logging
@@ -124,7 +127,9 @@ def run_habitat(
     except Exception as e:
         logger.error("Error during habitat analysis: %s", str(e), exc_info=True)
         click.echo(f"An error occurred. See log file for details: {e}", err=True)
-        sys.exit(1)
+        if exit_on_error:
+            sys.exit(1)
+        raise
     finally:
         stop_queue_listener()
 

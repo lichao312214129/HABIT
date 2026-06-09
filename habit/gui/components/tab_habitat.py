@@ -15,32 +15,41 @@ from pydantic import ValidationError
 
 from habit.cli_commands.commands.cmd_habitat import run_habitat
 from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+from habit.gui.components.prep_methods_editor import (
+    ALL_PREP_METHODS,
+    DROPPING_PREP_METHODS,
+    methods_to_prep_config,
+    normalize_methods_list,
+    refresh_all_slot_updates,
+    render_prep_methods_editor,
+)
 from habit.gui.pipeline_runner import run_background_job
+from habit.utils.parallel_utils import default_cluster_search_workers
 from habit.gui.utils import (
-    dict_to_yaml_block,
+    abs_path,
+    coerce_str_list,
+    extract_validation_msgs,
     load_config_yaml,
     open_directory,
+    read_pipeline_log,
     save_config_yaml,
     select_local_path,
     translate_pydantic_error,
-    yaml_block_to_dict,
 )
 
-DEFAULT_SUBJECT_PREP: str = dict_to_yaml_block({
-    "methods": [
-        {"method": "winsorize", "winsor_limits": [0.05, 0.05], "global_normalize": False},
-        {"method": "minmax", "global_normalize": False},
-    ]
-})
-DEFAULT_GROUP_PREP: str = dict_to_yaml_block({
-    "methods": [
-        {"method": "winsorize", "winsor_limits": [0.05, 0.05], "global_normalize": False},
-        {"method": "variance_filter", "variance_threshold": 0.01, "global_normalize": False},
-        {"method": "correlation_filter", "corr_threshold": 0.9, "corr_method": "spearman", "global_normalize": False},
-        {"method": "minmax", "global_normalize": False},
-    ]
-})
-
+DEFAULT_SUBJECT_METHODS: List[Dict[str, Any]] = [
+    {"method": "winsorize", "winsor_limits": [0.05, 0.05], "global_normalize": False},
+    {"method": "minmax", "global_normalize": False},
+]
+DEFAULT_GROUP_METHODS: List[Dict[str, Any]] = [
+    {"method": "winsorize", "winsor_limits": [0.05, 0.05], "global_normalize": False},
+    {"method": "variance_filter", "variance_threshold": 0.01, "global_normalize": False},
+    {"method": "correlation_filter", "corr_threshold": 0.9, "corr_method": "spearman", "global_normalize": False},
+    {"method": "minmax", "global_normalize": False},
+]
+SUBJECT_PREP_ALLOWED: List[str] = [
+    method for method in ALL_PREP_METHODS if method not in DROPPING_PREP_METHODS
+]
 SELECTION_METHODS: List[str] = [
     "elbow", "silhouette", "bic", "aic", "davies_bouldin",
     "calinski_harabasz", "inertia", "kneedle", "gap",
@@ -96,7 +105,7 @@ def render_habitat_tab() -> None:
                 sv_n_init = gr.Number(label="supervoxel.n_init", value=10, precision=0)
             with gr.Row():
                 sv_compactness = gr.Number(label="supervoxel.compactness (SLIC)", value=0.1)
-                sv_sigma = gr.Number(label="supervoxel.sigma (SLIC)", value=0.0)
+                sv_sigma = gr.Number(label="supervoxel.sigma (SLIC)", value=0.5)
             sv_enforce_conn = gr.Checkbox(label="supervoxel.enforce_connectivity (SLIC)", value=True)
 
         with gr.Column(visible=False) as box_one_step:
@@ -126,7 +135,11 @@ def render_habitat_tab() -> None:
             hb_n_init = gr.Number(label="habitat.n_init", value=10, precision=0)
         with gr.Row():
             hb_parallel_search = gr.Checkbox(label="habitat.parallel_cluster_search", value=True)
-            hb_search_workers = gr.Number(label="habitat.cluster_search_workers (0=null)", value=0, precision=0)
+            hb_search_workers = gr.Number(
+                label="habitat.cluster_search_workers (0=auto: ncpu-4)",
+                value=default_cluster_search_workers(),
+                precision=0,
+            )
 
         with gr.Accordion("Connected-component postprocess", open=False):
             pp_sv_enabled = gr.Checkbox(label="postprocess_supervoxel.enabled", value=False)
@@ -169,10 +182,16 @@ def render_habitat_tab() -> None:
                 value="auto",
             )
 
-        gr.Markdown("**preprocessing_for_subject_level** (YAML)")
-        subject_prep_yaml = gr.Textbox(label="Subject-level feature preprocessing", lines=6, value=DEFAULT_SUBJECT_PREP)
-        gr.Markdown("**preprocessing_for_group_level** (YAML)")
-        group_prep_yaml = gr.Textbox(label="Group-level feature preprocessing", lines=8, value=DEFAULT_GROUP_PREP)
+        subject_prep_editor = render_prep_methods_editor(
+            "**preprocessing_for_subject_level**",
+            default_methods=DEFAULT_SUBJECT_METHODS,
+            allowed_methods=SUBJECT_PREP_ALLOWED,
+        )
+        group_prep_editor = render_prep_methods_editor(
+            "**preprocessing_for_group_level**",
+            default_methods=DEFAULT_GROUP_METHODS,
+            allowed_methods=ALL_PREP_METHODS,
+        )
 
     with gr.Group():
         gr.Markdown("### 4. Run controls")
@@ -233,14 +252,36 @@ def render_habitat_tab() -> None:
     out_btn.click(browse_folder, outputs=out_dir)
     pipe_btn.click(browse_file, outputs=pipeline_path)
 
+    form_inputs: List[Any] = [
+        run_mode, processes, data_dir, out_dir, pipeline_path, clustering_mode,
+        sv_algo, sv_n_clusters, sv_max_iter, sv_n_init, sv_compactness, sv_sigma, sv_enforce_conn,
+        os_min, os_max, os_fixed_n, os_selection, os_plot_curves,
+        hb_algo, hb_fixed_n_enabled, hb_fixed_n, hb_min_clusters, hb_max_clusters, hb_selection,
+        hb_max_iter, hb_n_init, hb_parallel_search, hb_search_workers,
+        pp_sv_enabled, pp_sv_min_size, pp_hab_enabled, pp_hab_min_size,
+        voxel_method, voxel_params_file, voxel_kernel, voxel_batch, use_torch,
+        sv_file_kw, sv_level_method, sv_level_params_file, sv_union_crop, use_sv_cext,
+        subject_prep_editor.state,
+        group_prep_editor.state,
+        resume, plot_curves, save_images, save_results_csv, habitats_format, random_state, debug,
+        cap_gpu_pool, subject_timeout, subject_spawn_timeout, on_subject_failure,
+        oom_backoff, oom_reduce, strict_checkpoint, checkpoint_dir, force_rerun,
+        retry_failed, auto_retry_rounds, parallel_mode, clear_checkpoint, verbose,
+    ]
+    load_outputs: List[Any] = (
+        form_inputs
+        + subject_prep_editor.refresh_outputs()
+        + group_prep_editor.refresh_outputs()
+    )
+
     # Load YAML — returns updates for major widgets (abbreviated mapping from loaded dict)
     def load_yaml(path: str) -> List[Any]:
         noop = gr.update()
         if not path or not os.path.exists(path):
-            return [noop] * 65
+            return [noop] * len(load_outputs)
         loaded = load_config_yaml(path)
         if not loaded:
-            return [noop] * 65
+            return [noop] * len(load_outputs)
 
         seg = loaded.get("HabitatSegmentation", {}) or {}
         sv = seg.get("supervoxel", {}) or {}
@@ -257,8 +298,12 @@ def render_habitat_tab() -> None:
         raw_methods = hb.get("habitat_cluster_selection_method", ["elbow"])
         sel_method = raw_methods[0] if isinstance(raw_methods, list) else raw_methods
 
-        subj_prep = dict_to_yaml_block(fc.get("preprocessing_for_subject_level"))
-        group_prep = dict_to_yaml_block(fc.get("preprocessing_for_group_level"))
+        subj_methods = normalize_methods_list(fc.get("preprocessing_for_subject_level"))
+        group_methods = normalize_methods_list(fc.get("preprocessing_for_group_level"))
+        if not subj_methods:
+            subj_methods = list(DEFAULT_SUBJECT_METHODS)
+        if not group_methods:
+            group_methods = list(DEFAULT_GROUP_METHODS)
 
         force_list = loaded.get("force_rerun_subjects", []) or []
         timeout = loaded.get("individual_subject_timeout_sec", 900)
@@ -276,7 +321,7 @@ def render_habitat_tab() -> None:
             int(sv.get("max_iter", 300)),
             int(sv.get("n_init", 10)),
             float(sv.get("compactness", 0.1)),
-            float(sv.get("sigma", 0.0)),
+            float(sv.get("sigma", 0.5)),
             sv.get("enforce_connectivity", True),
             int(os_settings.get("min_clusters", 2)),
             int(os_settings.get("max_clusters", 10)),
@@ -292,7 +337,7 @@ def render_habitat_tab() -> None:
             int(hb.get("max_iter", 300)),
             int(hb.get("n_init", 10)),
             hb.get("parallel_cluster_search", True),
-            int(hb.get("cluster_search_workers") or 0),
+            int(hb.get("cluster_search_workers") or default_cluster_search_workers()),
             ppsv.get("enabled", False),
             int(ppsv.get("min_component_size", 30)),
             pphb.get("enabled", False),
@@ -307,8 +352,8 @@ def render_habitat_tab() -> None:
             sp.get("params_file", "../radiomics/params_supervoxel_radiomics.yaml"),
             sp.get("supervoxelUnionBboxCrop", True),
             str(sp.get("useSupervoxelCext", "auto")),
-            subj_prep or DEFAULT_SUBJECT_PREP,
-            group_prep or DEFAULT_GROUP_PREP,
+            subj_methods,
+            group_methods,
             loaded.get("resume", True),
             loaded.get("plot_curves", True),
             loaded.get("save_images", True),
@@ -324,29 +369,16 @@ def render_habitat_tab() -> None:
             int(loaded.get("oom_reduce_workers_by", 1)),
             loaded.get("strict_checkpoint_hash", False),
             loaded.get("checkpoint_dir", "") or "",
-            ", ".join(force_list),
+            ", ".join(coerce_str_list(force_list)),
             loaded.get("retry_failed_subjects", False),
             int(loaded.get("individual_subject_auto_retry_rounds", 2)),
             loaded.get("individual_subject_parallel_mode", "persistent"),
             loaded.get("clear_checkpoint_on_success", False),
             loaded.get("verbose", True),
+            *refresh_all_slot_updates(subj_methods),
+            *refresh_all_slot_updates(group_methods),
         ]
 
-    load_outputs = [
-        run_mode, processes, data_dir, out_dir, pipeline_path, clustering_mode,
-        sv_algo, sv_n_clusters, sv_max_iter, sv_n_init, sv_compactness, sv_sigma, sv_enforce_conn,
-        os_min, os_max, os_fixed_n, os_selection, os_plot_curves,
-        hb_algo, hb_fixed_n_enabled, hb_fixed_n, hb_min_clusters, hb_max_clusters, hb_selection,
-        hb_max_iter, hb_n_init, hb_parallel_search, hb_search_workers,
-        pp_sv_enabled, pp_sv_min_size, pp_hab_enabled, pp_hab_min_size,
-        voxel_method, voxel_params_file, voxel_kernel, voxel_batch, use_torch,
-        sv_file_kw, sv_level_method, sv_level_params_file, sv_union_crop, use_sv_cext,
-        subject_prep_yaml, group_prep_yaml,
-        resume, plot_curves, save_images, save_results_csv, habitats_format, random_state, debug,
-        cap_gpu_pool, subject_timeout, subject_spawn_timeout, on_subject_failure,
-        oom_backoff, oom_reduce, strict_checkpoint, checkpoint_dir, force_rerun,
-        retry_failed, auto_retry_rounds, parallel_mode, clear_checkpoint, verbose,
-    ]
     existing_yaml.change(load_yaml, inputs=existing_yaml, outputs=load_outputs)
 
     def run_habitat_pipeline(*args: Any):
@@ -361,7 +393,7 @@ def render_habitat_tab() -> None:
             pp_sv_en_val, pp_sv_min_val, pp_hab_en_val, pp_hab_min_val,
             voxel_method_val, voxel_pf_val, voxel_kr_val, voxel_batch_val, use_torch_val,
             sv_kw_val, sv_lm_val, sv_lpf_val, sv_crop_val, use_sv_cext_val,
-            subj_yaml_val, group_yaml_val,
+            subj_methods_val, group_methods_val,
             resume_val, plot_curves_val, save_images_val, save_results_val, hab_fmt_val, rs_val, debug_val,
             cap_gpu_val, subj_to_val, spawn_to_val, on_fail_val,
             oom_back_val, oom_red_val, strict_ck_val, ck_dir_val, force_rerun_val,
@@ -375,12 +407,16 @@ def render_habitat_tab() -> None:
             yield "❌ pipeline_path is required in predict mode.", gr.update(visible=False)
             return
 
-        try:
-            subj_prep = yaml_block_to_dict(subj_yaml_val) if subj_yaml_val.strip() else None
-            group_prep = yaml_block_to_dict(group_yaml_val) if group_yaml_val.strip() else None
-        except ValueError as exc:
-            yield f"❌ {exc}", gr.update(visible=False)
-            return
+        # Resolve relative paths to absolute before building the config.
+        data_dir_abs = abs_path(data_dir_val)
+        out_dir_abs = abs_path(out_dir_val)
+        pipeline_path_abs = abs_path(pipeline_path_val) if pipeline_path_val and pipeline_path_val.strip() else pipeline_path_val
+        voxel_pf_abs = abs_path(voxel_pf_val) if voxel_pf_val and voxel_pf_val.strip() else voxel_pf_val
+        sv_lpf_abs = abs_path(sv_lpf_val) if sv_lpf_val and sv_lpf_val.strip() else sv_lpf_val
+        ck_dir_abs = abs_path(ck_dir_val.strip()) if ck_dir_val and ck_dir_val.strip() else None
+
+        subj_prep = methods_to_prep_config(subj_methods_val)
+        group_prep = methods_to_prep_config(group_methods_val)
 
         seg_data: Dict[str, Any] = {
             "clustering_mode": clustering_mode_val,
@@ -425,7 +461,7 @@ def render_habitat_tab() -> None:
             "voxel_level": {
                 "method": voxel_method_val,
                 "params": {
-                    "params_file": voxel_pf_val,
+                    "params_file": voxel_pf_abs,
                     "kernelRadius": int(voxel_kr_val),
                     "voxelBatch": int(voxel_batch_val),
                     "useTorchRadiomics": use_torch_val,
@@ -439,19 +475,19 @@ def render_habitat_tab() -> None:
                 "supervoxel_file_keyword": sv_kw_val,
                 "method": sv_lm_val,
                 "params": {
-                    "params_file": sv_lpf_val,
+                    "params_file": sv_lpf_abs,
                     "supervoxelUnionBboxCrop": sv_crop_val,
                     "useSupervoxelCext": use_sv_cext_val,
                 },
             }
 
         config_data: Dict[str, Any] = {
-            "data_dir": data_dir_val,
-            "out_dir": out_dir_val,
+            "data_dir": data_dir_abs,
+            "out_dir": out_dir_abs,
             "run_mode": run_mode_val,
-            "pipeline_path": pipeline_path_val if run_mode_val == "predict" else None,
+            "pipeline_path": pipeline_path_abs if run_mode_val == "predict" else None,
             "processes": int(processes_val),
-            "FeatureConstruction": fc_data if run_mode_val == "train" else fc_data,
+            "FeatureConstruction": fc_data,
             "HabitatSegmentation": seg_data,
             "resume": resume_val,
             "plot_curves": plot_curves_val,
@@ -467,7 +503,7 @@ def render_habitat_tab() -> None:
             "oom_backoff": oom_back_val,
             "oom_reduce_workers_by": int(oom_red_val),
             "strict_checkpoint_hash": strict_ck_val,
-            "checkpoint_dir": ck_dir_val.strip() or None,
+            "checkpoint_dir": ck_dir_abs,
             "force_rerun_subjects": [s.strip() for s in force_rerun_val.split(",") if s.strip()],
             "retry_failed_subjects": retry_fail_val,
             "individual_subject_auto_retry_rounds": int(retry_rounds_val),
@@ -478,8 +514,8 @@ def render_habitat_tab() -> None:
 
         try:
             config = HabitatAnalysisConfig(**config_data)
-            os.makedirs(out_dir_val, exist_ok=True)
-            gui_path = str(Path(out_dir_val) / "config_habitat_gui.yaml")
+            os.makedirs(out_dir_abs, exist_ok=True)
+            gui_path = str(Path(out_dir_abs) / "config_habitat_gui.yaml")
             save_config_yaml(config_data, gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running habitat analysis...", gr.update(visible=False)
 
@@ -488,17 +524,40 @@ def render_habitat_tab() -> None:
                     config_file=gui_path,
                     debug_mode=config.debug,
                     mode=run_mode_val,
-                    pipeline_path=pipeline_path_val if run_mode_val == "predict" else None,
+                    pipeline_path=pipeline_path_abs if run_mode_val == "predict" else None,
                     resume=resume_val,
+                    exit_on_error=False,
                 )
 
-            for log_text in run_background_job(job):
-                yield log_text, gr.update(visible=True)
+            habitat_log = Path(out_dir_abs) / "habitat_analysis.log"
+            try:
+                for log_text in run_background_job(
+                    job,
+                    log_file=habitat_log,
+                ):
+                    yield log_text, gr.update(visible=True)
+            except Exception as run_exc:  # noqa: BLE001 — keep partial logs visible
+                partial_log = read_pipeline_log(habitat_log)
+                if partial_log.strip():
+                    yield (
+                        f"{partial_log}\n\n❌ GUI log stream error: {run_exc}",
+                        gr.update(visible=True),
+                    )
+                else:
+                    raise
         except ValidationError as err:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False)
         except Exception as exc:  # noqa: BLE001
-            yield f"❌ Failed: {exc}", gr.update(visible=False)
+            val_msgs = extract_validation_msgs(exc)
+            if val_msgs:
+                yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False)
+            else:
+                partial_log = read_pipeline_log(Path(out_dir_abs) / "habitat_analysis.log")
+                if partial_log.strip():
+                    yield f"{partial_log}\n\n❌ Failed: {exc}", gr.update(visible=True)
+                else:
+                    yield f"❌ Failed: {exc}", gr.update(visible=False)
 
-    submit_btn.click(run_habitat_pipeline, inputs=load_outputs, outputs=[log_output, open_dir_btn])
+    submit_btn.click(run_habitat_pipeline, inputs=form_inputs, outputs=[log_output, open_dir_btn])
     open_dir_btn.click(lambda p: open_directory(p), inputs=out_dir)

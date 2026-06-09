@@ -41,6 +41,13 @@ class IndividualPreprocessingStep(IndividualLevelStep):
     def transform_one(self, subject_id: str, subject_data: HabitatSubjectData) -> HabitatSubjectData:
         """Apply individual-level preprocessing to one subject's voxel features."""
         feature_df = subject_data.require_features(self.__class__.__name__)
+        self.logger.info(
+            "Applying subject-level preprocessing for subject '%s': "
+            "rows=%d, columns=%d",
+            subject_id,
+            len(feature_df),
+            feature_df.shape[1],
+        )
         processed = self.feature_service.apply_preprocessing(feature_df, level='subject')
         processed = self.feature_service.clean_features(processed)
 

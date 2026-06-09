@@ -17,6 +17,8 @@ from habit.cli_commands.commands.cmd_ml import run_kfold, run_ml
 from habit.core.machine_learning.config_schemas import MLConfig
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
+    abs_path,
+    extract_validation_msgs,
     load_config_yaml,
     open_directory,
     parse_comma_list,
@@ -361,8 +363,15 @@ def render_ml_tab() -> None:
             yield "❌ train_ids_file and test_ids_file are required for custom split.", gr.update(visible=False)
             return
 
+        # Resolve relative paths to absolute before building config.
+        csv_p_abs = abs_path(csv_p)
+        out_p_abs = abs_path(out_p)
+        pipe_p_abs = abs_path(pipe_p) if pipe_p and pipe_p.strip() else pipe_p
+        train_ids_abs = abs_path(train_ids) if train_ids and train_ids.strip() else train_ids
+        test_ids_abs = abs_path(test_ids) if test_ids and test_ids.strip() else test_ids
+
         input_entry: Dict[str, Any] = {
-            "path": csv_p,
+            "path": csv_p_abs,
             "name": in_name,
             "subject_id_col": subj_col,
             "label_col": lbl_col,
@@ -375,9 +384,9 @@ def render_ml_tab() -> None:
 
         config_data: Dict[str, Any] = {
             "run_mode": "train" if is_kfold else mode,
-            "pipeline_path": pipe_p if mode == "predict" and not is_kfold else None,
+            "pipeline_path": pipe_p_abs if mode == "predict" and not is_kfold else None,
             "input": [input_entry],
-            "output": out_p,
+            "output": out_p_abs,
             "random_state": int(rs),
             "is_visualize": vis_en,
             "is_save_model": save_m,
@@ -402,8 +411,8 @@ def render_ml_tab() -> None:
                 "test_size": float(test_sz),
                 "n_splits": int(n_spl),
                 "stratified": strat,
-                "train_ids_file": train_ids if split_m == "custom" else None,
-                "test_ids_file": test_ids if split_m == "custom" else None,
+                "train_ids_file": train_ids_abs if split_m == "custom" else None,
+                "test_ids_file": test_ids_abs if split_m == "custom" else None,
                 "normalization": {"method": norm_m, "params": {}},
                 "resampling": {
                     "enabled": res_en,
@@ -420,23 +429,32 @@ def render_ml_tab() -> None:
 
         try:
             MLConfig(**config_data)
-            os.makedirs(out_p, exist_ok=True)
-            gui_path = str(Path(out_p) / "config_ml_gui.yaml")
+            os.makedirs(out_p_abs, exist_ok=True)
+            gui_path = str(Path(out_p_abs) / "config_ml_gui.yaml")
             save_config_yaml(config_data, gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running ML...", gr.update(visible=False)
 
             if is_kfold:
                 job = lambda: run_kfold(config_file=gui_path)
+                ml_log_name = "kfold_cv.log"
             else:
                 job = lambda: run_ml(config_path=gui_path, mode=mode)
+                ml_log_name = "prediction.log" if mode == "predict" else "processing.log"
 
-            for log_text in run_background_job(job):
+            for log_text in run_background_job(
+                job,
+                log_file=Path(out_p_abs) / ml_log_name,
+            ):
                 yield log_text, gr.update(visible=True)
         except ValidationError as err:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False)
         except Exception as exc:  # noqa: BLE001
-            yield f"❌ Failed: {exc}", gr.update(visible=False)
+            val_msgs = extract_validation_msgs(exc)
+            if val_msgs:
+                yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False)
+            else:
+                yield f"❌ Failed: {exc}", gr.update(visible=False)
 
     submit_btn.click(run_ml_pipeline, inputs=load_outputs, outputs=[log_output, open_dir_btn])
     open_dir_btn.click(lambda p: open_directory(p), inputs=output_dir)

@@ -73,6 +73,7 @@ class PreprocessingState:
             df,
             methods,
             fit=True,
+            level_label="group-level",
         )
         del output_df  # fit path transforms in-memory; callers use transform() for outputs
 
@@ -113,6 +114,7 @@ class PreprocessingState:
             step_states=self.step_states,
             baseline=self.baseline,
             fit=False,
+            level_label="group-level",
         )
         return output_df
 

@@ -17,6 +17,8 @@ from habit.cli_commands.commands.cmd_extract_features import run_extract_feature
 from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
+    abs_path,
+    extract_validation_msgs,
     load_config_yaml,
     open_directory,
     save_config_yaml,
@@ -155,12 +157,15 @@ def render_extract_tab() -> None:
             yield "❌ Select at least one feature_types entry.", gr.update(visible=False)
             return
 
+        # Resolve relative paths to absolute before saving to YAML.
+        out_abs = abs_path(out_val)
+
         config_data: Dict[str, Any] = {
-            "raw_img_folder": raw_val,
-            "habitats_map_folder": hab_val,
-            "out_dir": out_val,
-            "params_file_of_non_habitat": p_non,
-            "params_file_of_habitat": p_hab,
+            "raw_img_folder": abs_path(raw_val),
+            "habitats_map_folder": abs_path(hab_val),
+            "out_dir": out_abs,
+            "params_file_of_non_habitat": abs_path(p_non) if p_non and p_non.strip() else p_non,
+            "params_file_of_habitat": abs_path(p_hab) if p_hab and p_hab.strip() else p_hab,
             "habitat_pattern": pattern,
             "n_processes": int(n_proc),
             "feature_types": list(feats),
@@ -170,17 +175,25 @@ def render_extract_tab() -> None:
 
         try:
             FeatureExtractionConfig(**config_data)
-            os.makedirs(out_val, exist_ok=True)
-            gui_path = str(Path(out_val) / "config_extract_gui.yaml")
+            os.makedirs(out_abs, exist_ok=True)
+            gui_path = str(Path(out_abs) / "config_extract_gui.yaml")
             save_config_yaml(config_data, gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running extraction...", gr.update(visible=False)
-            for log_text in run_background_job(run_extract_features, kwargs={"config_file": gui_path}):
+            for log_text in run_background_job(
+                run_extract_features,
+                kwargs={"config_file": gui_path},
+                log_file=Path(out_abs) / "processing.log",
+            ):
                 yield log_text, gr.update(visible=True)
         except ValidationError as err:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False)
         except Exception as exc:  # noqa: BLE001
-            yield f"❌ Failed: {exc}", gr.update(visible=False)
+            val_msgs = extract_validation_msgs(exc)
+            if val_msgs:
+                yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False)
+            else:
+                yield f"❌ Failed: {exc}", gr.update(visible=False)
 
     submit_btn.click(
         run_extract,

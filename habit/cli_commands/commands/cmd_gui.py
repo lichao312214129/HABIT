@@ -12,7 +12,6 @@ Spawns Gradio in a subprocess and opens the local browser.
 import os
 import sys
 import subprocess
-import webbrowser
 from pathlib import Path
 import click
 
@@ -36,17 +35,13 @@ def run_gui_server(host: str = "127.0.0.1", port: int = 8501) -> None:
     click.secho("   HABIT - Habitat Analysis Toolkit Web GUI       ", fg="cyan", bold=True)
     click.secho("===================================================", fg="cyan")
     click.secho(f"Starting local server at http://{host}:{port}...", fg="green")
-    
-    # Automatically open local browser
-    webbrowser.open(f"http://{host}:{port}")
-    
-    # Spawn Python directly since app.py calls demo.launch()
-    # We can pass host and port via environment variables or just let it use defaults
-    # For now, we will set environment variables that Gradio respects, or we can modify app.py to read them.
-    # Gradio respects GRADIO_SERVER_NAME and GRADIO_SERVER_PORT
+    click.secho("Browser will open automatically once the server is ready.", fg="green")
+
+    # Spawn app.py; Gradio opens the browser after the port is bound (avoids first-load connection errors).
     env = os.environ.copy()
     env["GRADIO_SERVER_NAME"] = host
     env["GRADIO_SERVER_PORT"] = str(port)
+    env["HABIT_GUI_INBROWSER"] = "1"
     
     cmd: list[str] = [
         sys.executable,
