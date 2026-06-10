@@ -14,6 +14,15 @@ We sincerely thank the following experts and institutions for their support and 
 
 **董梦实 / Dong Mengshi**
 
+---
+
+待加入开发者 / Future Developers
+---------------------------------
+
+以下成员已确认将参与 HABIT 后续开发：
+
+The following members are expected to join HABIT development.
+
 **姜泽坤 / Jiang Zekun**
 
 * 所属机构 / Institution: 四川大学华西医院 / West China Hospital, Sichuan University
