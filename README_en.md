@@ -69,4 +69,4 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 - **Issues**：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
 - **License**：[HABIT Software License](LICENSE) (non-commercial use with attribution; commercial use requires prior written consent)
 
-**Core developers**：Li Chao, Dong Mengshi
+**Development team**：HABIT Development Team (see [Acknowledgments](https://lichao312214129.github.io/HABIT/acknowledgments.html))

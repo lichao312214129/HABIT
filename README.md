@@ -68,4 +68,4 @@
 - **引用**：见文档 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)
 - **许可**：[HABIT Software License](LICENSE)（非商业免费使用须署名申明；商业使用须事先书面授权）
 
-**核心开发者**：黎超、董梦实
+**开发团队**：HABIT 开发团队（详见 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)）
