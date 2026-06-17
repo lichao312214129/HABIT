@@ -55,10 +55,10 @@
   - **GPU 整包**（可选，约 3 GB）：百度网盘 [`HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx) ，提取码 **8wzx**
   - **CPU 版**（优先，体积小）：百度网盘 [`HABIT-win-py310-cpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva) ，提取码 **ycva**
   - 解压：新建空文件夹 → 便携包解压到当前目录 → `setup_habit.bat`
-  - **另从网盘下载**（解压到同一文件夹）：`config.zip`、`demo_data.rar`
+  - 跑 Demo 时从网盘下载 `config.rar`、`demo_data.rar` — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
   - **GPU 整包已内置 GPU 加速，无需额外安装**；仅 CPU 版 + NVIDIA 显卡时才可选 wheel + `install_gpu_torch.bat`（见安装指南）
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装步骤见 [安装指南 — 方式二](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)）
-- **演示数据 / 配置 / 测试**：网盘 `demo_data.rar`、`config.zip`、`tests.zip`（与便携包分开）— 见 [安装指南](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) 与 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
+- **配置 / 演示数据 / 测试**：`config.rar`、`demo_data.rar`（Demo 教程）、`tests.zip`（可选）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 
 ---
 

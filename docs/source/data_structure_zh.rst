@@ -7,10 +7,10 @@
 
 Demo 与多数 YAML 假定 **工作根目录** 下同时有 ``config/`` 与 ``demo_data/`` ：
 
-- **Windows 便携包**：pack 根目录（如 ``D:\habit-cpu\`` ）；``config.zip`` 、``demo_data.rar`` 从网盘解压到此（见 :doc:`getting_started/installation_zh`）
+- **Windows 便携包**：pack 根目录（如 ``D:\habit-cpu\`` ）；``config.rar`` 、``demo_data.rar`` 从网盘解压到此（见 :doc:`getting_started/quickstart_zh`）
 - **源码安装**：GitHub 仓库 / ZIP 根目录；``demo_data.rar`` 从网盘解压到 ``demo_data/``
 
-**重要提示**: 使用前需要先解压网盘中的 ``demo_data.rar`` 到工作根目录下的 ``demo_data/`` ；``config.zip`` 解压得到 ``config/`` 。
+**重要提示**: 便携包用户须解压 ``config.rar`` 、``demo_data.rar`` 到工作根目录（见 :doc:`getting_started/quickstart_zh`）；源码用户 ``config/`` 随仓库自带，只需下载 ``demo_data.rar`` 。
 
 解压后会得到以下 demo 数据：
 

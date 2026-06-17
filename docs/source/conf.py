@@ -155,10 +155,10 @@ todo_include_todos = True
 # 自定义变量（便携包配套资源网盘；维护者更新链接与提取码）
 # config/tests 若与 demo_data 不同分享，请分别修改下方链接
 rst_epilog = """
-.. |demo_data_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
-.. |demo_data_code| replace:: xypk
-.. |config_pack_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
-.. |config_pack_code| replace:: xypk
+.. |demo_data_link| replace:: https://pan.baidu.com/s/1vDx6JZeM4Ay7VR1GAt7a-g?pwd=hkvq
+.. |demo_data_code| replace:: hkvq
+.. |config_pack_link| replace:: https://pan.baidu.com/s/1k1AVXRU6N0V8ggG1cZVtnQ?pwd=ziex
+.. |config_pack_code| replace:: ziex
 .. |tests_pack_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
 .. |tests_pack_code| replace:: xypk
 """
