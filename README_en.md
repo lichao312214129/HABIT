@@ -53,8 +53,8 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Source & demo data
 
 - **Windows portable pack (recommended)**：[Installation — section 1 (ZH)](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
-  - **CPU** (smaller download): [Baidu Netdisk `habit_portable.tar.gz`](https://pan.baidu.com/s/1zTbYhDm3VnhHP-cMo5bN0A?pwd=8yks) — code **8yks**
-  - **GPU full pack** (optional, ~3 GB): [Baidu Netdisk `HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1xaMy69z-2dZH4nFEwhd4tg?pwd=fxnh) — code **fxnh**
+  - **GPU full pack** (optional, ~3 GB): [Baidu Netdisk `HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx) — code **8wzx**
+  - **CPU** (smaller download): [Baidu Netdisk `HABIT-win-py310-cpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva) — code **ycva**
   - Extract: empty folder → portable pack → `setup_habit.bat`
   - **Also from Baidu Netdisk** (into same pack root): `config.zip`, `demo_data.rar`; optional `tests.zip` — see [Installation (ZH)](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
   - CPU + NVIDIA: wheel + `install_gpu_torch.bat`

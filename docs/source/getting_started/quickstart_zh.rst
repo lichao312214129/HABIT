@@ -6,77 +6,37 @@
 一、前提条件
 ------------
 
-1. 已完成 :doc:`installation_zh` 中的 HABIT 安装
-2. 已准备 **工作根目录**：该目录下同时存在 ``config/`` 与 ``demo_data/`` （Demo YAML 使用 ``../../demo_data/...`` 等相对路径，二者须与 **运行 ``habit`` 时的当前目录** 匹配）。
+1. 已完成 :doc:`installation_zh` 中的安装
+2. 工作文件夹里同时有 ``config\`` 和 ``demo_data\`` （例如 ``D:\habit-cpu\`` 或 ``HABIT-main\``）
 
-**Windows 便携包用户**（推荐）
+**Windows 便携包**：解压 → ``setup_habit.bat`` → 下载 ``config.zip`` 、``demo_data.rar`` 解压到同一文件夹（见 :doc:`installation_zh`）。
 
-1. 便携包解压并完成 ``setup_habit.bat`` （见 :doc:`installation_zh` 方式一）
-2. 从网盘下载 ``config.zip`` 、``demo_data.rar`` ，解压到 **pack 根目录**（与 ``python.exe`` 同级，如 ``D:\habit-cpu\``）
-3. 每次跑 Demo 前 **无需** ``conda activate``；新开终端后：
+**源码安装**：``conda activate habit`` 后 ``cd`` 到项目根目录；``demo_data.rar`` 解压到项目根。
 
-   .. code-block:: bash
+跑 Demo 前先进入工作文件夹：
 
-      cd /d D:\habit-cpu
-      habit --version
+.. code-block:: bash
 
-**源码 / GitHub ZIP 用户**（方式二）
-
-1. ``conda activate habit`` ，``cd`` 到含 ``config/`` 、``habit/`` 的项目根（ZIP 解压后多为 ``HABIT-main``）
-2. 从网盘下载 ``demo_data.rar`` 解压到项目根下的 ``demo_data/``
-
-   .. code-block:: bash
-
-      conda activate habit
-      cd "D:\HABIT-main"
-
-若解压造成 ``HABIT-main/HABIT-main`` 嵌套，须 ``cd`` 到 **最内层** 且含 ``config/`` 、``habit/`` 的那一级（详见 :doc:`installation_zh`）。
+   cd /d D:\habit-cpu
+   habit --version
 
 二、下载配置与演示数据
 ----------------------
 
-便携包 **不含** ``config/`` 、``demo_data/`` ；请从百度网盘单独下载（链接与提取码见 :doc:`installation_zh` 「配置、演示数据与测试」表格）。
+便携包用户若已按 :doc:`installation_zh` 第三步完成，可 **跳过本节**。
 
 +------------------+---------------------+
-| 网盘文件         | 解压目标            |
+| 网盘文件         | 解压后应出现        |
 +==================+=====================+
-| ``config.zip``   | 工作根目录 → ``config/`` |
+| ``config.zip``   | ``config\`` 文件夹  |
 +------------------+---------------------+
-| ``demo_data.rar``| 工作根目录 → ``demo_data/`` |
+| ``demo_data.rar``| ``demo_data\`` 文件夹|
 +------------------+---------------------+
-
-**演示数据**
 
 - **链接**: |demo_data_link|
 - **提取码**: |demo_data_code|
 
-**重要说明**
-
-- 所有隐私信息已完全去除
-- **严禁商业用途，仅供学术研究和 Demo 演示使用**
-
-**便携包解压后目录示意**（``D:\habit-cpu\`` 为例）：
-
-.. code-block:: text
-
-   D:\habit-cpu\
-   ├── python.exe
-   ├── setup_habit.bat
-   ├── Scripts\
-   ├── config\               <-- config.zip
-   └── demo_data\            <-- demo_data.rar
-       ├── dicom/
-       ├── preprocessed/processed_images/   <-- Demo 影像与 mask（可跳过步骤 1）
-       └── ...
-
-**源码安装目录示意**：
-
-.. code-block:: text
-
-   HABIT-main/
-   ├── config/
-   ├── demo_data/
-   └── habit/
+演示数据已去标识，**仅供学术研究与 Demo，禁止商业用途**。
 
 三、完整研究流程（5 步）
 ------------------------
