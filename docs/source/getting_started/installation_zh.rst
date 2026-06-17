@@ -19,15 +19,17 @@
 - `百度网盘 <https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva>`_ ，提取码 **ycva**
 
 - **不确定选哪个**：选 **CPU 版**（普通电脑都能用，只是部分步骤稍慢）。
-- **有 NVIDIA 显卡且希望更快**：可直接下 **GPU 整包**；或先装 CPU 版，再按下文「可选：GPU 加速」升级。
+- **有 NVIDIA 显卡且希望更快**：直接下载 **GPU 整包**，按下方三步安装即可，**无需** 再装 GPU 组件。
 
 方式一：Windows 便携安装
 ------------------------
 
+**说明**：无论 CPU 版还是 GPU 整包，安装步骤相同（解压 → ``setup_habit.bat`` → 下载配置与数据）。**下载 GPU 整包的用户装完第三步即可，请跳过下文「CPU 版后期升级 GPU」**。
+
 第一步：解压
 ~~~~~~~~~~
 
-1. 在 ``D:\`` 新建文件夹，例如 ``D:\habit-cpu`` （路径 **短、无中文、无空格**）。
+1. 在 ``D:\`` 新建文件夹，例如 ``D:\habit-cpu`` （CPU 版）或 ``D:\habit-gpu`` （GPU 整包）。路径宜 **短、无中文、无空格**。
 2. 把网盘下载的压缩包 **移入** 该文件夹。
 3. 进入文件夹，对压缩包 **右键 → 解压到当前文件夹**（Bandizip / 7-Zip / WinRAR 均可）。
 4. 确认该文件夹里 **直接有** ``python.exe`` 和 ``setup_habit.bat`` （在同一层，不要多一层子文件夹）。
@@ -77,24 +79,27 @@
    ├── config\
    └── demo_data\
 
-跑 Demo 时，请先 ``cd /d D:\habit-cpu`` 再运行 ``habit`` （详见 :doc:`quickstart_zh`）。
+跑 Demo 时，请先 ``cd /d D:\habit-cpu``（或 ``D:\habit-gpu``）再运行 ``habit`` （详见 :doc:`quickstart_zh`）。
 
-可选：GPU 加速（仅 CPU 版 + 有 NVIDIA 显卡）
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CPU 版后期升级 GPU（可跳过）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-已装好 **CPU 版** 且电脑有 **NVIDIA 显卡** 时可做此步；**GPU 整包用户跳过**。
+**若您下载的是 GPU 整包，本节不用看。**
+
+仅适用于：**已装好 CPU 版**、电脑有 **NVIDIA 显卡**、又不想重新下载 3 GB GPU 整包时，可按下列步骤把 CPU 版升级为 GPU 版：
 
 1. 从网盘下载 ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl``（约 2 GB）：
    `百度网盘 <https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k>`_ ，提取码 **nt7k**
-2. 把该文件 **复制到** ``D:\habit-cpu\`` （与 ``python.exe`` 同级）。
+2. 把该文件 **复制到** 便携包文件夹（与 ``python.exe`` 同级，如 ``D:\habit-cpu\``）。
 3. **双击** ``install_gpu_torch.bat`` 。
 
 便携包常见问题
 ~~~~~~~~~~~~~~
 
 - **habit 命令找不到**：是否 **重新打开** 了命令提示符？是否在同一文件夹运行了 ``setup_habit.bat`` ？
-- **解压后没有 python.exe**：解压多了一层，把子文件夹里的内容 **全部上移** 到 ``habit-cpu`` 。
-- **CPU 版显示 CUDA False**：正常；需要加速时按上文「GPU 加速」操作。
+- **解压后没有 python.exe**：解压多了一层，把子文件夹里的内容 **全部上移** 到目标文件夹。
+- **GPU 整包仍显示 CUDA False**：检查 NVIDIA 驱动是否正常。
+- **CPU 版显示 CUDA False**：正常；若要加速，见上文「CPU 版后期升级 GPU」，或直接改用 **GPU 整包** 重新安装。
 
 方式二：源码安装（macOS / Linux / 开发者）
 ------------------------------------------
@@ -168,7 +173,7 @@
 
 默认安装的是 CPU 版 PyTorch。有 NVIDIA 显卡且需要加速时，在 ``pip install -e .`` **之前**：
 
-1. 从网盘下载 ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl``（链接见上文「GPU 加速」）。
+1. 从网盘下载 ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl``（链接见上文「CPU 版后期升级 GPU」）。
 2. 将 ``.whl`` 放到项目根目录（与 ``requirements.txt`` 同级）。
 3. 执行：
 

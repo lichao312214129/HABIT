@@ -56,8 +56,8 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
   - **GPU full pack** (optional, ~3 GB): [Baidu Netdisk `HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx) — code **8wzx**
   - **CPU** (smaller download): [Baidu Netdisk `HABIT-win-py310-cpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva) — code **ycva**
   - Extract: empty folder → portable pack → `setup_habit.bat`
-  - **Also from Baidu Netdisk** (into same pack root): `config.zip`, `demo_data.rar`; optional `tests.zip` — see [Installation (ZH)](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
-  - CPU + NVIDIA: wheel + `install_gpu_torch.bat`
+  - **Also from Baidu Netdisk** (into same folder): `config.zip`, `demo_data.rar`
+  - **GPU full pack includes GPU acceleration** — no extra step; CPU + NVIDIA users may optionally use wheel + `install_gpu_torch.bat` (see Installation guide)
 - **Resources (separate from portable pack)**: `config.zip`, `demo_data.rar`, `tests.zip` — [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) · [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
 - **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
 - **Demo bundle**：see [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
