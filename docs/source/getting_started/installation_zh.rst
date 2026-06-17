@@ -28,17 +28,21 @@
 
 **说明**：无论 CPU 版还是 GPU 整包，均为 **解压 → ``setup_habit.bat``** 两步。**GPU 整包用户装完后请跳过下文「CPU 版后期升级 GPU」**。
 
+.. note::
+
+   下文中的盘符与路径（如 ``D:\habit-cpu`` ）仅为 **文档示例**（维护者/开发者环境），请按 **您本机实际盘符与文件夹** 操作。
+
 第一步：解压
 ~~~~~~~~~~
 
-1. 在 ``D:\`` 新建文件夹，例如 ``D:\habit-cpu`` （CPU 版）或 ``D:\habit-gpu`` （GPU 整包）。路径宜 **短、无中文、无空格**。
+1. 在任意盘符新建文件夹（示例：``D:\habit-cpu`` 为 CPU 版，``D:\habit-gpu`` 为 GPU 整包；**请改为您自己的路径**）。路径宜 **短、无中文、无空格**。
 2. 把网盘下载的压缩包 **移入** 该文件夹。
 3. 进入文件夹，对压缩包 **右键 → 解压到当前文件夹**（Bandizip / 7-Zip / WinRAR 均可）。
 4. 确认该文件夹里 **直接有** ``python.exe`` 和 ``setup_habit.bat`` （在同一层，不要多一层子文件夹）。
 
    .. code-block:: text
 
-      D:\habit-cpu\
+      D:\habit-cpu\          ← 示例路径，请改为本机实际文件夹
       ├── python.exe
       ├── setup_habit.bat
       └── Scripts\
@@ -67,7 +71,7 @@ CPU 版后期升级 GPU（可跳过）
 
 1. 从网盘下载 ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl``（约 2 GB）：
    `百度网盘 <https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k>`_ ，提取码 **nt7k**
-2. 把该文件 **复制到** 便携包文件夹（与 ``python.exe`` 同级，如 ``D:\habit-cpu\``）。
+2. 把该文件 **复制到** 便携包文件夹（与 ``python.exe`` 同级；路径见上文示例，**请用本机实际路径**）。
 3. **双击** ``install_gpu_torch.bat`` 。
 
 便携包常见问题
@@ -82,6 +86,10 @@ CPU 版后期升级 GPU（可跳过）
 ------------------------------------------
 
 需要自行安装 Python 环境，步骤比便携包多。Windows 用户若无特殊需求，请优先用 **方式一**。
+
+.. note::
+
+   下文 ``D:\HABIT-main`` 、``~/Downloads/HABIT-main`` 等均为 **示例路径**，请改为您解压源码后的 **本机实际目录**（可从资源管理器地址栏复制）。
 
 1. 安装 Miniconda
 ~~~~~~~~~~~~~~~~~
@@ -102,7 +110,7 @@ CPU 版后期升级 GPU（可跳过）
    conda create -n habit python=3.10
    conda activate habit
 
-下载 `GitHub 源码 ZIP <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_ ，解压到任意位置（如 ``D:\HABIT-main`` ）。用资源管理器打开解压后的文件夹，应能看到 ``config`` 、``habit`` 、``requirements.txt`` 。
+下载 `GitHub 源码 ZIP <https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip>`_ ，解压到任意位置（示例 ``D:\HABIT-main`` ，**请改为您自己的路径**）。用资源管理器打开解压后的文件夹，应能看到 ``config`` 、``habit`` 、``requirements.txt`` 。
 
 若文件夹里 **只有** 嵌套的 ``HABIT-main`` 子文件夹，请再进入 **内层** 那一级。
 
@@ -116,7 +124,7 @@ CPU 版后期升级 GPU（可跳过）
 .. code-block:: bash
 
    conda activate habit
-   cd "D:\HABIT-main"
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
 
    pip install -r requirements.txt
    pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl
@@ -127,7 +135,7 @@ CPU 版后期升级 GPU（可跳过）
 .. code-block:: bash
 
    conda activate habit
-   cd ~/Downloads/HABIT-main
+   cd ~/Downloads/HABIT-main    # 示例路径，请改为本机项目根目录
 
    pip install -r requirements.txt
    pip install pyradiomics

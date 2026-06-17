@@ -11,7 +11,7 @@
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT-main
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
    habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
    habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
    habit compare --config config/model_comparison/config_model_comparison_demo.yaml

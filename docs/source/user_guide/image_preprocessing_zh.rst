@@ -9,7 +9,7 @@
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT-main
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
    habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 
 仅整理 DICOM 目录（不转 NIfTI）：

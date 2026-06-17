@@ -9,7 +9,7 @@
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT-main
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 其它策略（改配置文件即可）：

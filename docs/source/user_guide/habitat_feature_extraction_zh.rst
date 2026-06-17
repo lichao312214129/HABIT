@@ -9,7 +9,7 @@
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT-main
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
 前置

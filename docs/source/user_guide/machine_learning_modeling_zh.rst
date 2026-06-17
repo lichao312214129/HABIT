@@ -9,7 +9,7 @@
 .. code-block:: bash
 
    conda activate habit
-   cd D:\HABIT-main
+   cd "D:\HABIT-main"    # 示例路径，请改为本机项目根目录
    habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
 
 融合临床特征时，另用 ``config/machine_learning/config_machine_learning_clinical.yaml`` 等模板；K 折示例见 ``config_machine_learning_kfold_demo.yaml``。
