@@ -48,4 +48,4 @@ Data
 
 **Folder layout**: :doc:`../how_to/prepare_data` .
 
-Support: `GitHub Issues <https://github.com/lichao312214129/habit_project_v1/issues>`_ · lichao19870617@163.com
+Support: `GitHub Issues <|github_issues|>`_ · lichao19870617@163.com

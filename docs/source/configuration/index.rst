@@ -9,7 +9,7 @@ Omitted keys use program defaults (listed on each page below). Example values in
 
 .. note::
 
-   If you only ``pip install habit`` without the ``config/`` directory, obtain the full source tree from `GitHub <https://github.com/lichao312214129/habit_project_v1>`_.
+   If you only ``pip install habit`` without the ``config/`` directory, obtain the full source tree from `GitHub <|github_repo|>`_.
 
 .. toctree::
    :maxdepth: 2

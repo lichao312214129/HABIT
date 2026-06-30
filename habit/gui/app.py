@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 from typing import Any, List, Tuple
 
-from habit.gui.gradio_bootstrap import apply_gradio_windows_patches
+from habit.utils.project_urls import DOCS_BASE_URL, DOCS_SITE_LABEL
 
 apply_gradio_windows_patches()
 
@@ -203,7 +203,7 @@ def main(inbrowser: bool = False) -> None:
                     "3. On each step click **Fill paths from project** (or paths auto-fill when you open the project).\n"
                     "4. Use **Quick presets** where available, then **Validate and run**.\n"
                     "5. Progress and completion status are saved in `habit_project.json`.\n\n"
-                    "*Documentation: [habit_project_v1](https://lichao312214129.github.io/habit_project_v1)*"
+                    f"*Documentation: [{DOCS_SITE_LABEL}]({DOCS_BASE_URL})*"
                 )
             with gr.Row():
                 with gr.Group(elem_classes=["habit-home-card"]):

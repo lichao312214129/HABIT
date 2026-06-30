@@ -79,4 +79,4 @@ Learning path
    changelog
    acknowledgments
 
-- GitHub: https://github.com/lichao312214129/habit_project_v1
+- GitHub: |github_repo|
