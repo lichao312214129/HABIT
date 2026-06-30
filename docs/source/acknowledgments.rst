@@ -6,18 +6,20 @@ We sincerely thank the following experts and institutions for their support and 
 Core developers
 ---------------
 
-**Li Chao**
+**Li Chao (黎超)**
 
-**Dong Mengshi**
+**Dong Mengshi (董梦实)**
+
+**Jiang Zekun (姜泽坤)**
+
+**Jiang Kunyuan (姜坤元)**
+
+* Institution: West China Medical Robotics Research Institute (华西医疗机器人研究院)
 
 Future developers
 -----------------
 
 The following members are expected to join HABIT development.
-
-**Jiang Zekun**
-
-* Institution: West China Hospital, Sichuan University
 
 Clinical collaborators
 ----------------------
