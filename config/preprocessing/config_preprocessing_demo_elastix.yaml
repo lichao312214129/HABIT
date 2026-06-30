@@ -1,77 +1,80 @@
-# =============================================================================
-# Image preprocessing — DEMO (optional): multiphase registration with elastix CLI
-# =============================================================================
-# Default demo (SimpleITK, no extra binaries): config_preprocessing_demo.yaml
-#
-# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
-#
-# Purpose:
-#   Optional elastix registration on demo_data/preprocessed/processed_images (delay2/3/5).
-#
-# Data layout:
-#   Same as config_preprocessing_demo.yaml; requires elastix + transformix on PATH.
-#
-# NOT overlapping with:
-#   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
-#   full step zoo: N4, resample, registration, etc.).
-#   config_image_preprocessing_dcm2nii.yaml — DICOM → NIfTI first.
-#   config/dicom_sort/config_sort_dicom.yaml — DICOM rename/sort only (habit sort-dicom).
-#   config_preprocessing_from_dicom_manifest.yaml — if re-added: manifest-driven DICOM tree.
-# =============================================================================
-
-# Data paths (relative to this file)
-data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/preprocessed
-
-# NIfTI inputs may be single files per modality; true = pick first file when path is a directory
-auto_select_first_file: true
-
-# Preprocessing settings — YAML key order = execution order (see docs/configuration_zh.rst)
-Preprocessing:
-  # dcm2nii:
-  #   images: [T1, T2]
-  #   dcm2niix_path: ./dcm2niix.exe
-  #   compress: true
-  #   anonymize: true
-
-  # # N4 Bias Field Correction:
-  # n4_correction:
-  #   images: [T1, T2]
-  #   num_fitting_levels: 2
-
-  # Resample:
-  # resample:
-  #   images: [T1, T2]
-  #   target_spacing: [2.0, 2.0, 2.0]
-
-  registration:
-    images: [delay2, delay3, delay5]
-    fixed_image: delay2
-    use_mask: true
-    backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
-    # type_of_transform / metric / optimizer are ignored when backend: elastix
-    elastix_parameter_files: ../../demo_data/Par0040affine.txt
-    # elastix_path: /path/to/elastix   # optional; omit to use PATH
-    # transformix_path: /path/to/transformix
-    # elastix_parameter_overrides:
-    #   MaximumNumberOfIterations: 200
-
-  # zscore_normalization:
-  #   images: [T1, T2]
-  #   only_inmask: false
-  #   mask_key: mask
-
-  # adaptive_histogram_equalization:
-  #   images: [T1, T2]
-  #   alpha: 0.3
-  #   beta: 0.3
-  #   radius: 5
-
-save_options:
-  save_intermediate: true
-  # Empty list = save every step when save_intermediate is true; or name specific steps:
-  intermediate_steps: [registration]
-  # intermediate_steps: [dcm2nii, n4_correction, resample, registration]
-
-processes: 1  # Parallel subjects; effective workers = min(processes, CPU cores - 2), at least 1
-random_state: 42  # Reserved; current pipeline does not read this (see image_preprocessing_zh.rst)
+# =============================================================================
+# Image preprocessing — DEMO (optional): multiphase registration with elastix CLI
+# =============================================================================
+
+# Default demo (SimpleITK, no extra binaries): config_preprocessing_demo.yaml
+#
+# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
+#
+# Purpose:
+#   Optional elastix registration on demo_data/preprocessed/processed_images (delay2/3/5).
+#
+# Data layout:
+#   Same as config_preprocessing_demo.yaml; requires elastix + transformix on PATH.
+#
+# NOT overlapping with:
+#   config_image_preprocessing.yaml — primary annotated MRI template (your paths,
+#   full step zoo: N4, resample, registration, etc.).
+#   config_image_preprocessing_dcm2nii.yaml — DICOM → NIfTI first.
+#   config/dicom_sort/config_sort_dicom.yaml — DICOM rename/sort only (habit sort-dicom).
+#   config_preprocessing_from_dicom_manifest.yaml — if re-added: manifest-driven DICOM tree.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+# Data paths (relative to this file)
+data_dir: ../../demo_data/preprocessed/processed_images
+out_dir: ../../demo_data/results/preprocessed
+
+# NIfTI inputs may be single files per modality; true = pick first file when path is a directory
+auto_select_first_file: true
+
+# Preprocessing settings — YAML key order = execution order (see docs/configuration_zh.rst)
+Preprocessing:
+  # dcm2nii:
+  #   images: [T1, T2]
+  #   dcm2niix_path: ./dcm2niix.exe
+  #   compress: true
+  #   anonymize: true
+
+  # # N4 Bias Field Correction:
+  # n4_correction:
+  #   images: [T1, T2]
+  #   num_fitting_levels: 2
+
+  # Resample:
+  # resample:
+  #   images: [T1, T2]
+  #   target_spacing: [2.0, 2.0, 2.0]
+
+  registration:
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
+    use_mask: true
+    backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
+    # type_of_transform / metric / optimizer are ignored when backend: elastix
+    elastix_parameter_files: ../../demo_data/Par0040affine.txt
+    # elastix_path: /path/to/elastix   # optional; omit to use PATH
+    # transformix_path: /path/to/transformix
+    # elastix_parameter_overrides:
+    #   MaximumNumberOfIterations: 200
+
+  # zscore_normalization:
+  #   images: [T1, T2]
+  #   only_inmask: false
+  #   mask_key: mask
+
+  # adaptive_histogram_equalization:
+  #   images: [T1, T2]
+  #   alpha: 0.3
+  #   beta: 0.3
+  #   radius: 5
+
+save_options:
+  save_intermediate: true
+  # Empty list = save every step when save_intermediate is true; or name specific steps:
+  intermediate_steps: [registration]
+  # intermediate_steps: [dcm2nii, n4_correction, resample, registration]
+
+processes: 1  # Parallel subjects; effective workers = min(processes, CPU cores - 2), at least 1
+random_state: 42  # Reserved; current pipeline does not read this (see image_preprocessing_zh.rst)

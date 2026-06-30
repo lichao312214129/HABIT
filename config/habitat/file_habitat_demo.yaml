@@ -1,28 +1,31 @@
-# =============================================================================
-# Habitat input manifest â€?DEMO: demo_data/preprocessed/processed_images
-# =============================================================================
-# Use as `data_dir: file_habitat_demo.yaml` in habitat YAML under config/habitat/.
-# Modality keys must match FeatureConstruction (delay2, delay3, delay5).
-# =============================================================================
-
-auto_select_first_file: true
-
-images:
-  subj001:
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
-  subj002:
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
-
-masks:
-  subj001:
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
-  subj002:
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5
+# =============================================================================
+# Habitat input manifest éˆ¥?DEMO: demo_data/preprocessed/processed_images
+# =============================================================================
+
+# Use as `data_dir: file_habitat_demo.yaml` in habitat YAML under config/habitat/.
+# Modality keys must match FeatureConstruction (delay2, delay3, delay5).
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+auto_select_first_file: true
+
+images:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
+
+masks:
+  subj001:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
+  subj002:
+    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
+    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
+    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5

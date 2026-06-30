@@ -41,19 +41,93 @@ def _find_repo_root(start: Path) -> Path:
 
 
 def _find_demo_root(repo_root: Path) -> Path:
-    """Prefer F: drive demo_data (WSL mount) when present."""
-    wsl_demo = Path("/mnt/f/work/habit_project_v1/demo_data")
-    if wsl_demo.is_dir() and (wsl_demo / "ml_data").is_dir():
-        return wsl_demo
-    local_demo = repo_root / "demo_data"
-    if local_demo.is_dir():
-        return local_demo.resolve()
-    raise RuntimeError("demo_data directory not found (checked /mnt/f/... and repo/demo_data)")
+    """Return demo_data directory under the repository root."""
+    demo_root = repo_root / "demo_data"
+    if demo_root.is_dir() and (demo_root / "ml_data").is_dir():
+        return demo_root.resolve()
+    raise RuntimeError(f"demo_data directory not found under {repo_root}")
 
 
 def _to_native_path(path: Path) -> str:
-    """Return a string path suitable for YAML configs on the current OS."""
+    """Return a resolved absolute path string (internal use during config patching)."""
     return str(path.resolve())
+
+
+def _looks_like_filesystem_path(text: str) -> bool:
+    """Heuristic: string values that should be rewritten as case-relative paths."""
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if "*" in stripped or "?" in stripped:
+        return False
+    if stripped.startswith(("/", "~", ".")):
+        return True
+    if len(stripped) > 1 and stripped[1] == ":":
+        return True
+    if "demo_data/" in stripped.replace("\\", "/"):
+        return True
+    if stripped.endswith((".yaml", ".yml", ".csv", ".json", ".txt", ".pkl", ".nrrd", ".dcm", ".exe")):
+        return True
+    return False
+
+
+def _resolve_path_string(
+    text: str,
+    base_config_dir: Path,
+    case_dir: Path,
+    repo_root: Path,
+) -> Path:
+    """Resolve a YAML path string to an absolute Path."""
+    stripped = text.strip()
+    path = Path(stripped)
+    if path.is_absolute():
+        if stripped.startswith("~/"):
+            return Path(stripped).expanduser().resolve()
+        return path.resolve()
+
+    candidates = (
+        base_config_dir / stripped,
+        case_dir / stripped,
+        repo_root / stripped,
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate.resolve()
+    return (base_config_dir / stripped).resolve()
+
+
+def _relative_path_for_case_yaml(path: Path, case_dir: Path) -> str:
+    """Express *path* relative to the generated case config directory."""
+    resolved = path.resolve()
+    posix = resolved.as_posix()
+    if posix.startswith("/usr/"):
+        return posix
+    rel = os.path.relpath(resolved, case_dir.resolve()).replace("\\", "/")
+    return rel
+
+
+def _finalize_paths_for_case_yaml(
+    node: Any,
+    case_dir: Path,
+    base_config_dir: Path,
+    repo_root: Path,
+) -> Any:
+    """Rewrite all filesystem paths as strings relative to the case config folder."""
+    if isinstance(node, dict):
+        return {
+            k: _finalize_paths_for_case_yaml(v, case_dir, base_config_dir, repo_root)
+            for k, v in node.items()
+        }
+    if isinstance(node, list):
+        return [
+            _finalize_paths_for_case_yaml(v, case_dir, base_config_dir, repo_root)
+            for v in node
+        ]
+    if not isinstance(node, str) or not _looks_like_filesystem_path(node):
+        return node
+
+    resolved = _resolve_path_string(node, base_config_dir, case_dir, repo_root)
+    return _relative_path_for_case_yaml(resolved, case_dir)
 
 
 def _manifest_path(script_path: Path) -> Path:
@@ -376,36 +450,34 @@ def load_yaml(path: Path) -> Dict[str, Any]:
     raise UnicodeDecodeError("yaml", b"", 0, 1, f"Cannot decode {path}")
 
 
-def _absolutize_demo_paths(node: Any, demo_root: Path, repo_root: Path) -> Any:
-    """Rewrite demo_data-relative strings to absolute paths for generated case configs."""
-    if isinstance(node, dict):
-        return {k: _absolutize_demo_paths(v, demo_root, repo_root) for k, v in node.items()}
-    if isinstance(node, list):
-        return [_absolutize_demo_paths(v, demo_root, repo_root) for v in node]
-    if not isinstance(node, str):
-        return node
-
-    text = node.strip()
-    demo_marker = "demo_data/"
-    if demo_marker in text.replace("\\", "/"):
-        normalized = text.replace("\\", "/")
-        if normalized.startswith("../../demo_data/"):
-            rel = normalized.split(demo_marker, 1)[1]
-            return _to_native_path(demo_root / rel)
-        if "F:/work/habit_project_v1/demo_data/" in normalized:
-            rel = normalized.split(demo_marker, 1)[1]
-            return _to_native_path(demo_root / rel)
-        if normalized.startswith("demo_data/"):
-            return _to_native_path(repo_root / normalized)
-    if text.startswith("~/"):
-        return _to_native_path(Path(text).expanduser())
-    return node
-
-
 def save_yaml(data: Dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as fh:
         yaml.safe_dump(data, fh, default_flow_style=False, sort_keys=False)
+
+
+def save_case_yaml(
+    data: Dict[str, Any],
+    path: Path,
+    *,
+    base_config_dir: Path,
+    case_dir: Path,
+    repo_root: Path,
+) -> None:
+    """Write generated case config with case-relative paths and a path comment."""
+    finalized = _finalize_paths_for_case_yaml(
+        data, case_dir, base_config_dir, repo_root
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = (
+        "# Auto-generated by run_config_matrix.py\n"
+        "# Relative paths (../, ../../) resolve from this YAML file's directory.\n\n"
+    )
+    with path.open("w", encoding="utf-8") as fh:
+        fh.write(header)
+        yaml.safe_dump(
+            finalized, fh, default_flow_style=False, sort_keys=False
+        )
 
 
 def prepare_case_config(
@@ -460,10 +532,14 @@ def prepare_case_config(
         else:
             patch_fn(cfg, demo_root, case_outputs)
 
-    cfg = _absolutize_demo_paths(cfg, demo_root, repo_root)
-
     config_path = case_dir / "config.yaml"
-    save_yaml(cfg, config_path)
+    save_case_yaml(
+        cfg,
+        config_path,
+        base_config_dir=base_path.parent,
+        case_dir=case_dir,
+        repo_root=repo_root,
+    )
     return config_path
 
 

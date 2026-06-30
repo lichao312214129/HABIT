@@ -34,7 +34,12 @@ def _find_repo_root(start: Path) -> Path:
     raise RuntimeError(f"Cannot find repo root from {start}")
 
 
-def _run_habit(
+def _find_demo_root(repo_root: Path) -> Path:
+    """Return demo_data directory under the repository root."""
+    demo_root = repo_root / "demo_data"
+    if demo_root.is_dir():
+        return demo_root.resolve()
+    raise RuntimeError(f"demo_data directory not found under {repo_root}")
     repo_root: Path,
     argv: List[str],
     log_path: Path,
@@ -101,9 +106,7 @@ def main() -> int:
     script_path = Path(__file__).resolve()
     results_root = script_path.parents[1]
     repo_root = _find_repo_root(script_path)
-    demo_root = Path("/mnt/f/work/habit_project_v1/demo_data")
-    if not demo_root.is_dir():
-        demo_root = repo_root / "demo_data"
+    demo_root = _find_demo_root(repo_root)
     logs_dir = results_root / "logs" / "utility"
     logs_dir.mkdir(parents=True, exist_ok=True)
 

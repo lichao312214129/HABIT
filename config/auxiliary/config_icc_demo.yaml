@@ -1,53 +1,56 @@
-# =============================================================================
-# ICC analysis — DEMO scenario (bundled demo_data CSVs only)
-# =============================================================================
-# CLI:  habit icc --config config/auxiliary/config_icc_demo.yaml
-#
-# Purpose:
-#   Single use case: run ICC on two paired feature tables from the repository
-#   demo bundle (paths resolve relative to this file under ../../demo_data/...).
-#
-# NOT overlapping with:
-#   config_icc_analysis.yaml — long-form template with commented sections for
-#   your own absolute paths and multi-table file_groups.
-#
-# Important:
-#   Do not include label / outcome columns in ICC inputs; remove them from the
-#   exported CSVs or from the JSON before interpretation.
-# =============================================================================
-
-# Input configuration
-input:
-  # Type of input: 'files' or 'directories'
-  type: "files"
-
-  # File groups configuration (used when type is 'files')
-  # Each inner list represents a group of files to be analyzed together
-  file_groups:
-    # Do not include label columns in ICC computation; strip them post-hoc if needed
-    - [../../demo_data/ml_data/breast_cancer_dataset.csv, ../../demo_data/ml_data/breast_cancer_dataset_retest_simulated.csv]
-
-  # Directory list configuration (used when type is 'directories')
-  # The system will match same-named files across directories
-  # dir_list:
-  #   - path/to/dir1
-  #   - path/to/dir2
-  #   - path/to/dir3
-metrics:
-  - icc2
-  - icc3
-  - cohen
-  - fleiss
-  - krippendorff
-
-# Output configuration
-output:
-  # Path to output JSON file
-  path: ../../demo_data/results/icc/icc_radiomics.json
-
-# Processing configuration
-# Number of processes to use (null/None for using all available CPU cores)
-processes: 1
-
-# Debug mode (enables additional logging)
-debug: false
+# =============================================================================
+# ICC analysis — DEMO scenario (bundled demo_data CSVs only)
+# =============================================================================
+
+# CLI:  habit icc --config config/auxiliary/config_icc_demo.yaml
+#
+# Purpose:
+#   Single use case: run ICC on two paired feature tables from the repository
+#   demo bundle (paths resolve relative to this file under ../../demo_data/...).
+#
+# NOT overlapping with:
+#   config_icc_analysis.yaml — long-form template with commented sections for
+#   your own absolute paths and multi-table file_groups.
+#
+# Important:
+#   Do not include label / outcome columns in ICC inputs; remove them from the
+#   exported CSVs or from the JSON before interpretation.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+# Input configuration
+input:
+  # Type of input: 'files' or 'directories'
+  type: "files"
+
+  # File groups configuration (used when type is 'files')
+  # Each inner list represents a group of files to be analyzed together
+  file_groups:
+    # Do not include label columns in ICC computation; strip them post-hoc if needed
+    - [../../demo_data/ml_data/breast_cancer_dataset.csv, ../../demo_data/ml_data/breast_cancer_dataset_retest_simulated.csv]
+
+  # Directory list configuration (used when type is 'directories')
+  # The system will match same-named files across directories
+  # dir_list:
+  #   - path/to/dir1
+  #   - path/to/dir2
+  #   - path/to/dir3
+metrics:
+  - icc2
+  - icc3
+  - cohen
+  - fleiss
+  - krippendorff
+
+# Output configuration
+output:
+  # Path to output JSON file
+  path: ../../demo_data/results/icc/icc_radiomics.json
+
+# Processing configuration
+# Number of processes to use (null/None for using all available CPU cores)
+processes: 1
+
+# Debug mode (enables additional logging)
+debug: false

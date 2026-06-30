@@ -1,86 +1,89 @@
-# =============================================================================
-# Habitat â??DEMO: direct pooling with GMM + AIC optimal-k selection
-# =============================================================================
-# CLI:  habit get-habitat --config config/habitat/config_habitat_direct_pooling_gmm_aic.yaml
-#       python tests/habitat/habitat_direct_pooling_gmm_aic_train.py
-#
-# Input: file_habitat_demo.yaml
-# Output: ../../demo_data/results/habitat_direct_pooling_gmm_aic
-# =============================================================================
-
-run_mode: train
-pipeline_path:
-
-#%%================================================================================
-data_dir: file_habitat_demo.yaml
-out_dir: ../../demo_data/results/habitat_direct_pooling_gmm_aic
-#%%================================================================================
-
-FeatureConstruction:
-  voxel_level:
-    method: concat(voxel_radiomics(delay2), voxel_radiomics(delay3), voxel_radiomics(delay5))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 3
-      voxelBatch: 1000
-      useTorchRadiomics: auto
-      torchGpus: []
-
-  preprocessing_for_subject_level:
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-        global_normalize: false
-      - method: minmax
-        global_normalize: false
-
-  preprocessing_for_group_level:
-    # Stage 2 only - NOT in config_hash. Prefer for radiomics-heavy features.
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-        global_normalize: false
-      - method: variance_filter
-        variance_threshold: 0.01
-        global_normalize: false
-      - method: correlation_filter
-        corr_threshold: 0.9
-        corr_method: spearman
-        global_normalize: false
-      - method: minmax
-        global_normalize: false
-
-HabitatSegmentation:
-  clustering_mode: direct_pooling
-
-  habitat:
-    algorithm: gmm
-    max_clusters: 10
-    min_clusters: 2
-    habitat_cluster_selection_method:
-      - aic
-    fixed_n_clusters:
-    max_iter: 100
-    n_init: 10
-
-processes: 2
-cap_processes_to_gpu_pool: false
-individual_subject_timeout_sec: 900
-oom_backoff: false
-
-resume: true
-strict_checkpoint_hash: false
-checkpoint_dir: null
-force_rerun_subjects: []
-retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2
-individual_subject_parallel_mode: persistent
-persistent_worker_max_consecutive_failures: 1
-persistent_worker_recycle_after_tasks: 0
-clear_checkpoint_on_success: false
-
-plot_curves: true
-save_results_csv: true
-save_images: true
-random_state: 42
-debug: false
+# =============================================================================
+# Habitat Ã¢??DEMO: direct pooling with GMM + AIC optimal-k selection
+# =============================================================================
+
+# CLI:  habit get-habitat --config config/habitat/config_habitat_direct_pooling_gmm_aic.yaml
+#       python tests/habitat/habitat_direct_pooling_gmm_aic_train.py
+#
+# Input: file_habitat_demo.yaml
+# Output: ../../demo_data/results/habitat_direct_pooling_gmm_aic
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+run_mode: train
+pipeline_path:
+
+#%%================================================================================
+data_dir: file_habitat_demo.yaml
+out_dir: ../../demo_data/results/habitat_direct_pooling_gmm_aic
+#%%================================================================================
+
+FeatureConstruction:
+  voxel_level:
+    method: concat(voxel_radiomics(delay2), voxel_radiomics(delay3), voxel_radiomics(delay5))
+    params:
+      params_file: ../radiomics/params_voxel_radiomics.yaml
+      kernelRadius: 3
+      voxelBatch: 1000
+      useTorchRadiomics: auto
+      torchGpus: []
+
+  preprocessing_for_subject_level:
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+
+  preprocessing_for_group_level:
+    # Stage 2 only - NOT in config_hash. Prefer for radiomics-heavy features.
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: variance_filter
+        variance_threshold: 0.01
+        global_normalize: false
+      - method: correlation_filter
+        corr_threshold: 0.9
+        corr_method: spearman
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+
+HabitatSegmentation:
+  clustering_mode: direct_pooling
+
+  habitat:
+    algorithm: gmm
+    max_clusters: 10
+    min_clusters: 2
+    habitat_cluster_selection_method:
+      - aic
+    fixed_n_clusters:
+    max_iter: 100
+    n_init: 10
+
+processes: 2
+cap_processes_to_gpu_pool: false
+individual_subject_timeout_sec: 900
+oom_backoff: false
+
+resume: true
+strict_checkpoint_hash: false
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
+clear_checkpoint_on_success: false
+
+plot_curves: true
+save_results_csv: true
+save_images: true
+random_state: 42
+debug: false

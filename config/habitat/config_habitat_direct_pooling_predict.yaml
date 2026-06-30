@@ -1,34 +1,39 @@
-# Habitat Analysis Configuration (Direct Pooling Strategy) - Predict Mode
-# Usage: habit get-habitat --config config/habitat/config_habitat_direct_pooling_predict.yaml
-# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
-
-#%%================================================================================
-run_mode: predict
-pipeline_path: ../../demo_data/results/habitat_direct_pooling/habitat_pipeline.pkl
-data_dir: file_habitat_demo.yaml
-out_dir: ../../demo_data/results/habitat_direct_pooling/predict
-#%%================================================================================
-
-HabitatSegmentation:
-  clustering_mode: direct_pooling
-
-processes: 2
-cap_processes_to_gpu_pool: false
-individual_subject_timeout_sec: 900
-oom_backoff: false
-
-resume: true
-strict_checkpoint_hash: false
-checkpoint_dir: null
-force_rerun_subjects: []
-retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2
-individual_subject_parallel_mode: persistent
-persistent_worker_max_consecutive_failures: 1
-persistent_worker_recycle_after_tasks: 0
-clear_checkpoint_on_success: false
-
-plot_curves: true
-save_results_csv: true
-random_state: 42
-debug: false
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+
+# Habitat Analysis Configuration (Direct Pooling Strategy) - Predict Mode
+# Usage: habit get-habitat --config config/habitat/config_habitat_direct_pooling_predict.yaml
+# Must-edit keys: wrapped in #%%==== block pairs (config/README_CONFIG.md)
+
+#%%================================================================================
+run_mode: predict
+pipeline_path: ../../demo_data/results/habitat_direct_pooling/habitat_pipeline.pkl
+data_dir: file_habitat_demo.yaml
+out_dir: ../../demo_data/results/habitat_direct_pooling/predict
+#%%================================================================================
+
+HabitatSegmentation:
+  clustering_mode: direct_pooling
+
+processes: 2
+cap_processes_to_gpu_pool: false
+individual_subject_timeout_sec: 900
+oom_backoff: false
+
+resume: true
+strict_checkpoint_hash: false
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
+clear_checkpoint_on_success: false
+
+plot_curves: true
+save_results_csv: true
+random_state: 42
+debug: false

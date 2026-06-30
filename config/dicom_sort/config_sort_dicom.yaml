@@ -1,19 +1,22 @@
-# =============================================================================
-# DICOM sort / rename — NOT used with resample_02 test data (NIfTI only)
-# =============================================================================
-#
-# resample_02 (.cursor/test/resample_02) contains NIfTI, not DICOM.
-# This config is kept for production DICOM workflows only.
-# There is no resample_02-based test script for sort-dicom.
-#
-#   habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
-#
-# Paths resolve relative to this YAML file. data_dir: DICOM root directory only.
-# =============================================================================
-
-data_dir: ../../demo_data/dicom  # DICOM root directory
-out_dir: ../../demo_data/results/sorted_dicom  # Output directory
-
-dcm2niix_path: ../../demo_data/dcm2niix.exe  # dcm2niix path
-f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"  # dcm2niix -f pattern
-extra_args: []  # extra arguments for dcm2niix
+# =============================================================================
+# DICOM sort / rename — NOT used with resample_02 test data (NIfTI only)
+# =============================================================================
+
+#
+# resample_02 (.cursor/test/resample_02) contains NIfTI, not DICOM.
+# This config is kept for production DICOM workflows only.
+# There is no resample_02-based test script for sort-dicom.
+#
+#   habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
+#
+# Paths resolve relative to this YAML file. data_dir: DICOM root directory only.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+data_dir: ../../demo_data/dicom  # DICOM root directory
+out_dir: ../../demo_data/results/sorted_dicom  # Output directory
+
+dcm2niix_path: ../../demo_data/dcm2niix.exe  # dcm2niix path
+f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"  # dcm2niix -f pattern
+extra_args: []  # extra arguments for dcm2niix

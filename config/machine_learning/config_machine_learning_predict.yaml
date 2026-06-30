@@ -1,35 +1,40 @@
-# ----------------------------------------------------------------------------
-# Machine Learning Configuration — Prediction (MLConfig)
-# ----------------------------------------------------------------------------
-#
-# Usage:
-#   habit model --config config/machine_learning/config_machine_learning_predict.yaml --mode predict
-#
-# Requires a pipeline saved by train mode, e.g.:
-#   .../models/LogisticRegression_final_pipeline.pkl
-#
-# Train first with config_machine_learning_clinical.yaml (or config_machine_learning.yaml).
-# ----------------------------------------------------------------------------
-
-run_mode: predict
-
-# Path to saved pipeline (*_final_pipeline.pkl); resolved relative to this YAML file
-pipeline_path: ../../demo_data/results/ml/clinical/models/LogisticRegression_final_pipeline.pkl
-
-# Predict mode uses input[0] only
-input:
-  - path: ../../demo_data/ml_data/clinical_feature.csv
-    name: clinical_
-    subject_id_col: subjID
-    label_col: label
-
-output: ../../demo_data/results/ml/clinical/predictions
-
-# Optional: compute metrics when label_col is present in the data file
-evaluate: true
-
-output_label_col: predicted_label
-output_prob_col: predicted_probability
-
-# probability_class_index: null
-# binary_positive_class_index: 1
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+
+# ----------------------------------------------------------------------------
+# Machine Learning Configuration — Prediction (MLConfig)
+# ----------------------------------------------------------------------------
+#
+# Usage:
+#   habit model --config config/machine_learning/config_machine_learning_predict.yaml --mode predict
+#
+# Requires a pipeline saved by train mode, e.g.:
+#   .../models/LogisticRegression_final_pipeline.pkl
+#
+# Train first with config_machine_learning_clinical.yaml (or config_machine_learning.yaml).
+# ----------------------------------------------------------------------------
+
+run_mode: predict
+
+# Path to saved pipeline (*_final_pipeline.pkl); resolved relative to this YAML file
+pipeline_path: ../../demo_data/results/ml/clinical/models/LogisticRegression_final_pipeline.pkl
+
+# Predict mode uses input[0] only
+input:
+  - path: ../../demo_data/ml_data/clinical_feature.csv
+    name: clinical_
+    subject_id_col: subjID
+    label_col: label
+
+output: ../../demo_data/results/ml/clinical/predictions
+
+# Optional: compute metrics when label_col is present in the data file
+evaluate: true
+
+output_label_col: predicted_label
+output_prob_col: predicted_probability
+
+# probability_class_index: null
+# binary_positive_class_index: 1

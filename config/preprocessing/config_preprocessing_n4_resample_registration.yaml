@@ -1,35 +1,38 @@
-# =============================================================================
-# Preprocessing — N4 + resample + elastix registration
-# =============================================================================
-# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_n4_resample_registration.yaml
-#       python tests/preprocessing/preprocess_n4_resample_registration.py
-# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
-# =============================================================================
-
-#%%================================================================================
-data_dir: ../../.cursor/test/resample_02
-out_dir: ../../demo_data/results/preprocessing_n4_resample_registration
-#%%================================================================================
-
-auto_select_first_file: true
-
-Preprocessing:
-  n4_correction:
-    images: [T1, T2]
-    num_fitting_levels: 2
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-  registration:
-    images: [T1, T2]
-    fixed_image: T1
-    use_mask: true
-    backend: elastix
-    elastix_parameter_files: ../../demo_data/Par0040affine.txt
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: [n4_correction, resample, registration]
-
-processes: 1
-random_state: 42
+# =============================================================================
+# Preprocessing — N4 + resample + elastix registration
+# =============================================================================
+
+# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_n4_resample_registration.yaml
+#       python tests/preprocessing/preprocess_n4_resample_registration.py
+# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+#%%================================================================================
+data_dir: ../../.cursor/test/resample_02
+out_dir: ../../demo_data/results/preprocessing_n4_resample_registration
+#%%================================================================================
+
+auto_select_first_file: true
+
+Preprocessing:
+  n4_correction:
+    images: [T1, T2]
+    num_fitting_levels: 2
+  resample:
+    images: [T1, T2]
+    target_spacing: [2.0, 2.0, 2.0]
+  registration:
+    images: [T1, T2]
+    fixed_image: T1
+    use_mask: true
+    backend: elastix
+    elastix_parameter_files: ../../demo_data/Par0040affine.txt
+
+save_options:
+  save_intermediate: true
+  intermediate_steps: [n4_correction, resample, registration]
+
+processes: 1
+random_state: 42

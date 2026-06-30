@@ -1,52 +1,55 @@
-# =============================================================================
-# Image preprocessing — resample_02 demo (NIfTI resample, T1/T2)
-# =============================================================================
-#
-# Demo/test data: .cursor/test/resample_02 (already NIfTI; no DICOM conversion).
-# For raw DICOM → NIfTI on your site, uncomment the dcm2nii block below and
-# point data_dir at your DICOM manifest or folder.
-#
-# Quick Start:
-#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing_dcm2nii.yaml
-#
-# Based on: habit/utils/image_converter.py (dcm2nii step when enabled)
-# =============================================================================
-
-# Input: manifest YAML or directory (.cursor/test/resample_02 layout)
-data_dir: ./files_preprocessing.yaml
-
-out_dir: ../../demo_data/results/preprocessing_image_template
-
-auto_select_first_file: true
-
-Preprocessing:
-  # --- resample_02 demo: NIfTI inputs, T1 + T2 only ---
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-
-  # --- Production: DICOM → NIfTI (disable resample above when using this) ---
-  # dcm2nii:
-  #   images: [T1, T2]
-  #   # dcm2niix_path: ./dcm2niix.exe
-  #   compress: true
-  #   anonymize: false
-  #   merge_slices: "2"
-  #   generate_json: true
-  #   single_file_mode:
-
-  # Optional follow-on steps (see config_image_preprocessing.yaml):
-  # n4_correction:
-  #   images: [T1, T2]
-  #   num_fitting_levels: 4
-  # registration:
-  #   images: [T1, T2]
-  #   fixed_image: T1
-  #   backend: elastix
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: [resample]
-
-processes: 1
-random_state: 42
+# =============================================================================
+# Image preprocessing — resample_02 demo (NIfTI resample, T1/T2)
+# =============================================================================
+
+#
+# Demo/test data: .cursor/test/resample_02 (already NIfTI; no DICOM conversion).
+# For raw DICOM → NIfTI on your site, uncomment the dcm2nii block below and
+# point data_dir at your DICOM manifest or folder.
+#
+# Quick Start:
+#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing_dcm2nii.yaml
+#
+# Based on: habit/utils/image_converter.py (dcm2nii step when enabled)
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+# Input: manifest YAML or directory (.cursor/test/resample_02 layout)
+data_dir: ./files_preprocessing.yaml
+
+out_dir: ../../demo_data/results/preprocessing_image_template
+
+auto_select_first_file: true
+
+Preprocessing:
+  # --- resample_02 demo: NIfTI inputs, T1 + T2 only ---
+  resample:
+    images: [T1, T2]
+    target_spacing: [2.0, 2.0, 2.0]
+
+  # --- Production: DICOM → NIfTI (disable resample above when using this) ---
+  # dcm2nii:
+  #   images: [T1, T2]
+  #   # dcm2niix_path: ./dcm2niix.exe
+  #   compress: true
+  #   anonymize: false
+  #   merge_slices: "2"
+  #   generate_json: true
+  #   single_file_mode:
+
+  # Optional follow-on steps (see config_image_preprocessing.yaml):
+  # n4_correction:
+  #   images: [T1, T2]
+  #   num_fitting_levels: 4
+  # registration:
+  #   images: [T1, T2]
+  #   fixed_image: T1
+  #   backend: elastix
+
+save_options:
+  save_intermediate: true
+  intermediate_steps: [resample]
+
+processes: 1
+random_state: 42

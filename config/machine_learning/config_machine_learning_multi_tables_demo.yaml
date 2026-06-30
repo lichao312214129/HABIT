@@ -1,66 +1,69 @@
-# =============================================================================
-# Machine Learning — DEMO: multiple input tables (clinical + radiomics)
-# =============================================================================
-# CLI:  habit model --config config/machine_learning/config_machine_learning_multi_tables_demo.yaml -m train
-#       python tests/machine_learning/ml_train_multi_tables.py
-#
-# Merges features from two CSV files on subject_id_col; use `name` prefix to avoid
-# column name collisions between tables.
-# =============================================================================
-
-#%%================================================================================
-input:
-  - path: ../../demo_data/ml_data/clinical_feature.csv
-    name: clinical_
-    subject_id_col: subjID
-    label_col: label
-
-  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv
-    name: radiomics_
-    subject_id_col: subjID
-    label_col: label
-
-output: ../../demo_data/results/ml/multi_tables
-#%%================================================================================
-
-split_method: custom
-train_ids_file: ../../demo_data/ml_data/train_ids.txt
-test_ids_file: ../../demo_data/ml_data/test_ids.txt
-
-normalization:
-  method: z_score
-
-resampling:
-  enabled: false
-  method: random_over
-  position: before_model
-  ratio: 1.0
-  random_state: 42
-
-feature_selection_methods:
-  - method: correlation
-    params:
-      threshold: 0.80
-      method: spearman
-      visualize: false
-      before_z_score: false
-
-models:
-  LogisticRegression:
-    params:
-      random_state: 42
-      max_iter: 1000
-      C: 1.0
-      penalty: "l2"
-      solver: "lbfgs"
-
-is_visualize: true
-is_save_model: true
-
-visualization:
-  enabled: true
-  plot_types:
-    - roc
-    - calibration
-    - confusion
-    - pr
+# =============================================================================
+# Machine Learning — DEMO: multiple input tables (clinical + radiomics)
+# =============================================================================
+
+# CLI:  habit model --config config/machine_learning/config_machine_learning_multi_tables_demo.yaml -m train
+#       python tests/machine_learning/ml_train_multi_tables.py
+#
+# Merges features from two CSV files on subject_id_col; use `name` prefix to avoid
+# column name collisions between tables.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+#%%================================================================================
+input:
+  - path: ../../demo_data/ml_data/clinical_feature.csv
+    name: clinical_
+    subject_id_col: subjID
+    label_col: label
+
+  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv
+    name: radiomics_
+    subject_id_col: subjID
+    label_col: label
+
+output: ../../demo_data/results/ml/multi_tables
+#%%================================================================================
+
+split_method: custom
+train_ids_file: ../../demo_data/ml_data/train_ids.txt
+test_ids_file: ../../demo_data/ml_data/test_ids.txt
+
+normalization:
+  method: z_score
+
+resampling:
+  enabled: false
+  method: random_over
+  position: before_model
+  ratio: 1.0
+  random_state: 42
+
+feature_selection_methods:
+  - method: correlation
+    params:
+      threshold: 0.80
+      method: spearman
+      visualize: false
+      before_z_score: false
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: "l2"
+      solver: "lbfgs"
+
+is_visualize: true
+is_save_model: true
+
+visualization:
+  enabled: true
+  plot_types:
+    - roc
+    - calibration
+    - confusion
+    - pr

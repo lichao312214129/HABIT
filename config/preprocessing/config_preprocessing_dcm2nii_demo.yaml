@@ -1,27 +1,30 @@
-# =============================================================================
-# Preprocessing — resample_02 NIfTI resample (T1, T2)
-# =============================================================================
-# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
-#       python tests/preprocessing/preprocess_resample02.py
-# Data: .cursor/test/resample_02 (already NIfTI; resample step only)
-# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
-# =============================================================================
-
-#%%================================================================================
-data_dir: ../../.cursor/test/resample_02
-out_dir: ../../demo_data/results/preprocessing_resample_02
-#%%================================================================================
-
-auto_select_first_file: true
-
-Preprocessing:
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: [resample]
-
-processes: 1
-random_state: 42
+# =============================================================================
+# Preprocessing — resample_02 NIfTI resample (T1, T2)
+# =============================================================================
+
+# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+#       python tests/preprocessing/preprocess_resample02.py
+# Data: .cursor/test/resample_02 (already NIfTI; resample step only)
+# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+#%%================================================================================
+data_dir: ../../.cursor/test/resample_02
+out_dir: ../../demo_data/results/preprocessing_resample_02
+#%%================================================================================
+
+auto_select_first_file: true
+
+Preprocessing:
+  resample:
+    images: [T1, T2]
+    target_spacing: [2.0, 2.0, 2.0]
+
+save_options:
+  save_intermediate: true
+  intermediate_steps: [resample]
+
+processes: 1
+random_state: 42

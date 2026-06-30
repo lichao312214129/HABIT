@@ -1,7 +1,7 @@
 # HABIT v1 coverage recipe matrix — machine-readable test manifest.
 # Used by demo_data/results_config_test/scripts/run_config_matrix.py
 #
-# Each case maps to a recipe YAML under config/recipes/ or config/ templates.
+# Each case maps to a YAML template under config/<module>/.
 # Run: python demo_data/results_config_test/scripts/run_config_matrix.py --include-slow
 
 version: "1.0"
@@ -51,7 +51,7 @@ cases:
     category: machine_learning
     name: ML clinical stratified split
     command: model
-    base_config: config/recipes/machine_learning/ml_clinical_stratified.yaml
+    base_config: config/machine_learning/config_machine_learning_clinical_stratified.yaml
     output_keys: [output]
     extra_args: ["-m", "train"]
 
@@ -60,7 +60,7 @@ cases:
     category: machine_learning
     name: ML radiomics variance feature selection
     command: model
-    base_config: config/recipes/machine_learning/ml_radiomics_variance_only.yaml
+    base_config: config/machine_learning/config_machine_learning_radiomics_variance_only.yaml
     output_keys: [output]
     extra_args: ["-m", "train"]
 
@@ -69,7 +69,7 @@ cases:
     category: machine_learning
     name: ML clinical with SMOTE resampling
     command: model
-    base_config: config/recipes/machine_learning/ml_clinical_smote.yaml
+    base_config: config/machine_learning/config_machine_learning_clinical_smote.yaml
     output_keys: [output]
     extra_args: ["-m", "train"]
 
@@ -155,7 +155,7 @@ cases:
     category: habitat
     name: Habitat two-step supervoxel GMM
     command: get-habitat
-    base_config: config/recipes/habitat/habitat_two_step_supervoxel_gmm_train.yaml
+    base_config: config/habitat/config_habitat_two_step_supervoxel_gmm_train.yaml
     output_keys: [out_dir, data_dir]
     skip_if: no_preprocessed
     slow: true
@@ -165,7 +165,7 @@ cases:
     category: habitat
     name: Habitat two-step fixed 3 clusters
     command: get-habitat
-    base_config: config/recipes/habitat/habitat_two_step_fixed_n_train.yaml
+    base_config: config/habitat/config_habitat_two_step_fixed_n_train.yaml
     output_keys: [out_dir, data_dir]
     skip_if: no_preprocessed
     slow: true
@@ -185,7 +185,7 @@ cases:
     category: habitat
     name: Habitat one-step kmeans+elbow
     command: get-habitat
-    base_config: config/recipes/habitat/habitat_one_step_elbow_train.yaml
+    base_config: config/habitat/config_habitat_one_step_elbow_train.yaml
     output_keys: [out_dir, data_dir]
     skip_if: no_preprocessed
     slow: true
@@ -195,7 +195,7 @@ cases:
     category: habitat
     name: Habitat one-step kmeans+silhouette
     command: get-habitat
-    base_config: config/recipes/habitat/habitat_one_step_silhouette_train.yaml
+    base_config: config/habitat/config_habitat_one_step_silhouette_train.yaml
     output_keys: [out_dir, data_dir]
     skip_if: no_preprocessed
     slow: true

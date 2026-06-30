@@ -1,24 +1,20 @@
 # =============================================================================
-# Habitat — 一步法生境 — 原始强度拼接特征 — 训练
+# Habitat - DEMO: one-step clustering with elbow per-subject selection
 # =============================================================================
 
-# CLI:  habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
-#       python tests/habitat/habitat_one_step_raw_concat_train.py
+# CLI:  habit get-habitat --config config/habitat/config_habitat_one_step_elbow_train.yaml
 #
-# Purpose:
-#   One-step clustering (voxel to habitat per subject)
-#   Feature: raw intensity concat — concat(raw(delay2), raw(delay3), raw(delay5))
-#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
-#
-# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
+# Input:  demo_data/preprocessed/processed_images
+# Output: demo_data/results/habitat_one_step_elbow
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
 # =============================================================================
 
-#%%================================================================================
 run_mode: train
+
+#%%================================================================================
 data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_one_step_raw_concat
+out_dir: ../../demo_data/results/habitat_one_step_elbow
 #%%================================================================================
 
 FeatureConstruction:
@@ -27,7 +23,6 @@ FeatureConstruction:
     params: {}
 
   preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
       - method: winsorize
         winsor_limits: [0.05, 0.05]
@@ -36,13 +31,11 @@ FeatureConstruction:
         global_normalize: false
 
   preprocessing_for_group_level:
-    # Stage 2 only — NOT in config_hash.
     methods:
       - method: binning
         n_bins: 10
         bin_strategy: uniform
         global_normalize: false
-
 
 HabitatSegmentation:
   clustering_mode: one_step
@@ -54,40 +47,26 @@ HabitatSegmentation:
     n_init: 10
     one_step_settings:
       min_clusters: 2
-      max_clusters: 10
+      max_clusters: 8
       fixed_n_clusters:
       selection_method: elbow
       plot_validation_curves: true
 
-
   habitat:
     algorithm: kmeans
     max_clusters: 10
+    min_clusters: 2
     habitat_cluster_selection_method:
       - elbow
     fixed_n_clusters:
     max_iter: 300
     n_init: 10
 
-
 processes: 2
 cap_processes_to_gpu_pool: false
 individual_subject_timeout_sec: 900
-oom_backoff: false
-
 resume: true
-strict_checkpoint_hash: false
-checkpoint_dir: null
-force_rerun_subjects: []
-retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2
-individual_subject_parallel_mode: persistent
-persistent_worker_max_consecutive_failures: 1
-persistent_worker_recycle_after_tasks: 0
-clear_checkpoint_on_success: false
-
 plot_curves: true
 save_results_csv: true
 random_state: 42
 debug: false
-

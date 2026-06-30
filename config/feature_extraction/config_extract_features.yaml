@@ -1,101 +1,106 @@
-# ----------------------------------------------------------------------------
-# Habitat Feature Extraction Configuration Template
-# ----------------------------------------------------------------------------
-#
-# Used by:  habit extract  (entry: habit/cli_commands/commands/cmd_extract_features.py)
-#
-# Quick Start:
-#   CLI:    habit extract --config config/feature_extraction/config_extract_features.yaml
-#
-# Role:
-#   Production template: set `raw_img_folder`, `habitats_map_folder`, `out_dir`,
-#   PyRadiomics params, and `feature_types` for your cohort.
-#
-# NOT overlapping with:
-#   config_extract_features_demo.yaml — demo paths under ../../demo_data/...
-# ----------------------------------------------------------------------------
-# ─────────────────────────────────────────────────────────────────────────
-# PyRadiomics Parameter Files
-# ─────────────────────────────────────────────────────────────────────────
-
-# Parameter file for traditional radiomics from original images
-params_file_of_non_habitat: ../radiomics/parameter.yaml
-
-# Parameter file for radiomics from habitat maps
-params_file_of_habitat: ../radiomics/parameter_habitat.yaml
-
-# ─────────────────────────────────────────────────────────────────────────
-# Data Directories
-# ─────────────────────────────────────────────────────────────────────────
-
-# Root directory containing original images
-# Expected structure: raw_img_folder/subject_id/images/ and masks/
-raw_img_folder: H:\Registration_ICC_structured
-
-# Root directory containing habitat maps
-# Expected structure: habitats_map_folder/subject_id/*_habitats.nrrd
-habitats_map_folder: H:\results_icc
-
-# Output directory for extracted features
-out_dir: H:\\results_icc_remapping
-
-# ─────────────────────────────────────────────────────────────────────────
-# Feature Extraction Parameters
-# ─────────────────────────────────────────────────────────────────────────
-
-# Number of parallel processes
-n_processes: 3
-
-# Pattern for matching habitat files
-# Uses glob pattern
-habitat_pattern: '*_habitats_remapped.nrrd'
-
-# Feature types to extract
-# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score, graph
-feature_types:
-- traditional
-- non_radiomics
-- whole_habitat
-- msi
-- ith_score
-- graph
-n_habitats:
-graph:
-  include_single_habitat_graph: true
-  include_pairwise_habitat_graph: true
-  edge_method: centroid_distance
-  distance_threshold: 5
-  adjacency_connectivity: face
-  adjacency_min_voxels: 1
-  edge_weight: none
-  min_region_voxels: 1
-  connectivity: face
-  erosion_radius: 1            # erode 1-voxel boundary shell; 0 disables
-  subdivide_region_voxels: 1000  # split components larger than this; 0 disables
-  block_size: 5               # grid block edge length; keep near distance_threshold
-  block_min_coverage: 0.5     # min covered fraction to keep a block as a node
-  pairwise_include_intra_edges: true  # add intra-habitat edges for whole-graph metrics
-  include_extended_metrics: true    # efficiency, small-world, rich-club, node distributions
-  extended_min_nodes: 10            # minimum nodes for small-world sigma
-  visualize: false            # render graph topology figures per subject; output in visualizations/graph
-  visualization_format: both  # pdf (vector) / png (raster) / both
-  visualization_dpi: 600      # PNG resolution
-  visualization_show_background: true  # draw faint tissue silhouette behind the graph
-
-# Debug mode
-debug: false
-
-# ----------------------------------------------------------------------------
-# Output Files Generated
-# ----------------------------------------------------------------------------
-#
-# Based on feature_types selected:
-# - raw_image_radiomics.csv (traditional)
-# - habitat_basic_features.csv (non_radiomics)
-# - whole_habitat_radiomics.csv (whole_habitat)
-# - each_habitat_radiomics.csv (each_habitat)
-# - msi_features.csv (msi)
-# - ith_scores.csv (ith_score)
-# - habitat_graph_features.csv (graph)
-#
-# ----------------------------------------------------------------------------
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+
+# ----------------------------------------------------------------------------
+# Habitat Feature Extraction Configuration Template
+# ----------------------------------------------------------------------------
+#
+# Used by:  habit extract  (entry: habit/cli_commands/commands/cmd_extract_features.py)
+#
+# Quick Start:
+#   CLI:    habit extract --config config/feature_extraction/config_extract_features.yaml
+#
+# Role:
+#   Production template: set `raw_img_folder`, `habitats_map_folder`, `out_dir`,
+#   PyRadiomics params, and `feature_types` for your cohort.
+#
+# NOT overlapping with:
+#   config_extract_features_demo.yaml — demo paths under ../../demo_data/...
+# ----------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────
+# PyRadiomics Parameter Files
+# ─────────────────────────────────────────────────────────────────────────
+
+# Parameter file for traditional radiomics from original images
+params_file_of_non_habitat: ../radiomics/parameter.yaml
+
+# Parameter file for radiomics from habitat maps
+params_file_of_habitat: ../radiomics/parameter_habitat.yaml
+
+# ─────────────────────────────────────────────────────────────────────────
+# Data Directories
+# ─────────────────────────────────────────────────────────────────────────
+
+# Root directory containing original images
+# Expected structure: raw_img_folder/subject_id/images/ and masks/
+raw_img_folder: H:\Registration_ICC_structured
+
+# Root directory containing habitat maps
+# Expected structure: habitats_map_folder/subject_id/*_habitats.nrrd
+habitats_map_folder: H:\results_icc
+
+# Output directory for extracted features
+out_dir: H:\\results_icc_remapping
+
+# ─────────────────────────────────────────────────────────────────────────
+# Feature Extraction Parameters
+# ─────────────────────────────────────────────────────────────────────────
+
+# Number of parallel processes
+n_processes: 3
+
+# Pattern for matching habitat files
+# Uses glob pattern
+habitat_pattern: '*_habitats_remapped.nrrd'
+
+# Feature types to extract
+# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score, graph
+feature_types:
+- traditional
+- non_radiomics
+- whole_habitat
+- msi
+- ith_score
+- graph
+n_habitats:
+graph:
+  include_single_habitat_graph: true
+  include_pairwise_habitat_graph: true
+  edge_method: centroid_distance
+  distance_threshold: 5
+  adjacency_connectivity: face
+  adjacency_min_voxels: 1
+  edge_weight: none
+  min_region_voxels: 1
+  connectivity: face
+  erosion_radius: 1            # erode 1-voxel boundary shell; 0 disables
+  subdivide_region_voxels: 1000  # split components larger than this; 0 disables
+  block_size: 5               # grid block edge length; keep near distance_threshold
+  block_min_coverage: 0.5     # min covered fraction to keep a block as a node
+  pairwise_include_intra_edges: true  # add intra-habitat edges for whole-graph metrics
+  include_extended_metrics: true    # efficiency, small-world, rich-club, node distributions
+  extended_min_nodes: 10            # minimum nodes for small-world sigma
+  visualize: false            # render graph topology figures per subject; output in visualizations/graph
+  visualization_format: both  # pdf (vector) / png (raster) / both
+  visualization_dpi: 600      # PNG resolution
+  visualization_show_background: true  # draw faint tissue silhouette behind the graph
+
+# Debug mode
+debug: false
+
+# ----------------------------------------------------------------------------
+# Output Files Generated
+# ----------------------------------------------------------------------------
+#
+# Based on feature_types selected:
+# - raw_image_radiomics.csv (traditional)
+# - habitat_basic_features.csv (non_radiomics)
+# - whole_habitat_radiomics.csv (whole_habitat)
+# - each_habitat_radiomics.csv (each_habitat)
+# - msi_features.csv (msi)
+# - ith_scores.csv (ith_score)
+# - habitat_graph_features.csv (graph)
+#
+# ----------------------------------------------------------------------------

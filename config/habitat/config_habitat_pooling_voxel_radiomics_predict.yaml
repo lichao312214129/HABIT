@@ -1,114 +1,117 @@
-# =============================================================================
-# Habitat ¡ª Ö±½Ó³Ø»¯Éú¾³ ¡ª ÌåËØÎÆÀí£¨Ó°Ïñ×éÑ§£©ÌØÕ÷ ¡ª Ô¤²â
-# =============================================================================
-# CLI:  habit get-habitat --config config/habitat/config_habitat_pooling_voxel_radiomics_predict.yaml
-#       python tests/habitat/habitat_direct_pooling_voxel_radiomics_predict.py
-#
-# Purpose:
-#   Direct pooling (pool all voxels, cluster once)
-#   Feature: voxel texture ¡ª voxel_radiomics(T2, params_file, kernelRadius)
-#   CT defaults (R3B12): kernelRadius 3, params binWidth 12 ¡ª Petersen et al., Radiol Artif Intell 2024;6(2):e230118
-#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
-#
-# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
-# =============================================================================
-
-#%%================================================================================
-run_mode: predict
-pipeline_path: ../../demo_data/results/habitat_pooling_voxel_radiomics/habitat_pipeline.pkl
-data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_pooling_voxel_radiomics/predict
-#%%================================================================================
-
-FeatureConstruction:
-  voxel_level:
-    method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 3
-      voxelBatch: 1000
-      useTorchRadiomics: auto
-
-  supervoxel_level:
-    supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: mean_voxel_features()
-    params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
-
-
-  preprocessing_for_subject_level:
-    # Stage 1: per-subject, before checkpoint (included in config_hash).
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-        global_normalize: false
-      - method: minmax
-        global_normalize: false
-
-  preprocessing_for_group_level:
-    # Stage 2 only - NOT in config_hash. Prefer for radiomics-heavy features.
-    methods:
-      - method: winsorize
-        winsor_limits: [0.05, 0.05]
-        global_normalize: false
-      - method: variance_filter
-        variance_threshold: 0.01
-        global_normalize: false
-      - method: correlation_filter
-        corr_threshold: 0.9
-        corr_method: spearman
-        global_normalize: false
-      - method: minmax
-        global_normalize: false
-
-
-HabitatSegmentation:
-  clustering_mode: direct_pooling
-
-  supervoxel:
-    algorithm: kmeans
-    n_clusters: 50
-    max_iter: 300
-    n_init: 10
-    one_step_settings:
-      min_clusters: 2
-      max_clusters: 10
-      fixed_n_clusters:
-      selection_method: elbow
-      plot_validation_curves: true
-
-
-  habitat:
-    algorithm: kmeans
-    max_clusters: 10
-    habitat_cluster_selection_method:
-      - elbow
-    fixed_n_clusters:
-    max_iter: 300
-    n_init: 10
-
-
-save_images: true
-processes: 2
-cap_processes_to_gpu_pool: false
-individual_subject_timeout_sec: 900
-oom_backoff: false
-
-resume: true
-strict_checkpoint_hash: false
-checkpoint_dir: null
-force_rerun_subjects: []
-retry_failed_subjects: false
-individual_subject_auto_retry_rounds: 2
-individual_subject_parallel_mode: persistent
-persistent_worker_max_consecutive_failures: 1
-persistent_worker_recycle_after_tasks: 0
-clear_checkpoint_on_success: false
-
-plot_curves: true
-save_results_csv: true
-random_state: 42
-debug: false
-
+# =============================================================================
+# Habitat â€” ç›´æŽ¥æ± åŒ–ç”Ÿå¢ƒ â€” ä½“ç´ çº¹ç†ï¼ˆå½±åƒç»„å­¦ï¼‰ç‰¹å¾ â€” é¢„æµ‹
+# =============================================================================
+
+# CLI:  habit get-habitat --config config/habitat/config_habitat_pooling_voxel_radiomics_predict.yaml
+#       python tests/habitat/habitat_direct_pooling_voxel_radiomics_predict.py
+#
+# Purpose:
+#   Direct pooling (pool all voxels, cluster once)
+#   Feature: voxel texture â€” voxel_radiomics(T2, params_file, kernelRadius)
+#   CT defaults (R3B12): kernelRadius 3, params binWidth 12 â€” Petersen et al., Radiol Artif Intell 2024;6(2):e230118
+#   Demo data: demo_data/preprocessed/processed_images (T1, T2; images/ + masks/ under data_dir root)
+#
+# Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+#%%================================================================================
+run_mode: predict
+pipeline_path: ../../demo_data/results/habitat_pooling_voxel_radiomics/habitat_pipeline.pkl
+data_dir: ../../demo_data/preprocessed/processed_images
+out_dir: ../../demo_data/results/habitat_pooling_voxel_radiomics/predict
+#%%================================================================================
+
+FeatureConstruction:
+  voxel_level:
+    method: concat(voxel_radiomics(T2, params_file, kernelRadius))
+    params:
+      params_file: ../radiomics/params_voxel_radiomics.yaml
+      kernelRadius: 3
+      voxelBatch: 1000
+      useTorchRadiomics: auto
+
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params:
+      params_file: ../radiomics/params_supervoxel_radiomics.yaml
+      supervoxelUnionBboxCrop: true
+      useSupervoxelCext: auto
+
+
+  preprocessing_for_subject_level:
+    # Stage 1: per-subject, before checkpoint (included in config_hash).
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+
+  preprocessing_for_group_level:
+    # Stage 2 only - NOT in config_hash. Prefer for radiomics-heavy features.
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: variance_filter
+        variance_threshold: 0.01
+        global_normalize: false
+      - method: correlation_filter
+        corr_threshold: 0.9
+        corr_method: spearman
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+
+
+HabitatSegmentation:
+  clustering_mode: direct_pooling
+
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    max_iter: 300
+    n_init: 10
+    one_step_settings:
+      min_clusters: 2
+      max_clusters: 10
+      fixed_n_clusters:
+      selection_method: elbow
+      plot_validation_curves: true
+
+
+  habitat:
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method:
+      - elbow
+    fixed_n_clusters:
+    max_iter: 300
+    n_init: 10
+
+
+save_images: true
+processes: 2
+cap_processes_to_gpu_pool: false
+individual_subject_timeout_sec: 900
+oom_backoff: false
+
+resume: true
+strict_checkpoint_hash: false
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 2
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
+clear_checkpoint_on_success: false
+
+plot_curves: true
+save_results_csv: true
+random_state: 42
+debug: false
+

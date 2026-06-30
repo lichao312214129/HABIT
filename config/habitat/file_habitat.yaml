@@ -1,96 +1,99 @@
-# =============================================================================
-# Habitat input manifest â€?DEMO: .cursor/test/resample_02 (T1, T2)
-# =============================================================================
-#
-# Use as `data_dir` when it points to this YAML (not a raw directory). Keys
-# under `images` / `masks` must match modality names used in your habitat config
-# (T1, T2).
-#
-# NOT overlapping with:
-#   files_preprocessing.yaml â€?identical resample_02 manifest (preferred name).
-#   image_files.yaml â€?same resample_02 manifest (legacy filename).
-# =============================================================================
-
-auto_select_first_file: true
-
-images:
-  sub1:
-    T1: ../../.cursor/test/resample_02/images/sub1/T1
-    T2: ../../.cursor/test/resample_02/images/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/images/sub19/T1
-    T2: ../../.cursor/test/resample_02/images/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/images/sub20/T1
-    T2: ../../.cursor/test/resample_02/images/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/images/sub21/T1
-    T2: ../../.cursor/test/resample_02/images/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/images/sub22/T1
-    T2: ../../.cursor/test/resample_02/images/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/images/sub229/T1
-    T2: ../../.cursor/test/resample_02/images/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/images/sub24/T1
-    T2: ../../.cursor/test/resample_02/images/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/images/sub25/T1
-    T2: ../../.cursor/test/resample_02/images/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/images/sub26/T1
-    T2: ../../.cursor/test/resample_02/images/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/images/sub28/T1
-    T2: ../../.cursor/test/resample_02/images/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/images/sub29/T1
-    T2: ../../.cursor/test/resample_02/images/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/images/sub30/T1
-    T2: ../../.cursor/test/resample_02/images/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/images/sub620/T1
-    T2: ../../.cursor/test/resample_02/images/sub620/T2
-
-masks:
-  sub1:
-    T1: ../../.cursor/test/resample_02/masks/sub1/T1
-    T2: ../../.cursor/test/resample_02/masks/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/masks/sub19/T1
-    T2: ../../.cursor/test/resample_02/masks/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/masks/sub20/T1
-    T2: ../../.cursor/test/resample_02/masks/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/masks/sub21/T1
-    T2: ../../.cursor/test/resample_02/masks/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/masks/sub22/T1
-    T2: ../../.cursor/test/resample_02/masks/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/masks/sub229/T1
-    T2: ../../.cursor/test/resample_02/masks/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/masks/sub24/T1
-    T2: ../../.cursor/test/resample_02/masks/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/masks/sub25/T1
-    T2: ../../.cursor/test/resample_02/masks/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/masks/sub26/T1
-    T2: ../../.cursor/test/resample_02/masks/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/masks/sub28/T1
-    T2: ../../.cursor/test/resample_02/masks/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/masks/sub29/T1
-    T2: ../../.cursor/test/resample_02/masks/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/masks/sub30/T1
-    T2: ../../.cursor/test/resample_02/masks/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/masks/sub620/T1
-    T2: ../../.cursor/test/resample_02/masks/sub620/T2
+# =============================================================================
+# Habitat input manifest éˆ¥?DEMO: .cursor/test/resample_02 (T1, T2)
+# =============================================================================
+
+#
+# Use as `data_dir` when it points to this YAML (not a raw directory). Keys
+# under `images` / `masks` must match modality names used in your habitat config
+# (T1, T2).
+#
+# NOT overlapping with:
+#   files_preprocessing.yaml éˆ¥?identical resample_02 manifest (preferred name).
+#   image_files.yaml éˆ¥?same resample_02 manifest (legacy filename).
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+auto_select_first_file: true
+
+images:
+  sub1:
+    T1: ../../.cursor/test/resample_02/images/sub1/T1
+    T2: ../../.cursor/test/resample_02/images/sub1/T2
+  sub19:
+    T1: ../../.cursor/test/resample_02/images/sub19/T1
+    T2: ../../.cursor/test/resample_02/images/sub19/T2
+  sub20:
+    T1: ../../.cursor/test/resample_02/images/sub20/T1
+    T2: ../../.cursor/test/resample_02/images/sub20/T2
+  sub21:
+    T1: ../../.cursor/test/resample_02/images/sub21/T1
+    T2: ../../.cursor/test/resample_02/images/sub21/T2
+  sub22:
+    T1: ../../.cursor/test/resample_02/images/sub22/T1
+    T2: ../../.cursor/test/resample_02/images/sub22/T2
+  sub229:
+    T1: ../../.cursor/test/resample_02/images/sub229/T1
+    T2: ../../.cursor/test/resample_02/images/sub229/T2
+  sub24:
+    T1: ../../.cursor/test/resample_02/images/sub24/T1
+    T2: ../../.cursor/test/resample_02/images/sub24/T2
+  sub25:
+    T1: ../../.cursor/test/resample_02/images/sub25/T1
+    T2: ../../.cursor/test/resample_02/images/sub25/T2
+  sub26:
+    T1: ../../.cursor/test/resample_02/images/sub26/T1
+    T2: ../../.cursor/test/resample_02/images/sub26/T2
+  sub28:
+    T1: ../../.cursor/test/resample_02/images/sub28/T1
+    T2: ../../.cursor/test/resample_02/images/sub28/T2
+  sub29:
+    T1: ../../.cursor/test/resample_02/images/sub29/T1
+    T2: ../../.cursor/test/resample_02/images/sub29/T2
+  sub30:
+    T1: ../../.cursor/test/resample_02/images/sub30/T1
+    T2: ../../.cursor/test/resample_02/images/sub30/T2
+  sub620:
+    T1: ../../.cursor/test/resample_02/images/sub620/T1
+    T2: ../../.cursor/test/resample_02/images/sub620/T2
+
+masks:
+  sub1:
+    T1: ../../.cursor/test/resample_02/masks/sub1/T1
+    T2: ../../.cursor/test/resample_02/masks/sub1/T2
+  sub19:
+    T1: ../../.cursor/test/resample_02/masks/sub19/T1
+    T2: ../../.cursor/test/resample_02/masks/sub19/T2
+  sub20:
+    T1: ../../.cursor/test/resample_02/masks/sub20/T1
+    T2: ../../.cursor/test/resample_02/masks/sub20/T2
+  sub21:
+    T1: ../../.cursor/test/resample_02/masks/sub21/T1
+    T2: ../../.cursor/test/resample_02/masks/sub21/T2
+  sub22:
+    T1: ../../.cursor/test/resample_02/masks/sub22/T1
+    T2: ../../.cursor/test/resample_02/masks/sub22/T2
+  sub229:
+    T1: ../../.cursor/test/resample_02/masks/sub229/T1
+    T2: ../../.cursor/test/resample_02/masks/sub229/T2
+  sub24:
+    T1: ../../.cursor/test/resample_02/masks/sub24/T1
+    T2: ../../.cursor/test/resample_02/masks/sub24/T2
+  sub25:
+    T1: ../../.cursor/test/resample_02/masks/sub25/T1
+    T2: ../../.cursor/test/resample_02/masks/sub25/T2
+  sub26:
+    T1: ../../.cursor/test/resample_02/masks/sub26/T1
+    T2: ../../.cursor/test/resample_02/masks/sub26/T2
+  sub28:
+    T1: ../../.cursor/test/resample_02/masks/sub28/T1
+    T2: ../../.cursor/test/resample_02/masks/sub28/T2
+  sub29:
+    T1: ../../.cursor/test/resample_02/masks/sub29/T1
+    T2: ../../.cursor/test/resample_02/masks/sub29/T2
+  sub30:
+    T1: ../../.cursor/test/resample_02/masks/sub30/T1
+    T2: ../../.cursor/test/resample_02/masks/sub30/T2
+  sub620:
+    T1: ../../.cursor/test/resample_02/masks/sub620/T1
+    T2: ../../.cursor/test/resample_02/masks/sub620/T2

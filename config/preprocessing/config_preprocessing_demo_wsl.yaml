@@ -1,39 +1,40 @@
-# =============================================================================
-# Image preprocessing — DEMO (WSL): fast Linux-native output directory
-# =============================================================================
-# CLI (WSL):  habit preprocess --config config/preprocessing/config_preprocessing_demo_wsl.yaml
-#
-# Input:  read from Windows project drive via F:/ (mapped to /mnt/f/ in WSL)
-# Output: ~/habit_data/results/preprocessed (native WSL ext4, much faster writes)
-# =============================================================================
-
-data_dir: F:/work/habit_project_v1/demo_data/preprocessed/processed_images
-out_dir: ~/habit_data/results/preprocessed
-
-auto_select_first_file: true
-
-# Step order in YAML = execution order: resample -> registration -> zscore_normalization
-Preprocessing:
-  resample:
-    images: [delay2, delay3, delay5]
-    target_spacing: [3.0, 3.0, 3.0]
-    img_mode: bilinear
-
-  registration:
-    images: [delay2, delay3, delay5]
-    fixed_image: delay2
-    use_mask: true
-    backend: ants
-    type_of_transform: Rigid
-
-  zscore_normalization:
-    images: [delay2, delay3, delay5]
-    only_inmask: false
-    clip_values: [-3, 3]
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: []
-
-processes: 2
-random_state: 42
+# =============================================================================
+# Image preprocessing — DEMO (WSL): fast Linux-native output directory
+# =============================================================================
+
+# CLI (WSL):  habit preprocess --config config/preprocessing/config_preprocessing_demo_wsl.yaml# Input:  ../../demo_data/preprocessed/processed_images
+# Output: ~/habit_data/results/preprocessed (native WSL ext4, much faster writes)ites)
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# =============================================================================
+
+data_dir: ../../demo_data/preprocessed/processed_images
+out_dir: ~/habit_data/results/preprocessed
+
+auto_select_first_file: true
+
+# Step order in YAML = execution order: resample -> registration -> zscore_normalization
+Preprocessing:
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [3.0, 3.0, 3.0]
+    img_mode: bilinear
+
+  registration:
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
+    use_mask: true
+    backend: ants
+    type_of_transform: Rigid
+
+  zscore_normalization:
+    images: [delay2, delay3, delay5]
+    only_inmask: false
+    clip_values: [-3, 3]
+
+save_options:
+  save_intermediate: true
+  intermediate_steps: []
+
+processes: 2
+random_state: 42
