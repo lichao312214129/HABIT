@@ -1,5 +1,7 @@
 """
 Setup script for HABIT package
+TEST
+
 """
 
 import os
