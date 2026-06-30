@@ -30,6 +30,7 @@ from pathlib import Path
 from queue import Empty
 from typing import Any, Callable, List, Optional, Set, Tuple
 
+from habit.utils.job_cancel import is_job_cancelled, JobCancelledError
 from habit.utils.isolated_runner import (
     DEFAULT_GRACEFUL_SHUTDOWN_SEC,
     DEFAULT_POLL_INTERVAL_SEC,
@@ -237,10 +238,27 @@ class PersistentWorkerPoolSession:
             slot.started_at = time.monotonic()
             slot.task_queue.put(WorkerRunCommand(item=item))
 
+        cancelled = False
         while pending_items or any(slot.busy for slot in self._slots):
+            if is_job_cancelled():
+                cancelled = True
+                pending_items.clear()
+
+            if cancelled and not any(slot.busy for slot in self._slots):
+                if progress_bar is not None:
+                    progress_bar.close()
+                if logger:
+                    logger.warning("Job cancelled; stopping after completed items.")
+                raise JobCancelledError("Job cancelled by user")
+
             idle_slots = [slot for slot in self._slots if slot.ready and not slot.busy]
             n_busy = sum(1 for slot in self._slots if slot.busy)
-            while pending_items and idle_slots and n_busy < self._effective_max_workers:
+            while (
+                pending_items
+                and idle_slots
+                and n_busy < self._effective_max_workers
+                and not cancelled
+            ):
                 slot = idle_slots.pop(0)
                 _dispatch_to_slot(slot)
                 n_busy += 1

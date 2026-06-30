@@ -20,9 +20,9 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
-from .font_config import setup_publication_font, get_font_config
+from .font_config import PUBLICATION_FONT, get_font_config, setup_publication_font
 
-# Setup publication-quality Arial font
+# Setup publication-quality font (Arial on Windows, DejaVu Sans on Linux/WSL)
 setup_publication_font()
 
 
@@ -121,10 +121,10 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         method_desc = get_method_description(clustering_algorithm, method)
         ax.set_title(
             f"{method_desc}\nOptimal Clusters = {best_n_clusters_value} ({criterion})",
-            fontfamily='Arial'
+            fontfamily=PUBLICATION_FONT
         )
-        ax.set_xlabel("Number of Clusters", fontfamily='Arial')
-        ax.set_ylabel(f"{method.capitalize()} Score", fontfamily='Arial')
+        ax.set_xlabel("Number of Clusters", fontfamily=PUBLICATION_FONT)
+        ax.set_ylabel(f"{method.capitalize()} Score", fontfamily=PUBLICATION_FONT)
         ax.grid(True)
     
         # Adjust layout
@@ -158,9 +158,9 @@ def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=No
     
     plt.figure(figsize=(6, 4))
     plt.plot(cluster_range, scores, 'bx-')
-    plt.xlabel('Number of clusters', fontfamily='Arial')
-    plt.ylabel(score_type, fontfamily='Arial')
-    plt.title(title, fontfamily='Arial')
+    plt.xlabel('Number of clusters', fontfamily=PUBLICATION_FONT)
+    plt.ylabel(score_type, fontfamily=PUBLICATION_FONT)
+    plt.title(title, fontfamily=PUBLICATION_FONT)
     plt.tight_layout()
     
     if save_path:
@@ -194,9 +194,9 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
         
         plt.plot(cluster_range, normalized_scores, 'o-', label=score_name)
     
-    plt.xlabel('Number of clusters', fontfamily='Arial')
-    plt.ylabel('Normalized score (higher is better)', fontfamily='Arial')
-    plt.title(title, fontfamily='Arial')
+    plt.xlabel('Number of clusters', fontfamily=PUBLICATION_FONT)
+    plt.ylabel('Normalized score (higher is better)', fontfamily=PUBLICATION_FONT)
+    plt.title(title, fontfamily=PUBLICATION_FONT)
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
@@ -343,7 +343,7 @@ def _save_interactive_cluster_3d_html(
     display_title = display_title.replace('\n', '<br>')
 
     fig.update_layout(
-        title=dict(text=display_title, font=dict(family='Arial', size=14)),
+        title=dict(text=display_title, font=dict(family=PUBLICATION_FONT, size=14)),
         scene=dict(
             xaxis_title=x_label,
             yaxis_title=y_label,
@@ -352,7 +352,7 @@ def _save_interactive_cluster_3d_html(
         showlegend=n_clusters <= max_legend_items,
         width=900,
         height=700,
-        font=dict(family='Arial'),
+        font=dict(family=PUBLICATION_FONT),
     )
 
     os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
@@ -505,9 +505,9 @@ def plot_cluster_results(
             )
         
         # Set labels with labelpad for z-axis to ensure visibility
-        ax.set_xlabel(x_label_3d, fontfamily='Arial', labelpad=5)
-        ax.set_ylabel(y_label_3d, fontfamily='Arial', labelpad=5)
-        ax.set_zlabel(z_label_3d, fontfamily='Arial', labelpad=5)
+        ax.set_xlabel(x_label_3d, fontfamily=PUBLICATION_FONT, labelpad=5)
+        ax.set_ylabel(y_label_3d, fontfamily=PUBLICATION_FONT, labelpad=5)
+        ax.set_zlabel(z_label_3d, fontfamily=PUBLICATION_FONT, labelpad=5)
         
         # Only show legend if number of clusters <= max_legend_items
         if n_clusters <= max_legend_items:
@@ -536,17 +536,17 @@ def plot_cluster_results(
         
         # Set labels
         if explained_var is not None and X.shape[1] > 2:
-            ax.set_xlabel(f'PC1 ({explained_var[0]*100:.1f}%)', fontfamily='Arial')
-            ax.set_ylabel(f'PC2 ({explained_var[1]*100:.1f}%)', fontfamily='Arial')
+            ax.set_xlabel(f'PC1 ({explained_var[0]*100:.1f}%)', fontfamily=PUBLICATION_FONT)
+            ax.set_ylabel(f'PC2 ({explained_var[1]*100:.1f}%)', fontfamily=PUBLICATION_FONT)
         elif reduction_method.lower() == 'tsne':
-            ax.set_xlabel('t-SNE 1', fontfamily='Arial')
-            ax.set_ylabel('t-SNE 2', fontfamily='Arial')
+            ax.set_xlabel('t-SNE 1', fontfamily=PUBLICATION_FONT)
+            ax.set_ylabel('t-SNE 2', fontfamily=PUBLICATION_FONT)
         elif feature_names and len(feature_names) >= 2:
-            ax.set_xlabel(feature_names[0], fontfamily='Arial')
-            ax.set_ylabel(feature_names[1], fontfamily='Arial')
+            ax.set_xlabel(feature_names[0], fontfamily=PUBLICATION_FONT)
+            ax.set_ylabel(feature_names[1], fontfamily=PUBLICATION_FONT)
         else:
-            ax.set_xlabel('Feature 1', fontfamily='Arial')
-            ax.set_ylabel('Feature 2', fontfamily='Arial')
+            ax.set_xlabel('Feature 1', fontfamily=PUBLICATION_FONT)
+            ax.set_ylabel('Feature 2', fontfamily=PUBLICATION_FONT)
         
         # Add legend (only if number of clusters <= max_legend_items) and grid
         if n_clusters <= max_legend_items:
@@ -556,9 +556,9 @@ def plot_cluster_results(
     
     # Set title
     if title:
-        plt.title(title, fontfamily='Arial', fontsize=11)
+        plt.title(title, fontfamily=PUBLICATION_FONT, fontsize=11)
     else:
-        plt.title(f'Clustering Results (n_clusters={n_clusters})', fontfamily='Arial', fontsize=11)
+        plt.title(f'Clustering Results (n_clusters={n_clusters})', fontfamily=PUBLICATION_FONT, fontsize=11)
     
     plt.tight_layout()
     

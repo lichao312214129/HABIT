@@ -26,14 +26,24 @@ from habit.core.common.configs.base import BaseConfig
 class SaveOptionsConfig(BaseModel):
     """Options for saving intermediate preprocessing results."""
 
-    save_intermediate: bool = False
-    intermediate_steps: List[str] = Field(default_factory=list)
+    save_intermediate: bool = Field(
+        default=False,
+        description="Save intermediate images after each step",
+        json_schema_extra={"group": "Save", "order": 1},
+    )
+    intermediate_steps: List[str] = Field(
+        default_factory=list,
+        description="Steps to save intermediates for (empty = all enabled steps)",
+        json_schema_extra={"group": "Save", "order": 2},
+    )
 
 
 class PreprocessingStepConfig(BaseModel):
     """Generic preprocessing step config; ``images`` lists modality keys to process."""
 
     model_config = ConfigDict(extra="allow")
+
+    __pydantic_extra__: dict[str, Any]
 
     images: List[str] = Field(default_factory=list)
 
@@ -47,15 +57,49 @@ class PreprocessingConfig(BaseConfig):
 
     model_config = ConfigDict(extra="allow")
 
-    data_dir: str
-    out_dir: str
-    Preprocessing: Dict[str, PreprocessingStepConfig] = Field(default_factory=dict)
-    save_options: SaveOptionsConfig = Field(default_factory=SaveOptionsConfig)
-    processes: int = 1
-    random_state: int = 42
-    auto_select_first_file: bool = True
+    __pydantic_extra__: dict[str, Any]
+
+    data_dir: str = Field(
+        ...,
+        description="Input directory containing subject images",
+        json_schema_extra={"group": "Paths", "widget": "path_dir", "order": 1},
+    )
+    out_dir: str = Field(
+        ...,
+        description="Output directory for preprocessed images",
+        json_schema_extra={"group": "Paths", "widget": "path_dir", "order": 2},
+    )
+    Preprocessing: Dict[str, PreprocessingStepConfig] = Field(
+        default_factory=dict,
+        description="Preprocessing pipeline steps (keyed by step name)",
+        json_schema_extra={"group": "Pipeline", "order": 1},
+    )
+    save_options: SaveOptionsConfig = Field(
+        default_factory=SaveOptionsConfig,
+        description="Options for saving intermediate results",
+        json_schema_extra={"group": "Advanced", "order": 1},
+    )
+    processes: int = Field(
+        1,
+        description="Number of parallel processes",
+        json_schema_extra={"group": "Advanced", "order": 2},
+    )
+    random_state: int = Field(
+        42,
+        description="Random seed for reproducibility",
+        json_schema_extra={"group": "Advanced", "order": 3},
+    )
+    auto_select_first_file: bool = Field(
+        True,
+        description="Auto-select first file when multiple files found per modality",
+        json_schema_extra={"group": "Advanced", "order": 4},
+    )
     # habit_default: data_dir/images/<subject>/<modality>/ (optional masks/ tree).
-    preprocessing_input_layout: Literal["habit_default"] = "habit_default"
+    preprocessing_input_layout: Literal["habit_default"] = Field(
+        "habit_default",
+        description="Input directory layout pattern",
+        json_schema_extra={"group": "Advanced", "order": 5},
+    )
 
     @field_validator("data_dir", "out_dir")
     def path_required(cls, v: str, info) -> str:

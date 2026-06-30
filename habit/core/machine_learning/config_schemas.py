@@ -223,6 +223,8 @@ class MetricsConfig(BaseModel):
 class ModelComparisonConfig(BaseConfig):
     model_config = ConfigDict(extra='allow')
 
+    __pydantic_extra__: dict[str, Any]
+
     output_dir: str
     files_config: List[ComparisonFileConfig] = Field(min_length=1)
     merged_data: MergedDataConfig = Field(default_factory=MergedDataConfig)
@@ -251,6 +253,8 @@ class MLConfig(BaseConfig):
       ``input[0].path``. ``models`` is ignored.
     """
     model_config = ConfigDict(extra='allow')  # Forward-compatible for new keys.
+
+    __pydantic_extra__: dict[str, Any]
 
     # Mode dispatch.
     run_mode: Literal['train', 'predict'] = 'train'

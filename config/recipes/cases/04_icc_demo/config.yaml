@@ -1,0 +1,15 @@
+input:
+  type: files
+  file_groups:
+  - - /mnt/f/work/habit_project_v1/demo_data/ml_data/breast_cancer_dataset.csv
+    - /mnt/f/work/habit_project_v1/demo_data/ml_data/breast_cancer_dataset_retest_simulated.csv
+metrics:
+- icc2
+- icc3
+- cohen
+- fleiss
+- krippendorff
+output:
+  path: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/04_icc_demo/outputs
+processes: 1
+debug: false

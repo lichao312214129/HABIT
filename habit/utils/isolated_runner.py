@@ -34,6 +34,7 @@ from pathlib import Path
 from queue import Empty
 from typing import Any, Callable, List, Optional, Tuple, TypeVar
 
+from habit.utils.job_cancel import is_job_cancelled, JobCancelledError
 from habit.utils.log_utils import restore_logging_in_subprocess, shutdown_subprocess_logging
 from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
 from habit.utils.progress_utils import CustomTqdm
@@ -397,7 +398,7 @@ class IsolatedTaskRunner:
 
         def _fill_slots() -> None:
             nonlocal slot_counter
-            while len(active) < max_slots and pending_items:
+            while len(active) < max_slots and pending_items and not is_job_cancelled():
                 gpu_slot_index = slot_counter % max_slots
                 slot_counter += 1
                 active.append(
@@ -502,7 +503,19 @@ class IsolatedTaskRunner:
                 progress_bar.update(1)
 
         _fill_slots()
+        cancelled = False
         while active or pending_items:
+            if is_job_cancelled():
+                cancelled = True
+                pending_items.clear()
+
+            if cancelled and not active:
+                if progress_bar is not None:
+                    progress_bar.close()
+                if logger:
+                    logger.warning("Job cancelled; stopping after completed items.")
+                raise JobCancelledError("Job cancelled by user")
+
             now = time.monotonic()
             still_active: List[_ActiveSlot] = []
 

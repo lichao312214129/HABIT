@@ -16,8 +16,8 @@ author = 'HABIT Team'
 version = '1.0.0'
 release = '1.0.0'
 
-# 语言
-language = 'zh_CN'
+# Language
+language = 'en'
 
 # 源文件后缀 - 只使用 .rst
 source_suffix = '.rst'
@@ -35,6 +35,11 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
 ]
+try:
+    import sphinx_copybutton  # noqa: F401
+    extensions.append('sphinx_copybutton')
+except ImportError:
+    pass
 
 # Napoleon 配置
 napoleon_google_docstring = True
@@ -45,12 +50,17 @@ napoleon_include_special_with_doc = True
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-# 主题
+# 主题（与 PyRadiomics 相同使用 sphinx-rtd-theme，配合 custom.css 增强排版）
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'navigation_depth': 4,
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'includehidden': True,
+    'titles_only': False,
+    'style_external_links': True,
 }
 
 # 模板路径
@@ -58,6 +68,12 @@ templates_path = ['_templates']
 
 # 静态文件路径
 html_static_path = ['_static']
+html_css_files = ['custom.css']
+
+html_show_sourcelink = True
+html_show_sphinx = True
+html_title = 'HABIT Documentation'
+html_short_title = 'HABIT'
 
 # 自动文档生成选项
 autodoc_default_options = {
@@ -66,6 +82,7 @@ autodoc_default_options = {
     'special-members': '__init__',
     'undoc-members': True,
     'ignore-module-all': True,
+    'exclude-members': '__weakref__,__dict__,__pydantic_extra__,__pydantic_fields_set__,__pydantic_private__',
 }
 
 # 模拟缺失的模块，避免 autodoc 崩溃
@@ -95,39 +112,25 @@ for mod_name in missing_modules:
         except ImportError:
             sys.modules[mod_name] = MockModule(mod_name)
 
-# 抑制 autodoc 导入警告
+# 模拟缺失的模块，避免 autodoc 崩溃（勿 mock numpy/pandas/scipy/sklearn：Pydantic 与 autodoc 依赖其类型）
 autodoc_mock_imports = [
-    'SimpleITK', 
-    'antspy', 
-    'antspyx', 
-    'pyradiomics', 
+    'SimpleITK',
+    'antspy',
+    'antspyx',
+    'pyradiomics',
     'radiomics',
     'habitat_clustering',
+    'habitat_clustering.clustering',
     'cv2',
     'trimesh',
     'openpyxl',
     'tqdm',
     'torch',
     'mrmr',
-    'matplotlib',
-    'matplotlib.pyplot',
-    'scipy',
-    'scipy.stats',
-    'scipy.ndimage',
-    'scipy.optimize',
-    'pingouin',
-    'statsmodels',
-    'statsmodels.api',
-    'seaborn',
     'shap',
     'lifelines',
     'pydicom',
-    'sklearn',
-    'pandas',
-    'numpy',
     'ants',
-    'habitat_clustering',
-    'habitat_clustering.clustering'
 ]
 
 # Intersphinx 配置
@@ -136,18 +139,24 @@ intersphinx_mapping = {
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'sklearn': ('https://scikit-learn.org/stable/', None),
+    'pyradiomics': ('https://pyradiomics.readthedocs.io/en/latest/', None),
 }
 
 # 忽略的文件
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store',
+]
 
 # Pygments 高亮样式
 pygments_style = 'sphinx'
 
-# GitHub Pages 配置
+# GitHub Pages 配置 (habit_project_v1 standalone docs site)
 github_pages = True
-github_repo = 'lichao312214129/HABIT'
+github_repo = 'lichao312214129/habit_project_v1'
 github_version = 'main'
+html_baseurl = 'https://lichao312214129.github.io/habit_project_v1/'
 
 # Todo 配置
 todo_include_todos = True
@@ -161,4 +170,10 @@ rst_epilog = """
 .. |config_pack_code| replace:: ziex
 .. |tests_pack_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
 .. |tests_pack_code| replace:: xypk
+.. |cpu_pack_link| replace:: https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva
+.. |cpu_pack_code| replace:: ycva
+.. |gpu_pack_link| replace:: https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx
+.. |gpu_pack_code| replace:: 8wzx
+.. |torch_wheel_link| replace:: https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k
+.. |torch_wheel_code| replace:: nt7k
 """

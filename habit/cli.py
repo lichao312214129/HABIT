@@ -17,13 +17,42 @@ HABIT Command Line Interface
 Main entry point for all HABIT (Habitat Analysis: Biomedical Imaging Toolkit) commands
 """
 
+from functools import lru_cache
+
 import click
 from pathlib import Path
 from typing import Optional
 
 
+@lru_cache(maxsize=1)
+def _package_version() -> str:
+    """Return installed package version with a safe fallback."""
+    try:
+        from importlib.metadata import version
+        return version("HABIT")
+    except Exception:  # noqa: BLE001
+        from habit import __version__
+        return __version__
+
+
+def config_option(**overrides: object):
+    """
+    Standard ``--config / -c`` option for pipeline commands.
+
+    Args:
+        **overrides: Extra keyword arguments forwarded to ``click.option``.
+    """
+    params = {
+        "type": click.Path(exists=True),
+        "required": True,
+        "help": "Path to configuration YAML file",
+    }
+    params.update(overrides)
+    return click.option("--config", "-c", **params)
+
+
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
-@click.version_option(version='0.1.0', prog_name='HABIT')
+@click.version_option(version=_package_version(), prog_name='HABIT')
 def cli():
     """
     HABIT - Habitat Analysis: Biomedical Imaging Toolkit
@@ -38,10 +67,7 @@ def cli():
     pass
 
 @cli.command('preprocess')
-@click.option('--config', '-c', 
-              type=click.Path(exists=True),
-              default=None,
-              help='Path to configuration YAML file')
+@config_option()
 def preprocess(config):
     """Preprocess medical images (resampling, registration, normalization)"""
     from habit.cli_commands.commands.cmd_preprocess import run_preprocess
@@ -49,13 +75,7 @@ def preprocess(config):
 
 
 @cli.command('sort-dicom')
-@click.option(
-    '--config',
-    '-c',
-    type=click.Path(exists=True),
-    default=None,
-    help='Path to DicomSortConfig YAML (standalone dcm2niix sort)',
-)
+@config_option(help='Path to DicomSortConfig YAML (standalone dcm2niix sort)')
 def sort_dicom(config):
     """Sort/rename DICOM files with dcm2niix (separate from batch preprocessing)"""
     from habit.cli_commands.commands.cmd_sort_dicom import run_sort_dicom
@@ -63,9 +83,7 @@ def sort_dicom(config):
 
 
 @cli.command('get-habitat')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              help='Path to configuration YAML file')
+@config_option()
 @click.option('--mode', '-m',
               type=click.Choice(['train', 'predict']),
               default=None,
@@ -91,9 +109,7 @@ def get_habitat(
 
 
 @cli.command('extract')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              help='Path to configuration YAML file')
+@config_option()
 def extract(config):
     """Extract habitat features from clustered images"""
     from habit.cli_commands.commands.cmd_extract_features import run_extract_features
@@ -101,10 +117,7 @@ def extract(config):
 
 
 @cli.command('model')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              required=True,
-              help='Path to configuration YAML file')
+@config_option()
 @click.option('--mode', '-m',
               type=click.Choice(['train', 'predict']),
               default='train',
@@ -121,10 +134,7 @@ def model(config, mode):
 
 
 @cli.command('cv')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              required=True,
-              help='Path to configuration YAML file')
+@config_option()
 def cv(config):
     """Run K-fold cross-validation for model evaluation"""
     from habit.cli_commands.commands.cmd_ml import run_kfold
@@ -132,33 +142,28 @@ def cv(config):
 
 
 @cli.command('compare')
-# 该装饰器为命令行工具添加一个名为 --config 或 -c 的参数选项
-# 参数类型为存在的文件路径，且为必填项
-# 用于指定配置文件（YAML 格式）的路径
-@click.option('--config', '-c',
-              type=click.Path(exists=True),     # 参数类型为存在的文件路径
-              required=True,                    # 必须提供该参数
-              help='Path to configuration YAML file')  # 参数描述，会显示在帮助信息中
+@config_option()
 def compare(config):
     """
-    模型比较工具 - Generate model comparison plots and statistics
+    Model comparison — generate plots and statistics across multiple models.
 
-    此工具用于比较多个机器学习模型的性能，生成可视化图表和统计分析结果。
-    支持 ROC 曲线、校准曲线、决策曲线、精确度-召回率曲线等各种评估图表。
+    Compare performance of two or more machine learning models side by side.
+    Produces publication-quality evaluation plots and statistical summaries,
+    including ROC, calibration, decision-curve (DCA), and precision-recall curves.
 
-    输入文件：
-    - 多个模型的预测结果 CSV 文件（包含真实标签和预测概率）
-    - 每个模型需要指定：文件路径、模型名称、列名配置
+    Input:
+    - Prediction CSV files per model (true labels and predicted probabilities)
+    - Per model: file path, model name, and column mappings
 
-    输出结果：
-    - ROC 曲线图 (roc_curves.pdf)
-    - 决策曲线图 (decision_curves.pdf)
-    - 校准曲线图 (calibration_curves.pdf)
-    - 精确度-召回率曲线图 (precision_recall_curves.pdf)
-    - DeLong 检验结果 (delong_results.json)
-    - 合并的预测结果文件 (combined_predictions.csv)
+    Output (under output_dir):
+    - ROC curves (roc_curves.pdf)
+    - Decision curves (decision_curves.pdf)
+    - Calibration curves (calibration_curves.pdf)
+    - Precision-recall curves (precision_recall_curves.pdf)
+    - DeLong test results (delong_results.json)
+    - Merged predictions (combined_predictions.csv)
 
-    配置文件示例：
+  Config example:
     \b
     output_dir: ./results/comparison/
     files_config:
@@ -173,21 +178,18 @@ def compare(config):
         label_col: label
         prob_col: probability
 
-    使用示例：
+  Example:
     \b
     habit compare --config config_model_comparison.yaml
 
-    详细文档：https://lichao312214129.github.io/HABIT/user_guide/app_model_comparison_zh.html
+  Documentation: https://lichao312214129.github.io/habit_project_v1/how_to/compare_models.html
     """
     from habit.cli_commands.commands.cmd_compare import run_compare
     run_compare(config)
 
 
 @cli.command('icc')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),  # 参数类型为存在的文件路径
-              required=True,                 # 必须提供该参数
-              help='Path to configuration YAML file')
+@config_option()
 def icc(config):
     """Perform ICC (Intraclass Correlation Coefficient) analysis"""
     from habit.cli_commands.commands.cmd_icc import run_icc
@@ -195,9 +197,7 @@ def icc(config):
 
 
 @cli.command('radiomics')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              help='Path to configuration YAML file')
+@config_option()
 def radiomics(config):
     """Extract traditional radiomics features"""
     from habit.cli_commands.commands.cmd_radiomics import run_radiomics
@@ -205,9 +205,7 @@ def radiomics(config):
 
 
 @cli.command('retest')
-@click.option('--config', '-c',
-              type=click.Path(exists=True),
-              help='Path to configuration YAML file')
+@config_option()
 def retest(config):
     """Perform test-retest reproducibility analysis"""
     from habit.cli_commands.commands.cmd_test_retest import run_test_retest
@@ -386,7 +384,7 @@ def merge_csv(input_files, output, index_col, separator, encoding, join_type):
 
 
 @cli.command('gui')
-@click.option('--host', '-h', default='127.0.0.1', show_default=True, help='Host to bind the Web GUI server to')
+@click.option('--host', default='127.0.0.1', show_default=True, help='Host to bind the Web GUI server to')
 @click.option('--port', '-p', default=8501, show_default=True, help='Local port for Web GUI server')
 def gui(host, port):
     """Launch the interactive Web GUI for doctors and medical students"""

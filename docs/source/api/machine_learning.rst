@@ -1,33 +1,31 @@
-machine_learning 模块
-========================
+machine_learning module
+=========================
 
 .. automodule:: habit.core.machine_learning
    :no-members:
 
-开发者阅读入口
-----------------
+Developer entry point
+---------------------
 
-理解机器学习模块时，建议先从 ``MLConfig`` 、``MLConfigurator`` 、``BaseWorkflow`` 、
-``PipelineBuilder`` 、``ModelFactory`` 和 ``run_selector`` 读起。整体代码架构
-和模块边界见 :doc:`../development/module_architecture`。
+Start with ``MLConfig``, ``MLConfigurator``, ``BaseWorkflow``, ``PipelineBuilder``, ``ModelFactory``, and ``run_selector``. See :doc:`../development/index` for overall architecture.
 
 .. automodule:: habit.core.machine_learning.configurator
    :members:
    :undoc-members:
    :show-inheritance:
 
-核心数据对象 (Core Contracts)
------------------------------
+Core contracts
+--------------
 
 .. automodule:: habit.core.machine_learning.contracts
    :members:
    :undoc-members:
    :show-inheritance:
 
-工作流 (Workflows)
--------------------
+Workflows
+---------
 
-工作流类封装了完整的机器学习过程，包括训练、验证和预测。
+Workflow classes wrap full ML pipelines: training, validation, and prediction.
 
 .. automodule:: habit.core.machine_learning.workflows.holdout_workflow
    :members:
@@ -44,11 +42,10 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
-执行器层 (Runners)
-------------------
+Runners
+-------
 
-从 2026-05 起，K-Fold 计算主循环已抽离到 ``runners`` 子包，
-用于降低 workflow 类复杂度，同时保持外部调用方式不变。
+Since 2026-05, K-fold compute loops live in the ``runners`` subpackage to simplify workflow classes while keeping the public API unchanged.
 
 .. automodule:: habit.core.machine_learning.runners.kfold
    :members:
@@ -61,15 +58,13 @@ machine_learning 模块
    :show-inheritance:
 
 .. note::
-   ``KFoldWorkflow`` 是对外入口（旧名 ``MachineLearningKFoldWorkflow`` 已成为 deprecation 子类，仍可使用），其内部已委托给
-   :py:class:`habit.core.machine_learning.runners.kfold.KFoldRunner` 执行折内训练与聚合，
-   持久化与绘图统一交由 ``ReportWriter`` / ``ModelStore`` / ``PlotComposer`` 处理。
+   ``KFoldWorkflow`` is the public entry point (legacy ``MachineLearningKFoldWorkflow`` remains as a deprecation subclass). It delegates fold training and aggregation to
+   :py:class:`habit.core.machine_learning.runners.kfold.KFoldRunner`; persistence and plots use ``ReportWriter`` / ``ModelStore`` / ``PlotComposer``.
 
-输出组件说明
-------------
+Reporting components
+--------------------
 
-``habit.core.machine_learning.callbacks`` 已从代码中移除。
-模型保存、报表写入和可视化统一使用 ``reporting`` 子包中的显式组件。
+``habit.core.machine_learning.callbacks`` has been removed. Model storage, report writing, and visualization use explicit components in the ``reporting`` subpackage.
 
 .. automodule:: habit.core.machine_learning.reporting.model_store
    :members:
@@ -86,8 +81,8 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
-模型工厂 (Model Factory)
--------------------------
+Model factory
+-------------
 
 .. automodule:: habit.core.machine_learning.models.factory
    :members:
@@ -99,8 +94,8 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
-评估工具 (Evaluation)
-----------------------
+Evaluation
+----------
 
 .. automodule:: habit.core.machine_learning.evaluation.model_evaluation
    :members:
@@ -117,8 +112,8 @@ machine_learning 模块
    :undoc-members:
    :show-inheritance:
 
-可视化 (Visualization)
------------------------
+Visualization
+-------------
 
 .. automodule:: habit.core.machine_learning.visualization.plotting
    :members:

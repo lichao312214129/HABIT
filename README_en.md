@@ -6,67 +6,58 @@
 
 ---
 
-## Documentation (read details here)
+## Documentation
 
-**Online docs (recommended)**：[https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
+**Online docs**: [https://lichao312214129.github.io/habit_project_v1](https://lichao312214129.github.io/habit_project_v1)
 
-*(Primary language: Chinese; English README is an index only.)*
-
-Local build: `cd docs && make html`, then open `docs/build/html/index.html`.
+Local build: `cd docs && make html` → `docs/build/html/index.html`
 
 ### Suggested learning path
 
 | Step | Topic | Link |
 |------|--------|------|
-| 1 | Install HABIT (Windows: portable pack in [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html); source build: same page, section 2) | [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html) |
-| 2 | Demo data & 5-step workflow | [Quickstart / Demo](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html) |
-| 3 | Per-step commands | [User guide index](https://lichao312214129.github.io/HABIT/user_guide/index_zh.html) |
-| 4 | YAML parameters | [Configuration reference](https://lichao312214129.github.io/HABIT/configuration_zh.html) |
+| 1 | Install HABIT | [Installation](https://lichao312214129.github.io/habit_project_v1/tutorial/installation.html) |
+| 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/habit_project_v1/tutorial/quickstart.html) |
+| 3 | Web GUI (optional) | [Web GUI](https://lichao312214129.github.io/habit_project_v1/gui/index.html) |
+| 4 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/habit_project_v1/how_to/index.html) |
+| 5 | YAML parameters | [Configuration](https://lichao312214129.github.io/habit_project_v1/configuration/index.html) |
 
 ### Workflow chapters
 
 | Step | Link |
 |------|------|
-| Data layout | [Data structure](https://lichao312214129.github.io/HABIT/data_structure_zh.html) |
-| Preprocessing | [Image preprocessing](https://lichao312214129.github.io/HABIT/user_guide/image_preprocessing_zh.html) |
-| Habitat segmentation | [Habitat segmentation](https://lichao312214129.github.io/HABIT/user_guide/habitat_segmentation_zh.html) |
-| Feature extraction | [Habitat features](https://lichao312214129.github.io/HABIT/user_guide/habitat_feature_extraction_zh.html) |
-| Machine learning | [ML modeling](https://lichao312214129.github.io/HABIT/user_guide/machine_learning_modeling_zh.html) |
-| Model comparison | [Model comparison](https://lichao312214129.github.io/HABIT/user_guide/model_comparison_zh.html) |
+| Prepare data | [Prepare data](https://lichao312214129.github.io/habit_project_v1/how_to/prepare_data.html) |
+| Preprocessing | [Preprocess](https://lichao312214129.github.io/habit_project_v1/how_to/preprocess.html) |
+| Habitat segmentation | [Segment habitat](https://lichao312214129.github.io/habit_project_v1/how_to/segment_habitat.html) |
+| Feature extraction | [Extract features](https://lichao312214129.github.io/habit_project_v1/how_to/extract_features.html) |
+| Machine learning | [Train model](https://lichao312214129.github.io/habit_project_v1/how_to/train_model.html) |
+| Model comparison | [Compare models](https://lichao312214129.github.io/habit_project_v1/how_to/compare_models.html) |
+| FAQ | [FAQ](https://lichao312214129.github.io/habit_project_v1/troubleshooting/faq.html) |
 
 ### Tools & more
 
 | Topic | Link |
 |--------|------|
-| CLI overview | [CLI reference](https://lichao312214129.github.io/HABIT/cli_zh.html) |
-| DICOM metadata | [habit dicom-info](https://lichao312214129.github.io/HABIT/app_dicom_info_zh.html) |
-| Contributing | [Contributing](https://lichao312214129.github.io/HABIT/development/contributing.html) |
+| CLI overview | [CLI reference](https://lichao312214129.github.io/habit_project_v1/reference/cli.html) |
+| Contributing | [Contributing](https://lichao312214129.github.io/habit_project_v1/development/contributing.html) |
 
 ---
 
 ## Bundled config templates
 
-After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package, not inside the import package). It contains reference YAMLs for preprocessing, habitat, ML, radiomics, etc. Start with [`config/README_CONFIG.md`](config/README_CONFIG.md) for a scenario index; copy a template and edit paths in `#%%====` blocks. Field reference: [Configuration (ZH)](https://lichao312214129.github.io/HABIT/configuration_zh.html).
+After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/habit_project_v1/configuration/index.html).
 
 ---
 
 ## Source & demo data
 
-- **Windows portable pack (recommended)**：[Installation — section 1 (ZH)](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
-  - **GPU full pack** (optional, ~3 GB): [Baidu Netdisk `HABIT-win-py310-gpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx) — code **8wzx**
-  - **CPU** (smaller download): [Baidu Netdisk `HABIT-win-py310-cpu-v0.1.0.tar.gz`](https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva) — code **ycva**
-  - Extract → `setup_habit.bat` completes installation
-  - For the demo: download `config.rar` and `demo_data.rar` — see [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
-  - **GPU full pack includes GPU acceleration** — no extra step; CPU + NVIDIA users may optionally use wheel + `install_gpu_torch.bat` (see Installation guide)
-- **Resources (separate from portable pack)**: `config.rar`, `demo_data.rar` (quickstart), `tests.zip` (optional) — [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
-- **Source**：[GitHub](https://github.com/lichao312214129/HABIT) · [Download ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip) — see [Installation](https://lichao312214129.github.io/HABIT/getting_started/installation_zh.html)
-- **Demo bundle**：see [Quickstart](https://lichao312214129.github.io/HABIT/getting_started/quickstart_zh.html)
+- **Windows portable pack**: [Installation](https://lichao312214129.github.io/habit_project_v1/tutorial/installation.html)
+- **Source**: [GitHub](https://github.com/lichao312214129/habit_project_v1)
+- **Demo data**: [Quickstart](https://lichao312214129.github.io/habit_project_v1/tutorial/quickstart.html)
 
 ---
 
-## Support & license
+## Support & citation
 
-- **Issues**：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
-- **License**：[HABIT Software License](LICENSE) (non-commercial use with attribution; commercial use requires prior written consent)
-
-**Development team**：HABIT Development Team (see [Acknowledgments](https://lichao312214129.github.io/HABIT/acknowledgments.html))
+- **Issues**: [GitHub Issues](https://github.com/lichao312214129/habit_project_v1/issues)
+- **License**: [HABIT Software License](LICENSE)

@@ -6,6 +6,7 @@ from typing import List, Optional, Sequence, Tuple
 import pandas as pd
 
 from habit.core.machine_learning.visualization.km_survival import KMSurvivalPlotter
+from habit.utils.font_config import PUBLICATION_FONT
 
 
 def _parse_list(value: Optional[str]) -> Optional[List[str]]:
@@ -47,7 +48,12 @@ def build_argparser() -> argparse.ArgumentParser:
     parser.add_argument("--xlim", nargs=2, metavar=("MIN", "MAX"), help="x-axis limits, e.g., --xlim 0 60")
     parser.add_argument("--ylim", nargs=2, metavar=("MIN", "MAX"), help="y-axis limits, e.g., --ylim 0 1")
 
-    parser.add_argument("--font-family", type=str, default="Arial", help="Font family")
+    parser.add_argument(
+        "--font-family",
+        type=str,
+        default=PUBLICATION_FONT,
+        help="Font family (defaults to platform publication font)",
+    )
     parser.add_argument("--font-size", type=int, default=11, help="Base font size")
     parser.add_argument("--dpi", type=int, default=600, help="Output DPI for non-PDF formats")
     

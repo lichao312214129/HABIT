@@ -1,0 +1,67 @@
+input:
+- path: /mnt/f/work/habit_project_v1/demo_data/ml_data/breast_cancer_dataset.csv
+  name: radiomics_
+  subject_id_col: subjID
+  label_col: label
+  features: null
+output: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/ml_radiomics/outputs
+split_method: custom
+train_ids_file: /mnt/f/work/habit_project_v1/demo_data/ml_data/train_ids.txt
+test_ids_file: /mnt/f/work/habit_project_v1/demo_data/ml_data/test_ids.txt
+normalization:
+  method: z_score
+resampling:
+  enabled: false
+  method: random_over
+  position: before_model
+  ratio: 1.0
+  random_state: 42
+feature_selection_methods:
+- method: variance
+  params:
+    before_z_score: true
+    threshold: 0.2
+    plot_variances: true
+- method: correlation
+  params:
+    threshold: 0.8
+    method: spearman
+    visualize: false
+    before_z_score: false
+- method: lasso
+  params:
+    cv: 10
+    n_alphas: 100
+    alphas:
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10
+    - 100
+    random_state: 42
+    visualize: true
+    before_z_score: false
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: l2
+      solver: lbfgs
+  SVM:
+    params:
+      random_state: 42
+      C: 1.0
+      kernel: rbf
+      gamma: scale
+      probability: true
+is_visualize: true
+is_save_model: true
+visualization:
+  enabled: true
+  plot_types:
+  - roc
+  - calibration
+  - confusion
+  - dca

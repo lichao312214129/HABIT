@@ -13,83 +13,149 @@
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
 """
-Global font configuration for publication-quality plots
-Sets Arial font across all matplotlib plots in the project
+Global font configuration for publication-quality plots.
+
+Prefers Arial on Windows/macOS when installed; falls back to DejaVu Sans on
+Linux/WSL where Arial is usually unavailable.
 """
 
-import matplotlib.pyplot as plt
-import matplotlib as mpl
+from __future__ import annotations
 
-def setup_publication_font():
+from typing import Dict, List
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+_PREFERRED_FONT = "Arial"
+_FALLBACK_FONTS: List[str] = [
+    "DejaVu Sans",
+    "Liberation Sans",
+    "Bitstream Vera Sans",
+    "sans-serif",
+]
+
+
+def _available_font_names() -> set[str]:
+    """Return normalized font names registered with matplotlib."""
+    return {info.name for info in font_manager.fontManager.ttflist}
+
+
+def _is_font_available(font_name: str) -> bool:
     """
-    Setup Arial font for publication-quality plots
-    This function should be called at the beginning of any visualization module
-    Optimized for smaller figure sizes suitable for SCI journals
+    Check whether a font family is available to matplotlib.
+
+    Args:
+        font_name: Candidate font family name.
+
+    Returns:
+        bool: True when matplotlib can resolve the font.
     """
-    # Configure font settings for publication quality - optimized for smaller figures
-    font_config = {
-        'font.family': 'Arial',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans', 'Bitstream Vera Sans', 'sans-serif'],
-        'font.size': 10,      # Reduced from 12 for smaller figures
-        'axes.labelsize': 10, # Reduced from 12
-        'axes.titlesize': 11, # Reduced from 14
-        'xtick.labelsize': 9, # Reduced from 11
-        'ytick.labelsize': 9, # Reduced from 11
-        'legend.fontsize': 9, # Reduced from 11
-        'figure.titlesize': 12, # Reduced from 16
-        'pdf.fonttype': 42,  # embed TrueType fonts for better compatibility
-        'ps.fonttype': 42,   # embed TrueType fonts for better compatibility
-        'axes.linewidth': 1.0,  # Slightly thinner axes
-        'lines.linewidth': 1.2, # Slightly thinner lines
+    needle = font_name.lower()
+    return any(needle in name.lower() for name in _available_font_names())
+
+
+def resolve_publication_font() -> str:
+    """
+    Resolve the best publication font for the current platform.
+
+    Returns:
+        str: ``Arial`` when installed, otherwise the first usable fallback.
+    """
+    if _is_font_available(_PREFERRED_FONT):
+        return _PREFERRED_FONT
+    for candidate in _FALLBACK_FONTS:
+        if candidate == "sans-serif":
+            continue
+        if _is_font_available(candidate):
+            return candidate
+    return "DejaVu Sans"
+
+
+PUBLICATION_FONT: str = resolve_publication_font()
+
+
+def _build_sans_serif_stack(primary_font: str) -> List[str]:
+    """Build a sans-serif stack with the resolved primary font first."""
+    stack = [primary_font]
+    for candidate in [_PREFERRED_FONT, *_FALLBACK_FONTS]:
+        if candidate not in stack:
+            stack.append(candidate)
+    return stack
+
+
+def setup_publication_font() -> Dict[str, object]:
+    """
+    Configure matplotlib for publication-quality plots.
+
+    Uses Arial when available; otherwise selects a Linux-safe fallback so WSL
+    runs do not emit repeated ``findfont`` warnings.
+
+    Returns:
+        Dict[str, object]: Applied rcParams fragment.
+    """
+    primary_font = resolve_publication_font()
+    font_config: Dict[str, object] = {
+        "font.family": "sans-serif",
+        "font.sans-serif": _build_sans_serif_stack(primary_font),
+        "font.size": 10,
+        "axes.labelsize": 10,
+        "axes.titlesize": 11,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        "legend.fontsize": 9,
+        "figure.titlesize": 12,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "axes.linewidth": 1.0,
+        "lines.linewidth": 1.2,
     }
-    
-    # Apply the configuration
+
     mpl.rcParams.update(font_config)
-    
-    # Also set it directly on pyplot for backwards compatibility
     plt.rcParams.update(font_config)
-    
     return font_config
 
-def get_font_config():
+
+def get_font_config() -> Dict[str, object]:
     """
-    Returns the standard font configuration dictionary
-    Optimized for smaller figures suitable for SCI journals
+    Return standard font kwargs for matplotlib/plotly text elements.
+
+    Returns:
+        Dict[str, object]: ``fontfamily`` and ``fontsize`` for plot calls.
     """
     return {
-        'fontfamily': 'Arial',
-        'fontsize': 10  # Reduced from 12 for smaller figures
+        "fontfamily": resolve_publication_font(),
+        "fontsize": 10,
     }
 
-def apply_font_to_text_elements(ax, fontfamily='Arial'):
+
+def apply_font_to_text_elements(ax, fontfamily: str | None = None) -> None:
     """
-    Apply Arial font to all text elements in a matplotlib axis
-    
+    Apply the publication font to all text elements in a matplotlib axis.
+
     Args:
-        ax: matplotlib axis object
-        fontfamily: font family to apply (default: Arial)
+        ax: Matplotlib axis object.
+        fontfamily: Optional override; defaults to :data:`PUBLICATION_FONT`.
     """
-    # Set font for title
+    resolved_font = fontfamily or resolve_publication_font()
+
     if ax.get_title():
-        ax.set_title(ax.get_title(), fontfamily=fontfamily)
-    
-    # Set font for axis labels
+        ax.set_title(ax.get_title(), fontfamily=resolved_font)
+
     if ax.get_xlabel():
-        ax.set_xlabel(ax.get_xlabel(), fontfamily=fontfamily)
+        ax.set_xlabel(ax.get_xlabel(), fontfamily=resolved_font)
     if ax.get_ylabel():
-        ax.set_ylabel(ax.get_ylabel(), fontfamily=fontfamily)
-    
-    # Set font for tick labels
+        ax.set_ylabel(ax.get_ylabel(), fontfamily=resolved_font)
+
     for label in ax.get_xticklabels():
-        label.set_fontfamily(fontfamily)
+        label.set_fontfamily(resolved_font)
     for label in ax.get_yticklabels():
-        label.set_fontfamily(fontfamily)
-    
-    # Set font for legend if present
+        label.set_fontfamily(resolved_font)
+
     legend = ax.get_legend()
     if legend:
         for text in legend.get_texts():
-            text.set_fontfamily(fontfamily)
+            text.set_fontfamily(resolved_font)
 
-# Initialize font configuration when module is imported
+
 setup_publication_font()

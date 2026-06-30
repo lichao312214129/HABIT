@@ -13,10 +13,10 @@
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
 import os
-import click
 import pandas as pd
 import SimpleITK as sitk
 from habit.utils import io_utils
+from habit.utils.progress_utils import CustomTqdm
 from typing import Dict, Any
 import numpy as np
 
@@ -111,30 +111,29 @@ def run_dice_calculation(input1, input2, output, mask_keyword, label_id):
         return
 
     count = 0
-    with click.progressbar(common_subjects, label='Calculating Dice') as bar:
-        for subj in bar:
-            # Get mask types for this subject
-            types1 = masks1[subj]
-            types2 = masks2[subj]
-            
-            # Identify common mask types (subfolders)
-            common_types = sorted(list(set(types1.keys()) & set(types2.keys())))
-            
-            for mtype in common_types:
-                path1 = types1[mtype]
-                path2 = types2[mtype]
-                
-                dice = compute_dice(path1, path2, label_id)
-                
-                results.append({
-                    'Subject': subj,
-                    'MaskType': mtype,
-                    'Dice': dice,
-                    'Path1': path1,
-                    'Path2': path2
-                })
-                count += 1
-            
+    for subj in CustomTqdm(common_subjects, desc="Calculating Dice"):
+        # Get mask types for this subject
+        types1 = masks1[subj]
+        types2 = masks2[subj]
+
+        # Identify common mask types (subfolders)
+        common_types = sorted(list(set(types1.keys()) & set(types2.keys())))
+
+        for mtype in common_types:
+            path1 = types1[mtype]
+            path2 = types2[mtype]
+
+            dice = compute_dice(path1, path2, label_id)
+
+            results.append({
+                'Subject': subj,
+                'MaskType': mtype,
+                'Dice': dice,
+                'Path1': path1,
+                'Path2': path2
+            })
+            count += 1
+
     if results:
         df = pd.DataFrame(results)
         df.to_csv(output, index=False)
@@ -154,21 +153,13 @@ def run_dice_calculation(input1, input2, output, mask_keyword, label_id):
     else:
         print("No matching mask types found for common subjects.")
 
-@click.command()
-@click.option('--input1', required=True, type=click.Path(exists=True), help='Path to first batch (root directory or config file)')
-@click.option('--input2', required=True, type=click.Path(exists=True), help='Path to second batch (root directory or config file)')
-@click.option('--output', default='dice_results.csv', show_default=True, help='Path to save results CSV')
-@click.option('--mask-keyword', default='masks', show_default=True, help='Keyword for mask folder (used if input is a directory)')
-@click.option('--label-id', default=1, show_default=True, help='Label ID to calculate Dice for')
-def main(input1, input2, output, mask_keyword, label_id):
-    """
-    Calculate Dice coefficient between two batches of images (ROI/mask).
-    
-    This tool compares masks from two sources (directories or config files) and computes the Dice coefficient.
-    It matches files based on Subject ID and Mask Type (subfolder name).
-    """
-    run_dice_calculation(input1, input2, output, mask_keyword, label_id)
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    import sys
+
+    print(
+        "Use the HABIT CLI: habit dice --input1 ... --input2 ...",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 

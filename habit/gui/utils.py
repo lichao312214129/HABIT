@@ -15,8 +15,67 @@ import sys
 import subprocess
 from pathlib import Path
 from typing import Optional, Any, List, Dict, Union
+
+import gradio as gr
 import yaml
 from pydantic import ValidationError
+
+
+def gui_draft_dir() -> Path:
+    """
+    Return the directory used to store per-tab GUI draft paths.
+
+    The directory is created on first access so callers never need to mkdir
+    themselves.  Using the user home keeps drafts isolated per OS user and
+    independent of the project root or conda environment.
+
+    Returns:
+        Path: ``~/.habit/gui_drafts/``, guaranteed to exist.
+    """
+    draft_dir = Path.home() / ".habit" / "gui_drafts"
+    draft_dir.mkdir(parents=True, exist_ok=True)
+    return draft_dir
+
+
+def save_gui_draft(tab_name: str, config_path: str) -> None:
+    """
+    Persist the path of the last saved config YAML for a GUI tab.
+
+    Called immediately after the config is written to disk so that the next
+    page load can auto-restore all form fields from that YAML.
+
+    Args:
+        tab_name: Short identifier for the tab, e.g. ``"extract"``.
+        config_path: Absolute path to the config YAML that was just saved.
+    """
+    try:
+        draft_file = gui_draft_dir() / f"{tab_name}.txt"
+        draft_file.write_text(str(config_path), encoding="utf-8")
+    except OSError:
+        pass  # Non-critical; ignore write failures silently.
+
+
+def load_gui_draft(tab_name: str) -> Optional[str]:
+    """
+    Return the path stored by the last ``save_gui_draft`` call for a tab.
+
+    Returns ``None`` when no draft exists or the stored path no longer points
+    to an existing file (e.g. the user deleted the output folder).
+
+    Args:
+        tab_name: Short identifier matching the one used in ``save_gui_draft``.
+
+    Returns:
+        Optional[str]: Absolute path string if the file exists, else ``None``.
+    """
+    try:
+        draft_file = gui_draft_dir() / f"{tab_name}.txt"
+        if not draft_file.exists():
+            return None
+        path = draft_file.read_text(encoding="utf-8").strip()
+        return path if (path and os.path.isfile(path)) else None
+    except OSError:
+        return None
 
 
 def coerce_str_list(items: Any) -> List[str]:
@@ -306,6 +365,29 @@ def select_local_path(select_type: str = "folder", title: str = "Select Path") -
     return None
 
 
+_BUNDLED_RADIOMICS_DIR: Path = Path(__file__).resolve().parent / "resources" / "radiomics"
+
+
+def default_radiomics_param(filename: str) -> str:
+    """
+    Resolve a bundled default PyRadiomics parameter file shipped inside the package.
+
+    The GUI must work out-of-the-box in the portable conda-pack distribution, where
+    the project-level ``config/radiomics/`` folder is shipped separately and its
+    location is unknown. Bundling the default parameter files inside the package and
+    resolving them by absolute path here avoids the previous broken relative default
+    (``../radiomics/...``) that only worked from one specific working directory.
+
+    Args:
+        filename: Parameter file name, e.g. ``"params_voxel_radiomics.yaml"``.
+
+    Returns:
+        str: Absolute path to the bundled file. The path is returned even when the
+            file is missing so the caller can surface a clear "file not found" error.
+    """
+    return str((_BUNDLED_RADIOMICS_DIR / filename).resolve())
+
+
 def abs_path(val: str) -> str:
     """
     Convert a path string to an absolute path using the current working directory.
@@ -328,6 +410,23 @@ def abs_path(val: str) -> str:
     if os.path.isabs(p):
         return p
     return os.path.abspath(p)
+
+
+def user_visible_path(val: str) -> str:
+    """
+    Format an internal/runtime path for display in GUI text boxes (Docker: F:\\...).
+
+    Args:
+        val: Path string from YAML or filesystem.
+
+    Returns:
+        str: User-visible path.
+    """
+    from habit.utils.docker_path_utils import to_user_visible_path
+
+    if not val or not str(val).strip():
+        return val
+    return to_user_visible_path(str(val).strip())
 
 
 def extract_validation_msgs(exc: Exception) -> Optional[List[str]]:
@@ -416,6 +515,42 @@ def translate_pydantic_error(err: ValidationError) -> List[str]:
             translated.append(f"【输入格式错误】: 「{field_name}」配置有误。详情: {raw_msg}。")
 
     return translated
+
+
+def render_console_log(
+    label: str = "Console log",
+    lines: int = 18,
+    *,
+    elem_id: Optional[str] = None,
+) -> gr.Textbox:
+    """
+    Create a fixed-height console log textbox that does not hijack page scroll.
+
+    Gradio Textbox defaults to ``autoscroll=True``, which re-scrolls the textarea
+    (and often the whole page) on every streamed update. Progress bars (tqdm)
+    update several times per second, so users cannot read other controls while a
+    job runs. ``autoscroll=False`` plus a fixed ``max_lines`` keeps the log area
+    stable so manual scrolling is preserved.
+
+    Args:
+        label: Widget label shown above the log area.
+        lines: Visible row count for the textarea.
+        elem_id: Optional unique DOM id (one per tab; avoid duplicate ids).
+
+    Returns:
+        gr.Textbox: Non-interactive log widget configured for streaming jobs.
+    """
+    kwargs: Dict[str, Any] = {
+        "label": label,
+        "lines": lines,
+        "max_lines": lines,
+        "interactive": False,
+        "autoscroll": False,
+        "elem_classes": ["habit-console-log"],
+    }
+    if elem_id:
+        kwargs["elem_id"] = elem_id
+    return gr.Textbox(**kwargs)
 
 
 def read_pipeline_log(log_path: Union[str, Path]) -> str:

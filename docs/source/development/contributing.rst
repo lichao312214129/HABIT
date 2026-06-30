@@ -1,84 +1,70 @@
-贡献指南
-========
+Contributing
+============
 
-感谢你对 HABIT 的兴趣！我们欢迎任何形式的贡献。
+Thank you for your interest in HABIT! We welcome contributions of all kinds.
 
-如何贡献
+How to contribute
+-----------------
+
+Report bugs
+~~~~~~~~~~~
+
+If you find a bug, please open a GitHub issue:
+
+1. Search existing issues to avoid duplicates.
+2. Include a clear title, steps to reproduce, expected vs. actual behavior, and environment (Python version, OS).
+
+Submit code
+~~~~~~~~~~~
+
+1. Fork the repository.
+2. Create a feature branch (``git checkout -b feature/AmazingFeature``).
+3. Commit your changes (``git commit -m 'Add some AmazingFeature'``).
+4. Push to the branch (``git push origin feature/AmazingFeature``).
+5. Open a Pull Request.
+
+Code style
 ----------
 
-报告 Bug
-~~~~~~~~
+* Follow PEP 8.
+* Add docstrings where appropriate.
+* Add tests for new behavior.
+* Ensure ``pytest tests/`` passes.
 
-如果你发现了 bug，请在 GitHub 上提交 issue：
+Documentation
+-------------
 
-1. 搜索现有的 issues，确认问题未被报告
-2. 创建新的 issue，包含：
-   * 清晰的标题
-   * 详细的问题描述
-   * 复现步骤
-   * 预期行为
-   * 实际行为
-   * 环境信息（Python 版本、操作系统等）
+Documentation contributions are welcome:
 
-提交代码
-~~~~~~~~
+* Fix typos and clarify wording.
+* Add tutorials or examples.
+* Keep the single English docs site up to date.
 
-1. Fork 项目
-2. 创建你的特性分支 (``git checkout -b feature/AmazingFeature``)
-3. 提交你的更改 (``git commit -m 'Add some AmazingFeature'``)
-4. 推送到分支 (``git push origin feature/AmazingFeature``)
-5. 提交 Pull Request
+Development setup
+-----------------
 
-代码规范
-~~~~~~~~
-
-* 遵循 PEP 8 编码规范
-* 添加适当的文档字符串
-* 为新功能添加测试
-* 确保所有测试通过
-
-文档贡献
-~~~~~~~~
-
-文档同样欢迎贡献！你可以：
-
-* 修正拼写错误
-* 改进现有文档
-* 添加新的教程或示例
-* 翻译文档到其他语言
-
-开发环境设置
-------------
-
-与用户使用相同的 **Python 3.10** conda 环境 ``habit`` （详见 :doc:`../getting_started/installation_zh`）。
+Use the same **Python 3.10** conda environment ``habit`` as end users (see :doc:`../tutorial/installation`).
 
 .. code-block:: bash
 
-   git clone https://github.com/lichao312214129/HABIT.git
-   cd HABIT
-   conda create -n habit python=3.10
    conda activate habit
-   pip install -r requirements.txt
    pip install -e ".[dev]"
    pytest tests/
 
-提交 Pull Request
-----------------
+Pull requests
+-------------
 
-提交 PR 前，请确保：
+Before submitting a PR:
 
-* 代码通过所有测试
-* 添加了适当的文档
-* 更新了相关的文档
-* 遵循代码规范
-* PR 描述清晰说明了更改内容
+* All tests pass.
+* Docs updated if behavior or config changed.
+* PR description explains the change clearly.
 
-行为准则
-----------
+Code of conduct
+---------------
 
-* 尊重所有贡献者
-* 接受建设性的批评
-* 关注对社区最有利的事情
-* 对其他社区成员表示同理心
+* Be respectful to all contributors.
+* Accept constructive feedback.
+* Focus on what helps the community.
 
-感谢你的贡献！
+Thank you for contributing!

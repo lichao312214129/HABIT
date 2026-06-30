@@ -1,13 +1,15 @@
-API 文档
-========
+How-to guides
+=============
+
+Each page: **command → outputs → configuration**. YAML fields: :doc:`../configuration/index` .
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   habitat_analysis
-   machine_learning
-   preprocessing
-   dicom_sort
-   common
-   utils
-   cli
+   prepare_data
+   preprocess
+   segment_habitat
+   extract_features
+   train_model
+   compare_models
+   python_api

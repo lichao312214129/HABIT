@@ -21,6 +21,7 @@ This tool provides functionality for extracting features from habitat maps:
 3. Number of disconnected regions and volume percentage for each habitat
 4. MSI (Mutual Spatial Integrity) features from habitat maps
 5. ITH (Intratumoral Heterogeneity) scores from habitat maps
+Optional registered plugins (e.g. graph topology in HABIT-v2) extend feature_types.
 """
 
 import logging
@@ -31,10 +32,19 @@ import warnings
 import multiprocessing
 from functools import partial
 import pandas as pd
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+
+from habit.core.habitat_analysis.feature_registry import (
+    HabitatFeaturePluginBase,
+    bootstrap_optional_plugins,
+    build_plugin,
+    get_default_feature_types,
+    validate_feature_types,
+)
 
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
+from habit.utils.job_cancel import iter_until_cancelled
 from .basic_features import BasicFeatureExtractor
 from .habitat_radiomics import HabitatRadiomicsExtractor
 from .msi_features import MSIFeatureExtractor
@@ -54,6 +64,7 @@ class HabitatMapAnalyzer:
     3. Number of disconnected regions and volume percentage for each habitat
     4. MSI (Mutual Spatial Integrity) features from habitat maps
     5. ITH (Intratumoral Heterogeneity) index from habitat maps
+    Optional registered plugins extend supported feature_types.
     """
     
     def __init__(self, 
@@ -64,7 +75,8 @@ class HabitatMapAnalyzer:
                 out_dir=None,
                 n_processes=None,
                 habitat_pattern=None,
-                voxel_cutoff=10):
+                voxel_cutoff=10,
+                plugin_configs: Optional[Dict[str, Any]] = None):
         """
         Initialize the habitat feature extractor
         
@@ -77,6 +89,7 @@ class HabitatMapAnalyzer:
             n_processes: Number of processes to use
             habitat_pattern: Pattern for matching habitat files
             voxel_cutoff: Voxel threshold for filtering small regions in MSI feature calculation
+            plugin_configs: Optional mapping of plugin name to plugin-specific config objects
         """
         # Feature extraction related parameters
         self.params_file_of_non_habitat = params_file_of_non_habitat
@@ -87,6 +100,9 @@ class HabitatMapAnalyzer:
         self._habitat_pattern = habitat_pattern
         self.n_habitats = None  # Initialize as None, will be read from file later
         self.voxel_cutoff = voxel_cutoff
+        self._plugins: Dict[str, HabitatFeaturePluginBase] = self._build_plugins(
+            plugin_configs or {}
+        )
         
         # Process number settings
         if n_processes is None:
@@ -156,6 +172,67 @@ class HabitatMapAnalyzer:
         if hasattr(self, '_log_file_path') and self._log_file_path:
             restore_logging_in_subprocess(self._log_file_path, self._log_level)
 
+    @staticmethod
+    def _build_plugins(
+        plugin_configs: Dict[str, Any],
+    ) -> Dict[str, HabitatFeaturePluginBase]:
+        """Instantiate registered optional feature plugins from config mapping."""
+        bootstrap_optional_plugins()
+        plugins: Dict[str, HabitatFeaturePluginBase] = {}
+        for name, config in plugin_configs.items():
+            plugins[name] = build_plugin(name, config)
+        return plugins
+
+    def _run_registered_plugins_for_subject(
+        self,
+        subj: str,
+        habitat_paths: Dict[str, str],
+        feature_types: List[str],
+        subject_features: Dict[str, Any],
+        logger: Any,
+    ) -> None:
+        """Dispatch per-subject extraction to registered optional plugins."""
+        for plugin_name, plugin in self._plugins.items():
+            if plugin_name not in feature_types:
+                continue
+            try:
+                subject_features[plugin.subject_data_key] = plugin.extract_subject(
+                    habitat_path=habitat_paths[subj],
+                    logger=logger,
+                )
+            except Exception as exc:
+                logger.error(
+                    "Error processing %s features for subject %s: %s",
+                    plugin_name,
+                    subj,
+                    exc,
+                )
+                subject_features[plugin.subject_data_key] = {"error": str(exc)}
+
+    def _export_registered_plugins(
+        self,
+        feature_types: List[str],
+        habitat_paths: Dict[str, str],
+    ) -> None:
+        """Export CSV outputs and optional visualizations for registered plugins."""
+        for plugin_name, plugin in self._plugins.items():
+            if plugin_name not in feature_types:
+                continue
+            plugin.export_batch(self.data, self.out_dir, self.logger)
+            self.logger.info(
+                "%s features saved to %s",
+                plugin_name,
+                os.path.join(self.out_dir, plugin.output_csv_name),
+            )
+            if plugin.should_visualize():
+                plugin.visualize_batch(
+                    self.data,
+                    habitat_paths,
+                    self.out_dir,
+                    self.logger,
+                    self.n_processes,
+                )
+
     def _get_n_habitats_from_csv(self):
         """Read the number of habitats from habitats.csv file"""
         n_habitats = FeatureUtils.get_n_habitats_from_csv(self.habitats_map_folder)
@@ -203,7 +280,8 @@ class HabitatMapAnalyzer:
         
         # 如果未指定特征类型，则默认提取所有特征
         if feature_types is None:
-            feature_types = ['traditional', 'non_radiomics', 'whole_habitat', 'each_habitat', 'msi', 'ith_score']
+            feature_types = get_default_feature_types()
+        validate_feature_types(feature_types)
 
         # Extract basic habitat features
         if 'non_radiomics' in feature_types:
@@ -279,6 +357,14 @@ class HabitatMapAnalyzer:
                 logger.error(f"Error processing ITH features for subject {subj}: {str(e)}")
                 subject_features['ith_features'] = {"error": str(e)}
 
+        self._run_registered_plugins_for_subject(
+            subj=subj,
+            habitat_paths=habitat_paths,
+            feature_types=feature_types,
+            subject_features=subject_features,
+            logger=logger,
+        )
+
         return subj, subject_features
 
     def extract_features(self, images_paths, habitat_paths, mask_paths=None, feature_types=None):
@@ -299,9 +385,14 @@ class HabitatMapAnalyzer:
             
             total = len(subjs)
             progress_bar = CustomTqdm(total=total, desc="Extracting Features")
-            for i, (subj, subject_features) in enumerate(pool.imap_unordered(process_func, subjs)):
+            subject_iter = iter_until_cancelled(
+                pool.imap_unordered(process_func, subjs),
+                pool=pool,
+            )
+            for subj, subject_features in subject_iter:
                 features[subj] = subject_features
                 progress_bar.update(1)
+            progress_bar.close()
                 
         return features
 
@@ -314,6 +405,10 @@ class HabitatMapAnalyzer:
         """
         if not self.out_dir:
             raise ValueError("Output directory must be specified to run the analysis")
+
+        if feature_types is None:
+            feature_types = get_default_feature_types()
+        validate_feature_types(feature_types)
             
         # 提取特征并直接处理为CSV
         images_paths, habitat_paths, mask_paths = self.get_mask_and_raw_files()
@@ -356,7 +451,9 @@ class HabitatMapAnalyzer:
             
             if 'ith_score' in feature_types:
                 self._extract_ith_features()
-            
+
+            self._export_registered_plugins(feature_types, habitat_paths)
+
         return self
 
     def _extract_traditional_radiomics(self):

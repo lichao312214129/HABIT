@@ -9,6 +9,8 @@ matplotlib
 versioneer
 trimesh
 scipy
+networkx
+pyvista>=0.43  # 3D habitat/graph surface rendering (pulls in VTK)
 openpyxl
 pandas
 pyarrow

@@ -48,6 +48,7 @@ from habit.utils.isolated_runner import (
     _worker_wrapper,
 )
 from habit.utils.persistent_worker_runner import PersistentWorkerPoolSession
+from habit.utils.job_cancel import is_job_cancelled, JobCancelledError
 
 # Re-export for backward compatibility
 __all__ = [
@@ -165,6 +166,8 @@ def thread_map(
                 executor.submit(func, item): item for item in items_list
             }
             for future in as_completed(future_to_item):
+                if is_job_cancelled():
+                    break
                 item = future_to_item[future]
                 try:
                     _record_result(future.result(), item)
@@ -177,6 +180,11 @@ def thread_map(
 
     if progress_bar is not None:
         progress_bar.close()
+
+    if is_job_cancelled():
+        if logger:
+            logger.warning("Job cancelled; stopping after completed items.")
+        raise JobCancelledError("Job cancelled by user")
 
     if logger and failed_items:
         logger.warning("Failed to process %s item(s)", len(failed_items))
@@ -202,6 +210,12 @@ def _run_inprocess_sequential(
     progress_bar = CustomTqdm(total=total, desc=desc) if show_progress else None
 
     for item in items_list:
+        if is_job_cancelled():
+            if progress_bar is not None:
+                progress_bar.close()
+            if logger:
+                logger.warning("Job cancelled; stopping after completed items.")
+            raise JobCancelledError("Job cancelled by user")
         try:
             raw_result = func(item)
             if isinstance(raw_result, tuple) and len(raw_result) == 2:

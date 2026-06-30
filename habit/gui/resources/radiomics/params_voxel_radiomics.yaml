@@ -1,0 +1,83 @@
+# PyRadiomics parameter preset for voxel_radiomics (habitat clustering).
+#
+# CT voxel texture defaults (R3B12): binWidth 12 HU in this file; kernelRadius 3 in habitat
+# FeatureConstruction.voxel_level.params (7×7×7 neighborhood). More stable repeatability and
+# reproducibility than R1B25 for precise habitat radiomics on CT.
+# Ref: Petersen A, et al. Identification of Precise 3D CT Radiomics for Habitat Computation
+# by Machine Learning in Cancer. Radiol Artif Intell. 2024;6(2):e230118. doi:10.1148/ryai.230118
+#
+# NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, torchGpus, etc.
+# are NOT PyRadiomics YAML settings here. Set them in FeatureConstruction.voxel_level.params
+# in your habitat config. Habit default voxelBatch: 1000; use -1 for no batching.
+#
+# GLCM: list stable features only. Bare ``glcm:`` (all 24 features) fails on small kernels
+# because MCC/Imc1/Imc2 need eigenvalue or mutual-information stats on degenerate 1×1 GLCM
+# matrices (flat local neighborhoods). Habit also defaults to this list when glcm is
+# enabled without explicit feature names — see habit.utils.radiomics_params_utils.
+
+# #############################  Extracted using PyRadiomics version: <version>  ######################################
+
+imageType:
+  Original: {}
+  # LoG:
+  #   sigma: [2.0, 3.0, 4.0, 5.0]
+  # Wavelet: {}
+  # Square: {}
+  # SquareRoot: {}
+  # Logarithm: {}
+  # Exponential: {}
+  # Gradient: {}
+  # LBP3D: {}
+
+featureClass:
+  # shape: not supported in voxel-based mode
+  firstorder:
+  glcm:                             # Voxel-based: stable GLCM only (exclude MCC/Imc1/Imc2)
+    - Contrast
+    - Correlation
+    - JointEnergy
+    - Idm
+    - Autocorrelation
+    - JointAverage
+    - JointEntropy
+    - DifferenceAverage
+    - DifferenceEntropy
+    - SumAverage
+    - SumEntropy
+    - SumSquares
+    - MaximumProbability
+    - Idmn
+    - Id
+    - Idn
+    - InverseVariance
+    - DifferenceVariance
+    - ClusterTendency
+    - ClusterShade
+    - ClusterProminence
+  glrlm:
+  glszm:
+  ngtdm:
+  gldm:
+
+setting:
+  # Normalization:
+  # MR signal is usually relative, with large differences between scanners and vendors.
+  normalize: false
+  # normalizeScale: 100
+
+  # Resampling:
+#  interpolator: 'sitkBSpline'
+#  resampledPixelSpacing: [2, 2, 2]
+
+  # Mask validation:
+  #minimumROIDimensions: 2
+  #minimumROISize: 50
+
+  # Image discretization (CT habitat voxel texture; R3B12 — see header reference):
+  binWidth: 12
+
+  # first order specific settings:
+  voxelArrayShift: 300
+
+  # Misc:
+  # label: 1

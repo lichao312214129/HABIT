@@ -180,7 +180,7 @@ class HabitatPipeline:
     Follows sklearn design philosophy:
     - fit() for training: learn parameters and save state
     - transform() for testing: use saved state to transform data
-    - No mode parameter needed: state is managed via fitted_ attribute
+    - No mode parameter needed: state is managed via the ``fitted_`` attribute
     
     **Memory Management Strategy (Per-Subject Parallel Processing)**:
     The pipeline uses a two-stage processing strategy:

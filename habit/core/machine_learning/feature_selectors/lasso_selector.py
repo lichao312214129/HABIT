@@ -100,10 +100,10 @@ def lasso_selector(X: pd.DataFrame,
         os.makedirs(outdir, exist_ok=True)
         
         # Import and setup publication font
-        from ....utils.font_config import setup_publication_font
+        from ....utils.font_config import PUBLICATION_FONT, setup_publication_font
         setup_publication_font()
         
-        # Set larger font sizes for all plots with Arial font
+        # Set larger font sizes for publication plots
         plt.rcParams.update({'font.size': 14, 
                              'axes.titlesize': 16, 
                              'axes.labelsize': 14,
@@ -121,9 +121,9 @@ def lasso_selector(X: pd.DataFrame,
         ax1.plot(alphas, mse_path, '-', linewidth=2, label='Mean Squared Error')
         ax1.axvline(best_alpha, color='r', linestyle='--', linewidth=2, label=f'Optimal alpha = {best_alpha:.6f}')
         ax1.set_xscale('log')
-        ax1.set_xlabel('Alpha', fontsize=14, fontfamily='Arial')
-        ax1.set_ylabel('Mean Squared Error', fontsize=14, fontfamily='Arial')
-        ax1.set_title('Cross-validation MSE vs Alpha', fontsize=16, fontfamily='Arial')
+        ax1.set_xlabel('Alpha', fontsize=14, fontfamily=PUBLICATION_FONT)
+        ax1.set_ylabel('Mean Squared Error', fontsize=14, fontfamily=PUBLICATION_FONT)
+        ax1.set_title('Cross-validation MSE vs Alpha', fontsize=16, fontfamily=PUBLICATION_FONT)
         ax1.legend(fontsize=12)
         ax1.grid(True)
         
@@ -169,9 +169,9 @@ def lasso_selector(X: pd.DataFrame,
         
         ax2.axvline(best_alpha, color='r', linestyle='--', linewidth=2)
         ax2.set_xscale('log')
-        ax2.set_xlabel('Alpha', fontsize=14, fontfamily='Arial')
-        ax2.set_ylabel('Coefficient', fontsize=14, fontfamily='Arial')
-        ax2.set_title('Lasso Coefficient Path', fontsize=16, fontfamily='Arial')
+        ax2.set_xlabel('Alpha', fontsize=14, fontfamily=PUBLICATION_FONT)
+        ax2.set_ylabel('Coefficient', fontsize=14, fontfamily=PUBLICATION_FONT)
+        ax2.set_title('Lasso Coefficient Path', fontsize=16, fontfamily=PUBLICATION_FONT)
         ax2.grid(True)
         
         # Optimize legend layout
@@ -219,13 +219,13 @@ def lasso_selector(X: pd.DataFrame,
         # Draw bar plot
         bars = plt.barh(nonzero_features['feature'], nonzero_features['coefficient'], color=colors, height=0.7)
         plt.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
-        plt.xlabel('Coefficient', fontsize=14, fontfamily='Arial')
-        plt.ylabel('Feature', fontsize=14, fontfamily='Arial')
-        plt.title('Lasso Feature Importance', fontsize=16, fontfamily='Arial')
+        plt.xlabel('Coefficient', fontsize=14, fontfamily=PUBLICATION_FONT)
+        plt.ylabel('Feature', fontsize=14, fontfamily=PUBLICATION_FONT)
+        plt.title('Lasso Feature Importance', fontsize=16, fontfamily=PUBLICATION_FONT)
         
         # Add a note about colors
         plt.figtext(0.5, 0.01, 'Red: negative coefficients, Blue: positive coefficients', 
-                   ha='center', fontsize=12, fontfamily='Arial')
+                   ha='center', fontsize=12, fontfamily=PUBLICATION_FONT)
         
         # Adjust layout to ensure all feature names are visible
         plt.tight_layout(rect=[0, 0.03, 1, 0.97])

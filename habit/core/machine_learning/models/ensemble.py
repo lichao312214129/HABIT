@@ -106,7 +106,7 @@ class HabitEnsembleModel(BaseEstimator, ClassifierMixin):
     
     @property
     def classes_(self):
-        """Delegate classes_ attribute to the first estimator."""
+        """Return ``classes_`` from the first fitted estimator, if present."""
         if self.estimators and hasattr(self.estimators[0], 'classes_'):
             return self.estimators[0].classes_
         return None

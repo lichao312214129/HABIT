@@ -310,7 +310,7 @@ class HabitatAnalysisConfig(BaseConfig):
         Resolve the ``supervoxel`` block seed (two_step supervoxel clustering).
 
         For per-subject clustering in any mode, prefer
-        :meth:`effective_individual_clustering_random_state`.
+        ``effective_individual_clustering_random_state`` instead.
 
         Returns:
             int: Effective random seed from ``HabitatSegmentation.supervoxel``.
@@ -337,17 +337,13 @@ class HabitatAnalysisConfig(BaseConfig):
         return resolve_random_state(explicit, self.random_state)
 
     def effective_individual_clustering_random_state(self) -> int:
-        """
-        Resolve the seed for per-subject voxel-level clustering.
+        """Resolve the seed for per-subject voxel-level clustering.
 
-        Mode-specific priority:
-        - ``one_step`` (voxel -> habitat per subject):
-          ``habitat.random_state`` > ``supervoxel.random_state`` > top-level
-        - ``two_step`` (voxel -> supervoxel per subject):
-          ``supervoxel.random_state`` > top-level
-
-        ``direct_pooling`` does not run individual clustering; this method is
-        unused there but still resolves consistently if called.
+        In ``one_step`` mode the priority is ``habitat.random_state``, then
+        ``supervoxel.random_state``, then the top-level ``random_state``. In
+        ``two_step`` mode the priority is ``supervoxel.random_state``, then the
+        top-level seed. ``direct_pooling`` does not run individual clustering;
+        this method is unused there but still resolves consistently if called.
 
         Returns:
             int: Effective random seed for individual-level clustering steps.
@@ -666,7 +662,7 @@ class FeatureExtractionConfig(BaseConfig):
     
     feature_types: List[str] = Field(..., description="List of feature types to extract")
     n_habitats: Optional[int] = Field(None, description="Number of habitats (auto-detected if None)")
-    
+
     debug: bool = Field(False, description="Enable debug mode")
 
 # -----------------------------------------------------------------------------

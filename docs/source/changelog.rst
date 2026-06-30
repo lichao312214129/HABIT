@@ -77,7 +77,7 @@ Metrics Module Major Optimization
 
 **Documentation**
 
-* Added detailed guide: :doc:`development/metrics_optimization`
+* Added detailed guide in :doc:`development/index`
 * Includes: API reference, usage examples, performance comparison
 * Best practices for training/test threshold management
 
@@ -183,6 +183,5 @@ Future Roadmap
 See Also
 --------
 
-* :doc:`development/metrics_optimization` - Detailed optimization guide
-* :doc:`development/testing` - Testing guidelines
+* :doc:`development/index` — Developer documentation
 * :doc:`api/machine_learning` - Machine learning API reference
