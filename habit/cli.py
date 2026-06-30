@@ -23,6 +23,8 @@ import click
 from pathlib import Path
 from typing import Optional
 
+from habit.utils.project_urls import docs_page
+
 
 @lru_cache(maxsize=1)
 def _package_version() -> str:
@@ -144,7 +146,7 @@ def cv(config):
 @cli.command('compare')
 @config_option()
 def compare(config):
-    """
+    f"""
     Model comparison — generate plots and statistics across multiple models.
 
     Compare performance of two or more machine learning models side by side.
@@ -182,7 +184,7 @@ def compare(config):
     \b
     habit compare --config config_model_comparison.yaml
 
-  Documentation: https://lichao312214129.github.io/habit_project_v1/how_to/compare_models.html
+  Documentation: {docs_page('how_to/compare_models.html')}
     """
     from habit.cli_commands.commands.cmd_compare import run_compare
     run_compare(config)

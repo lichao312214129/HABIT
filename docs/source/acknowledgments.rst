@@ -69,7 +69,7 @@ If you would like to contribute to HABIT:
 * Share usage experiences and case studies
 * Participate in clinical validation and algorithm optimization
 
-GitHub repository: https://github.com/lichao312214129/habit_project_v1
+GitHub repository: |github_repo|
 
 Contact
 -------
@@ -77,7 +77,7 @@ Contact
 For collaboration or other inquiries:
 
 **Email**: lichao19870617@163.com
-**GitHub Issues**: https://github.com/lichao312214129/habit_project_v1/issues
+**GitHub Issues**: |github_issues|
 
 .. note::
    If you have used HABIT in your research and would like to be acknowledged, please contact us via GitHub Issue or email.

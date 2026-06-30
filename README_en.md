@@ -8,7 +8,7 @@
 
 ## Documentation
 
-**Online docs**: [https://lichao312214129.github.io/habit_project_v1](https://lichao312214129.github.io/habit_project_v1)
+**Online docs**: [https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
 
 Local build: `cd docs && make html` → `docs/build/html/index.html`
 
@@ -16,48 +16,48 @@ Local build: `cd docs && make html` → `docs/build/html/index.html`
 
 | Step | Topic | Link |
 |------|--------|------|
-| 1 | Install HABIT | [Installation](https://lichao312214129.github.io/habit_project_v1/tutorial/installation.html) |
-| 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/habit_project_v1/tutorial/quickstart.html) |
-| 3 | Web GUI (optional) | [Web GUI](https://lichao312214129.github.io/habit_project_v1/gui/index.html) |
-| 4 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/habit_project_v1/how_to/index.html) |
-| 5 | YAML parameters | [Configuration](https://lichao312214129.github.io/habit_project_v1/configuration/index.html) |
+| 1 | Install HABIT | [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
+| 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
+| 3 | Web GUI (optional) | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
+| 4 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/HABIT/how_to/index.html) |
+| 5 | YAML parameters | [Configuration](https://lichao312214129.github.io/HABIT/configuration/index.html) |
 
 ### Workflow chapters
 
 | Step | Link |
 |------|------|
-| Prepare data | [Prepare data](https://lichao312214129.github.io/habit_project_v1/how_to/prepare_data.html) |
-| Preprocessing | [Preprocess](https://lichao312214129.github.io/habit_project_v1/how_to/preprocess.html) |
-| Habitat segmentation | [Segment habitat](https://lichao312214129.github.io/habit_project_v1/how_to/segment_habitat.html) |
-| Feature extraction | [Extract features](https://lichao312214129.github.io/habit_project_v1/how_to/extract_features.html) |
-| Machine learning | [Train model](https://lichao312214129.github.io/habit_project_v1/how_to/train_model.html) |
-| Model comparison | [Compare models](https://lichao312214129.github.io/habit_project_v1/how_to/compare_models.html) |
-| FAQ | [FAQ](https://lichao312214129.github.io/habit_project_v1/troubleshooting/faq.html) |
+| Prepare data | [Prepare data](https://lichao312214129.github.io/HABIT/how_to/prepare_data.html) |
+| Preprocessing | [Preprocess](https://lichao312214129.github.io/HABIT/how_to/preprocess.html) |
+| Habitat segmentation | [Segment habitat](https://lichao312214129.github.io/HABIT/how_to/segment_habitat.html) |
+| Feature extraction | [Extract features](https://lichao312214129.github.io/HABIT/how_to/extract_features.html) |
+| Machine learning | [Train model](https://lichao312214129.github.io/HABIT/how_to/train_model.html) |
+| Model comparison | [Compare models](https://lichao312214129.github.io/HABIT/how_to/compare_models.html) |
+| FAQ | [FAQ](https://lichao312214129.github.io/HABIT/troubleshooting/faq.html) |
 
 ### Tools & more
 
 | Topic | Link |
 |--------|------|
-| CLI overview | [CLI reference](https://lichao312214129.github.io/habit_project_v1/reference/cli.html) |
-| Contributing | [Contributing](https://lichao312214129.github.io/habit_project_v1/development/contributing.html) |
+| CLI overview | [CLI reference](https://lichao312214129.github.io/HABIT/reference/cli.html) |
+| Contributing | [Contributing](https://lichao312214129.github.io/HABIT/development/contributing.html) |
 
 ---
 
 ## Bundled config templates
 
-After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/habit_project_v1/configuration/index.html).
+After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/HABIT/configuration/index.html).
 
 ---
 
 ## Source & demo data
 
-- **Windows portable pack**: [Installation](https://lichao312214129.github.io/habit_project_v1/tutorial/installation.html)
-- **Source**: [GitHub](https://github.com/lichao312214129/habit_project_v1)
-- **Demo data**: [Quickstart](https://lichao312214129.github.io/habit_project_v1/tutorial/quickstart.html)
+- **Windows portable pack**: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
+- **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
+- **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 
 ---
 
 ## Support & citation
 
-- **Issues**: [GitHub Issues](https://github.com/lichao312214129/habit_project_v1/issues)
+- **Issues**: [GitHub Issues](https://github.com/lichao312214129/HABIT/issues)
 - **License**: [HABIT Software License](LICENSE)

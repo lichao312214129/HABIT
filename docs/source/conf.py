@@ -152,11 +152,18 @@ exclude_patterns = [
 # Pygments 高亮样式
 pygments_style = 'sphinx'
 
-# GitHub Pages 配置 (habit_project_v1 standalone docs site)
+# GitHub Pages configuration (values from habit.utils.project_urls)
+from habit.utils.project_urls import (  # noqa: E402
+    DOCS_BASE_URL,
+    GITHUB_REPO_SLUG,
+    GITHUB_REPO_URL,
+    github_issues_url,
+)
+
 github_pages = True
-github_repo = 'lichao312214129/habit_project_v1'
+github_repo = GITHUB_REPO_SLUG
 github_version = 'main'
-html_baseurl = 'https://lichao312214129.github.io/habit_project_v1/'
+html_baseurl = DOCS_BASE_URL
 
 # Todo 配置
 todo_include_todos = True
@@ -176,4 +183,7 @@ rst_epilog = """
 .. |gpu_pack_code| replace:: 8wzx
 .. |torch_wheel_link| replace:: https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k
 .. |torch_wheel_code| replace:: nt7k
+.. |docs_base| replace:: """ + DOCS_BASE_URL + """
+.. |github_repo| replace:: """ + GITHUB_REPO_URL + """
+.. |github_issues| replace:: """ + github_issues_url() + """
 """
