@@ -1,15 +1,15 @@
-common 模块
-==============
+common module
+=============
 
 .. automodule:: habit.core.common
    :members:
    :undoc-members:
    :show-inheritance:
 
-配置系统 (Configuration System)
---------------------------------
+Configuration system
+--------------------
 
-HABIT 使用一套基于 YAML 的强类型配置系统。
+HABIT uses a strongly typed YAML-based configuration system.
 
 .. automodule:: habit.core.common.configurators.base
    :members:
@@ -31,8 +31,8 @@ HABIT 使用一套基于 YAML 的强类型配置系统。
    :undoc-members:
    :show-inheritance:
 
-数据工具 (Data Utilities)
---------------------------
+Data utilities
+--------------
 
 .. automodule:: habit.core.common.dataframe
    :members:

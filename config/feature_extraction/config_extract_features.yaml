@@ -51,14 +51,36 @@ n_processes: 3
 habitat_pattern: '*_habitats_remapped.nrrd'
 
 # Feature types to extract
-# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score
+# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score, graph
 feature_types:
 - traditional
 - non_radiomics
 - whole_habitat
 - msi
 - ith_score
+- graph
 n_habitats:
+graph:
+  include_single_habitat_graph: true
+  include_pairwise_habitat_graph: true
+  edge_method: centroid_distance
+  distance_threshold: 5
+  adjacency_connectivity: face
+  adjacency_min_voxels: 1
+  edge_weight: none
+  min_region_voxels: 1
+  connectivity: face
+  erosion_radius: 1            # erode 1-voxel boundary shell; 0 disables
+  subdivide_region_voxels: 1000  # split components larger than this; 0 disables
+  block_size: 5               # grid block edge length; keep near distance_threshold
+  block_min_coverage: 0.5     # min covered fraction to keep a block as a node
+  pairwise_include_intra_edges: true  # add intra-habitat edges for whole-graph metrics
+  include_extended_metrics: true    # efficiency, small-world, rich-club, node distributions
+  extended_min_nodes: 10            # minimum nodes for small-world sigma
+  visualize: false            # render graph topology figures per subject; output in visualizations/graph
+  visualization_format: both  # pdf (vector) / png (raster) / both
+  visualization_dpi: 600      # PNG resolution
+  visualization_show_background: true  # draw faint tissue silhouette behind the graph
 
 # Debug mode
 debug: false
@@ -74,5 +96,6 @@ debug: false
 # - each_habitat_radiomics.csv (each_habitat)
 # - msi_features.csv (msi)
 # - ith_scores.csv (ith_score)
+# - habitat_graph_features.csv (graph)
 #
 # ----------------------------------------------------------------------------

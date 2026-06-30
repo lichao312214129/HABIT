@@ -33,6 +33,7 @@ import os
 from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
+from habit.utils.job_cancel import iter_until_cancelled, is_job_cancelled, JobCancelledError
 from habit.core.common.configs.loader import load_config
 from habit.utils.log_utils import setup_logger, get_module_logger
 from habit.utils.sitk_geometry_diagnostics import log_sitk_geometry_for_subject_data
@@ -56,7 +57,9 @@ class BatchProcessor:
     
     def __init__(
         self,
-        config_path: Union[str, Path],
+        config_path: Optional[Union[str, Path]] = None,
+        *,
+        config: Optional[PreprocessingConfig] = None,
         num_workers: Optional[int] = 1,
         log_level: str = "INFO",
         verbose: bool = True
@@ -64,15 +67,28 @@ class BatchProcessor:
         """Initialize the batch processor.
         
         Args:
-            config_path (Union[str, Path]): Path to the configuration file.
-            num_workers (Optional[int]): Number of worker processes. If None, uses
+            config_path: Path to the configuration YAML file. Ignored when
+                ``config`` is provided.
+            config: Pre-validated preprocessing config object. Preferred when
+                the caller has already loaded and resolved paths via
+                ``PreprocessingConfig.from_file``.
+            num_workers: Number of worker processes. If None, uses
                 number of CPU cores - 1 on Linux/Mac, or 0 on Windows.
-            log_level (str): Logging level. Defaults to "INFO".
-            verbose (bool): Whether to print verbose output. Defaults to True.
+            log_level: Logging level. Defaults to "INFO".
+            verbose: Whether to print verbose output. Defaults to True.
+
+        Raises:
+            ValueError: When neither ``config_path`` nor ``config`` is given.
         """
-        # Load and validate config with schema to catch errors early
-        raw_config = load_config(config_path)
-        self.config_obj = PreprocessingConfig(**raw_config)
+        if config is not None:
+            self.config_obj = config
+        elif config_path is not None:
+            raw_config = load_config(config_path)
+            self.config_obj = PreprocessingConfig(**raw_config)
+        else:
+            raise ValueError(
+                "BatchProcessor requires either config_path or config."
+            )
         
         self.output_root = Path(self.config_obj.out_dir)
         self.output_root.mkdir(parents=True, exist_ok=True)
@@ -518,6 +534,10 @@ class BatchProcessor:
         # 单进程模式
         if self.num_workers == 1:
             for subject_data in subject_data_list:
+                if is_job_cancelled():
+                    progress_bar.close()
+                    self.logger.warning("Job cancelled; stopping after completed subjects.")
+                    raise JobCancelledError("Job cancelled by user")
                 subject_id, result = self._process_single_subject(subject_data)
                 if not subject_id.startswith("Error") and result is not None:
                     self.save_processed_images(result)
@@ -529,7 +549,11 @@ class BatchProcessor:
             # 使用进程池并行处理
             try:
                 with multiprocessing.Pool(processes=self.num_workers) as pool:
-                    for subject_id, result in pool.imap(self._process_single_subject, subject_data_list):
+                    subject_iter = iter_until_cancelled(
+                        pool.imap(self._process_single_subject, subject_data_list),
+                        pool=pool,
+                    )
+                    for subject_id, result in subject_iter:
                         # Save processed images only on success
                         if (
                             not subject_id.startswith("Error")
@@ -539,6 +563,9 @@ class BatchProcessor:
                         elif subject_id.startswith("Error"):
                             self.logger.error(subject_id)  # 记录错误信息
                         progress_bar.update(1)  # 无论成功或失败都更新进度条
+            except JobCancelledError:
+                progress_bar.close()
+                raise
             except Exception as e:
                 self.logger.error(f"Multiprocessing error: {str(e)}")
                 self.logger.info("Falling back to single process mode...")

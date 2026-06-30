@@ -1,111 +1,82 @@
-HABIT: Habitat Analysis: Biomedical Imaging Toolkit
-==================================================
+HABIT Documentation
+=====================
 
-.. image:: https://img.shields.io/badge/Python-3.10+-blue.svg
-   :target: https://www.python.org/downloads/
-.. image:: https://img.shields.io/badge/License-HABIT%20Custom-blue.svg
-   :target: https://github.com/lichao312214129/HABIT/blob/main/LICENSE
+**HABIT** (Habitat Analysis: Biomedical Imaging Toolkit) — preprocessing → habitat segmentation → feature extraction → machine learning.
 
-**HABIT** 用于肿瘤 **生境（Habitat）** 分析：从医学影像中划分肿瘤亚区并提取定量特征，可选构建预测模型。
+.. warning::
 
-**推荐路径**
+   For research and education only. Not for clinical diagnosis or treatment.
 
-1. :doc:`getting_started/installation_zh` — 安装环境
-2. :doc:`getting_started/quickstart_zh` — 跑通 demo（5 步命令）
-3. :doc:`user_guide/index_zh` — 各步骤最短用法
-4. :doc:`configuration_zh` — YAML 参数全集（改配置时查阅）
+Learning path
+-------------
 
-**流程** ：预处理 → 生境分割 → 特征提取 → 机器学习（可选）
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 开始使用
-   :hidden:
-
-   getting_started/index_zh
-   data_structure_zh
+1. :doc:`tutorial/installation` — **Install**
+2. :doc:`tutorial/quickstart` — Run the demo
+3. :doc:`gui/index` — Web GUI (optional)
+4. :doc:`how_to/index` — Step-by-step with your data
+5. :doc:`configuration/index` — YAML reference
+6. :doc:`reference/features/index` — Feature definitions (papers)
+7. Issues → :doc:`troubleshooting/faq`
 
 .. toctree::
    :maxdepth: 2
-   :caption: 用户指南
-   :hidden:
+   :caption: Tutorial
 
-   user_guide/index_zh
+   tutorial/installation
+   tutorial/quickstart
 
 .. toctree::
    :maxdepth: 1
-   :caption: 实用工具
-   :hidden:
+   :caption: Web GUI
 
-   app_dicom_info_zh
-   app_icc_analysis_zh
-   app_merge_csv_zh
-   app_habitat_test_retest_zh
-   app_model_comparison_zh
-   app_dice_calculator_zh
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 设计哲学
-   :hidden:
-
-   design_philosophy_zh
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 自定义扩展
-   :hidden:
-
-   customization/index_zh
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 配置参考
-   :hidden:
-
-   configuration_zh
+   gui/index
 
 .. toctree::
    :maxdepth: 1
-   :caption: 上游依赖速查
-   :hidden:
+   :caption: How-to guides
 
-   reference/upstream_libraries_zh
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 命令行工具
-   :hidden:
-
-   cli_zh
+   how_to/index
 
 .. toctree::
    :maxdepth: 2
-   :caption: API 参考
-   :hidden:
+   :caption: Configuration
 
-   api/index
+   configuration/index
 
 .. toctree::
    :maxdepth: 2
-   :caption: 开发与架构
-   :hidden:
+   :caption: Feature reference
+
+   reference/features/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Command reference
+
+   reference/cli
+   reference/auxiliary
+
+.. toctree::
+   :maxdepth: 1
+   :caption: FAQ
+
+   troubleshooting/faq
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Background
+
+   explanation/concepts
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer
 
    development/index
-   development/metrics_optimization
-   algorithms/index
+   customization/index
+   api/index
+   reference/upstream_libraries
    changelog
    acknowledgments
 
-索引与表格
-----------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-项目链接
---------
-
-**GitHub**: https://github.com/lichao312214129/HABIT
-**文档**: https://habit-docs.readthedocs.io/ (示例)
+- GitHub: https://github.com/lichao312214129/habit_project_v1

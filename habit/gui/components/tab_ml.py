@@ -1,10 +1,13 @@
 # Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
 #
-# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
 # Use is governed by the HABIT Software License — see the LICENSE file in the
 # project root for the full text.
 
-"""Machine learning modeling tab for Gradio GUI."""
+"""Machine learning modeling tab — schema-driven rewrite.
+
+Replaces 600+ lines of hardcoded widgets with SchemaForm auto-generation.
+Dynamic model/selector lists come from the registry, not hardcoded constants.
+"""
 
 import os
 from pathlib import Path
@@ -14,424 +17,437 @@ import gradio as gr
 from pydantic import ValidationError
 
 from habit.cli_commands.commands.cmd_ml import run_kfold, run_ml
-from habit.core.machine_learning.config_schemas import MLConfig
+from habit.core.machine_learning.config_schemas import (
+    InputFileConfig,
+    MLConfig,
+    ModelConfig,
+    NormalizationConfig,
+    ResamplingConfig,
+    VisualizationConfig,
+)
+from habit.gui.job_controls import (
+    job_end_button_updates,
+    job_start_button_updates,
+    on_stop_job_click,
+)
+from habit.gui.path_picker import PathPickerRegistry
 from habit.gui.pipeline_runner import run_background_job
+from habit.gui.project.step_hooks import finalize_step_from_log, mark_step_running
+from habit.gui.schema_form import OverrideSpec, SchemaForm
+from habit.gui.schema_form.registry import get_model_choices, get_selector_choices
+from habit.gui.step_integration import register_project_path_fill
+from habit.gui.step_registry import register_step_paths
 from habit.gui.utils import (
     abs_path,
     extract_validation_msgs,
     load_config_yaml,
+    load_gui_draft,
     open_directory,
-    parse_comma_list,
+    render_console_log,
     save_config_yaml,
-    select_local_path,
+    save_gui_draft,
     translate_pydantic_error,
+    user_visible_path,
 )
+from habit.utils.docker_path_utils import display_path_value
 
-MODEL_CHOICES: List[str] = [
-    "LogisticRegression",
-    "RandomForest",
-    "SVM",
-    "XGBoost",
-    "GaussianNB",
-    "MultinomialNB",
-    "BernoulliNB",
-    "KNN",
-    "DecisionTree",
-    "AdaBoost",
-    "MLP",
-    "GradientBoosting",
-    "AutoGluonTabular",
-]
-
-SELECTOR_CHOICES: List[str] = [
-    "variance",
-    "correlation",
-    "statistical_test",
-    "vif",
-    "lasso",
-    "rfecv",
-    "mrmr",
-    "stepwise",
-    "anova",
-    "chi2",
-    "univariate_logistic",
-    "icc",
-]
-
-NORM_CHOICES: List[str] = [
-    "z_score",
-    "min_max",
-    "robust",
-    "max_abs",
-    "normalizer",
-    "quantile",
-    "power",
-]
-
-PLOT_TYPES: List[str] = ["roc", "dca", "calibration", "pr", "confusion", "shap"]
+# Plot type choices for visualization.plot_types override.
+_PLOT_TYPES: List[str] = ["roc", "dca", "calibration", "pr", "confusion", "shap"]
 
 
-def render_ml_tab() -> None:
-    """Render ML train/predict and K-fold tab."""
-    gr.Markdown("Train or predict ML models on feature tables with feature selection and visualization.")
+def _build_selectors(
+    enabled: List[str],
+    corr_th: float,
+    var_th: float,
+    stat_p_th: float,
+    vif_max: float,
+    rs: int,
+) -> List[Dict[str, Any]]:
+    """Build feature_selection_methods list from GUI checkbox + params."""
+    methods: List[Dict[str, Any]] = []
+    if "variance" in enabled:
+        methods.append({
+            "method": "variance",
+            "params": {"threshold": var_th, "plot_variances": True, "before_z_score": True},
+        })
+    if "correlation" in enabled:
+        methods.append({
+            "method": "correlation",
+            "params": {"threshold": corr_th, "method": "spearman", "visualize": False, "before_z_score": False},
+        })
+    if "statistical_test" in enabled:
+        methods.append({
+            "method": "statistical_test",
+            "params": {
+                "p_threshold": stat_p_th,
+                "normality_test_threshold": 0.05,
+                "plot_importance": True,
+                "before_z_score": False,
+            },
+        })
+        methods.append({
+            "method": "vif",
+            "params": {"max_vif": int(vif_max), "visualize": False, "before_z_score": False},
+        })
+    for name in enabled:
+        if name in {"lasso", "rfecv", "mrmr", "stepwise", "anova", "chi2", "univariate_logistic", "icc"}:
+            methods.append({"method": name, "params": {"random_state": rs}})
+    return methods
 
+
+def _build_models(selected: List[str], rs: int) -> Dict[str, Any]:
+    """Build models dict from GUI checkbox selection."""
+    defaults: Dict[str, Dict[str, Any]] = {
+        "LogisticRegression": {"random_state": rs, "max_iter": 1000, "C": 1.0, "penalty": "l2"},
+        "RandomForest": {"random_state": rs, "n_estimators": 100, "max_features": "sqrt", "class_weight": "balanced"},
+        "SVM": {"random_state": rs, "C": 1.0, "kernel": "rbf", "probability": True},
+        "XGBoost": {"random_state": rs, "n_estimators": 100, "max_depth": 3, "learning_rate": 0.1, "objective": "binary:logistic"},
+        "GaussianNB": {"var_smoothing": 1e-9},
+        "KNN": {"n_neighbors": 5},
+        "DecisionTree": {"random_state": rs, "max_depth": 5},
+        "AdaBoost": {"random_state": rs, "n_estimators": 50},
+        "MLP": {"random_state": rs, "max_iter": 500},
+        "GradientBoosting": {"random_state": rs, "n_estimators": 100},
+        "MultinomialNB": {},
+        "BernoulliNB": {},
+        "AutoGluonTabular": {"random_state": rs, "time_limit": 120},
+    }
+    return {m: {"params": defaults.get(m, {"random_state": rs})} for m in selected}
+
+
+def render_ml_tab(
+    demo=None,
+    path_picker: PathPickerRegistry | None = None,
+    project_root_state: Any | None = None,
+) -> None:
+    """Render ML train/predict and K-fold tab — fully schema-driven."""
+    picker = path_picker if path_picker is not None else PathPickerRegistry()
+    gr.Markdown(
+        "**Step 5 — Machine Learning:** Train or apply models on feature tables "
+        "with optional feature selection and evaluation plots."
+    )
+
+    # --- Quick presets (convenience layer, not schema-driven) ---
+    with gr.Accordion("Quick start (clinical defaults)", open=True):
+        gr.Markdown(
+            "Use **Fill paths from project** then select **LogisticRegression** with "
+            "**correlation** feature selection for a standard binary classification workflow."
+        )
+        quick_models = gr.CheckboxGroup(
+            label="Quick model selection",
+            choices=["LogisticRegression", "RandomForest", "SVM"],
+            value=["LogisticRegression"],
+        )
+        apply_ml_quick_btn = gr.Button("Apply quick ML preset", size="sm")
+
+    # --- YAML load ---
     with gr.Row():
         existing_yaml = gr.Textbox(label="Load existing ML YAML (optional)", scale=4)
         browse_cfg_btn = gr.Button("Browse config", scale=1)
+    picker.add(browse_cfg_btn, existing_yaml, pick="file")
 
+    # Workflow type is a GUI convenience (not in MLConfig schema).
     workflow_type = gr.Radio(
         label="Workflow",
         choices=["Holdout train/predict", "K-Fold cross-validation"],
         value="Holdout train/predict",
     )
-    run_mode = gr.Dropdown(label="run_mode", choices=["train", "predict"], value="train")
 
-    with gr.Group():
-        gr.Markdown("### 1. Data input")
-        with gr.Row():
-            csv_path = gr.Textbox(label="input[0].path (CSV/Excel) *", scale=4)
-            csv_btn = gr.Button("Browse", scale=1)
-        with gr.Row():
-            input_name = gr.Textbox(label="input[0].name", value="gui_")
-            subject_id_col = gr.Textbox(label="subject_id_col *", value="Subject")
-            label_col = gr.Textbox(label="label_col *", value="label")
-        features_cols = gr.Textbox(label="input[0].features (comma-separated; empty=all)", value="")
-        split_col = gr.Textbox(label="input[0].split_col (optional)", value="")
+    # === Main form: simple MLConfig fields ===
+    main_form = SchemaForm.build(
+        MLConfig,
+        exclude={"input", "normalization", "resampling",
+                 "feature_selection_methods", "models", "visualization"},
+        group_order=["Mode", "Data", "Split", "Output", "Predict", "Advanced"],
+        open_groups={"Mode", "Data", "Split"},
+        path_picker=picker,
+    )
 
-    with gr.Row():
-        output_dir = gr.Textbox(label="output *", scale=4)
-        out_btn = gr.Button("Browse", scale=1)
+    # === Data input sub-form (InputFileConfig) ===
+    input_form = SchemaForm.build(
+        InputFileConfig,
+        exclude={"features_from_log", "pred_col"},
+        group_order=["General"],
+        open_groups={"General"},
+        path_picker=picker,
+        overrides={
+            "path": OverrideSpec(label="Feature table (CSV/Excel) *"),
+            "name": OverrideSpec(label="Feature name prefix", value="gui_"),
+            "subject_id_col": OverrideSpec(label="Subject ID column *", value="Subject"),
+            "label_col": OverrideSpec(label="Label column *", value="label"),
+            "features": OverrideSpec(label="Feature columns (comma-separated; empty = all)"),
+            "split_col": OverrideSpec(label="Split column (optional)"),
+        },
+    )
 
-    with gr.Row(visible=False) as pipe_row:
-        pipeline_path = gr.Textbox(label="pipeline_path * (predict)", scale=4)
-        pipe_btn = gr.Button("Browse", scale=1)
+    # === Normalization sub-form ===
+    norm_form = SchemaForm.build(
+        NormalizationConfig,
+        group_order=["General"],
+        open_groups={"General"},
+    )
 
-    with gr.Group(visible=True) as train_box:
-        gr.Markdown("### 2. Train / CV settings")
-        with gr.Row():
-            split_method = gr.Dropdown(
-                label="split_method",
-                choices=["stratified", "random", "custom"],
-                value="stratified",
-            )
-            test_size = gr.Number(label="test_size", value=0.3, minimum=0.05, maximum=0.95)
-            n_splits = gr.Number(label="n_splits (K-Fold)", value=5, minimum=2, maximum=20, step=1)
-        with gr.Row():
-            random_state = gr.Number(label="random_state", value=42, precision=0)
-            stratified = gr.Checkbox(label="stratified (K-Fold)", value=True)
-        with gr.Row(visible=False) as custom_split_row:
-            train_ids_file = gr.Textbox(label="train_ids_file *", scale=4)
-            train_ids_btn = gr.Button("Browse", scale=1)
-            test_ids_file = gr.Textbox(label="test_ids_file *", scale=4)
-            test_ids_btn = gr.Button("Browse", scale=1)
+    # === Resampling sub-form ===
+    res_form = SchemaForm.build(
+        ResamplingConfig,
+        group_order=["General"],
+        open_groups={"General"},
+    )
 
-        gr.Markdown("### 3. Normalization and resampling")
-        with gr.Row():
-            norm_method = gr.Dropdown(label="normalization.method", choices=NORM_CHOICES, value="z_score")
-            resampling_enabled = gr.Checkbox(label="resampling.enabled", value=False)
-        with gr.Row():
-            resampling_method = gr.Dropdown(
-                label="resampling.method",
-                choices=["random_over", "random_under", "smote"],
-                value="random_over",
-            )
-            resampling_position = gr.Dropdown(
-                label="resampling.position",
-                choices=[
-                    "before_feature_selection",
-                    "before_normalization",
-                    "after_normalization",
-                    "before_model",
-                ],
-                value="before_model",
-            )
-            resampling_ratio = gr.Number(label="resampling.ratio", value=1.0, minimum=0.1, maximum=1.0)
-
-        gr.Markdown("### 4. Feature selection (sequential)")
-        enabled_selectors = gr.CheckboxGroup(label="feature_selection_methods", choices=SELECTOR_CHOICES, value=[])
+    # === Feature selection (checkbox + params) ===
+    with gr.Accordion("Feature selection (sequential)", open=False):
+        enabled_selectors = gr.CheckboxGroup(
+            label="feature_selection_methods",
+            choices=get_selector_choices(),
+            value=[],
+        )
         with gr.Row():
             corr_threshold = gr.Number(label="correlation.threshold", value=0.8)
             var_threshold = gr.Number(label="variance.threshold", value=0.01)
             stat_p = gr.Number(label="statistical_test.p_threshold", value=0.05)
             max_vif = gr.Number(label="vif.max_vif", value=10, precision=0)
 
-        gr.Markdown("### 5. Models")
-        selected_models = gr.CheckboxGroup(label="models *", choices=MODEL_CHOICES, value=["LogisticRegression"])
-
-        gr.Markdown("### 6. Output flags")
-        with gr.Row():
-            is_visualize = gr.Checkbox(label="is_visualize", value=True)
-            is_save_model = gr.Checkbox(label="is_save_model", value=True)
-        plot_types = gr.CheckboxGroup(label="visualization.plot_types", choices=PLOT_TYPES, value=PLOT_TYPES)
-        with gr.Row():
-            plot_dpi = gr.Number(label="visualization.dpi", value=300, precision=0)
-            plot_format = gr.Dropdown(label="visualization.format", choices=["png", "pdf"], value="png")
-
-    with gr.Accordion("Predict-mode options", open=False):
-        evaluate = gr.Checkbox(label="evaluate", value=False)
-        output_label_col = gr.Textbox(label="output_label_col", value="predicted_label")
-        output_prob_col = gr.Textbox(label="output_prob_col", value="predicted_probability")
-        binary_pos_idx = gr.Number(label="binary_positive_class_index", value=1, precision=0)
-
-    submit_btn = gr.Button("Validate and run ML workflow", variant="primary")
-    log_output = gr.Textbox(label="Console log", lines=18, interactive=False)
-    open_dir_btn = gr.Button("Open output folder", visible=False)
-
-    def on_workflow(wf: str) -> tuple:
-        is_kfold = "K-Fold" in wf
-        return (
-            gr.update(value="train" if is_kfold else "train"),
-            gr.update(interactive=not is_kfold),
+    # === Models (dynamic from registry) ===
+    with gr.Accordion("Models", open=True):
+        selected_models = gr.CheckboxGroup(
+            label="models *",
+            choices=get_model_choices(),
+            value=["LogisticRegression"],
         )
 
-    workflow_type.change(on_workflow, inputs=workflow_type, outputs=[run_mode, run_mode])
+    # === Visualization sub-form (plot_types override → CheckboxGroup) ===
+    vis_form = SchemaForm.build(
+        VisualizationConfig,
+        group_order=["General"],
+        open_groups={"General"},
+        overrides={
+            "plot_types": OverrideSpec(choices=_PLOT_TYPES),
+        },
+    )
 
-    def on_run_mode(mode: str) -> Dict[str, Any]:
-        return gr.update(visible=mode == "predict")
+    # Wire conditional visibility (run_mode → predict fields).
+    main_form.wire_visibility()
 
-    run_mode.change(on_run_mode, inputs=run_mode, outputs=pipe_row)
+    # --- Submit / stop / log ---
+    with gr.Row():
+        submit_btn = gr.Button("Validate and run ML workflow", variant="primary")
+        stop_btn = gr.Button("Stop", interactive=False)
+    log_output = render_console_log(lines=18, elem_id="habit-log-ml")
+    open_dir_btn = gr.Button("Open output folder", visible=False)
 
-    def on_split_method(method: str) -> Dict[str, Any]:
-        return gr.update(visible=method == "custom")
+    # --- Helper: build flat inputs list for events ---
+    # Order: [project_root, workflow_type, *main, *input, *norm, *res,
+    #         selectors+params, models, *vis]
+    def _all_inputs() -> list:
+        result = (
+            [project_root_state, workflow_type]
+            + main_form.inputs()
+            + input_form.inputs()
+            + norm_form.inputs()
+            + res_form.inputs()
+            + [enabled_selectors, corr_threshold, var_threshold, stat_p, max_vif]
+            + [selected_models]
+            + vis_form.inputs()
+        )
+        return [r for r in result if r is not None]
 
-    split_method.change(on_split_method, inputs=split_method, outputs=custom_split_row)
-
-    def browse_file() -> Any:
-        p = select_local_path("file", "Select file")
-        return p if p else gr.update()
-
-    def browse_folder() -> Any:
-        p = select_local_path("folder", "Select folder")
-        return p if p else gr.update()
-
-    browse_cfg_btn.click(browse_file, outputs=existing_yaml)
-    csv_btn.click(browse_file, outputs=csv_path)
-    out_btn.click(browse_folder, outputs=output_dir)
-    pipe_btn.click(browse_file, outputs=pipeline_path)
-    train_ids_btn.click(browse_file, outputs=train_ids_file)
-    test_ids_btn.click(browse_file, outputs=test_ids_file)
-
-    def load_yaml(path: str) -> List[Any]:
-        noop = gr.update()
-        if not path or not os.path.exists(path):
-            return [noop] * 36
-        loaded = load_config_yaml(path)
-        if not loaded:
-            return [noop] * 36
-        inp = (loaded.get("input") or [{}])[0]
-        is_kfold = "n_splits" in loaded and loaded.get("split_method") != "custom"
-        wf = "K-Fold cross-validation" if is_kfold else "Holdout train/predict"
-        norm = loaded.get("normalization", {}) or {}
-        res = loaded.get("resampling", {}) or {}
-        fsm = loaded.get("feature_selection_methods", []) or []
-        enabled = [x.get("method") for x in fsm if isinstance(x, dict)]
-        models = list((loaded.get("models") or {}).keys())
-        vis = loaded.get("visualization", {}) or {}
-        corr_p = next((x.get("params", {}) for x in fsm if x.get("method") == "correlation"), {})
-        var_p = next((x.get("params", {}) for x in fsm if x.get("method") == "variance"), {})
-        stat_p = next((x.get("params", {}) for x in fsm if x.get("method") == "statistical_test"), {})
-        vif_p = next((x.get("params", {}) for x in fsm if x.get("method") == "vif"), {})
-        feats = inp.get("features")
+    # --- Workflow type → run_mode联动 ---
+    def on_workflow(wf: str) -> list:
+        is_kfold = "K-Fold" in wf
+        run_mode_w = main_form.widget("run_mode")
         return [
-            wf,
-            loaded.get("run_mode", "train"),
-            inp.get("path", ""),
-            inp.get("name", "gui_"),
-            inp.get("subject_id_col", "Subject"),
-            inp.get("label_col", "label"),
-            ", ".join(feats) if feats else "",
-            inp.get("split_col", "") or "",
-            loaded.get("output", ""),
-            loaded.get("pipeline_path", "") or "",
-            loaded.get("split_method", "stratified"),
-            float(loaded.get("test_size", 0.3)),
-            int(loaded.get("n_splits", 5)),
-            int(loaded.get("random_state", 42)),
-            loaded.get("stratified", True),
-            loaded.get("train_ids_file", "") or "",
-            loaded.get("test_ids_file", "") or "",
-            norm.get("method", "z_score"),
-            res.get("enabled", False),
-            res.get("method", "random_over"),
-            res.get("position", "before_model"),
-            float(res.get("ratio", 1.0)),
-            enabled,
-            float(corr_p.get("threshold", 0.8)),
-            float(var_p.get("threshold", 0.01)),
-            float(stat_p.get("p_threshold", 0.05)),
-            int(vif_p.get("max_vif", 10)),
-            models or ["LogisticRegression"],
-            loaded.get("is_visualize", True),
-            loaded.get("is_save_model", True),
-            vis.get("plot_types", PLOT_TYPES),
-            int(vis.get("dpi", 300)),
-            vis.get("format", "png"),
-            loaded.get("evaluate", False),
-            loaded.get("output_label_col", "predicted_label"),
-            loaded.get("output_prob_col", "predicted_probability"),
-            int(loaded.get("binary_positive_class_index", 1)),
+            gr.update(value="train"),
+            gr.update(interactive=not is_kfold),
         ]
 
-    load_outputs = [
-        workflow_type, run_mode, csv_path, input_name, subject_id_col, label_col,
-        features_cols, split_col, output_dir, pipeline_path,
-        split_method, test_size, n_splits, random_state, stratified,
-        train_ids_file, test_ids_file,
-        norm_method, resampling_enabled, resampling_method, resampling_position, resampling_ratio,
-        enabled_selectors, corr_threshold, var_threshold, stat_p, max_vif,
-        selected_models, is_visualize, is_save_model, plot_types, plot_dpi, plot_format,
-        evaluate, output_label_col, output_prob_col, binary_pos_idx,
-    ]
-    existing_yaml.change(load_yaml, inputs=existing_yaml, outputs=load_outputs)
+    workflow_type.change(
+        on_workflow,
+        inputs=workflow_type,
+        outputs=[main_form.widget("run_mode"), main_form.widget("run_mode")],
+    )
 
-    def _build_selectors(
-        enabled: List[str],
-        corr_th: float,
-        var_th: float,
-        stat_p_th: float,
-        vif_max: float,
-        rs: int,
-    ) -> List[Dict[str, Any]]:
-        methods: List[Dict[str, Any]] = []
-        if "variance" in enabled:
-            methods.append({
-                "method": "variance",
-                "params": {"threshold": var_th, "plot_variances": True, "before_z_score": True},
-            })
-        if "correlation" in enabled:
-            methods.append({
-                "method": "correlation",
-                "params": {"threshold": corr_th, "method": "spearman", "visualize": False, "before_z_score": False},
-            })
-        if "statistical_test" in enabled:
-            methods.append({
-                "method": "statistical_test",
-                "params": {
-                    "p_threshold": stat_p_th,
-                    "normality_test_threshold": 0.05,
-                    "plot_importance": True,
-                    "before_z_score": False,
-                },
-            })
-        if "vif" in enabled:
-            methods.append({
-                "method": "vif",
-                "params": {"max_vif": int(vif_max), "visualize": False, "before_z_score": False},
-            })
-        for name in enabled:
-            if name in {"lasso", "rfecv", "mrmr", "stepwise", "anova", "chi2", "univariate_logistic", "icc"}:
-                methods.append({"method": name, "params": {"random_state": rs}})
-        return methods
+    # --- Quick preset ---
+    def _apply_quick(models: list) -> list:
+        return [
+            gr.update(value="Holdout train/predict"),
+            gr.update(value="train"),
+            gr.update(value=["correlation"]),
+            gr.update(value=list(models or ["LogisticRegression"])),
+            gr.update(value=["roc", "calibration", "dca"]),
+        ]
 
-    def _build_models(selected: List[str], rs: int) -> Dict[str, Any]:
-        defaults: Dict[str, Dict[str, Any]] = {
-            "LogisticRegression": {"random_state": rs, "max_iter": 1000, "C": 1.0, "penalty": "l2"},
-            "RandomForest": {"random_state": rs, "n_estimators": 100, "max_features": "sqrt", "class_weight": "balanced"},
-            "SVM": {"random_state": rs, "C": 1.0, "kernel": "rbf", "probability": True},
-            "XGBoost": {"random_state": rs, "n_estimators": 100, "max_depth": 3, "learning_rate": 0.1, "objective": "binary:logistic"},
-            "GaussianNB": {"var_smoothing": 1e-9},
-            "KNN": {"n_neighbors": 5},
-            "DecisionTree": {"random_state": rs, "max_depth": 5},
-            "AdaBoost": {"random_state": rs, "n_estimators": 50},
-            "MLP": {"random_state": rs, "max_iter": 500},
-            "GradientBoosting": {"random_state": rs, "n_estimators": 100},
-            "MultinomialNB": {},
-            "BernoulliNB": {},
-            "AutoGluonTabular": {"random_state": rs, "time_limit": 120},
-        }
-        return {m: {"params": defaults.get(m, {"random_state": rs})} for m in selected}
+    apply_ml_quick_btn.click(
+        _apply_quick,
+        inputs=[quick_models],
+        outputs=[
+            workflow_type,
+            main_form.widget("run_mode"),
+            enabled_selectors,
+            selected_models,
+            vis_form.widget("plot_types"),
+        ],
+    )
 
+    # --- Load YAML ---
+    def load_yaml(path: str) -> list:
+        noop = gr.update()
+        n_total = len(_all_inputs()) - 2  # minus project_root + workflow_type
+        resolved = abs_path(path) if path and str(path).strip() else ""
+        if not resolved or not os.path.exists(resolved):
+            return [noop] * n_total
+
+        loaded = load_config_yaml(resolved)
+        if not loaded:
+            return [noop] * n_total
+
+        # Workflow type inference
+        is_kfold = "n_splits" in loaded and loaded.get("split_method") != "custom"
+        wf = "K-Fold cross-validation" if is_kfold else "Holdout train/predict"
+
+        # Main form
+        main_vals = main_form.populate(loaded)
+
+        # Input form
+        inp = (loaded.get("input") or [{}])[0]
+        input_vals = input_form.populate(inp)
+
+        # Normalization
+        norm_vals = norm_form.populate(loaded.get("normalization", {}))
+
+        # Resampling
+        res_vals = res_form.populate(loaded.get("resampling", {}))
+
+        # Feature selection
+        fsm = loaded.get("feature_selection_methods", []) or []
+        enabled = [x.get("method") for x in fsm if isinstance(x, dict)]
+        corr_p = next((x.get("params", {}) for x in fsm if x.get("method") == "correlation"), {})
+        var_p = next((x.get("params", {}) for x in fsm if x.get("method") == "variance"), {})
+        stat_p_d = next((x.get("params", {}) for x in fsm if x.get("method") == "statistical_test"), {})
+        vif_p = next((x.get("params", {}) for x in fsm if x.get("method") == "vif"), {})
+
+        # Models
+        models = list((loaded.get("models") or {}).keys())
+
+        # Visualization
+        vis_vals = vis_form.populate(loaded.get("visualization", {}))
+
+        # Return: main + input + norm + res + [sel, corr, var, stat, vif] + models + vis
+        return (
+            main_vals + input_vals + norm_vals + res_vals
+            + [enabled,
+               float(corr_p.get("threshold", 0.8)),
+               float(var_p.get("threshold", 0.01)),
+               float(stat_p_d.get("p_threshold", 0.05)),
+               int(vif_p.get("max_vif", 10)),
+               models or ["LogisticRegression"]]
+            + vis_vals
+        )
+
+    _load_outputs = (
+        main_form.outputs()
+        + input_form.outputs()
+        + norm_form.outputs()
+        + res_form.outputs()
+        + [enabled_selectors, corr_threshold, var_threshold, stat_p, max_vif]
+        + [selected_models]
+        + vis_form.outputs()
+    )
+    existing_yaml.change(load_yaml, inputs=existing_yaml, outputs=_load_outputs)
+
+    # --- Run handler ---
     def run_ml_pipeline(*args: Any):
-        (
-            wf, mode, csv_p, in_name, subj_col, lbl_col, feat_cols, split_c, out_p, pipe_p,
-            split_m, test_sz, n_spl, rs, strat,
-            train_ids, test_ids,
-            norm_m, res_en, res_method, res_pos, res_ratio,
-            sel_enabled, corr_th, var_th, stat_p_th, vif_max,
-            models_sel, vis_en, save_m, plots, dpi, fmt,
-            eval_en, out_lbl, out_prob, bin_pos,
-        ) = args
+        # Parse positional args
+        idx = 0
+        project_root = args[idx]; idx += 1
+        wf = args[idx]; idx += 1
+
+        main_vals = args[idx:idx + len(main_form.inputs())]; idx += len(main_form.inputs())
+        input_vals = args[idx:idx + len(input_form.inputs())]; idx += len(input_form.inputs())
+        norm_vals = args[idx:idx + len(norm_form.inputs())]; idx += len(norm_form.inputs())
+        res_vals = args[idx:idx + len(res_form.inputs())]; idx += len(res_form.inputs())
+        sel_enabled = args[idx]; idx += 1
+        corr_th = args[idx]; idx += 1
+        var_th = args[idx]; idx += 1
+        stat_p_th = args[idx]; idx += 1
+        vif_max = args[idx]; idx += 1
+        models_sel = args[idx]; idx += 1
+        vis_vals = args[idx:idx + len(vis_form.inputs())]; idx += len(vis_form.inputs())
 
         is_kfold = "K-Fold" in wf
-        if not csv_p or not out_p:
-            yield "❌ input path and output are required.", gr.update(visible=False)
-            return
-        if mode == "predict" and not pipe_p:
-            yield "❌ pipeline_path is required in predict mode.", gr.update(visible=False)
-            return
-        if split_m == "custom" and (not train_ids or not test_ids):
-            yield "❌ train_ids_file and test_ids_file are required for custom split.", gr.update(visible=False)
+
+        # Collect main form values
+        config_data = main_form.collect(*main_vals)
+
+        # Collect input form → build input list
+        input_data = input_form.collect(*input_vals)
+        csv_p = input_data.get("path", "")
+        if not csv_p:
+            yield "✗ input path is required.", gr.update(visible=False)
             return
 
-        # Resolve relative paths to absolute before building config.
-        csv_p_abs = abs_path(csv_p)
+        # Resolve relative paths
+        input_data["path"] = abs_path(csv_p)
+        out_p = config_data.get("output", "")
+        if not out_p:
+            yield "✗ output is required.", gr.update(visible=False)
+            return
         out_p_abs = abs_path(out_p)
-        pipe_p_abs = abs_path(pipe_p) if pipe_p and pipe_p.strip() else pipe_p
-        train_ids_abs = abs_path(train_ids) if train_ids and train_ids.strip() else train_ids
-        test_ids_abs = abs_path(test_ids) if test_ids and test_ids.strip() else test_ids
+        config_data["output"] = out_p_abs
 
-        input_entry: Dict[str, Any] = {
-            "path": csv_p_abs,
-            "name": in_name,
-            "subject_id_col": subj_col,
-            "label_col": lbl_col,
-        }
-        feats = parse_comma_list(feat_cols)
-        if feats:
-            input_entry["features"] = feats
-        if split_c.strip():
-            input_entry["split_col"] = split_c.strip()
+        config_data["input"] = [input_data]
 
-        config_data: Dict[str, Any] = {
-            "run_mode": "train" if is_kfold else mode,
-            "pipeline_path": pipe_p_abs if mode == "predict" and not is_kfold else None,
-            "input": [input_entry],
-            "output": out_p_abs,
-            "random_state": int(rs),
-            "is_visualize": vis_en,
-            "is_save_model": save_m,
-            "visualization": {
-                "enabled": vis_en,
-                "plot_types": list(plots or PLOT_TYPES),
-                "dpi": int(dpi),
-                "format": fmt,
-            },
-            "evaluate": eval_en,
-            "output_label_col": out_lbl,
-            "output_prob_col": out_prob,
-            "binary_positive_class_index": int(bin_pos),
-        }
-
-        if is_kfold or mode == "train":
-            if not models_sel:
-                yield "❌ Select at least one model for training.", gr.update(visible=False)
+        # Pipeline path (predict mode)
+        mode = config_data.get("run_mode", "train")
+        pipe_p = config_data.get("pipeline_path", "")
+        if mode == "predict" and not is_kfold:
+            if not pipe_p or not str(pipe_p).strip():
+                yield "✗ pipeline_path is required in predict mode.", gr.update(visible=False)
                 return
-            config_data.update({
-                "split_method": split_m if not is_kfold else "stratified",
-                "test_size": float(test_sz),
-                "n_splits": int(n_spl),
-                "stratified": strat,
-                "train_ids_file": train_ids_abs if split_m == "custom" else None,
-                "test_ids_file": test_ids_abs if split_m == "custom" else None,
-                "normalization": {"method": norm_m, "params": {}},
-                "resampling": {
-                    "enabled": res_en,
-                    "method": res_method,
-                    "position": res_pos,
-                    "ratio": float(res_ratio),
-                    "random_state": int(rs),
-                },
-                "feature_selection_methods": _build_selectors(
-                    list(sel_enabled or []), float(corr_th), float(var_th), float(stat_p_th), float(vif_max), int(rs)
-                ),
-                "models": _build_models(list(models_sel), int(rs)),
-            })
+            config_data["pipeline_path"] = abs_path(pipe_p)
+        else:
+            config_data["pipeline_path"] = None
+
+        # Train-only fields
+        if is_kfold or mode == "train":
+            rs = int(config_data.get("random_state", 42))
+            config_data["normalization"] = norm_form.collect(*norm_vals)
+            config_data["resampling"] = res_form.collect(*res_vals)
+            config_data["feature_selection_methods"] = _build_selectors(
+                list(sel_enabled or []), float(corr_th), float(var_th),
+                float(stat_p_th), float(vif_max), rs,
+            )
+            if not models_sel:
+                yield "✗ Select at least one model for training.", gr.update(visible=False)
+                return
+            config_data["models"] = _build_models(list(models_sel), rs)
+
+            # Custom split paths
+            split_m = config_data.get("split_method", "stratified")
+            if split_m == "custom":
+                train_ids = config_data.get("train_ids_file", "")
+                test_ids = config_data.get("test_ids_file", "")
+                if not train_ids or not test_ids:
+                    yield "✗ train_ids_file and test_ids_file are required for custom split.", gr.update(visible=False)
+                    return
+                config_data["train_ids_file"] = abs_path(train_ids)
+                config_data["test_ids_file"] = abs_path(test_ids)
+            else:
+                config_data["train_ids_file"] = None
+                config_data["test_ids_file"] = None
+
+            # K-Fold forces stratified
+            if is_kfold:
+                config_data["split_method"] = "stratified"
+
+        # Visualization
+        config_data["visualization"] = vis_form.collect(*vis_vals)
 
         try:
             MLConfig(**config_data)
             os.makedirs(out_p_abs, exist_ok=True)
             gui_path = str(Path(out_p_abs) / "config_ml_gui.yaml")
             save_config_yaml(config_data, gui_path)
+            save_gui_draft("ml", gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running ML...", gr.update(visible=False)
 
             if is_kfold:
@@ -441,20 +457,57 @@ def render_ml_tab() -> None:
                 job = lambda: run_ml(config_path=gui_path, mode=mode)
                 ml_log_name = "prediction.log" if mode == "predict" else "processing.log"
 
-            for log_text in run_background_job(
-                job,
-                log_file=Path(out_p_abs) / ml_log_name,
-            ):
+            last_log = ""
+            for log_text in run_background_job(job, log_file=Path(out_p_abs) / ml_log_name):
+                last_log = log_text
                 yield log_text, gr.update(visible=True)
+            finalize_step_from_log(
+                str(project_root) if project_root else "",
+                "ml", last_log, config_path=gui_path, output_dir=out_p_abs,
+            )
         except ValidationError as err:
             msgs = translate_pydantic_error(err)
             yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in msgs), gr.update(visible=False)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             val_msgs = extract_validation_msgs(exc)
             if val_msgs:
                 yield "⚠️ Validation errors:\n" + "\n".join(f"- {m}" for m in val_msgs), gr.update(visible=False)
             else:
-                yield f"❌ Failed: {exc}", gr.update(visible=False)
+                yield f"✗ Failed: {exc}", gr.update(visible=False)
 
-    submit_btn.click(run_ml_pipeline, inputs=load_outputs, outputs=[log_output, open_dir_btn])
-    open_dir_btn.click(lambda p: open_directory(p), inputs=output_dir)
+    submit_btn.click(
+        job_start_button_updates,
+        outputs=[submit_btn, stop_btn],
+    ).then(
+        run_ml_pipeline,
+        inputs=_all_inputs(),
+        outputs=[log_output, open_dir_btn],
+    ).then(
+        job_end_button_updates,
+        outputs=[submit_btn, stop_btn],
+    )
+    stop_btn.click(on_stop_job_click, inputs=[], outputs=[])
+    open_dir_btn.click(lambda p: open_directory(p), inputs=main_form.widget("output"))
+
+    # --- Step integration ---
+    if project_root_state is not None:
+        register_step_paths(
+            "ml",
+            ["csv_path", "output_dir", "pipeline_path"],
+            [input_form.widget("path"), main_form.widget("output"), main_form.widget("pipeline_path")],
+        )
+        register_project_path_fill(
+            project_root_state,
+            "ml",
+            ["csv_path", "output_dir", "pipeline_path"],
+            [input_form.widget("path"), main_form.widget("output"), main_form.widget("pipeline_path")],
+        )
+
+    picker.finalize()
+
+    # --- Restore draft YAML path on load ---
+    if demo is not None:
+        def _restore_ml_path() -> str:
+            draft = load_gui_draft("ml") or ""
+            return user_visible_path(draft) if draft else ""
+        demo.load(_restore_ml_path, inputs=[], outputs=[existing_yaml])

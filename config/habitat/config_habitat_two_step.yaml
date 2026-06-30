@@ -1,17 +1,20 @@
 # =============================================================================
-# Habitat â€?DEMO: two-step clustering on demo_data/preprocessed/processed_images
+# Habitat - DEMO: two-step clustering on demo_data/preprocessed/processed_images
 # =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_two_step.yaml
+# WSL:  habit get-habitat --config config/habitat/config_habitat_two_step_wsl.yaml
 #
-# Input: ../../demo_data/preprocessed/processed_images (subj001/subj002; delay2/3/5)
-# Output: ../../demo_data/results/habitat_two_step
+# Input:  demo_data/preprocessed/processed_images (subj001/subj002; delay2/3/5)
+# Output: demo_data/results/habitat_two_step
+#
+# Paths below use the Windows project root (adjust drive letter if your clone differs).
 # =============================================================================
 
 run_mode: train
 
 #%%================================================================================
-data_dir: ../../demo_data/preprocessed/processed_images
-out_dir: ../../demo_data/results/habitat_two_step
+data_dir: F:/work/habit_project_v1/demo_data/preprocessed/processed_images
+out_dir: F:/work/habit_project_v1/demo_data/results/habitat_two_step
 #%%================================================================================
 
 FeatureConstruction:

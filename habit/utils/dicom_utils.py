@@ -400,7 +400,7 @@ def get_one_dicom_per_folder(
                   1 = root + immediate subdirectories  
                   2 = root + 2 levels of subdirectories
                   None = unlimited depth, one DICOM per folder (default)
-                  Example: For structure root/patient/study/series/*.dcm,
+                  Example: For structure root/patient/study/series/ (``*.dcm``),
                   use max_depth=2 to get one DICOM per study (faster than
                   scanning all series folders).
         

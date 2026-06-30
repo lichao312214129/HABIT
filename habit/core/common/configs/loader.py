@@ -24,10 +24,37 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Union, Set, Tuple
 from copy import deepcopy
 
+from habit.utils.file_system_utils import convert_windows_path_to_native, is_windows_drive_path
+
 
 # -----------------------------------------------------------------------------
 # Configuration I/O Functions
 # -----------------------------------------------------------------------------
+
+_CONFIG_TEXT_ENCODINGS: Tuple[str, ...] = ("utf-8-sig", "utf-8", "gbk", "gb2312")
+
+
+def _read_config_text(config_path: str) -> str:
+    """
+    Read a configuration file as text, trying common encodings used on Windows.
+
+    Args:
+        config_path: Path to the configuration file on disk.
+
+    Returns:
+        str: Decoded file contents.
+
+    Raises:
+        UnicodeDecodeError: If none of the supported encodings decode the file.
+    """
+    raw_bytes = Path(config_path).read_bytes()
+    for encoding in _CONFIG_TEXT_ENCODINGS:
+        try:
+            return raw_bytes.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw_bytes.decode("utf-8")
+
 
 def load_config(config_path: str, resolve_paths: bool = True) -> Dict[str, Any]:
     """
@@ -52,11 +79,9 @@ def load_config(config_path: str, resolve_paths: bool = True) -> Dict[str, Any]:
     _, ext = os.path.splitext(config_path)
     
     if ext.lower() in ['.yaml', '.yml']:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
+        config = yaml.safe_load(_read_config_text(config_path))
     elif ext.lower() == '.json':
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        config = json.loads(_read_config_text(config_path))
     else:
         raise ValueError(f"Unsupported configuration file format: {ext}")
     
@@ -365,6 +390,8 @@ class PathResolver:
         if not isinstance(path_value, str):
             return path_value
 
+        path_value = os.path.expanduser(path_value.strip())
+
         # Skip URLs and special paths
         if path_value.startswith(('http://', 'https://', 'ftp://', 's3://')):
             return path_value
@@ -372,6 +399,10 @@ class PathResolver:
         def _normalize(path: Path) -> str:
             """Collapse ``..`` / ``.`` and return a stable absolute path for logging."""
             return str(path.resolve(strict=False))
+
+        # Windows drive paths (F:/...) are not absolute on Linux/WSL; convert first.
+        if is_windows_drive_path(path_value):
+            return _normalize(Path(convert_windows_path_to_native(path_value)))
 
         # Already absolute: still normalize (e.g. strip ``config/../demo_data`` segments)
         if os.path.isabs(path_value):

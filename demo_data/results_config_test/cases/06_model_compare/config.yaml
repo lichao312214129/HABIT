@@ -1,0 +1,52 @@
+output_dir: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/06_model_compare/outputs
+files_config:
+- path: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/01_ml_radiomics/outputs/all_prediction_results.csv
+  model_name: radiomics
+  subject_id_col: subject_id
+  label_col: label
+  prob_col: LogisticRegression_prob
+  pred_col: LogisticRegression_pred
+  split_col: dataset
+- path: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/02_ml_clinical/outputs/all_prediction_results.csv
+  model_name: clinical
+  subject_id_col: subject_id
+  label_col: label
+  prob_col: LogisticRegression_prob
+  pred_col: LogisticRegression_pred
+  split_col: dataset
+merged_data:
+  enabled: true
+  save_name: combined_predictions.csv
+split:
+  enabled: true
+visualization:
+  roc:
+    enabled: true
+    save_name: roc_curves.pdf
+    title: ROC Curves
+  dca:
+    enabled: true
+    save_name: decision_curves.pdf
+    title: Decision Curves
+  calibration:
+    enabled: true
+    save_name: calibration_curves.pdf
+    n_bins: 5
+    title: Calibration Curves
+  pr_curve:
+    enabled: true
+    save_name: precision_recall_curves.pdf
+    title: Precision-Recall Curves
+delong_test:
+  enabled: true
+  save_name: delong_results.json
+metrics:
+  basic_metrics:
+    enabled: true
+  youden_metrics:
+    enabled: true
+  target_metrics:
+    enabled: true
+    targets:
+      sensitivity: 0.91
+      specificity: 0.91

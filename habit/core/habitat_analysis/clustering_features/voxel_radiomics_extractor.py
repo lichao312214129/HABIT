@@ -156,24 +156,10 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
         Args:
             image_data: Path to image file or SimpleITK image object
             mask_data: Path to mask file or SimpleITK mask object
-            **kwargs: Additional parameters
-                subj: subject name
-                img_name: Name of the image to append to feature names
-                kernelRadius: Neighborhood radius in voxels for voxel-based extraction.
-                voxelBatch: Number of voxels per batch during voxel-based extraction.
-                    Default is 1000. Use -1 to process all ROI voxels at once (PyRadiomics
-                    native default). Lower values (e.g. 512) reduce peak memory on GPU or
-                    large ROIs.
-                useTorchRadiomics: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
-                    TorchRadiomics when torch and CUDA are available, otherwise CPU PyRadiomics.
-                torchDevice: Single torch device when ``torchGpus`` is not set (``auto``, ``cuda:0``, ``cpu``).
-                torchGpus: Allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``. Overrides ``torchDevice``.
-                torchGpuCount: Use at most this many GPUs from the front of ``torchGpus``.
-                gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
-                torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``;
-                    default ``float32``).
-                output_float32: If True, cast the returned DataFrame to float32 to halve
-                    downstream memory (may affect numerical parity vs float64).
+            **kwargs: Optional keys — ``subj``, ``img_name``, ``kernelRadius``,
+                ``voxelBatch``, ``useTorchRadiomics``, ``torchDevice``, ``torchGpus``,
+                ``torchGpuCount``, ``gpuSlotIndex``, ``torchDtype``, ``output_float32``.
+                See ``habit/utils/torch_radiomics_utils.py`` for backend resolution.
             
         Returns:
             pd.DataFrame: Extracted voxel-level radiomics features

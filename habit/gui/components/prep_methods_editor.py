@@ -74,6 +74,30 @@ METHOD_DEFAULTS: Dict[str, Dict[str, Any]] = {
 
 DROPPING_PREP_METHODS: frozenset[str] = frozenset({"variance_filter", "correlation_filter"})
 
+# Default preprocessing pipelines used by the habitat wizard presets.
+PREP_PRESET_MINIMAL: List[Dict[str, Any]] = [
+    copy.deepcopy(METHOD_DEFAULTS["minmax"]),
+]
+PREP_PRESET_STANDARD_SUBJECT: List[Dict[str, Any]] = [
+    copy.deepcopy(METHOD_DEFAULTS["winsorize"]),
+    copy.deepcopy(METHOD_DEFAULTS["minmax"]),
+]
+PREP_PRESET_STANDARD_GROUP: List[Dict[str, Any]] = [
+    {
+        "method": "binning",
+        "n_bins": 10,
+        "bin_strategy": "uniform",
+        "global_normalize": False,
+    },
+]
+PREP_PRESET_FULL_FILTERING_SUBJECT: List[Dict[str, Any]] = list(PREP_PRESET_STANDARD_SUBJECT)
+PREP_PRESET_FULL_FILTERING_GROUP: List[Dict[str, Any]] = [
+    copy.deepcopy(METHOD_DEFAULTS["winsorize"]),
+    copy.deepcopy(METHOD_DEFAULTS["variance_filter"]),
+    copy.deepcopy(METHOD_DEFAULTS["correlation_filter"]),
+    copy.deepcopy(METHOD_DEFAULTS["minmax"]),
+]
+
 
 def default_method_entry(method: str) -> Dict[str, Any]:
     """
@@ -526,6 +550,7 @@ def render_prep_methods_editor(
     section_title: str,
     default_methods: Sequence[Dict[str, Any]],
     allowed_methods: Optional[Sequence[str]] = None,
+    preset_methods: Optional[Dict[str, List[Dict[str, Any]]]] = None,
 ) -> PrepMethodsEditor:
     """
     Render a visible preprocessing pipeline editor inside the current Gradio context.
@@ -534,10 +559,12 @@ def render_prep_methods_editor(
         section_title: Markdown heading shown above the editor.
         default_methods: Initial ordered method list.
         allowed_methods: Keys shown in the add-method dropdown; defaults to all methods.
+        preset_methods: Optional named preset pipelines (reserved for wizard quick-apply).
 
     Returns:
         PrepMethodsEditor: Widget bundle with state and event wiring helpers.
     """
+    _ = preset_methods
     allowed = list(allowed_methods or ALL_PREP_METHODS)
     initial_methods = normalize_methods_list(list(default_methods))
 

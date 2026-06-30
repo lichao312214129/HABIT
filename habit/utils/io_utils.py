@@ -114,24 +114,9 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
         tuple: Dictionary of image paths and dictionary of mask paths
         
     Note:
-        If root_folder is a YAML file, it should contain the following structure:
-        ```yaml
-        images:
-          subject1:
-            image_type1: /path/to/image1
-            image_type2: /path/to/image2
-          subject2:
-            image_type1: /path/to/image1
-        masks:
-          subject1:
-            image_type1: /path/to/mask1
-            image_type2: /path/to/mask2
-          subject2:
-            image_type1: /path/to/mask1
-        
-        # Optional: control whether to automatically select first file in directory
-        auto_select_first_file: true  # or false
-        ```
+        If ``root_folder`` is a YAML file, it must contain ``images`` and ``masks``
+        dicts keyed by subject and modality. Optional key ``auto_select_first_file``
+        overrides the function argument when present.
     """
 
     # Check if input is a YAML configuration file

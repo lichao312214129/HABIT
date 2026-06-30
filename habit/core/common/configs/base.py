@@ -25,7 +25,7 @@ from abc import ABC
 from pathlib import Path
 from typing import Any, Dict, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 ConfigType = TypeVar('ConfigType', bound='BaseConfig')
 
@@ -47,13 +47,14 @@ class ConfigValidationError(Exception):
 
 
 class BaseConfig(BaseModel, ABC):
+    model_config = ConfigDict(
+        extra='forbid',
+        validate_assignment=True,
+        use_enum_values=True,
+    )
+
     config_file: Optional[str] = None
     config_version: Optional[str] = None
-
-    class Config:
-        extra = 'forbid'
-        validate_assignment = True
-        use_enum_values = True
 
     def __init__(self, **data: Any):
         try:

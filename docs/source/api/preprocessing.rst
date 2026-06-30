@@ -1,4 +1,4 @@
-preprocessing 模块
+preprocessing module
 ====================
 
 .. automodule:: habit.core.preprocessing
@@ -6,10 +6,10 @@ preprocessing 模块
    :undoc-members:
    :show-inheritance:
 
-核心处理流程 (Core Pipeline)
------------------------------
+Core pipeline
+-------------
 
-`BatchProcessor` 是预处理模块的核心入口，用于批量执行图像处理任务。
+``BatchProcessor`` is the main entry point for batch image processing.
 
 .. automodule:: habit.core.preprocessing.configurator
    :members:
@@ -21,16 +21,16 @@ preprocessing 模块
    :undoc-members:
    :show-inheritance:
 
-图像校正 (Correction)
-----------------------
+Correction
+----------
 
 .. automodule:: habit.core.preprocessing.n4_correction
    :members:
    :undoc-members:
    :show-inheritance:
 
-标准化与归一化 (Normalization)
--------------------------------
+Normalization
+-------------
 
 .. automodule:: habit.core.preprocessing.histogram_standardization
    :members:
@@ -47,8 +47,8 @@ preprocessing 模块
    :undoc-members:
    :show-inheritance:
 
-空间变换 (Spatial Transform)
------------------------------
+Spatial transform
+-----------------
 
 .. automodule:: habit.core.preprocessing.resample
    :members:
@@ -60,18 +60,18 @@ preprocessing 模块
    :undoc-members:
    :show-inheritance:
 
-格式转换 (Format Conversion)
------------------------------
+Format conversion
+-----------------
 
-DICOM **仅整理** （非 NIfTI 转换）：见独立包 :doc:`dicom_sort` 与 CLI ``habit sort-dicom``。
+DICOM **sort/rename only** (not NIfTI conversion): see :doc:`dicom_sort` and CLI ``habit sort-dicom``.
 
 .. automodule:: habit.core.preprocessing.dcm2niix_converter
    :members:
    :undoc-members:
    :show-inheritance:
 
-基类与工厂 (Base & Factory)
-----------------------------
+Base and factory
+----------------
 
 .. automodule:: habit.core.preprocessing.base_preprocessor
    :members:

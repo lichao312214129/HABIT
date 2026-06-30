@@ -16,14 +16,65 @@
 File system utilities for safe file operations, especially in Windows environments
 """
 import os
+import re
 import time
 import logging
 import shutil
 from pathlib import Path
 from typing import Union, Optional
+
+from habit.utils.browser_utils import is_wsl
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger(__name__)
+
+_WINDOWS_DRIVE_PATH = re.compile(r"^[A-Za-z]:[/\\]")
+
+
+def is_windows_drive_path(path_value: str) -> bool:
+    """
+    Return True when ``path_value`` looks like a Windows drive path (e.g. ``F:/data``).
+
+    Args:
+        path_value: Candidate path string from YAML or CLI.
+
+    Returns:
+        bool: True for ``C:/...`` or ``D:\\...`` style paths.
+    """
+    return isinstance(path_value, str) and bool(_WINDOWS_DRIVE_PATH.match(path_value.strip()))
+
+
+def convert_windows_path_to_native(path_value: str) -> str:
+    """
+    Convert a Windows drive path to an absolute path on the current platform.
+
+    Windows paths in YAML configs are convenient on the host OS but are treated as
+    relative strings on Linux/WSL unless converted explicitly.
+
+    Args:
+        path_value: Windows-style path such as ``F:/work/project/demo_data``.
+
+    Returns:
+        str: Native absolute path (``F:\\...`` on Windows, ``/mnt/f/...`` on WSL).
+    """
+    stripped = path_value.strip()
+    if not is_windows_drive_path(stripped):
+        return path_value
+
+    drive_letter = stripped[0].lower()
+    remainder = stripped[2:].lstrip("\\/")
+    remainder = remainder.replace("\\", "/")
+
+    if os.name == "nt":
+        # Use ``F:/...`` form; ``Path("F:")`` alone is drive-relative on Windows.
+        native_path = Path(f"{drive_letter.upper()}:/{remainder}")
+        return str(native_path.resolve(strict=False))
+
+    if is_wsl():
+        native_path = Path(f"/mnt/{drive_letter}") / Path(remainder)
+        return str(native_path.resolve(strict=False))
+
+    return stripped.replace("\\", "/")
 
 def safe_mkdir(path: Union[str, Path], exist_ok: bool = True) -> bool:
     """

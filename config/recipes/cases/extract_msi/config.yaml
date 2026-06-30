@@ -1,0 +1,32 @@
+raw_img_folder: /mnt/f/work/habit_project_v1/demo_data/preprocessed/processed_images
+habitats_map_folder: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/habitat_two_step_kmeans/outputs
+out_dir: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/extract_msi/outputs
+params_file_of_non_habitat: ../radiomics/parameter.yaml
+params_file_of_habitat: ../radiomics/parameter_habitat.yaml
+n_processes: 2
+habitat_pattern: '*_habitats.nrrd'
+feature_types:
+- msi
+n_habitats: null
+graph:
+  include_single_habitat_graph: true
+  include_pairwise_habitat_graph: true
+  edge_method: centroid_distance
+  distance_threshold: 5
+  adjacency_connectivity: face
+  adjacency_min_voxels: 1
+  edge_weight: none
+  min_region_voxels: 1
+  connectivity: face
+  erosion_radius: 1
+  subdivide_region_voxels: 1000
+  block_size: 5
+  block_min_coverage: 0.5
+  pairwise_include_intra_edges: true
+  include_extended_metrics: true
+  extended_min_nodes: 10
+  visualize: false
+  visualization_format: both
+  visualization_dpi: 600
+  visualization_show_background: true
+debug: false

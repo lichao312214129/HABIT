@@ -25,6 +25,7 @@ Multiprocessing note:
 
 from __future__ import annotations
 
+import os
 from typing import Any, Iterable, Optional
 
 from tqdm.auto import tqdm as _TqdmAuto
@@ -66,6 +67,10 @@ class CustomTqdm(_TqdmAuto):
             dynamic_ncols: If True, tqdm adjusts width to the terminal.
             **kwargs: Forwarded to tqdm (e.g. ``disable``, ``leave``, ``file``).
         """
+        # GUI jobs stream logs into a Gradio Textbox; fast tqdm refresh causes
+        # constant re-renders and scroll position jumps in the browser.
+        if os.environ.get("HABIT_GUI_JOB") == "1":
+            mininterval = max(mininterval, 1.5)
         super().__init__(
             iterable,
             total=total,

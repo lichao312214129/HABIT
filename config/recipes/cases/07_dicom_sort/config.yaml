@@ -1,0 +1,5 @@
+data_dir: /mnt/f/work/habit_project_v1/demo_data/dicom
+out_dir: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/07_dicom_sort/outputs
+dcm2niix_path: /usr/bin/dcm2niix
+f: subj_%n_%g_%x/%s_%d/%r_%o.dcm
+extra_args: []

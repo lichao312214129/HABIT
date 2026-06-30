@@ -183,23 +183,10 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             image_data: Path to image file or SimpleITK image object
             supervoxel_map: Path to supervoxel map file or SimpleITK image object
             config_file: Path to PyRadiomics parameter file (overrides the one in constructor)
-            **kwargs: Additional parameters
-                subject: Subject identifier for logging and GPU assignment.
-                image: Image/modality name appended to feature names.
-                useTorchRadiomics: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
-                    TorchRadiomics when torch and CUDA are available, otherwise CPU PyRadiomics.
-                torchDevice: Single torch device when ``torchGpus`` is not set.
-                torchGpus: Allowed GPU indices, e.g. ``[0, 1]`` or ``"0,1"``.
-                torchGpuCount: Use at most this many GPUs from the front of ``torchGpus``.
-                gpuSlotIndex: Optional explicit GPU slot index for parallel workers.
-                torchDtype: Torch dtype name for the torch backend (``float32`` or ``float64``).
-                supervoxelBatch: Supervoxels per batch group (union-mask binning path).
-                supervoxelUnionBboxCrop: Crop to union supervoxel bbox before extraction.
-                useSupervoxelCext: ``auto`` (default), ``true``, or ``false``. ``auto`` uses
-                    the habit C-extension batched matrix path when compiled; otherwise the
-                    prior Torch/PyRadiomics stacked-matrix path.
-                supervoxelPadDistance: Optional bbox pad override (voxels); else padDistance.
-                output_float32: If True, cast numeric feature columns to float32.
+            **kwargs: Optional keys — ``subject``, ``image``, ``useTorchRadiomics``,
+                ``torchDevice``, ``torchGpus``, ``torchGpuCount``, ``gpuSlotIndex``,
+                ``torchDtype``, ``supervoxelBatch``, ``supervoxelUnionBboxCrop``,
+                ``useSupervoxelCext``, ``supervoxelPadDistance``, ``output_float32``.
 
         Returns:
             pd.DataFrame: DataFrame with radiomics features for each supervoxel

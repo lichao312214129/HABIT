@@ -30,7 +30,7 @@ factory is actually called.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from habit.core.common.configurators.base import BaseConfigurator
 
@@ -39,6 +39,16 @@ class HabitatConfigurator(BaseConfigurator):
     """Factory for habitat analysis, feature extraction and reproducibility."""
 
     logger_name = 'habitat_configurator'
+
+    def __init__(
+        self,
+        config: Any,
+        logger: Optional[Any] = None,
+        output_dir: Optional[str] = None,
+        plugin_configs: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__(config=config, logger=logger, output_dir=output_dir)
+        self._plugin_configs: Dict[str, Any] = plugin_configs or {}
 
     def _get_habitat_config(self, config: Optional[Any] = None) -> Any:
         """
@@ -102,18 +112,25 @@ class HabitatConfigurator(BaseConfigurator):
         """Return a configured :class:`HabitatMapAnalyzer`."""
         from habit.core.habitat_analysis.habitat_features.habitat_analyzer import HabitatMapAnalyzer
         from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
+        from habit.core.habitat_analysis.feature_extraction_loader import (
+            parse_feature_extraction_config,
+            plugin_configs_for_feature_types,
+        )
 
         cfg = config if config is not None else self.config
+        plugin_configs = dict(self._plugin_configs)
         if isinstance(cfg, dict):
-            cfg = FeatureExtractionConfig.model_validate(cfg)
+            cfg, plugin_configs = parse_feature_extraction_config(cfg)
         elif not isinstance(cfg, FeatureExtractionConfig):
             try:
                 cfg_dict = cfg.to_dict() if hasattr(cfg, 'to_dict') else dict(cfg)
-                cfg = FeatureExtractionConfig.model_validate(cfg_dict)
+                cfg, plugin_configs = parse_feature_extraction_config(cfg_dict)
             except Exception as exc:
                 raise ValueError(
                     f"Invalid configuration for Feature Extraction: {exc}"
                 ) from exc
+        elif not plugin_configs:
+            plugin_configs = plugin_configs_for_feature_types(cfg.feature_types)
 
         return HabitatMapAnalyzer(
             params_file_of_non_habitat=str(cfg.params_file_of_non_habitat),
@@ -123,6 +140,7 @@ class HabitatConfigurator(BaseConfigurator):
             out_dir=str(cfg.out_dir),
             n_processes=cfg.n_processes,
             habitat_pattern=cfg.habitat_pattern,
+            plugin_configs=plugin_configs,
         )
 
     def create_radiomics_extractor(self, config: Optional[Any] = None) -> Any:

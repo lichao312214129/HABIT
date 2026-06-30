@@ -16,18 +16,28 @@ from pydantic import ValidationError
 
 from habit.cli_commands.commands.cmd_compare import run_compare
 from habit.core.machine_learning.config_schemas import ModelComparisonConfig
+from habit.gui.job_controls import (
+    job_end_button_updates,
+    job_start_button_updates,
+    on_stop_job_click,
+)
+from habit.gui.path_picker import PathPickerRegistry
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
     abs_path,
     extract_validation_msgs,
     load_config_yaml,
+    load_gui_draft,
     open_directory,
+    render_console_log,
     save_config_yaml,
+    save_gui_draft,
     select_local_path,
     translate_pydantic_error,
 )
 
 MAX_MODELS: int = 6
+LOAD_YAML_FIXED_OUTPUTS: int = 15
 
 
 def _model_slot(index: int) -> Dict[str, Any]:
@@ -59,8 +69,13 @@ def _model_slot(index: int) -> Dict[str, Any]:
     }
 
 
-def render_compare_tab() -> None:
+def render_compare_tab(
+    demo: Optional[Any] = None,
+    path_picker: PathPickerRegistry | None = None,
+    project_root_state: Optional[Any] = None,
+) -> None:
     """Render multi-model comparison tab."""
+    _ = (demo, path_picker, project_root_state)
     gr.Markdown("Compare multiple model prediction CSVs (ROC, DCA, calibration, DeLong test).")
 
     with gr.Row():
@@ -97,8 +112,10 @@ def render_compare_tab() -> None:
         target_sensitivity = gr.Number(label="target sensitivity", value=0.7)
         target_specificity = gr.Number(label="target specificity", value=0.7)
 
-    submit_btn = gr.Button("Validate and run comparison", variant="primary")
-    log_output = gr.Textbox(label="Console log", lines=15, interactive=False)
+    with gr.Row():
+        submit_btn = gr.Button("Validate and run comparison", variant="primary")
+        stop_btn = gr.Button("Stop", interactive=False)
+    log_output = render_console_log(lines=15, elem_id="habit-log-compare")
     delong_table = gr.JSON(label="DeLong results (if enabled)")
     open_dir_btn = gr.Button("Open output folder", visible=False)
 
@@ -118,10 +135,13 @@ def render_compare_tab() -> None:
     def load_yaml(path: str) -> List[Any]:
         noop = gr.update()
         if not path or not os.path.exists(path):
-            return [noop] * (7 + MAX_MODELS * 8)
+            # Keep fallback updates aligned with existing_yaml.change(..., outputs=load_yaml_outputs).
+            # The fixed section has 15 widgets before model slots, and each slot contributes 8 widgets.
+            return [noop] * (LOAD_YAML_FIXED_OUTPUTS + MAX_MODELS * 8)
         loaded = load_config_yaml(path)
         if not loaded:
-            return [noop] * (7 + MAX_MODELS * 8)
+            # Return the same number of updates as outputs to avoid Gradio output-count mismatch.
+            return [noop] * (LOAD_YAML_FIXED_OUTPUTS + MAX_MODELS * 8)
 
         files = loaded.get("files_config", []) or []
         merged = loaded.get("merged_data", {}) or {}
@@ -288,6 +308,7 @@ def render_compare_tab() -> None:
             os.makedirs(out_abs, exist_ok=True)
             gui_path = str(Path(out_abs) / "config_compare_gui.yaml")
             save_config_yaml(config_data, gui_path)
+            save_gui_draft("compare", gui_path)
             yield f"💾 Config saved to {gui_path}\n🚀 Running comparison...", gr.update(visible=False), None
 
             for log_text in run_background_job(
@@ -320,8 +341,21 @@ def render_compare_tab() -> None:
     ] + slot_outputs
 
     submit_btn.click(
+        job_start_button_updates,
+        outputs=[submit_btn, stop_btn],
+    ).then(
         run_compare_pipeline,
         inputs=submit_inputs,
         outputs=[log_output, open_dir_btn, delong_table],
+    ).then(
+        job_end_button_updates,
+        outputs=[submit_btn, stop_btn],
     )
+    stop_btn.click(on_stop_job_click, inputs=[], outputs=[])
     open_dir_btn.click(lambda p: open_directory(p), inputs=output_dir)
+
+    if demo is not None:
+        # Restore only the YAML path; existing_yaml.change() then reloads all fields.
+        def _restore_compare_path() -> str:
+            return load_gui_draft("compare") or ""
+        demo.load(_restore_compare_path, inputs=[], outputs=[existing_yaml])

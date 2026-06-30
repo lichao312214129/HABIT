@@ -13,27 +13,11 @@
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
 """
-Kaplan-Meier survival plotting utilities
+Kaplan-Meier survival plotting utilities.
 
-Features aligned to top-tier medical imaging journals requirements:
-- Publication-quality styling (font, line widths, vector export)
-- KM curves with confidence bands
-- Log-rank p-value (two-group or multi-group)
-- Cox model hazard ratio (HR) with 95% CI (binary; pairwise vs reference if >2 groups)
-- Number-at-risk table
-- Median survival per group (optional)
-
-Usage example (programmatic):
-
-    plotter = KMSurvivalPlotter(output_dir="./results/km")
-    fig, ax = plotter.plot_km(
-        df=dataframe,
-        time_col="os_time",
-        event_col="os_event",
-        group_col="risk_group",
-        save_name="KM_OS.pdf",
-        time_unit="Months",
-    )
+Publication-style KM plots with confidence bands, log-rank p-values, optional Cox HR,
+number-at-risk table, and median survival annotations. See ``KMSurvivalPlotter.plot_km``
+for the main entry point.
 """
 
 from __future__ import annotations
@@ -52,7 +36,7 @@ import seaborn as sns
 # from lifelines import KaplanMeierFitter, CoxPHFitter
 # from lifelines.statistics import logrank_test, multivariate_logrank_test
 # from lifelines.plotting import add_at_risk_counts
-from matplotlib.lines import Line2D
+from habit.utils.font_config import PUBLICATION_FONT, setup_publication_font
 
 
 def _ensure_output_dir(path: str) -> None:
@@ -93,15 +77,22 @@ def _as_color_list(palette: Optional[Sequence[str]], n: int) -> List:
 class KMSurvivalPlotter:
     output_dir: str
     dpi: int = 600
-    font_family: str = "Arial"
+    font_family: str = PUBLICATION_FONT
     font_size: int = 11
 
     def __post_init__(self) -> None:
         _ensure_output_dir(self.output_dir)
-        # Publication-quality defaults
+        setup_publication_font()
+        if self.font_family != PUBLICATION_FONT:
+            mpl.rcParams["font.family"] = "sans-serif"
+            mpl.rcParams["font.sans-serif"] = [
+                self.font_family,
+                "DejaVu Sans",
+                "Liberation Sans",
+                "sans-serif",
+            ]
         mpl.rcParams.update(
             {
-                "font.family": self.font_family,
                 "font.size": self.font_size,
                 "axes.linewidth": 1.2,
                 "axes.labelsize": self.font_size,
@@ -109,7 +100,7 @@ class KMSurvivalPlotter:
                 "xtick.labelsize": self.font_size - 1,
                 "ytick.labelsize": self.font_size - 1,
                 "legend.fontsize": self.font_size - 1,
-                "pdf.fonttype": 42,  # embed TrueType
+                "pdf.fonttype": 42,
                 "ps.fonttype": 42,
                 "savefig.dpi": self.dpi,
                 "figure.dpi": self.dpi,

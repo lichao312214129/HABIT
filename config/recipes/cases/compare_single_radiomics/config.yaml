@@ -1,0 +1,24 @@
+output_dir: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/compare_single_radiomics/outputs
+files_config:
+- path: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/ml_radiomics/outputs/all_prediction_results.csv
+  model_name: radiomics
+  subject_id_col: subject_id
+  label_col: label
+  prob_col: LogisticRegression_prob
+  pred_col: LogisticRegression_pred
+  split_col: dataset
+merged_data:
+  enabled: false
+split:
+  enabled: true
+visualization:
+  roc:
+    enabled: true
+  calibration:
+    enabled: true
+    n_bins: 10
+delong_test:
+  enabled: false
+metrics:
+  basic_metrics:
+    enabled: true

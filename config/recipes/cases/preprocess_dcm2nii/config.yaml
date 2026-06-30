@@ -1,0 +1,18 @@
+data_dir: /mnt/f/work/habit_project_v1/demo_data/preprocessed/processed_images
+out_dir: /mnt/f/work/habit_project_v1/demo_data/results_config_test/cases/preprocess_dcm2nii/outputs
+auto_select_first_file: true
+Preprocessing:
+  resample:
+    images:
+    - T1
+    - T2
+    target_spacing:
+    - 2.0
+    - 2.0
+    - 2.0
+save_options:
+  save_intermediate: true
+  intermediate_steps:
+  - resample
+processes: 1
+random_state: 42

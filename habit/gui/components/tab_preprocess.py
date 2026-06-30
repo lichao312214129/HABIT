@@ -5,280 +5,107 @@
 # project root for the full text.
 
 """
-Preprocessing tab component for Gradio GUI.
-Provides clinician-friendly inputs for image preprocessing pipelines.
+Preprocessing tab component for Gradio GUI (schema-driven top-level + pipeline editor).
 """
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import gradio as gr
 from pydantic import ValidationError
 
 from habit.cli_commands.commands.cmd_preprocess import run_preprocess
-from habit.core.preprocessing.config_schemas import PreprocessingConfig
+from habit.core.preprocessing.config_schemas import PreprocessingConfig, SaveOptionsConfig
+from habit.gui.components.preprocess_steps import (
+    BUILTIN_FORM_STEPS,
+    KNOWN_STEPS,
+    PREPROCESS_QUICK_PRESETS,
+    DEFAULT_HIST_PERCENTILES,
+    STEP_LABELS,
+    StepParamValues,
+    apply_order_from_number,
+    build_preprocessing_steps,
+    dcm2_single_file_from_yaml,
+    enabled_from_check_values,
+    modalities_display_text,
+    move_step_in_order,
+    order_number_updates,
+    panel_visible,
+    parse_step_order,
+    resolve_modalities_for_run,
+    sync_order_with_enabled,
+    toggle_backend_panels,
+)
+from habit.gui.path_picker import PathPickerRegistry
 from habit.gui.pipeline_runner import run_background_job
+from habit.gui.schema_form import OverrideSpec, SchemaForm
+from habit.gui.tab_job_shell import (
+    finalize_step_if_project,
+    format_run_error,
+    mark_step_if_project,
+    wire_standard_job,
+    wire_yaml_autoload,
+)
 from habit.gui.utils import (
     abs_path,
     coerce_str_list,
     dict_to_yaml_block,
     discover_modalities_from_data_dir,
-    extract_validation_msgs,
     load_config_yaml,
+    load_gui_draft,
     open_directory,
-    parse_comma_list,
+    render_console_log,
     save_config_yaml,
-    select_local_path,
-    translate_pydantic_error,
+    save_gui_draft,
+    user_visible_path,
     yaml_block_to_dict,
 )
-
-KNOWN_STEPS: List[str] = [
-    "n4_correction",
-    "resample",
-    "zscore_normalization",
-    "registration",
-    "histogram_standardization",
-    "adaptive_histogram_equalization",
-    "reorientation",
-    "dcm2nii",
-]
-STEP_LABELS: Dict[str, str] = {
-    "n4_correction": "N4 bias correction",
-    "resample": "Resample",
-    "zscore_normalization": "Z-score normalization",
-    "registration": "Registration",
-    "histogram_standardization": "Histogram standardization",
-    "adaptive_histogram_equalization": "Adaptive histogram equalization",
-    "reorientation": "Reorientation",
-    "dcm2nii": "DICOM to NIfTI (dcm2nii)",
-}
-DEFAULT_HIST_PERCENTILES: str = "1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99"
-BUILTIN_FORM_STEPS: frozenset[str] = frozenset({
-    "n4_correction",
-    "resample",
-    "zscore_normalization",
-    "registration",
-    "histogram_standardization",
-    "adaptive_histogram_equalization",
-    "reorientation",
-    "dcm2nii",
-})
-LOAD_OUTPUT_COUNT: int = 88
-
-
-def _dcm2_single_file_from_yaml(value: Any) -> str:
-    """Map YAML single_file_mode to GUI dropdown value."""
-    if value is None:
-        return "auto"
-    return "true" if bool(value) else "false"
-
-
-def _dcm2_single_file_to_yaml(value: str) -> Optional[bool]:
-    """Map GUI dropdown value to YAML single_file_mode."""
-    if value == "auto":
-        return None
-    return value == "true"
-
-
-def _parse_step_order(order: Union[str, List[str]]) -> List[str]:
-    """
-    Validate the step execution order.
-
-    Accepts either a list of step keys (from the new gr.State widget) or a
-    legacy comma-separated string (for backward compatibility with YAML loading).
-
-    Args:
-        order: List of step keys, or comma-separated string.
-
-    Returns:
-        List[str]: Validated, ordered list of step keys.
-    """
-    if isinstance(order, list):
-        steps: List[str] = [str(s).strip() for s in order if s and str(s).strip()]
-    else:
-        steps = parse_comma_list(str(order))
-    if not steps:
-        raise ValueError("Step execution order cannot be empty.")
-    unknown: List[str] = [s for s in steps if s not in KNOWN_STEPS]
-    if unknown:
-        raise ValueError(f"Unknown preprocessing steps: {', '.join(unknown)}")
-    return steps
-
-
-def _enabled_from_check_values(check_values: List[bool]) -> List[str]:
-    """
-    Map parallel checkbox values to enabled preprocessing step keys.
-
-    Args:
-        check_values: Checkbox values in ``KNOWN_STEPS`` order.
-
-    Returns:
-        List[str]: Enabled step keys preserving ``KNOWN_STEPS`` order.
-    """
-    return [KNOWN_STEPS[idx] for idx, checked in enumerate(check_values) if checked]
-
-
-def _order_number_updates(order: List[str]) -> Tuple[Any, ...]:
-    """
-    Build gr.update payloads for per-step order number widgets.
-
-    Args:
-        order: Current execution order (enabled steps only).
-
-    Returns:
-        Tuple[Any, ...]: One gr.update per step in ``KNOWN_STEPS`` order.
-    """
-    return tuple(
-        gr.update(value=(order.index(step_key) + 1) if step_key in order else None)
-        for step_key in KNOWN_STEPS
-    )
-
-
-def _apply_order_from_number(
-    step_key: str,
-    new_num: Optional[Union[int, float]],
-    current_order: List[str],
-    enabled: List[str],
-) -> List[str]:
-    """
-    Reorder one enabled step by editing its sequence number.
-
-    Args:
-        step_key: Step key whose order number was edited.
-        new_num: Target 1-based position entered by the user.
-        current_order: Current execution order.
-        enabled: Enabled step keys.
-
-    Returns:
-        List[str]: Updated execution order.
-    """
-    order = [step for step in (current_order or []) if step in enabled]
-    if step_key not in enabled:
-        return order
-    if new_num is None or (isinstance(new_num, str) and not str(new_num).strip()):
-        return _sync_order_with_enabled(enabled, order)
-    if step_key in order:
-        order.remove(step_key)
-    target = max(1, min(int(new_num), len(enabled)))
-    order.insert(target - 1, step_key)
-    return order
-
-
-def _move_step_in_order(order: List[str], step_key: str, direction: int) -> List[str]:
-    """
-    Move a step up (-1) or down (+1) within the current order list.
-
-    Args:
-        order: Current execution order.
-        step_key: Step key to move.
-        direction: -1 for up, +1 for down.
-
-    Returns:
-        List[str]: Updated order; unchanged when move is not possible.
-    """
-    if step_key not in order:
-        return list(order)
-    order = list(order)
-    idx = order.index(step_key)
-    new_idx = idx + direction
-    if 0 <= new_idx < len(order):
-        order[idx], order[new_idx] = order[new_idx], order[idx]
-    return order
-
-
-def _sync_order_with_enabled(enabled: List[str], current_order: List[str]) -> List[str]:
-    """
-    Reconcile execution order when the user toggles enabled preprocessing steps.
-
-    Keeps relative order for steps that remain enabled and appends newly enabled steps
-    following the default ``KNOWN_STEPS`` sequence.
-
-    Args:
-        enabled: Step keys currently selected in the CheckboxGroup.
-        current_order: Previous execution order (may contain disabled steps).
-
-    Returns:
-        List[str]: Ordered list containing only enabled step keys.
-    """
-    enabled_set = set(enabled or [])
-    preserved = [step for step in (current_order or []) if step in enabled_set]
-    for step in KNOWN_STEPS:
-        if step in enabled_set and step not in preserved:
-            preserved.append(step)
-    return preserved
-
-
-def _panel_visible(step_key: str, enabled: List[str]) -> Dict[str, Any]:
-    """Return a gr.update dict toggling a parameter panel based on enabled steps."""
-    return gr.update(visible=step_key in set(enabled or []))
-
-
-def _modalities_display_text(modalities: List[str]) -> str:
-    """Format modality keys for read-only GUI text fields."""
-    return ", ".join(modalities)
-
-
-def _resolve_modalities_for_run(
-    data_dir: str,
-    auto_select: bool,
-    modalities_text: str,
-) -> Tuple[List[str], Optional[str]]:
-    """
-    Resolve modality keys at run time from the auto-detected display text or rescan data_dir.
-
-    Args:
-        data_dir: Absolute input data root directory.
-        auto_select: Whether to auto-pick the first file inside modality folders.
-        modalities_text: Comma-separated modality string shown in the GUI.
-
-    Returns:
-        Tuple[List[str], Optional[str]]: Modality keys and an error message when empty.
-    """
-    parsed = parse_comma_list(modalities_text)
-    if parsed:
-        return parsed, None
-    modalities, status = discover_modalities_from_data_dir(data_dir, auto_select)
-    if modalities:
-        return modalities, None
-    return [], status or "No modalities detected. Check data_dir layout."
-
-
-def _toggle_backend_panels(backend: str) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
-    """Show ANTs/SimpleITK vs elastix-specific registration fields."""
-    is_elastix: bool = backend == "elastix"
-    return (
-        gr.update(visible=not is_elastix),
-        gr.update(visible=is_elastix),
-        gr.update(visible=backend == "simpleitk"),
-    )
-
-
-def render_preprocess_tab() -> None:
+from habit.gui.step_integration import register_project_path_fill
+from habit.gui.step_registry import register_step_paths
+from habit.utils.docker_path_utils import display_path_value
+def render_preprocess_tab(
+    demo=None,
+    path_picker: PathPickerRegistry | None = None,
+    project_root_state: Any | None = None,
+) -> None:
     """Render the image preprocessing tab inside a parent Gradio Blocks context."""
+    picker = path_picker if path_picker is not None else PathPickerRegistry()
     gr.Markdown(
-        "Configure a custom preprocessing pipeline (registration, resampling, intensity "
-        "normalization, etc.) and batch-process all subjects."
+        "**Step 2 — Preprocessing:** Register, resample, and normalize images. "
+        "Output is written to `02_preprocessed/processed_images/` under your project."
     )
+
+    with gr.Row():
+        quick_preset = gr.Dropdown(
+            label="Quick preset (optional)",
+            choices=list(PREPROCESS_QUICK_PRESETS.keys()),
+            value=None,
+        )
+        apply_quick_btn = gr.Button("Apply quick preset", size="sm")
 
     with gr.Row():
         existing_yaml = gr.Textbox(label="Load existing preprocessing YAML (optional)", scale=4)
         browse_prep_config_btn = gr.Button("Browse config", scale=1)
+    picker.add(browse_prep_config_btn, existing_yaml, pick="file")
 
     with gr.Group():
         gr.Markdown("### 1. Paths and system settings")
+        main_form = SchemaForm.build(
+            PreprocessingConfig,
+            exclude={"Preprocessing", "save_options"},
+            group_order=["Paths", "Advanced"],
+            open_groups={"Paths", "Advanced"},
+            path_picker=picker,
+            overrides={
+                "processes": OverrideSpec(label="Parallel workers (CPU)"),
+                "auto_select_first_file": OverrideSpec(
+                    label="Auto-select first file in modality folder",
+                ),
+            },
+        )
         with gr.Row():
-            data_dir = gr.Textbox(label="Input data root directory *", scale=4)
-            prep_data_btn = gr.Button("Browse", scale=1)
             detect_modalities_btn = gr.Button("Detect modalities", scale=1)
-        with gr.Row():
-            out_dir = gr.Textbox(label="Output directory *", scale=4)
-            prep_out_btn = gr.Button("Browse", scale=1)
-        with gr.Row():
-            processes = gr.Number(label="Parallel workers (CPU)", value=1, minimum=1, maximum=32, step=1)
-            auto_select = gr.Checkbox(label="Auto-select first file in modality folder", value=True)
-            random_state = gr.Number(label="Random state", value=42, precision=0)
         modality_status = gr.Textbox(
             label="Detected modalities",
             value="Set input data root directory to detect modalities.",
@@ -501,15 +328,28 @@ def render_preprocess_tab() -> None:
 
     with gr.Group():
         gr.Markdown("### 4. Intermediate outputs")
-        save_intermediate = gr.Checkbox(label="save_intermediate", value=False)
-        intermediate_steps = gr.CheckboxGroup(
-            label="intermediate_steps (empty = save all enabled steps)",
-            choices=KNOWN_STEPS,
-            value=[],
+        save_form = SchemaForm.build(
+            SaveOptionsConfig,
+            group_order=["Save"],
+            open_groups={"Save"},
+            overrides={
+                "intermediate_steps": OverrideSpec(choices=KNOWN_STEPS),
+            },
         )
 
-    submit_btn = gr.Button("Validate and run preprocessing", variant="primary")
-    log_output = gr.Textbox(label="Console log", lines=18, interactive=False)
+    # Aliases for pipeline wiring (schema-driven top-level fields).
+    data_dir = main_form.widget("data_dir")
+    out_dir = main_form.widget("out_dir")
+    processes = main_form.widget("processes")
+    auto_select = main_form.widget("auto_select_first_file")
+    random_state = main_form.widget("random_state")
+    save_intermediate = save_form.widget("save_intermediate")
+    intermediate_steps = save_form.widget("intermediate_steps")
+
+    with gr.Row():
+        submit_btn = gr.Button("Validate and run preprocessing", variant="primary")
+        stop_btn = gr.Button("Stop", interactive=False)
+    log_output = render_console_log(lines=18, elem_id="habit-log-preprocess")
     open_dir_btn = gr.Button("Open output folder", visible=False)
 
     modality_fields = [
@@ -570,7 +410,7 @@ def render_preprocess_tab() -> None:
             bool(auto_select_val),
         )
         if modalities:
-            text = _modalities_display_text(modalities)
+            text = modalities_display_text(modalities)
             dcm2_text = text
             fixed_image = modalities[0]
         else:
@@ -590,6 +430,38 @@ def render_preprocess_tab() -> None:
             gr.update(value=fixed_image),
         )
 
+    def _apply_quick_preset(preset_name: Optional[str]) -> Tuple[Any, ...]:
+        """Enable steps and order from a named quick preset."""
+        steps: List[str] = PREPROCESS_QUICK_PRESETS.get(preset_name or "", [])
+        if not steps:
+            noop = gr.update()
+            n = 1 + len(KNOWN_STEPS) + len(KNOWN_STEPS) + len(step_panel_keys)
+            return tuple(noop for _ in range(n))
+        enabled_set = set(steps)
+        check_updates = tuple(
+            gr.update(value=(step_key in enabled_set)) for step_key in KNOWN_STEPS
+        )
+        panel_updates = tuple(
+            panel_visible(key, enabled_set) for key in step_panel_keys
+        )
+        return (
+            steps,
+            *order_number_updates(steps),
+            *check_updates,
+            *panel_updates,
+        )
+
+    apply_quick_btn.click(
+        _apply_quick_preset,
+        inputs=[quick_preset],
+        outputs=[
+            step_order_state,
+            *step_order_num_outputs,
+            *[step_enabled[step_key] for step_key in KNOWN_STEPS],
+            *step_param_panels,
+        ],
+    )
+
     def _on_step_toggle(
         data_dir_val: str,
         auto_select_val: bool,
@@ -597,12 +469,12 @@ def render_preprocess_tab() -> None:
         *check_values: bool,
     ) -> Tuple[Any, ...]:
         """Sync order numbers and parameter panels when any step checkbox toggles."""
-        enabled = _enabled_from_check_values(list(check_values))
-        new_order = _sync_order_with_enabled(enabled, current_order)
-        panel_updates = tuple(_panel_visible(key, enabled) for key in step_panel_keys)
+        enabled = enabled_from_check_values(list(check_values))
+        new_order = sync_order_with_enabled(enabled, current_order)
+        panel_updates = tuple(panel_visible(key, enabled) for key in step_panel_keys)
         return (
             new_order,
-            *_order_number_updates(new_order),
+            *order_number_updates(new_order),
             *panel_updates,
         )
 
@@ -613,12 +485,12 @@ def render_preprocess_tab() -> None:
         *check_values: bool,
     ) -> Tuple[Any, ...]:
         """Move one enabled step up/down and refresh order numbers."""
-        enabled = _enabled_from_check_values(list(check_values))
+        enabled = enabled_from_check_values(list(check_values))
         order = [step for step in current_order if step in enabled]
         if step_key not in enabled:
-            return (order, *_order_number_updates(order))
-        new_order = _move_step_in_order(order, step_key, direction)
-        return (new_order, *_order_number_updates(new_order))
+            return (order, *order_number_updates(order))
+        new_order = move_step_in_order(order, step_key, direction)
+        return (new_order, *order_number_updates(new_order))
 
     def _on_step_order_edit(
         step_key: str,
@@ -627,9 +499,9 @@ def render_preprocess_tab() -> None:
         *check_values: bool,
     ) -> Tuple[Any, ...]:
         """Apply a manually edited sequence number for one step."""
-        enabled = _enabled_from_check_values(list(check_values))
-        new_order = _apply_order_from_number(step_key, new_num, current_order, enabled)
-        return (new_order, *_order_number_updates(new_order))
+        enabled = enabled_from_check_values(list(check_values))
+        new_order = apply_order_from_number(step_key, new_num, current_order, enabled)
+        return (new_order, *order_number_updates(new_order))
 
     step_move_inputs: List[Any] = [step_order_state] + [
         step_enabled[step_key] for step_key in KNOWN_STEPS
@@ -697,36 +569,48 @@ def render_preprocess_tab() -> None:
     )
 
     reg_backend.change(
-        _toggle_backend_panels,
+        toggle_backend_panels,
         inputs=reg_backend,
         outputs=[box_ants_sitk, box_elastix, box_sitk],
     )
 
-    def browse_file() -> Any:
-        path: Optional[str] = select_local_path("file", "Select preprocessing YAML")
-        return path if path else gr.update()
-
-    def browse_folder() -> Any:
-        path: Optional[str] = select_local_path("folder", "Select directory")
-        return path if path else gr.update()
-
-    browse_prep_config_btn.click(browse_file, outputs=existing_yaml)
-    prep_data_btn.click(browse_folder, outputs=data_dir).then(
-        _apply_detected_modalities,
-        inputs=detect_modalities_inputs,
-        outputs=detect_modalities_outputs,
-    )
-    prep_out_btn.click(browse_folder, outputs=out_dir)
+    load_outputs = [
+        *main_form.outputs(),
+        modality_status,
+        *[step_enabled[step_key] for step_key in KNOWN_STEPS],
+        step_order_state,
+        *[step_order_num[step_key] for step_key in KNOWN_STEPS],
+        box_n4, box_res, box_zs, box_reg, box_hist, box_ahe, box_reorient, box_dcm2nii,
+        n4_images, n4_levels,
+        res_images, res_spacing,
+        zs_images, zs_mask, zs_mask_key,
+        reg_images, reg_fixed, reg_backend, reg_transform, reg_metric, reg_optimizer,
+        elastix_parameter_files, elastix_path, transformix_path, elastix_threads,
+        elastix_parameter_overrides,
+        sitk_bins, sitk_sampling, sitk_shrink, sitk_sigmas, sitk_lr, sitk_iters,
+        sitk_bspline_mesh, sitk_bspline_order,
+        reg_mask, reg_replace_mask, reg_mask_key,
+        hist_images, hist_percentiles, hist_target_min, hist_target_max, hist_mask_key,
+        ahe_images, ahe_alpha, ahe_beta, ahe_radius,
+        reorient_images, reorient_target, reorient_mode,
+        dcm2_images, dcm2_path, dcm2_filename_format,
+        dcm2_compress, dcm2_anonymize, dcm2_ignore_derived, dcm2_crop,
+        dcm2_generate_json, dcm2_verbose, dcm2_batch_mode, dcm2_adjacent,
+        dcm2_merge_slices, dcm2_single_file,
+        extra_prep_yaml,
+        *save_form.outputs(),
+    ]
 
     def load_config(yaml_path: str) -> List[Any]:
         """Hydrate form widgets from an existing preprocessing YAML file."""
         noop = gr.update()
-        if not yaml_path or not os.path.exists(yaml_path):
-            return [noop] * LOAD_OUTPUT_COUNT
+        resolved = abs_path(yaml_path) if yaml_path and str(yaml_path).strip() else ""
+        if not resolved or not os.path.exists(resolved):
+            return [noop] * len(load_outputs)
 
-        loaded: Optional[Dict[str, Any]] = load_config_yaml(yaml_path)
+        loaded: Optional[Dict[str, Any]] = load_config_yaml(resolved)
         if not loaded:
-            return [noop] * LOAD_OUTPUT_COUNT
+            return [noop] * len(load_outputs)
 
         prep: Dict[str, Any] = loaded.get("Preprocessing", {}) or {}
         enabled_keys: List[str] = [k for k in prep.keys() if k in KNOWN_STEPS]
@@ -762,11 +646,11 @@ def render_preprocess_tab() -> None:
         loaded_data_dir = loaded.get("data_dir", "")
         auto_select_loaded = loaded.get("auto_select_first_file", True)
         detected_modalities, detect_status = discover_modalities_from_data_dir(
-            loaded_data_dir,
+            abs_path(loaded_data_dir) if loaded_data_dir else loaded_data_dir,
             bool(auto_select_loaded),
         )
         if detected_modalities:
-            modality_text = _modalities_display_text(detected_modalities)
+            modality_text = modalities_display_text(detected_modalities)
             dcm2_modality_text = modality_text
             default_fixed = reg.get("fixed_image") or detected_modalities[0]
         else:
@@ -783,23 +667,28 @@ def render_preprocess_tab() -> None:
         reorient_images_text = ", ".join(coerce_str_list(reorient.get("images", []))) or modality_text
 
         return [
-            loaded_data_dir,
-            loaded.get("out_dir", ""),
-            int(loaded.get("processes", 1)),
-            auto_select_loaded,
-            int(loaded.get("random_state", 42)),
+            *main_form.populate({
+                "data_dir": display_path_value("data_dir", loaded.get("data_dir", "")),
+                "out_dir": display_path_value("out_dir", loaded.get("out_dir", "")),
+                "processes": int(loaded.get("processes", 1)),
+                "random_state": int(loaded.get("random_state", 42)),
+                "auto_select_first_file": loaded.get("auto_select_first_file", True),
+                "preprocessing_input_layout": loaded.get(
+                    "preprocessing_input_layout", "habit_default",
+                ),
+            }),
             detect_status,
             *[step_key in enabled_keys for step_key in KNOWN_STEPS],
             order_keys,
-            *_order_number_updates(order_keys),
-            _panel_visible("n4_correction", enabled_keys),
-            _panel_visible("resample", enabled_keys),
-            _panel_visible("zscore_normalization", enabled_keys),
-            _panel_visible("registration", enabled_keys),
-            _panel_visible("histogram_standardization", enabled_keys),
-            _panel_visible("adaptive_histogram_equalization", enabled_keys),
-            _panel_visible("reorientation", enabled_keys),
-            _panel_visible("dcm2nii", enabled_keys),
+            *order_number_updates(order_keys),
+            panel_visible("n4_correction", enabled_keys),
+            panel_visible("resample", enabled_keys),
+            panel_visible("zscore_normalization", enabled_keys),
+            panel_visible("registration", enabled_keys),
+            panel_visible("histogram_standardization", enabled_keys),
+            panel_visible("adaptive_histogram_equalization", enabled_keys),
+            panel_visible("reorientation", enabled_keys),
+            panel_visible("dcm2nii", enabled_keys),
             n4_images_text,
             int(n4.get("num_fitting_levels", 4)),
             res_images_text,
@@ -814,8 +703,8 @@ def render_preprocess_tab() -> None:
             reg.get("metric", "MI"),
             reg.get("optimizer", "") or "",
             elastix_files_str,
-            reg.get("elastix_path", "") or "",
-            reg.get("transformix_path", "") or "",
+            display_path_value("elastix_path", reg.get("elastix_path", "") or ""),
+            display_path_value("transformix_path", reg.get("transformix_path", "") or ""),
             int(reg.get("elastix_threads", 0) or 0),
             dict_to_yaml_block(reg.get("elastix_parameter_overrides", {}) or {}),
             int(reg.get("number_of_histogram_bins", 50)),
@@ -842,7 +731,7 @@ def render_preprocess_tab() -> None:
             str(reorient.get("target_orientation", "LPS")).upper(),
             reorient.get("mode", "closest"),
             dcm2_modality_text,
-            dcm2.get("dcm2niix_path", "") or "",
+            display_path_value("dcm2niix_path", dcm2.get("dcm2niix_path", "") or ""),
             dcm2.get("filename_format", "") or "",
             dcm2.get("compress", True),
             dcm2.get("anonymize", False),
@@ -853,42 +742,17 @@ def render_preprocess_tab() -> None:
             dcm2.get("batch_mode", True),
             dcm2.get("adjacent_dicoms", True),
             str(dcm2.get("merge_slices", "2")),
-            _dcm2_single_file_from_yaml(dcm2.get("single_file_mode")),
+            dcm2_single_file_from_yaml(dcm2.get("single_file_mode")),
             dict_to_yaml_block(extra_blocks),
-            save_opt.get("save_intermediate", False),
-            save_opt.get("intermediate_steps", []) or [],
+            *save_form.populate(save_opt),
         ]
 
-    load_outputs = [
-        data_dir, out_dir, processes, auto_select, random_state,
-        modality_status,
-        *[step_enabled[step_key] for step_key in KNOWN_STEPS],
-        step_order_state,
-        *[step_order_num[step_key] for step_key in KNOWN_STEPS],
-        box_n4, box_res, box_zs, box_reg, box_hist, box_ahe, box_reorient, box_dcm2nii,
-        n4_images, n4_levels,
-        res_images, res_spacing,
-        zs_images, zs_mask, zs_mask_key,
-        reg_images, reg_fixed, reg_backend, reg_transform, reg_metric, reg_optimizer,
-        elastix_parameter_files, elastix_path, transformix_path, elastix_threads,
-        elastix_parameter_overrides,
-        sitk_bins, sitk_sampling, sitk_shrink, sitk_sigmas, sitk_lr, sitk_iters,
-        sitk_bspline_mesh, sitk_bspline_order,
-        reg_mask, reg_replace_mask, reg_mask_key,
-        hist_images, hist_percentiles, hist_target_min, hist_target_max, hist_mask_key,
-        ahe_images, ahe_alpha, ahe_beta, ahe_radius,
-        reorient_images, reorient_target, reorient_mode,
-        dcm2_images, dcm2_path, dcm2_filename_format,
-        dcm2_compress, dcm2_anonymize, dcm2_ignore_derived, dcm2_crop,
-        dcm2_generate_json, dcm2_verbose, dcm2_batch_mode, dcm2_adjacent,
-        dcm2_merge_slices, dcm2_single_file,
-        extra_prep_yaml, save_intermediate, intermediate_steps,
-    ]
-    existing_yaml.change(load_config, inputs=existing_yaml, outputs=load_outputs)
+    wire_yaml_autoload(existing_yaml, load_config, load_outputs)
 
     def run_pipeline(*args: Any):
         """Validate config, save YAML, and run preprocessing with live logs."""
         (
+            project_root,
             data_dir_val, out_dir_val, processes_val, auto_select_val, random_state_val,
             step_order_val, *step_check_vals,
             n4_images_val, n4_levels_val,
@@ -916,7 +780,9 @@ def render_preprocess_tab() -> None:
             yield "❌ data_dir and out_dir are required.", gr.update(visible=False)
             return
 
-        enabled_set = set(_enabled_from_check_values(list(step_check_vals)))
+        mark_step_if_project(str(project_root) if project_root else "", "preprocess")
+
+        enabled_set = set(enabled_from_check_values(list(step_check_vals)))
         if not enabled_set:
             yield "❌ Select at least one preprocessing step.", gr.update(visible=False)
             return
@@ -926,7 +792,7 @@ def render_preprocess_tab() -> None:
         out_dir_abs = abs_path(out_dir_val)
 
         try:
-            step_order_all: List[str] = _parse_step_order(step_order_val)
+            step_order_all: List[str] = parse_step_order(step_order_val)
         except ValueError as exc:
             yield f"❌ {exc}", gr.update(visible=False)
             return
@@ -936,12 +802,12 @@ def render_preprocess_tab() -> None:
             yield "❌ Step execution order is empty for the selected steps.", gr.update(visible=False)
             return
 
-        modalities, modality_err = _resolve_modalities_for_run(
+        modalities, modality_err = resolve_modalities_for_run(
             data_dir_abs,
             bool(auto_select_val),
             str(n4_images_val),
         )
-        dcm2_modalities, dcm2_err = _resolve_modalities_for_run(
+        dcm2_modalities, dcm2_err = resolve_modalities_for_run(
             data_dir_abs,
             bool(auto_select_val),
             str(dcm2_images_val),
@@ -949,182 +815,67 @@ def render_preprocess_tab() -> None:
         if not dcm2_modalities:
             dcm2_modalities = ["dicom"]
 
-        built_steps: Dict[str, Dict[str, Any]] = {}
-
-        if "n4_correction" in enabled_set:
-            if not modalities:
-                yield f"❌ n4_correction: {modality_err}", gr.update(visible=False)
-                return
-            built_steps["n4_correction"] = {
-                "images": modalities,
-                "num_fitting_levels": int(n4_levels_val),
-            }
-        if "resample" in enabled_set:
-            if not modalities:
-                yield f"❌ resample: {modality_err}", gr.update(visible=False)
-                return
-            try:
-                spacing = [float(s) for s in parse_comma_list(res_spacing_val)]
-                if len(spacing) != 3:
-                    raise ValueError
-            except ValueError:
-                yield "❌ target_spacing must be three comma-separated numbers.", gr.update(visible=False)
-                return
-            built_steps["resample"] = {
-                "images": modalities,
-                "target_spacing": spacing,
-            }
-        if "zscore_normalization" in enabled_set:
-            if not modalities:
-                yield f"❌ zscore_normalization: {modality_err}", gr.update(visible=False)
-                return
-            zs_cfg: Dict[str, Any] = {
-                "images": modalities,
-                "only_inmask": zs_mask_val,
-            }
-            if zs_mask_key_val and str(zs_mask_key_val).strip():
-                zs_cfg["mask_key"] = str(zs_mask_key_val).strip()
-            built_steps["zscore_normalization"] = zs_cfg
-
-        if "registration" in enabled_set:
-            if not modalities:
-                yield f"❌ registration: {modality_err}", gr.update(visible=False)
-                return
-            fixed_image = str(reg_fixed_val).strip() or modalities[0]
-            if fixed_image not in modalities:
-                yield (
-                    f"❌ fixed_image \"{fixed_image}\" must be one of the detected modalities: "
-                    f"{', '.join(modalities)}.",
-                    gr.update(visible=False),
-                )
-                return
-            reg_cfg: Dict[str, Any] = {
-                "images": modalities,
-                "fixed_image": fixed_image,
-                "backend": reg_backend_val,
-                "use_mask": reg_mask_val,
-                "replace_by_fixed_image_mask": reg_replace_mask_val,
-            }
-            if reg_mask_key_val and str(reg_mask_key_val).strip():
-                reg_cfg["mask_key"] = str(reg_mask_key_val).strip()
-            if reg_backend_val == "elastix":
-                files_raw = parse_comma_list(elastix_files_val)
-                if not files_raw:
-                    yield "❌ elastix_parameter_files is required when backend=elastix.", gr.update(visible=False)
-                    return
-                # Resolve elastix paths to absolute
-                abs_files = [abs_path(f) for f in files_raw]
-                reg_cfg["elastix_parameter_files"] = abs_files if len(abs_files) > 1 else abs_files[0]
-                if elastix_path_val.strip():
-                    reg_cfg["elastix_path"] = abs_path(elastix_path_val.strip())
-                if transformix_path_val.strip():
-                    reg_cfg["transformix_path"] = abs_path(transformix_path_val.strip())
-                if int(elastix_threads_val or 0) > 0:
-                    reg_cfg["elastix_threads"] = int(elastix_threads_val)
-                if elastix_overrides_val and str(elastix_overrides_val).strip():
-                    try:
-                        overrides = yaml_block_to_dict(str(elastix_overrides_val))
-                        if overrides:
-                            reg_cfg["elastix_parameter_overrides"] = overrides
-                    except ValueError as exc:
-                        yield f"❌ elastix_parameter_overrides: {exc}", gr.update(visible=False)
-                        return
-            else:
-                reg_cfg["type_of_transform"] = reg_transform_val
-                reg_cfg["metric"] = reg_metric_val
-                if reg_optimizer_val.strip():
-                    reg_cfg["optimizer"] = reg_optimizer_val.strip()
-                if reg_backend_val == "simpleitk":
-                    reg_cfg["number_of_histogram_bins"] = int(sitk_bins_val)
-                    reg_cfg["metric_sampling_percentage"] = float(sitk_sampling_val)
-                    reg_cfg["shrink_factors_per_level"] = [int(x) for x in parse_comma_list(sitk_shrink_val)]
-                    reg_cfg["smoothing_sigmas_per_level"] = [
-                        float(x) for x in parse_comma_list(sitk_sigmas_val)
-                    ]
-                    reg_cfg["learning_rate"] = float(sitk_lr_val)
-                    reg_cfg["number_of_iterations"] = int(sitk_iters_val)
-                    reg_cfg["bspline_mesh_size"] = int(sitk_bspline_mesh_val)
-                    reg_cfg["bspline_order"] = int(sitk_bspline_order_val)
-            built_steps["registration"] = reg_cfg
-
-        if "histogram_standardization" in enabled_set:
-            if not modalities:
-                yield f"❌ histogram_standardization: {modality_err}", gr.update(visible=False)
-                return
-            try:
-                percentiles = [float(x) for x in parse_comma_list(hist_percentiles_val)]
-            except ValueError:
-                yield "❌ histogram percentiles must be comma-separated numbers.", gr.update(visible=False)
-                return
-            hist_cfg: Dict[str, Any] = {
-                "images": modalities,
-                "percentiles": percentiles,
-                "target_min": float(hist_target_min_val),
-                "target_max": float(hist_target_max_val),
-            }
-            if hist_mask_key_val and str(hist_mask_key_val).strip():
-                hist_cfg["mask_key"] = str(hist_mask_key_val).strip()
-            built_steps["histogram_standardization"] = hist_cfg
-
-        if "adaptive_histogram_equalization" in enabled_set:
-            if not modalities:
-                yield f"❌ adaptive_histogram_equalization: {modality_err}", gr.update(visible=False)
-                return
-            built_steps["adaptive_histogram_equalization"] = {
-                "images": modalities,
-                "alpha": float(ahe_alpha_val),
-                "beta": float(ahe_beta_val),
-                "radius": int(ahe_radius_val),
-            }
-
-        if "reorientation" in enabled_set:
-            if not modalities:
-                yield f"❌ reorientation: {modality_err}", gr.update(visible=False)
-                return
-            built_steps["reorientation"] = {
-                "images": modalities,
-                "target_orientation": str(reorient_target_val).strip(),
-                "mode": str(reorient_mode_val).strip(),
-            }
-
-        if "dcm2nii" in enabled_set:
-            if not dcm2_modalities:
-                yield f"❌ dcm2nii: {dcm2_err or 'No modality key available.'}", gr.update(visible=False)
-                return
-            dcm2_cfg: Dict[str, Any] = {
-                "images": dcm2_modalities,
-                "compress": dcm2_compress_val,
-                "anonymize": dcm2_anonymize_val,
-                "ignore_derived": dcm2_ignore_derived_val,
-                "crop_images": dcm2_crop_val,
-                "generate_json": dcm2_json_val,
-                "verbose": dcm2_verbose_val,
-                "batch_mode": dcm2_batch_val,
-                "adjacent_dicoms": dcm2_adjacent_val,
-                "merge_slices": str(dcm2_merge_val),
-            }
-            if dcm2_path_val.strip():
-                dcm2_cfg["dcm2niix_path"] = dcm2_path_val.strip()
-            if dcm2_format_val.strip():
-                dcm2_cfg["filename_format"] = dcm2_format_val.strip()
-            single_file_mode = _dcm2_single_file_to_yaml(str(dcm2_single_file_val))
-            if single_file_mode is not None:
-                dcm2_cfg["single_file_mode"] = single_file_mode
-            built_steps["dcm2nii"] = dcm2_cfg
-
-        if extra_prep_yaml_val and str(extra_prep_yaml_val).strip():
-            try:
-                extra_block = yaml_block_to_dict(str(extra_prep_yaml_val))
-                if extra_block:
-                    built_steps.update(extra_block)
-            except ValueError as exc:
-                yield f"❌ {exc}", gr.update(visible=False)
-                return
-
-        prep_steps_config: Dict[str, Dict[str, Any]] = {}
-        for step_key in step_order:
-            if step_key in built_steps:
-                prep_steps_config[step_key] = built_steps[step_key]
+        step_params = StepParamValues(
+            n4_levels=n4_levels_val,
+            res_spacing=res_spacing_val,
+            zs_mask=zs_mask_val,
+            zs_mask_key=zs_mask_key_val,
+            reg_fixed=reg_fixed_val,
+            reg_backend=reg_backend_val,
+            reg_transform=reg_transform_val,
+            reg_metric=reg_metric_val,
+            reg_optimizer=reg_optimizer_val,
+            elastix_files=elastix_files_val,
+            elastix_path=elastix_path_val,
+            transformix_path=transformix_path_val,
+            elastix_threads=elastix_threads_val,
+            elastix_overrides=elastix_overrides_val,
+            sitk_bins=sitk_bins_val,
+            sitk_sampling=sitk_sampling_val,
+            sitk_shrink=sitk_shrink_val,
+            sitk_sigmas=sitk_sigmas_val,
+            sitk_lr=sitk_lr_val,
+            sitk_iters=sitk_iters_val,
+            sitk_bspline_mesh=sitk_bspline_mesh_val,
+            sitk_bspline_order=sitk_bspline_order_val,
+            reg_mask=reg_mask_val,
+            reg_replace_mask=reg_replace_mask_val,
+            reg_mask_key=reg_mask_key_val,
+            hist_percentiles=hist_percentiles_val,
+            hist_target_min=hist_target_min_val,
+            hist_target_max=hist_target_max_val,
+            hist_mask_key=hist_mask_key_val,
+            ahe_alpha=ahe_alpha_val,
+            ahe_beta=ahe_beta_val,
+            ahe_radius=ahe_radius_val,
+            reorient_target=reorient_target_val,
+            reorient_mode=reorient_mode_val,
+            dcm2_path=dcm2_path_val,
+            dcm2_format=dcm2_format_val,
+            dcm2_compress=dcm2_compress_val,
+            dcm2_anonymize=dcm2_anonymize_val,
+            dcm2_ignore_derived=dcm2_ignore_derived_val,
+            dcm2_crop=dcm2_crop_val,
+            dcm2_json=dcm2_json_val,
+            dcm2_verbose=dcm2_verbose_val,
+            dcm2_batch=dcm2_batch_val,
+            dcm2_adjacent=dcm2_adjacent_val,
+            dcm2_merge=dcm2_merge_val,
+            dcm2_single_file=dcm2_single_file_val,
+            extra_prep_yaml=extra_prep_yaml_val,
+        )
+        err_msg, prep_steps_config = build_preprocessing_steps(
+            enabled_set,
+            step_order,
+            modalities,
+            modality_err,
+            dcm2_modalities,
+            dcm2_err,
+            step_params,
+        )
+        if err_msg:
+            yield err_msg, gr.update(visible=False)
+            return
 
         config_data: Dict[str, Any] = {
             "data_dir": data_dir_abs,
@@ -1145,29 +896,38 @@ def render_preprocess_tab() -> None:
             os.makedirs(out_dir_abs, exist_ok=True)
             gui_config_path = str(Path(out_dir_abs) / "config_preprocess_gui.yaml")
             save_config_yaml(config_data, gui_config_path)
+            save_gui_draft("preprocess", gui_config_path)
             yield (
                 f"💾 Config validated and saved to {gui_config_path}\n🚀 Running preprocessing...",
                 gr.update(visible=False),
             )
+            last_log = ""
             for log_text in run_background_job(
                 run_preprocess,
                 args=(gui_config_path,),
                 log_file=Path(out_dir_abs) / "processing.log",
             ):
+                last_log = log_text
                 yield log_text, gr.update(visible=True)
+            processed_out = str(Path(out_dir_abs) / "processed_images")
+            finalize_step_if_project(
+                str(project_root) if project_root else "",
+                "preprocess",
+                last_log,
+                config_path=gui_config_path,
+                output_dir=processed_out,
+            )
         except ValidationError as val_err:
-            friendly = translate_pydantic_error(val_err)
-            yield "⚠️ Validation errors:\n" + "\n".join(f"- {e}" for e in friendly), gr.update(visible=False)
+            yield format_run_error(val_err), gr.update(visible=False)
         except Exception as exc:  # noqa: BLE001
-            val_msgs = extract_validation_msgs(exc)
-            if val_msgs:
-                yield "⚠️ Validation errors:\n" + "\n".join(f"- {e}" for e in val_msgs), gr.update(visible=False)
-            else:
-                yield f"❌ Run failed: {exc}", gr.update(visible=False)
+            yield format_run_error(exc), gr.update(visible=False)
 
-    submit_btn.click(
+    wire_standard_job(
+        submit_btn,
+        stop_btn,
         run_pipeline,
         inputs=[
+            project_root_state,
             data_dir, out_dir, processes, auto_select, random_state, step_order_state,
             *[step_enabled[step_key] for step_key in KNOWN_STEPS],
             n4_images, n4_levels,
@@ -1190,4 +950,27 @@ def render_preprocess_tab() -> None:
         ],
         outputs=[log_output, open_dir_btn],
     )
-    open_dir_btn.click(lambda p: open_directory(p), inputs=out_dir)
+    open_dir_btn.click(lambda p: open_directory(abs_path(p)), inputs=out_dir)
+
+    if project_root_state is not None:
+        register_step_paths(
+            "preprocess",
+            ["data_dir", "out_dir"],
+            [data_dir, out_dir],
+        )
+        register_project_path_fill(
+            project_root_state,
+            "preprocess",
+            ["data_dir", "out_dir"],
+            [data_dir, out_dir],
+        )
+
+    if path_picker is None:
+        picker.finalize()
+
+    if demo is not None:
+        # Restore only the YAML path; existing_yaml.change() then reloads all fields.
+        def _restore_preprocess_path() -> str:
+            draft = load_gui_draft("preprocess") or ""
+            return user_visible_path(draft) if draft else ""
+        demo.load(_restore_preprocess_path, inputs=[], outputs=[existing_yaml])

@@ -15,8 +15,9 @@
 """
 Parallel cluster-count search for group-level habitat clustering.
 
-Each candidate ``k`` is evaluated in an isolated worker process: one model fit
-per ``k``, then all requested validation metrics are derived from that fit.
+Each candidate ``k`` is evaluated in a worker thread: one model fit per ``k``,
+then all requested validation metrics are derived from that fit. Threads are used
+instead of processes to avoid ``ProcessPoolExecutor`` shutdown deadlocks on WSL.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from __future__ import annotations
 import logging
 import os
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -61,7 +62,7 @@ def resolve_cluster_search_workers(cluster_search_workers: Optional[int]) -> int
             ``max(1, cpu_count - 4)``.
 
     Returns:
-        int: Number of worker processes (at least 1).
+        int: Number of worker threads (at least 1).
     """
     if cluster_search_workers is not None:
         return max(1, int(cluster_search_workers))
@@ -226,26 +227,6 @@ def compute_validation_scores_for_k(
     return scores
 
 
-def _init_cluster_search_worker() -> None:
-    """
-    Configure logging and BLAS limits inside cluster-search worker processes.
-
-    Windows spawn workers start without the parent's logging handlers, so this
-    initializer restores habit logging when possible and falls back to stderr.
-    """
-    _limit_blas_threads_in_worker()
-    try:
-        from habit.utils.log_utils import restore_logging_in_subprocess
-
-        restore_logging_in_subprocess()
-    except Exception:
-        if not logging.getLogger().handlers:
-            logging.basicConfig(
-                level=logging.INFO,
-                format="%(asctime)s - %(levelname)s - %(message)s",
-            )
-
-
 def _format_score_snapshot(
     per_k_scores: Mapping[str, float],
     methods: Sequence[str],
@@ -273,7 +254,7 @@ def _evaluate_cluster_count_worker(
     args: Tuple[int, np.ndarray, str, Dict[str, Any], Tuple[str, ...]],
 ) -> Tuple[int, Dict[str, float], float]:
     """
-    Process-pool entry point for evaluating one candidate cluster count.
+    Thread-pool entry point for evaluating one candidate cluster count.
 
     Args:
         args: Tuple of
@@ -283,16 +264,9 @@ def _evaluate_cluster_count_worker(
         Tuple[int, Dict[str, float], float]:
             Candidate k, per-metric scores, and worker elapsed seconds.
     """
+    _limit_blas_threads_in_worker()
     n_clusters, X, algorithm, model_params, methods = args
     started_at = time.monotonic()
-    from habit.utils.log_utils import get_module_logger
-
-    worker_logger = get_module_logger(__name__)
-    worker_logger.info(
-        "Parallel cluster search worker started: algorithm=%s k=%d",
-        algorithm,
-        n_clusters,
-    )
     scores = compute_validation_scores_for_k(
         X=X,
         n_clusters=n_clusters,
@@ -301,13 +275,6 @@ def _evaluate_cluster_count_worker(
         methods=methods,
     )
     elapsed_sec = time.monotonic() - started_at
-    worker_logger.info(
-        "Parallel cluster search worker finished: algorithm=%s k=%d elapsed_sec=%.2f scores=%s",
-        algorithm,
-        n_clusters,
-        elapsed_sec,
-        _format_score_snapshot(scores, methods),
-    )
     return n_clusters, scores, elapsed_sec
 
 
@@ -331,7 +298,7 @@ def parallel_cluster_search_scores(
         algorithm: Clustering algorithm name (``kmeans`` or ``gmm``).
         model_params: Serialized constructor parameters shared across all k.
         methods: Requested validation metric names.
-        n_workers: Maximum concurrent worker processes.
+        n_workers: Maximum concurrent worker threads.
         show_progress: Whether to emit per-k completion logs.
         log: Optional logger for progress messages.
 
@@ -358,6 +325,7 @@ def parallel_cluster_search_scores(
     worker_count = max(1, min(int(n_workers), len(cluster_range)))
     methods_tuple = tuple(valid_methods)
     model_params_dict = dict(model_params)
+    _limit_blas_threads_in_worker()
 
     if log is not None and show_progress:
         log.info(
@@ -384,10 +352,7 @@ def parallel_cluster_search_scores(
             )
 
     search_started_at = time.monotonic()
-    with ProcessPoolExecutor(
-        max_workers=worker_count,
-        initializer=_init_cluster_search_worker,
-    ) as executor:
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
         futures = {
             executor.submit(_evaluate_cluster_count_worker, args): args[0]
             for args in job_args

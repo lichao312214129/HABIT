@@ -49,18 +49,40 @@ class DicomSortConfig(BaseConfig):
 
     model_config = ConfigDict(extra="forbid")
 
-    data_dir: str
-    out_dir: str
-    f: Optional[str] = None
+    data_dir: str = Field(
+        ...,
+        description="Path to the input DICOM directory tree.",
+        json_schema_extra={"group": "Paths", "widget": "path_dir", "order": 1},
+    )
+    out_dir: str = Field(
+        ...,
+        description="Path to the output directory for sorted DICOM files.",
+        json_schema_extra={"group": "Paths", "widget": "path_dir", "order": 2},
+    )
+    f: Optional[str] = Field(
+        None,
+        description="dcm2niix -f filename pattern (e.g. 'subj_%n_%g_%x/%s_%d/%r_%o.dcm').",
+        json_schema_extra={"group": "Naming", "widget": "textarea", "order": 1},
+    )
     filename_format: Optional[str] = Field(
         default=None,
         description="Deprecated: same as ``f`` (dcm2niix -f pattern).",
+        json_schema_extra={"group": "Advanced", "order": 1},
     )
-    dcm2niix_path: Optional[str] = None
-    extra_args: List[str] = Field(default_factory=list)
+    dcm2niix_path: Optional[str] = Field(
+        None,
+        description="Optional path to the dcm2niix executable.",
+        json_schema_extra={"group": "Advanced", "widget": "path", "order": 2},
+    )
+    extra_args: List[str] = Field(
+        default_factory=list,
+        description="Extra command-line arguments passed to dcm2niix.",
+        json_schema_extra={"group": "Advanced", "order": 3},
+    )
     output_dir: Optional[str] = Field(
         default=None,
         description="If set, used as dcm2niix -o instead of out_dir.",
+        json_schema_extra={"group": "Advanced", "widget": "path_dir", "order": 4},
     )
 
     @field_validator("data_dir", "out_dir")
