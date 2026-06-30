@@ -8,7 +8,11 @@ Core developers
 
 **Li Chao (黎超)**
 
+* Institution: Yongchuan Hospital, Chongqing Medical University (重庆医科大学附属永川医院)
+
 **Dong Mengshi (董梦实)**
+
+* Institution: The Third Affiliated Hospital of Sun Yat-sen University (中山大学附属第三医院)
 
 **Jiang Zekun (姜泽坤)**
 
