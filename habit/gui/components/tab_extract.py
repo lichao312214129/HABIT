@@ -26,6 +26,7 @@ from habit.gui.job_controls import (
     job_start_button_updates,
     on_stop_job_click,
 )
+from habit.gui.path_picker import PathPickerRegistry
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
     abs_path,
@@ -206,8 +207,13 @@ def _toggle_edge_method_fields(edge_method: str) -> Tuple[Any, Any]:
     )
 
 
-def render_extract_tab(demo=None) -> None:
+def render_extract_tab(
+    demo: Optional[Any] = None,
+    path_picker: PathPickerRegistry | None = None,
+    project_root_state: Optional[Any] = None,
+) -> None:
     """Render habitat feature extraction tab."""
+    _ = (demo, path_picker, project_root_state)
     gr.Markdown(
         "Extract radiomics and habitat metrics from habitat maps (`*_habitats.nrrd`) "
         "and original images; outputs CSV tables for machine learning."

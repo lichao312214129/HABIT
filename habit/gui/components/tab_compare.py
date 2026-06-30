@@ -21,6 +21,7 @@ from habit.gui.job_controls import (
     job_start_button_updates,
     on_stop_job_click,
 )
+from habit.gui.path_picker import PathPickerRegistry
 from habit.gui.pipeline_runner import run_background_job
 from habit.gui.utils import (
     abs_path,
@@ -68,8 +69,13 @@ def _model_slot(index: int) -> Dict[str, Any]:
     }
 
 
-def render_compare_tab(demo=None) -> None:
+def render_compare_tab(
+    demo: Optional[Any] = None,
+    path_picker: PathPickerRegistry | None = None,
+    project_root_state: Optional[Any] = None,
+) -> None:
     """Render multi-model comparison tab."""
+    _ = (demo, path_picker, project_root_state)
     gr.Markdown("Compare multiple model prediction CSVs (ROC, DCA, calibration, DeLong test).")
 
     with gr.Row():
