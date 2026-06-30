@@ -1,13 +1,26 @@
 # Sphinx 配置文件 - HABIT 项目文档
 #
 
+import importlib.util
 import os
 import sys
 from pathlib import Path
+from types import ModuleType
 
 # 添加项目路径
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
+
+
+def _load_project_urls_module() -> ModuleType:
+    """Load project_urls.py without importing habit.utils (avoids runtime deps in CI)."""
+    urls_path = project_root / "habit" / "utils" / "project_urls.py"
+    spec = importlib.util.spec_from_file_location("habit_project_urls", urls_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load project URLs from {urls_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 # 项目信息
 project = 'HABIT'
@@ -152,13 +165,12 @@ exclude_patterns = [
 # Pygments 高亮样式
 pygments_style = 'sphinx'
 
-# GitHub Pages configuration (values from habit.utils.project_urls)
-from habit.utils.project_urls import (  # noqa: E402
-    DOCS_BASE_URL,
-    GITHUB_REPO_SLUG,
-    GITHUB_REPO_URL,
-    github_issues_url,
-)
+# GitHub Pages configuration (single source: habit/utils/project_urls.py)
+_project_urls = _load_project_urls_module()
+DOCS_BASE_URL = _project_urls.DOCS_BASE_URL
+GITHUB_REPO_SLUG = _project_urls.GITHUB_REPO_SLUG
+GITHUB_REPO_URL = _project_urls.GITHUB_REPO_URL
+github_issues_url = _project_urls.github_issues_url
 
 github_pages = True
 github_repo = GITHUB_REPO_SLUG
