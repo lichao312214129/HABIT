@@ -83,7 +83,7 @@ Contact
 For collaboration or other inquiries:
 
 **Email**: lichao19870617@163.com
-**GitHub Issues**: |github_issues|
+**GitHub Issues**: |link_github_issues|
 
 .. note::
    If you have used HABIT in your research and would like to be acknowledged, please contact us via GitHub Issue or email.

@@ -16,18 +16,18 @@ Prepare data
 
    ``demo_data.rar`` (required)
 
-   - `Download demo_data.rar <|demo_data_link|>`_
-   - Code: ``|demo_data_code|``
+   - |download_demo_data|
+   - Code: |demo_data_code|
 
    ``config.rar`` (portable users; source users already have ``config/`` )
 
-   - `Download config.rar <|config_pack_link|>`_
-   - Code: ``|config_pack_code|``
+   - |download_config_pack|
+   - Code: |config_pack_code|
 
    ``tests.zip`` (optional; same share folder also includes ``config.rar``)
 
-   - `Download tests bundle <|tests_pack_link|>`_
-   - Code: ``|tests_pack_code|``
+   - |download_tests_pack|
+   - Code: |tests_pack_code|
 
 2. Verify ``habit --version`` .
 

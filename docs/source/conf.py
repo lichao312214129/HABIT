@@ -183,20 +183,76 @@ todo_include_todos = True
 # 自定义变量（便携包配套资源网盘；维护者更新链接与提取码）
 # Windows CPU/GPU 便携包共用一个百度网盘分享目录（v5xa）。
 # demo_data / config / tests 为独立分享；tests 分享目录内另含 config.rar（共 2 个文件，vv2c）。
-rst_epilog = """
-.. |demo_data_link| replace:: https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9
-.. |demo_data_code| replace:: 9ws9
-.. |config_pack_link| replace:: https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5
-.. |config_pack_code| replace:: kbg5
-.. |tests_pack_link| replace:: https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c
-.. |tests_pack_code| replace:: vv2c
-.. |cpu_pack_link| replace:: https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa
-.. |cpu_pack_code| replace:: v5xa
-.. |gpu_pack_link| replace:: https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa
-.. |gpu_pack_code| replace:: v5xa
-.. |torch_wheel_link| replace:: https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k
-.. |torch_wheel_code| replace:: nt7k
-.. |docs_base| replace:: """ + DOCS_BASE_URL + """
-.. |github_repo| replace:: """ + GITHUB_REPO_URL + """
-.. |github_issues| replace:: """ + github_issues_url() + """
-"""
+#
+# Docutils 不支持在 `` `text <|url_subst|>`_ `` 的 URL 位置展开 substitution；
+# 必须在 epilog 里定义「整条链接」substitution（见 _build_rst_epilog）。
+NETDISK_SHARES = {
+    "demo_data": {
+        "url": "https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9",
+        "code": "9ws9",
+        "link_label": "Download demo_data.rar",
+    },
+    "config_pack": {
+        "url": "https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5",
+        "code": "kbg5",
+        "link_label": "Download config.rar",
+    },
+    "tests_pack": {
+        "url": "https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c",
+        "code": "vv2c",
+        "link_label": "Download tests bundle",
+    },
+    "cpu_pack": {
+        "url": "https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa",
+        "code": "v5xa",
+        "link_label": "Download CPU pack",
+    },
+    "gpu_pack": {
+        "url": "https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa",
+        "code": "v5xa",
+        "link_label": "Download GPU pack",
+    },
+    "torch_wheel": {
+        "url": "https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k",
+        "code": "nt7k",
+        "link_label": "Download wheel",
+    },
+}
+
+
+def _rst_external_link_substitution(name: str, url: str, label: str) -> str:
+    """Return an rst_epilog block that expands to an HTML external hyperlink."""
+    return (
+        f".. |{name}| raw:: html\n\n"
+        f'   <a class="reference external" href="{url}">{label}</a>\n'
+    )
+
+
+def _build_rst_epilog() -> str:
+    """Build Sphinx rst_epilog with working download-link substitutions."""
+    lines: list[str] = []
+    for key, share in NETDISK_SHARES.items():
+        lines.append(
+            _rst_external_link_substitution(
+                f"download_{key}",
+                share["url"],
+                share["link_label"],
+            )
+        )
+        lines.append(f".. |{key}_code| replace:: {share['code']}")
+    lines.append(f".. |docs_base| replace:: {DOCS_BASE_URL}")
+    lines.append(f".. |github_repo| replace:: {GITHUB_REPO_URL}")
+    lines.append(
+        _rst_external_link_substitution("link_github_repo", GITHUB_REPO_URL, "GitHub")
+    )
+    lines.append(
+        _rst_external_link_substitution(
+            "link_github_issues",
+            github_issues_url(),
+            "GitHub Issues",
+        )
+    )
+    return "\n".join(lines) + "\n"
+
+
+rst_epilog = _build_rst_epilog()

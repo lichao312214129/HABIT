@@ -17,11 +17,11 @@ Portable pack
    * - Pack
      - Notes
    * - CPU (recommended)
-     - ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` · `Download CPU pack <|cpu_pack_link|>`_ · code ``|cpu_pack_code|``
+     - ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` · |download_cpu_pack| · code |cpu_pack_code|
    * - GPU bundle
-     - ~3 GB, NVIDIA GPU optional · `Download GPU pack <|gpu_pack_link|>`_ · code ``|gpu_pack_code|``
+     - ~3 GB, NVIDIA GPU optional · |download_gpu_pack| · code |gpu_pack_code|
 
-Both ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` and ``HABIT-win-py310-gpu-v0.1.0.tar.gz`` are in the **same** Baidu Netdisk folder (extract code ``|cpu_pack_code|``).
+Both ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` and ``HABIT-win-py310-gpu-v0.1.0.tar.gz`` are in the **same** Baidu Netdisk folder (extract code |cpu_pack_code|).
 
 Windows portable steps
 ----------------------
@@ -34,7 +34,7 @@ Windows portable steps
 2. Run ``setup_habit.bat`` , open a **new** terminal, run ``habit --version`` .
 3. Continue with :doc:`quickstart` or :doc:`../gui/index` .
 
-**Upgrade CPU pack to GPU torch** (optional): download ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl`` (`Download wheel <|torch_wheel_link|>`_ , code ``|torch_wheel_code|`` ), place next to ``python.exe`` , run ``install_gpu_torch.bat`` .
+**Upgrade CPU pack to GPU torch** (optional): download ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl`` (|download_torch_wheel| , code |torch_wheel_code| ), place next to ``python.exe`` , run ``install_gpu_torch.bat`` .
 
 Source install
 --------------
