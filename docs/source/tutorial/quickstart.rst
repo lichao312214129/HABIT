@@ -24,6 +24,11 @@ Prepare data
    - `Download config.rar <|config_pack_link|>`_
    - Code: ``|config_pack_code|``
 
+   ``tests.zip`` (optional; same share folder also includes ``config.rar``)
+
+   - `Download tests bundle <|tests_pack_link|>`_
+   - Code: ``|tests_pack_code|``
+
 2. Verify ``habit --version`` .
 
 Run (5 steps)

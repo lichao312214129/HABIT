@@ -80,6 +80,19 @@ GRAPH_ADJACENCY_CONNECTIVITY_CHOICES: List[str] = ["face", "edge", "corner"]
 _LOAD_WIDGET_COUNT: int = 33
 
 
+def _sanitize_feature_types(raw: Any) -> List[str]:
+    """
+    Keep only feature_types that exist in the current runtime CheckboxGroup choices.
+
+    Saved YAML may reference optional plugins (e.g. ``graph``) that are absent in
+    this installation; Gradio rejects values outside ``choices``.
+    """
+    if not isinstance(raw, list):
+        return list(DEFAULT_FEATURE_TYPES)
+    sanitized = [str(item) for item in raw if str(item) in FEATURE_TYPE_CHOICES]
+    return sanitized or list(DEFAULT_FEATURE_TYPES)
+
+
 def _graph_cfg_value(graph_cfg: Dict[str, Any], key: str, default: Any) -> Any:
     """Read one graph config key with schema default fallback."""
     value = graph_cfg.get(key, default)
@@ -469,7 +482,7 @@ def render_extract_tab(
             loaded.get("params_file_of_habitat", DEFAULT_HABITAT_PARAMS_FILE),
             loaded.get("habitat_pattern", "*_habitats.nrrd"),
             int(loaded.get("n_processes", 4)),
-            loaded.get("feature_types", FEATURE_TYPE_CHOICES),
+            _sanitize_feature_types(loaded.get("feature_types")),
             int(nh) if nh else 0,
             loaded.get("debug", False),
             bool(_graph_cfg_value(graph_cfg, "include_single_habitat_graph", True)),

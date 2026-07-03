@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, List, Tuple
 
 from habit.utils.project_urls import DOCS_BASE_URL, DOCS_SITE_LABEL
+from habit.gui.gradio_bootstrap import apply_gradio_windows_patches
 
 apply_gradio_windows_patches()
 
@@ -463,6 +464,7 @@ def main(inbrowser: bool = False) -> None:
 
         _orig_url_ok = _gradio_networking.url_ok
         _orig_httpx_get = _httpx.get
+        _orig_httpx_head = _httpx.head
 
         class _MockResp:
             is_success = True
@@ -470,10 +472,23 @@ def main(inbrowser: bool = False) -> None:
             url = "http://127.0.0.1/startup-events"
 
         def _habit_url_ok(url: str, *args: Any, **kwargs: Any) -> bool:
+            # Gradio probes localhost with HEAD; proxy/firewall often blocks it even
+            # when startup-events (GET) already succeeded above.
             try:
-                return _orig_url_ok(url, *args, **kwargs)
+                if _orig_url_ok(url, *args, **kwargs):
+                    return True
             except Exception:
-                return True
+                pass
+            return True
+
+        def _habit_httpx_head(url: str, *args: Any, **kwargs: Any) -> Any:
+            try:
+                resp = _orig_httpx_head(url, *args, **kwargs)
+                if getattr(resp, "status_code", 0) in (200, 401, 302, 303, 307):
+                    return resp
+            except Exception:
+                pass
+            return _MockResp()
 
         def _habit_httpx_get(url: str, *args: Any, **kwargs: Any) -> Any:
             try:
@@ -483,6 +498,7 @@ def main(inbrowser: bool = False) -> None:
 
         _gradio_networking.url_ok = _habit_url_ok
         _httpx.get = _habit_httpx_get
+        _httpx.head = _habit_httpx_head
     except Exception:
         pass
 

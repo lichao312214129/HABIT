@@ -181,18 +181,19 @@ html_baseurl = DOCS_BASE_URL
 todo_include_todos = True
 
 # 自定义变量（便携包配套资源网盘；维护者更新链接与提取码）
-# config/tests 若与 demo_data 不同分享，请分别修改下方链接
+# Windows CPU/GPU 便携包共用一个百度网盘分享目录（v5xa）。
+# demo_data / config / tests 为独立分享；tests 分享目录内另含 config.rar（共 2 个文件，vv2c）。
 rst_epilog = """
-.. |demo_data_link| replace:: https://pan.baidu.com/s/1vDx6JZeM4Ay7VR1GAt7a-g?pwd=hkvq
-.. |demo_data_code| replace:: hkvq
-.. |config_pack_link| replace:: https://pan.baidu.com/s/1k1AVXRU6N0V8ggG1cZVtnQ?pwd=ziex
-.. |config_pack_code| replace:: ziex
-.. |tests_pack_link| replace:: https://pan.baidu.com/s/1cBw6WtLtOXNE7vpF8429NA
-.. |tests_pack_code| replace:: xypk
-.. |cpu_pack_link| replace:: https://pan.baidu.com/s/1dG4ibQONxvMOFZm1mOKpFw?pwd=ycva
-.. |cpu_pack_code| replace:: ycva
-.. |gpu_pack_link| replace:: https://pan.baidu.com/s/1bzh3DvNmiL4m-Wdw7K0Tcg?pwd=8wzx
-.. |gpu_pack_code| replace:: 8wzx
+.. |demo_data_link| replace:: https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9
+.. |demo_data_code| replace:: 9ws9
+.. |config_pack_link| replace:: https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5
+.. |config_pack_code| replace:: kbg5
+.. |tests_pack_link| replace:: https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c
+.. |tests_pack_code| replace:: vv2c
+.. |cpu_pack_link| replace:: https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa
+.. |cpu_pack_code| replace:: v5xa
+.. |gpu_pack_link| replace:: https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa
+.. |gpu_pack_code| replace:: v5xa
 .. |torch_wheel_link| replace:: https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k
 .. |torch_wheel_code| replace:: nt7k
 .. |docs_base| replace:: """ + DOCS_BASE_URL + """

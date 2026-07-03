@@ -21,6 +21,8 @@ Portable pack
    * - GPU bundle
      - ~3 GB, NVIDIA GPU optional · `Download GPU pack <|gpu_pack_link|>`_ · code ``|gpu_pack_code|``
 
+Both ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` and ``HABIT-win-py310-gpu-v0.1.0.tar.gz`` are in the **same** Baidu Netdisk folder (extract code ``|cpu_pack_code|``).
+
 Windows portable steps
 ----------------------
 
