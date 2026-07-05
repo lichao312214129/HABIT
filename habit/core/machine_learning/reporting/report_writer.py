@@ -49,8 +49,7 @@ class ReportWriter:
         """
         Persist artefacts based on the runtime type of ``run_result``.
 
-        Parameters
-        ----------
+        Args:
         run_result:
             One of :class:`RunResult`, :class:`KFoldRunResult`,
             :class:`InferenceResult`.

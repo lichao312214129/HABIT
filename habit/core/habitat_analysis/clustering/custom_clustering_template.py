@@ -24,6 +24,8 @@ Usage Instructions:
 """
 
 import numpy as np
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
 from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
 
@@ -121,18 +123,18 @@ class CustomClusteringTemplate(BaseClustering):
         # Calculate silhouette score (if needed)
         if 'silhouette' in methods:
             if show_progress:
-                print("Calculating silhouette scores...")
+                logger.info("Calculating silhouette scores...")
             self.scores['silhouette'] = self.calculate_silhouette_scores(X, self.cluster_range)
             if show_progress:
-                print("Silhouette score calculation completed!")
+                logger.info("Silhouette score calculation completed!")
         
         # Calculate Calinski-Harabasz index (if needed)
         if 'calinski_harabasz' in methods:
             if show_progress:
-                print("Calculating Calinski-Harabasz index...")
+                logger.info("Calculating Calinski-Harabasz index...")
             self.scores['calinski_harabasz'] = self.calculate_calinski_harabasz_scores(X, self.cluster_range)
             if show_progress:
-                print("Calinski-Harabasz index calculation completed!")
+                logger.info("Calinski-Harabasz index calculation completed!")
         
         # Add your own scoring methods here (if any)
         
@@ -143,6 +145,6 @@ class CustomClusteringTemplate(BaseClustering):
         self.n_clusters = best_n_clusters
         
         if show_progress:
-            print(f"Automatically selected best number of clusters: {best_n_clusters}")
+            logger.info(f"Automatically selected best number of clusters: {best_n_clusters}")
         
         return best_n_clusters, self.scores 

@@ -66,7 +66,7 @@ class AutoGluonTabularModel(BaseModel):
         self.presets = params.get('presets', 'medium_quality')  # quality/performance tradeoff
         self.hyperparameters = params.get('hyperparameters', None)
         self.feature_importance = params.get('feature_importance', 'auto')
-        self.random_seed = int(
+        self.random_state = int(
             params.get(
                 'random_state',
                 params.get('seed', config.get('random_state', 42)),
@@ -115,7 +115,7 @@ class AutoGluonTabularModel(BaseModel):
             time_limit=self.time_limit,
             presets=self.presets,
             hyperparameters=self.hyperparameters,
-            random_seed=self.random_seed,
+            random_state=self.random_state,
         )
 
         # Save the leaderboard after model training for later analysis
@@ -185,7 +185,7 @@ class AutoGluonTabularModel(BaseModel):
             # Return as dictionary
             return dict(zip(importance_df.index, importance_df['importance'].values))
         except Exception as e:
-            print(f"Failed to get feature importance: {e}")
+            logger.error(f"Failed to get feature importance: {e}")
             return {}
     
     def save(self, filepath: str) -> None:

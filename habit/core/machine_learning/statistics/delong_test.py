@@ -23,6 +23,10 @@ import argparse
 import sys
 import os
 import json
+
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 # AUC comparison adapted from
 # https://github.com/Netflix/vmaf/
 def compute_midrank(x):
@@ -392,7 +396,7 @@ def main():
     
     # Check if file exists
     if not os.path.exists(args.input):
-        print(f"Error: File {args.input} does not exist")
+        logger.error(f"File {args.input} does not exist")
         sys.exit(1)
     
     # Parse model columns
@@ -402,22 +406,22 @@ def main():
     results = perform_delong_test(args.input, args.true_label, model_cols)
     
     # Print results
-    print("\nDeLong Test Results:")
-    print("=" * 50)
+    logger.info("\nDeLong Test Results:")
+    logger.info("=" * 50)
     for result in results:
-        print(f"\n{result['comparison']}")
-        print(f"P-value: {result['p_value']:.4f}")
-        print(f"Conclusion: {result['conclusion']}")
-        print(f"AUCs with 95% CI:")
+        logger.info(f"\n{result['comparison']}")
+        logger.info(f"P-value: {result['p_value']:.4f}")
+        logger.info(f"Conclusion: {result['conclusion']}")
+        logger.info(f"AUCs with 95% CI:")
         model1, model2 = result['comparison'].split(" vs ")
-        print(f"{model1}: {result[f'{model1}_auc']:.3f} ({result[f'{model1}_ci_lower']:.3f}-{result[f'{model1}_ci_upper']:.3f})")
-        print(f"{model2}: {result[f'{model2}_auc']:.3f} ({result[f'{model2}_ci_lower']:.3f}-{result[f'{model2}_ci_upper']:.3f})")
+        logger.info(f"{model1}: {result[f'{model1}_auc']:.3f} ({result[f'{model1}_ci_lower']:.3f}-{result[f'{model1}_ci_upper']:.3f})")
+        logger.info(f"{model2}: {result[f'{model2}_auc']:.3f} ({result[f'{model2}_ci_lower']:.3f}-{result[f'{model2}_ci_upper']:.3f})")
     
     # Save results to file if specified
     if args.output:
         with open(args.output, 'w') as f:
             json.dump(results, f, indent=4)
-        print(f"\nResults saved to {args.output}")
+        logger.info(f"\nResults saved to {args.output}")
 
 if __name__ == "__main__":
     # For debugging

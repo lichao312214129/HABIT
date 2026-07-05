@@ -262,7 +262,9 @@ def compute_legacy_config_hash(config: HabitatAnalysisConfig) -> str:
     return _hash_config_payload(build_legacy_full_config_payload(config))
 
 
-class CheckpointConfigHashError(RuntimeError):
+from habit.core.common.exceptions import HabitError
+
+class CheckpointConfigHashError(HabitError):
     """
     Raised when resume=True, strict_checkpoint_hash=True, and the on-disk
     checkpoint manifest is incompatible with the active configuration.

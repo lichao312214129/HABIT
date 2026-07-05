@@ -27,6 +27,10 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, Grad
 from sklearn.svm import SVC, SVR
 import xgboost as xgb
 import matplotlib.pyplot as plt
+
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 from .selector_registry import SelectorRegistry
 
 # Dictionary mapping estimator names to their classes
@@ -141,9 +145,9 @@ def rfecv_selector(data: pd.DataFrame,
             else:
                 plt.show()
         
-        print(f"RFECV selection: Selected {len(selected)} features from {len(selected_features)} features")
+        logger.info(f"RFECV selection: Selected {len(selected)} features from {len(selected_features)} features")
         return selected
         
     except Exception as e:
-        print(f"Error in RFECV selection: {e}")
+        logger.error(f"Error in RFECV selection: {e}")
         return [] 

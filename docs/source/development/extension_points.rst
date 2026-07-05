@@ -49,7 +49,7 @@ HABIT 的扩展严格遵循以下三个契约：
 
 **2. 定义参数 Schema 并注册**
 
-在 ``habit/core/schemas/steps/preprocessing.py``（或你的插件模块中）定义参数模型并注册。
+在 ``habit/core/schemas/steps/preprocessing.py``\ （或你的插件模块中）定义参数模型并注册。
 
 .. code-block:: python
 
@@ -177,12 +177,14 @@ HABIT 的扩展严格遵循以下三个契约：
    # 注册到 ParamSchemaRegistry (domain="model")
    ParamSchemaRegistry.register("model", "my_mlp", MyMLPParams)
 
-核心扩展点速查表
+全部扩展点速查表
 ----------------
+
+HABIT 共有 **8 个注册表**\ （6 个类式工厂 + 2 个函数式注册表）。下表是完整清单，新增组件时对号入座即可：
 
 .. list-table::
    :header-rows: 1
-   :widths: 20 30 25 25
+   :widths: 22 26 28 24
 
    * - 组件类型
      - 注册装饰器
@@ -192,10 +194,6 @@ HABIT 的扩展严格遵循以下三个契约：
      - ``@PreprocessorFactory.register("name")``
      - 继承 ``BasePreprocessor``
      - ``preprocessing``
-   * - **特征选择器**
-     - ``@SelectorRegistry.register("name")``
-     - 函数 ``(SelectorContext) -> List[str]``
-     - ``feature_selection``
    * - **机器学习模型**
      - ``@ModelFactory.register("name")``
      - 继承 ``BaseModel``
@@ -203,8 +201,34 @@ HABIT 的扩展严格遵循以下三个契约：
    * - **聚类算法**
      - ``@register_clustering("name")``
      - 继承 ``BaseClustering``
-     - (无独立 domain，依附于生境)
+     - (依附生境，无独立 domain)
+   * - **聚类阶段特征提取器**
+     - ``FeatureExtractorRegistry`` (惰性发现 ``*_extractor.py``)
+     - 继承 ``BaseClusteringExtractor``
+     - (依附生境)
+   * - **特征表预处理方法**
+     - ``@PreprocessingMethodFactory.register("name")``
+     - 继承特征预处理基类
+     - (依附生境)
+   * - **分割后生境特征插件**
+     - ``@HabitatFeatureRegistry.register("name")``
+     - 继承 ``HabitatFeaturePluginBase``
+     - (依附生境)
+   * - **特征选择器**
+     - ``@SelectorRegistry.register("name")``
+     - 函数 ``(SelectorContext) -> List[str]``
+     - ``feature_selection``
    * - **评估指标**
-     - ``@register_metric("name")``
+     - ``@MetricRegistry.register("name")``
      - 函数 ``(y_true, y_pred) -> float``
      - (纯函数，通常无参数 Schema)
+
+.. note::
+
+   **两类注册表的差别**：前 6 个是 **类式工厂**\ （继承 ``ClassRegistry``，产物是"类"，用 ``create()`` 实例化）；
+   后 2 个是 **函数式注册表**\ （继承 ``CallableRegistry``，产物是"函数"）。二者都遵守统一注册表接口，
+   由架构契约测试守护，详见 :doc:`invariants`。
+
+.. seealso::
+
+   完整可复制的组件模板见 :doc:`../customization/index`；新增后如何登记进契约测试见 :doc:`dev_workflow`。

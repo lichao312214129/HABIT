@@ -108,7 +108,7 @@ def organize_dataset(
     """
     Reorganize MRI dataset structure (multiple sequences sharing the same mask)
     
-    Parameters:
+    Args:
     src_dir: Original data root directory (containing subj001 subdirectories, etc.)
     excel_path: Path to the sequence mapping Excel file
     dst_dir: Output directory root path

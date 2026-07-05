@@ -22,6 +22,10 @@ import pandas as pd
 import numpy as np
 from typing import List, Optional, Union
 from mrmr import mrmr_classif, mrmr_regression
+
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 from .selector_registry import SelectorRegistry
 
 @SelectorRegistry.register('mrmr')
@@ -87,9 +91,9 @@ def mrmr_selector(data: pd.DataFrame,
         else:
             selected = mrmr_regression(X=X, y=y, K=n_features)
             
-        print(f"MRMR selection: Selected {len(selected)} features from {len(selected_features)} features")
+        logger.info(f"MRMR selection: Selected {len(selected)} features from {len(selected_features)} features")
         return selected
         
     except Exception as e:
-        print(f"Error in MRMR selection: {e}")
+        logger.error(f"Error in MRMR selection: {e}")
         return []

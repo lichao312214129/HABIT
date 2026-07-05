@@ -572,6 +572,10 @@ class BaseClustering(ABC):
                 - int: Optimal number of clusters
                 - Dict[str, List[float]]: Dictionary of scores for different numbers of clusters
         """
+        if logger is None:
+            from habit.utils.log_utils import get_module_logger
+            logger = get_module_logger(__name__)
+            
         # Basic validation
         if min_clusters <= 0:
             raise ValueError("min_clusters must be positive")
@@ -593,8 +597,6 @@ class BaseClustering(ABC):
                 message = f"Using default validation methods for {algo_name}: {methods}"
                 if logger is not None:
                     logger.info(message)
-                else:
-                    print(message)
         
         # Check and calculate each validation method
         if isinstance(methods, str):
@@ -634,10 +636,8 @@ class BaseClustering(ABC):
             for method in valid_methods:
                 if show_progress:
                     message = f"{method.capitalize()} calculation completed (parallel)!"
-                    if logger is not None:
-                        logger.info(message)
-                    else:
-                        print(message)
+                if logger is not None:
+                    logger.info(message)
             methods = valid_methods
         else:
             for method in methods:
@@ -654,10 +654,8 @@ class BaseClustering(ABC):
                     if scores is None:
                         if show_progress:
                             message = f"{method.capitalize()} skipped (not applicable to this algorithm)"
-                            if logger is not None:
-                                logger.info(message)
-                            else:
-                                print(message)
+                if logger is not None:
+                    logger.info(message)
                         continue
 
                     self.scores[method] = scores
@@ -665,10 +663,8 @@ class BaseClustering(ABC):
 
                     if show_progress:
                         message = f"{method.capitalize()} calculation completed!"
-                        if logger is not None:
-                            logger.info(message)
-                        else:
-                            print(message)
+                if logger is not None:
+                    logger.info(message)
 
             methods = valid_methods
 
@@ -701,10 +697,8 @@ class BaseClustering(ABC):
                 "Automatically selected best number of clusters: "
                 f"{best_n_clusters} (index={best_idx})"
             )
-            if logger is not None:
-                logger.info(message)
-            else:
-                print(message)
+                if logger is not None:
+                    logger.info(message)
 
         self._finish_cluster_search_logging(best_n_clusters, show_progress, logger)
         

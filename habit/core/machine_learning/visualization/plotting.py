@@ -28,6 +28,9 @@ from ..evaluation.metrics import calculate_net_benefit
 from ....utils.visualization_utils import process_shap_explanation
 from ....utils.font_config import PUBLICATION_FONT, setup_publication_font
 
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 class Plotter:
     def __init__(self, output_dir: str, dpi: int = 600) -> None:
         """
@@ -171,13 +174,13 @@ class Plotter:
         
         # Extract y_true as reference (any model can be used since y_true should be consistent)
         if not models_data:
-            print("No data provided for DCA plot")
+            logger.warning("No data provided for DCA plot")
             return
         
         # 检测模型的输出概率是否超过0-1，如果超过则进行归一化
         for model_name, (y_true, y_pred_proba) in models_data.items():
             if np.any(y_pred_proba > 1) or np.any(y_pred_proba < 0):
-                print(f"Warning: Model {model_name} has predicted probabilities outside [0, 1]")
+                logger.warning(f"Model {model_name} has predicted probabilities outside [0, 1]")
                 y_pred_proba = (y_pred_proba - np.min(y_pred_proba)) / (np.max(y_pred_proba) - np.min(y_pred_proba))
                 models_data[model_name] = (y_true, y_pred_proba)
         y_true = next(iter(models_data.values()))[0]

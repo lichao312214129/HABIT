@@ -33,8 +33,7 @@ def merge_csv_files(
     """
     Merge multiple CSV/Excel files horizontally based on index column.
     
-    Parameters:
-    -----------
+    Args:
     input_files : Tuple[str, ...]
         Tuple of file paths to merge (CSV or Excel)
     output_file : str

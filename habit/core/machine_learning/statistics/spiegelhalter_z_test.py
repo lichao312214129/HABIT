@@ -25,6 +25,9 @@ REF:https://stats.stackexchange.com/questions/635843/very-low-hosmer-and-lemesho
 import numpy as np
 import scipy.stats as stats
 
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 def spiegelhalter_z_test(y_true, y_pred):
     n = len(y_true)
     o_minus_e = y_true - y_pred
@@ -48,7 +51,7 @@ if __name__ == "__main__":
     z_statistic, p_value = spiegelhalter_z_test(y_true, y_pred)
     
     # Print results
-    print("Spiegelhalter Z-Test Example:")
-    print(f"Z-statistic: {z_statistic:.4f}")
-    print(f"P-value: {p_value:.4f}")
+    logger.info("Spiegelhalter Z-Test Example:")
+    logger.info(f"Z-statistic: {z_statistic:.4f}")
+    logger.info(f"P-value: {p_value:.4f}")
     

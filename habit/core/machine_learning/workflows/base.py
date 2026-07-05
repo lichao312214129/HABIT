@@ -59,8 +59,7 @@ class BaseWorkflow(ABC):
         module_name: str,
     ) -> None:
         """
-        Parameters
-        ----------
+        Args:
         config:
             ``MLConfig`` Pydantic object or a dict (validated and converted).
         module_name:

@@ -25,6 +25,9 @@ import os
 from typing import List, Optional, Tuple, Dict, Union
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 from .selector_registry import SelectorRegistry
 
 @SelectorRegistry.register('vif')
@@ -82,7 +85,7 @@ def vif_selector(X: pd.DataFrame,
         
         # Stop if too few features remain
         if data.shape[1] < 2:
-            print(f"Warning: Too few features remaining, stopping VIF selection")
+            self.logger.warning("Too few features remaining, stopping VIF selection")
             break
         
         # Recalculate VIF
@@ -97,8 +100,8 @@ def vif_selector(X: pd.DataFrame,
     selected = data.columns.tolist()
     
     # Output results
-    print(f"VIF selection: Selected {len(selected)} features from {len(selected_features)} features, removed {len(excluded_features)} features")
-    print(f"Maximum VIF value: {vif['VIF'].max() if not vif.empty else 0}")
+    logger.info(f"VIF selection: Selected {len(selected)} features from {len(selected_features)} features, removed {len(excluded_features)} features")
+    logger.info(f"Maximum VIF value: {vif['VIF'].max() if not vif.empty else 0}")
     
     # Visualization
     if visualize and outdir:

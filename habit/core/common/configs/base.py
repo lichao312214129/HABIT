@@ -26,11 +26,12 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, ValidationError
+from habit.core.common.exceptions import ConfigurationError
 
 ConfigType = TypeVar('ConfigType', bound='BaseConfig')
 
 
-class ConfigValidationError(Exception):
+class ConfigValidationError(ConfigurationError):
     def __init__(self, message: str, errors: Optional[Dict[str, Any]] = None, config_path: Optional[str] = None):
         super().__init__(message)
         self.message = message

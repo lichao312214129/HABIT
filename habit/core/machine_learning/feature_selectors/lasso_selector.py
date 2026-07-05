@@ -24,6 +24,10 @@ import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple, Dict, Union
 from sklearn.linear_model import LassoCV, lasso_path
 from sklearn.preprocessing import StandardScaler
+
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 from .selector_registry import SelectorRegistry
 
 @SelectorRegistry.register('lasso')
@@ -75,7 +79,7 @@ def lasso_selector(X: pd.DataFrame,
     
     # Get optimal alpha value
     best_alpha = lasso_cv.alpha_
-    print(f"Lasso selection: Optimal alpha value is {best_alpha:.6f}")
+    logger.info(f"Lasso selection: Optimal alpha value is {best_alpha:.6f}")
     
     # Get feature coefficients
     coefs = lasso_cv.coef_
@@ -90,7 +94,7 @@ def lasso_selector(X: pd.DataFrame,
     selected = feature_importance[feature_importance['coefficient'] != 0]['feature'].tolist()
     
     # Output results
-    print(f"Lasso selection: Selected {len(selected)} features from {len(selected_features)} features")
+    logger.info(f"Lasso selection: Selected {len(selected)} features from {len(selected_features)} features")
     
     # Calculate Lasso path (for visualization)
     alphas_path, coefs_path, _ = lasso_path(X, y, alphas=alphas)
@@ -275,8 +279,8 @@ def lasso_selector(X: pd.DataFrame,
                 
                 # Save to HTML
                 fig.write_html(os.path.join(outdir, 'lasso_path_interactive.html'))
-                print(f"Created interactive coefficient path plot: {os.path.join(outdir, 'lasso_path_interactive.html')}")
+                logger.info(f"Created interactive coefficient path plot: {os.path.join(outdir, 'lasso_path_interactive.html')}")
             except ImportError:
-                print("Plotly not installed. Skipping interactive plot creation.")
+                logger.warning("Plotly not installed. Skipping interactive plot creation.")
     
     return selected, best_alpha, alphas_path, coefs_path 

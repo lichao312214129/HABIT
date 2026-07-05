@@ -59,7 +59,7 @@ def _prepend_header(path: Path, header: str) -> bool:
     """
     Prepend license header to a source file.
 
-    Parameters
+    Args:
     ----------
     path : Path
         Target file path.

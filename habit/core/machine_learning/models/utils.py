@@ -20,6 +20,9 @@ Provides utility functions for working with machine learning models
 from .base import BaseModel
 from .factory import ModelFactory
 
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 # Export functions for model management
 def create_model(name, **kwargs):
     """
@@ -58,24 +61,24 @@ def register_all_models():
         from .logistic_regression_model import LogisticRegressionModel
         models_loaded += 1
     except ImportError:
-        print("Warning: Failed to import LogisticRegressionModel")
+        logger.warning("Failed to import LogisticRegressionModel")
 
     try:
         from .svm_model import SVMModel
         models_loaded += 1
     except ImportError:
-        print("Warning: Failed to import SVMModel")
+        logger.warning("Failed to import SVMModel")
 
     try:
         from .random_forest_model import RandomForestModel
         models_loaded += 1
     except ImportError:
-        print("Warning: Failed to import RandomForestModel")
+        logger.warning("Failed to import RandomForestModel")
 
     try:
         from .xgboost_model import XGBoostModel
         models_loaded += 1
     except ImportError:
-        print("Warning: Failed to import XGBoostModel")
+        logger.warning("Failed to import XGBoostModel")
         
     return models_loaded 

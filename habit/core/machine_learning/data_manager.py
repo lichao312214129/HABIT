@@ -299,7 +299,7 @@ class DataManager:
         self.input_config = config.input
         self.split_method = getattr(config, "split_method", "stratified")
         self.test_size = getattr(config, "test_size", 0.3)
-        self.seed = getattr(config, "random_state", 42)
+        self.random_state = getattr(config, "random_state", 42)
         self.train_ids_file = getattr(config, "train_ids_file", None)
         self.test_ids_file = getattr(config, "test_ids_file", None)
 
@@ -346,7 +346,7 @@ class DataManager:
             y=y,
             split_method=self.split_method,
             test_size=self.test_size,
-            random_state=self.seed,
+            random_state=self.random_state,
             train_ids_file=self.train_ids_file,
             test_ids_file=self.test_ids_file,
         )

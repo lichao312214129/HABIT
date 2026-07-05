@@ -48,15 +48,13 @@ class KFoldRunner(BaseRunner):
         """
         Run the full K-Fold loop and collect artefacts.
 
-        Parameters
-        ----------
+        Args:
         X:
             Feature matrix.
         y:
             Target vector aligned with ``X``.
 
-        Returns
-        -------
+        Returns:
         KFoldRunResult
             Structured K-Fold output (per-fold + aggregated payloads).
         """
@@ -168,8 +166,7 @@ class KFoldRunner(BaseRunner):
         """
         Aggregate fold-level outputs into model-level results and summary rows.
 
-        Returns
-        -------
+        Returns:
         Tuple[Dict[str, AggregatedModelResult], List[Dict[str, Any]]]
             The aggregated result map and the summary rows used by the writer.
         """

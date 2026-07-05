@@ -41,8 +41,7 @@ class BaseRunner:
 
     def __init__(self, context: RunnerContext, plan: WorkflowPlan) -> None:
         """
-        Parameters
-        ----------
+        Args:
         context:
             Bundle of collaborators (data manager, pipeline builder,
             resampler, logger, config).
@@ -56,8 +55,7 @@ class BaseRunner:
         """
         Load features/labels via the context's data manager.
 
-        Returns
-        -------
+        Returns:
         Tuple[pd.DataFrame, pd.Series]
             Feature matrix (without label column) and target vector.
         """

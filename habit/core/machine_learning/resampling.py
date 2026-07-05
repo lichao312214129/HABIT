@@ -91,8 +91,7 @@ class Resampler:
         """
         Resample the training set (when configured) and fit ``estimator``.
 
-        Parameters
-        ----------
+        Args:
         estimator:
             sklearn-compatible estimator/pipeline already constructed.
         X_train:
@@ -100,8 +99,7 @@ class Resampler:
         y_train:
             Training labels aligned with ``X_train``.
 
-        Returns
-        -------
+        Returns:
         Any
             The fitted estimator (the same object is returned for chaining).
         """

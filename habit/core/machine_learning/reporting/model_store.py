@@ -44,8 +44,7 @@ class ModelStore:
 
     def __init__(self, output_dir: str, is_save_model: bool = True) -> None:
         """
-        Parameters
-        ----------
+        Args:
         output_dir:
             Root directory where artefacts are written; a ``models``
             sub-directory is created automatically.
@@ -64,8 +63,7 @@ class ModelStore:
         """
         Save the final pipelines from a holdout run.
 
-        Returns
-        -------
+        Returns:
         Dict[str, str]
             Mapping ``model_name -> saved_path``.
         """
@@ -92,16 +90,14 @@ class ModelStore:
         Wrap each model's fold-trained estimators into a single
         :class:`HabitEnsembleModel` and persist it on disk.
 
-        Parameters
-        ----------
+        Args:
         kfold_result:
             Structured K-Fold output.
         voting:
             Either ``"soft"`` (average probabilities) or ``"hard"``
             (majority vote).  Defaults to ``"soft"``.
 
-        Returns
-        -------
+        Returns:
         Dict[str, str]
             Mapping ``model_name -> saved_path``.  Empty dict when
             ``is_save_model`` is False or when no fold estimators exist.

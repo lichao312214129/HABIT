@@ -20,10 +20,12 @@ import threading
 from pathlib import Path
 from typing import Any, Iterator, Optional, TypeVar
 
+from habit.core.common.exceptions import HabitError
+
 T = TypeVar("T")
 
 
-class JobCancelledError(Exception):
+class JobCancelledError(HabitError):
     """Raised when the user stops a GUI background job."""
 
 

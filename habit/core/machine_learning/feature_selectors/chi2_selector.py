@@ -28,6 +28,9 @@ from sklearn.feature_selection import chi2, f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from habit.utils.log_utils import get_module_logger
+logger = get_module_logger(__name__)
+
 from .selector_registry import SelectorRegistry
 
 @SelectorRegistry.register('chi2')
@@ -63,7 +66,7 @@ def chi2_selector(
     
     # Check for negative values
     if (X_subset < 0).any().any():
-        print("Warning: Chi2 test requires non-negative features. Converting negative values to zero.")
+        logger.warning("Chi2 test requires non-negative features. Converting negative values to zero.")
         X_subset = X_subset.clip(lower=0)
     
     # Apply Chi2 test
@@ -95,7 +98,7 @@ def chi2_selector(
     # Get selected feature names
     selected_features_result = feature_ranking.loc[selected_mask, 'feature'].tolist()
     
-    print(f"Selected {len(selected_features_result)} features from {len(selected_features)} features using {selection_method}")
+    logger.info(f"Selected {len(selected_features_result)} features from {len(selected_features)} features using {selection_method}")
     
     # Save results if output directory specified
     if outdir:

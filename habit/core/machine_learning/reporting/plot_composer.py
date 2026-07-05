@@ -39,8 +39,7 @@ class PlotComposer:
         """
         Render figures based on the result variant.
 
-        Parameters
-        ----------
+        Args:
         run_result:
             One of :class:`RunResult`, :class:`KFoldRunResult`,
             :class:`InferenceResult`.  Inference runs produce no figures.
