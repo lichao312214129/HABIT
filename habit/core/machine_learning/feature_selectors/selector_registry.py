@@ -24,13 +24,34 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
+
+from habit.core.common.registry import CallableRegistry
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger('ml.selector_registry')
 
-# Feature selector registry with metadata
-# Format: { 'name': { 'func': callable, 'default_before_z_score': bool, 'display_name': str } }
-_SELECTOR_REGISTRY: Dict[str, Dict[str, Any]] = {}
+
+class SelectorRegistry(CallableRegistry[Callable]):
+    """
+    Registry of feature selection functions.
+
+    Uses the shared :class:`~habit.core.common.registry.CallableRegistry`
+    contract (``register`` / ``get`` / ``available`` / ``get_entry`` /
+    ``entries`` / ``register_params_model`` / ``get_params_model``). Register a
+    selector with::
+
+        @SelectorRegistry.register("variance", display_name="Variance Threshold",
+                                   default_before_z_score=True)
+        def variance_selector(context: SelectorContext) -> List[str]:
+            ...
+
+    Each entry stores ``func`` + ``display_name`` + ``default_before_z_score``.
+    """
+
+    kind = "feature selector"
+
+    #: Selectors run after z-score scaling unless the entry opts in.
+    default_metadata: Dict[str, Any] = {"default_before_z_score": False}
 
 
 @dataclass(frozen=True)
@@ -56,71 +77,6 @@ class SelectorResult:
     selected_features: List[str]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-def register_selector(name: str, display_name: str = None, default_before_z_score: bool = False):
-    """
-    Decorator for registering feature selectors with metadata.
-    
-    Args:
-        name: Internal unique identifier for the selector.
-        display_name: Pretty name for logging and reports.
-        default_before_z_score: If True, this selector is recommended to run before scaling (e.g., Variance).
-    """
-    def decorator(func: Callable) -> Callable:
-        _SELECTOR_REGISTRY[name] = {
-            'func': func,
-            'display_name': display_name or name.replace('_', ' ').title(),
-            'default_before_z_score': default_before_z_score
-        }
-        return func
-    return decorator
-
-def get_selector_info(name: str) -> Dict[str, Any]:
-    """Get metadata for a specific selector."""
-    if name not in _SELECTOR_REGISTRY:
-        raise ValueError(f"Feature selector '{name}' not found in registry.")
-    return _SELECTOR_REGISTRY[name]
-
-def get_selector(name: str) -> Callable:
-    """Backward compatible function to get the selector callable."""
-    return get_selector_info(name)['func']
-
-def get_available_selectors() -> List[str]:
-    """Get list of all registered selector names."""
-    return list(_SELECTOR_REGISTRY.keys())
-
-
-def register_params_model(name: str, params_model: type) -> None:
-    """
-    Associate a Pydantic *Params schema with a registered feature selector.
-
-    Args:
-        name: Selector registry key.
-        params_model: Pydantic model for GUI / YAML param validation.
-    """
-    if name not in _SELECTOR_REGISTRY:
-        _SELECTOR_REGISTRY[name] = {
-            "func": None,
-            "display_name": name,
-            "default_before_z_score": False,
-        }
-    _SELECTOR_REGISTRY[name]["params_model"] = params_model
-
-
-def get_params_model(name: str) -> Optional[type]:
-    """
-    Return the Pydantic params schema for a selector, if registered.
-
-    Args:
-        name: Selector registry key.
-
-    Returns:
-        Optional[type]: Params model class or None.
-    """
-    info = _SELECTOR_REGISTRY.get(name)
-    if info is None:
-        return None
-    return info.get("params_model")
-
 def run_selector(name: str, 
                 X: pd.DataFrame, 
                 y: pd.Series, 
@@ -132,7 +88,9 @@ def run_selector(name: str,
     if selected_features is None:
         selected_features = X.columns.tolist()
     
-    info = get_selector_info(name)
+    info = SelectorRegistry.get_entry(name)
+    if info is None:
+        raise ValueError(f"Feature selector '{name}' not found in registry.")
     selector_func = info['func']
     sig = inspect.signature(selector_func)
     bound_args = {}

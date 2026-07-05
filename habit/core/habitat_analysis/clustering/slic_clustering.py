@@ -35,10 +35,10 @@ from sklearn.metrics import (
     silhouette_score,
 )
 
-from .base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
 
-@register_clustering("slic")
+@ClusteringAlgorithmFactory.register("slic")
 class SLICClustering(BaseClustering):
     """
     SLIC-based clustering for voxel-level habitat analysis.

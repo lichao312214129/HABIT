@@ -21,7 +21,7 @@ import os
 import pandas as pd
 from typing import List, Optional
 
-from .selector_registry import register_selector, SelectorContext
+from .selector_registry import SelectorRegistry, SelectorContext
 from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
 
 def _set_r_environment(Rhome: Optional[str]) -> None:
@@ -45,7 +45,7 @@ def _set_r_environment(Rhome: Optional[str]) -> None:
     from rpy2.robjects import r, pandas2ri
     from rpy2.robjects.packages import importr
         
-@register_selector('stepwise_r')
+@SelectorRegistry.register('stepwise_r')
 def stepwise_selector(
     X: Optional[pd.DataFrame] = None,
     y: Optional[pd.Series] = None,

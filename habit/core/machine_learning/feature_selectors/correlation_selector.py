@@ -24,9 +24,9 @@ import seaborn as sns
 import os
 import json
 from typing import List, Optional, Tuple, Dict, Union
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('correlation')
+@SelectorRegistry.register('correlation')
 def correlation_selector(data: pd.DataFrame, 
                         threshold: float = 0.8, 
                         method: str = 'spearman',

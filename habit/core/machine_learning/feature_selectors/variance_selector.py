@@ -27,9 +27,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.feature_selection import VarianceThreshold
 
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('variance', display_name='Variance Threshold', default_before_z_score=True)
+@SelectorRegistry.register('variance', display_name='Variance Threshold', default_before_z_score=True)
 def variance_selector(
         X: pd.DataFrame,
         y: pd.Series,

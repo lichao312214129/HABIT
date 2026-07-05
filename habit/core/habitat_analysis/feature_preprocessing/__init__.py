@@ -16,7 +16,7 @@
 Feature-preprocessing package for habitat analysis.
 
 All preprocessing uses a unified DataFrame pipeline backed by
-``PreprocessingMethodFactory`` and ``@register_preprocessing``. Built-in
+``PreprocessingMethodFactory`` and ``@PreprocessingMethodFactory.register``. Built-in
 methods (including variance / correlation filters) live in :mod:`builtin_methods`.
 """
 
@@ -24,7 +24,6 @@ from .base_preprocessing import (
     BaseFeaturePreprocessing,
     BaselineStats,
     PreprocessingMethodFactory,
-    register_preprocessing,
 )
 from .builtin_methods import (
     apply_correlation_filter,
@@ -72,7 +71,6 @@ __all__ = [
     "handle_extreme_values",
     "preprocess_features",
     "process_features_pipeline",
-    "register_preprocessing",
     "select_correlation_columns",
     "select_variance_columns",
 ]

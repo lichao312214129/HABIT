@@ -231,7 +231,7 @@ class ModelEvaluator:
         """
         Print model performance table using dynamically registered metrics.
         """
-        from .metrics import METRIC_REGISTRY
+        from .metrics import MetricRegistry
         
         self.logger.info("="*80)
         self.logger.info("Model Performance Evaluation Table")
@@ -255,7 +255,7 @@ class ModelEvaluator:
         self.logger.info("-"*80)
         
         # Dynamically iterate through all registered metrics
-        for m_id, info in METRIC_REGISTRY.items():
+        for m_id, info in MetricRegistry.entries().items():
             row = [info['display_name']]
             
             for model_name in sorted(available_models):
@@ -275,7 +275,7 @@ class ModelEvaluator:
         """
         Save model performance table to CSV file using registered metrics.
         """
-        from .metrics import METRIC_REGISTRY
+        from .metrics import MetricRegistry
         
         # Get available model names
         available_models = set()
@@ -287,7 +287,7 @@ class ModelEvaluator:
             return
         
         performance_data = []
-        for m_id, info in METRIC_REGISTRY.items():
+        for m_id, info in MetricRegistry.entries().items():
             row_data = {
                 'Metric': info['display_name'],
                 'Metric_Code': m_id
@@ -314,7 +314,7 @@ class ModelEvaluator:
         """
         Save detailed performance summary with dynamic metrics.
         """
-        from .metrics import METRIC_REGISTRY
+        from .metrics import MetricRegistry
         
         available_models = set()
         if 'train' in results: available_models.update(results['train'].keys())
@@ -333,7 +333,7 @@ class ModelEvaluator:
                 row = {'Model': model_name, 'Dataset': dataset_type.capitalize()}
                 
                 # Add all registered metrics
-                for m_id, info in METRIC_REGISTRY.items():
+                for m_id, info in MetricRegistry.entries().items():
                     row[info['display_name'].replace(' ', '_')] = metrics.get(m_id, np.nan)
                 
                 # Add specialized interpretations

@@ -19,10 +19,10 @@ K-Means Clustering Implementation for Habitat Analysis.
 import numpy as np
 from sklearn.cluster import KMeans
 from typing import Optional, Any
-from .base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
 
-@register_clustering('kmeans')
+@ClusteringAlgorithmFactory.register('kmeans')
 class KMeansClustering(BaseClustering):
     """
     Implementation of KMeans clustering algorithm

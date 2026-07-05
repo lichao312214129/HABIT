@@ -30,7 +30,7 @@ import warnings
 
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.log_utils import get_module_logger
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 from .selector_registry import SelectorContext
 from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
 
@@ -478,7 +478,7 @@ def stepwise_selection(X: pd.DataFrame,
             
     return initial_features
 
-@register_selector('stepwise')
+@SelectorRegistry.register('stepwise')
 def python_stepwise_selector(X: pd.DataFrame, 
                            y: pd.Series,
                            direction: str = 'backward',

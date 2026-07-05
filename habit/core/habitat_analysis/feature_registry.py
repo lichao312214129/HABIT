@@ -1,7 +1,7 @@
 """Registry for habitat feature extraction plugins.
 
 Both built-in types (traditional, msi, etc.) and optional plugins (e.g. graph
-topology in HABIT-v2) register here via ``@register_habitat_feature``.
+topology in HABIT-v2) register here via ``@HabitatFeatureRegistry.register``.
 
 ``SubjectExtractionContext`` and ``BatchExportContext`` are typed bundles that
 carry all information a plugin needs, so the orchestrator (HabitatMapAnalyzer)
@@ -9,7 +9,7 @@ never needs to know the internals of any feature type.
 
 Adding a new feature type only requires:
     1. Subclass ``HabitatFeaturePluginBase``
-    2. Decorate with ``@register_habitat_feature('my_feature')``
+    2. Decorate with ``@HabitatFeatureRegistry.register('my_feature')``
     3. Implement ``extract_subject()`` and ``export_batch()``
     4. No changes to HabitatMapAnalyzer are needed.
 """
@@ -80,7 +80,7 @@ class HabitatFeaturePluginBase:
     Both built-in types and optional packages (HABIT-v2) inherit from this
     class.  Register a subclass by decorating it with::
 
-        @register_habitat_feature('my_feature')
+        @HabitatFeatureRegistry.register('my_feature')
         class MyPlugin(HabitatFeaturePluginBase):
             ...
 
@@ -158,22 +158,27 @@ class HabitatFeatureRegistry(ClassRegistry[HabitatFeaturePluginBase]):
 
     kind = "habitat feature plugin"
 
+    @classmethod
+    def register(cls, name: str) -> Callable[[Type[PluginT]], Type[PluginT]]:
+        """Register a plugin under ``name`` and set its ``name`` class attribute.
 
-def register_habitat_feature(name: str) -> Callable[[Type[PluginT]], Type[PluginT]]:
-    """Decorator that registers a habitat feature plugin under ``name``.
+        Overrides :meth:`ClassRegistry.register` because a plugin's registry key
+        must also be exposed on the class as ``cls.name`` (the orchestrator reads
+        it back), so the two never drift apart.
 
-    Args:
-        name: The feature type name (e.g. ``'msi'``, ``'ith_score'``).
+        Args:
+            name: The feature type name (e.g. ``'msi'``, ``'ith_score'``).
 
-    Returns:
-        Class decorator that registers and returns the class unchanged.
-    """
-    def decorator(cls: Type[PluginT]) -> Type[PluginT]:
-        cls.name = name
-        HabitatFeatureRegistry.register(name)(cls)
-        return cls
+        Returns:
+            Class decorator that stores the class, sets ``cls.name`` and returns
+            the class unchanged.
+        """
+        def decorator(target: Type[PluginT]) -> Type[PluginT]:
+            target.name = name
+            cls._registry[cls._normalize(name)] = target
+            return target
 
-    return decorator
+        return decorator
 
 
 def bootstrap_builtin_plugins() -> None:

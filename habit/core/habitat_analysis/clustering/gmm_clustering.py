@@ -19,10 +19,10 @@ Gaussian Mixture Model Clustering for Habitat Analysis.
 import numpy as np
 from sklearn.mixture import GaussianMixture
 from typing import Optional, Any, Tuple
-from .base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
 
-@register_clustering('gmm')
+@ClusteringAlgorithmFactory.register('gmm')
 class GMMClustering(BaseClustering):
     """
     Gaussian Mixture Model (GMM) clustering algorithm implementation

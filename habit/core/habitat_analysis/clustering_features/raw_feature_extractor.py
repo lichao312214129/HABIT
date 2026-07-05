@@ -21,11 +21,10 @@ import pandas as pd
 import SimpleITK as sitk
 import os
 from typing import Union, List
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor, \
-    register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 
-@register_feature_extractor('raw')
+@FeatureExtractorRegistry.register('raw')
 class RawFeatureExtractor(BaseClusteringExtractor):
     """
     Simple feature extractor that directly extracts image intensities from ROI

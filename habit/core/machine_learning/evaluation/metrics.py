@@ -30,13 +30,34 @@ from typing import Dict, Tuple, Union, List, Callable, Any, Optional, Literal
 from sklearn import metrics
 from sklearn.metrics import roc_auc_score, accuracy_score, roc_curve, f1_score as sklearn_f1_score
 from scipy import stats
+from habit.core.common.registry import CallableRegistry
 from ..statistics.delong_test import delong_roc_variance, delong_roc_test
 from ..statistics.hosmer_lemeshow_test import hosmer_lemeshow_test
 from ..statistics.spiegelhalter_z_test import spiegelhalter_z_test
 
 # --- Metric Registry System ---
 
-METRIC_REGISTRY: Dict[str, Dict[str, Any]] = {}
+
+class MetricRegistry(CallableRegistry[Callable]):
+    """
+    Registry of model evaluation metric functions.
+
+    Uses the shared :class:`~habit.core.common.registry.CallableRegistry`
+    contract (``register`` / ``get`` / ``available`` / ``get_entry`` /
+    ``entries`` / ...). Register a metric with::
+
+        @MetricRegistry.register("accuracy", display_name="Accuracy")
+        def calc_accuracy(y_true, y_pred, y_prob, cm=None):
+            ...
+
+    Each entry stores ``func`` + ``display_name`` + ``category``
+    (``'basic'`` / ``'statistical'`` / ``'clinical'``).
+    """
+
+    kind = "metric"
+
+    #: Metrics default to the ``basic`` category unless overridden.
+    default_metadata: Dict[str, Any] = {"category": "basic"}
 
 
 # --- Confusion Matrix Cache Class ---
@@ -68,32 +89,14 @@ class MetricsCache:
             )
         return self._cached_metrics[metric_name]
 
-def register_metric(name: str, display_name: str, category: str = 'basic'):
-    """
-    Decorator to register a metric function.
-    
-    Args:
-        name: Internal unique key for the metric
-        display_name: Pretty name for reports and plots
-        category: 'basic', 'statistical', or 'clinical'
-    """
-    def decorator(func: Callable):
-        METRIC_REGISTRY[name] = {
-            'func': func,
-            'display_name': display_name,
-            'category': category
-        }
-        return func
-    return decorator
-
 # --- Optimized Basic Metrics Implementation ---
 # These now accept confusion matrix to avoid repeated calculation
 
-@register_metric('accuracy', 'Accuracy')
+@MetricRegistry.register('accuracy', display_name='Accuracy')
 def calc_accuracy(y_true, y_pred, y_prob, cm=None):
     return accuracy_score(y_true, y_pred)
 
-@register_metric('sensitivity', 'Sensitivity')
+@MetricRegistry.register('sensitivity', display_name='Sensitivity')
 def calc_sensitivity(y_true, y_pred, y_prob, cm=None):
     """Calculate sensitivity (recall, true positive rate)."""
     if cm is None:
@@ -111,7 +114,7 @@ def calc_sensitivity(y_true, y_pred, y_prob, cm=None):
             recalls.append(recall)
         return np.mean(recalls)
 
-@register_metric('specificity', 'Specificity')
+@MetricRegistry.register('specificity', display_name='Specificity')
 def calc_specificity(y_true, y_pred, y_prob, cm=None):
     """Calculate specificity (true negative rate)."""
     if cm is None:
@@ -128,7 +131,7 @@ def calc_specificity(y_true, y_pred, y_prob, cm=None):
             specs.append(spec)
         return np.mean(specs)
 
-@register_metric('ppv', 'PPV')
+@MetricRegistry.register('ppv', display_name='PPV')
 def calc_ppv(y_true, y_pred, y_prob, cm=None):
     """Calculate Positive Predictive Value (precision)."""
     if cm is None:
@@ -139,7 +142,7 @@ def calc_ppv(y_true, y_pred, y_prob, cm=None):
         # Multi-class: macro average precision
         return metrics.precision_score(y_true, y_pred, average='macro', zero_division=0)
 
-@register_metric('npv', 'NPV')
+@MetricRegistry.register('npv', display_name='NPV')
 def calc_npv(y_true, y_pred, y_prob, cm=None):
     """Calculate Negative Predictive Value."""
     if cm is None:
@@ -156,7 +159,7 @@ def calc_npv(y_true, y_pred, y_prob, cm=None):
             npvs.append(npv)
         return np.mean(npvs)
 
-@register_metric('f1_score', 'F1-score')
+@MetricRegistry.register('f1_score', display_name='F1-score')
 def calc_f1(y_true, y_pred, y_prob, cm=None):
     """Calculate F1-score (harmonic mean of precision and recall)."""
     if cm is None:
@@ -166,7 +169,7 @@ def calc_f1(y_true, y_pred, y_prob, cm=None):
     recall = calc_sensitivity(y_true, y_pred, y_prob, cm)
     return 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
-@register_metric('auc', 'AUC')
+@MetricRegistry.register('auc', display_name='AUC')
 def calc_auc(y_true, y_pred, y_prob):
     # Support for multi-class AUC will be handled here if y_prob is 2D
     if isinstance(y_prob, np.ndarray) and y_prob.ndim > 1:
@@ -175,7 +178,7 @@ def calc_auc(y_true, y_pred, y_prob):
 
 # --- Statistical Metrics Implementation ---
 
-@register_metric('hosmer_lemeshow_p_value', 'H-L P-value', category='statistical')
+@MetricRegistry.register('hosmer_lemeshow_p_value', display_name='H-L P-value', category='statistical')
 def calc_hl_p(y_true, y_pred, y_prob):
     try:
         # H-L test usually only for binary
@@ -186,7 +189,7 @@ def calc_hl_p(y_true, y_pred, y_prob):
     except:
         return np.nan
 
-@register_metric('spiegelhalter_z_p_value', 'Spiegelhalter P-value', category='statistical')
+@MetricRegistry.register('spiegelhalter_z_p_value', display_name='Spiegelhalter P-value', category='statistical')
 def calc_spiegelhalter_p(y_true, y_pred, y_prob):
     try:
         if y_prob.ndim > 1 and y_prob.shape[1] > 1: return np.nan
@@ -227,7 +230,7 @@ def calculate_metrics(y_true: Union[np.ndarray, PredictionContainer],
     cache = MetricsCache(container.y_true, container.y_pred, container.get_eval_probs()) if use_cache else None
     
     metrics_dict = {}
-    for name, info in METRIC_REGISTRY.items():
+    for name, info in MetricRegistry.entries().items():
         # Filter by category if specified
         if categories is not None and info['category'] not in categories:
             continue

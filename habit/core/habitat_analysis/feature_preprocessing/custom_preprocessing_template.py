@@ -18,7 +18,7 @@ Template for registering a custom habitat feature preprocessing method.
 Steps to add a new method:
 1. Subclass ``BaseFeaturePreprocessing`` below.
 2. Set ``changes_columns=True`` when the method drops or reorders feature columns.
-3. Apply ``@register_preprocessing("your_method")`` with the YAML ``method`` key.
+3. Apply ``@PreprocessingMethodFactory.register("your_method")`` with the YAML ``method`` key.
 4. Add the name to ``PreprocessingMethod.method`` Literal in ``config_schemas.py``.
 5. Import your module once at startup (or place it under ``feature_preprocessing/``
    so it is discovered alongside ``builtin_methods``).
@@ -38,11 +38,11 @@ from typing import Any, Dict, Optional, Union
 import pandas as pd
 from pydantic import BaseModel
 
-from .base_preprocessing import BaseFeaturePreprocessing, BaselineStats, register_preprocessing
+from .base_preprocessing import BaseFeaturePreprocessing, BaselineStats, PreprocessingMethodFactory
 from .method_config_utils import read_method_field
 
 
-@register_preprocessing("custom_template")
+@PreprocessingMethodFactory.register("custom_template")
 class CustomTemplatePreprocessing(BaseFeaturePreprocessing):
     """
     Example handler: multiply all feature columns by a configurable scale factor.

@@ -18,7 +18,7 @@ HabitatMapAnalyzer — orchestrator for post-clustering feature extraction.
 
 All feature types (built-in and optional) are implemented as plugins that
 inherit from HabitatFeaturePluginBase and are registered with
-@register_habitat_feature.  This class is a pure dispatcher: it never
+@HabitatFeatureRegistry.register.  This class is a pure dispatcher: it never
 contains feature-type-specific logic.  Adding a new feature type requires
 only creating a new plugin class — no changes here.
 

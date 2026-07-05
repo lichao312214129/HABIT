@@ -20,10 +20,10 @@ import numpy as np
 import pandas as pd
 from typing import List, Set, Union
 
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 
-@register_feature_extractor('concat')
+@FeatureExtractorRegistry.register('concat')
 class ConcatImageFeatureExtractor(BaseClusteringExtractor):
     """
     Feature extractor that concatenates features from multiple images

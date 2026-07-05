@@ -27,9 +27,9 @@ from sklearn.feature_selection import f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('anova')
+@SelectorRegistry.register('anova')
 def anova_selector(
         X: pd.DataFrame,
         y: pd.Series,

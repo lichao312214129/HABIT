@@ -26,7 +26,7 @@ Registered names (used in YAML feature_types lists):
     - ith_score       : Intratumoral Heterogeneity score
 
 To add a new feature type, create a new subclass here (or in a separate file),
-decorate it with @register_habitat_feature('your_name'), and implement
+decorate it with @HabitatFeatureRegistry.register('your_name'), and implement
 extract_subject() + export_batch().  No changes to HabitatMapAnalyzer needed.
 """
 
@@ -41,8 +41,8 @@ import pandas as pd
 from habit.core.habitat_analysis.feature_registry import (
     BatchExportContext,
     HabitatFeaturePluginBase,
+    HabitatFeatureRegistry,
     SubjectExtractionContext,
-    register_habitat_feature,
 )
 from habit.utils.progress_utils import CustomTqdm
 
@@ -57,7 +57,7 @@ from .msi_features import MSIFeatureExtractor
 # non_radiomics: region count + volume ratio per habitat label
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("non_radiomics")
+@HabitatFeatureRegistry.register("non_radiomics")
 class NonRadiomicsPlugin(HabitatFeaturePluginBase):
     """Basic spatial features: disconnected region count and volume ratio.
 
@@ -132,7 +132,7 @@ class NonRadiomicsPlugin(HabitatFeaturePluginBase):
 # traditional: PyRadiomics on the raw image within the whole ROI mask
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("traditional")
+@HabitatFeatureRegistry.register("traditional")
 class TraditionalRadiomicsPlugin(HabitatFeaturePluginBase):
     """PyRadiomics features extracted from the raw image within the ROI.
 
@@ -234,7 +234,7 @@ class TraditionalRadiomicsPlugin(HabitatFeaturePluginBase):
 # whole_habitat: PyRadiomics on the multi-label habitat map itself
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("whole_habitat")
+@HabitatFeatureRegistry.register("whole_habitat")
 class WholeHabitatPlugin(HabitatFeaturePluginBase):
     """PyRadiomics features of the habitat map treated as a single binary mask.
 
@@ -315,7 +315,7 @@ class WholeHabitatPlugin(HabitatFeaturePluginBase):
 # each_habitat: PyRadiomics on the raw image per individual habitat label
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("each_habitat")
+@HabitatFeatureRegistry.register("each_habitat")
 class EachHabitatPlugin(HabitatFeaturePluginBase):
     """PyRadiomics extracted from the raw image within each habitat label.
 
@@ -451,7 +451,7 @@ class EachHabitatPlugin(HabitatFeaturePluginBase):
 # msi: Mutual Spatial Integrity
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("msi")
+@HabitatFeatureRegistry.register("msi")
 class MSIPlugin(HabitatFeaturePluginBase):
     """Mutual Spatial Integrity (MSI) features derived from the habitat map.
 
@@ -540,7 +540,7 @@ class MSIPlugin(HabitatFeaturePluginBase):
 # ith_score: Intratumoral Heterogeneity score
 # ---------------------------------------------------------------------------
 
-@register_habitat_feature("ith_score")
+@HabitatFeatureRegistry.register("ith_score")
 class ITHPlugin(HabitatFeaturePluginBase):
     """Intratumoral Heterogeneity (ITH) score from the habitat map.
 

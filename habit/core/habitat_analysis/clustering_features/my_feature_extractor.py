@@ -19,10 +19,10 @@ Simple feature extractor that uses raw image intensities
 import numpy as np
 import pandas as pd
 from typing import List, Any, Optional, Union
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 
-@register_feature_extractor('my_feature_extractor')
+@FeatureExtractorRegistry.register('my_feature_extractor')
 class MyFeatureExtractor(BaseClusteringExtractor):
     """
     Simple feature extractor that directly uses image intensities as features

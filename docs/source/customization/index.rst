@@ -47,9 +47,11 @@ All custom components must inherit the appropriate base class and implement requ
 Register custom components with the appropriate decorator:
 
 - **Preprocessor**: ``@PreprocessorFactory.register("name")``
-- **Feature extractor**: ``@register_feature_extractor('name')``
-- **Clustering**: ``@register_clustering("name")``
+- **Feature extractor**: ``@FeatureExtractorRegistry.register('name')``
+- **Clustering**: ``@ClusteringAlgorithmFactory.register("name")``
 - **Model**: ``@ModelFactory.register("name")``
+- **Feature selector**: ``@SelectorRegistry.register('name')``
+- **Metric**: ``@MetricRegistry.register('name', display_name='Display')``
 
 **3. Provide clear documentation**
 
@@ -145,9 +147,9 @@ Custom feature extractors
 .. code-block:: python
 
    from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.clustering_features.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
 
-   @register_feature_extractor('my_feature_extractor')
+   @FeatureExtractorRegistry.register('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
        def __init__(self,**kwargs):
            super().__init__(**kwargs)
@@ -181,9 +183,9 @@ Custom feature extractors
 
    import numpy as np
    from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.clustering_features.base_extractor import register_feature_extractor
+   from habit.core.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
 
-   @register_feature_extractor('local_contrast')
+   @FeatureExtractorRegistry.register('local_contrast')
    class LocalContrastExtractor(BaseClusteringExtractor):
        def __init__(self,**kwargs):
            super().__init__(**kwargs)
@@ -214,9 +216,9 @@ Custom clustering algorithms
 .. code-block:: python
 
    from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.clustering.base_clustering import register_clustering
+   from habit.core.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
 
-   @register_clustering("my_clustering")
+   @ClusteringAlgorithmFactory.register("my_clustering")
    class MyClusteringAlgorithm(BaseClustering):
        def __init__(self, n_clusters=3, random_state=None,**kwargs):
            super().__init__(n_clusters=n_clusters, random_state=random_state)
@@ -255,9 +257,9 @@ Custom clustering algorithms
    import numpy as np
    from sklearn.cluster import SpectralClustering
    from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.clustering.base_clustering import register_clustering
+   from habit.core.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
 
-   @register_clustering("spectral")
+   @ClusteringAlgorithmFactory.register("spectral")
    class SpectralClusteringAlgorithm(BaseClustering):
        def __init__(self, n_clusters=3, random_state=None,**kwargs):
            super().__init__(n_clusters=n_clusters, random_state=random_state)
@@ -367,28 +369,23 @@ Custom feature selectors
 
 .. code-block:: python
 
-   from sklearn.base import BaseEstimator, TransformerMixin
-   from habit.core.machine_learning.feature_selectors.selector_registry import register_selector
+   from typing import List
+   from habit.core.machine_learning.feature_selectors.selector_registry import (
+       SelectorRegistry,
+       SelectorContext,
+   )
 
-   @register_selector('my_selector')
-   class MyFeatureSelector(BaseEstimator, TransformerMixin):
-       def __init__(self, param1=default_value, param2=default_value):
-           self.param1 = param1
-           self.param2 = param2
-           self.selected_features_ = None
+   # A feature selector is a function: it receives a SelectorContext and
+   # returns the list of feature names to KEEP.
+   @SelectorRegistry.register('my_selector')
+   def my_selector(context: SelectorContext, param1=1.0, param2=10) -> List[str]:
+       X = context.X                      # pandas DataFrame (current features)
+       y = context.y                      # pandas Series (target)
+       candidate_features = context.selected_features
 
-       def fit(self, X, y=None):
-           # Implement feature selection logic
-           self.selected_features_ = self._select_features(X, y)
-           return self
-
-       def transform(self, X):
-           # Implement feature transformation logic
-           return X[:, self.selected_features_]
-
-       def _select_features(self, X, y):
-           # Implement the concrete selection algorithm
-           return selected_indices
+       # Implement the concrete selection algorithm.
+       kept = [f for f in candidate_features if _keep(X[f], y, param1, param2)]
+       return kept
 
 **Step 2: Use in configuration**
 
@@ -411,26 +408,22 @@ Custom feature selectors
 .. code-block:: python
 
    import numpy as np
+   from typing import List
    from sklearn.feature_selection import mutual_info_classif
-   from sklearn.base import BaseEstimator, TransformerMixin
-   from habit.core.machine_learning.feature_selectors.selector_registry import register_selector
+   from habit.core.machine_learning.feature_selectors.selector_registry import (
+       SelectorRegistry,
+       SelectorContext,
+   )
 
-   @register_selector('mutual_info')
-   class MutualInfoSelector(BaseEstimator, TransformerMixin):
-       def __init__(self, k_features=10, random_state=None):
-           self.k_features = k_features
-           self.random_state = random_state
-           self.selected_features_ = None
-           self.scores_ = None
-
-       def fit(self, X, y):
-           scores = mutual_info_classif(X, y, random_state=self.random_state)
-           self.scores_ = scores
-           self.selected_features_ = np.argsort(scores)[-self.k_features:]
-           return self
-
-       def transform(self, X):
-           return X[:, self.selected_features_]
+   @SelectorRegistry.register('mutual_info')
+   def mutual_info_selector(
+       context: SelectorContext, k_features: int = 10, random_state: int = None
+   ) -> List[str]:
+       X = context.X
+       y = context.y
+       scores = mutual_info_classif(X.values, y, random_state=random_state)
+       top_idx = np.argsort(scores)[-k_features:]
+       return [X.columns[i] for i in top_idx]
 
 Best practices
 --------------
@@ -447,13 +440,13 @@ Best practices
 
    # Good naming
    @PreprocessorFactory.register("gaussian_filter")
-   @register_feature_extractor('local_contrast')
-   @register_clustering("spectral")
+   @FeatureExtractorRegistry.register('local_contrast')
+   @ClusteringAlgorithmFactory.register("spectral")
 
    # Poor naming
    @PreprocessorFactory.register("gf")
-   @register_feature_extractor('lc')
-   @register_clustering("spec")
+   @FeatureExtractorRegistry.register('lc')
+   @ClusteringAlgorithmFactory.register("spec")
 
 **2. Parameter validation**
 

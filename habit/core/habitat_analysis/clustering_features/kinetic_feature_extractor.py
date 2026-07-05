@@ -20,12 +20,12 @@ Extracts kinetic features from time series data.
 import numpy as np
 import pandas as pd
 from scipy import stats
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 from typing import Dict, List, Optional, Union, Any, Tuple
 
 from habit.utils.io_utils import load_timestamp
 
-@register_feature_extractor('kinetic')  # Register feature extractor
+@FeatureExtractorRegistry.register('kinetic')  # Register feature extractor
 class KineticFeatureExtractor(BaseClusteringExtractor):
     """
     Kinetic Feature Extractor

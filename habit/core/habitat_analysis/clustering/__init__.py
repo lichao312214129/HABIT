@@ -19,7 +19,6 @@ Clustering module for habitat analysis.
 from .base_clustering import (
     BaseClustering,
     ClusteringAlgorithmFactory,
-    register_clustering,
     get_clustering_algorithm,
     get_available_clustering_algorithms
 )
@@ -42,7 +41,7 @@ from .cluster_validation_methods import (
 #     from .custom_clustering import CustomClustering
 
 __all__ = [
-    "BaseClustering", "ClusteringAlgorithmFactory", "register_clustering",
+    "BaseClustering", "ClusteringAlgorithmFactory",
     "get_clustering_algorithm",
     "KMeansClustering", "GMMClustering", "SLICClustering",
     "get_validation_methods", "get_default_methods", "is_valid_method_for_algorithm",

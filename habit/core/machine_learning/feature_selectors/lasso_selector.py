@@ -24,9 +24,9 @@ import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple, Dict, Union
 from sklearn.linear_model import LassoCV, lasso_path
 from sklearn.preprocessing import StandardScaler
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('lasso')
+@SelectorRegistry.register('lasso')
 def lasso_selector(X: pd.DataFrame, 
                   y: pd.Series,
                   cv: int = 10, 

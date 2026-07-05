@@ -28,9 +28,9 @@ from sklearn.feature_selection import chi2, f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('chi2')
+@SelectorRegistry.register('chi2')
 def chi2_selector(
         X: pd.DataFrame,
         y: pd.Series,

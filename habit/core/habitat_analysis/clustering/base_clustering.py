@@ -45,19 +45,6 @@ from .cluster_search_parallel import (
 from habit.core.common.registry import ClassRegistry
 
 
-def register_clustering(name: str):
-    """
-    Decorator for registering clustering algorithm classes.
-
-    Args:
-        name (str): Name of the clustering algorithm.
-    """
-    def decorator(cls):
-        ClusteringAlgorithmFactory.register(name)(cls)
-        return cls
-    return decorator
-
-
 class ClusteringAlgorithmFactory(ClassRegistry["BaseClustering"]):
     """
     Factory for creating clustering algorithm instances.

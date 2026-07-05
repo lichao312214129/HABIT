@@ -14,17 +14,17 @@
 您可以通过以下步骤定义自己的特征提取器：
 
 1. 在`features`目录下创建一个新的Python文件，命名为`your_method_feature_extractor.py`
-2. 从`BaseFeatureExtractor`类继承一个新类，并使用`register_feature_extractor`装饰器注册它
+2. 从`BaseClusteringExtractor`类继承一个新类，并使用`@FeatureExtractorRegistry.register`装饰器注册它
 3. 实现所有必需的方法：`extract_features`和属性`feature_names`
 
 ### 示例
 
 ```python
-from habit.core.habitat_analysis.clustering_features.base_feature_extractor import BaseFeatureExtractor, register_feature_extractor
+from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 import numpy as np
 
-@register_feature_extractor('your_method')
-class YourMethodFeatureExtractor(BaseFeatureExtractor):
+@FeatureExtractorRegistry.register('your_method')
+class YourMethodFeatureExtractor(BaseClusteringExtractor):
     # 如果需要时间戳，请设置为True
     requires_timestamp = False
     

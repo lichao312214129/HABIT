@@ -20,9 +20,9 @@ Intraclass Correlation Coefficient (ICC) values.
 """
 import json
 from typing import Dict, List, Optional
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('icc')
+@SelectorRegistry.register('icc')
 def icc_selector(
     icc_results: Optional[str] = None,
     icc_results_path: Optional[str] = None,

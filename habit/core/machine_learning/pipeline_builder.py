@@ -16,7 +16,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from typing import List, Dict, Any, Union, Optional
 import pandas as pd
 import numpy as np
-from .feature_selectors.selector_registry import run_selector, get_selector_info
+from .feature_selectors.selector_registry import run_selector, SelectorRegistry
 from habit.utils.log_utils import get_module_logger
 from habit.utils.random_utils import merge_random_state_into_params, resolve_random_state
 
@@ -279,10 +279,10 @@ class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
             # Determine selection timing:
             # 1. Check user override in config params
             # 2. Check registry metadata defaults
-            try:
-                info = get_selector_info(method)
+            info = SelectorRegistry.get_entry(method)
+            if info is not None:
                 is_before_z_score_method = params.get('before_z_score', info['default_before_z_score'])
-            except (ValueError, KeyError):
+            else:
                 # Fallback for unregistered selectors
                 is_before_z_score_method = params.get('before_z_score', False)
 

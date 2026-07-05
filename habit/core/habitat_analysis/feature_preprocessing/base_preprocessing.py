@@ -16,7 +16,7 @@
 Base classes, factory, and registration for habitat feature preprocessing.
 
 All preprocessing methods share a DataFrame in / DataFrame out contract. Handlers
-register through ``@register_preprocessing`` and are resolved by
+register through ``@PreprocessingMethodFactory.register`` and are resolved by
 ``PreprocessingMethodFactory``.
 """
 
@@ -122,19 +122,6 @@ class BaseFeaturePreprocessing(ABC):
         Returns:
             Transformed feature DataFrame (same or fewer columns).
         """
-
-
-def register_preprocessing(name: str):
-    """
-    Decorator that registers a preprocessing handler with the factory.
-
-    Args:
-        name: Canonical method name (e.g. ``"minmax"``).
-
-    Returns:
-        Class decorator.
-    """
-    return PreprocessingMethodFactory.register(name)
 
 
 class PreprocessingMethodFactory(ClassRegistry["BaseFeaturePreprocessing"]):

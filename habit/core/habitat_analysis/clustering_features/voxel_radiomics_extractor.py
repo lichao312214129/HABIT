@@ -36,7 +36,7 @@ from habit.utils.torch_radiomics_utils import (
     resolve_torch_dtype,
     resolve_voxel_radiomics_backend,
 )
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 logger = get_module_logger(__name__)
 
@@ -122,7 +122,7 @@ def _log_voxel_feature_class_summary(
         )
 
 
-@register_feature_extractor('voxel_radiomics')
+@FeatureExtractorRegistry.register('voxel_radiomics')
 class VoxelRadiomicsExtractor(BaseClusteringExtractor):
     """
     Extract voxel-level radiomics features from image within mask region

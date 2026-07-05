@@ -44,10 +44,10 @@ import pandas as pd
 import SimpleITK as sitk
 from scipy import ndimage
 from typing import Union, List, Dict, Optional, Tuple
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 from habit.utils.progress_utils import CustomTqdm
 
-@register_feature_extractor('local_entropy')
+@FeatureExtractorRegistry.register('local_entropy')
 class LocalEntropyExtractor(BaseClusteringExtractor):
     """
     Extract voxel-level local entropy features from image within mask region

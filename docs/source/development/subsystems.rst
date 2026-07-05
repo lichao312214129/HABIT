@@ -120,7 +120,7 @@
    * - ``models/``
      - ``BaseModel`` + ``ModelFactory`` + 各模型实现（逻辑回归、SVM、XGBoost、AutoGluon、集成等）。
    * - ``feature_selectors/``
-     - 各 ``@register_selector`` 选择器；``icc/`` 子包含 ICC / 重测分析。
+     - 各 ``@SelectorRegistry.register`` 选择器；``icc/`` 子包含 ICC / 重测分析。
    * - ``workflows/``
      - ``HoldoutWorkflow`` / ``KFoldWorkflow`` / ``ModelComparison`` —— 面向命令的高层流程。
    * - ``runners/``

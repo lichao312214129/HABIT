@@ -33,7 +33,7 @@ import SimpleITK as sitk
 from typing import Union, List, Dict, Optional, Any
 
 from ..config_schemas import ResultColumns
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 
 def calculate_supervoxel_means(
@@ -103,7 +103,7 @@ def calculate_supervoxel_means(
     return pd.DataFrame(data_rows)
 
 
-@register_feature_extractor('mean_voxel_features')
+@FeatureExtractorRegistry.register('mean_voxel_features')
 class MeanVoxelFeaturesExtractor(BaseClusteringExtractor):
     """
     Extract mean voxel features for each supervoxel in the supervoxel map

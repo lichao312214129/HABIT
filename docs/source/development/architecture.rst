@@ -1,304 +1,161 @@
 总体架构
 ========
 
-本页给出 HABIT 的整体设计心智模型：分层结构、四条业务主线、统一的数据流，以及贯穿全局的设计理念。
+本页从底层代码实现的角度，剖析 HABIT 的整体架构设计。HABIT 的核心是一套 **配置驱动（Config-driven）** 、 **延迟装配（Lazy Assembly）** 与 **契约化运行（Contract-based Execution）** 相结合的系统，旨在将算法逻辑与运行参数解耦，并提供与 scikit-learn 类似但更适合多受试者医学影像工作流的统一契约。
 
-设计理念
+核心设计原则
+------------
+
+1. **配置即接口**：所有工作流均由 YAML 描述。
+2. **Schema 强类型校验**：YAML 解析后，立即通过 Pydantic 转换为强类型 Schema。参数拼写错误、类型不匹配在实例化前就会被拦截。
+3. **注册表模式（Registry Pattern）**：算法组件（预处理器、模型、特征选择器等）不硬编码在主流程中，而是通过装饰器按名注册。
+4. **统一契约（Unified Contracts）**：
+   * 所有基于类的组件工厂继承自 ``habit.core.common.registry.ClassRegistry``。
+   * 所有基于函数的组件工厂继承自 ``habit.core.common.registry.CallableRegistry``。
+   * 所有执行引擎（Orchestrators）遵循固定的终端方法约定（``run()`` 或 ``fit()``/``predict()``）。
+
+分层架构
 --------
 
-HABIT 的核心是一套 **配置驱动（config-driven）+ 工厂/注册表（factory & registry）** 的架构。它把 "算法逻辑" 与 "运行参数" 彻底解耦：
-
-- **配置即接口**：每条工作流都由一份 YAML 描述。研究者改 YAML，不改代码。
-- **Schema 校验前置**：YAML 先经 Pydantic Schema 结构化与校验，尽早在运行前暴露配置错误。
-- **工厂装配**：算法（预处理器、聚类器、模型、特征选择器等）通过注册表按名字实例化，新增算法即 "注册即可用"。
-- **统一契约**：六个类式工厂继承 :class:`~habit.core.common.registry.ClassRegistry`，七个编排器遵循
-  :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`；方法名跨子系统一致，由
-  ``tests/test_architecture_contracts.py`` 自动守护。
-- **子系统同构**：预处理、生境分割、特征提取、机器学习四大子系统遵循 **同一套模式**，学会一个即可类推其余。
-- **CLI / GUI / Python API 三入口共用一套核心**：三者最终都调用 ``habit/core`` 下相同的 ``run_*`` 入口，行为一致。
-
-分层结构
---------
-
-从上到下分为四层：命令入口层、命令实现层、核心业务层、共享工具层。
+HABIT 的代码结构自上而下分为四层：
 
 .. mermaid::
 
    flowchart TD
-     subgraph Entry["Entry points"]
-       CLI["CLI: habit/cli.py (Click)"]
-       PY["Python API: core run_* functions"]
-       GUI["Web GUI: habit-gui (FastAPI + React)"]
+     classDef ui fill:#f9f2f4,stroke:#b85450,stroke-width:2px;
+     classDef core fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px;
+     classDef util fill:#d5e8d4,stroke:#82b366,stroke-width:2px;
+
+     subgraph Entry["1. Entry Points"]
+       CLI["CLI (habit/cli.py)"]:::ui
+       PY["Python API (habit/core/*/run.py)"]:::ui
+       GUI["Web GUI (FastAPI)"]:::ui
      end
 
-     subgraph Cmd["Command layer: habit/commands/cmd_*.py"]
-       CMD["Load config, call core, print result"]
+     subgraph Cmd["2. Command Execution"]
+       CMD["habit/commands/cmd_*.py<br/>(Load YAML -> Call Core)"]:::core
      end
 
-     subgraph Core["Core layer: habit/core"]
-       subgraph COM["common/ — cross-domain infrastructure"]
-         CFG["configs/ — load & path resolve"]
-         CON["configurators/ — BaseConfigurator"]
-         REG["registry.py — ClassRegistry"]
-         ORC["orchestrator.py — ORCHESTRATOR_CONTRACT"]
+     subgraph Core["3. Core Business Logic (habit/core/)"]
+       subgraph Infra["Infrastructure (common/ & schemas/)"]
+         CFG["Config Loader"]:::core
+         REG["ClassRegistry / CallableRegistry"]:::core
+         SCH["ParamSchemaRegistry (Pydantic)"]:::core
        end
-       SCH["schemas/ — workflows, steps, ParamSchemaRegistry"]
-       PRE["preprocessing/"]
-       HAB["habitat_analysis/"]
-       ML["machine_learning/"]
-       DCM["dicom_sort/"]
+       subgraph Domain["Domain Subsystems"]
+         PRE["preprocessing/"]:::core
+         HAB["habitat_analysis/"]:::core
+         ML["machine_learning/"]:::core
+       end
      end
 
-     subgraph Utils["Shared utilities: habit/utils"]
-       U["progress, yaml, io, parallel, logging, visualization"]
+     subgraph Utils["4. Shared Utilities (habit/utils/)"]
+       UTILS["Logging, Parallel, Random State, IO"]:::util
      end
 
      CLI --> CMD
-     GUI -->|subprocess: habit cli| CMD
-     GUI -->|bridge: schema reflect| SCH
-     CMD --> Core
-     PY --> Core
-     PRE --> Utils
-     HAB --> Utils
-     ML --> Utils
-     PRE --> COM
-     HAB --> COM
-     ML --> COM
-     PRE --> SCH
-     HAB --> SCH
-     ML --> SCH
+     GUI --> CMD
+     PY --> Domain
+     CMD --> Infra
+     Infra --> Domain
+     Domain --> Utils
 
-各层职责：
+统一数据流与对象装配链路
+------------------------
 
-.. list-table::
-   :header-rows: 1
-   :widths: 24 76
-
-   * - 层
-     - 职责
-   * - **命令入口层** (``habit/cli.py``)
-     - 用 Click 定义所有子命令（``preprocess`` / ``get-habitat`` / ``extract`` / ``model`` …），只做参数解析并转发到命令实现层。
-   * - **命令实现层** (``habit/commands/cmd_*.py``)
-     - 加载并校验配置、调用核心 ``run_*`` 函数、打印结果与退出码。共享工具在 ``habit/commands/common.py``。
-   * - **核心业务层** (``habit/core/*``)
-     - 全部业务逻辑。四个业务子系统 + ``common``\ （配置基建 + 跨子系统契约）+ ``schemas``\ （Schema 与参数注册表）。
-   * - **共享工具层** (``habit/utils/*``)
-     - 跨子系统复用的工具：统一进度条、YAML 读写、并行、日志、绘图等。
-
-四条业务主线
-------------
-
-HABIT 的功能围绕一条典型研究流水线展开，每一段都对应一个 CLI 命令和一个核心子系统：
-
-.. mermaid::
-
-   flowchart LR
-     A["Raw images / DICOM"] --> B["Preprocessing<br/>habit preprocess"]
-     B --> C["Habitat segmentation<br/>habit get-habitat"]
-     C --> D["Feature extraction<br/>habit extract / radiomics"]
-     D --> E["Machine learning<br/>habit model / cv / compare"]
-     E --> F["Models, metrics, plots, reports"]
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 22 32 26
-
-   * - 阶段
-     - CLI 命令
-     - 核心入口（``habit/core/.../run.py``）
-     - 编排核心
-   * - 预处理
-     - ``habit preprocess``
-     - ``run_preprocess_from_config``
-     - ``BatchProcessor``
-   * - 生境分割
-     - ``habit get-habitat``
-     - ``run_habitat_analysis_from_config``
-     - ``HabitatAnalysis``
-   * - 特征提取
-     - ``habit extract`` / ``habit radiomics``
-     - ``run_feature_extraction_from_config`` / ``run_radiomics_from_config``
-     - ``HabitatMapAnalyzer`` / ``TraditionalRadiomicsExtractor``
-   * - 机器学习
-     - ``habit model`` / ``cv`` / ``compare``
-     - ``run_ml_from_config`` / ``run_kfold_from_config`` / ``run_model_comparison_from_config``
-     - ``HoldoutWorkflow`` / ``KFoldWorkflow`` / ``ModelComparison``
-
-除主线外，还有若干辅助命令：``sort-dicom``\ （DICOM 排序）、``icc``\ （组内相关系数）、``retest``\ （重测信度）、``dice``、``dicom-info``、``merge-csv``、``gui``。
-
-统一数据流
-----------
-
-四大子系统虽然算法不同，但都遵循 **同一条装配链路**。理解这一条，就理解了整个 HABIT 的运行方式：
+HABIT 最核心的机制是**“配置如何转化为可执行的算法对象”**。以下链路贯穿了预处理、生境分割和机器学习四大子系统：
 
 .. mermaid::
 
    flowchart TD
-     Y["YAML config file"] --> L["load_config + path resolve<br/>(common/configs)"]
-     L --> S["Pydantic workflow schema<br/>(schemas/workflows)"]
-     S --> V["step params validation<br/>(schemas/validation + ParamSchemaRegistry)"]
-     V --> CFG["Domain Configurator<br/>(*/configurator.py)"]
-     CFG --> OBJ["Orchestrator<br/>(BatchProcessor / HabitatAnalysis / Workflow)"]
-     OBJ --> RUN["Terminal method<br/>run() or fit()+predict()"]
-     RUN --> OUT["Outputs on disk"]
+     classDef file fill:#fff2cc,stroke:#d6b656,stroke-width:2px;
+     classDef schema fill:#ffe6cc,stroke:#d79b00,stroke-width:2px;
+     classDef factory fill:#d5e8d4,stroke:#82b366,stroke-width:2px;
+     classDef run fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px;
 
-     subgraph Factories["ClassRegistry factories (common/registry.py)"]
-       F1["PreprocessorFactory"]
-       F2["ClusteringAlgorithmFactory"]
-       F3["ModelFactory"]
-       F4["FeatureExtractorRegistry / ..."]
-     end
-     OBJ -.->|"Factory.create(name)"| Factories
+     Y["1. YAML Config"]:::file --> L["Config Loader"]:::run
+     L --> S["2. Pydantic Workflow Schema"]:::schema
+     S --> V["3. ParamSchemaRegistry<br/>(Validates specific step params)"]:::schema
+     V --> CFG["4. Domain Configurator"]:::run
+     CFG --> FAC["5. Factory/Registry<br/>(e.g., ModelFactory)"]:::factory
+     FAC -.->|"create(name, params)"| ALG["6. Algorithm Instance"]:::factory
+     CFG --> OBJ["7. Orchestrator<br/>(e.g., KFoldWorkflow)"]:::run
+     OBJ --> RUN["8. Execution<br/>(run / fit / predict)"]:::run
 
-要点：
+**关键组件解析：**
 
-1. **配置加载与路径解析**：``habit/core/common/configs/`` 负责读取 YAML、把相对路径解析为绝对路径。
-2. **结构化为 Schema**：``habit/core/schemas/workflows/`` 定义整份配置的 Pydantic 根模型。
-3. **步骤参数校验**：``habit/core/schemas/`` 的 ``ParamSchemaRegistry`` 把每个步骤名映射到其 ``params`` 模型并逐一校验。
-4. **领域 Configurator 装配**：各子系统的 ``configurator.py`` 把校验后的配置装配成 **编排器（Orchestrator）**。
-5. **ClassRegistry 按名实例化算法**：编排器在运行中通过 ``Factory.create(name)`` 把配置里的 ``method`` / 模型名变成具体算法实例。
-6. **编排器终端方法**：``run.py`` 调用编排器的惯用终端方法（``run()`` 或 ``fit()`` + ``predict()``），见下文契约图。
+1. **ParamSchemaRegistry** (``habit/core/schemas/registry.py``)：
+   这是 HABIT 校验机制的核心。它将 YAML 中的 ``method`` 名字映射到对应的 Pydantic 模型。
+2. **Domain Configurator** (如 ``MLConfigurator``)：
+   负责将校验后的配置转化为可执行的 Orchestrator，并巧妙地实现了**延迟导入**（避免了在不需要时加载 torch/sklearn 等重型依赖）。
+3. **ClassRegistry / CallableRegistry** (``habit/core/common/registry.py``)：
+   底层注册表实现。提供统一的 ``register()``、``create()`` 和 ``get()`` 接口。
+4. **Orchestrator**：
+   组装完毕的顶层执行引擎。在机器学习模块中，它可能是 ``HoldoutWorkflow``；在预处理模块中，它是 ``BatchProcessor``。
 
-跨子系统契约
-------------
+核心子系统深度剖析
+------------------
 
-重构后，HABIT 在 ``habit/core/common/`` 集中声明 **两套跨域契约**，把原先各子系统各自为政的工厂方法名、编排器入口统一起来：
+1. 预处理 (Preprocessing)
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. mermaid::
+* **核心引擎**：``BatchProcessor``。
+* **执行机制**：基于多进程（由 ``processes`` 参数控制），对每个受试者按配置顺序依次调用 ``PreprocessorFactory`` 中的插件（如 resample, registration）。支持 ``save_intermediate`` 保存中间态 NIfTI。
 
-   flowchart TB
-     subgraph Common["habit/core/common/"]
-       CR["ClassRegistry<br/>register / create / get / available"]
-       OC["ORCHESTRATOR_CONTRACT<br/>terminal methods per domain"]
-       TST["tests/test_architecture_contracts.py"]
-     end
+2. 生境分析 (Habitat Analysis)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-     subgraph Registries["6 ClassRegistry subclasses"]
-       direction LR
-       R1["PreprocessorFactory"]
-       R2["ClusteringAlgorithmFactory"]
-       R3["FeatureExtractorRegistry"]
-       R4["PreprocessingMethodFactory"]
-       R5["HabitatFeatureRegistry"]
-       R6["ModelFactory"]
-     end
+这是 HABIT 最复杂的子系统，采用 **Pipeline + Step + Service** 三层结构。
 
-     subgraph Orchs["7 Orchestrators"]
-       direction TB
-       O1["BatchProcessor → run()"]
-       O2["HabitatAnalysis → fit() + predict()"]
-       O3["HabitatMapAnalyzer → run()"]
-       O4["TraditionalRadiomicsExtractor → run()"]
-       O5["HoldoutWorkflow / KFoldWorkflow / ModelComparison → run()"]
-     end
+* **数据载荷**：定义了显式的 ``HabitatSubjectData``，在 Pipeline 的各个 Step 之间显式传递特征和掩膜信息。
+* **聚类策略**：底层支持三种 ``clustering_mode``：
+  * ``two_step``（默认）：个体体素聚类 -> 超体素 -> 合并所有受试者 -> 群体超体素聚类 -> 生境。
+  * ``one_step``：个体体素直接聚成生境（常用于单肿瘤探索）。
+  * ``direct_pooling``：跨受试者体素池化后统一聚类。
+* **Train/Predict 严格对称**：``fit()`` 阶段构建并拟合完整的 ``HabitatPipeline``，然后序列化为 ``habitat_pipeline.pkl``；``predict()`` 阶段直接加载该 pkl 并注入 Service 执行 ``transform``，保证了推断时的绝对一致性。
 
-     CR --> Registries
-     OC --> Orchs
-     TST -.->|assert contract| CR
-     TST -.->|assert contract| OC
+3. 机器学习 (Machine Learning)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-     subgraph Domains["Business domains"]
-       D1["preprocessing"]
-       D2["habitat_analysis"]
-       D3["machine_learning"]
-     end
+* **编排与执行解耦**：Workflow（如 ``HoldoutWorkflow``, ``KFoldWorkflow``）负责流程编排与数据划分，Runner（如 ``HoldoutRunner``）负责具体执行。
+* **防数据穿越设计**：``PipelineBuilder`` 负责将特征选择（``selector_before/after``）、重采样（``resampling``）和模型（``model``）严格封装为单条 ``sklearn.pipeline.Pipeline``。在交叉验证中，该 Pipeline 确保特征选择仅在训练折上进行，彻底杜绝数据穿越。
 
-     Registries --> Domains
-     Orchs --> Domains
-
-编排器与工厂在运行时的协作关系：
-
-.. mermaid::
-
-   flowchart LR
-     subgraph Entry["Entry"]
-       RUN["run_*_from_config<br/>(core/*/run.py)"]
-     end
-
-     subgraph Build["Assembly"]
-       CONF["Configurator.create_*()"]
-       ORCH["Orchestrator"]
-     end
-
-     subgraph Runtime["Runtime"]
-       FAC["ClassRegistry.create(name)"]
-       ALG["Algorithm instance<br/>(preprocessor / clusterer / model ...)"]
-     end
-
-     RUN --> CONF
-     CONF --> ORCH
-     ORCH -->|"during pipeline"| FAC
-     FAC --> ALG
-     ORCH -->|"terminal"| TERM["run() or fit()+predict()"]
-
-.. seealso::
-
-   - 配置系统的完整机制见 :doc:`configuration_system`。
-   - 所有工厂/注册表的清单见 :doc:`extension_points`。
-   - 目录与文件定位见 :doc:`repo_layout`。
-
-训练 / 预测的对称性
--------------------
-
-生境分割与机器学习都区分 **train** 与 **predict** 两种模式，并共享同一套配置与代码路径：
-
-- **train**：拟合流水线（聚类中心、标准化参数、模型权重…）并 **序列化保存**\ （如生境的 ``habitat_pipeline.pkl``、ML 的模型文件）。
-- **predict**：加载已保存的流水线，对新数据 ``transform`` / ``predict``，保证与训练阶段完全一致的处理。
-
-这种对称设计使 "论文里训练好的模型" 可以稳定地复用到新队列上。生境分割三种聚类策略下的具体步骤见 :doc:`subsystems`。
-
-命名约定与编排器契约
+CLI 与 Core 映射关系
 --------------------
 
-为降低新开发者的认知负担，HABIT 对跨子系统的角色采用 **统一术语** 与 **统一方法约定**
-（借鉴 scikit-learn：类名保持领域化，但接口保持一致）。
-
-术语表：
+CLI 命令通过薄封装将控制权移交给 Core 层的 Python API：
 
 .. list-table::
+   :widths: 15 20 25 25 15
    :header-rows: 1
-   :widths: 26 74
 
-   * - 术语
-     - 含义
-   * - **Configurator**
-     - 各子系统 ``configurator.py`` 中的装配器，把校验后的配置 ``create_*`` 成可执行的编排器对象。
-   * - **Orchestrator（编排器）**
-     - Configurator 装配出、交回给 ``run.py`` 的顶层运行对象（如 ``BatchProcessor`` / ``HoldoutWorkflow`` / ``HabitatAnalysis``）。
-   * - **Registry / Factory（注册表 / 工厂）**
-     - 按名字登记并实例化算法组件的机制，统一契约见 :doc:`extension_points`。
-   * - **run_\*_from_config**
-     - ``habit/core/*/run.py`` 中的程序化入口；CLI / GUI / Python API 三入口最终都调用它。
-
-编排器终端方法约定：编排器 **不强制** 单一方法名，而是按其性质暴露 **惯用终端方法**——
-单次流水线用 ``run()``；带训练/预测两态的用 ``fit()`` + ``predict()``（见上图 **7 Orchestrators**）。
-该约定由 :data:`habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT` 集中声明，并有契约自检测试
-（``tests/test_architecture_contracts.py``）保证新编排器不会偏离：
-
-.. list-table::
-   :header-rows: 1
-   :widths: 34 22 44
-
-   * - 编排器
-     - 终端方法
-     - 所属命令
-   * - ``BatchProcessor``
-     - ``run()``
-     - ``preprocess``
-   * - ``HabitatAnalysis``
-     - ``fit()`` / ``predict()``
-     - ``get-habitat``
-   * - ``HabitatMapAnalyzer``
-     - ``run()``
-     - ``extract``
-   * - ``TraditionalRadiomicsExtractor``
-     - ``run()``
-     - ``radiomics``
-   * - ``HoldoutWorkflow`` / ``KFoldWorkflow`` / ``ModelComparison``
-     - ``run()``
-     - ``model`` / ``cv`` / ``compare``
-
-.. seealso::
-
-   注册表 / 工厂的统一方法契约（``register`` / ``create`` / ``get`` / ``available`` …）见
-   :doc:`extension_points` 的 "统一注册表契约" 一节。
+   * - CLI 命令
+     - 命令模块
+     - 配置 Schema
+     - Core 入口函数
+     - Orchestrator
+   * - ``preprocess``
+     - ``cmd_preprocess.py``
+     - ``PreprocessingConfig``
+     - ``run_preprocess_from_config``
+     - ``BatchProcessor``
+   * - ``get-habitat``
+     - ``cmd_habitat.py``
+     - ``HabitatAnalysisConfig``
+     - ``run_habitat_analysis_from_config``
+     - ``HabitatAnalysis``
+   * - ``extract``
+     - ``cmd_extract_features.py``
+     - ``FeatureExtractionConfig``
+     - ``run_feature_extraction_from_config``
+     - ``HabitatMapAnalyzer``
+   * - ``model``
+     - ``cmd_ml.py``
+     - ``MLConfig``
+     - ``run_ml_from_config``
+     - ``HoldoutWorkflow``
+   * - ``cv``
+     - ``cmd_ml.py``
+     - ``MLConfig``
+     - ``run_kfold_from_config``
+     - ``KFoldWorkflow``

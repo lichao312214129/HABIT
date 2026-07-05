@@ -508,7 +508,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 **Habitat feature preprocessing implementation and extension**
 
 - **Unified interface**: Built-in and custom methods implement ``BaseFeaturePreprocessing``,
-  registered via ``@register_preprocessing`` on ``PreprocessingMethodFactory``.
+  registered via ``@PreprocessingMethodFactory.register``.
 - **Execution path**: ``preprocessing_for_subject_level`` → stateless subject-level
   ``apply_stateless_preprocessing``; ``preprocessing_for_group_level`` →
   ``PreprocessingState.fit/transform`` (training caches ``baseline`` and per-step

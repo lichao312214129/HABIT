@@ -21,10 +21,10 @@ user code:
 
     from habit.core.habitat_analysis.feature_preprocessing import (
         BaseFeaturePreprocessing,
-        register_preprocessing,
+        PreprocessingMethodFactory,
     )
 
-    @register_preprocessing("my_method")
+    @PreprocessingMethodFactory.register("my_method")
     class MyMethod(BaseFeaturePreprocessing):
         ...
 """
@@ -38,7 +38,7 @@ import pandas as pd
 from pydantic import BaseModel
 from sklearn.preprocessing import KBinsDiscretizer
 
-from .base_preprocessing import BaseFeaturePreprocessing, BaselineStats, register_preprocessing
+from .base_preprocessing import BaseFeaturePreprocessing, BaselineStats, PreprocessingMethodFactory
 from .method_config_utils import parse_winsor_limits, read_method_field
 from .value_transforms import create_discretizer
 
@@ -223,7 +223,7 @@ def _apply_per_feature_zscore(
 # ---------------------------------------------------------------------------
 
 
-@register_preprocessing("minmax")
+@PreprocessingMethodFactory.register("minmax")
 class MinMaxPreprocessing(BaseFeaturePreprocessing):
     """Min-max scaling to [0, 1] per feature or globally."""
 
@@ -266,7 +266,7 @@ class MinMaxPreprocessing(BaseFeaturePreprocessing):
         return _apply_per_feature_minmax(feature_df, state)
 
 
-@register_preprocessing("zscore")
+@PreprocessingMethodFactory.register("zscore")
 class ZScorePreprocessing(BaseFeaturePreprocessing):
     """Z-score standardization per feature or globally."""
 
@@ -307,7 +307,7 @@ class ZScorePreprocessing(BaseFeaturePreprocessing):
         return _apply_per_feature_zscore(feature_df, state)
 
 
-@register_preprocessing("robust")
+@PreprocessingMethodFactory.register("robust")
 class RobustPreprocessing(BaseFeaturePreprocessing):
     """Robust scaling using median and IQR."""
 
@@ -354,7 +354,7 @@ class RobustPreprocessing(BaseFeaturePreprocessing):
         return (feature_df - state["medians"]) / iqr
 
 
-@register_preprocessing("binning")
+@PreprocessingMethodFactory.register("binning")
 class BinningPreprocessing(BaseFeaturePreprocessing):
     """KBins discretization per feature or globally."""
 
@@ -405,7 +405,7 @@ class BinningPreprocessing(BaseFeaturePreprocessing):
         return pd.DataFrame(binned, columns=feature_df.columns, index=feature_df.index)
 
 
-@register_preprocessing("winsorize")
+@PreprocessingMethodFactory.register("winsorize")
 class WinsorizePreprocessing(BaseFeaturePreprocessing):
     """Clip extreme values at configured lower/upper quantiles."""
 
@@ -450,7 +450,7 @@ class WinsorizePreprocessing(BaseFeaturePreprocessing):
         return feature_df.clip(lower=state["lower"], upper=state["upper"], axis=1)
 
 
-@register_preprocessing("log")
+@PreprocessingMethodFactory.register("log")
 class LogPreprocessing(BaseFeaturePreprocessing):
     """Log transform with per-feature or global shift to handle non-positive values."""
 
@@ -483,7 +483,7 @@ class LogPreprocessing(BaseFeaturePreprocessing):
         return np.log(feature_df - state["offsets"] + 1.0)
 
 
-@register_preprocessing("variance_filter")
+@PreprocessingMethodFactory.register("variance_filter")
 class VarianceFilterPreprocessing(BaseFeaturePreprocessing):
     """Drop columns with variance at or below a threshold."""
 
@@ -516,7 +516,7 @@ class VarianceFilterPreprocessing(BaseFeaturePreprocessing):
         return feature_df[selected_cols]
 
 
-@register_preprocessing("correlation_filter")
+@PreprocessingMethodFactory.register("correlation_filter")
 class CorrelationFilterPreprocessing(BaseFeaturePreprocessing):
     """Greedy removal of highly correlated redundant columns."""
 

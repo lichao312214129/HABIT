@@ -22,9 +22,9 @@ import pandas as pd
 import numpy as np
 from typing import List, Optional, Union
 from mrmr import mrmr_classif, mrmr_regression
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('mrmr')
+@SelectorRegistry.register('mrmr')
 def mrmr_selector(data: pd.DataFrame,
                  target: Union[str, pd.Series],
                  n_features: int = 10,

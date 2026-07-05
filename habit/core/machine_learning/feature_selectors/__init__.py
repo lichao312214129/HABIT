@@ -20,10 +20,10 @@ Provides a unified interface for feature selection methods
 
 # 导入注册机制
 from .selector_registry import (
-    register_selector,
-    get_selector,
-    get_available_selectors,
-    run_selector
+    SelectorRegistry,
+    run_selector,
+    SelectorContext,
+    SelectorResult,
 )
 import logging
 
@@ -54,10 +54,10 @@ from .vif_selector import *
 
 # 导出接口
 __all__ = [
-    'register_selector',
-    'get_selector',
-    'get_available_selectors',
-    'run_selector'
+    'SelectorRegistry',
+    'run_selector',
+    'SelectorContext',
+    'SelectorResult',
 ]
 
 

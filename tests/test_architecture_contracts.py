@@ -9,10 +9,14 @@ Architecture contract self-checks (sklearn-style ``check_*``).
 These tests enforce the two cross-domain conventions that keep HABIT easy to
 learn:
 
-1. Every class-based factory subclasses the shared
-   :class:`~habit.core.common.registry.ClassRegistry` and therefore exposes the
-   uniform ``register`` / ``create`` / ``get`` / ``available`` /
-   ``register_params_model`` / ``get_params_model`` surface.
+1. Every registry subclasses the shared
+   :class:`~habit.core.common.registry._BaseRegistry` and therefore exposes the
+   uniform ``register`` / ``get`` / ``available`` / ``register_params_model`` /
+   ``get_params_model`` surface. Class-based factories additionally subclass
+   :class:`~habit.core.common.registry.ClassRegistry` (adding ``create``), while
+   callable registries subclass
+   :class:`~habit.core.common.registry.CallableRegistry` (adding ``get_entry`` /
+   ``entries``).
 2. Every top-level orchestrator exposes its declared terminal method(s)
    (``run`` or ``fit`` + ``predict``) as listed in
    :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`.
@@ -29,7 +33,11 @@ from typing import Tuple
 
 import pytest
 
-from habit.core.common.registry import ClassRegistry
+from habit.core.common.registry import (
+    CallableRegistry,
+    ClassRegistry,
+    _BaseRegistry,
+)
 from habit.core.common.orchestrator import (
     ORCHESTRATOR_CONTRACT,
     check_orchestrator_class,
@@ -39,6 +47,7 @@ from habit.core.common.orchestrator import (
 # Registry contract
 # ---------------------------------------------------------------------------
 
+#: Class-based factories (payload is a class; expose ``create``).
 #: {registry_id: (import_path, attribute_name)}
 CLASS_REGISTRIES = {
     "preprocessor": (
@@ -64,9 +73,25 @@ CLASS_REGISTRIES = {
     ),
 }
 
-REGISTRY_CONTRACT_METHODS = (
+#: Callable registries (payload is a function; expose ``get_entry`` / ``entries``).
+#: {registry_id: (import_path, attribute_name)}
+CALLABLE_REGISTRIES = {
+    "feature_selector": (
+        "habit.core.machine_learning.feature_selectors.selector_registry",
+        "SelectorRegistry",
+    ),
+    "metric": (
+        "habit.core.machine_learning.evaluation.metrics",
+        "MetricRegistry",
+    ),
+}
+
+#: Every registry, regardless of payload kind.
+ALL_REGISTRIES = {**CLASS_REGISTRIES, **CALLABLE_REGISTRIES}
+
+#: Contract shared by every registry (class-based and callable).
+BASE_CONTRACT_METHODS = (
     "register",
-    "create",
     "get",
     "available",
     "register_params_model",
@@ -84,31 +109,52 @@ def _import_attr(import_path: str, attr: str):
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("registry_id", sorted(CLASS_REGISTRIES))
-def test_registry_subclasses_class_registry(registry_id: str) -> None:
-    """Each factory must subclass the shared ``ClassRegistry`` base."""
-    import_path, attr = CLASS_REGISTRIES[registry_id]
+@pytest.mark.parametrize("registry_id", sorted(ALL_REGISTRIES))
+def test_registry_subclasses_base_registry(registry_id: str) -> None:
+    """Every registry must subclass the shared ``_BaseRegistry`` core."""
+    import_path, attr = ALL_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
-    assert issubclass(registry, ClassRegistry)
+    assert issubclass(registry, _BaseRegistry)
 
 
 @pytest.mark.unit
 @pytest.mark.parametrize("registry_id", sorted(CLASS_REGISTRIES))
-def test_registry_exposes_uniform_contract(registry_id: str) -> None:
-    """Each factory must expose the full uniform registry contract."""
+def test_class_registry_subclasses_class_registry(registry_id: str) -> None:
+    """Each class-based factory must subclass ``ClassRegistry`` and add ``create``."""
     import_path, attr = CLASS_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
-    for method_name in REGISTRY_CONTRACT_METHODS:
+    assert issubclass(registry, ClassRegistry)
+    assert callable(getattr(registry, "create", None))
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("registry_id", sorted(CALLABLE_REGISTRIES))
+def test_callable_registry_subclasses_callable_registry(registry_id: str) -> None:
+    """Each callable registry must subclass ``CallableRegistry`` and add ``entries``."""
+    import_path, attr = CALLABLE_REGISTRIES[registry_id]
+    registry = _import_attr(import_path, attr)
+    assert issubclass(registry, CallableRegistry)
+    assert callable(getattr(registry, "get_entry", None))
+    assert callable(getattr(registry, "entries", None))
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("registry_id", sorted(ALL_REGISTRIES))
+def test_registry_exposes_uniform_contract(registry_id: str) -> None:
+    """Each registry must expose the full uniform registry contract."""
+    import_path, attr = ALL_REGISTRIES[registry_id]
+    registry = _import_attr(import_path, attr)
+    for method_name in BASE_CONTRACT_METHODS:
         assert callable(getattr(registry, method_name, None)), (
             f"{attr!r} is missing uniform registry method '{method_name}()'."
         )
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("registry_id", sorted(CLASS_REGISTRIES))
+@pytest.mark.parametrize("registry_id", sorted(ALL_REGISTRIES))
 def test_registry_available_returns_list(registry_id: str) -> None:
     """``available()`` must return a list of registered names."""
-    import_path, attr = CLASS_REGISTRIES[registry_id]
+    import_path, attr = ALL_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
     names = registry.available()
     assert isinstance(names, list)
@@ -116,9 +162,9 @@ def test_registry_available_returns_list(registry_id: str) -> None:
 
 @pytest.mark.unit
 def test_registries_do_not_share_storage() -> None:
-    """Distinct factories must own independent ``_registry`` mappings."""
+    """Distinct registries must own independent ``_registry`` mappings."""
     loaded = {}
-    for registry_id, (import_path, attr) in CLASS_REGISTRIES.items():
+    for registry_id, (import_path, attr) in ALL_REGISTRIES.items():
         try:
             module = importlib.import_module(import_path)
         except ImportError:
@@ -126,7 +172,7 @@ def test_registries_do_not_share_storage() -> None:
         loaded[registry_id] = getattr(module, attr)
     # No two loaded registries may reference the same dict object.
     ids = [id(reg._registry) for reg in loaded.values()]
-    assert len(ids) == len(set(ids)), "Two factories share the same _registry dict."
+    assert len(ids) == len(set(ids)), "Two registries share the same _registry dict."
 
 
 # ---------------------------------------------------------------------------

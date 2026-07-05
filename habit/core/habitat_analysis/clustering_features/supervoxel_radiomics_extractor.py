@@ -43,7 +43,7 @@ from .batched_supervoxel_radiomics import (
     extract_batched_supervoxel_features,
     extract_supervoxel_features_pyradiomics,
 )
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 from .supervoxel_radiomics_settings import merge_supervoxel_settings
 
 logger = get_module_logger(__name__)
@@ -148,7 +148,7 @@ def _should_log_supervoxel_progress(current_index: int, total: int) -> bool:
     return (current_index + 1) % step == 0
 
 
-@register_feature_extractor('supervoxel_radiomics')
+@FeatureExtractorRegistry.register('supervoxel_radiomics')
 class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
     """
     Extract radiomics features for each supervoxel in the supervoxel map.

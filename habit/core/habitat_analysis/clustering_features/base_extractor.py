@@ -72,19 +72,6 @@ class FeatureExtractorRegistry(ClassRegistry["BaseClusteringExtractor"]):
                     pass
 
 
-def register_feature_extractor(name: str):
-    """
-    Decorator for registering feature extractor classes.
-
-    Args:
-        name (str): Name of the feature extractor.
-
-    Returns:
-        callable: Class decorator.
-    """
-    return FeatureExtractorRegistry.register(name)
-
-
 def get_feature_extractor(name: str, **kwargs) -> 'BaseClusteringExtractor':
     """
     Create a feature extractor instance by name.

@@ -263,7 +263,8 @@ class TestParallelClusterSearch:
     """Parallel k-search should match serial results for KMeans and GMM."""
 
     def test_resolve_cluster_search_workers_default(self) -> None:
-        assert resolve_cluster_search_workers(None) == 2
+        from habit.utils.parallel_utils import default_cluster_search_workers
+        assert resolve_cluster_search_workers(None) == default_cluster_search_workers()
 
     def test_resolve_cluster_search_workers_custom(self) -> None:
         assert resolve_cluster_search_workers(3) == 3

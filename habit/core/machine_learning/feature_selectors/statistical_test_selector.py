@@ -28,9 +28,9 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('statistical_test')
+@SelectorRegistry.register('statistical_test')
 def statistical_test_selector(
         X: pd.DataFrame,
         y: pd.Series,

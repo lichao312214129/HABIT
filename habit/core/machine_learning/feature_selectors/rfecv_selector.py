@@ -27,7 +27,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, Grad
 from sklearn.svm import SVC, SVR
 import xgboost as xgb
 import matplotlib.pyplot as plt
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
 # Dictionary mapping estimator names to their classes
 ESTIMATOR_MAP = {
@@ -46,7 +46,7 @@ ESTIMATOR_MAP = {
     'XGBRegressor': xgb.XGBRegressor,
 }
 
-@register_selector('rfecv')
+@SelectorRegistry.register('rfecv')
 def rfecv_selector(data: pd.DataFrame,
                   target: Union[str, pd.Series],
                   estimator: str = 'RandomForestClassifier',

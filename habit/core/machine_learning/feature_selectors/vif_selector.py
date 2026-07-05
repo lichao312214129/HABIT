@@ -25,9 +25,9 @@ import os
 from typing import List, Optional, Tuple, Dict, Union
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-from .selector_registry import register_selector
+from .selector_registry import SelectorRegistry
 
-@register_selector('vif')
+@SelectorRegistry.register('vif')
 def vif_selector(X: pd.DataFrame, 
                 max_vif: float = 10.0, 
                 visualize: bool = False, 

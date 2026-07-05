@@ -18,16 +18,16 @@ Custom Clustering Algorithm Template
 Usage Instructions:
 1. Copy this file and rename it to your_algorithm_clustering.py
 2. Change the class name CustomClusteringTemplate to your algorithm name, e.g., YourAlgorithmClustering
-3. Modify the register_clustering decorator name to your algorithm's short name, e.g., 'your_algorithm'
+3. Modify the ClusteringAlgorithmFactory.register decorator name to your algorithm's short name, e.g., 'your_algorithm'
 4. Implement all necessary methods: fit, predict, find_optimal_clusters
 5. No need to modify __init__.py, the system will automatically discover and register your algorithm
 """
 
 import numpy as np
-from .base_clustering import BaseClustering, register_clustering
+from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
 
-@register_clustering('custom_template')  # Register clustering algorithm (please change to your algorithm name)
+@ClusteringAlgorithmFactory.register('custom_template')  # Register clustering algorithm (please change to your algorithm name)
 class CustomClusteringTemplate(BaseClustering):
     """
     Custom Clustering Algorithm Template Class - Please replace with your algorithm description

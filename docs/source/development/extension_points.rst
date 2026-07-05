@@ -1,189 +1,210 @@
-扩展点总览
-==========
+二次开发与组件扩展指南
+======================
 
-HABIT 的可扩展组件都通过 **工厂（Factory）** 或 **注册表（Registry）** 管理：定义一个继承基类的类，加上注册装饰器，即可在 YAML 里按名字使用（"注册即可用"）。
+HABIT 的底层架构高度解耦，允许开发者在不修改核心源码的情况下，通过**注册表（Registry）**机制注入自定义的算法组件。
 
-本页是一张 **索引表**：列出所有扩展点、基类与注册方式。**每类组件的完整代码模板与示例见** :doc:`../customization/index`，本页不重复代码。
+本指南基于 HABIT 的底层代码契约（Code Contracts），详细说明如何扩展预处理器、机器学习模型和特征选择器。
 
-扩展机制的统一模式
+扩展机制的核心契约
 ------------------
 
-.. mermaid::
+HABIT 的扩展严格遵循以下三个契约：
 
-   flowchart LR
-     DEF["1. Subclass base class"] --> DEC["2. Add register decorator"]
-     DEC --> IMP["3. Ensure module imported"]
-     IMP --> YAML["4. Reference by name in YAML"]
-     YAML --> RUN["5. Factory instantiates at runtime"]
+1. **逻辑契约**：继承指定的基类（如 ``BasePreprocessor``）或实现特定的函数签名（如 ``SelectorContext -> List[str]``）。
+2. **注册契约**：使用对应的装饰器（如 ``@PreprocessorFactory.register``）将组件名称注册到全局工厂中。
+3. **参数契约**：定义一个 Pydantic Schema，并通过 ``ParamSchemaRegistry.register`` 注册，以实现 YAML 参数的强类型校验和 GUI 表单的自动生成。
 
 .. important::
+   
+   **模块导入机制**：注册装饰器仅在 Python 模块被 ``import`` 时执行。如果你在 HABIT 源码外部开发插件，必须确保在运行前导入了你的模块。若在源码内开发，请在对应子目录的 ``__init__.py`` 中导入。
 
-   第 3 步 "确保模块被导入" 很关键：注册装饰器只有在其所在模块被 import 时才会执行。
-   内置组件在包 ``__init__`` 中集中导入；自定义组件需保证你的模块在运行前被加载
-   （放进对应子包、或在配置/入口处显式 import）。
+实战一：自定义预处理步骤 (ClassRegistry)
+----------------------------------------
 
-统一注册表契约（ClassRegistry）
--------------------------------
+预处理器是基于类的组件，由 ``PreprocessorFactory`` 管理。
 
-所有 **类式** 工厂都继承同一个泛型基类 :class:`habit.core.common.registry.ClassRegistry`，
-因此对外暴露 **完全一致** 的方法名。学会一个，其余照搬：
+**1. 实现逻辑与注册名称**
+
+继承 ``BasePreprocessor``，实现 ``__call__`` 方法，并使用 ``@PreprocessorFactory.register`` 注册。
+
+.. code-block:: python
+
+   import numpy as np
+   from scipy.ndimage import gaussian_filter
+   from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
+   from habit.core.preprocessing.base_preprocessor import BasePreprocessor
+
+   @PreprocessorFactory.register("my_gaussian_filter")
+   class MyGaussianFilter(BasePreprocessor):
+       def __init__(self, keys, allow_missing_keys=False, **kwargs):
+           super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
+           # 提取参数
+           self.sigma = kwargs.get('sigma', 1.0)
+
+       def __call__(self, data):
+           self._check_keys(data)
+           for key in self.keys:
+               data[key] = gaussian_filter(data[key], sigma=self.sigma)
+           return data
+
+**2. 定义参数 Schema 并注册**
+
+在 ``habit/core/schemas/steps/preprocessing.py``（或你的插件模块中）定义参数模型并注册。
+
+.. code-block:: python
+
+   from pydantic import BaseModel, Field
+   from habit.core.schemas.registry import ParamSchemaRegistry
+
+   class MyGaussianFilterParams(BaseModel):
+       sigma: float = Field(default=1.0, description="Gaussian kernel standard deviation.")
+
+   # 注册到 ParamSchemaRegistry (domain="preprocessing")
+   ParamSchemaRegistry.register("preprocessing", "my_gaussian_filter", MyGaussianFilterParams)
+
+**3. 在 YAML 中调用**
+
+.. code-block:: yaml
+
+   Preprocessing:
+     my_gaussian_filter:
+       images: [T1, T2]
+       sigma: 2.5
+
+实战二：自定义特征选择器 (CallableRegistry)
+-------------------------------------------
+
+与 scikit-learn 要求编写完整的 ``BaseEstimator`` 类不同，**HABIT 的特征选择器被设计为纯函数**。底层 ``pipeline_builder.py`` 会自动将这些函数包装为 sklearn 兼容的 Transformer。
+
+**1. 实现函数与注册名称**
+
+特征选择器函数接收一个 ``SelectorContext`` 对象（包含 ``X``, ``y``, ``selected_features`` 等），并返回保留的特征名列表 ``List[str]``。
+
+.. code-block:: python
+
+   from typing import List
+   from habit.core.machine_learning.feature_selectors.selector_registry import (
+       SelectorRegistry, 
+       SelectorContext
+   )
+
+   @SelectorRegistry.register("my_variance_selector", display_name="Custom Variance")
+   def my_variance_selector(context: SelectorContext, threshold: float = 0.0) -> List[str]:
+       """
+       自定义方差特征选择器。
+       """
+       X = context.X
+       # 计算方差
+       variances = X.var(axis=0)
+       # 筛选大于阈值的特征
+       retained_features = variances[variances > threshold].index.tolist()
+       
+       context.logger.info(f"Retained {len(retained_features)} features.")
+       return retained_features
+
+**2. 定义参数 Schema 并注册**
+
+.. code-block:: python
+
+   from pydantic import BaseModel, Field
+   from habit.core.schemas.registry import ParamSchemaRegistry
+
+   class MyVarianceParams(BaseModel):
+       threshold: float = Field(default=0.0, description="Variance threshold.")
+
+   # 注册到 ParamSchemaRegistry (domain="feature_selection")
+   ParamSchemaRegistry.register("feature_selection", "my_variance_selector", MyVarianceParams)
+
+**3. 在 YAML 中调用**
+
+.. code-block:: yaml
+
+   feature_selection_methods:
+     - method: my_variance_selector
+       params:
+         threshold: 0.5
+
+实战三：自定义机器学习模型 (ModelFactory)
+-----------------------------------------
+
+模型工厂 ``ModelFactory`` 继承自 ``ClassRegistry[BaseModel]``。注意其构造函数契约：它接收一个单一的 ``config`` 字典。
+
+**1. 实现模型与注册名称**
+
+继承 ``BaseModel``，实现 ``fit``, ``predict``, ``predict_proba``。
+
+.. code-block:: python
+
+   from sklearn.neural_network import MLPClassifier
+   from habit.core.machine_learning.models.base import BaseModel
+   from habit.core.machine_learning.models.factory import ModelFactory
+
+   @ModelFactory.register("my_mlp")
+   class MyMLPModel(BaseModel):
+       def __init__(self, config: dict):
+           super().__init__(config)
+           # 解析 config 字典
+           hidden_layer_sizes = config.get('hidden_layer_sizes', (100,))
+           random_state = config.get('random_state', 42)
+           
+           self.model = MLPClassifier(
+               hidden_layer_sizes=hidden_layer_sizes,
+               random_state=random_state
+           )
+
+       def fit(self, X, y, **kwargs):
+           self.model.fit(X, y)
+           return self
+
+       def predict(self, X, **kwargs):
+           return self.model.predict(X)
+
+       def predict_proba(self, X, **kwargs):
+           return self.model.predict_proba(X)
+
+**2. 定义参数 Schema 并注册**
+
+.. code-block:: python
+
+   from typing import Tuple
+   from pydantic import BaseModel, Field
+   from habit.core.schemas.registry import ParamSchemaRegistry
+
+   class MyMLPParams(BaseModel):
+       hidden_layer_sizes: Tuple[int, ...] = Field(default=(100,))
+       random_state: int = Field(default=42)
+
+   # 注册到 ParamSchemaRegistry (domain="model")
+   ParamSchemaRegistry.register("model", "my_mlp", MyMLPParams)
+
+核心扩展点速查表
+----------------
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 70
+   :widths: 20 30 25 25
 
-   * - 方法
-     - 语义
-   * - ``@Factory.register("name")``
-     - 装饰器：把类以 ``name`` 注册进本工厂。
-   * - ``Factory.create("name", **kwargs)``
-     - 按名实例化（未注册则抛 ``ValueError``）。
-   * - ``Factory.get("name")``
-     - 返回已注册的类，未注册返回 ``None``。
-   * - ``Factory.available()``
-     - 返回所有已注册名字的列表。
-   * - ``Factory.register_params_model(name, Model)``
-     - 关联该组件的 Pydantic ``*Params`` Schema（供校验 / GUI 表单）。
-   * - ``Factory.get_params_model(name)``
-     - 取回该组件的参数 Schema，未注册返回 ``None``。
-
-可按需覆写的钩子：``_normalize(name)``\ （名字归一化，如大小写不敏感）、
-``_discover()``\ （首次访问时惰性 import 同包模块以触发注册）、以及构造约定不同的
-工厂可仅覆写 ``create()``。当前继承 ``ClassRegistry`` 的六个工厂及其所在域：
-
-.. mermaid::
-
-   flowchart TB
-     CR["ClassRegistry<br/>(common/registry.py)"]
-
-     CR --> PF["PreprocessorFactory<br/>preprocessing/"]
-     CR --> CAF["ClusteringAlgorithmFactory<br/>habitat_analysis/clustering/"]
-     CR --> FER["FeatureExtractorRegistry<br/>habitat_analysis/clustering_features/"]
-     CR --> PMF["PreprocessingMethodFactory<br/>habitat_analysis/feature_preprocessing/"]
-     CR --> HFR["HabitatFeatureRegistry<br/>habitat_analysis/feature_registry.py"]
-     CR --> MF["ModelFactory<br/>machine_learning/models/"]
-
-     SEL["selector_registry<br/>(function-based, not ClassRegistry)"]
-     MET["metrics @register_metric<br/>(function-based)"]
-
-.. note::
-
-   下表中的领域装饰器（如 ``@register_clustering`` / ``@register_selector``）是各子系统对
-   ``register`` 的 **友好别名**，语义等价。特征选择器注册表（``selector_registry``）是
-   **函数式** 变体（登记"函数 + 元数据"而非类），不继承 ``ClassRegistry``，但同样通过
-   ``@register_selector`` 注册、按名解析。
-
-扩展点清单
-----------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 22 26 30 22
-
-   * - 组件
-     - 注册方式
-     - 基类 / 注册表定义位置
-     - 用于命令
+   * - 组件类型
+     - 注册装饰器
+     - 逻辑契约 (基类/函数签名)
+     - Schema 注册 Domain
    * - **预处理步骤**
      - ``@PreprocessorFactory.register("name")``
-     - ``preprocessing/preprocessor_factory.py`` + ``base_preprocessor.py``
-     - ``preprocess``
+     - 继承 ``BasePreprocessor``
+     - ``preprocessing``
+   * - **特征选择器**
+     - ``@SelectorRegistry.register("name")``
+     - 函数 ``(SelectorContext) -> List[str]``
+     - ``feature_selection``
+   * - **机器学习模型**
+     - ``@ModelFactory.register("name")``
+     - 继承 ``BaseModel``
+     - ``model``
    * - **聚类算法**
      - ``@register_clustering("name")``
-     - ``habitat_analysis/clustering/base_clustering.py``
-     - ``get-habitat``
-   * - **聚类特征提取器**
-     - ``@register_feature_extractor("name")``
-     - ``habitat_analysis/clustering_features/base_extractor.py``
-     - ``get-habitat``
-   * - **组级特征预处理**
-     - ``@register_preprocessing("name")``
-     - ``habitat_analysis/feature_preprocessing/base_preprocessing.py``
-     - ``get-habitat``
-   * - **生境后特征插件**
-     - ``@register_habitat_feature("name")``
-     - ``habitat_analysis/feature_registry.py``
-     - ``extract``
-   * - **机器学习模型**
-     - ``@ModelFactory.register("Name")``
-     - ``machine_learning/models/factory.py`` + ``models/base.py``
-     - ``model`` / ``cv``
-   * - **特征选择方法**
-     - ``@register_selector("name")``
-     - ``machine_learning/feature_selectors/selector_registry.py``
-     - ``model`` / ``cv``
+     - 继承 ``BaseClustering``
+     - (无独立 domain，依附于生境)
    * - **评估指标**
-     - ``@register_metric("name", "Display")``
-     - ``machine_learning/evaluation/metrics.py``
-     - ``model`` / ``cv`` / ``compare``
-   * - **步骤参数 Schema**
-     - ``ParamSchemaRegistry.register(domain, step, Model)``
-     - ``schemas/registry.py`` + ``schemas/steps/``
-     - 全部（校验 + GUI）
-
-各扩展点要点
-------------
-
-预处理步骤
-~~~~~~~~~~
-
-继承 ``BasePreprocessor``，实现 ``__call__(self, data)``。内置示例：``resample`` / ``registration`` /
-``n4_correction`` / ``zscore_normalization`` 等，均在 ``habit/core/preprocessing/`` 下。配准另有后端机制
-（``registration/`` 下的 ants / elastix / sitk backend）。
-
-聚类算法
-~~~~~~~~
-
-继承 ``BaseClustering``，实现 ``fit_predict(self, X)``。内置：``kmeans`` / ``gmm`` / ``slic`` 等
-（``habitat_analysis/clustering/`` 下）。同目录 ``cluster_validation_methods.py`` 提供最优簇数搜索
-（silhouette、BIC/AIC、elbow 等）。
-
-聚类特征提取器
-~~~~~~~~~~~~~~
-
-继承 ``BaseClusteringExtractor``，实现 ``extract_features(...)``。内置：``raw`` / ``kinetic`` /
-``local_entropy`` / ``supervoxel_radiomics`` 等。在 YAML 里通过 ``method: extractor(raw(seq1), raw(seq2))``
-这类表达式组合调用。
-
-组级特征预处理
-~~~~~~~~~~~~~~
-
-继承 ``BaseFeaturePreprocessing``。作用于跨受试者合并后的特征表（DataFrame）。内置：``minmax`` /
-``zscore`` / ``robust`` / ``winsorize`` / ``variance_filter`` / ``correlation_filter`` 等
-（``feature_preprocessing/builtin_methods.py``）。
-
-生境后特征插件
-~~~~~~~~~~~~~~
-
-在生境图生成后计算特征，通过 ``@register_habitat_feature`` 注册。内置特征类型包括
-``traditional`` / ``non_radiomics`` / ``whole_habitat`` / ``each_habitat`` / ``msi`` / ``ith_score``。
-
-机器学习模型
-~~~~~~~~~~~~
-
-继承 ``BaseModel``，实现 ``fit`` / ``predict`` / ``predict_proba``，用 ``@ModelFactory.register`` 注册。
-内置注册集中在 ``models/utils.py`` 的 ``register_all_models()``。
-
-特征选择方法
-~~~~~~~~~~~~
-
-遵循 sklearn 的 ``BaseEstimator`` + ``TransformerMixin``\ （``fit`` / ``transform``），用
-``@register_selector`` 注册。内置：``vif`` / ``icc`` / 相关性 / 方差 / 逐步回归 等
-（``feature_selectors/`` 下）。ICC / test-retest 相关逻辑在 ``feature_selectors/icc/``。
-
-评估指标
-~~~~~~~~
-
-用 ``@register_metric(name, display_name, category=...)`` 注册一个打分函数。内置：``accuracy`` /
-``sensitivity`` / ``specificity`` / ``auc`` / ``f1_score`` 及统计类指标（H-L、Spiegelhalter 等）。
-
-步骤参数 Schema
-~~~~~~~~~~~~~~~
-
-为新组件的 ``params`` 定义一个 Pydantic 模型（放 ``schemas/steps/``）并注册到 ``ParamSchemaRegistry``。
-这让新参数获得 **类型校验** 与 **GUI 表单自动渲染**。机制详见 :doc:`configuration_system`。
-
-.. seealso::
-
-   - 手把手代码模板（含完整示例）：:doc:`../customization/index`。
-   - 注册与校验如何联动 GUI：:doc:`configuration_system` 与 :doc:`dev_workflow`。
+     - ``@register_metric("name")``
+     - 函数 ``(y_true, y_pred) -> float``
+     - (纯函数，通常无参数 Schema)

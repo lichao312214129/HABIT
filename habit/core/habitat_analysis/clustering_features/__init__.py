@@ -46,7 +46,7 @@ logger = get_module_logger(__name__)
 
 from .base_extractor import (
     BaseClusteringExtractor,
-    register_feature_extractor,
+    FeatureExtractorRegistry,
 )
 
 # Backward-compatible alias (downstream code referenced this name pre-V1).
@@ -131,7 +131,7 @@ def get_feature_extractor(name: str) -> Optional[Type]:
 __all__ = [
     "BaseClusteringExtractor",
     "BaseFeatureExtractor",
-    "register_feature_extractor",
+    "FeatureExtractorRegistry",
     "get_feature_extractors",
     "get_feature_extractor",
     "calculate_supervoxel_means",

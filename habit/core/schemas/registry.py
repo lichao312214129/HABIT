@@ -97,10 +97,12 @@ class ParamSchemaRegistry:
             pass
 
         try:
-            from habit.core.machine_learning.feature_selectors import selector_registry
+            from habit.core.machine_learning.feature_selectors.selector_registry import (
+                SelectorRegistry,
+            )
 
             for step_type, model in cls._models.get("feature_selection", {}).items():
-                selector_registry.register_params_model(step_type, model)
+                SelectorRegistry.register_params_model(step_type, model)
         except Exception:
             pass
 

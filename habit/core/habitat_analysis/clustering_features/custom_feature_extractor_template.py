@@ -18,7 +18,7 @@ Custom Feature Extractor Template
 Usage Instructions:
 1. Copy this file and rename it to your_method_feature_extractor.py
 2. Change the class name CustomFeatureExtractorTemplate to your feature extractor name
-3. Modify the name in the register_feature_extractor decorator to your method's abbreviation
+3. Modify the name in the FeatureExtractorRegistry.register decorator to your method's abbreviation
 4. Implement the extract_features method and set the feature_names attribute
 5. No need to modify __init__.py, the system will automatically discover and register your feature extractor
 
@@ -28,10 +28,10 @@ Usage Instructions:
 
 import numpy as np
 from typing import List, Dict, Any, Optional, Union
-from .base_extractor import BaseClusteringExtractor, register_feature_extractor
+from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 
 
-@register_feature_extractor('custom_template')  # Register feature extractor (please change to your method name)
+@FeatureExtractorRegistry.register('custom_template')  # Register feature extractor (please change to your method name)
 class CustomFeatureExtractorTemplate(BaseClusteringExtractor):
     """
     Custom Feature Extractor Template Class - Please replace with your feature extractor description

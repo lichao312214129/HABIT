@@ -25,10 +25,10 @@ import statsmodels.formula.api as smf
 from pathlib import Path
 
 from habit.utils.progress_utils import CustomTqdm
-from .selector_registry import register_selector, SelectorContext
+from .selector_registry import SelectorRegistry, SelectorContext
 from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
 
-@register_selector('univariate_logistic')
+@SelectorRegistry.register('univariate_logistic')
 def univariate_logistic_selector(
     X: Optional[pd.DataFrame] = None,
     y: Optional[pd.Series] = None,

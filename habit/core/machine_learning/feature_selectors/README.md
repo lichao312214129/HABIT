@@ -47,7 +47,7 @@
 ## 关键文件与作用
 
 - `selector_registry.py`
-  - 注册器核心：`register_selector`、`get_selector`、`run_selector`。
+  - 注册器核心：`SelectorRegistry`（`@SelectorRegistry.register(...)` 注册、`SelectorRegistry.get`/`get_entry`/`entries` 查询）、`run_selector`。
 
 - `*_selector.py`
   - 各算法实现文件，例如：
