@@ -16,7 +16,7 @@
 Model Factory
 Factory class for creating model instances
 """
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Dict, Any, Optional, List, Union, Tuple, Type
 import importlib
 import os
 import sys
@@ -33,6 +33,7 @@ class ModelFactory:
     """Factory class for creating model instances"""
     
     _registry = {}
+    _params_models: Dict[str, Type[Any]] = {}
     
     @classmethod
     def register(cls, name: str):
@@ -110,3 +111,27 @@ class ModelFactory:
                     LOGGER.debug("Successfully imported model module: %s", module_name)
                 except ImportError as e:
                     LOGGER.warning("Failed to import model module %s: %s", module_name, e)
+
+    @classmethod
+    def register_params_model(cls, name: str, params_model: Type[Any]) -> None:
+        """
+        Associate a Pydantic *Params schema with a registered ML model.
+
+        Args:
+            name: ModelFactory registration key.
+            params_model: Pydantic model for GUI / YAML ``params`` validation.
+        """
+        cls._params_models[name] = params_model
+
+    @classmethod
+    def get_params_model(cls, name: str) -> Optional[Type[Any]]:
+        """
+        Return the Pydantic params schema for a model, if registered.
+
+        Args:
+            name: ModelFactory registration key.
+
+        Returns:
+            Optional[Type[Any]]: Params model class or None.
+        """
+        return cls._params_models.get(name)

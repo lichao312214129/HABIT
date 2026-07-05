@@ -2,5 +2,9 @@
 recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.c
 recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.h
 
-# Bundled GUI default resources (radiomics parameter presets) for the Web GUI.
-recursive-include habit/gui/resources *.yaml
+# Next-generation web GUI (API bridge, presets, built frontend).
+recursive-include habit-gui/bridge *.py
+recursive-include habit-gui/api *.py
+recursive-include habit-gui/presets *.yaml
+recursive-include habit-gui/web/dist *
+prune habit-gui/web/node_modules

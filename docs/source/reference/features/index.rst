@@ -27,9 +27,6 @@ Each page: **Output** → **Definition** → **Formula** → **Columns** → **I
    * - ``ith_score``
      - ``ith_scores.csv``
      - :doc:`ith_score`
-   * - ``graph``
-     - ``habitat_graph_features.csv``
-     - :doc:`graph/index`
 
 .. toctree::
    :maxdepth: 2
@@ -40,4 +37,3 @@ Each page: **Output** → **Definition** → **Formula** → **Columns** → **I
    whole_each_habitat
    msi
    ith_score
-   graph/index

@@ -295,11 +295,26 @@ class BatchProcessor:
             self.logger.debug(f"Processing subject: {subject_id}")
             
             # Load images before numeric preprocessing steps (NIfTI inputs).
-            load_keys = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
-            load_keys = [item for sublist in load_keys for item in sublist]
-            load_keys = list(set(load_keys))
-            mask_keys = [f"mask_{mod}" for mod in load_keys]
-            load_keys.extend(mask_keys)
+            # Collect every modality referenced across all configured steps.
+            step_modalities = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
+            step_modalities = [item for sublist in step_modalities for item in sublist]
+            step_modalities = list(set(step_modalities))
+
+            # Modalities consumed by the dcm2nii step are DICOM *directories*, not
+            # readable image files: the dcm2nii converter reads them itself and
+            # writes the resulting SimpleITK image back into subject_data. Trying
+            # to pre-load them with SimpleITK would always fail (a DICOM folder is
+            # not a single readable image), so exclude those image keys here.
+            # Masks are always NIfTI/label files (never produced by dcm2nii), so
+            # their keys stay in the load list even for dcm2nii modalities.
+            dcm2nii_modalities = set()
+            for step_name, step_config in self.config_obj.Preprocessing.items():
+                if step_name == "dcm2nii":
+                    dcm2nii_modalities.update(step_config.images)
+
+            image_load_keys = [mod for mod in step_modalities if mod not in dcm2nii_modalities]
+            mask_keys = [f"mask_{mod}" for mod in step_modalities]
+            load_keys = image_load_keys + mask_keys
             load_image = LoadImagePreprocessor(keys=load_keys)
             load_image(subject_data)
             log_sitk_geometry_for_subject_data(

@@ -1,28 +1,48 @@
-# =============================================================================
-# Preprocessing — resample only
-# =============================================================================
-
-# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_resample_only.yaml
-#       python tests/preprocessing/preprocess_resample_only.py
-# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-#%%================================================================================
-data_dir: ../../.cursor/test/resample_02
-out_dir: ../../demo_data/results/preprocessing_resample_only
-#%%================================================================================
-
-auto_select_first_file: true
-
-Preprocessing:
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-
-save_options:
-  save_intermediate: false
-
-processes: 1
-random_state: 42
+# =============================================================================
+# 影像预处理 DEMO —— 只做重采样 (resample only)
+# Image preprocessing DEMO — resample only
+# =============================================================================
+#
+# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
+#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
+#   cd F:\work\habit_project      # 进入项目根目录（habit 包所在处）
+#   habit preprocess -c config/preprocessing/config_preprocessing_resample_only.yaml
+#
+# 作用 / What it does:
+#   把每个受试者的多个模态图像重采样到统一体素间距（spacing），
+#   这是最基础、最常用的一步（不同扫描仪/序列的 spacing 往往不同）。
+#
+# 输入数据 / Input:
+#   demo_data/preprocessed/processed_images
+#     images/<subject>/<modality>/<file>.nii.gz
+#     masks/<subject>/<modality>/<file>.nii.gz
+#   本 DEMO 的模态键是 delay2 / delay3 / delay5（增强延迟 2/3/5 分钟），
+#   注意：这里不是 T1/T2！模态键必须与数据文件夹名一致。
+#
+# 路径约定 / Path convention:
+#   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# =============================================================================
+
+#%%================================================================================
+# 【必改】输入 / 输出路径
+data_dir: ../../demo_data/preprocessed/processed_images        # 输入根目录（含 images/ 与 masks/）
+out_dir: ../../demo_data/results/preprocessing_resample_only   # 输出目录（自动创建）
+#%%================================================================================
+
+# 当某个模态路径是文件夹且内含多个文件时，自动选用第一个文件（true 为推荐默认）
+auto_select_first_file: true
+
+# 预处理流水线：YAML 中步骤的书写顺序 = 实际执行顺序
+Preprocessing:
+  # 重采样：统一体素间距
+  resample:
+    images: [delay2, delay3, delay5]   # 要处理的模态键（必须与数据文件夹名一致）
+    target_spacing: [3.0, 3.0, 3.0]    # 目标体素间距 [x, y, z]，单位 mm（越大越粗糙、越快）
+    img_mode: bilinear                 # 图像插值方式：bilinear=线性(连续灰度图) / nearest=最近邻(标签图)
+
+save_options:
+  save_intermediate: false             # 仅一步处理，无需单独保存中间结果
+  intermediate_steps: []               # 为空表示保存所有步骤（此处配合上面 false 不生效）
+
+processes: 2                            # 并行进程数（受试者数少时 1~2 即可）
+random_state: 42                        # 随机种子（预留字段，保证可复现）

@@ -12,22 +12,17 @@
 # ─────────────────────────────────────────────────────────────────────────
 # Data Paths
 # ─────────────────────────────────────────────────────────────────────────
-
 # Input data directory
 # Expected structure: data_dir/subject_id/images/ and masks/
 # Or a manifest YAML (see config/preprocessing/files_preprocessing.yaml)
 data_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data\DATA_2
-
 # Output directory
 out_dir: F:\work\workstation_b\dingHuYingXiang\the_4_training_202504\demo_data
-
 # When a modality path is a directory with multiple files, pick the first file (default: true)
 auto_select_first_file: true
-
 # ─────────────────────────────────────────────────────────────────────────
 # Preprocessing Pipeline
 # ─────────────────────────────────────────────────────────────────────────
-
 Preprocessing:
   # N4 Bias Field Correction (for MRI)
   # n4_correction:
@@ -96,19 +91,15 @@ Preprocessing:
     # bspline_order: 3
     #
     # mask_key: tumor_mask  # If use_mask: true, typically mask_<modality> is used; see user guide
-
 # ─────────────────────────────────────────────────────────────────────────
 # Save Options (Intermediate Results)
 # ─────────────────────────────────────────────────────────────────────────
-
 save_options:
   # Whether to save intermediate results after each preprocessing step
   save_intermediate: false
-
   # Which steps to save (empty list = save all steps)
   # Example: [n4_correction, resample]  # Only save these steps
   intermediate_steps: []
-
 # Output directory structure when save_intermediate: true
 # out_dir/
 # ├── n4_correction_01/
@@ -122,17 +113,13 @@ save_options:
 # └── processed_images/  (final results, always saved)
 #     ├── images/sub001/T1/T1.nii.gz
 #     └── masks/sub001/T1/mask_T1.nii.gz
-
 # ─────────────────────────────────────────────────────────────────────────
 # General Settings
 # ─────────────────────────────────────────────────────────────────────────
-
 # Number of parallel processes
 processes: 1
-
 # Reserved for config extension; current pipeline does not read random_state
 random_state: 42
-
 # ----------------------------------------------------------------------------
 # Available Preprocessing Methods
 # ----------------------------------------------------------------------------

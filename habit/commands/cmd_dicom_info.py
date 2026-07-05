@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Optional, List, Set
 from habit.utils.dicom_utils import batch_read_dicom_info, list_available_tags, PYDICOM_AVAILABLE
 from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.commands.common import echo_success, safe_echo
 
 
 def run_dicom_info(input_path: str,
@@ -148,8 +149,8 @@ def run_dicom_info(input_path: str,
             sys.exit(1)
         
         # Display summary
-        click.echo(f"\n✓ Successfully extracted information from {len(df)} DICOM file(s)")
-        click.echo(f"  Columns: {', '.join(df.columns.tolist())}")
+        echo_success(f"Successfully extracted information from {len(df)} DICOM file(s)")
+        safe_echo(f"  Columns: {', '.join(df.columns.tolist())}")
         
         # Display preview
         if len(df) <= 10:
@@ -161,7 +162,7 @@ def run_dicom_info(input_path: str,
             click.echo(f"\n... and {len(df) - 5} more row(s)")
         
         if output:
-            click.secho(f"\n✓ Results saved to {output}", fg='green')
+            echo_success(f"Results saved to {output}")
         else:
             click.echo("\nNote: Use --output to save results to a file")
         

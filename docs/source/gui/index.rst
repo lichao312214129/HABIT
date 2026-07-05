@@ -1,33 +1,23 @@
-Web GUI
-=======
+Web GUI (under development)
+============================
 
-HABIT includes a **Gradio Web GUI** for users who prefer not to use the terminal. Tabs follow the pipeline from left to right.
+.. note::
 
-Launch
-------
+   The HABIT Web GUI is **under active development** and is **not yet recommended**
+   for routine use. For production workflows, use the **CLI** and YAML configs
+   documented in :doc:`../how_to/index` and :doc:`../configuration/index`.
 
-From the project root (folder containing ``config/`` ):
+Planned scope
+-------------
 
-.. code-block:: bash
-
-   habit gui
-
-Default URL: `http://127.0.0.1:8501` (browser opens automatically).
-
-Optional:
-
-.. code-block:: bash
-
-   habit gui --host 127.0.0.1 --port 8501
-
-Tabs
-----
+The next-generation GUI (``habit-gui/`` in the repository) will cover the same
+pipeline as the CLI:
 
 .. list-table::
    :header-rows: 1
    :widths: 22 78
 
-   * - Tab
+   * - Step
      - CLI equivalent
    * - 1. DICOM sort
      - ``habit sort-dicom``
@@ -42,21 +32,17 @@ Tabs
    * - 6. Model comparison
      - ``habit compare``
 
-Common actions
---------------
+Early preview (developers)
+--------------------------
 
-- **Pick paths** using folder / file buttons.
-- **Load / save YAML** from ``config/`` templates.
-- **Run / Stop** — logs stream at the bottom.
-- **Open output folder** when the job finishes.
+Developers who want to try the work-in-progress GUI from a source checkout:
 
-The GUI uses the **same YAML configs and backend** as the CLI.
+.. code-block:: bash
 
-Configuration: :doc:`../configuration/index` . Step-by-step: :doc:`../how_to/index` .
+   cd habit-gui/web && npm install && npm run build
+   habit gui
 
-FAQ
----
+Default URL when available: ``http://127.0.0.1:8501``.
 
-**Browser does not open** — try ``habit gui --port 8502`` .
-
-**Job failed** — read the log panel; see :doc:`../troubleshooting/faq` .
+Until the GUI is officially released, prefer :doc:`../tutorial/quickstart` and
+:doc:`../how_to/index` for step-by-step instructions.

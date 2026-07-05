@@ -12,7 +12,7 @@ Learning path
 
 1. :doc:`tutorial/installation` — **Install**
 2. :doc:`tutorial/quickstart` — Run the demo
-3. :doc:`gui/index` — Web GUI (optional)
+3. :doc:`gui/index` — Web GUI (under development; CLI recommended)
 4. :doc:`how_to/index` — Step-by-step with your data
 5. :doc:`configuration/index` — YAML reference
 6. :doc:`reference/features/index` — Feature definitions (papers)

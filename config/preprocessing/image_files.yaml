@@ -1,101 +1,36 @@
-# =============================================================================
-# Preprocessing manifest — DEMO: resample_02 NIfTI (T1, T2)
-# =============================================================================
-
-#
-# Same layout as files_preprocessing.yaml (resample_02 test data).
-# Referenced by config_image_preprocessing_dcm2nii.yaml when using manifest input.
-# Paths resolve relative to the repository root.
-#
-# Keys (`T1`, `T2`) must match `images:` modality names inside Preprocessing steps.
-#
-# NOT overlapping with:
-#   files_preprocessing.yaml — identical resample_02 manifest (preferred name).
-#   file_habitat.yaml — manifest for get-habitat on processed images/masks.
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-auto_select_first_file: true
-
-images:
-  sub1:
-    T1: ../../.cursor/test/resample_02/images/sub1/T1
-    T2: ../../.cursor/test/resample_02/images/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/images/sub19/T1
-    T2: ../../.cursor/test/resample_02/images/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/images/sub20/T1
-    T2: ../../.cursor/test/resample_02/images/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/images/sub21/T1
-    T2: ../../.cursor/test/resample_02/images/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/images/sub22/T1
-    T2: ../../.cursor/test/resample_02/images/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/images/sub229/T1
-    T2: ../../.cursor/test/resample_02/images/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/images/sub24/T1
-    T2: ../../.cursor/test/resample_02/images/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/images/sub25/T1
-    T2: ../../.cursor/test/resample_02/images/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/images/sub26/T1
-    T2: ../../.cursor/test/resample_02/images/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/images/sub28/T1
-    T2: ../../.cursor/test/resample_02/images/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/images/sub29/T1
-    T2: ../../.cursor/test/resample_02/images/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/images/sub30/T1
-    T2: ../../.cursor/test/resample_02/images/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/images/sub620/T1
-    T2: ../../.cursor/test/resample_02/images/sub620/T2
-
-masks:
-  sub1:
-    T1: ../../.cursor/test/resample_02/masks/sub1/T1
-    T2: ../../.cursor/test/resample_02/masks/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/masks/sub19/T1
-    T2: ../../.cursor/test/resample_02/masks/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/masks/sub20/T1
-    T2: ../../.cursor/test/resample_02/masks/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/masks/sub21/T1
-    T2: ../../.cursor/test/resample_02/masks/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/masks/sub22/T1
-    T2: ../../.cursor/test/resample_02/masks/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/masks/sub229/T1
-    T2: ../../.cursor/test/resample_02/masks/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/masks/sub24/T1
-    T2: ../../.cursor/test/resample_02/masks/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/masks/sub25/T1
-    T2: ../../.cursor/test/resample_02/masks/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/masks/sub26/T1
-    T2: ../../.cursor/test/resample_02/masks/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/masks/sub28/T1
-    T2: ../../.cursor/test/resample_02/masks/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/masks/sub29/T1
-    T2: ../../.cursor/test/resample_02/masks/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/masks/sub30/T1
-    T2: ../../.cursor/test/resample_02/masks/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/masks/sub620/T1
-    T2: ../../.cursor/test/resample_02/masks/sub620/T2
+# =============================================================================
+# 通用清单模板 —— 自定义多模态影像路径（占位示例，非可直接运行）
+# Generic manifest template — author your own multi-modality paths (PLACEHOLDER)
+# =============================================================================
+#
+# 用途 / Purpose:
+#   这是给你“照着改”的通用模板：把下面的占位路径 /path/to/... 换成你自己的
+#   真实文件（.nii/.nii.gz）或 DICOM 文件夹路径即可。模态键（T1/T2/DWI/ADC…）
+#   随你的数据自定义，但必须与预处理 YAML 里 `images:` 用到的键一致。
+#
+# 想直接运行的 DEMO 请改用（都指向随包的 demo_data）：
+#   - files_preprocessing.yaml     —— DICOM(delay2/3/5) 转 NIfTI 的 demo 清单
+#   - file_habitat.yaml            —— get-habitat 用的 demo 清单（images+masks）
+#
+# 路径约定 / Path convention:
+#   相对路径（../, ../../）相对“本 YAML 文件所在目录”解析。
+# =============================================================================
+auto_select_first_file: true
+images:
+  subjectA:
+    T1:  /path/to/subjectA/T1.nii.gz
+    T2:  /path/to/subjectA/T2.nii.gz
+    DWI: /path/to/subjectA/DWI.nii.gz
+    ADC: /path/to/subjectA/ADC.nii.gz
+  subjectB:
+    T1:  /path/to/subjectB/T1.nii.gz
+    T2:  /path/to/subjectB/T2.nii.gz
+    DWI: /path/to/subjectB/DWI.nii.gz
+    ADC: /path/to/subjectB/ADC.nii.gz
+masks:
+  subjectA:
+    T1:  /path/to/subjectA/T1_mask.nii.gz
+    T2:  /path/to/subjectA/T2_mask.nii.gz
+  subjectB:
+    T1:  /path/to/subjectB/T1_mask.nii.gz
+    T2:  /path/to/subjectB/T2_mask.nii.gz

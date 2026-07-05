@@ -54,6 +54,14 @@ try:
 except ImportError:
     pass
 
+# Mermaid diagrams (developer architecture pages). Rendered client-side via
+# mermaid.js, so it works on GitHub Pages without a local graphviz binary.
+try:
+    import sphinxcontrib.mermaid  # noqa: F401
+    extensions.append('sphinxcontrib.mermaid')
+except ImportError:
+    pass
+
 # Napoleon 配置
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True

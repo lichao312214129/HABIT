@@ -1,38 +1,57 @@
-# =============================================================================
-# Preprocessing — N4 + resample + elastix registration
-# =============================================================================
-
-# CLI:  habit preprocess --config config/preprocessing/config_preprocessing_n4_resample_registration.yaml
-#       python tests/preprocessing/preprocess_n4_resample_registration.py
-# Must-edit keys: #%%================================================================================ pairs (config/README_CONFIG.md)
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-#%%================================================================================
-data_dir: ../../.cursor/test/resample_02
-out_dir: ../../demo_data/results/preprocessing_n4_resample_registration
-#%%================================================================================
-
-auto_select_first_file: true
-
-Preprocessing:
-  n4_correction:
-    images: [T1, T2]
-    num_fitting_levels: 2
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-  registration:
-    images: [T1, T2]
-    fixed_image: T1
-    use_mask: true
-    backend: elastix
-    elastix_parameter_files: ../../demo_data/Par0040affine.txt
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: [n4_correction, resample, registration]
-
-processes: 1
-random_state: 42
+# =============================================================================
+# 影像预处理 DEMO —— N4 偏置场校正 + 重采样 + 配准 (elastix)
+# Image preprocessing DEMO — N4 bias correction + resample + registration (elastix)
+# =============================================================================
+#
+# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
+#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
+#   cd F:\work\habit_project      # 进入项目根目录
+#   habit preprocess -c config/preprocessing/config_preprocessing_n4_resample_registration.yaml
+#
+# 作用 / What it does (按顺序执行):
+#   1) n4_correction  : MRI 偏置场（亮度不均）校正
+#   2) resample       : 统一体素间距
+#   3) registration   : 用 elastix 把其它模态配准到参考模态 (delay2)
+#
+# 外部工具 / External tools (已随 demo_data 附带，无需另装):
+#   demo_data/elastix.exe, demo_data/transformix.exe, demo_data/Par0040affine.txt
+#
+# 输入 / Input : demo_data/preprocessed/processed_images（模态键 delay2/delay3/delay5）
+# 路径约定     : 相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# =============================================================================
+
+#%%================================================================================
+# 【必改】输入 / 输出路径
+data_dir: ../../demo_data/preprocessed/processed_images                       # 输入根目录（含 images/ 与 masks/）
+out_dir: ../../demo_data/results/preprocessing_n4_resample_registration       # 输出目录（自动创建）
+#%%================================================================================
+
+auto_select_first_file: true
+
+Preprocessing:
+  # 1) N4 偏置场校正（仅 MRI 需要；CT 一般不用）
+  n4_correction:
+    images: [delay2, delay3, delay5]   # 要校正的模态键
+    num_fitting_levels: 2              # 拟合层级数（2~4 常用，越大越慢）
+
+  # 2) 重采样到统一间距
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [3.0, 3.0, 3.0]    # 目标体素间距 [x, y, z]，mm
+
+  # 3) 配准（elastix 后端）：把“非参考模态”对齐到参考模态
+  registration:
+    images: [delay2, delay3, delay5]           # 参与配准的全部模态；移动图像 = images 去掉 fixed_image
+    fixed_image: delay2                         # 参考模态（不动），其余向它对齐
+    use_mask: true                              # 使用 mask 辅助配准（demo 数据带 mask）
+    backend: elastix                            # 配准后端：ants / simpleitk / elastix
+    elastix_path: ../../demo_data                # elastix 可执行文件或其所在目录（这里给目录）
+    transformix_path: ../../demo_data            # transformix 可执行文件或其所在目录
+    elastix_parameter_files: ../../demo_data/Par0040affine.txt   # elastix 参数文件（仿射配准）
+
+save_options:
+  save_intermediate: true                        # 保存每一步中间结果，便于检查
+  intermediate_steps: [n4_correction, resample, registration]
+
+processes: 1                                     # elastix 为外部进程，建议 1（避免并发占用过多资源）
+random_state: 42

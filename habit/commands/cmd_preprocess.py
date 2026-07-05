@@ -14,7 +14,7 @@ from pathlib import Path
 
 import click
 
-from habit.cli_commands.common import (
+from habit.commands.common import (
     echo_fatal,
     echo_success,
     exit_with_error,

@@ -9,13 +9,11 @@
 #                                      + Wavelet x 8 decompositions x 7 classes)
 # Use only if you have a large cohort and aggressive feature selection
 # downstream. For pilot studies, prefer `config/radiomics/parameter_basic.yaml`.
-
 imageType:
   Original: {}
   LoG:                          # Laplacian of Gaussian — multi-scale edge enhancement
     sigma: [1.0, 2.0, 3.0]      # in mm; one filter per sigma
   Wavelet: {}                   # 8 wavelet decompositions (LLL, LLH, LHL, ...)
-
 featureClass:
   firstorder:
   shape:                        # shape only computed once on Original
@@ -24,7 +22,6 @@ featureClass:
   glszm:                        # 16 grey-level size-zone features
   ngtdm:                        # 5 neighborhood grey-tone difference features
   gldm:                         # 14 grey-level dependence features
-
 setting:
   binWidth: 25
   label: 1

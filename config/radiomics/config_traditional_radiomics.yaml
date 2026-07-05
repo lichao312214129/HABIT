@@ -1,35 +1,51 @@
-# =============================================================================
-# Traditional Radiomics — DEMO: resample_02 (T1, T2)
-# =============================================================================
-
-#
-# Used by:  habit radiomics
-#           python tests/machine_learning/ml_radiomics_standalone.py
-#
-# Data: .cursor/test/resample_02 (images/ + masks/, modalities T1/T2)
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-paths:
-  params_file: ./parameter.yaml
-  images_folder: ../../.cursor/test/resample_02
-  out_dir: ../../demo_data/results/radiomics_traditional_resample02
-
-processing:
-  n_processes: 2
-  save_every_n_files: 5
-  process_image_types:
-    - T1
-    - T2
-
-export:
-  export_by_image_type: true
-  export_combined: true
-  export_format: csv
-  add_timestamp: false
-
-logging:
-  level: INFO
-  console_output: true
-  file_output: true
+# =============================================================================
+# 传统影像组学特征提取 DEMO —— Traditional Radiomics
+# =============================================================================
+#
+# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
+#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
+#   cd F:\work\habit_project      # 进入项目根目录
+#   habit radiomics -c config/radiomics/config_traditional_radiomics.yaml
+#
+# 作用 / What it does:
+#   对每个受试者、每个模态的 ROI（mask 区域）提取 PyRadiomics 传统组学特征
+#   （形状/一阶/纹理等），输出为 CSV 特征表，可直接用于后续机器学习。
+#
+# 输入 / Input:
+#   demo_data/preprocessed/processed_images
+#     images/<subject>/<modality>/<file>.nii.gz  与  masks/<subject>/<modality>/<file>.nii.gz
+#   模态键为 delay2 / delay3 / delay5（不是 T1/T2！）。
+#
+# 特征算子参数 / Feature settings:
+#   见同目录 parameter.yaml（PyRadiomics 配置：imageType / featureClass / setting）。
+#
+# 路径约定 / Path convention:
+#   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# =============================================================================
+
+paths:
+  params_file: ./parameter.yaml                                   # PyRadiomics 参数文件（本目录）
+  #%%============================================================================
+  # 【必改】输入影像根目录 / 输出目录
+  images_folder: ../../demo_data/preprocessed/processed_images    # 含 images/ 与 masks/
+  out_dir: ../../demo_data/results/radiomics_traditional          # 输出目录（自动创建）
+  #%%============================================================================
+
+processing:
+  n_processes: 2               # 并行进程数
+  save_every_n_files: 5        # 每处理 N 个文件落盘一次（断点安全）
+  process_image_types:         # 要提取的模态键（必须与数据文件夹名一致）
+    - delay2
+    - delay3
+    - delay5
+
+export:
+  export_by_image_type: true   # 是否按模态分别导出特征表
+  export_combined: true        # 是否额外导出一个合并所有模态的宽表
+  export_format: csv           # 导出格式：csv
+  add_timestamp: false         # 文件名是否加时间戳
+
+logging:
+  level: INFO
+  console_output: true
+  file_output: true

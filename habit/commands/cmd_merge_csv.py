@@ -26,6 +26,7 @@ import csv
 from pathlib import Path
 from typing import List, Optional, Tuple
 from habit.utils.log_utils import setup_logger
+from habit.commands.common import echo_success
 
 
 def run_merge_csv(
@@ -198,6 +199,22 @@ def run_merge_csv(
             if merged_df is None:
                 merged_df = df
             else:
+                # Feature tables frequently repeat shared columns (e.g. a
+                # common "label" column). A plain DataFrame.join would raise
+                # "columns overlap but no suffix specified" in that case.
+                # To stay robust without silently losing data, suffix any
+                # right-hand columns that collide with already-merged columns
+                # using this file's basename, then join on the shared index.
+                overlapping_cols = [c for c in df.columns if c in merged_df.columns]
+                if overlapping_cols:
+                    file_tag = os.path.splitext(os.path.basename(file_path))[0]
+                    rename_map = {c: f"{c}__{file_tag}" for c in overlapping_cols}
+                    df = df.rename(columns=rename_map)
+                    logger.info(
+                        f"Renamed {len(overlapping_cols)} overlapping column(s) "
+                        f"from {os.path.basename(file_path)} with suffix '__{file_tag}': "
+                        f"{overlapping_cols}"
+                    )
                 merged_df = merged_df.join(df, how=join_type)
             
             processed_files.append(os.path.basename(file_path))
@@ -224,7 +241,7 @@ def run_merge_csv(
         click.echo(f"  Final shape: {merged_df.shape}")
         click.echo(f"  Index column: {merged_df.index.name}")
         click.echo(f"  Join type: {join_type}")
-        click.secho(f"\n✓ Merge completed successfully!", fg='green')
+        echo_success("Merge completed successfully!")
         
     except Exception as e:
         logger.error(f"Error during merge process: {str(e)}")

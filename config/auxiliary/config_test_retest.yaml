@@ -1,34 +1,44 @@
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-
-# Configuration file for Test-Retest Reproducibility Analysis
-# This configuration is used by habit retest command
-
-# Output directory for remapped NRRD files and logs
-out_dir: ../../demo_data/ml_data/test_retest/remapped
-
-# Test habitat table (from resample_02 two-step habitat train output)
-test_habitat_table: ../../demo_data/results/habitat_two_step/habitats.csv
-
-# Retest habitat table (demo: same table for label-mapping smoke test)
-retest_habitat_table: ../../demo_data/ml_data/habitats_retest.csv
-
-# Features to use for similarity calculation
-# If not specified, all features will be used
-features: null  # null means use all features
-# Example: features: ['feature1', 'feature2', 'feature3']
-
-# Similarity method for habitat mapping
-# Options: 'pearson', 'spearman', 'kendall', 'euclidean', 'cosine', 'manhattan', 'chebyshev'
-similarity_method: pearson
-
-# Input directory containing retest NRRD files
-input_dir: ../../demo_data/habitat_maps/retest
-
-# Number of parallel processes to use
-processes: 4
-
-# Enable debug logging
-debug: false
+# =============================================================================
+# 重测复现性 / 生境标签映射 DEMO —— Test-Retest habitat label mapping
+# =============================================================================
+#
+# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
+#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
+#   cd F:\work\habit_project      # 进入项目根目录
+#   habit retest -c config/auxiliary/config_test_retest.yaml
+#
+# 背景 / Why:
+#   两次聚类得到的生境标签（label 1/2/3...）因聚类随机性可能对不上号。
+#   本工具用“各生境的特征中位数相似度”把 retest 的标签映射回 test 的标签，
+#   再把 retest 的生境图(NRRD)按映射重标注，保证后续 ICC/复现性分析标签一致。
+#
+# 前置条件 / Prerequisite:
+#   需先跑二步法生境训练，产出 habitats.parquet 与 *_habitats.nrrd：
+#   habit get-habitat -c config/habitat/config_habitat_two_step.yaml -m train
+#
+# 本 DEMO 说明 / Note:
+#   为便于演示，test 与 retest 用同一张特征表（identity 映射的冒烟测试）。
+#   真实项目里请分别填两次扫描各自的 habitat 特征表与 retest 的 NRRD 目录。
+#
+# 路径约定 / Path convention:
+#   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# =============================================================================
+
+# 输出目录：保存重标注后的 NRRD 与日志（自动创建）
+out_dir: ../../demo_data/results/test_retest/remapped
+
+# test 组生境特征表（含 'Habitats' 列，支持 .parquet/.csv/.xlsx）
+test_habitat_table: ../../demo_data/results/habitat_two_step/habitats.parquet
+# retest 组生境特征表（本 DEMO 用同一张 → identity 映射）
+retest_habitat_table: ../../demo_data/results/habitat_two_step/habitats.parquet
+
+# 用于相似度计算的特征列；null = 自动用第 4 列到倒数第 2 列
+features: null
+# 相似度方法：pearson / spearman / kendall / euclidean / cosine / manhattan / chebyshev
+similarity_method: pearson
+
+# 含 retest 生境图的目录（匹配 *habitats.nrrd）；本 DEMO 直接用训练输出目录
+input_dir: ../../demo_data/results/habitat_two_step
+
+processes: 2      # 并行进程数
+debug: false      # 是否输出调试日志

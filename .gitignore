@@ -157,6 +157,9 @@ cython_debug/
 .DS_Store
 
 # HABIT specific
+# Next-gen GUI (temporarily excluded from version control)
+habit-gui/
+
 # General file types to ignore (Global rules)
 *.nii.gz
 *.nii

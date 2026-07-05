@@ -14,9 +14,7 @@
 # because MCC/Imc1/Imc2 need eigenvalue or mutual-information stats on degenerate 1×1 GLCM
 # matrices (flat local neighborhoods). Habit also defaults to this list when glcm is
 # enabled without explicit feature names — see habit.utils.radiomics_params_utils.
-
 # #############################  Extracted using PyRadiomics version: <version>  ######################################
-
 imageType:
   Original: {}
   # LoG:
@@ -28,7 +26,6 @@ imageType:
   # Exponential: {}
   # Gradient: {}
   # LBP3D: {}
-
 featureClass:
   # shape: not supported in voxel-based mode
   firstorder:
@@ -58,26 +55,20 @@ featureClass:
   glszm:
   ngtdm:
   gldm:
-
 setting:
   # Normalization:
   # MR signal is usually relative, with large differences between scanners and vendors.
   normalize: false
   # normalizeScale: 100
-
   # Resampling:
 #  interpolator: 'sitkBSpline'
 #  resampledPixelSpacing: [2, 2, 2]
-
   # Mask validation:
   #minimumROIDimensions: 2
   #minimumROISize: 50
-
   # Image discretization (CT habitat voxel texture; R3B12 — see header reference):
   binWidth: 12
-
   # first order specific settings:
   voxelArrayShift: 300
-
   # Misc:
   # label: 1

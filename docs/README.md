@@ -9,7 +9,7 @@ Entry point: `source/index.rst` (English).
 | Section | Path |
 |---------|------|
 | Tutorial | `tutorial/` |
-| Web GUI | `gui/` |
+| Web GUI (under development) | `gui/` |
 | How-to | `how_to/` |
 | Configuration | `configuration/` |
 | Feature reference | `reference/features/` |
@@ -17,4 +17,4 @@ Entry point: `source/index.rst` (English).
 | API (autodoc) | `api/` |
 | Developer | `development/`, `customization/` |
 
-Launch GUI: `habit gui` — see `gui/index.rst`.
+GUI preview (developers): `habit gui` — see `gui/index.rst`. CLI/YAML is recommended for routine use.

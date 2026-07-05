@@ -19,29 +19,23 @@ input:
   label_col: label
   features:
 output: ./ml_data/kfold_results
-
 # ─────────────────────────────────────────────────────────────────────────
 # K-Fold Cross-Validation Settings
 # ─────────────────────────────────────────────────────────────────────────
-
 # Number of folds
 # Typical values: 5, 10
 n_splits: 5
-
 # Whether to use stratified k-fold
 # Stratified preserves class distribution in each fold
 stratified: true
-
 # Random seed for reproducibility
 random_state: 42
-
 # ─────────────────────────────────────────────────────────────────────────
 # Normalization (Same as standard ML config)
 # ─────────────────────────────────────────────────────────────────────────
 normalization:
   method: z_score
   # Other options: min_max, robust, max_abs, normalizer, quantile, power
-
 # ─────────────────────────────────────────────────────────────────────────
 # Resampling Configuration
 # ─────────────────────────────────────────────────────────────────────────
@@ -54,7 +48,6 @@ resampling:
   position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
   ratio: 1.0  # Target sampling ratio passed to the selected resampling method
   random_state: 42  # Random seed used by the resampling method
-
 # ─────────────────────────────────────────────────────────────────────────
 # Feature Selection (Applied within each fold to avoid data leakage)
 # ─────────────────────────────────────────────────────────────────────────
@@ -78,35 +71,28 @@ models:
       C: 1.0
       penalty: l2
       solver: lbfgs
-
   RandomForest:
     params:
       random_state: 42
       n_estimators: 100
       max_depth:
       max_features: sqrt
-
   XGBoost:
     params:
       random_state: 42
       n_estimators: 100
       max_depth: 3
       learning_rate: 0.1
-
   # Add more models as needed (same syntax as config_machine_learning.yaml)
-
 # ─────────────────────────────────────────────────────────────────────────
 # Visualization and Saving Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # Generate visualization plots
 # Includes ROC, DCA, calibration curves, confusion matrices
 is_visualize: true
-
 # Save trained models from each fold
 # Can consume significant disk space
 is_save_model: true
-
 # Detailed visualization settings
 visualization:
   enabled: true

@@ -18,7 +18,7 @@
 |------|------|------|
 | 1 | **安装** HABIT（Windows 推荐便携包） | [安装](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
 | 2 | 跑通 Demo | [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
-| 3 | 图形界面（可选） | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
+| 3 | 图形界面（开发中，暂不建议日常使用） | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
 | 4 | 用自己的数据逐步操作 | [操作指南](https://lichao312214129.github.io/HABIT/how_to/index.html) |
 | 5 | 修改 YAML 参数 | [配置参考](https://lichao312214129.github.io/HABIT/configuration/index.html) |
 | 6 | 查特征公式（写论文） | [特征参考](https://lichao312214129.github.io/HABIT/reference/features/index.html) |

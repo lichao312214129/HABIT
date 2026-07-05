@@ -207,6 +207,17 @@ class PlotManager:
         self.logger.debug(f"Original X shape: {X_input.shape}")
         X_transformed = X_input.copy()
         for step_name, transformer in pipeline.steps[:-1]:
+            # Samplers (e.g. ResamplingStep / imblearn samplers) are training-only
+            # steps: they expose fit_resample and are bypassed at predict/transform
+            # time by imblearn. SHAP explains inference-time behavior, so skip any
+            # step that does not implement transform to mirror that runtime
+            # semantics (otherwise calling .transform on a sampler raises).
+            if not hasattr(transformer, "transform"):
+                self.logger.debug(
+                    "Skipping non-transform step '%s' for SHAP (sampler/train-only).",
+                    step_name,
+                )
+                continue
             X_transformed = transformer.transform(X_transformed)
             self.logger.debug(
                 "After '%s' step: shape=%s",

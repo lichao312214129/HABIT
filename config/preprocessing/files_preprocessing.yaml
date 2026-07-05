@@ -1,100 +1,39 @@
-# =============================================================================
-# Preprocessing manifest — DEMO: resample_02 NIfTI (T1, T2)
-# =============================================================================
-
-#
-# Referenced when `data_dir` in a preprocessing YAML points at this file.
-# Paths resolve relative to the repository root.
-#
-# Keys (`T1`, `T2`) must match `images:` modality names inside Preprocessing steps.
-#
-# NOT overlapping with:
-#   image_files.yaml — same resample_02 manifest (legacy filename).
-#   file_habitat.yaml — manifest for get-habitat on processed images/masks.
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-auto_select_first_file: true
-
-images:
-  sub1:
-    T1: ../../.cursor/test/resample_02/images/sub1/T1
-    T2: ../../.cursor/test/resample_02/images/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/images/sub19/T1
-    T2: ../../.cursor/test/resample_02/images/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/images/sub20/T1
-    T2: ../../.cursor/test/resample_02/images/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/images/sub21/T1
-    T2: ../../.cursor/test/resample_02/images/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/images/sub22/T1
-    T2: ../../.cursor/test/resample_02/images/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/images/sub229/T1
-    T2: ../../.cursor/test/resample_02/images/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/images/sub24/T1
-    T2: ../../.cursor/test/resample_02/images/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/images/sub25/T1
-    T2: ../../.cursor/test/resample_02/images/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/images/sub26/T1
-    T2: ../../.cursor/test/resample_02/images/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/images/sub28/T1
-    T2: ../../.cursor/test/resample_02/images/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/images/sub29/T1
-    T2: ../../.cursor/test/resample_02/images/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/images/sub30/T1
-    T2: ../../.cursor/test/resample_02/images/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/images/sub620/T1
-    T2: ../../.cursor/test/resample_02/images/sub620/T2
-
-masks:
-  sub1:
-    T1: ../../.cursor/test/resample_02/masks/sub1/T1
-    T2: ../../.cursor/test/resample_02/masks/sub1/T2
-  sub19:
-    T1: ../../.cursor/test/resample_02/masks/sub19/T1
-    T2: ../../.cursor/test/resample_02/masks/sub19/T2
-  sub20:
-    T1: ../../.cursor/test/resample_02/masks/sub20/T1
-    T2: ../../.cursor/test/resample_02/masks/sub20/T2
-  sub21:
-    T1: ../../.cursor/test/resample_02/masks/sub21/T1
-    T2: ../../.cursor/test/resample_02/masks/sub21/T2
-  sub22:
-    T1: ../../.cursor/test/resample_02/masks/sub22/T1
-    T2: ../../.cursor/test/resample_02/masks/sub22/T2
-  sub229:
-    T1: ../../.cursor/test/resample_02/masks/sub229/T1
-    T2: ../../.cursor/test/resample_02/masks/sub229/T2
-  sub24:
-    T1: ../../.cursor/test/resample_02/masks/sub24/T1
-    T2: ../../.cursor/test/resample_02/masks/sub24/T2
-  sub25:
-    T1: ../../.cursor/test/resample_02/masks/sub25/T1
-    T2: ../../.cursor/test/resample_02/masks/sub25/T2
-  sub26:
-    T1: ../../.cursor/test/resample_02/masks/sub26/T1
-    T2: ../../.cursor/test/resample_02/masks/sub26/T2
-  sub28:
-    T1: ../../.cursor/test/resample_02/masks/sub28/T1
-    T2: ../../.cursor/test/resample_02/masks/sub28/T2
-  sub29:
-    T1: ../../.cursor/test/resample_02/masks/sub29/T1
-    T2: ../../.cursor/test/resample_02/masks/sub29/T2
-  sub30:
-    T1: ../../.cursor/test/resample_02/masks/sub30/T1
-    T2: ../../.cursor/test/resample_02/masks/sub30/T2
-  sub620:
-    T1: ../../.cursor/test/resample_02/masks/sub620/T1
-    T2: ../../.cursor/test/resample_02/masks/sub620/T2
+# =============================================================================
+# 预处理清单 DEMO（DICOM 序列文件夹）—— demo_data/dicom
+# Preprocessing manifest — DEMO (DICOM series folders, delay phases)
+# =============================================================================
+#
+# 何时用到 / When is this used:
+#   当某个预处理 YAML 的 data_dir 指向本文件时（例如
+#   config_image_preprocessing_dcm2nii.yaml），dcm2nii 步骤会按下面的
+#   “模态键 -> DICOM 序列文件夹”映射把 DICOM 转成 NIfTI。
+#
+# 结构 / Structure:
+#   images:
+#     <subject_id>:
+#       <modality_key>: <该模态对应的 DICOM 序列文件夹>
+#   模态键用 delay2 / delay3 / delay5（增强延迟 2/3/5 分钟），
+#   必须与 Preprocessing.dcm2nii.images 里的键完全一致。
+#
+# 说明 / Note:
+#   同一份 DICOM demo 清单也提供了 files_preprocessing_dcm2nii_demo.yaml，
+#   二者内容等价；docs / skills 引用的规范名是本文件（files_preprocessing.yaml）。
+#
+# 路径约定 / Path convention:
+#   相对路径（../, ../../）相对“本 YAML 文件所在目录”解析，
+#   ../../demo_data/... 即仓库根目录下的 demo_data/。
+# =============================================================================
+
+# DICOM 序列文件夹里有多个切片文件，dcm2nii 需要整个文件夹，
+# 因此保持 false（把文件夹整体交给 dcm2niix），不要自动只取第一个文件。
+auto_select_first_file: false
+
+images:
+  sub001:
+    delay2: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-2min_Series0012
+    delay3: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014
+    delay5: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
+  sub002:
+    delay2: ../../demo_data/dicom/sub002/013_WATERBHAxLAVAFlex2min
+    delay3: ../../demo_data/dicom/sub002/015_WATERBHAxLAVAFlex3min
+    delay5: ../../demo_data/dicom/sub002/016_WATERWATERBHAxLAVAFlex5min

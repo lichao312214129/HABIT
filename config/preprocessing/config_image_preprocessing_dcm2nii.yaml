@@ -1,55 +1,64 @@
-# =============================================================================
-# Image preprocessing — resample_02 demo (NIfTI resample, T1/T2)
-# =============================================================================
-
-#
-# Demo/test data: .cursor/test/resample_02 (already NIfTI; no DICOM conversion).
-# For raw DICOM → NIfTI on your site, uncomment the dcm2nii block below and
-# point data_dir at your DICOM manifest or folder.
-#
-# Quick Start:
-#   CLI:    habit preprocess --config config/preprocessing/config_image_preprocessing_dcm2nii.yaml
-#
-# Based on: habit/utils/image_converter.py (dcm2nii step when enabled)
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# =============================================================================
-
-# Input: manifest YAML or directory (.cursor/test/resample_02 layout)
-data_dir: ./files_preprocessing.yaml
-
-out_dir: ../../demo_data/results/preprocessing_image_template
-
-auto_select_first_file: true
-
-Preprocessing:
-  # --- resample_02 demo: NIfTI inputs, T1 + T2 only ---
-  resample:
-    images: [T1, T2]
-    target_spacing: [2.0, 2.0, 2.0]
-
-  # --- Production: DICOM → NIfTI (disable resample above when using this) ---
-  # dcm2nii:
-  #   images: [T1, T2]
-  #   # dcm2niix_path: ./dcm2niix.exe
-  #   compress: true
-  #   anonymize: false
-  #   merge_slices: "2"
-  #   generate_json: true
-  #   single_file_mode:
-
-  # Optional follow-on steps (see config_image_preprocessing.yaml):
-  # n4_correction:
-  #   images: [T1, T2]
-  #   num_fitting_levels: 4
-  # registration:
-  #   images: [T1, T2]
-  #   fixed_image: T1
-  #   backend: elastix
-
-save_options:
-  save_intermediate: true
-  intermediate_steps: [resample]
-
-processes: 1
-random_state: 42
+# =============================================================================
+# 影像预处理模板 —— DICOM 转 NIfTI (dcm2nii)
+# Image preprocessing template — DICOM to NIfTI (dcm2nii)
+# =============================================================================
+#
+# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
+#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
+#   cd F:\work\habit_project      # 进入项目根目录
+#   habit preprocess -c config/preprocessing/config_image_preprocessing_dcm2nii.yaml
+#
+# 作用 / What it does:
+#   调用 dcm2niix 把原始 DICOM 序列转换成 NIfTI(.nii.gz)，作为后续
+#   重采样/配准/特征提取的输入。这是“从医院导出的 DICOM 开始”的第一步。
+#
+# 输入 / Input:
+#   通过清单文件 files_preprocessing.yaml 指定每个受试者的
+#   “模态键 -> DICOM 序列文件夹”。原始 DICOM 在 demo_data/dicom/。
+#
+# 外部工具 / External tool:
+#   demo_data/dcm2niix.exe（已随 demo_data 附带，无需另装）。
+#
+# 说明 / Note:
+#   本模板与 config_preprocessing_dcm2nii_demo.yaml 等价，均为可直接运行的
+#   dcm2nii demo；docs / skills 引用的规范名是本文件。
+#
+# 路径约定 / Path convention:
+#   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# =============================================================================
+
+#%%================================================================================
+# 【必改】输入清单 / 输出路径
+data_dir: ./files_preprocessing.yaml                          # DICOM 清单（模态键 -> DICOM 文件夹）
+out_dir: ../../demo_data/results/preprocessing_image_template  # 输出目录（自动创建）
+#%%================================================================================
+
+# dcm2nii 需要整个 DICOM 文件夹，这里保持 false（不要只取第一个文件）
+auto_select_first_file: false
+
+Preprocessing:
+  # DICOM -> NIfTI 转换
+  dcm2nii:
+    images: [delay2, delay3, delay5]              # 要转换的模态键（与清单文件中的键一致）
+    dcm2niix_path: ../../demo_data/dcm2niix.exe    # dcm2niix 可执行文件路径
+    compress: true                                 # 输出 .nii.gz（压缩）；false 则输出 .nii
+    generate_json: false                           # 是否同时输出 BIDS sidecar JSON（元数据）
+    anonymize: false                               # 是否匿名化文件名
+  # 可选的后续步骤（转换成 NIfTI 后再做，按需取消注释）：
+  # n4_correction:
+  #   images: [delay2, delay3, delay5]
+  #   num_fitting_levels: 4
+  # resample:
+  #   images: [delay2, delay3, delay5]
+  #   target_spacing: [2.0, 2.0, 2.0]
+  # registration:
+  #   images: [delay2, delay3, delay5]
+  #   fixed_image: delay2
+  #   backend: elastix
+
+save_options:
+  save_intermediate: true                          # 保存 dcm2nii 步骤输出（即转换得到的 NIfTI）
+  intermediate_steps: [dcm2nii]
+
+processes: 1                                        # dcm2niix 为外部进程，建议 1
+random_state: 42

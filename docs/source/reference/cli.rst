@@ -27,7 +27,7 @@ Command reference
      - Model comparison
      - :doc:`../how_to/compare_models`
    * - ``habit gui``
-     - Web GUI
+     - Web GUI (under development)
      - :doc:`../gui/index`
    * - ``habit radiomics``
      - Traditional radiomics

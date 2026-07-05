@@ -18,7 +18,9 @@ Usage: python -m habit
 """
 
 from habit.cli import cli
+from habit.commands.common import ensure_cli_stdio
 
 if __name__ == '__main__':
+    ensure_cli_stdio()
     cli()
 

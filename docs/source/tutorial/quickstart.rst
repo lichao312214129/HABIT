@@ -47,4 +47,4 @@ Demo includes preprocessed data — **start at step 2** on first run.
    habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
    habit compare --config config/model_comparison/config_model_comparison_demo.yaml
 
-Outputs under ``demo_data/results/`` . Your own data → :doc:`../how_to/index` or :doc:`../gui/index` .
+Outputs under ``demo_data/results/`` . Your own data → :doc:`../how_to/index` .

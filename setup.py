@@ -65,6 +65,12 @@ setup(
         'pyyaml',
         'lifelines',
     ],
+    extras_require={
+        'gui': [
+            'fastapi>=0.100',
+            'uvicorn[standard]>=0.22',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'habit=habit.cli:cli',

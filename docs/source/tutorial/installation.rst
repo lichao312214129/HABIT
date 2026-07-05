@@ -32,7 +32,7 @@ Windows portable steps
 
 1. Extract the archive so ``python.exe`` and ``setup_habit.bat`` sit in the same folder.
 2. Run ``setup_habit.bat`` , open a **new** terminal, run ``habit --version`` .
-3. Continue with :doc:`quickstart` or :doc:`../gui/index` .
+3. Continue with :doc:`quickstart` .
 
 **Upgrade CPU pack to GPU torch** (optional): download ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl`` (|download_torch_wheel| , code |torch_wheel_code| ), place next to ``python.exe`` , run ``install_gpu_torch.bat`` .
 

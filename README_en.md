@@ -18,7 +18,7 @@ Local build: `cd docs && make html` → `docs/build/html/index.html`
 |------|--------|------|
 | 1 | Install HABIT | [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
 | 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
-| 3 | Web GUI (optional) | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
+| 3 | Web GUI (under development) | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
 | 4 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/HABIT/how_to/index.html) |
 | 5 | YAML parameters | [Configuration](https://lichao312214129.github.io/HABIT/configuration/index.html) |
 

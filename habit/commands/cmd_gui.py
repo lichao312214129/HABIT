@@ -1,74 +1,160 @@
 # Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
 #
-# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
 # Use is governed by the HABIT Software License — see the LICENSE file in the
 # project root for the full text.
 
 """
-Command implementation to launch the HABIT Web GUI.
-Spawns Gradio in a subprocess and opens the local browser.
+Launch the HABIT web GUI.
+
+Starts the next-generation React GUI (``habit-gui/``) on a single local port.
+The GUI is still under active development and may not be ready for production use.
 """
 
+from __future__ import annotations
+
 import os
-import sys
+import shutil
 import subprocess
+import sys
 from pathlib import Path
+
 import click
 
 from habit.utils.browser_utils import (
     ensure_localhost_no_proxy,
-    get_gradio_bind_host,
-    get_gradio_browser_url,
     get_wsl_browser_access_hint,
     is_wsl,
+    schedule_browser_open,
+)
+from habit.utils.gui_paths import (
+    find_habit_gui_root,
+    gui_api_dir,
+    gui_repo_root,
+    gui_static_dir,
 )
 
-def run_gui_server(host: str = "127.0.0.1", port: int = 8501) -> None:
+
+def _require_gui_dependencies() -> None:
     """
-    Launches the Gradio Web GUI server as a subprocess and opens
-    the default web browser automatically.
+    Ensure FastAPI / uvicorn are available for the next-generation GUI.
+
+    Raises:
+        SystemExit: When required packages are missing.
+    """
+    missing: list[str] = []
+    for package in ("fastapi", "uvicorn"):
+        try:
+            __import__(package)
+        except ImportError:
+            missing.append(package)
+    if missing:
+        click.secho(
+            "Missing GUI dependencies: "
+            + ", ".join(missing)
+            + "\nInstall with: pip install fastapi 'uvicorn[standard]'  (or pip install habit[gui])",
+            fg="red",
+            err=True,
+        )
+        raise SystemExit(1)
+
+
+def _resolve_habit_cli_executable() -> str:
+    """
+    Resolve the HABIT CLI executable in the current environment.
+
+    Returns:
+        str: Path to ``habit`` on PATH, or ``sys.executable`` for ``python -m habit``.
+    """
+    script = shutil.which("habit")
+    if script:
+        return script
+    return sys.executable
+
+
+def _habit_cli_uses_module() -> bool:
+    """Return True when jobs should run as ``python -m habit``."""
+    return shutil.which("habit") is None
+
+
+def run_next_gui_server(
+    host: str = "127.0.0.1",
+    port: int = 8501,
+    *,
+    open_browser: bool = True,
+) -> None:
+    """
+    Launch the next-generation HABIT GUI (FastAPI + static React build).
+
+    Uses the **current Python interpreter** for the API and bridge subprocesses,
+    so registry/schema export share the same environment as ``habit preprocess``.
 
     Args:
-        host (str): IP address to bind the local server.
-        port (int): Port number for the web server to listen on.
+        host: Bind host for the combined API + web server.
+        port: Local port (default 8501, same as legacy Gradio GUI).
+        open_browser: When True, open the default browser once the port is ready.
     """
-    # Locate the GUI entrance script inside the habit package
-    gui_entry_path: Path = Path(__file__).parent.parent.parent / "gui" / "app.py"
-    
-    if not gui_entry_path.exists():
-        click.secho(f"Error: GUI main entrance not found at {gui_entry_path}", fg="red", err=True)
-        sys.exit(1)
-        
-    browser_url = get_gradio_browser_url(host, port)
-    bind_host = get_gradio_bind_host(host)
+    _require_gui_dependencies()
+
+    try:
+        gui_root = find_habit_gui_root()
+    except FileNotFoundError as exc:
+        click.secho(str(exc), fg="red", err=True)
+        raise SystemExit(1) from exc
+
+    static_dir = gui_static_dir(gui_root)
+    if not static_dir.is_dir() or not (static_dir / "index.html").is_file():
+        click.secho(
+            f"Web UI build not found: {static_dir}\n"
+            "Build it once from the repository:\n"
+            "  cd habit-gui/web && npm install && npm run build",
+            fg="red",
+            err=True,
+        )
+        raise SystemExit(1)
+
+    api_dir = gui_api_dir(gui_root)
+    repo_root = gui_repo_root(gui_root)
+    click.secho(f"Static UI: {static_dir}", fg="white")
+    click.secho(f"API package: {api_dir}", fg="white")
+    browser_url = f"http://{host}:{port}/"
 
     click.secho("===================================================", fg="cyan")
-    click.secho("   HABIT - Habitat Analysis Toolkit Web GUI       ", fg="cyan", bold=True)
+    click.secho("   HABIT — Next Generation Web GUI                ", fg="cyan", bold=True)
     click.secho("===================================================", fg="cyan")
     click.secho(f"Open in browser: {browser_url}", fg="green")
+    click.secho(f"Python: {sys.executable}", fg="white")
     if is_wsl():
         click.secho(get_wsl_browser_access_hint(port), fg="yellow")
-        click.secho(
-            f"WSL: server binds {bind_host}:{port}; ignore Gradio URL if it shows 0.0.0.0.",
-            fg="yellow",
-        )
-    click.secho("Browser will open automatically once the server is ready.", fg="green")
+    click.secho("Press Ctrl+C to stop.", fg="yellow")
+    click.secho(
+        "Loading parameter schemas at startup (~5–10 s on first launch)…",
+        fg="yellow",
+    )
 
-    # Spawn app.py; Gradio opens the browser after the port is bound (avoids first-load connection errors).
     env = os.environ.copy()
-    env["GRADIO_SERVER_NAME"] = host
-    env["GRADIO_SERVER_PORT"] = str(port)
-    env["HABIT_GUI_INBROWSER"] = "1"
+    env["HABIT_GUI_ROOT"] = str(gui_root)
+    env["HABIT_REPO_ROOT"] = str(repo_root)
+    env["HABIT_GUI_API_HOST"] = host
+    env["HABIT_GUI_API_PORT"] = str(port)
+    env["HABIT_GUI_STATIC_DIR"] = str(static_dir)
+    env["HABIT_CLI"] = _resolve_habit_cli_executable()
+    env["HABIT_CLI_USE_MODULE"] = "1" if _habit_cli_uses_module() else "0"
+    env["PYTHONPATH"] = str(api_dir) + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONUNBUFFERED"] = "1"
     ensure_localhost_no_proxy(env)
-    
-    cmd: list[str] = [
-        sys.executable,
-        str(gui_entry_path)
-    ]
-    
+
+    if open_browser:
+        schedule_browser_open(browser_url, delay_seconds=1.5, server_port=port)
+
+    cmd: list[str] = [sys.executable, "-m", "habit_gui_api"]
     try:
-        subprocess.run(cmd, env=env, check=True)
+        subprocess.run(cmd, env=env, cwd=str(api_dir), check=True)
     except KeyboardInterrupt:
-        click.secho("\nWeb GUI server stopped gracefully.", fg="yellow")
-    except Exception as e:
-        click.secho(f"\nFailed to launch Web GUI: {e}", fg="red", err=True)
+        click.secho("\nHABIT GUI stopped.", fg="yellow")
+    except subprocess.CalledProcessError as exc:
+        click.secho(f"\nHABIT GUI exited with code {exc.returncode}.", fg="red", err=True)
+        raise SystemExit(exc.returncode) from exc
+
+
+# Backward-compatible alias used by older imports.
+run_gui_server = run_next_gui_server

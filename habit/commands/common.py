@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import functools
 import logging
 import sys
 import traceback
@@ -19,6 +20,11 @@ import click
 from habit.utils.log_utils import setup_logger
 
 TConfig = TypeVar("TConfig")
+
+SUCCESS_MARK: str = "\u2713"
+SUCCESS_MARK_ASCII: str = "[OK]"
+
+_stdio_configured: bool = False
 
 CONFIG_REQUIRED_MSG: str = (
     "Error: Configuration file is required. Use --config / -c."
@@ -66,14 +72,98 @@ def load_config_or_exit(config_cls: Type[TConfig], config_path: str) -> TConfig:
         exit_with_error(f"Error: Failed to load configuration: {exc}")
 
 
+def ensure_cli_stdio() -> None:
+    """
+    Reconfigure stdout/stderr once for reliable Unicode CLI output.
+
+    On Chinese Windows the default encoding is GBK, which cannot encode symbols
+    such as the check mark used in success messages.  Piped stdout from GUI
+    subprocess runners inherits the same limitation unless UTF-8 is forced.
+    """
+    global _stdio_configured
+    if _stdio_configured:
+        return
+    _stdio_configured = True
+
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name, None)
+        if stream is None or not hasattr(stream, "reconfigure"):
+            continue
+        current = (getattr(stream, "encoding", None) or "").lower()
+        try:
+            if current not in ("utf-8", "utf8"):
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            else:
+                stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
+def _stream_encoding(*, err: bool) -> str:
+    """Return the active encoding for stdout or stderr."""
+    stream = sys.stderr if err else sys.stdout
+    return getattr(stream, "encoding", None) or "utf-8"
+
+
+def _sanitize_for_stream(text: str, *, err: bool) -> str:
+    """
+    Encode text for the target stream, falling back to ASCII success markers.
+
+    Args:
+        text: Message that may contain Unicode symbols.
+        err: When True, target stderr instead of stdout.
+
+    Returns:
+        Text safe to pass to Click echo helpers.
+    """
+    encoding = _stream_encoding(err=err)
+    try:
+        text.encode(encoding)
+        return text
+    except (UnicodeEncodeError, LookupError, TypeError):
+        fallback = text.replace(SUCCESS_MARK, SUCCESS_MARK_ASCII)
+        return fallback.encode(encoding, errors="replace").decode(encoding, errors="replace")
+
+
+def safe_echo(message: str, *, err: bool = False, nl: bool = True) -> None:
+    """Like ``click.echo`` but never raises ``UnicodeEncodeError``."""
+    ensure_cli_stdio()
+    try:
+        click.echo(message, err=err, nl=nl)
+    except UnicodeEncodeError:
+        click.echo(_sanitize_for_stream(message, err=err), err=err, nl=nl)
+
+
+def safe_secho(message: str, *, err: bool = False, **kwargs: Any) -> None:
+    """Like ``click.secho`` but never raises ``UnicodeEncodeError``."""
+    ensure_cli_stdio()
+    try:
+        click.secho(message, err=err, **kwargs)
+    except UnicodeEncodeError:
+        click.secho(_sanitize_for_stream(message, err=err), err=err, **kwargs)
+
+
+@functools.lru_cache(maxsize=1)
+def _success_prefix() -> str:
+    """Return a Unicode or ASCII success prefix depending on stream encoding."""
+    ensure_cli_stdio()
+    mark = SUCCESS_MARK
+    encoding = _stream_encoding(err=False)
+    try:
+        mark.encode(encoding)
+        return f"{mark} "
+    except (UnicodeEncodeError, LookupError, TypeError):
+        return f"{SUCCESS_MARK_ASCII} "
+
+
 def echo_error(message: str) -> None:
     """Print a CLI error line to stderr."""
-    click.echo(message, err=True)
+    safe_echo(message, err=True)
 
 
 def echo_success(message: str) -> None:
     """Print a standardized success line."""
-    click.secho(f"✓ {message}", fg="green")
+    safe_secho(f"{_success_prefix()}{message}", fg="green")
 
 
 def exit_with_error(message: str, *, exit_code: int = 1) -> None:
@@ -121,7 +211,7 @@ def run_cli_job(
         level=level,
     )
     logger.info(start_message)
-    click.echo(start_message)
+    safe_echo(start_message)
     try:
         job()
     except Exception as exc:  # noqa: BLE001

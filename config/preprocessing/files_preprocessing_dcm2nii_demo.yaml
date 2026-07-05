@@ -1,0 +1,35 @@
+# =============================================================================
+# Preprocessing manifest (DICOM) — DEMO for the dcm2nii step
+# 预处理清单（DICOM）——用于 dcm2nii（DICOM 转 NIfTI）演示
+# =============================================================================
+#
+# 何时用到本文件 / When is this used:
+#   当某个预处理 YAML 的 data_dir 指向本文件时（见
+#   config_preprocessing_dcm2nii_demo.yaml），dcm2nii 步骤会按下面的
+#   “模态键 -> DICOM 序列文件夹”映射去转换。
+#
+# 结构说明 / Structure:
+#   images:
+#     <subject_id>:
+#       <modality_key>: <该模态对应的 DICOM 序列文件夹>
+#   这里模态键用 delay2 / delay3 / delay5（增强延迟 2/3/5 分钟），
+#   必须与预处理步骤 Preprocessing.dcm2nii.images 里写的键完全一致。
+#
+# 路径约定 / Path convention:
+#   相对路径（../, ../../）相对“本 YAML 文件所在目录”解析，
+#   ../../demo_data/... 即仓库根目录下的 demo_data/。
+# =============================================================================
+
+# 当序列文件夹内有多个 DICOM 文件时如何处理：dcm2nii 需要整个文件夹，
+# 因此这里保持 false（把文件夹整体交给 dcm2niix），不要自动只取第一个文件。
+auto_select_first_file: false
+
+images:
+  sub001:
+    delay2: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-2min_Series0012
+    delay3: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-3min_Series0014
+    delay5: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
+  sub002:
+    delay2: ../../demo_data/dicom/sub002/013_WATERBHAxLAVAFlex2min
+    delay3: ../../demo_data/dicom/sub002/015_WATERBHAxLAVAFlex3min
+    delay5: ../../demo_data/dicom/sub002/016_WATERWATERBHAxLAVAFlex5min

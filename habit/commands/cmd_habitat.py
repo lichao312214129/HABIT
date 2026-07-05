@@ -15,7 +15,7 @@ from typing import Optional
 
 import click
 
-from habit.cli_commands.common import (
+from habit.commands.common import (
     echo_error,
     echo_success,
     exit_with_error,

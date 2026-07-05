@@ -12,14 +12,13 @@ import logging
 import sys
 from pathlib import Path
 
-import click
-
-from habit.cli_commands.common import (
+from habit.commands.common import (
     echo_fatal,
     echo_success,
     exit_with_error,
     load_config_or_exit,
     log_platform_info,
+    safe_echo,
 )
 from habit.core.dicom_sort import DicomSortConfig, run_dicom_sort
 from habit.utils.log_utils import setup_logger, stop_queue_listener
@@ -47,7 +46,7 @@ def run_sort_dicom(config_path: str) -> None:
 
         msg = f"Starting DICOM sort with config: {config_path}"
         logger.info(msg)
-        click.echo(msg)
+        safe_echo(msg)
 
         try:
             run_dicom_sort(config, logger=logger)

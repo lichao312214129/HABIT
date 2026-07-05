@@ -23,6 +23,7 @@ import click
 from pathlib import Path
 from typing import Optional
 
+from habit.commands.common import ensure_cli_stdio
 from habit.utils.project_urls import docs_page
 
 
@@ -66,13 +67,13 @@ def cli():
     - Machine learning modeling
     - Statistical analysis
     """
-    pass
+    ensure_cli_stdio()
 
 @cli.command('preprocess')
 @config_option()
 def preprocess(config):
     """Preprocess medical images (resampling, registration, normalization)"""
-    from habit.cli_commands.commands.cmd_preprocess import run_preprocess
+    from habit.commands.cmd_preprocess import run_preprocess
     run_preprocess(config)
 
 
@@ -80,7 +81,7 @@ def preprocess(config):
 @config_option(help='Path to DicomSortConfig YAML (standalone dcm2niix sort)')
 def sort_dicom(config):
     """Sort/rename DICOM files with dcm2niix (separate from batch preprocessing)"""
-    from habit.cli_commands.commands.cmd_sort_dicom import run_sort_dicom
+    from habit.commands.cmd_sort_dicom import run_sort_dicom
     run_sort_dicom(config)
 
 
@@ -106,7 +107,7 @@ def get_habitat(
     resume: bool,
 ) -> None:
     """Generate habitat maps from medical images"""
-    from habit.cli_commands.commands.cmd_habitat import run_habitat
+    from habit.commands.cmd_habitat import run_habitat
     run_habitat(config, debug, mode, pipeline, resume)
 
 
@@ -114,7 +115,7 @@ def get_habitat(
 @config_option()
 def extract(config):
     """Extract habitat features from clustered images"""
-    from habit.cli_commands.commands.cmd_extract_features import run_extract_features
+    from habit.commands.cmd_extract_features import run_extract_features
     run_extract_features(config)
 
 
@@ -131,7 +132,7 @@ def model(config, mode):
     All parameters (including model path, data path, output directory) 
     must be specified in the configuration file.
     """
-    from habit.cli_commands.commands.cmd_ml import run_ml
+    from habit.commands.cmd_ml import run_ml
     run_ml(config, mode)
 
 
@@ -139,7 +140,7 @@ def model(config, mode):
 @config_option()
 def cv(config):
     """Run K-fold cross-validation for model evaluation"""
-    from habit.cli_commands.commands.cmd_ml import run_kfold
+    from habit.commands.cmd_ml import run_kfold
     run_kfold(config)
 
 
@@ -186,7 +187,7 @@ def compare(config):
 
   Documentation: {docs_page('how_to/compare_models.html')}
     """
-    from habit.cli_commands.commands.cmd_compare import run_compare
+    from habit.commands.cmd_compare import run_compare
     run_compare(config)
 
 
@@ -194,7 +195,7 @@ def compare(config):
 @config_option()
 def icc(config):
     """Perform ICC (Intraclass Correlation Coefficient) analysis"""
-    from habit.cli_commands.commands.cmd_icc import run_icc
+    from habit.commands.cmd_icc import run_icc
     run_icc(config)
 
 
@@ -202,7 +203,7 @@ def icc(config):
 @config_option()
 def radiomics(config):
     """Extract traditional radiomics features"""
-    from habit.cli_commands.commands.cmd_radiomics import run_radiomics
+    from habit.commands.cmd_radiomics import run_radiomics
     run_radiomics(config)
 
 
@@ -210,7 +211,7 @@ def radiomics(config):
 @config_option()
 def retest(config):
     """Perform test-retest reproducibility analysis"""
-    from habit.cli_commands.commands.cmd_test_retest import run_test_retest
+    from habit.commands.cmd_test_retest import run_test_retest
     run_test_retest(config)
 
 
@@ -286,7 +287,7 @@ def dicom_info(input, tags, output, format, recursive, list_tags, num_samples,
                group_by_series, one_file_per_folder, dicom_extensions, include_no_extension,
                num_workers, max_depth):
     """Extract and view DICOM file information"""
-    from habit.cli_commands.commands.cmd_dicom_info import run_dicom_info
+    from habit.commands.cmd_dicom_info import run_dicom_info
     
     # Parse tags if provided
     tag_list = None
@@ -368,7 +369,7 @@ def merge_csv(input_files, output, index_col, separator, encoding, join_type):
       # Use first column as index (default)
       habit merge-csv file1.csv file2.csv -o merged.csv
     """
-    from habit.cli_commands.commands.cmd_merge_csv import run_merge_csv
+    from habit.commands.cmd_merge_csv import run_merge_csv
     
     # Parse index columns if provided
     index_cols = None
@@ -387,11 +388,12 @@ def merge_csv(input_files, output, index_col, separator, encoding, join_type):
 
 @cli.command('gui')
 @click.option('--host', default='127.0.0.1', show_default=True, help='Host to bind the Web GUI server to')
-@click.option('--port', '-p', default=8501, show_default=True, help='Local port for Web GUI server')
-def gui(host, port):
-    """Launch the interactive Web GUI for doctors and medical students"""
-    from habit.cli_commands.commands.cmd_gui import run_gui_server
-    run_gui_server(host=host, port=port)
+@click.option('--port', '-p', default=8501, show_default=True, help='Local port for the Web GUI')
+@click.option('--no-browser', is_flag=True, help='Do not open a browser tab automatically')
+def gui(host, port, no_browser):
+    """Launch the HABIT Web GUI (under development; CLI/YAML recommended for now)"""
+    from habit.commands.cmd_gui import run_next_gui_server
+    run_next_gui_server(host=host, port=port, open_browser=not no_browser)
 
 
 if __name__ == '__main__':

@@ -13,11 +13,9 @@
 # Output Directory
 # ─────────────────────────────────────────────────────────────────────────
 output_dir: H:\results\ml_results\compare20251223
-
 # ─────────────────────────────────────────────────────────────────────────
 # Model Prediction Files Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # List of prediction files to compare
 # Each file should contain predictions from one model
 files_config:
@@ -59,13 +57,11 @@ files_config:
 merged_data:
   enabled: true  # Create combined predictions CSV
   save_name: combined_predictions.csv
-
 # ─────────────────────────────────────────────────────────────────────────
 # Split Configuration
 # ─────────────────────────────────────────────────────────────────────────
 split:
   enabled: true  # Generate separate analyses for each split (train/test)
-
 # ─────────────────────────────────────────────────────────────────────────
 # Visualization Configuration
 # ─────────────────────────────────────────────────────────────────────────
@@ -75,33 +71,28 @@ visualization:
     enabled: true
     save_name: roc_curves.pdf
     title: ROC Curves
-
   # Decision Curve Analysis
   dca:
     enabled: true
     save_name: decision_curves.pdf
     title: Decision Curves
-
   # Calibration Curves
   calibration:
     enabled: true
     save_name: calibration_curves.pdf
     n_bins: 5  # Number of bins for calibration
     title: Calibration Curves
-
   # Precision-Recall Curves
   pr_curve:
     enabled: true
     save_name: precision_recall_curves.pdf
     title: Precision-Recall Curves
-
 # ─────────────────────────────────────────────────────────────────────────
 # Statistical Testing
 # ─────────────────────────────────────────────────────────────────────────
 delong_test:
   enabled: true  # Perform DeLong test to compare AUCs
   save_name: delong_results.json
-
 # ─────────────────────────────────────────────────────────────────────────
 # Performance Metrics
 # ─────────────────────────────────────────────────────────────────────────
@@ -115,7 +106,6 @@ metrics:
     targets:
       sensitivity: 0.7  # Target sensitivity
       specificity: 0.7  # Target specificity
-
 # ----------------------------------------------------------------------------
 # Notes
 # ----------------------------------------------------------------------------

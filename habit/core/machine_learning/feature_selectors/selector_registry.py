@@ -88,6 +88,39 @@ def get_available_selectors() -> List[str]:
     """Get list of all registered selector names."""
     return list(_SELECTOR_REGISTRY.keys())
 
+
+def register_params_model(name: str, params_model: type) -> None:
+    """
+    Associate a Pydantic *Params schema with a registered feature selector.
+
+    Args:
+        name: Selector registry key.
+        params_model: Pydantic model for GUI / YAML param validation.
+    """
+    if name not in _SELECTOR_REGISTRY:
+        _SELECTOR_REGISTRY[name] = {
+            "func": None,
+            "display_name": name,
+            "default_before_z_score": False,
+        }
+    _SELECTOR_REGISTRY[name]["params_model"] = params_model
+
+
+def get_params_model(name: str) -> Optional[type]:
+    """
+    Return the Pydantic params schema for a selector, if registered.
+
+    Args:
+        name: Selector registry key.
+
+    Returns:
+        Optional[type]: Params model class or None.
+    """
+    info = _SELECTOR_REGISTRY.get(name)
+    if info is None:
+        return None
+    return info.get("params_model")
+
 def run_selector(name: str, 
                 X: pd.DataFrame, 
                 y: pd.Series, 

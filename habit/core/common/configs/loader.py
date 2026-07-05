@@ -25,6 +25,7 @@ from typing import Dict, List, Any, Optional, Union, Set, Tuple
 from copy import deepcopy
 
 from habit.utils.file_system_utils import convert_windows_path_to_native, is_windows_drive_path
+from habit.utils.yaml_utils import dump_yaml, write_yaml_file
 
 
 # -----------------------------------------------------------------------------
@@ -110,8 +111,7 @@ def save_config(config: Dict[str, Any], config_path: str) -> None:
     _, ext = os.path.splitext(config_path)
     
     if ext.lower() in ['.yaml', '.yml']:
-        with open(config_path, 'w', encoding='utf-8') as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+        write_yaml_file(config_path, config)
     elif ext.lower() == '.json':
         with open(config_path, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=4)

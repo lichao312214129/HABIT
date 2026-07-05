@@ -36,10 +36,11 @@ Runtime
 
 Confirm you edit the file passed with ``-c`` ; ``--mode`` on CLI overrides ``run_mode`` in YAML.
 
-GUI
----
+GUI (under development)
+-----------------------
 
-**Browser does not open** — try ``habit gui --port 8502`` ; see :doc:`../gui/index` .
+The Web GUI is not yet recommended for routine use. Prefer the CLI and YAML
+configs; see :doc:`../gui/index` for the planned scope and developer preview.
 
 Data
 ----

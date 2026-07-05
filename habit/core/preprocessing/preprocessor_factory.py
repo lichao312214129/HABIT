@@ -12,7 +12,7 @@
 #     product documentation or user-facing materials.
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
-from typing import Dict, Type, Any, List
+from typing import Dict, Type, Any, List, Optional
 from .base_preprocessor import BasePreprocessor
 
 class PreprocessorFactory:
@@ -22,6 +22,7 @@ class PreprocessorFactory:
     """
     
     _preprocessors: Dict[str, Type[BasePreprocessor]] = {}
+    _params_models: Dict[str, Type[Any]] = {}
     
     @classmethod
     def register(cls, name: str) -> callable:
@@ -63,4 +64,28 @@ class PreprocessorFactory:
         Returns:
             List[str]: List of registered preprocessor names.
         """
-        return list(cls._preprocessors.keys()) 
+        return list(cls._preprocessors.keys())
+
+    @classmethod
+    def register_params_model(cls, name: str, params_model: Type[Any]) -> None:
+        """
+        Associate a Pydantic *Params schema with a registered preprocessor.
+
+        Args:
+            name: PreprocessorFactory registration key.
+            params_model: Pydantic model for GUI / YAML param validation.
+        """
+        cls._params_models[name] = params_model
+
+    @classmethod
+    def get_params_model(cls, name: str) -> Optional[Type[Any]]:
+        """
+        Return the Pydantic params schema for a preprocessor, if registered.
+
+        Args:
+            name: PreprocessorFactory registration key.
+
+        Returns:
+            Optional[Type[Any]]: Params model class or None.
+        """
+        return cls._params_models.get(name) 

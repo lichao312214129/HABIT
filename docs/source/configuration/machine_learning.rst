@@ -122,7 +122,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 - **Type**: string
 - **Required**: yes
 - **Default**: none (required)
-- **Description**: results, models, and plots directory. CLI writes logs here: ``processing.log`` for training, ``prediction.log`` for prediction (see ``habit.cli_commands.commands.cmd_ml``).
+- **Description**: results, models, and plots directory. CLI writes logs here: ``processing.log`` for training, ``prediction.log`` for prediction (see ``habit.commands.cmd_ml``).
 
 **split_method**: data split method
 

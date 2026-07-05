@@ -15,7 +15,6 @@
 # ─────────────────────────────────────────────────────────────────────────
 # Data Input Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # Can specify single or multiple input files
 # Multiple files will be merged by subject_id_col
 input:
@@ -25,33 +24,24 @@ input:
   label_col: label
   features:
 output: ./ml_data
-
-
 # ─────────────────────────────────────────────────────────────────────────
 # Data Splitting Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # Split method
 # Options: random, stratified, custom
 split_method: custom
-
 # For random or stratified splits
 # test_size: 0.3  # Proportion for test set (0.0-1.0)
 # random_state: 42  # Random seed
-
 # For custom splits (required if split_method is custom)
 train_ids_file: ./ml_data/train_ids.txt  # One ID per line
 test_ids_file: ./ml_data/test_ids.txt  # One ID per line
-
-
 # ─────────────────────────────────────────────────────────────────────────
 # Normalization Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 normalization:
   # method: z_score (default, StandardScaler)
   method: z_score
-
   # method: min_max (MinMaxScaler)
   # params:
   #   feature_range: [0, 1]
@@ -72,8 +62,6 @@ normalization:
   # params:
   #   method: yeo-johnson  # Options: yeo-johnson, box-cox
   #   standardize: true
-
-
 # ─────────────────────────────────────────────────────────────────────────
 # Resampling Configuration
 # ─────────────────────────────────────────────────────────────────────────
@@ -86,11 +74,9 @@ resampling:
   position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
   ratio: 1.0  # Target sampling ratio passed to the selected resampling method
   random_state: 42  # Random seed used by the resampling method
-
 # ─────────────────────────────────────────────────────────────────────────
 # Feature Selection Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # Feature selection methods applied sequentially
 # Each method can run before or after z-score normalization
 feature_selection_methods:
@@ -228,12 +214,9 @@ models:
   #     min_samples_split: 2
   #     min_samples_leaf: 1
   #     class_weight: balanced
-
-
 # ─────────────────────────────────────────────────────────────────────────
 # Visualization and Saving Configuration
 # ─────────────────────────────────────────────────────────────────────────
-
 # Generate performance plots (ROC, calibration, DCA, confusion matrix)
   AutoGluonTabular:
     params:
@@ -245,11 +228,8 @@ models:
       verbosity: 4
       eval_metric: roc_auc
 is_visualize: false
-
 # Save trained models to disk (.pkl files)
 is_save_model: true
-
-
 # ----------------------------------------------------------------------------
 # Notes
 # ----------------------------------------------------------------------------
