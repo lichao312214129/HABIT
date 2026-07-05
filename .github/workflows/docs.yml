@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'habit/**'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:
@@ -41,7 +42,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install sphinx==7.4.7 sphinx-rtd-theme==2.0.0
+          pip install sphinx==7.4.7 sphinx-rtd-theme==2.0.0 "sphinxcontrib-mermaid>=0.9.2"
 
       - name: Build Sphinx documentation
         run: |
@@ -49,6 +50,16 @@ jobs:
           make html
         env:
           PYTHONPATH: ${{ github.workspace }}
+
+      - name: Verify Mermaid diagrams rendered
+        run: |
+          ARCH_HTML="docs/build/html/development/architecture.html"
+          if ! grep -q 'mermaid.esm.min.mjs' "$ARCH_HTML"; then
+            echo "ERROR: Mermaid JS not embedded in $ARCH_HTML"
+            echo "Ensure sphinxcontrib-mermaid is installed and loaded in docs/source/conf.py"
+            exit 1
+          fi
+          echo "Mermaid diagrams present in architecture.html"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -239,7 +239,120 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
     return config_cls.from_file  # type: ignore[no-any-return]
 
 
-def _apply_skip_guards(spec: PipelineConfigSpec) -> None:
+def _path_exists(path: Path) -> bool:
+    """Return True when ``path`` exists as a file or directory."""
+    return path.is_file() or path.is_dir()
+
+
+def _collect_required_input_paths(config: Any, spec: PipelineConfigSpec) -> list[Path]:
+    """
+    Collect filesystem paths that must exist before a CLI E2E run can succeed.
+
+    Production templates often reference user-specific absolute paths; when those
+    paths are missing on the current machine we skip E2E (schema tests still run).
+    """
+    paths: list[Path] = []
+    command = spec.command
+
+    if command == "preprocess":
+        data_dir = getattr(config, "data_dir", None)
+        if data_dir:
+            paths.append(Path(str(data_dir)))
+
+    elif command == "sort-dicom":
+        data_dir = getattr(config, "data_dir", None) or getattr(config, "input_dir", None)
+        if data_dir:
+            paths.append(Path(str(data_dir)))
+
+    elif command == "get-habitat":
+        data_dir = getattr(config, "data_dir", None)
+        if data_dir:
+            paths.append(Path(str(data_dir)))
+        run_mode = getattr(config, "run_mode", "train")
+        if run_mode == "predict":
+            pipeline_path = getattr(config, "pipeline_path", None)
+            if pipeline_path:
+                paths.append(Path(str(pipeline_path)))
+
+    elif command == "extract":
+        for attr in ("raw_img_folder", "habitats_map_folder"):
+            value = getattr(config, attr, None)
+            if value:
+                paths.append(Path(str(value)))
+
+    elif command in ("model", "cv"):
+        for item in getattr(config, "input", []) or []:
+            path_value = getattr(item, "path", None) if not isinstance(item, dict) else item.get("path")
+            if path_value:
+                paths.append(Path(str(path_value)))
+        run_mode = getattr(config, "run_mode", None)
+        if run_mode == "predict" or spec.extra_args == ("-m", "predict"):
+            pipeline_path = getattr(config, "pipeline_path", None)
+            if pipeline_path:
+                paths.append(Path(str(pipeline_path)))
+
+    elif command == "compare":
+        for item in getattr(config, "files_config", []) or []:
+            path_value = getattr(item, "path", None) if not isinstance(item, dict) else item.get("path")
+            if path_value:
+                paths.append(Path(str(path_value)))
+
+    elif command == "icc":
+        input_cfg = getattr(config, "input", None)
+        if input_cfg is not None:
+            input_type = getattr(input_cfg, "type", None)
+            if input_type == "files":
+                for group in getattr(input_cfg, "file_groups", []) or []:
+                    for file_path in group:
+                        paths.append(Path(str(file_path)))
+            elif input_type == "directories":
+                for dir_path in getattr(input_cfg, "dir_list", []) or []:
+                    paths.append(Path(str(dir_path)))
+
+    elif command == "retest":
+        for attr in ("test_habitat_table", "retest_habitat_table", "input_dir"):
+            value = getattr(config, attr, None)
+            if value:
+                paths.append(Path(str(value)))
+
+    elif command == "radiomics":
+        paths_cfg = getattr(config, "paths", None)
+        if paths_cfg is not None:
+            images_folder = getattr(paths_cfg, "images_folder", None)
+            if images_folder:
+                paths.append(Path(str(images_folder)))
+        elif getattr(config, "images_folder", None):
+            paths.append(Path(str(config.images_folder)))
+
+    return paths
+
+
+def _e2e_prerequisites_met(spec: PipelineConfigSpec) -> tuple[bool, str]:
+    """
+    Check whether local input data exists for an end-to-end CLI run.
+
+    Returns:
+        (ready, skip_reason) — when ``ready`` is False, ``skip_reason`` explains why.
+    """
+    try:
+        loader = _schema_loader(spec)
+        config = loader(str(spec.abs_path))
+    except Exception as exc:  # noqa: BLE001
+        return False, f"Cannot load config for E2E prerequisite check: {exc}"
+
+    required = _collect_required_input_paths(config, spec)
+    if not required:
+        return True, ""
+
+    missing = [p for p in required if not _path_exists(p)]
+    if missing:
+        preview = ", ".join(str(p) for p in missing[:3])
+        suffix = f" (+{len(missing) - 3} more)" if len(missing) > 3 else ""
+        return False, f"Input data not available on this machine: {preview}{suffix}"
+    return True, ""
+
+
+def _apply_skip_guards(spec: PipelineConfigSpec, *, check_e2e_data: bool = False) -> None:
     """Skip the current test when platform or prerequisite paths are missing."""
     if spec.skip_on_windows and sys.platform == "win32":
         pytest.skip(spec.skip_reason or "Skipped on Windows")
@@ -248,6 +361,10 @@ def _apply_skip_guards(spec: PipelineConfigSpec) -> None:
             pytest.skip(spec.skip_reason or f"Missing prerequisite: {rel_dir}")
     if not spec.abs_path.is_file():
         pytest.skip(f"Config not found: {spec.abs_path}")
+    if check_e2e_data:
+        ready, reason = _e2e_prerequisites_met(spec)
+        if not ready:
+            pytest.skip(reason)
 
 
 @pytest.mark.integration
@@ -285,7 +402,7 @@ class TestAllConfigCLI:
         spec: PipelineConfigSpec,
         cwd_repo_root: None,
     ) -> None:
-        _apply_skip_guards(spec)
+        _apply_skip_guards(spec, check_e2e_data=True)
         runner = CliRunner()
         result = runner.invoke(cli, spec.cli_args(), catch_exceptions=False)
         assert result.exit_code == 0, (

@@ -2,7 +2,7 @@
 #
 
 SPHINXOPTS    ?=
-SPHINXBUILD   ?= sphinx-build
+SPHINXBUILD   ?= python -m sphinx
 SOURCEDIR     = source
 BUILDDIR      = build
 
