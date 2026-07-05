@@ -33,7 +33,7 @@ def create_model(name, **kwargs):
         BaseModel: Model instance
     """
     config = {'params': kwargs} if kwargs else {}
-    return ModelFactory.create_model(name, config)
+    return ModelFactory.create(name, config)
 
 def get_available_models():
     """
@@ -42,7 +42,7 @@ def get_available_models():
     Returns:
         List[str]: List of model names
     """
-    return ModelFactory.get_available_models()
+    return ModelFactory.available()
 
 # Import all model classes to ensure they're registered
 def register_all_models():

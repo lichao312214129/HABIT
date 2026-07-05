@@ -19,7 +19,7 @@
 阅读顺序建议
 ------------
 
-1. :doc:`architecture` —— 先建立整体心智模型（分层、四条主线、数据流）。
+1. :doc:`architecture` —— 先建立整体心智模型（分层、四条主线、数据流、跨子系统契约图）。
 2. :doc:`repo_layout` —— 知道每类代码放在哪、如何按功能定位文件。
 3. :doc:`configuration_system` —— 理解 "YAML → Schema → Configurator → 运行时对象" 这条主链。
 4. :doc:`extension_points` —— 所有可扩展点（工厂/注册表）一览。

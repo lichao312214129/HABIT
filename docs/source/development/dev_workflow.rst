@@ -49,8 +49,30 @@
    pytest tests/ -m unit                 # 仅单元测试
    pytest tests/ -m "habitat and not slow"
    pytest tests/ -m cli                  # 仅 CLI 测试
+   pytest tests/test_architecture_contracts.py -m unit  # 架构契约自检
 
 可用 marker：``slow`` / ``integration`` / ``unit`` / ``preprocessing`` / ``habitat`` / ``ml`` / ``utils`` / ``cli``。
+
+架构契约测试
+~~~~~~~~~~~~
+
+``tests/test_architecture_contracts.py`` 守护两套跨子系统约定，新增工厂或编排器后 **必须跑通**：
+
+.. mermaid::
+
+   flowchart TD
+     TST["test_architecture_contracts.py"]
+     TST --> R1["test_registry_subclasses_class_registry"]
+     TST --> R2["test_registry_exposes_uniform_contract"]
+     TST --> R3["test_registries_do_not_share_storage"]
+     TST --> O1["test_orchestrator_exposes_terminal_methods"]
+
+     R1 & R2 & R3 --> CR["ClassRegistry + 6 factories"]
+     O1 --> OC["ORCHESTRATOR_CONTRACT + 7 orchestrators"]
+
+新增 **类式工厂** 时：子类化 ``ClassRegistry``，并把工厂登记到测试文件中的 ``CLASS_REGISTRIES`` 字典。
+新增 **编排器** 时：在 ``ORCHESTRATOR_CONTRACT`` 中追加 ``(import_path, class_name, terminal_methods)`` 元组。
+可选依赖缺失时相关测试会自动 ``skip``，不影响最小环境安装。
 
 demo 数据流
 ~~~~~~~~~~~

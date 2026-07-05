@@ -126,7 +126,7 @@ class ClusteringService:
             n_clusters: Target number of clusters/supervoxels.
 
         Returns:
-            Dict[str, Any]: Parameters passed to ClusteringAlgorithmFactory.create_algorithm.
+            Dict[str, Any]: Parameters passed to ClusteringAlgorithmFactory.create.
         """
         supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
         params: Dict[str, Any] = {
@@ -211,12 +211,12 @@ class ClusteringService:
         supervoxel_params = self._build_supervoxel_clustering_params(
             n_clusters=supervoxel_cfg.n_clusters
         )
-        self.voxel2supervoxel_clustering = ClusteringAlgorithmFactory.create_algorithm(
+        self.voxel2supervoxel_clustering = ClusteringAlgorithmFactory.create(
             supervoxel_cfg.algorithm,
             **supervoxel_params
         )
         
-        self.supervoxel2habitat_clustering = ClusteringAlgorithmFactory.create_algorithm(
+        self.supervoxel2habitat_clustering = ClusteringAlgorithmFactory.create(
             habitat_cfg.algorithm,
             n_clusters=habitat_cfg.max_clusters,
             random_state=self.config.effective_habitat_random_state(),
@@ -319,7 +319,7 @@ class ClusteringService:
             if n_clusters is not None:
                 # Custom number of clusters (e.g. one-step optimal clusters);
                 # build a fresh clusterer instance with the requested k.
-                clusterer = ClusteringAlgorithmFactory.create_algorithm(
+                clusterer = ClusteringAlgorithmFactory.create(
                     supervoxel_cfg.algorithm,
                     **self._build_supervoxel_clustering_params(n_clusters),
                 )
@@ -369,7 +369,7 @@ class ClusteringService:
         )
         
         supervoxel_cfg = self.config.HabitatSegmentation.supervoxel
-        clusterer = ClusteringAlgorithmFactory.create_algorithm(
+        clusterer = ClusteringAlgorithmFactory.create(
             supervoxel_cfg.algorithm,
             **self._build_supervoxel_clustering_params(max_clusters),
         )

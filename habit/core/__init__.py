@@ -35,13 +35,13 @@ from habit.utils.lazy_exports import lazy_getattr
 _LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {
     "HabitatAnalysis": (".habitat_analysis", "HabitatAnalysis"),
     "HabitatFeatureExtractor": (".habitat_analysis", "HabitatFeatureExtractor"),
-    "Modeling": (".machine_learning.workflows.holdout_workflow", "HoldoutWorkflow"),
+    "HoldoutWorkflow": (".machine_learning.workflows.holdout_workflow", "HoldoutWorkflow"),
 }
 
 __all__ = [
     "HabitatAnalysis",
     "HabitatFeatureExtractor",
-    "Modeling",
+    "HoldoutWorkflow",
 ]
 
 

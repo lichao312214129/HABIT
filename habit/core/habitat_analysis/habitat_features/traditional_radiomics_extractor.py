@@ -328,8 +328,8 @@ class TraditionalRadiomicsExtractor:
 
         return subj, subject_features
 
-    def extract_features(self):
-        """提取所有受试者的组学特征"""
+    def run(self):
+        """Extract radiomics features for every subject (orchestrator entry point)."""
         images_paths, masks_paths = self.get_image_and_mask_files()
         features = {}
 
@@ -460,7 +460,7 @@ if __name__ == "__main__":
         out_dir=args.out_dir,
         n_processes=args.n_processes
     )
-    extractor.extract_features()
+    extractor.run()
     end_time = time.time()
     print(f"总耗时: {end_time - start_time:.2f} 秒")
 

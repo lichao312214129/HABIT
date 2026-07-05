@@ -19,9 +19,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
 
+from habit.core.common.registry import ClassRegistry
+
 PluginT = TypeVar("PluginT", bound="HabitatFeaturePluginBase")
 
-_REGISTRY: Dict[str, Type[HabitatFeaturePluginBase]] = {}
 _PLUGINS_BOOTSTRAPPED: bool = False
 
 
@@ -143,8 +144,20 @@ class HabitatFeaturePluginBase:
 
 
 # ---------------------------------------------------------------------------
-# Decorator and registry helpers
+# Registry, decorator and helpers
 # ---------------------------------------------------------------------------
+
+class HabitatFeatureRegistry(ClassRegistry[HabitatFeaturePluginBase]):
+    """
+    Registry of habitat feature extraction plugins.
+
+    Uses the shared :class:`~habit.core.common.registry.ClassRegistry` contract.
+    Bootstrapping (importing built-in and optional plugin modules) is driven
+    explicitly by the module-level helpers below, so ``_discover`` stays a no-op.
+    """
+
+    kind = "habitat feature plugin"
+
 
 def register_habitat_feature(name: str) -> Callable[[Type[PluginT]], Type[PluginT]]:
     """Decorator that registers a habitat feature plugin under ``name``.
@@ -157,7 +170,7 @@ def register_habitat_feature(name: str) -> Callable[[Type[PluginT]], Type[Plugin
     """
     def decorator(cls: Type[PluginT]) -> Type[PluginT]:
         cls.name = name
-        _REGISTRY[name] = cls
+        HabitatFeatureRegistry.register(name)(cls)
         return cls
 
     return decorator
@@ -195,7 +208,7 @@ def list_registered_plugins() -> List[str]:
         List of registered feature type name strings.
     """
     bootstrap_optional_plugins()
-    return list(_REGISTRY.keys())
+    return HabitatFeatureRegistry.available()
 
 
 def get_all_feature_type_names() -> List[str]:
@@ -241,7 +254,7 @@ def ensure_graph_plugin_available() -> None:
         ValueError: If the graph plugin is not registered.
     """
     bootstrap_optional_plugins()
-    if "graph" not in _REGISTRY:
+    if HabitatFeatureRegistry.get("graph") is None:
         raise ValueError(
             "feature_types includes 'graph' but the graph feature plugin is "
             "not installed. Graph topology features are only available in "
@@ -263,7 +276,7 @@ def build_plugin(name: str, config: Optional[Any] = None) -> HabitatFeaturePlugi
         ValueError: If ``name`` is not in the registry.
     """
     bootstrap_optional_plugins()
-    cls = _REGISTRY.get(name)
+    cls = HabitatFeatureRegistry.get(name)
     if cls is None:
         raise ValueError(
             f"Unknown habitat feature plugin: {name!r}. "

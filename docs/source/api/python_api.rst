@@ -130,7 +130,7 @@ Top-level package exports
 -------------------------
 
 ``import habit`` lazily exposes ``HabitatAnalysis``, ``HabitatFeatureExtractor``,
-and ``Modeling``. For new code, prefer explicit imports from
+and ``HoldoutWorkflow``. For new code, prefer explicit imports from
 ``habit.core.*`` as shown above.
 
 See also: :doc:`../api/index` (autodoc reference), :doc:`../configuration/index` (YAML fields).

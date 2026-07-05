@@ -216,7 +216,7 @@ class GroupClusteringStep(GroupLevelStep):
 
             # Create a validation model with the same core parameters used later
             # for final fitting, so model selection reflects the configured model.
-            cluster_for_best_n = ClusteringAlgorithmFactory.create_algorithm(
+            cluster_for_best_n = ClusteringAlgorithmFactory.create(
                 habitat_cfg.algorithm,
                 random_state=self.config.effective_habitat_random_state(),
                 max_iter=habitat_cfg.max_iter,

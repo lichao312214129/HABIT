@@ -110,7 +110,7 @@ class PipelineBuilder:
             pipeline_cls = SklearnPipeline
 
         # Model is always the terminal step.
-        steps.append(('model', ModelFactory.create_model(model_name, model_params)))
+        steps.append(('model', ModelFactory.create(model_name, model_params)))
 
         pipeline_type = "imblearn" if needs_imblearn else "sklearn"
         step_names = " → ".join(name for name, _ in steps)

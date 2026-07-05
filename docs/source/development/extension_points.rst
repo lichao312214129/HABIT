@@ -22,6 +22,57 @@ HABIT 的可扩展组件都通过 **工厂（Factory）** 或 **注册表（Regi
    内置组件在包 ``__init__`` 中集中导入；自定义组件需保证你的模块在运行前被加载
    （放进对应子包、或在配置/入口处显式 import）。
 
+统一注册表契约（ClassRegistry）
+-------------------------------
+
+所有 **类式** 工厂都继承同一个泛型基类 :class:`habit.core.common.registry.ClassRegistry`，
+因此对外暴露 **完全一致** 的方法名。学会一个，其余照搬：
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - 方法
+     - 语义
+   * - ``@Factory.register("name")``
+     - 装饰器：把类以 ``name`` 注册进本工厂。
+   * - ``Factory.create("name", **kwargs)``
+     - 按名实例化（未注册则抛 ``ValueError``）。
+   * - ``Factory.get("name")``
+     - 返回已注册的类，未注册返回 ``None``。
+   * - ``Factory.available()``
+     - 返回所有已注册名字的列表。
+   * - ``Factory.register_params_model(name, Model)``
+     - 关联该组件的 Pydantic ``*Params`` Schema（供校验 / GUI 表单）。
+   * - ``Factory.get_params_model(name)``
+     - 取回该组件的参数 Schema，未注册返回 ``None``。
+
+可按需覆写的钩子：``_normalize(name)``\ （名字归一化，如大小写不敏感）、
+``_discover()``\ （首次访问时惰性 import 同包模块以触发注册）、以及构造约定不同的
+工厂可仅覆写 ``create()``。当前继承 ``ClassRegistry`` 的六个工厂及其所在域：
+
+.. mermaid::
+
+   flowchart TB
+     CR["ClassRegistry<br/>(common/registry.py)"]
+
+     CR --> PF["PreprocessorFactory<br/>preprocessing/"]
+     CR --> CAF["ClusteringAlgorithmFactory<br/>habitat_analysis/clustering/"]
+     CR --> FER["FeatureExtractorRegistry<br/>habitat_analysis/clustering_features/"]
+     CR --> PMF["PreprocessingMethodFactory<br/>habitat_analysis/feature_preprocessing/"]
+     CR --> HFR["HabitatFeatureRegistry<br/>habitat_analysis/feature_registry.py"]
+     CR --> MF["ModelFactory<br/>machine_learning/models/"]
+
+     SEL["selector_registry<br/>(function-based, not ClassRegistry)"]
+     MET["metrics @register_metric<br/>(function-based)"]
+
+.. note::
+
+   下表中的领域装饰器（如 ``@register_clustering`` / ``@register_selector``）是各子系统对
+   ``register`` 的 **友好别名**，语义等价。特征选择器注册表（``selector_registry``）是
+   **函数式** 变体（登记"函数 + 元数据"而非类），不继承 ``ClassRegistry``，但同样通过
+   ``@register_selector`` 注册、按名解析。
+
 扩展点清单
 ----------
 

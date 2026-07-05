@@ -15,7 +15,7 @@
 """
 Built-in habitat feature preprocessing handlers.
 
-Import this module (via ``PreprocessingMethodFactory._ensure_builtin_handlers_loaded``)
+Import this module (via ``PreprocessingMethodFactory._discover``)
 to register all default methods. Custom handlers can follow the same pattern in
 user code:
 

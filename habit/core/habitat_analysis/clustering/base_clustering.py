@@ -42,15 +42,15 @@ from .cluster_search_parallel import (
     resolve_cluster_search_workers,
 )
 
-# Registry for clustering algorithms
-_CLUSTERING_REGISTRY = {}
+from habit.core.common.registry import ClassRegistry
+
 
 def register_clustering(name: str):
     """
-    Decorator for registering clustering algorithm classes
-    
+    Decorator for registering clustering algorithm classes.
+
     Args:
-        name (str): Name of the clustering algorithm
+        name (str): Name of the clustering algorithm.
     """
     def decorator(cls):
         ClusteringAlgorithmFactory.register(name)(cls)
@@ -58,98 +58,33 @@ def register_clustering(name: str):
     return decorator
 
 
-class ClusteringAlgorithmFactory:
-    """Factory class for creating clustering algorithm instances."""
+class ClusteringAlgorithmFactory(ClassRegistry["BaseClustering"]):
+    """
+    Factory for creating clustering algorithm instances.
 
-    _registry = _CLUSTERING_REGISTRY
+    Uses the shared :class:`~habit.core.common.registry.ClassRegistry` contract
+    (``register`` / ``create`` / ``get`` / ``available`` / ...). Registration
+    keys are case-insensitive, and implementations are discovered lazily by
+    importing every ``*_clustering`` module in this package.
+    """
 
-    @classmethod
-    def register(cls, name: str):
-        """
-        Register a clustering algorithm class.
-
-        Args:
-            name: Name of the clustering algorithm.
-
-        Returns:
-            Decorator function.
-        """
-        def decorator(algorithm_class):
-            cls._registry[name.lower()] = algorithm_class
-            return algorithm_class
-        return decorator
+    kind = "clustering algorithm"
 
     @classmethod
-    def create_algorithm(cls, name: str, **kwargs) -> 'BaseClustering':
-        """
-        Create a clustering algorithm instance by name.
-
-        Args:
-            name: Name of the clustering algorithm.
-            **kwargs: Parameters to pass to the clustering algorithm constructor.
-
-        Returns:
-            BaseClustering: Instance of the clustering algorithm.
-        """
-        # Lazy discovery of clustering algorithms to avoid circular imports
-        if not cls._registry:
-            cls._discover_algorithms()
-
-        # First try to find registered algorithms
-        if name.lower() in cls._registry:
-            return cls._registry[name.lower()](**kwargs)
-
-        # If not found, try dynamic import
-        try:
-            # Try to import module with specified name
-            module_name = f"{name}_clustering"
-            module = importlib.import_module(f".{module_name}", package=__package__)
-
-            # Find clustering algorithm class in the module
-            for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
-                if attr_name != 'BaseClustering' and 'BaseClustering' in [base.__name__ for base in attr_value.__mro__ if base.__name__ != 'object']:
-                    # Auto-register found class
-                    cls._registry[name.lower()] = attr_value
-                    return attr_value(**kwargs)
-        except (ImportError, ModuleNotFoundError):
-            pass
-
-        # If still not found, raise error
-        raise ValueError(f"Unknown clustering algorithm: {name}, available algorithms: {list(cls._registry.keys())}")
+    def _normalize(cls, name: str) -> str:
+        """Clustering algorithm names are case-insensitive."""
+        return name.lower()
 
     @classmethod
-    def get_available_algorithms(cls) -> List[str]:
-        """
-        Get all available clustering algorithm names.
-
-        Returns:
-            List[str]: List of clustering algorithm names.
-        """
-        # Lazy discovery of clustering algorithms to avoid circular imports
-        if not cls._registry:
-            cls._discover_algorithms()
-
-        return list(cls._registry.keys())
-
-    @classmethod
-    def _discover_algorithms(cls) -> None:
-        """
-        Automatically discover all clustering algorithms defined in the clustering directory.
-        """
-        # Use current file directory to avoid circular imports
+    def _discover(cls) -> None:
+        """Import all ``*_clustering`` modules so decorated algorithms register."""
         package_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Iterate through all modules in the package
         for _, module_name, _ in pkgutil.iter_modules([package_dir]):
             if module_name.endswith('_clustering') and module_name != 'base_clustering':
                 try:
-                    # Dynamically import module
                     module = importlib.import_module(f".{module_name}", package=__package__)
-
-                    # Find and register clustering algorithms defined in the module
                     for attr_name, attr_value in inspect.getmembers(module, inspect.isclass):
                         if attr_name != 'BaseClustering' and 'BaseClustering' in [base.__name__ for base in attr_value.__mro__ if base.__name__ != 'object']:
-                            # Extract algorithm name from module name (e.g., extract kmeans from kmeans_clustering)
                             algo_name = module_name.replace('_clustering', '')
                             cls._registry[algo_name.lower()] = attr_value
                 except ImportError:
@@ -158,27 +93,27 @@ class ClusteringAlgorithmFactory:
 
 def get_clustering_algorithm(name: str, **kwargs) -> 'BaseClustering':
     """
-    Get clustering algorithm class by name.
+    Get a clustering algorithm instance by name.
 
-    Backward-compatible wrapper around ClusteringAlgorithmFactory.create_algorithm.
+    Convenience wrapper around ``ClusteringAlgorithmFactory.create``.
     """
-    return ClusteringAlgorithmFactory.create_algorithm(name, **kwargs)
+    return ClusteringAlgorithmFactory.create(name, **kwargs)
 
 def get_available_clustering_algorithms() -> List[str]:
     """
     Get all available clustering algorithm names.
 
-    Backward-compatible wrapper around ClusteringAlgorithmFactory.get_available_algorithms.
+    Convenience wrapper around ``ClusteringAlgorithmFactory.available``.
     """
-    return ClusteringAlgorithmFactory.get_available_algorithms()
+    return ClusteringAlgorithmFactory.available()
 
 def discover_clustering_algorithms() -> None:
     """
-    Automatically discover all clustering algorithms defined in the clustering directory.
+    Discover all clustering algorithms defined in the clustering directory.
 
-    Backward-compatible wrapper around ClusteringAlgorithmFactory._discover_algorithms.
+    Convenience wrapper around ``ClusteringAlgorithmFactory._discover``.
     """
-    ClusteringAlgorithmFactory._discover_algorithms()
+    ClusteringAlgorithmFactory._discover()
 
 
 class BaseClustering(ABC):

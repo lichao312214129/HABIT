@@ -16,122 +16,76 @@
 Model Factory
 Factory class for creating model instances
 """
-from typing import Dict, Any, Optional, List, Union, Tuple, Type
+from typing import Dict, Any, List
 import importlib
 import os
-import sys
-from abc import ABC, abstractmethod
-import numpy as np
-import pandas as pd
 
+from habit.core.common.registry import ClassRegistry
 from .base import BaseModel
 from habit.utils.log_utils import get_module_logger
 
 LOGGER = get_module_logger("ml.model_factory")
 
-class ModelFactory:
-    """Factory class for creating model instances"""
-    
-    _registry = {}
-    _params_models: Dict[str, Type[Any]] = {}
-    
+
+class ModelFactory(ClassRegistry[BaseModel]):
+    """
+    Factory for creating model instances.
+
+    Uses the shared :class:`~habit.core.common.registry.ClassRegistry` contract
+    (``register`` / ``create`` / ``get`` / ``available`` /
+    ``register_params_model`` / ``get_params_model``) and adds lazy discovery of
+    every ``models/*.py`` module so decorated models self-register on demand.
+
+    ``create`` keeps the ML-specific convention of passing a single positional
+    ``config`` dict to the model constructor.
+    """
+
+    kind = "model"
+
     @classmethod
-    def register(cls, name: str):
+    def create(cls, model_name: str, config: Dict[str, Any] = None) -> BaseModel:
         """
-        Register a model class
-        
+        Create a model instance by name.
+
         Args:
-            name: Model name
-            
+            model_name: Registered model name.
+            config: Optional configuration dictionary (``None`` -> ``{}``).
+
         Returns:
-            Decorator function
-        """
-        def decorator(model_class):
-            cls._registry[name] = model_class
-            return model_class
-        return decorator
-    
-    @classmethod
-    def create_model(cls, model_name: str, config: Dict[str, Any] = None) -> BaseModel:
-        """
-        Create a model instance
-        
-        Args:
-            model_name: Name of model to create
-            config: Configuration dictionary
-            
-        Returns:
-            BaseModel: Model instance
-            
+            BaseModel: Instantiated model.
+
         Raises:
-            ValueError: If model name is not registered
+            ValueError: If ``model_name`` is not registered (after discovery).
         """
-        if model_name not in cls._registry:
-            # Try to import the model module
-            try:
-                # Discover and import all model modules
-                cls._discover_models()
-            except ImportError:
-                pass
-                
-            # Check registry again after import attempt
-            if model_name not in cls._registry:
-                raise ValueError(f"Model '{model_name}' not registered. Available models: {list(cls._registry.keys())}")
-        
-        # Create instance with config or empty dict
-        config = config or {}
-        return cls._registry[model_name](config)
-    
+        model_cls = cls.get(model_name)
+        if model_cls is None:
+            raise ValueError(
+                f"Model '{model_name}' not registered. "
+                f"Available models: {list(cls._registry.keys())}"
+            )
+        return model_cls(config or {})
+
     @classmethod
-    def get_available_models(cls) -> List[str]:
+    def available(cls) -> List[str]:
         """
-        Get list of available model names
-        
-        Returns:
-            List[str]: List of registered model names
+        Return all model names, importing every model module first.
+
+        Note:
+            This eagerly imports optional heavy models (e.g. AutoGluon) and can
+            be slow; GUI paths that only need built-ins import them explicitly.
         """
-        # Try to import all model modules from models directory
-        cls._discover_models()
+        cls._discover()
         return list(cls._registry.keys())
-    
+
     @classmethod
-    def _discover_models(cls) -> None:
-        """Dynamically discover and import all Python modules in the models directory"""
-        # Get the models directory path
+    def _discover(cls) -> None:
+        """Dynamically import all model modules so decorated models register."""
         models_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # Import all .py files (excluding __init__.py and factory itself)
         for filename in os.listdir(models_dir):
             if filename.endswith('.py') and not filename.startswith('__') and filename != 'factory.py':
-                # Remove .py extension
                 module_name = filename[:-3]
                 try:
-                    # Use relative import
                     importlib.import_module(f".{module_name}", package="habit.core.machine_learning.models")
                     LOGGER.debug("Successfully imported model module: %s", module_name)
                 except ImportError as e:
                     LOGGER.warning("Failed to import model module %s: %s", module_name, e)
-
-    @classmethod
-    def register_params_model(cls, name: str, params_model: Type[Any]) -> None:
-        """
-        Associate a Pydantic *Params schema with a registered ML model.
-
-        Args:
-            name: ModelFactory registration key.
-            params_model: Pydantic model for GUI / YAML ``params`` validation.
-        """
-        cls._params_models[name] = params_model
-
-    @classmethod
-    def get_params_model(cls, name: str) -> Optional[Type[Any]]:
-        """
-        Return the Pydantic params schema for a model, if registered.
-
-        Args:
-            name: ModelFactory registration key.
-
-        Returns:
-            Optional[Type[Any]]: Params model class or None.
-        """
-        return cls._params_models.get(name)

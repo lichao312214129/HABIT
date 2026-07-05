@@ -158,5 +158,5 @@ def run_radiomics_from_config(
     configurator = HabitatConfigurator(config=config, logger=log, output_dir=out)
     extractor = configurator.create_radiomics_extractor()
     log.info("Executing radiomics extraction")
-    extractor.extract_features()
+    extractor.run()
     log.info("Radiomics extraction completed")

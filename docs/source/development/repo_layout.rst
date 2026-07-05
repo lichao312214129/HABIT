@@ -39,12 +39,17 @@
      ROOT --> CORE["core/ — business logic"]
      ROOT --> UTILS["utils/ — shared utilities"]
 
-     CORE --> COM["common/ — config loader, base configurator"]
+     CORE --> COM["common/ — configs, configurators, contracts"]
      CORE --> SCH["schemas/ — workflow & step schemas, registry, reflect"]
      CORE --> PRE["preprocessing/"]
      CORE --> HAB["habitat_analysis/"]
      CORE --> MLC["machine_learning/"]
      CORE --> DCM["dicom_sort/"]
+
+     COM --> CFG["configs/"]
+     COM --> CON["configurators/"]
+     COM --> REG["registry.py"]
+     COM --> ORC["orchestrator.py"]
 
 顶层子包职责
 ------------
@@ -60,7 +65,9 @@
    * - ``habit/commands/``
      - **当前生效的命令实现层**：每个 ``cmd_*.py`` 负责加载配置、调用核心、输出结果。共享 helper 在 ``common.py``。
    * - ``habit/core/common/``
-     - 配置基建：YAML 加载与路径解析（``configs/``）、Configurator 基类（``configurators/base.py``）、DataFrame 小工具。
+     - 跨域基建：YAML 加载与路径解析（``configs/``）、Configurator 基类（``configurators/``）、
+       统一注册表基类（``registry.py`` → :class:`~habit.core.common.registry.ClassRegistry`）、
+       编排器契约表（``orchestrator.py`` → :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`）。
    * - ``habit/core/schemas/``
      - Pydantic 配置模型：整份工作流（``workflows/``）、单步参数（``steps/``）、参数注册表（``registry.py``）、校验（``validation.py``）、GUI 反射（``reflect.py`` / ``field_reflect.py``）。
    * - ``habit/core/preprocessing/``
@@ -73,11 +80,6 @@
      - 独立的 DICOM 排序（基于 dcm2niix），不走 ``BatchProcessor``。
    * - ``habit/utils/``
      - 跨子系统共享工具（见下节）。
-
-.. note::
-
-   仓库中另有 ``habit/cli_commands/`` 与 ``habit/commands/`` 结构镜像，属历史遗留副本，
-   **未被 ``cli.py`` 引用**。修改命令逻辑请以 ``habit/commands/`` 为准。
 
 共享工具 ``habit/utils/``
 -------------------------
@@ -109,6 +111,28 @@
    * - ``job_cancel.py``
      - 任务取消检测（供长任务与 GUI 使用）。
 
+跨子系统契约文件
+----------------
+
+以下文件定义全包共享的接口约定，新增工厂或编排器时必须同步更新并跑契约测试：
+
+.. mermaid::
+
+   flowchart LR
+     REG["common/registry.py<br/>ClassRegistry"] --> PF["PreprocessorFactory"]
+     REG --> MF["ModelFactory"]
+     REG --> CF["ClusteringAlgorithmFactory"]
+     REG --> EF["FeatureExtractorRegistry"]
+     REG --> PP["PreprocessingMethodFactory"]
+     REG --> HF["HabitatFeatureRegistry"]
+
+     ORC["common/orchestrator.py<br/>ORCHESTRATOR_CONTRACT"] --> BP["BatchProcessor"]
+     ORC --> HA["HabitatAnalysis"]
+     ORC --> HW["HoldoutWorkflow / ..."]
+
+     TST["tests/test_architecture_contracts.py"] -.-> REG
+     TST -.-> ORC
+
 "我想改 X，去哪找"
 ------------------
 
@@ -136,6 +160,11 @@
      - ``habit/core/habitat_analysis/habitat_analysis.py``\ （``_PIPELINE_RECIPES``）+ ``pipelines/steps/``
    * - ML 训练 / 预测执行流
      - ``habit/core/machine_learning/workflows/`` 与 ``runners/``
+   * - 新增类式工厂（扩展算法组件）
+     - 继承 ``habit/core/common/registry.py`` 的 ``ClassRegistry``；参考同域已有工厂
+   * - 新增顶层编排器（新 CLI 流水线）
+     - 实现类 + 更新 ``common/orchestrator.py`` 的 ``ORCHESTRATOR_CONTRACT``
+       （``tests/test_architecture_contracts.py`` 自动读取该表校验终端方法）
 
 .. seealso::
 

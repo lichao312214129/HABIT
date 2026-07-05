@@ -29,9 +29,9 @@ from typing import Any, Dict, FrozenSet, List, Optional, Type, Union
 import pandas as pd
 from pydantic import BaseModel
 
+from habit.core.common.registry import ClassRegistry
 from .method_config_utils import normalize_method_name, resolve_method_name
 
-_PREPROCESSING_REGISTRY: Dict[str, Type["BaseFeaturePreprocessing"]] = {}
 _BUILTIN_HANDLERS_LOADED = False
 
 
@@ -134,39 +134,30 @@ def register_preprocessing(name: str):
     Returns:
         Class decorator.
     """
-
-    def decorator(cls: Type[BaseFeaturePreprocessing]) -> Type[BaseFeaturePreprocessing]:
-        PreprocessingMethodFactory.register(name)(cls)
-        return cls
-
-    return decorator
+    return PreprocessingMethodFactory.register(name)
 
 
-class PreprocessingMethodFactory:
-    """Factory for resolving and instantiating registered preprocessing handlers."""
+class PreprocessingMethodFactory(ClassRegistry["BaseFeaturePreprocessing"]):
+    """
+    Factory for resolving and instantiating preprocessing handlers.
 
-    _registry: Dict[str, Type[BaseFeaturePreprocessing]] = _PREPROCESSING_REGISTRY
+    Uses the shared :class:`~habit.core.common.registry.ClassRegistry` contract
+    (``register`` / ``create`` / ``get`` / ``available`` / ...). Method names are
+    normalized through :func:`normalize_method_name` (alias-aware), and built-in
+    handlers are discovered lazily. Domain-specific helpers (``get_handler`` and
+    friends) are layered on top of that contract.
+    """
 
-    @classmethod
-    def register(cls, name: str):
-        """
-        Register a handler class under a canonical method name.
-
-        Args:
-            name: Registry key (stored lower-case).
-
-        Returns:
-            Class decorator.
-        """
-
-        def decorator(handler_cls: Type[BaseFeaturePreprocessing]) -> Type[BaseFeaturePreprocessing]:
-            cls._registry[normalize_method_name(name)] = handler_cls
-            return handler_cls
-
-        return decorator
+    kind = "preprocessing method"
 
     @classmethod
-    def _ensure_builtin_handlers_loaded(cls) -> None:
+    def _normalize(cls, name: str) -> str:
+        """Normalize a method name (alias-aware, lower-case)."""
+        return normalize_method_name(name)
+
+    @classmethod
+    def _discover(cls) -> None:
+        """Import the built-in handler module once so handlers self-register."""
         global _BUILTIN_HANDLERS_LOADED
         if not _BUILTIN_HANDLERS_LOADED:
             from . import builtin_methods as _builtin_methods  # noqa: F401
@@ -187,9 +178,7 @@ class PreprocessingMethodFactory:
         Raises:
             ValueError: When the method is not registered.
         """
-        cls._ensure_builtin_handlers_loaded()
-        key = normalize_method_name(method_name)
-        handler_cls = cls._registry.get(key)
+        handler_cls = cls.get(method_name)
         if handler_cls is None:
             raise ValueError(f"Unknown preprocessing method: {method_name}")
         return handler_cls()
@@ -218,7 +207,7 @@ class PreprocessingMethodFactory:
         Returns:
             List of registry keys.
         """
-        cls._ensure_builtin_handlers_loaded()
+        cls._discover()
         return sorted(cls._registry.keys())
 
     @classmethod
@@ -229,7 +218,7 @@ class PreprocessingMethodFactory:
         Returns:
             Frozen set of registry keys with ``changes_columns=True``.
         """
-        cls._ensure_builtin_handlers_loaded()
+        cls._discover()
         return frozenset(
             name
             for name, handler_cls in cls._registry.items()
