@@ -30,6 +30,11 @@ setup(
     author='lichao19870617@163.com',
     license='HABIT Software License',
     packages=find_packages(),
+    include_package_data=True,
+    package_data={
+        # Bundled PyRadiomics parameter presets (default params_file fallbacks).
+        'habit.resources.radiomics': ['*.yaml'],
+    },
     ext_modules=[
         Extension(
             _SV_CMATRICES_MODULE,

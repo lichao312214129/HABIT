@@ -52,7 +52,7 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
     
     **Configuration**:
     ```yaml
-    FeatureConstruction:
+    feature_construction:
       supervoxel_level:
         method: mean_voxel_features()  # Mode 1
         # OR (Mode 2: outer concat required even for one modality)
@@ -78,11 +78,11 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         self.logger = get_module_logger(__name__)
         
         clustering_mode = (
-            config.HabitatSegmentation.clustering_mode
-            if config.HabitatSegmentation is not None
+            config.habitat_segmentation.clustering_mode
+            if config.habitat_segmentation is not None
             else None
         )
-        supervoxel_config = config.FeatureConstruction.supervoxel_level
+        supervoxel_config = config.feature_construction.supervoxel_level
         method = supervoxel_config.method if supervoxel_config else None
         advanced_requested = (
             method is not None and 'mean_voxel_features' not in method
@@ -94,7 +94,7 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         if clustering_mode == 'one_step':
             if advanced_requested:
                 self.logger.warning(
-                    "one_step mode ignores FeatureConstruction.supervoxel_level.method "
+                    "one_step mode ignores feature_construction.supervoxel_level.method "
                     f"({method!r}); using mean_voxel_features() from "
                     "CalculateMeanVoxelFeaturesStep."
                 )
@@ -152,8 +152,8 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         # labels (the Supervoxel column IS the habitat label). Mirror it into
         # Habitats here so downstream code does not have to special-case mode.
         clustering_mode = (
-            self.config.HabitatSegmentation.clustering_mode
-            if self.config.HabitatSegmentation is not None
+            self.config.habitat_segmentation.clustering_mode
+            if self.config.habitat_segmentation is not None
             else None
         )
         if (
@@ -183,11 +183,11 @@ class MergeSupervoxelFeaturesStep(IndividualLevelStep):
         supervoxel_df = subject_data.require_supervoxel_features(self.__class__.__name__).copy()
 
         if (
-            'SupervoxelID' in supervoxel_df.columns
+            'supervoxel_id' in supervoxel_df.columns
             and ResultColumns.SUPERVOXEL not in supervoxel_df.columns
         ):
-            supervoxel_df[ResultColumns.SUPERVOXEL] = supervoxel_df['SupervoxelID']
-            supervoxel_df = supervoxel_df.drop(columns=['SupervoxelID'])
+            supervoxel_df[ResultColumns.SUPERVOXEL] = supervoxel_df['supervoxel_id']
+            supervoxel_df = supervoxel_df.drop(columns=['supervoxel_id'])
 
         if ResultColumns.SUBJECT not in supervoxel_df.columns:
             supervoxel_df[ResultColumns.SUBJECT] = subject_id

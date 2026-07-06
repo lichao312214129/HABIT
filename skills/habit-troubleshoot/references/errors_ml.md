@@ -22,7 +22,7 @@ of those.
    python -c "import pandas as pd; print(pd.read_csv('a.csv').iloc[:5,0])"
    python -c "import pandas as pd; print(pd.read_csv('b.csv').iloc[:5,0])"
    ```
-2. Common issues: column name differences (`subjID` vs `PatientID`),
+2. Common issues: column name differences (`subject_id` vs `PatientID`),
    case differences (`SUB001` vs `sub001`), trailing spaces.
 3. Pre-merge with `habit merge-csv` using the right `--index-col` and `--join inner`.
 

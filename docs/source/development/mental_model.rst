@@ -17,7 +17,7 @@ HABIT 的世界可以分成"业务概念"（研究者关心的东西）和"工�
      classDef eng fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000;
 
      subgraph Domain["Domain concepts (what researchers care about)"]
-       V["Voxel feature"]:::dom --> SV["Supervoxel"]:::dom --> H["Habitat"]:::dom --> F["Habitat feature"]:::dom --> M["ML model"]:::dom
+       V["Voxel feature"]:::dom --> SV["supervoxel"]:::dom --> H["Habitat"]:::dom --> F["Habitat feature"]:::dom --> M["ML model"]:::dom
      end
 
      subgraph Eng["Engineering roles (how the code is organized)"]

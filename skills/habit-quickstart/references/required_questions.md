@@ -24,12 +24,12 @@ and ask the user explicitly. Do not invent paths or modality names.
 | Modalities to use for clustering | drives `voxel_level.method` |
 | `clustering_mode`: one_step / two_step | core algorithmic choice |
 | (kinetic only) timestamps Excel path | required for DCE kinetic features |
-| (voxel_radiomics only) `params_file` | required PyRadiomics params |
-| (voxel_radiomics only) `kernelRadius` | optional; CT preset 3 (R3B12); code default 1 |
-| (voxel_radiomics only) `voxelBatch` | optional; default 1000 (`-1` = no batching) |
-| (voxel_radiomics only) `useTorchRadiomics` | optional; default auto |
-| (voxel_radiomics only) `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
-| (voxel_radiomics only) `torchDevice` | optional; default auto |
+| (voxel_radiomics only) `params_file` | optional; omit → bundled CT R3B12 preset (`habit/resources/radiomics/params_voxel_radiomics.yaml`); override with path or `@preset:voxel` |
+| (voxel_radiomics only) `kernel_radius` | optional; default **3** (CT R3B12); override in parentheses + `params` |
+| (voxel_radiomics only) `voxel_batch` | optional; default 1000 (`-1` = no batching) |
+| (voxel_radiomics only) `use_torch_radiomics` | optional; default auto |
+| (voxel_radiomics only) `torch_gpus` / `torch_gpu_count` | optional; GPU pool + count |
+| (voxel_radiomics only) `torch_device` | optional; default auto |
 | (two_step) `fixed_n_clusters` for habitat | typical: 3-5 |
 
 ## habit-feature-extraction

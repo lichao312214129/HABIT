@@ -37,12 +37,18 @@ from habit.utils.torch_radiomics_utils import (
     resolve_voxel_radiomics_backend,
 )
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
+from habit.utils.radiomics_preset_utils import resolve_params_file
 
 logger = get_module_logger(__name__)
 
 # Habit default batch size; balances memory use on typical 8-16 GB machines vs speed.
 # PyRadiomics accepts -1 for no batching (all ROI voxels at once).
 DEFAULT_VOXEL_BATCH = 1000
+
+# CT habitat voxel texture default (R3B12): 7×7×7 neighborhood at radius 3.
+# Petersen et al., Radiol Artif Intell 2024;6(2):e230118.
+DEFAULT_KERNEL_RADIUS = 3
 
 
 def _enabled_voxel_feature_classes(enabled_features: Dict[str, Any]) -> List[str]:
@@ -129,23 +135,38 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
     using PyRadiomics' voxel-based extraction, optionally accelerated via
     in-tree TorchRadiomics injection when torch/CUDA are available.
     """
-    
+
+    # DSL contract: voxel_radiomics(<modality>, params_file, kernel_radius, ...).
+    # ``params_file`` is optional and falls back to the bundled CT R3B12 voxel
+    # preset; other knobs carry habit-level defaults so users may omit them.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={
+            "kernel_radius": DEFAULT_KERNEL_RADIUS,
+            "voxel_batch": DEFAULT_VOXEL_BATCH,
+            "use_torch_radiomics": "auto",
+        },
+        default_params_file_preset="voxel",
+        takes_image=True,
+    )
+
     def __init__(self, **kwargs):
         """
-        Initialize voxel-level radiomics feature extractor
-        
+        Initialize voxel-level radiomics feature extractor.
+
+        Resolve ``params_file`` explicitly: a user-provided path wins; when the
+        value is missing (or an ``@preset:*`` reference), fall back to the
+        bundled CT R3B12 voxel preset so ``params_file`` can be omitted.
+
         Args:
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters. ``params_file`` is optional.
         """
         super().__init__(**kwargs)
-        # self.params_file是kwargs中的path
-        # 用os判断,如果没有file则报错
-        for key, value in kwargs.items():
-            if os.path.exists(value):
-                self.params_file = value
-                break
-        if self.params_file is None:
-            raise ValueError("params_file not found in kwargs")
+        # User path (or @preset ref) wins; None/empty -> bundled CT voxel preset.
+        self.params_file = resolve_params_file(
+            kwargs.get('params_file'),
+            preset=self.method_param_spec.default_params_file_preset or "voxel",
+        )
         
     def extract_features(self, image_data: Union[str, sitk.Image],
                          mask_data: Union[str, sitk.Image],
@@ -156,9 +177,9 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
         Args:
             image_data: Path to image file or SimpleITK image object
             mask_data: Path to mask file or SimpleITK mask object
-            **kwargs: Optional keys — ``subj``, ``img_name``, ``kernelRadius``,
-                ``voxelBatch``, ``useTorchRadiomics``, ``torchDevice``, ``torchGpus``,
-                ``torchGpuCount``, ``gpuSlotIndex``, ``torchDtype``, ``output_float32``.
+            **kwargs: Optional keys — ``subj``, ``img_name``, ``kernel_radius``,
+                ``voxel_batch``, ``use_torch_radiomics``, ``torch_device``, ``torch_gpus``,
+                ``torch_gpu_count``, ``gpu_slot_index``, ``torch_dtype``, ``output_float32``.
                 See ``habit/utils/torch_radiomics_utils.py`` for backend resolution.
             
         Returns:
@@ -201,61 +222,61 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             extractor = create_radiomics_feature_extractor(self.params_file)
             configure_voxel_glcm_on_extractor(extractor, logger=logger)
 
-            # kernelRadius controls the size of the local neighborhood (in voxels) 
+            # kernel_radius controls the size of the local neighborhood (in voxels) 
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
             # centered on each voxel, radius of 2 means 5×5×5, etc.
-            kernelRadius = kwargs.get('kernelRadius', 1)
-            voxelBatch = kwargs.get('voxelBatch', DEFAULT_VOXEL_BATCH)
+            kernel_radius = kwargs.get('kernel_radius', DEFAULT_KERNEL_RADIUS)
+            voxel_batch = kwargs.get('voxel_batch', DEFAULT_VOXEL_BATCH)
             backend, torch_device = resolve_voxel_radiomics_backend(
-                use_torch_radiomics=kwargs.get('useTorchRadiomics', 'auto'),
-                torch_device=kwargs.get('torchDevice', 'auto'),
-                torch_gpus=kwargs.get('torchGpus'),
-                torch_gpu_count=kwargs.get('torchGpuCount'),
+                use_torch_radiomics=kwargs.get('use_torch_radiomics', 'auto'),
+                torch_device=kwargs.get('torch_device', 'auto'),
+                torch_gpus=kwargs.get('torch_gpus'),
+                torch_gpu_count=kwargs.get('torch_gpu_count'),
                 subject=kwargs.get('subject'),
-                gpu_slot_index=kwargs.get('gpuSlotIndex'),
+                gpu_slot_index=kwargs.get('gpu_slot_index'),
             )
             settings_update: Dict[str, Any] = {
-                'kernelRadius': kernelRadius,
-                'voxelBatch': voxelBatch,
+                'kernelRadius': kernel_radius,
+                'voxelBatch': voxel_batch,
                 'geometryTolerance': 1e-3  # Allow small geometric differences
             }
             if backend == "torch" and torch_device is not None:
                 settings_update['device'] = torch_device
                 settings_update['dtype'] = resolve_torch_dtype(
-                    kwargs.get('torchDtype', DEFAULT_TORCH_DTYPE)
+                    kwargs.get('torch_dtype', DEFAULT_TORCH_DTYPE)
                 )
                 if str(torch_device).startswith("cuda"):
                     logger.info(
                         "voxel_radiomics extraction using TorchRadiomics GPU: "
-                        "subject=%s image=%s device=%s torchGpus=%s torchGpuCount=%s "
-                        "kernelRadius=%s voxelBatch=%s dtype=%s",
+                        "subject=%s image=%s device=%s torch_gpus=%s torch_gpu_count=%s "
+                        "kernel_radius=%s voxel_batch=%s dtype=%s",
                         kwargs.get("subject", "unknown"),
                         image_name,
                         torch_device,
-                        kwargs.get("torchGpus"),
-                        kwargs.get("torchGpuCount"),
-                        kernelRadius,
-                        voxelBatch,
-                        kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE),
+                        kwargs.get("torch_gpus"),
+                        kwargs.get("torch_gpu_count"),
+                        kernel_radius,
+                        voxel_batch,
+                        kwargs.get("torch_dtype", DEFAULT_TORCH_DTYPE),
                     )
                 else:
                     logger.info(
                         "voxel_radiomics extraction using TorchRadiomics CPU: "
-                        "subject=%s image=%s device=%s kernelRadius=%s voxelBatch=%s",
+                        "subject=%s image=%s device=%s kernel_radius=%s voxel_batch=%s",
                         kwargs.get("subject", "unknown"),
                         image_name,
                         torch_device,
-                        kernelRadius,
-                        voxelBatch,
+                        kernel_radius,
+                        voxel_batch,
                     )
             else:
                 logger.info(
                     "voxel_radiomics extraction using CPU PyRadiomics: "
-                    "subject=%s image=%s kernelRadius=%s voxelBatch=%s",
+                    "subject=%s image=%s kernel_radius=%s voxel_batch=%s",
                     kwargs.get("subject", "unknown"),
                     image_name,
-                    kernelRadius,
-                    voxelBatch,
+                    kernel_radius,
+                    voxel_batch,
                 )
             extractor.settings.update(settings_update)
 

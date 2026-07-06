@@ -19,7 +19,7 @@ Flow (aligned with ``RadiomicsFeaturesBase._calculateVoxels``):
 
 1. Discretize once on the union supervoxel mask via PyRadiomics ``_applyBinning``.
 2. Crop image/mask/supervoxel map to the union-mask bounding box (+ ``padDistance``).
-3. For each feature class, iterate supervoxel labels in batches (``supervoxelBatch``).
+3. For each feature class, iterate supervoxel labels in batches (``supervoxel_batch``).
 3. Per label in a batch: ``cMatrices`` via ``_calculateMatrix`` (PyRadiomics native ROI path).
 4. Stack matrices to ``[B, …]`` and run Torch ``_calculateCoefficients`` + ``get*FeatureValue`` once
    per batch (Torch path). CPU PyRadiomics falls back to per-label scalar formulas.
@@ -48,10 +48,10 @@ from habit.core.habitat_analysis.clustering_features.supervoxel_cext.torch_batch
 
 logger = get_module_logger(__name__)
 
-# Default batch size; controls matrix/formula batch width (like voxelBatch for voxel maps).
+# Default batch size; controls matrix/formula batch width (like voxel_batch for voxel maps).
 DEFAULT_SUPERVOXEL_BATCH = 64
 
-# Default padding around union-mask bbox for ROI texture (not voxel kernelRadius).
+# Default padding around union-mask bbox for ROI texture (not voxel kernel_radius).
 DEFAULT_SUPERVOXEL_PAD_DISTANCE = 1
 
 # Torch texture classes: matrix attribute on calculator after ``_calculateMatrix``.
@@ -163,7 +163,7 @@ def _resolve_supervoxel_pad_distance(settings: Mapping[str, object]) -> int:
     Resolve padding for union-mask bbox crop.
 
     Supervoxel ROI extraction uses ``padDistance`` (PyRadiomics crop padding), not
-    ``kernelRadius`` (voxel-based kernel only). ``supervoxelPadDistance`` overrides
+    ``kernel_radius`` (voxel-based kernel only). ``supervoxel_pad_distance`` overrides
     ``padDistance`` when present.
 
     Args:
@@ -172,8 +172,8 @@ def _resolve_supervoxel_pad_distance(settings: Mapping[str, object]) -> int:
     Returns:
         int: Non-negative pad distance in voxels.
     """
-    if "supervoxelPadDistance" in settings:
-        return max(0, int(settings["supervoxelPadDistance"]))
+    if "supervoxel_pad_distance" in settings:
+        return max(0, int(settings["supervoxel_pad_distance"]))
     if "padDistance" in settings:
         return max(0, int(settings["padDistance"]))
     return DEFAULT_SUPERVOXEL_PAD_DISTANCE
@@ -187,9 +187,9 @@ def _should_crop_union_bbox(settings: Mapping[str, object]) -> bool:
         settings: PyRadiomics / habit radiomics settings dict.
 
     Returns:
-        bool: True unless ``supervoxelUnionBboxCrop`` is explicitly False.
+        bool: True unless ``supervoxel_union_bbox_crop`` is explicitly False.
     """
-    return bool(settings.get("supervoxelUnionBboxCrop", True))
+    return bool(settings.get("supervoxel_union_bbox_crop", True))
 
 
 def _crop_to_union_bounding_box(
@@ -808,7 +808,7 @@ def _extract_supervoxel_label_features_cext_batch(
         resolved_features: Enabled feature names per class.
         label_array: Full supervoxel label map array.
         batch_labels: Label ids in this batch.
-        batch_row_maps: Pre-allocated row dicts (must include SupervoxelID).
+        batch_row_maps: Pre-allocated row dicts (must include supervoxel_id).
         image_name: Optional column suffix.
     """
     extract_supervoxel_batch_via_cext(
@@ -844,7 +844,7 @@ def _extract_supervoxel_label_features_torch_batch(
         resolved_features: Enabled feature names per class.
         label_array: Full supervoxel label map array.
         batch_labels: Label ids in this batch.
-        batch_row_maps: Pre-allocated row dicts (must include SupervoxelID).
+        batch_row_maps: Pre-allocated row dicts (must include supervoxel_id).
         image_name: Optional column suffix.
     """
     for feature_class in sorted(calculators.keys()):
@@ -1072,7 +1072,7 @@ def _calculate_supervoxels(
         batch_labels_arr = labels[start:start + batch_size].astype(np.int64, copy=False)
         batch_labels = [int(label) for label in batch_labels_arr.tolist()]
         batch_row_maps: List[Dict[str, object]] = [
-            {"SupervoxelID": label} for label in batch_labels
+            {"supervoxel_id": label} for label in batch_labels
         ]
 
         if enable_torch_formula_batch:
@@ -1148,7 +1148,7 @@ def extract_batched_supervoxel_features(
 
     Discretization uses PyRadiomics ``_applyBinning`` once on the union supervoxel
     mask; per-label matrices use ``cMatrices`` inside ``_initCalculation``, or the
-    habit C-extension batch path when ``useSupervoxelCext`` resolves to true (default
+    habit C-extension batch path when ``use_supervoxel_cext`` resolves to true (default
     ``auto`` when ``_sv_cmatrices`` is compiled).
 
     Args:
@@ -1188,11 +1188,11 @@ def extract_batched_supervoxel_features(
     torch_settings["device"] = device
     torch_settings["dtype"] = dtype
 
-    use_torch_setting = str(settings.get("useTorchRadiomics", "auto"))
+    use_torch_setting = str(settings.get("use_torch_radiomics", "auto"))
     if str(device).startswith("cuda"):
         logger.info(
             "batched supervoxel_radiomics using TorchRadiomics GPU: "
-            "useTorchRadiomics=%s device=%s dtype=%s labels=%d batch_size=%d "
+            "use_torch_radiomics=%s device=%s dtype=%s labels=%d batch_size=%d "
             "union_bin=True union_bbox_crop=%s padDistance=%d cropped_size=%s",
             use_torch_setting,
             device,
@@ -1206,7 +1206,7 @@ def extract_batched_supervoxel_features(
     else:
         logger.info(
             "batched supervoxel_radiomics using TorchRadiomics CPU: "
-            "useTorchRadiomics=%s device=%s labels=%d batch_size=%d "
+            "use_torch_radiomics=%s device=%s labels=%d batch_size=%d "
             "union_bin=True union_bbox_crop=%s padDistance=%d cropped_size=%s",
             use_torch_setting,
             device,
@@ -1226,11 +1226,11 @@ def extract_batched_supervoxel_features(
 
     use_cext_batch = resolve_use_supervoxel_cext(settings)
     matrix_backend = supervoxel_cext_matrix_backend_label(settings)
-    use_supervoxel_cext_flag = settings.get("useSupervoxelCext", "auto")
+    use_supervoxel_cext_flag = settings.get("use_supervoxel_cext", "auto")
     if matrix_backend == "habit_native_c":
         logger.info(
             "supervoxel_radiomics using habit native C extension for texture matrices: "
-            "useSupervoxelCext=%s module=supervoxel_cext._sv_cmatrices backend=%s "
+            "use_supervoxel_cext=%s module=supervoxel_cext._sv_cmatrices backend=%s "
             "labels=%d batch_size=%d",
             use_supervoxel_cext_flag,
             cext_backend(),
@@ -1239,7 +1239,7 @@ def extract_batched_supervoxel_features(
         )
     elif matrix_backend == "habit_fallback_cmatrices":
         logger.warning(
-            "supervoxel_radiomics useSupervoxelCext=%s but native extension is not built; "
+            "supervoxel_radiomics use_supervoxel_cext=%s but native extension is not built; "
             "using PyRadiomics cMatrices fallback (labels=%d batch_size=%d). "
             "Run: pip install -e .",
             use_supervoxel_cext_flag,
@@ -1249,7 +1249,7 @@ def extract_batched_supervoxel_features(
     elif use_supervoxel_cext_flag not in (False, "false", "False"):
         logger.info(
             "supervoxel_radiomics habit native C extension not selected: "
-            "useSupervoxelCext=%s native_available=%s matrix_backend=%s labels=%d batch_size=%d",
+            "use_supervoxel_cext=%s native_available=%s matrix_backend=%s labels=%d batch_size=%d",
             use_supervoxel_cext_flag,
             is_cext_available(),
             matrix_backend,

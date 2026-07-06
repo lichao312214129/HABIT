@@ -8,10 +8,10 @@ Purpose:
     can be referenced from a `habit model` config.
 
 Usage:
-    python prepare_split_files.py <csv_path> --subject-id-col subjID \
+    python prepare_split_files.py <csv_path> --subject-id-col subject_id \
         --label-col label --test-size 0.3 --output-dir ./splits
 
-    python prepare_split_files.py <csv_path> --subject-id-col subjID \
+    python prepare_split_files.py <csv_path> --subject-id-col subject_id \
         --custom-test-ids id1 id2 id3 --output-dir ./splits
 
 Outputs:

@@ -73,7 +73,7 @@ class PreprocessingConfig(BaseConfig):
         description="Output directory for preprocessed images",
         json_schema_extra={"group": "Paths", "widget": "path_dir", "order": 2},
     )
-    Preprocessing: Dict[str, PreprocessingStepConfig] = Field(
+    preprocessing: Dict[str, PreprocessingStepConfig] = Field(
         default_factory=dict,
         description="Preprocessing pipeline steps (keyed by step name)",
         json_schema_extra={"group": "Pipeline", "order": 1},
@@ -125,7 +125,7 @@ class PreprocessingConfig(BaseConfig):
         """Validate each ``Preprocessing`` block against registered *Params models."""
         if not isinstance(data, dict):
             return data
-        prep = data.get("Preprocessing")
+        prep = data.get("preprocessing")
         if not isinstance(prep, dict):
             return data
         out = dict(data)
@@ -140,7 +140,7 @@ class PreprocessingConfig(BaseConfig):
                 )
             else:
                 validated[step_type] = block
-        out["Preprocessing"] = validated
+        out["preprocessing"] = validated
         return out
 
 

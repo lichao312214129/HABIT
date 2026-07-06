@@ -35,7 +35,7 @@ this still fails, check that preprocessing wrote both images AND masks to
 ## Symptom: `voxel_radiomics` / TorchRadiomics crash on GLCM (MKL, eigvals, MCC)
 
 **Cause**: `params_file` enables `glcm:` without an explicit feature list (all 24
-GLCM features). Voxel mode uses small neighborhoods (`kernelRadius=1–3`); flat
+GLCM features). Voxel mode uses small neighborhoods (`kernel_radius=1–3`); flat
 patches yield degenerate 1×1 GLCM matrices. **MCC, Imc1, Imc2** need eigenvalue
 or mutual-information statistics and crash on CUDA/MKL or return NaN.
 

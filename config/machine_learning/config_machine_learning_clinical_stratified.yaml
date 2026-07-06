@@ -11,7 +11,7 @@
 input:
   - path: ../../demo_data/ml_data/clinical_feature.csv
     name: clinical_
-    subject_id_col: subjID
+    subject_id_col: subject_id
     label_col: label
 output: ../../demo_data/results/ml_clinical_stratified
 split_method: stratified

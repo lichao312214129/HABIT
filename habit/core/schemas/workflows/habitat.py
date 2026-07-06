@@ -58,11 +58,11 @@ class HabitatAnalysisConfig(BaseConfig):
         ),
     )
     
-    FeatureConstruction: Optional['FeatureConstructionConfig'] = Field(
+    feature_construction: Optional['FeatureConstructionConfig'] = Field(
         None,
         description="Feature construction configuration (required for train mode, optional for predict mode)."
     )
-    HabitatSegmentation: Optional['HabitatSegmentationConfig'] = Field(
+    habitat_segmentation: Optional['HabitatSegmentationConfig'] = Field(
         None,
         description="Habitat segmentation configuration (required for train mode, optional for predict mode but clustering_mode is needed)."
     )
@@ -79,9 +79,9 @@ class HabitatAnalysisConfig(BaseConfig):
         False,
         description=(
             "When True and Torch GPU radiomics is active, cap Stage-1 parallel workers "
-            "to the configured torchGpus pool size (one worker slot per GPU). When False, "
+            "to the configured torch_gpus pool size (one worker slot per GPU). When False, "
             "keep the full processes count; multiple workers share GPUs via "
-            "gpuSlotIndex modulo mapping so CPU-heavy steps can run in parallel on "
+            "gpu_slot_index modulo mapping so CPU-heavy steps can run in parallel on "
             "machines with fewer GPUs than CPU cores. May increase GPU memory contention."
         ),
     )
@@ -261,23 +261,23 @@ class HabitatAnalysisConfig(BaseConfig):
         """
         Validate that required fields are present based on run_mode.
         
-        - In train mode: FeatureConstruction and HabitatSegmentation are required
-        - In predict mode: FeatureConstruction is optional, but HabitatSegmentation.clustering_mode is needed
+        - In train mode: feature_construction and habitat_segmentation are required
+        - In predict mode: feature_construction is optional, but habitat_segmentation.clustering_mode is needed
         """
         if self.run_mode == 'train':
-            if self.FeatureConstruction is None:
-                raise ValueError("FeatureConstruction is required in train mode")
-            if self.HabitatSegmentation is None:
-                raise ValueError("HabitatSegmentation is required in train mode")
+            if self.feature_construction is None:
+                raise ValueError("feature_construction is required in train mode")
+            if self.habitat_segmentation is None:
+                raise ValueError("habitat_segmentation is required in train mode")
         elif self.run_mode == 'predict':
-            # In predict mode, FeatureConstruction is optional (not used)
-            # But HabitatSegmentation.clustering_mode is needed to select the strategy class
-            if self.HabitatSegmentation is None or self.HabitatSegmentation.clustering_mode is None:
+            # In predict mode, feature_construction is optional (not used)
+            # But habitat_segmentation.clustering_mode is needed to select the strategy class
+            if self.habitat_segmentation is None or self.habitat_segmentation.clustering_mode is None:
                 raise ValueError(
-                    "HabitatSegmentation.clustering_mode is required in predict mode "
+                    "habitat_segmentation.clustering_mode is required in predict mode "
                     "to select the correct strategy class. "
                     "You can provide a minimal config with only clustering_mode, e.g.:\n"
-                    "HabitatSegmentation:\n"
+                    "habitat_segmentation:\n"
                     "  clustering_mode: one_step  # or two_step, direct_pooling"
                 )
 
@@ -285,12 +285,12 @@ class HabitatAnalysisConfig(BaseConfig):
         # can produce inconsistent columns across subjects, which may introduce
         # heavy NaN after cross-subject concatenation.
         if (
-            self.HabitatSegmentation is not None
-            and self.HabitatSegmentation.clustering_mode == 'two_step'
-            and self.FeatureConstruction is not None
-            and self.FeatureConstruction.preprocessing_for_subject_level is not None
+            self.habitat_segmentation is not None
+            and self.habitat_segmentation.clustering_mode == 'two_step'
+            and self.feature_construction is not None
+            and self.feature_construction.preprocessing_for_subject_level is not None
         ):
-            subject_methods = self.FeatureConstruction.preprocessing_for_subject_level.methods
+            subject_methods = self.feature_construction.preprocessing_for_subject_level.methods
             dropping_methods = {
                 method.method
                 for method in subject_methods
@@ -313,13 +313,13 @@ class HabitatAnalysisConfig(BaseConfig):
         ``effective_individual_clustering_random_state`` instead.
 
         Returns:
-            int: Effective random seed from ``HabitatSegmentation.supervoxel``.
+            int: Effective random seed from ``habitat_segmentation.supervoxel``.
         """
         from habit.utils.random_utils import resolve_random_state
 
         explicit: Optional[int] = None
-        if self.HabitatSegmentation is not None:
-            explicit = self.HabitatSegmentation.supervoxel.random_state
+        if self.habitat_segmentation is not None:
+            explicit = self.habitat_segmentation.supervoxel.random_state
         return resolve_random_state(explicit, self.random_state)
 
     def effective_habitat_random_state(self) -> int:
@@ -332,8 +332,8 @@ class HabitatAnalysisConfig(BaseConfig):
         from habit.utils.random_utils import resolve_random_state
 
         explicit: Optional[int] = None
-        if self.HabitatSegmentation is not None:
-            explicit = self.HabitatSegmentation.habitat.random_state
+        if self.habitat_segmentation is not None:
+            explicit = self.habitat_segmentation.habitat.random_state
         return resolve_random_state(explicit, self.random_state)
 
     def effective_individual_clustering_random_state(self) -> int:
@@ -350,10 +350,10 @@ class HabitatAnalysisConfig(BaseConfig):
         """
         from habit.utils.random_utils import resolve_random_state_chain
 
-        if self.HabitatSegmentation is None:
+        if self.habitat_segmentation is None:
             return resolve_random_state_chain(global_seed=self.random_state)
 
-        seg = self.HabitatSegmentation
+        seg = self.habitat_segmentation
         if seg.clustering_mode == "one_step":
             return resolve_random_state_chain(
                 seg.habitat.random_state,
@@ -396,7 +396,7 @@ class VoxelLevelConfig(BaseModel):
 
 def _validate_use_supervoxel_cext_value(value: object) -> None:
     """
-    Validate ``useSupervoxelCext`` when present under ``supervoxel_level.params``.
+    Validate ``use_supervoxel_cext`` when present under ``supervoxel_level.params``.
 
     Args:
         value: Raw YAML value (bool or str).
@@ -409,7 +409,7 @@ def _validate_use_supervoxel_cext_value(value: object) -> None:
     if isinstance(value, str) and value.lower() in ("auto", "true", "false"):
         return
     raise ValueError(
-        "FeatureConstruction.supervoxel_level.params.useSupervoxelCext must be "
+        "feature_construction.supervoxel_level.params.use_supervoxel_cext must be "
         "auto, true, or false (bool or str)."
     )
 
@@ -421,11 +421,11 @@ class SupervoxelLevelConfig(BaseModel):
         default_factory=dict,
         description=(
             "Parameters for the supervoxel-level feature aggregator. "
-            "For supervoxel_radiomics, habit keys include params_file, supervoxelBatch "
-            "(default 64), supervoxelUnionBboxCrop (default true), supervoxelPadDistance, "
-            "useSupervoxelCext (default auto: native C extension when built; false forces "
-            "Torch/PyRadiomics stacked-matrix path), useTorchRadiomics, torchGpus, "
-            "torchGpuCount, torchDevice, and torchDtype (torch keys may inherit from "
+            "For supervoxel_radiomics, habit keys include params_file, supervoxel_batch "
+            "(default 64), supervoxel_union_bbox_crop (default true), supervoxel_pad_distance, "
+            "use_supervoxel_cext (default auto: native C extension when built; false forces "
+            "Torch/PyRadiomics stacked-matrix path), use_torch_radiomics, torch_gpus, "
+            "torch_gpu_count, torch_device, and torch_dtype (torch keys may inherit from "
             "voxel_level.params)."
         ),
     )
@@ -433,10 +433,10 @@ class SupervoxelLevelConfig(BaseModel):
     @field_validator("params")
     @classmethod
     def validate_supervoxel_params(cls, value: Dict[str, Any]) -> Dict[str, Any]:
-        """Reject invalid useSupervoxelCext values early at config load time."""
+        """Reject invalid use_supervoxel_cext values early at config load time."""
         if not value:
             return value
-        flag = value.get("useSupervoxelCext")
+        flag = value.get("use_supervoxel_cext")
         if flag is not None:
             _validate_use_supervoxel_cext_value(flag)
         return value
@@ -609,10 +609,10 @@ class ResultColumns:
     This avoids magic strings across the codebase and keeps feature/metadata
     column handling consistent in all pipeline steps and managers.
     """
-    SUBJECT = "Subject"
-    SUPERVOXEL = "Supervoxel"
-    COUNT = "Count"
-    HABITATS = "Habitats"
+    SUBJECT = "subject"
+    SUPERVOXEL = "supervoxel"
+    COUNT = "count"
+    HABITATS = "habitats"
     
     # Suffix for original (non-processed) feature columns
     ORIGINAL_SUFFIX = "-original"
@@ -650,8 +650,22 @@ class ResultColumns:
 class FeatureExtractionConfig(BaseConfig):
     """Configuration for habitat feature extraction workflow."""
     
-    params_file_of_non_habitat: str = Field(..., description="Path to radiomics params file for original images")
-    params_file_of_habitat: str = Field(..., description="Path to radiomics params file for habitat maps")
+    params_file_of_non_habitat: Optional[str] = Field(
+        None,
+        description=(
+            "Path to radiomics params file for original images. Optional: when "
+            "omitted, HABIT falls back to the bundled 'roi' preset. Accepts an "
+            "'@preset:<key>' reference too."
+        ),
+    )
+    params_file_of_habitat: Optional[str] = Field(
+        None,
+        description=(
+            "Path to radiomics params file for habitat maps. Optional: when "
+            "omitted, HABIT falls back to the bundled 'habitat' preset. Accepts "
+            "an '@preset:<key>' reference too."
+        ),
+    )
     
     raw_img_folder: str = Field(..., description="Directory containing raw images")
     habitats_map_folder: str = Field(..., description="Directory containing habitat maps")
@@ -671,7 +685,14 @@ class FeatureExtractionConfig(BaseConfig):
 
 class PathsConfig(BaseModel):
     """Paths configuration for radiomics extraction."""
-    params_file: str = Field(..., description="Path to pyradiomics parameter file")
+    params_file: Optional[str] = Field(
+        None,
+        description=(
+            "Path to PyRadiomics parameter file. Optional: when omitted, HABIT "
+            "falls back to the bundled 'roi' preset (habit/resources/radiomics/"
+            "parameter.yaml). Accepts an '@preset:<key>' reference too."
+        ),
+    )
     images_folder: str = Field(..., description="Root directory containing images/ and masks/ subdirectories")
     out_dir: str = Field(..., description="Output directory for extracted features")
 

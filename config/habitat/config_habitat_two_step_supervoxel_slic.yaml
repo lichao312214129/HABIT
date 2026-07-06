@@ -14,15 +14,11 @@ run_mode: train
 data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_two_step_supervoxel_slic
 #%%================================================================================
-FeatureConstruction:
+feature_construction:
   voxel_level:
     method: concat(voxel_radiomics(delay2), voxel_radiomics(delay3))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 3
-      voxelBatch: 1000
-      useTorchRadiomics: auto
-      torchGpus: []
+    params: {}
+    # Defaults: bundled CT R3B12 preset + kernel_radius 3 + voxel_batch 1000 + use_torch_radiomics auto
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
@@ -49,7 +45,7 @@ FeatureConstruction:
         global_normalize: false
       - method: minmax
         global_normalize: false
-HabitatSegmentation:
+habitat_segmentation:
   clustering_mode: two_step
   supervoxel:
     algorithm: slic

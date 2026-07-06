@@ -28,7 +28,7 @@ out_dir: ../../demo_data/results/preprocessing_n4_resample_registration       # 
 
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   # 1) N4 偏置场校正（仅 MRI 需要；CT 一般不用）
   n4_correction:
     images: [delay2, delay3, delay5]   # 要校正的模态键

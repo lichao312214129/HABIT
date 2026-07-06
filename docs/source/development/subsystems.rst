@@ -38,7 +38,7 @@
 流水线编排：三种聚类策略
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``HabitatAnalysis`` 依据配置 ``HabitatSegmentation.clustering_mode`` 选择不同的步骤序列。
+``HabitatAnalysis`` 依据配置 ``habitat_segmentation.clustering_mode`` 选择不同的步骤序列。
 三种策略的映射写在模块级 ``_PIPELINE_RECIPES``\ （单一事实来源），分别由
 ``_build_two_step_steps`` / ``_build_one_step_steps`` / ``_build_pooling_steps`` 构建。
 

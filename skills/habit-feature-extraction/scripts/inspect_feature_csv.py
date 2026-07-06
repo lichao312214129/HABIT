@@ -12,7 +12,7 @@ Purpose:
 
 Usage:
     python inspect_feature_csv.py <csv_path>
-    python inspect_feature_csv.py <csv_path> --subject-id-col subjID --label-col label
+    python inspect_feature_csv.py <csv_path> --subject-id-col subject_id --label-col label
     python inspect_feature_csv.py <csv_path> --json
 
 Exit codes:

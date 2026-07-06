@@ -91,7 +91,7 @@ def _modalities_for_print(config: PreprocessingConfig) -> Tuple[List[str], Optio
     Prefer modalities from the registration step (matches fixed/moving setup);
     otherwise use the first available step with a non-empty ``images`` list.
     """
-    pp = config.Preprocessing
+    pp = config.preprocessing
     reg = pp.get("registration")
     if reg is not None and reg.images:
         fixed = getattr(reg, "fixed_image", None)
@@ -133,7 +133,7 @@ def main() -> None:
         sys.exit(1)
 
     # Optional: show reorientation target from config (no file I/O)
-    reo = cfg.Preprocessing.get("reorientation")
+    reo = cfg.preprocessing.get("reorientation")
     target_ori = getattr(reo, "target_orientation", None) if reo is not None else None
     reo_mode = getattr(reo, "mode", None) if reo is not None else None
 

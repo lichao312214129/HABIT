@@ -18,7 +18,7 @@ isn't installed.
 
 **Cause**: Required key missing under a method block.
 
-**Fix**: Every method block under `Preprocessing:` must list `images:`.
+**Fix**: Every method block under `preprocessing:` must list `images:`.
 For `registration:`, both `fixed_image:` and `moving_images:` are mandatory.
 
 ## Symptom: `RuntimeError: Inputs do not occupy the same physical space`
@@ -29,7 +29,7 @@ For `registration:`, both `fixed_image:` and `moving_images:` are mandatory.
 should be resampled to the same `target_spacing` first:
 
 ```yaml
-Preprocessing:
+preprocessing:
   resample:
     images: [T1, T2, DWI, ADC]
     target_spacing: [1.0, 1.0, 1.0]

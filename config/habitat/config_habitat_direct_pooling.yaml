@@ -11,7 +11,7 @@ pipeline_path:
 data_dir: file_habitat_demo.yaml
 out_dir: ../../demo_data/results/habitat_direct_pooling
 #%%================================================================================
-FeatureConstruction:
+feature_construction:
   voxel_level:
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
@@ -28,7 +28,7 @@ FeatureConstruction:
         n_bins: 10
         bin_strategy: uniform
         global_normalize: false
-HabitatSegmentation:
+habitat_segmentation:
   clustering_mode: direct_pooling
   habitat:
     algorithm: kmeans

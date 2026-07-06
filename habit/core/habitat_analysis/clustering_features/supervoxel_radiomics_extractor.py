@@ -44,7 +44,9 @@ from .batched_supervoxel_radiomics import (
     extract_supervoxel_features_pyradiomics,
 )
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 from .supervoxel_radiomics_settings import merge_supervoxel_settings
+from habit.utils.radiomics_preset_utils import resolve_params_file
 
 logger = get_module_logger(__name__)
 
@@ -157,16 +159,41 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
     are available, using the same backend resolution as voxel_radiomics.
     """
 
+    # DSL contract: supervoxel_radiomics(<modality>, params_file, ...).
+    # ``params_file`` is optional and falls back to the bundled full-set
+    # supervoxel preset; batch/backend knobs carry defaults so users may omit them.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={
+            "supervoxel_batch": DEFAULT_SUPERVOXEL_BATCH,
+            "use_supervoxel_cext": "auto",
+            "supervoxel_union_bbox_crop": True,
+            "use_torch_radiomics": "auto",
+        },
+        default_params_file_preset="supervoxel",
+        takes_image=True,
+    )
+
     def __init__(self, params_file: str = None, **kwargs):
         """
         Initialize supervoxel radiomics feature extractor.
 
+        Resolve ``params_file`` explicitly: a user-provided path (or ``@preset:*``
+        reference) wins; when omitted, fall back to the bundled full-set
+        supervoxel preset so ``params_file`` can be omitted by the user.
+
         Args:
-            params_file: Path to PyRadiomics parameter file or YAML string containing parameters
-            **kwargs: Additional parameters
+            params_file: Path to PyRadiomics parameter file, ``@preset:*`` ref,
+                inline YAML string, or None to use the bundled supervoxel preset.
+            **kwargs: Additional parameters.
         """
         super().__init__(**kwargs)
-        self.params_file = params_file
+        # Keep inline-YAML strings (legacy) untouched: only resolve when the value
+        # is missing/empty or an explicit preset reference; otherwise user wins.
+        self.params_file = resolve_params_file(
+            params_file,
+            preset=self.method_param_spec.default_params_file_preset or "supervoxel",
+        )
         self.feature_names: List[str] = []
 
     def extract_features(
@@ -183,10 +210,10 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             image_data: Path to image file or SimpleITK image object
             supervoxel_map: Path to supervoxel map file or SimpleITK image object
             config_file: Path to PyRadiomics parameter file (overrides the one in constructor)
-            **kwargs: Optional keys — ``subject``, ``image``, ``useTorchRadiomics``,
-                ``torchDevice``, ``torchGpus``, ``torchGpuCount``, ``gpuSlotIndex``,
-                ``torchDtype``, ``supervoxelBatch``, ``supervoxelUnionBboxCrop``,
-                ``useSupervoxelCext``, ``supervoxelPadDistance``, ``output_float32``.
+            **kwargs: Optional keys — ``subject``, ``image``, ``use_torch_radiomics``,
+                ``torch_device``, ``torch_gpus``, ``torch_gpu_count``, ``gpu_slot_index``,
+                ``torch_dtype``, ``supervoxel_batch``, ``supervoxel_union_bbox_crop``,
+                ``use_supervoxel_cext``, ``supervoxel_pad_distance``, ``output_float32``.
 
         Returns:
             pd.DataFrame: DataFrame with radiomics features for each supervoxel
@@ -226,14 +253,14 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                 f"Failed to initialize radiomics extractor with {params_file}: {exc}"
             ) from exc
 
-        use_torch_setting: str = str(kwargs.get("useTorchRadiomics", "auto"))
+        use_torch_setting: str = str(kwargs.get("use_torch_radiomics", "auto"))
         backend, torch_device = resolve_voxel_radiomics_backend(
             use_torch_radiomics=use_torch_setting,
-            torch_device=kwargs.get('torchDevice', 'auto'),
-            torch_gpus=kwargs.get('torchGpus'),
-            torch_gpu_count=kwargs.get('torchGpuCount'),
+            torch_device=kwargs.get('torch_device', 'auto'),
+            torch_gpus=kwargs.get('torch_gpus'),
+            torch_gpu_count=kwargs.get('torch_gpu_count'),
             subject=kwargs.get('subject', subject_id),
-            gpu_slot_index=kwargs.get('gpuSlotIndex'),
+            gpu_slot_index=kwargs.get('gpu_slot_index'),
         )
         settings_update: Dict[str, object] = {
             'geometryTolerance': 1e-3,
@@ -241,25 +268,25 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         if backend == "torch" and torch_device is not None:
             settings_update['device'] = torch_device
             settings_update['dtype'] = resolve_torch_dtype(
-                kwargs.get('torchDtype', DEFAULT_TORCH_DTYPE)
+                kwargs.get('torch_dtype', DEFAULT_TORCH_DTYPE)
             )
             if str(torch_device).startswith("cuda"):
                 logger.info(
                     "supervoxel_radiomics extraction using TorchRadiomics GPU: "
-                    "subject=%s image=%s useTorchRadiomics=%s device=%s "
-                    "torchGpus=%s torchGpuCount=%s dtype=%s",
+                    "subject=%s image=%s use_torch_radiomics=%s device=%s "
+                    "torch_gpus=%s torch_gpu_count=%s dtype=%s",
                     subject_id,
                     img_name,
                     use_torch_setting,
                     torch_device,
-                    kwargs.get("torchGpus"),
-                    kwargs.get("torchGpuCount"),
-                    kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE),
+                    kwargs.get("torch_gpus"),
+                    kwargs.get("torch_gpu_count"),
+                    kwargs.get("torch_dtype", DEFAULT_TORCH_DTYPE),
                 )
             else:
                 logger.info(
                     "supervoxel_radiomics extraction using TorchRadiomics CPU: "
-                    "subject=%s image=%s useTorchRadiomics=%s device=%s",
+                    "subject=%s image=%s use_torch_radiomics=%s device=%s",
                     subject_id,
                     img_name,
                     use_torch_setting,
@@ -268,7 +295,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         else:
             logger.info(
                 "supervoxel_radiomics extraction using CPU PyRadiomics: "
-                "subject=%s image=%s useTorchRadiomics=%s",
+                "subject=%s image=%s use_torch_radiomics=%s",
                 subject_id,
                 img_name,
                 use_torch_setting,
@@ -319,15 +346,15 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         n_succeeded: int = 0
         n_failed: int = 0
         extraction_started_at = time.monotonic()
-        supervoxel_batch: int = int(kwargs.get("supervoxelBatch", DEFAULT_SUPERVOXEL_BATCH))
+        supervoxel_batch: int = int(kwargs.get("supervoxel_batch", DEFAULT_SUPERVOXEL_BATCH))
         radiomics_settings = merge_supervoxel_settings(extractor.settings, kwargs)
         matrix_backend = supervoxel_cext_matrix_backend_label(radiomics_settings)
-        use_supervoxel_cext_flag = radiomics_settings.get("useSupervoxelCext", "auto")
+        use_supervoxel_cext_flag = radiomics_settings.get("use_supervoxel_cext", "auto")
 
         if matrix_backend == "habit_native_c":
             logger.info(
                 "supervoxel_radiomics habit native C extension ENABLED: subject=%s image=%s "
-                "useSupervoxelCext=%s module=supervoxel_cext._sv_cmatrices",
+                "use_supervoxel_cext=%s module=supervoxel_cext._sv_cmatrices",
                 subject_id,
                 img_name,
                 use_supervoxel_cext_flag,
@@ -335,7 +362,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         elif matrix_backend == "habit_fallback_cmatrices":
             logger.warning(
                 "supervoxel_radiomics habit C extension requested but not built: "
-                "subject=%s image=%s useSupervoxelCext=%s native_available=%s. "
+                "subject=%s image=%s use_supervoxel_cext=%s native_available=%s. "
                 "Run: pip install -e .",
                 subject_id,
                 img_name,
@@ -345,11 +372,11 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
 
         logger.info(
             "supervoxel_radiomics union-mask binning enabled: subject=%s image=%s "
-            "supervoxelBatch=%d union_bbox_crop=%s matrix_backend=%s",
+            "supervoxel_batch=%d union_bbox_crop=%s matrix_backend=%s",
             subject_id,
             img_name,
             supervoxel_batch,
-            radiomics_settings.get("supervoxelUnionBboxCrop", True),
+            radiomics_settings.get("supervoxel_union_bbox_crop", True),
             matrix_backend,
         )
 
@@ -368,7 +395,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
                         settings=radiomics_settings,
                         device=str(torch_device),
                         dtype_name=str(
-                            kwargs.get("torchDtype", DEFAULT_TORCH_DTYPE)
+                            kwargs.get("torch_dtype", DEFAULT_TORCH_DTYPE)
                         ),
                         batch_size=supervoxel_batch,
                     )
@@ -387,7 +414,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
 
         if not feature_df.empty:
             self.feature_names = [
-                col for col in feature_df.columns if col != "SupervoxelID"
+                col for col in feature_df.columns if col != "supervoxel_id"
             ]
             numeric_cols = [col for col in self.feature_names]
             if numeric_cols:
@@ -401,11 +428,11 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             n_failed = n_supervoxels
 
         for col in feature_df.columns:
-            if col != 'SupervoxelID':
+            if col != 'supervoxel_id':
                 feature_df[col] = pd.to_numeric(feature_df[col], errors='coerce')
 
         if kwargs.get("output_float32", True):
-            numeric_cols = [col for col in feature_df.columns if col != "SupervoxelID"]
+            numeric_cols = [col for col in feature_df.columns if col != "supervoxel_id"]
             if numeric_cols:
                 feature_df[numeric_cols] = feature_df[numeric_cols].astype(np.float32)
 

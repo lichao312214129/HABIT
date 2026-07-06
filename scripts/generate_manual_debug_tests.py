@@ -86,8 +86,8 @@ SUPERVOXEL_BLOCK = """  supervoxel:
 
 SUPERVOXEL_PARAMS = """    params:
       params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
+      supervoxel_union_bbox_crop: true
+      use_supervoxel_cext: auto
 """
 
 FEATURE: dict[str, dict[str, str]] = {
@@ -99,27 +99,22 @@ FEATURE: dict[str, dict[str, str]] = {
         "group_pre": PREPROCESS_GROUP_BIN,
     },
     "voxel_radiomics": {
-        "title": "voxel texture — voxel_radiomics(T2, params_file, kernelRadius)",
+        "title": "voxel texture — voxel_radiomics(T2)",
         "title_cn": "体素纹理（影像组学）特征",
-        "voxel": """    method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 1
-      voxelBatch: 1000
-      useTorchRadiomics: auto""",
+        "voxel": """    method: concat(voxel_radiomics(T2))
+    params: {}""",
         "super": "    method: mean_voxel_features()",
         "group_pre": PREPROCESS_GROUP_VAR,
     },
     "supervoxel_radiomics": {
-        "title": "supervoxel texture — supervoxel_radiomics(T2, params_file)",
+        "title": "supervoxel texture — supervoxel_radiomics(T2, ...)",
         "title_cn": "超体素纹理（影像组学）特征",
         "voxel": "    method: concat(raw(T1), raw(T2))\n    params: {}",
-        "super": """    method: concat(supervoxel_radiomics(T2, params_file))
+        "super": """    method: concat(supervoxel_radiomics(T2, supervoxel_union_bbox_crop, use_supervoxel_cext))
     params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
-      useTorchRadiomics: auto""",
+      supervoxel_union_bbox_crop: true
+      use_supervoxel_cext: auto
+      # params_file omitted -> bundled full-set preset""",
         "group_pre": PREPROCESS_GROUP_VAR,
     },
 }
@@ -359,7 +354,7 @@ def _habitat_yaml(mode_key: str, feat_key: str, run_mode: str) -> tuple[str, str
             f"out_dir: {out_dir}",
             MARKER,
             "",
-            "FeatureConstruction:",
+            "feature_construction:",
             "  voxel_level:",
             feat_cfg["voxel"],
         ]
@@ -381,7 +376,7 @@ def _habitat_yaml(mode_key: str, feat_key: str, run_mode: str) -> tuple[str, str
             PREPROCESS_SUBJECT,
             feat_cfg["group_pre"],
             "",
-            "HabitatSegmentation:",
+            "habitat_segmentation:",
             f"  clustering_mode: {clustering}",
             "",
             SUPERVOXEL_BLOCK,
@@ -458,7 +453,7 @@ out_dir: ../../demo_data/results/preprocessing_resample_only
 
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   resample:
     images: [T1, T2]
     target_spacing: [2.0, 2.0, 2.0]
@@ -489,7 +484,7 @@ out_dir: ../../demo_data/results/preprocessing_n4_resample_registration
 
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   n4_correction:
     images: [T1, T2]
     num_fitting_levels: 2
@@ -531,7 +526,7 @@ out_dir: ../../demo_data/results/preprocessing_resample_02
 
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   resample:
     images: [T1, T2]
     target_spacing: [2.0, 2.0, 2.0]
@@ -777,10 +772,10 @@ def main() -> None:
         tmp = Path(tmpdir)
         file1 = tmp / "part_a.csv"
         file2 = tmp / "part_b.csv"
-        pd.DataFrame({"subjID": ["sub1", "sub2"], "feature_a": [1.0, 2.0]}).to_csv(
+        pd.DataFrame({"subject_id": ["sub1", "sub2"], "feature_a": [1.0, 2.0]}).to_csv(
             file1, index=False
         )
-        pd.DataFrame({"subjID": ["sub1", "sub2"], "feature_b": [10.0, 20.0]}).to_csv(
+        pd.DataFrame({"subject_id": ["sub1", "sub2"], "feature_b": [10.0, 20.0]}).to_csv(
             file2, index=False
         )
         try:
@@ -792,7 +787,7 @@ def main() -> None:
                 "-o",
                 str(out_path),
                 "--index-col",
-                "subjID",
+                "subject_id",
                 *sys.argv[1:],
             ]
             cli()

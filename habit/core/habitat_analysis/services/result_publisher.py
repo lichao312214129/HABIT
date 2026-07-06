@@ -88,7 +88,7 @@ class HabitatResultPublisher:
         )
 
     def _write_images_if_enabled(self, results_df: pd.DataFrame) -> None:
-        clustering_mode = self.config.HabitatSegmentation.clustering_mode
+        clustering_mode = self.config.habitat_segmentation.clustering_mode
         if clustering_mode == 'one_step':
             if self.config.verbose:
                 self.logger.info(

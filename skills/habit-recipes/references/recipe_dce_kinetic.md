@@ -20,7 +20,7 @@ timestamps Excel file.
 
 1. **Timestamps Excel format**:
    ```
-   subjID | pre_contrast | LAP | PVP | delay_3min
+   subject_id | pre_contrast | LAP | PVP | delay_3min
    sub001 | 0.0          | 0.5 | 1.5 | 3.0
    sub002 | 0.0          | 0.4 | 1.6 | 3.0
    ```
@@ -54,7 +54,7 @@ habit merge-csv <HABITAT_OUT>/features/whole_habitat_radiomics.csv \
   <HABITAT_OUT>/features/msi_features.csv \
   <HABITAT_OUT>/features/ith_scores.csv \
   <CLINICAL_CSV> \
-  -o configs/ml_input.csv --index-col subjID
+  -o configs/ml_input.csv --index-col subject_id
 
 habit model --config configs/04_ml_train.yaml --mode train
 ```

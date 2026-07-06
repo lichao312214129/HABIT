@@ -636,8 +636,8 @@ class BaseClustering(ABC):
             for method in valid_methods:
                 if show_progress:
                     message = f"{method.capitalize()} calculation completed (parallel)!"
-                if logger is not None:
-                    logger.info(message)
+                    if logger is not None:
+                        logger.info(message)
             methods = valid_methods
         else:
             for method in methods:
@@ -654,8 +654,8 @@ class BaseClustering(ABC):
                     if scores is None:
                         if show_progress:
                             message = f"{method.capitalize()} skipped (not applicable to this algorithm)"
-                if logger is not None:
-                    logger.info(message)
+                            if logger is not None:
+                                logger.info(message)
                         continue
 
                     self.scores[method] = scores
@@ -663,8 +663,8 @@ class BaseClustering(ABC):
 
                     if show_progress:
                         message = f"{method.capitalize()} calculation completed!"
-                if logger is not None:
-                    logger.info(message)
+                        if logger is not None:
+                            logger.info(message)
 
             methods = valid_methods
 
@@ -697,8 +697,8 @@ class BaseClustering(ABC):
                 "Automatically selected best number of clusters: "
                 f"{best_n_clusters} (index={best_idx})"
             )
-                if logger is not None:
-                    logger.info(message)
+            if logger is not None:
+                logger.info(message)
 
         self._finish_cluster_search_logging(best_n_clusters, show_progress, logger)
         

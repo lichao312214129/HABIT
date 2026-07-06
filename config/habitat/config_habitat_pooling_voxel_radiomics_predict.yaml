@@ -6,8 +6,8 @@
 #
 # Purpose:
 #   Direct pooling (pool all voxels, cluster once)
-#   Feature: voxel texture — voxel_radiomics(delay2, params_file, kernelRadius)
-#   CT defaults (R3B12): kernelRadius 3, params binWidth 12 — Petersen et al., Radiol Artif Intell 2024;6(2):e230118
+#   Feature: voxel texture — voxel_radiomics(delay2)  (CT R3B12 defaults)
+#   CT defaults (R3B12): kernel_radius 3, params binWidth 12 — Petersen et al., Radiol Artif Intell 2024;6(2):e230118
 #   Demo data: demo_data/preprocessed/processed_images (keys: delay2/delay3/delay5; images/ + masks/ under data_dir root)
 #
 # Must-edit keys: wrapped in #%%================================================================================ pairs (config/README_CONFIG.md)
@@ -20,21 +20,15 @@ pipeline_path: ../../demo_data/results/habitat_pooling_voxel_radiomics/habitat_p
 data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_pooling_voxel_radiomics/predict
 #%%================================================================================
-FeatureConstruction:
+feature_construction:
   voxel_level:
-    method: concat(voxel_radiomics(delay2, params_file, kernelRadius))
-    params:
-      params_file: ../radiomics/params_voxel_radiomics.yaml
-      kernelRadius: 3
-      voxelBatch: 1000
-      useTorchRadiomics: auto
+    method: concat(voxel_radiomics(delay2))
+    params: {}
+    # Defaults: bundled CT R3B12 preset (params_file) + kernel_radius 3 + voxel_batch 1000 + use_torch_radiomics auto
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     method: mean_voxel_features()
-    params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
+    params: {}
   preprocessing_for_subject_level:
     # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
@@ -58,7 +52,7 @@ FeatureConstruction:
         global_normalize: false
       - method: minmax
         global_normalize: false
-HabitatSegmentation:
+habitat_segmentation:
   clustering_mode: direct_pooling
   supervoxel:
     algorithm: kmeans

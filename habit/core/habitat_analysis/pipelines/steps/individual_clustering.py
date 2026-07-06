@@ -106,10 +106,10 @@ class IndividualClusteringStep(IndividualLevelStep):
         and the one-step configuration block.
         """
         if self.target == 'supervoxel':
-            return self.config.HabitatSegmentation.supervoxel.n_clusters
+            return self.config.habitat_segmentation.supervoxel.n_clusters
 
         # target == 'habitat' (one-step mode)
-        one_step_cfg = self.config.HabitatSegmentation.supervoxel.one_step_settings
+        one_step_cfg = self.config.habitat_segmentation.supervoxel.one_step_settings
 
         if one_step_cfg.fixed_n_clusters is not None:
             return one_step_cfg.fixed_n_clusters
@@ -124,7 +124,7 @@ class IndividualClusteringStep(IndividualLevelStep):
                 mask_info=mask_info,
             )
         # Fall back to supervoxel n_clusters when one-step is not set up to find optimal.
-        return self.config.HabitatSegmentation.supervoxel.n_clusters
+        return self.config.habitat_segmentation.supervoxel.n_clusters
 
     def _save_label_image(self, subject_id: str, labels: np.ndarray, mask_info: Any) -> None:
         if self.target == 'supervoxel':
@@ -171,9 +171,9 @@ class IndividualClusteringStep(IndividualLevelStep):
             return labels
 
         if self.target == "supervoxel":
-            pp_cfg = self.config.HabitatSegmentation.postprocess_supervoxel
+            pp_cfg = self.config.habitat_segmentation.postprocess_supervoxel
         else:
-            pp_cfg = self.config.HabitatSegmentation.postprocess_habitat
+            pp_cfg = self.config.habitat_segmentation.postprocess_habitat
 
         if not pp_cfg.enabled:
             return labels

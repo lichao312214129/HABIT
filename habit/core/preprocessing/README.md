@@ -11,7 +11,7 @@ data_dir: ./files_preprocessing.yaml
 out_dir: ./preprocessed
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   n4_correction:
     images: [t1, t2]
     num_fitting_levels: 4

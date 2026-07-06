@@ -11,7 +11,7 @@ data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ~/habit_data/results/preprocessed
 auto_select_first_file: true
 # Step order in YAML = execution order: resample -> registration -> zscore_normalization
-Preprocessing:
+preprocessing:
   resample:
     images: [delay2, delay3, delay5]
     target_spacing: [3.0, 3.0, 3.0]

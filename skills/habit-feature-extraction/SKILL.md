@@ -23,7 +23,7 @@ habit extract --config <config_extract_features.yaml>
 | `out_dir` | where CSVs land |
 | `feature_types` | what to extract (see table below) |
 | `habitat_pattern` | `*_habitats.nrrd` for one_step, `*_habitats_remapped.nrrd` for two_step |
-| `params_file_of_*` | required only if extracting radiomics-based features |
+| `params_file_of_*` | optional for radiomics types; omit → bundled `roi` / `habitat` presets |
 
 ## Feature types
 
@@ -46,26 +46,26 @@ habit extract --config <config_extract_features.yaml>
 
 ## PyRadiomics parameter files
 
-When using radiomics-based feature types, two params files are required:
+When using radiomics-based feature types, you may omit both keys to use bundled presets
+(`parameter.yaml` for non-habitat, `parameter_habitat.yaml` for habitat maps). Override
+with repo paths or custom YAML when needed:
 
 ```yaml
-params_file_of_non_habitat: ./config/radiomics/parameter.yaml         # for traditional
-params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml     # for whole/each habitat
+# Optional — omit both for bundled defaults
+# params_file_of_non_habitat: ./config/radiomics/parameter.yaml
+# params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml
 ```
 
 PyRadiomics starter YAMLs (copy or reference by path):
 - `config/radiomics/parameter_basic.yaml` — Original only, ~70 features
 - `config/radiomics/parameter_with_filters.yaml` — + LoG + Wavelet, ~1500 features
 
-Even when not using radiomics types, both keys must exist in the config
-(point them at any valid YAML to satisfy parsing).
+When not using radiomics types, omit `params_file_of_*` entirely (no placeholder needed).
 
 ## Standard config
 
 ```yaml
-params_file_of_non_habitat: ./config/radiomics/parameter.yaml
-params_file_of_habitat: ./config/radiomics/parameter_habitat.yaml
-
+# params_file_of_* omitted → bundled presets
 raw_img_folder: ./data/preprocessed_images
 habitats_map_folder: ./results/habitat_analysis
 out_dir: ./results/features
@@ -100,8 +100,8 @@ Full annotated reference: `config/feature_extraction/config_extract_features.yam
 
 ## Voxel-based GLCM defaults (`voxel_radiomics` only)
 
-Voxel radiomics uses local neighborhoods (`kernelRadius=3` → 7×7×7 for CT R3B12 preset;
-`kernelRadius=1` → 3×3×3). Many voxels
+Voxel radiomics uses local neighborhoods (`kernel_radius=3` → 7×7×7 for CT R3B12 preset;
+`kernel_radius=1` → 3×3×3). Many voxels
 produce **degenerate GLCM matrices** (flat patches). If `params_file` enables
 `glcm:` **without listing feature names**, PyRadiomics computes all 24 GLCM
 features; **MCC, Imc1, Imc2** then fail (CUDA/MKL `eigvals` crash or NaN).
@@ -114,30 +114,30 @@ warning only).
 **Recommended**: point `params_file` at `config/radiomics/params_voxel_radiomics.yaml`.
 Do **not** reuse whole-tumor `parameter.yaml` with bare `glcm:` for voxel mode.
 
-## Voxel batch size (`voxelBatch`)
+## Voxel batch size (`voxel_batch`)
 
-`FeatureConstruction.voxel_level.params.voxelBatch` controls how many ROI voxels
+`feature_construction.voxel_level.params.voxel_batch` controls how many ROI voxels
 PyRadiomics processes per batch during `voxel_radiomics`. Habit default is `1000`.
 Use `-1` to process all ROI voxels at once (PyRadiomics native, no batching).
 For large ROIs or GPU/torch paths, users may set a lower positive value (e.g. `512`)
 to cap peak memory. These params are forwarded even when omitted from the `method`
 expression string.
 
-## TorchRadiomics acceleration (`useTorchRadiomics`)
+## TorchRadiomics acceleration (`use_torch_radiomics`)
 
-Optional in-tree TorchRadiomics injection is controlled by `useTorchRadiomics`:
+Optional in-tree TorchRadiomics injection is controlled by `use_torch_radiomics`:
 - `auto` (default): use torch+CUDA when available, else CPU PyRadiomics
 - `true`: require torch (fail if missing)
 - `false`: always CPU PyRadiomics
 
-Related params: `torchDevice` (`auto`, `cuda:0`, `cpu`), `torchDtype` (default `float32`; use `float64` for CPU parity).
+Related params: `torch_device` (`auto`, `cuda:0`, `cpu`), `torch_dtype` (default `float32`; use `float64` for CPU parity).
 Torch is **not** a core habit dependency.
 
 ## Validate output (MANDATORY after run)
 
 ```bash
 python skills/habit-feature-extraction/scripts/inspect_feature_csv.py <out_dir>/whole_habitat_radiomics.csv \
-  --subject-id-col subjID --label-col label
+  --subject-id-col subject_id --label-col label
 ```
 
 Checks for duplicate subject IDs, all-NaN columns, constant features,
@@ -173,7 +173,7 @@ For specific errors, see `habit-troubleshoot/references/errors_extraction.md`.
 
 To combine feature CSVs with clinical data into a single ML input file:
 ```bash
-habit merge-csv f1.csv f2.csv clinical.csv -o ml_input.csv --index-col subjID
+habit merge-csv f1.csv f2.csv clinical.csv -o ml_input.csv --index-col subject_id
 ```
 
 Then proceed to `habit-machine-learning`.

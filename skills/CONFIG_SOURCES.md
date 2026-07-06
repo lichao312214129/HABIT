@@ -37,31 +37,43 @@ for a full scenario index.
 
 | Profile | Reference |
 |---------|-----------|
-| package default (MRI-oriented starter) | `config/radiomics/parameter.yaml` |
-| habitat maps (when distinct) | `config/radiomics/parameter_habitat.yaml` |
+| bundled defaults (when `params_file` omitted) | `habit/resources/radiomics/` (`voxel`, `supervoxel`, `roi`, `habitat` presets) |
+| repo copies (explicit override paths) | `config/radiomics/` |
+| ROI / extract non-habitat | `parameter.yaml` (preset `roi`) |
+| habitat maps extract | `parameter_habitat.yaml` (preset `habitat`) |
 | minimal (~70 features) | `config/radiomics/parameter_basic.yaml` |
 | LoG + Wavelet (~1000+ features) | `config/radiomics/parameter_with_filters.yaml` |
-| voxel preset (`voxel_radiomics`) | `config/radiomics/params_voxel_radiomics.yaml` — explicit 21-feature GLCM list; CT R3B12: `binWidth: 12`, habitat `kernelRadius: 3` |
-| supervoxel preset | `config/radiomics/params_supervoxel_radiomics.yaml` |
+| voxel preset (`voxel_radiomics`) | `params_voxel_radiomics.yaml` — CT R3B12, 21 stable GLCM |
+| supervoxel preset | `params_supervoxel_radiomics.yaml` — full texture classes |
 
-For **`voxel_radiomics`**, use `params_voxel_radiomics.yaml` for GLCM (exclude MCC/Imc1/Imc2).
-Bare `glcm:` in a params file enables all 24 features and crashes on small kernels; HABIT
-defaults unrestricted GLCM to the same 21 features when not explicitly listed.
+**`params_file` is optional** for voxel/supervoxel radiomics, `habit radiomics` (`paths.params_file`), and `habit extract` (`params_file_of_*`). Omit to use bundled presets; override with a path or `@preset:voxel`.
 
-For **`voxel_radiomics`** in habitat configs, also set in `FeatureConstruction.voxel_level.params`:
-`kernelRadius` (recommended **3** for CT per Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118;
-code fallback 1), `voxelBatch` (default 1000; `-1` = no batching),
-`useTorchRadiomics` (default auto), `torchGpus` / `torchGpuCount`, `torchDevice`,
-and `torchDtype` (default float32). These keys are forwarded even when omitted from
-the `method` expression string.
+For **`voxel_radiomics`**, list override names in the `method` parentheses; GLCM safety rules still apply (use voxel preset or explicit 21-feature GLCM list).
 
-For **`supervoxel_radiomics`**, set in `FeatureConstruction.supervoxel_level.params`:
-`params_file` (required), `supervoxelBatch` (default 64), `useSupervoxelCext` (default auto),
+Example habitat config (minimal — all CT R3B12 defaults):
+
+```yaml
+feature_construction:
+  voxel_level:
+    method: concat(voxel_radiomics(T2))
+    params: {}
+```
+
+Override `kernel_radius` only when needed (e.g. MRI → `1`):
+
+```yaml
+    method: concat(voxel_radiomics(T2, kernel_radius))
+    params:
+      kernel_radius: 1
+```
+
+For **`supervoxel_radiomics`**, `params_file` is also optional (bundled full-set preset). Set in `feature_construction.supervoxel_level.params`:
+`supervoxel_batch` (default 64), `use_supervoxel_cext` (default auto),
 and the same torch keys as above (inherit from `voxel_level.params` when omitted). Extraction
 discretizes once on the union supervoxel mask (`sv_map > 0`), then runs per-label ROI matrices.
-With `useSupervoxelCext: auto`, habit uses the native C-extension batched matrix path when
+With `use_supervoxel_cext: auto`, habit uses the native C-extension batched matrix path when
 `_sv_cmatrices` is built; otherwise it falls back to the prior Torch/PyRadiomics stacked-matrix
-path. Torch feature evaluation still follows `useTorchRadiomics`. `kernelRadius` is **not** used
+path. Torch feature evaluation still follows `use_torch_radiomics`. `kernel_radius` is **not** used
 by `supervoxel_radiomics` (whole-ROI texture, not voxel kernel).
 
 ## Machine learning (`habit model` / `habit cv`)

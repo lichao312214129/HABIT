@@ -21,6 +21,7 @@ import pandas as pd
 from typing import List, Set, Union
 
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 
 
 @FeatureExtractorRegistry.register('concat')
@@ -31,6 +32,14 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
     This extractor works with multiple images as input and concatenates their features
     horizontally to create a combined feature matrix.
     """
+
+    # DSL contract: concat(<sub-expr>, ...) — combiner, no own parameters.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={},
+        combiner=True,
+        takes_image=False,
+    )
 
     def __init__(self, feature_extractor_name: str = 'raw', **kwargs) -> None:
         """
@@ -69,7 +78,7 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
             key = f"img{i+1}"
 
             if isinstance(values, pd.DataFrame):
-                # Drop columns that already appeared on a previous modality (e.g. SupervoxelID)
+                # Drop columns that already appeared on a previous modality (e.g. supervoxel_id)
                 # so the final table has one copy, matching incremental concat semantics.
                 if columns_so_far:
                     duplicate_cols = [
@@ -96,11 +105,11 @@ class ConcatImageFeatureExtractor(BaseClusteringExtractor):
         if image_df.empty:
             raise ValueError("No valid data found in input list")
             
-        # Ensure all feature columns (except SupervoxelID) are numeric type.
+        # Ensure all feature columns (except supervoxel_id) are numeric type.
         # pd.concat may convert numeric columns to object type in some cases.
         
         for col in image_df.columns:
-            if col != 'SupervoxelID':
+            if col != 'supervoxel_id':
                 image_df[col] = pd.to_numeric(image_df[col], errors='coerce')
         
         # Update feature names

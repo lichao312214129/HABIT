@@ -166,13 +166,13 @@ def get_image_and_mask_paths(root_folder: str, keyword_of_raw_folder: str = "ima
     # Use folder scanning logic
     return _scan_folder_for_paths(root_folder, keyword_of_raw_folder, keyword_of_mask_folder)
 
-def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
+def load_timestamp(file_path: str, subject_id_column: str = "Name") -> dict:
     """
     Load scan timestamps from Excel file
     
     Args:
         file_path (str): Path to the Excel file
-        subjID_column (str, optional): Name of the subject ID column
+        subject_id_column (str, optional): Name of the subject ID column
     
     Returns:
         dict: Dictionary with subject names as keys and timestamp lists as values
@@ -180,7 +180,7 @@ def load_timestamp(file_path: str, subjID_column: str = "Name") -> dict:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
-    df = pd.read_excel(file_path, index_col=subjID_column)
+    df = pd.read_excel(file_path, index_col=subject_id_column)
     # convert index to string
     df.index = df.index.astype(str)
     return df

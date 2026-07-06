@@ -83,15 +83,15 @@ def build_individual_stage_config_payload(
         Dictionary payload used for individual-stage config hashing.
     """
     feature_payload: Optional[Dict[str, Any]] = None
-    if config.FeatureConstruction is not None:
-        feature_dump = config.FeatureConstruction.model_dump()
+    if config.feature_construction is not None:
+        feature_dump = config.feature_construction.model_dump()
         # Group preprocessing runs in Stage 2; changing it must not invalidate pkl cache.
         feature_dump.pop("preprocessing_for_group_level", None)
         feature_payload = feature_dump
 
     habitat_seg_payload: Optional[Dict[str, Any]] = None
-    if config.HabitatSegmentation is not None:
-        hs = config.HabitatSegmentation
+    if config.habitat_segmentation is not None:
+        hs = config.habitat_segmentation
         mode = hs.clustering_mode
         habitat_seg_payload = {"clustering_mode": mode}
         if mode == "direct_pooling":
@@ -111,8 +111,8 @@ def build_individual_stage_config_payload(
 
     return {
         "data_dir": config.data_dir,
-        "FeatureConstruction": feature_payload,
-        "HabitatSegmentation": habitat_seg_payload,
+        "feature_construction": feature_payload,
+        "habitat_segmentation": habitat_seg_payload,
     }
 
 
@@ -128,14 +128,14 @@ def build_legacy_full_config_payload(config: HabitatAnalysisConfig) -> Dict[str,
     """
     return {
         "data_dir": config.data_dir,
-        "FeatureConstruction": (
-            config.FeatureConstruction.model_dump()
-            if config.FeatureConstruction is not None
+        "feature_construction": (
+            config.feature_construction.model_dump()
+            if config.feature_construction is not None
             else None
         ),
-        "HabitatSegmentation": (
-            config.HabitatSegmentation.model_dump()
-            if config.HabitatSegmentation is not None
+        "habitat_segmentation": (
+            config.habitat_segmentation.model_dump()
+            if config.habitat_segmentation is not None
             else None
         ),
     }
@@ -224,8 +224,8 @@ def build_predict_stage_config_payload(
     """
     pipeline_path = resolve_predict_pipeline_path(config)
     clustering_mode = (
-        config.HabitatSegmentation.clustering_mode
-        if config.HabitatSegmentation is not None
+        config.habitat_segmentation.clustering_mode
+        if config.habitat_segmentation is not None
         else ""
     )
     return {
@@ -312,8 +312,8 @@ def is_checkpoint_config_compatible(
             and manifest.completed_subjects
             and manifest.clustering_mode
             == (
-                config.HabitatSegmentation.clustering_mode
-                if config.HabitatSegmentation is not None
+                config.habitat_segmentation.clustering_mode
+                if config.habitat_segmentation is not None
                 else ""
             )
         ):
@@ -388,8 +388,8 @@ class HabitatTrainCheckpoint:
         else:
             self.config_hash = compute_config_hash(config)
         self.clustering_mode = (
-            config.HabitatSegmentation.clustering_mode
-            if config.HabitatSegmentation is not None
+            config.habitat_segmentation.clustering_mode
+            if config.habitat_segmentation is not None
             else ""
         )
         self.manifest = CheckpointManifest(

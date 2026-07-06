@@ -21,7 +21,7 @@ python skills/habit-quickstart/scripts/check_data_layout.py <data_dir>
 Excel.
 
 **Fix**: Open the Excel and confirm:
-- The first column header matches `subjID` (or whatever HABIT expects)
+- The first column header matches `subject_id` (or whatever HABIT expects)
 - Subject IDs are written exactly as folder names (`sub001` not `Sub001`)
 - No extra whitespace in IDs
 
@@ -31,17 +31,19 @@ Excel.
 Small kernel neighborhoods produce flat patches → degenerate GLCM → MCC/Imc1/Imc2
 fail.
 
-**Fix**: Set `params_file: ./config/radiomics/params_voxel_radiomics.yaml` or
-copy its 21-feature `glcm` list. See `habit-troubleshoot/references/errors_extraction.md`.
+**Fix**: Omit `params_file` to use the bundled CT R3B12 preset, or set an explicit path
+(e.g. `./config/radiomics/params_voxel_radiomics.yaml`) with the 21-feature `glcm` list.
+See `habit-troubleshoot/references/errors_extraction.md`.
 
 ## Symptom: `voxel_radiomics` crashes with `Failed to initialize firstorder feature class`
 
 **Cause**: PyRadiomics params file path is wrong or YAML is malformed.
 
 **Fix**:
-1. Check the `params_file:` path inside `voxel_level.params:` exists
-2. Validate YAML: `python -c "import yaml; yaml.safe_load(open('params.yaml'))"`
-3. Make sure at least one feature class is enabled in the params file
+1. If you override `params_file`, check the path inside `voxel_level.params` exists
+2. If omitted, confirm bundled preset resolves (log line: `Using radiomics preset ...`)
+3. Validate YAML: `python -c "import yaml; yaml.safe_load(open('params.yaml'))"`
+4. Make sure at least one feature class is enabled in the params file
 
 ## Symptom: cluster number is always 1 (degenerate)
 
@@ -77,7 +79,7 @@ individual_subject_auto_retry_rounds: 2  # default; 0 disables
 
 ```yaml
 processes: 1  # or 2
-cap_processes_to_gpu_pool: true  # default; caps workers to len(torchGpus) under Torch CUDA
+cap_processes_to_gpu_pool: true  # default; caps workers to len(torch_gpus) under Torch CUDA
 ```
 
 On **1 GPU + many CPUs**, if CPU steps (preprocess, clustering) are the bottleneck and GPU OOM is rare:
@@ -120,23 +122,23 @@ Check `habitat_analysis.log` for `Auto-retry round`, `MemoryError`,
 processes: 1   # or 2 for very small ROIs
 ```
 
-Also check `kernelRadius` in `FeatureConstruction.voxel_level.params` — the CT R3B12 preset
-uses `kernelRadius: 3` (7×7×7 = 343 voxels per center voxel; Petersen et al.,
-*Radiol Artif Intell* 2024;6(2):e230118). Larger radii increase memory and runtime.
+Also check `kernel_radius` — CT R3B12 default is **3** (7×7×7 = 343 voxels per center voxel;
+Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118). Override only when needed
+(e.g. MRI `kernel_radius: 1`). Larger radii increase memory and runtime.
 
-For large ROIs or GPU-accelerated torch radiomics, reduce `voxelBatch` from the habit
+For large ROIs or GPU-accelerated torch radiomics, reduce `voxel_batch` from the habit
 default `1000` (or set `-1` for no batching) to e.g. `512` to limit peak memory.
-When using multiple GPUs, set `torchGpus`
-and align `processes` with `torchGpuCount` (or keep `cap_processes_to_gpu_pool: true`, default):
+When using multiple GPUs, set `torch_gpus`
+and align `processes` with `torch_gpu_count` (or keep `cap_processes_to_gpu_pool: true`, default):
 
 ```yaml
-FeatureConstruction:
+feature_construction:
   voxel_level:
     params:
-      useTorchRadiomics: auto
-      torchGpus: [0, 1]
-      torchGpuCount: 2
-      voxelBatch: 512
+      use_torch_radiomics: auto
+      torch_gpus: [0, 1]
+      torch_gpu_count: 2
+      voxel_batch: 512
 
 processes: 2
 cap_processes_to_gpu_pool: true
@@ -148,7 +150,7 @@ cap_processes_to_gpu_pool: true
 
 **Fix**: Either:
 - Pass `--pipeline <path_to_pkl>` on the CLI, OR
-- Set in YAML: `HabitatSegmentation.habitat.mode: testing` AND
+- Set in YAML: `habitat_segmentation.habitat.mode: testing` AND
   ensure `<out_dir>/supervoxel2habitat_clustering_model.pkl` exists from a
   prior train run.
 

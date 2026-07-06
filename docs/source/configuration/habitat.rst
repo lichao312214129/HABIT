@@ -4,7 +4,7 @@ Habitat Segmentation Configuration
 Habitat Analysis Configuration Parameters
 -----------------------------------------
 
-This section covers **habitat analysis** configuration. CLI: ``habit get-habitat -c <yaml>``. Demo training: ``config/habitat/config_habitat_two_step.yaml``; prediction: ``config/habitat/config_habitat_two_step_predict.yaml``; SLIC supervoxel example: ``config/habitat/config_habitat_two_step_supervoxel_slic.yaml`` (parameter details in **"HabitatSegmentation.supervoxel — SLIC Superpixel Configuration"** below).
+This section covers **habitat analysis** configuration. CLI: ``habit get-habitat -c <yaml>``. Demo training: ``config/habitat/config_habitat_two_step.yaml``; prediction: ``config/habitat/config_habitat_two_step_predict.yaml``; SLIC supervoxel example: ``config/habitat/config_habitat_two_step_supervoxel_slic.yaml`` (parameter details in **"habitat_segmentation.supervoxel — SLIC Superpixel Configuration"** below).
 
 **Example configuration file:**
 
@@ -15,7 +15,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
    data_dir: ./file_habitat.yaml
    out_dir: ./results/habitat/train
 
-   FeatureConstruction:
+   feature_construction:
      voxel_level:
        method: concat(raw(delay2), raw(delay3), raw(delay5))
 
@@ -38,7 +38,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
            bin_strategy: uniform
            global_normalize: false
 
-   HabitatSegmentation:
+   habitat_segmentation:
      clustering_mode: two_step
 
      supervoxel:
@@ -104,12 +104,19 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Default**: none (required)
 - **Description**: ``data_dir`` may be a directory or a manifest such as ``file_habitat.yaml``; ``out_dir`` is the default parent directory for results and checkpoints.
 
-**FeatureConstruction**: Feature extraction settings
+**feature_construction**: Feature extraction settings
 
 - **Type**: object
 - **Required**: required in ``train``; may be omitted in ``predict``
 - **Default**: ``null``
 - **Description**: If unset, validation rejects the config or errors according to run mode. Sub-blocks ``voxel_level`` / ``supervoxel_level`` / ``preprocessing_*`` are documented below.
+
+**YAML field naming in this workflow** (avoid confusing ``method`` / ``methods`` / ``algorithm``):
+
+- ``feature_construction.*.method`` (singular): one **functional expression** string (``concat(voxel_radiomics(T2))``).
+- ``preprocessing_for_* .methods`` (plural): an **ordered list** of preprocessing steps; each item has its own ``method: winsorize`` step type.
+- ``habitat_segmentation.*.algorithm``: **clustering backend** (``kmeans``, ``gmm``, ``slic``), not a feature extractor.
+- ``habitat_cluster_selection_method`` / ``selection_method``: cluster-count validation metric (``elbow``, ``silhouette``, …).
 
 **voxel_level**: Voxel-level feature extraction
 
@@ -122,8 +129,11 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
   - **Expression conventions** (shared by ``voxel_level`` / ``supervoxel_level``):
 
     - When extracting per modality (``raw``, ``voxel_radiomics``, ``supervoxel_radiomics``, etc.), **even for a single modality** wrap with an outer combiner such as ``concat(...)``; inner expressions are per-modality sub-expressions; the outer layer merges results across modalities.
-    - Comma-separated tokens inside parentheses are **parameter name placeholders** or **image modality names** (matching ``images/<subject>/<modality>/`` subdirectories), **not** Python keyword arguments; actual paths and numeric values go in a sibling ``params`` dict, or are merged from ``params`` by ``resolve_*_step_params``.
-    - Recommended radiomics forms: ``concat(voxel_radiomics(T2, params_file, kernelRadius))``, ``concat(supervoxel_radiomics(T2, params_file))``; ``params_file`` and similar keys may appear only in ``params`` without being listed in the expression string (see ``params`` below).
+    - Comma-separated tokens inside parentheses are **parameter name placeholders** or **image modality names** (matching ``images/<subject>/<modality>/`` subdirectories), **not** Python keyword arguments; actual paths and numeric values go in a sibling ``params`` dict.
+    - **Binding rule**: a parameter binds to function ``F`` only when its name appears inside ``F(...)`` parentheses (modality names excepted). Keys in ``params`` that are not listed in any function's parentheses trigger a deprecation warning.
+    - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/core/habitat_analysis/clustering_features/``).
+    - **Bundled ``params_file``**: for ``voxel_radiomics`` / ``supervoxel_radiomics``, ``params_file`` is optional. When omitted, HABIT uses bundled presets shipped in ``habit/resources/radiomics/`` (CT R3B12 voxel preset; full-set supervoxel preset). The resolved absolute path is logged at runtime.
+    - Recommended minimal form: ``concat(voxel_radiomics(T2))`` with ``params: {}`` — uses bundled CT R3B12 ``params_file``, ``kernel_radius: 3``, ``voxel_batch: 1000``, ``use_torch_radiomics: auto``. List a name in parentheses only when overriding (e.g. ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` for MRI).
 
 - ``params``: Voxel-level extractor parameter dictionary
 
@@ -175,14 +185,14 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
       - **Description**: Extract voxel-level radiomics features
       - **Parameters**:
 
-        - ``params_file`` (str, required): PyRadiomics parameter file path
-        - ``kernelRadius`` (int, CT habitat recommended: ``3``; code default ``1`` if unset): local neighborhood radius (1=3×3×3, 3=7×7×7)
-        - ``voxelBatch`` (int, default: ``1000``): voxel batch size; ``-1`` processes all ROI voxels at once (native PyRadiomics, no batching). Positive values limit memory (GPU or large ROI: ``512``–``1000`` recommended)
-        - ``useTorchRadiomics`` (str, default: ``auto``): ``auto`` uses TorchRadiomics when torch is installed and CUDA is available, otherwise CPU PyRadiomics; ``true`` forces torch; ``false`` always CPU
-        - ``torchDevice`` (str, default: ``auto``): single GPU device when ``torchGpus`` is unset
-        - ``torchGpus`` (list/int/str): allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``; overrides ``torchDevice`` when set
-        - ``torchGpuCount`` (int, optional): use first N GPUs from ``torchGpus``
-        - ``torchDtype`` (str, default: ``float32``): Torch compute dtype (``float32`` or ``float64``; ``float64`` closer to CPU PyRadiomics)
+        - ``params_file`` (str, optional): PyRadiomics parameter file path; omit for bundled CT R3B12 preset
+        - ``kernel_radius`` (int, default: ``3`` for CT R3B12 bundled preset; ``1`` = 3×3×3, ``3`` = 7×7×7): local neighborhood radius
+        - ``voxel_batch`` (int, default: ``1000``): voxel batch size; ``-1`` processes all ROI voxels at once (native PyRadiomics, no batching). Positive values limit memory (GPU or large ROI: ``512``–``1000`` recommended)
+        - ``use_torch_radiomics`` (str, default: ``auto``): ``auto`` uses TorchRadiomics when torch is installed and CUDA is available, otherwise CPU PyRadiomics; ``true`` forces torch; ``false`` always CPU
+        - ``torch_device`` (str, default: ``auto``): single GPU device when ``torch_gpus`` is unset
+        - ``torch_gpus`` (list/int/str): allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``; overrides ``torch_device`` when set
+        - ``torch_gpu_count`` (int, optional): use first N GPUs from ``torch_gpus``
+        - ``torch_dtype`` (str, default: ``float32``): Torch compute dtype (``float32`` or ``float64``; ``float64`` closer to CPU PyRadiomics)
 
       - **Voxel GLCM note**: Use ``config/radiomics/params_voxel_radiomics.yaml`` (explicit list of 21 stable GLCM features).
         If ``params_file`` lists only ``glcm:`` without feature names, PyRadiomics computes all 24 GLCM features; in
@@ -191,14 +201,12 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         21 stable features and logs a warning when GLCM is unrestricted; if features are explicitly listed in
         ``params_file``, user configuration is respected.
 
-      - **CT voxel texture (R3B12)**: For CT habitat voxel radiomics, literature recommends ``kernelRadius: 3`` and ``binWidth: 12`` HU
-        (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25). Parameter file:
-        ``params_voxel_radiomics.yaml``; neighborhood radius is set in habitat config ``voxel_level.params``.
-        Reference: Petersen A, et al. Identification of Precise 3D CT Radiomics for Habitat Computation
-        by Machine Learning in Cancer. *Radiol Artif Intell*. 2024;6(2):e230118.
-        https://doi.org/10.1148/ryai.230118
+      - **CT voxel texture (R3B12)**: Literature recommends ``kernel_radius: 3`` and ``binWidth: 12`` HU
+        (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
+        Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
+        Reference: Petersen A, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
 
-      - **Example**: ``concat(voxel_radiomics(T2, params_file, kernelRadius))`` with ``params_file``, ``kernelRadius``, etc. in ``params``
+      - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 
   - **Full examples**:
 
@@ -223,34 +231,28 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
        # Voxel-level radiomics (texture features, slower; single modality still needs concat)
        voxel_level:
-         method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-         params:
-           params_file: ./config/radiomics/params_voxel_radiomics.yaml
-           kernelRadius: 3
-           voxelBatch: 1000
-           useTorchRadiomics: auto
-           # torchGpus: [0, 1]
-           # torchGpuCount: 2
+         method: concat(voxel_radiomics(T2))
+         params: {}
 
 - ``params``: Global parameters
 
   - **Type**: dict
   - **Required**: no
   - **Default**: ``{}``
-  - **Description**: Shared parameters for all extractors. ``voxel_radiomics``-specific keys (``voxelBatch``, ``useTorchRadiomics``, etc.) belong in ``params`` and **need not** appear in the ``method`` expression string; keys not listed in the expression are auto-merged and forwarded.
+  - **Description**: Shared parameters for all extractors. ``voxel_radiomics``-specific keys (``voxel_batch``, ``use_torch_radiomics``, etc.) belong in ``params`` and **need not** appear in the ``method`` expression string; keys not listed in the expression are auto-merged and forwarded.
   - **Common parameters**:
 
     - ``timestamps`` (str): timestamps file path (for kinetic)
     - ``kernel_size`` (int): local neighborhood size (for local_entropy)
     - ``bins`` (int): histogram bin count (for local_entropy)
     - ``params_file`` (str): PyRadiomics parameter file (for voxel_radiomics)
-    - ``kernelRadius`` (int): voxel radiomics neighborhood radius (for voxel_radiomics)
-    - ``voxelBatch`` (int): voxel radiomics batch size (for voxel_radiomics; default ``1000``; ``-1`` = no batching)
-    - ``useTorchRadiomics`` (str): TorchRadiomics acceleration (``auto`` / ``true`` / ``false``)
-    - ``torchDevice`` (str): single GPU device (when ``torchGpus`` unset)
-    - ``torchGpus`` (list/int/str): allowed GPU list
-    - ``torchGpuCount`` (int): cap on GPUs actually used
-    - ``torchDtype`` (str): Torch dtype (voxel_radiomics torch backend)
+    - ``kernel_radius`` (int): voxel radiomics neighborhood radius (for voxel_radiomics)
+    - ``voxel_batch`` (int): voxel radiomics batch size (for voxel_radiomics; default ``1000``; ``-1`` = no batching)
+    - ``use_torch_radiomics`` (str): TorchRadiomics acceleration (``auto`` / ``true`` / ``false``)
+    - ``torch_device`` (str): single GPU device (when ``torch_gpus`` unset)
+    - ``torch_gpus`` (list/int/str): allowed GPU list
+    - ``torch_gpu_count`` (int): cap on GPUs actually used
+    - ``torch_dtype`` (str): Torch dtype (voxel_radiomics torch backend)
 
 **supervoxel_level**: Superpixel-level feature extraction (optional)
 
@@ -283,20 +285,20 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
       - **Description**: Per supervoxel label, extract **whole-ROI** radiomics texture (not voxel kernel neighborhoods). Must sit inside ``concat(...)`` (or another outer combiner); single-modality example: ``concat(supervoxel_radiomics(T2, params_file))``.
       - **Discretization**: One PyRadiomics ``_applyBinning`` on the union mask of all supervoxels (``sv_map > 0``), then per-label ``cMatrices``
-      - **Matrix backend**: ``useSupervoxelCext`` default ``auto``: use C extension batch matrix build when ``supervoxel_cext`` is compiled (``pip install -e .``); otherwise fallback Torch/PyRadiomics stacked matrix path. ``false`` **forces** Torch/PyRadiomics stacked matrices (``matrix_backend=torch_cmatrices``) even if C extension exists
-      - **Feature backend**: When ``useTorchRadiomics`` resolves to torch, TorchRadiomics (GPU/CPU torch); else CPU PyRadiomics (same semantics)
-      - **Parameters** (in ``FeatureConstruction.supervoxel_level.params``; may inherit torch keys from ``voxel_level.params``):
+      - **Matrix backend**: ``use_supervoxel_cext`` default ``auto``: use C extension batch matrix build when ``supervoxel_cext`` is compiled (``pip install -e .``); otherwise fallback Torch/PyRadiomics stacked matrix path. ``false`` **forces** Torch/PyRadiomics stacked matrices (``matrix_backend=torch_cmatrices``) even if C extension exists
+      - **Feature backend**: When ``use_torch_radiomics`` resolves to torch, TorchRadiomics (GPU/CPU torch); else CPU PyRadiomics (same semantics)
+      - **Parameters** (in ``feature_construction.supervoxel_level.params``; may inherit torch keys from ``voxel_level.params``):
 
-        - ``params_file`` (str, required): PyRadiomics parameter YAML (featureClass / setting only); recommend ``params_file`` placeholder in ``method`` sub-expression, actual path in ``supervoxel_level.params`` (or only in ``params`` merged by resolver)
-        - ``supervoxelBatch`` (int): batch group size, default ``64`` (not kernel radius)
-        - ``supervoxelUnionBboxCrop`` (bool): crop to union bbox, default ``true``
-        - ``useSupervoxelCext`` (str | bool): ``auto`` / ``true`` / ``false``, default ``auto``; must be in ``supervoxel_level.params`` (not in ``params_file``)
-        - ``useTorchRadiomics`` (str): ``auto`` / ``true`` / ``false``
-        - ``torchGpus`` / ``torchGpuCount`` / ``torchDevice`` / ``torchDtype``: same as voxel level
+        - ``params_file`` (str, optional): PyRadiomics parameter YAML; omit for bundled full-set preset
+        - ``supervoxel_batch`` (int): batch group size, default ``64`` (not kernel radius)
+        - ``supervoxel_union_bbox_crop`` (bool): crop to union bbox, default ``true``
+        - ``use_supervoxel_cext`` (str | bool): ``auto`` / ``true`` / ``false``, default ``auto``; must be in ``supervoxel_level.params`` (not in ``params_file``)
+        - ``use_torch_radiomics`` (str): ``auto`` / ``true`` / ``false``
+        - ``torch_gpus`` / ``torch_gpu_count`` / ``torch_device`` / ``torch_dtype``: same as voxel level
 
-      - **Note**: ``kernelRadius`` is for ``voxel_radiomics`` only; ``supervoxel_radiomics`` does not use it
+      - **Note**: ``kernel_radius`` is for ``voxel_radiomics`` only; ``supervoxel_radiomics`` does not use it
       - **Use case**: Texture radiomics directly from supervoxel regions without ``voxel_level`` features
-      - **Example**: ``concat(supervoxel_radiomics(T2, params_file))`` with ``params.params_file: ./config/radiomics/params_supervoxel_radiomics.yaml``
+      - **Example**: ``concat(supervoxel_radiomics(T2))`` with ``params: {}`` (bundled preset)
 
   - **Method comparison**:
 
@@ -315,24 +317,16 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
        # Scenario 2: direct radiomics (single modality still needs concat; replace T2 with modality under data_dir)
        supervoxel_level:
          supervoxel_file_keyword: '*_supervoxel.nrrd'
-         method: concat(supervoxel_radiomics(T2, params_file))
-         params:
-           params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
-           supervoxelBatch: 64
-           useSupervoxelCext: auto
-           useTorchRadiomics: auto
-           # torchGpus: [0, 1]
+         method: concat(supervoxel_radiomics(T2))
+         params: {}
 
        # Scenario 2b: multi-modality supervoxel radiomics
        supervoxel_level:
          supervoxel_file_keyword: '*_supervoxel.nrrd'
          method: concat(
-           supervoxel_radiomics(T1, params_file),
-           supervoxel_radiomics(T2, params_file))
-         params:
-           params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
-           useSupervoxelCext: auto
-           useTorchRadiomics: auto
+           supervoxel_radiomics(T1),
+           supervoxel_radiomics(T2))
+         params: {}
 
 - ``params``: Parameters
 
@@ -340,8 +334,8 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
   - **Required**: no
   - **Default**: ``{}``
   - **Description**: Parameters for extractors. Omit ``params`` for parameterless methods like ``mean_voxel_features()``. Common ``supervoxel_radiomics`` keys:
-    ``params_file``, ``supervoxelBatch``, ``supervoxelUnionBboxCrop``, ``useSupervoxelCext``,
-    ``useTorchRadiomics``, ``torchGpus``, ``torchGpuCount``, ``torchDtype`` (torch keys may inherit from
+    ``params_file``, ``supervoxel_batch``, ``supervoxel_union_bbox_crop``, ``use_supervoxel_cext``,
+    ``use_torch_radiomics``, ``torch_gpus``, ``torch_gpu_count``, ``torch_dtype`` (torch keys may inherit from
     ``voxel_level.params``).
 
 **preprocessing_for_subject_level**: Subject-level preprocessing (optional)
@@ -525,7 +519,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Compatibility**: YAML format unchanged; legacy ``habitat_pipeline.pkl`` with pre-refactor
   ``PreprocessingState`` requires re-train.
 
-**HabitatSegmentation**: Habitat segmentation settings
+**habitat_segmentation**: Habitat segmentation settings
 
 - **Type**: object
 - **Required**: required in ``train``; recommended in ``predict`` (at least ``clustering_mode``)
@@ -605,10 +599,10 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
 .. _habitat_slic_config:
 
-HabitatSegmentation.supervoxel — SLIC Superpixel Configuration
+habitat_segmentation.supervoxel — SLIC Superpixel Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When ``HabitatSegmentation.supervoxel.algorithm: slic``, habit calls
+When ``habitat_segmentation.supervoxel.algorithm: slic``, habit calls
 ``skimage.segmentation.slic`` inside the ROI, jointly segmenting **multi-channel voxel features**
 (last dimension = feature channel) with **3D spatial coordinates** into ``n_clusters`` supervoxels. Anisotropic voxel spacing ``spacing``
 is **read automatically** from the mask NIfTI header—**no** YAML entry required.
@@ -619,7 +613,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 - ``one_step`` may also use ``slic`` with ``one_step_settings`` for per-subject auto k.
 - High-dimensional ``voxel_radiomics`` features incur much higher compute and memory than ``raw`` / ``mean_voxel_features`` (builds ``[Z, Y, X, n_features]`` feature volume in ROI bbox).
 
-**YAML path**: keys under ``HabitatSegmentation.supervoxel``; repo template
+**YAML path**: keys under ``habitat_segmentation.supervoxel``; repo template
 ``config/habitat/config_habitat_two_step_supervoxel_slic.yaml``.
 
 **Parameter reference**
@@ -692,7 +686,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
 .. code-block:: yaml
 
-   HabitatSegmentation:
+   habitat_segmentation:
      clustering_mode: two_step
      supervoxel:
        algorithm: slic
@@ -854,7 +848,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
   .. code-block:: yaml
 
-     HabitatSegmentation:
+     habitat_segmentation:
        postprocess_supervoxel:
          enabled: false
          min_component_size: 30
@@ -898,7 +892,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - bool
      - ``true``
      - no
-     - Torch CUDA radiomics: ``true`` caps workers to ``len(torchGpus)``; ``false`` keeps ``processes`` and shares GPUs across workers
+     - Torch CUDA radiomics: ``true`` caps workers to ``len(torch_gpus)``; ``false`` keeps ``processes`` and shares GPUs across workers
    * - ``individual_subject_timeout_sec``
      - float / ``null``
      - ``900``
@@ -979,19 +973,19 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 
 - **Type**: integer
 - **Default**: ``2`` (must be ``> 0``)
-- **Description**: See table above; interacts with ``cap_processes_to_gpu_pool`` and ``torchGpus`` in ``FeatureConstruction.*.params``.
+- **Description**: See table above; interacts with ``cap_processes_to_gpu_pool`` and ``torch_gpus`` in ``feature_construction.*.params``.
 
 **cap_processes_to_gpu_pool** (habitat analysis top level): Cap Stage 1 workers to GPU pool size
 
 - **Type**: bool
 - **Default**: ``true``
-- **Description**: When ``useTorchRadiomics`` uses CUDA (``true`` or ``auto`` with CUDA detected):
+- **Description**: When ``use_torch_radiomics`` uses CUDA (``true`` or ``auto`` with CUDA detected):
 
-  - ``true`` (default): effective workers ``min(processes, len(torchGpus))``, one GPU per slot (``gpuSlotIndex``), less VRAM contention;
-  - ``false``: full ``processes``; workers share GPUs via ``gpuSlotIndex % len(torchGpus)``—good for "single GPU, many CPU" parallel non-GPU steps, but GPU radiomics may OOM on same card.
+  - ``true`` (default): effective workers ``min(processes, len(torch_gpus))``, one GPU per slot (``gpu_slot_index``), less VRAM contention;
+  - ``false``: full ``processes``; workers share GPUs via ``gpu_slot_index % len(torch_gpus)``—good for "single GPU, many CPU" parallel non-GPU steps, but GPU radiomics may OOM on same card.
 
 - **Not in config_hash**; may change on resume.
-- **No effect** on CPU-only (``useTorchRadiomics: false`` or no CUDA).
+- **No effect** on CPU-only (``use_torch_radiomics: false`` or no CUDA).
 
 **individual_subject_timeout_sec** (habitat analysis top level): Per-subject wall-clock cap in parallel Stage 1
 
@@ -1099,7 +1093,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 
 **config_hash and resume compatibility**
 
-- **In hash** (Stage 1 per-subject; change clears checkpoint): ``data_dir``, ``FeatureConstruction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level``, ``HabitatSegmentation.clustering_mode``, per-subject clustering block (``two_step`` → ``supervoxel``; ``one_step`` → ``supervoxel`` + ``habitat``).
+- **In hash** (Stage 1 per-subject; change clears checkpoint): ``data_dir``, ``feature_construction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level``, ``habitat_segmentation.clustering_mode``, per-subject clustering block (``two_step`` → ``supervoxel``; ``one_step`` → ``supervoxel`` + ``habitat``).
 - **Not in hash** (may ``resume: true``): ``preprocessing_for_group_level``, group ``habitat.*`` for ``two_step``/``direct_pooling``, ``processes``, ``cap_processes_to_gpu_pool``, ``strict_checkpoint_hash``, ``individual_subject_timeout_sec``, ``individual_subject_graceful_shutdown_sec``, ``individual_subject_spawn_timeout_sec``, ``plot_curves``, ``save_results_csv``, ``habitats_results_format``, ``save_images``, ``verbose``, ``debug``, ``on_subject_failure``, ``oom_backoff``, ``oom_reduce_workers_by``, ``retry_failed_subjects``, ``individual_subject_auto_retry_rounds``, ``individual_subject_parallel_mode``, ``persistent_worker_max_consecutive_failures``, ``persistent_worker_recycle_after_tasks``, ``force_rerun_subjects``, ``out_dir``, etc.
 - ``manifest.json`` also stores ``individual_config_hash`` (same as ``config_hash``); legacy full-hash-only manifests migrate hash on Stage 2-only changes and keep pkls.
 - On ``resume: true`` startup, program compares hash. Individual hash mismatch without Stage 2 drift: default (``strict_checkpoint_hash: false``) warns and deletes checkpoint; ``true`` raises ``CheckpointConfigHashError``.

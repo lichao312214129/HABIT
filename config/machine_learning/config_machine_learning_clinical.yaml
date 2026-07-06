@@ -10,19 +10,19 @@
 input:
   - path: ../../demo_data/ml_data/clinical_feature.csv # Path to the input data file (CSV format)
     name: clinical_  # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
-    subject_id_col: subjID  # Column name containing subject identifiers (must be unique for each subject)
+    subject_id_col: subject_id  # Column name containing subject identifiers (must be unique for each subject)
     label_col: label  # Column name containing target labels (0/1 for binary classification)
     features:    # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
   # # Example of additional input file configuration (commented out)
   # - path: H:\results\ml_data\autogluon_habitat\autogluon_habitat_pred_full.csv
   #   name: habitat_  # Prefix clinical_ will be added to all features from this file
-  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   subject_id_col: subject_id  # Column name for subject ID in this file
   #   label_col: true_label  # Column name for the target variable in this file
   #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
   # # # # Example of additional input file configuration (commented out)
   # - path: H:\results\ml_data\autogluon_radiomics\autogluon_radiomics_pred_full.csv
   #   name: radiomics_  # Prefix clinical_ will be added to all features from this file
-  #   subject_id_col: subjID  # Column name for subject ID in this file
+  #   subject_id_col: subject_id  # Column name for subject ID in this file
   #   label_col: true_label  # Column name for the target variable in this file
   #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
 #%%================================================================================

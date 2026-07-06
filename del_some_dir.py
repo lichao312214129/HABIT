@@ -100,5 +100,5 @@ if __name__ == "__main__":
     # Example usage of new function
     root_directory = r"H:\Registration_ZSSY_1mm_structured\images"  # Current directory
     excel_path = "F:/work/research/radiomics_TLSs/data/results_365/habitats.csv"
-    subject_column = "Subject"  # Replace with your actual column name
+    subject_column = "subject"  # Replace with your actual column name
     delete_dirs_not_in_excel(root_directory, excel_path, subject_column) 

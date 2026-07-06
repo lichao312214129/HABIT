@@ -14,7 +14,7 @@ run_mode: train
 data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_two_step_gmm_bic
 #%%================================================================================
-FeatureConstruction:
+feature_construction:
   voxel_level:
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
@@ -35,7 +35,7 @@ FeatureConstruction:
         n_bins: 10
         bin_strategy: uniform
         global_normalize: false
-HabitatSegmentation:
+habitat_segmentation:
   clustering_mode: two_step
   supervoxel:
     algorithm: kmeans

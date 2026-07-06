@@ -20,7 +20,7 @@
 input:
 - path: ./ml_data/breast_cancer_dataset.csv
   name: clinical_
-  subject_id_col: subjID
+  subject_id_col: subject_id
   label_col: label
   features:
 output: ./ml_data

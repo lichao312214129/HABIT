@@ -11,8 +11,8 @@ Root causes identified in code:
 
 | Layer | Issue |
 |-------|--------|
-| GPU assignment | `gpuSlotIndex` reserved but never wired from parallel workers; concurrent workers map by subject hash and can share one GPU |
-| Process count | `processes` can exceed configured `torchGpus` pool size when `cap_processes_to_gpu_pool: false` |
+| GPU assignment | `gpu_slot_index` reserved but never wired from parallel workers; concurrent workers map by subject hash and can share one GPU |
+| Process count | `processes` can exceed configured `torch_gpus` pool size when `cap_processes_to_gpu_pool: false` |
 | Spawn model | Default `individual_subject_timeout_sec=900` forces spawn even when `processes=1` (500 subjects → 500 spawns) |
 | OOM handling | `oom_backoff` only reacts to Python `MemoryError`, not native CUDA / Windows crashes |
 | Mitigation (done) | `individual_subject_auto_retry_rounds` — same-run retry of checkpoint failures |
@@ -25,16 +25,16 @@ shipped). Auto-retry remains the safety net; Phase 1+ reduce how often it is nee
 ## Phase 1 — Worker GPU slots and process cap (implemented)
 
 **Goal:** At most one active Stage-1 worker per configured GPU by default; worker slot
-index drives `gpuSlotIndex` instead of subject hash under parallelism. Set
+index drives `gpu_slot_index` instead of subject hash under parallelism. Set
 `cap_processes_to_gpu_pool: false` to keep full `processes` and share GPUs via
-`gpuSlotIndex % len(gpu_pool)` when CPU-heavy steps should use all cores on 1-GPU machines.
+`gpu_slot_index % len(gpu_pool)` when CPU-heavy steps should use all cores on 1-GPU machines.
 
 ### Changes
 
 1. **`habit/utils/parallel_gpu_utils.py`**
    - `HABIT_GPU_SLOT_INDEX` env var contract for spawn children
    - `read_worker_gpu_slot_index()` / `inject_worker_gpu_slot_index()`
-   - `resolve_habitat_torch_gpu_pool(config)` — parse `torchGpus` / implicit `[0]` for torch auto on CUDA
+   - `resolve_habitat_torch_gpu_pool(config)` — parse `torch_gpus` / implicit `[0]` for torch auto on CUDA
    - `cap_processes_to_gpu_pool(requested, pool_size)` — cap with logging (skipped when config flag is false)
    - `apply_gpu_pool_process_cap(requested, config)` — honor `cap_processes_to_gpu_pool` before capping
 
@@ -43,7 +43,7 @@ index drives `gpuSlotIndex` instead of subject hash under parallelism. Set
    - Set `HABIT_GPU_SLOT_INDEX` in child before running user func
 
 3. **`habit/core/habitat_analysis/services/feature_service.py`**
-   - Inject `gpuSlotIndex` from worker env into voxel / supervoxel step params
+   - Inject `gpu_slot_index` from worker env into voxel / supervoxel step params
 
 4. **`habit/core/habitat_analysis/checkpoint/stage.py`**
    - Cap `n_processes` to `len(torch_gpu_pool)` when pool is non-empty **and**
@@ -72,7 +72,7 @@ index drives `gpuSlotIndex` instead of subject hash under parallelism. Set
 **Goals**
 
 - Remove per-subject `spawn` + full import cost (500 subjects should not mean 500 cold starts).
-- Keep Phase-1 guarantees: **one active GPU worker per GPU slot**, `gpuSlotIndex` binding, `processes` cap.
+- Keep Phase-1 guarantees: **one active GPU worker per GPU slot**, `gpu_slot_index` binding, `processes` cap.
 - Preserve existing outward behaviour: checkpoint manifest, auto-retry, `on_item_done`, progress bar, failure lists.
 - Default is **`persistent`** (long-lived workers); use **`isolated`** when pipeline pickle fails or for spawn debugging.
 
@@ -93,7 +93,7 @@ IndividualCheckpointStage._run_parallel_pass()
          │
          Parent process
          ├─ Start W = effective_processes workers (W capped by GPU pool)
-         │     Worker-0: spawn once, HABIT_GPU_SLOT_INDEX=0, bind cuda:torchGpus[0]
+         │     Worker-0: spawn once, HABIT_GPU_SLOT_INDEX=0, bind cuda:torch_gpus[0]
          │     Worker-1: spawn once, HABIT_GPU_SLOT_INDEX=1, ...
          ├─ Task queue(s): dispatch pending (subject_id, payload) to idle workers
          ├─ Result queue: ProcessingResult per finished subject
@@ -120,7 +120,7 @@ IndividualCheckpointStage._run_parallel_pass()
 
 **Multi GPU behaviour**
 
-- W = len(torchGpus): each worker pinned to one GPU for its lifetime.
+- W = len(torch_gpus): each worker pinned to one GPU for its lifetime.
 - Pending subjects assigned to **first idle worker** (work-stealing queue or shared task queue).
 
 ### 3.2 Public configuration (new)
@@ -342,12 +342,12 @@ Requires splitting `_process_single_subject` into schedulable steps with interme
 ```yaml
 processes: 2
 cap_processes_to_gpu_pool: true   # default; set false on 1-GPU / many-CPU hosts
-FeatureConstruction:
+feature_construction:
   voxel_level:
     params:
-      useTorchRadiomics: auto
-      torchGpus: [0, 1]   # explicit pool; processes auto-capped when cap_processes_to_gpu_pool: true
-      torchGpuCount: 2
+      use_torch_radiomics: auto
+      torch_gpus: [0, 1]   # explicit pool; processes auto-capped when cap_processes_to_gpu_pool: true
+      torch_gpu_count: 2
 
 individual_subject_auto_retry_rounds: 2  # same-run retry (default)
 individual_subject_parallel_mode: persistent  # default; use isolated if pickle fails

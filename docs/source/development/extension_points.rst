@@ -66,7 +66,7 @@ HABIT 的扩展严格遵循以下三个契约：
 
 .. code-block:: yaml
 
-   Preprocessing:
+   preprocessing:
      my_gaussian_filter:
        images: [T1, T2]
        sigma: 2.5
@@ -176,6 +176,48 @@ HABIT 的扩展严格遵循以下三个契约：
 
    # 注册到 ParamSchemaRegistry (domain="model")
    ParamSchemaRegistry.register("model", "my_mlp", MyMLPParams)
+
+实战四：自定义聚类阶段特征提取器 (FeatureExtractorRegistry + method_param_spec)
+-------------------------------------------------------------------------------------------------
+
+聚类阶段特征提取器通过 ``FeatureExtractorRegistry`` 惰性发现 ``*_extractor.py`` 模块。
+除实现 ``BaseClusteringExtractor`` 外，请在类上声明 ``method_param_spec``，供函数式
+``method`` 表达式的参数绑定校验与默认值注入使用：
+
+.. code-block:: python
+
+   from habit.core.habitat_analysis.clustering_features.base_extractor import (
+       BaseClusteringExtractor,
+       FeatureExtractorRegistry,
+   )
+   from habit.core.habitat_analysis.clustering_features.method_param_spec import (
+       MethodParamSpec,
+   )
+
+   @FeatureExtractorRegistry.register("my_texture")
+   class MyTextureExtractor(BaseClusteringExtractor):
+       method_param_spec = MethodParamSpec(
+           required=(),                         # names that MUST appear in F(...)
+           optional={"window_size": 5},         # built-in defaults when omitted
+           default_params_file_preset=None,       # or "voxel"/"supervoxel"/"roi"/"habitat"
+           combiner=False,
+           takes_image=True,
+       )
+
+       def extract_features(self, image_data, mask_data, **kwargs):
+           ...
+
+YAML 用法（括号声明绑定，``params`` 只赋 value）：
+
+.. code-block:: yaml
+
+   feature_construction:
+     voxel_level:
+       method: concat(my_texture(T2, window_size))
+       params:
+         window_size: 7
+
+``params_file`` 可省略；radiomics 类方法使用 ``habit/resources/radiomics/`` 中的 bundled preset。
 
 全部扩展点速查表
 ----------------

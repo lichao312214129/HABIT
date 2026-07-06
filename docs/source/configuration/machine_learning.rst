@@ -66,7 +66,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
    input:
      - path: ./demo_data/ml_data/clinical_feature.csv
-       subject_id_col: subjID
+       subject_id_col: subject_id
        label_col: label   # required when evaluate: true
 
    output: ./demo_data/results/ml/clinical/predictions

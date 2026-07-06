@@ -283,7 +283,7 @@ class HabitatImageWriter:
             or ResultColumns.SUPERVOXEL not in results_df.columns
         )
         postprocess_settings = (
-            self.config.HabitatSegmentation.postprocess_habitat.model_dump()
+            self.config.habitat_segmentation.postprocess_habitat.model_dump()
         )
         out_dir = self.config.out_dir
 
@@ -416,7 +416,7 @@ class HabitatImageWriter:
             mask_info=mask_info,
             out_dir=self.config.out_dir,
             postprocess_settings=(
-                self.config.HabitatSegmentation.postprocess_habitat.model_dump()
+                self.config.habitat_segmentation.postprocess_habitat.model_dump()
             ),
             logger=self.logger,
         )

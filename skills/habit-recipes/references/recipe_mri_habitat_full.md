@@ -41,11 +41,11 @@ habit merge-csv \
   <HABITAT_OUT>/results/features/ith_scores.csv \
   <CLINICAL_CSV> \
   -o configs/ml_input.csv \
-  --index-col subjID \
+  --index-col subject_id \
   --join inner
 
 python skills/habit-feature-extraction/scripts/inspect_feature_csv.py configs/ml_input.csv \
-  --subject-id-col subjID --label-col label
+  --subject-id-col subject_id --label-col label
 
 # 5) Train ML models (multiple models in one config, then compare)
 habit model --config configs/04_ml_train.yaml --mode train
@@ -59,7 +59,7 @@ habit compare --config configs/05_compare.yaml
 | Step | Template to start from | Notes |
 |---|---|---|
 | 01_preprocess | `config/preprocessing/config_image_preprocessing.yaml` | Pick fixed_image (usually T2) |
-| 02_habitat | `config/habitat/config_getting_habitat.yaml` | Set `HabitatSegmentation.clustering_mode` to `one_step` or `two_step`; use `concat(raw(T1), raw(T2), ...)` in `FeatureConstruction` |
+| 02_habitat | `config/habitat/config_getting_habitat.yaml` | Set `habitat_segmentation.clustering_mode` to `one_step` or `two_step`; use `concat(raw(T1), raw(T2), ...)` in `feature_construction` |
 | 03_extract | `config/feature_extraction/config_extract_features.yaml` | Need PyRadiomics params |
 | 04_ml_train | `config/machine_learning/config_machine_learning.yaml` | At least LogisticRegression + RandomForest |
 | 05_compare | `config/model_comparison/config_model_comparison.yaml` | Only if comparing to clinical baseline |

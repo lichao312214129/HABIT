@@ -8,7 +8,7 @@
 #
 # 结构 / Structure:
 #   images / masks 下按 <subject_id>: <modality_key>: <文件或文件夹路径>
-#   模态键必须与 FeatureConstruction 里用到的键一致（本 DEMO 为 delay2/delay3/delay5）。
+#   模态键必须与 feature_construction 里用到的键一致（本 DEMO 为 delay2/delay3/delay5）。
 #
 # 路径约定 / Path convention:
 #   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。

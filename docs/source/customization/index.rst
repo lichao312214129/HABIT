@@ -102,7 +102,7 @@ Custom preprocessors
 
 .. code-block:: yaml
 
-   Preprocessing:
+   preprocessing:
      my_preprocessor:
        images: [T1, T2]
        param1: value1
@@ -165,7 +165,7 @@ Custom feature extractors
 
 .. code-block:: yaml
 
-   FeatureConstruction:
+   feature_construction:
      voxel_level:
        method: my_feature_extractor(raw(delay2), raw(delay3))
        params:
@@ -237,7 +237,7 @@ Custom clustering algorithms
 
 .. code-block:: yaml
 
-   HabitatSegmentation:
+   habitat_segmentation:
      clustering_mode: two_step
      supervoxel:
        algorithm: my_clustering

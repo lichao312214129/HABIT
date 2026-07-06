@@ -22,6 +22,7 @@ import SimpleITK as sitk
 import os
 from typing import Union, List
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 
 
 @FeatureExtractorRegistry.register('raw')
@@ -33,6 +34,13 @@ class RawFeatureExtractor(BaseClusteringExtractor):
     1. Image paths and mask paths
     2. SimpleITK image objects and mask objects
     """
+
+    # DSL contract: raw(<modality>) — no parameters.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={},
+        takes_image=True,
+    )
 
     def __init__(self, **kwargs) -> None:
         """

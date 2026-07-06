@@ -56,7 +56,7 @@ accessor = ConfigAccessor(config)
 
 # 访问配置值（支持点号访问）
 value = accessor.get('data_dir')
-nested_value = accessor.get('FeatureConstruction.voxel_level.method')
+nested_value = accessor.get('feature_construction.voxel_level.method')
 
 # 检查配置是否存在
 if accessor.has('processes'):
@@ -86,7 +86,7 @@ config = ConfigValidator.validate_and_load(
 
 # 访问配置（推荐使用属性访问）
 print(config.data_dir)
-print(config.FeatureConstruction.voxel_level.method)
+print(config.feature_construction.voxel_level.method)
 
 # 向后兼容的字典访问
 print(config.get('data_dir'))

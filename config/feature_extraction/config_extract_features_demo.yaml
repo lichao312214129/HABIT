@@ -21,8 +21,9 @@ raw_img_folder: ../../demo_data/preprocessed/processed_images
 habitats_map_folder: ../../demo_data/results/habitat_two_step
 out_dir: ../../demo_data/results/features
 #%%================================================================================
-params_file_of_non_habitat: ../radiomics/parameter.yaml
-params_file_of_habitat: ../radiomics/parameter_habitat.yaml
+# params_file optional: omit both lines to use bundled presets (roi + habitat)
+# params_file_of_non_habitat: ../radiomics/parameter.yaml
+# params_file_of_habitat: ../radiomics/parameter_habitat.yaml
 n_processes: 2
 habitat_pattern: '*_habitats.nrrd'
 # 要提取的特征类型（本公开版可用）：

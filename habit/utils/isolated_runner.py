@@ -631,7 +631,7 @@ class IsolatedTaskRunner:
             log_queue: Optional multiprocessing queue for ordered logging.
             log_file_path: Optional legacy log file restored in the child.
             log_level: Logging level for the child.
-            gpu_slot_index: Zero-based worker slot mapped to ``gpuSlotIndex`` in children.
+            gpu_slot_index: Zero-based worker slot mapped to ``gpu_slot_index`` in children.
 
         Returns:
             Slot handle tracked by :meth:`map_items`.

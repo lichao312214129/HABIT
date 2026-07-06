@@ -11,7 +11,7 @@
 input:
   - path: ../../demo_data/ml_data/breast_cancer_dataset.csv
     name: radiomics_
-    subject_id_col: subjID
+    subject_id_col: subject_id
     label_col: label
 output: ../../demo_data/results/ml_radiomics_variance_only
 split_method: custom

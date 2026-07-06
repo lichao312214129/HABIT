@@ -57,7 +57,7 @@ def resolve_use_supervoxel_cext(settings: Mapping[str, object]) -> bool:
     Returns:
         bool: True when the C-extension batch path should be used.
     """
-    flag = settings.get("useSupervoxelCext", "auto")
+    flag = settings.get("use_supervoxel_cext", "auto")
     if flag is True or str(flag).lower() == "true":
         return True
     if flag is False or str(flag).lower() == "false":

@@ -45,7 +45,7 @@ TORCH_GPU_INSTALL_HINT = (
     "Install the CUDA-enabled PyTorch build for GPU-accelerated voxel_radiomics, e.g. "
     "pip install torch --index-url https://download.pytorch.org/whl/cu124 "
     "(pick the CUDA version matching your driver at https://pytorch.org/get-started/locally/). "
-    "Or set useTorchRadiomics: false to keep CPU PyRadiomics without this message."
+    "Or set use_torch_radiomics: false to keep CPU PyRadiomics without this message."
 )
 
 
@@ -69,14 +69,14 @@ def log_torch_gpu_install_hint(reason: str) -> None:
 
     if reason == "torch_not_installed":
         logger.warning(
-            "useTorchRadiomics=auto: torch is not installed; using CPU PyRadiomics. %s",
+            "use_torch_radiomics=auto: torch is not installed; using CPU PyRadiomics. %s",
             TORCH_GPU_INSTALL_HINT,
         )
         return
 
     if reason == "cuda_unavailable":
         logger.warning(
-            "useTorchRadiomics=auto: CUDA is unavailable (CPU-only PyTorch wheel or "
+            "use_torch_radiomics=auto: CUDA is unavailable (CPU-only PyTorch wheel or "
             "missing NVIDIA driver/GPU); using CPU PyRadiomics. %s",
             TORCH_GPU_INSTALL_HINT,
         )
@@ -119,7 +119,7 @@ def is_cuda_available() -> bool:
 
 def normalize_use_torch_radiomics(value: UseTorchRadiomicsSetting) -> str:
     """
-    Normalize user-facing ``useTorchRadiomics`` values to ``auto|true|false``.
+    Normalize user-facing ``use_torch_radiomics`` values to ``auto|true|false``.
 
     Args:
         value: Boolean or string setting from habitat config / kwargs.
@@ -136,7 +136,7 @@ def normalize_use_torch_radiomics(value: UseTorchRadiomicsSetting) -> str:
     if normalized in {"auto", "true", "false"}:
         return normalized
     raise ValueError(
-        f"useTorchRadiomics must be auto, true, or false; got {value!r}"
+        f"use_torch_radiomics must be auto, true, or false; got {value!r}"
     )
 
 
@@ -155,7 +155,7 @@ def resolve_torch_device(torch_device: str = DEFAULT_TORCH_DEVICE) -> str:
     """
     if not is_torch_available():
         raise RuntimeError(
-            "torch is not installed; install torch or set useTorchRadiomics to false/auto"
+            "torch is not installed; install torch or set use_torch_radiomics to false/auto"
         )
 
     import torch
@@ -166,12 +166,12 @@ def resolve_torch_device(torch_device: str = DEFAULT_TORCH_DEVICE) -> str:
     if normalized == "cuda":
         if not torch.cuda.is_available():
             raise RuntimeError(
-                "torchDevice requests CUDA but torch.cuda.is_available() is False"
+                "torch_device requests CUDA but torch.cuda.is_available() is False"
             )
         return "cuda:0"
     if normalized.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError(
-            f"torchDevice={torch_device!r} requests CUDA but CUDA is unavailable"
+            f"torch_device={torch_device!r} requests CUDA but CUDA is unavailable"
         )
     return str(torch_device)
 
@@ -202,14 +202,14 @@ def resolve_torch_dtype(dtype_name: str = DEFAULT_TORCH_DTYPE) -> Any:
     normalized = str(dtype_name).strip().lower()
     if normalized not in mapping:
         raise ValueError(
-            f"torchDtype must be one of {sorted(mapping.keys())}; got {dtype_name!r}"
+            f"torch_dtype must be one of {sorted(mapping.keys())}; got {dtype_name!r}"
         )
     return mapping[normalized]
 
 
 def parse_torch_gpu_indices(value: TorchGpuSetting) -> List[int]:
     """
-    Parse user ``torchGpus`` settings into a list of CUDA device indices.
+    Parse user ``torch_gpus`` settings into a list of CUDA device indices.
 
     Accepts:
     - ``None`` or empty -> ``[]``
@@ -246,10 +246,10 @@ def parse_torch_gpu_indices(value: TorchGpuSetting) -> List[int]:
             elif isinstance(item, str):
                 indices.append(_parse_single_gpu_token(item.strip()))
             else:
-                raise ValueError(f"Unsupported torchGpus entry: {item!r}")
+                raise ValueError(f"Unsupported torch_gpus entry: {item!r}")
         return _dedupe_preserve_order(indices)
 
-    raise ValueError(f"torchGpus must be int, str, list, or null; got {value!r}")
+    raise ValueError(f"torch_gpus must be int, str, list, or null; got {value!r}")
 
 
 def _parse_single_gpu_token(token: str) -> int:
@@ -280,7 +280,7 @@ def apply_torch_gpu_count(
     torch_gpu_count: Optional[int] = None,
 ) -> List[int]:
     """
-    Limit how many GPUs from ``torchGpus`` are actually used.
+    Limit how many GPUs from ``torch_gpus`` are actually used.
 
     Args:
         gpu_indices: Parsed GPU index list.
@@ -292,7 +292,7 @@ def apply_torch_gpu_count(
     if torch_gpu_count is None:
         return gpu_indices
     if torch_gpu_count < 1:
-        raise ValueError(f"torchGpuCount must be >= 1; got {torch_gpu_count}")
+        raise ValueError(f"torch_gpu_count must be >= 1; got {torch_gpu_count}")
     return gpu_indices[:torch_gpu_count]
 
 
@@ -364,12 +364,12 @@ def validate_torch_gpu_indices(gpu_indices: List[int]) -> None:
     import torch
 
     if not torch.cuda.is_available():
-        raise RuntimeError("CUDA is unavailable but torchGpus was configured")
+        raise RuntimeError("CUDA is unavailable but torch_gpus was configured")
     device_count = torch.cuda.device_count()
     invalid = [idx for idx in gpu_indices if idx < 0 or idx >= device_count]
     if invalid:
         raise RuntimeError(
-            f"Invalid torchGpus indices {invalid}; available CUDA devices: 0..{device_count - 1}"
+            f"Invalid torch_gpus indices {invalid}; available CUDA devices: 0..{device_count - 1}"
         )
 
 
@@ -389,16 +389,16 @@ def resolve_voxel_radiomics_backend(
     - torch present but CUDA unavailable -> CPU PyRadiomics
     - torch + CUDA -> TorchRadiomics on selected GPU
 
-    When ``torchGpus`` is set, it overrides ``torchDevice`` for CUDA device selection.
-    ``torchGpuCount`` limits how many entries from ``torchGpus`` are used.
+    When ``torch_gpus`` is set, it overrides ``torch_device`` for CUDA device selection.
+    ``torch_gpu_count`` limits how many entries from ``torch_gpus`` are used.
     With multiple GPUs and parallel subjects, subjects are mapped to GPUs via a
     stable hash of ``subject``.
 
     Args:
         use_torch_radiomics: ``auto``, ``true``, ``false``, or boolean equivalent.
-        torch_device: Torch device string or ``auto`` when ``torchGpus`` is not set.
+        torch_device: Torch device string or ``auto`` when ``torch_gpus`` is not set.
         torch_gpus: Allowed GPU indices, e.g. ``[0, 1]`` or ``"0,1"``.
-        torch_gpu_count: Maximum number of GPUs to use from ``torchGpus``.
+        torch_gpu_count: Maximum number of GPUs to use from ``torch_gpus``.
         subject: Subject ID for stable GPU assignment across parallel workers.
         gpu_slot_index: Explicit GPU slot index override.
 
@@ -407,8 +407,8 @@ def resolve_voxel_radiomics_backend(
             Backend name and torch device when backend is ``torch``.
 
     Raises:
-        ValueError: When ``useTorchRadiomics`` or GPU settings are invalid.
-        RuntimeError: When ``useTorchRadiomics`` is ``true`` but torch is unavailable.
+        ValueError: When ``use_torch_radiomics`` or GPU settings are invalid.
+        RuntimeError: When ``use_torch_radiomics`` is ``true`` but torch is unavailable.
     """
     mode = normalize_use_torch_radiomics(use_torch_radiomics)
     parsed_gpus = apply_torch_gpu_count(
@@ -440,7 +440,7 @@ def resolve_voxel_radiomics_backend(
     if mode == "true":
         if not torch_ok:
             raise RuntimeError(
-                "useTorchRadiomics=true but torch is not installed. "
+                "use_torch_radiomics=true but torch is not installed. "
                 f"{TORCH_GPU_INSTALL_HINT}"
             )
         device = _resolve_torch_device_string()
@@ -452,7 +452,7 @@ def resolve_voxel_radiomics_backend(
     # auto
     if not torch_ok:
         logger.info(
-            "useTorchRadiomics=auto: torch not installed; using CPU PyRadiomics"
+            "use_torch_radiomics=auto: torch not installed; using CPU PyRadiomics"
         )
         log_torch_gpu_install_hint("torch_not_installed")
         return "pyradiomics", None
@@ -460,7 +460,7 @@ def resolve_voxel_radiomics_backend(
     if parsed_gpus:
         if not is_cuda_available():
             logger.info(
-                "useTorchRadiomics=auto: CUDA unavailable; using CPU PyRadiomics"
+                "use_torch_radiomics=auto: CUDA unavailable; using CPU PyRadiomics"
             )
             log_torch_gpu_install_hint("cuda_unavailable")
             return "pyradiomics", None
@@ -468,35 +468,35 @@ def resolve_voxel_radiomics_backend(
             device = _resolve_torch_device_string()
         except RuntimeError as exc:
             logger.info(
-                "useTorchRadiomics=auto: %s; using CPU PyRadiomics",
+                "use_torch_radiomics=auto: %s; using CPU PyRadiomics",
                 exc,
             )
             log_torch_gpu_install_hint("cuda_unavailable")
             return "pyradiomics", None
-        logger.info("useTorchRadiomics=auto: using TorchRadiomics on %s", device)
+        logger.info("use_torch_radiomics=auto: using TorchRadiomics on %s", device)
         return "torch", device
 
     normalized_device = str(torch_device).strip().lower()
     if normalized_device == "auto":
         if not is_cuda_available():
             logger.info(
-                "useTorchRadiomics=auto: CUDA unavailable; using CPU PyRadiomics"
+                "use_torch_radiomics=auto: CUDA unavailable; using CPU PyRadiomics"
             )
             log_torch_gpu_install_hint("cuda_unavailable")
             return "pyradiomics", None
-        logger.info("useTorchRadiomics=auto: using TorchRadiomics on cuda:0")
+        logger.info("use_torch_radiomics=auto: using TorchRadiomics on cuda:0")
         return "torch", "cuda:0"
 
     if normalized_device.startswith("cuda") and not is_cuda_available():
         logger.info(
-            "useTorchRadiomics=auto: CUDA requested but unavailable; "
+            "use_torch_radiomics=auto: CUDA requested but unavailable; "
             "using CPU PyRadiomics"
         )
         log_torch_gpu_install_hint("cuda_unavailable")
         return "pyradiomics", None
 
     device = resolve_torch_device(torch_device)
-    logger.info("useTorchRadiomics=auto: using TorchRadiomics on %s", device)
+    logger.info("use_torch_radiomics=auto: using TorchRadiomics on %s", device)
     return "torch", device
 
 

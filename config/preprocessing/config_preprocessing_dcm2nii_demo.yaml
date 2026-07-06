@@ -32,7 +32,7 @@ out_dir: ../../demo_data/results/preprocessing_dcm2nii        # 输出目录（�
 # dcm2nii 需要整个 DICOM 文件夹，这里保持 false（不要只取第一个文件）
 auto_select_first_file: false
 
-Preprocessing:
+preprocessing:
   # DICOM -> NIfTI 转换
   dcm2nii:
     images: [delay2, delay3, delay5]         # 要转换的模态键（与清单文件中的键一致）

@@ -1,14 +1,14 @@
 # PyRadiomics parameter preset for voxel_radiomics (habitat clustering).
 #
-# CT voxel texture defaults (R3B12): binWidth 12 HU in this file; kernelRadius 3 in habitat
-# FeatureConstruction.voxel_level.params (7×7×7 neighborhood). More stable repeatability and
+# CT voxel texture defaults (R3B12): binWidth 12 HU in this file; kernel_radius defaults to 3
+# via method_param_spec when params_file is omitted (7×7×7 neighborhood). More stable repeatability and
 # reproducibility than R1B25 for precise habitat radiomics on CT.
 # Ref: Petersen A, et al. Identification of Precise 3D CT Radiomics for Habitat Computation
 # by Machine Learning in Cancer. Radiol Artif Intell. 2024;6(2):e230118. doi:10.1148/ryai.230118
 #
-# NOTE (habit voxel_radiomics): kernelRadius, voxelBatch, useTorchRadiomics, torchGpus, etc.
-# are NOT PyRadiomics YAML settings here. Set them in FeatureConstruction.voxel_level.params
-# in your habitat config. Habit default voxelBatch: 1000; use -1 for no batching.
+# NOTE (habit voxel_radiomics): kernel_radius, voxel_batch, use_torch_radiomics, torch_gpus, etc.
+# are NOT PyRadiomics YAML settings here. Omit them from habitat YAML to use bundled defaults,
+# or set in feature_construction.voxel_level.params to override. Default voxel_batch: 1000.
 #
 # GLCM: list stable features only. Bare ``glcm:`` (all 24 features) fails on small kernels
 # because MCC/Imc1/Imc2 need eigenvalue or mutual-information stats on degenerate 1×1 GLCM

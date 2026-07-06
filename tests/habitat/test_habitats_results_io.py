@@ -31,10 +31,10 @@ def sample_results_df() -> pd.DataFrame:
     """Small habitats-like table for round-trip tests."""
     return pd.DataFrame(
         {
-            "Subject": ["sub1", "sub1", "sub2"],
-            "Supervoxel": [1, 2, 1],
-            "Habitats": [1, 2, 1],
-            "Count": [10, 12, 8],
+            "subject": ["sub1", "sub1", "sub2"],
+            "supervoxel": [1, 2, 1],
+            "habitats": [1, 2, 1],
+            "count": [10, 12, 8],
             "feature_a": [0.1, 0.2, 0.3],
             "feature_b": [1.1, 1.2, 1.3],
         }
@@ -98,7 +98,7 @@ class TestHabitatsResultsIo:
     ) -> None:
         save_habitats_results(sample_results_df, tmp_path, "parquet")
         csv_path = tmp_path / habitats_results_filename("csv")
-        csv_path.write_text("Subject,Habitats\nsub1,1\n", encoding="utf-8")
+        csv_path.write_text("subject,habitats\nsub1,1\n", encoding="utf-8")
 
         assert (
             find_habitats_results_file(tmp_path)

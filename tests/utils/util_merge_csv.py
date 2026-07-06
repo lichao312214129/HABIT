@@ -28,10 +28,10 @@ def main() -> None:
         tmp = Path(tmpdir)
         file1 = tmp / "part_a.csv"
         file2 = tmp / "part_b.csv"
-        pd.DataFrame({"subjID": ["sub1", "sub2"], "feature_a": [1.0, 2.0]}).to_csv(
+        pd.DataFrame({"subject_id": ["sub1", "sub2"], "feature_a": [1.0, 2.0]}).to_csv(
             file1, index=False
         )
-        pd.DataFrame({"subjID": ["sub1", "sub2"], "feature_b": [10.0, 20.0]}).to_csv(
+        pd.DataFrame({"subject_id": ["sub1", "sub2"], "feature_b": [10.0, 20.0]}).to_csv(
             file2, index=False
         )
         try:
@@ -43,7 +43,7 @@ def main() -> None:
                 "-o",
                 str(out_path),
                 "--index-col",
-                "subjID",
+                "subject_id",
                 *sys.argv[1:],
             ]
             cli()

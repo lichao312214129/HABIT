@@ -27,56 +27,98 @@ from glob import glob
 
 from habit.utils.parallel_utils import parallel_map
 from habit.utils.parallel_gpu_utils import inject_worker_gpu_slot_index
+from habit.utils.radiomics_preset_utils import resolve_params_file
 from ..config_schemas import HabitatAnalysisConfig, DROPPING_PREPROCESSING_METHODS
 from ..clustering_features.feature_expression_parser import FeatureExpressionParser
 from ..clustering_features.feature_extractor_factory import create_feature_extractor
+from ..clustering_features.method_param_spec import (
+    DEFAULT_METHOD_PARAM_SPEC,
+    MethodParamRegistry,
+)
 from ..feature_preprocessing.pipeline import apply_stateless_preprocessing
 
 
 def resolve_voxel_step_params(
     step_params: Dict[str, Any],
     voxel_params: Optional[Dict[str, Any]],
+    method: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Resolve method-expression placeholders and merge global voxel_level.params.
+    Resolve method-expression placeholders, inject method defaults, and merge params.
 
-    Parameters listed only under ``FeatureConstruction.voxel_level.params`` (such as
-    ``voxelBatch``, ``useTorchRadiomics``, ``torchGpus``) or
-    ``FeatureConstruction.supervoxel_level.params`` (such as ``supervoxelBatch``,
-    ``supervoxelUnionBboxCrop``, ``useSupervoxelCext``)
-    are forwarded even when they are omitted from the ``method`` expression string.
+    Resolution priority (low -> high):
+
+    1. Built-in optional defaults declared by the method's
+       :class:`~habit.core.habitat_analysis.clustering_features.method_param_spec.MethodParamSpec`
+       (so users may omit optional knobs such as ``kernel_radius`` / ``voxel_batch``).
+    2. Global ``feature_construction.voxel_level.params`` (parameters listed there
+       are forwarded even when omitted from the ``method`` expression string; this
+       keeps existing configs working).
+    3. Explicit per-step bindings parsed from the expression parentheses.
+
+    Additionally, when the method consumes a ``params_file`` (radiomics), the value
+    is resolved against the bundled preset so ``params_file`` can be omitted
+    entirely (CT voxel preset for ``voxel_radiomics``; full-set preset for
+    ``supervoxel_radiomics``). A user-provided path always wins.
 
     Args:
         step_params: Params parsed from one processing step expression.
-        voxel_params: Global params from ``FeatureConstruction.voxel_level.params``.
+        voxel_params: Global params from ``feature_construction.voxel_level.params``.
+        method: Method name of the step (e.g. ``voxel_radiomics``); enables
+            spec-driven defaults and ``params_file`` preset resolution.
 
     Returns:
         Dict[str, Any]: Resolved params passed to voxel feature extractors.
     """
-    resolved = step_params.copy()
+    spec = MethodParamRegistry.get(method) if method else DEFAULT_METHOD_PARAM_SPEC
     global_params = voxel_params or {}
 
-    for param_name, param_value in list(resolved.items()):
-        if param_value == param_name and param_name in global_params:
-            resolved[param_name] = global_params[param_name]
+    # 1. Built-in optional defaults (lowest priority).
+    resolved: Dict[str, Any] = dict(spec.optional)
+    # 2. Global section params (backward compatible: forwarded to every step).
+    resolved.update(global_params)
+
+    # 3. Explicit per-step bindings from the expression parentheses.
+    for param_name, param_value in step_params.items():
+        if param_value == param_name:
+            # Unresolved placeholder: take its value from the global params when
+            # present; otherwise leave it to defaults/preset (do not inject the
+            # literal placeholder name as a value).
+            if param_name in global_params:
+                resolved[param_name] = global_params[param_name]
         elif isinstance(param_value, str) and param_value in global_params:
             resolved[param_name] = global_params[param_value]
-
-    for param_name, param_value in global_params.items():
-        if param_name not in resolved:
+        else:
             resolved[param_name] = param_value
+
+    # 4. Resolve params_file against the bundled preset when applicable.
+    if spec.uses_params_file():
+        raw_params_file = resolved.get("params_file")
+        resolved_path = resolve_params_file(
+            raw_params_file,
+            preset=spec.default_params_file_preset,
+        )
+        resolved["params_file"] = resolved_path
+        # Surface preset fallback for reproducibility (user omitted params_file).
+        if raw_params_file is None or str(raw_params_file).strip() == "":
+            logging.getLogger(__name__).info(
+                "Using bundled radiomics preset '%s' for method '%s': %s",
+                spec.default_params_file_preset,
+                method,
+                resolved_path,
+            )
 
     return resolved
 
 
 # Torch / GPU backend keys shared by voxel_radiomics and supervoxel_radiomics.
 TORCH_BACKEND_PARAM_KEYS: Tuple[str, ...] = (
-    "useTorchRadiomics",
-    "torchDevice",
-    "torchGpus",
-    "torchGpuCount",
-    "torchDtype",
-    "gpuSlotIndex",
+    "use_torch_radiomics",
+    "torch_device",
+    "torch_gpus",
+    "torch_gpu_count",
+    "torch_dtype",
+    "gpu_slot_index",
 )
 
 
@@ -84,24 +126,26 @@ def resolve_radiomics_step_params(
     step_params: Dict[str, Any],
     section_params: Optional[Dict[str, Any]],
     fallback_params: Optional[Dict[str, Any]] = None,
+    method: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Resolve step params and inherit torch backend settings when absent.
 
-    First merges ``section_params`` (e.g. ``supervoxel_level.params``), then
-    fills missing torch/GPU keys from ``fallback_params`` (e.g. ``voxel_level.params``).
-    Extractors still default ``useTorchRadiomics`` to ``auto`` when a key is missing
-    everywhere.
+    First merges ``section_params`` (e.g. ``supervoxel_level.params``) with method
+    defaults and ``params_file`` preset resolution, then fills missing torch/GPU
+    keys from ``fallback_params`` (e.g. ``voxel_level.params``). Extractors still
+    default ``use_torch_radiomics`` to ``auto`` when a key is missing everywhere.
 
     Args:
         step_params: Params parsed from one processing step expression.
         section_params: Global params for the current feature level.
         fallback_params: Optional lower-priority params (typically voxel_level).
+        method: Method name of the step (e.g. ``supervoxel_radiomics``).
 
     Returns:
         Dict[str, Any]: Resolved params passed to radiomics feature extractors.
     """
-    resolved = resolve_voxel_step_params(step_params, section_params)
+    resolved = resolve_voxel_step_params(step_params, section_params, method=method)
     fallback = fallback_params or {}
     for key in TORCH_BACKEND_PARAM_KEYS:
         if key not in resolved and key in fallback:
@@ -118,7 +162,7 @@ class FeatureService:
 
     The service has two distinct construction modes:
 
-    * ``train`` - full initialisation: validates ``FeatureConstruction``,
+    * ``train`` - full initialisation: validates ``feature_construction``,
       parses voxel/supervoxel expressions, builds extractors. Use
       :meth:`for_train` (or pass ``config.run_mode == 'train'``).
     * ``predict`` - minimal initialisation: feature extraction state lives
@@ -188,7 +232,7 @@ class FeatureService:
 
     def _init_train_mode(self) -> None:
         """Full init: validate config and build feature extractors."""
-        self._validate_FeatureConstruction()
+        self._validate_feature_construction()
         self._init_feature_extractor()
 
     def _init_predict_mode(self) -> None:
@@ -266,21 +310,43 @@ class FeatureService:
                 log_level=self._log_level,
             )
 
-    def _validate_FeatureConstruction(self) -> None:
+    def _validate_feature_construction(self) -> None:
         """Validate feature configuration."""
-        if not self.config.FeatureConstruction or not self.config.FeatureConstruction.voxel_level:
+        if not self.config.feature_construction or not self.config.feature_construction.voxel_level:
             raise ValueError("voxel_level configuration is required")
-        
-        if self.config.FeatureConstruction.supervoxel_level and self.config.verbose:
-            self.logger.info(
-                "Note: supervoxel_level feature configuration detected."
+
+        # Validate DSL parameter binding: required names must be in parentheses;
+        # implicit / orphan params warn. See method_binding_validation.
+        from ..clustering_features.method_binding_validation import (
+            validate_feature_method_binding,
+        )
+
+        voxel_level = self.config.feature_construction.voxel_level
+        validate_feature_method_binding(
+            voxel_level.method,
+            voxel_level.params,
+            level_name="feature_construction.voxel_level",
+            logger=self.logger,
+        )
+
+        if self.config.feature_construction.supervoxel_level:
+            if self.config.verbose:
+                self.logger.info(
+                    "Note: supervoxel_level feature configuration detected."
+                )
+            supervoxel_level = self.config.feature_construction.supervoxel_level
+            validate_feature_method_binding(
+                supervoxel_level.method,
+                supervoxel_level.params,
+                level_name="feature_construction.supervoxel_level",
+                logger=self.logger,
             )
 
     def _init_feature_extractor(self) -> None:
         """Initialize feature extractor based on configuration."""
         voxel_config = {
-            "method": self.config.FeatureConstruction.voxel_level.method,
-            "params": self.config.FeatureConstruction.voxel_level.params
+            "method": self.config.feature_construction.voxel_level.method,
+            "params": self.config.feature_construction.voxel_level.params
         }
         
         # Parse voxel_level expression
@@ -289,11 +355,11 @@ class FeatureService:
          self.voxel_processing_steps) = self.expression_parser.parse(voxel_config)
         
         # Check for supervoxel_level configuration
-        self.has_supervoxel_config = self.config.FeatureConstruction.supervoxel_level is not None
+        self.has_supervoxel_config = self.config.feature_construction.supervoxel_level is not None
         if self.has_supervoxel_config:
             supervoxel_config = {
-                "method": self.config.FeatureConstruction.supervoxel_level.method,
-                "params": self.config.FeatureConstruction.supervoxel_level.params
+                "method": self.config.feature_construction.supervoxel_level.method,
+                "params": self.config.feature_construction.supervoxel_level.params
             }
             (self.supervoxel_method_name,
              self.supervoxel_params,
@@ -312,7 +378,7 @@ class FeatureService:
         cross_image_kwargs = {}
         
         if self.voxel_params:
-            voxel_params = self.config.FeatureConstruction.voxel_level.params
+            voxel_params = self.config.feature_construction.voxel_level.params
             for param_name, param_value in self.voxel_params.items():
                 if param_value == param_name and param_name in voxel_params:
                     cross_image_kwargs[param_name] = voxel_params[param_name]
@@ -349,9 +415,10 @@ class FeatureService:
             img_name = step['image']
             step_params = step['params'].copy()
 
-            # Resolve placeholders and merge global params (voxelBatch, torchGpus, etc.)
-            voxel_params = self.config.FeatureConstruction.voxel_level.params
-            step_params = resolve_voxel_step_params(step_params, voxel_params)
+            # Resolve placeholders, inject method defaults, merge global params
+            # (voxel_batch, torch_gpus, ...), and preset-resolve params_file.
+            voxel_params = self.config.feature_construction.voxel_level.params
+            step_params = resolve_voxel_step_params(step_params, voxel_params, method=method)
             
             # Create extractor and process
             step_params.update({
@@ -429,18 +496,19 @@ class FeatureService:
                 step_params = step['params'].copy()
 
                 # Resolve placeholders, merge supervoxel_level.params, then inherit
-                # torch backend keys (useTorchRadiomics, torchGpus, etc.)
+                # torch backend keys (use_torch_radiomics, torch_gpus, etc.)
                 # from voxel_level.params when not set explicitly.
-                supervoxel_level_params = self.config.FeatureConstruction.supervoxel_level.params
+                supervoxel_level_params = self.config.feature_construction.supervoxel_level.params
                 voxel_level_params = (
-                    self.config.FeatureConstruction.voxel_level.params
-                    if self.config.FeatureConstruction.voxel_level
+                    self.config.feature_construction.voxel_level.params
+                    if self.config.feature_construction.voxel_level
                     else None
                 )
                 step_params = resolve_radiomics_step_params(
                     step_params,
                     supervoxel_level_params,
                     fallback_params=voxel_level_params,
+                    method=method,
                 )
                 step_params.update({
                 'subject': subject,
@@ -555,9 +623,9 @@ class FeatureService:
             Preprocessed DataFrame
         """
         if config_key == 'preprocessing_for_subject_level':
-            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_subject_level
+            preprocessing_config = self.config.feature_construction.preprocessing_for_subject_level
         else:
-            preprocessing_config = self.config.FeatureConstruction.preprocessing_for_group_level
+            preprocessing_config = self.config.feature_construction.preprocessing_for_group_level
 
         methods = self._get_preprocessing_methods(preprocessing_config)
         if methods:
@@ -567,7 +635,7 @@ class FeatureService:
             # config_schemas.HabitatAnalysisConfig.validate_mode_dependent_fields.
             if (
                 config_key == 'preprocessing_for_subject_level'
-                and self.config.HabitatSegmentation.clustering_mode == 'two_step'
+                and self.config.habitat_segmentation.clustering_mode == 'two_step'
             ):
                 dropping_methods = {
                     method.method
@@ -631,7 +699,7 @@ class FeatureService:
         (the original substring match was ambiguous when one subject id is a
         prefix of another).
         """
-        supervoxel_keyword = self.config.FeatureConstruction.supervoxel_level.supervoxel_file_keyword
+        supervoxel_keyword = self.config.feature_construction.supervoxel_level.supervoxel_file_keyword
         supervoxel_files = glob(
             os.path.join(out_folder, supervoxel_keyword)
         )

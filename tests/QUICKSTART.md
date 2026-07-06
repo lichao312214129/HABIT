@@ -107,7 +107,7 @@ data_dir: F:/work/research/radiomics_TLSs/habit_project/demo_image_data/nii/proc
 out_dir: F:/work/research/radiomics_TLSs/habit_project/demo_image_data/nii/preprocessed
 auto_select_first_file: true
 
-Preprocessing:
+preprocessing:
   resample:
     images: [T1, T2]
     target_spacing: [1.0, 1.0, 1.0]

@@ -22,9 +22,10 @@
 # PyRadiomics Parameter Files
 # ─────────────────────────────────────────────────────────────────────────
 # Parameter file for traditional radiomics from original images
-params_file_of_non_habitat: ../radiomics/parameter.yaml
+# Optional: omit both lines to use bundled presets (roi + habitat under habit/resources/radiomics/)
+# params_file_of_non_habitat: ../radiomics/parameter.yaml
 # Parameter file for radiomics from habitat maps
-params_file_of_habitat: ../radiomics/parameter_habitat.yaml
+# params_file_of_habitat: ../radiomics/parameter_habitat.yaml
 # ─────────────────────────────────────────────────────────────────────────
 # Data Directories
 # ─────────────────────────────────────────────────────────────────────────

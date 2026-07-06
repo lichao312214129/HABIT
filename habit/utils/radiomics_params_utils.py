@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 import yaml
 from radiomics import featureextractor
 
-# Stable GLCM features for voxel-based extraction (small kernelRadius neighborhoods).
+# Stable GLCM features for voxel-based extraction (small kernel_radius neighborhoods).
 # Excludes MCC, Imc1, Imc2 — they need eigenvalue / mutual-information stats that crash
 # or return NaN when local GLCM matrices degenerate (flat 1×1 patches).
 VOXEL_SAFE_GLCM_FEATURES: tuple[str, ...] = (
@@ -227,7 +227,7 @@ def apply_voxel_glcm_defaults(
     """
     Replace unrestricted GLCM with the voxel-safe feature subset when needed.
 
-    Voxel-based radiomics uses tiny neighborhoods (e.g. 3×3×3 at kernelRadius=1).
+    Voxel-based radiomics uses tiny neighborhoods (e.g. 3×3×3 at kernel_radius=1).
     Many voxels yield degenerate GLCM matrices; MCC/Imc1/Imc2 then trigger CUDA/MKL
     eigenvalue failures or NaN. When ``glcm`` is enabled without a feature list,
     substitute ``VOXEL_SAFE_GLCM_FEATURES`` and log the reason.
@@ -254,7 +254,7 @@ def apply_voxel_glcm_defaults(
                 logger.warning(
                     "voxel_radiomics: params_file lists GLCM feature(s) %s that are "
                     "unstable on small kernel neighborhoods (MCC/Imc1/Imc2). "
-                    "Expect CUDA/MKL eigvals errors or NaN unless kernelRadius is large.",
+                    "Expect CUDA/MKL eigvals errors or NaN unless kernel_radius is large.",
                     unsafe,
                 )
         return enabled_features

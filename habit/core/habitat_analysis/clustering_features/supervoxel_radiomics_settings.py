@@ -18,11 +18,11 @@ from __future__ import annotations
 
 from typing import Dict, Mapping, Tuple
 
-# Keys under FeatureConstruction.supervoxel_level.params forwarded into settings dict.
+# Keys under feature_construction.supervoxel_level.params forwarded into settings dict.
 SUPERVOXEL_SETTING_KEYS: Tuple[str, ...] = (
-    "supervoxelUnionBboxCrop",
-    "supervoxelPadDistance",
-    "useSupervoxelCext",
+    "supervoxel_union_bbox_crop",
+    "supervoxel_pad_distance",
+    "use_supervoxel_cext",
 )
 
 

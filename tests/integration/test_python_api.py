@@ -116,7 +116,7 @@ class TestHabitatAPI:
 
         cfg_path = _require_config("config/habitat/config_habitat_two_step.yaml")
         config = HabitatAnalysisConfig.from_file(str(cfg_path))
-        assert config.HabitatSegmentation.clustering_mode
+        assert config.habitat_segmentation.clustering_mode
 
 
 class TestFeatureExtractionAPI:

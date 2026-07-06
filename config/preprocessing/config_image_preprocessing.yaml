@@ -23,7 +23,7 @@ auto_select_first_file: true
 # ─────────────────────────────────────────────────────────────────────────
 # Preprocessing Pipeline
 # ─────────────────────────────────────────────────────────────────────────
-Preprocessing:
+preprocessing:
   # N4 Bias Field Correction (for MRI)
   # n4_correction:
   #   images: [T1, T2, FLAIR]

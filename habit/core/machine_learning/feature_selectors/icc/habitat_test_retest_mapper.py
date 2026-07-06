@@ -174,16 +174,16 @@ def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str,
             raise ValueError(f"The following features do not exist in the data: {missing_features}")
     
     # Get unique habitat labels
-    unique_habitats = np.unique(retest_df['Habitats'])
+    unique_habitats = np.unique(retest_df['habitats'])
     
     # Calculate median features for each habitat
     median_features_test = {}
     median_features_retest = {}
     for habitat_label in unique_habitats:
         median_features_test[habitat_label] = test_df[features][
-            test_df['Habitats'] == habitat_label].median()
+            test_df['habitats'] == habitat_label].median()
         median_features_retest[habitat_label] = retest_df[features][
-            retest_df['Habitats'] == habitat_label].median()
+            retest_df['habitats'] == habitat_label].median()
     
     # Convert to DataFrame for easier calculation
     median_features_test = pd.DataFrame(median_features_test).T

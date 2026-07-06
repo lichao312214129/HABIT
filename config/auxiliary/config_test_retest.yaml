@@ -27,7 +27,7 @@
 # 输出目录：保存重标注后的 NRRD 与日志（自动创建）
 out_dir: ../../demo_data/results/test_retest/remapped
 
-# test 组生境特征表（含 'Habitats' 列，支持 .parquet/.csv/.xlsx）
+# test 组生境特征表（含 'habitats' 列，支持 .parquet/.csv/.xlsx）
 test_habitat_table: ../../demo_data/results/habitat_two_step/habitats.parquet
 # retest 组生境特征表（本 DEMO 用同一张 → identity 映射）
 retest_habitat_table: ../../demo_data/results/habitat_two_step/habitats.parquet

@@ -41,7 +41,7 @@ output_dir: ./results/comparison
 files_config:
   - path: ./results/clinical_model/all_prediction_results.csv
     name: Clinical Model
-    subject_id_col: subjID
+    subject_id_col: subject_id
     label_col: true_label
     prob_col: prob                 # check actual column name in the CSV!
     pred_col: pred
@@ -49,7 +49,7 @@ files_config:
 
   - path: ./results/radiomics_model/all_prediction_results.csv
     name: Radiomics Model
-    subject_id_col: subjID
+    subject_id_col: subject_id
     label_col: true_label
     prob_col: LogisticRegression_prob   # multi-model output uses prefixed names
     pred_col: LogisticRegression_pred

@@ -18,18 +18,18 @@ run_mode: train
 data_dir: ../../demo_data/preprocessed/processed_images
 out_dir: ../../demo_data/results/habitat_two_step_supervoxel_radiomics
 #%%================================================================================
-FeatureConstruction:
+feature_construction:
   voxel_level:
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     params: {}
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'
-    method: concat(supervoxel_radiomics(delay2, params_file))
+    method: concat(supervoxel_radiomics(delay2, supervoxel_union_bbox_crop, use_supervoxel_cext, use_torch_radiomics))
     params:
-      params_file: ../radiomics/params_supervoxel_radiomics.yaml
-      supervoxelUnionBboxCrop: true
-      useSupervoxelCext: auto
-      useTorchRadiomics: auto
+      supervoxel_union_bbox_crop: true
+      use_supervoxel_cext: auto
+      use_torch_radiomics: auto
+      # params_file omitted -> bundled full-set preset (habit/resources/radiomics/params_supervoxel_radiomics.yaml)
   preprocessing_for_subject_level:
     # Stage 1: per-subject, before checkpoint (included in config_hash).
     methods:
@@ -53,7 +53,7 @@ FeatureConstruction:
         global_normalize: false
       - method: minmax
         global_normalize: false
-HabitatSegmentation:
+habitat_segmentation:
   clustering_mode: two_step
   supervoxel:
     algorithm: kmeans

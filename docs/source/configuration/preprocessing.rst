@@ -16,7 +16,7 @@ DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; fields are
    out_dir: ./preprocessed
    auto_select_first_file: true
 
-   Preprocessing:
+   preprocessing:
      dcm2nii:
        images: [delay2, delay3, delay5]
        dcm2niix_path: ./dcm2niix.exe

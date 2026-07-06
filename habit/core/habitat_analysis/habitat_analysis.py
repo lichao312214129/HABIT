@@ -136,7 +136,7 @@ def _build_two_step_steps(
 
     # Conditionally extract advanced supervoxel features (e.g. radiomics) when
     # the configured method is not the default ``mean_voxel_features``.
-    supervoxel_config = config.FeatureConstruction.supervoxel_level
+    supervoxel_config = config.feature_construction.supervoxel_level
     method = supervoxel_config.method if supervoxel_config else None
     should_extract_advanced = (
         method is not None
@@ -162,8 +162,8 @@ def _build_two_step_steps(
     ))
 
     # Optional group-level preprocessing (variance/correlation/normalisation).
-    if config.FeatureConstruction.preprocessing_for_group_level:
-        methods = config.FeatureConstruction.preprocessing_for_group_level.methods
+    if config.feature_construction.preprocessing_for_group_level:
+        methods = config.feature_construction.preprocessing_for_group_level.methods
         if methods:
             steps.append((
                 'group_preprocessing',
@@ -303,8 +303,8 @@ def _build_pooling_steps(
         ConcatenateVoxelsStep(),
     ))
 
-    if config.FeatureConstruction.preprocessing_for_group_level:
-        methods = config.FeatureConstruction.preprocessing_for_group_level.methods
+    if config.feature_construction.preprocessing_for_group_level:
+        methods = config.feature_construction.preprocessing_for_group_level.methods
         if methods:
             steps.append((
                 'group_preprocessing',
@@ -327,7 +327,7 @@ def _build_pooling_steps(
 
 
 # Map clustering_mode -> recipe builder. The single source of truth for the
-# mode dispatch (the rest of the module branches via ``config.HabitatSegmentation
+# mode dispatch (the rest of the module branches via ``config.habitat_segmentation
 # .clustering_mode`` only for save-side variations, which are tiny).
 _PIPELINE_RECIPES = {
     'two_step': _build_two_step_steps,
@@ -349,7 +349,7 @@ class HabitatAnalysis:
     ``pipeline_builder``):
 
     1. Build a ``HabitatPipeline`` whose step list depends on
-       ``config.HabitatSegmentation.clustering_mode``.
+       ``config.habitat_segmentation.clustering_mode``.
     2. Train (``fit``) -> persist as ``habitat_pipeline.pkl`` -> return results.
     3. Load a saved pipeline (``predict``) -> reconcile runtime config and
        data paths -> transform -> return results.
@@ -554,7 +554,7 @@ class HabitatAnalysis:
 
         if self.config.verbose:
             self.logger.info(
-                f"Building and fitting {self.config.HabitatSegmentation.clustering_mode} pipeline..."
+                f"Building and fitting {self.config.habitat_segmentation.clustering_mode} pipeline..."
             )
 
         self.pipeline = self._build_pipeline()
@@ -630,7 +630,7 @@ class HabitatAnalysis:
 
         if self.config.verbose:
             self.logger.info(
-                f"Loading and running {self.config.HabitatSegmentation.clustering_mode} pipeline..."
+                f"Loading and running {self.config.habitat_segmentation.clustering_mode} pipeline..."
             )
 
         self.config.run_mode = "predict"
@@ -736,7 +736,7 @@ class HabitatAnalysis:
         Raises:
             ValueError: If ``clustering_mode`` is not one of the registered modes.
         """
-        mode = self.config.HabitatSegmentation.clustering_mode
+        mode = self.config.habitat_segmentation.clustering_mode
         if mode not in _PIPELINE_RECIPES:
             raise ValueError(
                 f"Unknown clustering_mode: {mode}. "
@@ -806,7 +806,7 @@ class HabitatAnalysis:
         """
         Pick the config to apply to a loaded pipeline.
 
-        For predict runs that supply a minimal YAML (no ``FeatureConstruction``
+        For predict runs that supply a minimal YAML (no ``feature_construction``
         block), we keep the trained config that came pickled with the pipeline
         and only override runtime-safe fields like output paths and verbosity.
 
@@ -818,7 +818,7 @@ class HabitatAnalysis:
         """
         if (
             self.config.run_mode == 'predict'
-            and self.config.FeatureConstruction is None
+            and self.config.feature_construction is None
             and pipeline.config is not None
         ):
             pipeline_config = pipeline.config
@@ -845,6 +845,7 @@ class HabitatAnalysis:
         self,
         pipeline_feature_service: Any,
         runtime_feature_service: Any,
+        config_to_apply: HabitatAnalysisConfig,
     ) -> None:
         """
         Refresh the loaded pipeline's FeatureService with current paths/logging.
@@ -856,6 +857,8 @@ class HabitatAnalysis:
         Args:
             pipeline_feature_service: FeatureService loaded from the pkl file.
             runtime_feature_service: FeatureService built from the current run config.
+            config_to_apply: Config already merged by :meth:`_select_pipeline_config`
+                (preserves pickled ``feature_construction`` for minimal predict YAML).
         """
         if (
             getattr(runtime_feature_service, 'images_paths', None) is not None
@@ -871,6 +874,8 @@ class HabitatAnalysis:
                 runtime_feature_service._log_file_path,
                 runtime_feature_service._log_level,
             )
+
+        pipeline_feature_service.config = config_to_apply
 
     def _inject_services_into_pipeline(self, pipeline: HabitatPipeline) -> None:
         """
@@ -905,7 +910,11 @@ class HabitatAnalysis:
                 if attr_name == 'feature_service':
                     pipeline_feature_service = getattr(step, attr_name, None)
                     if pipeline_feature_service is not None:
-                        self._sync_feature_service(pipeline_feature_service, attr_value)
+                        self._sync_feature_service(
+                            pipeline_feature_service,
+                            attr_value,
+                            config_to_apply,
+                        )
                         continue
                 setattr(step, attr_name, attr_value)
 
@@ -932,7 +941,7 @@ class HabitatAnalysis:
 
         if not subjects:
             raise ValueError(
-                f"No subjects provided for {self.config.HabitatSegmentation.clustering_mode} run."
+                f"No subjects provided for {self.config.habitat_segmentation.clustering_mode} run."
             )
         return list(subjects)
 

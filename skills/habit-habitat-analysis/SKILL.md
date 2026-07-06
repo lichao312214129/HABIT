@@ -33,13 +33,13 @@ Before generating a config, confirm:
 | Modalities to cluster | drives `voxel_level.method` |
 | `clustering_mode` | `one_step`, `two_step`, or `direct_pooling` (see below) |
 | (kinetic only) timestamps Excel | required |
-| (voxel_radiomics only) PyRadiomics params YAML | required |
-| (voxel_radiomics only) `kernelRadius` / `voxelBatch` | optional; CT preset **3** / 1000 (`-1` = no batching); see R3B12 ref below |
-| (voxel_radiomics only) `useTorchRadiomics` / `torchGpus` / `torchGpuCount` | optional; GPU pool + count |
+| (voxel_radiomics only) PyRadiomics params YAML | optional; omit → bundled CT R3B12 preset |
+| (voxel_radiomics only) `kernel_radius` / `voxel_batch` | optional; CT defaults **3** / 1000 (`-1` = no batching); see R3B12 ref below |
+| (voxel_radiomics only) `use_torch_radiomics` / `torch_gpus` / `torch_gpu_count` | optional; GPU pool + count |
 | `processes` / `cap_processes_to_gpu_pool` | Stage-1 parallelism; default `processes: 2`, `cap_processes_to_gpu_pool: true` |
-| (supervoxel_radiomics only) PyRadiomics params YAML | `params_supervoxel_radiomics.yaml` |
-| (supervoxel_radiomics only) `supervoxelBatch` | optional; default 64 |
-| (supervoxel_radiomics only) `useSupervoxelCext` | optional; default auto (C extension when built, else prior path) |
+| (supervoxel_radiomics only) PyRadiomics params YAML | optional; omit → bundled full-set preset |
+| (supervoxel_radiomics only) `supervoxel_batch` | optional; default 64 |
+| (supervoxel_radiomics only) `use_supervoxel_cext` | optional; default auto (C extension when built, else prior path) |
 | (supervoxel_radiomics only) torch keys | inherit from `voxel_level.params` if omitted |
 | Expected habitat count | typical 3-5 |
 
@@ -64,7 +64,7 @@ If unsure → start with **one_step**.
 
 ## Decision 2 — Voxel feature method
 
-`FeatureConstruction.voxel_level.method` defines what voxel features get clustered.
+`feature_construction.voxel_level.method` defines what voxel features get clustered.
 This is the most important biological choice.
 
 | Data type | Method | Template |
@@ -80,30 +80,31 @@ Detailed comparison: `references/voxel_feature_methods.md`.
 For `kinetic`: user MUST provide a timestamps Excel with subject IDs and
 per-phase scan times. Without this, fail fast.
 
-For `voxel_radiomics`: use `config/radiomics/params_voxel_radiomics.yaml` for
-GLCM — bare `glcm:` in a params file enables all 24 features; MCC/Imc1/Imc2
-crash on small kernels. HABIT defaults unrestricted GLCM to 21 stable features.
-**CT voxel texture (R3B12):** `kernelRadius: 3` in habitat YAML, `binWidth: 12` in
-`params_voxel_radiomics.yaml` (Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118,
-doi:10.1148/ryai.230118)
-and logs a warning. Optional `torchGpus` selects which CUDA devices may be used; `torchGpuCount`
-limits how many of them are active. Stage-1 workers receive `gpuSlotIndex` from the parallel
-pool (default `cap_processes_to_gpu_pool: true` caps workers to `len(torchGpus)`). Set
+For `voxel_radiomics`: omit `params_file` for bundled CT R3B12 defaults, or override
+with `config/radiomics/params_voxel_radiomics.yaml`. Bare `glcm:` in a custom params file
+enables all 24 features; MCC/Imc1/Imc2 crash on small kernels. HABIT defaults unrestricted
+GLCM to 21 stable features.
+**CT voxel texture (R3B12):** default `kernel_radius: 3`, bundled preset `binWidth: 12`
+(Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118, doi:10.1148/ryai.230118)
+and logs a warning. Minimal YAML: `method: concat(voxel_radiomics(T2))` with `params: {}`.
+Optional `torch_gpus` selects which CUDA devices may be used; `torch_gpu_count`
+limits how many of them are active. Stage-1 workers receive `gpu_slot_index` from the parallel
+pool (default `cap_processes_to_gpu_pool: true` caps workers to `len(torch_gpus)`). Set
 `cap_processes_to_gpu_pool: false` to keep full `processes` on 1-GPU / many-CPU hosts (workers
 share GPUs via modulo mapping). See `references/voxel_feature_methods.md`.
 
-For `supervoxel_radiomics` (two_step Step 2 input): use
-`config/radiomics/params_supervoxel_radiomics.yaml`; union-mask binning + per-label
-ROI extraction. **`method` must use an outer combiner** (typically `concat(...)`), even for
-one modality, e.g. `concat(supervoxel_radiomics(T2, params_file))` with `params_file` path
-in `supervoxel_level.params`. Set `supervoxelBatch`, `useSupervoxelCext` (default auto), and
+For `supervoxel_radiomics` (two_step Step 2 input): omit `params_file` for bundled
+full-set preset; union-mask binning + per-label ROI extraction. **`method` must use an outer
+combiner** (typically `concat(...)`), even for one modality, e.g.
+`concat(supervoxel_radiomics(T2))` with `params: {}`. Set `supervoxel_batch`,
+`use_supervoxel_cext` (default auto), and
 torch keys under `supervoxel_level.params` (inherit torch keys from `voxel_level.params` when
 omitted). See `references/voxel_feature_methods.md` (Supervoxel-level section).
 
 ## Population-level preprocessing (two_step only)
 
 ```yaml
-FeatureConstruction:
+feature_construction:
   preprocessing_for_group_level:
     methods:
       - method: binning
@@ -116,7 +117,7 @@ FeatureConstruction:
 ## Optional postprocess (clean tiny fragments)
 
 ```yaml
-HabitatSegmentation:
+habitat_segmentation:
   postprocess_supervoxel:    # for two_step
     enabled: true
     min_component_size: 30
@@ -181,7 +182,7 @@ The `*_habitats.nrrd` is the file users open in ITK-SNAP / 3D Slicer.
 ## Common pitfalls
 
 1. **Mask not found** → check `data_dir/<subject>/masks/`.
-2. **Memory error during voxel_radiomics** → reduce `processes`, set `voxelBatch: 512` (or lower), use `useTorchRadiomics: auto` with `cap_processes_to_gpu_pool: true` and align `processes` with GPU count, or set `cap_processes_to_gpu_pool: false` only when you need CPU parallelism on 1 GPU (accept GPU contention), switch to `concat(raw(...))`.
+2. **Memory error during voxel_radiomics** → reduce `processes`, set `voxel_batch: 512` (or lower), use `use_torch_radiomics: auto` with `cap_processes_to_gpu_pool: true` and align `processes` with GPU count, or set `cap_processes_to_gpu_pool: false` only when you need CPU parallelism on 1 GPU (accept GPU contention), switch to `concat(raw(...))`.
 3. **A few subjects fail in large batches but succeed alone** → default `individual_subject_auto_retry_rounds: 2` retries Stage 1 in the same run; reduce `processes` or raise `individual_subject_timeout_sec`; default `individual_subject_parallel_mode: persistent` (use `isolated` if pickle fails); see `errors_habitat.md`.
 4. **Cluster number 1 returned** → tumor too homogeneous; add modalities or switch to `voxel_radiomics`/`kinetic`.
 5. **kinetic fails** → verify Excel timestamps file IDs match folder names.

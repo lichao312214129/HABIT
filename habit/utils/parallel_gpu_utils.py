@@ -16,7 +16,7 @@
 GPU slot helpers for parallel habitat / radiomics workers.
 
 Spawn children receive a zero-based worker slot index via ``HABIT_GPU_SLOT_INDEX``.
-Feature extractors map that slot to ``cuda:torchGpus[slot]`` when ``gpuSlotIndex`` is
+Feature extractors map that slot to ``cuda:torch_gpus[slot]`` when ``gpu_slot_index`` is
 not set explicitly in YAML.
 """
 
@@ -62,15 +62,15 @@ def read_worker_gpu_slot_index() -> Optional[int]:
 
 def inject_worker_gpu_slot_index(params: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Inject ``gpuSlotIndex`` from the worker environment when YAML did not set it.
+    Inject ``gpu_slot_index`` from the worker environment when YAML did not set it.
 
     Args:
         params: Extractor kwargs / step params (mutated only when injection applies).
 
     Returns:
-        Dict[str, Any]: Same mapping or a shallow copy with ``gpuSlotIndex`` added.
+        Dict[str, Any]: Same mapping or a shallow copy with ``gpu_slot_index`` added.
     """
-    if params.get("gpuSlotIndex") is not None:
+    if params.get("gpu_slot_index") is not None:
         return params
 
     slot_index = read_worker_gpu_slot_index()
@@ -78,7 +78,7 @@ def inject_worker_gpu_slot_index(params: Dict[str, Any]) -> Dict[str, Any]:
         return params
 
     updated = dict(params)
-    updated["gpuSlotIndex"] = slot_index
+    updated["gpu_slot_index"] = slot_index
     return updated
 
 
@@ -86,18 +86,18 @@ def resolve_habitat_torch_gpu_pool(config: Any) -> List[int]:
     """
     Resolve the effective Torch GPU index pool from a habitat analysis config.
 
-    Reads ``FeatureConstruction.voxel_level.params`` for ``useTorchRadiomics``,
-    ``torchGpus``, and ``torchGpuCount``. When torch mode is enabled (``true`` or
-    ``auto`` with CUDA available) but ``torchGpus`` is omitted, returns ``[0]``.
+    Reads ``feature_construction.voxel_level.params`` for ``use_torch_radiomics``,
+    ``torch_gpus``, and ``torch_gpu_count``. When torch mode is enabled (``true`` or
+    ``auto`` with CUDA available) but ``torch_gpus`` is omitted, returns ``[0]``.
 
     Args:
         config: Validated :class:`~habit.core.habitat_analysis.config_schemas.HabitatAnalysisConfig`
-            or any object with ``FeatureConstruction.voxel_level.params``.
+            or any object with ``feature_construction.voxel_level.params``.
 
     Returns:
         List[int]: CUDA device indices used for process capping; empty when CPU-only.
     """
-    feature_construction = getattr(config, "FeatureConstruction", None)
+    feature_construction = getattr(config, "feature_construction", None)
     if feature_construction is None:
         return []
 
@@ -106,12 +106,12 @@ def resolve_habitat_torch_gpu_pool(config: Any) -> List[int]:
         return []
 
     params = getattr(voxel_level, "params", None) or {}
-    use_torch = normalize_use_torch_radiomics(params.get("useTorchRadiomics", "auto"))
+    use_torch = normalize_use_torch_radiomics(params.get("use_torch_radiomics", "auto"))
     if use_torch == "false":
         return []
 
-    gpu_indices = parse_torch_gpu_indices(params.get("torchGpus"))
-    gpu_indices = apply_torch_gpu_count(gpu_indices, params.get("torchGpuCount"))
+    gpu_indices = parse_torch_gpu_indices(params.get("torch_gpus"))
+    gpu_indices = apply_torch_gpu_count(gpu_indices, params.get("torch_gpu_count"))
 
     if not gpu_indices and use_torch in ("true", "auto") and is_cuda_available():
         gpu_indices = [0]
@@ -187,7 +187,7 @@ def cap_processes_to_gpu_pool(
         pool_repr = gpu_pool if gpu_pool is not None else f"size={gpu_pool_size}"
         log.warning(
             "Capping parallel workers %s -> %s to match Torch GPU pool (%s). "
-            "Each active worker binds to one GPU slot via gpuSlotIndex.",
+            "Each active worker binds to one GPU slot via gpu_slot_index.",
             requested,
             capped,
             pool_repr,

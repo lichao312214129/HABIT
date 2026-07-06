@@ -296,7 +296,7 @@ class BatchProcessor:
             
             # Load images before numeric preprocessing steps (NIfTI inputs).
             # Collect every modality referenced across all configured steps.
-            step_modalities = [step_config.images for step_config in self.config_obj.Preprocessing.values()]
+            step_modalities = [step_config.images for step_config in self.config_obj.preprocessing.values()]
             step_modalities = [item for sublist in step_modalities for item in sublist]
             step_modalities = list(set(step_modalities))
 
@@ -308,7 +308,7 @@ class BatchProcessor:
             # Masks are always NIfTI/label files (never produced by dcm2nii), so
             # their keys stay in the load list even for dcm2nii modalities.
             dcm2nii_modalities = set()
-            for step_name, step_config in self.config_obj.Preprocessing.items():
+            for step_name, step_config in self.config_obj.preprocessing.items():
                 if step_name == "dcm2nii":
                     dcm2nii_modalities.update(step_config.images)
 
@@ -329,7 +329,7 @@ class BatchProcessor:
             
             # Step 2: Process each preprocessing step defined in config
             step_index = 0
-            for step_name, step_config in self.config_obj.Preprocessing.items():
+            for step_name, step_config in self.config_obj.preprocessing.items():
                 step_index += 1
                 
                 # Extract modalities from params

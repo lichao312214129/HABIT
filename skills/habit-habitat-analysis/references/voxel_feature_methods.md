@@ -1,6 +1,6 @@
 # Voxel-Level Feature Methods for Habitat Clustering
 
-`FeatureConstruction.voxel_level.method` controls **what gets clustered**.
+`feature_construction.voxel_level.method` controls **what gets clustered**.
 This is the most important biological choice in the whole habitat analysis.
 
 ## Method comparison matrix
@@ -10,7 +10,7 @@ This is the most important biological choice in the whole habitat analysis.
 | `raw(<img>)` | Single-image intensity | Fast | T2-only / single-sequence pilot | None |
 | `concat(raw(A), raw(B), ...)` | Joint intensity across modalities | Fast | Multi-modal MRI (T1+T2+DWI+ADC) | All listed images present per subject |
 | `kinetic(raw(p1), ..., timestamps)` | Time-intensity curve features | Medium | DCE-MRI / dynamic CT | Excel timestamp file |
-| `voxel_radiomics(<img>)` | Local texture (firstorder, GLCM…) | Slow | Texture-rich tumors (HCC, glioma) | PyRadiomics params YAML |
+| `voxel_radiomics(<img>)` | Local texture (firstorder, GLCM…) | Slow | Texture-rich tumors (HCC, glioma) | None (bundled CT R3B12 preset) |
 | `local_entropy(<img>)` | Local intensity disorder | Medium | Heterogeneity-focused study | None |
 
 ## Detailed guidance
@@ -45,7 +45,7 @@ voxel_level:
 
 Excel layout:
 
-| subjID  | pre_contrast | LAP | PVP | delay_3min |
+| subject_id  | pre_contrast | LAP | PVP | delay_3min |
 |---------|--------------|-----|-----|------------|
 | sub001  | 0.0          | 0.5 | 1.5 | 3.0        |
 | sub002  | 0.0          | 0.5 | 1.5 | 3.0        |
@@ -58,39 +58,45 @@ Computes PyRadiomics features for each voxel using its local neighborhood.
 
 **Expression syntax:** HABIT parses `method` as an outer combiner plus inner per-modality
 steps. Use `concat(...)` even for a **single** modality. Parentheses list **modality names**
-or **parameter placeholders** (e.g. `params_file`, `kernelRadius`); actual paths and
+or **parameter placeholders** (e.g. `params_file`, `kernel_radius`); actual paths and
 numbers live in `voxel_level.params` (placeholders are resolved from `params`). This is
 not Python `kwargs` syntax (`params_file=...` in the string is invalid).
 
-For **CT habitat** voxel texture, use the **R3B12** preset
-(`kernelRadius: 3`, `binWidth: 12` HU) from Petersen et al. (*Radiol Artif Intell*
+For **CT habitat** voxel texture, omit `params_file` to use the bundled **R3B12**
+preset (`kernel_radius: 3`, `binWidth: 12` HU) from Petersen et al. (*Radiol Artif Intell*
 2024;6(2):e230118, doi:10.1148/ryai.230118) — better repeatability/reproducibility than R1B25.
-Use `config/radiomics/params_voxel_radiomics.yaml`:
-GLCM must list **21 stable features** (exclude MCC/Imc1/Imc2). Bare `glcm:`
-enables all 24; on `kernelRadius=1–3` many neighborhoods are flat, GLCM
-matrices degenerate, and MCC/Imc1/Imc2 trigger CUDA/MKL `eigvals` errors.
+Bundled file: `habit/resources/radiomics/params_voxel_radiomics.yaml` (same content as
+`config/radiomics/params_voxel_radiomics.yaml`). GLCM lists **21 stable features** (excludes
+MCC/Imc1/Imc2). Bare `glcm:` enables all 24; on small kernels many neighborhoods are flat,
+GLCM matrices degenerate, and MCC/Imc1/Imc2 trigger CUDA/MKL `eigvals` errors.
 HABIT substitutes the safe list when `glcm` is unrestricted and logs a warning.
 
+**Recommended minimal config** (CT R3B12 defaults: bundled preset + `kernel_radius` 3 + `voxel_batch` 1000 + `use_torch_radiomics` auto):
+
 ```yaml
 voxel_level:
-  method: concat(voxel_radiomics(T2, params_file, kernelRadius))
-  params:
-    params_file: ./config/radiomics/params_voxel_radiomics.yaml
-    kernelRadius: 3          # CT R3B12 default: 3 → 7×7×7; 1=3×3×3 (habit param, not in params_file)
-    voxelBatch: 1000         # habit default; -1 = no batching
-    useTorchRadiomics: auto  # auto uses torch+CUDA when available
-    # torchGpus: [0, 1]      # allowed GPU indices
-    # torchGpuCount: 2       # optional: use first N GPUs from torchGpus
+  method: concat(voxel_radiomics(T2))
+  params: {}
 ```
 
-Multi-modality voxel radiomics:
+Override example (MRI smaller kernel, custom params file):
 
 ```yaml
 voxel_level:
-  method: concat(voxel_radiomics(T1, params_file, kernelRadius), voxel_radiomics(T2, params_file, kernelRadius))
+  method: concat(voxel_radiomics(T2, params_file, kernel_radius))
   params:
     params_file: ./config/radiomics/params_voxel_radiomics.yaml
-    kernelRadius: 3
+    kernel_radius: 1          # MRI: 3×3×3; CT default is 3 → 7×7×7
+    voxel_batch: 1000         # habit default; -1 = no batching
+    use_torch_radiomics: auto
+```
+
+Multi-modality voxel radiomics (shared defaults):
+
+```yaml
+voxel_level:
+  method: concat(voxel_radiomics(T1), voxel_radiomics(T2))
+  params: {}
 ```
 
 Recommended `params_voxel_radiomics.yaml` (PyRadiomics settings only):
@@ -150,7 +156,7 @@ DCE-MRI or dynamic CT?
   Need an accurate timestamps Excel.
 
 Want texture-driven habitats?
-  -> concat(voxel_radiomics(<seq>, params_file, ...)) if cohort small (<100) and you can afford runtime
+  -> concat(voxel_radiomics(<seq>)) with params: {} if cohort small (<100) and you can afford runtime
   -> concat(local_entropy(<seq>)) for a faster compromise (outer combiner required)
 ```
 
@@ -160,11 +166,11 @@ Want texture-driven habitats?
 2. All modalities must be **co-registered** (use `habit-preprocess` first).
 3. For `kinetic`, every subject ID in the timestamps Excel must match a
    subject folder name.
-4. For `voxel_radiomics`, the params file must exist and be valid PyRadiomics
-   YAML.
-5. For `supervoxel_radiomics`, wrap with `concat(...)` (even for one modality), use
-   `params_supervoxel_radiomics.yaml`, and set `supervoxelBatch` / torch keys under
-   `supervoxel_level.params` (see below).
+4. For `voxel_radiomics`, omit `params_file` for bundled CT R3B12 preset; if you
+   override with a custom path, ensure the file exists and is valid PyRadiomics YAML.
+5. For `supervoxel_radiomics`, wrap with `concat(...)` (even for one modality); omit
+   `params_file` for bundled full-set preset; optional `supervoxel_batch` / torch keys
+   under `supervoxel_level.params` (see below).
 
 ## Supervoxel-level: `concat(supervoxel_radiomics(<img>, params_file), ...)`
 
@@ -175,24 +181,31 @@ placeholder, values in `supervoxel_level.params`.
 ```yaml
 supervoxel_level:
   supervoxel_file_keyword: '*_supervoxel.nrrd'
+  method: concat(supervoxel_radiomics(T2))
+  params: {}
+  # Defaults: bundled full-set preset (params_supervoxel_radiomics.yaml),
+  # supervoxel_batch 64, use_supervoxel_cext auto, use_torch_radiomics auto
+```
+
+Override example (custom params file or tuning):
+
+```yaml
+supervoxel_level:
+  supervoxel_file_keyword: '*_supervoxel.nrrd'
   method: concat(supervoxel_radiomics(T2, params_file))
   params:
     params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
-    supervoxelBatch: 64          # habit default; batch group size for label loops
-    useSupervoxelCext: auto        # auto = C extension when built, else prior Torch/PyRadiomics path
-    useTorchRadiomics: auto      # inherits from voxel_level.params if omitted
-    # torchGpus: [0, 1]
-    # torchGpuCount: 2
-    # torchDtype: float32
+    supervoxel_batch: 64
+    use_supervoxel_cext: auto
+    use_torch_radiomics: auto
 ```
 
 Multi-modality (reference: `config/habitat/config_habitat_two_step_supervoxel_radiomics_train.yaml` uses `delay2` when demo data has delay phases):
 
 ```yaml
 supervoxel_level:
-  method: concat(supervoxel_radiomics(T1, params_file), supervoxel_radiomics(T2, params_file))
-  params:
-    params_file: ./config/radiomics/params_supervoxel_radiomics.yaml
+  method: concat(supervoxel_radiomics(T1), supervoxel_radiomics(T2))
+  params: {}
 ```
 
 **Binning semantics:** one PyRadiomics discretization on the union mask (`sv_map > 0`),
@@ -200,12 +213,12 @@ then per-label `cMatrices` ROI matrices — analogous in spirit to voxel-level w
 binning, but each unit is a supervoxel ROI. Values differ from legacy per-label
 `execute()` (per-label bin).
 
-**Not used:** `kernelRadius` (voxel_radiomics only).
+**Not used:** `kernel_radius` (voxel_radiomics only).
 
-**Matrix backend:** `useSupervoxelCext: auto` (default) uses habit native C-extension batched
+**Matrix backend:** `use_supervoxel_cext: auto` (default) uses habit native C-extension batched
 matrices when compiled; otherwise the prior Torch/PyRadiomics stacked-matrix path.
 
-**Feature backend:** `useTorchRadiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
+**Feature backend:** `use_torch_radiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
 PyRadiomics with the same union-mask bin path.
 
 Compare with `mean_voxel_features()` when you already have `voxel_level` features and

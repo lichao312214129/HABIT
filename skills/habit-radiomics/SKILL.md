@@ -20,7 +20,7 @@ habit radiomics --config <config_traditional_radiomics.yaml>
 
 | Field | Stop if missing |
 |---|---|
-| `paths.params_file` | yes — PyRadiomics parameter YAML |
+| `paths.params_file` | optional — omit for bundled `parameter.yaml` preset; override with path or `@preset:roi` |
 | `paths.images_folder` | yes |
 | `paths.out_dir` | yes |
 | `processing.process_image_types` | yes — modality folder names |
@@ -37,13 +37,14 @@ Three options for the params file:
 
 Choosing guide: `references/parameter_choice_guide.md`.
 
-If the user has no params file, use the basic template as a starting point.
+If the user has no params file, omit `paths.params_file` (bundled default) or use
+`parameter_basic.yaml` as a starting point for a custom file.
 
 ## Standard config
 
 ```yaml
 paths:
-  params_file: ./config/radiomics/parameter.yaml
+  # params_file omitted → bundled parameter.yaml preset
   images_folder: ./data/preprocessed_images
   out_dir: ./results/radiomics
 
@@ -84,7 +85,7 @@ Full annotated reference: `config/radiomics/config_traditional_radiomics.yaml`.
 
 ```bash
 python skills/habit-feature-extraction/scripts/inspect_feature_csv.py \
-  <out_dir>/radiomics_features_combined_*.csv --subject-id-col subjID
+  <out_dir>/radiomics_features_combined_*.csv --subject-id-col subject_id
 ```
 
 (The same CSV inspector used for habitat features works here too.)

@@ -27,6 +27,9 @@ Code style
 ----------
 
 * Follow PEP 8.
+* Use **snake_case** for Python variables, function parameters, module-level names,
+  and YAML / Pydantic configuration field keys (e.g. ``out_dir``, ``kernel_radius``,
+  ``feature_construction``). Use **PascalCase** for classes only.
 * Add docstrings where appropriate.
 * Add tests for new behavior.
 * Ensure ``pytest tests/`` passes.

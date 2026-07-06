@@ -34,6 +34,7 @@ from typing import Union, List, Dict, Optional, Any
 
 from ..config_schemas import ResultColumns
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 
 
 def calculate_supervoxel_means(
@@ -111,7 +112,15 @@ class MeanVoxelFeaturesExtractor(BaseClusteringExtractor):
     This extractor calculates the mean values of voxel features within each supervoxel.
     It's a simpler alternative to radiomics features, just using the average values.
     """
-    
+
+    # DSL contract: mean_voxel_features() — supervoxel aggregator, no parameters.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={},
+        combiner=True,
+        takes_image=False,
+    )
+
     def __init__(self, **kwargs: Any) -> None:
         """
         Initialize mean voxel features extractor
@@ -211,7 +220,7 @@ class MeanVoxelFeaturesExtractor(BaseClusteringExtractor):
                     continue
                 
                 # Calculate mean of each feature for current supervoxel
-                feature_row = {"SupervoxelID": int(sv_label)}
+                feature_row = {"supervoxel_id": int(sv_label)}
                 for col in feature_cols:
                     feature_row[col] = sv_voxels[col].mean()
                 
@@ -229,7 +238,7 @@ class MeanVoxelFeaturesExtractor(BaseClusteringExtractor):
                 
                 # Create feature row
                 feature_row = {
-                    "SupervoxelID": int(sv_label),
+                    "supervoxel_id": int(sv_label),
                     "intensity": mean_intensity
                 }
                 

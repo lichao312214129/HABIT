@@ -28,7 +28,7 @@ files_config:
     split_col: dataset
   # - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
   #   model_name: Clinical-Radiomics model                        # Name used to identify this model in plots and reports
-  #   subject_id_col: subjID              # Column containing unique subject identifiers
+  #   subject_id_col: subject_id              # Column containing unique subject identifiers
   #   label_col: label               # Column containing actual outcome labels (binary: 0/1)
   #   prob_col: LogisticRegression_prob               # Column containing predicted probabilities (continuous: 0-1)
   #   pred_col: LogisticRegression_pred              # Column containing predicted class labels (binary: 0/1)

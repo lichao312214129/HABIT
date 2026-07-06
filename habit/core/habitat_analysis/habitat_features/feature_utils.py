@@ -75,8 +75,8 @@ class FeatureUtils:
                 return None
 
             df = load_habitats_results(results_path)
-            if "Habitats" in df.columns:
-                unique_habitats = int(df["Habitats"].nunique())
+            if "habitats" in df.columns:
+                unique_habitats = int(df["habitats"].nunique())
                 logging.info(
                     "Read %s habitats from %s",
                     unique_habitats,

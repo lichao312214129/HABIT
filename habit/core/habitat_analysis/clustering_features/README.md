@@ -54,7 +54,7 @@ class YourMethodFeatureExtractor(BaseClusteringExtractor):
 一旦注册，您可以在配置文件中指定您的特征提取器：
 
 ```yaml
-FeatureConstruction:
+feature_construction:
   method: your_method  # 这里使用您注册的特征提取器名称
   # 其他参数
 ```

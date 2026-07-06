@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 from typing import Dict, List, Optional, Union, Any, Tuple
 
 from habit.utils.io_utils import load_timestamp
@@ -32,6 +33,15 @@ class KineticFeatureExtractor(BaseClusteringExtractor):
     
     Extracts dynamic features based on time-series images, such as enhancement rate, peak enhancement, etc.
     """
+
+    # DSL contract: kinetic(raw(...), ..., timestamps) — combiner requiring a
+    # ``timestamps`` binding that points at the acquisition-time file.
+    method_param_spec = MethodParamSpec(
+        required=("timestamps",),
+        optional={},
+        combiner=True,
+        takes_image=False,
+    )
     
     def __init__(self, timestamps: Optional[str] = None, **kwargs: Any) -> None:
         """

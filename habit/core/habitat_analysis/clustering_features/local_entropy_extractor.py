@@ -45,6 +45,7 @@ import SimpleITK as sitk
 from scipy import ndimage
 from typing import Union, List, Dict, Optional, Tuple
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
+from .method_param_spec import MethodParamSpec
 from habit.utils.progress_utils import CustomTqdm
 
 @FeatureExtractorRegistry.register('local_entropy')
@@ -53,6 +54,13 @@ class LocalEntropyExtractor(BaseClusteringExtractor):
     Extract voxel-level local entropy features from image within mask region
     Local entropy is a measure of the randomness in the local neighborhood of a voxel
     """
+
+    # DSL contract: local_entropy(<modality>, kernel_size, bins) — both optional.
+    method_param_spec = MethodParamSpec(
+        required=(),
+        optional={"kernel_size": 3, "bins": 32},
+        takes_image=True,
+    )
     
     def __init__(self, **kwargs):
         """

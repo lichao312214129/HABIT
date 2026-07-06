@@ -21,7 +21,7 @@ pipeline_path: ../../demo_data/results/ml/clinical/models/LogisticRegression_fin
 input:
   - path: ../../demo_data/ml_data/clinical_feature.csv
     name: clinical_
-    subject_id_col: subjID
+    subject_id_col: subject_id
     label_col: label
 output: ../../demo_data/results/ml/clinical/predictions
 # Optional: compute metrics when label_col is present in the data file

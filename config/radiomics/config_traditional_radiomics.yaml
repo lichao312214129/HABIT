@@ -24,7 +24,8 @@
 # =============================================================================
 
 paths:
-  params_file: ./parameter.yaml                                   # PyRadiomics 参数文件（本目录）
+  # params_file optional: omit to use bundled 'roi' preset (habit/resources/radiomics/parameter.yaml)
+  # params_file: ./parameter.yaml
   #%%============================================================================
   # 【必改】输入影像根目录 / 输出目录
   images_folder: ../../demo_data/preprocessed/processed_images    # 含 images/ 与 masks/

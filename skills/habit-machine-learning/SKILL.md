@@ -30,7 +30,7 @@ If split files are needed and the user doesn't have them, generate via:
 
 ```bash
 python skills/habit-machine-learning/scripts/prepare_split_files.py <csv_path> \
-  --subject-id-col subjID --label-col label --test-size 0.3 --output-dir ./splits
+  --subject-id-col subject_id --label-col label --test-size 0.3 --output-dir ./splits
 ```
 
 ## Decision tree
@@ -120,7 +120,7 @@ Full annotated references:
 
 ```bash
 python skills/habit-feature-extraction/scripts/inspect_feature_csv.py <input_csv> \
-  --subject-id-col subjID --label-col label
+  --subject-id-col subject_id --label-col label
 ```
 
 Catches duplicate IDs, NaN columns, non-binary labels BEFORE training.

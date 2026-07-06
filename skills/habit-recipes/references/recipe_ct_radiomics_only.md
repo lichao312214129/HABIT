@@ -41,11 +41,11 @@ habit radiomics --config configs/02_ct_radiomics.yaml
 # 3) Inspect the output CSV before ML
 python skills/habit-feature-extraction/scripts/inspect_feature_csv.py \
   <RADIOMICS_OUT>/radiomics_features_combined_*.csv \
-  --subject-id-col subjID
+  --subject-id-col subject_id
 
 # 4) Merge features with clinical labels
 habit merge-csv <RADIOMICS_OUT>/radiomics_features_combined_*.csv <CLINICAL_CSV> \
-  -o configs/ml_input.csv --index-col subjID
+  -o configs/ml_input.csv --index-col subject_id
 
 # 5) Train ML
 habit model --config configs/03_ct_ml.yaml --mode train
@@ -62,8 +62,8 @@ habit model --config configs/03_ct_ml.yaml --mode train
 ## Notes specific to CT
 
 - Use `binWidth: 25` in traditional whole-tumor PyRadiomics params (CT HU fixed range).
-  For **habitat voxel texture** (`voxel_radiomics`), use R3B12: `kernelRadius: 3` and
-  `binWidth: 12` in `params_voxel_radiomics.yaml` (Petersen et al., *Radiol Artif Intell*
+  For **habitat voxel texture** (`voxel_radiomics`), use minimal `params: {}` (bundled R3B12:
+  `kernel_radius: 3`, `binWidth: 12`; Petersen et al., *Radiol Artif Intell*
   2024;6(2):e230118, doi:10.1148/ryai.230118).
 - Do NOT enable `normalize: true` in PyRadiomics — CT HU values already
   carry physical meaning.

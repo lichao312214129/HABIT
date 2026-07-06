@@ -126,7 +126,7 @@ def run_dice_calculation(input1, input2, output, mask_keyword, label_id):
             dice = compute_dice(path1, path2, label_id)
 
             results.append({
-                'Subject': subj,
+                'subject': subj,
                 'MaskType': mtype,
                 'Dice': dice,
                 'Path1': path1,

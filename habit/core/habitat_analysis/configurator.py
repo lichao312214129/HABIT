@@ -132,9 +132,15 @@ class HabitatConfigurator(BaseConfigurator):
         elif not plugin_configs:
             plugin_configs = plugin_configs_for_feature_types(cfg.feature_types)
 
+        from habit.utils.radiomics_preset_utils import resolve_params_file
+
         return HabitatMapAnalyzer(
-            params_file_of_non_habitat=str(cfg.params_file_of_non_habitat),
-            params_file_of_habitat=str(cfg.params_file_of_habitat),
+            params_file_of_non_habitat=resolve_params_file(
+                cfg.params_file_of_non_habitat, preset="roi"
+            ),
+            params_file_of_habitat=resolve_params_file(
+                cfg.params_file_of_habitat, preset="habitat"
+            ),
             raw_img_folder=str(cfg.raw_img_folder),
             habitats_map_folder=str(cfg.habitats_map_folder),
             out_dir=str(cfg.out_dir),
@@ -162,7 +168,13 @@ class HabitatConfigurator(BaseConfigurator):
                     f"Invalid configuration for Radiomics Extraction: {exc}"
                 ) from exc
 
-        params_file = cfg.params_file or cfg.paths.params_file
+        from habit.utils.radiomics_preset_utils import resolve_params_file
+
+        # params_file is optional: user path (top-level or paths.*) wins; when both
+        # are omitted, fall back to the bundled 'roi' preset.
+        params_file = resolve_params_file(
+            cfg.params_file or cfg.paths.params_file, preset="roi"
+        )
         images_folder = cfg.images_folder or cfg.paths.images_folder
         out_dir = cfg.out_dir or cfg.paths.out_dir
         n_processes = cfg.n_processes or cfg.processing.n_processes

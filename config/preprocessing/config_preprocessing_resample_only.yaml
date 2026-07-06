@@ -33,7 +33,7 @@ out_dir: ../../demo_data/results/preprocessing_resample_only   # 输出目录（
 auto_select_first_file: true
 
 # 预处理流水线：YAML 中步骤的书写顺序 = 实际执行顺序
-Preprocessing:
+preprocessing:
   # 重采样：统一体素间距
   resample:
     images: [delay2, delay3, delay5]   # 要处理的模态键（必须与数据文件夹名一致）
