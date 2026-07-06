@@ -1,0 +1,33 @@
+# Demo: ML train with ICC feature selection (requires prior habit icc demo run).
+#   1) habit icc -c config/auxiliary/config_icc_demo.yaml
+#   2) habit model -c config/machine_learning/config_machine_learning_radiomics_icc_demo.yaml -m train
+input:
+  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv
+    name: radiomics_
+    subject_id_col: subject_id
+    label_col: label
+output: ../../demo_data/results/ml/radiomics_icc_demo
+split_method: custom
+train_ids_file: ../../demo_data/ml_data/train_ids.txt
+test_ids_file: ../../demo_data/ml_data/test_ids.txt
+normalization:
+  method: z_score
+resampling:
+  enabled: false
+feature_selection_methods:
+  - method: icc
+    params:
+      icc_results: ../../demo_data/results/icc/icc_radiomics.json
+      keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]
+      metric: ICC3
+      threshold: 0.75
+      before_z_score: true
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+is_visualize: true
+is_save_model: true
+visualization:
+  enabled: true

@@ -81,7 +81,7 @@ feature_selection_methods:
   # ICC (Intraclass Correlation Coefficient) method
   # - method: icc  # Selects features based on their reproducibility
   #   params:
-  #     icc_results: ../../demo_data/ml_data/icc_radiomics.json  # Path to pre-computed ICC results
+  #     icc_results: ../../demo_data/results/icc/icc_radiomics.json  # from config_icc_demo.yaml
   #     keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
   #     metric: ICC2 # Metrics to use
   #     threshold: 0.8
