@@ -36,6 +36,6 @@ Command reference
      - Utilities
      - :doc:`auxiliary`
 
-Global flags: ``--config`` / ``-c`` , ``--help`` , ``--version`` , ``--debug`` (mainly ``get-habitat`` ).
+Global flags: ``--help`` , ``--version`` . ``--config`` / ``-c`` applies to pipeline commands that take a YAML (not ``dice``, ``dicom-info``, ``merge-csv``, ``gui``). ``--debug`` and ``--resume`` apply to ``habit get-habitat`` only.
 
 Templates: ``config/`` · fields: :doc:`../configuration/index` .

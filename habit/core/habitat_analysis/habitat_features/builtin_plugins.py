@@ -22,7 +22,7 @@ Registered names (used in YAML feature_types lists):
     - traditional     : PyRadiomics on the raw image within the whole ROI
     - whole_habitat   : PyRadiomics on the multi-label habitat map itself
     - each_habitat    : PyRadiomics on the raw image per individual habitat
-    - msi             : Mutual Spatial Integrity features
+    - msi             : Multiregional spatial interaction (MSI) features
     - ith_score       : Intratumoral Heterogeneity score
 
 To add a new feature type, create a new subclass here (or in a separate file),
@@ -448,12 +448,12 @@ class EachHabitatPlugin(HabitatFeaturePluginBase):
 
 
 # ---------------------------------------------------------------------------
-# msi: Mutual Spatial Integrity
+# msi: Multiregional spatial interaction (MSI)
 # ---------------------------------------------------------------------------
 
 @HabitatFeatureRegistry.register("msi")
 class MSIPlugin(HabitatFeaturePluginBase):
-    """Mutual Spatial Integrity (MSI) features derived from the habitat map.
+    """Multiregional spatial interaction (MSI) features derived from the habitat map.
 
     Wraps MSIFeatureExtractor.
     """

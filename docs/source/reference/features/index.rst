@@ -3,7 +3,7 @@ Feature reference
 
 HABIT-native feature definitions, formulas, and output CSV columns. PyRadiomics features: `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_ .
 
-Each page: **Output** → **Definition** → **Formula** → **Columns** → **Implementation** → **References** (if any).
+Each page: **Output** → **Definition** → **Formula** (if any) → **Output columns** → **Implementation** → **References** (if any).
 
 .. list-table:: Feature types
    :header-rows: 1
@@ -19,7 +19,7 @@ Each page: **Output** → **Definition** → **Formula** → **Columns** → **I
      - ``habitat_basic_features.csv``
      - :doc:`non_radiomics`
    * - ``whole_habitat`` / ``each_habitat``
-     - ``whole_habitat_radiomics.csv`` / ``radiomics_of_habitat_*.csv``
+     - ``whole_habitat_radiomics.csv`` / ``habitat_{k}_radiomics.csv`` + ``habitat_count.csv``
      - :doc:`whole_each_habitat`
    * - ``msi``
      - ``msi_features.csv``

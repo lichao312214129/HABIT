@@ -24,6 +24,11 @@ Formula
 
 Connected components use SimpleITK ``ConnectedComponent`` with ``SetFullyConnected(False)`` (6-connectivity in 3D).
 
+The exported CSV uses fixed column indices ``1 … K`` where *K* = ``n_habitats`` from
+config (or auto-detected ``habitats.csv``), not necessarily the distinct labels
+present in each subject's map. Per-subject ``num_habitats`` counts distinct labels
+in that map and may differ from *K*.
+
 Output columns
 --------------
 
@@ -34,11 +39,11 @@ Output columns
    * - Column
      - Description
    * - ``num_habitats``
-     - Number of distinct habitat labels (> 0)
-   * - ``{k}_volume_ratio``
-     - Fraction of tumor voxels assigned to habitat *k*
-   * - ``{k}_num_regions``
-     - Number of face-connected regions with label *k*
+     - Number of distinct habitat labels (> 0) in this subject's map
+   * - ``{k}_num_regions`` (k = 1 … K)
+     - Face-connected component count for label *k* (0 if absent)
+   * - ``{k}_volume_ratio`` (k = 1 … K)
+     - Fraction of tumor voxels with label *k* (0 if absent)
 
 Implementation
 --------------

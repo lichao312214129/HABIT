@@ -60,7 +60,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
        n_init: 10
 
    processes: 2
-   cap_processes_to_gpu_pool: true
+   cap_processes_to_gpu_pool: false
    individual_subject_timeout_sec: 900
    individual_subject_spawn_timeout_sec: 120
    resume: true
@@ -512,7 +512,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Adding a method**:
 
   1. See ``habit/core/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
-  2. Append method name to ``config_schemas.PreprocessingMethod.method`` Literal
+  2. Register the method name in ``habit/core/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`extension_points`
   3. If column-dropping, update ``DROPPING_PREPROCESSING_METHODS``
   4. Ensure module import so registration decorator runs
 
@@ -722,16 +722,19 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 - ``selection_method``: Auto-selection metric
 
   - **Type**: string
-  - **Default**: ``silhouette``
+  - **Default**: ``elbow``
   - **Allowed values and meaning**:
 
+    - ``elbow``: elbow on inertia curve (default)
     - ``silhouette``: silhouette coefficient (-1 to 1; closer to 1 = tighter clusters)
     - ``calinski_harabasz``: Calinski-Harabasz index (higher = better)
     - ``davies_bouldin``: Davies-Bouldin index (lower = better)
     - ``inertia``: within-cluster sum of squares (lower = tighter; Kneedle elbow internally)
     - ``kneedle``: Kneedle on normalized inertia curve (max deviation point)
+    - ``gap``: gap statistic
+    - ``aic`` / ``bic``: information criteria (gmm-oriented)
 
-  - **Recommendation**: ``silhouette`` (strong overall performance)
+  - **Recommendation**: ``elbow`` (schema default) or ``silhouette`` for interpretability
 
 - ``plot_validation_curves``: Plot validation curves
 
@@ -767,7 +770,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 - ``habitat_cluster_selection_method``: Auto-selection metrics
 
   - **Type**: list or string
-  - **Default**: ``inertia`` (YAML may use string or single-element list)
+  - **Default**: ``elbow`` (YAML may use string or single-element list)
   - **Allowed values and meaning**:
 
     - ``inertia``: within-cluster SS (lower better for kmeans; Kneedle internally)
@@ -796,12 +799,12 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 - ``max_iter``: Maximum iterations
 
   - **Type**: integer
-  - **Default**: ``300`` (kmeans) or ``100`` (gmm)
+  - **Default**: ``300`` (both ``kmeans`` and ``gmm`` in ``HabitatClusteringConfig``)
 
 - ``n_init``: Number of initializations
 
   - **Type**: integer
-  - **Default**: ``10`` (kmeans) or ``1`` (gmm)
+  - **Default**: ``10`` (both ``kmeans`` and ``gmm``)
 
 - **Full examples**:
 
@@ -872,7 +875,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These fields sit at the **top level** of the habitat YAML (same level as ``data_dir``). ``predict`` mode ignores parallelism and checkpoint fields. Resume fields are documented below (``resume``, ``strict_checkpoint_hash``, ``.habitat_checkpoint``, etc.); CLI: ``habit get-habitat --resume``.
+These fields sit at the **top level** of the habitat YAML (same level as ``data_dir``). Both ``train`` and ``predict`` use ``processes``, checkpoint paths, and ``resume`` where applicable (predict checkpoints default to ``<out_dir>/.habitat_predict_checkpoint``). CLI: ``habit get-habitat --resume``.
 
 .. list-table::
    :header-rows: 1
@@ -890,7 +893,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - Stage 1 max parallel workers; peak memory ≈ ``processes × per-subject memory``
    * - ``cap_processes_to_gpu_pool``
      - bool
-     - ``true``
+     - ``false``
      - no
      - Torch CUDA radiomics: ``true`` caps workers to ``len(torch_gpus)``; ``false`` keeps ``processes`` and shares GPUs across workers
    * - ``individual_subject_timeout_sec``
@@ -927,7 +930,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - bool
      - ``true``
      - —
-     - Skip completed subjects from checkpoint; ``train`` only
+     - Skip completed subjects from checkpoint; ``train`` and ``predict``
    * - ``checkpoint_dir``
      - str / ``null``
      - ``null``
@@ -1030,7 +1033,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 
 - **Type**: bool
 - **Default**: ``true``
-- **Description**: When ``true``, reads ``manifest.json`` from ``checkpoint_dir`` (default ``<out_dir>/.habitat_checkpoint``), skips ``completed_subjects``, loads ``subjects/{id}.pkl``; subjects in ``failed_subjects`` are **not auto-retried on next** ``resume`` unless ``retry_failed_subjects: true`` or listed in ``force_rerun_subjects``. **Within the same** ``train`` run, ``individual_subject_auto_retry_rounds`` retries Stage 1 failures by default. ``run_mode: train`` only.
+- **Description**: When ``true``, reads ``manifest.json`` from ``checkpoint_dir`` (default ``<out_dir>/.habitat_checkpoint`` for train, ``<out_dir>/.habitat_predict_checkpoint`` for predict), skips ``completed_subjects``, loads per-subject pickles; subjects in ``failed_subjects`` are **not auto-retried on next** ``resume`` unless ``retry_failed_subjects: true`` or listed in ``force_rerun_subjects``. **Within the same** run, ``individual_subject_auto_retry_rounds`` retries Stage 1 failures by default. Applies to both ``train`` and ``predict``.
 - **CLI**: ``habit get-habitat --resume`` equivalent to ``resume: true``.
 - **See also**: checkpoint / ``resume`` fields on this page.
 - **Parallel reliability plan**: ``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`` at repo root (GPU worker slots, processes cap, Phase 2/3 roadmap).
@@ -1071,7 +1074,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 - **Type**: string
 - **Default**: ``persistent``
 - **Allowed values**: ``isolated``, ``persistent``
-- **Description**: ``persistent`` (default): one long-lived child per worker slot, reused within the same ``train`` run (including auto-retry rounds), amortizing import/spawn. ``isolated``: spawn per subject (stronger isolation; unpickleable pipeline or spawn debugging). Single GPU persistent is still serial—main benefit is startup cost. When ``processes=1`` and ``individual_subject_timeout_sec: null``, both modes run sequentially in main process without spawn. Ignored in ``predict``.
+- **Description**: ``persistent`` (default): one long-lived child per worker slot, reused within the same run (including auto-retry rounds), amortizing import/spawn. ``isolated``: spawn per subject (stronger isolation; unpickleable pipeline or spawn debugging). Single GPU persistent is still serial—main benefit is startup cost. When ``processes=1`` and ``individual_subject_timeout_sec: null``, both modes run sequentially in main process without spawn. Used in both ``train`` and ``predict`` individual-level stages.
 
 **persistent_worker_max_consecutive_failures** (habitat analysis top level): Persistent worker restart threshold
 

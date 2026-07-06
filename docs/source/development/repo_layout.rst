@@ -23,7 +23,7 @@
    * - ``docs/``
      - 本文档（Sphinx 源码在 ``docs/source/``）。
    * - ``habit-gui/``
-     - 独立的 Web GUI（FastAPI 后端 + React 前端 + bridge 反射层），不属于 ``habit`` 包。
+     - 可选的独立 Web GUI 仓库/目录（FastAPI + React + bridge）；默认不在本仓库 checkout 中（见 ``.gitignore``）；``habit gui`` 会在 sibling ``habit-gui/`` 或 bundled ``habit/_gui_bundle`` 中查找。
    * - ``pyproject.toml``
      - 打包与入口点定义（``habit = "habit.cli:cli"``）。
 

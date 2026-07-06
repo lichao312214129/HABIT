@@ -10,7 +10,7 @@ Other strategies (swap config file):
 - One-step: ``config/habitat/config_habitat_one_step_raw_concat_train.yaml``
 - Direct pooling: ``config/habitat/config_habitat_direct_pooling.yaml``
 
-Options: ``--mode train|predict`` , ``--resume`` .
+Options: ``--mode train|predict`` , ``--pipeline`` (predict: override saved pipeline path) , ``--debug`` , ``--resume`` .
 
 **Output**: ``*_habitats.nrrd`` ; overlay in ITK-SNAP / 3D Slicer.
 

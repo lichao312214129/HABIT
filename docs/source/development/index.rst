@@ -60,5 +60,5 @@
 
    本章侧重 **架构与机制**；完整可复制的组件代码模板见 :doc:`../customization/index`，两者互补。
 
-环境速览：Python 3.10 + ``pip install -e ".[dev]"`` + ``pytest tests/``。
+环境速览：Python 3.10 + ``pip install -r requirements.txt`` + ``pip install -e .`` + ``pytest tests/``。
 API 与第三方库参考见左侧 **Developer** 侧边栏。

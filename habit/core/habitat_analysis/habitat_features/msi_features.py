@@ -14,7 +14,7 @@
 #
 #!/usr/bin/env python
 """
-MSI (Mutual Spatial Integrity) Features Extraction
+MSI (Multiregional Spatial Interaction) Features Extraction
 This module provides functionality for extracting MSI features from habitat maps
 """
 

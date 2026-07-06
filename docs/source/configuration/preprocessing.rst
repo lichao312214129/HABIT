@@ -4,7 +4,7 @@ Preprocessing Configuration
 Preprocessing configuration parameters
 --------------------------------------
 
-This section documents **preprocessing** configuration (``PreprocessingConfig``). Top-level keys under ``Preprocessing`` must match names registered in ``PreprocessorFactory``; the order of sub-blocks in YAML is the execution order.
+This section documents **preprocessing** configuration (``PreprocessingConfig``). Top-level key ``preprocessing`` holds step blocks; keys must match names registered in ``PreprocessorFactory``; YAML order is execution order.
 
 DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; fields are listed under **「DICOM sort configuration parameters」** below. See :doc:`../how_to/preprocess` for operations.
 
@@ -74,7 +74,7 @@ DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; fields are
    * - ``data_dir`` / ``out_dir``
      - none (required)
      - Relative paths are resolved against the directory containing this YAML
-   * - ``Preprocessing``
+   * - ``preprocessing``
      - ``{}``
      - Step name → config dict; keys must be registered preprocessor names
    * - ``processes``

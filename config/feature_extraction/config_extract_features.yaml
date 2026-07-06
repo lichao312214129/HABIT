@@ -64,7 +64,7 @@ debug: false
 # - raw_image_radiomics.csv (traditional)
 # - habitat_basic_features.csv (non_radiomics)
 # - whole_habitat_radiomics.csv (whole_habitat)
-# - each_habitat_radiomics.csv (each_habitat)
+# - habitat_{k}_radiomics.csv + habitat_count.csv (each_habitat)
 # - msi_features.csv (msi)
 # - ith_scores.csv (ith_score)
 #

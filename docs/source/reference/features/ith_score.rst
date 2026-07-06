@@ -20,6 +20,8 @@ Formula
 
 :math:`S_{\mathrm{total}}` = tumor voxel count; :math:`S_{i,\max}` = largest connected component of label *i*; :math:`n_i` = number of connected components of label *i*.
 
+Connected components use SimpleITK ``ConnectedComponent`` (default 6-connectivity in 3D, same as ``non_radiomics``).
+
 Output columns
 --------------
 
@@ -30,9 +32,11 @@ Output columns
    * - Column
      - Description
    * - ``ith_score``
-     - ITH score (typically 0–1; higher = more fragmented)
+     - ITH score (higher = more fragmented; not clamped to [0, 1])
+   * - ``num_habitats``
+     - Number of distinct habitat labels (> 0) in the map
    * - ``habitat_{i}_regions``
-     - :math:`n_i` (component count for label *i*)
+     - :math:`n_i` (component count for label *i*; *i* = actual label value)
    * - ``habitat_{i}_largest_area``
      - :math:`S_{i,\max}`
    * - ``habitat_{i}_area_ratio``

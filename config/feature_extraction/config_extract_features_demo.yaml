@@ -27,11 +27,11 @@ out_dir: ../../demo_data/results/features
 n_processes: 2
 habitat_pattern: '*_habitats.nrrd'
 # 要提取的特征类型（本公开版可用）：
-#   traditional   : 对每个生境做传统 PyRadiomics 特征
-#   non_radiomics : 非组学特征（体积占比、数量等）
-#   whole_habitat : 把整个肿瘤当一个 ROI 的组学特征
-#   each_habitat  : 逐个生境分别提取组学特征
-#   msi           : 多区域空间异质性 (MSI) 指标
+#   traditional   : 原始影像上、肿瘤 ROI（由生境图二值化）的传统 PyRadiomics
+#   non_radiomics : 非组学形态特征（体积占比、连通域数量等）
+#   whole_habitat : 在生境 label 图上做 PyRadiomics（强度=标签 ID）
+#   each_habitat  : 每个生境标签在原始影像上的 PyRadiomics（habitat_{k}_radiomics.csv）
+#   msi           : 多区域空间相互作用 (MSI) 矩阵特征
 #   ith_score     : 瘤内异质性 (ITH) 评分
 feature_types:
   - traditional

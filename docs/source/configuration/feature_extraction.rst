@@ -32,17 +32,17 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 **params_file_of_non_habitat**: parameter file for features extracted from raw images
 
 - **Type**: string
-- **Required**: yes
-- **Default**: none (required)
-- **Description**: PyRadiomics parameter file for traditional radiomics features from raw images
+- **Required**: no
+- **Default**: ``null`` (bundled ``roi`` preset → ``habit/resources/radiomics/parameter.yaml``)
+- **Description**: PyRadiomics parameter file for traditional / each_habitat radiomics on raw images
 - **Example**: ``./parameter.yaml``
 
 **params_file_of_habitat**: parameter file for features extracted from habitat maps
 
 - **Type**: string
-- **Required**: yes
-- **Default**: none (required)
-- **Description**: PyRadiomics parameter file for features from habitat maps
+- **Required**: no
+- **Default**: ``null`` (bundled ``habitat`` preset → ``habit/resources/radiomics/parameter_habitat.yaml``)
+- **Description**: PyRadiomics parameter file for whole_habitat radiomics on the label map
 - **Example**: ``./parameter_habitat.yaml``
 
 **raw_img_folder**: root directory of raw images

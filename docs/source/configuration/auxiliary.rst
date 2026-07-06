@@ -87,20 +87,21 @@ This section documents **Test-Retest reproducibility** configuration. Example: `
 
 - ``features``: feature columns for similarity; ``null`` means all
 - ``similarity_method`` (default ``pearson``): ``pearson``, ``spearman``, ``kendall``, ``euclidean``, ``cosine``, ``manhattan``, ``chebyshev``
-- ``output_dir``: remapped NRRD and other intermediate output directory (used alongside ``out_dir`` in example YAML)
 - ``processes`` (default ``4``)
 - ``debug`` (default ``false``)
+
+Intermediate NRRD remapping outputs are written under ``out_dir``.
 
 Traditional radiomics CLI configuration (``habit radiomics``)
 ------------------------------------------------------------
 
 This section documents **traditional radiomics** configuration. Example: ``config/radiomics/config_traditional_radiomics.yaml``.
 
-**paths** (required)
+**paths**
 
-- ``params_file``: PyRadiomics parameter YAML (`PyRadiomics documentation <https://pyradiomics.readthedocs.io/>`_)
-- ``images_folder``: root directory containing ``images/`` and ``masks/`` subfolders
-- ``out_dir``: feature output directory
+- ``params_file``: PyRadiomics parameter YAML (optional; bundled ``roi`` preset when omitted)
+- ``images_folder``: root directory containing ``images/`` and ``masks/`` subfolders (required)
+- ``out_dir``: feature output directory (required)
 
 **processing**
 
@@ -164,13 +165,10 @@ HABIT provides configuration validation to ensure parameter correctness.
 
 .. code-block:: python
 
-   from habit.core.common.configs.loader import load_config
+   from habit.core.schemas.workflows.habitat import FeatureExtractionConfig
 
-   # Load and validate configuration
-   config = load_config('./config.yaml')
-
-   # Raises an exception if configuration is invalid
-   # ValueError: Missing required parameter: data_dir
+   # Workflow commands validate YAML via Pydantic models, e.g.:
+   cfg = FeatureExtractionConfig.model_validate(yaml_dict)
 
 FAQ
 ---

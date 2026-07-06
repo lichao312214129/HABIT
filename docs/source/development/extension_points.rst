@@ -241,7 +241,7 @@ HABIT 共有 **8 个注册表**\ （6 个类式工厂 + 2 个函数式注册表�
      - 继承 ``BaseModel``
      - ``model``
    * - **聚类算法**
-     - ``@register_clustering("name")``
+     - ``@ClusteringAlgorithmFactory.register("name")``
      - 继承 ``BaseClustering``
      - (依附生境，无独立 domain)
    * - **聚类阶段特征提取器**
@@ -250,7 +250,7 @@ HABIT 共有 **8 个注册表**\ （6 个类式工厂 + 2 个函数式注册表�
      - (依附生境)
    * - **特征表预处理方法**
      - ``@PreprocessingMethodFactory.register("name")``
-     - 继承特征预处理基类
+     - 继承 ``BaseFeaturePreprocessing``
      - (依附生境)
    * - **分割后生境特征插件**
      - ``@HabitatFeatureRegistry.register("name")``
@@ -262,7 +262,7 @@ HABIT 共有 **8 个注册表**\ （6 个类式工厂 + 2 个函数式注册表�
      - ``feature_selection``
    * - **评估指标**
      - ``@MetricRegistry.register("name")``
-     - 函数 ``(y_true, y_pred) -> float``
+     - 函数 ``(y_true, y_pred, y_prob, cm=None) -> float``
      - (纯函数，通常无参数 Schema)
 
 .. note::

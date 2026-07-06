@@ -10,7 +10,8 @@
 .. code-block:: bash
 
    conda activate habit          # Python 3.10
-   pip install -e ".[dev]"       # 可编辑安装 + 开发依赖
+   pip install -r requirements.txt
+   pip install -e .              # editable install
    pytest tests/                 # 运行测试
 
 代码约定
@@ -154,7 +155,7 @@ GUI 通过 ``schemas/reflect.py`` 反射出对应表单字段。机制详见 :do
 场景三：Web GUI 与 bridge
 -------------------------
 
-``habit-gui/`` 是独立于 ``habit`` 包的 Web GUI，通过两条通道复用核心，而 **不重写业务逻辑**：
+``habit-gui/`` 是可选的独立 Web GUI（默认不在本仓库 checkout 中；见 :doc:`repo_layout`），通过两条通道复用核心，而 **不重写业务逻辑**：
 
 .. mermaid::
 
@@ -164,8 +165,7 @@ GUI 通过 ``schemas/reflect.py`` 反射出对应表单字段。机制详见 :do
      API -->|bridge worker| BR["habit-gui/bridge"]
      BR -->|import| SCH["habit.core.schemas (reflect)"]
 
-- **执行通道**：GUI 把表单存成 YAML（写到 ``{project}/reports/gui_configs/``），再以 **子进程** 调用
-  ``habit`` CLI 运行，行为与命令行完全一致。
+- **执行通道**：GUI 生成 YAML 配置，再以 **子进程** 调用 ``habit`` CLI 运行，行为与命令行完全一致。
 - **Schema 通道**：``habit-gui/bridge`` 反射 ``habit.core.schemas`` 的参数模型，把字段描述符喂给前端动态渲染表单。
   因此 **表单字段永远与 CLI 的 YAML Schema 一致**。
 

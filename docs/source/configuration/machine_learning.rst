@@ -67,7 +67,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
    input:
      - path: ./demo_data/ml_data/clinical_feature.csv
        subject_id_col: subject_id
-       label_col: label   # required when evaluate: true
+       label_col: label   # required in predict input
 
    output: ./demo_data/results/ml/clinical/predictions
 
@@ -392,11 +392,12 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
 **LogisticRegression**:
 
-    - ``max_iter`` (int, default: ``100``): max iterations
+    - ``max_iter`` (int, default: ``1000``): max iterations
     - ``C`` (float, default: ``1.0``): inverse regularization strength
-    - ``penalty`` (str, default: ``l2``): ``l1``, ``l2``, ``elasticnet``
-    - ``solver`` (str, default: ``lbfgs``): optimizer
-    - ``random_state`` (int): random seed
+    - ``penalty`` (str, default: ``l2``): ``l1``, ``l2``, ``elasticnet``, ``none``
+    - ``solver`` (str, default: ``liblinear``): ``newton-cg``, ``lbfgs``, ``liblinear``, ``sag``, ``saga``
+    - ``random_state`` (int, default: ``42``)
+    - ``class_weight`` (str/dict, optional)
 
 **RandomForest**:
 
@@ -412,17 +413,16 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
     - ``n_estimators`` (int, default: ``100``): boosting rounds
     - ``max_depth`` (int, default: ``3``): max tree depth
     - ``learning_rate`` (float, default: ``0.1``): learning rate
-    - ``subsample`` (float, default: ``1.0``): row subsample ratio
-    - ``colsample_bytree`` (float, default: ``1.0``): column subsample ratio
+    - ``subsample`` (float, default: ``0.8``): row subsample ratio
+    - ``colsample_bytree`` (float, default: ``0.8``): column subsample ratio
     - ``random_state`` (int): random seed
 
-**SVM**:
+**SVM** (implemented as ``LinearSVC`` + ``CalibratedClassifierCV``):
 
     - ``C`` (float, default: ``1.0``): regularization
-    - ``kernel`` (str, default: ``rbf``): ``linear``, ``poly``, ``rbf``, ``sigmoid``
-    - ``gamma`` (str/float, default: ``scale``): kernel coefficient
-    - ``probability`` (bool, default: ``false``): enable probability estimates
-    - ``random_state`` (int): random seed
+    - ``max_iter`` (int, default: ``1000``): max iterations for ``LinearSVC``
+    - ``class_weight`` (str/dict, optional)
+    - ``random_state`` (int, default: ``42``)
 
 **KNN**:
 
@@ -446,7 +446,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
 **AdaBoost / GradientBoosting**:
 
-    - ``n_estimators`` (int, default: ``100``)
+    - ``n_estimators`` (int, default: ``50`` for AdaBoost, ``100`` for GradientBoosting)
     - ``learning_rate`` (float, default: ``1.0`` for AdaBoost, ``0.1`` for GradientBoosting)
     - ``random_state`` (int)
 
@@ -454,7 +454,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
     - mostly sklearn defaults; ``MultinomialNB`` requires non-negative features
 
-**AutoGluon**:
+**AutoGluonTabular** (YAML model key ``AutoGluonTabular``):
 
     - ``time_limit`` (int): training time limit (seconds)
     - ``presets`` (str, default: ``medium_quality``): ``best_quality``, ``high_quality``, ``medium_quality``
