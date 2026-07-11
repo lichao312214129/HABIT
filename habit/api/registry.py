@@ -46,6 +46,14 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "extract_features",
         "extract_batch",
     ),
+    "plugins": (
+        "PluginInfo",
+        "PluginLoadReport",
+        "list_plugins",
+        "get_plugin_info",
+        "get_param_schema",
+        "load_plugins",
+    ),
     "utils": (
         "setup_logger",
         "is_available",

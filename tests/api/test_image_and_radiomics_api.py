@@ -114,3 +114,37 @@ def test_voxel_feature_selection_uses_mask_not_feature_threshold() -> None:
     values = _feature_values_in_mask(feature_map, mask)
 
     np.testing.assert_array_equal(values, np.array([0.0, -2.0, 3.5]))
+
+
+@pytest.mark.unit
+def test_plugin_entry_point_loader_invokes_registration_callable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Third-party plugins can self-register through a standard entry point."""
+    import habit.api.plugins as plugins
+
+    called: list[bool] = []
+
+    class FakeEntryPoint:
+        """Minimal importlib.metadata entry point used without package installation."""
+
+        name = "demo"
+        value = "demo_package:register"
+
+        @staticmethod
+        def load() -> Any:
+            return lambda: called.append(True)
+
+    monkeypatch.setattr(plugins, "_ENTRY_POINT_GROUPS", {"models": "habit.models"})
+    monkeypatch.setattr(
+        plugins,
+        "_entry_points_for",
+        lambda group: (FakeEntryPoint(),),
+    )
+    plugins._LOADED_ENTRY_POINTS.clear()
+
+    report = plugins.load_plugins()
+
+    assert called == [True]
+    assert report.loaded == ("models:demo",)
+    assert report.failures == {}

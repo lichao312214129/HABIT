@@ -1,0 +1,209 @@
+"""Public discovery and inspection API for HABIT extension plugins."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from importlib import metadata
+from types import MappingProxyType
+from typing import Any, Mapping, Optional, Tuple, Type
+
+from pydantic import BaseModel
+
+from habit.api.exceptions import HABITAPIError
+
+__all__ = [
+    "PluginInfo",
+    "PluginLoadReport",
+    "list_plugins",
+    "get_plugin_info",
+    "get_param_schema",
+    "load_plugins",
+]
+
+_ENTRY_POINT_GROUPS: Mapping[str, str] = {
+    "preprocessors": "habit.preprocessors",
+    "radiomics_backends": "habit.radiomics_backends",
+    "feature_extractors": "habit.feature_extractors",
+    "habitat_features": "habit.habitat_features",
+    "models": "habit.models",
+    "metrics": "habit.metrics",
+}
+_LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
+
+
+@dataclass(frozen=True)
+class PluginInfo:
+    """Describe one component registered in a HABIT plugin domain."""
+
+    name: str
+    domain: str
+    implementation: str
+    params_schema: Optional[str] = None
+    provider: str = "built-in"
+
+
+@dataclass(frozen=True)
+class PluginLoadReport:
+    """Report loaded external entry points and non-fatal discovery failures."""
+
+    loaded: Tuple[str, ...] = ()
+    failures: Mapping[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Expose an immutable failure snapshot to plugin-management callers."""
+        object.__setattr__(self, "loaded", tuple(self.loaded))
+        object.__setattr__(self, "failures", MappingProxyType(dict(self.failures)))
+
+
+def _registry_for_domain(domain: str) -> Type[Any]:
+    """Resolve a public plugin domain to its existing HABIT registry lazily."""
+    if domain == "preprocessors":
+        from habit.core.preprocessing import PreprocessorFactory
+
+        return PreprocessorFactory
+    if domain == "feature_extractors":
+        from habit.core.habitat_analysis.clustering_features.base_extractor import (
+            FeatureExtractorRegistry,
+        )
+
+        return FeatureExtractorRegistry
+    if domain == "habitat_features":
+        from habit.core.habitat_analysis.feature_registry import (
+            HabitatFeatureRegistry,
+            bootstrap_optional_plugins,
+        )
+
+        bootstrap_optional_plugins()
+        return HabitatFeatureRegistry
+    if domain == "models":
+        from habit.core.machine_learning.models.factory import ModelFactory
+
+        return ModelFactory
+    if domain == "metrics":
+        from habit.core.machine_learning.evaluation.metrics import MetricRegistry
+
+        return MetricRegistry
+    if domain == "radiomics_backends":
+        raise HABITAPIError(
+            "Radiomics backends are not yet registry-backed. Use "
+            "habit.radiomics.extract_features(..., backend='pyradiomics')."
+        )
+    raise HABITAPIError(
+        f"Unknown plugin domain '{domain}'. Available domains: "
+        f"{sorted(_ENTRY_POINT_GROUPS)}."
+    )
+
+
+def _implementation_name(payload: Any) -> str:
+    """Return a stable fully qualified implementation name for metadata output."""
+    module = getattr(payload, "__module__", type(payload).__module__)
+    qualname = getattr(payload, "__qualname__", type(payload).__qualname__)
+    return f"{module}.{qualname}"
+
+
+def _schema_name(schema: Optional[Type[Any]]) -> Optional[str]:
+    """Return a fully qualified Pydantic-schema name when one is registered."""
+    if schema is None:
+        return None
+    return f"{schema.__module__}.{schema.__qualname__}"
+
+
+def list_plugins(domain: Optional[str] = None) -> Tuple[PluginInfo, ...]:
+    """List registered HABIT extension components without exposing core registries.
+
+    Args:
+        domain: Optional plugin domain. Omit it to enumerate all supported
+            registry-backed domains.
+
+    Returns:
+        Deterministically ordered plugin metadata.
+    """
+    domains = (domain,) if domain is not None else tuple(
+        key for key in _ENTRY_POINT_GROUPS if key != "radiomics_backends"
+    )
+    infos: list[PluginInfo] = []
+    for current_domain in domains:
+        registry = _registry_for_domain(current_domain)
+        for name in sorted(registry.available()):
+            payload = registry.get(name)
+            if payload is None:
+                continue
+            schema = registry.get_params_model(name)
+            infos.append(
+                PluginInfo(
+                    name=name,
+                    domain=current_domain,
+                    implementation=_implementation_name(payload),
+                    params_schema=_schema_name(schema),
+                )
+            )
+    return tuple(sorted(infos, key=lambda info: (info.domain, info.name)))
+
+
+def get_plugin_info(name: str, domain: str) -> PluginInfo:
+    """Return metadata for one registered component or raise a clear API error."""
+    for info in list_plugins(domain):
+        if info.name == name:
+            return info
+    raise HABITAPIError(
+        f"Plugin '{name}' is not registered in domain '{domain}'. "
+        f"Available: {[info.name for info in list_plugins(domain)]}."
+    )
+
+
+def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
+    """Return the Pydantic parameter schema associated with a plugin, if any."""
+    registry = _registry_for_domain(domain)
+    schema = registry.get_params_model(name)
+    if schema is None:
+        return None
+    if not issubclass(schema, BaseModel):
+        raise HABITAPIError(
+            f"Plugin '{name}' in domain '{domain}' has a non-Pydantic parameter "
+            f"schema: {_schema_name(schema)}."
+        )
+    return schema
+
+
+def _entry_points_for(group: str) -> Tuple[metadata.EntryPoint, ...]:
+    """Return compatible entry-point selections for Python 3.10 and newer."""
+    entry_points = metadata.entry_points()
+    if hasattr(entry_points, "select"):
+        return tuple(entry_points.select(group=group))
+    return tuple(entry_points.get(group, ()))
+
+
+def load_plugins(*, strict: bool = False) -> PluginLoadReport:
+    """Load external HABIT plugins declared through standard Python entry points.
+
+    An entry point may resolve to a module (whose registration decorators execute
+    during import) or to a zero-argument callable that performs registration.
+    Discovery is idempotent for an installed distribution entry point.
+
+    Args:
+        strict: Raise the first plugin loading error instead of returning it in
+            :attr:`PluginLoadReport.failures`.
+
+    Returns:
+        Loaded entry-point identifiers and any non-fatal load errors.
+    """
+    loaded: list[str] = []
+    failures: dict[str, str] = {}
+    for domain, group in _ENTRY_POINT_GROUPS.items():
+        for entry_point in _entry_points_for(group):
+            identifier = (group, entry_point.name, entry_point.value)
+            display_name = f"{domain}:{entry_point.name}"
+            if identifier in _LOADED_ENTRY_POINTS:
+                continue
+            try:
+                target = entry_point.load()
+                if callable(target):
+                    target()
+            except Exception as exc:
+                if strict:
+                    raise
+                failures[display_name] = f"{type(exc).__name__}: {exc}"
+                continue
+            _LOADED_ENTRY_POINTS.add(identifier)
+            loaded.append(display_name)
+    return PluginLoadReport(loaded=tuple(loaded), failures=failures)
