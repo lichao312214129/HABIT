@@ -97,3 +97,20 @@ def test_warn_geometry_policy_records_incompatibility() -> None:
     assert pair.mask.origin == (5.0, 0.0)
     assert pair.geometry_report is not None
     assert pair.geometry_report.action == "warn"
+
+
+@pytest.mark.unit
+def test_voxel_feature_selection_uses_mask_not_feature_threshold() -> None:
+    """Zero and negative feature values inside an ROI must remain in the table."""
+    pytest.importorskip("SimpleITK")
+    pytest.importorskip("radiomics")
+    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
+        _feature_values_in_mask,
+    )
+
+    feature_map = np.array([[0.0, -2.0], [3.5, 99.0]], dtype=np.float32)
+    mask = np.array([[1, 1], [1, 0]], dtype=np.uint8)
+
+    values = _feature_values_in_mask(feature_map, mask)
+
+    np.testing.assert_array_equal(values, np.array([0.0, -2.0, 3.5]))

@@ -46,10 +46,7 @@ dataset/
 
 import time
 import logging
-import numpy as np
 import os
-import SimpleITK as sitk
-from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
 import warnings
 import multiprocessing
 from functools import partial
@@ -167,32 +164,21 @@ class TraditionalRadiomicsExtractor:
 
     @staticmethod
     def extract_radiomics_features(image_path, mask_path, subject_id, params_file):
-        """提取组学特征"""
+        """Extract one subject's radiomics features through the public contract."""
         try:
-            extractor = create_radiomics_feature_extractor(params_file)
+            from habit.api.image import GeometryPolicy
+            from habit.api.radiomics import extract_features
 
-            mask_img = sitk.ReadImage(mask_path)
-            raw_img = sitk.ReadImage(image_path)
-
-            # 确保图像和掩码有相同的方向、原点和间距
-            if raw_img.GetDirection() != mask_img.GetDirection():
-                logger.info(f"Image and mask direction mismatch: {subject_id}")
-                mask_img.SetDirection(raw_img.GetDirection())
-
-            if raw_img.GetOrigin() != mask_img.GetOrigin():
-                logger.info(f"Image and mask origin mismatch: {subject_id}")
-                mask_img.SetOrigin(raw_img.GetOrigin())
-
-            if raw_img.GetSpacing() != mask_img.GetSpacing():
-                logger.info(f"Image and mask spacing mismatch: {subject_id}")
-                mask_img.SetSpacing(raw_img.GetSpacing())
-
-            # 使用label=1提取特征
-            return extractor.execute(
-                imageFilepath=raw_img,
-                maskFilepath=mask_img,
-                label=1
+            result = extract_features(
+                image_path,
+                mask_path,
+                params_file,
+                label=1,
+                geometry_policy=GeometryPolicy.RESAMPLE_MASK,
             )
+            # Retain diagnostic provenance for legacy callers. ``convert_to_csv``
+            # intentionally excludes diagnostic columns from feature tables.
+            return {**result.values, **result.provenance}
         except Exception as e:
             logger.error(f"Error extracting radiomics features: {str(e)}")
             return {"error": f"Feature extraction error: {str(e)}"}
@@ -240,7 +226,11 @@ class TraditionalRadiomicsExtractor:
                         if not os.path.isabs(path_value):
                             path_value = os.path.normpath(os.path.join(yaml_dir, path_value))
                         if auto_select_first_file and os.path.isdir(path_value):
-                            files = [name for name in os.listdir(path_value) if not name.startswith('.')]
+                            files = sorted(
+                                name
+                                for name in os.listdir(path_value)
+                                if not name.startswith(".")
+                            )
                             if files:
                                 path_value = os.path.join(path_value, files[0])
                         normalized[subject_key][modality_key] = path_value
@@ -261,15 +251,15 @@ class TraditionalRadiomicsExtractor:
                 "Expected either a dataset root with images/masks subfolders, "
                 "or a YAML file list path."
             )
-        subjs = os.listdir(images_root)
+        subjs = sorted(os.listdir(images_root))
         for subj in subjs:
             images_paths[subj] = {}
             subj_path = os.path.join(images_root, subj)
-            img_subfolders = os.listdir(subj_path)
+            img_subfolders = sorted(os.listdir(subj_path))
             for img_subfolder in img_subfolders:
                 img_subfolder_path = os.path.join(subj_path, img_subfolder)
                 if os.path.isdir(img_subfolder_path):
-                    img_files = os.listdir(img_subfolder_path)
+                    img_files = sorted(os.listdir(img_subfolder_path))
                     if len(img_files) > 1:
                         logger.warning(f"Folder {subj}/{img_subfolder} contains multiple image files")
                     img_file = img_files[0]
@@ -283,15 +273,15 @@ class TraditionalRadiomicsExtractor:
                 "Expected either a dataset root with images/masks subfolders, "
                 "or a YAML file list path."
             )
-        subjs = os.listdir(masks_root)
+        subjs = sorted(os.listdir(masks_root))
         for subj in subjs:
             masks_paths[subj] = {}
             subj_path = os.path.join(masks_root, subj)
-            mask_subfolders = os.listdir(subj_path)
+            mask_subfolders = sorted(os.listdir(subj_path))
             for mask_subfolder in mask_subfolders:
                 mask_subfolder_path = os.path.join(subj_path, mask_subfolder)
                 if os.path.isdir(mask_subfolder_path):
-                    mask_files = os.listdir(mask_subfolder_path)
+                    mask_files = sorted(os.listdir(mask_subfolder_path))
                     if len(mask_files) > 1:
                         logger.warning(f"Folder {subj}/{mask_subfolder} contains multiple mask files")
                     mask_file = mask_files[0]
@@ -307,7 +297,7 @@ class TraditionalRadiomicsExtractor:
         subject_features = {}
 
         # 获取所有影像类型
-        imgs = list(set(images_paths[subj].keys()) & set(masks_paths[subj].keys()))
+        imgs = sorted(set(images_paths[subj].keys()) & set(masks_paths[subj].keys()))
 
         if not imgs:
             logger.warning(f"Subject {subj} has no matching images and masks")
@@ -334,7 +324,7 @@ class TraditionalRadiomicsExtractor:
         features = {}
 
         # 找到同时存在于影像和掩码中的受试者
-        subjs = list(set(images_paths.keys()) & set(masks_paths.keys()))
+        subjs = sorted(set(images_paths.keys()) & set(masks_paths.keys()))
 
         if not subjs:
             logger.error("No matching subjects found between images and masks folders")

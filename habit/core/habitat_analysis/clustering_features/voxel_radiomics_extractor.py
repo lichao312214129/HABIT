@@ -128,6 +128,41 @@ def _log_voxel_feature_class_summary(
         )
 
 
+def _feature_values_in_mask(
+    feature_array: np.ndarray,
+    mask_array: np.ndarray,
+) -> np.ndarray:
+    """
+    Select every voxel feature value inside the non-background mask.
+
+    A feature value of zero or a negative value is scientifically valid for many
+    radiomics maps.  Filtering on feature intensity silently dropped those values
+    and yielded a different number of rows for different feature columns.  The
+    segmentation mask, rather than a feature-value threshold, defines the voxel
+    population for habitat clustering.
+
+    Args:
+        feature_array: One voxel feature map returned by PyRadiomics.
+        mask_array: Spatially aligned segmentation labels, where zero is background.
+
+    Returns:
+        One-dimensional feature values for all nonzero mask voxels.
+
+    Raises:
+        ValueError: If the feature map and mask have different array shapes or the
+            mask does not contain any foreground voxels.
+    """
+    if feature_array.shape != mask_array.shape:
+        raise ValueError(
+            "Voxel feature map shape does not match mask shape: "
+            f"{feature_array.shape} != {mask_array.shape}."
+        )
+    roi = mask_array != 0
+    if not np.any(roi):
+        raise ValueError("Voxel radiomics mask does not contain any foreground voxels.")
+    return feature_array[roi]
+
+
 @FeatureExtractorRegistry.register('voxel_radiomics')
 class VoxelRadiomicsExtractor(BaseClusteringExtractor):
     """
@@ -317,6 +352,7 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             )
             feature_names: List[str] = []
             feature_matrix: List[np.ndarray] = []
+            mask_array = sitk.GetArrayFromImage(mask)
 
             for key in keys:
                 val = result.pop(key, None)
@@ -326,11 +362,11 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                     feature_name = f"{key}-{image_name}" if image_name else key
                     feature_names.append(feature_name)
                     feature_array = sitk.GetArrayFromImage(val)
-                    values = feature_array[feature_array > 0]
+                    values = _feature_values_in_mask(feature_array, mask_array)
                     feature_matrix.append(values)
                     del val, feature_array
 
-            del result
+            del result, mask_array
 
             self.feature_names = feature_names
             
