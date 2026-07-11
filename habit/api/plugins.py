@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from importlib import metadata
 from types import MappingProxyType
-from typing import Any, Mapping, Optional, Tuple, Type
+from typing import Any, Mapping, Optional, Tuple, Type, cast
 
 from pydantic import BaseModel
 
@@ -60,13 +60,13 @@ def _registry_for_domain(domain: str) -> Type[Any]:
     if domain == "preprocessors":
         from habit.core.preprocessing import PreprocessorFactory
 
-        return PreprocessorFactory
+        return cast(Type[Any], PreprocessorFactory)
     if domain == "feature_extractors":
         from habit.core.habitat_analysis.clustering_features.base_extractor import (
             FeatureExtractorRegistry,
         )
 
-        return FeatureExtractorRegistry
+        return cast(Type[Any], FeatureExtractorRegistry)
     if domain == "habitat_features":
         from habit.core.habitat_analysis.feature_registry import (
             HabitatFeatureRegistry,
@@ -74,15 +74,15 @@ def _registry_for_domain(domain: str) -> Type[Any]:
         )
 
         bootstrap_optional_plugins()
-        return HabitatFeatureRegistry
+        return cast(Type[Any], HabitatFeatureRegistry)
     if domain == "models":
         from habit.core.machine_learning.models.factory import ModelFactory
 
-        return ModelFactory
+        return cast(Type[Any], ModelFactory)
     if domain == "metrics":
         from habit.core.machine_learning.evaluation.metrics import MetricRegistry
 
-        return MetricRegistry
+        return cast(Type[Any], MetricRegistry)
     if domain == "radiomics_backends":
         raise HABITAPIError(
             "Radiomics backends are not yet registry-backed. Use "
@@ -164,7 +164,7 @@ def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
             f"Plugin '{name}' in domain '{domain}' has a non-Pydantic parameter "
             f"schema: {_schema_name(schema)}."
         )
-    return schema
+    return cast(Type[BaseModel], schema)
 
 
 def _entry_points_for(group: str) -> Tuple[metadata.EntryPoint, ...]:

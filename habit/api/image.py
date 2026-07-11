@@ -244,9 +244,11 @@ class MaskVolume(ImageVolume):
         spacing: Optional[Tuple[float, ...]] = None,
         origin: Optional[Tuple[float, ...]] = None,
         direction: Optional[Tuple[float, ...]] = None,
+        modality: Optional[str] = None,
         labels: Tuple[int, ...] = (),
         label_names: Optional[Mapping[int, str]] = None,
         subject_id: Optional[str] = None,
+        timepoint: Optional[str] = None,
         metadata: Optional[Mapping[str, Any]] = None,
     ) -> "MaskVolume":
         """Create a mask from an array with explicit or inferred nonzero labels."""
@@ -257,9 +259,11 @@ class MaskVolume(ImageVolume):
             spacing=spacing or tuple(1.0 for _ in range(ndim)),
             origin=origin or tuple(0.0 for _ in range(ndim)),
             direction=direction or _default_direction(ndim),
+            modality=modality,
             labels=labels,
             label_names=label_names or {},
             subject_id=subject_id,
+            timepoint=timepoint,
             metadata=metadata or {},
         )
 
@@ -268,9 +272,11 @@ class MaskVolume(ImageVolume):
         cls,
         image: Any,
         *,
+        modality: Optional[str] = None,
         labels: Tuple[int, ...] = (),
         label_names: Optional[Mapping[int, str]] = None,
         subject_id: Optional[str] = None,
+        timepoint: Optional[str] = None,
         source: Optional[Union[str, Path]] = None,
         metadata: Optional[Mapping[str, Any]] = None,
     ) -> "MaskVolume":
@@ -283,9 +289,11 @@ class MaskVolume(ImageVolume):
             spacing=tuple(image.GetSpacing()),
             origin=tuple(image.GetOrigin()),
             direction=tuple(image.GetDirection()),
+            modality=modality,
             labels=labels,
             label_names=label_names or {},
             subject_id=subject_id,
+            timepoint=timepoint,
             source=Path(source) if source is not None else None,
             metadata=metadata or {},
         )

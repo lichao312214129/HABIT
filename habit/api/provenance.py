@@ -11,7 +11,7 @@ import platform
 import subprocess
 import sys
 from types import MappingProxyType
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, cast
 from uuid import uuid4
 
 import numpy as np
@@ -37,8 +37,8 @@ def _json_value(value: Any) -> Any:
         return {str(key): _json_value(item) for key, item in value.items()}
     if isinstance(value, (tuple, list, set, frozenset)):
         return [_json_value(item) for item in value]
-    if is_dataclass(value):
-        return _json_value(asdict(value))
+    if is_dataclass(value) and not isinstance(value, type):
+        return _json_value(asdict(cast(Any, value)))
     model_dump = getattr(value, "model_dump", None)
     if callable(model_dump):
         return _json_value(model_dump(mode="json"))
