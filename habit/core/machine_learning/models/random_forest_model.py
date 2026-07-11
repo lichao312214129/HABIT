@@ -81,7 +81,7 @@ class RandomForestModel(BaseModel):
         return RandomForestClassifier(**params)
     
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
-            y: Union[pd.Series, np.ndarray]) -> None:
+            y: Union[pd.Series, np.ndarray]) -> 'RandomForestModel':
         """
         Train the model
         
@@ -93,6 +93,7 @@ class RandomForestModel(BaseModel):
             self.feature_names = X.columns.tolist()
             X = X.values
         self.model.fit(X, y)
+        return self
     
     def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """
@@ -116,11 +117,12 @@ class RandomForestModel(BaseModel):
             X: Features
             
         Returns:
-            np.ndarray: Predicted probabilities for positive class
+            np.ndarray: Class-probability matrix with shape
+            ``(n_samples, n_classes)``.
         """
         if isinstance(X, pd.DataFrame):
             X = X.values
-        return self.model.predict_proba(X)[:, 1]
+        return self.model.predict_proba(X)
     
     def get_feature_importance(self) -> Dict[str, float]:
         """

@@ -21,9 +21,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Union, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, ClassifierMixin
 
-class BaseModel(ABC, BaseEstimator):
+class BaseModel(ABC, BaseEstimator, ClassifierMixin):
     """Abstract base class for all models"""
     
     @property
@@ -50,13 +50,17 @@ class BaseModel(ABC, BaseEstimator):
         
     @abstractmethod
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
-             y: Union[pd.Series, np.ndarray]) -> None:
+             y: Union[pd.Series, np.ndarray]) -> 'BaseModel':
         """
         Train the model
         
         Args:
             X: Training features
             y: Training labels
+
+        Returns:
+            The fitted model instance, following the scikit-learn estimator
+            contract required by pipeline composition and cloning.
         """
         pass
         
@@ -82,7 +86,8 @@ class BaseModel(ABC, BaseEstimator):
             X: Features
             
         Returns:
-            np.ndarray: Predicted probabilities for positive class
+            np.ndarray: Class-probability matrix with shape
+            ``(n_samples, n_classes)``.
         """
         pass
         
