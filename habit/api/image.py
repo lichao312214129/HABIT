@@ -85,7 +85,9 @@ def _normalized_geometry(
         )
     if any(not np.isfinite(value) or value <= 0.0 for value in normalized_spacing):
         raise HABITAPIError("spacing must contain finite values greater than zero.")
-    if any(not np.isfinite(value) for value in normalized_origin + normalized_direction):
+    if any(
+        not np.isfinite(value) for value in normalized_origin + normalized_direction
+    ):
         raise HABITAPIError("origin and direction must contain finite values.")
     return normalized_spacing, normalized_origin, normalized_direction
 
@@ -224,7 +226,9 @@ class MaskVolume(ImageVolume):
             else inferred_labels
         )
         if any(value == 0 for value in normalized_labels):
-            raise HABITAPIError("MaskVolume.labels must not contain background label 0.")
+            raise HABITAPIError(
+                "MaskVolume.labels must not contain background label 0."
+            )
         object.__setattr__(self, "labels", normalized_labels)
         object.__setattr__(
             self,
@@ -420,8 +424,7 @@ def align_image_mask(
     if report.compatible:
         return ImageMaskPair(pair.image, pair.mask, report)
     message = (
-        "Image and mask geometry are incompatible: "
-        f"{', '.join(report.mismatches)}."
+        "Image and mask geometry are incompatible: " f"{', '.join(report.mismatches)}."
     )
     if policy is GeometryPolicy.STRICT:
         raise GeometryError(message)

@@ -70,7 +70,9 @@ class FeatureResult:
         object.__setattr__(
             self, "failed_features", MappingProxyType(dict(self.failed_features))
         )
-        object.__setattr__(self, "warnings", tuple(str(value) for value in self.warnings))
+        object.__setattr__(
+            self, "warnings", tuple(str(value) for value in self.warnings)
+        )
 
 
 @dataclass(frozen=True)
@@ -91,7 +93,9 @@ class FeatureTableResult:
 def _create_pyradiomics_extractor(params: RadiomicsParams) -> Any:
     """Create PyRadiomics lazily so base HABIT imports remain lightweight."""
     try:
-        from habit.utils.radiomics_params_utils import create_radiomics_feature_extractor
+        from habit.utils.radiomics_params_utils import (
+            create_radiomics_feature_extractor,
+        )
     except ModuleNotFoundError as exc:
         if exc.name == "radiomics":
             raise OptionalDependencyError(
@@ -113,7 +117,9 @@ def _resolved_params(params: RadiomicsParams) -> Mapping[str, Any]:
     return {"params_file": str(Path(params))}
 
 
-def _split_extractor_output(output: Mapping[str, Any]) -> Tuple[dict[str, float], dict[str, Any]]:
+def _split_extractor_output(
+    output: Mapping[str, Any]
+) -> Tuple[dict[str, float], dict[str, Any]]:
     """Separate scalar features from PyRadiomics diagnostic provenance fields."""
     values: dict[str, float] = {}
     provenance: dict[str, Any] = {}

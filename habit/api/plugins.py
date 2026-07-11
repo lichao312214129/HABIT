@@ -118,8 +118,10 @@ def list_plugins(domain: Optional[str] = None) -> Tuple[PluginInfo, ...]:
     Returns:
         Deterministically ordered plugin metadata.
     """
-    domains = (domain,) if domain is not None else tuple(
-        key for key in _ENTRY_POINT_GROUPS if key != "radiomics_backends"
+    domains = (
+        (domain,)
+        if domain is not None
+        else tuple(key for key in _ENTRY_POINT_GROUPS if key != "radiomics_backends")
     )
     infos: list[PluginInfo] = []
     for current_domain in domains:

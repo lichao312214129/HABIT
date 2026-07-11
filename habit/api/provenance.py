@@ -122,30 +122,30 @@ class RunManifest:
             self, "resolved_config", MappingProxyType(dict(self.resolved_config))
         )
         object.__setattr__(
-            self, "dependency_versions", MappingProxyType(dict(self.dependency_versions))
+            self,
+            "dependency_versions",
+            MappingProxyType(dict(self.dependency_versions)),
         )
         object.__setattr__(self, "runtime", MappingProxyType(dict(self.runtime)))
         object.__setattr__(
             self, "metadata", MappingProxyType(dict(self.metadata or {}))
         )
 
-    def to_dict(self) -> Mapping[str, Any]:
-        """Return a JSON-serializable immutable manifest snapshot."""
-        return MappingProxyType(
-            {
-                "workflow": self.workflow,
-                "run_id": self.run_id,
-                "created_at": self.created_at,
-                "habit_version": self.habit_version,
-                "schema_version": self.schema_version,
-                "config_hash": self.config_hash,
-                "resolved_config": dict(self.resolved_config),
-                "dependency_versions": dict(self.dependency_versions),
-                "runtime": dict(self.runtime),
-                "git_commit": self.git_commit,
-                "metadata": dict(self.metadata),
-            }
-        )
+    def to_dict(self) -> dict[str, Any]:
+        """Return an independent JSON-serializable manifest payload."""
+        return {
+            "workflow": self.workflow,
+            "run_id": self.run_id,
+            "created_at": self.created_at,
+            "habit_version": self.habit_version,
+            "schema_version": self.schema_version,
+            "config_hash": self.config_hash,
+            "resolved_config": dict(self.resolved_config),
+            "dependency_versions": dict(self.dependency_versions),
+            "runtime": dict(self.runtime),
+            "git_commit": self.git_commit,
+            "metadata": dict(self.metadata),
+        }
 
 
 def create_run_manifest(
