@@ -1,15 +1,17 @@
-开发者指南
-==========
+Developer Guide
+===============
 
-面向 HABIT 的贡献者与二次开发者，也是从**高层与架构**深入理解 HABIT 的入口。
-仅想使用软件的研究者请从 :doc:`../tutorial/installation` 开始。
+This chapter is for HABIT contributors and developers building extensions. It
+is the entry point for understanding HABIT at the architectural and
+implementation levels. Researchers who only want to use the software should
+start with :doc:`../tutorial/installation`.
 
-本章按"理解 → 定位 → 扩展"三段式组织，帮你先建立心智模型，再学会在代码里找东西，
-最后动手扩展与贡献。
+The chapter follows three stages: understand the system, locate the relevant
+code, and extend or contribute to the project.
 
 .. toctree::
    :maxdepth: 2
-   :caption: 一、理解 HABIT（Why + 心智模型）
+   :caption: 1. Understand HABIT (design and mental model)
 
    philosophy
    mental_model
@@ -18,7 +20,7 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: 二、代码组织（在哪找）
+   :caption: 2. Code organization (where to look)
 
    repo_layout
    configuration_system
@@ -26,39 +28,48 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: 三、扩展与贡献（怎么做）
+   :caption: 3. Extensions and contributions (how to work)
 
    extension_points
    invariants
    dev_workflow
    contributing
 
-阅读路线建议
-------------
+Recommended reading order
+--------------------------
 
-**第一次接触 HABIT（建立心智模型）**
+**New to HABIT**
 
-1. :doc:`philosophy` —— HABIT 为什么这样设计：五大设计支柱与权衡。
-2. :doc:`mental_model` —— 核心概念术语表与一张全局心智地图。
-3. :doc:`architecture` —— 分层结构、配置装配主链、CLI↔Core 映射。
-4. :doc:`request_lifecycle` —— 跟读一条真实命令走完全链路（理解代码最有效的一页）。
+1. :doc:`philosophy` — The five design principles and their trade-offs.
+2. :doc:`mental_model` — Core terminology and the system mental model.
+3. :doc:`architecture` — Layers, configuration assembly, and CLI-to-core
+   mapping.
+4. :doc:`request_lifecycle` — Follow one command through the complete request
+   lifecycle.
 
-**要动手改代码（定位与落地）**
+**Changing the code**
 
-5. :doc:`repo_layout` —— 每类代码放在哪、"改 X 去哪找"。
-6. :doc:`configuration_system` —— "YAML → Schema → Configurator → 运行时对象"主链细节。
-7. :doc:`subsystems` —— 生境分析与机器学习子系统的内部执行流。
+5. :doc:`repo_layout` — Where each type of code lives and where to start.
+6. :doc:`configuration_system` — The YAML → Schema → Configurator → runtime
+   object pipeline.
+7. :doc:`subsystems` — Internal execution flows for habitat analysis and
+   machine learning.
 
-**要扩展或提交贡献**
+**Extending or contributing**
 
-8. :doc:`extension_points` —— 全部 8 个扩展点（注册表/工厂）一览与实战。
-9. :doc:`invariants` —— **绝不能破坏的规则**，改代码前必读的护栏清单。
-10. :doc:`dev_workflow` —— 环境、测试、新增命令 / 配置项 / 组件的落地步骤。
-11. :doc:`contributing` —— PR 与代码风格规范。
+8. :doc:`extension_points` — The eight extension points and their registration
+   mechanisms.
+9. :doc:`invariants` — Rules that must not be broken before changing code.
+10. :doc:`dev_workflow` — Environment setup, tests, and implementation steps.
+11. :doc:`contributing` — Pull-request and coding conventions.
 
 .. note::
 
-   本章侧重 **架构与机制**；完整可复制的组件代码模板见 :doc:`../customization/index`，两者互补。
+   This chapter focuses on architecture and mechanisms. Complete,
+   copy-ready component templates are available in
+   :doc:`../customization/index`.
 
-环境速览：Python 3.10 + ``pip install -r requirements.txt`` + ``pip install -e .`` + ``pytest tests/``。
-API 与第三方库参考见左侧 **Developer** 侧边栏。
+Environment summary: Python 3.10, ``pip install -r requirements.txt``,
+``pip install -e .``, and ``pytest tests/``.
+
+See the **Developer** sidebar for the API and third-party library references.

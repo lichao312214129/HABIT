@@ -1,31 +1,42 @@
-二次开发与组件扩展指南
+Extension and Plugin Guide
 ======================
 
-HABIT 的底层架构高度解耦，允许开发者在不修改核心源码的情况下，通过**注册表（Registry）**机制注入自定义的算法组件。
+HABIT is highly decoupled. Developers can inject custom algorithm components
+through the **Registry** mechanism without modifying core source code.
 
-本指南基于 HABIT 的底层代码契约（Code Contracts），详细说明如何扩展预处理器、机器学习模型和特征选择器。
+This guide is based on HABIT's code contracts and explains how to extend
+preprocessors, machine-learning models, and feature selectors.
 
-扩展机制的核心契约
+Core extension contracts
 ------------------
 
-HABIT 的扩展严格遵循以下三个契约：
+HABIT extensions follow three contracts:
 
-1. **逻辑契约**：继承指定的基类（如 ``BasePreprocessor``）或实现特定的函数签名（如 ``SelectorContext -> List[str]``）。
-2. **注册契约**：使用对应的装饰器（如 ``@PreprocessorFactory.register``）将组件名称注册到全局工厂中。
-3. **参数契约**：定义一个 Pydantic Schema，并通过 ``ParamSchemaRegistry.register`` 注册，以实现 YAML 参数的强类型校验和 GUI 表单的自动生成。
+1. **Behavior contract**: subclass the required base class, such as
+   ``BasePreprocessor``, or implement the required signature, such as
+   ``SelectorContext -> List[str]``.
+2. **Registration contract**: use the appropriate decorator, such as
+   ``@PreprocessorFactory.register``, to register the component name globally.
+3. **Parameter contract**: define a Pydantic schema and register it with
+   ``ParamSchemaRegistry.register`` for strongly typed YAML validation and
+   automatic GUI form generation.
 
 .. important::
    
-   **模块导入机制**：注册装饰器仅在 Python 模块被 ``import`` 时执行。如果你在 HABIT 源码外部开发插件，必须确保在运行前导入了你的模块。若在源码内开发，请在对应子目录的 ``__init__.py`` 中导入。
+   **Module import behavior**: registration decorators run only when the
+   Python module is imported. External plugins must be imported before the
+   workflow starts. For in-tree development, import the module from the
+   corresponding subpackage ``__init__.py``.
 
-实战一：自定义预处理步骤 (ClassRegistry)
+Example 1: Custom preprocessing step (ClassRegistry)
 ----------------------------------------
 
-预处理器是基于类的组件，由 ``PreprocessorFactory`` 管理。
+Preprocessors are class-based components managed by ``PreprocessorFactory``.
 
-**1. 实现逻辑与注册名称**
+**1. Implement the behavior and registration name**
 
-继承 ``BasePreprocessor``，实现 ``__call__`` 方法，并使用 ``@PreprocessorFactory.register`` 注册。
+Subclass ``BasePreprocessor``, implement ``__call__``, and register the class
+with ``@PreprocessorFactory.register``.
 
 .. code-block:: python
 
@@ -38,7 +49,7 @@ HABIT 的扩展严格遵循以下三个契约：
    class MyGaussianFilter(BasePreprocessor):
        def __init__(self, keys, allow_missing_keys=False, **kwargs):
            super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
-           # 提取参数
+           # Extract parameters.
            self.sigma = kwargs.get('sigma', 1.0)
 
        def __call__(self, data):
@@ -47,9 +58,10 @@ HABIT 的扩展严格遵循以下三个契约：
                data[key] = gaussian_filter(data[key], sigma=self.sigma)
            return data
 
-**2. 定义参数 Schema 并注册**
+**2. Define and register the parameter schema**
 
-在 ``habit/core/schemas/steps/preprocessing.py``\ （或你的插件模块中）定义参数模型并注册。
+Define and register the parameter model in
+``habit/core/schemas/steps/preprocessing.py`` (or in your plugin module).
 
 .. code-block:: python
 
@@ -59,10 +71,10 @@ HABIT 的扩展严格遵循以下三个契约：
    class MyGaussianFilterParams(BaseModel):
        sigma: float = Field(default=1.0, description="Gaussian kernel standard deviation.")
 
-   # 注册到 ParamSchemaRegistry (domain="preprocessing")
+   # Register with ParamSchemaRegistry (domain="preprocessing").
    ParamSchemaRegistry.register("preprocessing", "my_gaussian_filter", MyGaussianFilterParams)
 
-**3. 在 YAML 中调用**
+**3. Call the component from YAML**
 
 .. code-block:: yaml
 
@@ -71,14 +83,17 @@ HABIT 的扩展严格遵循以下三个契约：
        images: [T1, T2]
        sigma: 2.5
 
-实战二：自定义特征选择器 (CallableRegistry)
+Example 2: Custom feature selector (CallableRegistry)
 -------------------------------------------
 
-与 scikit-learn 要求编写完整的 ``BaseEstimator`` 类不同，**HABIT 的特征选择器被设计为纯函数**。底层 ``pipeline_builder.py`` 会自动将这些函数包装为 sklearn 兼容的 Transformer。
+Unlike scikit-learn, which requires a complete ``BaseEstimator`` class,
+**HABIT feature selectors are designed as pure functions**. The underlying
+``pipeline_builder.py`` wraps them as sklearn-compatible transformers.
 
-**1. 实现函数与注册名称**
+**1. Implement the function and registration name**
 
-特征选择器函数接收一个 ``SelectorContext`` 对象（包含 ``X``, ``y``, ``selected_features`` 等），并返回保留的特征名列表 ``List[str]``。
+The selector receives a ``SelectorContext`` containing ``X``, ``y``, and
+``selected_features`` and returns the retained feature names as ``List[str]``.
 
 .. code-block:: python
 
@@ -91,18 +106,18 @@ HABIT 的扩展严格遵循以下三个契约：
    @SelectorRegistry.register("my_variance_selector", display_name="Custom Variance")
    def my_variance_selector(context: SelectorContext, threshold: float = 0.0) -> List[str]:
        """
-       自定义方差特征选择器。
+       Custom variance feature selector.
        """
        X = context.X
-       # 计算方差
+       # Compute variance.
        variances = X.var(axis=0)
-       # 筛选大于阈值的特征
+       # Keep features above the threshold.
        retained_features = variances[variances > threshold].index.tolist()
        
        context.logger.info(f"Retained {len(retained_features)} features.")
        return retained_features
 
-**2. 定义参数 Schema 并注册**
+**2. Define and register the parameter schema**
 
 .. code-block:: python
 
@@ -112,10 +127,10 @@ HABIT 的扩展严格遵循以下三个契约：
    class MyVarianceParams(BaseModel):
        threshold: float = Field(default=0.0, description="Variance threshold.")
 
-   # 注册到 ParamSchemaRegistry (domain="feature_selection")
+   # Register with ParamSchemaRegistry (domain="feature_selection").
    ParamSchemaRegistry.register("feature_selection", "my_variance_selector", MyVarianceParams)
 
-**3. 在 YAML 中调用**
+**3. Call the component from YAML**
 
 .. code-block:: yaml
 
@@ -124,14 +139,15 @@ HABIT 的扩展严格遵循以下三个契约：
        params:
          threshold: 0.5
 
-实战三：自定义机器学习模型 (ModelFactory)
+Example 3: Custom machine-learning model (ModelFactory)
 -----------------------------------------
 
-模型工厂 ``ModelFactory`` 继承自 ``ClassRegistry[BaseModel]``。注意其构造函数契约：它接收一个单一的 ``config`` 字典。
+The ``ModelFactory`` inherits from ``ClassRegistry[BaseModel]``. Its
+constructor contract is a single ``config`` dictionary.
 
-**1. 实现模型与注册名称**
+**1. Implement the model and registration name**
 
-继承 ``BaseModel``，实现 ``fit``, ``predict``, ``predict_proba``。
+Subclass ``BaseModel`` and implement ``fit``, ``predict``, and ``predict_proba``.
 
 .. code-block:: python
 
@@ -143,7 +159,7 @@ HABIT 的扩展严格遵循以下三个契约：
    class MyMLPModel(BaseModel):
        def __init__(self, config: dict):
            super().__init__(config)
-           # 解析 config 字典
+           # Read values from the config dictionary.
            hidden_layer_sizes = config.get('hidden_layer_sizes', (100,))
            random_state = config.get('random_state', 42)
            
@@ -162,7 +178,7 @@ HABIT 的扩展严格遵循以下三个契约：
        def predict_proba(self, X, **kwargs):
            return self.model.predict_proba(X)
 
-**2. 定义参数 Schema 并注册**
+**2. Define and register the parameter schema**
 
 .. code-block:: python
 
@@ -174,15 +190,18 @@ HABIT 的扩展严格遵循以下三个契约：
        hidden_layer_sizes: Tuple[int, ...] = Field(default=(100,))
        random_state: int = Field(default=42)
 
-   # 注册到 ParamSchemaRegistry (domain="model")
+   # Register with ParamSchemaRegistry (domain="model").
    ParamSchemaRegistry.register("model", "my_mlp", MyMLPParams)
 
-实战四：自定义聚类阶段特征提取器 (FeatureExtractorRegistry + method_param_spec)
+Example 4: Custom clustering feature extractor
+(``FeatureExtractorRegistry`` + ``method_param_spec``)
 -------------------------------------------------------------------------------------------------
 
-聚类阶段特征提取器通过 ``FeatureExtractorRegistry`` 惰性发现 ``*_extractor.py`` 模块。
-除实现 ``BaseClusteringExtractor`` 外，请在类上声明 ``method_param_spec``，供函数式
-``method`` 表达式的参数绑定校验与默认值注入使用：
+Clustering feature extractors are discovered lazily through
+``FeatureExtractorRegistry`` in ``*_extractor.py`` modules. In addition to
+implementing ``BaseClusteringExtractor``, declare ``method_param_spec`` on the
+class so functional ``method`` expressions can validate bindings and inject
+defaults:
 
 .. code-block:: python
 
@@ -207,7 +226,7 @@ HABIT 的扩展严格遵循以下三个契约：
        def extract_features(self, image_data, mask_data, **kwargs):
            ...
 
-YAML 用法（括号声明绑定，``params`` 只赋 value）：
+YAML usage (parentheses declare bindings; ``params`` assigns values only):
 
 .. code-block:: yaml
 
@@ -217,60 +236,67 @@ YAML 用法（括号声明绑定，``params`` 只赋 value）：
        params:
          window_size: 7
 
-``params_file`` 可省略；radiomics 类方法使用 ``habit/resources/radiomics/`` 中的 bundled preset。
+``params_file`` is optional; radiomics methods use bundled presets from
+``habit/resources/radiomics/``.
 
-全部扩展点速查表
+Extension point reference
 ----------------
 
-HABIT 共有 **8 个注册表**\ （6 个类式工厂 + 2 个函数式注册表）。下表是完整清单，新增组件时对号入座即可：
+HABIT has **eight registries** (six class-based factories and two
+function-based registries). The table below is the complete reference.
 
 .. list-table::
    :header-rows: 1
    :widths: 22 26 28 24
 
-   * - 组件类型
-     - 注册装饰器
-     - 逻辑契约 (基类/函数签名)
-     - Schema 注册 Domain
-   * - **预处理步骤**
+   * - Component type
+     - Registration decorator
+     - Behavior contract (base class/signature)
+     - Schema domain
+   * - **Preprocessing step**
      - ``@PreprocessorFactory.register("name")``
-     - 继承 ``BasePreprocessor``
+     - Subclass ``BasePreprocessor``
      - ``preprocessing``
-   * - **机器学习模型**
+   * - **Machine-learning model**
      - ``@ModelFactory.register("name")``
-     - 继承 ``BaseModel``
+     - Subclass ``BaseModel``
      - ``model``
-   * - **聚类算法**
+   * - **Clustering algorithm**
      - ``@ClusteringAlgorithmFactory.register("name")``
-     - 继承 ``BaseClustering``
-     - (依附生境，无独立 domain)
-   * - **聚类阶段特征提取器**
-     - ``FeatureExtractorRegistry`` (惰性发现 ``*_extractor.py``)
-     - 继承 ``BaseClusteringExtractor``
-     - (依附生境)
-   * - **特征表预处理方法**
+     - Subclass ``BaseClustering``
+     - (Habitat subsystem; no independent domain)
+   * - **Clustering feature extractor**
+     - ``FeatureExtractorRegistry`` (lazy discovery of ``*_extractor.py``)
+     - Subclass ``BaseClusteringExtractor``
+     - (Habitat subsystem)
+   * - **Feature-table preprocessing method**
      - ``@PreprocessingMethodFactory.register("name")``
-     - 继承 ``BaseFeaturePreprocessing``
-     - (依附生境)
-   * - **分割后生境特征插件**
+     - Subclass ``BaseFeaturePreprocessing``
+     - (Habitat subsystem)
+   * - **Post-segmentation habitat feature plugin**
      - ``@HabitatFeatureRegistry.register("name")``
-     - 继承 ``HabitatFeaturePluginBase``
-     - (依附生境)
-   * - **特征选择器**
+     - Subclass ``HabitatFeaturePluginBase``
+     - (Habitat subsystem)
+   * - **Feature selector**
      - ``@SelectorRegistry.register("name")``
-     - 函数 ``(SelectorContext) -> List[str]``
+     - Function ``(SelectorContext) -> List[str]``
      - ``feature_selection``
-   * - **评估指标**
+   * - **Evaluation metric**
      - ``@MetricRegistry.register("name")``
-     - 函数 ``(y_true, y_pred, y_prob, cm=None) -> float``
-     - (纯函数，通常无参数 Schema)
+     - Function ``(y_true, y_pred, y_prob, cm=None) -> float``
+     - (Pure function; usually no parameter schema)
 
 .. note::
 
-   **两类注册表的差别**：前 6 个是 **类式工厂**\ （继承 ``ClassRegistry``，产物是"类"，用 ``create()`` 实例化）；
-   后 2 个是 **函数式注册表**\ （继承 ``CallableRegistry``，产物是"函数"）。二者都遵守统一注册表接口，
-   由架构契约测试守护，详见 :doc:`invariants`。
+   **Registry categories**: the first six are **class-based factories**
+   (subclasses of ``ClassRegistry`` whose products are instantiated with
+   ``create()``); the final two are **function-based registries**
+   (subclasses of ``CallableRegistry`` whose products are functions). Both
+   follow the shared registry interface and are protected by architecture
+   contract tests; see :doc:`invariants`.
 
 .. seealso::
 
-   完整可复制的组件模板见 :doc:`../customization/index`；新增后如何登记进契约测试见 :doc:`dev_workflow`。
+   See :doc:`../customization/index` for complete copy-ready component
+   templates and :doc:`dev_workflow` for adding new components to contract
+   tests.

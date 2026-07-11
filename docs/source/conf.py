@@ -1,4 +1,4 @@
-# Sphinx 配置文件 - HABIT 项目文档
+# Sphinx configuration file for HABIT documentation.
 #
 
 import importlib.util
@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
-# 添加项目路径
+# Add the project root to the import path.
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -34,7 +34,7 @@ def _load_package_version() -> str:
     return str(version_scope["__version__"])
 
 
-# 项目信息
+# Project information.
 project = "HABIT"
 copyright = "2024, HABIT Team"
 author = "HABIT Team"
@@ -44,10 +44,10 @@ release = version
 # Language
 language = "en"
 
-# 源文件后缀 - 只使用 .rst
+# Source file suffix: use .rst only.
 source_suffix = ".rst"
 
-# 扩展 - 不使用 myst_parser
+# Extensions; myst_parser is intentionally not used.
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.graphviz",
@@ -75,7 +75,7 @@ extensions.append("sphinxcontrib.mermaid")
 # Client-side rendering for static hosting (GitHub Pages).
 mermaid_output_format = "raw"
 
-# Napoleon 配置
+# Napoleon configuration.
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
@@ -84,7 +84,7 @@ napoleon_include_special_with_doc = True
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-# 主题（与 PyRadiomics 相同使用 sphinx-rtd-theme，配合 custom.css 增强排版）
+# Use the Read the Docs theme with the project custom stylesheet.
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "navigation_depth": 4,
@@ -97,10 +97,10 @@ html_theme_options = {
     "style_external_links": True,
 }
 
-# 模板路径
+# Template path.
 templates_path = ["_templates"]
 
-# 静态文件路径
+# Static asset paths.
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 
@@ -109,7 +109,7 @@ html_show_sphinx = True
 html_title = "HABIT Documentation"
 html_short_title = "HABIT"
 
-# 自动文档生成选项
+# Automatic API documentation options.
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
@@ -119,13 +119,13 @@ autodoc_default_options = {
     "exclude-members": "__weakref__,__dict__,__pydantic_extra__,__pydantic_fields_set__,__pydantic_private__",
 }
 
-# 模拟缺失的模块，避免 autodoc 崩溃
+# Mock missing modules so autodoc can complete.
 import sys
 import importlib
 
 
 class MockModule:
-    """模拟缺失的模块"""
+    """Represent a missing optional module during documentation builds."""
 
     def __init__(self, name):
         self.__name__ = name
@@ -135,14 +135,14 @@ class MockModule:
         if name.startswith("_"):
             raise AttributeError(f"module '{self.__name__}' has no attribute '{name}'")
 
-        # 返回一个模拟的类
+        # Return a placeholder class for the requested attribute.
         class MockClass:
             pass
 
         return MockClass
 
 
-# 检查并模拟缺失的模块
+# Check optional modules and install placeholders when necessary.
 missing_modules = ["SimpleITK", "shap", "habitat_clustering"]
 for mod_name in missing_modules:
     if mod_name not in sys.modules:
@@ -151,7 +151,8 @@ for mod_name in missing_modules:
         except ImportError:
             sys.modules[mod_name] = MockModule(mod_name)
 
-# 模拟缺失的模块，避免 autodoc 崩溃（勿 mock numpy/pandas/scipy/sklearn：Pydantic 与 autodoc 依赖其类型）
+# Mock optional modules for autodoc. Do not mock numpy, pandas, scipy, or
+# sklearn because Pydantic and autodoc require their type information.
 autodoc_mock_imports = [
     "SimpleITK",
     "antspy",
@@ -172,7 +173,7 @@ autodoc_mock_imports = [
     "ants",
 ]
 
-# Intersphinx 配置
+# Intersphinx configuration.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
@@ -181,14 +182,14 @@ intersphinx_mapping = {
     "pyradiomics": ("https://pyradiomics.readthedocs.io/en/latest/", None),
 }
 
-# 忽略的文件
+# Files ignored by Sphinx.
 exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
 ]
 
-# Pygments 高亮样式
+# Pygments highlighting style.
 pygments_style = "sphinx"
 
 # GitHub Pages configuration (single source: habit/utils/project_urls.py)
@@ -203,15 +204,18 @@ github_repo = GITHUB_REPO_SLUG
 github_version = "main"
 html_baseurl = DOCS_BASE_URL
 
-# Todo 配置
+# Todo configuration.
 todo_include_todos = True
 
-# 自定义变量（便携包配套资源网盘；维护者更新链接与提取码）
-# Windows CPU/GPU 便携包共用一个百度网盘分享目录（v5xa）。
-# demo_data / config / tests 为独立分享；tests 分享目录内另含 config.rar（共 2 个文件，vv2c）。
+# Custom download variables for project resource bundles. Maintainers update
+# these links and extraction codes.
+# The Windows CPU/GPU bundles share one download directory.
+# demo_data, config, and tests are separate bundles; the tests bundle also
+# contains config.rar.
 #
-# Docutils 不支持在 `` `text <|url_subst|>`_ `` 的 URL 位置展开 substitution；
-# 必须在 epilog 里定义「整条链接」substitution（见 _build_rst_epilog）。
+# Docutils does not expand substitutions inside the URL of
+# `` `text <|url_subst|>`_``. Define complete-link substitutions in the epilog
+# (see _build_rst_epilog).
 NETDISK_SHARES = {
     "demo_data": {
         "url": "https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9",

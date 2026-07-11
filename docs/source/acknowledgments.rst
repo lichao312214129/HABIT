@@ -6,21 +6,21 @@ We sincerely thank the following experts and institutions for their support and 
 Core developers
 ---------------
 
-**Li Chao (黎超)**
+**Li Chao**
 
-* Institution: Yongchuan Hospital, Chongqing Medical University (重庆医科大学附属永川医院)
+* Institution: Yongchuan Hospital, Chongqing Medical University
 
-**Dong Mengshi (董梦实)**
+**Dong Mengshi**
 
-* Institution: The Third Affiliated Hospital of Sun Yat-sen University (中山大学附属第三医院)
+* Institution: The Third Affiliated Hospital of Sun Yat-sen University
 
-**Jiang Zekun (姜泽坤)**
+**Jiang Zekun**
 
-* Institution: Biomedical Big Data Research Institute, West China Hospital, Sichuan University (四川大学华西医院生物医学大数据研究院)
+* Institution: Biomedical Big Data Research Institute, West China Hospital, Sichuan University
 
-**Jiang Kunyuan (姜坤元)**
+**Jiang Kunyuan**
 
-* Institution: West China Medical Robotics Research Institute (华西医疗机器人研究院)
+* Institution: West China Medical Robotics Research Institute
 
 Future developers
 -----------------

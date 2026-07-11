@@ -1,33 +1,39 @@
-代码地图
+Code Map
 ========
 
-本页帮助你快速定位代码：仓库顶层结构、``habit/`` 包各子目录职责，以及 "我想改 X，该去哪个文件" 的对照表。
+This page helps you locate code quickly: it describes the repository layout,
+the responsibilities of ``habit/`` subpackages, and where to start when
+changing a particular feature.
 
-仓库顶层
+Repository root
 --------
 
 .. list-table::
    :header-rows: 1
    :widths: 26 74
 
-   * - 路径
-     - 内容
+   * - Path
+     - Contents
    * - ``habit/``
-     - Python 主包（全部业务代码）。
+     - Main Python package containing the application code.
    * - ``config/``
-     - 所有示例 / 生产 YAML 配置，按子系统分目录（``preprocessing/`` ``habitat/`` ``machine_learning/`` …）。
+     - Example and production YAML configurations organized by subsystem.
    * - ``demo_data/``
-     - 演示数据与运行产物（影像、ML 表格、配准可执行文件等）。
+     - Demo data and generated artifacts, including images, ML tables, and
+       registration executables.
    * - ``tests/``
-     - pytest 测试 + 可执行 demo 脚本（见 :doc:`dev_workflow`）。
+     - Pytest tests and executable demo scripts (see :doc:`dev_workflow`).
    * - ``docs/``
-     - 本文档（Sphinx 源码在 ``docs/source/``）。
+     - Documentation; Sphinx sources are under ``docs/source/``.
    * - ``habit-gui/``
-     - 可选的独立 Web GUI 仓库/目录（FastAPI + React + bridge）；默认不在本仓库 checkout 中（见 ``.gitignore``）；``habit gui`` 会在 sibling ``habit-gui/`` 或 bundled ``habit/_gui_bundle`` 中查找。
+     - Optional standalone Web GUI (FastAPI + React + bridge), not checked out
+       by default. See ``.gitignore``; ``habit gui`` searches for a sibling
+       ``habit-gui/`` or bundled ``habit/_gui_bundle``.
    * - ``pyproject.toml``
-     - 打包与入口点定义（``habit = "habit.cli:cli"``）。
+     - Build metadata and entry-point definitions
+       (``habit = "habit.cli:cli"``).
 
-``habit/`` 包结构
+``habit/`` package structure
 -----------------
 
 .. mermaid::
@@ -51,70 +57,84 @@
      COM --> REG["registry.py"]
      COM --> ORC["orchestrator.py"]
 
-顶层子包职责
+Top-level package responsibilities
 ------------
 
 .. list-table::
    :header-rows: 1
    :widths: 26 74
 
-   * - 子包
-     - 职责
+   * - Package
+     - Responsibility
    * - ``habit/cli.py``
-     - Click 根命令组，所有子命令在此声明；命令体只做 "延迟导入 + 转发"。
+     - Click root command group; subcommands are declared here and command
+       bodies only perform lazy imports and forwarding.
    * - ``habit/commands/``
-     - **当前生效的命令实现层**：每个 ``cmd_*.py`` 负责加载配置、调用核心、输出结果。共享 helper 在 ``common.py``。
+     - **Active command implementation layer**: each ``cmd_*.py`` loads
+       configuration, calls the core, and reports results. Shared helpers are
+       in ``common.py``.
    * - ``habit/core/common/``
-     - 跨域基建：YAML 加载与路径解析（``configs/``）、Configurator 基类（``configurators/``）、
-       统一注册表基类（``registry.py`` → :class:`~habit.core.common.registry.ClassRegistry`）、
-       编排器契约表（``orchestrator.py`` → :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`）。
+     - Cross-domain infrastructure: YAML loading and path resolution
+       (``configs/``), the Configurator base classes (``configurators/``), the
+       shared registry base (``registry.py`` →
+       :class:`~habit.core.common.registry.ClassRegistry`), and the
+       orchestrator contract table (``orchestrator.py`` →
+       :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`).
    * - ``habit/core/schemas/``
-     - Pydantic 配置模型：整份工作流（``workflows/``）、单步参数（``steps/``）、参数注册表（``registry.py``）、校验（``validation.py``）、GUI 反射（``reflect.py`` / ``field_reflect.py``）。
+     - Pydantic configuration models for workflows, step parameters, parameter
+       registration, validation, and GUI reflection.
    * - ``habit/core/preprocessing/``
-     - 影像预处理批流水线：``BatchProcessor``、``BasePreprocessor``、``PreprocessorFactory`` 及各步骤实现。
+     - Batch image preprocessing: ``BatchProcessor``,
+       ``BasePreprocessor``, ``PreprocessorFactory``, and step implementations.
    * - ``habit/core/habitat_analysis/``
-     - 生境分割 + 聚类特征 + 分割后特征提取 + 传统 radiomics（见 :doc:`subsystems`）。
+     - Habitat segmentation, clustering features, post-segmentation feature
+       extraction, and traditional radiomics (see :doc:`subsystems`).
    * - ``habit/core/machine_learning/``
-     - 表格机器学习：数据装配、特征选择、建模、评估、报告、可视化、统计检验。
+     - Tabular machine learning: data assembly, feature selection, modeling,
+       evaluation, reporting, visualization, and statistical tests.
    * - ``habit/core/dicom_sort/``
-     - 独立的 DICOM 排序（基于 dcm2niix），不走 ``BatchProcessor``。
+     - Standalone DICOM sorting based on dcm2niix; it does not use
+       ``BatchProcessor``.
    * - ``habit/utils/``
-     - 跨子系统共享工具（见下节）。
+     - Shared utilities used across subsystems (see below).
 
-共享工具 ``habit/utils/``
+Shared utilities: ``habit/utils/``
 -------------------------
 
-按开发约定，所有跨子系统复用工具集中于此，其中 **进度条必须统一使用** ``progress_utils.py``。常用模块：
+By convention, reusable cross-subsystem utilities live here. **All progress
+bars must use** ``progress_utils.py``. Common modules include:
 
 .. list-table::
    :header-rows: 1
    :widths: 34 66
 
-   * - 文件
-     - 用途
+   * - File
+     - Purpose
    * - ``progress_utils.py``
-     - **统一进度条**\ （全包标准，禁止各处自造 tqdm）。
+     - **Shared progress bars** (the package standard; do not create local
+       tqdm wrappers).
    * - ``yaml_utils.py``
-     - YAML 读写封装。
+     - YAML read/write helpers.
    * - ``log_utils.py``
-     - 日志与 ``LoggerManager`` / ``setup_logger``。
+     - Logging and ``LoggerManager`` / ``setup_logger``.
    * - ``io_utils.py`` / ``file_system_utils.py``
-     - 影像/掩膜路径解析、路径转换（含 Windows/WSL）。
+     - Image/mask path discovery and Windows/WSL path conversion.
    * - ``parallel_utils.py`` / ``parallel_gpu_utils.py``
-     - 通用并行与 GPU 槽位分配（torch radiomics）。
+     - General parallel execution and GPU slot allocation for torch radiomics.
    * - ``visualization_utils.py`` / ``font_config.py``
-     - 绘图与字体配置（**图内一律英文**）。
+     - Plotting and font configuration (**plot text must be English**).
    * - ``habitats_results_io.py`` / ``habitat_postprocess_utils.py``
-     - 生境结果读写与后处理。
+     - Habitat result I/O and post-processing.
    * - ``radiomics_params_utils.py`` / ``torch_radiomics_utils.py``
-     - Radiomics 参数与工具。
+     - Radiomics parameters and helpers.
    * - ``job_cancel.py``
-     - 任务取消检测（供长任务与 GUI 使用）。
+     - Cancellation detection for long-running tasks and the GUI.
 
-跨子系统契约文件
+Cross-subsystem contract files
 ----------------
 
-以下文件定义全包共享的接口约定，新增工厂或编排器时必须同步更新并跑契约测试：
+The following files define package-wide interface contracts. Update them and
+run the contract tests when adding a factory or orchestrator:
 
 .. mermaid::
 
@@ -133,39 +153,42 @@
      TST["tests/test_architecture_contracts.py"] -.-> REG
      TST -.-> ORC
 
-"我想改 X，去哪找"
+Where to start when changing X
 ------------------
 
 .. list-table::
    :header-rows: 1
    :widths: 40 60
 
-   * - 目标
-     - 起点文件
-   * - 新增 / 修改一个 CLI 命令
+   * - Goal
+     - Starting point
+   * - Add or modify a CLI command
      - ``habit/cli.py`` + ``habit/commands/cmd_*.py``
-   * - 新增一个预处理步骤
+   * - Add a preprocessing step
      - ``habit/core/preprocessing/`` + ``PreprocessorFactory``
-   * - 新增一个聚类算法
+   * - Add a clustering algorithm
      - ``habit/core/habitat_analysis/clustering/base_clustering.py``
-   * - 新增一个聚类特征提取器
+   * - Add a clustering feature extractor
      - ``habit/core/habitat_analysis/clustering_features/base_extractor.py``
-   * - 新增一个机器学习模型
+   * - Add a machine-learning model
      - ``habit/core/machine_learning/models/factory.py``
-   * - 新增一个特征选择方法
+   * - Add a feature-selection method
      - ``habit/core/machine_learning/feature_selectors/selector_registry.py``
-   * - 改动配置字段 / 校验规则
-     - ``habit/core/schemas/workflows/`` 与 ``schemas/steps/``
-   * - 生境三种策略的流水线步骤
+   * - Change configuration fields or validation rules
+     - ``habit/core/schemas/workflows/`` and ``schemas/steps/``
+   * - Change the three habitat pipeline strategies
      - ``habit/core/habitat_analysis/habitat_analysis.py``\ （``_PIPELINE_RECIPES``）+ ``pipelines/steps/``
-   * - ML 训练 / 预测执行流
-     - ``habit/core/machine_learning/workflows/`` 与 ``runners/``
-   * - 新增类式工厂（扩展算法组件）
-     - 继承 ``habit/core/common/registry.py`` 的 ``ClassRegistry``；参考同域已有工厂
-   * - 新增顶层编排器（新 CLI 流水线）
-     - 实现类 + 更新 ``common/orchestrator.py`` 的 ``ORCHESTRATOR_CONTRACT``
-       （``tests/test_architecture_contracts.py`` 自动读取该表校验终端方法）
+   * - Change the ML training or prediction flow
+     - ``habit/core/machine_learning/workflows/`` and ``runners/``
+   * - Add a class-based factory
+     - Subclass ``ClassRegistry`` from ``habit/core/common/registry.py``;
+       follow an existing factory in the same domain.
+   * - Add a top-level orchestrator for a new CLI pipeline
+     - Implement the class and update ``ORCHESTRATOR_CONTRACT`` in
+       ``common/orchestrator.py``. ``tests/test_architecture_contracts.py``
+       reads this table automatically to validate terminal methods.
 
 .. seealso::
 
-   扩展点的完整清单与注册方式见 :doc:`extension_points`；动手模板见 :doc:`../customization/index`。
+   See :doc:`extension_points` for the complete extension and registration
+   reference, and :doc:`../customization/index` for implementation templates.

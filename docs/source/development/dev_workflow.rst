@@ -1,10 +1,12 @@
-贡献者工作流
+Contributor Workflow
 ============
 
-本页给出动手贡献所需的实操信息：环境搭建、测试体系、以及三个高频场景的落地步骤——新增一个 CLI 命令、
-新增一个配置步骤 Schema、以及 Web GUI 的 bridge 机制。通用的 PR/提交规范见 :doc:`contributing`。
+This page provides practical contribution guidance: environment setup, the
+test system, and three common implementation scenarios—adding a CLI command,
+adding a configuration-step schema, and using the Web GUI bridge. See
+:doc:`contributing` for general pull-request and commit conventions.
 
-环境搭建
+Environment setup
 --------
 
 .. code-block:: bash
@@ -12,52 +14,59 @@
    conda activate habit          # Python 3.10
    pip install -r requirements.txt
    pip install -e .              # editable install
-   pytest tests/                 # 运行测试
+   pytest tests/                 # Run the tests
 
-代码约定
+Code conventions
 --------
 
 .. list-table::
    :header-rows: 1
    :widths: 30 70
 
-   * - 约定
-     - 说明
-   * - 类型注解
-     - 函数输入/输出显式标注类型（如 ``x_train: np.ndarray``）。
-   * - 注释语言
-     - 代码注释用 **英文**，且要详细讲清意图。
-   * - 图内文字
-     - 所有由代码生成的图 **一律英文**\ （不含文档正文）。
-   * - 工具归集
-     - 跨子系统工具统一放 ``habit/utils/``；进度条统一用 ``habit/utils/progress_utils.py``。
-   * - 代码风格
-     - 遵循 PEP 8，公共函数补 docstring。
+   * - Convention
+     - Description
+   * - Type annotations
+     - Annotate function inputs and outputs explicitly, for example
+       ``x_train: np.ndarray``.
+   * - Comment language
+     - Write detailed code comments in **English**.
+   * - Plot text
+     - All text generated inside programmatic plots must be **English**.
+   * - Utility organization
+     - Put shared utilities in ``habit/utils/`` and use
+       ``habit/utils/progress_utils.py`` for progress bars.
+   * - Code style
+     - Follow PEP 8 and add docstrings to public functions.
 
-测试体系
+Testing
 --------
 
-测试位于仓库根 ``tests/``，配置在 ``tests/pytest.ini``。有两类测试：
+Tests are located in the repository-level ``tests/`` directory and configured
+by ``tests/pytest.ini``. There are two main categories:
 
-1. **pytest 单元 / CLI 测试**\ （``test_*.py``）：用 ``click.testing.CliRunner`` 或直接调 API。
-2. **可执行 demo 脚本**：如 ``tests/habitat/habitat_two_step_voxel_radiomics_train.py``，指向 ``config/`` 下的
-   demo YAML，从仓库根运行，用于端到端冒烟。
+1. **pytest unit and CLI tests** (``test_*.py``), using
+   ``click.testing.CliRunner`` or direct API calls.
+2. **Executable demo scripts**, such as
+   ``tests/habitat/habitat_two_step_voxel_radiomics_train.py``. These use demo
+   YAML files under ``config/`` and provide end-to-end smoke coverage.
 
-按 marker 选择性运行（marker 定义在 ``pytest.ini``）：
+Select tests by marker (markers are defined in ``pytest.ini``):
 
 .. code-block:: bash
 
-   pytest tests/ -m unit                 # 仅单元测试
+   pytest tests/ -m unit                 # Unit tests only
    pytest tests/ -m "habitat and not slow"
-   pytest tests/ -m cli                  # 仅 CLI 测试
-   pytest tests/test_architecture_contracts.py -m unit  # 架构契约自检
+   pytest tests/ -m cli                  # CLI tests only
+   pytest tests/test_architecture_contracts.py -m unit  # Architecture contracts
 
-可用 marker：``slow`` / ``integration`` / ``unit`` / ``preprocessing`` / ``habitat`` / ``ml`` / ``utils`` / ``cli``。
+Available markers: ``slow`` / ``integration`` / ``unit`` / ``preprocessing`` /
+``habitat`` / ``ml`` / ``utils`` / ``cli``.
 
-架构契约测试
+Architecture contract tests
 ~~~~~~~~~~~~
 
-``tests/test_architecture_contracts.py`` 守护两套跨子系统约定，新增工厂或编排器后 **必须跑通**：
+``tests/test_architecture_contracts.py`` protects two cross-subsystem
+contracts. It **must pass** after adding a factory or orchestrator:
 
 .. mermaid::
 
@@ -71,24 +80,33 @@
      R1 & R2 & R3 --> CR["ClassRegistry + 6 factories"]
      O1 --> OC["ORCHESTRATOR_CONTRACT + 7 orchestrators"]
 
-新增 **类式工厂** 时：子类化 ``ClassRegistry``，并把工厂登记到测试文件中的 ``CLASS_REGISTRIES`` 字典。
-新增 **编排器** 时：在 ``ORCHESTRATOR_CONTRACT`` 中追加 ``(import_path, class_name, terminal_methods)`` 元组。
-可选依赖缺失时相关测试会自动 ``skip``，不影响最小环境安装。
+For a new **class-based factory**, subclass ``ClassRegistry`` and add the
+factory to the ``CLASS_REGISTRIES`` dictionary in the test file.
+For a new **orchestrator**, append an
+``(import_path, class_name, terminal_methods)`` tuple to
+``ORCHESTRATOR_CONTRACT``.
+Tests for missing optional dependencies are automatically skipped, so the
+minimal installation remains usable.
 
-demo 数据流
+Demo data flow
 ~~~~~~~~~~~
 
-``tests/conftest.py`` 提供 ``project_root`` / ``demo_data_dir`` 等 fixture；示例数据在 ``demo_data/``。
-端到端链路示例见 ``tests/integration/``\ （如 ``workflow_preprocess_to_compare.py``，依次跑
-preprocess → get-habitat → extract → model → compare）。配置里的路径相对 YAML 文件解析
-（见 :doc:`configuration_system` 的 ``PathResolver``）。
+``tests/conftest.py`` provides fixtures such as ``project_root`` and
+``demo_data_dir``; example data is stored in ``demo_data/``.
+End-to-end examples are in ``tests/integration/`` (for example,
+``workflow_preprocess_to_compare.py`` runs preprocess → get-habitat → extract
+→ model → compare). Configuration paths are resolved relative to the YAML
+file; see ``PathResolver`` in :doc:`configuration_system`.
 
-场景一：新增一个 CLI 命令
+Scenario 1: Add a CLI command
 -------------------------
 
-命令的入口与实现是分离的：``habit/cli.py`` 只声明参数并转发，实际逻辑在 ``habit/commands/cmd_*.py``。
+Keep the command declaration separate from its implementation:
+``habit/cli.py`` declares options and forwards the call, while the
+implementation lives in ``habit/commands/cmd_*.py``.
 
-**1. 在 ``habit/cli.py`` 声明命令**\ （延迟导入，保持启动快）：
+**1. Declare the command in ``habit/cli.py``** (use lazy imports to keep
+startup fast):
 
 .. code-block:: python
 
@@ -99,7 +117,8 @@ preprocess → get-habitat → extract → model → compare）。配置里的�
        from habit.commands.cmd_my_task import run_my_task
        run_my_task(config)
 
-**2. 在 ``habit/commands/cmd_my_task.py`` 实现**\ （参照 ``cmd_preprocess.py`` 的结构）：
+**2. Implement it in ``habit/commands/cmd_my_task.py``** (follow the
+structure of ``cmd_preprocess.py``):
 
 .. code-block:: python
 
@@ -118,17 +137,19 @@ preprocess → get-habitat → extract → model → compare）。配置里的�
            exit_with_error(f"Error: {exc}")
        echo_success("My task completed successfully!")
 
-**3. 核心逻辑** 放到 ``habit/core/.../run.py`` 的 ``run_*_from_config`` 函数中，
-保持 "命令层薄、核心层厚"。这样 Python API 用户也能直接调用核心函数。
+**3. Put the core logic** in a ``run_*_from_config`` function under
+``habit/core/.../run.py``. Keep the command layer thin and the core layer
+focused; Python API users can then call the core function directly.
 
-**4. 补一个 CLI 测试**\ （``tests/.../test_cli_my_task.py``，用 ``CliRunner``）。
+**4. Add a CLI test** in ``tests/.../test_cli_my_task.py`` using ``CliRunner``.
 
-场景二：新增一个配置步骤 Schema
+Scenario 2: Add a configuration-step schema
 -------------------------------
 
-若新增的算法带有可配置 ``params``，应为其定义参数 Schema 并注册，从而获得 **类型校验** 与 **GUI 表单**。
+If a new algorithm has configurable ``params``, define and register a
+parameter schema to obtain **type validation** and **GUI form generation**.
 
-**1. 定义参数模型**\ （``habit/core/schemas/steps/`` 下）：
+**1. Define the parameter model** under ``habit/core/schemas/steps/``:
 
 .. code-block:: python
 
@@ -139,23 +160,28 @@ preprocess → get-habitat → extract → model → compare）。配置里的�
        n_clusters: int = Field(3, ge=2, description="Number of clusters")
        metric: str = Field("euclidean", description="Distance metric")
 
-**2. 注册到 ``ParamSchemaRegistry``**\ （见 ``schemas/registry.py`` 的初始化逻辑）：
+**2. Register it with ``ParamSchemaRegistry``** (see the initialization logic
+in ``schemas/registry.py``):
 
 .. code-block:: python
 
    ParamSchemaRegistry.register("habitat", "my_step", MyStepParams)
 
-**3. 效果**：加载配置时 ``validate_step_params()`` 会自动校验该步骤的 ``params``；
-GUI 通过 ``schemas/reflect.py`` 反射出对应表单字段。机制详见 :doc:`configuration_system`。
+**3. Result**: ``validate_step_params()`` validates the step ``params`` while
+loading configuration, and the GUI reflects the corresponding form fields from
+``schemas/reflect.py``. See :doc:`configuration_system` for details.
 
 .. tip::
 
-   由于 ``BaseConfig`` 使用 ``extra='forbid'``，新增字段务必在 Schema 中声明，否则用户配置里出现该字段会报 "未知字段"。
+   ``BaseConfig`` uses ``extra='forbid'``. Declare every new field in the
+   schema; otherwise the configuration will report an unknown field.
 
-场景三：Web GUI 与 bridge
+Scenario 3: Web GUI and bridge
 -------------------------
 
-``habit-gui/`` 是可选的独立 Web GUI（默认不在本仓库 checkout 中；见 :doc:`repo_layout`），通过两条通道复用核心，而 **不重写业务逻辑**：
+``habit-gui/`` is an optional, separate Web GUI (not checked out by default;
+see :doc:`repo_layout`). It reuses the core through two channels and **does
+not duplicate business logic**:
 
 .. mermaid::
 
@@ -165,13 +191,19 @@ GUI 通过 ``schemas/reflect.py`` 反射出对应表单字段。机制详见 :do
      API -->|bridge worker| BR["habit-gui/bridge"]
      BR -->|import| SCH["habit.core.schemas (reflect)"]
 
-- **执行通道**：GUI 生成 YAML 配置，再以 **子进程** 调用 ``habit`` CLI 运行，行为与命令行完全一致。
-- **Schema 通道**：``habit-gui/bridge`` 反射 ``habit.core.schemas`` 的参数模型，把字段描述符喂给前端动态渲染表单。
-  因此 **表单字段永远与 CLI 的 YAML Schema 一致**。
+- **Execution channel**: The GUI generates YAML configuration and invokes the
+  ``habit`` CLI in a **subprocess**, producing the same behavior as the CLI.
+- **Schema channel**: ``habit-gui/bridge`` reflects parameter models from
+  ``habit.core.schemas`` and sends field descriptors to the frontend for
+  dynamic form rendering. **Form fields therefore remain aligned with the
+  CLI YAML schema.**
 
-这一设计意味着：给核心新增一个组件 + 参数 Schema 后，GUI 表单可自动获得对应输入项，通常无需改前端代码。
+This design means that adding a core component and parameter schema usually
+adds the corresponding GUI inputs without frontend changes.
 
 .. seealso::
 
-   - 架构全景见 :doc:`architecture`；配置机制见 :doc:`configuration_system`。
-   - 扩展点清单见 :doc:`extension_points`；代码模板见 :doc:`../customization/index`。
+   - See :doc:`architecture` for the architecture overview and
+     :doc:`configuration_system` for configuration details.
+   - See :doc:`extension_points` for extension points and
+     :doc:`../customization/index` for code templates.
