@@ -20,28 +20,46 @@ Following top-tier open-source practices, all custom exceptions inherit
 from a base HabitError.
 """
 
+
 class HabitError(Exception):
     """Base exception class for all HABIT errors."""
+
     pass
+
 
 class ConfigurationError(HabitError):
     """Raised when there is an error in the configuration (YAML or dict)."""
+
     pass
+
 
 class DataFormatError(HabitError):
     """Raised when input data format is invalid or unsupported."""
+
     pass
+
 
 class NotFittedError(HabitError, ValueError):
     """Raised when a model or transformer is used before being fitted.
     Inherits from ValueError for scikit-learn compatibility.
     """
+
     pass
+
 
 class ComponentNotFoundError(HabitError):
     """Raised when a requested component (model, selector, etc.) is not found in the registry."""
+
     pass
+
 
 class ProcessingError(HabitError):
     """Raised when an error occurs during data processing or pipeline execution."""
+
+    pass
+
+
+class CompatibilityError(HabitError):
+    """Raised when a saved HABIT artifact cannot be safely loaded."""
+
     pass

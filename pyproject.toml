@@ -9,7 +9,7 @@ readme = "README.md"
 habit = "habit.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.10,<3.11"
 click = "^8.0"
 tqdm = "^4.0"
 numpy = "*"
@@ -30,15 +30,17 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py310']
 include = '\.pyi?$'
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+follow_imports = "skip"
+ignore_missing_imports = true
 
 [tool.pylint.messages_control]
 disable = [

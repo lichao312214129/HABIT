@@ -1,0 +1,15 @@
+# Dependencies required by the public API, architecture, and packaging test suite.
+# Keep this list small: optional workflow backends (for example, AutoGluon,
+# PyRadiomics, ANTs, and PyTorch) are intentionally excluded from CI smoke tests.
+numpy==1.26.1
+pandas
+scipy
+SimpleITK==2.2.1
+scikit-learn
+joblib
+pyyaml
+pydantic
+click>=8.0
+tqdm
+pytest
+mypy

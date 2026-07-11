@@ -1,15 +1,17 @@
-How-to guides
+API Reference
 =============
 
-Each page: **command → outputs → configuration**. YAML fields: :doc:`../configuration/index` .
+This section documents HABIT's stable Python API and the underlying module
+reference. For command-oriented walkthroughs, see :doc:`../how_to/index`.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   prepare_data
-   preprocess
-   segment_habitat
-   extract_features
-   train_model
-   compare_models
    python_api
+   habitat_analysis
+   machine_learning
+   preprocessing
+   dicom_sort
+   common
+   utils
+   cli

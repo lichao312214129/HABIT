@@ -78,17 +78,51 @@ def test_import_habit_does_not_load_radiomics() -> None:
 
 
 @pytest.mark.unit
+def test_public_exceptions_share_one_documented_hierarchy() -> None:
+    """Public callers can catch stable HABIT errors without deep imports."""
+    import habit
+    from habit.exceptions import DataFormatError, HabitError, NotFittedError
+    from sklearn.exceptions import NotFittedError as SklearnNotFittedError
+
+    assert issubclass(habit.HABITAPIError, DataFormatError)
+    assert issubclass(habit.HABITAPIError, HabitError)
+    assert NotFittedError is SklearnNotFittedError
+
+
+@pytest.mark.unit
 def test_run_preprocess_delegates_to_core_runner() -> None:
-    """Public runner is an alias of the existing core entry point."""
+    """Public preprocessing accepts a dictionary and validates it before delegation."""
+    from pathlib import Path
     from unittest.mock import MagicMock, patch
 
     import habit
 
     with patch("habit.core.preprocessing.run.run_preprocess_from_config") as mock_run:
-        config = MagicMock()
         logger = MagicMock()
-        habit.run_preprocess(config, logger=logger)
-        mock_run.assert_called_once_with(config, logger=logger)
+        result = habit.run_preprocess(
+            {"data_dir": "input", "out_dir": "output"},
+            logger=logger,
+        )
+
+    delegated_config = mock_run.call_args.args[0]
+    assert isinstance(delegated_config, habit.PreprocessingConfig)
+    assert delegated_config.data_dir == "input"
+    mock_run.assert_called_once_with(delegated_config, logger=logger)
+    assert result.artifact("output_dir") == Path("output")
+
+
+@pytest.mark.unit
+def test_public_runner_rejects_invalid_dictionary_before_core_execution() -> None:
+    """Dictionary validation must happen at the public API boundary."""
+    from unittest.mock import patch
+
+    import habit
+
+    with patch("habit.core.preprocessing.run.run_preprocess_from_config") as mock_run:
+        with pytest.raises(habit.ConfigurationError):
+            habit.run_preprocess({"data_dir": "input"})
+
+    mock_run.assert_not_called()
 
 
 @pytest.mark.unit
@@ -117,20 +151,29 @@ def test_load_feature_extraction_config_delegates_to_plugin_aware_loader() -> No
 
 @pytest.mark.unit
 def test_run_feature_extraction_passes_plugin_configs() -> None:
-    """Public feature runner forwards optional plugin settings to the core runner."""
+    """Public feature runner accepts dictionaries and explicit plugin settings."""
     from unittest.mock import MagicMock, patch
 
     import habit
 
-    config = MagicMock()
     plugins = {"graph": MagicMock()}
     with patch(
         "habit.core.habitat_analysis.run.run_feature_extraction_from_config"
     ) as mock_run:
-        habit.run_feature_extraction(config, plugin_configs=plugins)
+        habit.run_feature_extraction(
+            {
+                "raw_img_folder": "raw",
+                "habitats_map_folder": "habitats",
+                "out_dir": "features",
+                "feature_types": ["non_radiomics"],
+            },
+            plugin_configs=plugins,
+        )
 
+    delegated_config = mock_run.call_args.args[0]
+    assert isinstance(delegated_config, habit.FeatureExtractionConfig)
     mock_run.assert_called_once_with(
-        config,
+        delegated_config,
         logger=None,
         plugin_configs=plugins,
     )
@@ -138,33 +181,37 @@ def test_run_feature_extraction_passes_plugin_configs() -> None:
 
 @pytest.mark.unit
 def test_run_test_retest_analysis_maps_and_processes_images() -> None:
-    """Public test-retest runner must match labels before writing mapped images."""
+    """Public test-retest runner validates mappings before writing images."""
     from unittest.mock import MagicMock, patch
 
     import habit
 
-    config = MagicMock()
-    config.test_habitat_table = "test.csv"
-    config.retest_habitat_table = "retest.csv"
-    config.features = ["feature_a"]
-    config.similarity_method = "pearson"
-    config.input_dir = "input"
-    config.out_dir = "output"
-    config.processes = 2
+    config = {
+        "test_habitat_table": "test.csv",
+        "retest_habitat_table": "retest.csv",
+        "features": ["feature_a"],
+        "similarity_method": "pearson",
+        "input_dir": "input",
+        "out_dir": "output",
+        "processes": 2,
+    }
     expected_mapping = {2: 1}
     logger = MagicMock()
 
-    with patch(
-        "habit.core.machine_learning.feature_selectors.icc."
-        "habitat_test_retest_mapper.find_habitat_mapping",
-        return_value=expected_mapping,
-    ) as mock_find, patch(
-        "habit.core.machine_learning.feature_selectors.icc."
-        "habitat_test_retest_mapper.batch_process_files"
-    ) as mock_batch:
-        actual_mapping = habit.run_test_retest_analysis(config, logger=logger)
+    with (
+        patch(
+            "habit.core.machine_learning.feature_selectors.icc."
+            "habitat_test_retest_mapper.find_habitat_mapping",
+            return_value=expected_mapping,
+        ) as mock_find,
+        patch(
+            "habit.core.machine_learning.feature_selectors.icc."
+            "habitat_test_retest_mapper.batch_process_files"
+        ) as mock_batch,
+    ):
+        result = habit.run_test_retest_analysis(config, logger=logger)
 
-    assert actual_mapping == expected_mapping
+    assert result.data == expected_mapping
     mock_find.assert_called_once_with(
         "test.csv",
         "retest.csv",

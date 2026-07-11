@@ -9,7 +9,9 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
+
+from habit.api.contracts import WorkflowResult, coerce_config
 
 if TYPE_CHECKING:
     from habit.core.preprocessing.config_schemas import PreprocessingConfig
@@ -26,16 +28,23 @@ def __getattr__(name: str) -> Any:
 
 
 def run_preprocess(
-    config: "PreprocessingConfig",
+    config: Union["PreprocessingConfig", Mapping[str, Any]],
     logger: Optional[logging.Logger] = None,
-) -> None:
+) -> WorkflowResult[None]:
     """
     Run the preprocessing batch pipeline from a validated config object.
 
     Args:
-        config: Loaded :class:`~habit.core.preprocessing.config_schemas.PreprocessingConfig`.
+        config: Validated config or dictionary accepted by
+            :class:`~habit.core.preprocessing.config_schemas.PreprocessingConfig`.
         logger: Optional logger; core runner creates one when omitted.
+
+    Returns:
+        A result with the workflow output directory in ``artifacts``.
     """
+    from habit.core.preprocessing.config_schemas import PreprocessingConfig
     from habit.core.preprocessing.run import run_preprocess_from_config
 
-    run_preprocess_from_config(config, logger=logger)
+    validated_config = coerce_config(config, PreprocessingConfig)
+    run_preprocess_from_config(validated_config, logger=logger)
+    return WorkflowResult(output_dir=validated_config.out_dir)

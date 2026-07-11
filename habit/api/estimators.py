@@ -8,22 +8,25 @@ the established HABIT workflow implementations.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import joblib
 import numpy as np
 import pandas as pd
+import sklearn
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
-from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
 
+from habit._version import __version__
+from habit.api.exceptions import CompatibilityError, HABITAPIError, NotFittedError
 
-class HABITAPIError(ValueError):
-    """Raised when an input violates a public HABIT estimator contract."""
+_ESTIMATOR_SERIALIZATION_SCHEMA_VERSION = 1
 
 
 class EstimatorPersistenceMixin:
     """Provide explicit, type-safe joblib persistence for public estimators."""
+
+    serialization_metadata_: Dict[str, Any]
 
     def save(self, path: Union[str, Path]) -> None:
         """
@@ -38,7 +41,18 @@ class EstimatorPersistenceMixin:
         _require_fitted(self)
         destination = Path(path)
         destination.parent.mkdir(parents=True, exist_ok=True)
-        joblib.dump(self, destination)
+        metadata = {
+            "schema_version": _ESTIMATOR_SERIALIZATION_SCHEMA_VERSION,
+            "habit_version": __version__,
+            "sklearn_version": sklearn.__version__,
+            "estimator_type": type(self).__name__,
+            "config_version": getattr(
+                getattr(self, "config", None),
+                "config_version",
+                None,
+            ),
+        }
+        joblib.dump({"metadata": metadata, "estimator": self}, destination)
 
     @classmethod
     def load(cls, path: Union[str, Path]) -> "EstimatorPersistenceMixin":
@@ -52,13 +66,32 @@ class EstimatorPersistenceMixin:
             Loaded estimator of the requested class.
 
         Raises:
+            CompatibilityError: If the artifact uses an unsupported persistence
+                schema version.
             TypeError: If the serialized object has a different estimator type.
         """
-        loaded = joblib.load(Path(path))
+        payload = joblib.load(Path(path))
+        metadata: Dict[str, Any] = {}
+        if isinstance(payload, Mapping) and "estimator" in payload:
+            metadata = dict(payload.get("metadata", {}))
+            schema_version = metadata.get("schema_version")
+            if schema_version != _ESTIMATOR_SERIALIZATION_SCHEMA_VERSION:
+                raise CompatibilityError(
+                    "Unsupported public estimator serialization schema "
+                    f"{schema_version!r}; expected "
+                    f"{_ESTIMATOR_SERIALIZATION_SCHEMA_VERSION}."
+                )
+            loaded = payload["estimator"]
+        else:
+            # Support artifacts written by HABIT before persistence metadata was
+            # introduced. Future serializers always use the envelope above.
+            loaded = payload
         if not isinstance(loaded, cls):
             raise TypeError(
                 f"Serialized object is {type(loaded).__name__}, not {cls.__name__}."
             )
+        if metadata:
+            loaded.serialization_metadata_ = metadata
         return loaded
 
 
@@ -103,7 +136,9 @@ def _as_feature_dataframe(
                 )
             frame = pd.DataFrame(X, columns=list(fitted_columns))
     else:
-        raise HABITAPIError("X must be a pandas DataFrame or a two-dimensional ndarray.")
+        raise HABITAPIError(
+            "X must be a pandas DataFrame or a two-dimensional ndarray."
+        )
 
     if frame.ndim != 2 or frame.shape[1] == 0:
         raise HABITAPIError("X must contain at least one feature column.")
@@ -124,14 +159,18 @@ def _as_feature_dataframe(
     return frame
 
 
-class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, TransformerMixin):
+class SubjectFeatureAggregator(
+    EstimatorPersistenceMixin, BaseEstimator, TransformerMixin
+):
     """
     Aggregate a HABIT habitat-result long table into one row per subject.
 
     The standard HABIT result identifiers are ``subject`` and ``habitats``.
     Each numeric feature is aggregated for every fitted habitat label and named
     ``<feature>__habitat_<label>``. Missing subject/habitat combinations are
-    represented by ``fill_value`` so output schema remains stable.
+    represented by ``fill_value`` so output schema remains stable. By default,
+    subject identifiers remain in the DataFrame index rather than becoming a
+    model feature; set ``keep_subject_column=True`` for export-oriented tables.
     """
 
     def __init__(
@@ -140,12 +179,14 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
         habitat_column: str = "habitats",
         aggregation: str = "mean",
         fill_value: float = 0.0,
+        keep_subject_column: bool = False,
     ) -> None:
         """Initialize aggregation parameters without inspecting any data."""
         self.subject_column = subject_column
         self.habitat_column = habitat_column
         self.aggregation = aggregation
         self.fill_value = fill_value
+        self.keep_subject_column = keep_subject_column
 
     def fit(
         self,
@@ -154,12 +195,18 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
     ) -> "SubjectFeatureAggregator":
         """Learn feature, habitat, and output-column schema from a long table."""
         frame, feature_columns = self._validate_long_table(X)
-        self.feature_names_in_ = np.asarray(frame.columns, dtype=object)
-        self.n_features_in_ = frame.shape[1]
         self.feature_columns_ = tuple(feature_columns)
-        self.habitat_labels_ = tuple(sorted(frame[self.habitat_column].dropna().unique()))
+        self.identifier_columns_ = (self.subject_column, self.habitat_column)
+        self.input_columns_ = tuple(frame.columns)
+        self.feature_names_in_ = np.asarray(self.feature_columns_, dtype=object)
+        self.n_features_in_ = len(self.feature_columns_)
+        self.habitat_labels_ = tuple(
+            sorted(frame[self.habitat_column].dropna().unique())
+        )
         if not self.habitat_labels_:
-            raise HABITAPIError(f"'{self.habitat_column}' must contain at least one label.")
+            raise HABITAPIError(
+                f"'{self.habitat_column}' must contain at least one label."
+            )
         self.output_feature_names_ = tuple(
             f"{feature}__habitat_{label}"
             for feature in self.feature_columns_
@@ -172,24 +219,26 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
         """Aggregate a long table and align its columns to the fitted schema."""
         _require_fitted(self)
         frame, _ = self._validate_long_table(X, require_fitted_features=True)
-        grouped = (
-            frame.groupby([self.subject_column, self.habitat_column], sort=True)[
-                list(self.feature_columns_)
-            ]
-            .agg(self.aggregation)
-        )
+        grouped = frame.groupby([self.subject_column, self.habitat_column], sort=True)[
+            list(self.feature_columns_)
+        ].agg(self.aggregation)
         subjects = pd.Index(sorted(frame[self.subject_column].dropna().unique()))
         result = pd.DataFrame(index=subjects)
         for feature in self.feature_columns_:
             for label in self.habitat_labels_:
                 name = f"{feature}__habitat_{label}"
-                if (feature in grouped.columns) and (label in grouped.index.get_level_values(1)):
+                if (feature in grouped.columns) and (
+                    label in grouped.index.get_level_values(1)
+                ):
                     values = grouped.xs(label, level=self.habitat_column)[feature]
                     result[name] = values.reindex(subjects)
                 else:
                     result[name] = np.nan
         result.index.name = self.subject_column
-        return result.fillna(self.fill_value).reset_index()
+        result = result.fillna(self.fill_value)
+        if self.keep_subject_column:
+            return result.reset_index()
+        return result
 
     def get_feature_names_out(
         self,
@@ -197,7 +246,10 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
     ) -> np.ndarray:
         """Return stable subject-table output column names."""
         _require_fitted(self)
-        return np.asarray((self.subject_column, *self.output_feature_names_), dtype=object)
+        names = self.output_feature_names_
+        if self.keep_subject_column:
+            names = (self.subject_column, *names)
+        return cast(np.ndarray, np.asarray(names, dtype=object))
 
     def _validate_long_table(
         self,
@@ -207,7 +259,9 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
     ) -> Tuple[pd.DataFrame, List[str]]:
         """Validate required identifiers and select usable numeric feature columns."""
         if not isinstance(X, pd.DataFrame):
-            raise HABITAPIError("X must be a pandas DataFrame containing habitat results.")
+            raise HABITAPIError(
+                "X must be a pandas DataFrame containing habitat results."
+            )
         required = {self.subject_column, self.habitat_column}
         missing = sorted(required.difference(X.columns))
         if missing:
@@ -225,11 +279,22 @@ class SubjectFeatureAggregator(EstimatorPersistenceMixin, BaseEstimator, Transfo
         ]
         if require_fitted_features:
             missing_features = [
-                column for column in self.feature_columns_ if column not in frame.columns
+                column
+                for column in self.feature_columns_
+                if column not in frame.columns
             ]
             if missing_features:
                 raise HABITAPIError(
                     f"X is missing fitted feature columns: {missing_features}."
+                )
+            unexpected_features = [
+                column
+                for column in feature_columns
+                if column not in self.feature_columns_
+            ]
+            if unexpected_features:
+                raise HABITAPIError(
+                    f"X has unexpected numeric feature columns: {unexpected_features}."
                 )
             feature_columns = list(self.feature_columns_)
         elif not feature_columns:
@@ -268,13 +333,17 @@ class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin)
         frame = _as_feature_dataframe(X)
         targets = np.asarray(y)
         if targets.ndim != 1 or len(targets) != len(frame):
-            raise HABITAPIError("y must be one-dimensional and match the number of X rows.")
+            raise HABITAPIError(
+                "y must be one-dimensional and match the number of X rows."
+            )
         if len(np.unique(targets)) < 2:
             raise HABITAPIError("HabitClassifier requires at least two target classes.")
 
         config = self._validated_config()
         model_name, model_params = self._resolve_model_spec(config)
-        pipeline = self._build_pipeline(config, model_name, model_params, frame.columns.tolist())
+        pipeline = self._build_pipeline(
+            config, model_name, model_params, frame.columns.tolist()
+        )
         pipeline.fit(frame, targets)
 
         model = pipeline.named_steps["model"]
@@ -294,7 +363,7 @@ class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin)
     def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """Predict class labels using the fitted HABIT pipeline."""
         frame = self._validated_fitted_input(X)
-        return np.asarray(self.pipeline_.predict(frame))
+        return cast(np.ndarray, np.asarray(self.pipeline_.predict(frame)))
 
     def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
         """Predict class probabilities using the fitted HABIT pipeline."""
@@ -306,7 +375,7 @@ class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin)
             raise HABITAPIError(
                 "The configured model did not return one probability column per class."
             )
-        return probabilities
+        return cast(np.ndarray, probabilities)
 
     def score(
         self,
@@ -333,9 +402,13 @@ class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin)
         elif isinstance(self.config, Mapping):
             config = MLConfig.model_validate(dict(self.config))
         else:
-            raise HABITAPIError("config must be an MLConfig or a mapping accepted by MLConfig.")
+            raise HABITAPIError(
+                "config must be an MLConfig or a mapping accepted by MLConfig."
+            )
         if config.run_mode != "train":
-            raise HABITAPIError("HabitClassifier requires MLConfig with run_mode='train'.")
+            raise HABITAPIError(
+                "HabitClassifier requires MLConfig with run_mode='train'."
+            )
         return config
 
     def _resolve_model_spec(self, config: Any) -> Tuple[str, Dict[str, Any]]:
@@ -389,8 +462,10 @@ class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixi
 
     ``X`` is an optional sequence of subject identifiers; image and mask data
     remain discovered from ``config.data_dir`` exactly as in the HABIT CLI.
-    ``fit_transform`` returns the fit result directly to prevent a second,
-    side-effecting image prediction pass.
+    ``transform`` reuses the fitted in-memory pipeline, so it does not require
+    the training output directory or trigger an implicit serialization round
+    trip. ``fit_transform`` returns the fit result directly to prevent a
+    second image prediction pass.
     """
 
     def __init__(
@@ -411,7 +486,9 @@ class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixi
         config = self._validated_config()
         subjects = self._subjects_from_input(X)
         analysis = self._create_analysis(config)
-        results = analysis.fit(subjects=subjects, save_results_csv=self.save_results_csv)
+        results = analysis.fit(
+            subjects=subjects, save_results_csv=self.save_results_csv
+        )
         self.analysis_ = analysis
         self.pipeline_ = analysis.pipeline
         self.results_ = results
@@ -421,22 +498,14 @@ class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixi
         return self
 
     def transform(self, X: Optional[Sequence[str]] = None) -> pd.DataFrame:
-        """Predict habitat labels for configured-data subjects through injected services."""
+        """Predict habitat labels with the fitted in-memory pipeline."""
         _require_fitted(self)
         subjects = self._subjects_from_input(X)
-        pipeline_path = Path(self.config.out_dir) / "habitat_pipeline.pkl"
-        if not pipeline_path.is_file():
-            raise HABITAPIError(
-                "The fitted habitat pipeline was not persisted by HabitatAnalysis. "
-                f"Expected: {pipeline_path}."
-            )
-        results = self.analysis_.predict(
-            pipeline_path=pipeline_path,
+        return self.analysis_.transform_with_pipeline(
+            pipeline=self.pipeline_,
             subjects=subjects,
             save_results_csv=self.save_results_csv,
         )
-        self.pipeline_ = self.analysis_.pipeline
-        return results
 
     def fit_transform(
         self,
@@ -477,8 +546,12 @@ class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixi
         if X is None:
             return None
         if isinstance(X, (str, bytes)) or not isinstance(X, Sequence):
-            raise HABITAPIError("X must be None or a sequence of subject identifier strings.")
+            raise HABITAPIError(
+                "X must be None or a sequence of subject identifier strings."
+            )
         subjects = list(X)
         if not all(isinstance(subject, str) and subject for subject in subjects):
-            raise HABITAPIError("Every X subject identifier must be a non-empty string.")
+            raise HABITAPIError(
+                "Every X subject identifier must be a non-empty string."
+            )
         return subjects

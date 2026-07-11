@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 import pytest
+import joblib
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.pipeline import Pipeline
@@ -89,8 +90,11 @@ def test_subject_feature_aggregator_learns_stable_schema() -> None:
     )
 
     assert transformed.columns.tolist() == estimator.get_feature_names_out().tolist()
-    assert transformed.loc[0, "intensity__habitat_1"] == 9.0
-    assert transformed.loc[0, "intensity__habitat_2"] == 0.0
+    assert transformed.index.name == "subject"
+    assert transformed.loc["c", "intensity__habitat_1"] == 9.0
+    assert transformed.loc["c", "intensity__habitat_2"] == 0.0
+    assert estimator.feature_names_in_.tolist() == ["intensity"]
+    assert estimator.n_features_in_ == 1
 
 
 @pytest.mark.unit
@@ -100,15 +104,15 @@ def test_subject_feature_aggregator_rejects_missing_contract_columns() -> None:
     with pytest.raises(habit.HABITAPIError, match="required columns"):
         estimator.fit(pd.DataFrame({"subject": ["a"], "feature": [1.0]}))
 
-    estimator.fit(
-        pd.DataFrame({"subject": ["a"], "habitats": [1], "feature": [1.0]})
-    )
+    estimator.fit(pd.DataFrame({"subject": ["a"], "habitats": [1], "feature": [1.0]}))
     with pytest.raises(habit.HABITAPIError, match="fitted feature columns"):
         estimator.transform(pd.DataFrame({"subject": ["a"], "habitats": [1]}))
 
 
 @pytest.mark.unit
-def test_habit_classifier_supports_clone_pipeline_and_persistence(tmp_path: Path) -> None:
+def test_habit_classifier_supports_clone_pipeline_and_persistence(
+    tmp_path: Path,
+) -> None:
     """Classifier remains cloneable and usable as the final sklearn Pipeline step."""
     features = pd.DataFrame(
         {
@@ -118,6 +122,11 @@ def test_habit_classifier_supports_clone_pipeline_and_persistence(tmp_path: Path
     )
     labels = np.asarray([0, 0, 1, 1, 0, 1])
     classifier = habit.HabitClassifier(_ml_config(tmp_path))
+
+    params = classifier.get_params(deep=True)
+    assert params["model_name"] is None
+    classifier.set_params(model_name="LogisticRegression")
+    assert classifier.model_name == "LogisticRegression"
 
     cloned = clone(classifier)
     pipeline = Pipeline([("classifier", cloned)]).fit(features, labels)
@@ -131,7 +140,11 @@ def test_habit_classifier_supports_clone_pipeline_and_persistence(tmp_path: Path
 
     path = tmp_path / "classifier.joblib"
     fitted.save(path)
+    payload = joblib.load(path)
+    assert payload["metadata"]["habit_version"] == habit.__version__
+    assert payload["metadata"]["estimator_type"] == "HabitClassifier"
     loaded = habit.HabitClassifier.load(path)
+    assert loaded.serialization_metadata_["schema_version"] == 1
     np.testing.assert_array_equal(loaded.predict(features), fitted.predict(features))
 
 
@@ -167,18 +180,32 @@ def test_habitat_clusterer_delegates_and_checks_fitted_state(tmp_path: Path) -> 
     with pytest.raises(NotFittedError):
         clusterer.transform(["a"])
 
-    with patch.object(
-        habit.HabitatClusterer,
-        "_validated_config",
-        return_value=MagicMock(out_dir=str(tmp_path / "out")),
-    ), patch.object(
-        habit.HabitatClusterer,
-        "_create_analysis",
-        return_value=analysis,
+    with (
+        patch.object(
+            habit.HabitatClusterer,
+            "_validated_config",
+            return_value=MagicMock(out_dir=str(tmp_path / "out")),
+        ),
+        patch.object(
+            habit.HabitatClusterer,
+            "_create_analysis",
+            return_value=analysis,
+        ),
     ):
         assert clusterer.fit_transform(["a"]) is results
 
     analysis.fit.assert_called_once_with(subjects=["a"], save_results_csv=None)
+    assert clusterer.pipeline_ is analysis.pipeline
+
+    analysis.transform_with_pipeline.return_value = results
+    transformed = clusterer.transform(["b"])
+
+    assert transformed is results
+    analysis.transform_with_pipeline.assert_called_once_with(
+        pipeline=analysis.pipeline,
+        subjects=["b"],
+        save_results_csv=None,
+    )
     assert clusterer.pipeline_ is analysis.pipeline
 
 
@@ -186,17 +213,37 @@ def test_habitat_clusterer_delegates_and_checks_fitted_state(tmp_path: Path) -> 
 def test_dicom_habitat_and_ml_runners_delegate_to_core() -> None:
     """Every remaining top-level workflow runner preserves its core delegation."""
     config = MagicMock()
+    config.out_dir = "habitat-output"
+    config.output_dir = "dicom-output"
+    config.output = "ml-output"
+    config.run_mode = "train"
     logger = MagicMock()
-    with patch("habit.core.dicom_sort.run.run_dicom_sort") as dicom_run, patch(
-        "habit.core.habitat_analysis.run.run_habitat_analysis_from_config",
-        return_value=pd.DataFrame(),
-    ) as habitat_run, patch(
-        "habit.core.machine_learning.run.run_ml_from_config"
-    ) as ml_run, patch(
-        "habit.core.machine_learning.run.run_kfold_from_config"
-    ) as kfold_run:
+    with (
+        patch("habit.api.dicom_sort.coerce_config", return_value=config),
+        patch(
+            "habit.api.habitat.coerce_config",
+            return_value=config,
+        ),
+        patch(
+            "habit.api.machine_learning.coerce_config",
+            return_value=config,
+        ),
+        patch("habit.core.dicom_sort.run.run_dicom_sort") as dicom_run,
+        patch(
+            "habit.core.habitat_analysis.run.run_habitat_analysis_from_config",
+            return_value=pd.DataFrame(),
+        ) as habitat_run,
+        patch(
+            "habit.core.machine_learning.run.run_ml_from_config",
+            return_value=MagicMock(metrics={}),
+        ) as ml_run,
+        patch(
+            "habit.core.machine_learning.run.run_kfold_from_config",
+            return_value=MagicMock(),
+        ) as kfold_run,
+    ):
         habit.run_dicom_sort(config)
-        assert habit.run_habitat_analysis(config, logger=logger).empty
+        assert habit.run_habitat_analysis(config, logger=logger).data.empty
         habit.run_ml(config, logger=logger, output_dir="ml-output")
         habit.run_kfold(config, logger=logger, output_dir="kfold-output")
 

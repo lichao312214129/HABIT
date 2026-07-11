@@ -47,14 +47,19 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 
 # Suppress noisy library warnings during long-running runs.
-warnings.simplefilter('ignore')
+warnings.simplefilter("ignore")
 
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.log_utils import LoggerManager, get_module_logger
 from habit.utils.random_utils import seed_numpy_global
 
 from .config_schemas import HabitatAnalysisConfig
-from .services import ClusteringService, FeatureService, HabitatResultPublisher, HabitatImageWriter
+from .services import (
+    ClusteringService,
+    FeatureService,
+    HabitatResultPublisher,
+    HabitatImageWriter,
+)
 from .pipelines.base_pipeline import BasePipelineStep, HabitatPipeline
 from .pipelines.habitat_subject_data import HabitatSubjectData
 from .pipelines.steps.mean_voxel_features import CalculateMeanVoxelFeaturesStep
@@ -65,7 +70,9 @@ from .pipelines.steps.individual_clustering import IndividualClusteringStep
 from .pipelines.steps.supervoxel_feature_merge import MergeSupervoxelFeaturesStep
 from .pipelines.steps.group_clustering import GroupClusteringStep
 from .pipelines.steps.individual_preprocessing import IndividualPreprocessingStep
-from .pipelines.steps.supervoxel_feature_extraction import SupervoxelFeatureExtractionStep
+from .pipelines.steps.supervoxel_feature_extraction import (
+    SupervoxelFeatureExtractionStep,
+)
 from .pipelines.steps.voxel_feature_extraction import VoxelFeatureExtractor
 from .checkpoint import append_checkpoint_save_step
 
@@ -77,6 +84,7 @@ from .checkpoint import append_checkpoint_save_step
 # branching is contained here (one recipe per mode) and in
 # ``HabitatAnalysis._build_pipeline`` (one dictionary lookup).
 # =============================================================================
+
 
 def _build_two_step_steps(
     config: HabitatAnalysisConfig,
@@ -106,82 +114,97 @@ def _build_two_step_steps(
 
     steps: List[Tuple[str, BasePipelineStep]] = []
 
-    steps.append((
-        'voxel_features',
-        VoxelFeatureExtractor(feature_service, habitat_image_writer),
-    ))
+    steps.append(
+        (
+            "voxel_features",
+            VoxelFeatureExtractor(feature_service, habitat_image_writer),
+        )
+    )
 
-    steps.append((
-        'individual_preprocessing',
-        IndividualPreprocessingStep(feature_service),
-    ))
+    steps.append(
+        (
+            "individual_preprocessing",
+            IndividualPreprocessingStep(feature_service),
+        )
+    )
 
     # Individual-level clustering: voxel -> supervoxel (one cluster set per subject).
-    steps.append((
-        'individual_clustering',
-        IndividualClusteringStep(
-            feature_service=feature_service,
-            clustering_service=clustering_service,
-            habitat_image_writer=habitat_image_writer,
-            config=config,
-            target='supervoxel',
-        ),
-    ))
+    steps.append(
+        (
+            "individual_clustering",
+            IndividualClusteringStep(
+                feature_service=feature_service,
+                clustering_service=clustering_service,
+                habitat_image_writer=habitat_image_writer,
+                config=config,
+                target="supervoxel",
+            ),
+        )
+    )
 
     # Always produce mean-voxel features as a baseline aggregation per supervoxel.
-    steps.append((
-        'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(config),
-    ))
+    steps.append(
+        (
+            "calculate_mean_voxel_features",
+            CalculateMeanVoxelFeaturesStep(config),
+        )
+    )
 
     # Conditionally extract advanced supervoxel features (e.g. radiomics) when
     # the configured method is not the default ``mean_voxel_features``.
     supervoxel_config = config.feature_construction.supervoxel_level
     method = supervoxel_config.method if supervoxel_config else None
-    should_extract_advanced = (
-        method is not None
-        and 'mean_voxel_features' not in method
-    )
+    should_extract_advanced = method is not None and "mean_voxel_features" not in method
     if should_extract_advanced:
-        steps.append((
-            'supervoxel_advanced_features',
-            SupervoxelFeatureExtractionStep(feature_service, config),
-        ))
+        steps.append(
+            (
+                "supervoxel_advanced_features",
+                SupervoxelFeatureExtractionStep(feature_service, config),
+            )
+        )
 
     # Choose between mean-voxel and advanced supervoxel features (mutually exclusive).
-    steps.append((
-        'merge_supervoxel_features',
-        MergeSupervoxelFeaturesStep(config),
-    ))
+    steps.append(
+        (
+            "merge_supervoxel_features",
+            MergeSupervoxelFeaturesStep(config),
+        )
+    )
     append_checkpoint_save_step(steps, config)
 
     # Group-level: stitch all subjects' supervoxels into one DataFrame.
-    steps.append((
-        'combine_supervoxels',
-        CombineSupervoxelsStep(),
-    ))
+    steps.append(
+        (
+            "combine_supervoxels",
+            CombineSupervoxelsStep(),
+        )
+    )
 
     # Optional group-level preprocessing (variance/correlation/normalisation).
     if config.feature_construction.preprocessing_for_group_level:
         methods = config.feature_construction.preprocessing_for_group_level.methods
         if methods:
-            steps.append((
-                'group_preprocessing',
-                GroupPreprocessingStep(
-                    methods=methods,
-                    out_dir=config.out_dir,
-                ),
-            ))
+            steps.append(
+                (
+                    "group_preprocessing",
+                    GroupPreprocessingStep(
+                        methods=methods,
+                        out_dir=config.out_dir,
+                    ),
+                )
+            )
 
     # Group clustering: supervoxel rows -> habitat labels.
-    steps.append((
-        'group_clustering',
-        GroupClusteringStep(
-            clustering_service=clustering_service,
-            config=config,
-            out_dir=config.out_dir,
-        ),
-    ))
+    steps.append(
+        (
+            "group_clustering",
+            GroupClusteringStep(
+                clustering_service=clustering_service,
+                config=config,
+                out_dir=config.out_dir,
+            ),
+        )
+    )
 
     return steps
 
@@ -211,15 +234,19 @@ def _build_one_step_steps(
     """
     steps: List[Tuple[str, BasePipelineStep]] = []
 
-    steps.append((
-        'voxel_features',
-        VoxelFeatureExtractor(feature_service, habitat_image_writer),
-    ))
+    steps.append(
+        (
+            "voxel_features",
+            VoxelFeatureExtractor(feature_service, habitat_image_writer),
+        )
+    )
 
-    steps.append((
-        'individual_preprocessing',
-        IndividualPreprocessingStep(feature_service),
-    ))
+    steps.append(
+        (
+            "individual_preprocessing",
+            IndividualPreprocessingStep(feature_service),
+        )
+    )
 
     # Lazily build a minimal HabitatImageWriter when one was not injected.
     # IndividualClusteringStep with target='habitat' needs it for saving maps.
@@ -228,36 +255,44 @@ def _build_one_step_steps(
 
     # In one-step we cluster voxels directly into habitats per subject and we
     # ask the step to find an optimal cluster count for each subject.
-    steps.append((
-        'individual_clustering',
-        IndividualClusteringStep(
-            feature_service=feature_service,
-            clustering_service=clustering_service,
-            habitat_image_writer=habitat_image_writer,
-            config=config,
-            target='habitat',
-            find_optimal=True,
-        ),
-    ))
+    steps.append(
+        (
+            "individual_clustering",
+            IndividualClusteringStep(
+                feature_service=feature_service,
+                clustering_service=clustering_service,
+                habitat_image_writer=habitat_image_writer,
+                config=config,
+                target="habitat",
+                find_optimal=True,
+            ),
+        )
+    )
 
     # Even in one-step we want aggregated per-label features for downstream output.
-    steps.append((
-        'calculate_mean_voxel_features',
-        CalculateMeanVoxelFeaturesStep(config),
-    ))
+    steps.append(
+        (
+            "calculate_mean_voxel_features",
+            CalculateMeanVoxelFeaturesStep(config),
+        )
+    )
 
-    steps.append((
-        'merge_supervoxel_features',
-        MergeSupervoxelFeaturesStep(config),
-    ))
+    steps.append(
+        (
+            "merge_supervoxel_features",
+            MergeSupervoxelFeaturesStep(config),
+        )
+    )
     append_checkpoint_save_step(steps, config)
 
     # Group-level concatenation across subjects so the downstream CSV layout
     # is consistent with the two-step mode.
-    steps.append((
-        'combine_supervoxels',
-        CombineSupervoxelsStep(),
-    ))
+    steps.append(
+        (
+            "combine_supervoxels",
+            CombineSupervoxelsStep(),
+        )
+    )
 
     return steps
 
@@ -287,41 +322,51 @@ def _build_pooling_steps(
     """
     steps: List[Tuple[str, BasePipelineStep]] = []
 
-    steps.append((
-        'voxel_features',
-        VoxelFeatureExtractor(feature_service, habitat_image_writer),
-    ))
+    steps.append(
+        (
+            "voxel_features",
+            VoxelFeatureExtractor(feature_service, habitat_image_writer),
+        )
+    )
 
-    steps.append((
-        'individual_preprocessing',
-        IndividualPreprocessingStep(feature_service),
-    ))
+    steps.append(
+        (
+            "individual_preprocessing",
+            IndividualPreprocessingStep(feature_service),
+        )
+    )
     append_checkpoint_save_step(steps, config)
 
-    steps.append((
-        'concatenate_voxels',
-        ConcatenateVoxelsStep(),
-    ))
+    steps.append(
+        (
+            "concatenate_voxels",
+            ConcatenateVoxelsStep(),
+        )
+    )
 
     if config.feature_construction.preprocessing_for_group_level:
         methods = config.feature_construction.preprocessing_for_group_level.methods
         if methods:
-            steps.append((
-                'group_preprocessing',
-                GroupPreprocessingStep(
-                    methods=methods,
-                    out_dir=config.out_dir,
-                ),
-            ))
+            steps.append(
+                (
+                    "group_preprocessing",
+                    GroupPreprocessingStep(
+                        methods=methods,
+                        out_dir=config.out_dir,
+                    ),
+                )
+            )
 
-    steps.append((
-        'group_clustering',
-        GroupClusteringStep(
-            clustering_service=clustering_service,
-            config=config,
-            out_dir=config.out_dir,
-        ),
-    ))
+    steps.append(
+        (
+            "group_clustering",
+            GroupClusteringStep(
+                clustering_service=clustering_service,
+                config=config,
+                out_dir=config.out_dir,
+            ),
+        )
+    )
 
     return steps
 
@@ -330,15 +375,16 @@ def _build_pooling_steps(
 # mode dispatch (the rest of the module branches via ``config.habitat_segmentation
 # .clustering_mode`` only for save-side variations, which are tiny).
 _PIPELINE_RECIPES = {
-    'two_step': _build_two_step_steps,
-    'one_step': _build_one_step_steps,
-    'direct_pooling': _build_pooling_steps,
+    "two_step": _build_two_step_steps,
+    "one_step": _build_one_step_steps,
+    "direct_pooling": _build_pooling_steps,
 }
 
 
 # =============================================================================
 # HabitatAnalysis - the deep module
 # =============================================================================
+
 
 class HabitatAnalysis:
     """
@@ -376,9 +422,9 @@ class HabitatAnalysis:
     # which would absorb any future ``*_service`` attribute. If a new service
     # is introduced, it must be added here on purpose.
     _PIPELINE_SERVICE_ATTRS: Tuple[str, ...] = (
-        'feature_service',
-        'clustering_service',
-        'habitat_image_writer',
+        "feature_service",
+        "clustering_service",
+        "habitat_image_writer",
     )
 
     def __init__(
@@ -448,10 +494,12 @@ class HabitatAnalysis:
         log_file = manager.get_log_file()
         if log_file:
             self._log_file_path = log_file
-        elif hasattr(self.logger, 'log_file'):
+        elif hasattr(self.logger, "log_file"):
             self._log_file_path = self.logger.log_file
         else:
-            self._log_file_path = os.path.join(self.config.out_dir, 'habitat_analysis.log')
+            self._log_file_path = os.path.join(
+                self.config.out_dir, "habitat_analysis.log"
+            )
 
         if manager._root_logger:
             self._log_level = manager._root_logger.getEffectiveLevel()
@@ -495,7 +543,8 @@ class HabitatAnalysis:
             )
 
         subjects_without_masks = sorted(
-            subject for subject in images_paths
+            subject
+            for subject in images_paths
             if subject not in mask_paths or not mask_paths[subject]
         )
         if subjects_without_masks:
@@ -537,16 +586,14 @@ class HabitatAnalysis:
         # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
         # so we just hand it an empty stub per subject.
         X: Dict[str, HabitatSubjectData] = {
-            subject: HabitatSubjectData.empty()
-            for subject in subjects_list
+            subject: HabitatSubjectData.empty() for subject in subjects_list
         }
         Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
 
         seed_numpy_global(self.config.random_state)
         if self.config.verbose:
             self.logger.info(
-                "Random seeds: global=%s individual_clustering=%s "
-                "group_habitat=%s",
+                "Random seeds: global=%s individual_clustering=%s " "group_habitat=%s",
                 self.config.random_state,
                 self.config.effective_individual_clustering_random_state(),
                 self.config.effective_habitat_random_state(),
@@ -579,7 +626,7 @@ class HabitatAnalysis:
         # Keep the image writer's current result table available for optional image publishing.
         self.habitat_image_writer.results_df = results_df
         if save_results_csv:
-            self.result_publisher.publish(results_df, mode='train')
+            self.result_publisher.publish(results_df, mode="train")
         return results_df
 
     def predict(
@@ -615,19 +662,6 @@ class HabitatAnalysis:
             )
         resolved_path = resolved_path.resolve()
 
-        # Resolve save flag: explicit argument overrides the config default.
-        if save_results_csv is None:
-            save_results_csv = self.config.save_results_csv
-
-        subjects_list = self._prepare_subjects(subjects)
-        # Pipeline's first step (VoxelFeatureExtractor) populates each entry,
-        # so we just hand it an empty stub per subject.
-        X: Dict[str, HabitatSubjectData] = {
-            subject: HabitatSubjectData.empty()
-            for subject in subjects_list
-        }
-        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
-
         if self.config.verbose:
             self.logger.info(
                 f"Loading and running {self.config.habitat_segmentation.clustering_mode} pipeline..."
@@ -637,18 +671,54 @@ class HabitatAnalysis:
         self.config.pipeline_path = str(resolved_path)
 
         self.pipeline = HabitatPipeline.load(str(resolved_path))
+        return self.transform_with_pipeline(
+            self.pipeline,
+            subjects=subjects,
+            save_results_csv=save_results_csv,
+        )
+
+    def transform_with_pipeline(
+        self,
+        pipeline: HabitatPipeline,
+        subjects: Optional[List[str]] = None,
+        save_results_csv: Optional[bool] = None,
+    ) -> pd.DataFrame:
+        """
+        Transform subjects with an already fitted in-memory habitat pipeline.
+
+        This entry point is intentionally separate from :meth:`predict` so
+        public sklearn-style estimators can reuse their fitted pipeline without
+        serializing it to disk and loading it again for every ``transform``.
+
+        Args:
+            pipeline: Fitted HABIT pipeline produced by :meth:`fit`.
+            subjects: Optional explicit subject ID list.
+            save_results_csv: Whether to save ``habitats.csv``.
+
+        Returns:
+            DataFrame with habitat clustering results.
+        """
+        if not isinstance(pipeline, HabitatPipeline):
+            raise TypeError("pipeline must be a fitted HabitatPipeline instance.")
+        if save_results_csv is None:
+            save_results_csv = self.config.save_results_csv
 
         # Reconcile the loaded pipeline's collaborators and config with the
         # current runtime context (paths, loggers, runtime-only flags).
-        self._inject_services_into_pipeline(self.pipeline)
+        self._inject_services_into_pipeline(pipeline)
 
         # Hard guarantee: predict mode must never trigger plot_habitat_scores;
         # the validation scores are not part of a loaded pipeline.
-        self.pipeline.config.plot_curves = False
+        pipeline.config.plot_curves = False
 
-        results_df = self.pipeline.transform(X)
+        subjects_list = self._prepare_subjects(subjects)
+        X: Dict[str, HabitatSubjectData] = {
+            subject: HabitatSubjectData.empty() for subject in subjects_list
+        }
+        Path(self.config.out_dir).mkdir(parents=True, exist_ok=True)
+        results_df = pipeline.transform(X)
 
-        run_checkpoint = getattr(self.pipeline, "_train_checkpoint", None)
+        run_checkpoint = getattr(pipeline, "_train_checkpoint", None)
         if run_checkpoint is not None:
             run_checkpoint.mark_training_complete()
             if getattr(self.config, "clear_checkpoint_on_success", False):
@@ -662,7 +732,7 @@ class HabitatAnalysis:
         # Keep the image writer's current result table available for optional image publishing.
         self.habitat_image_writer.results_df = results_df
         if save_results_csv:
-            self.result_publisher.publish(results_df, mode='predict')
+            self.result_publisher.publish(results_df, mode="predict")
         return results_df
 
     def run(
@@ -703,10 +773,7 @@ class HabitatAnalysis:
                 save_results_csv=save_results_csv,
             )
 
-        if (
-            self.config.run_mode == 'predict'
-            and self.config.pipeline_path
-        ):
+        if self.config.run_mode == "predict" and self.config.pipeline_path:
             return self.predict(
                 pipeline_path=self.config.pipeline_path,
                 subjects=subjects,
@@ -778,7 +845,9 @@ class HabitatAnalysis:
         target_config.individual_subject_auto_retry_rounds = (
             self.config.individual_subject_auto_retry_rounds
         )
-        target_config.clear_checkpoint_on_success = self.config.clear_checkpoint_on_success
+        target_config.clear_checkpoint_on_success = (
+            self.config.clear_checkpoint_on_success
+        )
         target_config.on_subject_failure = self.config.on_subject_failure
         target_config.individual_subject_timeout_sec = (
             self.config.individual_subject_timeout_sec
@@ -802,7 +871,9 @@ class HabitatAnalysis:
             self.config.persistent_worker_recycle_after_tasks
         )
 
-    def _select_pipeline_config(self, pipeline: HabitatPipeline) -> HabitatAnalysisConfig:
+    def _select_pipeline_config(
+        self, pipeline: HabitatPipeline
+    ) -> HabitatAnalysisConfig:
         """
         Pick the config to apply to a loaded pipeline.
 
@@ -817,7 +888,7 @@ class HabitatAnalysis:
             The config object to install on the pipeline and its steps.
         """
         if (
-            self.config.run_mode == 'predict'
+            self.config.run_mode == "predict"
             and self.config.feature_construction is None
             and pipeline.config is not None
         ):
@@ -861,15 +932,15 @@ class HabitatAnalysis:
                 (preserves pickled ``feature_construction`` for minimal predict YAML).
         """
         if (
-            getattr(runtime_feature_service, 'images_paths', None) is not None
-            and getattr(runtime_feature_service, 'mask_paths', None) is not None
+            getattr(runtime_feature_service, "images_paths", None) is not None
+            and getattr(runtime_feature_service, "mask_paths", None) is not None
         ):
             pipeline_feature_service.set_data_paths(
                 runtime_feature_service.images_paths,
                 runtime_feature_service.mask_paths,
             )
 
-        if hasattr(runtime_feature_service, '_log_file_path'):
+        if hasattr(runtime_feature_service, "_log_file_path"):
             pipeline_feature_service.set_logging_info(
                 runtime_feature_service._log_file_path,
                 runtime_feature_service._log_level,
@@ -895,7 +966,7 @@ class HabitatAnalysis:
 
         # Build the explicit name -> instance map. Only attributes listed in
         # the whitelist participate.
-        attributes_to_update: Dict[str, Any] = {'config': config_to_apply}
+        attributes_to_update: Dict[str, Any] = {"config": config_to_apply}
         for attr_name in self._PIPELINE_SERVICE_ATTRS:
             service = getattr(self, attr_name, None)
             if service is not None:
@@ -907,7 +978,7 @@ class HabitatAnalysis:
                     continue
                 # FeatureService has fitted state we must keep; only sync
                 # paths/logging onto the trained instance.
-                if attr_name == 'feature_service':
+                if attr_name == "feature_service":
                     pipeline_feature_service = getattr(step, attr_name, None)
                     if pipeline_feature_service is not None:
                         self._sync_feature_service(

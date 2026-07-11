@@ -16,6 +16,17 @@ from typing import Dict, Tuple
 
 #: Submodule suffix (under ``habit.api``) -> export names defined in that module.
 _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
+    "contracts": ("WorkflowResult",),
+    "exceptions": (
+        "HABITAPIError",
+        "HabitError",
+        "ConfigurationError",
+        "DataFormatError",
+        "ComponentNotFoundError",
+        "CompatibilityError",
+        "ProcessingError",
+        "NotFittedError",
+    ),
     "utils": (
         "setup_logger",
         "is_available",
@@ -33,6 +44,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "FeatureExtractionConfig",
         "RadiomicsConfig",
         "apply_habitat_cli_overrides",
+        "build_feature_extraction_config",
         "load_feature_extraction_config",
         "run_habitat_analysis",
         "run_feature_extraction",
@@ -53,7 +65,6 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "run_test_retest_analysis",
     ),
     "estimators": (
-        "HABITAPIError",
         "EstimatorPersistenceMixin",
         "HabitatClusterer",
         "HabitClassifier",
