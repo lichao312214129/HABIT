@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Union
 
 from habit.api.contracts import WorkflowResult, coerce_config
+from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
@@ -59,9 +60,17 @@ def run_icc_analysis(
     validated_config = coerce_config(config, ICCConfig)
     run_icc_analysis_from_config(validated_config)
     output_path = Path(validated_config.output.path)
+    manifest = create_run_manifest("icc_analysis", validated_config)
+    manifest_path = write_run_manifest(manifest, output_path.parent)
     return WorkflowResult(
         output_dir=output_path.parent,
         artifacts={"icc_result": output_path},
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )
 
 
@@ -106,4 +115,15 @@ def run_test_retest_analysis(
         validated_config.out_dir,
         validated_config.processes,
     )
-    return WorkflowResult(data=habitat_mapping, output_dir=validated_config.out_dir)
+    manifest = create_run_manifest("test_retest_analysis", validated_config)
+    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
+    return WorkflowResult(
+        data=habitat_mapping,
+        output_dir=validated_config.out_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
+    )

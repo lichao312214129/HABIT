@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Tuple, Union, ca
 import pandas as pd
 
 from habit.api.contracts import WorkflowResult, coerce_config
+from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.config_schemas import (
@@ -106,11 +107,23 @@ def run_habitat_analysis(
     results = run_habitat_analysis_from_config(validated_config, logger=logger)
     pipeline_path = Path(validated_config.out_dir) / "habitat_pipeline.pkl"
     artifacts = {"pipeline": pipeline_path} if pipeline_path.is_file() else {}
+    manifest = create_run_manifest(
+        "habitat_analysis",
+        validated_config,
+        metadata={"run_mode": validated_config.run_mode},
+    )
+    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
     return WorkflowResult(
         data=results,
         output_dir=validated_config.out_dir,
         artifacts=artifacts,
-        metadata={"run_mode": validated_config.run_mode},
+        metadata={
+            "run_mode": validated_config.run_mode,
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )
 
 
@@ -214,7 +227,21 @@ def run_feature_extraction(
         logger=logger,
         plugin_configs=resolved_plugin_configs,
     )
-    return WorkflowResult(output_dir=validated_config.out_dir)
+    manifest = create_run_manifest(
+        "feature_extraction",
+        validated_config,
+        metadata={"plugins": sorted((resolved_plugin_configs or {}).keys())},
+    )
+    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
+    return WorkflowResult(
+        output_dir=validated_config.out_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
+    )
 
 
 def run_radiomics(
@@ -237,6 +264,15 @@ def run_radiomics(
 
     validated_config = coerce_config(config, RadiomicsConfig)
     run_radiomics_from_config(validated_config, logger=logger)
+    output_dir = validated_config.out_dir or validated_config.paths.out_dir
+    manifest = create_run_manifest("radiomics", validated_config)
+    manifest_path = write_run_manifest(manifest, output_dir)
     return WorkflowResult(
-        output_dir=validated_config.out_dir or validated_config.paths.out_dir
+        output_dir=output_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )

@@ -12,6 +12,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
 
 from habit.api.contracts import WorkflowResult, coerce_config
+from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.core.preprocessing.config_schemas import PreprocessingConfig
@@ -47,4 +48,14 @@ def run_preprocess(
 
     validated_config = coerce_config(config, PreprocessingConfig)
     run_preprocess_from_config(validated_config, logger=logger)
-    return WorkflowResult(output_dir=validated_config.out_dir)
+    manifest = create_run_manifest("preprocess", validated_config)
+    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
+    return WorkflowResult(
+        output_dir=validated_config.out_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
+    )

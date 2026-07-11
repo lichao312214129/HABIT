@@ -31,19 +31,27 @@ class WorkflowResult(Generic[DataT]):
     artifacts: Mapping[str, Path] = field(default_factory=dict)
     metrics: Mapping[str, float] = field(default_factory=dict)
     metadata: Mapping[str, Any] = field(default_factory=dict)
+    run_id: Optional[str] = None
+    manifest_path: Optional[Path] = None
 
     def __post_init__(self) -> None:
         """Normalize path and mapping values to immutable public snapshots."""
         normalized_output_dir = (
             Path(self.output_dir) if self.output_dir is not None else None
         )
+        normalized_manifest_path = (
+            Path(self.manifest_path) if self.manifest_path is not None else None
+        )
         normalized_artifacts = {
             name: Path(path) for name, path in self.artifacts.items()
         }
         if normalized_output_dir is not None:
             normalized_artifacts.setdefault("output_dir", normalized_output_dir)
+        if normalized_manifest_path is not None:
+            normalized_artifacts.setdefault("run_manifest", normalized_manifest_path)
 
         object.__setattr__(self, "output_dir", normalized_output_dir)
+        object.__setattr__(self, "manifest_path", normalized_manifest_path)
         object.__setattr__(
             self,
             "artifacts",

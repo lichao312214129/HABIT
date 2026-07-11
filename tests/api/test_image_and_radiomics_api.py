@@ -148,3 +148,19 @@ def test_plugin_entry_point_loader_invokes_registration_callable(
     assert called == [True]
     assert report.loaded == ("models:demo",)
     assert report.failures == {}
+
+
+@pytest.mark.unit
+def test_run_manifest_has_deterministic_config_hash_and_persists(tmp_path) -> None:
+    """A workflow manifest must preserve resolved configuration and version context."""
+    from habit.api.provenance import create_run_manifest, write_run_manifest
+
+    config = {"out_dir": tmp_path / "results", "random_state": 42}
+    first = create_run_manifest("radiomics", config)
+    second = create_run_manifest("radiomics", config)
+    manifest_path = write_run_manifest(first, tmp_path)
+
+    assert first.config_hash == second.config_hash
+    assert first.run_id != second.run_id
+    assert manifest_path.is_file()
+    assert "resolved_config" in manifest_path.read_text(encoding="utf-8")

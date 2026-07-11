@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
 
 from habit.api.contracts import WorkflowResult, coerce_config
+from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.core.machine_learning.config_schemas import (
@@ -91,11 +92,23 @@ def run_ml(
         output_dir=resolved_output_dir,
     )
     metrics = getattr(result, "metrics", {})
+    manifest = create_run_manifest(
+        "machine_learning",
+        validated_config,
+        metadata={"run_mode": validated_config.run_mode},
+    )
+    manifest_path = write_run_manifest(manifest, resolved_output_dir)
     return WorkflowResult(
         data=result,
         output_dir=Path(resolved_output_dir),
         metrics=metrics,
-        metadata={"run_mode": validated_config.run_mode},
+        metadata={
+            "run_mode": validated_config.run_mode,
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )
 
 
@@ -128,10 +141,22 @@ def run_kfold(
         logger=logger,
         output_dir=resolved_output_dir,
     )
+    manifest = create_run_manifest(
+        "machine_learning_kfold",
+        validated_config,
+        metadata={"run_mode": validated_config.run_mode},
+    )
+    manifest_path = write_run_manifest(manifest, resolved_output_dir)
     return WorkflowResult(
         data=result,
         output_dir=Path(resolved_output_dir),
-        metadata={"run_mode": validated_config.run_mode},
+        metadata={
+            "run_mode": validated_config.run_mode,
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )
 
 
@@ -156,4 +181,15 @@ def run_model_comparison(
 
     validated_config = coerce_config(config, ModelComparisonConfig)
     result = run_model_comparison_from_config(validated_config, logger=logger)
-    return WorkflowResult(data=result, output_dir=validated_config.output_dir)
+    manifest = create_run_manifest("model_comparison", validated_config)
+    manifest_path = write_run_manifest(manifest, validated_config.output_dir)
+    return WorkflowResult(
+        data=result,
+        output_dir=validated_config.output_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
+    )

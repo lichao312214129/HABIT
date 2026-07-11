@@ -17,6 +17,11 @@ from typing import Dict, Tuple
 #: Submodule suffix (under ``habit.api``) -> export names defined in that module.
 _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     "contracts": ("WorkflowResult",),
+    "provenance": (
+        "RunManifest",
+        "create_run_manifest",
+        "write_run_manifest",
+    ),
     "exceptions": (
         "HABITAPIError",
         "HabitError",

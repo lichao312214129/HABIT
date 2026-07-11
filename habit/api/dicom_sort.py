@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Mapping, Union
 
 from habit.api.contracts import WorkflowResult, coerce_config
+from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.core.dicom_sort.config_schema import DicomSortConfig
@@ -44,6 +45,15 @@ def run_dicom_sort(
 
     validated_config = coerce_config(config, DicomSortConfig)
     _run_dicom_sort(validated_config)
+    output_dir = validated_config.output_dir or validated_config.out_dir
+    manifest = create_run_manifest("dicom_sort", validated_config)
+    manifest_path = write_run_manifest(manifest, output_dir)
     return WorkflowResult(
-        output_dir=validated_config.output_dir or validated_config.out_dir
+        output_dir=output_dir,
+        metadata={
+            "config_hash": manifest.config_hash,
+            "habit_version": manifest.habit_version,
+        },
+        run_id=manifest.run_id,
+        manifest_path=manifest_path,
     )
