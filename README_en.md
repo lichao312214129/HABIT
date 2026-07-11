@@ -52,6 +52,7 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Source & demo data
 
 - **Windows portable pack**: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
+  - **Updated GPU portable pack**: [HABIT-win-py310-gpu-v0.1.0.tar-v1.gz and one additional file](https://pan.baidu.com/s/1rCdwsGJ_c_0_uCJJ6JMCKQ?pwd=gip9), extraction code **gip9**
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
 - **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 

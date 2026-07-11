@@ -232,15 +232,10 @@ NETDISK_SHARES = {
         "code": "vv2c",
         "link_label": "Download tests bundle",
     },
-    "cpu_pack": {
-        "url": "https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa",
-        "code": "v5xa",
-        "link_label": "Download CPU pack",
-    },
-    "gpu_pack": {
-        "url": "https://pan.baidu.com/s/1iGYw1lSxKSri5oFrbAjzkg?pwd=v5xa",
-        "code": "v5xa",
-        "link_label": "Download GPU pack",
+    "gpu_pack_v1": {
+        "url": "https://pan.baidu.com/s/1rCdwsGJ_c_0_uCJJ6JMCKQ?pwd=gip9",
+        "code": "gip9",
+        "link_label": "HABIT-win-py310-gpu-v0.1.0.tar-v1.gz and one additional file",
     },
     "torch_wheel": {
         "url": "https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k",

@@ -16,12 +16,10 @@ Portable pack
 
    * - Pack
      - Notes
-   * - CPU (recommended)
-     - ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` · |download_cpu_pack| · code |cpu_pack_code|
-   * - GPU bundle
-     - ~3 GB, NVIDIA GPU optional · |download_gpu_pack| · code |gpu_pack_code|
+   * - Updated GPU bundle
+     - ``HABIT-win-py310-gpu-v0.1.0.tar-v1.gz`` and one additional file · |download_gpu_pack_v1| · code |gpu_pack_v1_code|
 
-Both ``HABIT-win-py310-cpu-v0.1.0.tar.gz`` and ``HABIT-win-py310-gpu-v0.1.0.tar.gz`` are in the **same** Baidu Netdisk folder (extract code |cpu_pack_code|).
+The updated share contains ``HABIT-win-py310-gpu-v0.1.0.tar-v1.gz`` and one additional file (extract code |gpu_pack_v1_code|).
 
 Windows portable steps
 ----------------------
