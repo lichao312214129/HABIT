@@ -16,7 +16,6 @@ from habit.core.habitat_analysis.clustering_features.method_binding_validation i
     validate_feature_method_binding,
 )
 
-
 def test_kinetic_requires_timestamps_in_parentheses() -> None:
     """kinetic(...) must list timestamps inside its parentheses."""
     with pytest.raises(ValueError, match="timestamps"):
@@ -48,21 +47,27 @@ def test_minimal_voxel_radiomics_uses_ct_defaults() -> None:
 
 def test_implicit_param_warns(caplog: pytest.LogCaptureFixture) -> None:
     """Params known to a method but not listed in parentheses emit a warning."""
-    caplog.set_level(logging.WARNING)
+    # Inject an isolated logger because other integration tests intentionally
+    # reconfigure the global ``habit`` logger and stop propagation.
+    capture_logger = logging.getLogger("tests.method_binding.implicit")
+    caplog.set_level(logging.WARNING, logger=capture_logger.name)
     validate_feature_method_binding(
         "concat(voxel_radiomics(T2, kernel_radius))",
         {"kernel_radius": 3, "voxel_batch": 1000},
         level_name="test",
+        logger=capture_logger,
     )
     assert any("voxel_batch" in rec.message for rec in caplog.records)
 
 
 def test_orphan_param_warns(caplog: pytest.LogCaptureFixture) -> None:
     """Unknown params keys emit an orphan warning."""
-    caplog.set_level(logging.WARNING)
+    capture_logger = logging.getLogger("tests.method_binding.orphan")
+    caplog.set_level(logging.WARNING, logger=capture_logger.name)
     validate_feature_method_binding(
         "concat(voxel_radiomics(T2))",
         {"typo_key": 1},
         level_name="test",
+        logger=capture_logger,
     )
     assert any("typo_key" in rec.message for rec in caplog.records)

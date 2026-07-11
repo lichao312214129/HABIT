@@ -125,6 +125,70 @@ class ICCType(Enum):
         }
         return descriptions.get(icc_type, "Unknown ICC type")
 
+
+# Pingouin 0.6 changed the labels returned in the ``Type`` column from compact
+# historical names (for example ``ICC3``) to McGraw-Wong notation
+# (``ICC(C,1)``). HABIT keeps its public configuration and JSON keys stable,
+# while accepting either Pingouin representation internally.
+_PINGOUIN_ICC_TYPE_ALIASES: Dict[ICCType, Tuple[str, ...]] = {
+    ICCType.ICC1: ("ICC1", "ICC(1,1)"),
+    ICCType.ICC2: ("ICC2", "ICC(A,1)"),
+    ICCType.ICC3: ("ICC3", "ICC(C,1)"),
+    ICCType.ICC1k: ("ICC1k", "ICC(1,k)"),
+    ICCType.ICC2k: ("ICC2k", "ICC(A,k)"),
+    ICCType.ICC3k: ("ICC3k", "ICC(C,k)"),
+}
+
+
+def _select_pingouin_icc_row(
+    icc_result: pd.DataFrame,
+    icc_type: ICCType,
+) -> pd.Series:
+    """
+    Select one ICC row across supported Pingouin result formats.
+
+    Args:
+        icc_result: Pingouin result indexed by its ``Type`` column.
+        icc_type: Stable HABIT ICC type requested by the caller.
+
+    Returns:
+        pd.Series: The matching Pingouin result row.
+
+    Raises:
+        ValueError: If none of the known labels for ``icc_type`` are present.
+    """
+    aliases = _PINGOUIN_ICC_TYPE_ALIASES[icc_type]
+    for alias in aliases:
+        if alias in icc_result.index:
+            return icc_result.loc[alias]
+    raise ValueError(
+        f"ICC type '{icc_type.name}' not found in pingouin results. "
+        f"Expected one of {aliases}, received {list(icc_result.index)}."
+    )
+
+
+def _read_pingouin_ci95(icc_series: pd.Series) -> Any:
+    """
+    Read the confidence interval across Pingouin column-name versions.
+
+    Args:
+        icc_series: One row returned by :func:`_select_pingouin_icc_row`.
+
+    Returns:
+        Any: Pingouin's two-element confidence interval value.
+
+    Raises:
+        ValueError: If the result contains no recognized confidence interval.
+    """
+    for column_name in ("CI95%", "CI95"):
+        if column_name in icc_series.index:
+            return icc_series[column_name]
+    raise ValueError(
+        "Pingouin ICC results contain neither 'CI95%' nor 'CI95'. "
+        f"Available columns: {list(icc_series.index)}."
+    )
+
+
 # ==================== Metric Result Container ====================
 
 class MetricResult:
@@ -221,13 +285,8 @@ class ICCMetric(BaseReliabilityMetric):
             data=data, targets=targets, raters=raters, ratings=ratings, nan_policy=self.nan_policy
         ).set_index('Type')
         
-        icc_name = self.icc_type.name
-        if icc_name not in icc_result.index:
-             raise ValueError(f"ICC type '{icc_name}' not found in pingouin results.")
-
-        icc_series = icc_result.loc[icc_name]
-        
-        ci95 = icc_series["CI95%"]
+        icc_series = _select_pingouin_icc_row(icc_result, self.icc_type)
+        ci95 = _read_pingouin_ci95(icc_series)
         
         return MetricResult(
             value=icc_series["ICC"],
@@ -262,22 +321,21 @@ class MultiICCMetric(BaseReliabilityMetric):
         results = {}
         for icc_type in self.icc_types:
             icc_name = icc_type.name
-            if icc_name in icc_result_df.index:
-                icc_series = icc_result_df.loc[icc_name]
-                ci95 = icc_series["CI95%"]
-                
-                results[icc_name] = MetricResult(
-                    value=icc_series["ICC"],
-                    ci95_lower=ci95[0] if ci95 is not None else None,
-                    ci95_upper=ci95[1] if ci95 is not None else None,
-                    p_value=icc_series["pval"],
-                    metric_type=icc_name,
-                    additional_info={
-                        "F": icc_series["F"],
-                        "df1": icc_series["df1"],
-                        "df2": icc_series["df2"],
-                    }
-                )
+            icc_series = _select_pingouin_icc_row(icc_result_df, icc_type)
+            ci95 = _read_pingouin_ci95(icc_series)
+
+            results[icc_name] = MetricResult(
+                value=icc_series["ICC"],
+                ci95_lower=ci95[0] if ci95 is not None else None,
+                ci95_upper=ci95[1] if ci95 is not None else None,
+                p_value=icc_series["pval"],
+                metric_type=icc_name,
+                additional_info={
+                    "F": icc_series["F"],
+                    "df1": icc_series["df1"],
+                    "df2": icc_series["df2"],
+                }
+            )
         return results
 
 class CohenKappaMetric(BaseReliabilityMetric):

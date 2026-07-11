@@ -146,6 +146,96 @@ class TestFeatureExtractionAPI:
                 n_habitats=config.n_habitats,
             )
 
+    def test_public_run_feature_extraction_delegates(
+        self,
+        cwd_repo_root: None,
+    ) -> None:
+        """Top-level ``habit.run_feature_extraction`` delegates to the core runner."""
+        import habit
+
+        cfg_path = _require_config(
+            "config/feature_extraction/config_extract_features_demo.yaml"
+        )
+        config = habit.FeatureExtractionConfig.from_file(str(cfg_path))
+
+        with patch(
+            "habit.core.habitat_analysis.run.run_feature_extraction_from_config"
+        ) as mock_run:
+            habit.run_feature_extraction(config)
+            mock_run.assert_called_once_with(
+                config,
+                logger=None,
+                plugin_configs=None,
+            )
+
+
+class TestRadiomicsAndAnalysisAPI:
+    """Tests for radiomics, model comparison, and ICC entry points."""
+
+    def test_radiomics_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
+        """Radiomics schema loads through the public config module."""
+        from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
+
+        cfg_path = _require_config(
+            "config/radiomics/config_traditional_radiomics.yaml"
+        )
+        config = RadiomicsConfig.from_file(str(cfg_path))
+        assert config.paths.out_dir
+
+    def test_public_run_radiomics_delegates(self, cwd_repo_root: None) -> None:
+        """Top-level ``habit.run_radiomics`` delegates to the core runner."""
+        import habit
+
+        cfg_path = _require_config(
+            "config/radiomics/config_traditional_radiomics.yaml"
+        )
+        config = habit.RadiomicsConfig.from_file(str(cfg_path))
+
+        with patch(
+            "habit.core.habitat_analysis.run.run_radiomics_from_config"
+        ) as mock_run:
+            habit.run_radiomics(config)
+            mock_run.assert_called_once_with(config, logger=None)
+
+    def test_public_run_model_comparison_delegates(
+        self,
+        cwd_repo_root: None,
+    ) -> None:
+        """Top-level ``habit.run_model_comparison`` delegates to the core runner."""
+        import habit
+
+        cfg_path = _require_config(
+            "config/model_comparison/config_model_comparison_demo.yaml"
+        )
+        config = habit.ModelComparisonConfig.from_file(str(cfg_path))
+
+        with patch(
+            "habit.core.machine_learning.run.run_model_comparison_from_config"
+        ) as mock_run:
+            habit.run_model_comparison(config)
+            mock_run.assert_called_once_with(config, logger=None)
+
+    def test_icc_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
+        """ICC schema loads through the public top-level namespace."""
+        import habit
+
+        cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
+        config = habit.ICCConfig.from_file(str(cfg_path))
+        assert config.output.path
+
+    def test_public_run_icc_analysis_delegates(self, cwd_repo_root: None) -> None:
+        """Top-level ``habit.run_icc_analysis`` delegates to the core runner."""
+        import habit
+
+        cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
+        config = habit.ICCConfig.from_file(str(cfg_path))
+
+        with patch(
+            "habit.core.machine_learning.feature_selectors.icc.icc.run_icc_analysis_from_config"
+        ) as mock_run:
+            habit.run_icc_analysis(config)
+            mock_run.assert_called_once_with(config)
+
 
 class TestMachineLearningAPI:
     """Tests for ML programmatic entry points."""

@@ -123,22 +123,26 @@ class TestICCConfig:
 class TestICCSelector:
     """ICC-based feature filtering for ML pipelines."""
 
-    def test_icc_selector_uses_demo_results(self) -> None:
-        """Selector should return stable features from demo ICC JSON."""
-        if not ICC_OUTPUT.is_file():
-            pytest.skip("Run ICC demo first or use test_cli_icc_demo")
+    def test_icc_selector_uses_demo_results(self, tmp_path: Path) -> None:
+        """Selector should return stable features from freshly calculated ICC data."""
+        results = analyze_features(
+            file_paths=[str(TEST_CSV), str(RETEST_CSV)],
+            metrics=["icc3"],
+        )
+        icc_output = tmp_path / "icc_radiomics.json"
+        icc_output.write_text(json.dumps(results), encoding="utf-8")
 
         group_name = (
             "breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated"
         )
         selected = icc_selector(
-            icc_results_path=str(ICC_OUTPUT),
+            icc_results_path=str(icc_output),
             groups=[group_name],
             threshold=0.75,
             metric="ICC3",
         )
         assert "compactness error" in selected
-        assert len(selected) == 13
+        assert len(selected) == 12
 
 
 @pytest.mark.unit
@@ -166,8 +170,9 @@ class TestICCMLIntegration:
 
     def test_ml_train_with_icc_demo_config(self) -> None:
         """habit model train should succeed when ICC JSON matches feature column names."""
-        if not ICC_OUTPUT.is_file():
-            pytest.skip("Run habit icc -c config/auxiliary/config_icc_demo.yaml first")
+        # Recreate the prerequisite instead of trusting a stale artifact from a
+        # previous HABIT or Pingouin version.
+        run_icc_analysis_from_config(ICCConfig.from_file(str(ICC_DEMO_CONFIG)))
 
         runner = CliRunner()
         config_path = (

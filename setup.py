@@ -1,35 +1,48 @@
-"""
-Setup script for HABIT package
-TEST
+"""Setuptools build configuration for the HABIT package."""
 
-"""
-
-import os
+from pathlib import Path
+from typing import Dict
 
 import numpy as np
 from setuptools import Extension, find_packages, setup
 
-_ROOT = os.path.dirname(os.path.abspath(__file__))
-_CEXT_SRC = os.path.join(
-    _ROOT,
-    "habit",
-    "core",
-    "habitat_analysis",
-    "clustering_features",
-    "supervoxel_cext",
-    "src",
+_ROOT = Path(__file__).resolve().parent
+_CEXT_SRC = (
+    "habit/core/habitat_analysis/clustering_features/supervoxel_cext/src"
 )
 _SV_CMATRICES_MODULE = (
     "habit.core.habitat_analysis.clustering_features.supervoxel_cext._sv_cmatrices"
 )
 
+
+def _read_version() -> str:
+    """
+    Read the package version without importing ``habit`` during the build.
+
+    Importing the package here would execute its public API initialization before
+    runtime dependencies are installed in the isolated build environment.
+
+    Returns:
+        str: The version declared in ``habit/_version.py``.
+    """
+    version_scope: Dict[str, object] = {}
+    version_file = _ROOT / "habit" / "_version.py"
+    exec(
+        compile(version_file.read_text(encoding="utf-8"), str(version_file), "exec"),
+        version_scope,
+    )
+    return str(version_scope["__version__"])
+
+
 setup(
     name='HABIT',
-    version='0.1.0',
+    version=_read_version(),
     description='Habitat Analysis: Biomedical Imaging Toolkit',
     author='lichao19870617@163.com',
     license='HABIT Software License',
-    packages=find_packages(),
+    # Restrict discovery to HABIT itself. The repository's ``tests`` directory
+    # is an importable package but must not be installed into user environments.
+    packages=find_packages(include=("habit", "habit.*")),
     include_package_data=True,
     package_data={
         # Bundled PyRadiomics parameter presets (default params_file fallbacks).
@@ -39,8 +52,8 @@ setup(
         Extension(
             _SV_CMATRICES_MODULE,
             [
-                os.path.join(_CEXT_SRC, "_sv_cmatrices.c"),
-                os.path.join(_CEXT_SRC, "sv_cmatrices.c"),
+                f"{_CEXT_SRC}/_sv_cmatrices.c",
+                f"{_CEXT_SRC}/sv_cmatrices.c",
             ],
             include_dirs=[_CEXT_SRC, np.get_include()],
         ),
