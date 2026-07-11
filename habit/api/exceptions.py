@@ -24,6 +24,8 @@ __all__ = [
     "HabitError",
     "ConfigurationError",
     "DataFormatError",
+    "GeometryError",
+    "OptionalDependencyError",
     "ComponentNotFoundError",
     "CompatibilityError",
     "ProcessingError",
@@ -33,3 +35,11 @@ __all__ = [
 
 class HABITAPIError(DataFormatError):
     """Raised when a value violates a documented public API data contract."""
+
+
+class GeometryError(DataFormatError):
+    """Raised when image and mask physical-space geometry is incompatible."""
+
+
+class OptionalDependencyError(HabitError, ImportError):
+    """Raised when a requested optional HABIT backend is not installed."""

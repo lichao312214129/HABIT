@@ -10,8 +10,10 @@ from habit.api.exceptions import (
     ComponentNotFoundError,
     ConfigurationError,
     DataFormatError,
+    GeometryError,
     HabitError,
     NotFittedError,
+    OptionalDependencyError,
     ProcessingError,
 )
 
@@ -20,6 +22,8 @@ __all__ = [
     "HabitError",
     "ConfigurationError",
     "DataFormatError",
+    "GeometryError",
+    "OptionalDependencyError",
     "ComponentNotFoundError",
     "CompatibilityError",
     "ProcessingError",
