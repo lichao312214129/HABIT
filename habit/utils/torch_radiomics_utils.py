@@ -98,7 +98,12 @@ def is_torch_available() -> bool:
     """
     try:
         import torch  # noqa: F401
-    except ImportError:
+    except Exception as exc:
+        # A broken native PyTorch installation commonly raises OSError on Windows
+        # (for example WinError 126 while loading fbgemm.dll), rather than ImportError.
+        # Treat every regular import-time exception as an unavailable optional backend
+        # so callers can safely fall back to CPU PyRadiomics.
+        logger.debug("PyTorch import probe failed: %s", exc)
         return False
     return True
 
@@ -110,11 +115,14 @@ def is_cuda_available() -> bool:
     Returns:
         bool: True when torch is installed and ``torch.cuda.is_available()``.
     """
-    if not is_torch_available():
+    try:
+        import torch
+        return bool(torch.cuda.is_available())
+    except Exception as exc:
+        # CUDA probing is optional and must not terminate the workflow when either
+        # PyTorch native libraries or the CUDA runtime cannot be initialized.
+        logger.debug("PyTorch CUDA availability probe failed: %s", exc)
         return False
-    import torch
-
-    return bool(torch.cuda.is_available())
 
 
 def normalize_use_torch_radiomics(value: UseTorchRadiomicsSetting) -> str:
@@ -408,7 +416,7 @@ def resolve_voxel_radiomics_backend(
 
     Raises:
         ValueError: When ``use_torch_radiomics`` or GPU settings are invalid.
-        RuntimeError: When ``use_torch_radiomics`` is ``true`` but torch is unavailable.
+        RuntimeError: When an explicitly requested Torch device is unavailable.
     """
     mode = normalize_use_torch_radiomics(use_torch_radiomics)
     parsed_gpus = apply_torch_gpu_count(
@@ -439,10 +447,12 @@ def resolve_voxel_radiomics_backend(
 
     if mode == "true":
         if not torch_ok:
-            raise RuntimeError(
-                "use_torch_radiomics=true but torch is not installed. "
-                f"{TORCH_GPU_INSTALL_HINT}"
+            logger.warning(
+                "use_torch_radiomics=true was requested, but torch cannot be imported; "
+                "falling back to CPU PyRadiomics. %s",
+                TORCH_GPU_INSTALL_HINT,
             )
+            return "pyradiomics", None
         device = _resolve_torch_device_string()
         if not str(device).startswith("cuda"):
             log_torch_gpu_install_hint("cuda_unavailable")

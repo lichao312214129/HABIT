@@ -1,27 +1,26 @@
-"""Registry for habitat feature extraction plugins.
+"""Factory and base contract for post-segmentation habitat features.
 
-Both built-in types (traditional, msi, etc.) and optional plugins (e.g. graph
-topology in HABIT-v2) register here via ``@HabitatFeatureRegistry.register``.
+Habitat feature extractors follow the same factory pattern as feature-table
+preprocessing: concrete handlers self-register with
+``@HabitatFeatureFactory.register("name")`` and callers obtain an instance by
+name through :meth:`HabitatFeatureFactory.get_handler`.
 
 ``SubjectExtractionContext`` and ``BatchExportContext`` are typed bundles that
-carry all information a plugin needs, so the orchestrator (HabitatMapAnalyzer)
-never needs to know the internals of any feature type.
-
-Adding a new feature type only requires:
-    1. Subclass ``HabitatFeaturePluginBase``
-    2. Decorate with ``@HabitatFeatureRegistry.register('my_feature')``
-    3. Implement ``extract_subject()`` and ``export_batch()``
-    4. No changes to HabitatMapAnalyzer are needed.
+carry all information a handler needs.  Consequently,
+``HabitatMapAnalyzer`` dispatches handlers through their common contract and
+does not depend on concrete feature classes.
 """
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from importlib import import_module
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
 
 from habit.core.common.registry import ClassRegistry
 
-PluginT = TypeVar("PluginT", bound="HabitatFeaturePluginBase")
+FeatureT = TypeVar("FeatureT", bound="BaseHabitatFeature")
 
 _PLUGINS_BOOTSTRAPPED: bool = False
 
@@ -74,17 +73,17 @@ class BatchExportContext:
 # Plugin base class
 # ---------------------------------------------------------------------------
 
-class HabitatFeaturePluginBase:
-    """Base class for habitat feature extraction plugins.
+class BaseHabitatFeature(ABC):
+    """Abstract handler for one post-segmentation habitat feature type.
 
-    Both built-in types and optional packages (HABIT-v2) inherit from this
-    class.  Register a subclass by decorating it with::
+    Both built-in features and optional packages (for example, HABIT-v2 graph
+    topology features) inherit from this class. Register a subclass with::
 
-        @HabitatFeatureRegistry.register('my_feature')
-        class MyPlugin(HabitatFeaturePluginBase):
+        @HabitatFeatureFactory.register("my_feature")
+        class MyFeature(BaseHabitatFeature):
             ...
 
-    Class attributes that every plugin must set:
+    Class attributes that every handler must set:
         name: Registered string name (set automatically by the decorator).
         subject_data_key: Key used to store per-subject results.
         output_csv_name: Primary CSV output filename (for logging).
@@ -99,6 +98,17 @@ class HabitatFeaturePluginBase:
     def __init__(self, config: Any = None) -> None:
         self.config = config
 
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name assigned by the decorator.
+
+        Concrete handlers may override this method for an explicit declaration.
+        Keeping this default preserves compatibility with third-party handlers
+        registered before the factory interface introduced ``feature_name``.
+        """
+        return cls.name
+
+    @abstractmethod
     def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
         """Extract features for one subject.
 
@@ -110,6 +120,7 @@ class HabitatFeaturePluginBase:
         """
         raise NotImplementedError
 
+    @abstractmethod
     def export_batch(
         self,
         data: Dict[str, Dict[str, Any]],
@@ -147,20 +158,25 @@ class HabitatFeaturePluginBase:
 # Registry, decorator and helpers
 # ---------------------------------------------------------------------------
 
-class HabitatFeatureRegistry(ClassRegistry[HabitatFeaturePluginBase]):
+class HabitatFeatureFactory(ClassRegistry[BaseHabitatFeature]):
     """
-    Registry of habitat feature extraction plugins.
+    Factory for habitat feature extraction handlers.
 
     Uses the shared :class:`~habit.core.common.registry.ClassRegistry` contract.
-    Bootstrapping (importing built-in and optional plugin modules) is driven
-    explicitly by the module-level helpers below, so ``_discover`` stays a no-op.
+    Built-in and optional feature modules are discovered lazily, matching
+    :class:`PreprocessingMethodFactory`.
     """
 
-    kind = "habitat feature plugin"
+    kind = "habitat feature"
 
     @classmethod
-    def register(cls, name: str) -> Callable[[Type[PluginT]], Type[PluginT]]:
-        """Register a plugin under ``name`` and set its ``name`` class attribute.
+    def _discover(cls) -> None:
+        """Import built-in handlers and optional extensions once on demand."""
+        bootstrap_optional_features()
+
+    @classmethod
+    def register(cls, name: str) -> Callable[[Type[FeatureT]], Type[FeatureT]]:
+        """Register a handler under ``name`` and set its class attribute.
 
         Overrides :meth:`ClassRegistry.register` because a plugin's registry key
         must also be exposed on the class as ``cls.name`` (the orchestrator reads
@@ -173,47 +189,74 @@ class HabitatFeatureRegistry(ClassRegistry[HabitatFeaturePluginBase]):
             Class decorator that stores the class, sets ``cls.name`` and returns
             the class unchanged.
         """
-        def decorator(target: Type[PluginT]) -> Type[PluginT]:
+        def decorator(target: Type[FeatureT]) -> Type[FeatureT]:
             target.name = name
             cls._registry[cls._normalize(name)] = target
             return target
 
         return decorator
 
+    @classmethod
+    def get_handler(
+        cls,
+        feature_name: str,
+        *args: Any,
+        **kwargs: Any,
+    ) -> BaseHabitatFeature:
+        """Instantiate a registered habitat feature handler by name.
 
-def bootstrap_builtin_plugins() -> None:
-    """Import built-in plugin module so all built-in types self-register.
+        Args:
+            feature_name: Registered feature type name.
+            *args: Positional arguments forwarded to the handler constructor.
+            **kwargs: Keyword arguments forwarded to the handler constructor.
+
+        Returns:
+            Configured habitat feature handler.
+
+        Raises:
+            ValueError: If ``feature_name`` is not registered.
+        """
+        return cls.create(feature_name, *args, **kwargs)
+
+    @classmethod
+    def registered_feature_names(cls) -> List[str]:
+        """Return sorted canonical names of all available feature handlers."""
+        bootstrap_optional_features()
+        return sorted(cls._registry.keys())
+
+
+def bootstrap_builtin_features() -> None:
+    """Import built-in handlers so every built-in type self-registers.
 
     This is idempotent: Python's module cache prevents double-import.
     """
     import habit.core.habitat_analysis.habitat_features.builtin_plugins  # noqa: F401
 
 
-def bootstrap_optional_plugins() -> None:
-    """Import optional plugin packages so they self-register (idempotent).
+def bootstrap_optional_features() -> None:
+    """Import optional feature packages so their handlers self-register.
 
-    Built-in plugins are bootstrapped first so they are always available,
+    Built-in handlers are imported first so they are always available,
     then optional packages (e.g. HABIT-v2 graph features) are attempted.
     """
     global _PLUGINS_BOOTSTRAPPED
     if _PLUGINS_BOOTSTRAPPED:
         return
-    bootstrap_builtin_plugins()
+    bootstrap_builtin_features()
     try:
-        import habit.core.habitat_analysis.habitat_features.graph_features  # noqa: F401
+        import_module("habit.core.habitat_analysis.habitat_features.graph_features")
     except ImportError:
         pass
     _PLUGINS_BOOTSTRAPPED = True
 
 
 def list_registered_plugins() -> List[str]:
-    """Return names of all registered plugins (built-in + optional).
+    """Return names of all registered feature handlers (built-in + optional).
 
     Returns:
         List of registered feature type name strings.
     """
-    bootstrap_optional_plugins()
-    return HabitatFeatureRegistry.available()
+    return HabitatFeatureFactory.registered_feature_names()
 
 
 def get_all_feature_type_names() -> List[str]:
@@ -258,8 +301,8 @@ def ensure_graph_plugin_available() -> None:
     Raises:
         ValueError: If the graph plugin is not registered.
     """
-    bootstrap_optional_plugins()
-    if HabitatFeatureRegistry.get("graph") is None:
+    bootstrap_optional_features()
+    if HabitatFeatureFactory.get("graph") is None:
         raise ValueError(
             "feature_types includes 'graph' but the graph feature plugin is "
             "not installed. Graph topology features are only available in "
@@ -267,8 +310,11 @@ def ensure_graph_plugin_available() -> None:
         )
 
 
-def build_plugin(name: str, config: Optional[Any] = None) -> HabitatFeaturePluginBase:
-    """Instantiate a registered plugin by name.
+def build_feature_handler(
+    name: str,
+    config: Optional[Any] = None,
+) -> BaseHabitatFeature:
+    """Instantiate a registered habitat feature handler by name.
 
     Args:
         name: Registered feature type name.
@@ -280,11 +326,14 @@ def build_plugin(name: str, config: Optional[Any] = None) -> HabitatFeaturePlugi
     Raises:
         ValueError: If ``name`` is not in the registry.
     """
-    bootstrap_optional_plugins()
-    cls = HabitatFeatureRegistry.get(name)
-    if cls is None:
-        raise ValueError(
-            f"Unknown habitat feature plugin: {name!r}. "
-            f"Registered plugins: {list_registered_plugins()}"
-        )
-    return cls(config=config)
+    return HabitatFeatureFactory.get_handler(name, config=config)
+
+
+# Backward-compatible aliases for external extensions built against the
+# pre-factory naming. New code should use BaseHabitatFeature,
+# HabitatFeatureFactory, and build_feature_handler.
+HabitatFeaturePluginBase = BaseHabitatFeature
+HabitatFeatureRegistry = HabitatFeatureFactory
+bootstrap_builtin_plugins = bootstrap_builtin_features
+bootstrap_optional_plugins = bootstrap_optional_features
+build_plugin = build_feature_handler

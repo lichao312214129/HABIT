@@ -30,6 +30,7 @@ from pathlib import Path
 import SimpleITK as sitk
 import numpy as np
 import os
+import sys
 from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
 from habit.utils.io_utils import get_image_and_mask_paths
 from habit.utils.progress_utils import CustomTqdm
@@ -41,6 +42,26 @@ import multiprocessing
 import traceback
 from habit.core.preprocessing.load_image import LoadImagePreprocessor
 from habit.core.preprocessing.config_schemas import PreprocessingConfig
+
+
+def _is_debugger_attached() -> bool:
+    """Return True when a Python debugger (e.g. debugpy/pydevd) is attached.
+
+    Used only to emit guidance for multi-process debugging. Does not change
+    the number of worker processes.
+
+    Returns:
+        bool: Whether a tracer or known debugger environment is present.
+    """
+    if sys.gettrace() is not None:
+        return True
+    debugger_env_keys = (
+        "DEBUGPY_PROCESS",
+        "PYDEVD_LOAD_VALUES_ASYNC",
+        "PYDEVD_USE_FRAME_EVAL",
+        "PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT",
+    )
+    return any(key in os.environ for key in debugger_env_keys)
 
 
 class BatchProcessor:
@@ -561,7 +582,18 @@ class BatchProcessor:
 
                 progress_bar.update(1)
         else:
-            # 使用进程池并行处理
+            # Parallel path uses multiprocessing.Pool (not threads). Under a
+            # debugger this only works reliably when subprocess debugging is
+            # enabled and the entry script is guarded by ``if __name__ == "__main__"``.
+            if _is_debugger_attached():
+                self.logger.warning(
+                    "Debugger detected while using %s worker processes. "
+                    "Enable debugger subProcess/subprocess debugging and keep "
+                    "the entry script under if __name__ == '__main__'; "
+                    "otherwise the session may appear deadlocked. "
+                    "Worker count is not reduced automatically.",
+                    self.num_workers,
+                )
             try:
                 with multiprocessing.Pool(processes=self.num_workers) as pool:
                     subject_iter = iter_until_cancelled(

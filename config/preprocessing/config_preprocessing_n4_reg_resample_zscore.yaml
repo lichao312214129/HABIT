@@ -1,0 +1,58 @@
+# =============================================================================
+# Image preprocessing — N4 (optional) -> registration -> resample -> z-score
+# =============================================================================
+# Literature-aligned order for multi-parametric MRI / radiomics:
+#   1) n4_correction        : optional MRI bias-field correction (commented out)
+#   2) registration         : required co-registration to a reference modality
+#   3) resample             : unify analysis voxel spacing after alignment
+#   4) zscore_normalization : intensity standardization last
+#
+# CLI:
+#   habit preprocess -c config/preprocessing/config_preprocessing_n4_reg_resample_zscore.yaml
+#
+# Input : demo_data/preprocessed/processed_images (delay2 / delay3 / delay5)
+# Output: demo_data/results/preprocessed_n4_reg_resample_zscore
+# Path convention: relative paths resolve from this YAML file's directory.
+# =============================================================================
+
+#%%================================================================================
+# Paths (edit for your own cohort)
+data_dir: ../../demo_data/preprocessed/processed_images
+out_dir: ../../demo_data/results/preprocessed_n4_reg_resample_zscore
+#%%================================================================================
+
+auto_select_first_file: true
+
+preprocessing:
+  # 1) N4 bias-field correction (MRI only; leave commented for CT or if already corrected)
+  n4_correction:
+    images: [delay2, delay3, delay5]
+    num_fitting_levels: 4
+
+  # 2) Registration (required): align other modalities to the fixed reference
+  registration:
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
+    use_mask: true
+    backend: ants
+    type_of_transform: Rigid
+    metric: MI
+
+  # 3) Resample to analysis spacing after spatial alignment
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [1.0, 1.0, 1.0]
+    img_mode: bilinear
+
+  # 4) Z-score intensity normalization (last)
+  zscore_normalization:
+    images: [delay2, delay3, delay5]
+    only_inmask: false
+    clip_values: [-3, 3]
+
+save_options:
+  save_intermediate: true
+  # intermediate_steps: [registration, resample, zscore_normalization]
+
+processes: 2
+random_state: 42

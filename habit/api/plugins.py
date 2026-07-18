@@ -69,12 +69,12 @@ def _registry_for_domain(domain: str) -> Type[Any]:
         return cast(Type[Any], FeatureExtractorRegistry)
     if domain == "habitat_features":
         from habit.core.habitat_analysis.feature_registry import (
-            HabitatFeatureRegistry,
-            bootstrap_optional_plugins,
+            HabitatFeatureFactory,
+            bootstrap_optional_features,
         )
 
-        bootstrap_optional_plugins()
-        return cast(Type[Any], HabitatFeatureRegistry)
+        bootstrap_optional_features()
+        return cast(Type[Any], HabitatFeatureFactory)
     if domain == "models":
         from habit.core.machine_learning.models.factory import ModelFactory
 

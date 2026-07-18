@@ -16,11 +16,11 @@
 """
 HabitatMapAnalyzer — orchestrator for post-clustering feature extraction.
 
-All feature types (built-in and optional) are implemented as plugins that
-inherit from HabitatFeaturePluginBase and are registered with
-@HabitatFeatureRegistry.register.  This class is a pure dispatcher: it never
-contains feature-type-specific logic.  Adding a new feature type requires
-only creating a new plugin class — no changes here.
+All feature types (built-in and optional) are implemented as handlers that
+inherit from BaseHabitatFeature and are registered with
+@HabitatFeatureFactory.register. This class is a pure dispatcher: it never
+contains feature-type-specific logic. Adding a new feature handler requires
+only registering the new class — no changes here.
 
 Built-in types:  non_radiomics, traditional, whole_habitat,
                  each_habitat, msi, ith_score
@@ -37,10 +37,9 @@ from typing import Any, Dict, List, Optional
 
 from habit.core.habitat_analysis.feature_registry import (
     BatchExportContext,
-    HabitatFeaturePluginBase,
+    BaseHabitatFeature,
+    HabitatFeatureFactory,
     SubjectExtractionContext,
-    bootstrap_optional_plugins,
-    build_plugin,
     get_default_feature_types,
     validate_feature_types,
 )
@@ -56,7 +55,7 @@ warnings.filterwarnings("ignore")
 class HabitatMapAnalyzer:
     """Orchestrator for extracting features from pre-computed habitat maps.
 
-    Dispatches work to registered HabitatFeaturePluginBase instances.
+    Dispatches work to registered BaseHabitatFeature instances.
     Neither process_subject() nor run() contains any feature-type-specific
     branches — all logic lives in the individual plugin classes.
 
@@ -69,7 +68,7 @@ class HabitatMapAnalyzer:
         n_processes: Number of worker processes; defaults to cpu_count // 2.
         habitat_pattern: Glob pattern for matching habitat map files.
         voxel_cutoff: Minimum voxel count for MSI small-region filtering.
-        plugin_configs: Mapping of optional plugin name to its config object.
+        plugin_configs: Mapping of optional feature name to its config object.
     """
 
     def __init__(
@@ -99,61 +98,44 @@ class HabitatMapAnalyzer:
         else:
             self.n_processes = min(n_processes, multiprocessing.cpu_count() - 2)
 
-        # Build the unified plugin map: built-in first, then optional.
-        self._all_plugins: Dict[str, HabitatFeaturePluginBase] = {}
-        self._all_plugins.update(self._build_builtin_plugins())
-        self._all_plugins.update(self._build_optional_plugins(plugin_configs or {}))
+        self._all_features = self._build_feature_handlers(plugin_configs or {})
 
         self._setup_logging()
 
     # ------------------------------------------------------------------
-    # Plugin construction
+    # Feature handler construction
     # ------------------------------------------------------------------
 
-    def _build_builtin_plugins(self) -> Dict[str, HabitatFeaturePluginBase]:
-        """Instantiate all built-in feature plugins with the analyzer's config.
+    def _build_feature_handlers(
+        self,
+        feature_configs: Dict[str, Any],
+    ) -> Dict[str, BaseHabitatFeature]:
+        """Instantiate registered feature handlers through the shared factory.
 
         Returns:
-            Dict mapping feature-type name to plugin instance.
+            Dict mapping feature-type name to configured handler instance.
         """
-        from .builtin_plugins import (
-            EachHabitatPlugin,
-            ITHPlugin,
-            MSIPlugin,
-            NonRadiomicsPlugin,
-            TraditionalRadiomicsPlugin,
-            WholeHabitatPlugin,
-        )
-
-        return {
-            "non_radiomics": NonRadiomicsPlugin(),
-            "traditional": TraditionalRadiomicsPlugin(
-                params_file=self.params_file_of_non_habitat
+        handlers: Dict[str, BaseHabitatFeature] = {
+            "non_radiomics": HabitatFeatureFactory.get_handler("non_radiomics"),
+            "traditional": HabitatFeatureFactory.get_handler(
+                "traditional", params_file=self.params_file_of_non_habitat
             ),
-            "whole_habitat": WholeHabitatPlugin(
-                params_file=self.params_file_of_habitat
+            "whole_habitat": HabitatFeatureFactory.get_handler(
+                "whole_habitat", params_file=self.params_file_of_habitat
             ),
-            "each_habitat": EachHabitatPlugin(
-                params_file=self.params_file_of_non_habitat
+            "each_habitat": HabitatFeatureFactory.get_handler(
+                "each_habitat", params_file=self.params_file_of_non_habitat
             ),
-            "msi": MSIPlugin(voxel_cutoff=self.voxel_cutoff),
-            "ith_score": ITHPlugin(),
+            "msi": HabitatFeatureFactory.get_handler(
+                "msi", voxel_cutoff=self.voxel_cutoff
+            ),
+            "ith_score": HabitatFeatureFactory.get_handler("ith_score"),
         }
 
-    @staticmethod
-    def _build_optional_plugins(
-        plugin_configs: Dict[str, Any],
-    ) -> Dict[str, HabitatFeaturePluginBase]:
-        """Instantiate registered optional plugins from a config mapping.
+        for name, config in feature_configs.items():
+            handlers[name] = HabitatFeatureFactory.get_handler(name, config=config)
 
-        Args:
-            plugin_configs: Mapping of plugin name to its config object.
-
-        Returns:
-            Dict mapping plugin name to plugin instance.
-        """
-        bootstrap_optional_plugins()
-        return {name: build_plugin(name, config) for name, config in plugin_configs.items()}
+        return handlers
 
     # ------------------------------------------------------------------
     # Logging
@@ -286,17 +268,17 @@ class HabitatMapAnalyzer:
         )
 
         subject_features: Dict[str, Any] = {}
-        for plugin_name, plugin in self._all_plugins.items():
-            if plugin_name not in feature_types:
+        for feature_name, feature in self._all_features.items():
+            if feature_name not in feature_types:
                 continue
             try:
-                subject_features[plugin.subject_data_key] = plugin.extract_subject(ctx)
+                subject_features[feature.subject_data_key] = feature.extract_subject(ctx)
             except Exception as exc:
                 logger.error(
                     "Error extracting %s features for subject %s: %s",
-                    plugin_name, subj, exc,
+                    feature_name, subj, exc,
                 )
-                subject_features[plugin.subject_data_key] = {"error": str(exc)}
+                subject_features[feature.subject_data_key] = {"error": str(exc)}
 
         return subj, subject_features
 
@@ -411,7 +393,7 @@ class HabitatMapAnalyzer:
         )
         self.data = feature_data
 
-        # Export: loop over plugins — no feature-type-specific branching.
+        # Export: loop over feature handlers with no feature-specific branching.
         export_ctx = BatchExportContext(
             out_dir=self.out_dir,
             n_habitats=n_habitats,
@@ -420,21 +402,21 @@ class HabitatMapAnalyzer:
             n_processes=self.n_processes,
         )
 
-        for plugin_name, plugin in self._all_plugins.items():
-            if plugin_name not in feature_types:
+        for feature_name, feature in self._all_features.items():
+            if feature_name not in feature_types:
                 continue
             try:
-                plugin.export_batch(feature_data, export_ctx)
+                feature.export_batch(feature_data, export_ctx)
             except Exception as exc:
                 self.logger.error(
-                    "Error exporting %s features: %s", plugin_name, exc
+                    "Error exporting %s features: %s", feature_name, exc
                 )
-            if plugin.should_visualize():
+            if feature.should_visualize():
                 try:
-                    plugin.visualize_batch(feature_data, export_ctx)
+                    feature.visualize_batch(feature_data, export_ctx)
                 except Exception as exc:
                     self.logger.error(
-                        "Error visualising %s features: %s", plugin_name, exc
+                        "Error visualising %s features: %s", feature_name, exc
                     )
 
         return self

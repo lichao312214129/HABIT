@@ -144,7 +144,7 @@ run the contract tests when adding a factory or orchestrator:
      REG --> CF["ClusteringAlgorithmFactory"]
      REG --> EF["FeatureExtractorRegistry"]
      REG --> PP["PreprocessingMethodFactory"]
-     REG --> HF["HabitatFeatureRegistry"]
+     REG --> HF["HabitatFeatureFactory"]
 
      ORC["common/orchestrator.py<br/>ORCHESTRATOR_CONTRACT"] --> BP["BatchProcessor"]
      ORC --> HA["HabitatAnalysis"]

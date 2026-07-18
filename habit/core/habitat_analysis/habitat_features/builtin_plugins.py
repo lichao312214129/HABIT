@@ -12,10 +12,10 @@
 #     product documentation or user-facing materials.
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
-"""Built-in habitat feature extraction plugins.
+"""Built-in habitat feature extraction handlers.
 
 Each class wraps an existing computation class and implements
-HabitatFeaturePluginBase, enabling uniform dispatch in HabitatMapAnalyzer.
+BaseHabitatFeature, enabling uniform dispatch in HabitatMapAnalyzer.
 
 Registered names (used in YAML feature_types lists):
     - non_radiomics   : region count and volume ratio per habitat label
@@ -26,7 +26,7 @@ Registered names (used in YAML feature_types lists):
     - ith_score       : Intratumoral Heterogeneity score
 
 To add a new feature type, create a new subclass here (or in a separate file),
-decorate it with @HabitatFeatureRegistry.register('your_name'), and implement
+decorate it with @HabitatFeatureFactory.register('your_name'), and implement
 extract_subject() + export_batch().  No changes to HabitatMapAnalyzer needed.
 """
 
@@ -40,8 +40,8 @@ import pandas as pd
 
 from habit.core.habitat_analysis.feature_registry import (
     BatchExportContext,
-    HabitatFeaturePluginBase,
-    HabitatFeatureRegistry,
+    BaseHabitatFeature,
+    HabitatFeatureFactory,
     SubjectExtractionContext,
 )
 from habit.utils.progress_utils import CustomTqdm
@@ -57,8 +57,8 @@ from .msi_features import MSIFeatureExtractor
 # non_radiomics: region count + volume ratio per habitat label
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("non_radiomics")
-class NonRadiomicsPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("non_radiomics")
+class NonRadiomicsFeature(BaseHabitatFeature):
     """Basic spatial features: disconnected region count and volume ratio.
 
     Wraps BasicFeatureExtractor.
@@ -67,6 +67,11 @@ class NonRadiomicsPlugin(HabitatFeaturePluginBase):
     subject_data_key = "non_radiomics_features"
     output_csv_name = "habitat_basic_features.csv"
     progress_desc = "Basic Habitat Features"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for basic habitat features."""
+        return "non_radiomics"
 
     def __init__(self, config: Any = None) -> None:
         super().__init__(config)
@@ -132,8 +137,8 @@ class NonRadiomicsPlugin(HabitatFeaturePluginBase):
 # traditional: PyRadiomics on the raw image within the whole ROI mask
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("traditional")
-class TraditionalRadiomicsPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("traditional")
+class TraditionalRadiomicsFeature(BaseHabitatFeature):
     """PyRadiomics features extracted from the raw image within the ROI.
 
     The habitat map is binarised to form a single ROI mask.
@@ -143,6 +148,11 @@ class TraditionalRadiomicsPlugin(HabitatFeaturePluginBase):
     subject_data_key = "tranditional_radiomics_features"
     output_csv_name = "raw_image_radiomics.csv"
     progress_desc = "Traditional Radiomics"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for traditional radiomics."""
+        return "traditional"
 
     def __init__(self, params_file: Optional[str] = None) -> None:
         """
@@ -234,8 +244,8 @@ class TraditionalRadiomicsPlugin(HabitatFeaturePluginBase):
 # whole_habitat: PyRadiomics on the multi-label habitat map itself
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("whole_habitat")
-class WholeHabitatPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("whole_habitat")
+class WholeHabitatFeature(BaseHabitatFeature):
     """PyRadiomics features of the habitat map treated as a single binary mask.
 
     Wraps HabitatRadiomicsExtractor.extract_radiomics_features_for_whole_habitat().
@@ -244,6 +254,11 @@ class WholeHabitatPlugin(HabitatFeaturePluginBase):
     subject_data_key = "radiomics_features_of_whole_habitat_map"
     output_csv_name = "whole_habitat_radiomics.csv"
     progress_desc = "Whole Habitat Radiomics"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for whole-habitat radiomics."""
+        return "whole_habitat"
 
     def __init__(self, params_file: Optional[str] = None) -> None:
         """
@@ -315,8 +330,8 @@ class WholeHabitatPlugin(HabitatFeaturePluginBase):
 # each_habitat: PyRadiomics on the raw image per individual habitat label
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("each_habitat")
-class EachHabitatPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("each_habitat")
+class EachHabitatFeature(BaseHabitatFeature):
     """PyRadiomics extracted from the raw image within each habitat label.
 
     Produces one CSV per habitat label (habitat_1_radiomics.csv, …) plus a
@@ -327,6 +342,11 @@ class EachHabitatPlugin(HabitatFeaturePluginBase):
     subject_data_key = "radiomics_features_from_each_habitat"
     output_csv_name = "habitat_1_radiomics.csv"   # representative; actual names are per-label
     progress_desc = "Each Habitat Radiomics"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for per-habitat radiomics."""
+        return "each_habitat"
 
     def __init__(self, params_file: Optional[str] = None) -> None:
         """
@@ -451,8 +471,8 @@ class EachHabitatPlugin(HabitatFeaturePluginBase):
 # msi: Multiregional spatial interaction (MSI)
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("msi")
-class MSIPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("msi")
+class MSIFeature(BaseHabitatFeature):
     """Multiregional spatial interaction (MSI) features derived from the habitat map.
 
     Wraps MSIFeatureExtractor.
@@ -461,6 +481,11 @@ class MSIPlugin(HabitatFeaturePluginBase):
     subject_data_key = "msi_features"
     output_csv_name = "msi_features.csv"
     progress_desc = "MSI Features"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for MSI features."""
+        return "msi"
 
     def __init__(self, voxel_cutoff: int = 10) -> None:
         """
@@ -540,8 +565,8 @@ class MSIPlugin(HabitatFeaturePluginBase):
 # ith_score: Intratumoral Heterogeneity score
 # ---------------------------------------------------------------------------
 
-@HabitatFeatureRegistry.register("ith_score")
-class ITHPlugin(HabitatFeaturePluginBase):
+@HabitatFeatureFactory.register("ith_score")
+class ITHFeature(BaseHabitatFeature):
     """Intratumoral Heterogeneity (ITH) score from the habitat map.
 
     Wraps ITHFeatureExtractor.
@@ -550,6 +575,11 @@ class ITHPlugin(HabitatFeaturePluginBase):
     subject_data_key = "ith_features"
     output_csv_name = "ith_scores.csv"
     progress_desc = "ITH Features"
+
+    @classmethod
+    def feature_name(cls) -> str:
+        """Return the canonical factory name for ITH features."""
+        return "ith_score"
 
     def __init__(self, config: Any = None) -> None:
         super().__init__(config)
@@ -605,3 +635,13 @@ class ITHPlugin(HabitatFeaturePluginBase):
         result.to_csv(out_file)
         ctx.logger.info("ITH features saved to %s", out_file)
         return result
+
+
+# Backward-compatible aliases for callers that imported the old plugin names.
+# New code should use the ``*Feature`` class names above.
+NonRadiomicsPlugin = NonRadiomicsFeature
+TraditionalRadiomicsPlugin = TraditionalRadiomicsFeature
+WholeHabitatPlugin = WholeHabitatFeature
+EachHabitatPlugin = EachHabitatFeature
+MSIPlugin = MSIFeature
+ITHPlugin = ITHFeature

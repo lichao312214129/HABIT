@@ -67,9 +67,9 @@ CLASS_REGISTRIES = {
         "habit.core.habitat_analysis.feature_preprocessing.base_preprocessing",
         "PreprocessingMethodFactory",
     ),
-    "habitat_feature_plugin": (
+    "habitat_feature": (
         "habit.core.habitat_analysis.feature_registry",
-        "HabitatFeatureRegistry",
+        "HabitatFeatureFactory",
     ),
 }
 
@@ -173,6 +173,45 @@ def test_registries_do_not_share_storage() -> None:
     # No two loaded registries may reference the same dict object.
     ids = [id(reg._registry) for reg in loaded.values()]
     assert len(ids) == len(set(ids)), "Two registries share the same _registry dict."
+
+
+@pytest.mark.unit
+def test_habitat_feature_factory_creates_registered_handler() -> None:
+    """Habitat feature handlers use the same named factory lookup as preprocessors."""
+    from typing import Any, Dict
+
+    from habit.core.habitat_analysis.feature_registry import (
+        BaseHabitatFeature,
+        BatchExportContext,
+        HabitatFeatureFactory,
+        SubjectExtractionContext,
+    )
+
+    class ContractFeature(BaseHabitatFeature):
+        """Minimal handler used to verify the factory contract."""
+
+        subject_data_key = "contract"
+        output_csv_name = "contract.csv"
+        progress_desc = "Contract Feature"
+
+        def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
+            """Return a minimal per-subject feature result."""
+            return {"subject": ctx.subj}
+
+        def export_batch(
+            self,
+            data: Dict[str, Dict[str, Any]],
+            ctx: BatchExportContext,
+        ) -> None:
+            """Implement the required batch-export contract for this test."""
+            return None
+
+    HabitatFeatureFactory.register("contract_feature")(ContractFeature)
+    handler = HabitatFeatureFactory.get_handler("contract_feature")
+
+    assert isinstance(handler, ContractFeature)
+    assert handler.feature_name() == "contract_feature"
+    assert "contract_feature" in HabitatFeatureFactory.registered_feature_names()
 
 
 # ---------------------------------------------------------------------------

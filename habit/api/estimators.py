@@ -456,6 +456,16 @@ class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin)
         )
 
 
+class OutcomeClassifier(HabitClassifier):
+    """Clinically named public alias for HABIT's outcome-classification estimator.
+
+    This class intentionally adds no separate implementation.  It gives
+    clinical researchers a task-oriented name while retaining the complete
+    sklearn-compatible ``HabitClassifier`` parameter, fit, prediction, and
+    persistence contract.
+    """
+
+
 class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixin):
     """
     sklearn-style facade for HABIT image habitat clustering.

@@ -36,6 +36,8 @@ from habit.utils.persistent_worker_protocol import (
     WorkerStopCommand,
 )
 
+_TORCH_CACHE_CLEANUP_WARNING_LOGGED = False
+
 
 def _execute_item(
     func: Callable[[Any], Any],
@@ -70,17 +72,25 @@ def _execute_item(
 
 def _maybe_empty_cuda_cache(logger: Optional[logging.Logger]) -> None:
     """Release cached GPU allocations after a task when torch CUDA is available."""
+    global _TORCH_CACHE_CLEANUP_WARNING_LOGGED
+
     try:
         import torch
-    except ImportError:
-        return
-    if not torch.cuda.is_available():
-        return
-    try:
+        if not torch.cuda.is_available():
+            return
         torch.cuda.empty_cache()
     except Exception as exc:
-        if logger is not None:
-            logger.warning("torch.cuda.empty_cache() failed after task: %s", exc)
+        # Cache cleanup is a best-effort maintenance operation performed only after
+        # the task result has been published. Native-library import failures such as
+        # WinError 126 must never terminate a healthy persistent worker. Log once per
+        # worker process to preserve the diagnostic without repeating it for each item.
+        if logger is not None and not _TORCH_CACHE_CLEANUP_WARNING_LOGGED:
+            _TORCH_CACHE_CLEANUP_WARNING_LOGGED = True
+            logger.warning(
+                "Skipping optional PyTorch CUDA cache cleanup because PyTorch/CUDA "
+                "could not be initialized: %s",
+                exc,
+            )
 
 
 def persistent_worker_main(

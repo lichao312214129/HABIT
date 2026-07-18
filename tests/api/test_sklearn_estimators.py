@@ -241,6 +241,12 @@ def test_dicom_habitat_and_ml_runners_delegate_to_core() -> None:
             "habit.core.machine_learning.run.run_kfold_from_config",
             return_value=MagicMock(),
         ) as kfold_run,
+        patch("habit.api.dicom_sort.create_run_manifest"),
+        patch("habit.api.dicom_sort.write_run_manifest"),
+        patch("habit.api.habitat.create_run_manifest"),
+        patch("habit.api.habitat.write_run_manifest"),
+        patch("habit.api.machine_learning.create_run_manifest"),
+        patch("habit.api.machine_learning.write_run_manifest"),
     ):
         habit.run_dicom_sort(config)
         assert habit.run_habitat_analysis(config, logger=logger).data.empty

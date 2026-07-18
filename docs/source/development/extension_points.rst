@@ -273,9 +273,9 @@ function-based registries). The table below is the complete reference.
      - ``@PreprocessingMethodFactory.register("name")``
      - Subclass ``BaseFeaturePreprocessing``
      - (Habitat subsystem)
-   * - **Post-segmentation habitat feature plugin**
-     - ``@HabitatFeatureRegistry.register("name")``
-     - Subclass ``HabitatFeaturePluginBase``
+   * - **Post-segmentation habitat feature**
+     - ``@HabitatFeatureFactory.register("name")``
+     - Subclass ``BaseHabitatFeature``; resolve with ``get_handler()``
      - (Habitat subsystem)
    * - **Feature selector**
      - ``@SelectorRegistry.register("name")``

@@ -16,6 +16,7 @@ from uuid import uuid4
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 
 from habit._version import __version__
 from habit.api.exceptions import HABITAPIError
@@ -39,12 +40,8 @@ def _json_value(value: Any) -> Any:
         return [_json_value(item) for item in value]
     if is_dataclass(value) and not isinstance(value, type):
         return _json_value(asdict(cast(Any, value)))
-    model_dump = getattr(value, "model_dump", None)
-    if callable(model_dump):
-        return _json_value(model_dump(mode="json"))
-    to_dict = getattr(value, "to_dict", None)
-    if callable(to_dict):
-        return _json_value(to_dict())
+    if isinstance(value, BaseModel):
+        return _json_value(value.model_dump(mode="json"))
     if isinstance(value, np.generic):
         return value.item()
     if isinstance(value, (str, int, float, bool)) or value is None:
