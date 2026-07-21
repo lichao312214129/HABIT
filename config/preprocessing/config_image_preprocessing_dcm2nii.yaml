@@ -16,8 +16,8 @@
 #   通过清单文件 files_preprocessing.yaml 指定每个受试者的
 #   “模态键 -> DICOM 序列文件夹”。原始 DICOM 在 demo_data/dicom/。
 #
-# 外部工具 / External tool:
-#   demo_data/dcm2niix.exe（已随 demo_data 附带，无需另装）。
+# External tool:
+#   tools/bin/dcm2niix.exe is included with the release package.
 #
 # 说明 / Note:
 #   本模板与 config_preprocessing_dcm2nii_demo.yaml 等价，均为可直接运行的
@@ -40,7 +40,7 @@ preprocessing:
   # DICOM -> NIfTI 转换
   dcm2nii:
     images: [delay2, delay3, delay5]              # 要转换的模态键（与清单文件中的键一致）
-    dcm2niix_path: ../../demo_data/dcm2niix.exe    # dcm2niix 可执行文件路径
+    dcm2niix_path: ../../tools/bin/dcm2niix.exe    # dcm2niix executable path
     compress: true                                 # 输出 .nii.gz（压缩）；false 则输出 .nii
     generate_json: false                           # 是否同时输出 BIDS sidecar JSON（元数据）
     anonymize: false                               # 是否匿名化文件名

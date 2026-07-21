@@ -6,21 +6,33 @@ on:
     paths:
       - 'habit/**'
       - 'tests/**'
-      - 'requirements.txt'
       - 'requirements-ci.txt'
       - 'setup.py'
       - 'pyproject.toml'
       - 'MANIFEST.in'
+      - 'installer/**'
+      - 'developer/build_lightweight_release.ps1'
+      - '一键安装HABIT.bat'
+      - '一键启用HABIT-GPU.bat'
+      - '一键启用HABIT-AutoML.bat'
+      - '一键启用HABIT-进阶分析.bat'
+      - '启动HABIT命令行.bat'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
       - 'habit/**'
       - 'tests/**'
-      - 'requirements.txt'
       - 'requirements-ci.txt'
       - 'setup.py'
       - 'pyproject.toml'
       - 'MANIFEST.in'
+      - 'installer/**'
+      - 'developer/build_lightweight_release.ps1'
+      - '一键安装HABIT.bat'
+      - '一键启用HABIT-GPU.bat'
+      - '一键启用HABIT-AutoML.bat'
+      - '一键启用HABIT-进阶分析.bat'
+      - '启动HABIT命令行.bat'
       - '.github/workflows/tests.yml'
 
 jobs:
@@ -83,6 +95,6 @@ jobs:
 
       - name: Run public and architecture tests
         run: |
-          pytest tests/api/ tests/integration/test_python_api.py tests/test_architecture_contracts.py tests/test_packaging_contracts.py -m "not slow" --tb=short
+          pytest tests/api/ tests/integration/test_python_api.py tests/test_architecture_contracts.py tests/test_packaging_contracts.py tests/test_installer_contracts.py -m "not slow" --tb=short
         env:
           PYTHONPATH: ${{ github.workspace }}

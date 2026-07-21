@@ -27,7 +27,11 @@ from .factory import ModelFactory
 try:
     from autogluon.tabular import TabularPredictor
 except ImportError:
-    raise ImportError("AutoGluon is not installed. Install it using: pip install autogluon")
+    raise ImportError(
+        "AutoML support is not installed. Windows lightweight-release users "
+        "can run '一键启用HABIT-AutoML.bat'; package users can install "
+        "'HABIT[automl]'."
+    )
 
 @ModelFactory.register('AutoGluonTabular')
 class AutoGluonTabularModel(BaseModel):

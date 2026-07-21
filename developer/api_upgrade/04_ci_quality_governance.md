@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - run: pip install -r requirements.txt && pip install -e .
+      - run: pip install -e .
       - run: pytest tests/test_public_api.py tests/integration/ tests/api/ -m "not slow" -v
 ```
 
@@ -39,7 +39,6 @@ jobs:
 
 ```ini
 # pytest 分组安装
-pip install -r requirements.txt
 pip install -e .
 # extras: radiomics, gpu — 单独 job 或 continue-on-error
 ```

@@ -9,7 +9,7 @@ which step caused it.
 | Observation | Likely cause | Action |
 |---|---|---|
 | `command not found: habit` | HABIT not installed | `pip install -e .` from repo root |
-| `ImportError: No module named 'X'` | Missing dependency | `pip install X` (or check `requirements.txt`) |
+| `ImportError: No module named 'X'` | Missing dependency | `pip install X` (or check `pyproject.toml`) |
 | `FileNotFoundError: <path>` | Wrong path in config | Check `ls <path>` and edit YAML |
 | `KeyError: '<field>'` in YAML loading | Required field missing | Compare against the matching shipped config under `config/` |
 | Silent crash, empty output dir | Process killed (OOM) | Reduce `processes`, smaller `n_clusters`, or smaller PyRadiomics filter set |

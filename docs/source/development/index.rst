@@ -69,7 +69,6 @@ Recommended reading order
    copy-ready component templates are available in
    :doc:`../customization/index`.
 
-Environment summary: Python 3.10, ``pip install -r requirements.txt``,
-``pip install -e .``, and ``pytest tests/``.
+Environment summary: Python 3.10, ``pip install -e .``, and ``pytest tests/``.
 
 See the **Developer** sidebar for the API and third-party library references.

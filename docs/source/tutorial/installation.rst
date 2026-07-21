@@ -1,38 +1,35 @@
 Installation
 ============
 
-**Windows (recommended)**: Download the portable pack → extract → double-click ``setup_habit.bat`` .
+**Windows (recommended)**: Download the lightweight ZIP → extract → double-click
+``一键安装HABIT.bat``. The installer creates an isolated Python 3.10 environment
+inside the extracted directory; users do not need to install Python or Conda.
 
 **macOS / Linux / developers**: See **Source install** below.
 
 Demo data: :doc:`quickstart` .
 
-Portable pack
--------------
+Windows lightweight installer
+-----------------------------
 
-.. list-table::
-   :header-rows: 1
-   :widths: 28 72
+1. Extract the ZIP to a short local path containing only ASCII characters and
+   no spaces, for example ``D:\HABIT``.
+2. Double-click ``一键安装HABIT.bat`` and wait for the environment and capability
+   checks to finish.
+3. Double-click ``启动HABIT命令行.bat`` to open a terminal configured only for
+   this HABIT installation.
+4. Run ``一键启用HABIT-AutoML.bat`` only for AutoGluon Tabular workflows, or
+   ``一键启用HABIT-进阶分析.bat`` only for Parquet, SHAP, Plotly, Krippendorff,
+   and survival-analysis features.
+5. On a compatible NVIDIA system, optionally run ``一键启用HABIT-GPU.bat`` after
+   the CPU installation succeeds. A failed GPU enhancement does not invalidate
+   the CPU environment.
 
-   * - Pack
-     - Notes
-   * - Updated GPU bundle
-     - ``HABIT-win-py310-gpu-v0.1.0.tar-v1.gz`` and one additional file · |download_gpu_pack_v1| · code |gpu_pack_v1_code|
-
-The updated share contains ``HABIT-win-py310-gpu-v0.1.0.tar-v1.gz`` and one additional file (extract code |gpu_pack_v1_code|).
-
-Windows portable steps
-----------------------
-
-.. note::
-
-   Example path ``D:\habit-cpu`` — use your own short path without spaces or non-ASCII characters.
-
-1. Extract the archive so ``python.exe`` and ``setup_habit.bat`` sit in the same folder.
-2. Run ``setup_habit.bat`` , open a **new** terminal, run ``habit --version`` .
-3. Continue with :doc:`quickstart` .
-
-**Upgrade CPU pack to GPU torch** (optional): download ``torch-2.4.0+cu121-cp310-cp310-win_amd64.whl`` (|download_torch_wheel| , code |torch_wheel_code| ), place next to ``python.exe`` , run ``install_gpu_torch.bat`` .
+The first installation requires network access. The installer validates the
+installation path, disk space, package assets, and the pinned Python 3.10
+runtime before it changes the project-managed ``.mamba`` directory. The default
+profile deliberately excludes AutoML, advanced analysis, and Torch; optional
+entry points add only the selected feature family.
 
 Source install
 --------------
@@ -42,10 +39,12 @@ Source install
    conda create -n habit python=3.10
    conda activate habit
    cd /path/to/habit_project_v1
-   pip install -r requirements.txt
    pip install -e .
    habit --version
 
-Windows may also need ``pip install pyradiomics-3.0.1-cp310-cp310-win_amd64.whl`` . Troubleshooting: :doc:`../troubleshooting/faq` .
+Install an optional feature family only when needed: ``pip install -e ".[analysis]"``,
+``pip install -e ".[automl]"``, or ``pip install -e ".[torch]"``. Windows may
+also need ``pip install installer/vendor/pyradiomics-3.0.1-cp310-cp310-win_amd64.whl`` .
+Troubleshooting: :doc:`../troubleshooting/faq` .
 
 Next → :doc:`quickstart`

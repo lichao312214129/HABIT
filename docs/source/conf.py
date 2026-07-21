@@ -209,9 +209,9 @@ todo_include_todos = True
 
 # Custom download variables for project resource bundles. Maintainers update
 # these links and extraction codes.
-# The Windows CPU/GPU bundles share one download directory.
 # demo_data, config, and tests are separate bundles; the tests bundle also
-# contains config.rar.
+# contains config.rar. The Windows lightweight installer ZIP is distributed
+# separately from these netdisk demo/config/test shares.
 #
 # Docutils does not expand substitutions inside the URL of
 # `` `text <|url_subst|>`_``. Define complete-link substitutions in the epilog
@@ -231,16 +231,6 @@ NETDISK_SHARES = {
         "url": "https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c",
         "code": "vv2c",
         "link_label": "Download tests bundle",
-    },
-    "gpu_pack_v1": {
-        "url": "https://pan.baidu.com/s/1rCdwsGJ_c_0_uCJJ6JMCKQ?pwd=gip9",
-        "code": "gip9",
-        "link_label": "HABIT-win-py310-gpu-v0.1.0.tar-v1.gz and one additional file",
-    },
-    "torch_wheel": {
-        "url": "https://pan.baidu.com/s/1eY4lmNegCYh5KgQB640FmA?pwd=nt7k",
-        "code": "nt7k",
-        "link_label": "Download wheel",
     },
 }
 

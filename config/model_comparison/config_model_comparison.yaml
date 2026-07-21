@@ -21,35 +21,35 @@ output_dir: H:\results\ml_results\compare20251223
 files_config:
 - path: H:\results\ml_results\autogluon_habitat\autogluon_habitat_pred_full.csv
   name: Habitat model
-  subject_id_col: subject_id
+  subject_id_col: subjID
   label_col: true_label
   prob_col: prob
   pred_col: pred
   split_col: split
 - path: H:\results\ml_results\autogluon_radiomics\autogluon_radiomics_pred_full.csv
   name: Radiomics model
-  subject_id_col: subject_id
+  subject_id_col: subjID
   label_col: true_label
   prob_col: prob
   pred_col: pred
   split_col: split
 - path: H:\results\ml_results\autogluon_clinical\autogluon_clinical_pred_full.csv
   name: Clinical model
-  subject_id_col: subject_id
+  subject_id_col: subjID
   label_col: true_label
   prob_col: prob
   pred_col: pred
   split_col: split
 - path: H:\results\ml_results\merged_clinicalPlusRadiomics\all_prediction_results.csv
   name: Clinical-Radiomics model
-  subject_id_col: subject_id
+  subject_id_col: subjID
   label_col: true_label
   prob_col: LogisticRegression_prob
   pred_col: LogisticRegression_pred
   split_col: split
 - path: H:\results\ml_results\merged_all\all_prediction_results.csv
   name: Hybrid model
-  subject_id_col: subject_id
+  subject_id_col: subjID
   label_col: true_label
   prob_col: LogisticRegression_prob
   pred_col: LogisticRegression_pred

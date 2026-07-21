@@ -32,10 +32,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
-# from lifelines import KaplanMeierFitter, CoxPHFitter
-# from lifelines.statistics import logrank_test, multivariate_logrank_test
-# from lifelines.plotting import add_at_risk_counts
+from lifelines import CoxPHFitter, KaplanMeierFitter
+from lifelines.plotting import add_at_risk_counts
+from lifelines.statistics import logrank_test, multivariate_logrank_test
 from habit.utils.font_config import PUBLICATION_FONT, setup_publication_font
 
 

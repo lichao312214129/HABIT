@@ -163,6 +163,101 @@ def _feature_values_in_mask(
     return feature_array[roi]
 
 
+def _mask_array_for_feature_map(
+    mask: sitk.Image,
+    feature_map: sitk.Image,
+    *,
+    label: Optional[int] = None,
+) -> np.ndarray:
+    """
+    Align a full-size segmentation mask to a PyRadiomics voxel feature map.
+
+    PyRadiomics crops voxel-based feature maps to the physical bounding box of
+    the requested ROI, with padding determined by ``kernelRadius``. Therefore,
+    feature-map array dimensions are normally smaller than the source mask
+    dimensions. Alignment must use the SimpleITK physical coordinate system;
+    slicing only by array shape would lose the crop offset and would be wrong
+    for non-unit spacing, non-zero origins, rotated directions, or radiomics
+    resampling.
+
+    Args:
+        mask: Full-size segmentation mask supplied to PyRadiomics.
+        feature_map: Cropped voxel feature map returned by PyRadiomics.
+        label: Optional mask label selected by PyRadiomics. When omitted, every
+            nonzero mask value is treated as foreground.
+
+    Returns:
+        np.ndarray: Binary mask on the exact array grid of ``feature_map``.
+
+    Raises:
+        ValueError: If dimensions differ, grids with equal sampling are not
+            lattice-aligned, or the feature-map extent loses ROI voxels.
+    """
+    if mask.GetDimension() != feature_map.GetDimension():
+        raise ValueError(
+            "Voxel feature map and mask dimensions do not match: "
+            f"{feature_map.GetDimension()} != {mask.GetDimension()}."
+        )
+
+    spacing_matches = np.allclose(
+        mask.GetSpacing(),
+        feature_map.GetSpacing(),
+        rtol=0.0,
+        atol=1e-6,
+    )
+    direction_matches = np.allclose(
+        mask.GetDirection(),
+        feature_map.GetDirection(),
+        rtol=0.0,
+        atol=1e-6,
+    )
+    if spacing_matches and direction_matches:
+        # Cropped maps with unchanged sampling must start exactly on the source
+        # mask lattice. Detecting a fractional index prevents nearest-neighbor
+        # resampling from hiding an origin or direction metadata error.
+        start_index = np.asarray(
+            mask.TransformPhysicalPointToContinuousIndex(feature_map.GetOrigin()),
+            dtype=np.float64,
+        )
+        if not np.allclose(start_index, np.rint(start_index), rtol=0.0, atol=1e-5):
+            raise ValueError(
+                "Voxel feature map is not aligned to the mask voxel lattice: "
+                f"continuous_start_index={tuple(start_index)}."
+            )
+
+    aligned_mask = sitk.Resample(
+        mask,
+        feature_map,
+        sitk.Transform(),
+        sitk.sitkNearestNeighbor,
+        0,
+        mask.GetPixelID(),
+    )
+    aligned_array = sitk.GetArrayFromImage(aligned_mask)
+    source_array = sitk.GetArrayViewFromImage(mask)
+
+    if label is None:
+        roi = aligned_array != 0
+        source_roi_count = int(np.count_nonzero(source_array))
+    else:
+        roi = aligned_array == label
+        source_roi_count = int(np.count_nonzero(source_array == label))
+
+    # With unchanged sampling, PyRadiomics only crops the grid; it does not
+    # change the ROI voxel population. A count difference means the physical
+    # crop does not fully cover the requested label and must not be accepted.
+    if spacing_matches and direction_matches:
+        aligned_roi_count = int(np.count_nonzero(roi))
+        if aligned_roi_count != source_roi_count:
+            raise ValueError(
+                "Voxel feature map physical extent does not contain the complete "
+                f"mask ROI: aligned_voxels={aligned_roi_count}, "
+                f"source_voxels={source_roi_count}, label={label}."
+            )
+
+    return roi.astype(np.uint8, copy=False)
+
+
 @FeatureExtractorRegistry.register('voxel_radiomics')
 class VoxelRadiomicsExtractor(BaseClusteringExtractor):
     """
@@ -318,6 +413,8 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             enabled_feature_classes = _enabled_voxel_feature_classes(
                 extractor.enabledFeatures
             )
+            configured_label = extractor.settings.get("label", 1)
+            mask_label = 1 if configured_label is None else int(configured_label)
             subject_id = str(kwargs.get("subject", "unknown"))
             logger.info(
                 "voxel_radiomics feature classes to extract: subject=%s image=%s classes=%s",
@@ -352,7 +449,7 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             )
             feature_names: List[str] = []
             feature_matrix: List[np.ndarray] = []
-            mask_array = sitk.GetArrayFromImage(mask)
+            mask_arrays_by_geometry: Dict[Tuple[Any, ...], np.ndarray] = {}
 
             for key in keys:
                 val = result.pop(key, None)
@@ -362,11 +459,31 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                     feature_name = f"{key}-{image_name}" if image_name else key
                     feature_names.append(feature_name)
                     feature_array = sitk.GetArrayFromImage(val)
+                    geometry_key: Tuple[Any, ...] = (
+                        tuple(val.GetSize()),
+                        tuple(val.GetSpacing()),
+                        tuple(val.GetOrigin()),
+                        tuple(val.GetDirection()),
+                    )
+                    if geometry_key not in mask_arrays_by_geometry:
+                        mask_arrays_by_geometry[geometry_key] = _mask_array_for_feature_map(
+                            mask,
+                            val,
+                            label=mask_label,
+                        )
+                    mask_array = mask_arrays_by_geometry[geometry_key]
                     values = _feature_values_in_mask(feature_array, mask_array)
                     feature_matrix.append(values)
                     del val, feature_array
 
-            del result, mask_array
+            del result, mask_arrays_by_geometry
+
+            voxel_counts = {values.shape[0] for values in feature_matrix}
+            if len(voxel_counts) > 1:
+                raise ValueError(
+                    "Voxel radiomics feature maps produced inconsistent ROI row "
+                    f"counts: {sorted(voxel_counts)}."
+                )
 
             self.feature_names = feature_names
             

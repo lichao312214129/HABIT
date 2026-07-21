@@ -14,6 +14,6 @@
 # =============================================================================
 data_dir: ../../demo_data/dicom  # DICOM root directory
 out_dir: ../../demo_data/results/sorted_dicom  # Output directory
-dcm2niix_path: ../../demo_data/dcm2niix.exe  # dcm2niix path
+dcm2niix_path: ../../tools/bin/dcm2niix.exe  # dcm2niix executable path
 f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"  # dcm2niix -f pattern
 extra_args: []  # extra arguments for dcm2niix

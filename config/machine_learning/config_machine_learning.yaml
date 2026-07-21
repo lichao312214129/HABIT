@@ -18,12 +18,12 @@
 # Can specify single or multiple input files
 # Multiple files will be merged by subject_id_col
 input:
-- path: ./ml_data/breast_cancer_dataset.csv
+- path: ../../demo_data/ml_data/breast_cancer_dataset.csv
   name: clinical_
   subject_id_col: subject_id
   label_col: label
   features:
-output: ./ml_data
+output: ../../demo_data/results/ml/default
 # ─────────────────────────────────────────────────────────────────────────
 # Data Splitting Configuration
 # ─────────────────────────────────────────────────────────────────────────
@@ -34,8 +34,8 @@ split_method: custom
 # test_size: 0.3  # Proportion for test set (0.0-1.0)
 # random_state: 42  # Random seed
 # For custom splits (required if split_method is custom)
-train_ids_file: ./ml_data/train_ids.txt  # One ID per line
-test_ids_file: ./ml_data/test_ids.txt  # One ID per line
+train_ids_file: ../../demo_data/ml_data/train_ids.txt  # One ID per line
+test_ids_file: ../../demo_data/ml_data/test_ids.txt  # One ID per line
 # ─────────────────────────────────────────────────────────────────────────
 # Normalization Configuration
 # ─────────────────────────────────────────────────────────────────────────
@@ -218,15 +218,6 @@ models:
 # Visualization and Saving Configuration
 # ─────────────────────────────────────────────────────────────────────────
 # Generate performance plots (ROC, calibration, DCA, confusion matrix)
-  AutoGluonTabular:
-    params:
-      path: ./ml_data/autogluon_models
-      label: label
-      time_limit: 30
-      random_state: 42
-      presets: high_quality
-      verbosity: 4
-      eval_metric: roc_auc
 is_visualize: false
 # Save trained models to disk (.pkl files)
 is_save_model: true

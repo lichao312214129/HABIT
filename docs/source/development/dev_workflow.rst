@@ -12,7 +12,6 @@ Environment setup
 .. code-block:: bash
 
    conda activate habit          # Python 3.10
-   pip install -r requirements.txt
    pip install -e .              # editable install
    pytest tests/                 # Run the tests
 

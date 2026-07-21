@@ -52,13 +52,15 @@
 
 ## 源码与演示数据
 
-- **Windows 便携包（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
-  - **Windows GPU 便携包更新版**：百度网盘 [`HABIT-win-py310-gpu-v0.1.0.tar-v1.gz` 等2个文件](https://pan.baidu.com/s/1rCdwsGJ_c_0_uCJJ6JMCKQ?pwd=gip9)，提取码 **gip9**
-  - 解压：新建空文件夹 → 便携包解压到当前目录 → `setup_habit.bat`
-  - 跑 Demo 时从网盘下载 [`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（提取码 **9ws9**）、[`config.rar`](https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5)（提取码 **kbg5**）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
-  - **GPU 整包已内置 GPU 加速，无需额外安装**；仅 CPU 版 + NVIDIA 显卡时才可选 wheel + `install_gpu_torch.bat`（见安装指南）
+- **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
+  - 解压轻量 ZIP 到纯英文、无空格的短路径（例如 `D:\HABIT`）
+  - 双击 `一键安装HABIT.bat`；安装器会在项目内创建锁定的 Python 3.10 环境，不要求预装 Python 或 Conda，也不会修改用户 PATH
+  - 安装完成后双击 `启动HABIT命令行.bat`
+  - 默认环境只包含基础影像、habitat 与常规模型依赖；仅在确实使用对应功能时，运行 `一键启用HABIT-AutoML.bat` 或 `一键启用HABIT-进阶分析.bat`
+  - NVIDIA GPU 为可选增强：先保证 CPU 环境通过自检，再双击 `一键启用HABIT-GPU.bat`；失败时基础 CPU 环境仍可用
+  - 轻量 ZIP 已包含 `config/`；跑 Demo 时仅需从网盘下载 [`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（提取码 **9ws9**）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装见 [安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)）
-- **配置 / 演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）、[`config.rar`](https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5)（**kbg5**）；可选 [`tests.zip` + `config.rar` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
+- **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码和轻量 ZIP — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 
 ---
 

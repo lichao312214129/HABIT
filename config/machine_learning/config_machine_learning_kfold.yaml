@@ -13,12 +13,12 @@
 # Data Input (Same as standard ML config)
 # ─────────────────────────────────────────────────────────────────────────
 input:
-- path: ./ml_data/breast_cancer_dataset.csv
+- path: ../../demo_data/ml_data/breast_cancer_dataset.csv
   name: clinical_
   subject_id_col: subject_id
   label_col: label
   features:
-output: ./ml_data/kfold_results
+output: ../../demo_data/results/ml/kfold
 # ─────────────────────────────────────────────────────────────────────────
 # K-Fold Cross-Validation Settings
 # ─────────────────────────────────────────────────────────────────────────

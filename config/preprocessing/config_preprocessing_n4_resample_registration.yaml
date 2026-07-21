@@ -13,8 +13,9 @@
 #   2) resample       : 统一体素间距
 #   3) registration   : 用 elastix 把其它模态配准到参考模态 (delay2)
 #
-# 外部工具 / External tools (已随 demo_data 附带，无需另装):
-#   demo_data/elastix.exe, demo_data/transformix.exe, demo_data/Par0040affine.txt
+# External tools:
+#   tools/bin/elastix.exe and tools/bin/transformix.exe are included with the release package.
+#   demo_data/Par0040affine.txt is the demo registration parameter file.
 #
 # 输入 / Input : demo_data/preprocessed/processed_images（模态键 delay2/delay3/delay5）
 # 路径约定     : 相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
@@ -45,8 +46,8 @@ preprocessing:
     fixed_image: delay2                         # 参考模态（不动），其余向它对齐
     use_mask: true                              # 使用 mask 辅助配准（demo 数据带 mask）
     backend: elastix                            # 配准后端：ants / simpleitk / elastix
-    elastix_path: ../../demo_data                # elastix 可执行文件或其所在目录（这里给目录）
-    transformix_path: ../../demo_data            # transformix 可执行文件或其所在目录
+    elastix_path: ../../tools/bin               # elastix executable or its directory
+    transformix_path: ../../tools/bin           # transformix executable or its directory
     elastix_parameter_files: ../../demo_data/Par0040affine.txt   # elastix 参数文件（仿射配准）
 
 save_options:

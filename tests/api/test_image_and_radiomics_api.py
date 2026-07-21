@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
@@ -114,6 +115,91 @@ def test_voxel_feature_selection_uses_mask_not_feature_threshold() -> None:
     values = _feature_values_in_mask(feature_map, mask)
 
     np.testing.assert_array_equal(values, np.array([0.0, -2.0, 3.5]))
+
+
+@pytest.mark.unit
+def test_cropped_voxel_feature_map_uses_physical_mask_alignment() -> None:
+    """A cropped feature map must select the requested label on its physical grid."""
+    sitk = pytest.importorskip("SimpleITK")
+    pytest.importorskip("radiomics")
+    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
+        _feature_values_in_mask,
+        _mask_array_for_feature_map,
+    )
+
+    mask_data = np.zeros((11, 11, 11), dtype=np.uint8)
+    mask_data[4:7, 3:8, 2:6] = 2
+    mask_data[9, 9, 9] = 3
+    mask = sitk.GetImageFromArray(mask_data)
+    mask.SetSpacing((0.8, 1.2, 2.5))
+    mask.SetOrigin((12.0, -7.0, 30.0))
+    mask.SetDirection((-1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0))
+
+    # RegionOfInterest reproduces the physical metadata behavior of the crop
+    # returned by PyRadiomics while keeping this unit test fast and deterministic.
+    cropped_reference = sitk.RegionOfInterest(mask, size=(6, 7, 5), index=(1, 2, 3))
+    feature_data = np.arange(
+        np.prod(cropped_reference.GetSize()),
+        dtype=np.float32,
+    ).reshape(tuple(reversed(cropped_reference.GetSize())))
+
+    aligned_mask = _mask_array_for_feature_map(mask, cropped_reference, label=2)
+    values = _feature_values_in_mask(feature_data, aligned_mask)
+
+    assert aligned_mask.shape == feature_data.shape
+    assert int(aligned_mask.sum()) == 60
+    assert values.shape == (60,)
+
+
+@pytest.mark.integration
+def test_voxel_radiomics_accepts_real_pyradiomics_cropped_maps(
+    tmp_path: Path,
+) -> None:
+    """Real PyRadiomics ROI crops must yield one feature row per mask voxel."""
+    sitk = pytest.importorskip("SimpleITK")
+    pytest.importorskip("radiomics")
+    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
+        VoxelRadiomicsExtractor,
+    )
+
+    params_file = tmp_path / "voxel_firstorder.yaml"
+    params_file.write_text(
+        "\n".join(
+            (
+                "imageType:",
+                "  Original: {}",
+                "featureClass:",
+                "  firstorder:",
+                "    - Mean",
+                "setting:",
+                "  binWidth: 12",
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    image_data = (
+        np.arange(11**3, dtype=np.float32).reshape((11, 11, 11)) - 700.0
+    )
+    mask_data = np.zeros((11, 11, 11), dtype=np.uint8)
+    mask_data[4:7, 3:8, 2:6] = 1
+    image = sitk.GetImageFromArray(image_data)
+    mask = sitk.GetImageFromArray(mask_data)
+
+    extractor = VoxelRadiomicsExtractor(params_file=str(params_file))
+    features = extractor.extract_features(
+        image,
+        mask,
+        image="test",
+        subject="cropped-map-regression",
+        kernel_radius=1,
+        voxel_batch=1000,
+        use_torch_radiomics=False,
+    )
+
+    assert features.shape == (60, 1)
+    assert not features.isna().any().any()
+    assert (features.iloc[:, 0] < 0).any()
 
 
 @pytest.mark.unit

@@ -117,6 +117,25 @@ class TestHabitatsResultsIo:
         loaded = load_habitats_results(tmp_path)
         pd.testing.assert_frame_equal(loaded, sample_results_df)
 
+    def test_legacy_capitalized_habitats_column_is_supported(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """Legacy CSV files with ``Habitats`` must remain non-interactive."""
+        from habit.core.habitat_analysis.habitat_features.feature_utils import (
+            FeatureUtils,
+        )
+
+        legacy_results = pd.DataFrame(
+            {
+                "Subject": ["sub1", "sub1", "sub2"],
+                "Habitats": [1, 2, 2],
+            }
+        )
+        legacy_results.to_csv(tmp_path / "habitats.csv", index=False)
+
+        assert FeatureUtils.get_n_habitats_from_csv(str(tmp_path)) == 2
+
 
 @pytest.mark.unit
 @pytest.mark.habitat

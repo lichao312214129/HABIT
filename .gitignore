@@ -194,8 +194,14 @@ demo_data/dicom/*
 !demo_data/ml_data/*.txt
 !config/**/*.yaml
 !config/**/*.yml
-!requirements.txt
 !README.md
 !LICENSE
 !setup.py
 !pyproject.toml
+
+# The Windows lightweight installer contract is source-controlled even though
+# generated runtime JSON files and archives remain ignored elsewhere.
+!installer/
+!installer/*.json
+!installer/*.yml
+!installer/*.lock

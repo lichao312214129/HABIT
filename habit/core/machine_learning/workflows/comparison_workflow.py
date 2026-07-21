@@ -839,9 +839,26 @@ class ModelComparison:
         
         return test_results
 
+    @staticmethod
+    def _normalize_split_label(label: Any) -> str:
+        """
+        Normalize a split-group label for robust train/test matching.
+
+        Args:
+            label: Raw split-column value from prediction CSVs.
+
+        Returns:
+            Lowercase whitespace-collapsed label with ``_``/``-`` treated as spaces.
+        """
+        normalized = str(label).strip().lower().replace("_", " ").replace("-", " ")
+        return " ".join(normalized.split())
+
     def _get_training_group_name(self) -> Optional[str]:
         """
         Resolve the training group name from split groups.
+
+        Accepts common HABIT and AutoGluon export labels such as ``train``,
+        ``Training set``, and ``training_set``. Matching is case-insensitive.
 
         Returns:
             Training group name if found, otherwise None.
@@ -849,18 +866,32 @@ class ModelComparison:
         if not self.split_groups:
             return None
 
-        # Prefer fixed training label.
-        preferred_labels = {'train'}
+        # Exact aliases used across demo CSVs and production AutoGluon exports.
+        preferred_labels = {
+            "train",
+            "training",
+            "training set",
+            "train set",
+            "trainset",
+            "trainingset",
+        }
 
         for group_name in self.split_groups.keys():
-            if str(group_name).strip().lower() in preferred_labels:
+            if self._normalize_split_label(group_name) in preferred_labels:
                 return group_name
 
-        # No training group found.
+        # Fallback: labels that clearly start with train/training, but exclude
+        # ambiguous names that also mention test (e.g. "train_vs_test").
+        for group_name in self.split_groups.keys():
+            normalized = self._normalize_split_label(group_name)
+            if normalized.startswith("train") and "test" not in normalized:
+                return group_name
+
         available_groups = list(self.split_groups.keys())
         if available_groups:
             self.logger.warning(
-                f"未识别训练集分组名称，当前可用分组: {available_groups}"
+                "Unable to recognize a training split group; available groups: %s",
+                available_groups,
             )
         return None
 

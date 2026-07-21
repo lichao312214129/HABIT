@@ -75,14 +75,32 @@ class FeatureUtils:
                 return None
 
             df = load_habitats_results(results_path)
-            if "habitats" in df.columns:
-                unique_habitats = int(df["habitats"].nunique())
+            # Current HABIT outputs use the canonical lowercase ``habitats``
+            # column, while historical CSV exports used ``Habitats``. Resolve
+            # the semantic column case-insensitively so valid legacy results do
+            # not fall back to an interactive prompt during unattended CLI runs.
+            habitat_columns = [
+                column
+                for column in df.columns
+                if str(column).strip().casefold() == "habitats"
+            ]
+            if len(habitat_columns) == 1:
+                habitat_column = habitat_columns[0]
+                unique_habitats = int(df[habitat_column].nunique())
                 logging.info(
                     "Read %s habitats from %s",
                     unique_habitats,
                     results_path.name,
                 )
                 return unique_habitats
+
+            if len(habitat_columns) > 1:
+                logging.error(
+                    "Multiple case-insensitive Habitats columns found in %s: %s",
+                    results_path,
+                    habitat_columns,
+                )
+                return None
 
             logging.error(
                 "Habitats column not found in habitats results file: %s",

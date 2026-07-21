@@ -110,9 +110,8 @@ See [INSTALL.md](INSTALL.md) for step-by-step instructions for:
 These skills assume the HABIT package is installed:
 
 ```bash
-conda create -n habit python=3.8
+conda create -n habit python=3.10
 conda activate habit
-pip install -r requirements.txt
 pip install -e .
 
 # Verify

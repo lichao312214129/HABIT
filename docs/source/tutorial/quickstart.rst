@@ -19,12 +19,9 @@ Prepare data
    - |download_demo_data|
    - Code: |demo_data_code|
 
-   ``config.rar`` (portable users; source users already have ``config/`` )
+   ``config/`` is already included in both the portable ZIP and source checkout.
 
-   - |download_config_pack|
-   - Code: |config_pack_code|
-
-   ``tests.zip`` (optional; same share folder also includes ``config.rar``)
+   ``tests.zip`` (optional)
 
    - |download_tests_pack|
    - Code: |tests_pack_code|

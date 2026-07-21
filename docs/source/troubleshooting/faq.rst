@@ -6,16 +6,19 @@ Installation
 
 **``habit`` not found**
 
-- Portable: run ``setup_habit.bat`` and open a **new** terminal.
+- Windows lightweight installer: double-click ``启动HABIT命令行.bat``
+  (after ``一键安装HABIT.bat`` succeeds).
 - Source: ``conda activate habit`` .
 
-**No ``python.exe`` after extract**
+**Installer path rejected**
 
-Extract one level too deep — move files up to the target folder.
+Use a short local path with ASCII characters only and no spaces
+(for example ``D:\HABIT``).
 
 **CUDA False**
 
-Normal on CPU pack. GPU pack: check NVIDIA drivers; see :doc:`../tutorial/installation` .
+Normal for the default CPU environment. After ``一键启用HABIT-GPU.bat``,
+check NVIDIA drivers; see :doc:`../tutorial/installation` .
 
 Runtime
 -------

@@ -51,7 +51,6 @@ Use the same **Python 3.10** conda environment ``habit`` as end users (see :doc:
 .. code-block:: bash
 
    conda activate habit
-   pip install -r requirements.txt
    pip install -e .
    pytest tests/
 

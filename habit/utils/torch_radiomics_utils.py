@@ -38,14 +38,14 @@ DEFAULT_USE_TORCH_RADIOMICS = "auto"
 DEFAULT_TORCH_DEVICE = "auto"
 DEFAULT_TORCH_DTYPE = "float32"
 
-# Shown once per process when GPU TorchRadiomics is unavailable but would be used in auto mode.
+# Shown once only when users explicitly select a GPU-oriented configuration.
 _TORCH_GPU_INSTALL_HINT_LOGGED = False
 
 TORCH_GPU_INSTALL_HINT = (
-    "Install the CUDA-enabled PyTorch build for GPU-accelerated voxel_radiomics, e.g. "
-    "pip install torch --index-url https://download.pytorch.org/whl/cu124 "
-    "(pick the CUDA version matching your driver at https://pytorch.org/get-started/locally/). "
-    "Or set use_torch_radiomics: false to keep CPU PyRadiomics without this message."
+    "Windows lightweight-release users can run '一键启用HABIT-GPU.bat' when "
+    "GPU acceleration is required. Package users should install the PyTorch "
+    "build compatible with their NVIDIA driver. Set use_torch_radiomics: false "
+    "to require CPU PyRadiomics."
 )
 
 
@@ -464,7 +464,6 @@ def resolve_voxel_radiomics_backend(
         logger.info(
             "use_torch_radiomics=auto: torch not installed; using CPU PyRadiomics"
         )
-        log_torch_gpu_install_hint("torch_not_installed")
         return "pyradiomics", None
 
     if parsed_gpus:
@@ -472,7 +471,6 @@ def resolve_voxel_radiomics_backend(
             logger.info(
                 "use_torch_radiomics=auto: CUDA unavailable; using CPU PyRadiomics"
             )
-            log_torch_gpu_install_hint("cuda_unavailable")
             return "pyradiomics", None
         try:
             device = _resolve_torch_device_string()
