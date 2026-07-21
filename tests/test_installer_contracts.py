@@ -38,7 +38,6 @@ FORBIDDEN_DEFAULT_PACKAGES = {
     "networkx",
     "opencv-python",
     "plotly",
-    "pyarrow",
     "pyvista",
     "shap",
     "torch",
@@ -282,7 +281,6 @@ def test_optional_profiles_install_only_feature_scoped_packages() -> None:
         "autogluon-tabular": "1.5.0",
     }
     assert _requirements_map(ANALYSIS_LOCK_FILE) == {
-        "pyarrow": "20.0.0",
         "krippendorff": "0.8.2",
         "shap": "0.49.1",
         "plotly": "6.8.0",

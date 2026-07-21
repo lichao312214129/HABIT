@@ -28,6 +28,8 @@ chardet==7.4.3
 pydicom==3.0.2
 pydantic==2.13.4
 kneed==0.8.6
+# Habitat default results use parquet (habitats_results_format=parquet).
+pyarrow==20.0.0
 
 # PyRadiomics is installed offline with --no-deps, so its network-resolvable
 # runtime requirements must be explicit in the default environment contract.

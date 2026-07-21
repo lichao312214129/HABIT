@@ -146,7 +146,7 @@ def check_optional_profile(profile: str) -> List[Result]:
     """Import every public dependency promised by an optional profile."""
     modules = {
         "automl": ["autogluon.tabular"],
-        "analysis": ["pyarrow", "krippendorff", "shap", "plotly", "lifelines"],
+        "analysis": ["krippendorff", "shap", "plotly", "lifelines"],
     }
     return [check_import(module_name) for module_name in modules[profile]]
 
@@ -159,9 +159,11 @@ def run_checks(require_gpu: bool, profile: str | None = None) -> List[Result]:
         check_distribution("pyradiomics", "3.0.1"),
         check_distribution("numpy", "1.26.1"),
         check_distribution("SimpleITK", "2.2.1"),
+        check_distribution("pyarrow", "20.0.0"),
         check_import("habit"),
         check_import("radiomics"),
         check_import("ants"),
+        check_import("pyarrow"),
         check_habit_cli(),
         check_native_extension(),
         check_radiomics_preset(),

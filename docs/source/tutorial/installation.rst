@@ -19,8 +19,9 @@ Windows lightweight installer
 3. Double-click ``launchers/启动HABIT命令行.bat`` to open a terminal configured only for
    this HABIT installation.
 4. Run ``launchers/一键启用HABIT-AutoML.bat`` only for AutoGluon Tabular workflows, or
-   ``launchers/一键启用HABIT-进阶分析.bat`` only for Parquet, SHAP, Plotly, Krippendorff,
-   and survival-analysis features.
+   ``launchers/一键启用HABIT-进阶分析.bat`` only for SHAP, Plotly, Krippendorff,
+   and survival-analysis features. Default habitats parquet export uses ``pyarrow``
+   from the base install.
 5. On a compatible NVIDIA system, optionally run ``launchers/一键启用HABIT-GPU.bat`` after
    the CPU installation succeeds. A failed GPU enhancement does not invalidate
    the CPU environment.
