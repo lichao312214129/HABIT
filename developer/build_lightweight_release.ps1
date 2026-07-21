@@ -612,16 +612,13 @@ function Assert-FactoryChecks {
         [string[]]$LauncherBatEntries
     )
 
+    # End-user releases ship the prebuilt HABIT wheel, not the repository
+    # source tree. GitHub remains the source of truth for HABIT Python code.
     $requiredEntries = @(
-        'habit/_version.py',
-        'habit/py.typed',
         'config',
         'installer/vendor_assets.json',
         'LICENSE',
         'README.md',
-        'pyproject.toml',
-        'setup.py',
-        'MANIFEST.in',
         'tools/bin/dcm2niix.exe',
         'tools/bin/elastix.exe',
         'tools/bin/transformix.exe',
@@ -647,6 +644,20 @@ function Assert-FactoryChecks {
                         Get-RelativePosixPath -Root $PackageRoot -Path $_.FullName
                     }) -join ', ')
         )
+    }
+
+    $forbiddenSourcePaths = @(
+        'habit',
+        'setup.py',
+        'pyproject.toml',
+        'MANIFEST.in',
+        'setup.cfg'
+    )
+    foreach ($relativePath in $forbiddenSourcePaths) {
+        $nativePath = Join-Path $PackageRoot ($relativePath.Replace('/', '\'))
+        if (Test-Path -LiteralPath $nativePath) {
+            throw "Release must not ship HABIT source packaging inputs: $relativePath"
+        }
     }
 
     $wheelDirectory = Join-Path $PackageRoot 'tools\wheels'
@@ -944,7 +955,9 @@ try {
     Assert-WheelContents -WheelPath $builtWheels[0].FullName
 
     Write-Host '[HABIT] Staging the release from the explicit allowlist...'
-    foreach ($directoryName in @('habit', 'config', 'installer')) {
+    # Keep config and installer only. HABIT source is not shipped; users install
+    # the verified wheel under tools\wheels, and developers clone from GitHub.
+    foreach ($directoryName in @('config', 'installer')) {
         Copy-FilteredTree `
             -Source (Join-Path $script:RepoRoot $directoryName) `
             -Destination (Join-Path $packageRoot $directoryName)
@@ -952,10 +965,7 @@ try {
 
     foreach ($requiredFileName in @(
             'LICENSE',
-            'README.md',
-            'pyproject.toml',
-            'setup.py',
-            'MANIFEST.in'
+            'README.md'
         )) {
         Copy-Item `
             -LiteralPath (Join-Path $script:RepoRoot $requiredFileName) `
@@ -963,10 +973,7 @@ try {
     }
     foreach ($optionalRootFile in @(
             Get-ChildItem -LiteralPath $script:RepoRoot -File |
-                Where-Object {
-                    $_.Name -eq 'setup.cfg' -or
-                    $_.Name -like 'README*'
-                }
+                Where-Object { $_.Name -like 'README*' }
         )) {
         Copy-Item -LiteralPath $optionalRootFile.FullName -Destination $packageRoot -Force
     }
