@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-set "ROOT=%~dp0"
+for %%I in ("%~dp0..") do set "ROOT=%%~fI\"
 set "ENV_ROOT=%ROOT%.mamba\envs\habit"
 if not exist "%ENV_ROOT%\python.exe" (
     echo HABIT environment was not found.

@@ -42,7 +42,7 @@ DEFAULT_TORCH_DTYPE = "float32"
 _TORCH_GPU_INSTALL_HINT_LOGGED = False
 
 TORCH_GPU_INSTALL_HINT = (
-    "Windows lightweight-release users can run '一键启用HABIT-GPU.bat' when "
+    "Windows lightweight-release users can run 'launchers/一键启用HABIT-GPU.bat' when "
     "GPU acceleration is required. Package users should install the PyTorch "
     "build compatible with their NVIDIA driver. Set use_torch_radiomics: false "
     "to require CPU PyRadiomics."

@@ -6,8 +6,8 @@ Installation
 
 **``habit`` not found**
 
-- Windows lightweight installer: double-click ``启动HABIT命令行.bat``
-  (after ``一键安装HABIT.bat`` succeeds).
+- Windows lightweight installer: double-click ``launchers/启动HABIT命令行.bat``
+  (after ``launchers/一键安装HABIT.bat`` succeeds).
 - Source: ``conda activate habit`` .
 
 **Installer path rejected**
@@ -17,7 +17,7 @@ Use a short local path with ASCII characters only and no spaces
 
 **CUDA False**
 
-Normal for the default CPU environment. After ``一键启用HABIT-GPU.bat``,
+Normal for the default CPU environment. After ``launchers/一键启用HABIT-GPU.bat``,
 check NVIDIA drivers; see :doc:`../tutorial/installation` .
 
 Runtime

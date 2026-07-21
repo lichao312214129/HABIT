@@ -385,7 +385,7 @@ try {
     Invoke-LoggedCommand -FilePath $PythonExe -Arguments @("-u", $VerifyScript)
     $currentSpec | Out-File -LiteralPath $StampFile -Encoding ascii -Force
     Write-Host ""
-    Write-Host "HABIT 安装完成。以后双击「启动HABIT命令行.bat」即可。" -ForegroundColor Green
+    Write-Host "HABIT 安装完成。以后在 launchers 目录中双击「启动HABIT命令行.bat」即可。" -ForegroundColor Green
 }
 catch {
     Write-Log ""

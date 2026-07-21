@@ -52,9 +52,9 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Source & demo data
 
 - **Windows lightweight one-click installer (recommended)**: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
-  - Extract to a short ASCII-only path, run `一键安装HABIT.bat`, then use `启动HABIT命令行.bat`
-  - The default environment contains imaging, habitat, and standard ML dependencies only; run `一键启用HABIT-AutoML.bat` or `一键启用HABIT-进阶分析.bat` only when those features are needed
-  - Optional NVIDIA acceleration is installed separately with `一键启用HABIT-GPU.bat`, after the CPU environment passes verification
+  - Extract to a short ASCII-only path, open `launchers/`, run `一键安装HABIT.bat`, then use `启动HABIT命令行.bat`
+  - The default environment contains imaging, habitat, and standard ML dependencies only; run `一键启用HABIT-AutoML.bat` or `一键启用HABIT-进阶分析.bat` from `launchers/` only when those features are needed
+  - Optional NVIDIA acceleration is installed separately with `launchers/一键启用HABIT-GPU.bat`, after the CPU environment passes verification
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
 - **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 

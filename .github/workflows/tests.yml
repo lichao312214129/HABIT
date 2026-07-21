@@ -11,12 +11,10 @@ on:
       - 'pyproject.toml'
       - 'MANIFEST.in'
       - 'installer/**'
+      - 'launchers/**'
+      - 'tools/**'
+      - 'config/**'
       - 'developer/build_lightweight_release.ps1'
-      - '一键安装HABIT.bat'
-      - '一键启用HABIT-GPU.bat'
-      - '一键启用HABIT-AutoML.bat'
-      - '一键启用HABIT-进阶分析.bat'
-      - '启动HABIT命令行.bat'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
@@ -27,12 +25,10 @@ on:
       - 'pyproject.toml'
       - 'MANIFEST.in'
       - 'installer/**'
+      - 'launchers/**'
+      - 'tools/**'
+      - 'config/**'
       - 'developer/build_lightweight_release.ps1'
-      - '一键安装HABIT.bat'
-      - '一键启用HABIT-GPU.bat'
-      - '一键启用HABIT-AutoML.bat'
-      - '一键启用HABIT-进阶分析.bat'
-      - '启动HABIT命令行.bat'
       - '.github/workflows/tests.yml'
 
 jobs:

@@ -609,7 +609,7 @@ function Assert-FactoryChecks {
         [object[]]$FixedAssets,
 
         [Parameter(Mandatory = $true)]
-        [string[]]$RootBatNames
+        [string[]]$LauncherBatEntries
     )
 
     $requiredEntries = @(
@@ -628,7 +628,7 @@ function Assert-FactoryChecks {
         'tools/micromamba/micromamba.exe',
         'licenses/micromamba',
         'release_manifest.json'
-    ) + $RootBatNames
+    ) + $LauncherBatEntries
     foreach ($relativePath in $requiredEntries) {
         $nativePath = Join-Path $PackageRoot ($relativePath.Replace('/', '\'))
         if (-not (Test-Path -LiteralPath $nativePath)) {
@@ -800,28 +800,39 @@ try {
             -DisplayName $asset.Name
     }
 
-    $expectedRootBatNames = @(
+    $expectedLauncherBatNames = @(
         '一键安装HABIT.bat',
         '一键启用HABIT-GPU.bat',
         '一键启用HABIT-AutoML.bat',
         '一键启用HABIT-进阶分析.bat',
         '启动HABIT命令行.bat'
     )
-    $rootBatFiles = @(
-        foreach ($batName in $expectedRootBatNames) {
-            $batPath = Join-Path $script:RepoRoot $batName
+    $launcherDirectory = Join-Path $script:RepoRoot 'launchers'
+    $launcherBatFiles = @(
+        foreach ($batName in $expectedLauncherBatNames) {
+            $batPath = Join-Path $launcherDirectory $batName
             if (-not (Test-Path -LiteralPath $batPath -PathType Leaf)) {
-                throw "Missing required BAT entry point: $batName"
+                throw "Missing required launcher BAT entry point: $batName"
             }
             Get-Item -LiteralPath $batPath
         }
     )
-    $unexpectedBatFiles = @(
-        Get-ChildItem -LiteralPath $script:RepoRoot -File -Filter '*.bat' |
-            Where-Object { $expectedRootBatNames -notcontains $_.Name }
+    $unexpectedLauncherBatFiles = @(
+        Get-ChildItem -LiteralPath $launcherDirectory -File -Filter '*.bat' |
+            Where-Object { $expectedLauncherBatNames -notcontains $_.Name }
     )
-    if ($unexpectedBatFiles.Count -gt 0) {
-        throw "Unexpected repository-root BAT files: $($unexpectedBatFiles.Name -join ', ')"
+    if ($unexpectedLauncherBatFiles.Count -gt 0) {
+        throw (
+            "Unexpected launcher BAT files: " +
+            ($unexpectedLauncherBatFiles.Name -join ', ')
+        )
+    }
+    $rootBatFiles = @(Get-ChildItem -LiteralPath $script:RepoRoot -File -Filter '*.bat')
+    if ($rootBatFiles.Count -gt 0) {
+        throw (
+            "Repository-root BAT files are not allowed; move user entry points to launchers: " +
+            ($rootBatFiles.Name -join ', ')
+        )
     }
 
     if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
@@ -959,8 +970,10 @@ try {
         )) {
         Copy-Item -LiteralPath $optionalRootFile.FullName -Destination $packageRoot -Force
     }
-    foreach ($batFile in $rootBatFiles) {
-        Copy-Item -LiteralPath $batFile.FullName -Destination $packageRoot
+    $stagedLauncherDirectory = Join-Path $packageRoot 'launchers'
+    New-Item -ItemType Directory -Path $stagedLauncherDirectory -Force | Out-Null
+    foreach ($batFile in $launcherBatFiles) {
+        Copy-Item -LiteralPath $batFile.FullName -Destination $stagedLauncherDirectory
     }
 
     New-Item `
@@ -998,7 +1011,9 @@ try {
     Assert-FactoryChecks `
         -PackageRoot $packageRoot `
         -FixedAssets $fixedAssets `
-        -RootBatNames @($rootBatFiles.Name)
+        -LauncherBatEntries @(
+            $launcherBatFiles | ForEach-Object { "launchers/$($_.Name)" }
+        )
 
     Write-Host '[HABIT] Creating ZIP archive...'
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null

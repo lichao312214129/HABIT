@@ -2,7 +2,7 @@ Installation
 ============
 
 **Windows (recommended)**: Download the lightweight ZIP → extract → double-click
-``一键安装HABIT.bat``. The installer creates an isolated Python 3.10 environment
+``launchers/一键安装HABIT.bat``. The installer creates an isolated Python 3.10 environment
 inside the extracted directory; users do not need to install Python or Conda.
 
 **macOS / Linux / developers**: See **Source install** below.
@@ -14,14 +14,14 @@ Windows lightweight installer
 
 1. Extract the ZIP to a short local path containing only ASCII characters and
    no spaces, for example ``D:\HABIT``.
-2. Double-click ``一键安装HABIT.bat`` and wait for the environment and capability
+2. Open ``launchers/``, double-click ``一键安装HABIT.bat``, and wait for the environment and capability
    checks to finish.
-3. Double-click ``启动HABIT命令行.bat`` to open a terminal configured only for
+3. Double-click ``launchers/启动HABIT命令行.bat`` to open a terminal configured only for
    this HABIT installation.
-4. Run ``一键启用HABIT-AutoML.bat`` only for AutoGluon Tabular workflows, or
-   ``一键启用HABIT-进阶分析.bat`` only for Parquet, SHAP, Plotly, Krippendorff,
+4. Run ``launchers/一键启用HABIT-AutoML.bat`` only for AutoGluon Tabular workflows, or
+   ``launchers/一键启用HABIT-进阶分析.bat`` only for Parquet, SHAP, Plotly, Krippendorff,
    and survival-analysis features.
-5. On a compatible NVIDIA system, optionally run ``一键启用HABIT-GPU.bat`` after
+5. On a compatible NVIDIA system, optionally run ``launchers/一键启用HABIT-GPU.bat`` after
    the CPU installation succeeds. A failed GPU enhancement does not invalidate
    the CPU environment.
 

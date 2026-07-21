@@ -29,7 +29,7 @@ try:
 except ImportError:
     raise ImportError(
         "AutoML support is not installed. Windows lightweight-release users "
-        "can run '一键启用HABIT-AutoML.bat'; package users can install "
+        "can run 'launchers/一键启用HABIT-AutoML.bat'; package users can install "
         "'HABIT[automl]'."
     )
 

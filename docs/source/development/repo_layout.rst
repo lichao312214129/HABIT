@@ -19,8 +19,12 @@ Repository root
    * - ``config/``
      - Example and production YAML configurations organized by subsystem.
    * - ``demo_data/``
-     - Demo data and generated artifacts, including images, ML tables, and
-       registration executables.
+     - Demo data and generated artifacts, including images and ML tables.
+   * - ``launchers/``
+     - Windows lightweight-release entry points for installation, optional
+       profiles, and the configured HABIT command prompt.
+   * - ``tools/bin/``
+     - Versioned third-party runtime executables used by the lightweight release.
    * - ``tests/``
      - Pytest tests and executable demo scripts (see :doc:`dev_workflow`).
    * - ``docs/``

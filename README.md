@@ -54,10 +54,10 @@
 
 - **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
   - 解压轻量 ZIP 到纯英文、无空格的短路径（例如 `D:\HABIT`）
-  - 双击 `一键安装HABIT.bat`；安装器会在项目内创建锁定的 Python 3.10 环境，不要求预装 Python 或 Conda，也不会修改用户 PATH
-  - 安装完成后双击 `启动HABIT命令行.bat`
-  - 默认环境只包含基础影像、habitat 与常规模型依赖；仅在确实使用对应功能时，运行 `一键启用HABIT-AutoML.bat` 或 `一键启用HABIT-进阶分析.bat`
-  - NVIDIA GPU 为可选增强：先保证 CPU 环境通过自检，再双击 `一键启用HABIT-GPU.bat`；失败时基础 CPU 环境仍可用
+  - 打开 `launchers/`，双击 `一键安装HABIT.bat`；安装器会在项目内创建锁定的 Python 3.10 环境，不要求预装 Python 或 Conda，也不会修改用户 PATH
+  - 安装完成后，在 `launchers/` 中双击 `启动HABIT命令行.bat`
+  - 默认环境只包含基础影像、habitat 与常规模型依赖；仅在确实使用对应功能时，在 `launchers/` 中运行 `一键启用HABIT-AutoML.bat` 或 `一键启用HABIT-进阶分析.bat`
+  - NVIDIA GPU 为可选增强：先保证 CPU 环境通过自检，再在 `launchers/` 中双击 `一键启用HABIT-GPU.bat`；失败时基础 CPU 环境仍可用
   - 轻量 ZIP 已包含 `config/`；跑 Demo 时仅需从网盘下载 [`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（提取码 **9ws9**）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装见 [安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)）
 - **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码和轻量 ZIP — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
