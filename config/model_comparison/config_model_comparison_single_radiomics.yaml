@@ -67,16 +67,13 @@ split:
 # 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
 # EN: Plot-output settings; plot text remains English for publication and cross-team use.
 visualization:
-  # =============================================================================
-  # 2.1 子模块 / Submodule: roc
+  # --- 2.1 roc ---
   roc:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: calibration
+  # --- 2.2 calibration ---
   calibration:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -87,13 +84,10 @@ delong_test:
   # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: false
 metrics:
-  # =============================================================================
 
-  # =============================================================================
-  # 2.3 子模块 / Submodule: basic_metrics
+  # --- 2.3 basic_metrics ---
   basic_metrics:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
-  # =============================================================================
 # =============================================================================

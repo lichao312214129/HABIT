@@ -38,8 +38,7 @@ imageType:
   Original: {}
   # 中文：Laplacian of Gaussian 滤波；突出特定尺度的边缘，启用会增加特征维度。
   # EN: Laplacian-of-Gaussian filter; emphasizes edges at chosen scales and increases feature dimensions.
-  # =============================================================================
-  # 1.1 子模块 / Submodule: LoG
+  # --- LoG ---
   LoG:                          # Laplacian of Gaussian — multi-scale edge enhancement
     # 中文：LoG 滤波尺度（通常单位 mm）；应结合体素间距并在研究开始前确定。
     # EN: LoG filter scale (normally mm); relate it to voxel spacing and predefine it.
@@ -50,7 +49,6 @@ imageType:
 
 # 中文：★【按研究方案确认】要计算的特征类别；应在建模前固定，不要按结果反复调整。
 # EN: ★ STUDY-DESIGN REVIEW: Feature classes; fix these before modelling rather than tuning to results.
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

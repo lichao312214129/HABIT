@@ -87,8 +87,7 @@ preprocessing:
   # Image Registration
   # 中文：`registration` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `registration` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: registration
+  # --- 2.1 registration ---
   registration:
     # All modalities in this step; movers = images minus fixed_image (do NOT use moving_images)
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
@@ -130,7 +129,6 @@ preprocessing:
     #
     # mask_key: tumor_mask  # If use_mask: true, typically mask_<modality> is used; see user guide
 # Save Options (Intermediate Results)
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

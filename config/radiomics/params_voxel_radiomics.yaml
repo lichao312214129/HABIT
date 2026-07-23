@@ -66,8 +66,7 @@ featureClass:
   firstorder:
   # 中文：灰度共生矩阵纹理特征；描述相邻体素灰度组合，对离散化设置敏感。
   # EN: GLCM texture features; describe neighboring intensity combinations and depend on discretization.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: glcm
+  # --- 2.1 glcm ---
   glcm:                             # Voxel-based: stable GLCM only (exclude MCC/Imc1/Imc2)
     - Contrast
     - Correlation
@@ -127,5 +126,4 @@ setting:
   voxelArrayShift: 300
   # Misc:
   # label: 1
-  # =============================================================================
 # =============================================================================

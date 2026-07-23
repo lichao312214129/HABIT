@@ -59,10 +59,16 @@ input:
 # 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
 # EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
 output: ../../demo_data/results/ml/clinical  # Directory where all results will be saved (models, plots, statistics)
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 # Data Splitting Configuration
 # Options: random (completely random split), stratified (preserves class distribution), custom (user-defined splits)
 # 中文：数据集划分方式：random 随机、stratified 保持类别比例、custom 使用 ID 清单。
 # EN: Dataset split: random, stratified to preserve class ratios, or custom using ID lists.
+# --- 2.1 队列划分 / split_method ---
 split_method: custom  # Method used to split data into training and testing sets
 # The following parameters are used when split_method is random or stratified (currently commented out)
 # test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
@@ -79,11 +85,7 @@ test_ids_file: ../../demo_data/ml_data/test_ids.txt  # File containing IDs for t
 
 # 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
 # EN: Feature normalization; z_score is normally retained to prevent scale dominance.
-# =============================================================================
-
-# =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# --- 2.2 特征标准化 / normalization ---
 normalization:
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
@@ -114,6 +116,7 @@ normalization:
 # unchanged outside the training fold.
 # 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
 # EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
+# --- 2.3 类别不平衡处理 / resampling ---
 resampling:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -130,6 +133,7 @@ resampling:
 # Multiple feature selection methods can be applied sequentially
 # 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
 # EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
+# --- 2.4 特征筛选 / feature_selection_methods ---
 feature_selection_methods:
   # # ICC (Intraclass Correlation Coefficient) method
   # - method: icc  # Selects features based on their reproducibility
@@ -223,10 +227,10 @@ feature_selection_methods:
 # Multiple models can be defined and will all be trained and evaluated
 # 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
 # EN: Models to train; start with one model. More models increase runtime and result files.
+# --- 3. 候选模型 / models ---
 models:
   # # Logistic Regression model configuration
-  # =============================================================================
-  # 2.1 子模块 / Submodule: LogisticRegression
+  # --- LogisticRegression ---
   LogisticRegression:  # Model type: Standard logistic regression classifier
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
@@ -352,14 +356,13 @@ is_visualize: true  # Whether to generate performance visualization plots (ROC, 
 is_save_model: true  # Whether to save trained models to disk for future use
 # 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
 # EN: Plot-output settings; plot text remains English for publication and cross-team use.
+# --- 4. 结果可视化 / visualization ---
 visualization:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: true
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: plot_types
+  # --- 2.2 plot_types ---
   plot_types:
     - roc
     - calibration
@@ -367,5 +370,4 @@ visualization:
     - pr
     - dca
     - shap
-  # =============================================================================
 # =============================================================================

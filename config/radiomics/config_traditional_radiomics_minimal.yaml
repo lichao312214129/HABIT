@@ -45,8 +45,7 @@ processing:
   n_processes: 2
   # 中文：★【必须修改】要提取特征的模态名列表；必须与 images 下的目录名一致。
   # EN: ★ MUST EDIT: Modalities for extraction; they must match directories under images.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: process_image_types
+  # --- 2.1 process_image_types ---
   process_image_types:   # ★ 模态名=文件夹名
     - delay2
     - delay3
@@ -66,5 +65,4 @@ export:
   # 中文：`add_timestamp` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `add_timestamp` is a setting for this module; retain the example default initially and document any change.
   add_timestamp: false
-  # =============================================================================
 # =============================================================================

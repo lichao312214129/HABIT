@@ -115,8 +115,7 @@ split:
 # 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
 # EN: Plot-output settings; plot text remains English for publication and cross-team use.
 visualization:
-  # =============================================================================
-  # 2.1 子模块 / Submodule: roc
+  # --- 2.1 roc ---
   roc:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -125,10 +124,8 @@ visualization:
     title: ROC Curves
   # 中文：`dca` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `dca` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: dca
+  # --- 2.2 dca ---
   dca:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -137,10 +134,8 @@ visualization:
     title: Decision Curves
   # 中文：`calibration` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `calibration` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.3 子模块 / Submodule: calibration
+  # --- 2.3 calibration ---
   calibration:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -152,10 +147,8 @@ visualization:
     title: Calibration Curves
   # 中文：`pr_curve` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `pr_curve` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.4 子模块 / Submodule: pr_curve
+  # --- 2.4 pr_curve ---
   pr_curve:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -173,26 +166,20 @@ delong_test:
 metrics:
   # 中文：`basic_metrics` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `basic_metrics` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.5 子模块 / Submodule: basic_metrics
+  # --- 2.5 basic_metrics ---
   basic_metrics:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
-  # =============================================================================
 
-  # =============================================================================
-  # 2.6 子模块 / Submodule: youden_metrics
+  # --- 2.6 youden_metrics ---
   youden_metrics:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
-  # =============================================================================
 
-  # =============================================================================
-  # 2.7 子模块 / Submodule: target_metrics
+  # --- 2.7 target_metrics ---
   target_metrics:
     # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
     # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -202,5 +189,4 @@ metrics:
       # 中文：目标特异度；用于计算特定临床阈值下的指标。
       # EN: Target specificity used to calculate metrics at a specified clinical operating point.
       specificity: 0.91
-  # =============================================================================
 # =============================================================================

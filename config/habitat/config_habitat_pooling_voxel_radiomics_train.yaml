@@ -52,8 +52,7 @@ out_dir: ../../demo_data/results/habitat_pooling_voxel_radiomics
 feature_construction:
   # 中文：`voxel_level` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `voxel_level` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: voxel_level
+  # --- 2.1 voxel_level ---
   voxel_level:
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
@@ -62,10 +61,8 @@ feature_construction:
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params: {}
     # Defaults: bundled CT R3B12 preset (params_file) + kernel_radius 3 + voxel_batch 1000 + use_torch_radiomics auto
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: supervoxel_level
+  # --- 2.2 supervoxel_level ---
   supervoxel_level:
     # 中文：`supervoxel_file_keyword` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `supervoxel_file_keyword` is a setting for this module; retain the example default initially and document any change.
@@ -76,10 +73,8 @@ feature_construction:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params: {}
-  # =============================================================================
 
-  # =============================================================================
-  # 2.3 子模块 / Submodule: preprocessing_for_subject_level
+  # --- 2.3 preprocessing_for_subject_level ---
   preprocessing_for_subject_level:
     # Stage 1: per-subject, before checkpoint (included in config_hash).
     # 中文：`methods` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
@@ -94,10 +89,8 @@ feature_construction:
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       - method: minmax
         global_normalize: false
-  # =============================================================================
 
-  # =============================================================================
-  # 2.4 子模块 / Submodule: preprocessing_for_group_level
+  # --- 2.4 preprocessing_for_group_level ---
   preprocessing_for_group_level:
     # Stage 2 only - NOT in config_hash. Prefer for radiomics-heavy features.
     # 中文：`methods` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
@@ -129,10 +122,8 @@ feature_construction:
 # EN: Habitat clustering settings; changing algorithms or cluster counts changes habitat definitions.
 habitat_segmentation:
   clustering_mode: direct_pooling
-  # =============================================================================
 
-  # =============================================================================
-  # 2.5 子模块 / Submodule: supervoxel
+  # --- 2.5 supervoxel ---
   supervoxel:
     # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
     # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
@@ -162,10 +153,8 @@ habitat_segmentation:
       plot_validation_curves: true
   # 中文：`habitat` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `habitat` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.6 子模块 / Submodule: habitat
+  # --- 2.6 habitat ---
   habitat:
     # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
     # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
@@ -188,7 +177,6 @@ save_images: true
 
 # 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
 # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

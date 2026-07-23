@@ -69,8 +69,7 @@ preprocessing:
   # DICOM -> NIfTI 转换
   # 中文：`dcm2nii` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `dcm2nii` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: dcm2nii
+  # --- 2.1 dcm2nii ---
   dcm2nii:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -94,7 +93,6 @@ preprocessing:
   #   images: [delay2, delay3, delay5]
   #   fixed_image: delay2
   #   backend: elastix
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

@@ -55,70 +55,108 @@ out_dir: ../../demo_data/results/habitat_two_step
 # =============================================================================
 
 # =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# 2. ★【按研究方案确认】生境定义与分析流程 / Habitat definition and analysis workflow
+# 中文：本区定义体素特征、受试者内/组间处理及聚类规则，会直接改变生境图和下游特征。
+#      应在查看结果前写入研究方案，同一研究内不得临时调整。
+# EN: This section defines features, preprocessing, and clustering. It directly
+#     changes habitat maps and downstream features, so lock it before analysing results.
 feature_construction:
   # 2.1 体素级特征：把多模态原始强度拼在一起
   # ★ 括号里的模态名必须与 images 下文件夹名一致
   # 中文：`voxel_level` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `voxel_level` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: voxel_level
+  # --- 2.1 体素级特征构建 / voxel_level ---
   voxel_level:
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+    # 体素特征表达式。concat 将每个体素在列出模态上的原始强度拼接为一个特征向量；
+    # 括号内模态名必须与 images 目录及其他工作流配置完全一致。
+    # ★【按研究方案确认】改变模态或特征表达式即改变生境的定义，不能在结果出来后调整。
+    # EN: Voxel feature expression. concat joins raw intensities from the listed modalities; names must match image keys.
     method: concat(raw(delay2), raw(delay3), raw(delay5))
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    # 方法专属参数字典。{} 表示 concat 使用默认行为；只有选择支持参数的方法时才填写。
+    # EN: Method-specific parameters. {} keeps the default concat behavior.
     params: {}
   # 2.2 超体素级：在超体素内对体素特征取均值
-  # =============================================================================
-
-  # =============================================================================
-  # 2.2 子模块 / Submodule: supervoxel_level
+  # --- 2.2 超体素级汇总 / supervoxel_level ---
   supervoxel_level:
     # 中文：`supervoxel_file_keyword` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `supervoxel_file_keyword` is a setting for this module; retain the example default initially and document any change.
+    # 超体素文件的通配符。软件在输入目录中用它定位每位患者的超体素标签图；
+    # 文件名不匹配会导致找不到超体素，而不是自动重建。
+    # EN: Glob pattern locating each subject's supervoxel label map; a mismatch prevents file discovery.
     supervoxel_file_keyword: '*_supervoxel.nrrd'
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+    # 汇总方法。mean_voxel_features() 对每个超体素内的体素特征取均值，降低体素级噪声
+    # 并把聚类对象从单体素变为局部空间区域。
+    # EN: Aggregates voxel features by supervoxel mean, reducing noise and clustering local regions instead of single voxels.
     method: mean_voxel_features()
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    # 汇总方法专属参数。{} 表示使用默认均值汇总；复杂方法（如超体素组学）才需要填写。
+    # EN: Aggregator-specific parameters. {} retains default mean aggregation.
     params: {}
   # 2.3 个体级预处理（每个受试者内部）
-  # =============================================================================
-
-  # =============================================================================
-  # 2.3 子模块 / Submodule: preprocessing_for_subject_level
+  # --- 2.3 受试者内特征预处理 / preprocessing_for_subject_level ---
+  # 中文：先在每位受试者自身的体素/超体素特征中处理，再把数据汇总到组级聚类。
+  # 为什么：不同患者的扫描强度范围、病灶大小或可用体素数不同；若直接混合，聚类可能
+  #        反映扫描尺度差异，而不是肿瘤内部的空间异质性。
+  # 限制：two_step 模式下不可在此处使用会删除特征的 variance_filter 或 correlation_filter；
+  #        各患者保留不同列会在组级汇总中产生缺失值，软件将拒绝此配置。
+  # EN: Process features within each subject before pooling. In two_step mode,
+  #     do not use feature-dropping filters here because subjects may retain different columns.
   preprocessing_for_subject_level:
     # 中文：`methods` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `methods` is a setting for this module; retain the example default initially and document any change.
+    # 处理步骤列表，严格按照 YAML 书写顺序执行。以下示例先限制极端值，再缩放数值范围。
+    # Why: 步骤顺序会改变最终特征分布，必须作为研究方案的一部分固定。
+    # EN: Ordered preprocessing steps. Their order changes feature distributions and must be prespecified.
     methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      # winsorize：将分布两端极端值截断到指定分位数，保留样本数而降低异常值影响。
+      # EN: winsorize caps extreme values at chosen quantiles without dropping samples.
       - method: winsorize
+        # 低端与高端截断比例 [lower, upper]；0.05 表示分别处理最低和最高 5%。
+        # ★【按研究方案确认】过大比例可能压低具有临床意义的真实高/低信号。
+        # EN: Lower/upper tail fractions. Large values can suppress meaningful true signals.
         winsor_limits: [0.05, 0.05]
+        # false 表示阈值仅从当前患者计算；true 会使用跨患者的全局统计量。
+        # EN: false computes thresholds per subject; true uses cohort-wide statistics.
         global_normalize: false
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      # minmax：将当前患者特征线性缩放到统一范围，减少绝对扫描尺度差异。
+      # EN: minmax rescales features within the current subject to reduce absolute-scale differences.
       - method: minmax
+        # false 保持每位患者独立缩放；true 改用组级尺度，应放在组级策略中审阅。
+        # EN: false keeps scaling subject-specific; true uses cohort-scale statistics.
         global_normalize: false
   # 2.4 组级预处理（跨受试者）
   # 中文：`preprocessing_for_group_level` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `preprocessing_for_group_level` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-
-  # =============================================================================
-  # 2.4 子模块 / Submodule: preprocessing_for_group_level
+  # --- 2.4 组级特征预处理 / preprocessing_for_group_level ---
+  # 中文：在每位患者完成受试者内处理、所有特征已汇总后执行，用于定义全队列共用的特征空间。
+  # 为什么：离散化、全局归一化或跨患者特征筛选必须对所有患者采用同一规则，才能比较。
+  # EN: Applied after subject-level processing and cohort pooling to define a shared feature space for all patients.
   preprocessing_for_group_level:
     # 中文：`methods` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `methods` is a setting for this module; retain the example default initially and document any change.
     methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      # binning：将连续特征映射到离散区间，降低微小数值波动对距离计算和聚类的影响。
+      # EN: binning maps continuous values into discrete intervals, reducing sensitivity to small numeric fluctuations.
       - method: binning
+        # 离散区间数量。正整数；更多区间保留细节，也可能放大噪声和降低每区的样本量。
+        # EN: Number of bins (> 0). More bins retain detail but can amplify noise and sparsity.
         n_bins: 10
+        # uniform 为等宽区间；quantile 为每区近似相同样本量；kmeans 按数值聚类形成区间。
+        # ★【按研究方案确认】不同策略会改变特征距离及最终生境定义。
+        # EN: Binning strategy. Different choices change feature distances and habitat definitions.
         bin_strategy: uniform
         # 中文：`global_normalize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
         # EN: `global_normalize` is a setting for this module; retain the example default initially and document any change.
@@ -131,21 +169,24 @@ habitat_segmentation:
   clustering_mode: two_step
   # 中文：`supervoxel` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `supervoxel` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-
-  # =============================================================================
-  # 2.5 子模块 / Submodule: supervoxel
+  # --- 2.5 个体内超体素聚类 / supervoxel ---
   supervoxel:
     # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
     # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
+    # 聚类算法。kmeans 按特征空间距离把每位患者的超体素分组；改算法会改变生境定义。
+    # EN: Clustering algorithm. kmeans groups each subject's supervoxels by feature-space distance.
     algorithm: kmeans
-    # ★ 每例超体素簇数（越大越细，越慢）
+    # 每例超体素簇数。整数；更大值产生更细的局部区域、增加运行时间，也可能降低稳定性。
+    # ★【按研究方案确认】它不是“越大越好”，应基于病灶分辨率和临床问题预先确定。
+    # EN: Number of within-subject supervoxel clusters. Larger values are finer but can be less stable.
     n_clusters: 50
     # 中文：算法允许的最大迭代次数；默认值通常足够，只有不收敛时再调高。
     # EN: Maximum algorithm iterations; defaults are usually sufficient; increase only for non-convergence.
     max_iter: 300
     # 中文：`n_init` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `n_init` is a setting for this module; retain the example default initially and document any change.
+    # 使用不同初始中心重复运行的次数。更多重复降低偶然落入较差局部解的概率，但更耗时。
+    # EN: Number of centroid initializations. More restarts improve stability but increase runtime.
     n_init: 10
     # 中文：`one_step_settings` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `one_step_settings` is a setting for this module; retain the example default initially and document any change.
@@ -167,14 +208,16 @@ habitat_segmentation:
       plot_validation_curves: true
   # 中文：`habitat` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `habitat` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-
-  # =============================================================================
-  # 2.6 子模块 / Submodule: habitat
+  # --- 2.6 组级生境聚类 / habitat ---
   habitat:
     # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
     # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
+    # 组级聚类算法。它将来自所有患者的超体素模式归纳为共享生境标签。
+    # ★【按研究方案确认】同一研究内必须固定算法，否则各次生境标签不可直接比较。
+    # EN: Cohort-level algorithm that defines shared habitat labels; keep it fixed within a study.
     algorithm: kmeans
+    # 自动选择时允许考虑的最大组级生境数。过大范围会增加计算和多重候选比较。
+    # EN: Maximum group-level habitat count considered by automatic selection.
     max_clusters: 10
     # 自动选簇数方法：elbow / silhouette 等
     # 中文：组级生境簇数选择方法；可列出一个或多个验证准则。
@@ -192,16 +235,12 @@ habitat_segmentation:
     # EN: `n_init` is a setting for this module; retain the example default initially and document any change.
     n_init: 10
 
-# ⚠ processes 过大易内存不足；笔记本建议 1–2
-
-# 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
-# EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
-  # =============================================================================
-# =============================================================================
-
 # =============================================================================
 # 3. 高级设置（首次保持默认）/ Advanced (keep defaults initially)
 # EN: Advanced settings
+# 并行进程数。正整数；每个进程可能占用较多影像和特征内存。普通电脑建议从 1–2 开始，
+# 只有确认内存充足时才提高。该值只影响速度和资源，不改变设定相同时的分析规则。
+# EN: Number of worker processes. Start with 1–2 on ordinary computers; it affects resources, not analysis rules.
 processes: 2
 # 中文：`cap_processes_to_gpu_pool` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `cap_processes_to_gpu_pool` is a setting for this module; retain the example default initially and document any change.

@@ -64,9 +64,18 @@ input:
 # EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
 output: ../../demo_data/results/ml/radiomics
 
-# 划分方式: random（随机）/ stratified（分层）/ custom（自定义 ID 列表）
-# 中文：数据集划分方式：random 随机、stratified 保持类别比例、custom 使用 ID 清单。
-# EN: Dataset split: random, stratified to preserve class ratios, or custom using ID lists.
+# =============================================================================
+
+# =============================================================================
+# 2. ★【按研究方案确认】队列划分与特征处理 / Cohort split and feature processing
+# 中文：本区设置决定训练集、测试集及最终入模特征。必须在查看性能前预先确定，不能因结果不佳而反复调整。
+# EN: These settings define training/testing data and model inputs. Lock them before inspecting performance.
+
+# 划分方式：random 随机；stratified 尽量保持结局比例；custom 使用预先准备的 ID 清单。
+# ★【按研究方案确认】划分决定独立测试性能的可信度。custom 时 train/test ID 不能重叠，
+# 且应在研究开始前按时间、中心或临床队列规则产生，不能按模型表现重新分配。
+# EN: Split method. For custom splits, ID lists must not overlap and must follow a prespecified cohort rule.
+# --- 2.1 队列划分 / split_method ---
 split_method: custom
 # 当 split_method 为 random 或 stratified 时使用（本 demo 用 custom，故注释）:
 # test_size: 0.3
@@ -74,21 +83,24 @@ split_method: custom
 # ★ custom 划分：一行一个受试者 ID
 # 中文：★【必须修改】自定义训练集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
 # EN: ★ MUST EDIT: Custom training-ID list, one subject per line; used with custom splits.
+# 训练集 ID 文件。每行一个、且必须出现在 input.subject_id_col 中；不能包含测试集 ID。
+# EN: Training ID list: one ID per line, present in subject_id_col, and disjoint from the test list.
 train_ids_file: ../../demo_data/ml_data/train_ids.txt
 # 中文：★【必须修改】自定义测试集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
 # EN: ★ MUST EDIT: Custom test-ID list, one subject per line; used with custom splits.
+# 测试集 ID 文件。仅用于最终泛化评估；不要用其结局或特征选择参数反向调整训练流程。
+# EN: Test ID list for final generalization evaluation; do not tune the training workflow using this cohort.
 test_ids_file: ../../demo_data/ml_data/test_ids.txt
 
-# 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
-# EN: Feature normalization; z_score is normally retained to prevent scale dominance.
-# =============================================================================
-
-# =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# --- 2.2 特征标准化 / normalization ---
+# 中文：每个训练集上独立拟合标准化参数，并应用到对应测试集；这可避免测试集信息泄漏。
+# EN: Scaling is fitted on training data only and applied to its test data to avoid information leakage.
 normalization:
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  # z_score 令每个训练集特征均值为 0、标准差为 1，避免量纲大的特征主导正则化或距离计算。
+  # Values: z_score, min_max, robust, max_abs, normalizer, quantile, power.
+  # EN: z_score is fitted on training data and prevents large-unit predictors from dominating the model.
   method: z_score
   # 其他可选（需要时改 method，并按需取消 params）:
   # method: min_max
@@ -101,6 +113,7 @@ normalization:
 # ⚠ enabled: true 需要 imbalanced-learn；类别不平衡明显时再开
 # 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
 # EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
+# --- 2.3 类别不平衡处理 / resampling ---
 resampling:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -117,6 +130,7 @@ resampling:
 # 特征选择按列表顺序依次执行
 # 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
 # EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
+# --- 2.4 特征筛选 / feature_selection_methods ---
 feature_selection_methods:
   # ICC 示例（需先跑 habit icc 得到 json）:
   # - method: icc
@@ -127,21 +141,29 @@ feature_selection_methods:
   #     threshold: 0.8
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  # 方差筛选：去除训练集中几乎不变化的特征。它应只用训练数据拟合，避免测试集信息泄漏。
+  # EN: Variance filter removes near-constant training features; it is fitted without test data.
   - method: variance
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
       before_z_score: true   # 推荐 true（标准化后方差都接近 1）
+      # 最小方差阈值。低于该值的特征会被移除；阈值应按特征尺度和研究方案预先固定。
+      # EN: Minimum variance cutoff. Lower-variance predictors are removed; prespecify it for the feature scale.
       threshold: 0.2
       # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
       # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
       plot_variances: true
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  # 相关性筛选：删除高度冗余的特征，减少多重共线性并提高模型稳定性。
+  # EN: Correlation filter removes redundant predictors to reduce multicollinearity.
   - method: correlation
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
+      # 绝对相关性阈值。达到该值的特征对视为冗余；0.80 是示例值，不是通用最优值。
+      # EN: Absolute-correlation cutoff. 0.80 is an example rather than a universal optimum.
       threshold: 0.80
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
@@ -150,11 +172,17 @@ feature_selection_methods:
       before_z_score: false
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  # LASSO：用 L1 正则化选择与结局最相关的特征。它会改变最终特征集，属于研究方案设置。
+  # EN: LASSO uses L1 regularization for feature selection and changes the final feature set.
   - method: lasso
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
+      # 内部交叉验证折数，用于在训练数据内选择正则化强度；它不是最终测试集评估。
+      # EN: Internal training-data CV folds for regularization selection, not final test evaluation.
       cv: 10
+      # 自动搜索的正则化强度候选数。更多候选提高搜索分辨率，也增加计算量。
+      # EN: Number of candidate regularization strengths; more values increase resolution and runtime.
       n_alphas: 100
       # 中文：`alphas` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
       # EN: `alphas` is a setting for this module; retain the example default initially and document any change.
@@ -165,32 +193,20 @@ feature_selection_methods:
       visualize: true
       before_z_score: false
 # 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
-# EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
-is_visualize: true
 # 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
-# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
-is_save_model: true
 # 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
-# EN: Plot-output settings; plot text remains English for publication and cross-team use.
-visualization:
-  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
-  # EN: Feature switch; false skips this module and true uses its nested settings.
-  enabled: true
-  # =============================================================================
-  # 2.1 子模块 / Submodule: plot_types
-  plot_types:
-    - roc
-    - calibration
-    - confusion
-    - dca
 
 # 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
 # EN: Models to train; start with one model. More models increase runtime and result files.
+# =============================================================================
+# 3. ★【按研究方案确认】候选模型 / Candidate models
+# =============================================================================
+# 中文：每个模型都使用相同的预先锁定的数据划分和特征处理流程。模型数量越多，
+#      越应报告全部候选模型结果，而不是只报告最好的一个。
+# EN: Every model uses the same locked split and preprocessing. Report all
+# prespecified candidates rather than only the best-performing one.
 models:
-  # =============================================================================
-
-  # =============================================================================
-  # 2.2 子模块 / Submodule: LogisticRegression
+  # --- 3.1 Logistic regression / 逻辑回归 ---
   LogisticRegression:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
@@ -208,10 +224,7 @@ models:
       solver: "lbfgs"
   # 中文：`SVM` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `SVM` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-
-  # =============================================================================
-  # 2.3 子模块 / Submodule: SVM
+  # --- 3.2 Support vector machine / SVM ---
   SVM:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
@@ -240,5 +253,29 @@ models:
   #     n_estimators: 100
   #     max_depth: 3
   #     learning_rate: 0.1
-  # =============================================================================
+
 # =============================================================================
+# 4. 结果保存与可视化 / Results, saved models, and visualization
+# =============================================================================
+# 中文：本区放在最后，便于在数据划分、特征处理和候选模型均确定后，统一定义交付结果。
+# EN: Kept last so deliverables are selected only after the split, processing, and candidate models are fixed.
+
+# 是否生成 ROC、校准、混淆矩阵和 DCA 等评价图；不改变模型训练。
+# EN: Generate evaluation figures; this does not change model fitting.
+is_visualize: true
+
+# 是否保存已训练模型。true 便于复核和技术部署，但应记录对应数据划分、参数和软件版本。
+# EN: Save fitted models for review/deployment; record their split, parameters, and software version.
+is_save_model: true
+
+visualization:
+  # 总开关。false 时不输出下方列出的图形。
+  # EN: Master switch. false suppresses the requested figures.
+  enabled: true
+  # roc=区分度；calibration=概率校准；confusion=阈值分类错误；dca=临床阈值下的净获益。
+  # EN: roc=discrimination; calibration=probability agreement; confusion=threshold errors; dca=clinical net benefit.
+  plot_types:
+    - roc
+    - calibration
+    - confusion
+    - dca

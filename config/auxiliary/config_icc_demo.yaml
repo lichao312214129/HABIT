@@ -47,8 +47,7 @@ input:
   # ★ 每一组是一组要互相比较的文件列表（通常 2 个：test / retest）
   # 中文：★【必须修改】每个列表是一组配对/重复测量特征表；不要将标签列用于 ICC。
   # EN: ★ MUST EDIT: Each list is a paired/repeated feature-table group; exclude outcome columns from ICC.
-  # =============================================================================
-  # 1.1 子模块 / Submodule: file_groups
+  # --- 1.1 file_groups ---
   file_groups:
     - [../../demo_data/ml_data/breast_cancer_dataset.csv, ../../demo_data/ml_data/breast_cancer_dataset_retest_simulated.csv]
   # directories 模式示例:
@@ -63,7 +62,6 @@ output:
   # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
   # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
   path: ../../demo_data/results/icc/icc_radiomics.json
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

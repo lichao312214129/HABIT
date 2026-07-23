@@ -52,8 +52,7 @@ auto_select_first_file: false
 images:
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
-  # 1.1 子模块 / Submodule: sub001
+  # --- 1.1 sub001 ---
   sub001:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -66,10 +65,8 @@ images:
     delay5: ../../demo_data/dicom/sub001/WATER_BHAxLAVA-Flex-5min_Series0016
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
 
-  # =============================================================================
-  # 1.2 子模块 / Submodule: sub002
+  # --- 1.2 sub002 ---
   sub002:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -80,5 +77,4 @@ images:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
     delay5: ../../demo_data/dicom/sub002/016_WATERWATERBHAxLAVAFlex5min
-  # =============================================================================
 # =============================================================================

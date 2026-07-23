@@ -52,11 +52,17 @@ input:
 # 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
 # EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
 output: ../../demo_data/results/ml/default
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 # Data Splitting Configuration
 # Split method
 # Options: random, stratified, custom
 # 中文：数据集划分方式：random 随机、stratified 保持类别比例、custom 使用 ID 清单。
 # EN: Dataset split: random, stratified to preserve class ratios, or custom using ID lists.
+# --- 2.1 队列划分 / split_method ---
 split_method: custom
 # For random or stratified splits
 # test_size: 0.3  # Proportion for test set (0.0-1.0)
@@ -72,11 +78,7 @@ test_ids_file: ../../demo_data/ml_data/test_ids.txt  # One ID per line
 
 # 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
 # EN: Feature normalization; z_score is normally retained to prevent scale dominance.
-# =============================================================================
-
-# =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# --- 2.2 特征标准化 / normalization ---
 normalization:
   # method: z_score (default, StandardScaler)
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
@@ -108,6 +110,7 @@ normalization:
 # unchanged outside the training fold.
 # 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
 # EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
+# --- 2.3 类别不平衡处理 / resampling ---
 resampling:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
@@ -125,6 +128,7 @@ resampling:
 # Each method can run before or after z-score normalization
 # 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
 # EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
+# --- 2.4 特征筛选 / feature_selection_methods ---
 feature_selection_methods:
   # ICC (Intraclass Correlation Coefficient)
   # - method: icc
@@ -160,8 +164,6 @@ feature_selection_methods:
 - method: correlation
   # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
   # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: params
   params:
     threshold: 0.8
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
@@ -171,12 +173,11 @@ feature_selection_methods:
     before_z_score: false
 # 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
 # EN: Models to train; start with one model. More models increase runtime and result files.
+# --- 3. 候选模型 / models ---
 models:
   # Logistic Regression
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: LogisticRegression
+  # --- LogisticRegression ---
   LogisticRegression:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
@@ -297,5 +298,4 @@ is_save_model: true
 # 4. Feature selection methods with before_z_score: false run after normalization
 # 5. Models are trained on features after all feature selection steps
 #
-  # =============================================================================
 # =============================================================================

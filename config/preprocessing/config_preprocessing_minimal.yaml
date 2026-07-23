@@ -43,8 +43,7 @@ out_dir: ../../demo_data/results/preprocessed             # ★ 输出目录
 preprocessing:
   # 中文：`resample` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `resample` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: resample
+  # --- 2.1 resample ---
   resample:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -53,10 +52,8 @@ preprocessing:
     img_mode: bilinear
   # 中文：`registration` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `registration` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: registration
+  # --- 2.2 registration ---
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -71,10 +68,8 @@ preprocessing:
     type_of_transform: Rigid
   # 中文：`zscore_normalization` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `zscore_normalization` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.3 子模块 / Submodule: zscore_normalization
+  # --- 2.3 zscore_normalization ---
   zscore_normalization:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -84,7 +79,6 @@ preprocessing:
 
 # 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
 # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

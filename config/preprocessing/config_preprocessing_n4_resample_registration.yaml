@@ -59,8 +59,7 @@ preprocessing:
   # 1) N4 偏置场校正（仅 MRI 需要；CT 一般不用）
   # 中文：`n4_correction` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `n4_correction` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: n4_correction
+  # --- 2.1 n4_correction ---
   n4_correction:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -70,10 +69,8 @@ preprocessing:
   # 2) 重采样到统一间距
   # 中文：`resample` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `resample` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.2 子模块 / Submodule: resample
+  # --- 2.2 resample ---
   resample:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -83,10 +80,8 @@ preprocessing:
   # 3) 配准（elastix 后端）：把“非参考模态”对齐到参考模态
   # 中文：`registration` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `registration` is a setting for this module; retain the example default initially and document any change.
-  # =============================================================================
 
-  # =============================================================================
-  # 2.3 子模块 / Submodule: registration
+  # --- 2.3 registration ---
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
@@ -105,7 +100,6 @@ preprocessing:
     # 中文：`elastix_parameter_files` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
     # EN: `elastix_parameter_files` is a setting for this module; retain the example default initially and document any change.
     elastix_parameter_files: ../../demo_data/Par0040affine.txt   # elastix 参数文件（仿射配准）
-  # =============================================================================
 # =============================================================================
 
 # =============================================================================

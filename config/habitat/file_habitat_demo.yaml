@@ -32,8 +32,7 @@ auto_select_first_file: true
 images:
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
-  # 1.1 子模块 / Submodule: subj001
+  # --- 1.1 subj001 ---
   subj001:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -46,10 +45,8 @@ images:
     delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
 
-  # =============================================================================
-  # 1.2 子模块 / Submodule: subj002
+  # --- 1.2 subj002 ---
   subj002:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -65,10 +62,8 @@ images:
 masks:
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
 
-  # =============================================================================
-  # 1.3 子模块 / Submodule: subj001
+  # --- 1.3 subj001 ---
   subj001:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -81,10 +76,8 @@ masks:
     delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
-  # =============================================================================
 
-  # =============================================================================
-  # 1.4 子模块 / Submodule: subj002
+  # --- 1.4 subj002 ---
   subj002:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
@@ -95,5 +88,4 @@ masks:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
     delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5
-  # =============================================================================
 # =============================================================================

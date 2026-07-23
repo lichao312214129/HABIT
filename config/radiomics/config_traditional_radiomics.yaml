@@ -38,6 +38,9 @@
 # EN: Data, paths and run entry
 # 中文：`paths` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `paths` is a setting for this module; retain the example default initially and document any change.
+# 中文：本区连接上游预处理影像、ROI mask 与输出特征表。输入根目录必须是一个研究队列，
+#      而不是单个影像文件；将输出放在独立目录可避免覆盖原始临床数据。
+# EN: Connects preprocessed images/ROI masks to exported feature tables. Use a cohort root and a separate output directory.
 paths:
   # params_file 可省略：省略则用内置 roi 预设
   # params_file: ./parameter.yaml
@@ -55,42 +58,55 @@ paths:
 # =============================================================================
 
 # =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# 2. ★【必须检查】处理范围与导出 / Processing scope and export
+# 中文：模态清单必须与 images 目录、mask 对应关系和下游建模特征表一致。
+# EN: Modality names must agree with image folders, mask pairing, and downstream feature tables.
 # 中文：`processing` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `processing` is a setting for this module; retain the example default initially and document any change.
 processing:
   # ⚠ 并行进程数：过大可能内存不足
   # 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
   # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
+  # 并行进程数。正整数；更多进程可加快队列处理，但每个进程会占用影像内存。普通电脑从 1–2 开始。
+  # EN: Number of workers. More workers can accelerate a cohort but consume image memory; start with 1–2.
   n_processes: 2
-  # 每处理 N 个文件落盘一次（断点更安全）
+  # 每处理 N 个文件保存一次中间结果。较小值更利于长任务恢复，但会增加磁盘写入。
+  # EN: Save intermediate results every N files. Smaller values improve recovery but increase disk writes.
   save_every_n_files: 5
   # ★ 要提取的模态键（必须与数据文件夹名一致；本 demo 不是 T1/T2）
   # 中文：★【必须修改】要提取特征的模态名列表；必须与 images 下的目录名一致。
   # EN: ★ MUST EDIT: Modalities for extraction; they must match directories under images.
-  # =============================================================================
-  # 2.1 子模块 / Submodule: process_image_types
+  # --- 2.1 待处理模态 / process_image_types ---
   process_image_types:
     - delay2
     - delay3
     - delay5
 # 中文：`export` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `export` is a setting for this module; retain the example default initially and document any change.
+# 中文：导出设置只改变结果文件的组织方式，不改变已计算的特征值。为保证下游建模可追溯，
+#      建议在同一研究中固定导出结构与文件格式。
+# EN: Export settings organize result files without changing calculated values; keep them stable for downstream traceability.
 export:
   # 中文：`export_by_image_type` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `export_by_image_type` is a setting for this module; retain the example default initially and document any change.
-  export_by_image_type: true   # 是否按模态分别导出
+  # 是否每个模态分别导出一张表。true 便于检查单模态特征；false 仅适合已明确只需合并表的场景。
+  # EN: Export one table per modality. true supports modality-level quality review.
+  export_by_image_type: true
   # 中文：`export_combined` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `export_combined` is a setting for this module; retain the example default initially and document any change.
-  export_combined: true        # 是否额外导出合并宽表
+  # 是否额外导出按受试者合并的宽表。机器学习通常需要该表；合并前应核对所有模态的受试者 ID。
+  # EN: Export a subject-level wide table. ML commonly needs it; verify subject-ID alignment before merging.
+  export_combined: true
   # 中文：`export_format` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `export_format` is a setting for this module; retain the example default initially and document any change.
+  # 导出格式。csv 便于在统计软件和机器学习流程中读取；不要改扩展名而不改此值。
+  # EN: Export format. csv is broadly interoperable; do not rename file extensions without changing this value.
   export_format: csv
   # 中文：`add_timestamp` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
   # EN: `add_timestamp` is a setting for this module; retain the example default initially and document any change.
-  add_timestamp: false         # 文件名是否加时间戳
-  # =============================================================================
+  # 是否在文件名加入运行时间。true 可避免覆盖旧结果，但会使下游脚本难以使用固定文件名。
+  # EN: Add timestamps to filenames. true avoids overwrites but prevents stable downstream file paths.
+  add_timestamp: false
 # =============================================================================
 
 # =============================================================================

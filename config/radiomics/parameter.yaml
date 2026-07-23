@@ -36,8 +36,13 @@
 # =============================================================================
 
 # =============================================================================
-# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
-# EN: Data, paths and run entry
+# 1. ★【按研究方案确认】影像滤波 / Image filters
+# 中文：本文件不包含数据路径。此区决定从原始影像及哪些滤波影像提取特征，会改变特征总数与含义。
+# EN: This preset has no data paths. This section chooses original/filtered image sources and changes feature meaning/count.
+# 中文：启用的每一种影像类型都会对每个 ROI 分别生成一组特征；仅保留 Original 可获得
+#      最容易解释、特征数量较少的基线方案。启用滤波前需预先说明其临床或生物学依据。
+# EN: Every enabled image type produces a feature set per ROI. Original-only is
+#     the most interpretable baseline; justify filters before enabling them.
 imageType:
   # 中文：原始影像特征；不做额外滤波，通常是最基本且建议保留的特征来源。
   # EN: Original-image features without extra filtering; usually the fundamental source to retain.
@@ -61,8 +66,11 @@ imageType:
 # =============================================================================
 
 # =============================================================================
-# 2. 常用流程与研究设置 / Common workflow and study settings
-# EN: Common workflow and study settings
+# 2. ★【按研究方案确认】特征类别与全局计算规则 / Feature classes and global settings
+# 中文：特征类别、强度归一化和离散化共同定义可用于建模的影像组学特征；同一研究必须固定。
+# EN: Feature classes, normalization, and discretization jointly define model inputs and must remain fixed within a study.
+# 中文：启用的每个类别都会输出该类全部可用特征；不要仅因某类在本队列表现更好而事后增删。
+# EN: Each enabled class exports all available features in that class; do not add/remove classes after seeing results.
 featureClass:
   # Note: redundant features (Compactness 1, Compactness 2, Spherical Disproportion) are disabled by default
   # They can be enabled by specifying individual feature names
@@ -87,9 +95,14 @@ featureClass:
   # 中文：灰度依赖矩阵纹理特征；描述邻域内灰度依赖关系。
   # EN: GLDM texture features; describe gray-level dependencies within neighborhoods.
   gldm:                             # Gray Level Dependence Matrix - texture features describing dependencies between gray levels
+# --- 2.1 全局特征计算规则 / setting ---
 # General Settings
 # 中文：★【按研究方案确认】PyRadiomics 全局参数，如归一化和离散化；会影响全部特征数值。
 # EN: ★ STUDY-DESIGN REVIEW: PyRadiomics global settings, such as normalization/discretization, affect all features.
+# 中文：这些设置在每例影像和每个特征类别之前生效。特别是 normalize、normalizeScale 与 binWidth
+#      的组合会改变灰度分布和纹理矩阵，因此下游 CSV 与模型不能跨不同设置直接比较。
+# EN: These settings apply before feature calculation. normalize, normalizeScale,
+#     and binWidth change texture matrices, so results are not directly comparable across presets.
 setting:
   # Normalization Settings
   # MR signal is usually relative, with large differences between scanners and vendors.
