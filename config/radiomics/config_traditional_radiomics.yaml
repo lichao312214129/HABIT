@@ -1,52 +1,111 @@
 # =============================================================================
-# 传统影像组学特征提取 DEMO —— Traditional Radiomics
-# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
 #
-# 运行方式 / How to run (Windows: Anaconda Prompt 或 PowerShell):
-#   conda activate py310         # 激活装有 HABIT 的环境（本机环境名为 py310）
-#   cd F:\work\habit_project      # 进入项目根目录
+# 运行 / Run: habit radiomics -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 中文：对每个受试者、每个模态的 ROI（mask）提取 PyRadiomics 特征，输出 CSV。
+# EN:   Extract PyRadiomics features per subject/modality ROI → CSV tables.
+#
+# 运行 / Run:
 #   habit radiomics -c config/radiomics/config_traditional_radiomics.yaml
 #
-# 作用 / What it does:
-#   对每个受试者、每个模态的 ROI（mask 区域）提取 PyRadiomics 传统组学特征
-#   （形状/一阶/纹理等），输出为 CSV 特征表，可直接用于后续机器学习。
+# 【你只需要改标了 ★ 的项】
+#   ★ 1. paths.images_folder / paths.out_dir
+#   ★ 2. processing.process_image_types（模态名=文件夹名）
 #
-# 输入 / Input:
-#   demo_data/preprocessed/processed_images
-#     images/<subject>/<modality>/<file>.nii.gz  与  masks/<subject>/<modality>/<file>.nii.gz
-#   模态键为 delay2 / delay3 / delay5（不是 T1/T2！）。
+# 特征算子细节见同目录 parameter.yaml（一般勿改）。
 #
-# 特征算子参数 / Feature settings:
-#   见同目录 parameter.yaml（PyRadiomics 配置：imageType / featureClass / setting）。
-#
-# 路径约定 / Path convention:
-#   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。
+# 【YAML 注意】
+#   - 空格缩进；冒号后有空格；true/false 小写
+#   - 路径一般不用引号；仅含空格或 # : * 等特殊字符时加引号
+#       例：D:/data/images 可不加；"D:/my data/images" 有空格必须加
+#   - Windows 推荐正斜杠 D:/work/...
+#   - 相对路径相对本 YAML 目录解析
 # =============================================================================
 
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
+# 中文：`paths` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `paths` is a setting for this module; retain the example default initially and document any change.
 paths:
-  # params_file optional: omit to use bundled 'roi' preset (habit/resources/radiomics/parameter.yaml)
+  # params_file 可省略：省略则用内置 roi 预设
   # params_file: ./parameter.yaml
-  #%%============================================================================
-  # 【必改】输入影像根目录 / 输出目录
-  images_folder: ../../demo_data/preprocessed/processed_images    # 含 images/ 与 masks/
-  out_dir: ../../demo_data/results/radiomics_traditional          # 输出目录（自动创建）
-  #%%============================================================================
 
+  # 1. 必改路径 ★ / Paths (MUST EDIT)
+  # ★ 影像根目录：下面必须有 images/ 与 masks/ 两个子目录
+  #   正确：.../processed_images    错误：写成某个 .nii.gz 文件
+  # 中文：★【必须修改】影像根目录，通常应同时包含 images/ 与 masks/ 子目录。
+  # EN: ★ MUST EDIT: Image root, usually containing both images/ and masks/ folders.
+  images_folder: ../../demo_data/preprocessed/processed_images
+  # ★ 输出目录（自动创建）
+  # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
+  # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
+  out_dir: ../../demo_data/results/radiomics_traditional
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
+# 中文：`processing` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `processing` is a setting for this module; retain the example default initially and document any change.
 processing:
-  n_processes: 2               # 并行进程数
-  save_every_n_files: 5        # 每处理 N 个文件落盘一次（断点安全）
-  process_image_types:         # 要提取的模态键（必须与数据文件夹名一致）
+  # ⚠ 并行进程数：过大可能内存不足
+  # 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
+  # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
+  n_processes: 2
+  # 每处理 N 个文件落盘一次（断点更安全）
+  save_every_n_files: 5
+  # ★ 要提取的模态键（必须与数据文件夹名一致；本 demo 不是 T1/T2）
+  # 中文：★【必须修改】要提取特征的模态名列表；必须与 images 下的目录名一致。
+  # EN: ★ MUST EDIT: Modalities for extraction; they must match directories under images.
+  # =============================================================================
+  # 2.1 子模块 / Submodule: process_image_types
+  process_image_types:
     - delay2
     - delay3
     - delay5
-
+# 中文：`export` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `export` is a setting for this module; retain the example default initially and document any change.
 export:
-  export_by_image_type: true   # 是否按模态分别导出特征表
-  export_combined: true        # 是否额外导出一个合并所有模态的宽表
-  export_format: csv           # 导出格式：csv
+  # 中文：`export_by_image_type` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_by_image_type` is a setting for this module; retain the example default initially and document any change.
+  export_by_image_type: true   # 是否按模态分别导出
+  # 中文：`export_combined` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_combined` is a setting for this module; retain the example default initially and document any change.
+  export_combined: true        # 是否额外导出合并宽表
+  # 中文：`export_format` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_format` is a setting for this module; retain the example default initially and document any change.
+  export_format: csv
+  # 中文：`add_timestamp` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `add_timestamp` is a setting for this module; retain the example default initially and document any change.
   add_timestamp: false         # 文件名是否加时间戳
+  # =============================================================================
+# =============================================================================
 
+# =============================================================================
+# 3. 高级设置（首次保持默认）/ Advanced (keep defaults initially)
+# EN: Advanced settings
+# 中文：`logging` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `logging` is a setting for this module; retain the example default initially and document any change.
 logging:
+  # 中文：`level` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `level` is a setting for this module; retain the example default initially and document any change.
   level: INFO
+  # 中文：`console_output` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `console_output` is a setting for this module; retain the example default initially and document any change.
   console_output: true
+  # 中文：`file_output` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `file_output` is a setting for this module; retain the example default initially and document any change.
   file_output: true
+# =============================================================================

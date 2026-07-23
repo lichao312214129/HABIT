@@ -201,7 +201,7 @@ Feature extraction
 ``FeatureExtractionConfig.from_file(...)`` remains suitable when the YAML uses
 only built-in feature types. Use ``load_feature_extraction_config`` when the
 configuration includes plugin-specific sections, so programmatic execution
-matches the ``habit extract-features`` CLI.
+matches the ``habit extract`` CLI.
 
 For an in-memory configuration, use ``build_feature_extraction_config``. It
 preserves plugin-specific settings rather than discarding them during shared
@@ -437,6 +437,23 @@ The same analysis can be started from an in-memory mapping:
    )
    config["out_dir"] = "results/test_retest"
    habitat_mapping = run_test_retest_analysis(config).data
+
+Image I/O and geometry
+----------------------
+
+See :doc:`image` for ``read_image`` / ``read_mask`` / ``align_image_mask``.
+
+Low-level radiomics extraction
+------------------------------
+
+See :doc:`radiomics_api` for ``extract_features`` / ``extract_batch`` (component
+API). The YAML workflow remains ``run_radiomics``.
+
+Plugins, provenance, and errors
+-------------------------------
+
+See :doc:`plugins` and :doc:`contracts`.
+
 Top-level package exports
 -------------------------
 
@@ -451,4 +468,4 @@ Optional dependencies can be probed without importing heavy backends::
    if habit.is_available("radiomics"):
        ...
 
-See also: :doc:`../api/index` (autodoc reference), :doc:`../configuration/index` (YAML fields).
+See also: :doc:`index` (autodoc reference), :doc:`../configuration/index` (YAML fields).

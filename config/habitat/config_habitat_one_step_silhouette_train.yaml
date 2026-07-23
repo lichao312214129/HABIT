@@ -1,62 +1,176 @@
 # =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit get-habitat -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
 # Habitat - DEMO: one-step clustering with silhouette per-subject selection
-# =============================================================================
 # CLI:  habit get-habitat --config config/habitat/config_habitat_one_step_silhouette_train.yaml
 #
 # Input:  demo_data/preprocessed/processed_images
 # Output: demo_data/results/habitat_one_step_silhouette
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+
+# 中文：运行模式：train 用当前数据训练；predict 使用已保存的 pipeline 推断。
+# EN: Run mode: train fits a model; predict uses an existing pipeline.
 # =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
 run_mode: train
-#%%================================================================================
+# 中文：★【必须修改】输入数据根目录；填写文件夹或指定的清单 YAML，不要填写单个影像文件。
+# EN: ★ MUST EDIT: Input root directory or manifest YAML; do not enter one image file.
 data_dir: ../../demo_data/preprocessed/processed_images
+# 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
+# EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/habitat_one_step_silhouette
-#%%================================================================================
+
+# 中文：生境特征构建设置；模态表达式中的名称必须与数据的模态键一致。
+# EN: Habitat feature construction; modality names in expressions must match data modality keys.
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 feature_construction:
+  # 中文：`voxel_level` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `voxel_level` is a setting for this module; retain the example default initially and document any change.
+  # =============================================================================
+  # 2.1 子模块 / Submodule: voxel_level
   voxel_level:
+    # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+    # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
     method: concat(raw(delay2), raw(delay3), raw(delay5))
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params: {}
+  # =============================================================================
+
+  # =============================================================================
+  # 2.2 子模块 / Submodule: preprocessing_for_subject_level
   preprocessing_for_subject_level:
     methods:
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       - method: winsorize
         winsor_limits: [0.05, 0.05]
         global_normalize: false
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       - method: minmax
         global_normalize: false
+  # =============================================================================
+
+  # =============================================================================
+  # 2.3 子模块 / Submodule: preprocessing_for_group_level
   preprocessing_for_group_level:
+    # 中文：`methods` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+    # EN: `methods` is a setting for this module; retain the example default initially and document any change.
     methods:
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       - method: binning
         n_bins: 10
         bin_strategy: uniform
+        # 中文：`global_normalize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+        # EN: `global_normalize` is a setting for this module; retain the example default initially and document any change.
         global_normalize: false
+# 中文：生境聚类设置；改变算法或簇数会改变生境定义，应在研究方案中预先确定。
+# EN: Habitat clustering settings; changing algorithms or cluster counts changes habitat definitions.
 habitat_segmentation:
   clustering_mode: one_step
+  # =============================================================================
+
+  # =============================================================================
+  # 2.4 子模块 / Submodule: supervoxel
   supervoxel:
+    # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
+    # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
     algorithm: kmeans
     n_clusters: 50
     max_iter: 300
+    # 中文：`n_init` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+    # EN: `n_init` is a setting for this module; retain the example default initially and document any change.
     n_init: 10
+    # 中文：`one_step_settings` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+    # EN: `one_step_settings` is a setting for this module; retain the example default initially and document any change.
     one_step_settings:
+      # 中文：自动选簇时允许的最小簇数；通常从 2 开始。
+      # EN: Minimum candidate clusters for automatic selection; normally starts at 2.
       min_clusters: 2
+      # 中文：自动选簇时允许的最大簇数；范围越大，计算时间越长。
+      # EN: Maximum candidate clusters for automatic selection; a wider range takes longer.
       max_clusters: 8
+      # 中文：`fixed_n_clusters` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `fixed_n_clusters` is a setting for this module; retain the example default initially and document any change.
       fixed_n_clusters:
+      # 中文：自动选择簇数的方法（如 elbow 或 silhouette）；同一研究中应固定。
+      # EN: Method for automatic cluster selection (for example elbow or silhouette); keep fixed within a study.
       selection_method: silhouette
+      # 中文：`plot_validation_curves` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `plot_validation_curves` is a setting for this module; retain the example default initially and document any change.
       plot_validation_curves: true
+  # 中文：`habitat` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `habitat` is a setting for this module; retain the example default initially and document any change.
+  # =============================================================================
+
+  # =============================================================================
+  # 2.5 子模块 / Submodule: habitat
   habitat:
+    # 中文：所选算法；更改会影响结果可比性，应在研究方案中固定。
+    # EN: Selected algorithm; changes affect comparability and should be fixed in the study protocol.
     algorithm: kmeans
     max_clusters: 10
     min_clusters: 2
+    # 中文：组级生境簇数选择方法；可列出一个或多个验证准则。
+    # EN: Method(s) for group-level habitat cluster selection; one or more validation criteria may be listed.
     habitat_cluster_selection_method:
       - silhouette
+    # 中文：`fixed_n_clusters` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+    # EN: `fixed_n_clusters` is a setting for this module; retain the example default initially and document any change.
     fixed_n_clusters:
+    # 中文：算法允许的最大迭代次数；默认值通常足够，只有不收敛时再调高。
+    # EN: Maximum algorithm iterations; defaults are usually sufficient; increase only for non-convergence.
     max_iter: 300
+    # 中文：`n_init` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+    # EN: `n_init` is a setting for this module; retain the example default initially and document any change.
     n_init: 10
+
+# 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
+# EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
+  # =============================================================================
+# =============================================================================
+
+# =============================================================================
+# 3. 高级设置（首次保持默认）/ Advanced (keep defaults initially)
+# EN: Advanced settings
 processes: 2
+# 中文：`cap_processes_to_gpu_pool` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `cap_processes_to_gpu_pool` is a setting for this module; retain the example default initially and document any change.
 cap_processes_to_gpu_pool: false
+# 中文：`individual_subject_timeout_sec` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `individual_subject_timeout_sec` is a setting for this module; retain the example default initially and document any change.
 individual_subject_timeout_sec: 900
+# 中文：断点续跑开关；true 会跳过已完成受试者，适合耗时的生境分析。
+# EN: Resume switch; true skips completed subjects and suits long habitat analyses.
 resume: true
 plot_curves: true
 save_results_csv: true
+# 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+# EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
 random_state: 42
+# 中文：调试日志开关；常规运行保持 false，排查报错时才改为 true。
+# EN: Debug logging switch; keep false in normal runs and enable only when troubleshooting.
 debug: false
+# =============================================================================

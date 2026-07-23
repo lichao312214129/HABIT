@@ -13,4 +13,5 @@ DICOM sort only (no NIfTI conversion):
 
 **Output**: ``out_dir/processed_images/`` ; log ``<out_dir>/processing.log`` .
 
-**Configuration**: :doc:`../configuration/preprocessing`
+**Configuration**: :doc:`../configuration/preprocessing` · DICOM sort fields:
+:doc:`../configuration/dicom_sort`

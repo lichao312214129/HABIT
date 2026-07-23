@@ -1,99 +1,220 @@
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# K-Fold Cross-Validation Machine Learning Configuration File
-# This configuration file is specifically for k-fold cross-validation modeling
-#%%================================================================================
-# Data Input Configuration
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit model -c <配置文件.yaml> 或 habit cv -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 中文：在特征表上做 K 折交叉验证建模与评估（ROC/DCA 等）。
+# EN:   K-fold CV training/evaluation on a feature CSV.
+#
+# 运行 / Run:
+#   habit cv -c config/machine_learning/config_machine_learning_kfold_demo.yaml
+#
+# 【你只需要改标了 ★ 的项】
+#   ★ 1. input.path / subject_id_col / label_col
+#   ★ 2. output
+#   ★ 3.（可选）n_splits、models
+#
+# 【YAML 注意】
+#   - 空格缩进；冒号后有空格；true/false/null 小写
+#   - 路径一般不用引号；仅含空格或特殊字符时加引号，如 "D:/my data/file.csv"
+#   - Windows 推荐正斜杠；相对路径相对本 YAML 目录解析
+
+# 中文：★【必须检查】输入数据配置；多表时每一项都要填写路径、ID 列和标签列。
+# EN: ★ REVIEW: Input-data configuration; for multiple tables, complete path, ID and label in each item.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
 input:
-  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv
+  - # ★ 特征表 CSV 路径
+    # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+    # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
+    path: ../../demo_data/ml_data/breast_cancer_dataset.csv
+    # 多表合并时给本表特征加前缀，避免重名；单表可留 radiomics_ 或改为 ""
     name: radiomics_
+    # ★ 受试者 ID 列名（每行唯一）
+    # 中文：★【必须修改】CSV 中唯一受试者 ID 的列名；必须与实际表头完全一致。
+    # EN: ★ MUST EDIT: Unique subject-ID column in the CSV; must exactly match its header.
     subject_id_col: subject_id
+    # ★ 标签列名（二分类通常为 0/1）
+    # 中文：★【必须修改】真实结局/标签列名；二分类通常使用 0 和 1。
+    # EN: ★ MUST EDIT: True outcome/label column; binary classification normally uses 0 and 1.
     label_col: label
+    # 留空=使用除 ID/标签外的全部特征；也可写成 [feat1, feat2]
+    # 中文：特征列限制；留空/null 通常表示自动使用可用特征，指定列表时必须与表头一致。
+    # EN: Feature-column restriction; empty/null usually auto-selects available features; named columns must match headers.
     features:
-#%%================================================================================
-# Output Directory Configuration
+
+# ★ 结果输出目录
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
 output: ../../demo_data/results/ml/kfold
-#%%================================================================================
-# K-Fold Cross-Validation Configuration
-n_splits: 5  # Number of folds for cross-validation
-stratified: true  # Whether to use stratified k-fold (preserves class distribution)
-random_state: 42  # Random seed for reproducibility
-#%%================================================================================
-# Normalization Configuration
+
+# ★ 折数（越大越慢；常见 5 或 10）
+# 中文：交叉验证折数；常用 5 或 10。折数越大，运行时间通常越长。
+# EN: Number of cross-validation folds; 5 or 10 is common. More folds usually take longer.
+n_splits: 5
+# true=分层 K 折（保持每折类别比例，推荐）
+# 中文：是否使用分层交叉验证；类别不均衡时建议 true，以保持各折类别比例。
+# EN: Whether to stratify folds; true is recommended for imbalanced classes to preserve proportions.
+stratified: true
+
+# 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+# EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+random_state: 42
+
+# 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
+# EN: Feature normalization; z_score is normally retained to prevent scale dominance.
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 normalization:
-  method: z_score  # Standardization method
-#%%================================================================================
-# Resampling Configuration
-# Resampling is applied only while fitting the training data. It is skipped
-# automatically during validation, testing, and prediction so row counts stay
-# unchanged outside the training fold.
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: z_score   # 标准化：零均值单位方差
+
+# 重采样仅在训练折内拟合；验证/测试不会改变行数
+# ⚠ enabled: true 需要 imbalanced-learn；类别极不平衡时再开
+# 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
+# EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
 resampling:
-  enabled: false  # Set to true to enable class-imbalance resampling
-  method: random_over  # Options: random_over, random_under, smote
-  position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
-  ratio: 1.0  # Target sampling ratio passed to the selected resampling method
-  random_state: 42  # Random seed used by the resampling method
-#%%================================================================================
-# Feature Selection Configuration
-# Note: Feature selection is performed within each fold to avoid data leakage
+  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
+  # EN: Feature switch; false skips this module and true uses its nested settings.
+  enabled: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: random_over   # random_over / random_under / smote
+  position: before_model
+  ratio: 1.0
+  # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+  # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+  random_state: 42
+
+# 特征选择在每一折内进行，避免泄露
+# 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
+# EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
 feature_selection_methods:
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
   - method: correlation
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
       threshold: 0.80
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       method: spearman
       visualize: false
       before_z_score: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
   - method: variance
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
       before_z_score: true
       top_k: 20
+      # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
+      # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
       plot_variances: true
-#%%================================================================================
-# Visualization and Saving Configuration
-is_visualize: true  # Whether to generate visualization plots (ROC, DCA, calibration curves, confusion matrices)
-is_save_model: false  # Whether to save trained models from each fold (can be large)
-#%%================================================================================
-# Model Configuration
-models:
-  LogisticRegression:
-    params:
-      random_state: 42
-      max_iter: 1000
-      C: 1.0
-      penalty: "l2"
-      solver: "lbfgs"
-  RandomForest:
-    params:
-      random_state: 42
-      n_estimators: 100
-      max_depth: null
-      max_features: "sqrt"
-  XGBoost:
-    params:
-      random_state: 42
-      n_estimators: 100
-      max_depth: 3
-      learning_rate: 0.1
-  # Add more models as needed
-  # KNN:
-  #   params:
-  #     n_neighbors: 5
-  #     weights: "uniform"
-  # MLP:
-  #   params:
-  #     random_state: 42
-  #     hidden_layer_sizes: [100, 50]
-  #     max_iter: 200
-#%%================================================================================
-# Visualization and Saving Configuration
+
+# 是否出图 / 是否保存每折模型
+# ⚠ is_save_model: true 在 K 折时可能占用大量磁盘
+# 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
 is_visualize: true
-is_save_model: true
+# 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
+is_save_model: false
+# 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
+# EN: Plot-output settings; plot text remains English for publication and cross-team use.
 visualization:
+  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
+  # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: true
+  # =============================================================================
+  # 2.1 子模块 / Submodule: plot_types
   plot_types:
     - roc
     - calibration
     - confusion
     - dca
+
+# 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
+# EN: Models to train; start with one model. More models increase runtime and result files.
+models:
+  # =============================================================================
+
+  # =============================================================================
+  # 2.2 子模块 / Submodule: LogisticRegression
+  LogisticRegression:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      # 中文：`penalty` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `penalty` is a setting for this module; retain the example default initially and document any change.
+      penalty: "l2"
+      # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `solver` is a setting for this module; retain the example default initially and document any change.
+      solver: "lbfgs"
+  # 中文：`RandomForest` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `RandomForest` is a setting for this module; retain the example default initially and document any change.
+  # =============================================================================
+
+  # =============================================================================
+  # 2.3 子模块 / Submodule: RandomForest
+  RandomForest:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      n_estimators: 100
+      max_depth: null
+      # 中文：`max_features` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `max_features` is a setting for this module; retain the example default initially and document any change.
+      max_features: "sqrt"
+  # 中文：`XGBoost` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `XGBoost` is a setting for this module; retain the example default initially and document any change.
+  # =============================================================================
+
+  # =============================================================================
+  # 2.4 子模块 / Submodule: XGBoost
+  XGBoost:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      n_estimators: 100
+      max_depth: 3
+      # 中文：迭代模型的学习率；较小通常需更多迭代，保持示例值作为起点。
+      # EN: Learning rate for iterative models; smaller values usually need more iterations. Keep the example as a start.
+      learning_rate: 0.1
+  # 更多模型示例（需要时取消注释）:
+  # KNN:
+  #   params:
+  #     n_neighbors: 5
+  #     weights: "uniform"
+  # =============================================================================
+# =============================================================================

@@ -1,0 +1,121 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit model -c <配置文件.yaml> 或 habit cv -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 0. 最小可运行配置 / Minimal — 机器学习（影像组学表）
+# 完整说明见 config_machine_learning_radiomics.yaml
+# 运行: habit model -c config/machine_learning/config_machine_learning_radiomics_minimal.yaml
+#
+# 【YAML】路径一般不用引号；有空格时才加
+
+# 中文：★【必须检查】输入数据配置；多表时每一项都要填写路径、ID 列和标签列。
+# EN: ★ REVIEW: Input-data configuration; for multiple tables, complete path, ID and label in each item.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
+input:
+  # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+  # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
+  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv  # ★ CSV
+    name: radiomics_
+    # 中文：★【必须修改】CSV 中唯一受试者 ID 的列名；必须与实际表头完全一致。
+    # EN: ★ MUST EDIT: Unique subject-ID column in the CSV; must exactly match its header.
+    subject_id_col: subject_id
+    # 中文：★【必须修改】真实结局/标签列名；二分类通常使用 0 和 1。
+    # EN: ★ MUST EDIT: True outcome/label column; binary classification normally uses 0 and 1.
+    label_col: label
+    # 中文：特征列限制；留空/null 通常表示自动使用可用特征，指定列表时必须与表头一致。
+    # EN: Feature-column restriction; empty/null usually auto-selects available features; named columns must match headers.
+    features:
+
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
+output: ../../demo_data/results/ml/radiomics   # ★ 输出
+split_method: custom
+# 中文：★【必须修改】自定义训练集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
+# EN: ★ MUST EDIT: Custom training-ID list, one subject per line; used with custom splits.
+train_ids_file: ../../demo_data/ml_data/train_ids.txt   # ★ 训练集 ID
+# 中文：★【必须修改】自定义测试集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
+# EN: ★ MUST EDIT: Custom test-ID list, one subject per line; used with custom splits.
+test_ids_file: ../../demo_data/ml_data/test_ids.txt     # ★ 测试集 ID
+
+# 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
+# EN: Feature normalization; z_score is normally retained to prevent scale dominance.
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
+normalization:
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: z_score
+
+# 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
+# EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
+feature_selection_methods:
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  - method: variance
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      before_z_score: true
+      threshold: 0.2
+      # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
+      # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
+      plot_variances: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  - method: correlation
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      threshold: 0.80
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      method: spearman
+      visualize: false
+      before_z_score: false
+# 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
+is_visualize: true
+# 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
+is_save_model: true
+
+# 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
+# EN: Models to train; start with one model. More models increase runtime and result files.
+models:
+  # =============================================================================
+  # 2.1 子模块 / Submodule: LogisticRegression
+  LogisticRegression:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      # 中文：`penalty` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `penalty` is a setting for this module; retain the example default initially and document any change.
+      penalty: "l2"
+      # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `solver` is a setting for this module; retain the example default initially and document any change.
+      solver: "lbfgs"
+  # =============================================================================
+# =============================================================================

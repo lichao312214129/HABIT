@@ -20,6 +20,13 @@ Use a short local path with ASCII characters only and no spaces
 Normal for the default CPU environment. After ``launchers/一键启用HABIT-GPU.bat``,
 check NVIDIA drivers; see :doc:`../tutorial/installation` .
 
+**``Parquet export requires pyarrow``**
+
+Current default installs include ``pyarrow``. Rebuild or re-run
+``launchers/一键安装HABIT.bat`` so the environment picks up the updated runtime
+lock. Temporary workaround: ``pip install pyarrow==20.0.0`` inside the HABIT
+command-line session.
+
 Runtime
 -------
 

@@ -506,18 +506,9 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 - ``probability_class_index``: class index for probability column in multiclass (``None`` = all or per implementation).
 - ``binary_positive_class_index`` (default ``1``): positive class index in probability vector for binary classification.
 
-**Model comparison configuration (``habit compare``, ``ModelComparisonConfig``)**
+Model comparison (``habit compare``)
+------------------------------------
 
-- ``output_dir`` (**required**): summary output directory.
-- ``files_config`` (**list**): one entry per model.
-
-  - ``path`` (**required**): prediction CSV/Excel.
-  - ``subject_id_col`` / ``label_col`` / ``prob_col`` (**required**).
-  - ``pred_col`` / ``split_col`` (optional).
-  - ``model_name`` or ``name`` or filename stem inferred from ``path``.
-
-- ``merged_data``: ``enabled``, ``save_name`` (default ``combined_predictions.csv``).
-- ``split`` (internal ``SplitConfig``): split after merge (default ``enabled: false``).
-- ``visualization``: ``roc`` / ``dca`` / ``calibration`` / ``pr_curve`` sub-blocks with ``enabled``, ``save_name``, ``title``, ``n_bins`` (calibration), etc.
-- ``delong_test``: ``enabled``, ``save_name`` (default ``delong_results.json``).
-- ``metrics``: ``basic_metrics``, ``youden_metrics``, ``target_metrics`` (includes ``targets`` dict with (0,1) threshold targets).
+Multi-model ROC / DCA / DeLong comparison uses a separate schema
+(``ModelComparisonConfig``). Full field reference:
+:doc:`model_comparison`.

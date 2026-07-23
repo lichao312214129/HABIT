@@ -512,7 +512,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Adding a method**:
 
   1. See ``habit/core/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
-  2. Register the method name in ``habit/core/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`extension_points`
+  2. Register the method name in ``habit/core/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`../development/extension_points`
   3. If column-dropping, update ``DROPPING_PREPROCESSING_METHODS``
   4. Ensure module import so registration decorator runs
 

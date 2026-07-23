@@ -1,10 +1,23 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit icc -c <配置文件.yaml> 或 habit retest -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# ----------------------------------------------------------------------------
 # ICC Analysis Configuration Template
-# ----------------------------------------------------------------------------
 #
 # Based on actual code: habit/core/machine_learning/icc_analysis.py
 #
@@ -15,16 +28,25 @@
 # file_groups). It does not overlap with:
 #   config_icc_demo.yaml — minimal two-table demo under ../../demo_data/ml_data/.
 #
-# ----------------------------------------------------------------------------
-# ─────────────────────────────────────────────────────────────────────────
 # Input Configuration
-# ─────────────────────────────────────────────────────────────────────────
+
+# 中文：★【必须检查】输入数据配置；多表时每一项都要填写路径、ID 列和标签列。
+# EN: ★ REVIEW: Input-data configuration; for multiple tables, complete path, ID and label in each item.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
 input:
   # Type of input
   # Options: files, directories
+  # 中文：`type` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `type` is a setting for this module; retain the example default initially and document any change.
   type: files
   # File groups configuration (used when type is 'files')
   # Each list represents files to compare (test-retest, inter-rater, etc.)
+  # 中文：★【必须修改】每个列表是一组配对/重复测量特征表；不要将标签列用于 ICC。
+  # EN: ★ MUST EDIT: Each list is a paired/repeated feature-table group; exclude outcome columns from ICC.
   file_groups:
   - - H:\results\features\ith_scores.csv
     - H:\results_icc_remapping\ith_scores.csv
@@ -36,21 +58,26 @@ input:
     - H:\results_icc_remapping\habitat_basic_features.csv
   - - H:\results\features\raw_image_radiomics.csv
     - H:\results_icc_remapping\raw_image_radiomics.csv
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
 output:
   # Path to output JSON file
   # Contains ICC values, confidence intervals, reliability classification
+  # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+  # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
   path: H:\results\icc_results_remapped.json
-# ─────────────────────────────────────────────────────────────────────────
 # Processing Configuration
-# ─────────────────────────────────────────────────────────────────────────
 # Number of parallel processes
 # null = use all available CPU cores
+
+# 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
+# EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
 processes: 6
 # Debug mode
+# 中文：调试日志开关；常规运行保持 false，排查报错时才改为 true。
+# EN: Debug logging switch; keep false in normal runs and enable only when troubleshooting.
 debug: false
-# ----------------------------------------------------------------------------
 # Notes
-# ----------------------------------------------------------------------------
 #
 # - All files in a group must have same subjects (matched by first column)
 # - Exclude non-numeric columns (labels, categories)
@@ -63,4 +90,4 @@ debug: false
 #   0.60-0.74: Good
 #   0.75-1.00: Excellent
 #
-# ----------------------------------------------------------------------------
+# =============================================================================

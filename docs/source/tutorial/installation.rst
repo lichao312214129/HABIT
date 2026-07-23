@@ -39,7 +39,7 @@ Source install
 
    conda create -n habit python=3.10
    conda activate habit
-   cd /path/to/habit_project_v1
+   cd /path/to/habit_project
    pip install -e .
    habit --version
 

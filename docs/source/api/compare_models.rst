@@ -9,4 +9,4 @@ Train models first, then:
 
 **Output**: ROC / DCA plots under ``output_dir`` .
 
-**Configuration**: :doc:`../configuration/machine_learning` (comparison section)
+**Configuration**: :doc:`../configuration/model_comparison`

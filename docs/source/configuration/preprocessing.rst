@@ -6,7 +6,8 @@ Preprocessing configuration parameters
 
 This section documents **preprocessing** configuration (``PreprocessingConfig``). Top-level key ``preprocessing`` holds step blocks; keys must match names registered in ``PreprocessorFactory``; YAML order is execution order.
 
-DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; fields are listed under **「DICOM sort configuration parameters」** below. See :doc:`../how_to/preprocess` for operations.
+DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; see
+:doc:`dicom_sort`. Operations: :doc:`../how_to/preprocess`.
 
 **Example configuration file:**
 
@@ -150,39 +151,8 @@ DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; fields are
      - ``[]``
      - When non-empty, only listed steps write intermediate results; **empty list** with ``save_intermediate: true`` writes every step
 
-DICOM sort configuration parameters (``habit sort-dicom``)
-----------------------------------------------------------
+DICOM sort configuration (``habit sort-dicom``)
+----------------------------------------------
 
-Corresponds to ``habit.core.dicom_sort.DicomSortConfig``; Sphinx API at :doc:`../../api/dicom_sort`. CLI: ``habit sort-dicom -c <yaml>``.
-
-**Recommended template**: ``config/dicom_sort/config_sort_dicom.yaml`` in the repository. Legacy path ``config/preprocessing/config_image_preprocessing_sort_dicom.yaml`` may be a copy of the same format, kept for old documentation links.
-
-**Flat YAML top-level fields**
-
-.. list-table::
-   :header-rows: 1
-   :widths: 24 18 58
-
-   * - Field
-     - Default
-     - Description
-   * - ``data_dir`` / ``out_dir``
-     - none (required)
-     - Input DICOM root directory; relative paths resolved against YAML directory
-   * - ``f``
-     - none (required; or use ``filename_format``)
-     - dcm2niix ``-f`` passed **verbatim**; no path resolution
-   * - ``filename_format``
-     - ``null``
-     - Deprecated alias; same semantics as ``f``
-   * - ``dcm2niix_path``
-     - ``null``
-     - If omitted, search ``PATH`` for ``dcm2niix``; relative paths resolved against YAML directory
-   * - ``extra_args``
-     - ``[]``
-     - Each item appended verbatim to the dcm2niix command line
-   * - ``output_dir``
-     - ``null``
-     - If set, used as ``-o``; otherwise ``out_dir``
-
-For command usage see :doc:`../how_to/preprocess`; field definitions on this page are authoritative.
+Field reference moved to :doc:`dicom_sort`. Template:
+``config/dicom_sort/config_sort_dicom.yaml``.

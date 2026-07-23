@@ -11,4 +11,4 @@ Train models first, then:
 ``calibration_curves.pdf`` , ``precision_recall_curves.pdf`` , ``delong_results.json`` ,
 ``combined_predictions.csv`` .
 
-**Configuration**: :doc:`../configuration/machine_learning` (comparison section)
+**Configuration**: :doc:`../configuration/model_comparison`

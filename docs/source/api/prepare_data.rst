@@ -36,4 +36,4 @@ Data specification
 
 Draw ROIs in **ITK-SNAP** or **3D Slicer** ; export NIfTI masks.
 
-Templates: ``config/`` — see ``config/README_CONFIG.md`` .
+Templates: ``config/`` — see :doc:`../configuration/recipe_catalog`.

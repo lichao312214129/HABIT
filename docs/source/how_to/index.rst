@@ -10,5 +10,7 @@ Each page: **command → outputs → configuration**. YAML fields: :doc:`../conf
    preprocess
    segment_habitat
    extract_features
+   radiomics
    train_model
    compare_models
+   auxiliary_tools

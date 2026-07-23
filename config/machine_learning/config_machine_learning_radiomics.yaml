@@ -1,286 +1,244 @@
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
-# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
-# Machine Learning Configuration File
-# This configuration file defines all parameters for data loading, preprocessing, feature selection, model training, and evaluation.
-#%%================================================================================
-# Data Input Configuration
-# Multiple input files can be specified for model ensemble or feature combination
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit model -c <配置文件.yaml> 或 habit cv -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 中文：读入特征 CSV → 划分训练/测试 → 标准化/特征选择 → 训练多模型 → 评估出图。
+# EN:   Train/evaluate ML models on a radiomics feature CSV.
+#
+# 运行 / Run:
+#   habit model -c config/machine_learning/config_machine_learning_radiomics.yaml
+#
+# 【你只需要改标了 ★ 的项】
+#   ★ 1. input 路径与列名
+#   ★ 2. output
+#   ★ 3. 划分方式（本 demo 为 custom：train_ids_file / test_ids_file）
+#   ★ 4.（可选）models、feature_selection_methods
+#
+# 【YAML 注意】
+#   - 空格缩进；冒号后有空格；true/false/null 小写
+#   - 路径一般不用引号；仅含空格或特殊字符时加引号，如 "D:/my data/a.csv"
+#   - Windows 推荐正斜杠；相对路径相对本 YAML 目录解析
+
+# 中文：★【必须检查】输入数据配置；多表时每一项都要填写路径、ID 列和标签列。
+# EN: ★ REVIEW: Input-data configuration; for multiple tables, complete path, ID and label in each item.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
 input:
-  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv # Path to the input data file (CSV format)
-    name: radiomics_  # Prefix for feature names from this file. Default is empty. Used to prevent feature name conflicts when using multiple datasets
-    subject_id_col: subject_id  # Column name containing subject identifiers (must be unique for each subject)
-    label_col: label  # Column name containing target labels (0/1 for binary classification)
-    features:    # Optional list of specific features to use from this file. If not provided, all available features will be used (except subject_id_col and label_col)
-  # # Example of additional input file configuration (commented out)
-  # - path: H:\results\ml_data\autogluon_habitat\autogluon_habitat_pred_full.csv
-  #   name: habitat_  # Prefix clinical_ will be added to all features from this file
-  #   subject_id_col: subject_id  # Column name for subject ID in this file
-  #   label_col: true_label  # Column name for the target variable in this file
-  #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
-  # # # # Example of additional input file configuration (commented out)
-  # - path: H:\results\ml_data\autogluon_radiomics\autogluon_radiomics_pred_full.csv
-  #   name: radiomics_  # Prefix clinical_ will be added to all features from this file
-  #   subject_id_col: subject_id  # Column name for subject ID in this file
-  #   label_col: true_label  # Column name for the target variable in this file
-  #   features: [prob]  # Only use the LogisticRegression_prob column as a feature
-#%%================================================================================
-# Output Directory Configuration
-output: ../../demo_data/results/ml/radiomics  # Directory where all results will be saved (models, plots, statistics)
-#%%================================================================================
-# Data Splitting Configuration
-# Options: random (completely random split), stratified (preserves class distribution), custom (user-defined splits)
-split_method: custom  # Method used to split data into training and testing sets
-# The following parameters are used when split_method is random or stratified (currently commented out)
-# test_size: 0.3  # Proportion of data to be used for testing (between 0.0 and 1.0)
-# random_state: 42  # Seed for random number generator to ensure reproducible splits
-# The following parameters are used when split_method is custom
-train_ids_file: ../../demo_data/ml_data/train_ids.txt  # File containing IDs for training set (one ID per line)
-test_ids_file: ../../demo_data/ml_data/test_ids.txt  # File containing IDs for testing set (one ID per line)
-#%%================================================================================
-# Normalization Configuration
-# Several options are available:
+  # 可配置多个输入表做特征拼接/集成；单表时只保留第一项即可
+  # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+  # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
+  - path: ../../demo_data/ml_data/breast_cancer_dataset.csv  # ★ 特征 CSV
+    name: radiomics_          # 多表时加前缀防重名
+    # 中文：★【必须修改】CSV 中唯一受试者 ID 的列名；必须与实际表头完全一致。
+    # EN: ★ MUST EDIT: Unique subject-ID column in the CSV; must exactly match its header.
+    subject_id_col: subject_id  # ★ 受试者 ID 列
+    # 中文：★【必须修改】真实结局/标签列名；二分类通常使用 0 和 1。
+    # EN: ★ MUST EDIT: True outcome/label column; binary classification normally uses 0 and 1.
+    label_col: label            # ★ 标签列（二分类 0/1）
+    # 中文：特征列限制；留空/null 通常表示自动使用可用特征，指定列表时必须与表头一致。
+    # EN: Feature-column restriction; empty/null usually auto-selects available features; named columns must match headers.
+    features:                   # 留空=除 ID/标签外全部特征
+  # 多表示例（需要时取消注释并改路径）:
+  # - path: ../../demo_data/results/ml/other/all_prediction_results.csv
+  #   name: habitat_
+  #   subject_id_col: subject_id
+  #   label_col: true_label
+  #   features: [prob]
+
+# ★ 结果输出目录（模型、图表、统计）
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
+output: ../../demo_data/results/ml/radiomics
+
+# 划分方式: random（随机）/ stratified（分层）/ custom（自定义 ID 列表）
+# 中文：数据集划分方式：random 随机、stratified 保持类别比例、custom 使用 ID 清单。
+# EN: Dataset split: random, stratified to preserve class ratios, or custom using ID lists.
+split_method: custom
+# 当 split_method 为 random 或 stratified 时使用（本 demo 用 custom，故注释）:
+# test_size: 0.3
+# random_state: 42
+# ★ custom 划分：一行一个受试者 ID
+# 中文：★【必须修改】自定义训练集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
+# EN: ★ MUST EDIT: Custom training-ID list, one subject per line; used with custom splits.
+train_ids_file: ../../demo_data/ml_data/train_ids.txt
+# 中文：★【必须修改】自定义测试集 ID 清单；每行一个受试者 ID，仅 custom 划分时使用。
+# EN: ★ MUST EDIT: Custom test-ID list, one subject per line; used with custom splits.
+test_ids_file: ../../demo_data/ml_data/test_ids.txt
+
+# 中文：特征标准化设置；通常保持 z_score，避免不同量纲主导模型。
+# EN: Feature normalization; z_score is normally retained to prevent scale dominance.
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 normalization:
-  method: z_score  # Standardization method (zero mean, unit variance)
-  # method: min_max  # Scale features to a specific range [0,1] by default
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: z_score
+  # 其他可选（需要时改 method，并按需取消 params）:
+  # method: min_max
   # params:
-  #   feature_range: [0, 1]  # Range to scale features to
-  # method: robust  # Scale features using statistics robust to outliers
-  # params:
-  #   quantile_range: [25.0, 75.0]  # Percentile range to compute the robust scaling
-  #   with_centering: true  # Whether to center the data before scaling
-  #   with_scaling: true  # Whether to scale the data to interquartile range
-  # method: max_abs  # Scale each feature by its maximum absolute value
-  # method: normalizer  # Scale samples to have unit norm
-  # params:
-  #   norm: l2  # Norm to use (l1, l2, or max)
-  # method: quantile  # Transform features to follow uniform or normal distribution
-  # params:
-  #   n_quantiles: 1000  # Number of quantiles to use
-  #   output_distribution: uniform  # Output distribution (uniform or normal)
-  # method: power  # Apply power transform to make data more Gaussian-like
-  # params:
-  #   method: yeo-johnson  # Transformation method (yeo-johnson or box-cox)
-  #   standardize: true  # Whether to standardize the data to zero mean and unit variance
-#%%================================================================================
-# Resampling Configuration
-# Resampling is applied only while fitting the training data. It is skipped
-# automatically during validation, testing, and prediction so row counts stay
-# unchanged outside the training fold.
+  #   feature_range: [0, 1]
+  # method: robust
+  # method: max_abs
+
+# 重采样仅作用于训练数据拟合阶段
+# ⚠ enabled: true 需要 imbalanced-learn；类别不平衡明显时再开
+# 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
+# EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
 resampling:
-  enabled: false  # Demo/quickstart: false avoids imbalanced-learn (imblearn); set true for SMOTE etc.
-  method: random_over  # Options: random_over, random_under, smote
-  position: before_model  # Options: before_feature_selection, before_normalization, after_normalization, before_model
-  ratio: 1.0  # Target sampling ratio passed to the selected resampling method
-  random_state: 42  # Random seed used by the resampling method
-#%%================================================================================
-# Feature Selection Configuration
-# Multiple feature selection methods can be applied sequentially
+  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
+  # EN: Feature switch; false skips this module and true uses its nested settings.
+  enabled: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: random_over   # random_over / random_under / smote
+  position: before_model
+  ratio: 1.0
+  # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+  # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+  random_state: 42
+
+# 特征选择按列表顺序依次执行
+# 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
+# EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
 feature_selection_methods:
-  # ICC (Intraclass Correlation Coefficient) method
-  # - method: icc  # Selects features based on their reproducibility
+  # ICC 示例（需先跑 habit icc 得到 json）:
+  # - method: icc
   #   params:
-  #     icc_results: ../../demo_data/results/icc/icc_radiomics.json  # from config_icc_demo.yaml
-  #     keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]  # Key(s) in the ICC results file to use
-  #     metric: ICC2 # Metrics to use
+  #     icc_results: ../../demo_data/results/icc/icc_radiomics.json
+  #     keys: [breast_cancer_dataset_vs_breast_cancer_dataset_retest_simulated]
+  #     metric: ICC2
   #     threshold: 0.8
-  ## 方差选择器 - 移除低方差特征
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
   - method: variance
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
-      before_z_score: true  # 是否在Z-score标准化之前执行（推荐为true，因为标准化后所有特征方差均为1）
-      threshold: 0.2  # 方差阈值（特征方差必须大于此值才会被保留）
-      plot_variances: true  # 是否生成方差可视化图表
-  # # 统计检验选择器 - 自动选择t检验或Mann-Whitney U检验
-  # - method: statistical_test
-  #   params:
-  #     p_threshold: 0.05  # P值阈值（特征P值必须小于此值才会被保留）
-  #     # n_features_to_select: 20  # 可选：要选择的特征数量（如果指定，则覆盖p_threshold）
-  #     normality_test_threshold: 0.05  # 正态性检验的阈值
-  #     plot_importance: true  # 是否生成特征重要性图表
-  #     before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
-  #     force_test: "ttest"  # 可选：强制使用特定检验方法（"ttest"或"mannwhitney"）
-  # # VIF (Variance Inflation Factor) method - removes features with high multicollinearity
-  # - method: vif  # Removes features with high multicollinearity
-  #   params:
-  #     max_vif: 10  # Maximum allowed VIF value; features with higher values will be removed
-  #     visualize: false  # Whether to generate visualization of VIF values
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # # Correlation method - removes highly correlated features
+      before_z_score: true   # 推荐 true（标准化后方差都接近 1）
+      threshold: 0.2
+      # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
+      # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
+      plot_variances: true
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
   - method: correlation
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
-      threshold: 0.80  # Correlation threshold (features with correlation above this value will be removed)
-      method: spearman  # Correlation method: pearson, spearman, or kendall
-      visualize: false  # Whether to generate correlation heatmap
-      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # # ANOVA method - selects features based on ANOVA F-value
-  # - method: anova
-  #   params:
-  #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
-  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
-  #     plot_importance: true  # Whether to plot feature importance
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # # Chi2 method - selects features based on chi-square test (only for non-negative features)
-  # - method: chi2
-  #   params:
-  #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
-  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
-  #     plot_importance: true  # Whether to plot feature importance
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # - method: rfecv
-  #   params:
-  #     estimator: LogisticRegression
-  #     cv: 10
-  #     step: 1
-  #     min_features_to_select: 1
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # mRMR (Minimum Redundancy Maximum Relevance) method
-  # - method: mrmr  # Selects features with high relevance to target and low redundancy among themselves
-  #   params:
-  #     n_features: 5  # Number of features to select
-  #     visualize: false  # Whether to generate visualization of selected features
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # LASSO (L1 regularization) method - selects features using L1 regularization
-  - method: lasso  # Selects features using L1 regularization
+      threshold: 0.80
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      method: spearman       # pearson / spearman / kendall
+      visualize: false
+      before_z_score: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  - method: lasso
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:
-      cv: 10  # Number of cross-validation folds for selecting optimal alpha
-      n_alphas: 100  # Number of alpha values to try
-      alphas: [0.01, 0.1, 1.0, 10, 100]  # Alpha values to try
-      random_state: 42  # Random seed for reproducibility
-      visualize: true  # Whether to generate visualization of feature coefficients
-      before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # # Univariate Logistic Regression method
-  # - method: univariate_logistic  # Selects features based on individual logistic regression p-values
-  #   params:
-  #     threshold: 0.1  # Maximum p-value threshold for feature selection (features with p < threshold are retained)
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-  # # Stepwise Feature Selection method
-  # - method: stepwise  # Performs step-by-step feature selection using AIC/BIC criteria
-  #   params:
-  #     criterion: aic  # Criterion for selection: aic, bic
-  #     direction: forward  # Direction of stepwise selection: forward, backward, or both
-  #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
-#%%================================================================================
-# Model Configuration
-# Multiple models can be defined and will all be trained and evaluated
-models:
-  # # Logistic Regression model configuration
-  LogisticRegression:  # Model type: Standard logistic regression classifier
-    params:
-      random_state: 42  # Random seed for reproducibility
-      max_iter: 1000  # Maximum number of iterations for convergence
-      C: 1.0  # Inverse of regularization strength (smaller values = stronger regularization)
-      penalty: "l2"  # Regularization type (l1=Lasso, l2=Ridge)
-      solver: "lbfgs"  # Algorithm to use in the optimization problem
-  # # AutoGluonTabular model configuration
-  # AutoGluonTabular:  # Model type: AutoGluonTabular classifier
-  #   params:
-  #     path: ../../demo_data/ml_data/autogluon_models
-  #     label: label
-  #     time_limit: 30
-  #     random_state: 42  # Random seed for reproducibility
-  #     # presets: "high_quality"  # Preset for AutoGluonTabular
-  #     verbosity: 4  # Verbosity level for AutoGluonTabular
-  #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
-  # Support Vector Machine configuration
-  SVM:  # Model type: Support Vector Machine classifier
-    params:
-      random_state: 42  # Random seed for reproducibility
-      C: 1.0  # Regularization parameter
-      kernel: "rbf"  # Kernel type: linear, poly, rbf, sigmoid
-      gamma: "scale"  # Kernel coefficient
-      probability: true  # Enable probability estimates
-  # # Random Forest configuration
-  # RandomForest:  # Model type: Random Forest classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 100  # Number of trees in the forest
-  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
-  #     min_samples_split: 2  # Minimum samples required to split an internal node
-  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
-  #     max_features: "sqrt"  # Number of features to consider for best split
-  #     class_weight: "balanced"  # Handle imbalanced classes
-  # # XGBoost configuration
-  # XGBoost:  # Model type: Gradient Boosting classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 100  # Number of boosting stages/trees to build
-  #     max_depth: 3  # Maximum tree depth
-  #     learning_rate: 0.1  # Boosting learning rate
-  #     subsample: 0.8  # Fraction of samples used for fitting trees
-  #     colsample_bytree: 0.8  # Fraction of features used per tree
-  #     objective: "binary:logistic"  # Objective function for optimization
-  #     eval_metric: "logloss"  # Evaluation metric during training
-  # # K-Nearest Neighbors configuration
-  # KNN:  # Model type: K-Nearest Neighbors classifier
-  #   params:
-  #     n_neighbors: 5  # Number of neighbors to use
-  #     weights: "uniform"  # Weight function: uniform or distance
-  #     algorithm: "auto"  # Algorithm to compute nearest neighbors: auto, ball_tree, kd_tree, brute
-  #     metric: "minkowski"  # Distance metric
-  #     p: 2  # Power parameter for Minkowski metric (p=2 is Euclidean distance)
-  # # Multi-layer Perceptron (Neural Network) configuration
-  # MLP:  # Model type: Multi-layer Perceptron classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     hidden_layer_sizes: [100, 50]  # Sizes of hidden layers
-  #     activation: "relu"  # Activation function: identity, logistic, tanh, relu
-  #     solver: "adam"  # Weight optimization solver: lbfgs, sgd, adam
-  #     alpha: 0.0001  # L2 penalty parameter
-  #     learning_rate: "constant"  # Learning rate schedule: constant, invscaling, adaptive
-  #     learning_rate_init: 0.001  # Initial learning rate
-  #     max_iter: 200  # Maximum number of iterations
-  #     early_stopping: false  # Whether to use early stopping
-  # # Gaussian Naive Bayes configuration
-  # GaussianNB:  # Model type: Gaussian Naive Bayes classifier
-  #   params:
-  #     var_smoothing: 1.0e-9  # Portion of the largest variance added to variances for stability
-  # # Multinomial Naive Bayes configuration (requires non-negative features)
-  # MultinomialNB:  # Model type: Multinomial Naive Bayes classifier
-  #   params:
-  #     alpha: 1.0  # Additive smoothing parameter
-  #     fit_prior: true  # Whether to learn class prior probabilities
-  # # Bernoulli Naive Bayes configuration (for binary/boolean features)
-  # BernoulliNB:  # Model type: Bernoulli Naive Bayes classifier
-  #   params:
-  #     alpha: 1.0  # Additive smoothing parameter
-  #     binarize: 0.0  # Threshold for binarizing features (null means pre-binarized)
-  #     fit_prior: true  # Whether to learn class prior probabilities
-  # # Gradient Boosting configuration
-  # GradientBoosting:  # Model type: Gradient Boosting classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 100  # Number of boosting stages
-  #     learning_rate: 0.1  # Learning rate shrinks the contribution of each tree
-  #     max_depth: 3  # Maximum depth of the individual trees
-  #     subsample: 1.0  # Fraction of samples to be used for fitting the trees
-  #     min_samples_split: 2  # Minimum samples required to split an internal node
-  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
-  # # AdaBoost configuration
-  # AdaBoost:  # Model type: AdaBoost classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     n_estimators: 50  # Maximum number of estimators
-  #     learning_rate: 1.0  # Weight applied to each classifier
-  #     algorithm: "SAMME.R"  # Boosting algorithm: SAMME or SAMME.R
-  # # Decision Tree configuration
-  # DecisionTree:  # Model type: Decision Tree classifier
-  #   params:
-  #     random_state: 42  # Random seed for reproducibility
-  #     criterion: "gini"  # Function to measure split quality: gini or entropy
-  #     splitter: "best"  # Strategy to choose split: best or random
-  #     max_depth: null  # Maximum depth of the tree (null means unlimited)
-  #     min_samples_split: 2  # Minimum samples required to split an internal node
-  #     min_samples_leaf: 1  # Minimum samples required at a leaf node
-  #     class_weight: "balanced"  # Handle imbalanced classes
-#%%================================================================================
-# Visualization and Saving Configuration
-is_visualize: true  # Whether to generate performance visualization plots (ROC, calibration curves, etc.)
-is_save_model: true  # Whether to save trained models to disk for future use
+      cv: 10
+      n_alphas: 100
+      # 中文：`alphas` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `alphas` is a setting for this module; retain the example default initially and document any change.
+      alphas: [0.01, 0.1, 1.0, 10, 100]
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      visualize: true
+      before_z_score: false
+# 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
+is_visualize: true
+# 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
+is_save_model: true
+# 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
+# EN: Plot-output settings; plot text remains English for publication and cross-team use.
 visualization:
+  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
+  # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: true
+  # =============================================================================
+  # 2.1 子模块 / Submodule: plot_types
   plot_types:
     - roc
     - calibration
     - confusion
     - dca
+
+# 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
+# EN: Models to train; start with one model. More models increase runtime and result files.
+models:
+  # =============================================================================
+
+  # =============================================================================
+  # 2.2 子模块 / Submodule: LogisticRegression
+  LogisticRegression:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      # 中文：`penalty` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `penalty` is a setting for this module; retain the example default initially and document any change.
+      penalty: "l2"
+      # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `solver` is a setting for this module; retain the example default initially and document any change.
+      solver: "lbfgs"
+  # 中文：`SVM` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `SVM` is a setting for this module; retain the example default initially and document any change.
+  # =============================================================================
+
+  # =============================================================================
+  # 2.3 子模块 / Submodule: SVM
+  SVM:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      C: 1.0
+      kernel: "rbf"
+      # 中文：SVM 核宽度参数；通常保留 scale，除非有明确的调参方案。
+      # EN: SVM kernel-width parameter; normally keep scale unless a tuning plan specifies otherwise.
+      gamma: "scale"
+      # 中文：是否计算预测概率；模型比较、ROC 和 DCA 通常需要 true。
+      # EN: Whether to calculate predicted probabilities; model comparison, ROC and DCA usually require true.
+      probability: true
+  # RandomForest:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_depth: null
+  #     max_features: "sqrt"
+  #     class_weight: "balanced"
+  # XGBoost:
+  #   params:
+  #     random_state: 42
+  #     n_estimators: 100
+  #     max_depth: 3
+  #     learning_rate: 0.1
+  # =============================================================================
+# =============================================================================

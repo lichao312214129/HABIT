@@ -95,36 +95,14 @@ Intermediate NRRD remapping outputs are written under ``out_dir``.
 Traditional radiomics CLI configuration (``habit radiomics``)
 ------------------------------------------------------------
 
-This section documents **traditional radiomics** configuration. Example: ``config/radiomics/config_traditional_radiomics.yaml``.
-
-**paths**
-
-- ``params_file``: PyRadiomics parameter YAML (optional; bundled ``roi`` preset when omitted)
-- ``images_folder``: root directory containing ``images/`` and ``masks/`` subfolders (required)
-- ``out_dir``: feature output directory (required)
-
-**processing**
-
-- ``n_processes`` (default 2)
-- ``save_every_n_files`` (default 5): save intermediate results every N files
-- ``process_image_types``: list of sequence/type names to process; ``null`` means all
-- ``target_labels``: label list extracted from mask (default ``[1]``) for binary foreground
-
-**export**
-
-- ``export_by_image_type``, ``export_combined``, ``export_format`` (``csv`` | ``json`` | ``pickle``), ``add_timestamp``
-
-**logging**
-
-- ``level`` (DEBUG/INFO/…), ``console_output``, ``file_output``
-
-**Backward-compatible top-level fields** (deprecated, equivalent to nested): ``params_file``, ``images_folder``, ``out_dir``, ``n_processes``.
+Moved to :doc:`radiomics`. Example:
+``config/radiomics/config_traditional_radiomics.yaml``.
 
 Repository configuration template index
 ---------------------------------------
 
-Full scenario descriptions and test script paths: **`config/README_CONFIG.md`** (repository root, sibling to the ``habit/`` package).
-The ``config/`` directory is organized by function; copy and modify directly:
+Scenario catalog: :doc:`recipe_catalog`. The ``config/`` directory is organized
+by function; copy and modify templates directly:
 
 .. list-table::
    :header-rows: 1
@@ -177,9 +155,9 @@ FAQ
 
 A: You can:
 
-1. Copy the example YAML for your scenario from the repository root ``config/`` and modify it (scenario list in ``config/README_CONFIG.md``)
-2. Refer to field descriptions in each section of this document and add/remove parameters on the copy
-3. Create YAML from scratch (not recommended; easy to miss required fields)
+1. Copy an example YAML from ``config/`` (see :doc:`recipe_catalog`) and edit paths
+2. Refer to field descriptions on the matching configuration page
+3. Create YAML from scratch only if needed (easy to miss required fields)
 
 **Q2: How do I debug a configuration file?**
 

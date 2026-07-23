@@ -1,3 +1,18 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：这是研究方案级的 PyRadiomics 参数预设。带 ★ 的模块需要在分析开始前确认；同一研究中不要随意更改。
+# EN: This is a study-level PyRadiomics preset. Confirm ★ sections before analysis; do not change them ad hoc within one study.
+#
+# 运行 / Run: habit radiomics -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml> --syntax-only（清单/参数预设仅做 YAML 语法检查）
+
 # Basic PyRadiomics parameter file — first-order + shape + GLCM only.
 # NOTE (habit voxel_radiomics): kernel_radius, voxel_batch, use_torch_radiomics, etc. belong in
 # feature_construction.voxel_level.params in your habitat config (default voxel_batch: 1000).
@@ -8,16 +23,47 @@
 # Keeps feature count modest (~70 features per image) and avoids
 # expensive multi-scale filters.
 # Reference: https://pyradiomics.readthedocs.io/en/latest/customization.html
+
+# 中文：★【按研究方案确认】影像滤波类型；新增滤波会显著增加特征数量与多重比较负担。
+# EN: ★ STUDY-DESIGN REVIEW: Image filters; adding filters increases feature count and multiplicity burden.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
 imageType:
+  # 中文：原始影像特征；不做额外滤波，通常是最基本且建议保留的特征来源。
+  # EN: Original-image features without extra filtering; usually the fundamental source to retain.
   Original: {}                  # only original image (no LoG/Wavelet)
+
+# 中文：★【按研究方案确认】要计算的特征类别；应在建模前固定，不要按结果反复调整。
+# EN: ★ STUDY-DESIGN REVIEW: Feature classes; fix these before modelling rather than tuning to results.
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
 featureClass:
+  # 中文：一阶强度统计特征；描述灰度分布，不包含空间纹理关系。
+  # EN: First-order intensity statistics; describe intensity distributions without spatial texture relationships.
   firstorder:                   # 18 first-order intensity stats
+  # 中文：ROI 形状特征；描述体积和几何形态，对分割边界质量较敏感。
+  # EN: ROI shape features; describe volume and geometry and are sensitive to segmentation boundaries.
   shape:                        # 14 3D shape descriptors
+  # 中文：灰度共生矩阵纹理特征；描述相邻体素灰度组合，对离散化设置敏感。
+  # EN: GLCM texture features; describe neighboring intensity combinations and depend on discretization.
   glcm:                         # 24 grey-level co-occurrence matrix features
+# 中文：★【按研究方案确认】PyRadiomics 全局参数，如归一化和离散化；会影响全部特征数值。
+# EN: ★ STUDY-DESIGN REVIEW: PyRadiomics global settings, such as normalization/discretization, affect all features.
 setting:
   binWidth: 25                  # fixed bin width discretization
   label: 1                      # mask label value treated as ROI
+  # 中文：是否在特征计算前归一化强度；MR 常需考虑，绝对定量图像通常需要谨慎。
+  # EN: Whether to normalize intensities before feature extraction; often considered for MR and used cautiously for quantitative maps.
   normalize: false              # set true if you skipped z-score in preprocessing
+  # 中文：`padDistance` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `padDistance` is a setting for this module; retain the example default initially and document any change.
   padDistance: 5
   # resampledPixelSpacing: [1, 1, 1]   # uncomment to resample again here
   # interpolator: sitkBSpline
+# =============================================================================

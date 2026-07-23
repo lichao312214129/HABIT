@@ -69,6 +69,32 @@ def cli():
     """
     ensure_cli_stdio()
 
+@cli.command('check-config')
+@config_option(help='Path to configuration YAML to check (does not run the pipeline)')
+@click.option(
+    '--workflow', '-w',
+    type=click.Choice([
+        'preprocess', 'habitat', 'extract', 'radiomics',
+        'model', 'cv', 'compare', 'icc', 'retest', 'sort-dicom',
+    ], case_sensitive=False),
+    default=None,
+    help='Workflow schema to validate against (optional; guessed from path when omitted)',
+)
+@click.option(
+    '--syntax-only',
+    is_flag=True,
+    help='Check YAML syntax only (for manifests and PyRadiomics parameter presets)',
+)
+def check_config(
+    config: str,
+    workflow: Optional[str],
+    syntax_only: bool,
+) -> None:
+    """Check YAML syntax and optional schema without running a pipeline"""
+    from habit.commands.cmd_check_config import run_check_config
+    run_check_config(config, workflow, syntax_only)
+
+
 @cli.command('preprocess')
 @config_option()
 def preprocess(config):
