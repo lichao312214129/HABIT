@@ -108,6 +108,14 @@ is_save_model: true
 # EN: Plot-output settings; plot text remains English for publication and cross-team use.
 # --- 4. 结果可视化 / visualization ---
 visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: true

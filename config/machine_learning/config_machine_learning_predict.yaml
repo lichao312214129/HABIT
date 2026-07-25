@@ -20,7 +20,8 @@
 # Machine Learning Configuration — Prediction (MLConfig)
 #
 # Usage:
-#   habit model --config config/machine_learning/config_machine_learning_predict.yaml --mode predict
+#   habit model -c config/machine_learning/config_machine_learning_predict.yaml
+#   # Optional override: habit model -c ... --mode predict
 #
 # Requires a pipeline saved by train mode, e.g.:
 #   .../models/LogisticRegression_final_pipeline.pkl
@@ -66,4 +67,27 @@ output_label_col: predicted_label
 output_prob_col: predicted_probability
 # probability_class_index: null
 # binary_positive_class_index: 1
+# =============================================================================
+# 4. 结果可视化 / Results visualization (predict)
+# 中文：predict 模式下，评价图仅在 evaluate=true 且输入含真实标签时生成。
+# EN: In predict mode, evaluation figures are written only when evaluate=true
+#     and the input table contains ground-truth labels.
+# =============================================================================
+# 中文：是否生成评价图；无标签时即使为 true 也不会出 ROC/校准等图。
+# EN: Whether to generate evaluation figures; without labels, ROC/calibration stay off.
+is_visualize: true
+# 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
+is_save_model: true
+# 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
+# EN: Plot-output settings; plot text remains English for publication and cross-team use.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
 # =============================================================================

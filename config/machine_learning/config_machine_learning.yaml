@@ -169,7 +169,7 @@ feature_selection_methods:
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
     method: spearman
-    visualize: false
+    visualize: true
     before_z_score: false
 # 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
 # EN: Models to train; start with one model. More models increase runtime and result files.
@@ -287,7 +287,7 @@ models:
 # Generate performance plots (ROC, calibration, DCA, confusion matrix)
 # 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
-is_visualize: false
+is_visualize: true
 # Save trained models to disk (.pkl files)
 # 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
@@ -298,4 +298,16 @@ is_save_model: true
 # 4. Feature selection methods with before_z_score: false run after normalization
 # 5. Models are trained on features after all feature selection steps
 #
+# 4. Results visualization / Results visualization
+# EN: All implemented evaluation figures are enabled for feature demonstration. SHAP can substantially increase runtime.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
+
 # =============================================================================

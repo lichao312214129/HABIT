@@ -80,7 +80,7 @@ feature_selection_methods:
       threshold: 0.2
       # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
       # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
-      plot_variances: false
+      plot_variances: true
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
   - method: correlation
@@ -91,7 +91,7 @@ feature_selection_methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       method: spearman
-      visualize: false
+      visualize: true
       before_z_score: false
 # 中文：`is_visualize` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `is_visualize` is a setting for this module; retain the example default initially and document any change.
@@ -120,4 +120,16 @@ models:
       # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
       # EN: `solver` is a setting for this module; retain the example default initially and document any change.
       solver: "lbfgs"
+# 4. Results visualization / Results visualization
+# EN: All implemented evaluation figures are enabled for feature demonstration. SHAP can substantially increase runtime.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
+
 # =============================================================================

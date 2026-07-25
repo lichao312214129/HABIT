@@ -149,14 +149,15 @@ def extract(config):
 @config_option()
 @click.option('--mode', '-m',
               type=click.Choice(['train', 'predict']),
-              default='train',
-              help='Operation mode: train or predict')
+              default=None,
+              help='Override run mode in the YAML (train or predict)')
 def model(config, mode):
     """
     Train or predict using machine learning models.
     
     All parameters (including model path, data path, output directory) 
-    must be specified in the configuration file.
+    must be specified in the configuration file. When --mode is omitted,
+    YAML run_mode is used (default train if the key is absent).
     """
     from habit.commands.cmd_ml import run_ml
     run_ml(config, mode)

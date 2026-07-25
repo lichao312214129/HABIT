@@ -136,7 +136,7 @@ feature_selection_methods:
       method: spearman
       # 是否输出相关性诊断图；它只用于审阅筛选过程，不改变筛选规则。
       # EN: Export a diagnostic plot; it documents but does not alter selection.
-      visualize: false
+      visualize: true
       # false 表示在 z-score 后执行本步骤；顺序会影响结果，须在研究方案中固定。
       # EN: false runs this step after z-score; lock this order in the study protocol.
       before_z_score: false
@@ -252,8 +252,11 @@ visualization:
   # confusion 展示指定阈值的分类错误；dca 评估不同临床阈值下的净获益。
   # Why: 图形应由预先定义的临床问题决定，不应依据图形外观临时增删。
   # EN: Select figures for prespecified clinical questions, not according to their post-hoc appearance.
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
   plot_types:
     - roc
-    - calibration
-    - confusion
     - dca
+    - calibration
+    - pr
+    - confusion
+    - shap

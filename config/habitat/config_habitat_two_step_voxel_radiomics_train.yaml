@@ -227,4 +227,6 @@ random_state: 42
 # 中文：调试日志开关；常规运行保持 false，排查报错时才改为 true。
 # EN: Debug logging switch; keep false in normal runs and enable only when troubleshooting.
 debug: false
+# EN: Save habitat label images; this can substantially increase disk use.
+save_images: true
 # =============================================================================

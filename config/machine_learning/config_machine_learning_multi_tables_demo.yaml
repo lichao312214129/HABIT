@@ -103,7 +103,7 @@ feature_selection_methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       method: spearman
-      visualize: false
+      visualize: true
       before_z_score: false
 # 中文：待训练模型列表；可保留一个模型起步，增加模型会增加运行时间和结果文件。
 # EN: Models to train; start with one model. More models increase runtime and result files.
@@ -140,9 +140,12 @@ visualization:
   enabled: true
 
   # --- 2.2 plot_types ---
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
   plot_types:
     - roc
+    - dca
     - calibration
-    - confusion
     - pr
+    - confusion
+    - shap
 # =============================================================================

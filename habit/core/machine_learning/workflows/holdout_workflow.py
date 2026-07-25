@@ -143,7 +143,13 @@ class HoldoutWorkflow(BaseWorkflow):
     # ------------------------------------------------------------------
 
     def predict(self) -> None:
-        """Run :class:`InferenceRunner` and persist its output via :class:`ReportWriter`."""
+        """
+        Run :class:`InferenceRunner`, then persist reports and optional plots.
+
+        Evaluation figures are generated only when ``is_visualize=true`` and
+        the inference result contains ground-truth labels
+        (``evaluate=true`` with a resolvable ``label_col``).
+        """
         self.logger.info("Starting Holdout ML pipeline (mode=predict)...")
         self._inference_result = self._inference_runner.run()
 
@@ -151,6 +157,12 @@ class HoldoutWorkflow(BaseWorkflow):
             output_dir=self.output_dir, module_name=self.module_name
         )
         report_writer.write(self._inference_result)
+
+        plot_composer = PlotComposer(
+            plot_manager=self.plot_manager,
+            is_visualize=bool(getattr(self.config_obj, "is_visualize", True)),
+        )
+        plot_composer.render(self._inference_result)
 
         self.logger.info(
             "Holdout ML workflow completed (predict). Output dir: %s",

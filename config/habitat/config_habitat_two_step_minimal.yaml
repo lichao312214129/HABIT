@@ -152,4 +152,8 @@ habitat_segmentation:
 # 3. 高级设置（首次保持默认）/ Advanced (keep defaults initially)
 # EN: Advanced settings
 processes: 2
+# EN: Generate all implemented clustering validation and scatter plots.
+plot_curves: true
+# EN: Save habitat label images; this can substantially increase disk use.
+save_images: true
 # =============================================================================

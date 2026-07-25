@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -27,15 +28,16 @@ from habit.core.machine_learning.run import (
 from habit.utils.log_utils import setup_logger
 
 
-def run_ml(config_path: str, mode: str) -> None:
+def run_ml(config_path: str, mode: Optional[str] = None) -> None:
     """
     Run the ML pipeline (training or prediction).
 
     Args:
         config_path: Path to configuration YAML file.
-        mode: Operation mode (``train`` or ``predict``).
+        mode: Optional CLI override for ``train`` or ``predict``. When
+            ``None``, keep the YAML ``run_mode`` (schema default is train).
     """
-    if mode not in ("train", "predict"):
+    if mode is not None and mode not in ("train", "predict"):
         exit_with_error(
             f"Error: invalid --mode {mode!r} (expected 'train' or 'predict')."
         )
@@ -43,12 +45,15 @@ def run_ml(config_path: str, mode: str) -> None:
     config = load_config_or_exit(MLConfig, config_path)
     click.echo(f"Loaded configuration from: {config_path}")
     config = apply_ml_mode_override(config, mode)
+    effective_mode: str = config.run_mode
 
     output_dir = Path(config.output)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    log_filename = "processing.log" if mode == "train" else "prediction.log"
-    logger_name = "cli.ml" if mode == "train" else "cli.ml.predict"
+    log_filename = (
+        "processing.log" if effective_mode == "train" else "prediction.log"
+    )
+    logger_name = "cli.ml" if effective_mode == "train" else "cli.ml.predict"
     logger = setup_logger(
         name=logger_name,
         output_dir=output_dir,
@@ -57,19 +62,21 @@ def run_ml(config_path: str, mode: str) -> None:
     )
     logger.info(
         "Starting machine learning pipeline (mode=%s) with config: %s",
-        mode,
+        effective_mode,
         config_path,
     )
     logger.info("Full configuration: %s", config.model_dump())
 
-    click.echo(f"Initialising machine learning pipeline (mode={mode})...")
+    click.echo(
+        f"Initialising machine learning pipeline (mode={effective_mode})..."
+    )
     try:
         run_ml_from_config(config, logger=logger, output_dir=str(output_dir))
     except Exception as exc:  # noqa: BLE001
         logger.error("Workflow failed: %s", exc, exc_info=True)
-        exit_with_error(f"Error during {mode}: {exc}")
+        exit_with_error(f"Error during {effective_mode}: {exc}")
 
-    if mode == "train":
+    if effective_mode == "train":
         echo_success("Training completed successfully!")
     else:
         echo_success("Prediction completed successfully!")

@@ -374,6 +374,16 @@ class InferenceResult:
     label_col:
         Resolved ground-truth column name, ``None`` when evaluation was
         skipped.
+    y_true:
+        Ground-truth labels used for optional evaluation plots.
+    y_pred:
+        Predicted class labels aligned with ``y_true``.
+    y_prob:
+        Predicted probabilities used for ROC/DCA/calibration/PR plots.
+    fitted_estimator:
+        Loaded pipeline used for prediction (needed for SHAP).
+    feature_frame:
+        Feature matrix passed to the pipeline (label column removed).
     summary_rows:
         Summary rows for unified reporting (empty for inference).
     created_at:
@@ -385,6 +395,11 @@ class InferenceResult:
     predictions: pd.DataFrame
     metrics: Dict[str, float] = field(default_factory=dict)
     label_col: Optional[str] = None
+    y_true: Optional[Any] = None
+    y_pred: Optional[Any] = None
+    y_prob: Optional[Any] = None
+    fitted_estimator: Any = None
+    feature_frame: Optional[pd.DataFrame] = None
     summary_rows: List[Dict[str, Any]] = field(default_factory=list)
     created_at: str = ""
 
@@ -396,6 +411,11 @@ class InferenceResult:
         predictions: pd.DataFrame,
         metrics: Optional[Dict[str, float]] = None,
         label_col: Optional[str] = None,
+        y_true: Optional[Any] = None,
+        y_pred: Optional[Any] = None,
+        y_prob: Optional[Any] = None,
+        fitted_estimator: Any = None,
+        feature_frame: Optional[pd.DataFrame] = None,
     ) -> "InferenceResult":
         """Build an inference result with auto timestamp."""
         return cls(
@@ -404,6 +424,11 @@ class InferenceResult:
             predictions=predictions,
             metrics=dict(metrics or {}),
             label_col=label_col,
+            y_true=y_true,
+            y_pred=y_pred,
+            y_prob=y_prob,
+            fitted_estimator=fitted_estimator,
+            feature_frame=feature_frame,
             summary_rows=[],
             created_at=datetime.utcnow().isoformat(timespec="seconds") + "Z",
         )
@@ -415,4 +440,7 @@ class InferenceResult:
             "metrics": dict(self.metrics),
             "label_col": self.label_col,
             "pipeline_path": self.pipeline_path,
+            "y_true": self.y_true,
+            "y_pred": self.y_pred,
+            "y_prob": self.y_prob,
         }

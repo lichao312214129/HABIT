@@ -116,4 +116,18 @@ models:
       # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
       # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
       random_state: 42
+# EN: Enable all implemented model evaluation figures for this template.
+is_visualize: true
+# 4. Results visualization / Results visualization
+# EN: All implemented evaluation figures are enabled for feature demonstration. SHAP can substantially increase runtime.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
+
 # =============================================================================

@@ -174,7 +174,7 @@ feature_selection_methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       method: spearman  # Correlation method: pearson, spearman, or kendall
-      visualize: false  # Whether to generate correlation heatmap
+      visualize: true  # Whether to generate correlation heatmap
       before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
   # # ANOVA method - selects features based on ANOVA F-value
   # - method: anova
@@ -363,11 +363,12 @@ visualization:
   enabled: true
 
   # --- 2.2 plot_types ---
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
   plot_types:
     - roc
-    - calibration
-    - confusion
-    - pr
     - dca
+    - calibration
+    - pr
+    - confusion
     - shap
 # =============================================================================

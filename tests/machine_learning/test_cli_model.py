@@ -50,3 +50,17 @@ class TestModelCLI:
             cli, ["model", "-c", str(CONFIG_CLINICAL), "-m", "invalid_mode"]
         )
         assert result.exit_code != 0
+
+    def test_omitted_mode_keeps_yaml_predict(self) -> None:
+        """Without --mode, YAML run_mode=predict must not be forced to train."""
+        from habit.core.machine_learning.config_schemas import MLConfig
+        from habit.core.machine_learning.run import apply_ml_mode_override
+
+        config_path = (
+            CONFIG_ROOT / "machine_learning" / "config_machine_learning_predict.yaml"
+        )
+        config = MLConfig.from_file(str(config_path))
+        assert config.run_mode == "predict"
+        updated = apply_ml_mode_override(config, mode=None)
+        assert updated.run_mode == "predict"
+        assert updated is config

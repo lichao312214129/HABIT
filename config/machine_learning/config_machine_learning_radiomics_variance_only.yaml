@@ -112,4 +112,18 @@ models:
 # 3. 高级设置（首次保持默认）/ Advanced (keep defaults initially)
 # EN: Advanced settings
 random_state: 42
+# EN: Enable all implemented model evaluation figures for this template.
+is_visualize: true
+# 4. Results visualization / Results visualization
+# EN: All implemented evaluation figures are enabled for feature demonstration. SHAP can substantially increase runtime.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
+
 # =============================================================================

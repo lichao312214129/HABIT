@@ -83,4 +83,15 @@ split:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
   enabled: true
+visualization:
+  # EN: Enable every implemented comparison curve for this template.
+  roc:
+    enabled: true
+  dca:
+    enabled: true
+  calibration:
+    enabled: true
+  pr_curve:
+    enabled: true
+
 # =============================================================================

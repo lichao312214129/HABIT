@@ -47,6 +47,7 @@ output_dir: ../../demo_data/results/model_comparison
 
 # =============================================================================
 # 2. 常用流程与研究设置 / Common workflow and study settings
+# 哪些模型之间进行比较
 # EN: Common workflow and study settings
 files_config:
   # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
@@ -185,8 +186,8 @@ metrics:
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
     targets:
-      sensitivity: 0.91
+      sensitivity: 0.80
       # 中文：目标特异度；用于计算特定临床阈值下的指标。
       # EN: Target specificity used to calculate metrics at a specified clinical operating point.
-      specificity: 0.91
+      specificity: 0.80
 # =============================================================================

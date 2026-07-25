@@ -168,7 +168,7 @@ feature_selection_methods:
       # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
       # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
       method: spearman       # pearson / spearman / kendall
-      visualize: false
+      visualize: true
       before_z_score: false
   # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
   # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
@@ -274,8 +274,11 @@ visualization:
   enabled: true
   # roc=区分度；calibration=概率校准；confusion=阈值分类错误；dca=临床阈值下的净获益。
   # EN: roc=discrimination; calibration=probability agreement; confusion=threshold errors; dca=clinical net benefit.
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
   plot_types:
     - roc
-    - calibration
-    - confusion
     - dca
+    - calibration
+    - pr
+    - confusion
+    - shap

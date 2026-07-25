@@ -102,12 +102,22 @@ class InferenceRunner(BaseRunner):
             output_prob_col=cfg.output_prob_col,
         )
 
+        # Keep a feature-only frame for optional SHAP explanation plots.
+        feature_frame = df.copy()
+        if label_col and label_col in feature_frame.columns:
+            feature_frame = feature_frame.drop(columns=[label_col])
+
         return InferenceResult.create(
             plan=self.plan,
             pipeline_path=pipeline_path,
             predictions=predictions_df,
             metrics=metrics,
             label_col=label_col if evaluate else None,
+            y_true=y_true if evaluate else None,
+            y_pred=preds if evaluate else None,
+            y_prob=probs_for_output if evaluate else None,
+            fitted_estimator=pipeline,
+            feature_frame=feature_frame,
         )
 
     # ------------------------------------------------------------------

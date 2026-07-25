@@ -79,6 +79,10 @@ visualization:
     # EN: Feature switch; false skips this module and true uses its nested settings.
     enabled: true
     n_bins: 10
+  dca:
+    enabled: true
+  pr_curve:
+    enabled: true
 delong_test:
   # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
   # EN: Feature switch; false skips this module and true uses its nested settings.
