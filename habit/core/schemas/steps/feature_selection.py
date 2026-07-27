@@ -54,21 +54,35 @@ class LassoParams(BaseModel):
     visualize: bool = Field(False)
 
 
+#: Shared description for the dual-notation ``n_features_to_select`` parameter.
+N_FEATURES_TO_SELECT_DESCRIPTION: str = (
+    "Number of top-ranked features to keep. Use an integer >= 1 for an absolute "
+    "count (e.g. 20), or a value in (0, 1) for a ratio of the candidate features "
+    "(e.g. 0.2 keeps the top 20%). Overrides p_threshold when set."
+)
+
+
 class AnovaParams(BaseModel):
     p_threshold: float = Field(0.05, gt=0.0, lt=1.0)
-    n_features_to_select: Optional[int] = Field(None, ge=1)
+    n_features_to_select: Optional[float] = Field(
+        None, gt=0.0, description=N_FEATURES_TO_SELECT_DESCRIPTION
+    )
     plot_importance: bool = Field(True)
 
 
 class Chi2Params(BaseModel):
     p_threshold: float = Field(0.05, gt=0.0, lt=1.0)
-    n_features_to_select: Optional[int] = Field(None, ge=1)
+    n_features_to_select: Optional[float] = Field(
+        None, gt=0.0, description=N_FEATURES_TO_SELECT_DESCRIPTION
+    )
     plot_importance: bool = Field(True)
 
 
 class StatisticalTestParams(BaseModel):
     p_threshold: float = Field(0.05, gt=0.0, lt=1.0)
-    n_features_to_select: Optional[int] = Field(None, ge=1)
+    n_features_to_select: Optional[float] = Field(
+        None, gt=0.0, description=N_FEATURES_TO_SELECT_DESCRIPTION
+    )
     normality_test_threshold: float = Field(0.05, gt=0.0, lt=1.0)
     plot_importance: bool = Field(True)
     force_test: Optional[Literal["ttest", "mannwhitney"]] = Field(

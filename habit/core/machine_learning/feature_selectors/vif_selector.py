@@ -85,7 +85,7 @@ def vif_selector(X: pd.DataFrame,
         
         # Stop if too few features remain
         if data.shape[1] < 2:
-            self.logger.warning("Too few features remaining, stopping VIF selection")
+            logger.warning("Too few features remaining, stopping VIF selection")
             break
         
         # Recalculate VIF

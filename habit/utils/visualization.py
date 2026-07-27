@@ -20,7 +20,12 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
-from .font_config import PUBLICATION_FONT, get_font_config, setup_publication_font
+from .font_config import (
+    PUBLICATION_FONT,
+    get_font_config,
+    setup_publication_font,
+    show_or_close_figure,
+)
 
 # Setup publication-quality font (Arial on Windows, DejaVu Sans on Linux/WSL)
 setup_publication_font()
@@ -137,7 +142,7 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
     
         # Show or close figure
         if show:
-            plt.show()
+            show_or_close_figure()
         else:
             plt.close()
 
@@ -166,7 +171,7 @@ def plot_elbow_curve(cluster_range, scores, score_type, title=None, save_path=No
     if save_path:
         plt.savefig(save_path)
     
-    plt.show()
+    show_or_close_figure()
 
 
 def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None):
@@ -204,7 +209,7 @@ def plot_multiple_scores(cluster_range, scores_dict, title=None, save_path=None)
     if save_path:
         plt.savefig(save_path)
     
-    plt.show()
+    show_or_close_figure()
 
 
 def _get_cluster_3d_axis_labels(
@@ -595,6 +600,6 @@ def plot_cluster_results(
     
     # Show or close figure
     if show:
-        plt.show()
+        show_or_close_figure()
     else:
         plt.close() 

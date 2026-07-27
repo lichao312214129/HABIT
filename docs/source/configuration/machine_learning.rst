@@ -289,13 +289,15 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 **anova (ANOVA)**:
 
     - ``p_threshold`` (float, default: ``0.05``): p-value threshold
-    - ``n_features_to_select`` (int, optional): select top n features (overrides p_threshold if set)
+    - ``n_features_to_select`` (int or float, optional): select top features (overrides p_threshold if set);
+      integer >= 1 = absolute count (e.g. ``20``), value in (0, 1) = ratio of candidate features (e.g. ``0.2`` keeps top 20%)
     - ``plot_importance`` (bool, default: ``true``): plot feature importance
 
 **chi2 (chi-square test)**:
 
     - ``p_threshold`` (float, default: ``0.05``): p-value threshold
-    - ``n_features_to_select`` (int, optional): select top n features
+    - ``n_features_to_select`` (int or float, optional): select top features;
+      integer >= 1 = absolute count, value in (0, 1) = ratio of candidate features
     - ``plot_importance`` (bool, default: ``true``): plot feature importance
     - **Note**: non-negative features only
 
@@ -324,7 +326,8 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 **statistical_test (t-test / Mann-Whitney U, automatic or forced)**:
 
     - ``p_threshold`` (float, default: ``0.05``)
-    - ``n_features_to_select`` (int, optional): overrides p threshold if set
+    - ``n_features_to_select`` (int or float, optional): overrides p threshold if set;
+      integer >= 1 = absolute count, value in (0, 1) = ratio of candidate features (e.g. ``0.2`` keeps top 20%)
     - ``normality_test_threshold`` (float, default: ``0.05``): Shapiro-Wilk normality threshold
     - ``force_test`` (str, optional): ``ttest`` or ``mannwhitney``; auto-select by normality if unset
     - ``plot_importance`` (bool, default: ``true``)

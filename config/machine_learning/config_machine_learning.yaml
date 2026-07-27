@@ -147,7 +147,7 @@ feature_selection_methods:
   # - method: statistical_test
   #   params:
   #     p_threshold: 0.05  # Maximum p-value
-  #     # n_features_to_select: 20  # Alternative: select top N features
+  #     # n_features_to_select: 20  # Alternative: select top N features (integer >= 1 = count, 0-1 = ratio, e.g. 0.2 keeps top 20%)
   #     normality_test_threshold: 0.05
   #     plot_importance: true
   #     before_z_score: false

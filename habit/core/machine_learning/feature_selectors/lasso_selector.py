@@ -62,8 +62,11 @@ def lasso_selector(X: pd.DataFrame,
     if selected_features is None:
         selected_features = X.columns.tolist()
     
-    # Only use selected features
+    # Only use selected features. Every fit, path computation and label below is
+    # derived from this frame, so the coefficient order and the feature names can
+    # not drift apart even if the caller passes a subset or a reordered list.
     X_selected = X[selected_features]
+    feature_names: List[str] = X_selected.columns.tolist()
     
     # Create LassoCV object
     lasso_cv = LassoCV(
@@ -75,7 +78,7 @@ def lasso_selector(X: pd.DataFrame,
     )
     
     # Fit the model
-    lasso_cv.fit(X, y)
+    lasso_cv.fit(X_selected, y)
     
     # Get optimal alpha value
     best_alpha = lasso_cv.alpha_
@@ -86,7 +89,7 @@ def lasso_selector(X: pd.DataFrame,
     
     # Create feature importance DataFrame
     feature_importance = pd.DataFrame({
-        'feature': selected_features,
+        'feature': feature_names,
         'coefficient': coefs
     })
     
@@ -94,10 +97,10 @@ def lasso_selector(X: pd.DataFrame,
     selected = feature_importance[feature_importance['coefficient'] != 0]['feature'].tolist()
     
     # Output results
-    logger.info(f"Lasso selection: Selected {len(selected)} features from {len(selected_features)} features")
+    logger.info(f"Lasso selection: Selected {len(selected)} features from {len(feature_names)} features")
     
     # Calculate Lasso path (for visualization)
-    alphas_path, coefs_path, _ = lasso_path(X, y, alphas=alphas)
+    alphas_path, coefs_path, _ = lasso_path(X_selected, y, alphas=alphas)
     
     # Visualization
     if visualize and outdir:
@@ -118,11 +121,13 @@ def lasso_selector(X: pd.DataFrame,
         # Create Lasso path plot
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
         
-        # First subplot: MSE path
-        alphas = lasso_cv.alphas_
+        # First subplot: MSE path.
+        # Use a dedicated name: the `alphas` argument must stay intact because it
+        # is still referenced when plotting the coefficient path below.
+        cv_alphas = lasso_cv.alphas_
         mse_path = lasso_cv.mse_path_.mean(axis=1)
 
-        ax1.plot(alphas, mse_path, '-', linewidth=2, label='Mean Squared Error')
+        ax1.plot(cv_alphas, mse_path, '-', linewidth=2, label='Mean Squared Error')
         ax1.axvline(best_alpha, color='r', linestyle='--', linewidth=2, label=f'Optimal alpha = {best_alpha:.6f}')
         ax1.set_xscale('log')
         ax1.set_xlabel('Alpha', fontsize=14, fontfamily=PUBLICATION_FONT)
@@ -133,7 +138,7 @@ def lasso_selector(X: pd.DataFrame,
         
         # Second subplot: Coefficient path
         # Plot all features but with thin lines and no labels first
-        for i, feature in enumerate(selected_features):
+        for i, feature in enumerate(feature_names):
             ax2.plot(alphas_path, coefs_path[i], linewidth=0.7, alpha=0.4, color='gray')
         
         # Calculate feature importance at optimal alpha point
@@ -143,7 +148,7 @@ def lasso_selector(X: pd.DataFrame,
         
         # Create a dataframe with features and their importance
         feature_importance_at_alpha = pd.DataFrame({
-            'feature': selected_features,
+            'feature': feature_names,
             'coefficient': coefs_at_optimal
         })
         
@@ -157,7 +162,7 @@ def lasso_selector(X: pd.DataFrame,
         top_features = feature_importance_at_alpha['feature'].head(num_features_to_label).tolist()
         
         # Highlight and label selected top features
-        for i, feature in enumerate(selected_features):
+        for i, feature in enumerate(feature_names):
             if feature in top_features:
                 line, = ax2.plot(alphas_path, coefs_path[i], linewidth=2, label=feature)
         
@@ -248,7 +253,7 @@ def lasso_selector(X: pd.DataFrame,
                 fig = make_subplots(rows=1, cols=1)
                 
                 # Add traces for each feature
-                for i, feature in enumerate(selected_features):
+                for i, feature in enumerate(feature_names):
                     if feature in selected:  # Only plot selected features
                         fig.add_trace(
                             go.Scatter(

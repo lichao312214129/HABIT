@@ -171,8 +171,9 @@ MLConfigurator.create_model_comparison()
 ## 5.1 `feature_selectors/` 子目录
 
 - `selector_registry.py`：方法注册、查询、执行中心。
-- `transformer.py`：和 sklearn pipeline 的桥接器。
 - `icc/`：测试-重测 ICC 分析工具链（含标签映射与 ICC 计算）。
+
+和 sklearn pipeline 的桥接器是 `pipeline_builder.py` 中的 `FeatureSelectTransformer`，不在本子目录内。
 
 ## 5.2 `runners/` 子目录
 

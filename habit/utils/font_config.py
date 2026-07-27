@@ -13,19 +13,84 @@
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
 """
-Global font configuration for publication-quality plots.
+Global font and backend configuration for publication-quality plots.
 
 Prefers Arial on Windows/macOS when installed; falls back to DejaVu Sans on
 Linux/WSL where Arial is usually unavailable.
+
+Also selects a non-interactive matplotlib backend by default, because HABIT
+workflows only write figures to disk and never run a GUI event loop.
 """
 
 from __future__ import annotations
 
+import os
 from typing import Dict, List
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib import font_manager
+
+_BACKEND_ENV_VAR = "HABIT_MPL_BACKEND"
+_DEFAULT_BACKEND = "Agg"
+
+
+def _select_backend() -> str:
+    """
+    Select and activate the matplotlib backend used by HABIT.
+
+    HABIT saves every figure to disk, so an interactive backend such as TkAgg
+    only adds GUI objects that are never driven by an event loop. Those objects
+    raise ``RuntimeError: main thread is not in main loop`` inside tkinter
+    destructors when garbage collection happens on a worker thread (for example
+    during AutoGluon training or SHAP plotting). A non-interactive backend
+    avoids the problem entirely.
+
+    Set the ``HABIT_MPL_BACKEND`` environment variable to override the default,
+    e.g. ``HABIT_MPL_BACKEND=TkAgg`` when interactive windows are wanted.
+
+    Returns:
+        str: Name of the backend that is active after this call.
+    """
+    requested: str = (os.environ.get(_BACKEND_ENV_VAR) or _DEFAULT_BACKEND).strip()
+    try:
+        mpl.use(requested, force=True)
+    except Exception:
+        # An unavailable backend must not break plotting; keep matplotlib's own
+        # choice instead of failing the whole workflow.
+        pass
+    return mpl.get_backend()
+
+
+ACTIVE_BACKEND: str = _select_backend()
+
+# pyplot must be imported after the backend is selected so that the canvas
+# classes bound at import time match ACTIVE_BACKEND.
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib import font_manager  # noqa: E402
+
+
+def is_interactive_backend() -> bool:
+    """
+    Check whether the active matplotlib backend can display figure windows.
+
+    Returns:
+        bool: True when ``plt.show()`` is able to open a window.
+    """
+    return mpl.get_backend().lower() not in {"agg", "pdf", "ps", "svg", "cairo", "template"}
+
+
+def show_or_close_figure() -> None:
+    """
+    Display the current figure interactively, or release it when running headless.
+
+    Under a non-interactive backend ``plt.show()`` cannot open a window and only
+    emits a warning, while the figure would stay in memory. Closing it instead
+    keeps long batch runs from accumulating figures.
+    """
+    if is_interactive_backend():
+        plt.show()
+    else:
+        plt.close()
+
 
 _PREFERRED_FONT = "Arial"
 _FALLBACK_FONTS: List[str] = [

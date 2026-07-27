@@ -61,6 +61,15 @@ class SelectorContext:
 
     Standardizing this context makes selector contracts explicit and reduces
     runtime surprises from implicit parameter-name matching.
+
+    Alignment guarantee
+    -------------------
+    ``run_selector`` builds this context so that ``X`` is already restricted to
+    the candidate features and ``selected_features == list(X.columns)``, with
+    identical ordering. Selector implementations may therefore derive feature
+    names from either source and get the same answer. Any statistic computed
+    column-wise on ``X`` can be labelled positionally with
+    ``selected_features`` without risk of misalignment.
     """
 
     X: pd.DataFrame
@@ -77,6 +86,69 @@ class SelectorResult:
     selected_features: List[str]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+def _resolve_candidate_features(
+    X: pd.DataFrame,
+    selected_features: Optional[List[str]],
+) -> List[str]:
+    """
+    Validate and normalize the candidate feature list for one selector run.
+
+    This is the single place where the selector input contract is enforced, so
+    that individual selectors never have to defend themselves against
+    misaligned inputs. Three failure modes are ruled out here:
+
+    1. Duplicated column labels in ``X``. ``X[cols]`` would then expand a single
+       requested label into several columns, silently breaking the
+       "one column per feature name" assumption every selector relies on.
+    2. Feature names absent from ``X``. Failing here produces an actionable
+       error naming the offending features, instead of a bare pandas ``KeyError``
+       raised deep inside a selector.
+    3. Duplicated entries in ``selected_features``, which would produce repeated
+       columns and inflate per-feature statistics.
+
+    Args:
+        X: Full feature matrix handed to :func:`run_selector`.
+        selected_features: Candidate feature names, or ``None`` to use every
+            column of ``X``.
+
+    Returns:
+        List[str]: De-duplicated candidate names, order preserved, every one of
+        which is guaranteed to exist as exactly one column of ``X``.
+
+    Raises:
+        ValueError: If ``X`` carries duplicated column labels, or if any
+            requested feature is missing from ``X``.
+    """
+    duplicated_columns = X.columns[X.columns.duplicated()].unique().tolist()
+    if duplicated_columns:
+        raise ValueError(
+            "Feature matrix contains duplicated column labels, which makes "
+            "feature-name based selection ambiguous. Duplicated: "
+            f"{duplicated_columns}"
+        )
+
+    if selected_features is None:
+        return X.columns.tolist()
+
+    # dict.fromkeys de-duplicates while preserving first-seen order.
+    unique_features = list(dict.fromkeys(selected_features))
+    if len(unique_features) != len(selected_features):
+        logger.warning(
+            "selected_features contained %d duplicate entrie(s); duplicates were dropped.",
+            len(selected_features) - len(unique_features),
+        )
+
+    known_columns = set(X.columns)
+    missing = [f for f in unique_features if f not in known_columns]
+    if missing:
+        raise ValueError(
+            f"selected_features references {len(missing)} feature(s) absent from "
+            f"the input data: {missing}"
+        )
+
+    return unique_features
+
+
 def run_selector(name: str, 
                 X: pd.DataFrame, 
                 y: pd.Series, 
@@ -84,10 +156,18 @@ def run_selector(name: str,
                 **kwargs) -> List[str]:
     """
     Orchestrate the execution of a feature selector with smart parameter injection.
+
+    The candidate features are validated and normalized up front, then ``X`` is
+    sliced to exactly those columns. Both the sliced frame and the name list
+    handed to the selector are derived from that same slice, so a selector can
+    never see a feature-name list that disagrees with its data columns.
     """
-    if selected_features is None:
-        selected_features = X.columns.tolist()
-    
+    candidate_features = _resolve_candidate_features(
+        X=X,
+        selected_features=selected_features,
+    )
+    X_candidates = X[candidate_features]
+
     info = SelectorRegistry.get_entry(name)
     if info is None:
         raise ValueError(f"Feature selector '{name}' not found in registry.")
@@ -96,9 +176,12 @@ def run_selector(name: str,
     bound_args = {}
 
     context = SelectorContext(
-        X=X[selected_features],
+        X=X_candidates,
         y=y,
-        selected_features=selected_features,
+        # Names are read back off the sliced frame rather than reusing the input
+        # list, making the frame the single source of truth for both order and
+        # membership.
+        selected_features=list(X_candidates.columns),
         outdir=kwargs.get("outdir"),
         logger=kwargs.get("logger", logger),
     )
@@ -158,14 +241,73 @@ def run_selector(name: str,
 
     # Execute and handle return value
     try:
-        logger.info(f"Running feature selector: {info['display_name']} on {len(selected_features)} features...")
+        logger.info(f"Running feature selector: {info['display_name']} on {len(candidate_features)} features...")
         result = selector_func(**bound_args)
         selected_list = _normalize_selected_features(result=result, selector_name=name)
+        selected_list = _restrict_to_candidates(
+            selected=selected_list,
+            candidate_features=candidate_features,
+            selector_name=name,
+        )
         logger.info(f"Selector {name} completed: {len(selected_list)} features retained.")
         return selected_list
     except Exception as e:
         logger.error(f"Error executing selector '{name}': {e}")
         raise
+
+
+def _restrict_to_candidates(
+    selected: List[str],
+    candidate_features: List[str],
+    selector_name: str,
+) -> List[str]:
+    """
+    Reduce a selector's output to a duplicate-free subset of its own input.
+
+    Downstream code (pipelines, report writers) indexes DataFrames with the
+    returned names, so a name that was never a candidate would surface much
+    later as an opaque ``KeyError``. Filtering here keeps that guarantee local
+    to the registry instead of relying on every caller to intersect.
+
+    Names outside the candidate set are dropped at ``debug`` level rather than
+    ``warning`` because some selectors legitimately consult an external
+    reference table: ``icc``, for instance, returns every feature that passed
+    its ICC threshold in a precomputed JSON file, which routinely covers
+    features absent from the current matrix.
+
+    Args:
+        selected: Raw feature names returned by the selector.
+        candidate_features: Names the selector was allowed to choose from.
+        selector_name: Registry key, used for log messages only.
+
+    Returns:
+        List[str]: Names from ``selected`` that are candidates, first occurrence
+        kept, original relative order preserved (some selectors, e.g. ``mrmr``,
+        return names ranked by importance).
+    """
+    candidate_set = set(candidate_features)
+    kept: List[str] = []
+    seen: set = set()
+    dropped: List[str] = []
+
+    for feature in selected:
+        if feature not in candidate_set:
+            dropped.append(feature)
+            continue
+        if feature in seen:
+            continue
+        seen.add(feature)
+        kept.append(feature)
+
+    if dropped:
+        logger.debug(
+            "Selector '%s' returned %d name(s) outside its candidate set; dropped: %s",
+            selector_name,
+            len(dropped),
+            dropped,
+        )
+
+    return kept
 
 
 def _normalize_selected_features(result: Any, selector_name: str) -> List[str]:

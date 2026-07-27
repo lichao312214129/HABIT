@@ -28,6 +28,7 @@ from sklearn.svm import SVC, SVR
 import xgboost as xgb
 import matplotlib.pyplot as plt
 
+from habit.utils.font_config import show_or_close_figure
 from habit.utils.log_utils import get_module_logger
 logger = get_module_logger(__name__)
 
@@ -143,7 +144,7 @@ def rfecv_selector(data: pd.DataFrame,
                 plt.savefig(os.path.join(outdir, 'rfecv_selection.png'), dpi=300, bbox_inches='tight')
                 plt.close()
             else:
-                plt.show()
+                show_or_close_figure()
         
         logger.info(f"RFECV selection: Selected {len(selected)} features from {len(selected_features)} features")
         return selected

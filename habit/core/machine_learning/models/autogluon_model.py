@@ -18,11 +18,17 @@ AutoGluon TabularPredictor Model
 Wrapper for AutoGluon's TabularPredictor model
 """
 from typing import Dict, Any, Optional, Union, List
+import os
+import random
+
 import numpy as np
 import pandas as pd
-import os
+
+from habit.utils.log_utils import get_module_logger
 from .base import BaseModel
 from .factory import ModelFactory
+
+logger = get_module_logger(__name__)
 
 try:
     from autogluon.tabular import TabularPredictor
@@ -112,14 +118,19 @@ class AutoGluonTabularModel(BaseModel):
             eval_metric=self.eval_metric,
             path=self.path
         )
-        
+
+        # AutoGluon TabularPredictor.fit() does not accept random_state (v1.3+).
+        # Seed Python/NumPy before fit so config random_state still improves
+        # reproducibility for libraries that honor global RNG state.
+        random.seed(self.random_state)
+        np.random.seed(self.random_state)
+
         # Train the model
         self.model.fit(
             train_data=train_data,
             time_limit=self.time_limit,
             presets=self.presets,
             hyperparameters=self.hyperparameters,
-            random_state=self.random_state,
         )
 
         # Save the leaderboard after model training for later analysis

@@ -152,7 +152,7 @@ feature_selection_methods:
   # - method: statistical_test
   #   params:
   #     p_threshold: 0.05  # P值阈值（特征P值必须小于此值才会被保留）
-  #     # n_features_to_select: 20  # 可选：要选择的特征数量（如果指定，则覆盖p_threshold）
+  #     # n_features_to_select: 20  # 可选：要选择的特征数量（覆盖p_threshold）；≥1的整数=特征个数，0~1的小数=比例（如0.2表示保留前20%）
   #     normality_test_threshold: 0.05  # 正态性检验的阈值
   #     plot_importance: true  # 是否生成特征重要性图表
   #     before_z_score: false  # 是否在Z-score标准化之前执行（默认为false）
@@ -180,14 +180,14 @@ feature_selection_methods:
   # - method: anova
   #   params:
   #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
-  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
+  #     # n_features_to_select: 20  # Optional: Number of top features to select (overrides p_threshold); integer >= 1 = count, 0-1 = ratio (e.g. 0.2 keeps top 20%)
   #     plot_importance: true  # Whether to plot feature importance
   #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
   # # Chi2 method - selects features based on chi-square test (only for non-negative features)
   # - method: chi2
   #   params:
   #     p_threshold: 0.05  # P-value threshold for feature selection (features with p < threshold are retained)
-  #     # n_features_to_select: 20  # Optional: Number of top features to select (if specified, overrides p_threshold)
+  #     # n_features_to_select: 20  # Optional: Number of top features to select (overrides p_threshold); integer >= 1 = count, 0-1 = ratio (e.g. 0.2 keeps top 20%)
   #     plot_importance: true  # Whether to plot feature importance
   #     before_z_score: false  # Whether to run this method before Z-score normalization (default: false)
   # - method: rfecv

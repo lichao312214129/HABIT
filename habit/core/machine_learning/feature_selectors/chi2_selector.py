@@ -28,6 +28,7 @@ from sklearn.feature_selection import chi2, f_classif
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from habit.utils.feature_selection_utils import resolve_n_features_to_select
 from habit.utils.log_utils import get_module_logger
 logger = get_module_logger(__name__)
 
@@ -39,7 +40,7 @@ def chi2_selector(
         y: pd.Series,
         selected_features: List[str],
         p_threshold: float = 0.05,
-        n_features_to_select: Optional[int] = None,
+        n_features_to_select: Optional[Union[int, float]] = None,
         plot_importance: bool = True,
         outdir: Optional[str] = None,
         **kwargs
@@ -53,7 +54,9 @@ def chi2_selector(
         y: Target variable (categorical)
         selected_features: List of features to select from
         p_threshold: P-value threshold for feature selection (default: 0.05)
-        n_features_to_select: Optional number of features to select (if specified, overrides p_threshold)
+        n_features_to_select: Optional number of features to select (if specified, overrides
+            p_threshold). An integer >= 1 is an absolute count; a value in (0, 1) is a ratio
+            of the candidate features (e.g. 0.2 keeps the top 20%)
         plot_importance: Whether to plot feature importance
         outdir: Output directory for results
         **kwargs: Additional arguments
@@ -83,11 +86,13 @@ def chi2_selector(
     feature_ranking = feature_ranking.sort_values('score', ascending=False).reset_index(drop=True)
     
     # Select features based on p-value threshold or n_features_to_select
-    if n_features_to_select is not None:
-        # If n_features_to_select is specified, use it (limited by available features)
-        n_features_to_select = min(n_features_to_select, len(selected_features))
-        selected_mask = feature_ranking.index < n_features_to_select
-        selection_method = f"top {n_features_to_select} features"
+    n_top_features, n_top_description = resolve_n_features_to_select(
+        n_features_to_select, len(selected_features)
+    )
+    if n_top_features is not None:
+        # Absolute count / ratio already resolved and clipped to available features
+        selected_mask = feature_ranking.index < n_top_features
+        selection_method = n_top_description
     else:
         # Otherwise use p-value threshold
         selected_mask = feature_ranking['pvalue'] < p_threshold

@@ -18,7 +18,7 @@
    - 支持统计检验类方法与工程规则类方法混合使用。
 
 3. **与 Pipeline 无缝集成**
-   - `FeatureSelectTransformer`（位于 `pipeline_utils.py`）调用 `run_selector` 形成 sklearn Pipeline 步骤。
+   - `FeatureSelectTransformer`（位于 `pipeline_builder.py`）调用 `run_selector` 形成 sklearn Pipeline 步骤。
    - 支持在归一化前后分别执行筛选阶段。
 
 4. **标准化输出与日志行为**
@@ -58,9 +58,6 @@
   - `variance_selector.py`
   - `vif_selector.py`
 
-- `transformer.py`
-  - 提供与 pipeline 交互的特征筛选转换逻辑（与上层流水线衔接）。
-
 - `icc/`
   - ICC 相关的子模块实现与文档。
 
@@ -76,7 +73,7 @@
 
 ## 与其他子模块关系
 
-- 被 `pipeline_utils.PipelineBuilder` 通过 transformer 调用。
+- 被 `pipeline_builder.PipelineBuilder` 通过 `FeatureSelectTransformer` 调用。
 - 与 `models` 解耦：不依赖具体模型实现（除部分算法自身必要模型依赖）。
 - 不应承担训练评估、报告导出职责。
 
