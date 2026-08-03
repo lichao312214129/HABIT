@@ -208,9 +208,13 @@ def test_icc_kernels_match_pingouin() -> None:
     reference = pingouin.intraclass_corr(
         data=long, targets="targets", raters="raters", ratings="ratings"
     ).set_index("Type")
-    # pingouin's McGraw & Wong labels: ICC(A,1) == ICC2, ICC(C,1) == ICC3.
-    assert icc2_1(matrix) == pytest.approx(reference.loc["ICC(A,1)", "ICC"], abs=1e-10)
-    assert icc3_1(matrix) == pytest.approx(reference.loc["ICC(C,1)", "ICC"], abs=1e-10)
+    # pingouin's row labels differ across versions: McGraw & Wong labels
+    # ("ICC(A,1)" == ICC2, "ICC(C,1)" == ICC3) in >=0.6, Shrout & Fleiss labels
+    # ("ICC2", "ICC3") in <=0.5. Accept either so the test is version-robust.
+    icc2_label = "ICC(A,1)" if "ICC(A,1)" in reference.index else "ICC2"
+    icc3_label = "ICC(C,1)" if "ICC(C,1)" in reference.index else "ICC3"
+    assert icc2_1(matrix) == pytest.approx(reference.loc[icc2_label, "ICC"], abs=1e-10)
+    assert icc3_1(matrix) == pytest.approx(reference.loc[icc3_label, "ICC"], abs=1e-10)
 
 
 @pytest.mark.unit
