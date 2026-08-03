@@ -148,6 +148,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     ),
     "execution": (
         "SerialBackend",
+        "ProcessPoolBackend",
+        "SubjectTimeoutError",
         "CheckpointStore",
     ),
     "adapters": (

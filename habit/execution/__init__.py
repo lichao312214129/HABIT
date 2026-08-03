@@ -25,5 +25,11 @@ from __future__ import annotations
 
 from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
+from habit.execution.process_pool import ProcessPoolBackend, SubjectTimeoutError
 
-__all__ = ["SerialBackend", "CheckpointStore"]
+__all__ = [
+    "SerialBackend",
+    "ProcessPoolBackend",
+    "SubjectTimeoutError",
+    "CheckpointStore",
+]
