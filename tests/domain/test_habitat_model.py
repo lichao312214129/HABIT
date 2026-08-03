@@ -92,6 +92,57 @@ def test_kmeans_selects_n_habitats_by_validation_score() -> None:
 
 
 @pytest.mark.unit
+def test_kmeans_elbow_selects_in_range_and_is_seed_reproducible() -> None:
+    """The elbow path runs through fit() and reproduces under a fixed seed."""
+    units = two_cluster_units(supervoxels_per_subject=8)
+    selections = []
+    for _ in range(2):
+        fitter = KMeansHabitatModelFitter(
+            n_habitats=None,
+            min_habitats=2,
+            max_habitats=5,
+            validation="elbow",
+            n_init=10,
+        )
+        fitter.set_random_state(11)
+        selections.append(fitter.fit(units).n_habitats)
+    assert selections[0] == selections[1]
+    assert 2 <= selections[0] <= 5
+
+
+@pytest.mark.unit
+def test_kmeans_kneedle_alias_uses_same_curve() -> None:
+    """``kneedle`` selects from the same inertia curve as ``elbow``."""
+    units = two_cluster_units(supervoxels_per_subject=8)
+    selections = {}
+    for method in ("elbow", "kneedle"):
+        fitter = KMeansHabitatModelFitter(
+            n_habitats=None,
+            min_habitats=2,
+            max_habitats=5,
+            validation=method,
+            n_init=10,
+        )
+        fitter.set_random_state(11)
+        selections[method] = fitter.fit(units).n_habitats
+    assert selections["elbow"] == selections["kneedle"]
+
+
+@pytest.mark.unit
+def test_knee_point_degenerate_curve_falls_back_to_smallest() -> None:
+    """Flat or two-point inertia curves select the smallest candidate."""
+    counts = np.array([2.0, 3.0, 4.0])
+    flat = np.array([5.0, 5.0, 5.0])
+    assert KMeansHabitatModelFitter._knee_point(counts, flat) == 2
+    two = np.array([2.0, 3.0])
+    assert KMeansHabitatModelFitter._knee_point(two, np.array([9.0, 4.0])) == 2
+    # A clear knee at k=3: steep drop then plateau.
+    knee = np.array([10.0, 3.0, 2.2, 2.0, 1.9])
+    counts5 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
+    assert KMeansHabitatModelFitter._knee_point(counts5, knee) == 3
+
+
+@pytest.mark.unit
 def test_gmm_fit_recovers_two_blobs() -> None:
     """The GMM fitter stores mixture means as centroids."""
     units = two_cluster_units()

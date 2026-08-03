@@ -30,7 +30,17 @@ from habit.spec.specs import Spec
 
 __all__ = ["KMeansHabitatModelFitter", "KMeansHabitatModelFitterParams"]
 
-_VALIDATION_METHODS = ("silhouette", "calinski_harabasz", "davies_bouldin")
+_VALIDATION_METHODS = (
+    "silhouette",
+    "calinski_harabasz",
+    "davies_bouldin",
+    "elbow",
+    "kneedle",
+)
+
+#: Selection criteria scored against cluster structure rather than the
+#: inertia curve; these need labels from one fit per candidate count.
+_SCORE_BASED_METHODS = ("silhouette", "calinski_harabasz", "davies_bouldin")
 
 
 class KMeansHabitatModelFitterParams(BaseModel):
@@ -62,9 +72,10 @@ class KMeansHabitatModelFitter:
             ``validation``.
         min_habitats: Smallest candidate count during selection.
         max_habitats: Largest candidate count during selection.
-        validation: Selection score: ``"silhouette"`` (maximise),
-            ``"calinski_harabasz"`` (maximise), or ``"davies_bouldin"``
-            (minimise).
+        validation: Selection criterion: ``"silhouette"`` (maximise),
+            ``"calinski_harabasz"`` (maximise), ``"davies_bouldin"``
+            (minimise), or ``"elbow"`` / ``"kneedle"`` (knee point of the
+            inertia curve, the v0.1 default criterion).
         n_init: k-means restarts per candidate count.
     """
 
@@ -122,6 +133,48 @@ class KMeansHabitatModelFitter:
         model.fit(matrix)
         return model
 
+    def _candidate_range(self, n_samples: int) -> range:
+        """Return the candidate habitat counts, clamped to the sample size."""
+        upper = min(self.max_habitats, n_samples - 1)
+        if upper < self.min_habitats:
+            raise HABITAPIError(
+                f"Cannot search habitats in [{self.min_habitats}, "
+                f"{self.max_habitats}] with only {n_samples} samples."
+            )
+        return range(self.min_habitats, upper + 1)
+
+    @staticmethod
+    def _knee_point(counts: np.ndarray, inertias: np.ndarray) -> int:
+        """
+        Select the knee of an inertia curve by maximum chord distance.
+
+        The curve points are min-max normalised on both axes, then the point
+        farthest from the chord joining the curve's endpoints wins -- the
+        classical elbow heuristic that ``kneedle``-style locators formalise.
+        A degenerate (flat or two-point) curve falls back to the smallest
+        candidate count.
+
+        Args:
+            counts: Candidate cluster counts, ascending.
+            inertias: Inertia achieved at each candidate count.
+
+        Returns:
+            The selected cluster count.
+        """
+        if counts.size <= 2 or float(np.ptp(inertias)) == 0.0:
+            return int(counts[0])
+        x = (counts - counts.min()) / float(np.ptp(counts))
+        y = (inertias - inertias.min()) / float(np.ptp(inertias))
+        start = np.array([x[0], y[0]])
+        end = np.array([x[-1], y[-1]])
+        chord = end - start
+        chord_length = float(np.hypot(*chord))
+        # Perpendicular distance of each curve point from the chord.
+        distances = np.abs(
+            chord[0] * (start[1] - y) - (start[0] - x) * chord[1]
+        ) / chord_length
+        return int(counts[int(np.argmax(distances))])
+
     def _select_n_habitats(self, matrix: np.ndarray) -> int:
         """Score every candidate count and keep the best validated one."""
         from sklearn.metrics import (
@@ -130,14 +183,17 @@ class KMeansHabitatModelFitter:
             silhouette_score,
         )
 
-        upper = min(self.max_habitats, matrix.shape[0] - 1)
-        if upper < self.min_habitats:
-            raise HABITAPIError(
-                f"Cannot search habitats in [{self.min_habitats}, "
-                f"{self.max_habitats}] with only {matrix.shape[0]} samples."
-            )
+        candidates = self._candidate_range(matrix.shape[0])
+        if self.validation in ("elbow", "kneedle"):
+            inertias = {
+                k: float(self._fit_kmeans(matrix, k).inertia_) for k in candidates
+            }
+            counts = np.asarray(sorted(inertias), dtype=np.float64)
+            curve = np.asarray([inertias[int(k)] for k in counts], dtype=np.float64)
+            return self._knee_point(counts, curve)
+
         scores = {}
-        for k in range(self.min_habitats, upper + 1):
+        for k in candidates:
             labels = self._fit_kmeans(matrix, k).labels_
             if self.validation == "silhouette":
                 scores[k] = silhouette_score(matrix, labels)
