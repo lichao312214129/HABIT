@@ -84,11 +84,42 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
         "habitat_model_fitter",
         "habitat_assigner",
         "habitat_features",
+        "subject_table_preprocessors",
+        "group_table_preprocessors",
+        "random_seed",
     }
     restored = HabitatSpec.from_dict(payload)
     assert restored == spec
     assert restored.component_specs()["supervoxelizer"].name == "slic"
     assert [s.name for s in restored.habitat_features] == ["msi", "ith"]
+
+
+@pytest.mark.unit
+def test_habitat_spec_preprocessor_chains_and_random_seed() -> None:
+    """Table-preprocessor chains and the seed roundtrip and fingerprint."""
+    spec = HabitatSpec(
+        name="chains",
+        voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1"]}),
+        supervoxelizer=Spec(name="slic"),
+        habitat_model_fitter=Spec(name="kmeans"),
+        habitat_assigner=Spec(name="nearest_centroid"),
+        subject_table_preprocessors=(
+            Spec(name="winsorize", params={"winsor_limits": [0.05, 0.05]}),
+            Spec(name="minmax"),
+        ),
+        group_table_preprocessors=(
+            Spec(name="binning", params={"n_bins": 10, "bin_strategy": "uniform"}),
+        ),
+        random_seed=42,
+    )
+    restored = HabitatSpec.from_dict(spec.to_dict())
+    assert restored == spec
+    assert [s.name for s in restored.subject_table_preprocessors] == ["winsorize", "minmax"]
+    assert [s.name for s in restored.group_table_preprocessors] == ["binning"]
+    assert restored.random_seed == 42
+    # The seed is scientific: changing it must change the fingerprint.
+    reseeded = HabitatSpec.from_dict({**spec.to_dict(), "random_seed": 7})
+    assert reseeded.fingerprint() != spec.fingerprint()
 
 
 @pytest.mark.unit
@@ -140,14 +171,19 @@ def test_run_policy_defaults_and_validation() -> None:
     """Policy defaults are serial execution with continue-on-failure."""
     policy = RunPolicy()
     assert policy.workers == 1
-    assert policy.on_failure == "continue"
+    assert policy.on_subject_failure == "continue"
     assert policy.backend == "serial"
+    assert policy.resume is True
     with pytest.raises(HABITAPIError):
         RunPolicy(workers=0)
     with pytest.raises(HABITAPIError):
-        RunPolicy(on_failure="ignore")
+        RunPolicy(on_subject_failure="ignore")
     with pytest.raises(HABITAPIError):
         RunPolicy(backend="dask")
+    with pytest.raises(HABITAPIError):
+        RunPolicy(subject_timeout_sec=0)
+    with pytest.raises(HABITAPIError):
+        RunPolicy(parallel_mode="thread")
 
 
 @pytest.mark.unit
@@ -155,8 +191,37 @@ def test_run_policy_dict_roundtrip() -> None:
     """Policies tolerate partial payloads and roundtrip fully."""
     policy = RunPolicy.from_dict({"workers": 4, "backend": "process"})
     assert policy.workers == 4
-    assert policy.on_failure == "continue"
+    assert policy.on_subject_failure == "continue"
     assert RunPolicy.from_dict(policy.to_dict()) == policy
+
+
+@pytest.mark.unit
+def test_run_policy_full_execution_surface_roundtrip() -> None:
+    """The documented execution fields survive a dict roundtrip."""
+    policy = RunPolicy(
+        workers=8,
+        backend="process",
+        subject_timeout_sec=1800.0,
+        subject_spawn_timeout_sec=None,
+        graceful_shutdown_sec=20.0,
+        on_subject_failure="fail_fast",
+        oom_backoff=True,
+        oom_reduce_workers_by=2,
+        cap_workers_to_gpu_pool=True,
+        resume=False,
+        checkpoint_dir="ckpt",
+        parallel_mode="isolated",
+        auto_retry_rounds=0,
+        retry_failed_subjects=True,
+        force_rerun_subjects=("S01", "S02"),
+        clear_checkpoint_on_success=True,
+        strict_checkpoint_hash=True,
+    )
+    restored = RunPolicy.from_dict(policy.to_dict())
+    assert restored == policy
+    assert restored.force_rerun_subjects == ("S01", "S02")
+    with pytest.raises(HABITAPIError):
+        RunPolicy.from_dict({"workers": 2, "processes": 4})  # legacy key rejected
 
 
 @pytest.mark.unit
@@ -166,7 +231,7 @@ def test_yaml_roundtrip_for_spec_and_policy(tmp_path) -> None:
     spec_path = save_habitat_spec(spec, tmp_path / "spec.yaml")
     assert load_habitat_spec(spec_path) == spec
 
-    policy = RunPolicy(workers=2, seed=42, checkpoint_path=str(tmp_path / "ckpt"))
+    policy = RunPolicy(workers=2, checkpoint_dir=str(tmp_path / "ckpt"))
     policy_path = save_run_policy(policy, tmp_path / "policy.yaml")
     assert load_run_policy(policy_path) == policy
 

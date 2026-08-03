@@ -160,6 +160,16 @@ class HabitatSpec:
         habitat_model_fitter: Spec of the cohort-level fitting step.
         habitat_assigner: Spec of the per-subject assignment step.
         habitat_features: Specs of habitat feature families.
+        subject_table_preprocessors: Ordered specs of the per-subject
+            feature-table preprocessing chain (domain ``table_preprocessor``),
+            applied to each subject's feature table before pooling.
+        group_table_preprocessors: Ordered specs of the pooled-table
+            preprocessing chain, applied before cohort-level fitting; their
+            fitted state is stored in ``HabitatModel.preprocessing_state``.
+        random_seed: Seed applied to every
+            :class:`~habit.domain.protocols.Seedable` component. Seeds
+            change the scientific result, so they live in the spec (and its
+            fingerprint), not in the run policy.
         version: Specification schema version.
     """
 
@@ -169,6 +179,9 @@ class HabitatSpec:
     habitat_model_fitter: Spec
     habitat_assigner: Spec
     habitat_features: Tuple[Spec, ...] = ()
+    subject_table_preprocessors: Tuple[Spec, ...] = ()
+    group_table_preprocessors: Tuple[Spec, ...] = ()
+    random_seed: Optional[int] = None
     version: str = "1.0"
 
     def __post_init__(self) -> None:
@@ -187,12 +200,20 @@ class HabitatSpec:
                 raise HABITAPIError(
                     f"HabitatSpec.{domain} must be a Spec; got {type(value).__name__}."
                 )
-        object.__setattr__(self, "habitat_features", tuple(self.habitat_features))
-        for feature_spec in self.habitat_features:
-            if not isinstance(feature_spec, Spec):
-                raise HABITAPIError(
-                    "Every entry of HabitatSpec.habitat_features must be a Spec."
-                )
+        for chain_field in (
+            "habitat_features",
+            "subject_table_preprocessors",
+            "group_table_preprocessors",
+        ):
+            chain = tuple(getattr(self, chain_field))
+            object.__setattr__(self, chain_field, chain)
+            for entry in chain:
+                if not isinstance(entry, Spec):
+                    raise HABITAPIError(
+                        f"Every entry of HabitatSpec.{chain_field} must be a Spec."
+                    )
+        if self.random_seed is not None:
+            object.__setattr__(self, "random_seed", int(self.random_seed))
 
     def component_specs(self) -> Mapping[str, Optional[Spec]]:
         """Return the four pipeline component specs keyed by domain name."""
@@ -220,6 +241,13 @@ class HabitatSpec:
         payload["habitat_features"] = [
             feature.to_dict() for feature in self.habitat_features
         ]
+        payload["subject_table_preprocessors"] = [
+            entry.to_dict() for entry in self.subject_table_preprocessors
+        ]
+        payload["group_table_preprocessors"] = [
+            entry.to_dict() for entry in self.group_table_preprocessors
+        ]
+        payload["random_seed"] = self.random_seed
         return payload
 
     @classmethod
@@ -243,6 +271,14 @@ class HabitatSpec:
         features = tuple(
             Spec.from_dict(item) for item in payload.get("habitat_features", ())
         )
+        subject_chain = tuple(
+            Spec.from_dict(item)
+            for item in payload.get("subject_table_preprocessors", ())
+        )
+        group_chain = tuple(
+            Spec.from_dict(item)
+            for item in payload.get("group_table_preprocessors", ())
+        )
         return cls(
             name=str(payload.get("name", "habitat_spec")),
             voxel_feature_extractor=components["voxel_feature_extractor"],
@@ -250,5 +286,8 @@ class HabitatSpec:
             habitat_model_fitter=components["habitat_model_fitter"],
             habitat_assigner=components["habitat_assigner"],
             habitat_features=features,
+            subject_table_preprocessors=subject_chain,
+            group_table_preprocessors=group_chain,
+            random_seed=payload.get("random_seed"),
             version=str(payload.get("version", "1.0")),
         )
