@@ -197,6 +197,51 @@ def make_habitat_map(subject_id: str = "P1") -> HabitatMap:
     )
 
 
+def make_feature_table(
+    subject_ids: Sequence[str] = tuple(f"S{i:02d}" for i in range(40)),
+    *,
+    seed: int = 0,
+    n_noise: int = 3,
+    non_negative: bool = False,
+    constant_column: bool = False,
+    outcome: bool = True,
+) -> "FeatureTable":
+    """
+    Build a synthetic binary-outcome feature table for the table-ML tests.
+
+    The ``signal`` column separates the two outcome classes; the remaining
+    ``noise{i}`` columns are pure noise, so supervised selectors and
+    classifiers have a deterministic correct answer to find.
+    """
+    from habit.contracts import FeatureTable
+
+    rng = np.random.RandomState(seed)
+    n = len(subject_ids)
+    y = (np.arange(n) % 2) if outcome else None
+    data: dict = {"subject": list(subject_ids)}
+    signal = rng.normal(loc=0.0, scale=0.5, size=n) + (
+        0.0 if y is None else np.where(y == 1, 2.0, 0.0)
+    )
+    data["signal"] = signal
+    for i in range(n_noise):
+        data[f"noise{i}"] = rng.normal(size=n)
+    if constant_column:
+        data["constant"] = np.full(n, 3.14)
+    if non_negative:
+        for key in [k for k in data if k != "subject"]:
+            data[key] = np.abs(data[key])
+    feature_columns = tuple(k for k in data if k != "subject")
+    if outcome:
+        data["y"] = y
+    return FeatureTable(
+        frame=pd.DataFrame(data),
+        id_columns=("subject",),
+        feature_columns=feature_columns,
+        outcome_column="y" if outcome else None,
+        provenance=provenance(),
+    )
+
+
 @pytest.fixture
 def subject() -> Subject:
     """Single-modality synthetic subject."""
