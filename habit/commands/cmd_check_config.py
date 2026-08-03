@@ -175,6 +175,25 @@ def run_check_config(
         echo_success("YAML 语法检查通过 / YAML syntax check passed")
         return
 
+    # 2a) v1 documents validate against the v1 document model directly; the
+    # workflow tag is part of the document, so no path guessing is needed.
+    from habit.spec.legacy import detect_yaml_version, validate_v1_document
+
+    if detect_yaml_version(data) == "v1":
+        try:
+            validate_v1_document(data, workflow=(workflow or None))
+        except Exception as exc:  # noqa: BLE001
+            echo_error(format_config_load_error(exc, str(path)))
+            exit_with_error(
+                "字段校验失败 / v1 document validation failed.\n"
+                "请检查 version/workflow/spec/data/policy/output 各节。"
+            )
+        echo_success(
+            f"配置检查通过 / Config OK "
+            f"(v1 document, workflow={data.get('workflow')})"
+        )
+        return
+
     alias = (workflow or _guess_workflow(path) or "").strip().lower()
     if not alias:
         click.echo(

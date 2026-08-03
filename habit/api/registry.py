@@ -161,6 +161,10 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "save_habitat_spec",
         "load_run_policy",
         "save_run_policy",
+        "LegacyConfigAdapter",
+        "detect_yaml_version",
+        "migrate_yaml",
+        "validate_v1_document",
     ),
     "registry": (
         "ComponentRegistry",

@@ -95,6 +95,39 @@ def check_config(
     run_check_config(config, workflow, syntax_only)
 
 
+@cli.command('migrate-config')
+@config_option(help='Path to the v0 configuration YAML to upgrade')
+@click.option(
+    '--output', '-o',
+    type=click.Path(),
+    default=None,
+    help='Destination v1 YAML (default: <name>.v1.yaml next to the source)',
+)
+@click.option(
+    '--dry-run',
+    is_flag=True,
+    help='Print the diff without writing a file',
+)
+@click.option(
+    '--workflow', '-w',
+    type=click.Choice([
+        'preprocess', 'habitat', 'extract', 'radiomics',
+        'model', 'cv', 'compare', 'icc', 'retest', 'sort-dicom',
+    ], case_sensitive=False),
+    default=None,
+    help='Workflow alias (optional; guessed from path when omitted)',
+)
+def migrate_config(
+    config: str,
+    output: Optional[str],
+    dry_run: bool,
+    workflow: Optional[str],
+) -> None:
+    """Upgrade a v0 YAML config to the v1 spec/data/policy/output layout"""
+    from habit.commands.cmd_migrate_config import run_migrate_config
+    run_migrate_config(config, output, dry_run, workflow)
+
+
 @cli.command('preprocess')
 @config_option()
 def preprocess(config):
