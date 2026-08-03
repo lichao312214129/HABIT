@@ -1,3 +1,17 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """Setuptools build configuration for the HABIT package."""
 
 from pathlib import Path
@@ -102,7 +116,7 @@ setup(
     version=_read_version(),
     description="Habitat Analysis: Biomedical Imaging Toolkit",
     author="lichao19870617@163.com",
-    license="HABIT Software License",
+    license="Apache-2.0",
     # Restrict discovery to HABIT itself. The repository's ``tests`` directory
     # is an importable package but must not be installed into user environments.
     packages=find_packages(include=("habit", "habit.*")),
@@ -133,7 +147,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
-        "License :: Other/Proprietary License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.10",
     ],
 )

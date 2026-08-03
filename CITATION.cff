@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: >-
+  If you use HABIT in scientific work, please cite it using the metadata below.
+title: "HABIT: Habitat Analysis - Biomedical Imaging Toolkit"
+abstract: >-
+  HABIT is an open-source toolkit for tumour habitat analysis and intratumoral
+  heterogeneity quantification. It covers image preprocessing, voxel-level
+  feature construction, supervoxel and population-level habitat clustering,
+  habitat-level feature extraction (including multiregional spatial interaction
+  and intratumoral heterogeneity scores), and downstream machine-learning
+  modelling and evaluation.
+type: software
+authors:
+  - family-names: Li
+    given-names: Chao
+    email: lichao19870617@163.com
+  - family-names: Dong
+    given-names: Mengshi
+  - name: HABIT Contributors
+version: 0.1.0
+license: Apache-2.0
+repository-code: "https://github.com/lichao312214129/HABIT"
+url: "https://lichao312214129.github.io/HABIT"
+keywords:
+  - radiomics
+  - tumour habitat
+  - intratumoral heterogeneity
+  - medical imaging
+  - machine learning

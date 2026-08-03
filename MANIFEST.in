@@ -1,3 +1,9 @@
+# Apache-2.0 requires the license and the NOTICE attributions to travel with
+# every redistribution, so they must be present in source distributions too.
+include LICENSE
+include NOTICE
+include CITATION.cff
+
 # Include C sources for supervoxel texture matrix extension in sdists.
 recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.c
 recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.h

@@ -72,6 +72,11 @@ mypy = "^0.910"
 pylint = "^2.9.0"
 pre-commit = "^2.13.0"
 
+# Apache-2.0 section 4(d) requires redistributed copies to carry the NOTICE
+# attributions, so both files are recorded in the built distribution metadata.
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE"]
+
 [build-system]
 requires = [
     "setuptools>=64",

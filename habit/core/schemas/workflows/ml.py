@@ -1,16 +1,16 @@
 # Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
 #
-# This file is part of HABIT (Habitat Analysis: Biomedical Imaging Toolkit).
-# Use is governed by the HABIT Software License — see the LICENSE file in the
-# project root for the full text. Summary:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#   - Non-commercial use (academic, research, education, personal) is permitted
-#     provided that copyright notices are retained and HABIT usage is
-#     acknowledged in publications, reports, or documentation.
-#   - Commercial use requires prior written consent from the copyright holder
-#     (lichao19870617@163.com) and public acknowledgment of HABIT usage in
-#     product documentation or user-facing materials.
-#   - Unauthorized commercial use or removal of attribution is prohibited.
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 """
 Workflow configuration schemas for machine learning.

@@ -1,0 +1,43 @@
+HABIT (Habitat Analysis: Biomedical Imaging Toolkit)
+Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+
+This product is licensed under the Apache License, Version 2.0. A copy of the
+license is included in the LICENSE file at the root of this distribution.
+
+If you redistribute HABIT or a derivative work, Apache-2.0 section 4(d)
+requires that you also carry a readable copy of the attribution notices below.
+
+When HABIT is used in scientific work, the authors additionally request -- but
+do not require as a condition of this license -- that you cite the project. See
+CITATION.cff for citation metadata.
+
+---------------------------------------------------------------------------
+Third-party components incorporated into HABIT
+---------------------------------------------------------------------------
+
+1. VMAF
+   https://github.com/Netflix/vmaf
+   Copyright (c) 2020 Netflix, Inc.
+   Licensed under BSD-2-Clause-Patent
+
+   The DeLong AUC comparison routines in
+   habit/core/machine_learning/statistics/delong_test.py are adapted from this
+   project.
+
+2. PyTorchRadiomics
+   https://github.com/lyhyl/pytorchradiomics
+   Copyright (c) lyhyl and PyTorchRadiomics contributors
+   Licensed under the MIT License
+
+   The GPU feature classes in
+   habit/core/habitat_analysis/clustering_features/torchradiomics/ are vendored
+   from this project and adapted for HABIT.
+
+---------------------------------------------------------------------------
+Runtime dependencies
+---------------------------------------------------------------------------
+
+HABIT depends on third-party packages that are installed separately and remain
+governed by their own licenses, including PyRadiomics, SimpleITK, ANTsPy,
+scikit-learn, scikit-image, pandas, NumPy, SciPy, XGBoost, and pydicom. Those
+licenses are not reproduced here; consult each package's own distribution.

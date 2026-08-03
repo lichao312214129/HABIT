@@ -67,7 +67,7 @@
 ## 支持与引用
 
 - **问题反馈**：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
-- **引用**：见文档 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)
-- **许可**：[HABIT Software License](LICENSE)（非商业免费使用须署名申明；商业使用须事先书面授权）
+- **引用**：见 [CITATION.cff](CITATION.cff) 与文档 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)
+- **许可**：[Apache License 2.0](LICENSE)。可自由用于学术与商业用途，唯一义务是保留版权与许可声明，并在再分发时附带 [NOTICE](NOTICE)。用于科研工作时，作者恳请（但不作为许可条件）引用 HABIT
 
 **开发团队**：HABIT 开发团队（详见 [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)）

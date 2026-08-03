@@ -63,4 +63,5 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Support & citation
 
 - **Issues**: [GitHub Issues](https://github.com/lichao312214129/HABIT/issues)
-- **License**: [HABIT Software License](LICENSE)
+- **Citation**: see [CITATION.cff](CITATION.cff)
+- **License**: [Apache License 2.0](LICENSE). Free for academic and commercial use; the only obligation is to retain the copyright and license notices and to ship [NOTICE](NOTICE) with redistributions. When HABIT supports scientific work, the authors request -- but do not require as a license condition -- that you cite it
