@@ -122,3 +122,65 @@ def test_backend_rejects_invalid_failure_policy() -> None:
     """Only 'continue' / 'fail_fast' are accepted policies."""
     with pytest.raises(ValueError):
         SerialBackend(on_subject_failure="ignore")
+
+
+@pytest.mark.unit
+def test_checkpoint_store_tracks_failures_separately(tmp_path: Path) -> None:
+    """Failure records list original keys, retrievable and discardable."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    assert store.failed_keys() == ()
+    assert store.get_failure("k1") is None
+
+    store.put_failure("k2", "MemoryError: simulated OOM")
+    store.put_failure("k1", "RuntimeError: boom")
+
+    assert store.get_failure("k1") == "RuntimeError: boom"
+    assert store.failed_keys() == ("k1", "k2")  # sorted, original keys
+
+    store.discard_failure("k1")
+    assert store.get_failure("k1") is None
+    assert store.failed_keys() == ("k2",)
+
+
+@pytest.mark.unit
+def test_checkpoint_store_success_clears_failure_record(tmp_path: Path) -> None:
+    """A retried subject that finally succeeds resumes cleanly."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    store.put_failure("k1", "RuntimeError: boom")
+    store.put("k1", 42)
+
+    assert store.get("k1") == 42
+    assert store.get_failure("k1") is None
+    assert store.failed_keys() == ()
+
+
+@pytest.mark.unit
+def test_checkpoint_store_treats_corrupt_failure_as_absent(tmp_path: Path) -> None:
+    """A corrupt failure record is a cache miss, never a crash."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    store.put_failure("k1", "RuntimeError: boom")
+    path = store._failure_path_for("k1")  # noqa: SLF001 - deliberate white-box check
+    path.write_bytes(b"garbage")
+
+    assert store.get_failure("k1") is None
+    assert not path.exists()
+    assert store.failed_keys() == ()
+
+
+@pytest.mark.unit
+def test_checkpoint_store_contains_len_and_clear(tmp_path: Path) -> None:
+    """Whole-store operations: contains, __len__, clear."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    assert len(store) == 0
+    assert not store.contains("k1")
+
+    store.put("k1", 1)
+    store.put("k2", 2)
+    store.put_failure("k3", "RuntimeError: boom")
+    assert store.contains("k1")
+    assert len(store) == 2
+
+    store.clear()
+    assert len(store) == 0
+    assert store.failed_keys() == ()
+    assert not store.contains("k1")
