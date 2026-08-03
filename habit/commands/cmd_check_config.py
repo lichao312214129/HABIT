@@ -183,7 +183,7 @@ def run_check_config(
 
     config_cls = _WORKFLOW_LOADERS[alias]()
     try:
-        config_cls.from_file(str(path))  # type: ignore[attr-defined]
+        config = config_cls.from_file(str(path))  # type: ignore[attr-defined]
     except Exception as exc:  # noqa: BLE001
         echo_error(format_config_load_error(exc, str(path)))
         exit_with_error(
@@ -191,4 +191,59 @@ def run_check_config(
             "请对照配置文件中「★ 必改」项与中文注释修改。"
         )
 
+    # 3) Model parameters (ML workflows only)
+    if alias in ("model", "cv"):
+        _report_model_params(config)
+
     echo_success(f"配置检查通过 / Config OK (workflow={alias})")
+
+
+def _report_model_params(config: object) -> None:
+    """
+    Report which configured model parameters will actually be applied.
+
+    Builds each configured model without training it, so that parameters the
+    underlying estimator does not accept (typos, or keys removed by a library
+    upgrade) are surfaced before a long job starts rather than being silently
+    ignored.
+
+    Args:
+        config: Validated ML workflow config carrying a ``models`` mapping.
+    """
+    models = getattr(config, "models", None)
+    if not models:
+        return
+
+    # Imported lazily: model modules pull in heavy optional dependencies.
+    from habit.core.machine_learning.models.factory import ModelFactory
+    from habit.utils.estimator_utils import collect_param_reports
+
+    click.echo("\n模型参数检查 / Model parameter check:")
+    for model_name, block in models.items():
+        params = dict(getattr(block, "params", None) or {})
+        try:
+            with collect_param_reports() as reports:
+                ModelFactory.create(model_name, {"params": params})
+        except Exception as exc:  # noqa: BLE001
+            echo_error(f"  {model_name}: 无法构建 / cannot build: {exc}")
+            continue
+
+        if not reports:
+            # Models without an introspectable estimator (e.g. AutoGluon builds
+            # its predictor at fit time) report nothing to compare against.
+            click.echo(f"  {model_name}: 已配置 {len(params)} 个参数 / {len(params)} parameter(s) set")
+            continue
+
+        for report in reports:
+            applied = ", ".join(report.accepted) or "(使用默认值 / defaults only)"
+            click.echo(f"  {model_name} -> {report.estimator}")
+            click.echo(f"      生效 / applied : {applied}")
+            if report.ignored:
+                click.echo(
+                    f"      忽略 / ignored : {', '.join(report.ignored)}"
+                )
+            if report.auto_dropped:
+                click.echo(
+                    "      不适用 / n-a   : "
+                    f"{', '.join(report.auto_dropped)}"
+                )

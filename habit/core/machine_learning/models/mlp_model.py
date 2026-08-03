@@ -18,11 +18,59 @@ Multi-layer Perceptron Model
 Wrapper for sklearn's MLPClassifier model
 """
 from sklearn.neural_network import MLPClassifier
-from typing import Dict, Any, Optional, Union
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
+
+
+def _parse_hidden_layer_sizes(
+    value: Union[int, str, Sequence[int], None],
+) -> Tuple[int, ...]:
+    """
+    Normalize ``hidden_layer_sizes`` into a form ``MLPClassifier`` accepts.
+
+    YAML users spell this parameter in several natural ways, while sklearn only
+    accepts an int or an array-like of ints. All accepted spellings are mapped
+    to a tuple of layer widths:
+
+    * ``None`` -> ``(100,)`` (single hidden layer, the sklearn default)
+    * ``100`` -> ``(100,)``
+    * ``[100, 50]`` -> ``(100, 50)``
+    * ``"100,50"`` or ``"(100, 50)"`` -> ``(100, 50)``
+
+    Args:
+        value: Raw value taken from the YAML ``params`` block.
+
+    Returns:
+        Tuple[int, ...]: Width of each hidden layer.
+
+    Raises:
+        ValueError: When the value cannot be read as one or more layer widths.
+    """
+    if value is None:
+        return (100,)
+    if isinstance(value, bool):
+        raise ValueError(f"hidden_layer_sizes must be int or list of int, got {value!r}")
+    if isinstance(value, int):
+        return (value,)
+    if isinstance(value, str):
+        tokens = [token for token in value.strip(" ()[]").split(',') if token.strip()]
+        if not tokens:
+            raise ValueError("hidden_layer_sizes is empty")
+        try:
+            return tuple(int(token) for token in tokens)
+        except ValueError as exc:
+            raise ValueError(
+                f"hidden_layer_sizes must contain integers, got {value!r}"
+            ) from exc
+    if isinstance(value, Sequence):
+        if not value:
+            raise ValueError("hidden_layer_sizes is empty")
+        return tuple(int(item) for item in value)
+    raise ValueError(f"Unsupported hidden_layer_sizes value: {value!r}")
 
 @ModelFactory.register('MLP')
 class MLPModel(BaseModel):
@@ -48,27 +96,34 @@ class MLPModel(BaseModel):
         super().__init__(config)
         
         # Extract parameters from config
-        params = config.get('params', {})
-        
+        params = dict(config.get('params', {}))
+
+        # YAML allows several spellings for the layer widths; sklearn accepts
+        # only an int or an array-like of ints.
+        params['hidden_layer_sizes'] = _parse_hidden_layer_sizes(
+            params.get('hidden_layer_sizes')
+        )
+
         # Create model with parameters
         self.model = MLPClassifier(
-            hidden_layer_sizes=params.get('hidden_layer_sizes', (100,)),
-            activation=params.get('activation', 'relu'),
-            solver=params.get('solver', 'adam'),
-            alpha=params.get('alpha', 0.0001),
-            batch_size=params.get('batch_size', 'auto'),
-            learning_rate=params.get('learning_rate', 'constant'),
-            learning_rate_init=params.get('learning_rate_init', 0.001),
-            max_iter=params.get('max_iter', 200),
-            shuffle=params.get('shuffle', True),
-            random_state=params.get('random_state', 42),
-            early_stopping=params.get('early_stopping', False),
-            validation_fraction=params.get('validation_fraction', 0.1),
-            **{k: v for k, v in params.items() if k not in [
-                'hidden_layer_sizes', 'activation', 'solver', 'alpha', 'batch_size',
-                'learning_rate', 'learning_rate_init', 'max_iter', 'shuffle', 
-                'random_state', 'early_stopping', 'validation_fraction'
-            ]}
+            **build_estimator_params(
+                MLPClassifier,
+                defaults={
+                    'activation': 'relu',
+                    'solver': 'adam',
+                    'alpha': 0.0001,
+                    'batch_size': 'auto',
+                    'learning_rate': 'constant',
+                    'learning_rate_init': 0.001,
+                    'max_iter': 200,
+                    'shuffle': True,
+                    'random_state': 42,
+                    'early_stopping': False,
+                    'validation_fraction': 0.1,
+                },
+                user_params=params,
+                model_name='MLP',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

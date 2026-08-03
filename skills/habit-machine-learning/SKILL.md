@@ -58,13 +58,22 @@ Detailed feature selection guidance: `references/feature_selection_guide.md`.
 
 ## Models
 
-`LogisticRegression`, `SVM`, `RandomForest`, `XGBoost`, `KNN`, `MLP`,
-`GaussianNB`, `GradientBoosting`, `AdaBoost`, `DecisionTree`, `AutoGluonTabular`.
+`LogisticRegression`, `SVM` (LinearSVC), `SVC` (kernel SVM), `RandomForest`,
+`XGBoost`, `KNN`, `MLP`, `GaussianNB`, `MultinomialNB`, `BernoulliNB`,
+`GradientBoosting`, `AdaBoost`, `DecisionTree`, `AutoGluonTabular`.
 
 Recommendations: `references/model_choice_guide.md`.
 
 Tips:
 - `AutoGluonTabular` requires Python 3.10 — warn the user.
+- `params:` is not limited to the documented keys: any parameter of the
+  underlying estimator can be set, and an unsupported key is reported as a
+  warning (set `strict_model_params: true` to make it fatal). Run
+  `habit check-config -c FILE -w model` to see which parameters will apply.
+- `SVM` is a LinearSVC and has no `kernel` / `gamma` / `probability`; use `SVC`
+  for kernels.
+- `MultinomialNB` requires non-negative input, so it cannot be combined with
+  `normalization.method: z_score` — use `min_max` instead.
 - For radiomics with <500 patients: `LogisticRegression`, `RandomForest`, `XGBoost` are safe defaults.
 - Multiple models in one config = trained simultaneously and compared.
 

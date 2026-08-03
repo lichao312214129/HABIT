@@ -21,6 +21,7 @@ import xgboost as xgb
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -50,17 +51,24 @@ class XGBoostModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', {})
         
-        # Create model with parameters
+        # Create model with parameters. XGBClassifier declares **kwargs, so any
+        # additional configured parameter is forwarded as-is.
         self.model = xgb.XGBClassifier(
-            n_estimators=params.get('n_estimators', 100),
-            max_depth=params.get('max_depth', 3),
-            learning_rate=params.get('learning_rate', 0.1),
-            subsample=params.get('subsample', 0.8),
-            colsample_bytree=params.get('colsample_bytree', 0.8),
-            objective=params.get('objective', 'binary:logistic'),
-            eval_metric=params.get('eval_metric', 'logloss'),
-            random_state=params.get('random_state', 42),
-            **{k: v for k, v in params.items() if k not in ['n_estimators', 'max_depth', 'learning_rate', 'subsample', 'colsample_bytree', 'objective', 'eval_metric', 'random_state']}
+            **build_estimator_params(
+                xgb.XGBClassifier,
+                defaults={
+                    'n_estimators': 100,
+                    'max_depth': 3,
+                    'learning_rate': 0.1,
+                    'subsample': 0.8,
+                    'colsample_bytree': 0.8,
+                    'objective': 'binary:logistic',
+                    'eval_metric': 'logloss',
+                    'random_state': 42,
+                },
+                user_params=params,
+                model_name='XGBoost',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

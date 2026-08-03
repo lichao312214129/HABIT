@@ -1,8 +1,21 @@
 # Model Choice Guide
 
-HABIT supports 11+ classifiers. Configure as many as you want in the same
+HABIT supports 13+ classifiers. Configure as many as you want in the same
 `models:` block — they all train and evaluate side-by-side, then
 `habit-model-comparison` can plot them together.
+
+## Setting parameters
+
+The keys shown in this guide are the *recommended* ones, not a whitelist. Any
+parameter of the underlying estimator can be set under `params:`, including
+parameters added by a newer library version. A key the estimator does not accept
+is reported as a warning and skipped; set `strict_model_params: true` at the top
+level of the config to make it an error instead. To see exactly which parameters
+will be applied before starting a run:
+
+```bash
+habit check-config -c config/machine_learning/config_machine_learning.yaml -w model
+```
 
 ## Decision matrix
 
@@ -11,7 +24,7 @@ HABIT supports 11+ classifiers. Configure as many as you want in the same
 | < 100 patients | < 30 features | `LogisticRegression`, `GaussianNB` |
 | < 100 patients | 30–500 features | `LogisticRegression` (with strong selection) |
 | 100–500 | < 100 features | `LogisticRegression`, `RandomForest`, `XGBoost` |
-| 100–500 | 100–1000 features | `LogisticRegression`, `RandomForest`, `XGBoost`, `SVM` (RBF) |
+| 100–500 | 100–1000 features | `LogisticRegression`, `RandomForest`, `XGBoost`, `SVC` (RBF) |
 | > 500 | any | All of above + `MLP`, `AutoGluonTabular` |
 
 ## Per-model notes
@@ -63,19 +76,33 @@ XGBoost:
     colsample_bytree: 0.8
 ```
 
-### SVM
-- Only with `probability: true` (HABIT needs probabilities for ROC/DCA).
-- RBF kernel works well after dimensionality reduction (LASSO/mRMR).
-- Slow on > 5000 samples; not recommended for large cohorts.
+### SVM vs SVC
+Two separate models — pick by whether you need a kernel:
+
+- `SVM` is a **LinearSVC**: fast, linear boundary only. It has no `kernel`,
+  `gamma` or `probability` parameter; probabilities are approximated from the
+  decision function.
+- `SVC` is the **kernel SVM** with native probability estimates. RBF works well
+  after dimensionality reduction (LASSO/mRMR). Slow on > 5000 samples;
+  `probability: true` slows it further because sklearn fits an internal
+  calibration model.
 
 ```yaml
-SVM:
+SVM:                      # linear, fast
   params:
     random_state: 42
     C: 1.0
-    kernel: rbf
+    max_iter: 1000
+```
+
+```yaml
+SVC:                      # kernel, supports non-linear boundaries
+  params:
+    random_state: 42
+    C: 1.0
+    kernel: rbf           # linear | poly | rbf | sigmoid
     gamma: scale
-    probability: true
+    probability: true     # required for ROC/DCA
 ```
 
 ### MLP
@@ -98,17 +125,27 @@ MLP:
 - Trains an ensemble automatically; usually the best AUC out of the box.
 - **Requires Python 3.10**. Warn the user.
 - Time-bounded by `time_limit` (seconds).
+- AutoGluon has a two-part API, mirrored by two YAML blocks: `predictor:` is
+  passed to `TabularPredictor(...)`, `fit:` to `TabularPredictor.fit(...)`. Any
+  AutoGluon parameter can be used, not just the ones shown here.
 
 ```yaml
 AutoGluonTabular:
   params:
-    path: ./ml_data/autogluon_models
-    label: label
-    time_limit: 300                    # 5 minutes
-    presets: high_quality              # best_quality | high_quality | medium_quality | fast
-    eval_metric: roc_auc
-    verbosity: 1
+    random_state: 42
+    predictor:
+      path: ./ml_data/autogluon_models
+      label: label
+      eval_metric: roc_auc
+      verbosity: 1
+    fit:
+      time_limit: 300                  # 5 minutes
+      presets: high_quality            # best_quality | high_quality | good_quality | medium_quality | optimize_for_deployment
+      num_bag_folds: 5                 # any other fit() parameter also works
 ```
+
+The older flat form (`time_limit` / `presets` / `eval_metric` directly under
+`params`) is still accepted and routed automatically.
 
 ### Less common: KNN, GaussianNB, GradientBoosting, AdaBoost, DecisionTree
 Available but rarely chosen for serious radiomics work. Use only if a baseline

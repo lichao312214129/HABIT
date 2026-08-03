@@ -103,8 +103,10 @@ models:
       # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
       random_state: 42
 
-  # --- SVM ---
-  SVM:
+  # --- SVC (kernel SVM) ---
+  # 中文：需要核函数时用 SVC；SVM 是 LinearSVC，不支持 kernel / gamma / probability。
+  # EN: Use SVC when a kernel is needed; SVM is a LinearSVC and has no kernel / gamma / probability.
+  SVC:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:

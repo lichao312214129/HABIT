@@ -21,6 +21,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -49,16 +50,22 @@ class AdaBoostModel(BaseModel):
         
         # Extract parameters from config
         params = config.get('params', {})
-        
-        # Create model with parameters
+
+        # ``algorithm`` is intentionally not defaulted here. sklearn removed the
+        # long-standing 'SAMME.R' value and is phasing the parameter out
+        # entirely, so pinning any value in HABIT would break on upgrade. When
+        # the user does not set it, sklearn's own default applies.
         self.model = AdaBoostClassifier(
-            n_estimators=params.get('n_estimators', 50),
-            learning_rate=params.get('learning_rate', 1.0),
-            algorithm=params.get('algorithm', 'SAMME.R'),
-            random_state=params.get('random_state', 42),
-            **{k: v for k, v in params.items() if k not in [
-                'n_estimators', 'learning_rate', 'algorithm', 'random_state'
-            ]}
+            **build_estimator_params(
+                AdaBoostClassifier,
+                defaults={
+                    'n_estimators': 50,
+                    'learning_rate': 1.0,
+                    'random_state': 42,
+                },
+                user_params=params,
+                model_name='AdaBoost',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

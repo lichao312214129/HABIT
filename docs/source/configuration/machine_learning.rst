@@ -356,10 +356,6 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
     - ``criterion`` (str, default: ``aic``): ``aic``, ``bic``, or ``pvalue``
     - ``verbose`` (bool, default: ``false``)
 
-**stepwise_r (R stepwise regression; requires R)**:
-
-    - same parameters as ``stepwise``; method key name is ``stepwise_r``
-
 **univariate_logistic (univariate logistic regression)**:
 
     - ``alpha`` (float, default: ``0.05``): significance level

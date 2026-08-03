@@ -21,6 +21,7 @@ from sklearn.tree import DecisionTreeClassifier
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -52,18 +53,21 @@ class DecisionTreeModel(BaseModel):
         
         # Create model with parameters
         self.model = DecisionTreeClassifier(
-            criterion=params.get('criterion', 'gini'),
-            splitter=params.get('splitter', 'best'),
-            max_depth=params.get('max_depth', None),
-            min_samples_split=params.get('min_samples_split', 2),
-            min_samples_leaf=params.get('min_samples_leaf', 1),
-            max_features=params.get('max_features', None),
-            class_weight=params.get('class_weight', None),
-            random_state=params.get('random_state', 42),
-            **{k: v for k, v in params.items() if k not in [
-                'criterion', 'splitter', 'max_depth', 'min_samples_split',
-                'min_samples_leaf', 'max_features', 'class_weight', 'random_state'
-            ]}
+            **build_estimator_params(
+                DecisionTreeClassifier,
+                defaults={
+                    'criterion': 'gini',
+                    'splitter': 'best',
+                    'max_depth': None,
+                    'min_samples_split': 2,
+                    'min_samples_leaf': 1,
+                    'max_features': None,
+                    'class_weight': None,
+                    'random_state': 42,
+                },
+                user_params=params,
+                model_name='DecisionTree',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

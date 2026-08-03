@@ -222,10 +222,12 @@ models:
       # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
       # EN: `solver` is a setting for this module; retain the example default initially and document any change.
       solver: "lbfgs"
-  # 中文：`SVM` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
-  # EN: `SVM` is a setting for this module; retain the example default initially and document any change.
-  # --- 3.2 Support vector machine / SVM ---
-  SVM:
+  # 中文：`SVC` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `SVC` is a setting for this module; retain the example default initially and document any change.
+  # --- 3.2 Support vector machine / SVC ---
+  # 中文：需要核函数时用 SVC；SVM 是 LinearSVC，不支持 kernel / gamma / probability。
+  # EN: Use SVC when a kernel is needed; SVM is a LinearSVC and has no kernel / gamma / probability.
+  SVC:
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params:

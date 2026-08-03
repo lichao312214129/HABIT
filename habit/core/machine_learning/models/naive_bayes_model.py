@@ -21,6 +21,7 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -50,11 +51,15 @@ class GaussianNBModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', {})
         
-        # Create model with parameters
+        # Create model with parameters. Naive Bayes has no random_state, so the
+        # seed injected globally by the pipeline builder is filtered out here.
         self.model = GaussianNB(
-            priors=params.get('priors', None),
-            var_smoothing=params.get('var_smoothing', 1e-9),
-            **{k: v for k, v in params.items() if k not in ['priors', 'var_smoothing']}
+            **build_estimator_params(
+                GaussianNB,
+                defaults={'priors': None, 'var_smoothing': 1e-9},
+                user_params=params,
+                model_name='GaussianNB',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
@@ -141,12 +146,15 @@ class MultinomialNBModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', {})
         
-        # Create model with parameters
+        # Create model with parameters. Naive Bayes has no random_state, so the
+        # seed injected globally by the pipeline builder is filtered out here.
         self.model = MultinomialNB(
-            alpha=params.get('alpha', 1.0),
-            fit_prior=params.get('fit_prior', True),
-            class_prior=params.get('class_prior', None),
-            **{k: v for k, v in params.items() if k not in ['alpha', 'fit_prior', 'class_prior']}
+            **build_estimator_params(
+                MultinomialNB,
+                defaults={'alpha': 1.0, 'fit_prior': True, 'class_prior': None},
+                user_params=params,
+                model_name='MultinomialNB',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
@@ -233,13 +241,20 @@ class BernoulliNBModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', {})
         
-        # Create model with parameters
+        # Create model with parameters. Naive Bayes has no random_state, so the
+        # seed injected globally by the pipeline builder is filtered out here.
         self.model = BernoulliNB(
-            alpha=params.get('alpha', 1.0),
-            binarize=params.get('binarize', 0.0),
-            fit_prior=params.get('fit_prior', True),
-            class_prior=params.get('class_prior', None),
-            **{k: v for k, v in params.items() if k not in ['alpha', 'binarize', 'fit_prior', 'class_prior']}
+            **build_estimator_params(
+                BernoulliNB,
+                defaults={
+                    'alpha': 1.0,
+                    'binarize': 0.0,
+                    'fit_prior': True,
+                    'class_prior': None,
+                },
+                user_params=params,
+                model_name='BernoulliNB',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

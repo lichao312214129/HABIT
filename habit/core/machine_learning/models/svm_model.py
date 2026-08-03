@@ -13,15 +13,21 @@
 #   - Unauthorized commercial use or removal of attribution is prohibited.
 #
 """
-SVM Model
+SVM Models
 
-Wrapper for sklearn's LinearSVC model for faster training
+Two registry entries with different trade-offs:
+
+* ``SVM`` — ``LinearSVC``, fast, linear decision boundary only. Probabilities
+  are approximated from the decision function.
+* ``SVC`` — kernel SVC (rbf/poly/sigmoid/linear) with native probability
+  estimates, slower but able to model non-linear boundaries.
 """
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.calibration import CalibratedClassifierCV
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 from scipy.special import expit  # sigmoid function
@@ -54,11 +60,17 @@ class SVMModel(BaseModel):
         
         # Create base model with parameters
         self.model = LinearSVC(
-            C=params.get('C', 1.0),
-            class_weight=params.get('class_weight', None),
-            random_state=params.get('random_state', 42),
-            max_iter=params.get('max_iter', 1000),
-            **{k: v for k, v in params.items() if k not in ['C', 'class_weight', 'random_state', 'max_iter']}
+            **build_estimator_params(
+                LinearSVC,
+                defaults={
+                    'C': 1.0,
+                    'class_weight': None,
+                    'random_state': 42,
+                    'max_iter': 1000,
+                },
+                user_params=params,
+                model_name='SVM',
+            )
         )
         
         
@@ -146,4 +158,134 @@ class SVMModel(BaseModel):
             return dict(zip(feature_names, coef))
         except AttributeError:
             # If we can't get coefficients, return empty dict
-            return {} 
+            return {}
+
+
+@ModelFactory.register('SVC')
+class SVCModel(BaseModel):
+    """
+    Wrapper for sklearn's kernel SVC.
+
+    Use this instead of ``SVM`` (which is a ``LinearSVC``) when a non-linear
+    kernel is needed. ``probability=True`` is the default because HABIT relies
+    on ``predict_proba`` for ROC/AUC reporting; note that it makes training
+    noticeably slower, since sklearn fits an internal calibration model.
+    """
+
+    @property
+    def model_type(self) -> str:
+        """
+        Get the type of the model
+
+        Returns:
+            str: Model type ('kernel' for kernel SVC)
+        """
+        return 'kernel'
+
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the model
+
+        Args:
+            config: Configuration dictionary with model parameters
+        """
+        super().__init__(config)
+
+        params = config.get('params', {})
+
+        self.model = SVC(
+            **build_estimator_params(
+                SVC,
+                defaults={
+                    'C': 1.0,
+                    'kernel': 'rbf',
+                    'gamma': 'scale',
+                    'class_weight': None,
+                    'probability': True,
+                    'random_state': 42,
+                },
+                user_params=params,
+                model_name='SVC',
+            )
+        )
+
+    def fit(self, X: Union[pd.DataFrame, np.ndarray],
+            y: Union[pd.Series, np.ndarray]) -> 'SVCModel':
+        """
+        Train the model
+
+        Args:
+            X: Training features
+            y: Training labels
+
+        Returns:
+            SVCModel: The fitted model instance.
+        """
+        if isinstance(X, pd.DataFrame):
+            self.feature_names = list(X.columns)
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """
+        Make predictions
+
+        Args:
+            X: Features
+
+        Returns:
+            np.ndarray: Predicted class labels
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+        return self.model.predict(X)
+
+    def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """
+        Get prediction probabilities.
+
+        Args:
+            X: Features
+
+        Returns:
+            np.ndarray: Class-probability matrix with shape
+            ``(n_samples, n_classes)``.
+
+        Raises:
+            ValueError: If the model was configured with ``probability=False``,
+                in which case sklearn cannot produce probabilities.
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+        if not getattr(self.model, 'probability', False):
+            raise ValueError(
+                "SVC was configured with probability=False, so predict_proba is "
+                "unavailable. Set probability: true in the model params."
+            )
+        return self.model.predict_proba(X)
+
+    def get_feature_importance(self) -> Dict[str, float]:
+        """
+        Get feature importance scores.
+
+        Only a linear kernel exposes coefficients; other kernels have no direct
+        per-feature importance.
+
+        Returns:
+            Dict[str, float]: Feature importance scores, empty for non-linear
+            kernels.
+        """
+        if self.model is None:
+            raise ValueError("Model not trained. Call fit() first.")
+
+        try:
+            coef = self.model.coef_
+        except AttributeError:
+            # Non-linear kernels do not expose coef_.
+            return {}
+
+        weights = coef[0] if len(self.classes_) == 2 else np.mean(coef, axis=0)
+        feature_names = self.feature_names or [
+            f"feature_{i}" for i in range(len(weights))
+        ]
+        return dict(zip(feature_names, weights))

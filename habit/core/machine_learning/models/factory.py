@@ -49,7 +49,9 @@ class ModelFactory(ClassRegistry[BaseModel]):
 
         Args:
             model_name: Registered model name.
-            config: Optional configuration dictionary (``None`` -> ``{}``).
+            config: Model configuration. Either the nested wrapper contract
+                ``{'params': {...}}`` or a flat mapping of parameters, which is
+                normalized by :meth:`_normalize_config`.
 
         Returns:
             BaseModel: Instantiated model.
@@ -63,7 +65,30 @@ class ModelFactory(ClassRegistry[BaseModel]):
                 f"Model '{model_name}' not registered. "
                 f"Available models: {list(cls._registry.keys())}"
             )
-        return model_cls(config or {})
+        return model_cls(cls._normalize_config(config or {}))
+
+    @staticmethod
+    def _normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Normalize a model config to the nested ``{'params': {...}}`` contract.
+
+        Model wrappers read their hyperparameters from ``config['params']``.
+        Callers, however, legitimately hold a flat parameter mapping: the ML
+        config schema stores hyperparameters under ``ModelConfig.params``, and
+        both runners hand that mapping straight to
+        :meth:`PipelineBuilder.build`. Wrapping it here keeps every entry point
+        — pipeline, public API, plugins — on one contract, so a flat mapping can
+        never again be silently read as "no parameters configured".
+
+        Args:
+            config: Nested or flat model configuration.
+
+        Returns:
+            Dict[str, Any]: Configuration guaranteed to expose a ``params`` key.
+        """
+        if isinstance(config.get('params'), dict):
+            return config
+        return {'params': dict(config)}
 
     @classmethod
     def available(cls) -> List[str]:

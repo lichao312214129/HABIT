@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 from .feature_selectors.selector_registry import run_selector, SelectorRegistry
 from habit.utils.log_utils import get_module_logger
+from habit.utils.estimator_utils import strict_model_params
 from habit.utils.random_utils import merge_random_state_into_params, resolve_random_state
 
 from sklearn.pipeline import Pipeline as SklearnPipeline
@@ -109,8 +110,10 @@ class PipelineBuilder:
         else:
             pipeline_cls = SklearnPipeline
 
-        # Model is always the terminal step.
-        steps.append(('model', ModelFactory.create(model_name, model_params)))
+        # Model is always the terminal step. Unsupported parameters are reported
+        # by the model wrapper; strict mode turns those reports into errors.
+        with strict_model_params(getattr(self.config, 'strict_model_params', False)):
+            steps.append(('model', ModelFactory.create(model_name, model_params)))
 
         pipeline_type = "imblearn" if needs_imblearn else "sklearn"
         step_names = " → ".join(name for name, _ in steps)

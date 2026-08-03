@@ -194,17 +194,28 @@ models:
       # EN: `solver` is a setting for this module; retain the example default initially and document any change.
       solver: lbfgs  # Options: lbfgs, liblinear, newton-cg, sag, saga
   # AutoGluon Tabular (Automated ML)
+  # AutoGluon splits its API in two: predictor: goes to TabularPredictor(...),
+  # fit: goes to TabularPredictor.fit(...). Any AutoGluon parameter can be used.
   # AutoGluonTabular:
   #   params:
-  #     path: ./ml_data/autogluon_models  # Model save directory
-  #     label: label  # Label column name
-  #     time_limit: 30  # Training time limit (seconds)
   #     random_state: 42
-  #     presets: high_quality  # Options: best_quality, high_quality, good_quality, medium_quality, fast
-  #     verbosity: 4  # 0-4
-  #     eval_metric: roc_auc  # Optimization metric
-  # Support Vector Machine
+  #     predictor:
+  #       path: ./ml_data/autogluon_models  # Model save directory
+  #       label: label  # Label column name
+  #       eval_metric: roc_auc  # Optimization metric
+  #       verbosity: 2  # 0-4
+  #     fit:
+  #       time_limit: 30  # Training time limit (seconds)
+  #       presets: high_quality  # Options: best_quality, high_quality, good_quality, medium_quality, optimize_for_deployment
+  #       num_bag_folds: 5  # Any other TabularPredictor.fit() parameter works too
+  # Linear Support Vector Machine (LinearSVC — no kernel support)
   # SVM:
+  #   params:
+  #     random_state: 42
+  #     C: 1.0
+  #     max_iter: 1000
+  # Kernel Support Vector Machine (SVC — use this when a kernel is needed)
+  # SVC:
   #   params:
   #     random_state: 42
   #     C: 1.0
@@ -272,7 +283,7 @@ models:
   #     random_state: 42
   #     n_estimators: 50
   #     learning_rate: 1.0
-  #     algorithm: SAMME.R  # Options: SAMME, SAMME.R
+  #     # algorithm: SAMME  # Leave unset; 'SAMME.R' was removed in scikit-learn 1.6
   # Decision Tree
   # DecisionTree:
   #   params:

@@ -37,7 +37,7 @@ class ResamplePreprocessor(BasePreprocessor):
     def __init__(
         self,
         keys: Union[str, List[str]],
-        target_spacing: Sequence[float],
+        target_spacing: Sequence[float] = (1.0, 1.0, 1.0),
         img_mode: str = "bilinear",
         padding_mode: str = "border",
         align_corners: bool = False,
@@ -50,6 +50,7 @@ class ResamplePreprocessor(BasePreprocessor):
             keys (Union[str, List[str]]): Keys of the corresponding items to be transformed.
                 Should include both image and mask keys.
             target_spacing (Sequence[float]): Target spacing to resample to, e.g., (2.0, 2.0, 2.0).
+                Defaults to isotropic 1 mm, matching the config schema default.
             img_mode (str): Interpolation mode for image data. Defaults to "bilinear".
             padding_mode (str): Padding mode for out-of-bound values. Defaults to "border".
             align_corners (bool): Whether to align corners. Defaults to False.

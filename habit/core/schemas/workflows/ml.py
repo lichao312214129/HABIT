@@ -293,6 +293,9 @@ class MLConfig(BaseConfig):
     # Flags.
     is_visualize: bool = True
     is_save_model: bool = True
+    # When True, a model parameter the underlying estimator does not accept
+    # aborts the run instead of being reported and ignored.
+    strict_model_params: bool = False
 
     # Visualization detail.
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)

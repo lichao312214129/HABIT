@@ -21,6 +21,7 @@ from sklearn.ensemble import RandomForestClassifier
 from typing import Dict, Any, Optional, Union, List
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -61,24 +62,31 @@ class RandomForestModel(BaseModel):
         """
         # Get parameters from config['params'] if it exists, otherwise from config directly
         config_params = self.config.get('params', self.config)
-        
-        # Get parameters from config or use defaults
-        params = {
-            'n_estimators': config_params.get('n_estimators', 100),
-            'max_depth': config_params.get('max_depth', None),
-            'min_samples_split': config_params.get('min_samples_split', 2),
-            'min_samples_leaf': config_params.get('min_samples_leaf', 1),
-            'max_features': config_params.get('max_features', 'sqrt'),
-            'bootstrap': config_params.get('bootstrap', True),
-            'class_weight': config_params.get('class_weight', None),
-            'random_state': config_params.get('random_state', 42)
+
+        # Internal bookkeeping keys must never reach the estimator.
+        user_params = {
+            key: value
+            for key, value in config_params.items()
+            if key != 'params' and not key.startswith('_')
         }
-        
-        # Add any additional parameters from config_params (excluding 'params' key itself)
-        params.update({k: v for k, v in config_params.items() 
-                      if k not in params and k != 'params' and not k.startswith('_')})
-        
-        return RandomForestClassifier(**params)
+
+        return RandomForestClassifier(
+            **build_estimator_params(
+                RandomForestClassifier,
+                defaults={
+                    'n_estimators': 100,
+                    'max_depth': None,
+                    'min_samples_split': 2,
+                    'min_samples_leaf': 1,
+                    'max_features': 'sqrt',
+                    'bootstrap': True,
+                    'class_weight': None,
+                    'random_state': 42,
+                },
+                user_params=user_params,
+                model_name='RandomForest',
+            )
+        )
     
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 
             y: Union[pd.Series, np.ndarray]) -> 'RandomForestModel':

@@ -247,17 +247,26 @@ models:
       # EN: `solver` is a setting for this module; retain the example default initially and document any change.
       solver: "lbfgs"  # Algorithm to use in the optimization problem
   # # # AutoGluonTabular model configuration
+  # # predictor: goes to TabularPredictor(...), fit: goes to .fit(...)
   # AutoGluonTabular:  # Model type: AutoGluonTabular classifier
   #   params:
-  #     path: ../../demo_data/ml_data/autogluon_models
-  #     label: label
-  #     time_limit: 30
   #     random_state: 42  # Random seed for reproducibility
-  #     presets: "high_quality"  # Preset for AutoGluonTabular
-  #     verbosity: 4  # Verbosity level for AutoGluonTabular
-  #     eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
-  # # Support Vector Machine configuration
-  # SVM:  # Model type: Support Vector Machine classifier
+  #     predictor:
+  #       path: ../../demo_data/ml_data/autogluon_models
+  #       label: label
+  #       eval_metric: "roc_auc"  # Evaluation metric for AutoGluonTabular
+  #       verbosity: 2  # Verbosity level for AutoGluonTabular
+  #     fit:
+  #       time_limit: 30
+  #       presets: "high_quality"  # Preset for AutoGluonTabular
+  # # Linear Support Vector Machine configuration (LinearSVC — no kernel support)
+  # SVM:  # Model type: linear Support Vector Machine classifier
+  #   params:
+  #     random_state: 42  # Random seed for reproducibility
+  #     C: 1.0  # Regularization parameter
+  #     max_iter: 1000  # Maximum number of iterations
+  # # Kernel Support Vector Machine configuration (SVC)
+  # SVC:  # Model type: kernel Support Vector Machine classifier
   #   params:
   #     random_state: 42  # Random seed for reproducibility
   #     C: 1.0  # Regularization parameter
@@ -336,7 +345,7 @@ models:
   #     random_state: 42  # Random seed for reproducibility
   #     n_estimators: 50  # Maximum number of estimators
   #     learning_rate: 1.0  # Weight applied to each classifier
-  #     algorithm: "SAMME.R"  # Boosting algorithm: SAMME or SAMME.R
+  #     # algorithm: "SAMME"  # Leave unset; 'SAMME.R' was removed in scikit-learn 1.6
   # # Decision Tree configuration
   # DecisionTree:  # Model type: Decision Tree classifier
   #   params:

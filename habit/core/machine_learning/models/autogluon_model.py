@@ -17,13 +17,15 @@ AutoGluon TabularPredictor Model
 
 Wrapper for AutoGluon's TabularPredictor model
 """
-from typing import Dict, Any, Optional, Union, List
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple, Union
+import inspect
 import os
 import random
 
 import numpy as np
 import pandas as pd
 
+from habit.utils.estimator_utils import get_accepted_params
 from habit.utils.log_utils import get_module_logger
 from .base import BaseModel
 from .factory import ModelFactory
@@ -38,6 +40,72 @@ except ImportError:
         "can run 'launchers/一键启用HABIT-AutoML.bat'; package users can install "
         "'HABIT[automl]'."
     )
+
+# HABIT-level keys that configure the wrapper rather than AutoGluon itself.
+_HABIT_ONLY_PARAMS = frozenset({'feature_importance', 'random_state', 'seed'})
+
+
+def _split_autogluon_params(
+    params: Dict[str, Any],
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """
+    Split configured parameters across AutoGluon's two-part API.
+
+    ``TabularPredictor(...)`` defines the task while ``.fit(...)`` controls
+    training, and both accept ``**kwargs``. Explicit ``predictor:`` / ``fit:``
+    blocks are used as-is. Any remaining flat key is routed by looking at which
+    side names it explicitly; keys named by neither go to ``fit``, which is
+    where AutoGluon's advanced options (``num_bag_folds``,
+    ``excluded_model_types``, ...) live.
+
+    Args:
+        params: Validated ``params`` block for the model.
+
+    Returns:
+        Tuple[Dict[str, Any], Dict[str, Any]]: Keyword arguments for the
+        constructor and for ``fit`` respectively.
+    """
+    predictor_params: Dict[str, Any] = dict(params.get('predictor') or {})
+    fit_params: Dict[str, Any] = dict(params.get('fit') or {})
+
+    predictor_names, _ = get_accepted_params(TabularPredictor)
+    fit_names = _fit_param_names()
+
+    for key, value in params.items():
+        if key in ('predictor', 'fit') or key in _HABIT_ONLY_PARAMS:
+            continue
+        # An explicit block always wins over the flat spelling of the same key.
+        if key in predictor_params or key in fit_params:
+            continue
+        if key in predictor_names:
+            predictor_params[key] = value
+        elif key in fit_names:
+            fit_params[key] = value
+        else:
+            fit_params[key] = value
+
+    return predictor_params, fit_params
+
+
+def _fit_param_names() -> FrozenSet[str]:
+    """
+    Return the parameter names ``TabularPredictor.fit`` names explicitly.
+
+    Returns:
+        FrozenSet[str]: Accepted names excluding the training data argument.
+    """
+    try:
+        signature = inspect.signature(TabularPredictor.fit)
+    except (TypeError, ValueError):
+        return frozenset()
+    return frozenset(
+        name
+        for name, parameter in signature.parameters.items()
+        if name not in ('self', 'train_data')
+        and parameter.kind
+        not in (inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL)
+    )
+
 
 @ModelFactory.register('AutoGluonTabular')
 class AutoGluonTabularModel(BaseModel):
@@ -65,16 +133,7 @@ class AutoGluonTabularModel(BaseModel):
         # Extract parameters from config
         params = config.get('params', config)
 
-        # Extract predictor specific parameters
-        self.label = params.get('label', None)
-        self.problem_type = params.get('problem_type', None)  # 'binary', 'multiclass', 'regression'
-        self.eval_metric = params.get('eval_metric', None)
-        self.path = params.get('path', './AutogluonModels')
-
-        # Model training parameters
-        self.time_limit = params.get('time_limit', 60)  # Time limit in seconds
-        self.presets = params.get('presets', 'medium_quality')  # quality/performance tradeoff
-        self.hyperparameters = params.get('hyperparameters', None)
+        # HABIT-level parameters, never forwarded to AutoGluon.
         self.feature_importance = params.get('feature_importance', 'auto')
         self.random_state = int(
             params.get(
@@ -82,7 +141,13 @@ class AutoGluonTabularModel(BaseModel):
                 params.get('seed', config.get('random_state', 42)),
             )
         )
-        
+
+        # Split the remaining parameters across AutoGluon's two-part API.
+        self.predictor_params, self.fit_params = _split_autogluon_params(params)
+
+        # ``label`` is resolved from the training target when not configured.
+        self.label = self.predictor_params.get('label')
+
         # Create TabularPredictor instance
         self.model = None  # Will be initialized during fit
         
@@ -110,14 +175,12 @@ class AutoGluonTabularModel(BaseModel):
         if self.label is None:
             self.label = y.name if hasattr(y, 'name') and y.name else 'target'
         train_data[self.label] = y
-        
+
+        predictor_params = dict(self.predictor_params)
+        predictor_params['label'] = self.label
+
         # Initialize and train TabularPredictor
-        self.model = TabularPredictor(
-            label=self.label,
-            problem_type=self.problem_type,
-            eval_metric=self.eval_metric,
-            path=self.path
-        )
+        self.model = TabularPredictor(**predictor_params)
 
         # AutoGluon TabularPredictor.fit() does not accept random_state (v1.3+).
         # Seed Python/NumPy before fit so config random_state still improves
@@ -126,16 +189,18 @@ class AutoGluonTabularModel(BaseModel):
         np.random.seed(self.random_state)
 
         # Train the model
-        self.model.fit(
-            train_data=train_data,
-            time_limit=self.time_limit,
-            presets=self.presets,
-            hyperparameters=self.hyperparameters,
-        )
+        self.model.fit(train_data=train_data, **self.fit_params)
 
-        # Save the leaderboard after model training for later analysis
-        # The leaderboard provides a summary of all models trained by AutoGluon, including their performance metrics
-        leaderboard_path = os.path.join(self.path if self.path else "./", "leaderboard.csv")
+        # Save the leaderboard after model training for later analysis. The
+        # leaderboard summarizes every model AutoGluon trained, with metrics.
+        # When no path was configured, AutoGluon generates one, so read it back
+        # off the fitted predictor.
+        output_dir = (
+            getattr(self.model, 'path', None)
+            or self.predictor_params.get('path')
+            or "./"
+        )
+        leaderboard_path = os.path.join(output_dir, "leaderboard.csv")
         leaderboard_df = self.model.leaderboard(silent=True)
         print(leaderboard_df)
         leaderboard_df.to_csv(leaderboard_path, index=False)

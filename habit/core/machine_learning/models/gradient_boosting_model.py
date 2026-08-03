@@ -21,6 +21,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -52,20 +53,23 @@ class GradientBoostingModel(BaseModel):
         
         # Create model with parameters
         self.model = GradientBoostingClassifier(
-            loss=params.get('loss', 'log_loss'),
-            learning_rate=params.get('learning_rate', 0.1),
-            n_estimators=params.get('n_estimators', 100),
-            subsample=params.get('subsample', 1.0),
-            criterion=params.get('criterion', 'friedman_mse'),
-            min_samples_split=params.get('min_samples_split', 2),
-            min_samples_leaf=params.get('min_samples_leaf', 1),
-            max_depth=params.get('max_depth', 3),
-            max_features=params.get('max_features', None),
-            random_state=params.get('random_state', 42),
-            **{k: v for k, v in params.items() if k not in [
-                'loss', 'learning_rate', 'n_estimators', 'subsample', 'criterion',
-                'min_samples_split', 'min_samples_leaf', 'max_depth', 'max_features', 'random_state'
-            ]}
+            **build_estimator_params(
+                GradientBoostingClassifier,
+                defaults={
+                    'loss': 'log_loss',
+                    'learning_rate': 0.1,
+                    'n_estimators': 100,
+                    'subsample': 1.0,
+                    'criterion': 'friedman_mse',
+                    'min_samples_split': 2,
+                    'min_samples_leaf': 1,
+                    'max_depth': 3,
+                    'max_features': None,
+                    'random_state': 42,
+                },
+                user_params=params,
+                model_name='GradientBoosting',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

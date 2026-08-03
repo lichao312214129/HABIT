@@ -21,6 +21,7 @@ from sklearn.linear_model import LogisticRegression
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -52,13 +53,19 @@ class LogisticRegressionModel(BaseModel):
         
         # Create model with parameters
         self.model = LogisticRegression(
-            C=params.get('C', 1.0),
-            penalty=params.get('penalty', 'l2'),
-            solver=params.get('solver', 'liblinear'),
-            max_iter=params.get('max_iter', 1000),
-            random_state=params.get('random_state', 42),
-            class_weight=params.get('class_weight', None),
-            **{k: v for k, v in params.items() if k not in ['C', 'penalty', 'solver', 'max_iter', 'random_state', 'class_weight']}
+            **build_estimator_params(
+                LogisticRegression,
+                defaults={
+                    'C': 1.0,
+                    'penalty': 'l2',
+                    'solver': 'liblinear',
+                    'max_iter': 1000,
+                    'random_state': 42,
+                    'class_weight': None,
+                },
+                user_params=params,
+                model_name='LogisticRegression',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

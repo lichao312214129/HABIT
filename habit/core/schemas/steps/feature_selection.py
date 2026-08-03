@@ -125,11 +125,6 @@ class StepwiseParams(BaseModel):
     verbose: bool = Field(False)
 
 
-class StepwiseRParams(BaseModel):
-    direction: Literal["forward", "backward", "both"] = Field("backward")
-    Rhome: str = Field(..., description="Path to R installation (required for stepwise_r).")
-
-
 class UnivariateLogisticParams(BaseModel):
     alpha: float = Field(0.05, gt=0.0, lt=1.0)
 
@@ -162,7 +157,6 @@ FEATURE_SELECTION_PARAM_MODELS: Dict[str, type[BaseModel]] = {
     "mrmr": MrmrParams,
     "rfecv": RfecvParams,
     "stepwise": StepwiseParams,
-    "stepwise_r": StepwiseRParams,
     "univariate_logistic": UnivariateLogisticParams,
     "icc": IccParams,
 }

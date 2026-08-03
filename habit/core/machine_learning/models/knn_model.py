@@ -21,6 +21,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
 
@@ -49,17 +50,24 @@ class KNNModel(BaseModel):
         
         # Extract parameters from config
         params = config.get('params', {})
-        
-        # Create model with parameters
+
+        # Create model with parameters. KNN has no random_state, so the seed
+        # injected globally by the pipeline builder is filtered out here.
         self.model = KNeighborsClassifier(
-            n_neighbors=params.get('n_neighbors', 5),
-            weights=params.get('weights', 'uniform'),
-            algorithm=params.get('algorithm', 'auto'),
-            leaf_size=params.get('leaf_size', 30),
-            p=params.get('p', 2),
-            metric=params.get('metric', 'minkowski'),
-            n_jobs=params.get('n_jobs', -1),
-            **{k: v for k, v in params.items() if k not in ['n_neighbors', 'weights', 'algorithm', 'leaf_size', 'p', 'metric', 'n_jobs']}
+            **build_estimator_params(
+                KNeighborsClassifier,
+                defaults={
+                    'n_neighbors': 5,
+                    'weights': 'uniform',
+                    'algorithm': 'auto',
+                    'leaf_size': 30,
+                    'p': 2,
+                    'metric': 'minkowski',
+                    'n_jobs': -1,
+                },
+                user_params=params,
+                model_name='KNN',
+            )
         )
         
     def fit(self, X: Union[pd.DataFrame, np.ndarray], 

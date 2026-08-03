@@ -17,8 +17,8 @@ Shared I/O utilities for feature selector modules.
 
 This private module centralises the file-type detection and multi-format data
 loading logic that was previously copy-pasted verbatim into
-``stepwise_selector``, ``python_stepwise_selector``, and
-``univariate_logistic_selector``.  Any change to supported formats (e.g.
+``python_stepwise_selector`` and ``univariate_logistic_selector``.
+Any change to supported formats (e.g.
 adding TSV/Parquet v2 support) now only needs to happen here.
 
 Public symbols

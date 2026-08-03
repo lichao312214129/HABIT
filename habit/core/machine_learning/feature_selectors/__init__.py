@@ -42,13 +42,6 @@ from .anova_selector import *
 from .chi2_selector import *
 from .variance_selector import *
 from .statistical_test_selector import *
-
-try:
-    from .stepwise_selector import *
-except Exception as e:
-    logging.warning(f"Error importing stepwise_selector: {e}")
-    pass
-
 from .univariate_logistic_selector import *
 from .vif_selector import *
 

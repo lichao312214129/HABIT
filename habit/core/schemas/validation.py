@@ -29,6 +29,14 @@ def validate_step_params(
 
     Unknown registry keys (plugins without a registered schema) pass through unchanged.
 
+    Only keys the user actually set are returned. Schema defaults are used for
+    validation but are deliberately **not** injected into the result, because a
+    schema default is a copy of a third-party default that silently goes stale:
+    ``AdaBoostParams.algorithm`` pinned ``'SAMME.R'`` long after scikit-learn
+    removed it, which broke the model even for users who never set it. Omitting
+    a key lets the callee (estimator constructor, preprocessor, selector
+    function) apply its own current default instead.
+
     Args:
         domain: ``preprocessing``, ``feature_selection``, or ``model``.
         step_type: Registry step / method / model name.
@@ -36,7 +44,8 @@ def validate_step_params(
         preserve_keys: Keys copied from ``params`` without schema validation.
 
     Returns:
-        Dict[str, Any]: Validated mapping (defaults applied, types coerced).
+        Dict[str, Any]: Validated mapping containing the user-set keys, with
+        types coerced. Schemas that allow extra keys keep them unchanged.
 
     Raises:
         ValidationError: When ``params`` violate the registered schema.
@@ -50,7 +59,7 @@ def validate_step_params(
     param_subset: Dict[str, Any] = {k: v for k, v in params.items() if k not in preserve_keys}
 
     validated_model = model_cls.model_validate(param_subset)
-    merged: Dict[str, Any] = validated_model.model_dump(mode="python")
+    merged: Dict[str, Any] = validated_model.model_dump(mode="python", exclude_unset=True)
     merged.update(preserved)
     return merged
 
