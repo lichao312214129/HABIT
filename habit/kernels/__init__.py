@@ -28,6 +28,16 @@ from habit.kernels.habitat_metrics import (
     msi_features_from_matrix,
     spatial_interaction_matrix,
 )
+from habit.kernels.icc import icc2_1, icc3_1, two_way_mean_squares
+from habit.kernels.statistics import (
+    compute_midrank,
+    delong_roc_ci,
+    delong_roc_test,
+    delong_roc_variance,
+    fast_delong,
+    hosmer_lemeshow_test,
+    spiegelhalter_z_test,
+)
 
 __all__ = [
     "spatial_interaction_matrix",
@@ -35,4 +45,14 @@ __all__ = [
     "habitat_volume_fractions",
     "habitat_region_stats",
     "ith_score",
+    "compute_midrank",
+    "fast_delong",
+    "delong_roc_variance",
+    "delong_roc_test",
+    "delong_roc_ci",
+    "hosmer_lemeshow_test",
+    "spiegelhalter_z_test",
+    "two_way_mean_squares",
+    "icc3_1",
+    "icc2_1",
 ]
