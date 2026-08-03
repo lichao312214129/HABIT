@@ -312,8 +312,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.api.clinical",
     ),
     "habit.domain": (
+        "habit.adapters",
+        "habit.execution",
         "habit.recipes",
-        "habit.spec",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -328,11 +329,22 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.commands",
         "habit.compat",
     ),
+    # Specs are pure value objects (plus the YAML isomorphism); they sit at
+    # the foundation of the stack: the domain layer references ``Spec`` as
+    # the provenance type of every component, so ``habit.spec`` must never
+    # import back into L1-L3 packages.
     "habit.spec": (
+        "habit.adapters",
+        "habit.domain",
+        "habit.execution",
+        "habit.registry",
         "habit.recipes",
         "habit.cli",
         "habit.commands",
         "habit.compat",
+        "habit.core.habitat_analysis",
+        "habit.core.machine_learning",
+        "habit.core.preprocessing",
     ),
     "habit.recipes": (
         "habit.cli",
@@ -461,6 +473,10 @@ def test_layer_does_not_import_upwards(package: str) -> None:
     for path in files:
         for imported in _module_level_imports(path):
             if not imported.startswith("habit"):
+                continue
+            # Intra-package imports (a package importing its own submodule)
+            # are always legal and never a layering violation.
+            if imported == package or imported.startswith(f"{package}."):
                 continue
             if imported.startswith(_FOUNDATION_PREFIXES):
                 continue

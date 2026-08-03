@@ -377,9 +377,9 @@ class HabitatModel:
         Returns:
             A one-argument callable from a supervoxel map to a habitat map.
         """
-        from habit.domain.assignment import HabitatAssignerFactory
+        from habit.domain.assignment import HabitatAssignerRegistry
 
-        return HabitatAssignerFactory.create(name, model=self, **params)
+        return HabitatAssignerRegistry.create(name, model=self, **params)
 
     def save(self, path: Union[str, Path]) -> Path:
         """

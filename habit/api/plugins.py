@@ -34,13 +34,31 @@ __all__ = [
     "load_plugins",
 ]
 
+#: Plugin domain -> entry point group. The v0.1 plural domains are kept for
+#: backward compatibility; the v1.0 domains are ``snake_case`` of their
+#: protocol class, singular (developer/api_upgrade/08 §4), and the v0.1
+#: families are additionally reachable under their v1.0 singular alias
+#: (``preprocessor`` / ``table_preprocessor`` / ``classifier`` /
+#: ``feature_selector`` / ``metric``), which resolves to the same registry.
 _ENTRY_POINT_GROUPS: Mapping[str, str] = {
+    # v0.1 domains (legacy, kept working).
     "preprocessors": "habit.preprocessors",
     "radiomics_backends": "habit.radiomics_backends",
     "feature_extractors": "habit.feature_extractors",
     "habitat_features": "habit.habitat_features",
     "models": "habit.models",
     "metrics": "habit.metrics",
+    # v1.0 domains: snake_case(protocol name), singular.
+    "voxel_feature_extractor": "habit.voxel_feature_extractor",
+    "supervoxelizer": "habit.supervoxelizer",
+    "habitat_model_fitter": "habit.habitat_model_fitter",
+    "habitat_assigner": "habit.habitat_assigner",
+    "habitat_feature_extractor": "habit.habitat_feature_extractor",
+    "preprocessor": "habit.preprocessor",
+    "table_preprocessor": "habit.table_preprocessor",
+    "classifier": "habit.classifier",
+    "feature_selector": "habit.feature_selector",
+    "metric": "habit.metric",
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
 
@@ -70,8 +88,8 @@ class PluginLoadReport:
 
 
 def _registry_for_domain(domain: str) -> Type[Any]:
-    """Resolve a public plugin domain to its existing HABIT registry lazily."""
-    if domain == "preprocessors":
+    """Resolve a public plugin domain to its HABIT registry lazily."""
+    if domain == "preprocessors" or domain == "preprocessor":
         from habit.core.preprocessing import PreprocessorFactory
 
         return cast(Type[Any], PreprocessorFactory)
@@ -89,14 +107,46 @@ def _registry_for_domain(domain: str) -> Type[Any]:
 
         bootstrap_optional_features()
         return cast(Type[Any], HabitatFeatureFactory)
-    if domain == "models":
+    if domain == "models" or domain == "classifier":
         from habit.core.machine_learning.models.factory import ModelFactory
 
         return cast(Type[Any], ModelFactory)
-    if domain == "metrics":
+    if domain == "metrics" or domain == "metric":
         from habit.core.machine_learning.evaluation.metrics import MetricRegistry
 
         return cast(Type[Any], MetricRegistry)
+    if domain == "table_preprocessor":
+        from habit.core.habitat_analysis.feature_preprocessing.base_preprocessing import (
+            PreprocessingMethodFactory,
+        )
+
+        return cast(Type[Any], PreprocessingMethodFactory)
+    if domain == "feature_selector":
+        from habit.core.machine_learning.feature_selectors.selector_registry import (
+            SelectorRegistry,
+        )
+
+        return cast(Type[Any], SelectorRegistry)
+    if domain == "voxel_feature_extractor":
+        from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
+
+        return cast(Type[Any], VoxelFeatureExtractorRegistry)
+    if domain == "supervoxelizer":
+        from habit.domain.supervoxel import SupervoxelizerRegistry
+
+        return cast(Type[Any], SupervoxelizerRegistry)
+    if domain == "habitat_model_fitter":
+        from habit.domain.habitat_model import HabitatModelFitterRegistry
+
+        return cast(Type[Any], HabitatModelFitterRegistry)
+    if domain == "habitat_assigner":
+        from habit.domain.assignment import HabitatAssignerRegistry
+
+        return cast(Type[Any], HabitatAssignerRegistry)
+    if domain == "habitat_feature_extractor":
+        from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+
+        return cast(Type[Any], HabitatFeatureExtractorRegistry)
     if domain == "radiomics_backends":
         raise HABITAPIError(
             "Radiomics backends are not yet registry-backed. Use "

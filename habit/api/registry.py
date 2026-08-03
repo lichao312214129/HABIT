@@ -153,6 +153,27 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     "adapters": (
         "DirectoryDataSource",
     ),
+    "spec": (
+        "Spec",
+        "HabitatSpec",
+        "RunPolicy",
+        "load_habitat_spec",
+        "save_habitat_spec",
+        "load_run_policy",
+        "save_run_policy",
+    ),
+    "registry": (
+        "ComponentRegistry",
+    ),
+    "domain": (
+        "VoxelFeatureExtractor",
+        "Supervoxelizer",
+        "HabitatModelFitter",
+        "HabitatAssigner",
+        "HabitatFeatureExtractor",
+        "Seedable",
+        "SubjectPipeline",
+    ),
 }
 
 #: Sorted stable public names (excluding ``__version__``).
