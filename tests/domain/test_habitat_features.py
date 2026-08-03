@@ -20,21 +20,52 @@ import numpy as np
 import pytest
 
 from habit.api.exceptions import HABITAPIError
+from habit.contracts import ArrayImageRef, Geometry, Subject
 from habit.domain.habitat_features import (
+    EachHabitatRadiomicsFeatures,
     HabitatFeatureExtractorRegistry,
     HabitatVolumeFeatures,
     IthHabitatFeatures,
     MsiHabitatFeatures,
+    NonRadiomicsHabitatFeatures,
+    TraditionalRadiomicsHabitatFeatures,
+    WholeHabitatRadiomicsFeatures,
 )
 from habit.domain.protocols import HabitatFeatureExtractor
 from habit.kernels.habitat_metrics import (
+    habitat_region_stats,
     habitat_volume_fractions,
     ith_score,
     msi_features_from_matrix,
     spatial_interaction_matrix,
 )
 
-from .conftest import make_habitat_map, make_subject
+from .conftest import make_habitat_map, make_subject, provenance
+
+#: Minimal PyRadiomics configuration keeping the radiomics tests fast.
+_MEAN_ONLY_PARAMS = {
+    "imageType": {"Original": {}},
+    "featureClass": {"firstorder": ["Mean"]},
+    "setting": {"binWidth": 25},
+}
+
+
+def _aligned_subject(subject_id: str = "P1") -> Subject:
+    """
+    Build a subject whose 4x4x4 image aligns with ``make_habitat_map``.
+
+    Habitat 1's block holds intensity 5 and habitat 2's block intensity 10,
+    so every radiomics family has a hand-computable expected mean.
+    """
+    geometry = Geometry.from_array((4, 4, 4))
+    image = np.zeros((4, 4, 4), dtype=np.float64)
+    image[0:2, 0:2, 0:2] = 5.0
+    image[2:4, 0:2, 0:2] = 10.0
+    return Subject(
+        subject_id=subject_id,
+        images={"T1": ArrayImageRef(array=image, geometry=geometry)},
+        masks={},
+    )
 
 
 @pytest.mark.unit
@@ -43,6 +74,12 @@ def test_extractors_satisfy_protocol() -> None:
     assert isinstance(MsiHabitatFeatures(), HabitatFeatureExtractor)
     assert isinstance(IthHabitatFeatures(), HabitatFeatureExtractor)
     assert isinstance(HabitatVolumeFeatures(), HabitatFeatureExtractor)
+    assert isinstance(NonRadiomicsHabitatFeatures(), HabitatFeatureExtractor)
+    assert isinstance(
+        TraditionalRadiomicsHabitatFeatures(), HabitatFeatureExtractor
+    )
+    assert isinstance(WholeHabitatRadiomicsFeatures(), HabitatFeatureExtractor)
+    assert isinstance(EachHabitatRadiomicsFeatures(), HabitatFeatureExtractor)
 
 
 @pytest.mark.unit
@@ -92,8 +129,8 @@ def test_ith_features_match_kernel_and_cover_all_model_habitats() -> None:
     table = IthHabitatFeatures()(subject, habitat_map)
     row = table.frame.iloc[0]
     assert row["ith_score"] == pytest.approx(ith_score(labels))
-    assert row["num_habitats"] == 2.0
-    assert row["total_area"] == float(np.count_nonzero(labels))
+    assert row["ith_num_habitats"] == 2.0
+    assert row["ith_total_area"] == float(np.count_nonzero(labels))
     assert row["habitat_1_regions"] == 1.0
     assert row["habitat_2_regions"] == 1.0
     # An absent habitat (id 3 declared by a richer model) yields zeros.
@@ -139,18 +176,171 @@ def test_feature_tables_join_across_families() -> None:
 
 @pytest.mark.unit
 def test_habitat_feature_registry() -> None:
-    """All three built-in families construct through their registry."""
+    """All built-in families construct through their registry."""
     assert set(HabitatFeatureExtractorRegistry.available()) == {
-        "ith",
+        "each_habitat",
+        "ith_score",
         "msi",
+        "non_radiomics",
+        "traditional",
         "volume",
+        "whole_habitat",
     }
     assert isinstance(
         HabitatFeatureExtractorRegistry.create("msi"), MsiHabitatFeatures
     )
     assert isinstance(
-        HabitatFeatureExtractorRegistry.create("ith"), IthHabitatFeatures
+        HabitatFeatureExtractorRegistry.create("ith_score"), IthHabitatFeatures
     )
     assert isinstance(
         HabitatFeatureExtractorRegistry.create("volume"), HabitatVolumeFeatures
     )
+    assert isinstance(
+        HabitatFeatureExtractorRegistry.create("non_radiomics"),
+        NonRadiomicsHabitatFeatures,
+    )
+    assert isinstance(
+        HabitatFeatureExtractorRegistry.create("traditional"),
+        TraditionalRadiomicsHabitatFeatures,
+    )
+    assert isinstance(
+        HabitatFeatureExtractorRegistry.create("whole_habitat"),
+        WholeHabitatRadiomicsFeatures,
+    )
+    assert isinstance(
+        HabitatFeatureExtractorRegistry.create("each_habitat"),
+        EachHabitatRadiomicsFeatures,
+    )
+
+
+@pytest.mark.unit
+def test_non_radiomics_features_match_kernels() -> None:
+    """Region counts and volume ratios come straight from the L0 kernels."""
+    subject = make_subject("P1")
+    habitat_map = make_habitat_map("P1")
+    labels = np.asarray(habitat_map.label_array)
+    table = NonRadiomicsHabitatFeatures()(subject, habitat_map)
+    row = table.frame.iloc[0]
+    region_stats = habitat_region_stats(labels)
+    fractions = habitat_volume_fractions(labels, (1, 2))
+    assert row["num_habitats"] == float(len(region_stats))
+    assert row["1_num_regions"] == float(region_stats[1][0])
+    assert row["2_num_regions"] == float(region_stats[2][0])
+    assert row["1_volume_ratio"] == pytest.approx(fractions[1])
+    assert row["2_volume_ratio"] == pytest.approx(fractions[2])
+    # A habitat the model declares but the subject lacks yields zeros.
+    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
+    row = NonRadiomicsHabitatFeatures()(subject, habitat_map).frame.iloc[0]
+    assert row["3_num_regions"] == 0.0
+    assert row["3_volume_ratio"] == 0.0
+
+
+@pytest.mark.unit
+def test_non_radiomics_counts_disconnected_regions() -> None:
+    """Splitting one habitat into two islands doubles its region count."""
+    subject = make_subject("P1")
+    habitat_map = make_habitat_map("P1")
+    labels = np.asarray(habitat_map.label_array)
+    labels[0, 0, 0] = 0  # detach one voxel from habitat 1's block... 
+    labels[3, 3, 3] = 1  # ...and place an isolated habitat-1 voxel elsewhere
+    row = NonRadiomicsHabitatFeatures()(subject, habitat_map).frame.iloc[0]
+    assert row["1_num_regions"] == float(habitat_region_stats(labels)[1][0])
+    assert row["1_num_regions"] == 2.0
+
+
+@pytest.mark.unit
+def test_traditional_radiomics_masked_mean_and_column_naming() -> None:
+    """Columns are {feature}_of_{modality}; the mean is the masked mean."""
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    table = TraditionalRadiomicsHabitatFeatures(params=_MEAN_ONLY_PARAMS)(
+        subject, habitat_map
+    )
+    labels = np.asarray(habitat_map.label_array)
+    image = np.asarray(subject.image("T1").load())
+    assert table.feature_columns == ("original_firstorder_Mean_of_T1",)
+    assert table.frame.iloc[0]["original_firstorder_Mean_of_T1"] == pytest.approx(
+        image[labels > 0].mean()
+    )
+
+
+@pytest.mark.unit
+def test_traditional_radiomics_modality_resolution_and_exclusivity() -> None:
+    """Unknown modalities and dual params sources are explicit errors."""
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    with pytest.raises(HABITAPIError):
+        TraditionalRadiomicsHabitatFeatures(
+            params=_MEAN_ONLY_PARAMS, modalities=["T2"]
+        )(subject, habitat_map)
+    with pytest.raises(HABITAPIError):
+        TraditionalRadiomicsHabitatFeatures(
+            params_file="params.yaml", params=_MEAN_ONLY_PARAMS
+        )(subject, habitat_map)
+
+
+@pytest.mark.unit
+def test_whole_habitat_radiomics_uses_the_label_image() -> None:
+    """The habitat map itself is the image: bare PyRadiomics column names."""
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    table = WholeHabitatRadiomicsFeatures(params=_MEAN_ONLY_PARAMS)(
+        subject, habitat_map
+    )
+    labels = np.asarray(habitat_map.label_array)
+    assert table.feature_columns == ("original_firstorder_Mean",)
+    assert table.frame.iloc[0]["original_firstorder_Mean"] == pytest.approx(
+        labels[labels > 0].mean()
+    )
+
+
+@pytest.mark.unit
+def test_each_habitat_radiomics_per_habitat_columns() -> None:
+    """Per-habitat means land in habitat_{id}_*_of_{modality} columns."""
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    table = EachHabitatRadiomicsFeatures(params=_MEAN_ONLY_PARAMS)(
+        subject, habitat_map
+    )
+    row = table.frame.iloc[0]
+    assert row["has_habitat_1"] == 1.0
+    assert row["has_habitat_2"] == 1.0
+    assert row["habitat_1_original_firstorder_Mean_of_T1"] == pytest.approx(5.0)
+    assert row["habitat_2_original_firstorder_Mean_of_T1"] == pytest.approx(10.0)
+
+
+@pytest.mark.unit
+def test_each_habitat_absent_habitats_are_nan_not_zero() -> None:
+    """A declared-but-absent habitat reports NaN and a 0 presence flag."""
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
+    table = EachHabitatRadiomicsFeatures(params=_MEAN_ONLY_PARAMS)(
+        subject, habitat_map
+    )
+    row = table.frame.iloc[0]
+    assert row["has_habitat_3"] == 0.0
+    assert np.isnan(row["habitat_3_original_firstorder_Mean_of_T1"])
+    # The column layout is canonical: a map containing only habitat 1 but
+    # declaring the same model ids yields the very same columns and order.
+    reduced = make_habitat_map("P1")
+    reduced.label_array[np.asarray(reduced.label_array) == 2] = 1
+    object.__setattr__(reduced, "habitat_ids", (1, 2, 3))
+    reduced_table = EachHabitatRadiomicsFeatures(params=_MEAN_ONLY_PARAMS)(
+        subject, reduced
+    )
+    assert reduced_table.feature_columns == table.feature_columns
+    assert reduced_table.frame.iloc[0]["has_habitat_2"] == 0.0
+    assert np.isnan(reduced_table.frame.iloc[0]["habitat_2_original_firstorder_Mean_of_T1"])
+
+
+@pytest.mark.unit
+def test_ith_and_non_radiomics_tables_join_without_collisions() -> None:
+    """The two families sharing v0.1 summary names join cleanly in v1."""
+    subject = make_subject("P1")
+    habitat_map = make_habitat_map("P1")
+    joined = IthHabitatFeatures()(subject, habitat_map).join(
+        NonRadiomicsHabitatFeatures()(subject, habitat_map)
+    )
+    row = joined.frame.iloc[0]
+    assert row["ith_num_habitats"] == row["num_habitats"] == 2.0

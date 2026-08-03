@@ -32,7 +32,66 @@ _V1_BUILTINS = {
     "supervoxelizer": {"slic"},
     "habitat_model_fitter": {"kmeans", "gmm"},
     "habitat_assigner": {"nearest_centroid"},
-    "habitat_feature_extractor": {"msi", "ith", "volume"},
+    "habitat_feature_extractor": {
+        "msi",
+        "ith_score",
+        "volume",
+        "non_radiomics",
+        "traditional",
+        "whole_habitat",
+        "each_habitat",
+    },
+    "table_preprocessor": {
+        "minmax",
+        "zscore",
+        "robust",
+        "binning",
+        "winsorize",
+        "log",
+        "variance_filter",
+        "correlation_filter",
+    },
+    "feature_selector": {
+        "variance",
+        "correlation",
+        "vif",
+        "anova",
+        "chi2",
+        "statistical_test",
+        "univariate_logistic",
+        "stepwise",
+        "rfecv",
+        "lasso",
+        "icc",
+        "mrmr",
+    },
+    "classifier": {
+        "DecisionTree",
+        "KNN",
+        "SVM",
+        "SVC",
+        "MLP",
+        "LogisticRegression",
+        "RandomForest",
+        "GradientBoosting",
+        "XGBoost",
+        "AdaBoost",
+        "GaussianNB",
+        "MultinomialNB",
+        "BernoulliNB",
+        "AutoGluonTabular",
+    },
+    "metric": {
+        "accuracy",
+        "sensitivity",
+        "specificity",
+        "ppv",
+        "npv",
+        "f1_score",
+        "auc",
+        "hosmer_lemeshow_p_value",
+        "spiegelhalter_z_p_value",
+    },
 }
 
 
@@ -64,28 +123,23 @@ def test_get_plugin_info_and_param_schema_on_v1_domains() -> None:
 
 
 @pytest.mark.unit
-def test_v0_1_families_resolve_under_v1_singular_aliases() -> None:
-    """The v1.0 singular aliases resolve to the same registries as v0.1."""
+def test_preprocessor_alias_resolves_to_the_v0_1_registry() -> None:
+    """Image preprocessing has no v1 domain yet: the alias stays with v0.1."""
     plural = {info.name for info in list_plugins("preprocessors")}
     singular = {info.name for info in list_plugins("preprocessor")}
     assert plural == singular
-    plural_models = {info.name for info in list_plugins("models")}
-    singular_models = {info.name for info in list_plugins("classifier")}
-    assert plural_models == singular_models
-    plural_metrics = {info.name for info in list_plugins("metrics")}
-    singular_metrics = {info.name for info in list_plugins("metric")}
-    assert plural_metrics == singular_metrics
 
 
 @pytest.mark.unit
-def test_table_preprocessor_and_feature_selector_domains() -> None:
-    """The remaining v1.0 domains resolve to their v0.1 registries."""
-    table_preprocessor_names = {
-        info.name for info in list_plugins("table_preprocessor")
-    }
-    assert table_preprocessor_names  # v0.1 ships built-in methods
-    selector_names = {info.name for info in list_plugins("feature_selector")}
-    assert selector_names  # v0.1 ships built-in selectors
+def test_table_ml_singular_domains_resolve_to_v1_registries() -> None:
+    """classifier/metric singular domains are the v1 L3 registries, not v0.1."""
+    for domain in ("classifier", "metric", "table_preprocessor", "feature_selector"):
+        for info in list_plugins(domain):
+            assert info.implementation.startswith("habit.domain.")
+    # The v0.1 plural domains still resolve to the v0.1 factories.
+    for domain in ("models", "metrics"):
+        for info in list_plugins(domain):
+            assert info.implementation.startswith("habit.core.")
 
 
 @pytest.mark.unit

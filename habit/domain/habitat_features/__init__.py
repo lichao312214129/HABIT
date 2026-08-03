@@ -16,12 +16,28 @@
 
 from __future__ import annotations
 
+from habit.domain.habitat_features.each_habitat import (
+    EachHabitatRadiomicsFeatures,
+    EachHabitatRadiomicsFeaturesParams,
+)
 from habit.domain.habitat_features.ith import IthHabitatFeatures, IthHabitatFeaturesParams
 from habit.domain.habitat_features.msi import MsiHabitatFeatures, MsiHabitatFeaturesParams
+from habit.domain.habitat_features.non_radiomics import (
+    NonRadiomicsHabitatFeatures,
+    NonRadiomicsHabitatFeaturesParams,
+)
 from habit.domain.habitat_features.registry import HabitatFeatureExtractorRegistry
+from habit.domain.habitat_features.traditional import (
+    TraditionalRadiomicsHabitatFeatures,
+    TraditionalRadiomicsHabitatFeaturesParams,
+)
 from habit.domain.habitat_features.volume import (
     HabitatVolumeFeatures,
     HabitatVolumeFeaturesParams,
+)
+from habit.domain.habitat_features.whole_habitat import (
+    WholeHabitatRadiomicsFeatures,
+    WholeHabitatRadiomicsFeaturesParams,
 )
 
 __all__ = [
@@ -29,6 +45,14 @@ __all__ = [
     "IthHabitatFeaturesParams",
     "MsiHabitatFeatures",
     "MsiHabitatFeaturesParams",
+    "NonRadiomicsHabitatFeatures",
+    "NonRadiomicsHabitatFeaturesParams",
+    "TraditionalRadiomicsHabitatFeatures",
+    "TraditionalRadiomicsHabitatFeaturesParams",
+    "WholeHabitatRadiomicsFeatures",
+    "WholeHabitatRadiomicsFeaturesParams",
+    "EachHabitatRadiomicsFeatures",
+    "EachHabitatRadiomicsFeaturesParams",
     "HabitatVolumeFeatures",
     "HabitatVolumeFeaturesParams",
     "HabitatFeatureExtractorRegistry",

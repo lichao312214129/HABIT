@@ -35,11 +35,13 @@ __all__ = [
 ]
 
 #: Plugin domain -> entry point group. The v0.1 plural domains are kept for
-#: backward compatibility; the v1.0 domains are ``snake_case`` of their
-#: protocol class, singular (developer/api_upgrade/08 §4), and the v0.1
-#: families are additionally reachable under their v1.0 singular alias
-#: (``preprocessor`` / ``table_preprocessor`` / ``classifier`` /
-#: ``feature_selector`` / ``metric``), which resolves to the same registry.
+#: backward compatibility and resolve to the v0.1 factories; the v1.0 domains
+#: are ``snake_case`` of their protocol class, singular
+#: (developer/api_upgrade/08 §4), and resolve to the L3 domain registries.
+#: ``preprocessor`` is the singular alias of the v0.1 image-preprocessor
+#: family (the v1 architecture keeps image preprocessing in the adapters
+#: layer), while ``table_preprocessor`` / ``feature_selector`` /
+#: ``classifier`` / ``metric`` name the v1.0 table-ML domains.
 _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     # v0.1 domains (legacy, kept working).
     "preprocessors": "habit.preprocessors",
@@ -107,26 +109,30 @@ def _registry_for_domain(domain: str) -> Type[Any]:
 
         bootstrap_optional_features()
         return cast(Type[Any], HabitatFeatureFactory)
-    if domain == "models" or domain == "classifier":
+    if domain == "models":
         from habit.core.machine_learning.models.factory import ModelFactory
 
         return cast(Type[Any], ModelFactory)
-    if domain == "metrics" or domain == "metric":
+    if domain == "metrics":
         from habit.core.machine_learning.evaluation.metrics import MetricRegistry
 
         return cast(Type[Any], MetricRegistry)
+    if domain == "classifier":
+        from habit.domain.classification import ClassifierRegistry
+
+        return cast(Type[Any], ClassifierRegistry)
+    if domain == "metric":
+        from habit.domain.evaluation import MetricRegistry
+
+        return cast(Type[Any], MetricRegistry)
     if domain == "table_preprocessor":
-        from habit.core.habitat_analysis.feature_preprocessing.base_preprocessing import (
-            PreprocessingMethodFactory,
-        )
+        from habit.domain.table_preprocessing import TablePreprocessorRegistry
 
-        return cast(Type[Any], PreprocessingMethodFactory)
+        return cast(Type[Any], TablePreprocessorRegistry)
     if domain == "feature_selector":
-        from habit.core.machine_learning.feature_selectors.selector_registry import (
-            SelectorRegistry,
-        )
+        from habit.domain.feature_selection import FeatureSelectorRegistry
 
-        return cast(Type[Any], SelectorRegistry)
+        return cast(Type[Any], FeatureSelectorRegistry)
     if domain == "voxel_feature_extractor":
         from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
 

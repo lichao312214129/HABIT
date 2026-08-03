@@ -178,7 +178,12 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "HabitatAssigner",
         "HabitatFeatureExtractor",
         "Seedable",
+        "TablePreprocessor",
+        "FeatureSelector",
+        "Classifier",
+        "Metric",
         "SubjectPipeline",
+        "TablePipeline",
     ),
 }
 

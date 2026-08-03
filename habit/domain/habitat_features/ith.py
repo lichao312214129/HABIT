@@ -36,7 +36,7 @@ class IthHabitatFeaturesParams(BaseModel):
     """Constructor parameters for :class:`IthHabitatFeatures` (none)."""
 
 
-@HabitatFeatureExtractorRegistry.register("ith")
+@HabitatFeatureExtractorRegistry.register("ith_score")
 class IthHabitatFeatures:
     """
     ITH score and per-habitat fragmentation statistics for one subject.
@@ -47,12 +47,17 @@ class IthHabitatFeatures:
     ``ITHFeatureExtractor``; one deliberate improvement is that per-habitat
     columns are emitted for every id the model can assign (zeros when the
     habitat is absent), so cohort tables no longer have ragged columns.
+
+    The auxiliary summary columns are prefixed (``ith_num_habitats`` /
+    ``ith_total_area``) rather than the bare v0.1 names: the
+    ``non_radiomics`` family legitimately reports its own ``num_habitats``
+    and feature tables must join across families without duplicate columns.
     """
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(name="ith", params={})
+        return Spec(name="ith_score", params={})
 
     def __call__(self, subject: Subject, habitat_map: HabitatMap) -> FeatureTable:
         """
@@ -69,8 +74,8 @@ class IthHabitatFeatures:
         stats = habitat_region_stats(labels)
         features: Dict[str, float] = {
             "ith_score": ith_score(labels),
-            "num_habitats": float(len(stats)),
-            "total_area": float(np.count_nonzero(labels)),
+            "ith_num_habitats": float(len(stats)),
+            "ith_total_area": float(np.count_nonzero(labels)),
         }
         for habitat_id in habitat_map.habitat_ids:
             num_regions, largest = stats.get(int(habitat_id), (0, 0))
@@ -87,4 +92,4 @@ class IthHabitatFeatures:
         )
 
 
-HabitatFeatureExtractorRegistry.register_params_model("ith", IthHabitatFeaturesParams)
+HabitatFeatureExtractorRegistry.register_params_model("ith_score", IthHabitatFeaturesParams)

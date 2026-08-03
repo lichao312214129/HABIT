@@ -39,7 +39,7 @@ def _habitat_spec() -> HabitatSpec:
         supervoxelizer=Spec(name="slic", params={"n_supervoxels": 50}),
         habitat_model_fitter=Spec(name="kmeans", params={"n_habitats": 3}),
         habitat_assigner=Spec(name="nearest_centroid"),
-        habitat_features=(Spec(name="msi"), Spec(name="ith")),
+        habitat_features=(Spec(name="msi"), Spec(name="ith_score")),
     )
 
 
@@ -91,7 +91,7 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
     restored = HabitatSpec.from_dict(payload)
     assert restored == spec
     assert restored.component_specs()["supervoxelizer"].name == "slic"
-    assert [s.name for s in restored.habitat_features] == ["msi", "ith"]
+    assert [s.name for s in restored.habitat_features] == ["msi", "ith_score"]
 
 
 @pytest.mark.unit
@@ -161,7 +161,7 @@ def test_habitat_spec_fingerprint_changes_with_any_stage() -> None:
         supervoxelizer=Spec(name="slic", params={"n_supervoxels": 50}),
         habitat_model_fitter=Spec(name="kmeans", params={"n_habitats": 3}),
         habitat_assigner=Spec(name="nearest_centroid"),
-        habitat_features=(Spec(name="msi"), Spec(name="ith")),
+        habitat_features=(Spec(name="msi"), Spec(name="ith_score")),
     )
     assert base.fingerprint() != tweaked.fingerprint()
 
