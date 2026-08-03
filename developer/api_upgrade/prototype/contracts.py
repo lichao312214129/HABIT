@@ -182,6 +182,11 @@ class ImageRef(Protocol):
     def load(self) -> np.ndarray:
         """Materialise and return the voxel array."""
 
+    # Note: ``ImageVolume`` / ``MaskVolume`` below are the already-materialised
+    # counterparts and should satisfy this protocol structurally (``load()``
+    # returning their own array), so there is ONE family of image types, not a
+    # parallel eager/lazy pair.
+
 
 @dataclass(frozen=True)
 class ImageVolume:
@@ -326,7 +331,7 @@ class Cohort(Sequence[Subject]):
         """
         Build a cohort from HABIT's conventional directory layout.
 
-        A thin shortcut over ``DirectoryDataSource(...).cohort()``, provided
+        A thin shortcut over ``DirectoryDataSource(...).load()``, provided
         because reading a folder is the overwhelmingly common first line of a
         notebook session and should not require learning the adapter layer.
 
@@ -386,9 +391,15 @@ class Cohort(Sequence[Subject]):
         """
         raise NotImplementedError("design prototype")
 
-    def fingerprint(self) -> "CohortFingerprint":
+    def summarize(self) -> "CohortFingerprint":
         """
         Summarise the cohort for provenance and model cards.
+
+        Named ``summarize`` rather than ``fingerprint`` because it returns a
+        rich summary object, whereas :meth:`Spec.fingerprint` returns a hash
+        string; two same-named methods should not return such different things.
+        The returned type keeps the name ``CohortFingerprint`` because that is
+        the term nnU-Net already uses for a dataset summary.
 
         Returns:
             A fingerprint safe to embed in a shared :class:`HabitatModel`, i.e.
@@ -547,29 +558,31 @@ class HabitatModel:
     cohort_fingerprint: CohortFingerprint
     provenance: Provenance
 
-    def describe(self) -> str:
+    def summary(self) -> str:
         """
         Return a human-readable model card.
 
-        Intended for both notebook inspection and inclusion in a manuscript's
-        supplementary material.
+        Named ``summary`` (statsmodels convention) rather than ``describe``,
+        because in scientific Python ``DataFrame.describe()`` already returns a
+        statistics table, and this returns prose. Intended for both notebook
+        inspection and inclusion in a manuscript's supplementary material.
         """
         raise NotImplementedError("design prototype")
 
-    def mapper(self, name: str = "nearest_centroid", **params: Any) -> Any:
+    def assigner(self, name: str = "nearest_centroid", **params: Any) -> Any:
         """
-        Build a mapper that projects this model onto individual subjects.
+        Build an assigner that projects this model onto individual subjects.
 
-        Mappers take their model at construction time, so this factory is the
+        Assigners take their model at construction time, so this factory is the
         ordinary way to obtain one and keeps the common case to a single call:
-        ``labels = model.mapper()(unit)``.
+        ``labels = model.assigner()(supervoxel_map)``.
 
         Args:
-            name: Registered ``habitat_mapper`` implementation name.
+            name: Registered ``habitat_assigner`` implementation name.
             **params: Parameters for that implementation.
 
         Returns:
-            A one-argument callable from a supervoxelization to a habitat map.
+            A one-argument callable from a supervoxel map to a habitat map.
         """
         raise NotImplementedError("design prototype")
 
@@ -620,18 +633,27 @@ class FeatureTable:
         frame: The underlying table.
         id_columns: Columns identifying the unit of analysis, e.g. ``subject``.
         feature_columns: Columns usable as model inputs.
-        label_column: Outcome column when present.
+        outcome_column: Clinical-outcome column when present. Named ``outcome``
+            because that is the medical-research term for the predicted
+            endpoint; the previous name ``label_column`` contradicted its own
+            docstring.
         provenance: How this table was produced.
     """
 
     frame: pd.DataFrame
     id_columns: Tuple[str, ...]
     feature_columns: Tuple[str, ...]
-    label_column: Optional[str] = None
+    outcome_column: Optional[str] = None
     provenance: Optional[Provenance] = None
 
-    def features(self) -> pd.DataFrame:
-        """Return only the model-input columns, indexed by the id columns."""
+    def feature_matrix(self) -> pd.DataFrame:
+        """
+        Return only the model-input columns, indexed by the id columns.
+
+        Named ``feature_matrix`` rather than ``features`` so it cannot be
+        confused with running feature extraction, and because it returns a
+        matrix-like frame rather than a list of features.
+        """
         raise NotImplementedError("design prototype")
 
     def join(self, other: "FeatureTable") -> "FeatureTable":

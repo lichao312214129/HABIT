@@ -116,7 +116,7 @@ def example_l1_published_model() -> None:
 
     # The model can be inspected before use: which features it needs, which
     # cohort defined it, which software version produced it.
-    print(model.describe())
+    print(model.summary())
 
 
 # ---------------------------------------------------------------------------
@@ -182,11 +182,11 @@ def example_l2_habitat_features_only(subject: Subject, model: HabitatModel) -> F
 
     supervoxelizer = SupervoxelizerFactory.create("slic", n_supervoxels=50)
     voxel_features = FeatureExtractorRegistry.create("raw", modalities=["T2"])
-    mapper = model.mapper()  # the model is bound at construction, not at call
+    assigner = model.assigner()  # the model is bound at construction, not at call
 
     # Each step is an ordinary callable on one subject, so the whole chain reads
     # as function composition and every intermediate value can be inspected.
-    habitat_map = mapper(supervoxelizer(voxel_features(subject)))
+    habitat_map = assigner(supervoxelizer(voxel_features(subject)))
 
     msi = HabitatFeatureFactory.create("msi", voxel_cutoff=10)
     ith = HabitatFeatureFactory.create("ith_score")
@@ -210,7 +210,7 @@ def example_l3_from_nnunet(dataset_dir: Path) -> Cohort:
     import habit
 
     source = habit.compat.nnunet.NnUNetDataSource(dataset_dir, roi_label=1)
-    return source.cohort()
+    return source.load()
 
 
 def example_l3_monai_interop(cohort: Cohort, model: HabitatModel) -> Any:
@@ -236,7 +236,7 @@ def example_l3_monai_interop(cohort: Cohort, model: HabitatModel) -> Any:
     to_habitat_map = habit.SubjectPipeline(
         voxel_feature_extractor=voxel_features,
         supervoxelizer=supervoxelizer,
-        habitat_mapper=model.mapper(),
+        habitat_assigner=model.assigner(),
     )
 
     from monai.data import DataLoader, Dataset

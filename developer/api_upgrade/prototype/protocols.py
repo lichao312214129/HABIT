@@ -9,7 +9,7 @@ Three ideas drive this module.
    exists in habitat imaging research (voxel feature, supervoxel, habitat model,
    habitat map, habitat feature). A generic ``Operator.transform(x)`` would be
    more flexible and strictly less useful: a radiologist reading
-   ``HabitatModelEstimator.fit(units)`` understands it immediately, whereas a
+   ``HabitatModelFitter.fit(units)`` understands it immediately, whereas a
    generic name teaches them nothing and gives an extension author no hint about
    which slot to implement.
 
@@ -37,6 +37,7 @@ Three ideas drive this module.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -67,18 +68,18 @@ from .spec import Spec
 __all__ = [
     "VoxelFeatureExtractor",
     "Supervoxelizer",
-    "HabitatModelEstimator",
-    "HabitatMapper",
+    "HabitatModelFitter",
+    "HabitatAssigner",
     "HabitatFeatureExtractor",
     "SubjectPipeline",
-    "SeedControl",
-    "SubjectLevelOp",
-    "CohortLevelOp",
-    "Outcome",
+    "Seedable",
+    "SubjectOperator",
+    "CohortOperator",
+    "SubjectResult",
     "ExecutionBackend",
     "CheckpointStore",
     "DataSource",
-    "ArtifactSink",
+    "ResultWriter",
     "ComponentRegistry",
 ]
 
@@ -122,13 +123,14 @@ class VoxelFeatureExtractor(Protocol):
                 a compatible voxel grid.
         """
 
-    def extract(self, subject: Subject) -> VoxelFeatureField:
-        """
-        Domain-named alias of :meth:`__call__`.
-
-        Implementations satisfy this by assigning ``extract = __call__`` rather
-        than writing a second body, so the two names can never diverge.
-        """
+    # NOTE: there is deliberately NO ``extract = __call__`` alias. A class-body
+    # alias binds the function object defined at that moment, so a subclass that
+    # overrides ``__call__`` would leave ``extract`` pointing at the parent's
+    # implementation -- a silent divergence. It would also force every
+    # ``runtime_checkable`` implementer to expose two names. MONAI, TorchIO,
+    # PyRadiomics and sklearn all use a single public call name; readability at
+    # the call site comes from the variable name (``voxel_features(subject)``),
+    # not from a second method.
 
 
 @runtime_checkable
@@ -158,12 +160,12 @@ class Supervoxelizer(Protocol):
             The supervoxel partition together with per-supervoxel features.
         """
 
-    def build(self, field: VoxelFeatureField) -> Supervoxelization:
-        """Domain-named alias of :meth:`__call__` (``build = __call__``)."""
+    # No ``build = __call__`` alias, for the reasons given on
+    # ``VoxelFeatureExtractor.__call__``.
 
 
 @runtime_checkable
-class HabitatModelEstimator(Protocol):
+class HabitatModelFitter(Protocol):
     """
     Fit the population-level habitat definition. THIS IS THE COHORT-LEVEL STEP.
 
@@ -172,6 +174,15 @@ class HabitatModelEstimator(Protocol):
     and between cohorts. Its output, :class:`HabitatModel`, is the artefact a
     study should publish so that other groups can reproduce the same habitat
     definition on their own data.
+
+    Named ``*Fitter`` (lifelines / statsmodels convention), NOT ``*Estimator``:
+    sklearn reserves "estimator" for objects whose ``fit`` returns ``self`` and
+    that are ``clone()``-able, whereas this ``fit`` returns a NEW
+    :class:`HabitatModel` artefact. Because HABIT components also expose
+    ``get_params``/``set_params``, calling this an estimator would make
+    ``sklearn.base.clone`` and ``Pipeline`` treat it as one and then break.
+    The ``*Estimator`` name is reserved for the genuine sklearn adapters in
+    ``habit.compat.sklearn``.
     """
 
     @property
@@ -199,24 +210,30 @@ class HabitatModelEstimator(Protocol):
 
 
 @runtime_checkable
-class HabitatMapper(Protocol):
+class HabitatAssigner(Protocol):
     """
     Assign habitat labels to one subject using a fitted model.
 
-    Keeping this separate from the estimator is what enforces train/predict
-    consistency structurally rather than by convention: prediction has no way to
-    re-learn anything, because everything it needs is inside the model.
+    Named ``HabitatAssigner`` rather than ``HabitatMapper`` because ``map`` is
+    already taken in this codebase by the functional ``Cohort.map(op)`` and
+    ``ExecutionBackend.map(op, items)`` (the ``Pool.map`` sense); a third,
+    different meaning would collide. ``assign`` also avoids the ORM-mapper
+    reading.
+
+    Keeping this separate from the fitter is what enforces train/predict
+    consistency structurally rather than by convention: prediction has no way
+    to re-learn anything, because everything it needs is inside the model.
 
     The model is supplied to the CONSTRUCTOR, not to the call. Two consequences
     follow, and both are the reason for the choice:
 
-    - the mapper becomes an ordinary one-argument callable, so it is a
-      ``SubjectLevelOp`` like every other subject-level step and needs no
+    - the assigner becomes an ordinary one-argument callable, so it is a
+      ``SubjectOperator`` like every other subject-level step and needs no
       special-case binding when composed or executed;
-    - a mapper cannot be constructed without a fitted model, so "predicting
+    - an assigner cannot be constructed without a fitted model, so "predicting
       before fitting" stops being a runtime error and becomes unrepresentable.
 
-    ``HabitatModel.mapper()`` is the convenience factory for the common case.
+    ``HabitatModel.assigner()`` is the convenience factory for the common case.
     """
 
     @property
@@ -225,14 +242,14 @@ class HabitatMapper(Protocol):
 
     @property
     def model(self) -> HabitatModel:
-        """Return the fitted habitat definition this mapper projects."""
+        """Return the fitted habitat definition this assigner projects."""
 
-    def __call__(self, unit: Supervoxelization) -> HabitatMap:
+    def __call__(self, supervoxel_map: Supervoxelization) -> HabitatMap:
         """
         Project the fitted habitat definition onto one subject.
 
         Args:
-            unit: Supervoxelization of the subject to label.
+            supervoxel_map: Supervoxelization of the subject to label.
 
         Returns:
             The subject's habitat label image, tagged with the model's id.
@@ -242,8 +259,7 @@ class HabitatMapper(Protocol):
                 feature names the model requires.
         """
 
-    def map(self, unit: Supervoxelization) -> HabitatMap:
-        """Domain-named alias of :meth:`__call__` (``map = __call__``)."""
+    # No ``assign = __call__`` alias; see ``VoxelFeatureExtractor.__call__``.
 
 
 @runtime_checkable
@@ -259,10 +275,6 @@ class HabitatFeatureExtractor(Protocol):
     """
 
     @property
-    def name(self) -> str:
-        """Return the registered feature family name, e.g. ``"msi"``."""
-
-    @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
 
@@ -273,8 +285,8 @@ class HabitatFeatureExtractor(Protocol):
         This is the only binary subject-level operator, because habitat features
         genuinely need both the labels and the original intensities. Both
         arguments are subject-scoped, so it is still subject-level: viewed as a
-        :class:`SubjectLevelOp` its item is the ``(subject, habitat_map)`` pair,
-        which :class:`SubjectPipeline` forms by zipping on ``subject_id``.
+        :class:`SubjectOperator` its item is the ``(subject, habitat_map)``
+        pair, which :class:`SubjectPipeline` forms by zipping on ``subject_id``.
 
         Args:
             subject: Subject supplying original images when the family needs
@@ -285,8 +297,9 @@ class HabitatFeatureExtractor(Protocol):
             A single-row-per-subject feature table with explicit column roles.
         """
 
-    def extract(self, subject: Subject, habitat_map: HabitatMap) -> FeatureTable:
-        """Domain-named alias of :meth:`__call__` (``extract = __call__``)."""
+    # No ``name`` property: the registered name already lives at ``spec.name``,
+    # and a second attribute would only be another place to disagree.
+    # No ``extract = __call__`` alias; see ``VoxelFeatureExtractor.__call__``.
 
 
 # ---------------------------------------------------------------------------
@@ -317,14 +330,15 @@ class SubjectPipeline:
         voxel_feature_extractor: Step producing per-voxel features.
         supervoxelizer: Step producing supervoxels. ``None`` clusters voxels
             directly, which is what the one-step and direct-pooling designs do.
-        habitat_mapper: Step assigning habitat labels, already bound to a model.
+        habitat_assigner: Step assigning habitat labels, already bound to a
+            model.
     """
 
     def __init__(
         self,
         voxel_feature_extractor: VoxelFeatureExtractor,
         supervoxelizer: Optional[Supervoxelizer],
-        habitat_mapper: HabitatMapper,
+        habitat_assigner: HabitatAssigner,
     ) -> None:
         raise NotImplementedError("design prototype")
 
@@ -367,7 +381,7 @@ class SubjectPipeline:
 
 
 @runtime_checkable
-class SeedControl(Protocol):
+class Seedable(Protocol):
     """
     Explicit control of the random state of a stochastic component.
 
@@ -377,6 +391,13 @@ class SeedControl(Protocol):
     component to invent its own ``random_state`` parameter -- the v0.1 situation
     -- makes a run impossible to reseed as a whole and impossible to report
     honestly. MONAI reached the same conclusion with ``Randomizable``.
+
+    Named ``Seedable`` (adjective, like ``Iterable`` / ``Hashable`` /
+    MONAI's ``Randomizable``) rather than the noun ``SeedControl``. It is not
+    called ``Randomizable`` because MONAI's signature is
+    ``set_random_state(seed=None, state=None) -> self`` plus a ``randomize()``
+    method, and reusing the name with a different contract would repeat the
+    estimator mistake.
 
     Components that are deterministic simply do not implement this protocol,
     which is itself useful information for the provenance record.
@@ -397,7 +418,7 @@ class SeedControl(Protocol):
 
 
 @runtime_checkable
-class SubjectLevelOp(Protocol, Generic[TIn, TOut]):
+class SubjectOperator(Protocol, Generic[TIn, TOut]):
     """
     A computation that touches exactly one subject.
 
@@ -405,6 +426,10 @@ class SubjectLevelOp(Protocol, Generic[TIn, TOut]):
     that the work may be parallelised, checkpointed, retried, isolated on
     failure, and -- in a federated deployment -- executed inside the hospital
     that owns the images.
+
+    Named ``SubjectOperator`` rather than the abbreviated ``SubjectLevelOp``:
+    the design prose already says "算子/operator", and ``Op`` is both an
+    abbreviation and, in a medical library, confusable with "operation".
 
     Note what this protocol does NOT introduce: a second method name. It is
     ``__call__`` plus two pieces of metadata, so every one of the four
@@ -447,7 +472,7 @@ class SubjectLevelOp(Protocol, Generic[TIn, TOut]):
 
 
 @runtime_checkable
-class CohortLevelOp(Protocol, Generic[TIn, TOut]):
+class CohortOperator(Protocol, Generic[TIn, TOut]):
     """
     A computation that must observe the whole cohort at once.
 
@@ -467,7 +492,7 @@ class CohortLevelOp(Protocol, Generic[TIn, TOut]):
         Args:
             items: Subject-level payloads in a defined order.
             **context: Optional keyword context an implementation may accept,
-                e.g. :class:`HabitatModelEstimator` takes ``cohort=`` to record
+                e.g. :class:`HabitatModelFitter` takes ``cohort=`` to record
                 a non-identifiable fingerprint. Declared here so that the more
                 specific domain signatures remain compatible with this one.
 
@@ -476,17 +501,24 @@ class CohortLevelOp(Protocol, Generic[TIn, TOut]):
         """
 
 
-class Outcome(Generic[TOut]):
+@dataclass(frozen=True)
+class SubjectResult(Generic[TOut]):
     """
     Result slot for one subject, distinguishing success from isolated failure.
 
-    Batch habitat analysis must be able to continue when a single subject fails,
-    while still reporting that failure honestly. Returning an explicit outcome
-    rather than raising keeps that policy in the backend instead of scattering
-    try/except through the algorithms.
+    Named ``SubjectResult`` rather than ``Outcome``: in medical research
+    "outcome" already means the predicted clinical endpoint (survival,
+    response), and ``FeatureTable.outcome_column`` uses it that way, so reusing
+    it for "did this subject's computation succeed" would be a genuine
+    domain-name collision.
+
+    Batch habitat analysis must be able to continue when a single subject
+    fails, while still reporting that failure honestly. Returning an explicit
+    result rather than raising keeps that policy in the backend instead of
+    scattering try/except through the algorithms.
 
     Attributes:
-        subject_id: Subject this outcome belongs to.
+        subject_id: Subject this result belongs to.
         value: Computed result when successful, otherwise ``None``.
         error: Captured exception when failed, otherwise ``None``.
         from_cache: Whether the value was restored from a checkpoint instead of
@@ -496,17 +528,20 @@ class Outcome(Generic[TOut]):
     subject_id: str
     value: Optional[TOut]
     error: Optional[BaseException]
-    from_cache: bool
+    from_cache: bool = False
 
-    def unwrap(self) -> TOut:
+    def result(self) -> TOut:
         """
         Return the value or re-raise the captured failure.
+
+        Named ``result`` after ``concurrent.futures.Future.result()``, the
+        standard-library anchor for "give me the value or re-raise the error".
 
         Returns:
             The successful value.
 
         Raises:
-            BaseException: The originally captured error, when this outcome
+            BaseException: The originally captured error, when this result
                 represents a failure.
         """
         raise NotImplementedError("design prototype")
@@ -534,12 +569,12 @@ class ExecutionBackend(Protocol):
 
     def map(
         self,
-        op: SubjectLevelOp[TIn, TOut],
+        op: SubjectOperator[TIn, TOut],
         items: Iterable[TIn],
         *,
         checkpoint: Optional["CheckpointStore"] = None,
         progress: Optional[Callable[[int, int], None]] = None,
-    ) -> Iterator[Outcome[TOut]]:
+    ) -> Iterator[SubjectResult[TOut]]:
         """
         Apply a subject-level operation across many subjects.
 
@@ -589,9 +624,12 @@ class DataSource(Protocol):
     equally valid entry points.
     """
 
-    def cohort(self) -> Cohort:
+    def load(self) -> Cohort:
         """
         Build the cohort described by this source.
+
+        Named ``load`` (a verb, like nibabel/MONAI readers) rather than the
+        noun ``cohort()``, which read like an attribute.
 
         Returns:
             A cohort with a defined, reproducible subject order.
@@ -599,11 +637,17 @@ class DataSource(Protocol):
 
 
 @runtime_checkable
-class ArtifactSink(Protocol):
+class ResultWriter(Protocol):
     """
     Anything that can persist HABIT outputs.
 
-    Separating the sink from the algorithms is what allows a caller to run a
+    Named ``ResultWriter`` rather than ``ArtifactSink``: "sink" is data-flow
+    jargon (Beam/Flink/GStreamer), and "artifact" in radiology already means an
+    imaging artefact (motion artefact, susceptibility artefact) -- a genuine
+    domain collision. Every method is ``write_*``, so "Writer" (compare
+    ``monai.data.ImageWriter``) is the accurate name.
+
+    Separating the writer from the algorithms is what allows a caller to run a
     full habitat analysis entirely in memory, which is impossible in v0.1 where
     every workflow writes to ``out_dir`` by construction.
     """
@@ -643,8 +687,10 @@ class ComponentRegistry(Protocol):
     ``get_param_schema(name, domain)`` -- which delegate to these registries.
     """
 
-    #: Plugin domain name, plural, matching the entry point group
-    #: ``habit.<domain>``. Example: ``"supervoxelizers"``.
+    #: Plugin domain name. The convention is ``domain == snake_case(ProtocolName)``,
+    #: singular, so anyone who implements a protocol already knows its domain
+    #: without looking it up. Example: the ``Supervoxelizer`` protocol has
+    #: domain ``"supervoxelizer"`` and entry point group ``habit.supervoxelizer``.
     domain: ClassVar[str]
 
     @classmethod
