@@ -22,22 +22,26 @@ from __future__ import annotations
 
 from typing import Dict, Tuple
 
-#: Submodule suffix (under ``habit.api``) -> export names defined in that module.
+#: Dotted module path relative to the ``habit`` package -> export names
+#: defined in that module. Keys beginning with ``api.`` are the v0.1 facade
+#: modules; the remaining keys are the v1.0 layered packages, which are
+#: additive and never shadow the v0.1 names (name clashes stay bound to the
+#: v0.1 symbols, e.g. top-level ``Cohort`` remains the clinical cohort).
 _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
-    "contracts": ("WorkflowResult",),
-    "clinical": (
+    "api.contracts": ("WorkflowResult",),
+    "api.clinical": (
         "Cohort",
         "PreparedCohort",
         "HabitatResult",
         "ClinicalPreprocessor",
         "HabitatSegmenter",
     ),
-    "provenance": (
+    "api.provenance": (
         "RunManifest",
         "create_run_manifest",
         "write_run_manifest",
     ),
-    "exceptions": (
+    "api.exceptions": (
         "HABITAPIError",
         "HabitError",
         "ConfigurationError",
@@ -49,7 +53,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "ProcessingError",
         "NotFittedError",
     ),
-    "image": (
+    "api.image": (
         "GeometryPolicy",
         "GeometryReport",
         "ImageVolume",
@@ -60,13 +64,13 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "validate_geometry",
         "align_image_mask",
     ),
-    "radiomics": (
+    "api.radiomics": (
         "FeatureResult",
         "FeatureTableResult",
         "extract_features",
         "extract_batch",
     ),
-    "plugins": (
+    "api.plugins": (
         "PluginInfo",
         "PluginLoadReport",
         "list_plugins",
@@ -74,19 +78,19 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "get_param_schema",
         "load_plugins",
     ),
-    "utils": (
+    "api.utils": (
         "setup_logger",
         "is_available",
     ),
-    "preprocessing": (
+    "api.preprocessing": (
         "PreprocessingConfig",
         "run_preprocess",
     ),
-    "dicom_sort": (
+    "api.dicom_sort": (
         "DicomSortConfig",
         "run_dicom_sort",
     ),
-    "habitat": (
+    "api.habitat": (
         "HabitatAnalysisConfig",
         "FeatureExtractionConfig",
         "RadiomicsConfig",
@@ -97,7 +101,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "run_feature_extraction",
         "run_radiomics",
     ),
-    "machine_learning": (
+    "api.machine_learning": (
         "MLConfig",
         "ModelComparisonConfig",
         "apply_ml_mode_override",
@@ -105,18 +109,49 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "run_kfold",
         "run_model_comparison",
     ),
-    "analysis": (
+    "api.analysis": (
         "ICCConfig",
         "TestRetestConfig",
         "run_icc_analysis",
         "run_test_retest_analysis",
     ),
-    "estimators": (
+    "api.estimators": (
         "EstimatorPersistenceMixin",
         "HabitatClusterer",
         "HabitClassifier",
         "OutcomeClassifier",
         "SubjectFeatureAggregator",
+    ),
+    # ------------------------------------------------------------------
+    # v1.0 layered packages (additive; see developer/api_upgrade/06-08).
+    # ------------------------------------------------------------------
+    "contracts": (
+        "Geometry",
+        "ImageRef",
+        "ArrayImageRef",
+        "Subject",
+        "CohortFingerprint",
+        "cohort_from_directory",
+        "Provenance",
+        "VoxelFeatureField",
+        "Supervoxelization",
+        "HabitatMap",
+        "HabitatModel",
+        "FeatureTable",
+        "StudyResult",
+        "SubjectOperator",
+        "CohortOperator",
+        "SubjectResult",
+        "ExecutionBackend",
+        "DataSource",
+        "ResultWriter",
+    ),
+    "execution": (
+        "SerialBackend",
+        "CheckpointStore",
+    ),
+    "adapters": (
+        "DirectoryDataSource",
     ),
 }
 
@@ -134,8 +169,8 @@ def build_lazy_exports() -> Dict[str, Tuple[str, str]]:
         Mapping suitable for :func:`~habit.utils.lazy_exports.lazy_getattr`.
     """
     exports: Dict[str, Tuple[str, str]] = {}
-    for module_suffix, names in _PUBLIC_API_MODULES.items():
-        relative_module = f".api.{module_suffix}"
+    for module_path, names in _PUBLIC_API_MODULES.items():
+        relative_module = f".{module_path}"
         for name in names:
             exports[name] = (relative_module, name)
     return exports

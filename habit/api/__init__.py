@@ -27,14 +27,20 @@ from typing import Any, Dict, Tuple
 from habit.api.registry import PUBLIC_API_SYMBOLS, build_lazy_exports
 from habit.utils.lazy_exports import lazy_getattr
 
-# ``build_lazy_exports`` targets the top-level ``habit`` package.  Remove that
-# prefix so the same registry also drives ``from habit.api import ...`` without
-# eagerly importing optional backends.
+# ``build_lazy_exports`` targets the top-level ``habit`` package.  Symbols
+# from the v0.1 facade modules (relative path ``.api.<module>``) are re-based
+# onto ``habit.api``; symbols from the v1.0 layered packages (e.g.
+# ``.contracts``) resolve through their absolute ``habit.<package>`` path so
+# the same registry drives ``from habit.api import ...`` without eagerly
+# importing optional backends.
 _TOP_LEVEL_EXPORTS: Dict[str, Tuple[str, str]] = build_lazy_exports()
-_LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {
-    name: (relative_module.removeprefix(".api"), attribute)
-    for name, (relative_module, attribute) in _TOP_LEVEL_EXPORTS.items()
-}
+_LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {}
+for _name, (_relative_module, _attribute) in _TOP_LEVEL_EXPORTS.items():
+    if _relative_module.startswith(".api"):
+        _LAZY_EXPORTS[_name] = (_relative_module.removeprefix(".api"), _attribute)
+    else:
+        _LAZY_EXPORTS[_name] = (f"habit{_relative_module}", _attribute)
+del _name, _relative_module, _attribute
 
 __all__ = list(PUBLIC_API_SYMBOLS)
 
