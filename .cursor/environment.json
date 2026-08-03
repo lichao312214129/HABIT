@@ -1,0 +1,10 @@
+{
+  "snapshot": "BASE",
+  "install": "python -m pip install --upgrade pip && pip install -e . && pip install pytest",
+  "terminals": [
+    {
+      "name": "verify",
+      "command": "python -c \"import habit; print('HABIT', habit.__version__)\" && python -m pytest tests/test_architecture_contracts.py tests/test_packaging_contracts.py tests/api/test_public_api.py tests/test_installer_contracts.py -q"
+    }
+  ]
+}

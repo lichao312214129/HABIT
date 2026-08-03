@@ -1,5 +1,7 @@
 #.cursor/
 .cursor/
+# But keep the cloud-agent environment definition under version control.
+!.cursor/environment.json
 
 # rar zip archive files
 *.rar
