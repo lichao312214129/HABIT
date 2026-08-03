@@ -9,8 +9,8 @@ extractors, metrics, and related domains).
    from habit import list_plugins, get_plugin_info, get_param_schema, load_plugins
 
    plugins = list_plugins("models")
-   info = get_plugin_info("models", plugins[0].name)
-   schema = get_param_schema("models", info.name)
+   info = get_plugin_info(plugins[0].name, "models")
+   schema = get_param_schema(info.name, "models")
 
 Module reference
 ----------------
