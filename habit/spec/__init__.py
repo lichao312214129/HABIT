@@ -22,6 +22,14 @@ translation. Data location is deliberately absent: that is the
 
 from __future__ import annotations
 
+from habit.spec.legacy import (
+    LegacyConfigAdapter,
+    LegacyTranslation,
+    MigrationReport,
+    detect_yaml_version,
+    migrate_yaml,
+    validate_v1_document,
+)
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec, Spec
 from habit.spec.yaml_io import (
@@ -39,4 +47,10 @@ __all__ = [
     "save_habitat_spec",
     "load_run_policy",
     "save_run_policy",
+    "LegacyConfigAdapter",
+    "LegacyTranslation",
+    "MigrationReport",
+    "detect_yaml_version",
+    "migrate_yaml",
+    "validate_v1_document",
 ]
