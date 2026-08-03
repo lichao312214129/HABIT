@@ -154,6 +154,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     ),
     "adapters": (
         "DirectoryDataSource",
+        "FileImageRef",
     ),
     "spec": (
         "Spec",

@@ -30,101 +30,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-import numpy as np
-
-from habit.api.exceptions import DataFormatError, HABITAPIError
-from habit.contracts.geometry import Geometry
-from habit.contracts.image import ImageVolume, MaskVolume
+from habit.adapters.image_refs import FileImageRef
+from habit.api.exceptions import DataFormatError
 from habit.contracts.subject import Cohort, Subject
 
 __all__ = ["DirectoryDataSource"]
-
-
-def _require_simpleitk() -> Any:
-    """Import SimpleITK lazily so the adapter layer stays light to import."""
-    try:
-        import SimpleITK as sitk
-    except ModuleNotFoundError as exc:  # pragma: no cover - dependency present in CI
-        raise HABITAPIError(
-            "SimpleITK is required to read image files from disk."
-        ) from exc
-    return sitk
-
-
-class _FileImageRef:
-    """
-    Lazy :class:`~habit.contracts.image.ImageRef` backed by one image file.
-
-    Holds only the path plus lazily-read header metadata, so a cohort of
-    thousands of subjects can cross a process boundary without carrying a
-    single voxel. Header fields are cached after the first access; pixel
-    data is only read by :meth:`load` / :meth:`load_volume`.
-
-    Args:
-        path: Image file readable by SimpleITK.
-        is_mask: Whether the file holds a label mask (selects
-            :class:`MaskVolume` materialisation and nearest-neighbour
-            semantics downstream).
-        role_name: Modality or ROI name attached to materialised volumes.
-    """
-
-    def __init__(self, path: Union[str, Path], *, is_mask: bool, role_name: str) -> None:
-        self.path = Path(path)
-        self.is_mask = is_mask
-        self.role_name = role_name
-        self._geometry: Optional[Geometry] = None
-
-    @property
-    def geometry(self) -> Geometry:
-        """Return the grid definition, reading only the file header."""
-        if self._geometry is None:
-            sitk = _require_simpleitk()
-            reader = sitk.ImageFileReader()
-            reader.SetFileName(str(self.path))
-            reader.ReadImageInformation()
-            size_xyz = tuple(int(v) for v in reader.GetSize())
-            # SimpleITK reports size in (x, y, z); NumPy arrays are (z, y, x).
-            shape = tuple(reversed(size_xyz))
-            self._geometry = Geometry(
-                shape=shape,
-                spacing=tuple(float(v) for v in reader.GetSpacing()),
-                origin=tuple(float(v) for v in reader.GetOrigin()),
-                direction=tuple(float(v) for v in reader.GetDirection()),
-            )
-        return self._geometry
-
-    def load(self) -> np.ndarray:
-        """Materialise and return the voxel array."""
-        sitk = _require_simpleitk()
-        return sitk.GetArrayFromImage(sitk.ReadImage(str(self.path)))
-
-    def load_volume(self) -> Union[ImageVolume, MaskVolume]:
-        """
-        Materialise with full physical metadata in one read.
-
-        Returns:
-            An :class:`ImageVolume`, or a :class:`MaskVolume` when the
-            reference was created for a mask file.
-        """
-        sitk = _require_simpleitk()
-        image = sitk.ReadImage(str(self.path))
-        array = sitk.GetArrayFromImage(image)
-        geometry = self.geometry
-        if self.is_mask:
-            return MaskVolume(
-                data=array,
-                spacing=geometry.spacing,
-                origin=geometry.origin,
-                direction=geometry.direction,
-                modality=self.role_name,
-            )
-        return ImageVolume(
-            data=array,
-            spacing=geometry.spacing,
-            origin=geometry.origin,
-            direction=geometry.direction,
-            modality=self.role_name,
-        )
 
 
 def _first_file_in(directory: Path) -> Optional[Path]:
@@ -210,7 +120,7 @@ class DirectoryDataSource:
                 if file_path is None:
                     missing.append(modality)
                     continue
-                images[modality] = _FileImageRef(
+                images[modality] = FileImageRef(
                     file_path, is_mask=False, role_name=modality
                 )
             if missing:
@@ -229,7 +139,7 @@ class DirectoryDataSource:
                     f"{self.roi!r}; skipped."
                 )
                 continue
-            masks[self.roi] = _FileImageRef(mask_path, is_mask=True, role_name=self.roi)
+            masks[self.roi] = FileImageRef(mask_path, is_mask=True, role_name=self.roi)
             subjects.append(
                 Subject(
                     subject_id=subject_dir.name,

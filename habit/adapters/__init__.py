@@ -23,5 +23,6 @@ layout, a DataFrame, in-memory arrays, or an nnU-Net dataset -- into the L2
 from __future__ import annotations
 
 from habit.adapters.directory import DirectoryDataSource
+from habit.adapters.image_refs import FileImageRef
 
-__all__ = ["DirectoryDataSource"]
+__all__ = ["DirectoryDataSource", "FileImageRef"]
