@@ -32,6 +32,7 @@ API contract.
 
 from __future__ import annotations
 
+import importlib
 from typing import Any, Dict, Tuple
 
 from habit._version import __version__
@@ -40,9 +41,28 @@ from habit.utils.lazy_exports import lazy_getattr
 
 _LAZY_EXPORTS: Dict[str, Tuple[str, str]] = build_lazy_exports()
 
+#: v1.0 layered packages resolvable as attributes (``habit.compat`` etc.)
+#: after a bare ``import habit``, loaded only on first access.
+_LAZY_SUBPACKAGES = frozenset(
+    {
+        "adapters",
+        "compat",
+        "contracts",
+        "domain",
+        "execution",
+        "kernels",
+        "registry",
+        "spec",
+    }
+)
+
 __all__ = ["__version__", *PUBLIC_API_SYMBOLS]
 
 
 def __getattr__(name: str) -> Any:
-    """Resolve a stable public symbol on first access."""
+    """Resolve a stable public symbol or layered subpackage on first access."""
+    if name in _LAZY_SUBPACKAGES:
+        module = importlib.import_module(f"habit.{name}")
+        globals()[name] = module
+        return module
     return lazy_getattr(name, globals(), _LAZY_EXPORTS)

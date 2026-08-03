@@ -30,7 +30,7 @@ from habit.domain import (
     SlicSupervoxelizer,
     SubjectPipeline,
 )
-from habit.domain.pipeline import _voxel_units
+from habit.domain.pipeline import voxel_units
 
 from .conftest import make_field, make_subject
 
@@ -41,7 +41,7 @@ def _fitted_pipeline(*, supervoxels: bool = True, seed: int = 11) -> SubjectPipe
     supervoxelizer = SlicSupervoxelizer(n_supervoxels=8) if supervoxels else None
     cohort = Cohort([make_subject(f"S{i}", seed=i) for i in range(3)])
     if supervoxelizer is None:
-        units = [_voxel_units(voxel_features(subject)) for subject in cohort]
+        units = [voxel_units(voxel_features(subject)) for subject in cohort]
     else:
         units = [supervoxelizer(voxel_features(subject)) for subject in cohort]
     fitter = KMeansHabitatModelFitter(n_habitats=2, n_init=5)
@@ -89,7 +89,7 @@ def test_pipeline_without_supervoxelizer_clusters_voxels_directly() -> None:
 def test_voxel_units_wrap_field_as_singleton_partition() -> None:
     """Each voxel becomes its own clustering unit, preserving order."""
     field = make_field("P1", n_voxels=6)
-    units = _voxel_units(field)
+    units = voxel_units(field)
     labels = np.asarray(units.label_array)
     np.testing.assert_array_equal(
         labels[tuple(field.voxel_index.T)], np.arange(1, 7)

@@ -47,17 +47,19 @@ from habit.domain.table_protocols import (
 from habit._version import __version__ as _habit_version
 from habit.spec.specs import Spec
 
-__all__ = ["SubjectPipeline", "TablePipeline"]
+__all__ = ["SubjectPipeline", "TablePipeline", "voxel_units"]
 
 
-def _voxel_units(field: VoxelFeatureField) -> Supervoxelization:
+def voxel_units(field: VoxelFeatureField) -> Supervoxelization:
     """
     Wrap a voxel feature field as single-voxel clustering units.
 
     The one-step and direct-pooling designs cluster voxels directly, with no
     supervoxel step. Representing each voxel as a one-voxel
     ``Supervoxelization`` keeps the assigner contract uniform instead of
-    giving assigners a second input type to handle.
+    giving assigners a second input type to handle. It is also the building
+    block external code (e.g. ``habit.compat.sklearn``) needs to drive a
+    one-step design outside a ``SubjectPipeline``.
 
     Args:
         field: Per-voxel features for one subject.
@@ -148,7 +150,7 @@ class SubjectPipeline:
         """
         field = self.voxel_feature_extractor(subject)
         if self.supervoxelizer is None:
-            units = _voxel_units(field)
+            units = voxel_units(field)
         else:
             units = self.supervoxelizer(field)
         return self.habitat_assigner(units)
