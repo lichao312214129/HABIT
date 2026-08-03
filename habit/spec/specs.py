@@ -43,6 +43,81 @@ _COMPONENT_DOMAINS: Tuple[str, ...] = (
     "habitat_assigner",
 )
 
+#: Methods styles supported by ``HabitatSpec.describe_methods`` (and by the
+#: RunManifest counterpart -- same verb, same signature, same vocabulary).
+_METHODS_STYLES: Tuple[str, ...] = ("radiology", "nature")
+
+#: Human phrasing for the component domains, in pipeline order.
+#: (Deliberately duplicated in ``habit.contracts.manifest``: the spec layer
+#: sits at the foundation of the stack and must never import upwards, and
+#: the fragment is small.)
+_COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
+    ("voxel_feature_extractor", "voxel feature extraction"),
+    ("supervoxelizer", "supervoxelization"),
+    ("habitat_model_fitter", "habitat model fitting"),
+    ("habitat_assigner", "habitat assignment"),
+)
+
+
+def _params_text(params: Any) -> str:
+    """Render one component's parameter mapping as prose."""
+    if not params:
+        return "default parameters"
+    if isinstance(params, Mapping):
+        return ", ".join(f"{key}={value!r}" for key, value in params.items())
+    return str(params)
+
+
+def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
+    """
+    Render a HabitatSpec-shaped payload as ordered prose phrases.
+
+    Only keys actually present are rendered: the paragraph states what the
+    analysis contains, never what a template might have contained.
+
+    Args:
+        payload: Spec payload as produced by ``HabitatSpec.to_dict``.
+
+    Returns:
+        One phrase per present component, in pipeline order.
+    """
+    phrases: list[str] = []
+    for key, phrase in _COMPONENT_PHRASES:
+        if key not in payload:
+            continue
+        entry = payload[key]
+        if entry is None:
+            if key == "supervoxelizer":
+                phrases.append("direct voxel clustering (no supervoxelization)")
+            continue
+        if isinstance(entry, Mapping) and "name" in entry:
+            phrases.append(
+                f"{phrase} with {entry['name']} ({_params_text(entry.get('params'))})"
+            )
+        else:
+            phrases.append(f"{phrase} with {entry}")
+    features = payload.get("habitat_features") or []
+    if features:
+        families = ", ".join(
+            f"{entry['name']} ({_params_text(entry.get('params'))})"
+            if isinstance(entry, Mapping) and "name" in entry
+            else str(entry)
+            for entry in features
+        )
+        phrases.append(f"habitat feature families: {families}")
+    for chain_key, chain_phrase in (
+        ("subject_table_preprocessors", "subject-level table preprocessing"),
+        ("group_table_preprocessors", "cohort-level table preprocessing"),
+    ):
+        chain = payload.get(chain_key) or []
+        if chain:
+            steps = ", ".join(
+                entry["name"] if isinstance(entry, Mapping) and "name" in entry else str(entry)
+                for entry in chain
+            )
+            phrases.append(f"{chain_phrase}: {steps}")
+    return tuple(phrases)
+
 
 def _canonical_json(value: Any) -> str:
     """
@@ -223,6 +298,51 @@ class HabitatSpec:
             "habitat_model_fitter": self.habitat_model_fitter,
             "habitat_assigner": self.habitat_assigner,
         }
+
+    def describe_methods(self, style: str = "radiology") -> str:
+        """
+        Render the specification as a manuscript methods paragraph.
+
+        Deliberately the same verb and signature as
+        :meth:`habit.contracts.manifest.RunManifest.describe_methods`; the
+        difference is completeness, not vocabulary. This describes what was
+        INTENDED and can be read before anything runs -- a spec carries no
+        software versions, no executed steps and no excluded subjects, so
+        none are stated. Every configured step appears with its parameters,
+        which is what makes the paragraph useful for preregistration and for
+        checking a YAML against the paper draft before the compute starts.
+
+        Args:
+            style: Target venue convention. ``"radiology"`` opens with the
+                design sentence; ``"nature"`` closes with it. Ordering and
+                wording only -- the stated facts are identical.
+
+        Returns:
+            English prose describing every configured step and its
+            parameters.
+
+        Raises:
+            HABITAPIError: On an unknown style.
+        """
+        if style not in _METHODS_STYLES:
+            raise HABITAPIError(
+                f"Unknown methods style {style!r}; expected one of "
+                f"{_METHODS_STYLES}."
+            )
+        body: list[str] = [
+            f"The analysis specification {self.name!r} comprises "
+            f"{'; '.join(_component_phrases(self.to_dict()))}."
+        ]
+        if self.random_seed is not None:
+            body.append(
+                f"Random seed {self.random_seed} is fixed for every "
+                "stochastic component."
+            )
+        if style == "nature":
+            closing = "The analysis was designed with HABIT."
+            return " ".join([*body, closing])
+        opening = "A habitat imaging analysis was designed with HABIT as follows."
+        return " ".join([opening, *body])
 
     def fingerprint(self) -> str:
         """Return a stable hash identifying this exact specification."""

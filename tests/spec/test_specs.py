@@ -167,6 +167,51 @@ def test_habitat_spec_fingerprint_changes_with_any_stage() -> None:
 
 
 @pytest.mark.unit
+def test_habitat_spec_describe_methods_states_every_configured_step() -> None:
+    """The planned-methods paragraph names every component and its params."""
+    spec = _habitat_spec()
+    text = spec.describe_methods()
+
+    assert text.startswith("A habitat imaging analysis was designed with HABIT")
+    assert "'demo'" in text
+    # Every configured step appears, with its parameters, in pipeline order.
+    assert text.index("voxel feature extraction with raw") < text.index(
+        "supervoxelization with slic"
+    ) < text.index("habitat model fitting with kmeans") < text.index(
+        "habitat assignment with nearest_centroid"
+    ) < text.index("habitat feature families: msi")
+    assert "n_supervoxels=50" in text
+    assert "n_habitats=3" in text
+    assert "modalities=['T1']" in text
+    # No seed was configured, so none is promised.
+    assert "seed" not in text.lower()
+
+
+@pytest.mark.unit
+def test_habitat_spec_describe_methods_styles_differ_only_in_ordering() -> None:
+    """Radiology opens with the design sentence; nature closes with it."""
+    spec = HabitatSpec(
+        name="styled",
+        voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1"]}),
+        supervoxelizer=None,
+        habitat_model_fitter=Spec(name="kmeans"),
+        habitat_assigner=Spec(name="nearest_centroid"),
+        random_seed=42,
+    )
+    radiology = spec.describe_methods(style="radiology")
+    nature = spec.describe_methods(style="nature")
+
+    assert radiology.startswith("A habitat imaging analysis was designed with HABIT")
+    assert nature.endswith("The analysis was designed with HABIT.")
+    # The direct-clustering design is stated honestly, and the seed is fixed.
+    assert "direct voxel clustering (no supervoxelization)" in radiology
+    assert "Random seed 42 is fixed" in nature
+
+    with pytest.raises(HABITAPIError):
+        spec.describe_methods(style="imaginary")
+
+
+@pytest.mark.unit
 def test_run_policy_defaults_and_validation() -> None:
     """Policy defaults are serial execution with continue-on-failure."""
     policy = RunPolicy()

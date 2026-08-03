@@ -39,6 +39,19 @@ __all__ = ["RunManifest", "StudyResult"]
 #: Reporting standards supported by :meth:`RunManifest.checklist`.
 _CHECKLIST_STANDARDS = ("IBSI", "CLEAR", "METRICS", "TRIPOD+AI")
 
+#: Methods styles supported by ``describe_methods`` here and on HabitatSpec.
+_METHODS_STYLES = ("radiology", "nature")
+
+#: Human phrasing for the HabitatSpec component domains, in pipeline order.
+#: (Deliberately duplicated in ``habit.spec.specs``: the contracts layer must
+#: never import the spec layer, and the fragment is small.)
+_COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
+    ("voxel_feature_extractor", "voxel feature extraction"),
+    ("supervoxelizer", "supervoxelization"),
+    ("habitat_model_fitter", "habitat model fitting"),
+    ("habitat_assigner", "habitat assignment"),
+)
+
 
 def _collect_provenance_chain(root: Provenance) -> Tuple[Provenance, ...]:
     """Flatten a provenance DAG into a breadth-first tuple without repeats."""
@@ -53,6 +66,206 @@ def _collect_provenance_chain(root: Provenance) -> Tuple[Provenance, ...]:
         ordered.append(current)
         queue.extend(current.inputs)
     return tuple(ordered)
+
+
+def _params_text(params: Any) -> str:
+    """Render one component's parameter mapping as prose."""
+    if not params:
+        return "default parameters"
+    if isinstance(params, Mapping):
+        return ", ".join(f"{key}={value!r}" for key, value in params.items())
+    return str(params)
+
+
+def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
+    """
+    Render a HabitatSpec-shaped payload as ordered prose phrases.
+
+    Only keys actually present are rendered: the report states what the
+    analysis contains, never what a template might have contained.
+
+    Args:
+        payload: Spec payload as produced by ``HabitatSpec.to_dict``.
+
+    Returns:
+        One phrase per present component, in pipeline order.
+    """
+    phrases: list[str] = []
+    for key, phrase in _COMPONENT_PHRASES:
+        if key not in payload:
+            continue
+        entry = payload[key]
+        if entry is None:
+            if key == "supervoxelizer":
+                phrases.append("direct voxel clustering (no supervoxelization)")
+            continue
+        if isinstance(entry, Mapping) and "name" in entry:
+            phrases.append(
+                f"{phrase} with {entry['name']} ({_params_text(entry.get('params'))})"
+            )
+        else:
+            phrases.append(f"{phrase} with {entry}")
+    features = payload.get("habitat_features") or []
+    if features:
+        families = ", ".join(
+            f"{entry['name']} ({_params_text(entry.get('params'))})"
+            if isinstance(entry, Mapping) and "name" in entry
+            else str(entry)
+            for entry in features
+        )
+        phrases.append(f"habitat feature families: {families}")
+    for chain_key, chain_phrase in (
+        ("subject_table_preprocessors", "subject-level table preprocessing"),
+        ("group_table_preprocessors", "cohort-level table preprocessing"),
+    ):
+        chain = payload.get(chain_key) or []
+        if chain:
+            steps = ", ".join(
+                entry["name"] if isinstance(entry, Mapping) and "name" in entry else str(entry)
+                for entry in chain
+            )
+            phrases.append(f"{chain_phrase}: {steps}")
+    return tuple(phrases)
+
+
+def _specification_sentence(payload: Mapping[str, Any]) -> Optional[str]:
+    """
+    Render the analysis specification as one methods sentence.
+
+    Args:
+        payload: The manifest's recorded spec payload.
+
+    Returns:
+        The sentence, or ``None`` when no specification was recorded.
+    """
+    if not payload:
+        return None
+    phrases = _component_phrases(payload)
+    if not phrases:
+        return None
+    name = payload.get("name")
+    lead = "The analysis specification"
+    if isinstance(name, str) and name:
+        lead += f" {name!r}"
+    return f"{lead} comprised {'; '.join(phrases)}."
+
+
+#: Guidance text for checklist items no execution record can answer. Every
+#: item is an honest "needs_human_answer" rather than a fabricated tick.
+_HUMAN_CHECKLIST_GUIDANCE: Mapping[str, str] = {
+    "study_design": (
+        "Study design (prospective/retrospective, multi-centre) must be "
+        "described by the authors"
+    ),
+    "clinical_cohort_description": (
+        "Cohort recruitment, eligibility and ethics cannot be derived from "
+        "execution records"
+    ),
+    "image_acquisition": (
+        "Scanner, sequence and acquisition parameters must be described by "
+        "the authors"
+    ),
+    "annotation_protocol": (
+        "ROI delineation protocol must be described by the authors"
+    ),
+    "image_preprocessing": (
+        "Pre-analysis image processing (resampling, denoising, "
+        "normalisation) must be described by the authors"
+    ),
+    "outcome_definition": (
+        "The clinical outcome and its assessment must be described by the "
+        "authors"
+    ),
+    "predictor_definition": (
+        "Predictor measurement and blinding must be described by the authors"
+    ),
+    "missing_data": "Missing-data handling must be described by the authors",
+    "validation_design": (
+        "Internal/external validation design must be described by the authors"
+    ),
+    "calibration_assessment": (
+        "Calibration assessment of the outcome model must be reported by "
+        "the authors"
+    ),
+    "fairness": "Fairness/subgroup analyses must be reported by the authors",
+    "benchmark_validation": (
+        "Benchmarking against reference implementations must be reported by "
+        "the authors"
+    ),
+    "code_availability": "A code availability statement is an editorial decision",
+    "data_availability": (
+        "A data availability statement is an editorial/legal decision"
+    ),
+    "funding": "A funding statement is an editorial decision",
+}
+
+#: Ordered checklist items per reporting standard. Items present in
+#: ``RunManifest._checklist_facts`` are evidenced; the rest need humans.
+_CHECKLIST_LAYOUTS: Mapping[str, Tuple[str, ...]] = {
+    # IBSI (Image Biomarker Standardisation Initiative) reporting items.
+    "IBSI": (
+        "image_acquisition",
+        "annotation_protocol",
+        "image_preprocessing",
+        "analysis_specification",
+        "feature_families",
+        "software_version",
+        "dependency_versions",
+        "random_seeds",
+        "benchmark_validation",
+    ),
+    # CLEAR (CheckList for EvaluAtion of Radiomics research).
+    "CLEAR": (
+        "clinical_cohort_description",
+        "image_acquisition",
+        "annotation_protocol",
+        "image_preprocessing",
+        "analysis_specification",
+        "feature_families",
+        "cohort_size",
+        "excluded_subjects",
+        "software_version",
+        "dependency_versions",
+        "random_seeds",
+        "code_availability",
+        "data_availability",
+    ),
+    # METRICS (MEthodological RadiomICs Score) topics.
+    "METRICS": (
+        "study_design",
+        "clinical_cohort_description",
+        "image_acquisition",
+        "annotation_protocol",
+        "image_preprocessing",
+        "analysis_specification",
+        "feature_families",
+        "cohort_size",
+        "validation_design",
+        "software_version",
+        "dependency_versions",
+        "random_seeds",
+        "code_availability",
+        "data_availability",
+    ),
+    # TRIPOD+AI prediction-model reporting items.
+    "TRIPOD+AI": (
+        "study_design",
+        "clinical_cohort_description",
+        "outcome_definition",
+        "predictor_definition",
+        "missing_data",
+        "analysis_specification",
+        "cohort_size",
+        "excluded_subjects",
+        "validation_design",
+        "calibration_assessment",
+        "fairness",
+        "software_version",
+        "random_seeds",
+        "data_availability",
+        "funding",
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -98,48 +311,130 @@ class RunManifest:
         Render the executed analysis as a manuscript methods paragraph.
 
         The text states only steps that actually executed, derived from the
-        provenance DAG, plus software versions, seeds, and excluded subjects.
-        Generating plausible but unexecuted methods text would make the whole
-        reporting feature untrustworthy.
+        provenance DAG, plus the recorded specification, software versions,
+        seeds, and excluded subjects. Generating plausible but unexecuted
+        methods text would make the whole reporting feature untrustworthy.
 
         Args:
-            style: Target venue convention, e.g. ``"radiology"`` or
-                ``"nature"``. Only affects wording and ordering, never
-                content.
+            style: Target venue convention. ``"radiology"`` opens with the
+                software sentence; ``"nature"`` closes with it. Ordering and
+                wording only -- the stated facts are identical.
 
         Returns:
             English prose that states only steps that actually executed.
+
+        Raises:
+            HABITAPIError: On an unknown style.
         """
-        chain = _collect_provenance_chain(self.provenance)
-        steps = [record.produced_by for record in chain if record.produced_by]
+        if style not in _METHODS_STYLES:
+            raise HABITAPIError(
+                f"Unknown methods style {style!r}; expected one of "
+                f"{_METHODS_STYLES}."
+            )
         versions = self.software_versions()
         seeds = self.random_seeds()
-        sentences = [
-            "Habitat imaging analysis was performed with HABIT "
-            f"(version {versions.get('habit', 'unknown')}).",
+        body: list[str] = []
+        specification = _specification_sentence(self.spec_payload)
+        if specification is not None:
+            body.append(specification)
+        chain = _collect_provenance_chain(self.provenance)
+        steps = [record.produced_by for record in chain if record.produced_by]
+        body.append(
             "The executed pipeline steps, in provenance order, were: "
             + ("; ".join(steps) if steps else "none recorded")
-            + ".",
-        ]
+            + "."
+        )
         if seeds:
             seed_text = ", ".join(f"{name}={seed}" for name, seed in seeds.items())
-            sentences.append(f"Random seeds were fixed as follows: {seed_text}.")
+            body.append(f"Random seeds were fixed as follows: {seed_text}.")
         failed = sorted(
             subject
             for subject, outcome in self.subject_outcomes.items()
             if outcome != "success"
         )
         if failed:
-            sentences.append(
+            body.append(
                 f"{len(failed)} subject(s) failed processing and were "
                 f"excluded: {', '.join(failed)}."
             )
-        if style not in ("radiology", "nature"):
-            raise HABITAPIError(
-                f"Unknown methods style {style!r}; expected 'radiology' or "
-                "'nature'."
+        if style == "nature":
+            closing = (
+                "All analyses were performed with HABIT "
+                f"(version {versions.get('habit', 'unknown')})."
             )
-        return " ".join(sentences)
+            return " ".join([*body, closing])
+        opening = (
+            "Habitat imaging analysis was performed with HABIT "
+            f"(version {versions.get('habit', 'unknown')})."
+        )
+        return " ".join([opening, *body])
+
+    def _checklist_facts(self) -> Mapping[str, Tuple[str, str]]:
+        """
+        Compute the checklist items HABIT can evidence from execution records.
+
+        Returns:
+            Item key -> ``(status, evidence)`` for every machine-evidencable
+            item. Anything absent from this mapping is a human question, and
+            :data:`_HUMAN_CHECKLIST_GUIDANCE` explains why.
+        """
+        versions = self.software_versions()
+        seeds = self.random_seeds()
+        failed = {
+            subject: outcome
+            for subject, outcome in self.subject_outcomes.items()
+            if outcome != "success"
+        }
+        facts: Dict[str, Tuple[str, str]] = {
+            "software_version": (
+                "evidenced",
+                f"HABIT {versions.get('habit', 'unknown')}",
+            ),
+            "dependency_versions": (
+                "evidenced",
+                json.dumps(versions, sort_keys=True),
+            ),
+            "random_seeds": (
+                "evidenced" if seeds else "needs_human_answer",
+                json.dumps(seeds, sort_keys=True)
+                if seeds
+                else "No stochastic components recorded",
+            ),
+            "excluded_subjects": (
+                "evidenced",
+                json.dumps(failed, sort_keys=True),
+            ),
+            "analysis_specification": (
+                "evidenced" if self.spec_payload else "needs_human_answer",
+                json.dumps(self.spec_payload, sort_keys=True, default=str)
+                if self.spec_payload
+                else "No analysis specification was recorded for this run",
+            ),
+            "cohort_size": (
+                "evidenced" if self.subject_outcomes else "needs_human_answer",
+                f"{len(self.subject_outcomes)} subjects processed, "
+                f"{len(failed)} excluded"
+                if self.subject_outcomes
+                else "Subject counts were not recorded for this run",
+            ),
+        }
+        features = self.spec_payload.get("habitat_features") or []
+        if features:
+            families = [
+                entry["name"]
+                for entry in features
+                if isinstance(entry, Mapping) and "name" in entry
+            ]
+            facts["feature_families"] = (
+                "evidenced",
+                ", ".join(families) if families else json.dumps(features, default=str),
+            )
+        else:
+            facts["feature_families"] = (
+                "needs_human_answer",
+                "Habitat feature families were not recorded for this run",
+            )
+        return facts
 
     def checklist(self, standard: str) -> pd.DataFrame:
         """
@@ -150,59 +445,28 @@ class RunManifest:
                 ``"TRIPOD+AI"``.
 
         Returns:
-            One row per checklist item with the value HABIT can evidence and,
-            where it cannot, an explicit statement that the item needs a
-            human answer. Silently marking unverifiable items as satisfied
-            would make the whole feature untrustworthy.
+            One row per checklist item of that standard with the value HABIT
+            can evidence and, where it cannot, an explicit statement that the
+            item needs a human answer. Silently marking unverifiable items as
+            satisfied would make the whole feature untrustworthy.
+
+        Raises:
+            HABITAPIError: On an unknown standard.
         """
         if standard not in _CHECKLIST_STANDARDS:
             raise HABITAPIError(
                 f"Unknown reporting standard {standard!r}; expected one of "
                 f"{_CHECKLIST_STANDARDS}."
             )
-        versions = self.software_versions()
-        rows = [
-            (
-                "software_version",
-                "evidenced",
-                f"HABIT {versions.get('habit', 'unknown')}",
-            ),
-            (
-                "dependency_versions",
-                "evidenced",
-                json.dumps(versions, sort_keys=True),
-            ),
-            (
-                "random_seeds",
-                "evidenced" if self.random_seeds() else "needs_human_answer",
-                json.dumps(self.random_seeds(), sort_keys=True)
-                if self.random_seeds()
-                else "No stochastic components recorded",
-            ),
-            (
-                "excluded_subjects",
-                "evidenced",
-                json.dumps(
-                    {
-                        subject: outcome
-                        for subject, outcome in self.subject_outcomes.items()
-                        if outcome != "success"
-                    },
-                    sort_keys=True,
-                ),
-            ),
-            (
-                "clinical_cohort_description",
-                "needs_human_answer",
-                "Cohort recruitment, eligibility and ethics cannot be derived "
-                "from execution records",
-            ),
-            (
-                "annotation_protocol",
-                "needs_human_answer",
-                "ROI delineation protocol must be described by the authors",
-            ),
-        ]
+        facts = self._checklist_facts()
+        rows = []
+        for item in _CHECKLIST_LAYOUTS[standard]:
+            if item in facts:
+                rows.append((item, *facts[item]))
+            else:
+                rows.append(
+                    (item, "needs_human_answer", _HUMAN_CHECKLIST_GUIDANCE[item])
+                )
         return pd.DataFrame(rows, columns=["item", "status", "evidence"])
 
     def to_json(self, path: Optional[Union[str, Path]] = None) -> str:
