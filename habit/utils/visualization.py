@@ -87,12 +87,8 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         # Prefer externally provided best_n_clusters to avoid recomputing the selection logic.
         best_n_clusters_value: Optional[int] = None
         # Provide a readable criterion label even when the best index is supplied.
-        if optimization in ['kneedle', 'inertia']:
+        if optimization == 'knee':
             criterion = "Kneedle"
-        elif optimization == 'elbow':
-            criterion = "Elbow"
-        elif optimization == 'maximize':
-            criterion = "Maximum"
         elif optimization == 'minimize':
             criterion = "Minimum"
         else:
@@ -100,14 +96,11 @@ def plot_cluster_scores(scores_dict: Dict[str, List[float]],
         if best_n_clusters is not None and method in best_n_clusters:
             best_n_clusters_value = best_n_clusters[method]
         else:
-            # Fallback to internal logic to keep compatibility for other call sites.
-            if optimization == 'maximize':
-                best_idx = int(np.argmax(scores))
-            elif optimization == 'minimize':
-                best_idx = int(np.argmin(scores))
-            else:
-                best_idx = int(np.argmax(scores))
-            best_n_clusters_value = cluster_range[best_idx]
+            # Fallback to the shared selection kernel so a plot never marks a
+            # different k than the pipeline actually used.
+            from habit.kernels.cluster_selection import best_index
+
+            best_n_clusters_value = cluster_range[best_index(scores, optimization)]
 
         # Map the provided best cluster number back to score index.
         if best_n_clusters_value in cluster_range:

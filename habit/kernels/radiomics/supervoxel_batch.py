@@ -29,24 +29,24 @@ Torch is lazy-imported so machines without PyTorch can still import this module.
 
 from __future__ import annotations
 
+import logging
 from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 
-from habit.utils.log_utils import get_module_logger
-from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
+from habit.kernels.radiomics.cext import (
     cext_backend,
     is_cext_available,
     resolve_use_supervoxel_cext,
     supervoxel_cext_matrix_backend_label,
 )
-from habit.core.habitat_analysis.clustering_features.supervoxel_cext.torch_batch import (
+from habit.kernels.radiomics.cext.torch_batch import (
     extract_supervoxel_batch_via_cext,
 )
 
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Default batch size; controls matrix/formula batch width (like voxel_batch for voxel maps).
 DEFAULT_SUPERVOXEL_BATCH = 64
@@ -914,22 +914,22 @@ def _create_torch_calculators(
     Returns:
         Dict[str, object]: Feature class name to calculator instance.
     """
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsFirstOrder import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsFirstOrder import (
         TorchRadiomicsFirstOrder,
     )
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsGLCM import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsGLCM import (
         TorchRadiomicsGLCM,
     )
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsGLDM import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsGLDM import (
         TorchRadiomicsGLDM,
     )
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsGLRLM import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsGLRLM import (
         TorchRadiomicsGLRLM,
     )
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsGLSZM import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsGLSZM import (
         TorchRadiomicsGLSZM,
     )
-    from habit.core.habitat_analysis.clustering_features.torchradiomics.TorchRadiomicsNGTDM import (
+    from habit.kernels.radiomics.torchradiomics.TorchRadiomicsNGTDM import (
         TorchRadiomicsNGTDM,
     )
 

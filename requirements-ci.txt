@@ -1,6 +1,9 @@
-# Dependencies required by the public API, architecture, and packaging test suite.
-# Keep this list small: optional workflow backends (for example, AutoGluon,
-# PyRadiomics, ANTs, and PyTorch) are intentionally excluded from CI smoke tests.
+# Dependencies required by the public API, architecture, packaging, and v1
+# layer test suites (tests/{api,contracts,domain,execution,compat,spec,
+# registry,kernels,golden}).
+# Keep this list small: heavyweight optional workflow backends (AutoGluon,
+# ANTs, PyTorch, MONAI) are intentionally excluded -- the tests that use them
+# skip via pytest.importorskip / importlib.util.find_spec.
 numpy==1.26.1
 pandas
 scipy
@@ -11,5 +14,14 @@ pyyaml
 pydantic
 click>=8.0
 tqdm
+# v1 domain/kernels test dependencies (lazy-imported by habit.domain and
+# habit.kernels.radiomics, exercised for real by the test suites):
+matplotlib
+pyradiomics
+lifelines
+scikit-survival
+statsmodels
+mrmr-selection
+xgboost
 pytest
 mypy

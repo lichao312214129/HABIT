@@ -1,19 +1,10 @@
-Habitat segmentation
-====================
+.. This page was retired with the v1.0 API documentation rewrite.
 
-.. code-block:: bash
+Habitat segmentation (moved)
+============================
 
-   habit get-habitat --config config/habitat/config_habitat_two_step.yaml
+This v0.1-oriented page is no longer maintained.
 
-Other strategies (swap config file):
+See :doc:`python_api` and :doc:`index` for the v1.0 Python API.
 
-- One-step: ``config/habitat/config_habitat_one_step_raw_concat_train.yaml``
-- Direct pooling: ``config/habitat/config_habitat_direct_pooling.yaml``
-
-Options: ``--mode train|predict`` , ``--resume`` .
-
-**Output**: ``*_habitats.nrrd`` ; overlay in ITK-SNAP / 3D Slicer.
-
-**Strategy choice**: :doc:`../explanation/concepts`
-
-**Configuration**: :doc:`../configuration/habitat`
+See :doc:`domain_habitat` for the v1.0 habitat domain API.

@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 from typing import Union, List, Dict, Optional
-from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
+from habit.kernels.radiomics.cext import (
     is_cext_available,
     supervoxel_cext_matrix_backend_label,
 )
@@ -38,14 +38,14 @@ from habit.utils.torch_radiomics_utils import (
     resolve_torch_dtype,
     resolve_voxel_radiomics_backend,
 )
-from .batched_supervoxel_radiomics import (
+from habit.kernels.radiomics.settings import merge_supervoxel_settings
+from habit.kernels.radiomics.supervoxel_batch import (
     DEFAULT_SUPERVOXEL_BATCH,
     extract_batched_supervoxel_features,
     extract_supervoxel_features_pyradiomics,
 )
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 from .method_param_spec import MethodParamSpec
-from .supervoxel_radiomics_settings import merge_supervoxel_settings
 from habit.utils.radiomics_preset_utils import resolve_params_file
 
 logger = get_module_logger(__name__)
@@ -354,7 +354,7 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
         if matrix_backend == "habit_native_c":
             logger.info(
                 "supervoxel_radiomics habit native C extension ENABLED: subject=%s image=%s "
-                "use_supervoxel_cext=%s module=supervoxel_cext._sv_cmatrices",
+                "use_supervoxel_cext=%s module=habit.kernels.radiomics.cext._sv_cmatrices",
                 subject_id,
                 img_name,
                 use_supervoxel_cext_flag,

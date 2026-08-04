@@ -21,6 +21,17 @@ usable standalone (e.g. to re-derive a published metric).
 
 from __future__ import annotations
 
+from habit.kernels.cluster_selection import (
+    KNEE,
+    MAXIMIZE,
+    MINIMIZE,
+    SCORE_DIRECTIONS,
+    best_index,
+    gap_statistic,
+    knee_index,
+    score_direction,
+    vote_best_index,
+)
 from habit.kernels.habitat_metrics import (
     habitat_region_stats,
     habitat_volume_fractions,
@@ -29,6 +40,7 @@ from habit.kernels.habitat_metrics import (
     spatial_interaction_matrix,
 )
 from habit.kernels.icc import icc2_1, icc3_1, two_way_mean_squares
+from habit.kernels.voxel_texture import local_entropy_map
 from habit.kernels.statistics import (
     compute_midrank,
     delong_roc_ci,
@@ -40,6 +52,16 @@ from habit.kernels.statistics import (
 )
 
 __all__ = [
+    "SCORE_DIRECTIONS",
+    "MAXIMIZE",
+    "MINIMIZE",
+    "KNEE",
+    "score_direction",
+    "knee_index",
+    "best_index",
+    "vote_best_index",
+    "gap_statistic",
+    "local_entropy_map",
     "spatial_interaction_matrix",
     "msi_features_from_matrix",
     "habitat_volume_fractions",

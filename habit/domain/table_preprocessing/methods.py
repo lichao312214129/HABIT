@@ -14,14 +14,22 @@
 #
 """Built-in table preprocessors (domain ``table_preprocessor``).
 
-The eight methods are numerically equivalent to the v0.1 handlers in
-``habit.core.habitat_analysis.feature_preprocessing.builtin_methods``, but
-reshape the interface around the :class:`~habit.domain.table_protocols.TablePreprocessor`
-protocol: constructor parameters are explicit typed arguments (validated by a
-registered Pydantic schema), ``fit`` learns state from the TRAINING table and
-stores it on the instance, and ``transform`` applies that state to any
-row-aligned table -- which is exactly what a train/predict split needs to not
-leak test statistics into features.
+These operate on a MODELLING table: one row per subject, with identifier and
+outcome columns alongside the features. That is what separates this domain from
+``habit.domain.feature_preprocessing``, whose rows are voxels or supervoxels on
+the way to a habitat definition.
+
+The arithmetic, however, is identical, so both domains delegate to the same L0
+kernel (``habit.kernels.feature_transforms``) rather than each carrying its own
+copy. Rescaling is rescaling; a formula written twice is a formula that will
+eventually disagree with itself, and a silent disagreement here would mean two
+parts of one study normalised their features differently.
+
+What this layer adds on top of the kernel is the table contract: constructor
+parameters are explicit typed arguments (validated by a registered Pydantic
+schema), ``fit`` learns state from the TRAINING table, and ``transform``
+applies that state to any row-aligned table -- which is exactly what a
+train/predict split needs to not leak test statistics into features.
 
 Two methods (``variance_filter``, ``correlation_filter``) change the column
 set: they learn the surviving columns at fit time and restrict every later
@@ -30,19 +38,19 @@ table to that same subset.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
 from habit.domain.table_preprocessing._base import (
     fit_feature_block,
     replace_feature_values,
 )
 from habit.domain.table_preprocessing.registry import TablePreprocessorRegistry
+from habit.kernels import feature_transforms as _kernel
 from habit.spec.specs import Spec
 
 __all__ = [
@@ -115,150 +123,104 @@ class _FittedPreprocessor:
 # ---------------------------------------------------------------------------
 
 
-class MinMaxPreprocessorParams(BaseModel):
-    """Constructor parameters for :class:`MinMaxPreprocessor`."""
-
-    #: When true, learn ONE (min, max) over the whole feature block instead of
-    #: per-column statistics (the v0.1 ``global_normalize`` flag).
-    global_normalize: bool = False
-
-
-@TablePreprocessorRegistry.register("minmax")
-class MinMaxPreprocessor(_FittedPreprocessor):
+class _ScopedScaler(_FittedPreprocessor):
     """
-    Min-max scaling of every feature to [0, 1].
+    Base for the affine scalers, which differ only in which kernel they call.
 
-    Per feature by default (each column scaled by its own training minimum and
-    maximum); ``global_normalize=True`` scales the whole block by one global
-    pair, matching the v0.1 method of the same name. A constant training
-    column divides by 1.0 so it maps to 0 rather than NaN.
+    Each subclass names its ``fit_*``/``apply_*`` pair; everything else --
+    parameter handling, spec, fitted-state bookkeeping -- is identical, and
+    writing it once is what keeps the three scalers from drifting apart.
     """
 
-    _spec_name = "minmax"
+    _fit_kernel: Any = None
+    _apply_kernel: Any = None
 
-    def __init__(self, global_normalize: bool = False) -> None:
+    def __init__(self, across_features: bool = False) -> None:
         super().__init__()
-        self._global_normalize = bool(global_normalize)
+        self._across_features = bool(across_features)
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
         return Spec(
             name=self._spec_name,
-            params={"global_normalize": self._global_normalize},
+            params={"across_features": self._across_features},
         )
 
-    def fit(self, table: FeatureTable) -> "MinMaxPreprocessor":
-        """Learn per-column (or global) min/max from the training table."""
+    def fit(self, table: FeatureTable) -> "_ScopedScaler":
+        """Learn the scaling statistics from the training table."""
         block = table.frame[list(table.feature_columns)]
-        if self._global_normalize:
-            self._remember_fit(
-                table,
-                {
-                    "mode": "global",
-                    "min": float(block.values.min()),
-                    "max": float(block.values.max()),
-                },
-            )
-        else:
-            self._remember_fit(
-                table, {"mode": "per_feature", "mins": block.min(), "maxs": block.max()}
-            )
+        self._remember_fit(
+            table, type(self)._fit_kernel(block, self._across_features)
+        )
         return self
 
     def transform(self, table: FeatureTable) -> FeatureTable:
-        """Scale the table's features with the training min/max."""
+        """Rescale the table's features with the training statistics."""
         block = self._block_for_transform(table)
         state = self._state
         assert state is not None  # guaranteed by _block_for_transform
-        if state["mode"] == "global":
-            denom = (state["max"] - state["min"]) if state["max"] != state["min"] else 1.0
-            transformed = (block - state["min"]) / denom
-        else:
-            mins = state["mins"][list(block.columns)]
-            denom = (state["maxs"][list(block.columns)] - mins).replace(0, 1.0)
-            transformed = (block - mins) / denom
-        return self._finish(table, transformed, self._fit_columns)
+        return self._finish(
+            table, type(self)._apply_kernel(block, state), self._fit_columns
+        )
+
+
+class MinMaxPreprocessorParams(BaseModel):
+    """Constructor parameters for :class:`MinMaxPreprocessor`."""
+
+    #: When true, learn ONE (min, max) across all feature columns instead of
+    #: per-column statistics. Renamed from v0.1's ``global_normalize``, which
+    #: read as "use cohort-wide statistics" and never meant that.
+    across_features: bool = False
+
+
+@TablePreprocessorRegistry.register("minmax")
+class MinMaxPreprocessor(_ScopedScaler):
+    """
+    Min-max scaling of every feature to [0, 1].
+
+    Per feature by default (each column scaled by its own training minimum and
+    maximum); ``across_features=True`` scales the whole block by one pair,
+    matching the v0.1 method of the same name. A constant training column
+    divides by 1.0 so it maps to 0 rather than NaN.
+    """
+
+    _spec_name = "minmax"
+    _fit_kernel = staticmethod(_kernel.fit_minmax)
+    _apply_kernel = staticmethod(_kernel.apply_minmax)
 
 
 class ZScorePreprocessorParams(BaseModel):
     """Constructor parameters for :class:`ZScorePreprocessor`."""
 
-    #: When true, learn ONE (mean, std) over the whole feature block.
-    global_normalize: bool = False
+    #: When true, learn ONE (mean, std) across all feature columns.
+    across_features: bool = False
 
 
 @TablePreprocessorRegistry.register("zscore")
-class ZScorePreprocessor(_FittedPreprocessor):
+class ZScorePreprocessor(_ScopedScaler):
     """
     Z-score standardisation of every feature.
 
     Per feature by default (training mean/std per column);
-    ``global_normalize=True`` standardises by one global pair. A zero-variance
+    ``across_features=True`` standardises by one pair. A zero-variance
     training column divides by 1.0 so it maps to 0 rather than NaN.
     """
 
     _spec_name = "zscore"
-
-    def __init__(self, global_normalize: bool = False) -> None:
-        super().__init__()
-        self._global_normalize = bool(global_normalize)
-
-    @property
-    def spec(self) -> Spec:
-        """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={"global_normalize": self._global_normalize},
-        )
-
-    def fit(self, table: FeatureTable) -> "ZScorePreprocessor":
-        """Learn per-column (or global) mean/std from the training table."""
-        block = table.frame[list(table.feature_columns)]
-        if self._global_normalize:
-            std = float(block.values.std())
-            self._remember_fit(
-                table,
-                {
-                    "mode": "global",
-                    "mean": float(block.values.mean()),
-                    "std": std if std != 0 else 1.0,
-                },
-            )
-        else:
-            self._remember_fit(
-                table,
-                {
-                    "mode": "per_feature",
-                    "means": block.mean(),
-                    "stds": block.std().replace(0, 1.0),
-                },
-            )
-        return self
-
-    def transform(self, table: FeatureTable) -> FeatureTable:
-        """Standardise the table's features with the training mean/std."""
-        block = self._block_for_transform(table)
-        state = self._state
-        assert state is not None
-        if state["mode"] == "global":
-            transformed = (block - state["mean"]) / state["std"]
-        else:
-            means = state["means"][list(block.columns)]
-            stds = state["stds"][list(block.columns)]
-            transformed = (block - means) / stds
-        return self._finish(table, transformed, self._fit_columns)
+    _fit_kernel = staticmethod(_kernel.fit_zscore)
+    _apply_kernel = staticmethod(_kernel.apply_zscore)
 
 
 class RobustPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`RobustPreprocessor`."""
 
-    #: When true, learn ONE (median, IQR) over the whole feature block.
-    global_normalize: bool = False
+    #: When true, learn ONE (median, IQR) across all feature columns.
+    across_features: bool = False
 
 
 @TablePreprocessorRegistry.register("robust")
-class RobustPreprocessor(_FittedPreprocessor):
+class RobustPreprocessor(_ScopedScaler):
     """
     Robust scaling of every feature by training median and IQR.
 
@@ -269,58 +231,8 @@ class RobustPreprocessor(_FittedPreprocessor):
     """
 
     _spec_name = "robust"
-
-    def __init__(self, global_normalize: bool = False) -> None:
-        super().__init__()
-        self._global_normalize = bool(global_normalize)
-
-    @property
-    def spec(self) -> Spec:
-        """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={"global_normalize": self._global_normalize},
-        )
-
-    def fit(self, table: FeatureTable) -> "RobustPreprocessor":
-        """Learn per-column (or global) median/IQR from the training table."""
-        block = table.frame[list(table.feature_columns)]
-        if self._global_normalize:
-            flat = block.values.flatten()
-            self._remember_fit(
-                table,
-                {
-                    "mode": "global",
-                    "median": float(np.median(flat)),
-                    "q1": float(np.percentile(flat, 25)),
-                    "q3": float(np.percentile(flat, 75)),
-                },
-            )
-        else:
-            self._remember_fit(
-                table,
-                {
-                    "mode": "per_feature",
-                    "medians": block.median(),
-                    "q1s": block.quantile(0.25),
-                    "q3s": block.quantile(0.75),
-                },
-            )
-        return self
-
-    def transform(self, table: FeatureTable) -> FeatureTable:
-        """Robust-scale the table's features with the training median/IQR."""
-        block = self._block_for_transform(table)
-        state = self._state
-        assert state is not None
-        if state["mode"] == "global":
-            iqr = state["q3"] - state["q1"]
-            iqr = iqr if iqr != 0 else 1.0
-            transformed = (block - state["median"]) / iqr
-        else:
-            iqr_series = (state["q3s"] - state["q1s"]).replace(0, 1.0)
-            transformed = (block - state["medians"]) / iqr_series[list(block.columns)]
-        return self._finish(table, transformed, self._fit_columns)
+    _fit_kernel = staticmethod(_kernel.fit_robust)
+    _apply_kernel = staticmethod(_kernel.apply_robust)
 
 
 # ---------------------------------------------------------------------------
@@ -335,8 +247,8 @@ class BinningPreprocessorParams(BaseModel):
     n_bins: int = 10
     #: Binning strategy passed to sklearn's ``KBinsDiscretizer``.
     bin_strategy: str = "uniform"
-    #: When true, learn bin edges over the flattened feature block.
-    global_normalize: bool = False
+    #: When true, learn one set of bin edges across all feature columns.
+    across_features: bool = False
 
 
 @TablePreprocessorRegistry.register("binning")
@@ -344,10 +256,11 @@ class BinningPreprocessor(_FittedPreprocessor):
     """
     K-bins discretisation of every feature to ordinal bin indices.
 
-    Wraps sklearn's ``KBinsDiscretizer(encode="ordinal")`` exactly as the v0.1
-    method did: edges are learned on the training table only, and prediction
-    tables are binned with those frozen edges. The ``kmeans`` strategy is
-    stochastic, so this component is :class:`~habit.domain.protocols.Seedable`.
+    Reproduces sklearn's ``KBinsDiscretizer(encode="ordinal")`` exactly as the
+    v0.1 method did: edges are learned on the training table only, and
+    prediction tables are binned with those frozen edges. The ``kmeans``
+    strategy is stochastic, so this component is
+    :class:`~habit.domain.protocols.Seedable`.
     """
 
     _spec_name = "binning"
@@ -356,12 +269,12 @@ class BinningPreprocessor(_FittedPreprocessor):
         self,
         n_bins: int = 10,
         bin_strategy: str = "uniform",
-        global_normalize: bool = False,
+        across_features: bool = False,
     ) -> None:
         super().__init__()
         self._n_bins = int(n_bins)
         self._bin_strategy = str(bin_strategy)
-        self._global_normalize = bool(global_normalize)
+        self._across_features = bool(across_features)
         self._seed: Optional[int] = None
 
     def set_random_state(self, seed: int) -> None:
@@ -376,32 +289,23 @@ class BinningPreprocessor(_FittedPreprocessor):
             params={
                 "n_bins": self._n_bins,
                 "bin_strategy": self._bin_strategy,
-                "global_normalize": self._global_normalize,
+                "across_features": self._across_features,
             },
-        )
-
-    def _make_discretizer(self) -> Any:
-        """Build the sklearn discretizer (lazy import keeps sklearn out of L3)."""
-        from sklearn.preprocessing import KBinsDiscretizer
-
-        return KBinsDiscretizer(
-            n_bins=self._n_bins,
-            encode="ordinal",
-            strategy=self._bin_strategy,
-            random_state=self._seed,
         )
 
     def fit(self, table: FeatureTable) -> "BinningPreprocessor":
         """Learn bin edges from the training table."""
         block = table.frame[list(table.feature_columns)]
-        discretizer = self._make_discretizer()
-        if self._global_normalize:
-            discretizer.fit(block.values.flatten().reshape(-1, 1))
-            mode = "global"
-        else:
-            discretizer.fit(block.values)
-            mode = "per_feature"
-        self._remember_fit(table, {"mode": mode, "discretizer": discretizer})
+        self._remember_fit(
+            table,
+            _kernel.fit_binning(
+                block,
+                self._n_bins,
+                self._bin_strategy,
+                self._across_features,
+                random_state=self._seed,
+            ),
+        )
         return self
 
     def transform(self, table: FeatureTable) -> FeatureTable:
@@ -409,20 +313,9 @@ class BinningPreprocessor(_FittedPreprocessor):
         block = self._block_for_transform(table)
         state = self._state
         assert state is not None
-        discretizer = state["discretizer"]
-        if state["mode"] == "global":
-            shape = block.shape
-            binned = discretizer.transform(block.values.flatten().reshape(-1, 1))
-            transformed = pd.DataFrame(
-                binned.reshape(shape), columns=block.columns, index=block.index
-            )
-        else:
-            transformed = pd.DataFrame(
-                discretizer.transform(block.values),
-                columns=block.columns,
-                index=block.index,
-            )
-        return self._finish(table, transformed, self._fit_columns)
+        return self._finish(
+            table, _kernel.apply_binning(block, state), self._fit_columns
+        )
 
 
 class WinsorizePreprocessorParams(BaseModel):
@@ -430,8 +323,8 @@ class WinsorizePreprocessorParams(BaseModel):
 
     #: Lower/upper tail fractions clipped at the corresponding quantiles.
     winsor_limits: Tuple[float, float] = (0.05, 0.05)
-    #: When true, learn clip bounds over the flattened feature block.
-    global_normalize: bool = False
+    #: When true, learn one pair of clip bounds across all feature columns.
+    across_features: bool = False
 
 
 @TablePreprocessorRegistry.register("winsorize")
@@ -450,7 +343,7 @@ class WinsorizePreprocessor(_FittedPreprocessor):
     def __init__(
         self,
         winsor_limits: Tuple[float, float] = (0.05, 0.05),
-        global_normalize: bool = False,
+        across_features: bool = False,
     ) -> None:
         super().__init__()
         limits = tuple(float(v) for v in winsor_limits)
@@ -460,7 +353,7 @@ class WinsorizePreprocessor(_FittedPreprocessor):
                 f"{winsor_limits!r}."
             )
         self._winsor_limits = limits
-        self._global_normalize = bool(global_normalize)
+        self._across_features = bool(across_features)
 
     @property
     def spec(self) -> Spec:
@@ -469,33 +362,19 @@ class WinsorizePreprocessor(_FittedPreprocessor):
             name=self._spec_name,
             params={
                 "winsor_limits": list(self._winsor_limits),
-                "global_normalize": self._global_normalize,
+                "across_features": self._across_features,
             },
         )
 
     def fit(self, table: FeatureTable) -> "WinsorizePreprocessor":
         """Learn clip bounds from the training table."""
         block = table.frame[list(table.feature_columns)]
-        lower_q, upper_q = self._winsor_limits
-        if self._global_normalize:
-            flat = block.values.flatten()
-            self._remember_fit(
-                table,
-                {
-                    "mode": "global",
-                    "lower": float(np.percentile(flat, lower_q * 100)),
-                    "upper": float(np.percentile(flat, (1 - upper_q) * 100)),
-                },
-            )
-        else:
-            self._remember_fit(
-                table,
-                {
-                    "mode": "per_feature",
-                    "lower": block.quantile(lower_q),
-                    "upper": block.quantile(1 - upper_q),
-                },
-            )
+        self._remember_fit(
+            table,
+            _kernel.fit_winsorize(
+                block, self._winsor_limits, self._across_features
+            ),
+        )
         return self
 
     def transform(self, table: FeatureTable) -> FeatureTable:
@@ -503,24 +382,20 @@ class WinsorizePreprocessor(_FittedPreprocessor):
         block = self._block_for_transform(table)
         state = self._state
         assert state is not None
-        if state["mode"] == "global":
-            transformed = block.clip(lower=state["lower"], upper=state["upper"])
-        else:
-            transformed = block.clip(
-                lower=state["lower"], upper=state["upper"], axis=1
-            )
-        return self._finish(table, transformed, self._fit_columns)
+        return self._finish(
+            table, _kernel.apply_winsorize(block, state), self._fit_columns
+        )
 
 
 class LogPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`LogPreprocessor`."""
 
-    #: When true, shift by ONE global minimum over the feature block.
-    global_normalize: bool = False
+    #: When true, shift by ONE minimum taken across all feature columns.
+    across_features: bool = False
 
 
 @TablePreprocessorRegistry.register("log")
-class LogPreprocessor(_FittedPreprocessor):
+class LogPreprocessor(_ScopedScaler):
     """
     Log transform ``log(x - min_train + 1)`` of every feature.
 
@@ -530,100 +405,13 @@ class LogPreprocessor(_FittedPreprocessor):
     """
 
     _spec_name = "log"
-
-    def __init__(self, global_normalize: bool = False) -> None:
-        super().__init__()
-        self._global_normalize = bool(global_normalize)
-
-    @property
-    def spec(self) -> Spec:
-        """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={"global_normalize": self._global_normalize},
-        )
-
-    def fit(self, table: FeatureTable) -> "LogPreprocessor":
-        """Learn the shift offsets from the training table."""
-        block = table.frame[list(table.feature_columns)]
-        if self._global_normalize:
-            self._remember_fit(
-                table, {"mode": "global", "offset": float(block.values.min())}
-            )
-        else:
-            self._remember_fit(
-                table, {"mode": "per_feature", "offsets": block.min()}
-            )
-        return self
-
-    def transform(self, table: FeatureTable) -> FeatureTable:
-        """Log-transform the table's features with the training offsets."""
-        block = self._block_for_transform(table)
-        state = self._state
-        assert state is not None
-        if state["mode"] == "global":
-            transformed = pd.DataFrame(
-                np.log(block.values - state["offset"] + 1.0),
-                columns=block.columns,
-                index=block.index,
-            )
-        else:
-            transformed = pd.DataFrame(
-                np.log(block.values - state["offsets"][list(block.columns)].values + 1.0),
-                columns=block.columns,
-                index=block.index,
-            )
-        return self._finish(table, transformed, self._fit_columns)
+    _fit_kernel = staticmethod(_kernel.fit_log)
+    _apply_kernel = staticmethod(_kernel.apply_log)
 
 
 # ---------------------------------------------------------------------------
 # variance_filter / correlation_filter: column-dropping preprocessors
 # ---------------------------------------------------------------------------
-
-
-def _select_variance_columns(feature_df: pd.DataFrame, threshold: float) -> List[str]:
-    """
-    Return column names whose variance exceeds ``threshold``.
-
-    Mirrors the v0.1 rule: when no column survives, the highest-variance
-    column is kept so the pipeline never produces an empty feature block.
-    """
-    variances = feature_df.var()
-    selected = variances[variances > threshold].index.tolist()
-    if not selected:
-        selected = [variances.sort_values(ascending=False).index[0]]
-    return selected
-
-
-def _select_correlation_columns(
-    feature_df: pd.DataFrame,
-    threshold: float,
-    corr_method: str,
-) -> List[str]:
-    """
-    Return column names after greedy absolute-correlation pruning.
-
-    Walks columns left-to-right and drops later columns whose absolute
-    correlation with a kept column exceeds ``threshold`` (the v0.1 algorithm,
-    which favours earlier columns deterministically).
-    """
-    if feature_df.shape[1] <= 1:
-        return list(feature_df.columns)
-    corr = feature_df.corr(method=corr_method).abs().fillna(0.0)
-    kept_cols = list(feature_df.columns)
-    i = 0
-    while i < len(kept_cols):
-        current = kept_cols[i]
-        to_remove = [
-            kept_cols[j]
-            for j in range(i + 1, len(kept_cols))
-            if corr.loc[current, kept_cols[j]] > threshold
-        ]
-        kept_cols = [col for col in kept_cols if col not in to_remove]
-        i += 1
-    if not kept_cols:
-        kept_cols = [feature_df.columns[0]]
-    return kept_cols
 
 
 class VarianceFilterPreprocessorParams(BaseModel):
@@ -662,7 +450,7 @@ class VarianceFilterPreprocessor(_FittedPreprocessor):
     def fit(self, table: FeatureTable) -> "VarianceFilterPreprocessor":
         """Learn the surviving column subset from the training table."""
         block = table.frame[list(table.feature_columns)]
-        columns = _select_variance_columns(block, self._variance_threshold)
+        columns = _kernel.select_variance_columns(block, self._variance_threshold)
         self._remember_fit(table, {"columns": columns})
         return self
 
@@ -720,7 +508,7 @@ class CorrelationFilterPreprocessor(_FittedPreprocessor):
     def fit(self, table: FeatureTable) -> "CorrelationFilterPreprocessor":
         """Learn the surviving column subset from the training table."""
         block = table.frame[list(table.feature_columns)]
-        columns = _select_correlation_columns(
+        columns = _kernel.select_correlation_columns(
             block, self._corr_threshold, self._corr_method
         )
         self._remember_fit(table, {"columns": columns})

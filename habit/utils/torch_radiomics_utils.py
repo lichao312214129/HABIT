@@ -523,7 +523,7 @@ def injected_torch_radiomics(enabled: bool) -> Iterator[None]:
         yield
         return
 
-    from habit.core.habitat_analysis.clustering_features.torchradiomics import (
+    from habit.kernels.radiomics.torchradiomics import (
         inject_torch_radiomics,
         restore_radiomics,
     )

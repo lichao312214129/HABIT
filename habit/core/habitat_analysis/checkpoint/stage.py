@@ -109,7 +109,18 @@ class IndividualCheckpointStage:
             len(results),
             n_subjects,
         )
-        return results
+
+        # Results accumulate in completion order: resumed subjects first, then
+        # whatever the parallel workers finished first, then retries. Group-level
+        # steps concatenate this mapping straight into the results table, so
+        # without restoring the caller's order the same analysis produces a
+        # differently ordered table on every run -- and population clustering is
+        # sensitive to input row order, not just cosmetics. The input order is
+        # used rather than a plain sort so an explicit subject list in a manifest
+        # is still honoured.
+        return {
+            subject_id: results[subject_id] for subject_id in X if subject_id in results
+        }
 
     def _run_auto_retries(
         self,

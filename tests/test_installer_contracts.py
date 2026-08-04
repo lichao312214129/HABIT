@@ -44,6 +44,10 @@ PYRADIOMICS_NETWORK_DEPENDENCIES = {
     "pywavelets": "1.8.0",
     "pykwalify": "1.8.0",
 }
+#: Transitive pins the offline installer must resolve itself because the
+#: package that needs them does not declare a wheel-compatible requirement.
+#: ``six`` is imported by mrmr-selection's numba path at run time.
+ALLOWED_UNDECLARED_LOCK_PACKAGES = {"six"}
 TORCH_LAYER_PACKAGES = {"torch"}
 FORBIDDEN_DEFAULT_PACKAGES = {
     "autogluon",
@@ -97,6 +101,36 @@ def _parse_exact_requirement(requirement: str) -> Tuple[str, str]:
     return _canonical_name(name), version
 
 
+def _parse_ranged_requirement(requirement: str) -> Tuple[str, str]:
+    """
+    Parse one library dependency, which must declare a bounded version range.
+
+    HABIT is a library first: an exact pin in the package metadata would make
+    it uninstallable next to another scientific-Python stack. A range without
+    an upper bound is the opposite failure -- it lets a future major release
+    silently break users. Both are rejected here.
+
+    Args:
+        requirement: Requirement line from the project metadata.
+
+    Returns:
+        Tuple[str, str]: Canonical distribution name and its version specifier.
+    """
+    match = re.fullmatch(
+        r"(?P<name>[A-Za-z0-9_.-]+)(?:\[[A-Za-z0-9_,.-]+\])?(?P<specifier>[<>=!~,.0-9A-Za-z*]*)",
+        requirement.strip(),
+    )
+    assert match is not None, f"Unparsable dependency: {requirement}"
+    name = match.group("name")
+    specifier = match.group("specifier").strip()
+    assert "==" not in specifier, (
+        f"{name} is exactly pinned in package metadata: {requirement}. "
+        "Exact pins belong to the installer lock files."
+    )
+    assert ">=" in specifier, f"{name} declares no minimum version: {requirement}"
+    return _canonical_name(name), specifier
+
+
 def _read_requirement_lines(path: Path) -> List[str]:
     """
     Read package lines while excluding comments and pip index directives.
@@ -134,39 +168,90 @@ def _requirements_map(path: Path) -> Dict[str, str]:
     return result
 
 
-def _project_dependency_map() -> Dict[str, str]:
+def _dependency_array(section: str, key: str) -> List[str]:
     """
-    Read the PEP 621 dependency array without requiring a TOML test dependency.
+    Read one PEP 621 dependency array without requiring a TOML test dependency.
 
-    The project dependency array intentionally contains only quoted strings, so
-    its TOML syntax is also a safe Python list literal. This keeps the contract
+    The dependency arrays intentionally contain only quoted strings, so their
+    TOML syntax is also a safe Python list literal. This keeps the contract
     test runnable in a newly bootstrapped Python 3.10 environment before test
-    tooling installs a TOML parser.
+    tooling installs a TOML parser (``tomllib`` is 3.11+).
+
+    Args:
+        section: Table header to read, for example ``project``.
+        key: Array key inside that table, for example ``dependencies``.
 
     Returns:
-        Dict[str, str]: Canonical direct dependency names and exact versions.
+        List[str]: Requirement strings in declaration order.
     """
     text = PYPROJECT_FILE.read_text(encoding="utf-8")
-    project_match = re.search(
-        r"(?ms)^\[project\]\s*(.*?)(?=^\[|\Z)",
+    section_match = re.search(
+        rf"(?ms)^\[{re.escape(section)}\]\s*(.*?)(?=^\[|\Z)",
         text,
     )
-    assert project_match is not None, "pyproject.toml must contain [project]."
-    dependencies_match = re.search(
-        r"(?ms)^dependencies\s*=\s*(\[.*?\])\s*$",
-        project_match.group(1),
+    assert section_match is not None, f"pyproject.toml must contain [{section}]."
+    array_match = re.search(
+        rf"(?ms)^{re.escape(key)}\s*=\s*(\[.*?\])\s*$",
+        section_match.group(1),
     )
-    assert dependencies_match is not None
-    dependencies = ast.literal_eval(dependencies_match.group(1))
-    assert isinstance(dependencies, list)
+    assert array_match is not None, f"[{section}] must declare {key}."
+    requirements = ast.literal_eval(array_match.group(1))
+    assert isinstance(requirements, list)
+    assert all(isinstance(item, str) for item in requirements)
+    return requirements
 
+
+def _project_dependency_ranges() -> Dict[str, str]:
+    """
+    Return the default (non-optional) dependency ranges declared by the package.
+
+    Returns:
+        Dict[str, str]: Canonical dependency names mapped to version specifiers.
+    """
     result: Dict[str, str] = {}
-    for dependency in dependencies:
-        assert isinstance(dependency, str)
-        name, version = _parse_exact_requirement(dependency)
+    for dependency in _dependency_array("project", "dependencies"):
+        name, specifier = _parse_ranged_requirement(dependency)
         assert name not in result, f"Duplicate project dependency: {name}"
-        result[name] = version
+        result[name] = specifier
     return result
+
+
+def _optional_dependency_ranges() -> Dict[str, Dict[str, str]]:
+    """
+    Return the declared ranges of every optional-dependency group.
+
+    Returns:
+        Dict[str, Dict[str, str]]: Extra name -> (dependency name -> specifier).
+    """
+    text = PYPROJECT_FILE.read_text(encoding="utf-8")
+    section_match = re.search(
+        r"(?ms)^\[project\.optional-dependencies\]\s*(.*?)(?=^\[|\Z)",
+        text,
+    )
+    assert section_match is not None, "pyproject.toml must declare extras."
+    groups: Dict[str, Dict[str, str]] = {}
+    for extra, array in re.findall(
+        r"(?ms)^([A-Za-z0-9_-]+)\s*=\s*(\[.*?\])\s*$", section_match.group(1)
+    ):
+        requirements = ast.literal_eval(array)
+        groups[extra] = dict(
+            _parse_ranged_requirement(requirement) for requirement in requirements
+        )
+    assert groups, "no optional-dependency groups parsed"
+    return groups
+
+
+def _declared_ranges() -> Dict[str, str]:
+    """
+    Return every dependency range HABIT declares, default or optional.
+
+    Returns:
+        Dict[str, str]: Canonical dependency names mapped to version specifiers.
+    """
+    declared = dict(_project_dependency_ranges())
+    for group in _optional_dependency_ranges().values():
+        declared.update(group)
+    return declared
 
 
 def _sha256(path: Path) -> str:
@@ -226,11 +311,15 @@ def test_python_310_contract_is_explicit_and_patch_pinned() -> None:
 
 def test_heavy_features_are_declared_only_as_targeted_optional_extras() -> None:
     """Package metadata must keep heavy feature families out of the default set."""
+    extras = _optional_dependency_ranges()
     pyproject_text = PYPROJECT_FILE.read_text(encoding="utf-8")
 
-    assert '"autogluon.tabular[lightgbm,catboost]==1.5.0"' in pyproject_text
-    assert '"autogluon==1.5.0"' not in pyproject_text
-    assert '"torch>=2.4,<3"' in pyproject_text
+    # AutoGluon must stay the narrow tabular distribution: the umbrella package
+    # pulls in the text/vision stacks, which HABIT never calls.
+    assert "autogluon-tabular" in extras["automl"]
+    assert "autogluon" not in extras["automl"]
+    assert '"autogluon.tabular[lightgbm,catboost]' in pyproject_text
+    assert "torch" in extras["torch"]
     assert "torchvision" not in pyproject_text
 
 
@@ -255,28 +344,67 @@ def test_setup_reads_runtime_metadata_and_keeps_c_extension() -> None:
     )
 
 
-def test_project_dependencies_are_exactly_pinned_and_feature_scoped() -> None:
-    """Project metadata must be the sole default dependency declaration."""
-    project_dependencies = _project_dependency_map()
+def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
+    """
+    Package metadata declares ranges, not pins, and stays feature-scoped.
 
+    ``_parse_ranged_requirement`` already rejects exact pins and missing lower
+    bounds for every entry, so this test states the remaining two rules: each
+    range is closed at the top, and no heavy optional stack is required by
+    default.
+    """
+    project_dependencies = _project_dependency_ranges()
+
+    unbounded = [
+        name
+        for name, specifier in project_dependencies.items()
+        if "<" not in specifier
+    ]
+    assert not unbounded, f"Dependencies with no upper bound: {unbounded}"
     assert not FORBIDDEN_DEFAULT_PACKAGES.intersection(project_dependencies)
     assert "autogluon" not in project_dependencies
     assert "pyradiomics" in project_dependencies
 
 
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:
-    """The default lock adds only dependencies of the offline PyRadiomics wheel."""
-    project_dependencies = _project_dependency_map()
-    expected_network_dependencies = {
-        name: version
-        for name, version in project_dependencies.items()
-        if name not in OFFLINE_RUNTIME_PACKAGES
-    }
-    expected_network_dependencies.update(PYRADIOMICS_NETWORK_DEPENDENCIES)
+    """
+    The default lock installs every declared dependency it must resolve online.
 
-    assert _requirements_map(CPU_LOCK_FILE) == expected_network_dependencies
-    assert "pyradiomics" not in _requirements_map(CPU_LOCK_FILE)
-    assert "habit" not in _requirements_map(CPU_LOCK_FILE)
+    The Windows bundle ships one working environment, so the lock legitimately
+    covers optional workflows too. What it must never do is drift: every
+    package it pins is either declared by HABIT (default or extra), a
+    requirement of the offline PyRadiomics wheel, or a documented transitive
+    exception.
+    """
+    locked = _requirements_map(CPU_LOCK_FILE)
+    declared = _declared_ranges()
+
+    missing = {
+        name
+        for name in _project_dependency_ranges()
+        if name not in OFFLINE_RUNTIME_PACKAGES and name not in locked
+    }
+    assert not missing, f"Default dependencies absent from the lock: {sorted(missing)}"
+
+    for name, version in PYRADIOMICS_NETWORK_DEPENDENCIES.items():
+        assert locked.get(name) == version, (
+            f"PyRadiomics is installed with --no-deps, so {name} must be pinned "
+            "in the default lock."
+        )
+
+    undeclared = (
+        set(locked)
+        - set(declared)
+        - set(PYRADIOMICS_NETWORK_DEPENDENCIES)
+        - ALLOWED_UNDECLARED_LOCK_PACKAGES
+    )
+    assert not undeclared, (
+        f"Lock pins packages HABIT never declares: {sorted(undeclared)}. "
+        "Add them to pyproject.toml or to ALLOWED_UNDECLARED_LOCK_PACKAGES "
+        "with a reason."
+    )
+    assert "pyradiomics" not in locked
+    assert "habit" not in locked
 
 
 def test_gpu_lock_defines_only_the_compatible_torch_replacement_layer() -> None:
@@ -290,22 +418,49 @@ def test_gpu_lock_defines_only_the_compatible_torch_replacement_layer() -> None:
 
 
 def test_optional_profiles_install_only_feature_scoped_packages() -> None:
-    """Optional locks must not reintroduce umbrella AutoGluon or TorchVision."""
-    assert _requirements_map(AUTOML_LOCK_FILE) == {
-        "autogluon-tabular": "1.5.0",
-    }
-    assert _requirements_map(ANALYSIS_LOCK_FILE) == {
-        "krippendorff": "0.8.2",
-        "shap": "0.49.1",
-        "plotly": "6.8.0",
-        "lifelines": "0.30.0",
-    }
-    all_optional = {
-        **_requirements_map(AUTOML_LOCK_FILE),
-        **_requirements_map(ANALYSIS_LOCK_FILE),
-    }
+    """Optional locks stay inside their own extra and skip umbrella packages."""
+    extras = _optional_dependency_ranges()
+    automl_locked = _requirements_map(AUTOML_LOCK_FILE)
+    analysis_locked = _requirements_map(ANALYSIS_LOCK_FILE)
+
+    assert set(automl_locked) == set(extras["automl"])
+    assert set(analysis_locked) <= set(extras["analysis"]), (
+        "The analysis lock pins packages the analysis extra does not declare: "
+        f"{sorted(set(analysis_locked) - set(extras['analysis']))}"
+    )
+    all_optional = {**automl_locked, **analysis_locked}
     assert "autogluon" not in all_optional
     assert "torchvision" not in all_optional
+
+
+def test_locked_versions_satisfy_the_declared_ranges() -> None:
+    """
+    Every locked version is a valid solution of the declared range.
+
+    This is the link between the two halves of the dependency policy: the
+    metadata says what HABIT supports, the locks say what the Windows bundle
+    ships. A lock that falls outside its declared range means the shipped
+    environment is not one the metadata claims to support.
+
+    ``packaging`` is always importable here: matplotlib, a default HABIT
+    dependency, requires it.
+    """
+    from packaging.specifiers import SpecifierSet
+
+    declared = _declared_ranges()
+    violations: List[str] = []
+    for lock_file in (CPU_LOCK_FILE, GPU_LOCK_FILE, AUTOML_LOCK_FILE, ANALYSIS_LOCK_FILE):
+        for name, version in _requirements_map(lock_file).items():
+            specifier = declared.get(name)
+            if specifier is None:
+                continue
+            if not SpecifierSet(specifier).contains(version, prereleases=True):
+                violations.append(
+                    f"{lock_file.name}: {name}=={version} violates {specifier}"
+                )
+    assert not violations, "Locked versions outside their declared range:\n" + "\n".join(
+        violations
+    )
 
 
 def test_all_requirement_contracts_are_unique_and_exactly_pinned() -> None:

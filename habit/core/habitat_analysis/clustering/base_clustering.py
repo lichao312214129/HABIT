@@ -28,7 +28,6 @@ import os
 import importlib
 import pkgutil
 import inspect
-from kneed import KneeLocator
 
 warnings.simplefilter('ignore')
 
@@ -43,6 +42,12 @@ from .cluster_search_parallel import (
 )
 
 from habit.core.common.registry import ClassRegistry
+from habit.kernels.cluster_selection import (
+    best_index as kernel_best_index,
+    gap_statistic as kernel_gap_statistic,
+    score_direction as kernel_score_direction,
+    vote_best_index as kernel_vote_best_index,
+)
 
 
 class ClusteringAlgorithmFactory(ClassRegistry["BaseClustering"]):
@@ -345,10 +350,10 @@ class BaseClustering(ABC):
 
     def calculate_elbow_scores(self, X: np.ndarray, cluster_range: List[int]) -> List[float]:
         """
-        Calculate scores for second-derivative elbow selection.
+        Calculate scores for elbow selection.
 
-        The elbow method uses the same inertia curve as Kneedle; only the
-        post-processing rule for picking the optimal k differs.
+        Since v1.0 ``elbow`` is an alias of ``kneedle``: both build the inertia
+        curve here and both pick k with Kneedle knee detection.
 
         Args:
             X (np.ndarray): Input data with shape (n_samples, n_features)
@@ -538,7 +543,7 @@ class BaseClustering(ABC):
             
             # Calculate Gap statistic
             if len(np.unique(labels)) > 1:  # Need at least two clusters
-                score = gap_score(X, labels)
+                score = kernel_gap_statistic(X, labels)
             else:
                 score = 0
             scores.append(score)
@@ -704,99 +709,18 @@ class BaseClustering(ABC):
         
         return best_n_clusters, self.scores 
     
-    @staticmethod
-    def _find_best_n_clusters_for_elbow_method(scores: List[float]) -> int:
-        """
-        Find best cluster number using elbow method.
-        
-        Args:
-            scores: List of scores for different cluster numbers
-            
-        Returns:
-            int: Index of the best cluster number (0-based)
-        """
-        deltas = np.diff(scores)
-        deltas2 = np.diff(deltas)
-        best_idx = np.argmax(deltas2) + 1
-        if best_idx >= len(scores) - 1:
-            best_idx = len(scores) - 2  # Choose the second-to-last point
-        return best_idx
-
-    @staticmethod
-    def _find_best_n_clusters_for_kneedle_method(scores: List[float]) -> int:
-        """
-        Find best cluster index using the Kneedle method.
-
-        This implementation assumes a monotonically decreasing curve (e.g., inertia).
-        It relies on the kneed package to detect the knee of a convex, decreasing curve.
-
-        Args:
-            scores: List of scores for different cluster numbers
-
-        Returns:
-            int: Index of the best cluster number (0-based)
-        """
-        scores_array = np.asarray(scores, dtype=float)
-        if scores_array.size == 0:
-            return 0
-        if scores_array.size < 3:
-            # With too few points, fall back to the minimum score index.
-            return int(np.argmin(scores_array))
-
-        x_values = np.arange(scores_array.size, dtype=float)
-
-        # For inertia curves in KMeans, the shape is usually convex and decreasing.
-        knee_locator = KneeLocator(
-            x_values,
-            scores_array,
-            curve="convex",
-            direction="decreasing"
-        )
-        knee_index = knee_locator.knee
-
-        if knee_index is None:
-            # If no knee is detected, return the middle point for stability.
-            return int(scores_array.size // 2)
-
-        best_idx = int(knee_index)
-        # Avoid selecting endpoints, which are usually not meaningful elbows.
-        if best_idx <= 0:
-            best_idx = 1
-        if best_idx >= scores_array.size - 1:
-            best_idx = scores_array.size - 2
-        return best_idx
-
     def _select_best_n_clusters_for_single_method(self, scores: List[float], method: str) -> int:
         """
         Select the best cluster index for a single validation method.
-        
+
         Args:
             scores: List of scores for each cluster number in cluster_range order
-            method: Validation method name used to decide optimization direction
-            
+            method: Validation method name used to decide the selection rule
+
         Returns:
             int: Index into self.cluster_range corresponding to the best cluster number
         """
-        # Get optimization direction for the method
-        algo_name = self.__class__.__name__.lower()
-        if algo_name.endswith('clustering'):
-            algo_name = algo_name[:-10]
-        optimization = get_optimization_direction(algo_name, method)
-
-        # Select best cluster index based on optimization direction
-        if optimization == 'maximize':
-            best_idx = np.argmax(scores)
-        elif optimization == 'minimize':
-            best_idx = np.argmin(scores)
-        elif optimization in ('inertia', 'kneedle'):
-            best_idx = self._find_best_n_clusters_for_kneedle_method(scores)
-        elif optimization == 'elbow':
-            best_idx = self._find_best_n_clusters_for_elbow_method(scores)
-        else:
-            # Default to maximum value
-            best_idx = np.argmax(scores)
-        
-        return best_idx
+        return kernel_best_index(scores, kernel_score_direction(method))
 
     def _select_best_index_by_methods(
         self,
@@ -820,31 +744,7 @@ class BaseClustering(ABC):
         if not methods:
             raise ValueError("At least one scoring method is required")
 
-        missing_methods = [method for method in methods if method not in scores_dict]
-        if missing_methods:
-            raise ValueError(
-                "Unknown scoring method(s): "
-                f"{', '.join(missing_methods)}"
-            )
-
-        if len(methods) == 1:
-            method = methods[0]
-            return self._select_best_n_clusters_for_single_method(
-                scores_dict[method],
-                method
-            )
-
-        votes: Dict[int, int] = {}
-        for method in methods:
-            best_idx = self._select_best_n_clusters_for_single_method(
-                scores_dict[method],
-                method
-            )
-            votes[best_idx] = votes.get(best_idx, 0) + 1
-
-        max_votes = max(votes.values())
-        candidates = [idx for idx, count in votes.items() if count == max_votes]
-        return min(candidates)
+        return kernel_vote_best_index(scores_dict, methods)
 
     def auto_select_best_index(
         self,

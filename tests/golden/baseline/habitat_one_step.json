@@ -1,0 +1,298 @@
+{
+  "artefacts": [
+    ".habitat_checkpoint/manifest.json",
+    ".habitat_checkpoint/subjects/subj001.pkl",
+    ".habitat_checkpoint/subjects/subj002.pkl",
+    "habitat_pipeline.pkl",
+    "habitats.parquet",
+    "subj001_habitats.nrrd",
+    "subj002_habitats.nrrd",
+    "visualizations/one_step_clustering/subj001_habitat_clustering_2D.png",
+    "visualizations/one_step_clustering/subj001_habitat_clustering_3D.png",
+    "visualizations/one_step_clustering/subj001_habitat_clustering_3D_interactive.html",
+    "visualizations/one_step_clustering/subj002_habitat_clustering_2D.png",
+    "visualizations/one_step_clustering/subj002_habitat_clustering_3D.png",
+    "visualizations/one_step_clustering/subj002_habitat_clustering_3D_interactive.html",
+    "visualizations/optimal_clusters/subj001_cluster_validation.png",
+    "visualizations/optimal_clusters/subj002_cluster_validation.png"
+  ],
+  "case": "habitat_one_step",
+  "command": "get-habitat",
+  "config": "config/habitat/config_habitat_one_step_raw_concat_train.yaml",
+  "description": "one_step: voxels clustered per subject, then pooled",
+  "environment": {
+    "float_atol": 1e-09,
+    "float_rtol": 1e-06,
+    "git_commit": "ed5d71b95207de9f4bbaf6f43bdbc56e62112d1b",
+    "versions": {
+      "SimpleITK": "2.2.1",
+      "numpy": "1.26.1",
+      "pandas": "2.2.3",
+      "python": "3.10.16",
+      "radiomics": "v3.0.1",
+      "scipy": "1.15.3",
+      "skimage": "0.25.2",
+      "sklearn": "1.6.1"
+    }
+  },
+  "fingerprints": {
+    ".habitat_checkpoint/manifest.json": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/subjects/subj001.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/subjects/subj002.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "habitat_pipeline.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "habitats.parquet": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj001",
+          "subj001",
+          "subj001",
+          "subj002",
+          "subj002",
+          "subj002",
+          "subj002"
+        ]
+      },
+      "columns": [
+        "subject",
+        "supervoxel",
+        "habitats",
+        "count",
+        "raw-delay2",
+        "raw-delay3",
+        "raw-delay5",
+        "raw-delay2-original",
+        "raw-delay3-original",
+        "raw-delay5-original"
+      ],
+      "kind": "table",
+      "numeric_columns": [
+        "supervoxel",
+        "habitats",
+        "count",
+        "raw-delay2",
+        "raw-delay3",
+        "raw-delay5",
+        "raw-delay2-original",
+        "raw-delay3-original",
+        "raw-delay5-original"
+      ],
+      "shape": [
+        8,
+        10
+      ],
+      "values": {
+        "count": [
+          340.0,
+          227.0,
+          105.0,
+          123.0,
+          350.0,
+          655.0,
+          184.0,
+          604.0
+        ],
+        "habitats": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0
+        ],
+        "raw-delay2": [
+          0.2944539072514529,
+          0.7348747332771157,
+          0.8454353079677795,
+          0.24675610720499655,
+          0.646821855053232,
+          0.19702633447039192,
+          0.889783990601,
+          0.3949579808105801
+        ],
+        "raw-delay2-original": [
+          2.027710437774658,
+          2.582094430923462,
+          2.740049123764038,
+          1.9558061361312866,
+          2.355241060256958,
+          1.508763074874878,
+          2.8958089351654053,
+          1.8876293897628784
+        ],
+        "raw-delay3": [
+          0.149785399797014,
+          0.37486429833153334,
+          0.8229996199612656,
+          0.44883767089836546,
+          0.6513987967480511,
+          0.15685241533295752,
+          0.893963659580904,
+          0.4882427399337541
+        ],
+        "raw-delay3-original": [
+          2.022184371948242,
+          2.2948760986328125,
+          2.886366844177246,
+          2.382441997528076,
+          2.0803041458129883,
+          1.623124599456787,
+          2.375173807144165,
+          1.9299991130828857
+        ],
+        "raw-delay5": [
+          0.1978167231892147,
+          0.3566251365681475,
+          0.8509334948256294,
+          0.5339876655877538,
+          0.61427851681832,
+          0.15543872889335747,
+          0.9280248628344375,
+          0.33919765181370576
+        ],
+        "raw-delay5-original": [
+          1.8062975406646729,
+          2.040264844894409,
+          2.817636251449585,
+          2.2937817573547363,
+          2.125312328338623,
+          1.5723363161087036,
+          2.5720181465148926,
+          1.7970013618469238
+        ],
+        "supervoxel": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0
+        ]
+      }
+    },
+    "subj001_habitats.nrrd": {
+      "direction": [
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "dtype": "int32",
+      "kind": "array",
+      "label_values": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "origin": [
+        171.01510620117188,
+        163.74209594726562,
+        -148.50790405273438
+      ],
+      "sha256": "1c008e0d5d8ecc326a4023cbc479b1151a341013635f20c882ec3725ef6eaa41",
+      "shape": [
+        200,
+        340,
+        340
+      ],
+      "spacing": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "subj002_habitats.nrrd": {
+      "direction": [
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "dtype": "int32",
+      "kind": "array",
+      "label_values": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "origin": [
+        173.30812072753906,
+        155.13612365722656,
+        -123.2842025756836
+      ],
+      "sha256": "5e83d3412b8d1d42995f0bea5d19c558b5707f4c396016ba485dc24efa5d1e85",
+      "shape": [
+        200,
+        360,
+        360
+      ],
+      "spacing": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "visualizations/one_step_clustering/subj001_habitat_clustering_2D.png": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/one_step_clustering/subj001_habitat_clustering_3D.png": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/one_step_clustering/subj001_habitat_clustering_3D_interactive.html": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/one_step_clustering/subj002_habitat_clustering_2D.png": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/one_step_clustering/subj002_habitat_clustering_3D.png": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/one_step_clustering/subj002_habitat_clustering_3D_interactive.html": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/optimal_clusters/subj001_cluster_validation.png": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/optimal_clusters/subj002_cluster_validation.png": {
+      "kind": "presence",
+      "non_empty": true
+    }
+  }
+}

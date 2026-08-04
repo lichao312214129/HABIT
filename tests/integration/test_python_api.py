@@ -227,7 +227,11 @@ class TestRadiomicsAndAnalysisAPI:
             "habit.core.machine_learning.run.run_model_comparison_from_config"
         ) as mock_run:
             habit.run_model_comparison(config)
-            mock_run.assert_called_once_with(config, logger=None)
+            mock_run.assert_called_once_with(
+                config,
+                logger=None,
+                output_dir=config.output_dir,
+            )
 
     def test_icc_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
         """ICC schema loads through the public top-level namespace."""

@@ -1,0 +1,15 @@
+{
+  "float_atol": 1e-09,
+  "float_rtol": 1e-06,
+  "git_commit": "ed5d71b95207de9f4bbaf6f43bdbc56e62112d1b",
+  "versions": {
+    "SimpleITK": "2.2.1",
+    "numpy": "1.26.1",
+    "pandas": "2.2.3",
+    "python": "3.10.16",
+    "radiomics": "v3.0.1",
+    "scipy": "1.15.3",
+    "skimage": "0.25.2",
+    "sklearn": "1.6.1"
+  }
+}

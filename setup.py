@@ -30,10 +30,8 @@ except ModuleNotFoundError:
 
 
 _ROOT = Path(__file__).resolve().parent
-_CEXT_SRC = "habit/core/habitat_analysis/clustering_features/supervoxel_cext/src"
-_SV_CMATRICES_MODULE = (
-    "habit.core.habitat_analysis.clustering_features.supervoxel_cext._sv_cmatrices"
-)
+_CEXT_SRC = "habit/kernels/radiomics/cext/src"
+_SV_CMATRICES_MODULE = "habit.kernels.radiomics.cext._sv_cmatrices"
 
 
 def _read_version() -> str:
@@ -137,11 +135,10 @@ setup(
         ),
     ],
     install_requires=_read_runtime_dependencies(),
-    entry_points={
-        "console_scripts": [
-            "habit=habit.cli:cli",
-        ],
-    },
+    # Entry points are intentionally NOT declared here: an explicit dict would
+    # override the PEP 621 metadata ([project.scripts] console script and the
+    # [project.entry-points."habit.*"] plugin groups) in pyproject.toml, which
+    # is the single source of truth for HABIT's packaging contract.
     python_requires=_read_python_requirement(),
     classifiers=[
         "Development Status :: 3 - Alpha",

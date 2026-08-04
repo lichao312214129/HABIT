@@ -27,7 +27,7 @@ from typing import List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from habit.api.exceptions import CompatibilityError, HABITAPIError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatModel, Supervoxelization
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.subject import Cohort, CohortFingerprint

@@ -262,6 +262,149 @@ def calculate_metrics(y_true: Union[np.ndarray, PredictionContainer],
     
     return metrics_dict
 
+#: Metric categories that receive bootstrap confidence intervals by default.
+#: Only performance metrics qualify: a confidence interval around a
+#: goodness-of-fit p-value (Hosmer-Lemeshow, Spiegelhalter) has no
+#: interpretation, and computing those tests 1000 times is the dominant cost.
+BOOTSTRAP_METRIC_CATEGORIES: Tuple[str, ...] = ('basic',)
+
+
+def bootstrap_metrics(
+    container: PredictionContainer,
+    n_iterations: int = 1000,
+    ci_level: float = 0.95,
+    stratified: bool = True,
+    random_state: Optional[int] = None,
+    categories: Optional[List[str]] = None,
+) -> Dict[str, Dict[str, float]]:
+    """
+    Estimate percentile bootstrap confidence intervals for registered metrics.
+
+    The point estimate always comes from the observed sample, never from the
+    mean of the bootstrap replicates: the replicate mean is a biased estimate
+    of the reported performance, while the replicate percentiles are the
+    interval of interest.
+
+    Args:
+        container: Predictions to resample (true labels, probabilities, labels).
+        n_iterations: Number of bootstrap replicates.
+        ci_level: Confidence level as a proportion, e.g. ``0.95``.
+        stratified: Resample within each observed class, preserving class
+            prevalence in every replicate. Required in practice for small or
+            imbalanced cohorts, where unstratified replicates can contain a
+            single class and leave AUC undefined.
+        random_state: Seed for the replicate generator. Uses a local generator,
+            so it never perturbs NumPy's global random state.
+        categories: Metric categories to bootstrap. Defaults to
+            :data:`BOOTSTRAP_METRIC_CATEGORIES`.
+
+    Returns:
+        Dict[str, Dict[str, float]]: Mapping of metric name to a summary with
+        keys ``point``, ``mean``, ``se``, ``ci_lower``, ``ci_upper``,
+        ``ci_level`` and ``n_valid`` (replicates where the metric was defined).
+    """
+    selected_categories = (
+        list(BOOTSTRAP_METRIC_CATEGORIES) if categories is None else list(categories)
+    )
+    point_estimates = calculate_metrics(container, categories=selected_categories)
+
+    y_true = np.asarray(container.y_true)
+    y_prob = np.asarray(container.y_prob)
+    y_pred = np.asarray(container.y_pred)
+
+    rng = np.random.default_rng(random_state)
+    index_pools = _bootstrap_index_pools(y_true, stratified=stratified)
+
+    replicates: Dict[str, List[float]] = {name: [] for name in point_estimates}
+    for _ in range(int(n_iterations)):
+        indices = np.concatenate(
+            [rng.choice(pool, size=pool.size, replace=True) for pool in index_pools]
+        )
+        replicate_container = PredictionContainer(
+            y_true=y_true[indices],
+            y_prob=y_prob[indices],
+            y_pred=y_pred[indices],
+        )
+        replicate_metrics = calculate_metrics(
+            replicate_container, categories=selected_categories
+        )
+        for name, value in replicate_metrics.items():
+            if name in replicates:
+                replicates[name].append(value)
+
+    lower_percentile = (1.0 - ci_level) / 2.0 * 100.0
+    upper_percentile = (1.0 + ci_level) / 2.0 * 100.0
+
+    summary: Dict[str, Dict[str, float]] = {}
+    for name, point_value in point_estimates.items():
+        values = np.asarray(replicates[name], dtype=float)
+        values = values[np.isfinite(values)]
+        if values.size == 0:
+            # The metric was undefined in every replicate; report the point
+            # estimate with an explicitly empty interval rather than a fake one.
+            summary[name] = {
+                'point': float(point_value),
+                'mean': float('nan'),
+                'se': float('nan'),
+                'ci_lower': float('nan'),
+                'ci_upper': float('nan'),
+                'ci_level': float(ci_level),
+                'n_valid': 0,
+            }
+            continue
+        summary[name] = {
+            'point': float(point_value),
+            'mean': float(np.mean(values)),
+            'se': float(np.std(values, ddof=1)) if values.size > 1 else float('nan'),
+            'ci_lower': float(np.percentile(values, lower_percentile)),
+            'ci_upper': float(np.percentile(values, upper_percentile)),
+            'ci_level': float(ci_level),
+            'n_valid': int(values.size),
+        }
+    return summary
+
+
+def _bootstrap_index_pools(
+    y_true: np.ndarray,
+    stratified: bool = True,
+) -> List[np.ndarray]:
+    """
+    Build the index pools each bootstrap replicate is drawn from.
+
+    Args:
+        y_true: Observed labels defining the strata.
+        stratified: When True, return one pool per class so a replicate keeps
+            the observed class counts; when False, return a single pool over
+            all samples.
+
+    Returns:
+        List[np.ndarray]: Index arrays sampled independently with replacement.
+    """
+    if not stratified:
+        return [np.arange(len(y_true))]
+    return [np.flatnonzero(y_true == label) for label in np.unique(y_true)]
+
+
+def format_metric_ci(entry: Dict[str, float], digits: int = 3) -> str:
+    """
+    Render a bootstrap summary as a publication-style ``point (lower-upper)``.
+
+    Args:
+        entry: One value of the :func:`bootstrap_metrics` return mapping.
+        digits: Number of decimals for all three numbers.
+
+    Returns:
+        str: Formatted interval, or the bare point estimate when no replicate
+        produced a defined value.
+    """
+    point = entry.get('point', float('nan'))
+    lower = entry.get('ci_lower', float('nan'))
+    upper = entry.get('ci_upper', float('nan'))
+    if not np.isfinite(lower) or not np.isfinite(upper):
+        return f"{point:.{digits}f}"
+    return f"{point:.{digits}f} ({lower:.{digits}f}-{upper:.{digits}f})"
+
+
 def apply_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray, threshold: float) -> Dict[str, float]:
     """
     Apply a given threshold to predicted probabilities and calculate metrics.

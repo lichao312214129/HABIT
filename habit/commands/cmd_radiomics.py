@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Traditional radiomics extraction command implementation."""
+"""Traditional radiomics extraction command implementation.
+
+L5 wiring only: validate the v0.1 YAML schema, hand the object to the L4
+recipe, and surface success/failure. No ``habit.core.run`` imports live here.
+"""
 
 from __future__ import annotations
 
@@ -27,7 +31,7 @@ from habit.commands.common import (
     load_config_or_exit,
 )
 from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
-from habit.core.habitat_analysis.run import run_radiomics_from_config
+from habit.recipes.features import traditional_radiomics
 from habit.utils.log_utils import setup_logger
 
 
@@ -55,11 +59,7 @@ def run_radiomics(config_file: str) -> None:
     click.echo(msg)
 
     try:
-        run_radiomics_from_config(
-            config,
-            logger=logger,
-            output_dir=str(output_dir),
-        )
+        traditional_radiomics(config, logger=logger)
     except Exception as exc:  # noqa: BLE001
         logger.error("Radiomics extraction failed: %s", exc, exc_info=True)
         exit_with_error(f"Error: {exc}")

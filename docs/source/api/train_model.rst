@@ -1,14 +1,10 @@
-Machine learning
-================
+.. This page was retired with the v1.0 API documentation rewrite.
 
-.. code-block:: bash
+Machine learning (moved)
+========================
 
-   habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
+This v0.1-oriented page is no longer maintained.
 
-K-fold: ``config/machine_learning/config_machine_learning_kfold_demo.yaml`` + ``habit cv`` .
+See :doc:`python_api` and :doc:`index` for the v1.0 Python API.
 
-**Input**: CSV / Excel feature tables (paths and column names in YAML).
-
-**Output**: model files, ``all_prediction_results.csv`` , ROC / calibration plots.
-
-**Configuration**: :doc:`../configuration/machine_learning`
+See :doc:`domain_table` for the v1.0 machine-learning domain API.

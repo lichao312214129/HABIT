@@ -17,14 +17,50 @@ from typing import List, Dict, Any, Union, Optional
 import pandas as pd
 import numpy as np
 from .feature_selectors.selector_registry import run_selector, SelectorRegistry
+from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
 from habit.utils.estimator_utils import strict_model_params
-from habit.utils.random_utils import merge_random_state_into_params, resolve_random_state
+from habit.utils.random_utils import (
+    DEFAULT_RANDOM_STATE,
+    merge_random_state_into_params,
+    resolve_random_state,
+)
 
 from sklearn.pipeline import Pipeline as SklearnPipeline
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import (
+    MaxAbsScaler,
+    MinMaxScaler,
+    Normalizer,
+    PowerTransformer,
+    QuantileTransformer,
+    RobustScaler,
+    StandardScaler,
+)
 from .models.factory import ModelFactory
 from .resampling import ResamplingStep
+
+# Scalers available to ``normalization.method``. Keys mirror the Literal values
+# accepted by ``NormalizationConfig`` so the schema and the builder cannot drift.
+#
+# Note on ``normalizer``: unlike every other entry, ``Normalizer`` rescales each
+# SAMPLE (row) to unit norm instead of standardising each FEATURE (column). It is
+# offered for feature vectors whose direction matters more than magnitude, and it
+# is stateless, so train/test leakage is not a concern for it.
+SCALERS: Dict[str, Any] = {
+    'z_score': StandardScaler,
+    'min_max': MinMaxScaler,
+    'robust': RobustScaler,
+    'max_abs': MaxAbsScaler,
+    'normalizer': Normalizer,
+    'quantile': QuantileTransformer,
+    'power': PowerTransformer,
+}
+
+# Scalers whose fit involves randomness (``QuantileTransformer`` subsamples rows
+# when n_samples exceeds ``subsample``). They inherit the global seed so repeated
+# runs of the same config stay bit-for-bit reproducible.
+_SCALERS_ACCEPTING_RANDOM_STATE = frozenset({'quantile'})
+
 
 class PipelineBuilder:
     """
@@ -43,20 +79,38 @@ class PipelineBuilder:
         self.output_dir = output_dir
         self.logger = get_module_logger('ml.pipeline')
 
-    def get_scaler(self):
-        """Returns the configured scaler instance."""
+    def get_scaler(self) -> TransformerMixin:
+        """
+        Build the scaler declared by ``normalization`` in the config.
+
+        Returns:
+            TransformerMixin: An unfitted sklearn scaler configured with
+            ``normalization.params``, emitting pandas output when supported.
+
+        Raises:
+            ValueError: If ``normalization.method`` is not one of the supported
+                methods. Failing loudly matters here: silently substituting a
+                different scaler would change every downstream feature value
+                without any trace in the results.
+        """
         # Use Pydantic object attribute access
         norm_config = self.config.normalization
         method = getattr(norm_config, 'method', 'z_score')
-        params = getattr(norm_config, 'params', {})
-        
-        scalers = {
-            'z_score': StandardScaler,
-            'min_max': MinMaxScaler,
-            'robust': RobustScaler
-        }
-        
-        scaler_class = scalers.get(method, StandardScaler)
+        params = dict(getattr(norm_config, 'params', {}) or {})
+
+        scaler_class = SCALERS.get(method)
+        if scaler_class is None:
+            raise ValueError(
+                f"Unsupported normalization.method: {method!r}. "
+                f"Supported methods: {sorted(SCALERS)}."
+            )
+
+        if method in _SCALERS_ACCEPTING_RANDOM_STATE:
+            params = merge_random_state_into_params(
+                params,
+                int(getattr(self.config, 'random_state', DEFAULT_RANDOM_STATE)),
+            )
+
         scaler = scaler_class(**params)
         # Preserve DataFrame output when supported so downstream selectors keep headers.
         if hasattr(scaler, "set_output"):
@@ -148,10 +202,10 @@ class PipelineBuilder:
         try:
             from imblearn.pipeline import Pipeline as ImblearnPipeline  # type: ignore
         except Exception as exc:
-            raise ImportError(
-                "Pipeline resampling requires imbalanced-learn. "
-                "Install it with `pip install imbalanced-learn` or disable "
-                "the `resampling.enabled` option."
+            raise OptionalDependencyError(
+                "Pipeline resampling requires the optional imbalanced-learn "
+                "dependency; install 'HABIT[ml]' or disable the "
+                "`resampling.enabled` option."
             ) from exc
         return ImblearnPipeline
 
@@ -201,7 +255,7 @@ class PipelineBuilder:
         updated_steps.insert(insertion_points[position], resampler_step)
         return updated_steps
 
-class FeatureSelectTransformer(BaseEstimator, TransformerMixin):
+class FeatureSelectTransformer(TransformerMixin, BaseEstimator):
     """
     A wrapper to make HABIT feature selectors compatible with sklearn Pipeline.
     Supports input as both pd.DataFrame and np.ndarray.

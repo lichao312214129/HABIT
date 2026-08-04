@@ -56,9 +56,15 @@ _ALL = (
 )
 
 
+#: Selectors whose constructors have required parameters, with dummy values.
+_REQUIRED_PARAMS = {
+    "icc_precomputed": {"icc_results_path": "icc.json", "groups": ["group"]},
+}
+
+
 @pytest.mark.unit
-def test_registry_lists_all_twelve_selectors() -> None:
-    """The registry constructs every built-in selector by its v0.1 name."""
+def test_registry_lists_all_fourteen_selectors() -> None:
+    """The registry constructs every built-in selector by its registry name."""
     assert set(FeatureSelectorRegistry.available()) == {
         "variance",
         "correlation",
@@ -67,14 +73,18 @@ def test_registry_lists_all_twelve_selectors() -> None:
         "chi2",
         "statistical_test",
         "univariate_logistic",
+        "univariate_cox",
         "stepwise",
         "rfecv",
         "lasso",
         "icc",
+        "icc_precomputed",
         "mrmr",
     }
     for name in FeatureSelectorRegistry.available():
-        instance = FeatureSelectorRegistry.create(name)
+        instance = FeatureSelectorRegistry.create(
+            name, **_REQUIRED_PARAMS.get(name, {})
+        )
         assert isinstance(instance, FeatureSelector)
         assert instance.spec.name == name
         assert FeatureSelectorRegistry.get_params_model(name) is not None
@@ -91,7 +101,7 @@ def test_variance_selector_modes() -> None:
         frame=table.frame,
         id_columns=table.id_columns,
         feature_columns=(*table.feature_columns, "spread"),
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=table.provenance,
     )
     top_two = VarianceSelector(top_k=2).fit(table).transform(table)
@@ -109,7 +119,7 @@ def test_correlation_selector_prunes_duplicate() -> None:
         frame=table.frame,
         id_columns=table.id_columns,
         feature_columns=(*table.feature_columns, "signal_copy"),
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=table.provenance,
     )
     selected = CorrelationSelector(threshold=0.9).fit(table).transform(table)
@@ -126,7 +136,7 @@ def test_vif_selector_removes_collinearity() -> None:
         frame=table.frame,
         id_columns=table.id_columns,
         feature_columns=(*table.feature_columns, "dup"),
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=table.provenance,
     )
     selected = VifSelector(max_vif=5.0).fit(table).transform(table)
@@ -293,7 +303,7 @@ def test_transform_before_fit_and_schema_drift_raise() -> None:
         frame=drifted.frame.drop(columns=["signal"]),
         id_columns=drifted.id_columns,
         feature_columns=tuple(c for c in drifted.feature_columns if c != "signal"),
-        outcome_column=drifted.outcome_column,
+        outcome=drifted.outcome,
         provenance=drifted.provenance,
     )
     with pytest.raises(HABITAPIError):

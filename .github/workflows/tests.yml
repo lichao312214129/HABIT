@@ -85,12 +85,15 @@ jobs:
           pip install black==24.10.0
           black --check habit/api habit/_version.py tests/api
 
-      - name: Check public API types
+      - name: Check public API and v1 layer types
         run: |
-          mypy habit/api
+          # habit/kernels and habit/domain are intentionally not checked yet:
+          # kernels carries vendored PyRadiomics code (~350 errors) and domain
+          # still has ~50 typing errors; both are tracked as follow-up work.
+          mypy habit/api habit/contracts habit/adapters habit/execution habit/spec
 
-      - name: Run public and architecture tests
+      - name: Run public, architecture, and v1 layer tests
         run: |
-          pytest tests/api/ tests/integration/test_python_api.py tests/test_architecture_contracts.py tests/test_packaging_contracts.py tests/test_installer_contracts.py -m "not slow" --tb=short
+          pytest tests/api/ tests/integration/test_python_api.py tests/test_architecture_contracts.py tests/test_packaging_contracts.py tests/test_installer_contracts.py tests/test_import_lightweight.py tests/contracts/ tests/domain/ tests/execution/ tests/compat/ tests/spec/ tests/registry/ tests/kernels/ tests/golden/ -m "not slow" --tb=short
         env:
           PYTHONPATH: ${{ github.workspace }}

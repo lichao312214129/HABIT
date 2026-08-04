@@ -113,6 +113,161 @@ def test_habitat_estimator_guards(direct_spec: HabitatSpec) -> None:
         as_estimator(broken).fit(_cohort(1))
 
 
+def _with_chains(spec: HabitatSpec, **chains: object) -> HabitatSpec:
+    """
+    Return ``spec`` with preprocessing chains attached.
+
+    Args:
+        spec: Base specification.
+        **chains: Chain fields to set, as tuples of ``Spec``.
+
+    Returns:
+        A new specification; the input is frozen and untouched.
+    """
+    import dataclasses
+
+    return dataclasses.replace(spec, **chains)  # type: ignore[arg-type]
+
+
+@pytest.mark.unit
+def test_habitat_estimator_applies_the_voxel_preprocessing_chain(
+    two_step_spec: HabitatSpec,
+) -> None:
+    """A configured voxel chain changes the fitted habitat definition.
+
+    Without this, a spec could declare normalisation, record it in provenance,
+    and produce centroids from unnormalised features.
+    """
+    plain = as_estimator(two_step_spec)
+    plain.fit(_cohort())
+    scaled = as_estimator(
+        _with_chains(
+            two_step_spec,
+            voxel_feature_preprocessors=(Spec(name="minmax"),),
+        )
+    )
+    scaled.fit(_cohort())
+    assert not np.allclose(plain.model_.centroids, scaled.model_.centroids)
+    # min-max per subject bounds every voxel feature, hence every centroid.
+    assert scaled.model_.centroids.max() <= 1.0
+
+
+@pytest.mark.unit
+def test_habitat_estimator_fits_and_stores_the_cohort_chain(
+    two_step_spec: HabitatSpec,
+) -> None:
+    """The cohort chain is fitted, stored in the model and reflected in its id.
+
+    Storing the chain is what makes the model portable: centroids only mean
+    something in the feature space they were fitted in.
+    """
+    plain = as_estimator(two_step_spec)
+    plain.fit(_cohort())
+    wired = as_estimator(
+        _with_chains(
+            two_step_spec,
+            cohort_feature_preprocessors=(Spec(name="zscore"),),
+        )
+    )
+    wired.fit(_cohort())
+
+    state = wired.model_.preprocessing_state
+    assert "cohort_feature_preprocessor" in state
+    chain_state = state["cohort_feature_preprocessor"]
+    # Imputation is prepended, so the stored chain has one more step than the
+    # spec named -- and its states must match its own method count.
+    steps = chain_state["spec"]["params"]["steps"]
+    assert [step["name"] for step in steps] == ["impute", "zscore"]
+    assert len(chain_state["states"]) == len(steps)
+    assert (
+        wired.model_.spec_payload["cohort_feature_preprocessor"]["name"]
+        == "cohort_feature_preprocessor"
+    )
+    # Two models whose centroids live in different feature spaces are
+    # different definitions and must not share an id.
+    assert wired.model_.model_id != plain.model_.model_id
+
+
+@pytest.mark.unit
+def test_model_with_cohort_chain_survives_save_and_load(
+    two_step_spec: HabitatSpec, tmp_path
+) -> None:
+    """A model carrying a fitted chain is savable and replays identically.
+
+    Regression guard: the chain state used to hold ``Series`` and a fitted
+    ``KBinsDiscretizer``, so ``save()`` raised on exactly the models worth
+    sharing -- the ones defining habitats in a preprocessed feature space.
+    """
+    from habit.contracts.habitat import HabitatModel
+    from habit.domain.feature_preprocessing import CohortPreprocessingChain
+
+    spec = _with_chains(
+        two_step_spec,
+        cohort_feature_preprocessors=(
+            Spec(name="zscore"),
+            Spec(name="binning", params={"n_bins": 4}),
+        ),
+    )
+    estimator = as_estimator(spec)
+    estimator.fit(_cohort())
+
+    restored = HabitatModel.load(estimator.model_.save(tmp_path / "m.habitatmodel"))
+    assert restored.model_id == estimator.model_.model_id
+    np.testing.assert_allclose(restored.centroids, estimator.model_.centroids)
+
+    # The chain rebuilt from the loaded model must transform identically, or
+    # external validation would silently use a different feature space.
+    state = restored.preprocessing_state["cohort_feature_preprocessor"]
+    rebuilt = CohortPreprocessingChain.from_state(state)
+    original = CohortPreprocessingChain.from_state(
+        estimator.model_.preprocessing_state["cohort_feature_preprocessor"]
+    )
+    units = estimator._components.pipeline(assigner=None).units(_cohort(1)[0])
+    frame = units.feature_frame()
+    np.testing.assert_array_equal(
+        rebuilt.transform(frame).to_numpy(), original.transform(frame).to_numpy()
+    )
+
+
+@pytest.mark.unit
+def test_habitat_estimator_replays_the_cohort_chain_at_transform_time(
+    two_step_spec: HabitatSpec,
+) -> None:
+    """Prediction reuses the fitted chain, so results stay reproducible."""
+    spec = _with_chains(
+        two_step_spec,
+        cohort_feature_preprocessors=(Spec(name="minmax"),),
+    )
+    estimator = as_estimator(spec)
+    full = estimator.fit_transform(_cohort())
+    projected = estimator.transform(_cohort(2))
+    # Transforming a subset must reproduce the corresponding fit rows exactly;
+    # a chain refitted on the subset would shift them.
+    np.testing.assert_allclose(projected, full[:2])
+
+
+@pytest.mark.unit
+def test_habitat_estimator_builds_the_supervoxel_feature_extractor(
+    two_step_spec: HabitatSpec,
+) -> None:
+    """A declared supervoxel feature extractor is constructed and applied.
+
+    Regression guard: this slot existed in the spec and in the pipeline while
+    the estimator's component factory never built it, so every run silently
+    fell back to supervoxel means.
+    """
+    spec = _with_chains(
+        two_step_spec,
+        supervoxel_feature_preprocessors=(Spec(name="zscore"),),
+    )
+    estimator = as_estimator(spec)
+    estimator.fit(_cohort())
+    components = estimator._components
+    assert components.supervoxel_chain is not None
+    pipeline = components.pipeline(assigner=estimator._assigner)
+    assert pipeline.supervoxel_feature_preprocessor is components.supervoxel_chain
+
+
 @pytest.mark.unit
 def test_habitat_estimator_clone_and_pipeline(direct_spec: HabitatSpec) -> None:
     """sklearn.clone drops fitted state; the adapter drives a Pipeline."""

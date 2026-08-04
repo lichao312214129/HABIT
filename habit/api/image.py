@@ -30,7 +30,7 @@ import warnings
 
 import numpy as np
 
-from habit.api.exceptions import GeometryError, HABITAPIError, OptionalDependencyError
+from habit.exceptions import GeometryError, HABITAPIError, OptionalDependencyError
 
 __all__ = [
     "GeometryPolicy",

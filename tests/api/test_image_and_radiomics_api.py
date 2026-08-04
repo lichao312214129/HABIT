@@ -117,16 +117,12 @@ def test_warn_geometry_policy_records_incompatibility() -> None:
 @pytest.mark.unit
 def test_voxel_feature_selection_uses_mask_not_feature_threshold() -> None:
     """Zero and negative feature values inside an ROI must remain in the table."""
-    pytest.importorskip("SimpleITK")
-    pytest.importorskip("radiomics")
-    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
-        _feature_values_in_mask,
-    )
+    from habit.kernels.radiomics.voxel_maps import feature_values_in_mask
 
     feature_map = np.array([[0.0, -2.0], [3.5, 99.0]], dtype=np.float32)
     mask = np.array([[1, 1], [1, 0]], dtype=np.uint8)
 
-    values = _feature_values_in_mask(feature_map, mask)
+    values = feature_values_in_mask(feature_map, mask)
 
     np.testing.assert_array_equal(values, np.array([0.0, -2.0, 3.5]))
 
@@ -135,10 +131,9 @@ def test_voxel_feature_selection_uses_mask_not_feature_threshold() -> None:
 def test_cropped_voxel_feature_map_uses_physical_mask_alignment() -> None:
     """A cropped feature map must select the requested label on its physical grid."""
     sitk = pytest.importorskip("SimpleITK")
-    pytest.importorskip("radiomics")
-    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
-        _feature_values_in_mask,
-        _mask_array_for_feature_map,
+    from habit.kernels.radiomics.voxel_maps import (
+        feature_values_in_mask,
+        mask_array_for_feature_map,
     )
 
     mask_data = np.zeros((11, 11, 11), dtype=np.uint8)
@@ -157,8 +152,8 @@ def test_cropped_voxel_feature_map_uses_physical_mask_alignment() -> None:
         dtype=np.float32,
     ).reshape(tuple(reversed(cropped_reference.GetSize())))
 
-    aligned_mask = _mask_array_for_feature_map(mask, cropped_reference, label=2)
-    values = _feature_values_in_mask(feature_data, aligned_mask)
+    aligned_mask = mask_array_for_feature_map(mask, cropped_reference, label=2)
+    values = feature_values_in_mask(feature_data, aligned_mask)
 
     assert aligned_mask.shape == feature_data.shape
     assert int(aligned_mask.sum()) == 60
@@ -192,9 +187,7 @@ def test_voxel_radiomics_accepts_real_pyradiomics_cropped_maps(
         encoding="utf-8",
     )
 
-    image_data = (
-        np.arange(11**3, dtype=np.float32).reshape((11, 11, 11)) - 700.0
-    )
+    image_data = np.arange(11**3, dtype=np.float32).reshape((11, 11, 11)) - 700.0
     mask_data = np.zeros((11, 11, 11), dtype=np.uint8)
     mask_data[4:7, 3:8, 2:6] = 1
     image = sitk.GetImageFromArray(image_data)

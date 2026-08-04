@@ -14,9 +14,10 @@ Learning path
 2. :doc:`tutorial/quickstart` — Run the demo
 3. :doc:`gui/index` — Web GUI (under development; CLI recommended)
 4. :doc:`how_to/index` — Step-by-step with your data
-5. :doc:`configuration/index` — YAML reference
-6. :doc:`reference/features/index` — Feature definitions (papers)
-7. Issues → :doc:`troubleshooting/faq`
+5. :doc:`api/python_api` — **Python API (v1.0)** usage guide
+6. :doc:`configuration/index` — YAML reference
+7. :doc:`reference/features/index` — Feature definitions (papers)
+8. Issues → :doc:`troubleshooting/faq`
 
 .. toctree::
    :maxdepth: 2
@@ -70,11 +71,16 @@ Learning path
 
 .. toctree::
    :maxdepth: 2
+   :caption: Python API
+
+   api/index
+
+.. toctree::
+   :maxdepth: 2
    :caption: Developer
 
    development/index
    customization/index
-   api/index
    reference/upstream_libraries
    changelog
    acknowledgments

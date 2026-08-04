@@ -16,31 +16,39 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Dict, List, Mapping, Optional, Sequence, Union
 
 import numpy as np
 from pydantic import BaseModel, Field
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import HabitatModel, Supervoxelization
 from habit.contracts.subject import Cohort
 from habit.domain.habitat_model._base import build_habitat_model, pool_supervoxel_features
+from habit.domain.habitat_model._selection import (
+    build_selection_report,
+    normalize_validation,
+    select_cluster_count,
+)
 from habit.domain.habitat_model.registry import HabitatModelFitterRegistry
+from habit.kernels.cluster_selection import gap_statistic
 from habit.spec.specs import Spec
 
 __all__ = ["KMeansHabitatModelFitter", "KMeansHabitatModelFitterParams"]
 
+#: Criteria this fitter can compute, matching the v0.1 k-means schema.
 _VALIDATION_METHODS = (
     "silhouette",
     "calinski_harabasz",
     "davies_bouldin",
+    "gap",
+    "inertia",
     "elbow",
     "kneedle",
 )
 
-#: Selection criteria scored against cluster structure rather than the
-#: inertia curve; these need labels from one fit per candidate count.
-_SCORE_BASED_METHODS = ("silhouette", "calinski_harabasz", "davies_bouldin")
+#: Criteria read off the inertia curve; they share one number per candidate.
+_INERTIA_METHODS = ("inertia", "elbow", "kneedle")
 
 
 class KMeansHabitatModelFitterParams(BaseModel):
@@ -49,7 +57,7 @@ class KMeansHabitatModelFitterParams(BaseModel):
     n_habitats: Optional[int] = Field(default=None, ge=2)
     min_habitats: int = Field(default=2, ge=2)
     max_habitats: int = Field(default=10, ge=3)
-    validation: str = "silhouette"
+    validation: Union[str, List[str]] = "silhouette"
     n_init: int = Field(default=50, gt=0)
 
 
@@ -72,10 +80,12 @@ class KMeansHabitatModelFitter:
             ``validation``.
         min_habitats: Smallest candidate count during selection.
         max_habitats: Largest candidate count during selection.
-        validation: Selection criterion: ``"silhouette"`` (maximise),
-            ``"calinski_harabasz"`` (maximise), ``"davies_bouldin"``
-            (minimise), or ``"elbow"`` / ``"kneedle"`` (knee point of the
-            inertia curve, the v0.1 default criterion).
+        validation: Selection criterion, or a list of criteria that each cast
+            one vote: ``"silhouette"`` / ``"calinski_harabasz"`` / ``"gap"``
+            (maximise), ``"davies_bouldin"`` (minimise), or ``"inertia"`` /
+            ``"elbow"`` / ``"kneedle"`` (Kneedle knee of the inertia curve).
+            Since v1.0 ``elbow`` is an alias of ``kneedle``; see
+            :mod:`habit.kernels.cluster_selection`.
         n_init: k-means restarts per candidate count.
     """
 
@@ -84,13 +94,12 @@ class KMeansHabitatModelFitter:
         n_habitats: Optional[int] = None,
         min_habitats: int = 2,
         max_habitats: int = 10,
-        validation: str = "silhouette",
+        validation: Union[str, Sequence[str]] = "silhouette",
         n_init: int = 50,
     ) -> None:
-        if validation not in _VALIDATION_METHODS:
-            raise HABITAPIError(
-                f"validation must be one of {_VALIDATION_METHODS}; got {validation!r}."
-            )
+        self._validation_methods = normalize_validation(
+            validation, _VALIDATION_METHODS
+        )
         if n_habitats is None and max_habitats <= min_habitats:
             raise HABITAPIError(
                 "max_habitats must be greater than min_habitats when "
@@ -99,7 +108,13 @@ class KMeansHabitatModelFitter:
         self.n_habitats = n_habitats
         self.min_habitats = int(min_habitats)
         self.max_habitats = int(max_habitats)
-        self.validation = validation
+        # Keep a single criterion scalar so specs (and their fingerprints)
+        # stay identical to pre-voting runs.
+        self.validation: Union[str, List[str]] = (
+            self._validation_methods[0]
+            if len(self._validation_methods) == 1
+            else list(self._validation_methods)
+        )
         self.n_init = int(n_init)
         self._seed = 0
 
@@ -143,67 +158,66 @@ class KMeansHabitatModelFitter:
             )
         return range(self.min_habitats, upper + 1)
 
-    @staticmethod
-    def _knee_point(counts: np.ndarray, inertias: np.ndarray) -> int:
+    def _score_candidate(
+        self,
+        matrix: np.ndarray,
+        n_clusters: int,
+        methods: Sequence[str],
+    ) -> Mapping[str, float]:
         """
-        Select the knee of an inertia curve by maximum chord distance.
-
-        The curve points are min-max normalised on both axes, then the point
-        farthest from the chord joining the curve's endpoints wins -- the
-        classical elbow heuristic that ``kneedle``-style locators formalise.
-        A degenerate (flat or two-point) curve falls back to the smallest
-        candidate count.
+        Score one candidate habitat count against the requested criteria.
 
         Args:
-            counts: Candidate cluster counts, ascending.
-            inertias: Inertia achieved at each candidate count.
+            matrix: Pooled supervoxel features.
+            n_clusters: Candidate habitat count.
+            methods: Criteria to score; a single fit serves all of them.
 
         Returns:
-            The selected cluster count.
+            Criterion -> score for this candidate.
         """
-        if counts.size <= 2 or float(np.ptp(inertias)) == 0.0:
-            return int(counts[0])
-        x = (counts - counts.min()) / float(np.ptp(counts))
-        y = (inertias - inertias.min()) / float(np.ptp(inertias))
-        start = np.array([x[0], y[0]])
-        end = np.array([x[-1], y[-1]])
-        chord = end - start
-        chord_length = float(np.hypot(*chord))
-        # Perpendicular distance of each curve point from the chord.
-        distances = np.abs(
-            chord[0] * (start[1] - y) - (start[0] - x) * chord[1]
-        ) / chord_length
-        return int(counts[int(np.argmax(distances))])
-
-    def _select_n_habitats(self, matrix: np.ndarray) -> int:
-        """Score every candidate count and keep the best validated one."""
         from sklearn.metrics import (
             calinski_harabasz_score,
             davies_bouldin_score,
             silhouette_score,
         )
 
-        candidates = self._candidate_range(matrix.shape[0])
-        if self.validation in ("elbow", "kneedle"):
-            inertias = {
-                k: float(self._fit_kmeans(matrix, k).inertia_) for k in candidates
-            }
-            counts = np.asarray(sorted(inertias), dtype=np.float64)
-            curve = np.asarray([inertias[int(k)] for k in counts], dtype=np.float64)
-            return self._knee_point(counts, curve)
+        model = self._fit_kmeans(matrix, n_clusters)
+        labels = model.labels_
+        scores: Dict[str, float] = {}
+        for name in methods:
+            if name in _INERTIA_METHODS:
+                scores[name] = float(model.inertia_)
+            elif name == "silhouette":
+                scores[name] = float(silhouette_score(matrix, labels))
+            elif name == "calinski_harabasz":
+                scores[name] = float(calinski_harabasz_score(matrix, labels))
+            elif name == "davies_bouldin":
+                scores[name] = float(davies_bouldin_score(matrix, labels))
+            elif name == "gap":
+                scores[name] = float(gap_statistic(matrix, labels))
+        return scores
 
-        scores = {}
-        for k in candidates:
-            labels = self._fit_kmeans(matrix, k).labels_
-            if self.validation == "silhouette":
-                scores[k] = silhouette_score(matrix, labels)
-            elif self.validation == "calinski_harabasz":
-                scores[k] = calinski_harabasz_score(matrix, labels)
-            else:
-                scores[k] = davies_bouldin_score(matrix, labels)
-        if self.validation == "davies_bouldin":
-            return min(scores, key=scores.get)
-        return max(scores, key=scores.get)
+    def _select_n_habitats(self, matrix: np.ndarray) -> tuple:
+        """
+        Score every candidate count and keep the best validated one.
+
+        Args:
+            matrix: Pooled supervoxel features.
+
+        Returns:
+            ``(n_habitats, selection_report)``; the report carries the scored
+            curves so the choice stays auditable on the fitted model.
+        """
+        candidates = list(self._candidate_range(matrix.shape[0]))
+        methods = self._validation_methods
+        chosen, scores_by_method = select_cluster_count(
+            candidates,
+            methods,
+            lambda count, names: self._score_candidate(matrix, count, names),
+        )
+        return chosen, build_selection_report(
+            candidates, methods, scores_by_method, chosen
+        )
 
     def fit(
         self,
@@ -223,14 +237,21 @@ class KMeansHabitatModelFitter:
         """
         matrix, feature_names = pool_supervoxel_features(units)
         n_habitats = self.n_habitats
+        selection_report = None
         if n_habitats is None:
-            n_habitats = self._select_n_habitats(matrix)
+            n_habitats, selection_report = self._select_n_habitats(matrix)
         if matrix.shape[0] < n_habitats:
             raise HABITAPIError(
                 f"Cannot fit {n_habitats} habitats on {matrix.shape[0]} "
                 "pooled supervoxels."
             )
         model = self._fit_kmeans(matrix, n_habitats)
+        preprocessing_state = {
+            "validation": self.validation,
+            "inertia": float(model.inertia_),
+        }
+        if selection_report is not None:
+            preprocessing_state["selection_report"] = selection_report
         return build_habitat_model(
             fitter_name="kmeans",
             spec=self.spec,
@@ -239,10 +260,7 @@ class KMeansHabitatModelFitter:
             units=units,
             cohort=cohort,
             random_seed=self._seed,
-            preprocessing_state={
-                "validation": self.validation,
-                "inertia": float(model.inertia_),
-            },
+            preprocessing_state=preprocessing_state,
         )
 
 

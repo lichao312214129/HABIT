@@ -725,7 +725,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
   - **Default**: ``elbow``
   - **Allowed values and meaning**:
 
-    - ``elbow``: elbow on inertia curve (default)
+    - ``elbow``: knee of the inertia curve, detected by the Kneedle rule (default)
     - ``silhouette``: silhouette coefficient (-1 to 1; closer to 1 = tighter clusters)
     - ``calinski_harabasz``: Calinski-Harabasz index (higher = better)
     - ``davies_bouldin``: Davies-Bouldin index (lower = better)
@@ -735,6 +735,18 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
     - ``aic`` / ``bic``: information criteria (gmm-oriented)
 
   - **Recommendation**: ``elbow`` (schema default) or ``silhouette`` for interpretability
+
+  .. warning::
+
+     **Breaking change in v1.0**: ``elbow`` and ``kneedle`` are now the same
+     rule. Up to v0.1.x, ``elbow`` used a second-difference (discrete
+     curvature) criterion while ``kneedle`` used the normalised
+     maximum-deviation criterion, and the two could select different cluster
+     counts on the same curve. Both keys now resolve to the Kneedle rule
+     implemented in :func:`habit.kernels.cluster_selection.knee_index`, so a
+     v0.1 configuration written with ``elbow`` remains valid but may select a
+     different cluster count than it did before. Studies that must reproduce a
+     published habitat count should set ``fixed_n_clusters`` to that count.
 
 - ``plot_validation_curves``: Plot validation curves
 
@@ -773,11 +785,13 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
   - **Default**: ``elbow`` (YAML may use string or single-element list)
   - **Allowed values and meaning**:
 
+    - ``elbow`` / ``kneedle``: knee of the inertia curve (the same rule since
+      v1.0; see the warning under ``selection_method`` above)
     - ``inertia``: within-cluster SS (lower better for kmeans; Kneedle internally)
-    - ``kneedle``: Kneedle on normalized inertia curve
     - ``silhouette``: silhouette (-1 to 1; closer to 1 better)
     - ``calinski_harabasz``: Calinski-Harabasz (higher better)
     - ``davies_bouldin``: Davies-Bouldin (lower better)
+    - ``gap``: gap statistic (higher better)
     - ``aic``: Akaike information criterion (lower better; gmm only)
     - ``bic``: Bayesian information criterion (lower better; gmm only)
 

@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""ICC analysis command implementation."""
+"""ICC analysis command implementation.
+
+L5 wiring only: parse the v0.1 YAML through the public schema, hand the
+validated object to the L4 recipe, and surface success/failure. No
+``habit.core`` imports live here.
+"""
 
 from __future__ import annotations
 
@@ -21,15 +26,13 @@ from pathlib import Path
 
 import click
 
+from habit.api.analysis import ICCConfig
 from habit.commands.common import (
     echo_success,
     exit_with_error,
     load_config_or_exit,
 )
-from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
-from habit.core.machine_learning.feature_selectors.icc.icc import (
-    run_icc_analysis_from_config,
-)
+from habit.recipes.icc import icc_analysis
 from habit.utils.log_utils import setup_logger
 
 
@@ -57,7 +60,7 @@ def run_icc(config_file: str) -> None:
     click.echo(f"Starting ICC analysis with config: {config_file}")
 
     try:
-        run_icc_analysis_from_config(config)
+        icc_analysis(config)
     except Exception as exc:  # noqa: BLE001
         logger.error("ICC analysis failed: %s", exc, exc_info=True)
         exit_with_error(f"Error: {exc}")

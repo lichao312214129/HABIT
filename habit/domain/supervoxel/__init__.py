@@ -16,11 +16,21 @@
 
 from __future__ import annotations
 
+from habit.domain.supervoxel.feature_clustering import (
+    GmmSupervoxelizer,
+    GmmSupervoxelizerParams,
+    KMeansSupervoxelizer,
+    KMeansSupervoxelizerParams,
+)
 from habit.domain.supervoxel.registry import SupervoxelizerRegistry
 from habit.domain.supervoxel.slic import SlicSupervoxelizer, SlicSupervoxelizerParams
 
 __all__ = [
     "SlicSupervoxelizer",
     "SlicSupervoxelizerParams",
+    "KMeansSupervoxelizer",
+    "KMeansSupervoxelizerParams",
+    "GmmSupervoxelizer",
+    "GmmSupervoxelizerParams",
     "SupervoxelizerRegistry",
 ]

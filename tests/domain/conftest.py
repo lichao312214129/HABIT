@@ -213,7 +213,7 @@ def make_feature_table(
     ``noise{i}`` columns are pure noise, so supervised selectors and
     classifiers have a deterministic correct answer to find.
     """
-    from habit.contracts import FeatureTable
+    from habit.contracts import BinaryOutcome, FeatureTable
 
     rng = np.random.RandomState(seed)
     n = len(subject_ids)
@@ -237,7 +237,7 @@ def make_feature_table(
         frame=pd.DataFrame(data),
         id_columns=("subject",),
         feature_columns=feature_columns,
-        outcome_column="y" if outcome else None,
+        outcome=BinaryOutcome("y") if outcome else None,
         provenance=provenance(),
     )
 

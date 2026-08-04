@@ -34,6 +34,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
+from habit.exceptions import OptionalDependencyError
 from habit.domain.classification._base import SklearnClassifierBase
 from habit.domain.classification.registry import ClassifierRegistry
 from habit.spec.specs import Spec
@@ -536,7 +537,13 @@ class XgboostClassifier(_SpecParamsMixin, SklearnClassifierBase):
         }
 
     def _build_estimator(self) -> Any:
-        import xgboost as xgb
+        try:
+            import xgboost as xgb
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "classifier.XGBoost requires the optional xgboost dependency; "
+                "install 'HABIT[ml]' to use it."
+            ) from exc
 
         return xgb.XGBClassifier(random_state=self._seed, **self._params)
 

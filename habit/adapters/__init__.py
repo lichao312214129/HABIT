@@ -24,5 +24,6 @@ from __future__ import annotations
 
 from habit.adapters.directory import DirectoryDataSource
 from habit.adapters.image_refs import FileImageRef
+from habit.adapters.writers import DirectoryResultWriter
 
-__all__ = ["DirectoryDataSource", "FileImageRef"]
+__all__ = ["DirectoryDataSource", "DirectoryResultWriter", "FileImageRef"]

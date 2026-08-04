@@ -40,11 +40,28 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Union, Callable, Tuple
 from enum import Enum
 
-import pingouin as pg
+try:
+    import pingouin as pg
+    PINGOUIN_AVAILABLE = True
+except ImportError:
+    # pingouin is an optional dependency (extra 'analysis'); ICC metric
+    # classes raise OptionalDependencyError when used without it.
+    PINGOUIN_AVAILABLE = False
+    pg = None
+from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
 
 # ==================== Setup Logger ====================
 logger = get_module_logger(__name__)
+
+
+def _require_pingouin() -> None:
+    """Raise a clear error when the optional pingouin dependency is missing."""
+    if not PINGOUIN_AVAILABLE:
+        raise OptionalDependencyError(
+            "ICC analysis requires the optional pingouin dependency; "
+            "install 'HABIT[analysis]' to use it."
+        )
 
 
 # ==================== Data Processing Helpers ====================
@@ -279,8 +296,9 @@ class ICCMetric(BaseReliabilityMetric):
         return True
 
     def calculate(self, data: pd.DataFrame, targets: str, raters: str, ratings: str, **kwargs) -> MetricResult:
+        _require_pingouin()
         self.validate_data(data, targets, raters, ratings)
-        
+
         icc_result = pg.intraclass_corr(
             data=data, targets=targets, raters=raters, ratings=ratings, nan_policy=self.nan_policy
         ).set_index('Type')
@@ -312,8 +330,9 @@ class MultiICCMetric(BaseReliabilityMetric):
         return "MultiICC"
 
     def calculate(self, data: pd.DataFrame, targets: str, raters: str, ratings: str, **kwargs) -> Dict[str, MetricResult]:
+        _require_pingouin()
         ICCMetric().validate_data(data, targets, raters, ratings)
-        
+
         icc_result_df = pg.intraclass_corr(
             data=data, targets=targets, raters=raters, ratings=ratings, nan_policy=self.nan_policy
         ).set_index('Type')

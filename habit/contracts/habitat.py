@@ -26,9 +26,10 @@ travel through pipelines.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import zipfile
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Tuple, Union
 
@@ -36,7 +37,7 @@ import numpy as np
 import pandas as pd
 
 from habit._version import __version__ as _habit_version
-from habit.api.exceptions import CompatibilityError, HABITAPIError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.geometry import Geometry
 from habit.contracts.provenance import Provenance
 from habit.contracts.subject import CohortFingerprint
@@ -119,6 +120,72 @@ class VoxelFeatureField:
         frame.insert(0, "z", self.voxel_index[:, 0])
         return frame
 
+    def feature_frame(self) -> pd.DataFrame:
+        """
+        Return the bare unit-by-feature matrix.
+
+        The uniform algorithm view shared with
+        :meth:`Supervoxelization.feature_frame`. Any operation defined on "a
+        matrix whose rows are clustering units" can therefore be written once
+        and applied at either granularity, even though the two contracts
+        store their matrices differently -- an array plus column names here,
+        because a subject holds hundreds of thousands of voxels whose row
+        identity is a 3D coordinate; an indexed frame there, because
+        supervoxels are few and identified by a single id.
+
+        Unlike :meth:`to_frame`, no coordinate columns are added: the result
+        contains features and nothing else, so column-wise computations need
+        no exclusion list.
+
+        Returns:
+            Feature matrix with a positional index, in ``feature_names``
+            order.
+        """
+        return pd.DataFrame(self.values, columns=list(self.feature_names))
+
+    def with_feature_frame(
+        self,
+        frame: pd.DataFrame,
+        *,
+        produced_by: str,
+        spec_fingerprint: str,
+    ) -> "VoxelFeatureField":
+        """
+        Return a copy carrying a recomputed feature matrix.
+
+        Args:
+            frame: Replacement matrix, row-aligned with this field. Columns
+                may be fewer than the current ones (a filtering step) but the
+                row count must match, since ``voxel_index`` continues to
+                describe those rows.
+            produced_by: Provenance label of the step that produced ``frame``.
+            spec_fingerprint: Fingerprint of that step's specification.
+
+        Returns:
+            A new field sharing this field's geometry and voxel index.
+
+        Raises:
+            HABITAPIError: If ``frame`` has a different number of rows.
+        """
+        if len(frame) != self.values.shape[0]:
+            raise HABITAPIError(
+                f"{produced_by} returned {len(frame)} rows for a "
+                f"{self.values.shape[0]}-voxel field. Replacing a feature "
+                "matrix must preserve voxels: dropping rows would "
+                "desynchronise the matrix from voxel_index."
+            )
+        return VoxelFeatureField(
+            subject_id=self.subject_id,
+            feature_names=tuple(str(column) for column in frame.columns),
+            values=frame.to_numpy(dtype=np.float64, copy=True),
+            voxel_index=self.voxel_index,
+            geometry=self.geometry,
+            provenance=self.provenance.derive(
+                produced_by=produced_by,
+                spec_fingerprint=spec_fingerprint,
+            ),
+        )
+
 
 @dataclass(frozen=True, eq=False)
 class Supervoxelization:
@@ -149,6 +216,66 @@ class Supervoxelization:
     def __post_init__(self) -> None:
         """Coerce the label array and record its dtype for downstream reuse."""
         object.__setattr__(self, "label_array", np.asarray(self.label_array))
+
+    def feature_frame(self) -> pd.DataFrame:
+        """
+        Return the bare unit-by-feature matrix.
+
+        The counterpart of :meth:`VoxelFeatureField.feature_frame`, so one
+        implementation of a matrix-level operation serves both granularities.
+        Here the frame is already the native representation; the supervoxel
+        index is dropped to a positional one so callers cannot accidentally
+        depend on label values during a column-wise computation.
+
+        Returns:
+            Feature matrix with a positional index, in column order.
+        """
+        return self.features.reset_index(drop=True)
+
+    def with_feature_frame(
+        self,
+        frame: pd.DataFrame,
+        *,
+        produced_by: str,
+        spec_fingerprint: str,
+    ) -> "Supervoxelization":
+        """
+        Return a copy carrying a recomputed feature matrix.
+
+        Args:
+            frame: Replacement matrix, row-aligned with the current features.
+                Columns may be fewer; the row count must match, since each
+                row still describes one label of ``label_array``.
+            produced_by: Provenance label of the step that produced ``frame``.
+            spec_fingerprint: Fingerprint of that step's specification.
+
+        Returns:
+            A new partition with the same regions described differently:
+            ``label_array`` is inherited unchanged, because describing
+            supervoxels never redraws them.
+
+        Raises:
+            HABITAPIError: If ``frame`` has a different number of rows.
+        """
+        if len(frame) != len(self.features):
+            raise HABITAPIError(
+                f"{produced_by} returned {len(frame)} rows for a "
+                f"{len(self.features)}-supervoxel partition. Replacing a "
+                "feature matrix must preserve supervoxels: dropping rows "
+                "would desynchronise the matrix from label_array."
+            )
+        restored = frame.copy()
+        restored.index = self.features.index
+        return Supervoxelization(
+            subject_id=self.subject_id,
+            label_array=self.label_array,
+            features=restored,
+            geometry=self.geometry,
+            provenance=self.provenance.derive(
+                produced_by=produced_by,
+                spec_fingerprint=spec_fingerprint,
+            ),
+        )
 
 
 @dataclass(frozen=True, eq=False)
@@ -359,6 +486,64 @@ class HabitatModel:
                 f"  preprocessing state: {', '.join(preprocessing_keys)}"
             )
         return "\n".join(lines)
+
+    def with_cohort_preprocessing(
+        self,
+        state: Mapping[str, Any],
+        spec_payload: Mapping[str, Any],
+    ) -> "HabitatModel":
+        """
+        Bind the cohort-level feature preprocessing into this model.
+
+        A habitat definition is a set of centroids TOGETHER WITH the feature
+        space they live in. Storing the fitted cohort chain here is what lets
+        the model be applied to a new cohort at all: without it, prediction
+        would compute raw features, compare them against centroids fitted on
+        preprocessed features, and return labels that look entirely
+        reasonable.
+
+        The model id is recomputed, because two models whose centroids came
+        from differently preprocessed features are different definitions and
+        must not collide. Provenance is derived rather than replaced, so the
+        chain back to each fitting unit stays intact.
+
+        Args:
+            state: Fitted chain state, from
+                ``CohortPreprocessingChain.state``.
+            spec_payload: The chain's specification, recorded alongside the
+                fitter's so the model card states both.
+
+        Returns:
+            A new model carrying the chain. Callers that need the original
+            still hold it -- this contract is frozen.
+        """
+        merged_state = {
+            **dict(self.preprocessing_state),
+            "cohort_feature_preprocessor": dict(state),
+        }
+        merged_spec = {
+            **dict(self.spec_payload),
+            "cohort_feature_preprocessor": dict(spec_payload),
+        }
+        fitter_name = self.model_id.split("-", 1)[0]
+        chain_fingerprint = hashlib.sha256(
+            json.dumps(_to_jsonable(dict(spec_payload)), sort_keys=True).encode(
+                "utf-8"
+            )
+        ).hexdigest()
+        rebound_id = hashlib.sha256(
+            f"{self.model_id}:{chain_fingerprint}".encode("utf-8")
+        ).hexdigest()[:16]
+        return replace(
+            self,
+            model_id=f"{fitter_name}-{rebound_id}",
+            preprocessing_state=merged_state,
+            spec_payload=merged_spec,
+            provenance=self.provenance.derive(
+                produced_by=f"{self.provenance.produced_by}+cohort_preprocessing",
+                spec_fingerprint=chain_fingerprint,
+            ),
+        )
 
     def assigner(self, name: str = "nearest_centroid", **params: Any) -> Any:
         """

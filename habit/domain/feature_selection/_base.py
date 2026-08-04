@@ -18,37 +18,16 @@ from __future__ import annotations
 
 from typing import Optional, Sequence, Tuple
 
-import pandas as pd
-
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.table import FeatureTable
+from habit.domain.outcome_access import outcome_series
 from habit.spec.specs import Spec
 
+# ``outcome_series`` now lives in habit.domain.outcome_access, next to the
+# survival accessors, and is re-exported here because the selectors and the
+# classifiers have always imported it from this module.
 __all__ = ["outcome_series", "restrict_table", "FittedSelectorBase"]
-
-
-def outcome_series(table: FeatureTable, *, owner: str) -> pd.Series:
-    """
-    Return the table's outcome column as a Series.
-
-    Args:
-        table: Table expected to carry an outcome column.
-        owner: Human-readable selector name for the error message.
-
-    Returns:
-        The outcome column aligned to the table's rows.
-
-    Raises:
-        HABITAPIError: If the table has no outcome column (supervised
-            selectors cannot fit without one).
-    """
-    if table.outcome_column is None:
-        raise HABITAPIError(
-            f"{owner} is supervised and requires a table with an outcome "
-            "column; the table passed declares none."
-        )
-    return table.frame[table.outcome_column]
 
 
 def restrict_table(
@@ -92,7 +71,7 @@ def restrict_table(
         frame=frame,
         id_columns=table.id_columns,
         feature_columns=columns,
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=provenance,
     )
 

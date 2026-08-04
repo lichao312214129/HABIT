@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Image preprocessing command implementation."""
+"""Image preprocessing command implementation.
+
+L5 wiring only: validate the v0.1 YAML schema, hand the object to the L4
+recipe, and surface success/failure. No ``habit.core.preprocessing.run``
+imports live here.
+"""
 
 from __future__ import annotations
 
@@ -22,6 +27,7 @@ from pathlib import Path
 
 import click
 
+from habit.api.preprocessing import PreprocessingConfig
 from habit.commands.common import (
     echo_fatal,
     echo_success,
@@ -29,8 +35,7 @@ from habit.commands.common import (
     load_config_or_exit,
     log_platform_info,
 )
-from habit.core.preprocessing.config_schemas import PreprocessingConfig
-from habit.core.preprocessing.run import run_preprocess_from_config
+from habit.recipes.preprocess import preprocess_images
 from habit.utils.log_utils import setup_logger, stop_queue_listener
 
 
@@ -59,7 +64,7 @@ def run_preprocess(config_path: str) -> None:
         click.echo(msg)
 
         try:
-            run_preprocess_from_config(config, logger=logger)
+            preprocess_images(config, logger=logger)
         except Exception as exc:  # noqa: BLE001
             logger.error("Preprocessing failed: %s", exc, exc_info=True)
             exit_with_error(f"Error: {exc}")

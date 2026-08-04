@@ -36,7 +36,12 @@ import importlib
 from typing import Any, Dict, Tuple
 
 from habit._version import __version__
-from habit.api.registry import PUBLIC_API_SYMBOLS, build_lazy_exports
+
+# The export table comes from ``habit._public_api`` (pure data, zero internal
+# imports) rather than ``habit.api.registry``: importing the ``habit.api``
+# package here would chain into the v0.1 core stack and defeat the lazy
+# loading documented above. ``habit.api.registry`` re-exports the same table.
+from habit._public_api import PUBLIC_API_SYMBOLS, build_lazy_exports
 from habit.utils.lazy_exports import lazy_getattr
 
 _LAZY_EXPORTS: Dict[str, Tuple[str, str]] = build_lazy_exports()
@@ -53,6 +58,7 @@ _LAZY_SUBPACKAGES = frozenset(
         "kernels",
         "registry",
         "spec",
+        "viz",
     }
 )
 

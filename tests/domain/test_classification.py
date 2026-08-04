@@ -130,7 +130,7 @@ def test_predict_before_fit_and_schema_drift_raise() -> None:
         frame=drifted.frame.drop(columns=["signal"]),
         id_columns=drifted.id_columns,
         feature_columns=tuple(c for c in drifted.feature_columns if c != "signal"),
-        outcome_column=drifted.outcome_column,
+        outcome=drifted.outcome,
         provenance=drifted.provenance,
     )
     with pytest.raises(HABITAPIError):

@@ -22,9 +22,11 @@ implement their own ``run`` signature because their inputs/outputs differ.
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
+
+from habit.utils.random_utils import resolve_random_state
 
 from ..contracts.plan import WorkflowPlan
 from .context import RunnerContext
@@ -69,3 +71,25 @@ class BaseRunner:
         X: pd.DataFrame = data_manager.data.drop(columns=[data_manager.label_col])
         y: pd.Series = data_manager.data[data_manager.label_col]
         return X, y
+
+    def bootstrap_options(self) -> Optional[Dict[str, Any]]:
+        """
+        Resolve bootstrap keyword arguments from the run configuration.
+
+        Returns:
+            Optional[Dict[str, Any]]: Keyword arguments for
+            :func:`~habit.core.machine_learning.evaluation.metrics.bootstrap_metrics`,
+            or ``None`` when confidence intervals are disabled.
+        """
+        bootstrap_config = getattr(self.context.config, "bootstrap", None)
+        if bootstrap_config is None or not getattr(bootstrap_config, "enabled", False):
+            return None
+        return {
+            "n_iterations": int(getattr(bootstrap_config, "n_iterations", 1000)),
+            "ci_level": float(getattr(bootstrap_config, "ci_level", 0.95)),
+            "stratified": bool(getattr(bootstrap_config, "stratified", True)),
+            "random_state": resolve_random_state(
+                getattr(bootstrap_config, "random_state", None),
+                self.plan.random_state,
+            ),
+        }

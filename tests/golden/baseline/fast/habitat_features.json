@@ -1,0 +1,468 @@
+{
+  "artefacts": [
+    "habitat_basic_features.csv",
+    "ith_scores.csv",
+    "msi_features.csv",
+    "raw_image_radiomics.csv"
+  ],
+  "case": "habitat_features",
+  "description": "light habitat feature families on synthetic two-step maps",
+  "environment": {
+    "float_atol": 1e-09,
+    "float_rtol": 1e-06,
+    "git_commit": "ed5d71b95207de9f4bbaf6f43bdbc56e62112d1b",
+    "versions": {
+      "SimpleITK": "2.2.1",
+      "numpy": "1.26.1",
+      "pandas": "2.2.3",
+      "python": "3.10.16",
+      "radiomics": "v3.0.1",
+      "scipy": "1.15.3",
+      "skimage": "0.25.2",
+      "sklearn": "1.6.1"
+    }
+  },
+  "fingerprints": {
+    "habitat_basic_features.csv": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj002",
+          "subj003",
+          "subj004"
+        ]
+      },
+      "columns": [
+        "subject",
+        "habitat_1_voxel_count",
+        "habitat_1_volume_fraction",
+        "habitat_2_voxel_count",
+        "habitat_2_volume_fraction",
+        "habitat_3_voxel_count",
+        "habitat_3_volume_fraction"
+      ],
+      "kind": "table",
+      "numeric_columns": [
+        "habitat_1_voxel_count",
+        "habitat_1_volume_fraction",
+        "habitat_2_voxel_count",
+        "habitat_2_volume_fraction",
+        "habitat_3_voxel_count",
+        "habitat_3_volume_fraction"
+      ],
+      "shape": [
+        4,
+        7
+      ],
+      "values": {
+        "habitat_1_volume_fraction": [
+          0.4394428401562765,
+          0.4394428401562765,
+          0.4396127059622898,
+          0.4392729743502633
+        ],
+        "habitat_1_voxel_count": [
+          2587.0,
+          2587.0,
+          2588.0,
+          2586.0
+        ],
+        "habitat_2_volume_fraction": [
+          0.3737047732291489,
+          0.3737047732291489,
+          0.3737047732291489,
+          0.3740445048411754
+        ],
+        "habitat_2_voxel_count": [
+          2200.0,
+          2200.0,
+          2200.0,
+          2202.0
+        ],
+        "habitat_3_volume_fraction": [
+          0.1868523866145744,
+          0.1868523866145744,
+          0.1866825208085612,
+          0.1866825208085612
+        ],
+        "habitat_3_voxel_count": [
+          1100.0,
+          1100.0,
+          1099.0,
+          1099.0
+        ]
+      }
+    },
+    "ith_scores.csv": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj002",
+          "subj003",
+          "subj004"
+        ]
+      },
+      "columns": [
+        "subject",
+        "ith_score",
+        "ith_num_habitats",
+        "ith_total_area",
+        "habitat_1_regions",
+        "habitat_1_largest_area",
+        "habitat_1_area_ratio",
+        "habitat_2_regions",
+        "habitat_2_largest_area",
+        "habitat_2_area_ratio",
+        "habitat_3_regions",
+        "habitat_3_largest_area",
+        "habitat_3_area_ratio"
+      ],
+      "kind": "table",
+      "numeric_columns": [
+        "ith_score",
+        "ith_num_habitats",
+        "ith_total_area",
+        "habitat_1_regions",
+        "habitat_1_largest_area",
+        "habitat_1_area_ratio",
+        "habitat_2_regions",
+        "habitat_2_largest_area",
+        "habitat_2_area_ratio",
+        "habitat_3_regions",
+        "habitat_3_largest_area",
+        "habitat_3_area_ratio"
+      ],
+      "shape": [
+        4,
+        13
+      ],
+      "values": {
+        "habitat_1_area_ratio": [
+          2587.0,
+          2587.0,
+          2588.0,
+          2586.0
+        ],
+        "habitat_1_largest_area": [
+          2587.0,
+          2587.0,
+          2588.0,
+          2586.0
+        ],
+        "habitat_1_regions": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "habitat_2_area_ratio": [
+          2200.0,
+          2200.0,
+          2200.0,
+          2202.0
+        ],
+        "habitat_2_largest_area": [
+          2200.0,
+          2200.0,
+          2200.0,
+          2202.0
+        ],
+        "habitat_2_regions": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "habitat_3_area_ratio": [
+          1100.0,
+          1100.0,
+          1099.0,
+          1099.0
+        ],
+        "habitat_3_largest_area": [
+          1100.0,
+          1100.0,
+          1099.0,
+          1099.0
+        ],
+        "habitat_3_regions": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "ith_num_habitats": [
+          3.0,
+          3.0,
+          3.0,
+          3.0
+        ],
+        "ith_score": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ith_total_area": [
+          5887.0,
+          5887.0,
+          5887.0,
+          5887.0
+        ]
+      }
+    },
+    "msi_features.csv": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj002",
+          "subj003",
+          "subj004"
+        ]
+      },
+      "columns": [
+        "subject",
+        "firstorder_0_and_1",
+        "firstorder_0_and_2",
+        "firstorder_0_and_3",
+        "firstorder_1_and_2",
+        "firstorder_1_and_3",
+        "firstorder_2_and_3",
+        "firstorder_1_and_1",
+        "firstorder_2_and_2",
+        "firstorder_3_and_3",
+        "firstorder_normalized_0_and_1",
+        "firstorder_normalized_0_and_2",
+        "firstorder_normalized_0_and_3",
+        "firstorder_normalized_1_and_2",
+        "firstorder_normalized_1_and_3",
+        "firstorder_normalized_2_and_3",
+        "firstorder_normalized_1_and_1",
+        "firstorder_normalized_2_and_2",
+        "firstorder_normalized_3_and_3",
+        "contrast",
+        "homogeneity",
+        "correlation",
+        "energy"
+      ],
+      "kind": "table",
+      "numeric_columns": [
+        "firstorder_0_and_1",
+        "firstorder_0_and_2",
+        "firstorder_0_and_3",
+        "firstorder_1_and_2",
+        "firstorder_1_and_3",
+        "firstorder_2_and_3",
+        "firstorder_1_and_1",
+        "firstorder_2_and_2",
+        "firstorder_3_and_3",
+        "firstorder_normalized_0_and_1",
+        "firstorder_normalized_0_and_2",
+        "firstorder_normalized_0_and_3",
+        "firstorder_normalized_1_and_2",
+        "firstorder_normalized_1_and_3",
+        "firstorder_normalized_2_and_3",
+        "firstorder_normalized_1_and_1",
+        "firstorder_normalized_2_and_2",
+        "firstorder_normalized_3_and_3",
+        "contrast",
+        "homogeneity",
+        "correlation",
+        "energy"
+      ],
+      "shape": [
+        4,
+        23
+      ],
+      "values": {
+        "contrast": [
+          0.6998270656857285,
+          0.6998270656857285,
+          0.6998270656857285,
+          0.6989449003516999
+        ],
+        "correlation": [
+          0.0207128065993216,
+          0.0207128065993216,
+          0.0206976357939598,
+          0.020776816615649
+        ],
+        "energy": [
+          2.6471536562495483,
+          2.6471536562495483,
+          2.6472338026664883,
+          2.6468307841161938
+        ],
+        "firstorder_0_and_1": [
+          953.0,
+          953.0,
+          953.0,
+          954.0
+        ],
+        "firstorder_0_and_2": [
+          969.0,
+          969.0,
+          969.0,
+          969.0
+        ],
+        "firstorder_0_and_3": [
+          484.0,
+          484.0,
+          484.0,
+          483.0
+        ],
+        "firstorder_1_and_1": [
+          13366.0,
+          13366.0,
+          13372.0,
+          13362.0
+        ],
+        "firstorder_1_and_2": [
+          687.0,
+          687.0,
+          687.0,
+          685.0
+        ],
+        "firstorder_1_and_3": [
+          516.0,
+          516.0,
+          516.0,
+          515.0
+        ],
+        "firstorder_2_and_2": [
+          11542.0,
+          11542.0,
+          11542.0,
+          11556.0
+        ],
+        "firstorder_2_and_3": [
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ],
+        "firstorder_3_and_3": [
+          5598.0,
+          5598.0,
+          5592.0,
+          5594.0
+        ],
+        "firstorder_normalized_0_and_1": [
+          0.0279332883899522,
+          0.0279332883899522,
+          0.0279332883899522,
+          0.0279601406799531
+        ],
+        "firstorder_normalized_0_and_2": [
+          0.0284022628015358,
+          0.0284022628015358,
+          0.0284022628015358,
+          0.0283997655334114
+        ],
+        "firstorder_normalized_0_and_3": [
+          0.0141864759504059,
+          0.0141864759504059,
+          0.0141864759504059,
+          0.0141559202813599
+        ],
+        "firstorder_normalized_1_and_1": [
+          0.3917694990767066,
+          0.3917694990767066,
+          0.3919453644810505,
+          0.3916178194607268
+        ],
+        "firstorder_normalized_1_and_2": [
+          0.0201365887973737,
+          0.0201365887973737,
+          0.0201365887973737,
+          0.0200762016412661
+        ],
+        "firstorder_normalized_1_and_3": [
+          0.0151244247735732,
+          0.0151244247735732,
+          0.0151244247735732,
+          0.0150937866354044
+        ],
+        "firstorder_normalized_2_and_2": [
+          0.3383064161561684,
+          0.3383064161561684,
+          0.3383064161561684,
+          0.3386869871043376
+        ],
+        "firstorder_normalized_2_and_3": [
+          5.8621801447958495e-05,
+          5.8621801447958495e-05,
+          5.8621801447958495e-05,
+          5.861664712778429e-05
+        ],
+        "firstorder_normalized_3_and_3": [
+          0.1640824222528358,
+          0.1640824222528358,
+          0.1639065568484919,
+          0.1639507620164126
+        ],
+        "homogeneity": [
+          2.494674209338453,
+          2.494674209338453,
+          2.494674209338453,
+          2.4945838218053926
+        ]
+      }
+    },
+    "raw_image_radiomics.csv": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj002",
+          "subj003",
+          "subj004"
+        ]
+      },
+      "columns": [
+        "subject",
+        "original_shape_VoxelVolume_of_T1",
+        "original_shape_SurfaceArea_of_T1",
+        "original_firstorder_Mean_of_T1",
+        "original_firstorder_Entropy_of_T1"
+      ],
+      "kind": "table",
+      "numeric_columns": [
+        "original_shape_VoxelVolume_of_T1",
+        "original_shape_SurfaceArea_of_T1",
+        "original_firstorder_Mean_of_T1",
+        "original_firstorder_Entropy_of_T1"
+      ],
+      "shape": [
+        4,
+        5
+      ],
+      "values": {
+        "original_firstorder_Entropy_of_T1": [
+          -3.203426503814917e-16,
+          -3.203426503814917e-16,
+          -3.203426503814917e-16,
+          -3.203426503814917e-16
+        ],
+        "original_firstorder_Mean_of_T1": [
+          1.5303369720829016,
+          1.4990093607798156,
+          1.505951188272929,
+          1.4062389788896157
+        ],
+        "original_shape_SurfaceArea_of_T1": [
+          1726.5566620594846,
+          1726.5566620594846,
+          1726.5566620594846,
+          1726.5566620594846
+        ],
+        "original_shape_VoxelVolume_of_T1": [
+          5887.0,
+          5887.0,
+          5887.0,
+          5887.0
+        ]
+      }
+    }
+  },
+  "synthetic": true
+}

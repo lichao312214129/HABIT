@@ -19,7 +19,14 @@ Define the mapping relationship between clustering methods and optimal cluster n
 import numpy as np
 from sklearn.metrics import silhouette_score as _sk_silhouette_score
 
-# Validation methods supported by each clustering algorithm
+from habit.kernels.cluster_selection import score_direction as _kernel_score_direction
+
+# Validation methods supported by each clustering algorithm.
+#
+# The 'optimization' entries below are documentation only: the authoritative
+# selection rule per score lives in habit.kernels.cluster_selection so the
+# v0.1 and v1.0 paths cannot disagree on a habitat count. This table's job is
+# to say which scores each ALGORITHM supports and which are its defaults.
 CLUSTERING_VALIDATION_METHODS = {
     # Methods supported by K-Means clustering
     'kmeans': {
@@ -35,15 +42,16 @@ CLUSTERING_VALIDATION_METHODS = {
             },
             'inertia': {
                 'description': 'Inertia curve, selected by Kneedle elbow detection',
-                'optimization': 'kneedle'
+                'optimization': 'knee'
             },
             'kneedle': {
                 'description': 'Kneedle elbow detection on the inertia curve',
-                'optimization': 'kneedle'
+                'optimization': 'knee'
             },
             'elbow': {
-                'description': 'Inertia curve, selected by second-derivative elbow detection',
-                'optimization': 'elbow'
+                # v1.0 breaking change: alias of 'kneedle' (was second-derivative).
+                'description': 'Inertia curve, selected by Kneedle elbow detection',
+                'optimization': 'knee'
             },
             'gap': {
                 'description': 'Gap Statistic, higher is better',
@@ -97,15 +105,16 @@ CLUSTERING_VALIDATION_METHODS = {
             },
             'inertia': {
                 'description': 'Inertia curve on SLIC-regularized embedding, selected by Kneedle',
-                'optimization': 'kneedle'
+                'optimization': 'knee'
             },
             'kneedle': {
                 'description': 'Kneedle elbow detection on the SLIC-regularized inertia curve',
-                'optimization': 'kneedle'
+                'optimization': 'knee'
             },
             'elbow': {
-                'description': 'SLIC-regularized inertia curve, selected by second-derivative elbow detection',
-                'optimization': 'elbow'
+                # v1.0 breaking change: alias of 'kneedle' (was second-derivative).
+                'description': 'SLIC-regularized inertia curve, selected by Kneedle elbow detection',
+                'optimization': 'knee'
             }
         }
     }
@@ -173,21 +182,21 @@ def get_all_clustering_algorithms() -> list:
 
 def get_optimization_direction(clustering_algorithm: str, validation_method: str) -> str:
     """
-    Get the optimization direction (maximize or minimize) for the validation method
-    
+    Get the selection rule for a validation method.
+
+    Delegates to :func:`habit.kernels.cluster_selection.score_direction`, the
+    single source shared with the v1.0 domain fitters. ``clustering_algorithm``
+    is accepted for backward compatibility but does not affect the rule: the
+    rule is a property of the score, not of the algorithm.
+
     Args:
-        clustering_algorithm: Name of the clustering algorithm
-        validation_method: Name of the validation method
-        
+        clustering_algorithm: Name of the clustering algorithm (unused).
+        validation_method: Name of the validation method.
+
     Returns:
-        str: 'maximize' or 'minimize'
+        str: ``'maximize'``, ``'minimize'`` or ``'knee'``.
     """
-    validation_info = get_validation_methods(clustering_algorithm)
-    if validation_method in validation_info['methods']:
-        return validation_info['methods'][validation_method]['optimization']
-    else:
-        # Default to maximize
-        return 'maximize'
+    return _kernel_score_direction(validation_method)
 
 def get_method_description(clustering_algorithm: str, validation_method: str) -> str:
     """

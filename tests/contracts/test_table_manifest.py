@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Contract tests for FeatureTable, RunManifest and StudyResult."""
+"""Contract tests for FeatureTable and RunManifest.
+
+``StudyResult`` moved to the recipe layer in v1.0; its persistence
+contract is covered by ``tests/recipes/test_result_writer.py``.
+"""
 
 from __future__ import annotations
 
@@ -25,14 +29,10 @@ import pytest
 
 from habit.api.exceptions import HABITAPIError
 from habit.contracts import (
-    CohortFingerprint,
+    BinaryOutcome,
     FeatureTable,
-    Geometry,
-    HabitatMap,
-    HabitatModel,
     Provenance,
     RunManifest,
-    StudyResult,
 )
 
 
@@ -45,7 +45,7 @@ def _table(frame: pd.DataFrame | None = None, **overrides) -> FeatureTable:
         frame=frame,
         id_columns=("subject",),
         feature_columns=("f1", "f2"),
-        outcome_column="y",
+        outcome=BinaryOutcome("y"),
         provenance=Provenance.source("test"),
         **overrides,
     )
@@ -165,44 +165,3 @@ def test_manifest_to_json_roundtrip(tmp_path: Path) -> None:
     payload = json.loads(text)
     assert payload["subject_outcomes"]["b"].startswith("RuntimeError")
     assert (tmp_path / "nested" / "manifest.json").is_file()
-
-
-@pytest.mark.unit
-def test_study_result_save_writes_artefacts(tmp_path: Path) -> None:
-    """StudyResult.save is the single explicit act of writing to disk."""
-    provenance = Provenance.source("study")
-    model = HabitatModel(
-        model_id="m",
-        n_habitats=1,
-        feature_names=("f1",),
-        centroids=np.zeros((1, 1)),
-        preprocessing_state={},
-        spec_payload={},
-        cohort_fingerprint=CohortFingerprint(
-            n_subjects=1, modalities=("T1",), subject_id_digest="d"
-        ),
-        provenance=provenance,
-    )
-    result = StudyResult(
-        habitat_model=model,
-        pipeline=object(),
-        features=_table(),
-        habitat_maps=(
-            HabitatMap(
-                subject_id="a",
-                label_array=np.ones((2, 2, 2), dtype=np.int32),
-                geometry=Geometry.from_array((2, 2, 2)),
-                model_id="m",
-                habitat_ids=(1,),
-                provenance=provenance,
-            ),
-        ),
-        manifest=_manifest(),
-    )
-    out = result.save(tmp_path / "study")
-
-    assert (out / "habitat_model.habitatmodel").is_file()
-    assert (out / "habitat_features.csv").is_file()
-    assert (out / "run_manifest.json").is_file()
-    reloaded = HabitatModel.load(out / "habitat_model.habitatmodel")
-    assert reloaded.model_id == "m"

@@ -23,8 +23,20 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-class BaseModel(ABC, BaseEstimator, ClassifierMixin):
-    """Abstract base class for all models"""
+class BaseModel(ClassifierMixin, BaseEstimator, ABC):
+    """
+    Abstract base class for all models.
+
+    Base order follows the sklearn convention of listing mixins before
+    ``BaseEstimator``. Since sklearn 1.6 the estimator type is reported by
+    ``__sklearn_tags__``, which ``ClassifierMixin`` overrides; if
+    ``BaseEstimator`` came first, its default implementation would win the MRO
+    and leave ``estimator_type`` unset, so ``is_classifier()`` would return
+    False and sklearn utilities would refuse probability-based scoring
+    (``permutation_importance``/``cross_val_score`` with ``roc_auc``,
+    ``GridSearchCV``, ``CalibratedClassifierCV``). ``ABC`` stays last; the
+    metaclass is still ``ABCMeta``, so ``@abstractmethod`` remains enforced.
+    """
     
     @property
     @abstractmethod

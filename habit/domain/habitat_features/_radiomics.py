@@ -33,7 +33,7 @@ from typing import Any, Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.geometry import Geometry
 from habit.contracts.subject import Subject
 

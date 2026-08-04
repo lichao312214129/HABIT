@@ -56,15 +56,17 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     Iterable,
     Iterator,
     List,
     Optional,
     Tuple,
     TypeVar,
+    cast,
 )
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.ops import SubjectOperator, SubjectResult
 from habit.execution.backends import _cache_key_of, _subject_id_of
 from habit.execution.checkpoint import CheckpointStore
@@ -116,8 +118,12 @@ def _picklable(exc: BaseException) -> BaseException:
     try:
         pickle.dumps(exc)
     except Exception:
-        return HABITAPIError(
-            f"{type(exc).__name__} raised in worker (not picklable): {exc}"
+        # ``HABITAPIError`` is an exception subclass, but mypy sees it as
+        # ``Any`` when ``habit.exceptions`` is outside the checked set
+        # (``follow_imports = "skip"``); the cast keeps that boundary explicit.
+        return cast(
+            BaseException,
+            HABITAPIError(f"{type(exc).__name__} raised in worker (not picklable): {exc}"),
         )
     return exc
 
@@ -524,9 +530,17 @@ class ProcessPoolBackend:
                             from_cache=False,
                         )
                         continue
-                    exc = payload if isinstance(payload, BaseException) else HABITAPIError(str(payload))
+                    # Named ``failure`` rather than ``exc``: Python deletes an
+                    # ``except ... as exc`` target at the end of its block, so
+                    # reusing that name here confuses both readers and mypy's
+                    # deleted-variable analysis.
+                    failure = (
+                        payload
+                        if isinstance(payload, BaseException)
+                        else HABITAPIError(str(payload))
+                    )
                     if policy.on_subject_failure == "fail_fast":
-                        raise exc
+                        raise failure
                     had_failure = True
                     attempts[task.task_id] += 1
                     if attempts[task.task_id] <= policy.auto_retry_rounds:
@@ -534,14 +548,14 @@ class ProcessPoolBackend:
                         continue
                     if checkpoint is not None:
                         checkpoint.put_failure(
-                            task.cache_key, f"{type(exc).__name__}: {exc}"
+                            task.cache_key, f"{type(failure).__name__}: {failure}"
                         )
                     completed += 1
                     _report()
                     yield SubjectResult(
                         subject_id=task.subject_id,
                         value=None,
-                        error=exc,
+                        error=failure,
                         from_cache=False,
                     )
             finally:
@@ -564,7 +578,7 @@ class ProcessPoolBackend:
 
     def _execute_round(
         self, op: SubjectOperator[TIn, TOut], tasks: List[_Task]
-    ) -> Iterator[Tuple[_Task, str, Any]]:
+    ) -> Generator[Tuple[_Task, str, Any], None, None]:
         """
         Run one dispatch round over ``tasks``.
 
@@ -877,6 +891,9 @@ class ProcessPoolBackend:
                 for index, error in timed_out:
                     slot = slots.pop(index)
                     task_id = slot.in_flight_task
+                    # A slot only enters ``timed_out`` after its startup signal
+                    # arrived, which implies a task was dispatched into it.
+                    assert task_id is not None
                     self._terminate(slot.proc)
                     completed += 1
                     yield task_by_id[task_id], _STATUS_ERROR, error

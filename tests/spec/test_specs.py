@@ -22,6 +22,7 @@ import pytest
 from habit.api.exceptions import HABITAPIError
 from habit.spec import (
     HabitatSpec,
+    MLSpec,
     RunPolicy,
     Spec,
     load_habitat_spec,
@@ -81,11 +82,13 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
         "version",
         "voxel_feature_extractor",
         "supervoxelizer",
+        "supervoxel_feature_extractor",
         "habitat_model_fitter",
         "habitat_assigner",
         "habitat_features",
-        "subject_table_preprocessors",
-        "group_table_preprocessors",
+        "voxel_feature_preprocessors",
+        "supervoxel_feature_preprocessors",
+        "cohort_feature_preprocessors",
         "random_seed",
     }
     restored = HabitatSpec.from_dict(payload)
@@ -96,27 +99,45 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
 
 @pytest.mark.unit
 def test_habitat_spec_preprocessor_chains_and_random_seed() -> None:
-    """Table-preprocessor chains and the seed roundtrip and fingerprint."""
+    """The three preprocessing chains and the seed roundtrip and fingerprint."""
     spec = HabitatSpec(
         name="chains",
         voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1"]}),
         supervoxelizer=Spec(name="slic"),
         habitat_model_fitter=Spec(name="kmeans"),
         habitat_assigner=Spec(name="nearest_centroid"),
-        subject_table_preprocessors=(
+        voxel_feature_preprocessors=(
             Spec(name="winsorize", params={"winsor_limits": [0.05, 0.05]}),
             Spec(name="minmax"),
         ),
-        group_table_preprocessors=(
+        supervoxel_feature_preprocessors=(Spec(name="zscore"),),
+        cohort_feature_preprocessors=(
             Spec(name="binning", params={"n_bins": 10, "bin_strategy": "uniform"}),
         ),
         random_seed=42,
     )
     restored = HabitatSpec.from_dict(spec.to_dict())
     assert restored == spec
-    assert [s.name for s in restored.subject_table_preprocessors] == ["winsorize", "minmax"]
-    assert [s.name for s in restored.group_table_preprocessors] == ["binning"]
+    assert [s.name for s in restored.voxel_feature_preprocessors] == [
+        "winsorize",
+        "minmax",
+    ]
+    assert [s.name for s in restored.supervoxel_feature_preprocessors] == ["zscore"]
+    assert [s.name for s in restored.cohort_feature_preprocessors] == ["binning"]
     assert restored.random_seed == 42
+    # The three chains are independent slots: moving a step between them is a
+    # different analysis, so it must change the fingerprint.
+    moved = HabitatSpec.from_dict(
+        {
+            **spec.to_dict(),
+            "voxel_feature_preprocessors": [],
+            "cohort_feature_preprocessors": [
+                *spec.to_dict()["cohort_feature_preprocessors"],
+                *spec.to_dict()["voxel_feature_preprocessors"],
+            ],
+        }
+    )
+    assert moved.fingerprint() != spec.fingerprint()
     # The seed is scientific: changing it must change the fingerprint.
     reseeded = HabitatSpec.from_dict({**spec.to_dict(), "random_seed": 7})
     assert reseeded.fingerprint() != spec.fingerprint()
@@ -290,3 +311,106 @@ def test_yaml_loader_rejects_non_mapping(tmp_path) -> None:
         load_habitat_spec(bad)
     with pytest.raises(FileNotFoundError):
         load_run_policy(tmp_path / "missing.yaml")
+
+
+# ---------------------------------------------------------------------------
+# MLSpec
+# ---------------------------------------------------------------------------
+
+
+def _ml_spec() -> MLSpec:
+    """Build a representative tabular modelling specification."""
+    return MLSpec(
+        name="demo_ml",
+        classifier=Spec(name="LogisticRegression", params={"C": 1.0}),
+        table_preprocessors=(Spec(name="zscore"),),
+        feature_selectors=(Spec(name="variance", params={"threshold": 0.01}),),
+        metrics=(Spec(name="accuracy"), Spec(name="auc")),
+        random_seed=42,
+    )
+
+
+@pytest.mark.unit
+def test_ml_spec_roundtrip() -> None:
+    """The ML spec survives a dict roundtrip with domain-verbatim keys."""
+    spec = _ml_spec()
+    payload = spec.to_dict()
+    assert set(payload) == {
+        "name",
+        "version",
+        "table_preprocessors",
+        "feature_selectors",
+        "classifier",
+        "metrics",
+        "random_seed",
+    }
+    restored = MLSpec.from_dict(payload)
+    assert restored == spec
+    assert restored.classifier.name == "LogisticRegression"
+    assert [s.name for s in restored.table_preprocessors] == ["zscore"]
+    assert [s.name for s in restored.feature_selectors] == ["variance"]
+    assert [s.name for s in restored.metrics] == ["accuracy", "auc"]
+    assert restored.random_seed == 42
+
+
+@pytest.mark.unit
+def test_ml_spec_fingerprint_is_stable_and_param_sensitive() -> None:
+    """Equal ML specs hash equally; any stage deviation changes the hash."""
+    assert _ml_spec().fingerprint() == _ml_spec().fingerprint()
+    tweaked = MLSpec.from_dict(
+        {**_ml_spec().to_dict(), "classifier": {"name": "SVM", "params": {}}}
+    )
+    assert tweaked.fingerprint() != _ml_spec().fingerprint()
+    # The seed is scientific: changing it must change the fingerprint.
+    reseeded = MLSpec.from_dict({**_ml_spec().to_dict(), "random_seed": 7})
+    assert reseeded.fingerprint() != _ml_spec().fingerprint()
+
+
+@pytest.mark.unit
+def test_ml_spec_requires_classifier_and_typed_chains() -> None:
+    """The classifier slot is mandatory and chains hold Specs only."""
+    with pytest.raises(HABITAPIError):
+        MLSpec(name="broken", classifier=None)  # type: ignore[arg-type]
+    with pytest.raises(HABITAPIError):
+        MLSpec(name="broken", classifier="SVM")  # type: ignore[arg-type]
+    with pytest.raises(HABITAPIError):
+        MLSpec(
+            name="broken",
+            classifier=Spec(name="SVM"),
+            metrics=("auc",),  # type: ignore[arg-type]
+        )
+    with pytest.raises(HABITAPIError):
+        MLSpec(name="  ", classifier=Spec(name="SVM"))
+
+
+@pytest.mark.unit
+def test_ml_spec_describe_methods_states_every_configured_step() -> None:
+    """The planned-methods paragraph names every chain and the classifier."""
+    spec = _ml_spec()
+    text = spec.describe_methods()
+
+    assert text.startswith("A machine-learning analysis was designed with HABIT")
+    assert "'demo_ml'" in text
+    # Chains render in pipeline order: preprocessing, selection, classifier.
+    assert text.index("table preprocessing with zscore") < text.index(
+        "feature selection with variance"
+    ) < text.index("a LogisticRegression classifier")
+    assert "threshold=0.01" in text
+    assert "evaluation metrics: accuracy, auc" in text
+    assert "Random seed 42 is fixed" in text
+
+    nature = spec.describe_methods(style="nature")
+    assert nature.endswith("The analysis was designed with HABIT.")
+    with pytest.raises(HABITAPIError):
+        spec.describe_methods(style="imaginary")
+
+
+@pytest.mark.unit
+def test_ml_spec_defaults_to_empty_chains() -> None:
+    """Only the classifier is required; chains and seed default to unset."""
+    spec = MLSpec(name="bare", classifier=Spec(name="SVM"))
+    assert spec.table_preprocessors == ()
+    assert spec.feature_selectors == ()
+    assert spec.metrics == ()
+    assert spec.random_seed is None
+    assert MLSpec.from_dict(spec.to_dict()) == spec

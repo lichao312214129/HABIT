@@ -55,7 +55,7 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence
 
 import numpy as np
 
-from habit.api.exceptions import DataFormatError, HABITAPIError
+from habit.exceptions import DataFormatError, HABITAPIError
 from habit.contracts.geometry import Geometry
 from habit.contracts.image import ArrayImageRef
 from habit.contracts.subject import Subject

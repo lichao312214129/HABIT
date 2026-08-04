@@ -18,11 +18,12 @@ Bridge raw batched C-extension matrices into TorchRadiomics coefficient evaluati
 
 from __future__ import annotations
 
+import logging
 from typing import Dict, List, Mapping, Sequence
 
 import numpy as np
 
-from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
+from habit.kernels.radiomics.cext import (
     calculate_firstorder,
     calculate_gldm,
     calculate_glcm,
@@ -31,9 +32,8 @@ from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
     calculate_ngtdm,
     cext_backend,
 )
-from habit.utils.log_utils import get_module_logger
 
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Column order returned by ``sv_calculate_firstorder`` / ``calculate_firstorder``.
 FIRSTORDER_CEXT_COLUMNS: Sequence[str] = (

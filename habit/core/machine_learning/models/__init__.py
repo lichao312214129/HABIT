@@ -22,7 +22,6 @@ from .factory import ModelFactory
 from .logistic_regression_model import LogisticRegressionModel
 from .random_forest_model import RandomForestModel
 from .svm_model import SVMModel
-from .xgboost_model import XGBoostModel
 
 _all_models = [
     'BaseModel',
@@ -30,8 +29,16 @@ _all_models = [
     'LogisticRegressionModel',
     'RandomForestModel',
     'SVMModel',
-    'XGBoostModel',
 ]
+
+# Handle optional XGBoost dependency (extra 'ml'); the model module itself
+# also guards its xgboost import, so this never raises at package import.
+try:
+    from .xgboost_model import XGBoostModel
+    _all_models.append('XGBoostModel')
+except ImportError:
+    # xgboost is not installed, which is acceptable
+    XGBoostModel = None
 
 # Handle optional AutoGluon dependency
 try:

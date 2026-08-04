@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Stable exception contract for the public HABIT API.
+"""Public API facade for HABIT's exception hierarchy.
 
-Public callers should catch exceptions from this module rather than importing
-``habit.core`` implementation modules.  The hierarchy intentionally preserves
-the established core exceptions so existing application-level error handling
-continues to work.
+The canonical definitions live in :mod:`habit.exceptions` (foundation layer).
+This module re-exports them so the documented ``habit.api.exceptions`` import
+path keeps working for external callers; internal code must import from
+``habit.exceptions`` directly.
 """
 
-from __future__ import annotations
-
-from sklearn.exceptions import NotFittedError
-
-from habit.core.common.exceptions import (
+from habit.exceptions import (
     CompatibilityError,
     ComponentNotFoundError,
     ConfigurationError,
     DataFormatError,
+    GeometryError,
+    HABITAPIError,
     HabitError,
+    NotFittedError,
+    OptionalDependencyError,
     ProcessingError,
 )
 
@@ -45,15 +45,3 @@ __all__ = [
     "ProcessingError",
     "NotFittedError",
 ]
-
-
-class HABITAPIError(DataFormatError):
-    """Raised when a value violates a documented public API data contract."""
-
-
-class GeometryError(DataFormatError):
-    """Raised when image and mask physical-space geometry is incompatible."""
-
-
-class OptionalDependencyError(HabitError, ImportError):
-    """Raised when a requested optional HABIT backend is not installed."""

@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from habit.adapters.image_refs import FileImageRef
-from habit.api.exceptions import DataFormatError
+from habit.exceptions import DataFormatError
 from habit.contracts.subject import Cohort, Subject
 
 __all__ = ["DirectoryDataSource"]

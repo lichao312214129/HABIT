@@ -1,37 +1,26 @@
-API Reference
-=============
+Python API (v1.0)
+=================
 
-This section documents HABIT's stable Python API and the underlying module
-reference. For command-oriented walkthroughs, see :doc:`../how_to/index`.
+HABIT v1.0 is **API-first**. The documented surface is the layered core:
+
+``contracts`` → ``domain`` → ``spec`` / ``execution`` → ``kernels`` / ``compat``.
+
+CLI and YAML are thin shells over the same objects. The former ``run_*`` /
+clinical-facade documentation from v0.1 is **retired** from this section.
 
 .. toctree::
    :maxdepth: 2
 
    python_api
-   image
-   radiomics_api
-   habitat_analysis
-   machine_learning
-   preprocessing
-   dicom_sort
+   data_model
+   adapters
+   domain_habitat
+   domain_table
+   spec
+   execution
+   kernels
+   compat
    plugins
-   contracts
-   common
-   utils
-   cli
-
-Command-oriented API notes
---------------------------
-
-Short command-oriented pages that mirror the how-to guides (kept for older
-links and Sphinx search):
-
-.. toctree::
-   :maxdepth: 1
-
-   prepare_data
-   preprocess
-   segment_habitat
-   extract_features
-   train_model
-   compare_models
+   registry
+   image_io
+   exceptions

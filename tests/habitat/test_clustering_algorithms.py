@@ -129,7 +129,18 @@ class TestValidationMethodsMapping:
     def test_optimization_directions(self) -> None:
         assert get_optimization_direction("kmeans", "silhouette") == "maximize"
         assert get_optimization_direction("gmm", "bic") == "minimize"
-        assert get_optimization_direction("kmeans", "elbow") == "elbow"
+
+    def test_elbow_and_kneedle_share_one_direction(self) -> None:
+        """
+        Since v1.0 both keys name the same knee rule (breaking change).
+
+        Before v1.0 ``elbow`` reported its own direction and was selected by a
+        second-difference criterion, so the two keys could pick different
+        cluster counts on the same inertia curve.
+        """
+        assert get_optimization_direction("kmeans", "elbow") == "knee"
+        assert get_optimization_direction("kmeans", "kneedle") == "knee"
+        assert get_optimization_direction("kmeans", "inertia") == "knee"
 
     def test_method_descriptions_non_empty(self) -> None:
         desc = get_method_description("gmm", "bic")

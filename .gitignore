@@ -119,6 +119,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv_*/
 env/
 venv/
 ENV/
@@ -181,6 +182,11 @@ habit-gui/
 *.tar
 *.zip
 *.7z
+
+# Golden baseline fingerprints: the numerical acceptance gate for the v1.0
+# refactor. They must be versioned, so they override the blanket *.json rule.
+!tests/golden/baseline/*.json
+!tests/golden/baseline/fast/*.json
 
 # Specific directories to ignore
 demo_data/results/

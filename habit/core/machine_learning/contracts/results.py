@@ -77,6 +77,12 @@ class ModelResult:
         without keeping the original feature matrix around.
     test_subject_ids:
         Subject identifiers of test samples.
+    train_metrics_ci:
+        Bootstrap confidence intervals for ``train_metrics``.  Empty unless
+        ``bootstrap.enabled`` is set, so reports keep their historical shape
+        by default.
+    test_metrics_ci:
+        Bootstrap confidence intervals for ``test_metrics``.
     """
 
     model_name: str
@@ -88,6 +94,8 @@ class ModelResult:
     feature_names: Tuple[str, ...]
     train_subject_ids: Tuple[Any, ...] = ()
     test_subject_ids: Tuple[Any, ...] = ()
+    train_metrics_ci: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    test_metrics_ci: Dict[str, Dict[str, float]] = field(default_factory=dict)
 
     def to_legacy_dict(self) -> Dict[str, Any]:
         """
@@ -97,6 +105,10 @@ class ModelResult:
         test_payload: Dict[str, Any] = dict(self.test)
         train_payload["metrics"] = self.train_metrics
         test_payload["metrics"] = self.test_metrics
+        if self.train_metrics_ci:
+            train_payload["metrics_ci"] = self.train_metrics_ci
+        if self.test_metrics_ci:
+            test_payload["metrics_ci"] = self.test_metrics_ci
         return {
             "train": train_payload,
             "test": test_payload,
@@ -150,6 +162,9 @@ class AggregatedModelResult:
         Mean of per-fold AUCs (``None`` when AUC is not available).
     auc_std:
         Standard deviation of per-fold AUCs.
+    overall_metrics_ci:
+        Bootstrap confidence intervals for ``overall_metrics``, computed on the
+        pooled out-of-fold predictions.  Empty unless ``bootstrap.enabled``.
     """
 
     model_name: str
@@ -157,6 +172,7 @@ class AggregatedModelResult:
     overall_metrics: Dict[str, float]
     auc_mean: Optional[float] = None
     auc_std: Optional[float] = None
+    overall_metrics_ci: Dict[str, Dict[str, float]] = field(default_factory=dict)
 
     def to_legacy_dict(self) -> Dict[str, Any]:
         """
@@ -171,6 +187,8 @@ class AggregatedModelResult:
         payload: Dict[str, Any] = dict(self.raw)
         payload["metrics"] = dict(self.overall_metrics)
         payload["raw"] = dict(self.raw)
+        if self.overall_metrics_ci:
+            payload["metrics_ci"] = dict(self.overall_metrics_ci)
         if self.auc_mean is not None:
             payload["auc_mean"] = self.auc_mean
         if self.auc_std is not None:

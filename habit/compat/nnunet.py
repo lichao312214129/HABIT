@@ -49,7 +49,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 import numpy as np
 
 from habit.adapters.image_refs import FileImageRef
-from habit.api.exceptions import DataFormatError
+from habit.exceptions import DataFormatError
 from habit.contracts.image import MaskVolume
 from habit.contracts.subject import Cohort, Subject
 

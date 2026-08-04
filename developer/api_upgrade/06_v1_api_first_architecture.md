@@ -54,13 +54,42 @@
 
 ### 3.2 领域词汇即 API
 
-通用抽象（`Operator.transform(x)`）虽然灵活，但对医学影像研究者不可读，也不利于第三方判断该扩展哪一处。v1.0 的核心协议数量刻意压到**五个**，且每一个都对应 `mental_model.rst` 里已有的领域词条：
+通用抽象（`Operator.transform(x)`）虽然灵活，但对医学影像研究者不可读，也不利于第三方判断该扩展哪一处。v1.0 的核心协议数量刻意压到**八个**，且每一个都对应 `mental_model.rst` 里已有的领域词条：
 
 ```
-Voxel feature  →  Supervoxel  →  Habitat  →  Habitat feature
+Voxel feature  →  Supervoxel  →  Supervoxel feature  →  Habitat  →  Habitat feature
+              ↑ 特征预处理贯穿前三步：个体级去个体差异，群体级建立可比空间
 ```
 
 这不是妥协，而是设计要求：**API 的可读性等于领域词汇的准确性。**
+
+> **为什么是六个而不是最初设计的五个。** 初版把「长出超体素」和「描述超体素」合并进 `Supervoxelizer`，理由是 `Supervoxelization` 契约本身就是"划分 + 特征"的复合产物（见 `08` 第 2 节）。这个合并是错的，代价有两层：
+>
+> 1. **丢了一个正交轴。** v0.1 用两个独立配置块表达这两件事——`habitat_segmentation.supervoxel`（算法：kmeans / gmm / slic）与 `feature_construction.supervoxel_level`（特征：mean / radiomics）。合并后只有一个 spec name 位置，第二个轴无处安放。
+> 2. **有一整类能力变得不可表达。** `supervoxel_radiomics` 需要**原始影像**，而 `Supervoxelizer.__call__(field)` 只拿得到 `VoxelFeatureField`，签名上就写不出来。
+>
+> 判据仍然是本节那条：能用领域词汇解释的才配有协议。"超体素特征"本就是领域既有词条，且与 `HabitatFeatureExtractor` 结构完全同构——两者都是"给定一个分区 + 原图，描述每个区域"，只是粒度与下游用途不同（超体素特征喂聚类，生境特征喂建模）。
+
+> **为什么再补第七、第八个：特征预处理。** 特征提取之后、聚类之前必须有一段数值处理，这在 v0.1 里是 `preprocessing_for_subject_level` 与 `preprocessing_for_group_level` 两个配置块。初版 v1 设计把它们塞进了 `table_preprocessor` 域，这是**双重错误**：
+>
+> 1. **语义错位。** `TablePreprocessor` 处理的是 `FeatureTable`——一行一个受试者、带 ID 与结局列的**建模表**。而这里要处理的是一行一个体素/超体素的**聚类输入矩阵**。两者行的含义完全不同，共用一个协议只能靠强行绕过 ID 列检查。
+> 2. **静默断线。** `HabitatSpec` 有字段、`legacy.py` 会翻译、序列化也正常，但 `SubjectPipeline` 里**没有任何消费点**。这个后果比"不支持"更坏：分析照跑、溯源照记，而数字来自一条从未做过归一化的流水线。
+>
+> 拆分的轴不是粒度，而是**状态是否跨受试者**：
+>
+> | | `SubjectFeaturePreprocessor` | `CohortFeaturePreprocessor` |
+> |---|---|---|
+> | 状态 | 无状态（每次从当前矩阵重算） | 有状态（在训练队列上 fit 一次） |
+> | 科学目的 | 消除**个体间**差异（扫描仪、序列、强度尺度） | 让不同个体的单元落在**同一个**可比特征空间 |
+> | 粒度 | 体素或超体素**都可以** | 体素或超体素都可以 |
+> | 泄漏风险 | 结构上不可能泄漏 | 生境定义中**唯一**的泄漏敏感点 |
+> | 状态归属 | 无 | 必须随 `HabitatModel` 流通 |
+>
+> 无状态那一半为什么必须无状态：个体级预处理的目的就是"用个体自己的分布把个体差异抹掉"，一旦用了训练队列的统计量，抹掉的就不再是个体差异。所以它在训练与预测时是同一个计算，结构上不存在泄漏。
+>
+> 这个划分让 v0.1 表达不出来的东西成为可能：v0.1 的个体级块**只作用于体素特征**，所以逐超体素影像组学根本没有个体级归一化可用——它只能被迫走群体级那条有状态的路。按状态归属划分后，同一个无状态链在两种粒度上都能用。
+>
+> 相应地 `HabitatSpec` 有三条链（`voxel_feature_preprocessors` / `supervoxel_feature_preprocessors` / `cohort_feature_preprocessors`），但只有**两个协议**——前两条链类型完全相同，区别只是插在流水线的哪个位置。
 
 ### 3.2b 单个体是原子调用
 
@@ -72,9 +101,9 @@ field = voxel_features(subject)      # 一个个体，不需要队列，不需�
 
 每个个体级算子都是**单参可调用对象**，`Cohort` 与 `ExecutionBackend` 是叠在上面的可选设施。这是 MONAI（`Transform.__call__(data)`）、TorchIO（`transform(subject)`）、PyRadiomics（`extractor.execute(img, mask)`）共同收敛到的约定，对 HABIT 而言是**硬要求而非风格偏好**：只有单样本可调用对象才能被丢进 `monai.transforms.Compose`、被 torch `DataLoader` 驱动、或者在某一例结果异常时被单独拎出来调试。
 
-同时每个协议提供**领域动词别名**（`extract` / `build` / `map`），实现方式是 `extract = __call__`，同一个函数两个名字，不存在两条代码路径。这样 `voxel_features(subject)` 与 `voxel_features.extract(subject)` 都成立，通用性与领域可读性不必二选一。
+> **落地修正：领域动词别名没有实现，而且不应该实现。** 初版设计想给每个协议加 `extract` / `build` / `map` 别名（`extract = __call__`），理由是领域可读性。落地时否决了：类体里的 `extract = __call__` 在**类定义时**就绑定了当时那个函数对象，子类覆写 `__call__` 后别名仍指向父类实现——一个不会报错、只会算错的静默分歧。调用点的可读性由变量名承担就够了（`voxel_features(subject)` 本身已经在说它在做什么），不值得用一个陷阱去换。
 
-一个直接后果：`SubjectLevelOp` 不再引入第六个动词，它就是"带 `spec` 和 `cache_key` 的可调用对象"，所以四个个体级领域协议**自动满足**它，插件作者永远不需要为同一个计算写两个方法名。
+一个直接后果：`SubjectLevelOp` 不引入任何新动词，它就是"带 `spec` 的可调用对象"，所以个体级领域协议**自动满足**它，插件作者永远不需要为同一个计算写两个方法名。
 
 ### 3.3 `HabitatModel` 是可流通的科学产物
 
@@ -110,7 +139,7 @@ v1.0 把它提升为一等对象：自带群体质心、特征定义、预处理
 ```
 L5  interfaces   CLI / YAML / GUI / REST      ← 解析与装配，无业务逻辑
 L4  recipes      标准研究配方 + RunManifest 汇总 + 报告导出
-L3  domain ops   五个领域协议 + Registry
+L3  domain ops   八个领域协议 + Registry
 L2  contracts    领域数据模型 + 两级算子协议 + 执行后端协议
 L1  adapters     DataSource / Sink：目录约定、nnU-Net、MONAI、DataFrame、内存
 L0  kernels      纯计算（numpy / SimpleITK / torch），无 IO、无状态、无日志
@@ -127,10 +156,10 @@ L0  kernels      纯计算（numpy / SimpleITK / torch），无 IO、无状态�
 
 | 新层 | 现有代码的去向 |
 |---|---|
-| L0 | `clustering_features/`、`habitat_features/` 中的纯计算函数（MSI、ITH 等公式**原样保留**） |
+| L0 | `clustering_features/`、`habitat_features/` 中的纯计算函数（MSI、ITH 等公式**原样保留**）；`feature_preprocessing/` 的八个方法数值实现抽为 `kernels/feature_transforms.py`，两个预处理域共用 |
 | L1 | `utils/io_utils.get_image_and_mask_paths` → `DirectoryDataSource`；新增 nnU-Net / MONAI / DataFrame 适配 |
 | L2 | 新建。部分复用现有 `habit/api/image.py` 的 `ImageVolume` / `MaskVolume` |
-| L3 | `HabitatAnalysis` 拆解为五个协议的实现；八个 registry 收编统一 |
+| L3 | `HabitatAnalysis` 拆解为八个协议的实现；registry 收编统一 |
 | L4 | `run_*_from_config` 的编排部分 + `RunManifest` |
 | L5 | `habit/cli.py` + `habit/commands/` 基本不动，内部改调 L4 |
 
@@ -183,27 +212,50 @@ provenance          软件版本、依赖版本、随机种子、时间戳
 原型见 `prototype/protocols.py`。
 
 ```python
-VoxelFeatureExtractor(spec)          __call__(Subject)             -> VoxelFeatureField
-Supervoxelizer(spec)                 __call__(VoxelFeatureField)   -> Supervoxelization
-HabitatModelEstimator(spec)          fit(Sequence[Supervoxelization]) -> HabitatModel   ← 群体级
-HabitatMapper(model, spec)           __call__(Supervoxelization)   -> HabitatMap        ← 个体级
-HabitatFeatureExtractor(spec)        __call__(Subject, HabitatMap) -> FeatureTable
+VoxelFeatureExtractor(spec)          __call__(Subject)                     -> VoxelFeatureField
+SubjectFeaturePreprocessor(spec)     __call__(DataFrame)                   -> DataFrame
+Supervoxelizer(spec)                 __call__(VoxelFeatureField)           -> Supervoxelization
+SupervoxelFeatureExtractor(spec)     __call__(Subject, Supervoxelization)  -> Supervoxelization
+CohortFeaturePreprocessor(spec)      fit(DataFrame) / transform(DataFrame) -> DataFrame   ← 群体级
+HabitatModelFitter(spec)             fit(Sequence[Supervoxelization])      -> HabitatModel ← 群体级
+HabitatAssigner(model, spec)         __call__(Supervoxelization)           -> HabitatMap
+HabitatFeatureExtractor(spec)        __call__(Subject, HabitatMap)         -> FeatureTable
 ```
 
-四个个体级协议都是单参可调用（`HabitatFeatureExtractor` 的两个参数都是个体级的，故仍属个体级），各自另有领域动词别名 `extract` / `build` / `map`。
+个体级协议都是单参可调用（`SupervoxelFeatureExtractor` 与 `HabitatFeatureExtractor` 收两个参数，但两个参数都是个体级的，故仍属个体级）。
 
-### 6.0 `HabitatMapper` 的模型在构造期注入
+> **为什么两个预处理协议收 `DataFrame` 而不是契约类型。** 它们的计算真的与行的含义无关——对体素矩阵做 winsorize 和对超体素矩阵做 winsorize 是同一个按列运算，这正是同一套方法能服务两种粒度的原因。让签名说 `DataFrame` 是在如实陈述这一点；若强行收 `VoxelFeatureField | Supervoxelization`，每个方法都要写一遍拆装分支，而分支的两侧完全相同。
+>
+> 契约到 `DataFrame` 的桥由两个契约各自提供的**对称方法对**承担：`feature_frame()` 取出裸矩阵、`with_feature_frame(frame, produced_by, spec_fingerprint)` 装回去并派生溯源。拆装逻辑内聚在最清楚自己怎么存的那一方，算法层零分支；以后新增第三种粒度，只要它提供这对方法就自动兼容整套预处理。
 
-`HabitatMapper(model)` 而不是 `mapper.map(unit, model)`。两个理由：
+### 6.0a 两种特征载体为什么不统一
 
-1. mapper 因此成为普通单参可调用对象，与其余个体级算子同形，组合与执行时不需要任何特例绑定；
-2. **没有模型就构造不出 mapper**，于是"未 fit 先 predict"从运行期错误变成不可表达的状态——train/predict 一致性由类型结构保证，而不是靠约定。
+`VoxelFeatureField.values` 是 `ndarray` + `feature_names`，`Supervoxelization.features` 是带 index 的 `DataFrame`。这个不一致是**刻意的**，理由是量级与行标识：
 
-常用写法由 `HabitatModel.mapper()` 工厂提供：`labels = model.mapper()(unit)`。
+| | `VoxelFeatureField` | `Supervoxelization` |
+|---|---|---|
+| 行数量级 | 几万到几十万 | 几十到几百 |
+| 行的标识 | 3D 坐标，本身是 `(n,3)` 数组 | 单个整数 label |
+| 列数量级 | 几列（模态强度） | radiomics 时上千 |
+
+体素侧若用 `DataFrame`，行标识只能塞成 MultiIndex，对几十万行而言 index 自身的开销就很可观，而联邦/并行场景要序列化传输时 `ndarray` 明显更轻；超体素侧行标识天然是整数 label、列名众多，`DataFrame` 正合适。
+
+**统一的是接口，不是存储**——这就是上面那对 `feature_frame()` / `with_feature_frame()` 的职责。
+
+### 6.0 `HabitatAssigner` 的模型在构造期注入
+
+> 落地定名：`HabitatModelEstimator` → `HabitatModelFitter`，`HabitatMapper` → `HabitatAssigner`（理由见 `08` 第 1 节）。
+
+`HabitatAssigner(model)` 而不是 `assigner.assign(unit, model)`。两个理由：
+
+1. assigner 因此成为普通单参可调用对象，与其余个体级算子同形，组合与执行时不需要任何特例绑定；
+2. **没有模型就构造不出 assigner**，于是"未 fit 先 predict"从运行期错误变成不可表达的状态——train/predict 一致性由类型结构保证，而不是靠约定。
+
+常用写法由 `HabitatModel.assigner()` 工厂提供：`labels = model.assigner()(unit)`。
 
 ### 6.0b `SubjectPipeline`：类型安全的 Compose
 
-个体级链条（体素特征 → 超体素化 → 映射）合成为**一个**可调用对象。不直接复用泛型 `Compose` 的原因是 HABIT 各步的输入输出类型是异构的（`Subject → VoxelFeatureField → Supervoxelization → HabitatMap`），抹平成统一 dict 恰好会丢掉这套设计赖以自检的契约。
+个体级链条（体素特征 → 个体级预处理 → 超体素化 → 超体素特征 → 个体级预处理 → 群体级 transform → 生境分配）合成为**一个**可调用对象。不直接复用泛型 `Compose` 的原因是 HABIT 各步的输入输出类型是异构的（`Subject → VoxelFeatureField → Supervoxelization → HabitatMap`），抹平成统一 dict 恰好会丢掉这套设计赖以自检的契约。
 
 它的实际价值：**`HabitatModel` + `SubjectPipeline` 正好是外部验证需要分发的一对**——生境定义，以及套用这个定义的过程。
 
@@ -213,22 +265,28 @@ HabitatFeatureExtractor(spec)        __call__(Subject, HabitatMap) -> FeatureTab
 
 ### 6.1 三种 clustering_mode 如何表达
 
-现在 `_PIPELINE_RECIPES` 是硬编码 dict，加第四种范式必须改源码。新架构下三种模式只是这五个协议的**不同装配方式**：
+现在 `_PIPELINE_RECIPES` 是硬编码 dict，加第四种范式必须改源码。新架构下三种模式只是这八个协议的**不同装配方式**：
 
 | 模式 | 装配 |
 |---|---|
-| `two_step` | 体素特征 → 超体素化 → 群体级 fit → 逐个体 map |
-| `one_step` | 体素特征 → （跳过超体素）→ 个体级 fit + map |
-| `direct_pooling` | 体素特征 → 直接汇总体素 → 群体级 fit → 逐个体 map |
+| `two_step` | 体素特征 → 个体级预处理 → 超体素化 →（可选）超体素特征 →（可选）个体级预处理 → 群体级预处理 fit → 群体级 fit → 逐个体 assign |
+| `one_step` | 体素特征 → 个体级预处理 → （跳过超体素）→ 个体级 fit + assign |
+| `direct_pooling` | 体素特征 → 个体级预处理 → 直接汇总体素 → 群体级预处理 fit → 群体级 fit → 逐个体 assign |
 
 三者作为**内置配方**保留在 L4，用户想要第四种自己组装即可，不需要改 HABIT。
+
+`SubjectPipeline` 覆盖上表中除群体级 fit 之外的全部步骤，并且**训练期与预测期用同一个对象**：`pipeline.units(subject)` 产出聚类单元供群体级 fit，`pipeline(subject)` 在此基础上再补群体级 transform 与 assign。这不是便利性设计——训练和预测各写一遍装配，正是两者悄悄分岔的标准途径。因此 `habitat_assigner=None` 是合法状态，表示"这条链只用于产出单元"。
+
+### 6.1b 群体级预处理状态必须随模型走
+
+一个生境定义 = 群体质心 **+ 质心所在的特征空间**。若把队列级预处理链的状态留在运行环境里、只发布质心，那么别人拿模型套新队列时会用原始特征去比对预处理后的质心——结果照样是一张看起来合理的生境图。所以 `HabitatModel.with_cohort_preprocessing()` 把链状态与链 spec 绑进模型，并**重算 `model_id`**：质心来自不同特征空间的两个模型是两个不同的定义，不能共用标识。
 
 ### 6.2 registry
 
 现有八个 registry（预处理、模型、聚类、聚类特征、特征表预处理、生境特征、特征选择、评估指标）收编到统一机制，并补齐两条能力：
 
 - **自省**：沿用 v0.1.x 已有的 `list_plugins(domain)`、`get_plugin_info(name, domain)`、`get_param_schema(name, domain)`，不另造同义函数；v1.0 只补齐覆盖面并提供 JSON Schema 导出
-- **entry points**：沿用现有 `habit.*` 分组，新增五个领域协议对应的分组
+- **entry points**：沿用现有 `habit.*` 分组，新增八个领域协议对应的分组
 
 自省能力直接服务 Agent 场景：LLM 可据此自动构造合法的 spec。
 

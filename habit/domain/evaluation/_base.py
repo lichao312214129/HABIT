@@ -20,7 +20,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 
 __all__ = ["confusion_matrix", "binary_class_scores"]
 

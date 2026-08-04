@@ -42,10 +42,11 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
     overload,
 )
 
-from habit.api.exceptions import HABITAPIError, ProcessingError
+from habit.exceptions import HABITAPIError, ProcessingError
 from habit.contracts.geometry import Geometry
 from habit.contracts.image import ImageRef, ImageVolume, MaskVolume
 
@@ -418,8 +419,17 @@ class Cohort(Sequence[Subject]):
             bar.refresh()
 
         try:
-            results = list(
-                runner.map(op, self._subjects, checkpoint=checkpoint, progress=_progress)
+            # ``Cohort.map`` deliberately accepts plain callables (the middle
+            # rung of the operator ladder); the backends duck-type them through
+            # ``_cache_key_of``, which is wider than the declared
+            # ``SubjectOperator`` parameter, so cast across that intended gap.
+            results: List[Any] = list(
+                runner.map(
+                    cast(Any, op),
+                    self._subjects,
+                    checkpoint=checkpoint,
+                    progress=_progress,
+                )
             )
         finally:
             bar.close()

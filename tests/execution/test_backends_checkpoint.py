@@ -104,6 +104,124 @@ def test_serial_backend_resume_skips_completed_subjects(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_serial_backend_records_failure_and_skips_it_on_resume(tmp_path: Path) -> None:
+    """A terminal failure is recorded, then skipped like v0.1 on resume."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    calls: List[str] = []
+
+    def op(subject: Subject) -> str:
+        calls.append(subject.subject_id)
+        if subject.subject_id == "s1":
+            raise RuntimeError("boom")
+        return subject.subject_id
+
+    first = list(SerialBackend().map(op, _items(), checkpoint=store))
+    assert isinstance(first[1].error, RuntimeError)
+    assert store.failed_keys() != ()
+
+    calls.clear()
+    second = list(SerialBackend().map(op, _items(), checkpoint=store))
+    # Nothing is recomputed: successes come from the store, the recorded
+    # failure is surfaced as a cached failure result.
+    assert calls == []
+    assert all(r.from_cache for r in second)
+    assert second[0].result() == "s0"
+    assert "recorded checkpoint failure" in str(second[1].error)
+
+
+@pytest.mark.unit
+def test_serial_backend_retry_failed_subjects_recomputes(tmp_path: Path) -> None:
+    """retry_failed_subjects re-runs recorded failures; success clears them."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    calls: List[str] = []
+    fail = {"s1": True}
+
+    def op(subject: Subject) -> str:
+        calls.append(subject.subject_id)
+        if fail.get(subject.subject_id):
+            raise RuntimeError("boom")
+        return subject.subject_id
+
+    list(SerialBackend().map(op, _items(), checkpoint=store))
+    calls.clear()
+
+    third = list(
+        SerialBackend(retry_failed_subjects=True).map(op, _items(), checkpoint=store)
+    )
+    assert calls == ["s1"]
+    assert isinstance(third[1].error, RuntimeError)
+
+    # When the retry finally succeeds, the failure record disappears.
+    fail["s1"] = False
+    calls.clear()
+    fourth = list(
+        SerialBackend(retry_failed_subjects=True).map(op, _items(), checkpoint=store)
+    )
+    assert calls == ["s1"]
+    assert fourth[1].result() == "s1"
+    assert store.failed_keys() == ()
+
+
+@pytest.mark.unit
+def test_serial_backend_force_rerun_recomputes_cached_success(tmp_path: Path) -> None:
+    """Forced subjects recompute even when a checkpoint success exists."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    calls: List[str] = []
+
+    def op(subject: Subject) -> str:
+        calls.append(subject.subject_id)
+        return subject.subject_id
+
+    list(SerialBackend().map(op, _items(), checkpoint=store))
+    calls.clear()
+    second = list(
+        SerialBackend(force_rerun_subjects=("s1",)).map(op, _items(), checkpoint=store)
+    )
+    assert calls == ["s1"]
+    assert [r.from_cache for r in second] == [True, False, True]
+
+
+@pytest.mark.unit
+def test_serial_backend_resume_false_reads_nothing_but_still_writes(tmp_path: Path) -> None:
+    """resume=False disables skipping, not recording (v0.1 semantics)."""
+    store = CheckpointStore(tmp_path / "ckpt")
+    calls: List[str] = []
+
+    def op(subject: Subject) -> str:
+        calls.append(subject.subject_id)
+        return subject.subject_id
+
+    list(SerialBackend().map(op, _items(), checkpoint=store))
+    assert len(store) == 3
+
+    second = list(SerialBackend(resume=False).map(op, _items(), checkpoint=store))
+    assert calls == ["s0", "s1", "s2"] * 2
+    assert all(not r.from_cache for r in second)
+    assert len(store) == 3
+
+
+@pytest.mark.unit
+def test_serial_backend_clear_checkpoint_on_success(tmp_path: Path) -> None:
+    """The store is cleared only after a run with zero failures."""
+    store = CheckpointStore(tmp_path / "ckpt")
+
+    def op(subject: Subject) -> str:
+        return subject.subject_id
+
+    list(SerialBackend(clear_checkpoint_on_success=True).map(op, _items(), checkpoint=store))
+    assert len(store) == 0
+
+    def flaky(subject: Subject) -> str:
+        if subject.subject_id == "s1":
+            raise RuntimeError("boom")
+        return subject.subject_id
+
+    list(SerialBackend(clear_checkpoint_on_success=True).map(flaky, _items(), checkpoint=store))
+    assert len(store) == 2
+    assert store.failed_keys() != ()
+
+
+@pytest.mark.unit
 def test_checkpoint_store_treats_corrupt_entry_as_miss(tmp_path: Path) -> None:
     """A corrupt checkpoint is a cache miss, never a crash."""
     store = CheckpointStore(tmp_path)

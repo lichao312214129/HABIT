@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 from pydantic import BaseModel
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable

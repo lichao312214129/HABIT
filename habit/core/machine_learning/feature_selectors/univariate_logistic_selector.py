@@ -21,9 +21,17 @@ import os
 import pandas as pd
 import numpy as np
 from typing import Any, Dict, List, Optional, Tuple, Union
-import statsmodels.formula.api as smf
+try:
+    import statsmodels.formula.api as smf
+    STATSMODELS_AVAILABLE = True
+except ImportError:
+    # statsmodels is an optional dependency (extra 'ml'); the selector raises
+    # OptionalDependencyError when called without it.
+    STATSMODELS_AVAILABLE = False
+    smf = None
 from pathlib import Path
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.progress_utils import CustomTqdm
 from .selector_registry import SelectorRegistry, SelectorContext
 from ._io import detect_file_type, load_data  # noqa: F401 – re-exported for backward compat
@@ -49,6 +57,11 @@ def univariate_logistic_selector(
             - Selected feature list.
             - Metadata dict containing per-feature statistics.
     """
+    if not STATSMODELS_AVAILABLE:
+        raise OptionalDependencyError(
+            "selector 'univariate_logistic' requires the optional statsmodels "
+            "dependency; install 'HABIT[ml]' to use it."
+        )
     if context is not None:
         X = context.X
         y = context.y

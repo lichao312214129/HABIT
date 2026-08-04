@@ -44,6 +44,22 @@ def test_api_subpackage_exports_the_registered_symbols() -> None:
 
 
 @pytest.mark.unit
+def test_show_versions_returns_software_fingerprint() -> None:
+    """``show_versions`` is callable and mirrors ``software_fingerprint``."""
+    import habit
+    from habit.contracts.provenance import software_fingerprint
+
+    versions = habit.show_versions()
+    assert callable(habit.show_versions)
+    assert isinstance(versions, dict)
+    assert "habit" in versions
+    assert isinstance(versions["habit"], str)
+    assert versions["habit"]
+    assert all(isinstance(key, str) and isinstance(value, str) for key, value in versions.items())
+    assert versions == dict(software_fingerprint())
+
+
+@pytest.mark.unit
 def test_version_is_string() -> None:
     """``habit.__version__`` is available without lazy resolution."""
     import habit
@@ -60,6 +76,29 @@ def test_public_symbol_importable(symbol: str) -> None:
 
     obj = getattr(habit, symbol)
     assert obj is not None
+
+
+@pytest.mark.unit
+def test_kernels_and_viz_symbols_are_registered() -> None:
+    """The registry mirrors ``habit.kernels.__all__`` and ``habit.viz.__all__``."""
+    import habit.kernels
+    import habit.viz
+
+    registered = set(PUBLIC_API_SYMBOLS)
+    assert set(habit.kernels.__all__) <= registered
+    assert set(habit.viz.__all__) <= registered
+
+
+@pytest.mark.unit
+def test_compat_interop_symbols_are_registered() -> None:
+    """The sklearn/MONAI/nnU-Net interop entry points are public API."""
+    import habit.compat.monai
+    import habit.compat.nnunet
+
+    registered = set(PUBLIC_API_SYMBOLS)
+    assert {"as_estimator", "as_transformer", "as_classifier"} <= registered
+    assert set(habit.compat.monai.__all__) <= registered
+    assert set(habit.compat.nnunet.__all__) <= registered
 
 
 @pytest.mark.unit
@@ -94,7 +133,10 @@ def test_public_exceptions_share_one_documented_hierarchy() -> None:
 
     assert issubclass(habit.HABITAPIError, DataFormatError)
     assert issubclass(habit.HABITAPIError, HabitError)
-    assert NotFittedError is SklearnNotFittedError
+    # NotFittedError has ONE source (habit.exceptions) per the v1.0 plan; it
+    # subclasses sklearn's so sklearn interop isinstance checks keep working.
+    assert issubclass(NotFittedError, SklearnNotFittedError)
+    assert issubclass(NotFittedError, HabitError)
 
 
 @pytest.mark.unit

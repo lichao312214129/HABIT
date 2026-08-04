@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""L3 domain layer: the five protocols and their built-in implementations.
+"""L3 domain layer: the eight protocols and their built-in implementations.
 
 Importing this package registers every built-in component in its domain
 registry, so ``<Registry>.available()`` and ``list_plugins(domain=...)``
@@ -24,10 +24,13 @@ bodies, keeping this package cheap to import.
 from __future__ import annotations
 
 from habit.domain.protocols import (
+    CohortFeaturePreprocessor,
     HabitatAssigner,
     HabitatFeatureExtractor,
     HabitatModelFitter,
     Seedable,
+    SubjectFeaturePreprocessor,
+    SupervoxelFeatureExtractor,
     Supervoxelizer,
     VoxelFeatureExtractor,
 )
@@ -44,9 +47,44 @@ from habit.domain.voxel_features import (
     VoxelFeatureExtractorRegistry,
 )
 from habit.domain.supervoxel import (
+    GmmSupervoxelizer,
+    GmmSupervoxelizerParams,
+    KMeansSupervoxelizer,
+    KMeansSupervoxelizerParams,
     SlicSupervoxelizer,
     SlicSupervoxelizerParams,
     SupervoxelizerRegistry,
+)
+from habit.domain.supervoxel_features import (
+    MeanVoxelFeatures,
+    MeanVoxelFeaturesParams,
+    SupervoxelFeatureExtractorRegistry,
+    SupervoxelRadiomicsFeatures,
+    SupervoxelRadiomicsFeaturesParams,
+)
+from habit.domain.feature_preprocessing import (
+    Binning,
+    BinningParams,
+    CohortPreprocessingChain,
+    CorrelationFilter,
+    CorrelationFilterParams,
+    FeaturePreprocessingMethodRegistry,
+    Impute,
+    ImputeParams,
+    LogTransform,
+    LogTransformParams,
+    MinMaxScaling,
+    MinMaxScalingParams,
+    RobustScaling,
+    RobustScalingParams,
+    SubjectPreprocessingChain,
+    VarianceFilter,
+    VarianceFilterParams,
+    Winsorizing,
+    WinsorizingParams,
+    ZScoreScaling,
+    ZScoreScalingParams,
+    build_methods,
 )
 from habit.domain.habitat_model import (
     GmmHabitatModelFitter,
@@ -185,9 +223,12 @@ from habit.domain.evaluation import (
 )
 
 __all__ = [
-    # The five domain protocols plus the seeding contract.
+    # The eight domain protocols plus the seeding contract.
     "VoxelFeatureExtractor",
+    "SubjectFeaturePreprocessor",
+    "CohortFeaturePreprocessor",
     "Supervoxelizer",
+    "SupervoxelFeatureExtractor",
     "HabitatModelFitter",
     "HabitatAssigner",
     "HabitatFeatureExtractor",
@@ -207,7 +248,40 @@ __all__ = [
     # Built-in supervoxelizers.
     "SlicSupervoxelizer",
     "SlicSupervoxelizerParams",
+    "KMeansSupervoxelizer",
+    "KMeansSupervoxelizerParams",
+    "GmmSupervoxelizer",
+    "GmmSupervoxelizerParams",
     "SupervoxelizerRegistry",
+    # Built-in supervoxel feature extractors.
+    "MeanVoxelFeatures",
+    "MeanVoxelFeaturesParams",
+    "SupervoxelRadiomicsFeatures",
+    "SupervoxelRadiomicsFeaturesParams",
+    "SupervoxelFeatureExtractorRegistry",
+    # Feature preprocessing: two chains over eight shared methods.
+    "SubjectPreprocessingChain",
+    "CohortPreprocessingChain",
+    "build_methods",
+    "FeaturePreprocessingMethodRegistry",
+    "Impute",
+    "ImputeParams",
+    "MinMaxScaling",
+    "MinMaxScalingParams",
+    "ZScoreScaling",
+    "ZScoreScalingParams",
+    "RobustScaling",
+    "RobustScalingParams",
+    "LogTransform",
+    "LogTransformParams",
+    "Winsorizing",
+    "WinsorizingParams",
+    "Binning",
+    "BinningParams",
+    "VarianceFilter",
+    "VarianceFilterParams",
+    "CorrelationFilter",
+    "CorrelationFilterParams",
     # Built-in habitat model fitters.
     "KMeansHabitatModelFitter",
     "KMeansHabitatModelFitterParams",

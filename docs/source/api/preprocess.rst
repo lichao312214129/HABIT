@@ -1,16 +1,8 @@
-Preprocessing
-=============
+.. This page was retired with the v1.0 API documentation rewrite.
 
-.. code-block:: bash
+Preprocessing (moved)
+=====================
 
-   habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
+This v0.1-oriented page is no longer maintained.
 
-DICOM sort only (no NIfTI conversion):
-
-.. code-block:: bash
-
-   habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
-
-**Output**: ``out_dir/processed_images/`` ; log ``<out_dir>/processing.log`` .
-
-**Configuration**: :doc:`../configuration/preprocessing`
+See :doc:`python_api` and :doc:`index` for the v1.0 Python API.

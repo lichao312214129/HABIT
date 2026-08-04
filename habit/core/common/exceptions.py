@@ -12,54 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Backward-compatible re-exports of HABIT's exception hierarchy.
+
+The canonical definitions moved to :mod:`habit.exceptions` in v1.0 so that
+foundation layers no longer depend on ``habit.core``. This module is kept so
+v0.1 internal imports continue to resolve; new code must import from
+``habit.exceptions`` directly.
 """
-HABIT Exception Hierarchy
 
-Defines the core exception classes used throughout the HABIT package.
-Following top-tier open-source practices, all custom exceptions inherit
-from a base HabitError.
-"""
+from habit.exceptions import (
+    CompatibilityError,
+    ComponentNotFoundError,
+    ConfigurationError,
+    DataFormatError,
+    HabitError,
+    NotFittedError,
+    ProcessingError,
+)
 
-
-class HabitError(Exception):
-    """Base exception class for all HABIT errors."""
-
-    pass
-
-
-class ConfigurationError(HabitError):
-    """Raised when there is an error in the configuration (YAML or dict)."""
-
-    pass
-
-
-class DataFormatError(HabitError):
-    """Raised when input data format is invalid or unsupported."""
-
-    pass
-
-
-class NotFittedError(HabitError, ValueError):
-    """Raised when a model or transformer is used before being fitted.
-    Inherits from ValueError for scikit-learn compatibility.
-    """
-
-    pass
-
-
-class ComponentNotFoundError(HabitError):
-    """Raised when a requested component (model, selector, etc.) is not found in the registry."""
-
-    pass
-
-
-class ProcessingError(HabitError):
-    """Raised when an error occurs during data processing or pipeline execution."""
-
-    pass
-
-
-class CompatibilityError(HabitError):
-    """Raised when a saved HABIT artifact cannot be safely loaded."""
-
-    pass
+__all__ = [
+    "HabitError",
+    "ConfigurationError",
+    "DataFormatError",
+    "NotFittedError",
+    "ComponentNotFoundError",
+    "ProcessingError",
+    "CompatibilityError",
+]

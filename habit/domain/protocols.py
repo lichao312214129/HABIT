@@ -12,15 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The five domain protocols (L3).
+"""The eight domain protocols (L3).
 
-There are exactly FIVE domain protocols, and each one is a term that already
-exists in habitat imaging research (voxel feature, supervoxel, habitat model,
-habitat map, habitat feature). A generic ``Operator.transform(x)`` would be
-more flexible and strictly less useful: a radiologist reading
-``HabitatModelFitter.fit(units)`` understands it immediately, whereas a
-generic name teaches them nothing and gives an extension author no hint about
-which slot to implement.
+There are exactly EIGHT domain protocols, and each one is a term that already
+exists in habitat imaging research (voxel feature, feature preprocessing,
+supervoxel, supervoxel feature, habitat model, habitat map, habitat feature).
+A generic ``Operator.transform(x)`` would be more flexible and strictly less
+useful: a radiologist reading ``HabitatModelFitter.fit(units)`` understands it
+immediately, whereas a generic name teaches them nothing and gives an
+extension author no hint about which slot to implement.
+
+``SupervoxelFeatureExtractor`` was added after the initial five: growing a
+partition and describing its regions are two independent scientific choices
+(v0.1 configured them in two separate YAML blocks, ``habitat_segmentation.
+supervoxel`` and ``feature_construction.supervoxel_level``), and fusing them
+into ``Supervoxelizer`` made per-supervoxel radiomics inexpressible -- that
+family needs the ORIGINAL IMAGES, which a ``VoxelFeatureField`` does not
+carry.
+
+The last two, ``SubjectFeaturePreprocessor`` and
+``CohortFeaturePreprocessor``, split feature preprocessing along the axis that
+actually matters: whether the fitted statistics cross subject boundaries.
+Individual-level preprocessing is stateless BY NATURE -- its statistics come
+from the single matrix in front of it, so training and prediction are the same
+computation -- while cohort-level preprocessing is stateful by nature and is
+the one leakage-sensitive step in habitat definition. Neither protocol
+mentions granularity, which is the point: the stateless one applies equally to
+voxel features and to supervoxel features. v0.1's
+``preprocessing_for_subject_level`` / ``preprocessing_for_group_level``
+conflated state ownership with granularity, and consequently offered no
+stateless normalisation for per-supervoxel features at all.
 
 Call convention: single ``__call__`` per subject-level protocol, with NO
 class-body verb aliases (``extract = __call__`` etc. would bind the function
@@ -34,6 +55,8 @@ from __future__ import annotations
 
 from typing import Optional, Protocol, Sequence, runtime_checkable
 
+import pandas as pd
+
 from habit.contracts.habitat import (
     HabitatMap,
     HabitatModel,
@@ -46,7 +69,10 @@ from habit.spec.specs import Spec
 
 __all__ = [
     "VoxelFeatureExtractor",
+    "SubjectFeaturePreprocessor",
+    "CohortFeaturePreprocessor",
     "Supervoxelizer",
+    "SupervoxelFeatureExtractor",
     "HabitatModelFitter",
     "HabitatAssigner",
     "HabitatFeatureExtractor",
@@ -86,15 +112,108 @@ class VoxelFeatureExtractor(Protocol):
 
 
 @runtime_checkable
+class SubjectFeaturePreprocessor(Protocol):
+    """
+    Preprocess one subject's feature matrix using only that subject's data.
+
+    Stateless by construction: every statistic comes from the matrix passed
+    in, so there is nothing to fit, nothing to persist, and no way to leak
+    training information into a validation subject. This is what makes the
+    protocol a plain callable rather than a fit/transform pair.
+
+    Deliberately says nothing about granularity. The matrix rows may be
+    voxels or supervoxels, and the SAME implementation serves both -- which
+    is the whole reason this is separate from
+    :class:`CohortFeaturePreprocessor` rather than being one protocol per
+    pipeline position. Scientifically the purpose is to remove BETWEEN-subject
+    variation (scanner, sequence, intensity scale), and that only works when
+    each subject is normalised by its own distribution.
+
+    A plain ``DataFrame`` is the input and output type because the
+    computation is genuinely type-agnostic; the typed contracts bridge to it
+    through their ``feature_frame()`` / ``with_feature_frame()`` pair.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def __call__(self, block: pd.DataFrame) -> pd.DataFrame:
+        """
+        Preprocess one unit-by-feature matrix.
+
+        Args:
+            block: Rows are clustering units (voxels or supervoxels) of ONE
+                subject, columns are features.
+
+        Returns:
+            The preprocessed matrix with the same rows in the same order.
+            Columns may be a subset when the chain filters features.
+        """
+
+
+@runtime_checkable
+class CohortFeaturePreprocessor(Protocol):
+    """
+    Preprocess the pooled cohort feature matrix with fitted statistics.
+
+    Stateful by construction, and the mirror image of
+    :class:`SubjectFeaturePreprocessor`: its purpose is to place units from
+    DIFFERENT subjects in one comparable feature space, so the clusters that
+    define habitats mean the same thing for everyone. That requires shared
+    statistics, which requires fitting, which makes this the single
+    leakage-sensitive step of habitat definition -- ``fit`` must see training
+    data only.
+
+    The fitted state therefore belongs in the published
+    :class:`~habit.contracts.habitat.HabitatModel`: a habitat definition
+    applied to a new cohort without its cohort-level preprocessing would put
+    that cohort in a different feature space while appearing to work.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def fit(self, block: pd.DataFrame) -> "CohortFeaturePreprocessor":
+        """
+        Learn the transformation from the pooled TRAINING matrix.
+
+        Args:
+            block: Rows are clustering units from every training subject.
+
+        Returns:
+            ``self``, fitted.
+        """
+
+    def transform(self, block: pd.DataFrame) -> pd.DataFrame:
+        """
+        Apply the fitted transformation to a pooled matrix.
+
+        Args:
+            block: Matrix carrying the feature columns seen at fit time.
+
+        Returns:
+            The preprocessed matrix, rows preserved.
+        """
+
+
+@runtime_checkable
 class Supervoxelizer(Protocol):
     """
-    Partition one subject's ROI into supervoxels and summarise each of them.
+    Partition one subject's ROI into supervoxels.
 
     Scientific motivation: voxel-level features are noisy, and clustering
     voxels directly across subjects tends to recover scanner scale
     differences rather than intratumoral heterogeneity. Aggregating within
     spatially coherent supervoxels, after per-subject normalisation, is what
     makes the subsequent population-level clustering biologically meaningful.
+
+    Implementations describe each region with the mean of the voxel features
+    they partitioned, which is free once the partition exists and is what
+    v0.1 always computed. That default is a summary, not a commitment: pass a
+    :class:`SupervoxelFeatureExtractor` to describe the same regions
+    differently (per-supervoxel radiomics, for instance).
     """
 
     @property
@@ -103,13 +222,60 @@ class Supervoxelizer(Protocol):
 
     def __call__(self, field: VoxelFeatureField) -> Supervoxelization:
         """
-        Group voxels into supervoxels and aggregate their features.
+        Group voxels into supervoxels and summarise them by feature mean.
 
         Args:
             field: Per-voxel features for one subject.
 
         Returns:
-            The supervoxel partition together with per-supervoxel features.
+            The supervoxel partition together with per-supervoxel means.
+        """
+
+
+@runtime_checkable
+class SupervoxelFeatureExtractor(Protocol):
+    """
+    Describe each supervoxel of one subject, replacing the default summary.
+
+    Structurally the twin of :class:`HabitatFeatureExtractor`: both answer
+    "given a partition of this subject plus the original images, what
+    describes each region?". They differ only in granularity and in who
+    consumes the answer -- supervoxel features feed the cohort-level
+    clustering that DEFINES habitats, habitat features feed outcome
+    modelling.
+
+    Separating this from :class:`Supervoxelizer` is what keeps two
+    independent scientific choices independent. It is also what makes
+    per-supervoxel radiomics expressible at all: those families need the
+    subject's original intensities, which a
+    :class:`~habit.contracts.habitat.VoxelFeatureField` deliberately does
+    not carry.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def __call__(
+        self,
+        subject: Subject,
+        partition: Supervoxelization,
+    ) -> Supervoxelization:
+        """
+        Recompute one subject's per-supervoxel features.
+
+        Args:
+            subject: Subject supplying original images when the family needs
+                intensity information.
+            partition: The subject's supervoxel partition, whose
+                ``label_array`` defines the regions to describe.
+
+        Returns:
+            The SAME partition carrying the newly computed features. Returning
+            a ``Supervoxelization`` rather than a bare table keeps the
+            downstream contract single-typed: the fitter and the assigner
+            consume partitions, and never need to know which extractor
+            described them.
         """
 
 

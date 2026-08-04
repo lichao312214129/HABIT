@@ -255,12 +255,12 @@ from pathlib import Path
 
 _HABIT_PACKAGE_ROOT = Path(__file__).resolve().parents[1] / "habit"
 
-#: Foundations any layer may import: version, shared exceptions/registry
-#: base, the public exception facade, and shared utils.
+#: Foundations any layer may import: version, the v0.1 common base, the
+#: canonical exception module, and shared utils.
 _FOUNDATION_PREFIXES = (
     "habit._version",
     "habit.core.common",
-    "habit.api.exceptions",
+    "habit.exceptions",
     "habit.api.image",  # reused by habit.contracts per architecture mapping
     "habit.utils",
 )
@@ -269,6 +269,20 @@ _FOUNDATION_PREFIXES = (
 #: Packages that do not exist yet in a given phase are simply not scanned.
 _LAYER_FORBIDDEN_IMPORTS = {
     "habit.kernels": ("habit.",),  # L0 imports no habit module at all
+    "habit.datasets": (
+        "habit.adapters",
+        "habit.domain",
+        "habit.execution",
+        "habit.registry",
+        "habit.spec",
+        "habit.recipes",
+        "habit.cli",
+        "habit.commands",
+        "habit.compat",
+        "habit.core.habitat_analysis",
+        "habit.core.machine_learning",
+        "habit.core.preprocessing",
+    ),
     "habit.contracts": (
         "habit.adapters",
         "habit.domain",
@@ -318,6 +332,11 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
+        # The v0.1 engines are an upper layer for the domain: every algorithm
+        # the domain used to borrow from them now lives in habit.kernels.
+        "habit.core.habitat_analysis",
+        "habit.core.machine_learning",
+        "habit.core.preprocessing",
     ),
     "habit.registry": (
         "habit.adapters",
@@ -346,37 +365,84 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.core.machine_learning",
         "habit.core.preprocessing",
     ),
+    # L4 recipes may assemble anything below them (contracts, adapters,
+    # execution, domain, spec, kernels) but must not reach the interface
+    # layers above, and must not re-enter the v0.1 engines: a recipe that
+    # calls habit.core would silently keep the old orchestrator alive under
+    # a new name.
     "habit.recipes": (
         "habit.cli",
         "habit.commands",
+        "habit.compat",
+        "habit.core.habitat_analysis",
+        "habit.core.machine_learning",
+        "habit.core.preprocessing",
     ),
     "habit.compat": (
         "habit.cli",
         "habit.commands",
         "habit.recipes",
     ),
+    # viz is an L3 presentation package: it renders contract objects into
+    # figures and shares the domain layer's dependency rule, plus a hard ban
+    # on anything that would let a figure reach the filesystem itself.
+    "habit.viz": (
+        "habit.adapters",
+        "habit.execution",
+        "habit.recipes",
+        "habit.cli",
+        "habit.commands",
+        "habit.compat",
+        "habit.core.habitat_analysis",
+        "habit.core.machine_learning",
+        "habit.core.preprocessing",
+    ),
 }
+
+#: Packages whose ban on the v0.1 engines also covers imports written inside a
+#: function body. Module-level scanning alone is not enough here: a deferred
+#: ``from habit.core... import`` is the exact shape the domain layer used to
+#: borrow v0.1 algorithms with, and it is invisible to the import-time check.
+_ENGINE_FREE_PACKAGES = (
+    "habit.kernels",
+    "habit.datasets",
+    "habit.contracts",
+    "habit.adapters",
+    "habit.domain",
+    "habit.registry",
+    "habit.spec",
+    "habit.viz",
+    "habit.recipes",
+)
+
+#: v0.1 engine prefixes that the lower layers must not reach into at all.
+_ENGINE_PREFIXES = (
+    "habit.core.habitat_analysis",
+    "habit.core.machine_learning",
+    "habit.core.preprocessing",
+)
 
 #: L0-L3 packages that must stay free of configuration concepts.
 _CONFIG_FREE_PACKAGES = (
     "habit.kernels",
+    "habit.datasets",
     "habit.contracts",
     "habit.adapters",
     "habit.execution",
     "habit.domain",
     "habit.registry",
+    "habit.viz",
 )
 
 #: Identifiers that signal configuration-layer concepts leaking into L0-L3.
 _CONFIG_CONCEPT_IDENTIFIERS = ("yaml", "out_dir", "data_dir", "run_mode", "config_file")
 
 #: Documented exemptions: (module file, identifier) pairs where the name is a
-#: user-facing convenience rather than a configuration dependency. The
-#: prototype itself defines ``StudyResult.save(out_dir)`` as the single
-#: explicit write act of the contracts layer.
-_CONFIG_CONCEPT_EXEMPTIONS = {
-    ("manifest.py", "out_dir"),
-}
+#: user-facing convenience rather than a configuration dependency. Empty
+#: since ``StudyResult`` moved to L4 (``habit/recipes/result.py``), which
+#: takes the only ``out_dir`` in the stack with it -- the L1 writer names its
+#: destination ``root``, a filesystem fact rather than a setting.
+_CONFIG_CONCEPT_EXEMPTIONS: set[tuple[str, str]] = set()
 
 
 def _iter_layer_python_files(package: str) -> list[Path]:
@@ -440,6 +506,32 @@ def _module_level_imports(path: Path) -> list[str]:
     return imports
 
 
+def _every_import(path: Path) -> list[str]:
+    """
+    Return every imported module name in a file, at any nesting depth.
+
+    Unlike :func:`_module_level_imports` this deliberately includes function
+    bodies and ``if TYPE_CHECKING:`` blocks, because a deferred import is still
+    a dependency of the module -- it just fails later.
+    """
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    package_parts = path.parent.relative_to(_HABIT_PACKAGE_ROOT.parent).parts
+
+    imports: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level == 0:
+                imports.append(node.module or "")
+                continue
+            base = list(package_parts[: len(package_parts) - node.level + 1])
+            if node.module:
+                base.extend(node.module.split("."))
+            imports.append(".".join(base))
+    return imports
+
+
 def _config_concept_violations(path: Path) -> list[str]:
     """Find configuration-concept identifiers used anywhere in a module."""
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -485,6 +577,29 @@ def test_layer_does_not_import_upwards(package: str) -> None:
             ):
                 offenders.append(f"{path.relative_to(_HABIT_PACKAGE_ROOT)} imports {imported}")
     assert not offenders, f"Layer violations in {package}: {offenders}"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("package", _ENGINE_FREE_PACKAGES)
+def test_layer_never_reaches_into_the_v0_engines(package: str) -> None:
+    """
+    No lower layer depends on the v0.1 engines, not even lazily.
+
+    This is the debt gate for the algorithm migration: the shared numerics now
+    live in ``habit.kernels``, so a domain component reaching back into
+    ``habit.core.habitat_analysis`` means an algorithm was left behind and the
+    two implementations can drift apart again.
+    """
+    files = _iter_layer_python_files(package)
+    if not files:
+        pytest.skip(f"{package} does not exist yet in this phase.")
+    offenders = [
+        f"{path.relative_to(_HABIT_PACKAGE_ROOT)} imports {imported}"
+        for path in files
+        for imported in _every_import(path)
+        if imported.startswith(_ENGINE_PREFIXES)
+    ]
+    assert not offenders, f"v0.1 engine dependencies in {package}: {offenders}"
 
 
 @pytest.mark.unit

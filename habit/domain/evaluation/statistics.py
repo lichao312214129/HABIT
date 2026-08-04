@@ -30,7 +30,7 @@ from typing import Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
 from habit.kernels.icc import icc2_1, icc3_1
 from habit.kernels.statistics import (

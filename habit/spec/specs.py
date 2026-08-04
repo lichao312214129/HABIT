@@ -26,11 +26,11 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, cast
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 
-__all__ = ["Spec", "HabitatSpec"]
+__all__ = ["Spec", "HabitatSpec", "MLSpec"]
 
 #: Registry domains recognised inside a HabitatSpec, in canonical order.
 #: Field names deliberately match the plugin domains verbatim (see
@@ -39,8 +39,16 @@ __all__ = ["Spec", "HabitatSpec"]
 _COMPONENT_DOMAINS: Tuple[str, ...] = (
     "voxel_feature_extractor",
     "supervoxelizer",
+    "supervoxel_feature_extractor",
     "habitat_model_fitter",
     "habitat_assigner",
+)
+
+#: Component domains a specification may leave unset. Both concern the
+#: supervoxel stage, which the one-step and direct-pooling designs skip.
+_OPTIONAL_COMPONENT_DOMAINS: Tuple[str, ...] = (
+    "supervoxelizer",
+    "supervoxel_feature_extractor",
 )
 
 #: Methods styles supported by ``HabitatSpec.describe_methods`` (and by the
@@ -54,8 +62,23 @@ _METHODS_STYLES: Tuple[str, ...] = ("radiology", "nature")
 _COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
     ("voxel_feature_extractor", "voxel feature extraction"),
     ("supervoxelizer", "supervoxelization"),
+    ("supervoxel_feature_extractor", "supervoxel feature extraction"),
     ("habitat_model_fitter", "habitat model fitting"),
     ("habitat_assigner", "habitat assignment"),
+)
+
+#: Preprocessing chains, keyed by field name, with the prose each renders as.
+#: Ordered as they run. The first two are stateless and per subject, the third
+#: is fitted once on the training cohort -- the distinction that decides where
+#: leakage is possible, and the reason the field names say WHOSE statistics are
+#: used rather than which granularity is processed.
+_PREPROCESSING_CHAINS: Tuple[Tuple[str, str], ...] = (
+    ("voxel_feature_preprocessors", "per-subject voxel feature preprocessing"),
+    (
+        "supervoxel_feature_preprocessors",
+        "per-subject supervoxel feature preprocessing",
+    ),
+    ("cohort_feature_preprocessors", "cohort-level feature preprocessing"),
 )
 
 
@@ -89,6 +112,8 @@ def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
         if entry is None:
             if key == "supervoxelizer":
                 phrases.append("direct voxel clustering (no supervoxelization)")
+            # An unset supervoxel_feature_extractor is not a missing step:
+            # the supervoxelizer's own feature means describe the regions.
             continue
         if isinstance(entry, Mapping) and "name" in entry:
             phrases.append(
@@ -105,10 +130,7 @@ def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
             for entry in features
         )
         phrases.append(f"habitat feature families: {families}")
-    for chain_key, chain_phrase in (
-        ("subject_table_preprocessors", "subject-level table preprocessing"),
-        ("group_table_preprocessors", "cohort-level table preprocessing"),
-    ):
+    for chain_key, chain_phrase in _PREPROCESSING_CHAINS:
         chain = payload.get(chain_key) or []
         if chain:
             steps = ", ".join(
@@ -232,15 +254,26 @@ class HabitatSpec:
         name: Human-readable specification name.
         voxel_feature_extractor: Spec of the voxel feature step.
         supervoxelizer: Spec of the supervoxel step, or ``None``.
+        supervoxel_feature_extractor: Spec of the step describing the
+            supervoxels, or ``None`` to keep the supervoxelizer's feature
+            means (the v0.1 default).
         habitat_model_fitter: Spec of the cohort-level fitting step.
         habitat_assigner: Spec of the per-subject assignment step.
         habitat_features: Specs of habitat feature families.
-        subject_table_preprocessors: Ordered specs of the per-subject
-            feature-table preprocessing chain (domain ``table_preprocessor``),
-            applied to each subject's feature table before pooling.
-        group_table_preprocessors: Ordered specs of the pooled-table
-            preprocessing chain, applied before cohort-level fitting; their
-            fitted state is stored in ``HabitatModel.preprocessing_state``.
+        voxel_feature_preprocessors: Ordered method specs of the stateless
+            per-subject chain applied to voxel features BEFORE
+            supervoxelization (v0.1's ``preprocessing_for_subject_level``).
+        supervoxel_feature_preprocessors: Ordered method specs of the
+            stateless per-subject chain applied to supervoxel features. Has no
+            v0.1 equivalent: that version could only preprocess supervoxel
+            features at cohort level, which forced per-supervoxel radiomics
+            through a stateful step it did not need.
+        cohort_feature_preprocessors: Ordered method specs of the stateful
+            chain fitted once on the pooled TRAINING units and replayed
+            afterwards (v0.1's ``preprocessing_for_group_level``). Its fitted
+            state is stored in ``HabitatModel.preprocessing_state``, because a
+            habitat definition is only reproducible together with the feature
+            space it was defined in.
         random_seed: Seed applied to every
             :class:`~habit.domain.protocols.Seedable` component. Seeds
             change the scientific result, so they live in the spec (and its
@@ -253,9 +286,11 @@ class HabitatSpec:
     supervoxelizer: Optional[Spec]
     habitat_model_fitter: Spec
     habitat_assigner: Spec
+    supervoxel_feature_extractor: Optional[Spec] = None
     habitat_features: Tuple[Spec, ...] = ()
-    subject_table_preprocessors: Tuple[Spec, ...] = ()
-    group_table_preprocessors: Tuple[Spec, ...] = ()
+    voxel_feature_preprocessors: Tuple[Spec, ...] = ()
+    supervoxel_feature_preprocessors: Tuple[Spec, ...] = ()
+    cohort_feature_preprocessors: Tuple[Spec, ...] = ()
     random_seed: Optional[int] = None
     version: str = "1.0"
 
@@ -266,7 +301,7 @@ class HabitatSpec:
         for domain in _COMPONENT_DOMAINS:
             value = getattr(self, domain)
             if value is None:
-                if domain == "supervoxelizer":
+                if domain in _OPTIONAL_COMPONENT_DOMAINS:
                     continue
                 raise HABITAPIError(
                     f"HabitatSpec requires a '{domain}' component spec."
@@ -277,8 +312,7 @@ class HabitatSpec:
                 )
         for chain_field in (
             "habitat_features",
-            "subject_table_preprocessors",
-            "group_table_preprocessors",
+            *(key for key, _ in _PREPROCESSING_CHAINS),
         ):
             chain = tuple(getattr(self, chain_field))
             object.__setattr__(self, chain_field, chain)
@@ -291,10 +325,11 @@ class HabitatSpec:
             object.__setattr__(self, "random_seed", int(self.random_seed))
 
     def component_specs(self) -> Mapping[str, Optional[Spec]]:
-        """Return the four pipeline component specs keyed by domain name."""
+        """Return the pipeline component specs keyed by domain name."""
         return {
             "voxel_feature_extractor": self.voxel_feature_extractor,
             "supervoxelizer": self.supervoxelizer,
+            "supervoxel_feature_extractor": self.supervoxel_feature_extractor,
             "habitat_model_fitter": self.habitat_model_fitter,
             "habitat_assigner": self.habitat_assigner,
         }
@@ -361,12 +396,10 @@ class HabitatSpec:
         payload["habitat_features"] = [
             feature.to_dict() for feature in self.habitat_features
         ]
-        payload["subject_table_preprocessors"] = [
-            entry.to_dict() for entry in self.subject_table_preprocessors
-        ]
-        payload["group_table_preprocessors"] = [
-            entry.to_dict() for entry in self.group_table_preprocessors
-        ]
+        for chain_key, _ in _PREPROCESSING_CHAINS:
+            payload[chain_key] = [
+                entry.to_dict() for entry in getattr(self, chain_key)
+            ]
         payload["random_seed"] = self.random_seed
         return payload
 
@@ -391,23 +424,218 @@ class HabitatSpec:
         features = tuple(
             Spec.from_dict(item) for item in payload.get("habitat_features", ())
         )
-        subject_chain = tuple(
-            Spec.from_dict(item)
-            for item in payload.get("subject_table_preprocessors", ())
-        )
-        group_chain = tuple(
-            Spec.from_dict(item)
-            for item in payload.get("group_table_preprocessors", ())
-        )
+        chains = {
+            chain_key: tuple(
+                Spec.from_dict(item) for item in payload.get(chain_key, ())
+            )
+            for chain_key, _ in _PREPROCESSING_CHAINS
+        }
+        # ``components`` holds Optional[Spec] because a hand-written document
+        # may omit a domain; ``__post_init__`` rejects a missing REQUIRED
+        # component with HABITAPIError, so the casts below only cross the
+        # static gap -- invalid payloads still fail at construction.
         return cls(
             name=str(payload.get("name", "habitat_spec")),
-            voxel_feature_extractor=components["voxel_feature_extractor"],
+            voxel_feature_extractor=cast(Spec, components["voxel_feature_extractor"]),
             supervoxelizer=components["supervoxelizer"],
-            habitat_model_fitter=components["habitat_model_fitter"],
-            habitat_assigner=components["habitat_assigner"],
+            supervoxel_feature_extractor=components["supervoxel_feature_extractor"],
+            habitat_model_fitter=cast(Spec, components["habitat_model_fitter"]),
+            habitat_assigner=cast(Spec, components["habitat_assigner"]),
             habitat_features=features,
-            subject_table_preprocessors=subject_chain,
-            group_table_preprocessors=group_chain,
             random_seed=payload.get("random_seed"),
             version=str(payload.get("version", "1.0")),
+            **chains,
+        )
+
+
+#: Tabular preprocessing / selection chains of an MLSpec, keyed by field
+#: name, with the prose each renders as. Ordered as they run: preprocessing
+#: always precedes selection (a TablePipeline fits steps in chain order).
+_ML_CHAINS: Tuple[Tuple[str, str], ...] = (
+    ("table_preprocessors", "table preprocessing"),
+    ("feature_selectors", "feature selection"),
+)
+
+
+def _ml_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
+    """
+    Render an MLSpec-shaped payload as ordered prose phrases.
+
+    Args:
+        payload: Spec payload as produced by ``MLSpec.to_dict``.
+
+    Returns:
+        One phrase per present chain or component, in pipeline order.
+    """
+    phrases: list[str] = []
+    for chain_key, chain_phrase in _ML_CHAINS:
+        chain = payload.get(chain_key) or []
+        if chain:
+            steps = ", ".join(
+                f"{entry['name']} ({_params_text(entry.get('params'))})"
+                if isinstance(entry, Mapping) and "name" in entry
+                else str(entry)
+                for entry in chain
+            )
+            phrases.append(f"{chain_phrase} with {steps}")
+    classifier = payload.get("classifier")
+    if isinstance(classifier, Mapping) and "name" in classifier:
+        phrases.append(
+            f"a {classifier['name']} classifier "
+            f"({_params_text(classifier.get('params'))})"
+        )
+    metrics = payload.get("metrics") or []
+    if metrics:
+        names = ", ".join(
+            entry["name"] if isinstance(entry, Mapping) and "name" in entry else str(entry)
+            for entry in metrics
+        )
+        phrases.append(f"evaluation metrics: {names}")
+    return tuple(phrases)
+
+
+@dataclass(frozen=True)
+class MLSpec:
+    """
+    Complete specification of a tabular machine-learning analysis.
+
+    A frozen, fingerprintable value object describing ONE modelling
+    definition: an ordered table-preprocessing chain, an ordered
+    feature-selection chain, exactly one terminal classifier, and the
+    evaluation metric panel. It deliberately does NOT describe the
+    validation design (split counts, resampling, id files) -- those are
+    choices of the calling recipe, not of the model definition.
+
+    Attributes:
+        name: Human-readable specification name.
+        classifier: Spec of the terminal classifier.
+        table_preprocessors: Ordered specs of the stateful preprocessing
+            chain fitted on the TRAINING rows and replayed afterwards
+            (v0.1's ``normalization``).
+        feature_selectors: Ordered specs of the selection chain, fitted
+            after preprocessing (v0.1's ``feature_selection_methods``).
+        metrics: Specs of the evaluation metric panel. An empty tuple asks
+            the calling recipe for its default panel.
+        random_seed: Seed applied to every
+            :class:`~habit.domain.protocols.Seedable` component. Seeds
+            change the scientific result, so they live in the spec (and its
+            fingerprint), not in the run policy.
+        version: Specification schema version.
+    """
+
+    name: str
+    classifier: Spec
+    table_preprocessors: Tuple[Spec, ...] = ()
+    feature_selectors: Tuple[Spec, ...] = ()
+    metrics: Tuple[Spec, ...] = ()
+    random_seed: Optional[int] = None
+    version: str = "1.0"
+
+    def __post_init__(self) -> None:
+        """Coerce component payloads into Spec instances and tuples."""
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise HABITAPIError("MLSpec.name must be a non-empty string.")
+        if not isinstance(self.classifier, Spec):
+            raise HABITAPIError(
+                "MLSpec.classifier must be a Spec; got "
+                f"{type(self.classifier).__name__}."
+            )
+        for chain_field, _ in _ML_CHAINS + (("metrics", ""),):
+            chain = tuple(getattr(self, chain_field))
+            object.__setattr__(self, chain_field, chain)
+            for entry in chain:
+                if not isinstance(entry, Spec):
+                    raise HABITAPIError(
+                        f"Every entry of MLSpec.{chain_field} must be a Spec."
+                    )
+        if self.random_seed is not None:
+            object.__setattr__(self, "random_seed", int(self.random_seed))
+
+    def describe_methods(self, style: str = "radiology") -> str:
+        """
+        Render the specification as a manuscript methods paragraph.
+
+        Same verb, signature, and vocabulary as
+        :meth:`HabitatSpec.describe_methods`; this describes what was
+        INTENDED and can be read before anything runs.
+
+        Args:
+            style: Target venue convention. ``"radiology"`` opens with the
+                design sentence; ``"nature"`` closes with it.
+
+        Returns:
+            English prose describing every configured step and its
+            parameters.
+
+        Raises:
+            HABITAPIError: On an unknown style.
+        """
+        if style not in _METHODS_STYLES:
+            raise HABITAPIError(
+                f"Unknown methods style {style!r}; expected one of "
+                f"{_METHODS_STYLES}."
+            )
+        body: list[str] = [
+            f"The modelling specification {self.name!r} comprises "
+            f"{'; '.join(_ml_phrases(self.to_dict()))}."
+        ]
+        if self.random_seed is not None:
+            body.append(
+                f"Random seed {self.random_seed} is fixed for every "
+                "stochastic component."
+            )
+        if style == "nature":
+            closing = "The analysis was designed with HABIT."
+            return " ".join([*body, closing])
+        opening = "A machine-learning analysis was designed with HABIT as follows."
+        return " ".join([opening, *body])
+
+    def fingerprint(self) -> str:
+        """Return a stable hash identifying this exact specification."""
+        return hashlib.sha256(
+            _canonical_json(self.to_dict()).encode("utf-8")
+        ).hexdigest()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise to a plain dict (YAML isomorphic)."""
+        payload: Dict[str, Any] = {
+            "name": self.name,
+            "version": self.version,
+        }
+        for chain_key, _ in _ML_CHAINS:
+            payload[chain_key] = [
+                entry.to_dict() for entry in getattr(self, chain_key)
+            ]
+        payload["classifier"] = self.classifier.to_dict()
+        payload["metrics"] = [entry.to_dict() for entry in self.metrics]
+        payload["random_seed"] = self.random_seed
+        return payload
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "MLSpec":
+        """
+        Rebuild a machine-learning specification from its dict form.
+
+        Args:
+            payload: Mapping as produced by :meth:`to_dict`.
+
+        Returns:
+            The reconstructed specification.
+
+        Raises:
+            HABITAPIError: If the classifier component is missing.
+        """
+        chains = {
+            chain_key: tuple(
+                Spec.from_dict(item) for item in payload.get(chain_key, ())
+            )
+            for chain_key, _ in _ML_CHAINS + (("metrics", ""),)
+        }
+        classifier = payload.get("classifier")
+        return cls(
+            name=str(payload.get("name", "ml_spec")),
+            classifier=cast(Spec, Spec.from_dict(classifier) if classifier is not None else None),
+            random_seed=payload.get("random_seed"),
+            version=str(payload.get("version", "1.0")),
+            **chains,
         )

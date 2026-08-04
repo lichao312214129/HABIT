@@ -43,9 +43,39 @@ Source install
    pip install -e .
    habit --version
 
-Install an optional feature family only when needed: ``pip install -e ".[analysis]"``,
-``pip install -e ".[automl]"``, or ``pip install -e ".[torch]"``. Windows may
-also need ``pip install installer/vendor/pyradiomics-3.0.1-cp310-cp310-win_amd64.whl`` .
+The base install is deliberately light: it covers image I/O, preprocessing,
+habitat analysis, and the core table-ML path. Optional feature families are
+extras — install only what a workflow needs:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Extra
+     - Pulls in
+     - Needed for
+   * - ``.[ml]``
+     - xgboost, imbalanced-learn, mrmr-selection, statsmodels
+     - XGBoost model, SMOTE resampling, stepwise / univariate-logistic / VIF / mRMR selectors
+   * - ``.[registration]``
+     - antspyx
+     - ANTs-based image registration in preprocessing
+   * - ``.[analysis]``
+     - shap, plotly, lifelines, scikit-survival, krippendorff, pingouin
+     - SHAP explanations, interactive 3-D plots, survival analysis, ICC / rater-reliability
+   * - ``.[automl]``
+     - autogluon.tabular
+     - AutoGluon Tabular workflows
+   * - ``.[torch]``
+     - torch
+     - TorchRadiomics / GPU-backed feature extraction
+   * - ``.[all]``
+     - every family above plus the GUI server deps
+     - full workstation install
+
+For example: ``pip install -e ".[ml,analysis]"``. Using a feature whose extra
+is missing raises ``OptionalDependencyError`` naming the extra to install.
+Windows may also need
+``pip install installer/vendor/pyradiomics-3.0.1-cp310-cp310-win_amd64.whl`` .
 Troubleshooting: :doc:`../troubleshooting/faq` .
 
 Next → :doc:`quickstart`

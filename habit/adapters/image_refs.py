@@ -25,11 +25,11 @@ sources may subclass it (e.g. to binarise multi-label files at load time).
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import numpy as np
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.geometry import Geometry
 from habit.contracts.image import ImageVolume, MaskVolume
 
@@ -92,7 +92,9 @@ class FileImageRef:
     def load(self) -> np.ndarray:
         """Materialise and return the voxel array."""
         sitk = _require_simpleitk()
-        return sitk.GetArrayFromImage(sitk.ReadImage(str(self.path)))
+        # ``_require_simpleitk`` returns ``Any`` (lazy optional import), but
+        # ``GetArrayFromImage`` is guaranteed to produce a NumPy array.
+        return cast(np.ndarray, sitk.GetArrayFromImage(sitk.ReadImage(str(self.path))))
 
     def load_volume(self) -> Union[ImageVolume, MaskVolume]:
         """

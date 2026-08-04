@@ -1,12 +1,10 @@
-Model comparison
-================
+.. This page was retired with the v1.0 API documentation rewrite.
 
-Train models first, then:
+Model comparison (moved)
+========================
 
-.. code-block:: bash
+This v0.1-oriented page is no longer maintained.
 
-   habit compare --config config/model_comparison/config_model_comparison_demo.yaml
+See :doc:`python_api` and :doc:`index` for the v1.0 Python API.
 
-**Output**: ROC / DCA plots under ``output_dir`` .
-
-**Configuration**: :doc:`../configuration/model_comparison`
+See :doc:`domain_table` for the v1.0 machine-learning domain API.

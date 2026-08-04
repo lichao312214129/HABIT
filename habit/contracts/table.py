@@ -26,7 +26,8 @@ from typing import Optional, Tuple
 
 import pandas as pd
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
+from habit.contracts.outcome import Outcome
 from habit.contracts.provenance import Provenance
 
 __all__ = ["FeatureTable"]
@@ -42,26 +43,32 @@ class FeatureTable:
         id_columns: Columns identifying the unit of analysis, e.g.
             ``subject``.
         feature_columns: Columns usable as model inputs.
-        outcome_column: Clinical-outcome column when present. Named
-            ``outcome`` because that is the medical-research term for the
-            predicted endpoint.
+        outcome: Declared study endpoint when present -- a
+            :class:`~habit.contracts.outcome.BinaryOutcome`,
+            :class:`~habit.contracts.outcome.MulticlassOutcome`,
+            :class:`~habit.contracts.outcome.ContinuousOutcome` or
+            :class:`~habit.contracts.outcome.SurvivalOutcome`. An OBJECT
+            rather than a column name because a survival endpoint occupies
+            two columns, and because a name alone cannot tell a downstream
+            metric whether the endpoint is a class or a quantity.
         provenance: How this table was produced.
     """
 
     frame: pd.DataFrame
     id_columns: Tuple[str, ...]
     feature_columns: Tuple[str, ...]
-    outcome_column: Optional[str] = None
+    outcome: Optional[Outcome] = None
     provenance: Optional[Provenance] = None
 
     def __post_init__(self) -> None:
         """Validate that every declared column exists in the frame."""
+        outcome_columns = () if self.outcome is None else tuple(self.outcome.columns)
         missing = [
             column
             for column in (
                 *self.id_columns,
                 *self.feature_columns,
-                *(() if self.outcome_column is None else (self.outcome_column,)),
+                *outcome_columns,
             )
             if column not in self.frame.columns
         ]
@@ -71,6 +78,36 @@ class FeatureTable:
             )
         object.__setattr__(self, "id_columns", tuple(self.id_columns))
         object.__setattr__(self, "feature_columns", tuple(self.feature_columns))
+
+    @property
+    def outcome_column(self) -> Optional[str]:
+        """
+        Return the endpoint's single column, for one-column endpoints only.
+
+        Convenience for the binary / multiclass / continuous cases, whose
+        endpoint really is one column. It deliberately RAISES for survival
+        rather than returning the time column: silently answering with half
+        of a two-column endpoint would let a caller written for
+        classification train on follow-up time as if it were a label.
+
+        Returns:
+            The endpoint column, or ``None`` when the table declares no
+            endpoint.
+
+        Raises:
+            HABITAPIError: If the endpoint spans multiple columns.
+        """
+        if self.outcome is None:
+            return None
+        columns = tuple(self.outcome.columns)
+        if len(columns) != 1:
+            raise HABITAPIError(
+                "FeatureTable.outcome_column is undefined for the "
+                f"{self.outcome.task!r} endpoint, which spans {list(columns)}. "
+                "Use FeatureTable.outcome, or the accessors in "
+                "habit.domain.outcome_access."
+            )
+        return columns[0]
 
     def feature_matrix(self) -> pd.DataFrame:
         """
@@ -132,6 +169,6 @@ class FeatureTable:
             frame=merged,
             id_columns=self.id_columns,
             feature_columns=(*self.feature_columns, *other.feature_columns),
-            outcome_column=self.outcome_column or other.outcome_column,
+            outcome=self.outcome or other.outcome,
             provenance=provenance,
         )

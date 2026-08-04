@@ -50,9 +50,9 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import yaml
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.spec.policy import RunPolicy
-from habit.spec.specs import HabitatSpec
+from habit.spec.specs import HabitatSpec, MLSpec
 from habit.spec.yaml_io import _read_yaml, _write_yaml
 
 __all__ = [
@@ -151,9 +151,15 @@ _HABITAT_CONSUMED_TOP_KEYS: frozenset = frozenset(
     | set(_HABITAT_OUTPUT_KEYS)
 )
 
-#: v0 preprocessing-method parameter keys forwarded into the table
-#: preprocessor Spec params; ``method`` becomes the Spec name.
+#: v0 preprocessing-method parameter keys forwarded into the feature
+#: preprocessing method Spec params; ``method`` becomes the Spec name.
 _PREPROCESSING_NAME_KEY = "method"
+
+#: Renamed preprocessing parameter: v0's ``global_normalize`` described
+#: pooling across feature COLUMNS, not across subjects. See
+#: ``_translate_preprocessing_chain``.
+_V0_SCOPE_KEY = "global_normalize"
+_V1_SCOPE_KEY = "across_features"
 
 # ---------------------------------------------------------------------------
 # Generic (non-habitat) workflow field classification
@@ -205,6 +211,79 @@ _GENERIC_MODE_KEYS: Mapping[str, str] = {
     "pipeline_path": "pipeline",
     "model_path": "pipeline",
 }
+
+# ---------------------------------------------------------------------------
+# v0 machine-learning (model/cv) field classification
+# ---------------------------------------------------------------------------
+
+#: v0 ``normalization.method`` names -> v1 ``table_preprocessor`` registry
+#: names. Methods without a v1 component are preserved under ``legacy``.
+_ML_NORMALIZATION_NAME_MAP: Mapping[str, str] = {
+    "z_score": "zscore",
+    "min_max": "minmax",
+    "robust": "robust",
+}
+
+#: v0 validation-design keys. They shape the SPLIT, not the model
+#: definition, and the v1 MLSpec deliberately has no slot for them (the
+#: calling recipe owns the validation design), so they ride under ``legacy``.
+_ML_VALIDATION_KEYS: Tuple[str, ...] = (
+    "n_splits",
+    "stratified",
+    "test_size",
+    "split_method",
+    "train_ids_file",
+    "test_ids_file",
+)
+
+#: v0 predict-mode output-schema keys, collected under the document
+#: ``output`` section (a ResultWriter concern).
+_ML_PREDICT_OUTPUT_KEYS: Tuple[str, ...] = (
+    "evaluate",
+    "output_label_col",
+    "output_prob_col",
+    "probability_class_index",
+    "binary_positive_class_index",
+)
+
+#: v0 reporting switches collected under ``output``.
+_ML_OUTPUT_SWITCH_KEYS: Tuple[str, ...] = (
+    "is_visualize",
+    "is_save_model",
+    "visualization",
+)
+
+#: Pipeline-assembly keys stripped from v0 selector params: v0 itself lists
+#: them as runtime-injected (``RUNTIME_STEP_KEYS`` in the v0 validation
+#: module), never as algorithm parameters.
+_ML_SELECTOR_RUNTIME_KEYS: Tuple[str, ...] = ("images", "before_z_score")
+
+#: v0 ML top-level keys consumed by dedicated v1 slots; everything else
+#: found at the top level is preserved under ``legacy``.
+_ML_CONSUMED_TOP_KEYS: frozenset = frozenset(
+    {
+        "run_mode",
+        "config_file",
+        "random_state",
+        "input",
+        "output",
+        "pipeline_path",
+        "model_path",
+        "normalization",
+        "feature_selection_methods",
+        "models",
+        "resampling",
+        "sampling",
+        "bootstrap",
+        "strict_model_params",
+    }
+    | set(_ML_VALIDATION_KEYS)
+    | set(_ML_PREDICT_OUTPUT_KEYS)
+    | set(_ML_OUTPUT_SWITCH_KEYS)
+    | _GENERIC_DATA_KEYS
+    | set(_GENERIC_POLICY_KEY_MAP)
+    | _GENERIC_OUTPUT_KEYS
+)
 
 
 @dataclass(frozen=True)
@@ -318,6 +397,8 @@ class LegacyConfigAdapter:
             )
         if alias == "habitat":
             return self._translate_habitat(payload)
+        if alias in ("model", "cv"):
+            return self._translate_ml(payload, alias)
         return self._translate_generic(payload, alias)
 
     # ------------------------------------------------------------------
@@ -440,6 +521,9 @@ class LegacyConfigAdapter:
         supervoxelizer = self._translate_supervoxelizer(
             feature_construction, segmentation, clustering_mode, warnings, unmapped
         )
+        supervoxel_features = self._translate_supervoxel_feature_extractor(
+            feature_construction, segmentation, clustering_mode, warnings, unmapped
+        )
         fitter = self._translate_habitat_fitter(
             segmentation, clustering_mode, warnings, unmapped
         )
@@ -449,15 +533,21 @@ class LegacyConfigAdapter:
             "version": self.SCHEMA_VERSION,
             "voxel_feature_extractor": voxel_extractor,
             "supervoxelizer": supervoxelizer,
+            "supervoxel_feature_extractor": supervoxel_features,
             "habitat_model_fitter": fitter,
             # v0.1 always assigns by nearest centroid; it never had a knob.
             "habitat_assigner": {"name": "nearest_centroid", "params": {}},
             "habitat_features": [],
-            "subject_table_preprocessors": self._translate_preprocessing_chain(
+            # v0.1's two blocks map onto the stateless voxel chain and the
+            # stateful cohort chain. The third v1 chain (stateless, on
+            # supervoxel features) has no v0.1 source: that version could only
+            # preprocess supervoxel features at cohort level.
+            "voxel_feature_preprocessors": self._translate_preprocessing_chain(
                 feature_construction.get("preprocessing_for_subject_level")
             ),
-            "group_table_preprocessors": self._translate_preprocessing_chain(
-                feature_construction.get("preprocessing_for_group_level")
+            "supervoxel_feature_preprocessors": [],
+            "cohort_feature_preprocessors": self._translate_cohort_chain(
+                feature_construction, clustering_mode, warnings, unmapped
             ),
             "random_seed": payload.get("random_state"),
         }
@@ -531,18 +621,22 @@ class LegacyConfigAdapter:
         unmapped: Dict[str, Any],
     ) -> Optional[Dict[str, Any]]:
         """
-        Translate the supervoxel stage into a ``supervoxelizer`` Spec.
+        Translate ``habitat_segmentation.supervoxel`` into a Spec.
 
-        Two v0 blocks fuse into the single v1 operator:
-        ``habitat_segmentation.supervoxel`` (how labels are grown) and
-        ``feature_construction.supervoxel_level`` (how features are
-        aggregated). ``mean_voxel_features()`` is the built-in semantics of
-        every v1 Supervoxelizer, so only a different aggregator changes the
-        Spec name. ``one_step``/``direct_pooling`` have no supervoxel stage
-        and yield ``None``.
+        This block answers ONE question -- how the supervoxel labels are
+        grown -- and maps to the ``supervoxelizer`` domain alone. How those
+        supervoxels are then described is the separate
+        ``feature_construction.supervoxel_level`` block, translated by
+        :meth:`_translate_supervoxel_feature_extractor`. Fusing the two (as
+        an earlier version of this adapter did) loses one of two orthogonal
+        choices and produces spec names no registry can instantiate.
+
+        ``one_step``/``direct_pooling`` have no supervoxel stage and yield
+        ``None``.
 
         Args:
-            feature_construction: v0 ``feature_construction`` block.
+            feature_construction: v0 ``feature_construction`` block. Unused
+                here; kept so both supervoxel translators share a signature.
             segmentation: v0 ``habitat_segmentation`` block.
             clustering_mode: Assembly strategy.
             warnings: Warning sink.
@@ -555,20 +649,6 @@ class LegacyConfigAdapter:
             return None
 
         supervoxel_block = segmentation.get("supervoxel") or {}
-        supervoxel_level = feature_construction.get("supervoxel_level") or {}
-        aggregator_expr = str(
-            supervoxel_level.get("method", "mean_voxel_features()")
-        ).strip()
-        aggregator, agg_steps = _parse_method_expression(
-            aggregator_expr, frozenset(supervoxel_level.get("params") or {})
-        )
-        # Radiomics-on-supervoxels may be written bare or wrapped in a
-        # homogeneous concat(); both spellings name the same aggregator.
-        agg_methods = {step[0] for step in agg_steps}
-        is_radiomics = aggregator == "supervoxel_radiomics" or (
-            aggregator == "concat" and agg_methods == {"supervoxel_radiomics"}
-        )
-
         algorithm = str(supervoxel_block.get("algorithm", "kmeans")).strip()
         seed = supervoxel_block.get("random_state")
         if seed is not None:
@@ -581,41 +661,107 @@ class LegacyConfigAdapter:
                 "original value is preserved under 'legacy'."
             )
 
-        if is_radiomics:
-            # Radiomics computed directly on supervoxel regions is a distinct
-            # v1 supervoxelizer family; record the label-growing algorithm as
-            # a parameter so the future component can reproduce both halves.
-            params: Dict[str, Any] = {
-                "modalities": [step[1] for step in agg_steps],
-                **dict(supervoxel_level.get("params") or {}),
-                "label_algorithm": algorithm,
-                "n_supervoxels": supervoxel_block.get("n_clusters", 50),
-            }
-            return {"name": "supervoxel_radiomics", "params": params}
-
-        params = {
+        params: Dict[str, Any] = {
             "n_supervoxels": supervoxel_block.get("n_clusters", 50),
-            "max_iter": supervoxel_block.get("max_iter", 300),
-            "n_init": supervoxel_block.get("n_init", 10),
         }
         if algorithm == "slic":
             params.update(
                 {
                     "compactness": supervoxel_block.get("compactness", 0.1),
-                    "sigma": supervoxel_block.get("sigma", 0.0),
                     "enforce_connectivity": supervoxel_block.get(
                         "enforce_connectivity", True
                     ),
                 }
             )
-        if aggregator not in ("mean_voxel_features", ""):
-            params["aggregator_expression"] = aggregator_expr
-            warnings.append(
-                f"supervoxel_level method '{aggregator_expr}' is not the "
-                "default mean aggregation; kept verbatim under spec params "
-                "'aggregator_expression'."
+        else:
+            params.update(
+                {
+                    "max_iter": supervoxel_block.get("max_iter", 300),
+                    "n_init": supervoxel_block.get("n_init", 10),
+                }
             )
         return {"name": algorithm, "params": params}
+
+    def _translate_supervoxel_feature_extractor(
+        self,
+        feature_construction: Mapping[str, Any],
+        segmentation: Mapping[str, Any],
+        clustering_mode: str,
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Translate ``feature_construction.supervoxel_level`` into a Spec.
+
+        ``mean_voxel_features()`` -- the v0 default -- maps to ``None``:
+        every v1 supervoxelizer already attaches feature means, so naming the
+        default would add a redundant step rather than describe one.
+        ``supervoxel_radiomics(...)``, bare or wrapped in a homogeneous
+        ``concat()``, maps to the extractor of the same name.
+
+        v0.1 ignores this block outside ``two_step`` (the one-step design
+        clusters voxels straight into habitats, leaving no supervoxel to
+        describe); the same is done here, with the same warning.
+
+        Args:
+            feature_construction: v0 ``feature_construction`` block.
+            segmentation: v0 ``habitat_segmentation`` block. Unused here;
+                kept so both supervoxel translators share a signature.
+            clustering_mode: Assembly strategy.
+            warnings: Warning sink.
+            unmapped: Legacy sink for expressions with no v1 component.
+
+        Returns:
+            A ``Spec.to_dict()`` payload, or ``None`` for the default.
+        """
+        supervoxel_level = feature_construction.get("supervoxel_level") or {}
+        expression = str(
+            supervoxel_level.get("method", "mean_voxel_features()")
+        ).strip()
+        v0_params = dict(supervoxel_level.get("params") or {})
+        # ``supervoxel_file_keyword`` locates a previously written label map:
+        # a data-source concern in v1, never an algorithm parameter.
+        v0_params.pop("supervoxel_file_keyword", None)
+
+        outer, steps = _parse_method_expression(
+            expression, frozenset(supervoxel_level.get("params") or {})
+        )
+        inner_methods = {step[0] for step in steps}
+        is_default = outer in ("mean_voxel_features", "")
+        is_radiomics = outer == "supervoxel_radiomics" or (
+            outer == "concat" and inner_methods == {"supervoxel_radiomics"}
+        )
+
+        if clustering_mode != "two_step":
+            if not is_default:
+                warnings.append(
+                    f"clustering_mode '{clustering_mode}' ignores "
+                    f"feature_construction.supervoxel_level.method "
+                    f"('{expression}'): there is no supervoxel stage to "
+                    "describe. This matches v0.1 behaviour."
+                )
+            return None
+
+        if is_default:
+            return None
+
+        if is_radiomics:
+            return {
+                "name": "supervoxel_radiomics",
+                "params": {
+                    "modalities": [step[1] for step in steps],
+                    **v0_params,
+                },
+            }
+
+        unmapped.setdefault("feature_construction", {}).setdefault(
+            "supervoxel_level", {}
+        )["method"] = expression
+        warnings.append(
+            f"supervoxel_level method '{expression}' has no v1 supervoxel "
+            "feature extractor; the expression is preserved under 'legacy'."
+        )
+        return None
 
     def _translate_habitat_fitter(
         self,
@@ -705,12 +851,18 @@ class LegacyConfigAdapter:
         self, block: Optional[Mapping[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
-        Translate one v0 preprocessing block into table-preprocessor Specs.
+        Translate one v0 preprocessing block into method Specs.
 
         The v0 ``method`` field becomes the Spec name; every remaining key
-        (``winsor_limits``, ``n_bins``, ``global_normalize``, ...) is a Spec
-        param, so the YAML order -- which is scientifically meaningful -- is
-        preserved exactly.
+        (``winsor_limits``, ``n_bins``, ...) is a Spec param, so the YAML
+        order -- which is scientifically meaningful -- is preserved exactly.
+
+        ``global_normalize`` is renamed to ``across_features``. The old name
+        read as "use cohort-wide statistics", which it never meant: the flag
+        selects whether statistics are pooled across feature COLUMNS. Whose
+        rows they are pooled over is decided by which chain holds the method,
+        so keeping the old name next to the new chain names would actively
+        mislead. The value carries over unchanged.
 
         Args:
             block: v0 ``preprocessing_for_*_level`` block or ``None``.
@@ -729,8 +881,51 @@ class LegacyConfigAdapter:
                     "Every preprocessing method entry needs a 'method' key; "
                     f"got {entry!r}."
                 )
+            if _V0_SCOPE_KEY in entry:
+                entry[_V1_SCOPE_KEY] = bool(entry.pop(_V0_SCOPE_KEY))
             chain.append({"name": str(name), "params": entry})
         return chain
+
+    def _translate_cohort_chain(
+        self,
+        feature_construction: Mapping[str, Any],
+        clustering_mode: str,
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        """
+        Translate ``preprocessing_for_group_level`` for the given mode.
+
+        v0.1 wired this block into the ``two_step`` and ``direct_pooling``
+        pipelines only: ``_build_one_step_steps`` has no group-preprocessing
+        step at all, because one-step defines habitats inside each subject
+        and nothing is ever pooled. Translating it into a cohort chain
+        regardless of mode would state that a step ran which v0.1 never ran
+        -- and the v1 recipe, taking the spec at its word, WOULD run it and
+        return different habitats.
+
+        Args:
+            feature_construction: v0 ``feature_construction`` block.
+            clustering_mode: ``two_step`` / ``one_step`` / ``direct_pooling``.
+            warnings: Warning sink.
+            unmapped: Legacy sink for the dropped block.
+
+        Returns:
+            Ordered method Specs, empty for ``one_step``.
+        """
+        block = feature_construction.get("preprocessing_for_group_level")
+        if clustering_mode != "one_step":
+            return self._translate_preprocessing_chain(block)
+        if block and (block.get("methods") or ()):
+            unmapped.setdefault("feature_construction", {})[
+                "preprocessing_for_group_level"
+            ] = block
+            warnings.append(
+                "feature_construction.preprocessing_for_group_level is ignored "
+                "in clustering_mode 'one_step' (v0.1 never applied it there); "
+                "preserved verbatim under 'legacy'."
+            )
+        return []
 
     def _translate_habitat_policy(
         self,
@@ -787,6 +982,392 @@ class LegacyConfigAdapter:
         """
         output: Dict[str, Any] = {"out_dir": payload.get("out_dir")}
         for key in _HABITAT_OUTPUT_KEYS:
+            if key in payload:
+                output[key] = payload[key]
+        return output
+
+    # ------------------------------------------------------------------
+    # Machine-learning workflows (model/cv): deep translation into MLSpec
+    # ------------------------------------------------------------------
+
+    def _translate_ml(
+        self, payload: Mapping[str, Any], workflow: str
+    ) -> LegacyTranslation:
+        """
+        Deep-translate a v0 ``MLConfig`` mapping (``model`` / ``cv``).
+
+        The algorithmic core lands in typed :class:`MLSpec` slots:
+        ``normalization`` becomes the table-preprocessing chain,
+        ``feature_selection_methods`` the selection chain, and the FIRST
+        ``models`` entry the classifier. What the v1 spec deliberately has
+        no slot for -- the validation design (``n_splits``, ``test_size``,
+        id files), class-imbalance resampling, bootstrap CIs, multi-model
+        sweeps, per-component seeds -- is preserved verbatim under
+        ``legacy`` with a warning each, so the translation stays lossless.
+
+        Args:
+            payload: v0 ML YAML mapping.
+            workflow: ``"model"`` or ``"cv"``.
+
+        Returns:
+            The translation result.
+        """
+        warnings: List[str] = []
+        unmapped: Dict[str, Any] = {}
+
+        mode = str(payload.get("run_mode", "train")).strip().lower()
+        document: Dict[str, Any] = {
+            "version": self.SCHEMA_VERSION,
+            "workflow": workflow,
+            "mode": mode,
+            "spec": self._translate_ml_spec(payload, workflow, warnings, unmapped),
+            "data": self._translate_ml_data(payload),
+            "pipeline": payload.get("pipeline_path") or payload.get("model_path"),
+            "policy": self._translate_ml_policy(payload),
+            "output": self._translate_ml_output(payload),
+            "legacy": {},
+        }
+
+        preserved_validation = {
+            key: payload[key] for key in _ML_VALIDATION_KEYS if key in payload
+        }
+        if preserved_validation:
+            unmapped.update(preserved_validation)
+            warnings.append(
+                "Validation-design keys "
+                f"{sorted(preserved_validation)} shape the split, not the "
+                "model definition; the v1 MLSpec has no slot for them (the "
+                "calling recipe owns the validation design). Preserved "
+                "verbatim under 'legacy'."
+            )
+
+        for key in ("resampling", "sampling"):
+            block = payload.get(key)
+            if block:
+                unmapped[key] = block
+                warnings.append(
+                    f"'{key}' (class-imbalance resampling) has no v1 slot "
+                    "yet; preserved verbatim under 'legacy'."
+                )
+        for key in ("bootstrap", "strict_model_params"):
+            if key in payload and payload[key]:
+                unmapped[key] = payload[key]
+                warnings.append(
+                    f"'{key}' has no v1 slot yet; preserved under 'legacy'."
+                )
+
+        # Preserve every unrecognised top-level key verbatim.
+        for key, value in payload.items():
+            if key not in _ML_CONSUMED_TOP_KEYS:
+                unmapped[key] = value
+                warnings.append(
+                    f"Top-level key '{key}' has no v1 slot; preserved under 'legacy'."
+                )
+
+        document["legacy"] = unmapped
+        return LegacyTranslation(
+            document=document,
+            workflow=workflow,
+            unmapped=unmapped,
+            warnings=tuple(warnings),
+        )
+
+    def _translate_ml_spec(
+        self,
+        payload: Mapping[str, Any],
+        workflow: str,
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Build the ``spec`` section of a model/cv document.
+
+        Predict-mode configs legitimately omit ``models`` -- the fitted
+        pipeline artefact carries the definition -- so the section is
+        ``None`` there, which the v1 reader treats as "definition comes
+        from the pipeline artefact".
+
+        Args:
+            payload: Full v0 payload (for the global seed).
+            workflow: ``"model"`` or ``"cv"`` (names the spec).
+            warnings: Warning sink.
+            unmapped: Legacy sink.
+
+        Returns:
+            An ``MLSpec.to_dict()`` payload, or ``None`` for predict
+            configs without a ``models`` block.
+        """
+        models = payload.get("models") or {}
+        if not models:
+            warnings.append(
+                "No 'models' block: the spec section is None. In predict "
+                "mode the model definition comes from the pipeline artefact; "
+                "a train-mode v0 config without models is rejected by the "
+                "v0 schema itself."
+            )
+            return None
+        return {
+            "name": f"ml_{workflow}",
+            "version": self.SCHEMA_VERSION,
+            "table_preprocessors": self._translate_ml_normalization(
+                payload.get("normalization"), warnings, unmapped
+            ),
+            "feature_selectors": self._translate_ml_selectors(
+                payload.get("feature_selection_methods"), warnings, unmapped
+            ),
+            "classifier": self._translate_ml_classifier(models, warnings, unmapped),
+            # v0.1 reported a fixed metric panel chosen by the workflow, not
+            # by the config; the v1 default panel lives in the recipe.
+            "metrics": [],
+            "random_seed": payload.get("random_state"),
+        }
+
+    def _translate_ml_normalization(
+        self,
+        normalization: Optional[Mapping[str, Any]],
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        """
+        Translate the v0 ``normalization`` block into a one-step chain.
+
+        Args:
+            normalization: v0 ``normalization`` block or ``None``.
+            warnings: Warning sink.
+            unmapped: Legacy sink for methods with no v1 component.
+
+        Returns:
+            Zero or one ``Spec.to_dict()`` payloads.
+        """
+        block = normalization or {}
+        method = block.get("method")
+        if not method:
+            return []
+        name = _ML_NORMALIZATION_NAME_MAP.get(str(method).strip())
+        if name is None:
+            unmapped["normalization"] = block
+            warnings.append(
+                f"normalization.method {method!r} has no v1 table "
+                "preprocessor; preserved verbatim under 'legacy'."
+            )
+            return []
+        return [{"name": name, "params": dict(block.get("params") or {})}]
+
+    def _translate_ml_selectors(
+        self,
+        methods: Optional[Sequence[Mapping[str, Any]]],
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        """
+        Translate v0 ``feature_selection_methods`` into selector Specs.
+
+        The YAML order -- which is scientifically meaningful -- is preserved
+        exactly. Two v0-only param kinds are stripped: the runtime
+        pipeline-assembly keys (``images``, ``before_z_score``; v0 itself
+        classifies them as runtime-injected, not algorithm parameters) and
+        per-component ``random_state`` seeds (v1 seeds every Seedable from
+        ``MLSpec.random_seed``). A ``before_z_score: true`` entry means v0
+        ran that selector BEFORE normalization, an ordering the v1 chain
+        cannot express (preprocessing always runs first), so the original
+        block is then preserved verbatim under ``legacy``.
+
+        Args:
+            methods: v0 ``feature_selection_methods`` list or ``None``.
+            warnings: Warning sink.
+            unmapped: Legacy sink for reordered blocks and seeds.
+
+        Returns:
+            Ordered list of ``Spec.to_dict()`` payloads.
+        """
+        selectors: List[Dict[str, Any]] = []
+        reordered = False
+        seeds: Dict[str, Any] = {}
+        for entry in methods or ():
+            entry = dict(entry)
+            name = entry.get("method")
+            if not name:
+                raise HABITAPIError(
+                    "Every feature_selection_methods entry needs a 'method' "
+                    f"key; got {entry!r}."
+                )
+            params = dict(entry.get("params") or {})
+            for runtime_key in _ML_SELECTOR_RUNTIME_KEYS:
+                value = params.pop(runtime_key, None)
+                if runtime_key == "before_z_score" and value:
+                    reordered = True
+            seed = params.pop("random_state", None)
+            if seed is not None:
+                seeds[str(name)] = seed
+            if str(name) == "icc":
+                # v0.1's ``icc`` selector ONLY read a precomputed results
+                # JSON; the v1 registry names that contract ``icc_precomputed``
+                # (``icc`` is the repeat-tables recomputing selector).
+                name, params = self._translate_icc_selector(params)
+            selectors.append({"name": str(name), "params": params})
+        if reordered:
+            unmapped["feature_selection_methods"] = methods
+            warnings.append(
+                "v0 ran one or more selectors BEFORE normalization "
+                "(before_z_score: true); the v1 chain always preprocesses "
+                "first. The original block is preserved verbatim under "
+                "'legacy'."
+            )
+        if seeds:
+            unmapped.setdefault("feature_selection_seeds", {}).update(seeds)
+            warnings.append(
+                "Per-component seed(s) in feature_selection_methods params "
+                "(random_state) have no v1 slot; v1 applies "
+                "MLSpec.random_seed to every Seedable. The original values "
+                "are preserved under 'legacy'."
+            )
+        return selectors
+
+    @staticmethod
+    def _translate_icc_selector(
+        params: Dict[str, Any],
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Map a v0.1 ``icc`` selector block onto the v1 registry name.
+
+        With an ``icc_results``/``icc_results_path`` in the params the v0.1
+        contract is the precomputed-JSON selector, which the v1 registry
+        carries as ``icc_precomputed``; the aliases collapse into
+        ``icc_results_path``/``groups``. Without a results path the block
+        stays ``icc`` -- the v1 repeat-tables selector -- which fails loudly
+        at fit time exactly as the v0.1 selector failed on a missing path.
+
+        Args:
+            params: The selector's v0 params (runtime keys and seeds already
+                stripped).
+
+        Returns:
+            ``(registry_name, params)`` for the v1 Spec payload.
+        """
+        results_path = params.pop("icc_results", None) or params.pop(
+            "icc_results_path", None
+        )
+        params.pop("icc_results", None)
+        params.pop("icc_results_path", None)
+        if results_path is None:
+            return "icc", params
+        groups = params.pop("groups", None) or params.pop("keys", None)
+        params.pop("groups", None)
+        params.pop("keys", None)
+        translated: Dict[str, Any] = {"icc_results_path": str(results_path)}
+        if groups:
+            translated["groups"] = [str(group) for group in groups]
+        translated.update(params)
+        return "icc_precomputed", translated
+
+    def _translate_ml_classifier(
+        self,
+        models: Mapping[str, Any],
+        warnings: List[str],
+        unmapped: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Translate the v0 ``models`` mapping into ONE classifier Spec.
+
+        v0 trained every entry of the mapping in one run; the v1 MLSpec
+        describes ONE modelling definition, so the first entry (in YAML
+        order) wins and the full block -- per-component seeds included --
+        is preserved verbatim under ``legacy``. For a single-entry mapping
+        only a stripped ``random_state`` param is preserved, mirroring the
+        habitat translator's per-component seed rule.
+
+        Args:
+            models: v0 ``models`` mapping (non-empty).
+            warnings: Warning sink.
+            unmapped: Legacy sink.
+
+        Returns:
+            A ``Spec.to_dict()`` payload for domain ``classifier``.
+        """
+        entries = list(models.items())
+        first_name, first_config = entries[0]
+        params = dict((first_config or {}).get("params") or {})
+        seed = params.pop("random_state", None)
+        if len(entries) > 1:
+            unmapped["models"] = models
+            warnings.append(
+                f"v0 trained {len(entries)} models in one run; the v1 "
+                f"MLSpec describes ONE classifier -- the first entry "
+                f"({first_name!r}) wins and the full block is preserved "
+                "verbatim under 'legacy'."
+            )
+        elif seed is not None:
+            unmapped.setdefault("models", {})[first_name] = {
+                "params": {"random_state": seed}
+            }
+            warnings.append(
+                f"Per-component seed models.{first_name}.params.random_state "
+                "has no v1 slot; v1 applies MLSpec.random_seed to every "
+                "Seedable. The original value is preserved under 'legacy'."
+            )
+        return {"name": str(first_name), "params": params}
+
+    def _translate_ml_data(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        """
+        Collect the ML data keys into the ``data`` section.
+
+        The v0 ``input`` list (per-table path / id / label descriptors) is
+        kept verbatim: it IS the data-source description.
+
+        Args:
+            payload: Full v0 payload.
+
+        Returns:
+            The ``data`` section payload.
+        """
+        data: Dict[str, Any] = {}
+        if "input" in payload:
+            data["input"] = payload["input"]
+        for key in _GENERIC_DATA_KEYS:
+            if key in payload:
+                data[key] = payload[key]
+        return data
+
+    def _translate_ml_policy(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        """
+        Collect the ML execution keys into a ``RunPolicy`` payload.
+
+        Args:
+            payload: Full v0 payload.
+
+        Returns:
+            A ``RunPolicy.to_dict()``-shaped payload (empty when the v0
+            config sets no execution keys).
+        """
+        policy: Dict[str, Any] = {}
+        for v0_key, v1_key in _GENERIC_POLICY_KEY_MAP.items():
+            if v0_key in payload:
+                policy[v1_key] = payload[v0_key]
+        if policy:
+            workers = policy.get("workers", 1)
+            policy["backend"] = (
+                "process" if isinstance(workers, int) and workers > 1 else "serial"
+            )
+        return policy
+
+    def _translate_ml_output(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        """
+        Collect the ML output keys into the ``output`` section.
+
+        The v0 ``output`` path string becomes ``out_dir``; reporting
+        switches and the predict-mode output schema ride alongside.
+
+        Args:
+            payload: Full v0 payload.
+
+        Returns:
+            The ``output`` section payload.
+        """
+        output: Dict[str, Any] = {"out_dir": payload.get("output")}
+        for key in _GENERIC_OUTPUT_KEYS:
+            if key in payload:
+                output[key] = payload[key]
+        for key in (*_ML_OUTPUT_SWITCH_KEYS, *_ML_PREDICT_OUTPUT_KEYS):
             if key in payload:
                 output[key] = payload[key]
         return output
@@ -1205,6 +1786,11 @@ def validate_v1_document(
             )
         RunPolicy.from_dict(policy_payload)
 
+    # The ML check runs after the policy check so a policy violation keeps
+    # surfacing as a policy error even when the spec section is also absent.
+    if doc_workflow.strip().lower() in ("model", "cv"):
+        _validate_ml_v1(payload, mode)
+
 
 def _validate_habitat_v1(payload: Mapping[str, Any], mode: Optional[str]) -> None:
     """
@@ -1239,3 +1825,39 @@ def _validate_habitat_v1(payload: Mapping[str, Any], mode: Optional[str]) -> Non
             f"v1 section 'spec' must be a mapping; got {type(spec_payload).__name__}."
         )
     HabitatSpec.from_dict(spec_payload)
+
+
+def _validate_ml_v1(payload: Mapping[str, Any], mode: Optional[str]) -> None:
+    """
+    Validate the ML-specific sections of a v1 document.
+
+    Same contract as the habitat counterpart: a train document must carry a
+    parseable :class:`MLSpec`; a predict document may omit ``spec`` (the
+    definition then lives in the loaded pipeline artefact) but must name
+    its ``pipeline`` path.
+
+    Args:
+        payload: Full v1 document mapping.
+        mode: Document ``mode`` value, already type-checked.
+
+    Raises:
+        HABITAPIError: On a missing/invalid spec or pipeline reference.
+    """
+    spec_payload = payload.get("spec")
+    if spec_payload is None:
+        if mode != "predict":
+            raise HABITAPIError(
+                "A model/cv v1 document needs a 'spec' section unless "
+                "mode: predict."
+            )
+        if not payload.get("pipeline"):
+            raise HABITAPIError(
+                "A predict-mode model/cv v1 document without a 'spec' "
+                "section must name its 'pipeline' path."
+            )
+        return
+    if not isinstance(spec_payload, Mapping):
+        raise HABITAPIError(
+            f"v1 section 'spec' must be a mapping; got {type(spec_payload).__name__}."
+        )
+    MLSpec.from_dict(spec_payload)

@@ -21,8 +21,17 @@ This implementation is optimized for both classification and regression tasks.
 import pandas as pd
 import numpy as np
 from typing import List, Optional, Union
-from mrmr import mrmr_classif, mrmr_regression
+try:
+    from mrmr import mrmr_classif, mrmr_regression
+    MRMR_AVAILABLE = True
+except ImportError:
+    # mrmr-selection is an optional dependency (extra 'ml'); the selector
+    # raises OptionalDependencyError when called without it.
+    MRMR_AVAILABLE = False
+    mrmr_classif = None
+    mrmr_regression = None
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
 logger = get_module_logger(__name__)
 
@@ -53,6 +62,11 @@ def mrmr_selector(data: pd.DataFrame,
         ValueError: If target column is not found in data (when target is str)
         TypeError: If target is not a string or pandas Series
     """
+    if not MRMR_AVAILABLE:
+        raise OptionalDependencyError(
+            "selector 'mrmr' requires the optional mrmr-selection dependency; "
+            "install 'HABIT[ml]' to use it."
+        )
     # Input validation
     if not isinstance(data, pd.DataFrame):
         raise TypeError("Input data must be a pandas DataFrame")

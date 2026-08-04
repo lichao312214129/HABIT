@@ -58,7 +58,7 @@ def test_slic_features_are_per_supervoxel_means() -> None:
     voxel_labels = np.asarray(unit.label_array)[tuple(field.voxel_index.T)]
     expected = (
         pd.DataFrame(field.values, columns=list(field.feature_names))
-        .groupby(voxel_labels)
+        .groupby(voxel_labels.astype(np.int64))
         .mean()
     )
     pd.testing.assert_frame_equal(

@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Model comparison command implementation."""
+"""Model comparison command implementation.
+
+L5 wiring only: parse the v0.1 YAML through the v0.1 schema, hand the
+validated object to the L4 recipe, and surface success/failure. No
+``habit.core.run`` imports live here.
+"""
 
 from __future__ import annotations
 
@@ -27,7 +32,7 @@ from habit.commands.common import (
     load_config_or_exit,
 )
 from habit.core.machine_learning.config_schemas import ModelComparisonConfig
-from habit.core.machine_learning.run import run_model_comparison_from_config
+from habit.recipes.comparison import compare_models
 from habit.utils.log_utils import setup_logger
 
 
@@ -56,7 +61,7 @@ def run_compare(config_file: str) -> None:
     click.echo(msg)
 
     try:
-        run_model_comparison_from_config(
+        compare_models(
             config,
             logger=logger,
             output_dir=str(output_dir),

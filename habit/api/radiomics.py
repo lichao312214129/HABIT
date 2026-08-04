@@ -30,7 +30,7 @@ from typing import Any, Mapping, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from habit.api.exceptions import HABITAPIError, OptionalDependencyError, ProcessingError
+from habit.exceptions import HABITAPIError, OptionalDependencyError, ProcessingError
 from habit.api.image import (
     GeometryPolicy,
     GeometryReport,

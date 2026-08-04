@@ -34,7 +34,11 @@ from ..contracts.results import (
     KFoldModelResult,
     KFoldRunResult,
 )
-from ..evaluation.metrics import calculate_metrics
+from ..evaluation.metrics import (
+    bootstrap_metrics,
+    calculate_metrics,
+    format_metric_ci,
+)
 from ..evaluation.prediction_container import PredictionContainer
 from .base import BaseRunner
 
@@ -90,7 +94,17 @@ class KFoldRunner(BaseRunner):
                 fold_estimators=tuple(fold_estimators_per_model[model_name]),
             )
 
-        aggregated, summary_rows = self._aggregate_models(models=models)
+        bootstrap_kwargs = self.bootstrap_options()
+        if bootstrap_kwargs is not None:
+            self.context.logger.info(
+                "Bootstrapping pooled out-of-fold confidence intervals "
+                "(%s replicates) ...",
+                bootstrap_kwargs["n_iterations"],
+            )
+        aggregated, summary_rows = self._aggregate_models(
+            models=models,
+            bootstrap_kwargs=bootstrap_kwargs,
+        )
 
         return KFoldRunResult.create(
             plan=self.plan,
@@ -162,9 +176,20 @@ class KFoldRunner(BaseRunner):
     @staticmethod
     def _aggregate_models(
         models: Dict[str, KFoldModelResult],
+        bootstrap_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Tuple[Dict[str, AggregatedModelResult], List[Dict[str, Any]]]:
         """
         Aggregate fold-level outputs into model-level results and summary rows.
+
+        Args:
+        models:
+            Per-model fold breakdowns produced by the fold loop.
+        bootstrap_kwargs:
+            Keyword arguments for
+            :func:`~habit.core.machine_learning.evaluation.metrics.bootstrap_metrics`,
+            or ``None`` to skip confidence intervals.  Intervals are computed on
+            the pooled out-of-fold predictions rather than per fold, because a
+            single fold holds too few samples for a stable percentile interval.
 
         Returns:
         Tuple[Dict[str, AggregatedModelResult], List[Dict[str, Any]]]
@@ -201,12 +226,19 @@ class KFoldRunner(BaseRunner):
                 float(np.std(valid_aucs)) if valid_aucs else None
             )
 
+            overall_metrics_ci: Dict[str, Dict[str, float]] = {}
+            if bootstrap_kwargs is not None:
+                overall_metrics_ci = bootstrap_metrics(
+                    aggregated_container, **bootstrap_kwargs
+                )
+
             aggregated[model_name] = AggregatedModelResult(
                 model_name=model_name,
                 raw=aggregated_container.to_dict(),
                 overall_metrics=overall_metrics,
                 auc_mean=auc_mean,
                 auc_std=auc_std,
+                overall_metrics_ci=overall_metrics_ci,
             )
 
             row: Dict[str, Any] = {"Model": model_name}
@@ -215,6 +247,12 @@ class KFoldRunner(BaseRunner):
             if auc_std is not None:
                 row["AUC_Std"] = auc_std
             row.update({f"Overall_{k}": v for k, v in overall_metrics.items()})
+            row.update(
+                {
+                    f"Overall_{k}_ci": format_metric_ci(v)
+                    for k, v in overall_metrics_ci.items()
+                }
+            )
             summary_rows.append(row)
 
         return aggregated, summary_rows

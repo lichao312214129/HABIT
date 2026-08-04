@@ -1,8 +1,13 @@
 # Optional advanced analysis/export profile.
 # pyarrow is part of the default runtime (parquet habitats results).
+#
+# Versions pinned to the tested environment (see requirements-runtime lock).
+# scikit-survival is required by the survival-analysis models and metrics and
+# must pair with the runtime's scikit-learn 1.6.1 pin.
 --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 krippendorff==0.8.2
 shap==0.49.1
-plotly==6.8.0
+plotly==6.2.0
 lifelines==0.30.0
+scikit-survival==0.25.0

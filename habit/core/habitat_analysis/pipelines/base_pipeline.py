@@ -31,7 +31,7 @@ from habit.core.habitat_analysis.checkpoint.manager import HabitatTrainCheckpoin
 from .habitat_subject_data import HabitatSubjectData
 
 
-class BasePipelineStep(BaseEstimator, TransformerMixin, ABC):
+class BasePipelineStep(TransformerMixin, BaseEstimator, ABC):
     """
     Base class for all pipeline steps.
     

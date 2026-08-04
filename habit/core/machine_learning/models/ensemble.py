@@ -22,7 +22,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
-class HabitEnsembleModel(BaseEstimator, ClassifierMixin):
+class HabitEnsembleModel(ClassifierMixin, BaseEstimator):
     """
     An ensemble wrapper that aggregates predictions from multiple fitted pipelines.
     Used primarily to wrap K-Fold cross-validation results into a single predict-ready object.

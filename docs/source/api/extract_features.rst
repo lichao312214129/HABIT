@@ -1,14 +1,10 @@
-Feature extraction
-==================
+.. This page was retired with the v1.0 API documentation rewrite.
 
-.. code-block:: bash
+Feature extraction (moved)
+==========================
 
-   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
+This v0.1-oriented page is no longer maintained.
 
-**Input**: ``raw_img_folder`` + ``habitats_map_folder`` (``*_habitats.nrrd`` )
+See :doc:`python_api` and :doc:`index` for the v1.0 Python API.
 
-**Output**: CSV files under ``out_dir`` (controlled by ``feature_types`` ).
-
-**Formulas**: :doc:`../reference/features/index`
-
-**Configuration**: :doc:`../configuration/feature_extraction`
+See :doc:`domain_habitat` for the v1.0 habitat domain API.

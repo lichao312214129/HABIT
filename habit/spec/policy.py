@@ -32,7 +32,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 
 __all__ = ["RunPolicy"]
 

@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+import logging
+import warnings
 from dataclasses import dataclass, field
 from importlib import metadata
 from types import MappingProxyType
@@ -23,7 +25,10 @@ from typing import Any, Mapping, Optional, Tuple, Type, cast
 
 from pydantic import BaseModel
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
+from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
+
+logger = logging.getLogger("habit.api.plugins")
 
 __all__ = [
     "PluginInfo",
@@ -53,6 +58,8 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     # v1.0 domains: snake_case(protocol name), singular.
     "voxel_feature_extractor": "habit.voxel_feature_extractor",
     "supervoxelizer": "habit.supervoxelizer",
+    "supervoxel_feature_extractor": "habit.supervoxel_feature_extractor",
+    "feature_preprocessing_method": "habit.feature_preprocessing_method",
     "habitat_model_fitter": "habit.habitat_model_fitter",
     "habitat_assigner": "habit.habitat_assigner",
     "habitat_feature_extractor": "habit.habitat_feature_extractor",
@@ -61,6 +68,11 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     "classifier": "habit.classifier",
     "feature_selector": "habit.feature_selector",
     "metric": "habit.metric",
+}
+#: v0.1 plural plugin domains that alias the v1.0 singular L3 registries.
+_LEGACY_DOMAIN_ALIASES: Mapping[str, str] = {
+    "models": "classifier",
+    "metrics": "metric",
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
 
@@ -89,8 +101,54 @@ class PluginLoadReport:
         object.__setattr__(self, "failures", MappingProxyType(dict(self.failures)))
 
 
+def _warn_legacy_plugin_domain(domain: str) -> None:
+    """Emit a deprecation warning for a v0.1 plural plugin-domain alias."""
+    alternative = _LEGACY_DOMAIN_ALIASES[domain]
+    warnings.warn(
+        build_deprecation_message(
+            f"plugin domain '{domain}'",
+            "1.0.0",
+            alternative=f"domain='{alternative}'",
+            removed_in="1.2.0",
+        ),
+        HabitDeprecationWarning,
+        stacklevel=3,
+    )
+
+
+def _legacy_registry_for_domain(domain: str) -> Type[Any]:
+    """Resolve a v0.1 plural ML plugin domain to its legacy core registry."""
+    if domain == "models":
+        from habit.core.machine_learning.models.factory import ModelFactory
+
+        return cast(Type[Any], ModelFactory)
+    if domain == "metrics":
+        from habit.core.machine_learning.evaluation.metrics import MetricRegistry
+
+        return cast(Type[Any], MetricRegistry)
+    raise HABITAPIError(
+        f"Domain '{domain}' is not a legacy alias. Available legacy aliases: "
+        f"{sorted(_LEGACY_DOMAIN_ALIASES)}."
+    )
+
+
+def _registry_for_plugin_name(domain: str, name: str) -> Type[Any]:
+    """Pick the registry backing one plugin name, honoring legacy aliases."""
+    if domain not in _LEGACY_DOMAIN_ALIASES:
+        return _registry_for_domain(domain)
+    v1_registry = _registry_for_domain(_LEGACY_DOMAIN_ALIASES[domain])
+    if name in v1_registry.available():
+        return v1_registry
+    return _legacy_registry_for_domain(domain)
+
+
 def _registry_for_domain(domain: str) -> Type[Any]:
     """Resolve a public plugin domain to its HABIT registry lazily."""
+    if domain in _LEGACY_DOMAIN_ALIASES:
+        raise HABITAPIError(
+            f"Legacy plugin domain '{domain}' must be resolved per plugin name. "
+            f"Use domain='{_LEGACY_DOMAIN_ALIASES[domain]}' instead."
+        )
     if domain == "preprocessors" or domain == "preprocessor":
         from habit.core.preprocessing import PreprocessorFactory
 
@@ -109,14 +167,6 @@ def _registry_for_domain(domain: str) -> Type[Any]:
 
         bootstrap_optional_features()
         return cast(Type[Any], HabitatFeatureFactory)
-    if domain == "models":
-        from habit.core.machine_learning.models.factory import ModelFactory
-
-        return cast(Type[Any], ModelFactory)
-    if domain == "metrics":
-        from habit.core.machine_learning.evaluation.metrics import MetricRegistry
-
-        return cast(Type[Any], MetricRegistry)
     if domain == "classifier":
         from habit.domain.classification import ClassifierRegistry
 
@@ -141,6 +191,18 @@ def _registry_for_domain(domain: str) -> Type[Any]:
         from habit.domain.supervoxel import SupervoxelizerRegistry
 
         return cast(Type[Any], SupervoxelizerRegistry)
+    if domain == "supervoxel_feature_extractor":
+        from habit.domain.supervoxel_features import (
+            SupervoxelFeatureExtractorRegistry,
+        )
+
+        return cast(Type[Any], SupervoxelFeatureExtractorRegistry)
+    if domain == "feature_preprocessing_method":
+        from habit.domain.feature_preprocessing import (
+            FeaturePreprocessingMethodRegistry,
+        )
+
+        return cast(Type[Any], FeaturePreprocessingMethodRegistry)
     if domain == "habitat_model_fitter":
         from habit.domain.habitat_model import HabitatModelFitterRegistry
 
@@ -195,8 +257,13 @@ def list_plugins(domain: Optional[str] = None) -> Tuple[PluginInfo, ...]:
     )
     infos: list[PluginInfo] = []
     for current_domain in domains:
-        registry = _registry_for_domain(current_domain)
-        for name in sorted(registry.available()):
+        if current_domain in _LEGACY_DOMAIN_ALIASES:
+            _warn_legacy_plugin_domain(current_domain)
+            names = sorted(_legacy_registry_for_domain(current_domain).available())
+        else:
+            names = sorted(_registry_for_domain(current_domain).available())
+        for name in names:
+            registry = _registry_for_plugin_name(current_domain, name)
             payload = registry.get(name)
             if payload is None:
                 continue
@@ -225,7 +292,9 @@ def get_plugin_info(name: str, domain: str) -> PluginInfo:
 
 def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
     """Return the Pydantic parameter schema associated with a plugin, if any."""
-    registry = _registry_for_domain(domain)
+    if domain in _LEGACY_DOMAIN_ALIASES:
+        _warn_legacy_plugin_domain(domain)
+    registry = _registry_for_plugin_name(domain, name)
     schema = registry.get_params_model(name)
     if schema is None:
         return None
@@ -274,7 +343,13 @@ def load_plugins(*, strict: bool = False) -> PluginLoadReport:
             except Exception as exc:
                 if strict:
                     raise
-                failures[display_name] = f"{type(exc).__name__}: {exc}"
+                message = f"{type(exc).__name__}: {exc}"
+                failures[display_name] = message
+                logger.warning(
+                    "Failed to load HABIT plugin entry point %s: %s",
+                    display_name,
+                    message,
+                )
                 continue
             _LOADED_ENTRY_POINTS.add(identifier)
             loaded.append(display_name)

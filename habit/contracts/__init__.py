@@ -30,6 +30,15 @@ from habit.contracts.subject import (
     Subject,
     cohort_from_directory,
 )
+from habit.contracts.outcome import (
+    BinaryOutcome,
+    ContinuousOutcome,
+    MulticlassOutcome,
+    Outcome,
+    SurvivalOutcome,
+    outcome_from_dict,
+    outcome_to_dict,
+)
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.habitat import (
     HabitatMap,
@@ -38,7 +47,7 @@ from habit.contracts.habitat import (
     VoxelFeatureField,
 )
 from habit.contracts.table import FeatureTable
-from habit.contracts.manifest import RunManifest, StudyResult
+from habit.contracts.manifest import RunManifest
 from habit.contracts.ops import (
     CohortOperator,
     DataSource,
@@ -65,8 +74,14 @@ __all__ = [
     "HabitatMap",
     "HabitatModel",
     "FeatureTable",
+    "Outcome",
+    "BinaryOutcome",
+    "MulticlassOutcome",
+    "ContinuousOutcome",
+    "SurvivalOutcome",
+    "outcome_to_dict",
+    "outcome_from_dict",
     "RunManifest",
-    "StudyResult",
     "SubjectOperator",
     "CohortOperator",
     "SubjectResult",

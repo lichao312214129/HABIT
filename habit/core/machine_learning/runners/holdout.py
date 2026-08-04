@@ -29,7 +29,11 @@ import pandas as pd
 
 from ..contracts.dataset import DatasetSnapshot
 from ..contracts.results import ModelResult, RunResult
-from ..evaluation.metrics import calculate_metrics
+from ..evaluation.metrics import (
+    bootstrap_metrics,
+    calculate_metrics,
+    format_metric_ci,
+)
 from ..evaluation.prediction_container import PredictionContainer
 from .base import BaseRunner
 
@@ -157,6 +161,18 @@ class HoldoutRunner(BaseRunner):
         train_metrics = calculate_metrics(train_container)
         test_metrics = calculate_metrics(test_container)
 
+        bootstrap_kwargs = self.bootstrap_options()
+        train_metrics_ci: Dict[str, Dict[str, float]] = {}
+        test_metrics_ci: Dict[str, Dict[str, float]] = {}
+        if bootstrap_kwargs is not None:
+            self.context.logger.info(
+                "Bootstrapping %s confidence intervals (%s replicates) ...",
+                model_name,
+                bootstrap_kwargs["n_iterations"],
+            )
+            train_metrics_ci = bootstrap_metrics(train_container, **bootstrap_kwargs)
+            test_metrics_ci = bootstrap_metrics(test_container, **bootstrap_kwargs)
+
         return ModelResult(
             model_name=model_name,
             train=train_container.to_dict(),
@@ -167,6 +183,8 @@ class HoldoutRunner(BaseRunner):
             feature_names=tuple(X_train.columns.tolist()),
             train_subject_ids=tuple(X_train.index.tolist()),
             test_subject_ids=tuple(X_test.index.tolist()),
+            train_metrics_ci=train_metrics_ci,
+            test_metrics_ci=test_metrics_ci,
         )
 
     @staticmethod
@@ -175,4 +193,19 @@ class HoldoutRunner(BaseRunner):
         row: Dict[str, Any] = {"Model": model_result.model_name}
         row.update({f"Train_{k}": v for k, v in model_result.train_metrics.items()})
         row.update({f"Test_{k}": v for k, v in model_result.test_metrics.items()})
+        # Formatted intervals sit next to the point estimates so the summary CSV
+        # is directly quotable; the machine-readable bounds go to the tidy
+        # metrics-CI table written by ReportWriter.
+        row.update(
+            {
+                f"Train_{k}_ci": format_metric_ci(v)
+                for k, v in model_result.train_metrics_ci.items()
+            }
+        )
+        row.update(
+            {
+                f"Test_{k}_ci": format_metric_ci(v)
+                for k, v in model_result.test_metrics_ci.items()
+            }
+        )
         return row

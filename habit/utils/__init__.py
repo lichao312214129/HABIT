@@ -21,18 +21,35 @@ Provides common utilities including:
 - progress_utils: Progress bar utilities
 - config_utils: Configuration loading and validation
 - io_utils: Input/output operations
+
+The parallel-processing helpers are exported LAZILY: ``parallel_utils``
+chains into the v0.1 core stack (``isolated_runner`` -> ``job_cancel`` ->
+``habit.core.common``), so an eager re-export here would pull sklearn/pandas
+into every bare ``import habit`` (``habit/__init__`` itself only needs the
+lightweight :mod:`habit.utils.lazy_exports` helper from this package).
 """
 
-from .parallel_utils import (
-    parallel_map,
-    parallel_map_simple,
-    ParallelProcessor,
-    ProcessingResult,
-)
+from __future__ import annotations
+
+from typing import Any, Dict, Tuple
+
+from habit.utils.lazy_exports import lazy_getattr
+
+_LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {
+    "parallel_map": (".parallel_utils", "parallel_map"),
+    "parallel_map_simple": (".parallel_utils", "parallel_map_simple"),
+    "ParallelProcessor": (".parallel_utils", "ParallelProcessor"),
+    "ProcessingResult": (".parallel_utils", "ProcessingResult"),
+}
 
 __all__ = [
     "parallel_map",
-    "parallel_map_simple", 
+    "parallel_map_simple",
     "ParallelProcessor",
     "ProcessingResult",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve parallel-processing helpers on first access (PEP 562)."""
+    return lazy_getattr(name, globals(), _LAZY_EXPORTS)

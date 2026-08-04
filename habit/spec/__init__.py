@@ -31,7 +31,7 @@ from habit.spec.legacy import (
     validate_v1_document,
 )
 from habit.spec.policy import RunPolicy
-from habit.spec.specs import HabitatSpec, Spec
+from habit.spec.specs import HabitatSpec, MLSpec, Spec
 from habit.spec.yaml_io import (
     load_habitat_spec,
     load_run_policy,
@@ -42,6 +42,7 @@ from habit.spec.yaml_io import (
 __all__ = [
     "Spec",
     "HabitatSpec",
+    "MLSpec",
     "RunPolicy",
     "load_habitat_spec",
     "save_habitat_spec",

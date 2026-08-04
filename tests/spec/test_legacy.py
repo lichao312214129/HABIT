@@ -30,11 +30,12 @@ from habit.spec.legacy import (
     migrate_yaml,
     validate_v1_document,
 )
-from habit.spec.specs import HabitatSpec
+from habit.spec.specs import HabitatSpec, MLSpec
 from habit.spec.policy import RunPolicy
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 HABITAT_CONFIG_DIR: Path = PROJECT_ROOT / "config" / "habitat"
+ML_CONFIG_DIR: Path = PROJECT_ROOT / "config" / "machine_learning"
 
 #: Bundled habitat YAMLs that are data manifests, not HabitatAnalysisConfig.
 _MANIFEST_PREFIXES: Tuple[str, ...] = ("file_habitat",)
@@ -117,13 +118,20 @@ def test_two_step_translation_full_document() -> None:
     assert fitter["params"]["max_habitats"] == 10
 
     assert spec["habitat_assigner"] == {"name": "nearest_centroid", "params": {}}
-    assert [s["name"] for s in spec["subject_table_preprocessors"]] == [
+    # v0.1's subject-level block is the stateless voxel chain; its group-level
+    # block is the stateful cohort chain. The stateless supervoxel chain has no
+    # v0.1 source and must translate to empty rather than duplicate either one.
+    assert [s["name"] for s in spec["voxel_feature_preprocessors"]] == [
         "winsorize",
         "minmax",
     ]
-    assert [s["name"] for s in spec["group_table_preprocessors"]] == ["binning"]
-    winsorize = spec["subject_table_preprocessors"][0]
+    assert spec["supervoxel_feature_preprocessors"] == []
+    assert [s["name"] for s in spec["cohort_feature_preprocessors"]] == ["binning"]
+    winsorize = spec["voxel_feature_preprocessors"][0]
     assert winsorize["params"]["winsor_limits"] == [0.05, 0.05]
+    # global_normalize is renamed; the value carries over untouched.
+    assert "global_normalize" not in winsorize["params"]
+    assert winsorize["params"]["across_features"] is False
     assert spec["random_seed"] == 42
 
     # The spec section must parse into the typed v1 model unchanged.
@@ -207,23 +215,25 @@ def test_predict_mode_translation_has_no_spec() -> None:
 
 @pytest.mark.unit
 def test_supervoxel_radiomics_aggregator_both_spellings() -> None:
-    """supervoxel_radiomics is recognised bare and inside a concat() wrapper."""
+    """The two v0.1 axes land in two domains, not one fused supervoxelizer."""
     translation = _translate("config_habitat_two_step_supervoxel_radiomics_train.yaml")
-    supervoxelizer = translation.document["spec"]["supervoxelizer"]
+    spec = translation.document["spec"]
+    supervoxelizer = spec["supervoxelizer"]
+    extractor = spec["supervoxel_feature_extractor"]
 
-    assert supervoxelizer["name"] == "supervoxel_radiomics"
-    assert supervoxelizer["params"]["modalities"] == ["delay2"]
-    # The label-growing half of the fused v0 blocks is preserved.
-    assert supervoxelizer["params"]["label_algorithm"] == "kmeans"
+    # Label-growing half stays in the supervoxelizer domain.
+    assert supervoxelizer["name"] == "kmeans"
     assert supervoxelizer["params"]["n_supervoxels"] == 50
-    # Aggregator params ride along verbatim.
-    assert supervoxelizer["params"]["use_supervoxel_cext"] == "auto"
+    # Feature half lands in the supervoxel_feature_extractor domain.
+    assert extractor["name"] == "supervoxel_radiomics"
+    assert extractor["params"]["modalities"] == ["delay2"]
+    assert extractor["params"]["use_supervoxel_cext"] == "auto"
     validate_v1_document(translation.document)
 
 
 @pytest.mark.unit
 def test_slic_supervoxelizer_params() -> None:
-    """SLIC keeps its own knob set (compactness/sigma/connectivity)."""
+    """SLIC keeps the knobs its v1 constructor actually accepts."""
     translation = _translate("config_habitat_two_step_supervoxel_slic.yaml")
     supervoxelizer = translation.document["spec"]["supervoxelizer"]
 
@@ -231,8 +241,10 @@ def test_slic_supervoxelizer_params() -> None:
     params = supervoxelizer["params"]
     assert params["n_supervoxels"] == 50
     assert "compactness" in params
-    assert "sigma" in params
     assert "enforce_connectivity" in params
+    # ``sigma`` is a v0.1 skimage-only knob with no v1 constructor slot;
+    # dropping it is intentional, not a silent omission.
+    assert "sigma" not in params
 
 
 @pytest.mark.unit
@@ -353,17 +365,18 @@ def test_generic_workflow_translation_splits_sections() -> None:
         "models": {"SVM": {"params": {}}},
         "feature_selection": {"method": "anova"},
     }
-    translation = LegacyConfigAdapter().translate(payload, "model")
+    # "icc" exercises the generic path; "model"/"cv" now deep-translate.
+    translation = LegacyConfigAdapter().translate(payload, "icc")
     document = translation.document
 
-    assert document["workflow"] == "model"
+    assert document["workflow"] == "icc"
     assert document["mode"] == "train"
     assert document["data"] == {"data_path": "features.csv"}
     assert document["policy"]["workers"] == 4
     assert document["policy"]["backend"] == "process"
     assert document["output"] == {"out_dir": "results"}
     # The algorithmic remainder is preserved verbatim, lossless by design.
-    assert document["spec"]["name"] == "model"
+    assert document["spec"]["name"] == "icc"
     assert document["spec"]["params"]["models"] == {"SVM": {"params": {}}}
     assert document["spec"]["params"]["feature_selection"] == {
         "method": "anova"
@@ -601,7 +614,248 @@ def test_bundled_cli_config_translates_and_validates(
     document = translation.document
     validate_v1_document(document)
 
+    if document["mode"] == "predict" and document["spec"] is None:
+        # Predict stubs take their definition from the pipeline artefact.
+        assert document["pipeline"]
+        return
+
     # Lossless by construction: every algorithmic key survives inside the
     # document (spec blob or a typed section).
     assert document["spec"] is not None
     assert document["workflow"] == workflow
+
+
+# ---------------------------------------------------------------------------
+# Machine-learning workflows: deep translation into MLSpec slots
+# ---------------------------------------------------------------------------
+
+
+def _translate_ml(payload: Mapping[str, Any], workflow: str = "cv") -> Any:
+    """Translate one v0 ML payload with the adapter."""
+    return LegacyConfigAdapter().translate(payload, workflow)
+
+
+def _minimal_ml_payload() -> Dict[str, Any]:
+    """Return a small but complete v0 train-mode ML mapping."""
+    return {
+        "run_mode": "train",
+        "input": [{"path": "features.csv", "subject_id_col": "id", "label_col": "y"}],
+        "output": "results",
+        "random_state": 42,
+        "n_splits": 5,
+        "stratified": True,
+        "normalization": {"method": "z_score"},
+        "feature_selection_methods": [
+            {"method": "correlation", "params": {"threshold": 0.8}},
+        ],
+        "models": {"LogisticRegression": {"params": {"max_iter": 500}}},
+    }
+
+
+@pytest.mark.unit
+def test_ml_translation_maps_algorithm_core_into_typed_spec() -> None:
+    """normalization/selectors/models land in the typed MLSpec slots."""
+    translation = _translate_ml(_minimal_ml_payload())
+    document = translation.document
+
+    assert document["workflow"] == "cv"
+    assert document["mode"] == "train"
+    spec = document["spec"]
+    assert spec["table_preprocessors"] == [{"name": "zscore", "params": {}}]
+    assert [s["name"] for s in spec["feature_selectors"]] == ["correlation"]
+    assert spec["feature_selectors"][0]["params"] == {"threshold": 0.8}
+    assert spec["classifier"] == {
+        "name": "LogisticRegression",
+        "params": {"max_iter": 500},
+    }
+    assert spec["random_seed"] == 42
+
+    # The typed payload parses, and the whole document validates.
+    assert MLSpec.from_dict(spec).classifier.name == "LogisticRegression"
+    validate_v1_document(document)
+
+
+@pytest.mark.unit
+def test_ml_translation_splits_data_policy_output_sections() -> None:
+    """The v0 input list and output path land in their own sections."""
+    payload = _minimal_ml_payload()
+    payload["n_processes"] = 4
+    document = _translate_ml(payload, "model").document
+
+    assert document["data"]["input"] == payload["input"]
+    assert document["output"]["out_dir"] == "results"
+    assert document["policy"] == {"workers": 4, "backend": "process"}
+
+
+@pytest.mark.unit
+def test_ml_translation_preserves_validation_design_under_legacy() -> None:
+    """Split-shaping keys are preserved verbatim, never dropped."""
+    translation = _translate_ml(_minimal_ml_payload())
+    document = translation.document
+
+    assert document["legacy"]["n_splits"] == 5
+    assert document["legacy"]["stratified"] is True
+    assert any("Validation-design" in warning for warning in translation.warnings)
+    # The spec carries no validation concept at all.
+    assert "n_splits" not in document["spec"]
+
+
+@pytest.mark.unit
+def test_ml_translation_multi_model_keeps_first_and_preserves_block() -> None:
+    """A multi-model sweep names the first entry and preserves the rest."""
+    payload = _minimal_ml_payload()
+    payload["models"] = {
+        "LogisticRegression": {"params": {}},
+        "SVC": {"params": {"kernel": "rbf"}},
+    }
+    translation = _translate_ml(payload)
+    document = translation.document
+
+    assert document["spec"]["classifier"]["name"] == "LogisticRegression"
+    assert document["legacy"]["models"] == payload["models"]
+    assert any("ONE classifier" in warning for warning in translation.warnings)
+
+
+@pytest.mark.unit
+def test_ml_translation_strips_per_component_seeds_into_legacy() -> None:
+    """Model/selector random_state params leave the spec and ride legacy."""
+    payload = _minimal_ml_payload()
+    payload["models"] = {"LogisticRegression": {"params": {"random_state": 7}}}
+    payload["feature_selection_methods"] = [
+        {"method": "lasso", "params": {"random_state": 11, "n_alphas": 50}},
+    ]
+    translation = _translate_ml(payload)
+    document = translation.document
+
+    assert "random_state" not in document["spec"]["classifier"]["params"]
+    assert document["legacy"]["models"]["LogisticRegression"]["params"][
+        "random_state"
+    ] == 7
+    selector_params = document["spec"]["feature_selectors"][0]["params"]
+    assert "random_state" not in selector_params
+    assert selector_params["n_alphas"] == 50
+    assert document["legacy"]["feature_selection_seeds"] == {"lasso": 11}
+    # The top-level seed still becomes the single spec seed.
+    assert document["spec"]["random_seed"] == 42
+
+
+@pytest.mark.unit
+def test_ml_translation_before_z_score_warns_and_preserves_order() -> None:
+    """A pre-normalization selector keeps its original block under legacy."""
+    payload = _minimal_ml_payload()
+    payload["feature_selection_methods"] = [
+        {"method": "variance", "params": {"before_z_score": True, "top_k": 20}},
+    ]
+    translation = _translate_ml(payload)
+    document = translation.document
+
+    params = document["spec"]["feature_selectors"][0]["params"]
+    assert "before_z_score" not in params
+    assert params["top_k"] == 20
+    assert document["legacy"]["feature_selection_methods"] == payload[
+        "feature_selection_methods"
+    ]
+    assert any("BEFORE normalization" in warning for warning in translation.warnings)
+
+
+@pytest.mark.unit
+def test_ml_translation_unknown_normalization_preserved() -> None:
+    """A normalization method without a v1 component rides legacy."""
+    payload = _minimal_ml_payload()
+    payload["normalization"] = {"method": "quantile", "params": {"n_quantiles": 100}}
+    translation = _translate_ml(payload)
+    document = translation.document
+
+    assert document["spec"]["table_preprocessors"] == []
+    assert document["legacy"]["normalization"] == payload["normalization"]
+    assert any("normalization.method" in warning for warning in translation.warnings)
+
+
+@pytest.mark.unit
+def test_ml_translation_predict_mode_without_models_has_no_spec() -> None:
+    """A predict stub yields spec=None plus the pipeline path, and validates."""
+    payload = {
+        "run_mode": "predict",
+        "pipeline_path": "models/LogisticRegression_final_pipeline.pkl",
+        "input": [{"path": "new.csv", "subject_id_col": "id", "label_col": "y"}],
+        "output": "predictions",
+        "evaluate": True,
+        "output_label_col": "predicted_label",
+    }
+    translation = _translate_ml(payload, "model")
+    document = translation.document
+
+    assert document["spec"] is None
+    assert document["mode"] == "predict"
+    assert document["pipeline"] == payload["pipeline_path"]
+    # Predict-mode output schema lands in the output section.
+    assert document["output"]["evaluate"] is True
+    assert document["output"]["output_label_col"] == "predicted_label"
+    validate_v1_document(document)
+
+
+@pytest.mark.unit
+def test_ml_translation_resampling_and_unknown_keys_preserved() -> None:
+    """Resampling blocks and unknown keys are preserved with warnings."""
+    payload = _minimal_ml_payload()
+    payload["resampling"] = {"enabled": True, "method": "smote"}
+    payload["my_custom_knob"] = 1
+    translation = _translate_ml(payload)
+    document = translation.document
+
+    assert document["legacy"]["resampling"] == payload["resampling"]
+    assert document["legacy"]["my_custom_knob"] == 1
+    assert any("resampling" in warning for warning in translation.warnings)
+    assert any("my_custom_knob" in warning for warning in translation.warnings)
+
+
+@pytest.mark.unit
+def test_validate_v1_document_ml_requires_spec_unless_predict() -> None:
+    """A spec-less model document must be a predict run naming a pipeline."""
+    with pytest.raises(HABITAPIError, match="spec"):
+        validate_v1_document({"version": "1.0", "workflow": "model", "mode": "train"})
+    with pytest.raises(HABITAPIError, match="pipeline"):
+        validate_v1_document({"version": "1.0", "workflow": "cv", "mode": "predict"})
+    # A parseable spec validates; an unparseable one fails loudly.
+    validate_v1_document(
+        {
+            "version": "1.0",
+            "workflow": "model",
+            "mode": "train",
+            "spec": {"name": "ok", "classifier": {"name": "SVM", "params": {}}},
+        }
+    )
+    with pytest.raises(HABITAPIError):
+        validate_v1_document(
+            {
+                "version": "1.0",
+                "workflow": "model",
+                "mode": "train",
+                "spec": {"name": "broken"},
+            }
+        )
+
+
+@pytest.mark.integration
+def test_bundled_ml_config_translates_into_constructible_spec() -> None:
+    """The minimal bundled k-fold config yields a buildable MLSpec."""
+    payload = yaml.safe_load(
+        (ML_CONFIG_DIR / "config_machine_learning_kfold_minimal.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    translation = LegacyConfigAdapter().translate(payload, "cv")
+    document = translation.document
+    validate_v1_document(document)
+
+    spec = MLSpec.from_dict(document["spec"])
+    assert spec.classifier.name == "LogisticRegression"
+    assert [s.name for s in spec.table_preprocessors] == ["zscore"]
+    assert [s.name for s in spec.feature_selectors] == ["correlation", "variance"]
+    assert spec.random_seed == 42
+
+    # The translated spec is not merely parseable: it builds real components.
+    from habit.domain.assembly import build_table_pipeline
+
+    pipeline = build_table_pipeline(spec)
+    assert pipeline is not None

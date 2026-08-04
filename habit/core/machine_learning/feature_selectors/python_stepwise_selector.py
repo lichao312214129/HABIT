@@ -24,10 +24,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple, Dict, Union
 from pathlib import Path
-import statsmodels.api as sm
-from statsmodels.discrete.discrete_model import Logit
+try:
+    import statsmodels.api as sm
+    from statsmodels.discrete.discrete_model import Logit
+    STATSMODELS_AVAILABLE = True
+except ImportError:
+    # statsmodels is an optional dependency (extra 'ml'); the selector raises
+    # OptionalDependencyError when called without it.
+    STATSMODELS_AVAILABLE = False
+    sm = None
+    Logit = None
 import warnings
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.progress_utils import CustomTqdm
 from habit.utils.log_utils import get_module_logger
 from .selector_registry import SelectorRegistry
@@ -504,6 +513,11 @@ def python_stepwise_selector(X: pd.DataFrame,
     Returns:
         List[str]: List of selected feature names
     """
+    if not STATSMODELS_AVAILABLE:
+        raise OptionalDependencyError(
+            "selector 'stepwise' requires the optional statsmodels dependency; "
+            "install 'HABIT[ml]' to use it."
+        )
     if context is not None:
         X = context.X
         y = context.y

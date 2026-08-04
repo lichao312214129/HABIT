@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     # therefore imported lazily at runtime, never at module import time.
     from habit.contracts.subject import Cohort
     from habit.contracts.habitat import HabitatMap, HabitatModel
+    from habit.contracts.manifest import RunManifest
     from habit.contracts.table import FeatureTable
     from habit.execution.checkpoint import CheckpointStore
     from habit.spec.specs import Spec
@@ -62,8 +63,12 @@ __all__ = [
     "ResultWriter",
 ]
 
-TIn = TypeVar("TIn")
-TOut = TypeVar("TOut")
+# Variance is declared explicitly so the operator protocols type-check:
+# inputs are only consumed (contravariant), outputs only produced
+# (covariant). ``SubjectResult`` is a plain Generic container, where the
+# type checker does not enforce variance, so sharing ``TOut`` stays valid.
+TIn = TypeVar("TIn", contravariant=True)
+TOut = TypeVar("TOut", covariant=True)
 
 
 @runtime_checkable
@@ -268,3 +273,6 @@ class ResultWriter(Protocol):
 
     def write_habitat_model(self, model: "HabitatModel") -> Optional[str]:
         """Persist a fitted habitat model and return its location."""
+
+    def write_manifest(self, manifest: "RunManifest") -> Optional[str]:
+        """Persist the run manifest and return its location, when applicable."""

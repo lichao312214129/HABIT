@@ -23,6 +23,7 @@ import pandas as pd
 from typing import Dict, Any, List, Optional, Tuple
 from .plotting import Plotter
 from habit.utils.log_utils import get_module_logger
+from habit.utils.random_utils import resolve_random_state
 
 class PlotManager:
     def __init__(self, config: Any, output_dir: str):
@@ -62,6 +63,33 @@ class PlotManager:
             self.plot_types = self.viz_config.plot_types
         else:
             self.plot_types = self.default_plots
+
+        # Explanation-figure knobs; absent for dict configs and for the
+        # comparison workflow, which does not produce explanation figures.
+        self.explainability = getattr(self.viz_config, 'explainability', None)
+
+    @property
+    def _shap_plot_requested(self) -> bool:
+        """Whether any figure in this run needs SHAP attributions."""
+        return any(
+            name in self.plot_types
+            for name in ('shap', 'shap_dependence', 'shap_waterfall')
+        )
+
+    def _explainability_option(self, name: str, default: Any) -> Any:
+        """
+        Read one explanation setting, falling back to its default.
+
+        Args:
+            name: Attribute name on the explainability config block.
+            default: Value used when the config block is unavailable.
+
+        Returns:
+            Any: The configured value or ``default``.
+        """
+        if self.explainability is None:
+            return default
+        return getattr(self.explainability, name, default)
 
     def run_workflow_plots(self, results: Dict[str, Any], prefix: str = "", 
                           X_test: Optional[pd.DataFrame] = None, dataset_type: str = 'test'):
@@ -144,31 +172,183 @@ class PlotManager:
                     title=f'{m_name} Confusion Matrix'
                 )
 
-            # SHAP
-            if 'shap' in self.plot_types and 'pipeline' in res and X_test is not None:
-                try:
-                    trained_estimator = res['pipeline']
-                    self.logger.info(f"Generating SHAP plot for {m_name}...")
-                    model_obj, X_for_shap, feature_names = self._resolve_shap_inputs(
-                        trained_estimator, X_test
-                    )
-                    self.logger.debug(
-                        "Final SHAP input shape=%s, n_features=%d",
-                        X_for_shap.shape if hasattr(X_for_shap, "shape") else "N/A",
-                        len(feature_names),
-                    )
-                    
-                    self.plotter.plot_shap(
-                        model_obj, 
-                        X_for_shap, 
-                        feature_names=feature_names,
-                        save_name=f'{prefix}{m_name}_shap.pdf'
-                    )
-                    self.logger.info(f"SHAP plot saved: {prefix}{m_name}_shap.pdf")
-                except Exception as e:
-                    import traceback
-                    self.logger.warning(f"Could not generate SHAP for {m_name}: {e}")
-                    self.logger.debug(f"Traceback: {traceback.format_exc()}")
+            # SHAP-based explanation figures
+            if self._shap_plot_requested and 'pipeline' in res and X_test is not None:
+                self._generate_shap_plots(
+                    model_name=m_name,
+                    trained_estimator=res['pipeline'],
+                    X_test=X_test,
+                    prefix=prefix,
+                )
+
+            # Permutation importance on the raw input features
+            if (
+                'permutation' in self.plot_types
+                and 'pipeline' in res
+                and X_test is not None
+                and 'y_true' in data
+            ):
+                self._generate_permutation_importance(
+                    model_name=m_name,
+                    trained_estimator=res['pipeline'],
+                    X_test=X_test,
+                    y_true=np.array(data['y_true']),
+                    prefix=prefix,
+                )
+
+    def _generate_shap_plots(
+        self,
+        model_name: str,
+        trained_estimator: Any,
+        X_test: pd.DataFrame,
+        prefix: str,
+    ) -> None:
+        """
+        Render every requested SHAP figure from a single attribution pass.
+
+        Args:
+            model_name: Model whose predictions are being explained.
+            trained_estimator: Fitted pipeline saved in the workflow results.
+            X_test: Raw feature frame before the pipeline transforms it.
+            prefix: Filename prefix identifying the split and workflow.
+        """
+        try:
+            self.logger.info(f"Computing SHAP values for {model_name}...")
+            model_obj, X_for_shap, feature_names = self._resolve_shap_inputs(
+                trained_estimator, X_test
+            )
+            self.logger.debug(
+                "Final SHAP input shape=%s, n_features=%d",
+                X_for_shap.shape if hasattr(X_for_shap, "shape") else "N/A",
+                len(feature_names),
+            )
+            shap_values, expected_value = self.plotter.compute_shap_explanation(
+                model_obj, X_for_shap
+            )
+        except Exception as e:
+            import traceback
+            self.logger.warning(f"Could not compute SHAP for {model_name}: {e}")
+            self.logger.debug(f"Traceback: {traceback.format_exc()}")
+            return
+
+        if 'shap' in self.plot_types:
+            self._try_plot(
+                f"SHAP summary for {model_name}",
+                self.plotter.plot_shap,
+                model_obj,
+                X_for_shap,
+                feature_names=feature_names,
+                save_name=f'{prefix}{model_name}_shap.pdf',
+                shap_values=shap_values,
+            )
+
+        if 'shap_dependence' in self.plot_types:
+            self._try_plot(
+                f"SHAP dependence for {model_name}",
+                self.plotter.plot_shap_dependence,
+                X_for_shap,
+                feature_names=feature_names,
+                shap_values=shap_values,
+                top_k=self._explainability_option('shap_dependence_top_k', 3),
+                save_name=f'{prefix}{model_name}_shap_dependence.pdf',
+            )
+
+        if 'shap_waterfall' in self.plot_types:
+            self._try_plot(
+                f"SHAP waterfall for {model_name}",
+                self.plotter.plot_shap_waterfall,
+                X_for_shap,
+                feature_names=feature_names,
+                shap_values=shap_values,
+                expected_value=expected_value,
+                n_samples=self._explainability_option('shap_waterfall_samples', 3),
+                save_name=f'{prefix}{model_name}_shap_waterfall.pdf',
+            )
+
+    def _generate_permutation_importance(
+        self,
+        model_name: str,
+        trained_estimator: Any,
+        X_test: pd.DataFrame,
+        y_true: np.ndarray,
+        prefix: str,
+    ) -> None:
+        """
+        Compute and render permutation importance for the raw input features.
+
+        The whole pipeline is scored, not just its final estimator, so the
+        reported values describe how much the run's performance depends on each
+        input column as supplied by the user.
+
+        Args:
+            model_name: Model being explained.
+            trained_estimator: Fitted pipeline accepting ``X_test`` directly.
+            X_test: Raw feature frame for the split being explained.
+            y_true: Ground-truth labels aligned with ``X_test``.
+            prefix: Filename prefix identifying the split and workflow.
+        """
+        from ..evaluation.explainability import compute_permutation_importance
+
+        try:
+            self.logger.info(
+                f"Computing permutation importance for {model_name}..."
+            )
+            importance = compute_permutation_importance(
+                trained_estimator,
+                X_test,
+                y_true,
+                scoring=self._explainability_option(
+                    'permutation_scoring', 'roc_auc'
+                ),
+                n_repeats=self._explainability_option('permutation_repeats', 10),
+                random_state=resolve_random_state(
+                    self._explainability_option('permutation_random_state', None),
+                    getattr(self.config, 'random_state', None),
+                ),
+            )
+        except Exception as e:
+            import traceback
+            self.logger.warning(
+                f"Could not compute permutation importance for {model_name}: {e}"
+            )
+            self.logger.debug(f"Traceback: {traceback.format_exc()}")
+            return
+
+        csv_path = os.path.join(
+            self.output_dir, f'{prefix}{model_name}_permutation_importance.csv'
+        )
+        importance.to_csv(csv_path, index=False)
+        self.logger.info(f"Permutation importance table saved: {csv_path}")
+
+        self._try_plot(
+            f"permutation importance for {model_name}",
+            self.plotter.plot_permutation_importance,
+            importance,
+            save_name=f'{prefix}{model_name}_permutation_importance.pdf',
+            title=f'{model_name} Permutation Importance',
+            top_k=self._explainability_option('permutation_top_k', 20),
+        )
+
+    def _try_plot(self, description: str, plot_func: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Run one plotting call, logging failures instead of aborting the run.
+
+        A single unrenderable figure must never lose an otherwise complete
+        training run, so every explanation figure is isolated.
+
+        Args:
+            description: Human-readable figure description used in logs.
+            plot_func: Plotter method to invoke.
+            *args: Positional arguments forwarded to ``plot_func``.
+            **kwargs: Keyword arguments forwarded to ``plot_func``.
+        """
+        try:
+            plot_func(*args, **kwargs)
+            self.logger.info(f"Generated {description}.")
+        except Exception as e:
+            import traceback
+            self.logger.warning(f"Could not generate {description}: {e}")
+            self.logger.debug(f"Traceback: {traceback.format_exc()}")
 
     def _resolve_shap_inputs(
         self, trained_estimator: Any, X_input: pd.DataFrame

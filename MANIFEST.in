@@ -5,8 +5,8 @@ include NOTICE
 include CITATION.cff
 
 # Include C sources for supervoxel texture matrix extension in sdists.
-recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.c
-recursive-include habit/core/habitat_analysis/clustering_features/supervoxel_cext/src *.h
+recursive-include habit/kernels/radiomics/cext/src *.c
+recursive-include habit/kernels/radiomics/cext/src *.h
 
 # Bundled PyRadiomics parameter presets (default params_file fallbacks).
 recursive-include habit/resources/radiomics *.yaml

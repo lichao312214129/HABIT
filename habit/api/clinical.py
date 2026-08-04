@@ -23,6 +23,7 @@ contracts stable while giving notebook and service users a concise
 from __future__ import annotations
 
 import logging
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
@@ -32,14 +33,15 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.exceptions import HABITAPIError, NotFittedError
+from habit.exceptions import HABITAPIError, NotFittedError
+from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
 
 if TYPE_CHECKING:
     from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
     from habit.core.preprocessing.config_schemas import PreprocessingConfig
 
 __all__ = [
-    "Cohort",
+    "ClinicalCohort",
     "PreparedCohort",
     "HabitatResult",
     "ClinicalPreprocessor",
@@ -48,7 +50,7 @@ __all__ = [
 
 
 @dataclass(frozen=True)
-class Cohort:
+class ClinicalCohort:
     """A named imaging cohort represented by a HABIT-compatible data directory.
 
     The object deliberately keeps the public boundary simple: HABIT does not
@@ -56,6 +58,12 @@ class Cohort:
     prepared cohort root that HABIT's existing workflow configuration expects,
     while optional metadata remains available for notebooks, applications, and
     reporting code.
+
+    .. note::
+        Renamed from ``Cohort`` in v1.0.0: the top-level ``habit.Cohort``
+        name now belongs to the v1.0 imaging cohort contract
+        (:class:`habit.contracts.subject.Cohort`). The old name remains
+        importable from this module as a deprecated alias until v1.2.0.
     """
 
     data_dir: Union[str, Path]
@@ -97,7 +105,7 @@ class Cohort:
         name: Optional[str] = None,
         subject_ids: Optional[Sequence[str]] = None,
         metadata: Optional[Mapping[str, Any]] = None,
-    ) -> "Cohort":
+    ) -> "ClinicalCohort":
         """Create a cohort reference from an existing or planned data directory."""
         return cls(
             data_dir=data_dir,
@@ -107,8 +115,30 @@ class Cohort:
         )
 
 
+def __getattr__(name: str) -> Any:
+    """Resolve the deprecated ``Cohort`` alias on access (PEP 562).
+
+    The alias is deliberately NOT cached in module globals: every access must
+    re-emit the deprecation warning so remaining call sites keep surfacing it
+    under ``warnings.simplefilter("always")`` until removal in v1.2.0.
+    """
+    if name == "Cohort":
+        warnings.warn(
+            build_deprecation_message(
+                "habit.api.clinical.Cohort",
+                "1.0.0",
+                alternative="ClinicalCohort",
+                removed_in="1.2.0",
+            ),
+            HabitDeprecationWarning,
+            stacklevel=2,
+        )
+        return ClinicalCohort
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 @dataclass(frozen=True)
-class PreparedCohort(Cohort):
+class PreparedCohort(ClinicalCohort):
     """A cohort produced by :class:`ClinicalPreprocessor`."""
 
     preprocessing_result: Optional[WorkflowResult[None]] = field(
@@ -125,14 +155,14 @@ class HabitatResult:
     Attributes:
         table: Per-subject habitat result table returned by the existing HABIT
             workflow.
-        cohort: Cohort used for this training or prediction run.
+        cohort: ClinicalCohort used for this training or prediction run.
         workflow_result: Full artifact and provenance result from the stable
             configuration-driven public API.
         pipeline_path: Fitted habitat pipeline when the run created or used one.
     """
 
     table: pd.DataFrame
-    cohort: Cohort
+    cohort: ClinicalCohort
     workflow_result: WorkflowResult[pd.DataFrame]
     pipeline_path: Optional[Path] = None
 
@@ -143,18 +173,18 @@ class HabitatResult:
 
 
 def _cohort_from_input(
-    cohort: Optional[Union[Cohort, str, Path]],
+    cohort: Optional[Union[ClinicalCohort, str, Path]],
     *,
     default_data_dir: Union[str, Path],
-) -> Cohort:
+) -> ClinicalCohort:
     """Normalize optional high-level cohort input at an API boundary."""
     if cohort is None:
-        return Cohort.from_directory(default_data_dir)
-    if isinstance(cohort, Cohort):
+        return ClinicalCohort.from_directory(default_data_dir)
+    if isinstance(cohort, ClinicalCohort):
         return cohort
     if isinstance(cohort, (str, Path)):
-        return Cohort.from_directory(cohort)
-    raise HABITAPIError("cohort must be a Cohort, string path, Path, or None.")
+        return ClinicalCohort.from_directory(cohort)
+    raise HABITAPIError("cohort must be a ClinicalCohort, string path, Path, or None.")
 
 
 class ClinicalPreprocessor(BaseEstimator):
@@ -182,7 +212,7 @@ class ClinicalPreprocessor(BaseEstimator):
 
     def fit(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
         y: Optional[Any] = None,
     ) -> "ClinicalPreprocessor":
         """Validate the preprocessing specification and selected input cohort."""
@@ -198,7 +228,7 @@ class ClinicalPreprocessor(BaseEstimator):
 
     def transform(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
     ) -> PreparedCohort:
         """Run preprocessing and return the resulting cohort directory."""
         self._require_fitted()
@@ -224,7 +254,7 @@ class ClinicalPreprocessor(BaseEstimator):
 
     def fit_transform(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
         y: Optional[Any] = None,
         **fit_params: Any,
     ) -> PreparedCohort:
@@ -262,7 +292,7 @@ class ClinicalPreprocessor(BaseEstimator):
             )
 
 
-class HabitatSegmenter(BaseEstimator, TransformerMixin):
+class HabitatSegmenter(TransformerMixin, BaseEstimator):
     """Train and apply a cohort-level habitat segmentation model.
 
     The class exposes the familiar sklearn lifecycle while preserving HABIT's
@@ -284,7 +314,7 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
 
     def fit(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
         y: Optional[Any] = None,
     ) -> "HabitatSegmenter":
         """Fit a habitat model on the configured or supplied training cohort."""
@@ -307,14 +337,14 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
 
     def transform(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
     ) -> HabitatResult:
         """Apply the fitted habitat model to a cohort."""
         return self.predict(X)
 
     def predict(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
     ) -> HabitatResult:
         """Predict habitat assignments for a compatible cohort."""
         self._require_fitted()
@@ -330,7 +360,7 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
 
     def fit_transform(
         self,
-        X: Optional[Union[Cohort, str, Path]] = None,
+        X: Optional[Union[ClinicalCohort, str, Path]] = None,
         y: Optional[Any] = None,
         **fit_params: Any,
     ) -> HabitatResult:
@@ -345,8 +375,8 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
 
     def _training_config(
         self,
-        cohort_input: Optional[Union[Cohort, str, Path]],
-    ) -> tuple["HabitatAnalysisConfig", Cohort]:
+        cohort_input: Optional[Union[ClinicalCohort, str, Path]],
+    ) -> tuple["HabitatAnalysisConfig", ClinicalCohort]:
         """Resolve a train-mode config without mutating user-owned input.
 
         When a cohort (or path) is supplied, ``data_dir`` may be omitted from the
@@ -379,7 +409,7 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
             cohort,
         )
 
-    def _prediction_config(self, cohort: Cohort) -> "HabitatAnalysisConfig":
+    def _prediction_config(self, cohort: ClinicalCohort) -> "HabitatAnalysisConfig":
         """Build an explicit prediction config from the fitted model contract."""
         output_dir = (
             Path(self.prediction_output_dir)
@@ -398,7 +428,7 @@ class HabitatSegmenter(BaseEstimator, TransformerMixin):
     @staticmethod
     def _to_result(
         workflow_result: WorkflowResult[pd.DataFrame],
-        cohort: Cohort,
+        cohort: ClinicalCohort,
         pipeline_path: Optional[Path],
     ) -> HabitatResult:
         """Translate the general workflow result into the clinical result type."""

@@ -16,11 +16,35 @@
 
 from __future__ import annotations
 
+from habit.domain.voxel_features.concat import (
+    ConcatVoxelFeatures,
+    ConcatVoxelFeaturesParams,
+)
+from habit.domain.voxel_features.kinetic import (
+    KineticVoxelFeatures,
+    KineticVoxelFeaturesParams,
+)
+from habit.domain.voxel_features.local_entropy import (
+    LocalEntropyVoxelFeatures,
+    LocalEntropyVoxelFeaturesParams,
+)
 from habit.domain.voxel_features.raw import RawVoxelFeatures, RawVoxelFeaturesParams
 from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
+from habit.domain.voxel_features.voxel_radiomics import (
+    VoxelRadiomicsFeatures,
+    VoxelRadiomicsFeaturesParams,
+)
 
 __all__ = [
+    "ConcatVoxelFeatures",
+    "ConcatVoxelFeaturesParams",
+    "KineticVoxelFeatures",
+    "KineticVoxelFeaturesParams",
+    "LocalEntropyVoxelFeatures",
+    "LocalEntropyVoxelFeaturesParams",
     "RawVoxelFeatures",
     "RawVoxelFeaturesParams",
+    "VoxelRadiomicsFeatures",
+    "VoxelRadiomicsFeaturesParams",
     "VoxelFeatureExtractorRegistry",
 ]

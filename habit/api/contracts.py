@@ -21,7 +21,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generic, Mapping, Optional, Type, TypeVar, Union, cast
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 
 ConfigT = TypeVar("ConfigT")
 DataT = TypeVar("DataT")

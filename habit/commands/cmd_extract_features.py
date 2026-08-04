@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Feature extraction command implementation."""
+"""Feature extraction command implementation.
+
+L5 wiring only: parse the v0.1 YAML through the public config loader,
+hand the validated object to the L4 recipe, and surface success/failure.
+No ``habit.core`` imports live here.
+"""
 
 from __future__ import annotations
 
@@ -21,14 +26,12 @@ from pathlib import Path
 
 import click
 
+from habit.api.habitat import load_feature_extraction_config
 from habit.commands.common import (
     echo_success,
     exit_with_error,
 )
-from habit.core.habitat_analysis.feature_extraction_loader import (
-    load_feature_extraction_config_from_file,
-)
-from habit.core.habitat_analysis.run import run_feature_extraction_from_config
+from habit.recipes.features import extract_habitat_features
 from habit.utils.log_utils import setup_logger
 
 
@@ -39,7 +42,7 @@ def run_extract_features(config_file: str) -> None:
     Args:
         config_file: Path to configuration YAML file.
     """
-    config, plugin_configs = load_feature_extraction_config_from_file(config_file)
+    config, plugin_configs = load_feature_extraction_config(config_file)
 
     output_dir = Path(config.out_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -57,7 +60,7 @@ def run_extract_features(config_file: str) -> None:
     click.echo(msg)
 
     try:
-        run_feature_extraction_from_config(
+        extract_habitat_features(
             config,
             plugin_configs=plugin_configs,
             logger=logger,

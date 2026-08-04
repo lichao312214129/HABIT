@@ -49,7 +49,11 @@ __all__ = [
     "TablePreprocessor",
     "FeatureSelector",
     "Classifier",
+    "Regressor",
+    "SurvivalModel",
     "Metric",
+    "SurvivalMetric",
+    "RegressionMetric",
 ]
 
 
@@ -193,6 +197,111 @@ class Classifier(Protocol):
 
 
 @runtime_checkable
+class Regressor(Protocol):
+    """
+    Continuous-outcome model over feature tables.
+
+    The sibling of :class:`Classifier` for a :class:`ContinuousOutcome`
+    endpoint. Kept a distinct protocol rather than a flag on the classifier
+    because evaluation is entirely different (R-squared, MAE vs AUC, and no
+    probabilities), and because a model declaring the wrong family fails at
+    ``fit`` -- where the endpoint type is checked -- rather than at scoring.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def fit(self, table: FeatureTable) -> "Regressor":
+        """
+        Train on a table with a continuous outcome column.
+
+        Args:
+            table: Training table with feature columns and a continuous
+                outcome column.
+
+        Returns:
+            ``self``, fitted.
+        """
+
+    def predict(self, table: FeatureTable) -> pd.Series:
+        """
+        Predict the continuous response for a table's rows.
+
+        Args:
+            table: Table carrying the feature columns seen at fit time.
+
+        Returns:
+            Predicted values indexed by the table's identifier columns.
+        """
+
+
+@runtime_checkable
+class SurvivalModel(Protocol):
+    """
+    Right-censored time-to-event model over feature tables.
+
+    Two predict methods are separated because they serve disjoint purposes.
+    ``predict_risk`` answers "how does this patient rank against the others?"
+    with a single score per subject -- higher means shorter expected survival
+    -- and is all the C-index needs. ``predict_survival_function`` answers
+    "what is the probability of surviving past time t?" per subject and per
+    time point, which is what time-dependent AUC, the integrated Brier score,
+    fixed-horizon calibration and the KM-style plot of predicted curves all
+    require. A model may leave the latter unimplemented; evaluation drivers
+    detect that and skip the function-based metrics and plots rather than
+    failing.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def fit(self, table: FeatureTable) -> "SurvivalModel":
+        """
+        Train on a table with a survival outcome.
+
+        Args:
+            table: Training table with feature columns and a
+                :class:`~habit.contracts.outcome.SurvivalOutcome`.
+
+        Returns:
+            ``self``, fitted.
+        """
+
+    def predict_risk(self, table: FeatureTable) -> pd.Series:
+        """
+        Predict a per-subject risk score (higher means worse prognosis).
+
+        Args:
+            table: Table carrying the feature columns seen at fit time.
+
+        Returns:
+            Risk scores indexed by the table's identifier columns.
+        """
+
+    def predict_survival_function(
+        self, table: FeatureTable, times: np.ndarray
+    ) -> pd.DataFrame:
+        """
+        Predict S(t | x) for each subject at the requested times.
+
+        Args:
+            table: Table carrying the feature columns seen at fit time.
+            times: One-dimensional grid of evaluation times (ascending), in
+                the same units the outcome declares.
+
+        Returns:
+            Survival probabilities, one row per subject (indexed by the
+            table's identifier columns) and one column per requested time
+            (named by the time value).
+
+        Raises:
+            NotImplementedError: When the model only supports risk ranking.
+        """
+
+
+@runtime_checkable
 class Metric(Protocol):
     """
     Evaluation metric with explicit input requirements.
@@ -228,4 +337,88 @@ class Metric(Protocol):
         Returns:
             The metric value (``NaN`` where the metric is undefined for the
             given inputs, e.g. calibration tests on multi-class problems).
+        """
+
+
+@runtime_checkable
+class SurvivalMetric(Protocol):
+    """
+    Evaluation metric for a right-censored survival endpoint.
+
+    Kept separate from :class:`Metric` because the inputs are categorically
+    different: a survival metric consumes the follow-up time and the event
+    indicator as GROUND TRUTH plus a per-subject prediction, whereas
+    :class:`Metric` consumes class labels. Folding the two into one
+    ``__call__`` would force a union of unrelated argument shapes and make
+    "which inputs does this metric need?" unanswerable.
+
+    Two prediction forms exist and the metric declares which it consumes via
+    ``needs_survival_function``: risk-based metrics (C-index) need only the
+    per-subject score, while function-based metrics (integrated Brier score,
+    time-dependent AUC) need S(t|x) evaluated on a time grid.
+    """
+
+    #: True when the metric needs survival probabilities, False for risk-only.
+    needs_survival_function: bool
+    greater_is_better: bool
+
+    @property
+    def spec(self) -> Spec:
+        """Return the metric specification."""
+
+    def __call__(
+        self,
+        time: np.ndarray,
+        event: np.ndarray,
+        prediction: np.ndarray,
+        times: Optional[np.ndarray] = None,
+    ) -> float:
+        """
+        Compute the metric value.
+
+        Args:
+            time: Observed follow-up durations (float).
+            event: Event indicators, True for observed events.
+            prediction: Per-subject risk scores for risk-based metrics, or an
+                ``(n_subjects, n_times)`` survival-probability matrix for
+                function-based ones.
+            times: The time points the columns of a function-based
+                ``prediction`` were evaluated at. Required when
+                ``needs_survival_function`` is true, because the probability
+                columns are meaningless without their evaluation times.
+
+        Returns:
+            The metric value.
+        """
+
+
+@runtime_checkable
+class RegressionMetric(Protocol):
+    """
+    Evaluation metric for a continuous endpoint.
+
+    Separate from :class:`Metric` for the same reason as
+    :class:`SurvivalMetric`: the ground truth is a quantity, not a class.
+    """
+
+    greater_is_better: bool
+
+    @property
+    def spec(self) -> Spec:
+        """Return the metric specification."""
+
+    def __call__(
+        self,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+    ) -> float:
+        """
+        Compute the metric value.
+
+        Args:
+            y_true: True continuous responses.
+            y_pred: Predicted continuous responses.
+
+        Returns:
+            The metric value.
         """

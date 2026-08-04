@@ -171,6 +171,7 @@ def run_kfold(
 def run_model_comparison(
     config: Union["ModelComparisonConfig", Mapping[str, Any]],
     logger: Optional[logging.Logger] = None,
+    output_dir: Optional[str] = None,
 ) -> WorkflowResult[Mapping[str, Any]]:
     """
     Compare multiple trained models from a validated config object.
@@ -179,6 +180,7 @@ def run_model_comparison(
         config: Validated config or dictionary accepted by
             :class:`~habit.core.machine_learning.config_schemas.ModelComparisonConfig`.
         logger: Optional logger passed to the core runner.
+        output_dir: Optional output directory override.
 
     Returns:
         Model-comparison metrics in ``data`` and the output directory in
@@ -188,12 +190,17 @@ def run_model_comparison(
     from habit.core.machine_learning.run import run_model_comparison_from_config
 
     validated_config = coerce_config(config, ModelComparisonConfig)
-    result = run_model_comparison_from_config(validated_config, logger=logger)
+    resolved_output_dir = output_dir or validated_config.output_dir
+    result = run_model_comparison_from_config(
+        validated_config,
+        logger=logger,
+        output_dir=resolved_output_dir,
+    )
     manifest = create_run_manifest("model_comparison", validated_config)
-    manifest_path = write_run_manifest(manifest, validated_config.output_dir)
+    manifest_path = write_run_manifest(manifest, resolved_output_dir)
     return WorkflowResult(
         data=result,
-        output_dir=validated_config.output_dir,
+        output_dir=Path(resolved_output_dir),
         metadata={
             "config_hash": manifest.config_hash,
             "habit_version": manifest.habit_version,

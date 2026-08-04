@@ -32,7 +32,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.metrics import accuracy_score
 
 from habit._version import __version__
-from habit.api.exceptions import CompatibilityError, HABITAPIError, NotFittedError
+from habit.exceptions import CompatibilityError, HABITAPIError, NotFittedError
 
 _ESTIMATOR_SERIALIZATION_SCHEMA_VERSION = 1
 
@@ -174,7 +174,7 @@ def _as_feature_dataframe(
 
 
 class SubjectFeatureAggregator(
-    EstimatorPersistenceMixin, BaseEstimator, TransformerMixin
+    EstimatorPersistenceMixin, TransformerMixin, BaseEstimator
 ):
     """
     Aggregate a HABIT habitat-result long table into one row per subject.
@@ -316,7 +316,7 @@ class SubjectFeatureAggregator(
         return frame, feature_columns
 
 
-class HabitClassifier(EstimatorPersistenceMixin, BaseEstimator, ClassifierMixin):
+class HabitClassifier(EstimatorPersistenceMixin, ClassifierMixin, BaseEstimator):
     """
     sklearn classifier facade backed by HABIT's ``MLConfig`` and PipelineBuilder.
 
@@ -480,7 +480,7 @@ class OutcomeClassifier(HabitClassifier):
     """
 
 
-class HabitatClusterer(EstimatorPersistenceMixin, BaseEstimator, TransformerMixin):
+class HabitatClusterer(EstimatorPersistenceMixin, TransformerMixin, BaseEstimator):
     """
     sklearn-style facade for HABIT image habitat clustering.
 

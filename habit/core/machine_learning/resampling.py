@@ -32,6 +32,7 @@ Supported methods (``sampling.method`` in the config):
 """
 
 import logging
+from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
 from habit.utils.random_utils import resolve_random_state
 from typing import Any, Optional, Tuple
@@ -259,9 +260,9 @@ def apply_resampling(
         try:
             from imblearn.over_sampling import SMOTE  # type: ignore
         except Exception as exc:
-            raise ImportError(
-                "SMOTE requires imbalanced-learn. "
-                "Install with `pip install imbalanced-learn`."
+            raise OptionalDependencyError(
+                "SMOTE resampling requires the optional imbalanced-learn "
+                "dependency; install 'HABIT[ml]' to use it."
             ) from exc
 
         smote = SMOTE(sampling_strategy=ratio, random_state=seed)

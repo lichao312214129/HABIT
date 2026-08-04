@@ -15,7 +15,8 @@
 import numpy
 import torch
 from radiomics import base, cMatrices
-from six.moves import range
+# six.moves.range was historically imported here; the builtin range is
+# identical on Python 3, and six is no longer a HABIT dependency.
 
 from .TorchRadiomicsBase import TorchRadiomicsBase
 

@@ -28,7 +28,8 @@ from habit.commands.common import (
     log_platform_info,
     safe_echo,
 )
-from habit.core.dicom_sort import DicomSortConfig, run_dicom_sort
+from habit.api.dicom_sort import DicomSortConfig
+from habit.recipes.sort_dicom import sort_dicom
 from habit.utils.log_utils import setup_logger, stop_queue_listener
 
 
@@ -57,7 +58,7 @@ def run_sort_dicom(config_path: str) -> None:
         safe_echo(msg)
 
         try:
-            run_dicom_sort(config, logger=logger)
+            sort_dicom(config, logger=logger)
         except Exception as exc:  # noqa: BLE001
             logger.error("DICOM sort failed: %s", exc, exc_info=True)
             exit_with_error(f"Error: {exc}")

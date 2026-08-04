@@ -15,7 +15,18 @@
 from typing import Dict, Any, Tuple, Optional
 import numpy as np
 import SimpleITK as sitk
-import ants
+
+from habit.exceptions import OptionalDependencyError
+
+# Optional ANTs dependency: only the itk<->ants conversion helpers need it,
+# so a missing antspyx must not break unrelated conversions (or importing
+# this module). Used features raise OptionalDependencyError instead.
+try:
+    import ants
+    ANTS_AVAILABLE = True
+except ImportError:
+    ANTS_AVAILABLE = False
+    ants = None
 
 # Optional torch import for tensor conversion methods (not used in core functionality)
 try:
@@ -113,6 +124,11 @@ class ImageConverter:
     
     @staticmethod
     def ants_2_itk(image):
+        if not ANTS_AVAILABLE:
+            raise OptionalDependencyError(
+                "ANTs<->ITK conversion requires the optional antspyx dependency; "
+                "install 'HABIT[registration]' to use it."
+            )
         imageITK = sitk.GetImageFromArray(image.numpy().transpose(2, 1, 0))
         imageITK.SetOrigin(image.origin)
         imageITK.SetSpacing(image.spacing)
@@ -121,8 +137,13 @@ class ImageConverter:
 
     @staticmethod
     def itk_2_ants(image):
-        image_ants = ants.from_numpy(sitk.GetArrayFromImage(image).transpose(2, 1, 0), 
-                                    origin=image.GetOrigin(), 
-                                    spacing=image.GetSpacing(), 
+        if not ANTS_AVAILABLE:
+            raise OptionalDependencyError(
+                "ITK<->ANTs conversion requires the optional antspyx dependency; "
+                "install 'HABIT[registration]' to use it."
+            )
+        image_ants = ants.from_numpy(sitk.GetArrayFromImage(image).transpose(2, 1, 0),
+                                    origin=image.GetOrigin(),
+                                    spacing=image.GetSpacing(),
                                     direction=np.array(image.GetDirection()).reshape(3, 3))
         return image_ants

@@ -85,13 +85,15 @@ def test_minmax_scales_with_training_statistics() -> None:
 
 
 @pytest.mark.unit
-def test_minmax_global_mode_uses_one_pair() -> None:
-    """Global normalisation scales the whole block by one (min, max)."""
+def test_minmax_across_features_uses_one_pair() -> None:
+    """``across_features`` scales the whole block by one (min, max)."""
     table = make_feature_table()
-    pre = MinMaxPreprocessor(global_normalize=True).fit(table)
+    pre = MinMaxPreprocessor(across_features=True).fit(table)
     block = pre.transform(table).frame[list(table.feature_columns)]
     assert block.values.min() == pytest.approx(0.0)
     assert block.values.max() == pytest.approx(1.0)
+    # The parameter name is part of the spec, hence of every provenance record.
+    assert pre.spec.params == {"across_features": True}
 
 
 @pytest.mark.unit
@@ -190,7 +192,7 @@ def test_correlation_filter_drops_redundant_later_column() -> None:
         frame=table.frame,
         id_columns=table.id_columns,
         feature_columns=(*table.feature_columns, "signal_copy"),
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=table.provenance,
     )
     transformed = CorrelationFilterPreprocessor(corr_threshold=0.9).fit(table).transform(table)
@@ -211,7 +213,7 @@ def test_transform_before_fit_and_schema_drift_raise(cls) -> None:
         frame=drifted.frame.drop(columns=["signal"]),
         id_columns=drifted.id_columns,
         feature_columns=tuple(c for c in drifted.feature_columns if c != "signal"),
-        outcome_column=drifted.outcome_column,
+        outcome=drifted.outcome,
         provenance=drifted.provenance,
     )
     with pytest.raises(HABITAPIError):

@@ -28,13 +28,14 @@ imported lazily inside ``fit`` so importing this module stays cheap.
 
 from __future__ import annotations
 
+import warnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.contracts.table import FeatureTable
 from habit.domain.feature_selection._base import (
     FittedSelectorBase,
@@ -62,6 +63,8 @@ __all__ = [
     "StatisticalTestSelectorParams",
     "UnivariateLogisticSelector",
     "UnivariateLogisticSelectorParams",
+    "UnivariateCoxSelector",
+    "UnivariateCoxSelectorParams",
     "StepwiseSelector",
     "StepwiseSelectorParams",
     "RfecvSelector",
@@ -70,6 +73,8 @@ __all__ = [
     "LassoSelectorParams",
     "IccSelector",
     "IccSelectorParams",
+    "PrecomputedIccSelector",
+    "PrecomputedIccSelectorParams",
     "MrmrSelector",
     "MrmrSelectorParams",
 ]
@@ -279,7 +284,13 @@ class VifSelector(FittedSelectorBase):
         repeat_tables: Optional[Sequence[FeatureTable]] = None,
     ) -> "VifSelector":
         """Select columns whose mutual VIFs are all below the threshold."""
-        from statsmodels.stats.outliers_influence import variance_inflation_factor
+        try:
+            from statsmodels.stats.outliers_influence import variance_inflation_factor
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "feature_selector.vif requires the optional statsmodels "
+                "dependency; install 'HABIT[ml]' to use it."
+            ) from exc
 
         data = table.frame[list(table.feature_columns)].copy()
         if data.shape[1] > 1:
@@ -617,7 +628,13 @@ class UnivariateLogisticSelector(FittedSelectorBase):
         repeat_tables: Optional[Sequence[FeatureTable]] = None,
     ) -> "UnivariateLogisticSelector":
         """Select columns by univariate logistic p-value."""
-        import statsmodels.formula.api as smf
+        try:
+            import statsmodels.formula.api as smf
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "feature_selector.univariate_logistic requires the optional "
+                "statsmodels dependency; install 'HABIT[ml]' to use it."
+            ) from exc
 
         block = table.frame[list(table.feature_columns)]
         y = outcome_series(table, owner=f"feature_selector.{self._spec_name}")
@@ -663,8 +680,14 @@ class StepwiseSelectorParams(BaseModel):
 
 def _logit_fit(y: pd.Series, X_subset: pd.DataFrame) -> Any:
     """Fit one statsmodels logit with intercept (lazy heavy import)."""
-    import statsmodels.api as sm
-    from statsmodels.discrete.discrete_model import Logit
+    try:
+        import statsmodels.api as sm
+        from statsmodels.discrete.discrete_model import Logit
+    except ImportError as exc:
+        raise OptionalDependencyError(
+            "feature_selector.stepwise requires the optional statsmodels "
+            "dependency; install 'HABIT[ml]' to use it."
+        ) from exc
 
     return Logit(y, sm.add_constant(X_subset)).fit(disp=0)
 
@@ -897,6 +920,110 @@ def _stepwise_selection(
     return initial_features
 
 
+class UnivariateCoxSelectorParams(BaseModel):
+    """Constructor parameters for :class:`UnivariateCoxSelector`."""
+
+    #: Keep columns whose univariate-Cox p-value is below this threshold.
+    p_threshold: float = 0.05
+    #: ``>= 1`` absolute count or ``(0, 1)`` ratio of top columns to keep
+    #: (overrides ``p_threshold``).
+    n_features_to_select: Optional[float] = None
+
+
+@FeatureSelectorRegistry.register("univariate_cox")
+class UnivariateCoxSelector(FittedSelectorBase):
+    """
+    Univariate Cox proportional-hazards selection against a survival outcome.
+
+    Fits one single-covariate Cox model per feature and ranks by the Wald
+    p-value of its coefficient -- the survival analogue of the univariate
+    logistic selector, and the standard first-pass screen in prognostic
+    radiomics. lifelines is imported lazily (optional ``analysis`` extra).
+
+    Requires a :class:`~habit.contracts.outcome.SurvivalOutcome`; any other
+    endpoint family is rejected by :func:`survival_target`.
+    """
+
+    _spec_name = "univariate_cox"
+
+    def __init__(
+        self,
+        p_threshold: float = 0.05,
+        n_features_to_select: Optional[Union[int, float]] = None,
+    ) -> None:
+        super().__init__()
+        self._p_threshold = float(p_threshold)
+        self._n_features_to_select = n_features_to_select
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._spec_name,
+            params={
+                "p_threshold": self._p_threshold,
+                "n_features_to_select": self._n_features_to_select,
+            },
+        )
+
+    def fit(
+        self,
+        table: FeatureTable,
+        *,
+        repeat_tables: Optional[Sequence[FeatureTable]] = None,
+    ) -> "UnivariateCoxSelector":
+        """Select columns by univariate-Cox p-value against survival."""
+        try:
+            from lifelines import CoxPHFitter
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "feature_selector.univariate_cox needs lifelines; install the "
+                "'analysis' extra (pip install HABIT[analysis])."
+            ) from exc
+        from lifelines.exceptions import ConvergenceError
+
+        from habit.domain.outcome_access import survival_target
+
+        time, event = survival_target(
+            table, owner=f"feature_selector.{self._spec_name}"
+        )
+        rows = []
+        for column in table.feature_columns:
+            block = pd.DataFrame(
+                {
+                    "__t__": time.to_numpy(),
+                    "__e__": event.astype(int).to_numpy(),
+                    column: table.frame[column].to_numpy(),
+                }
+            )
+            p_value = np.nan
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    fitter = CoxPHFitter()
+                    fitter.fit(block, duration_col="__t__", event_col="__e__")
+                p_value = float(fitter.summary.loc[column, "p"])
+            except (ConvergenceError, Exception):
+                # A feature that cannot be fit (constant, perfect separation)
+                # ranks last rather than crashing the whole screen.
+                p_value = np.nan
+            rows.append({"feature": column, "pvalue": p_value})
+        ranking = (
+            pd.DataFrame(rows)
+            .sort_values("pvalue", ascending=True, na_position="last")
+            .reset_index(drop=True)
+        )
+        top_n, _ = _resolve_top_n(
+            self._n_features_to_select, len(ranking), self._p_threshold
+        )
+        if top_n is not None:
+            kept = ranking.loc[ranking.index < top_n, "feature"].tolist()
+        else:
+            kept = ranking.loc[ranking["pvalue"] < self._p_threshold, "feature"].tolist()
+        self._remember_selection(table, kept)
+        return self
+
+
 @FeatureSelectorRegistry.register("stepwise")
 class StepwiseSelector(FittedSelectorBase):
     """
@@ -1023,7 +1150,13 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
 
         return GradientBoostingClassifier(random_state=seed)
     if name == "XGBClassifier":
-        import xgboost as xgb
+        try:
+            import xgboost as xgb
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "rfecv estimator 'XGBClassifier' requires the optional xgboost "
+                "dependency; install 'HABIT[ml]' to use it."
+            ) from exc
 
         return xgb.XGBClassifier(random_state=seed)
     if name == "LinearRegression":
@@ -1043,7 +1176,13 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
 
         return GradientBoostingRegressor(random_state=seed)
     if name == "XGBRegressor":
-        import xgboost as xgb
+        try:
+            import xgboost as xgb
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "rfecv estimator 'XGBRegressor' requires the optional xgboost "
+                "dependency; install 'HABIT[ml]' to use it."
+            ) from exc
 
         return xgb.XGBRegressor(random_state=seed)
     raise HABITAPIError(
@@ -1293,6 +1432,187 @@ class IccSelector(FittedSelectorBase):
 
 
 # ---------------------------------------------------------------------------
+# icc_precomputed: stability selection from a precomputed ICC results JSON
+# ---------------------------------------------------------------------------
+
+
+class PrecomputedIccSelectorParams(BaseModel):
+    """Constructor parameters for :class:`PrecomputedIccSelector`."""
+
+    #: Path to the ICC results JSON produced by a standalone ICC analysis run.
+    icc_results_path: str
+    #: Group names in the JSON whose stable-feature sets are intersected.
+    groups: List[str]
+    #: Minimum ICC value for a feature to count as stable.
+    threshold: float = 0.75
+    #: ICC metric to read inside nested per-feature maps (e.g. ``"ICC3"``);
+    #: ``None`` follows the v0.1 fallback chain.
+    metric: Optional[str] = None
+
+
+@FeatureSelectorRegistry.register("icc_precomputed")
+class PrecomputedIccSelector(FittedSelectorBase):
+    """
+    Stability selection from a PRECOMPUTED ICC results JSON.
+
+    Where :class:`IccSelector` recomputes ICCs from aligned repeat tables,
+    this selector trusts the numbers a standalone ICC analysis already
+    produced: the JSON maps group names to per-feature ICC values (simple
+    ``{feature: value}`` form or nested ``{feature: {metric: {value: x}}}``
+    form), and a feature is kept when its ICC clears ``threshold`` in EVERY
+    requested group. This is the v0.1 ``icc`` selector's contract, kept for
+    legacy configurations whose ICCs come from an external test-retest run:
+    the JSON is the measurement record, not a configuration artefact, so
+    reading it at fit time is data access, not layer violation.
+    """
+
+    _spec_name = "icc_precomputed"
+
+    #: Metric keys tried in order when ``metric`` is not set (v0.1 chain).
+    _DEFAULT_METRIC_KEYS = ("ICC3", "ICC2", "icc3", "icc2")
+
+    def __init__(
+        self,
+        icc_results_path: str,
+        groups: Sequence[str],
+        threshold: float = 0.75,
+        metric: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        if not icc_results_path:
+            raise HABITAPIError(
+                "feature_selector.icc_precomputed requires icc_results_path: "
+                "the ICC results JSON from a standalone ICC analysis run."
+            )
+        if not groups:
+            raise HABITAPIError(
+                "feature_selector.icc_precomputed requires a non-empty "
+                "groups list: the JSON groups whose stable-feature sets are "
+                "intersected."
+            )
+        self._icc_results_path = str(icc_results_path)
+        self._groups = list(groups)
+        self._threshold = float(threshold)
+        self._metric = metric
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._spec_name,
+            params={
+                "icc_results_path": self._icc_results_path,
+                "groups": list(self._groups),
+                "threshold": self._threshold,
+                "metric": self._metric,
+            },
+        )
+
+    def fit(
+        self,
+        table: FeatureTable,
+        *,
+        repeat_tables: Optional[Sequence[FeatureTable]] = None,
+    ) -> "PrecomputedIccSelector":
+        """Select features stable in every requested group of the JSON."""
+        icc_results = self._load_results()
+        stable_per_group = [
+            self._stable_features(icc_results, group) for group in self._groups
+        ]
+        selected = set.intersection(*stable_per_group) if stable_per_group else set()
+        self._remember_selection(table, sorted(selected))
+        return self
+
+    def _load_results(self) -> Dict[str, Any]:
+        """Read the ICC results JSON, failing loudly on a bad file."""
+        import json
+
+        try:
+            with open(self._icc_results_path, "r", encoding="utf-8") as handle:
+                results = json.load(handle)
+        except FileNotFoundError:
+            raise HABITAPIError(
+                "feature_selector.icc_precomputed found no ICC results file "
+                f"at: {self._icc_results_path}"
+            ) from None
+        except json.JSONDecodeError as error:
+            raise HABITAPIError(
+                "feature_selector.icc_precomputed could not decode JSON from "
+                f"{self._icc_results_path}: {error}"
+            ) from None
+        if not isinstance(results, dict):
+            raise HABITAPIError(
+                "feature_selector.icc_precomputed expects the ICC results "
+                f"JSON to map group names to per-feature values; got "
+                f"{type(results).__name__} in {self._icc_results_path}."
+            )
+        return results
+
+    def _resolve_group(self, icc_results: Dict[str, Any], group: str) -> str:
+        """Resolve a requested group, falling back to a unique partial match."""
+        if group in icc_results:
+            return group
+        for existing in icc_results:
+            if group in existing:
+                return existing
+        raise HABITAPIError(
+            f"feature_selector.icc_precomputed: group {group!r} is not in the "
+            f"ICC results file (available: {sorted(icc_results)[:5]})."
+        )
+
+    def _stable_features(
+        self, icc_results: Dict[str, Any], group: str
+    ) -> set:
+        """Collect the features clearing the threshold in one group."""
+        resolved = self._resolve_group(icc_results, group)
+        features_in_group = icc_results[resolved]
+        if not isinstance(features_in_group, dict):
+            raise HABITAPIError(
+                f"feature_selector.icc_precomputed expects group {resolved!r} "
+                f"to map feature names to ICC values; got "
+                f"{type(features_in_group).__name__}."
+            )
+        stable = set()
+        for feature, metrics in features_in_group.items():
+            icc_value = self._feature_icc_value(metrics)
+            if icc_value is not None and icc_value >= self._threshold:
+                stable.add(feature)
+        return stable
+
+    def _feature_icc_value(self, metrics: Any) -> Optional[float]:
+        """Extract one ICC value from a per-feature entry (v0.1 chain)."""
+        if isinstance(metrics, (int, float)):
+            # Simple format: {feature: icc_value}.
+            return float(metrics)
+        if not isinstance(metrics, dict):
+            return None
+        if self._metric:
+            value = self._metric_entry_value(metrics.get(self._metric))
+            if value is not None:
+                return value
+        for key in self._DEFAULT_METRIC_KEYS:
+            value = self._metric_entry_value(metrics.get(key))
+            if value is not None:
+                return value
+        # Last resort: any key containing 'icc' (case-insensitive).
+        for key, entry in metrics.items():
+            if "icc" in str(key).lower():
+                value = self._metric_entry_value(entry)
+                if value is not None:
+                    return value
+        return None
+
+    @staticmethod
+    def _metric_entry_value(entry: Any) -> Optional[float]:
+        """Read a metric entry, either a bare number or ``{"value": x}``."""
+        if isinstance(entry, dict):
+            entry = entry.get("value")
+        if isinstance(entry, (int, float)):
+            return float(entry)
+        return None
+
+
+# ---------------------------------------------------------------------------
 # mrmr: minimum redundancy maximum relevance
 # ---------------------------------------------------------------------------
 
@@ -1347,10 +1667,16 @@ class MrmrSelector(FittedSelectorBase):
         repeat_tables: Optional[Sequence[FeatureTable]] = None,
     ) -> "MrmrSelector":
         """Run MRMR on the training table."""
-        if self._task_type == "classification":
-            from mrmr import mrmr_classif as mrmr_fn
-        else:
-            from mrmr import mrmr_regression as mrmr_fn
+        try:
+            if self._task_type == "classification":
+                from mrmr import mrmr_classif as mrmr_fn
+            else:
+                from mrmr import mrmr_regression as mrmr_fn
+        except ImportError as exc:
+            raise OptionalDependencyError(
+                "feature_selector.mrmr requires the optional mrmr-selection "
+                "dependency; install 'HABIT[ml]' to use it."
+            ) from exc
 
         block = table.frame[list(table.feature_columns)]
         y = outcome_series(table, owner=f"feature_selector.{self._spec_name}")
@@ -1379,4 +1705,10 @@ FeatureSelectorRegistry.register_params_model("stepwise", StepwiseSelectorParams
 FeatureSelectorRegistry.register_params_model("rfecv", RfecvSelectorParams)
 FeatureSelectorRegistry.register_params_model("lasso", LassoSelectorParams)
 FeatureSelectorRegistry.register_params_model("icc", IccSelectorParams)
+FeatureSelectorRegistry.register_params_model(
+    "icc_precomputed", PrecomputedIccSelectorParams
+)
 FeatureSelectorRegistry.register_params_model("mrmr", MrmrSelectorParams)
+FeatureSelectorRegistry.register_params_model(
+    "univariate_cox", UnivariateCoxSelectorParams
+)

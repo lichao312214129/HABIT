@@ -19,7 +19,7 @@ Step ``params`` inside ``feature_selection_methods`` and ``models`` are validate
 against ``habit.core.schemas.steps`` via :mod:`habit.core.schemas.validation`.
 """
 
-from typing import List, Dict, Any, Optional, Union, Literal
+from typing import ClassVar, List, Dict, Any, Optional, Tuple, Union, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator, validator, ConfigDict
 
 from habit.core.common.configs.base import BaseConfig
@@ -97,11 +97,115 @@ class ResamplingConfig(BaseModel):
 SamplingConfig = ResamplingConfig
 
 
+class ExplainabilityConfig(BaseModel):
+    """
+    Tuning knobs for the explanation figures beyond the SHAP summary plots.
+
+    The figures themselves are switched on through ``plot_types``
+    (``shap_dependence`` / ``shap_waterfall`` / ``permutation``); this block only
+    controls how much of each is produced.
+    """
+    #: Number of highest-attribution features to draw dependence plots for.
+    shap_dependence_top_k: int = 3
+    #: Number of individual samples to export waterfall explanations for.
+    shap_waterfall_samples: int = 3
+    #: Shuffles per feature for permutation importance.
+    permutation_repeats: int = 10
+    #: sklearn scoring name used as the permutation-importance reference metric.
+    permutation_scoring: str = 'roc_auc'
+    #: Maximum number of features shown in the permutation-importance figure.
+    permutation_top_k: int = 20
+    permutation_random_state: Optional[int] = Field(
+        None,
+        description=(
+            "Random seed for permutation shuffles. When null/omitted, inherits "
+            "MLConfig.random_state."
+        ),
+    )
+
+
 class VisualizationConfig(BaseModel):
+    #: Figures implemented by ``PlotManager``. The three explanation figures are
+    #: opt-in because they are markedly slower than the curve plots.
+    ALLOWED_PLOT_TYPES: ClassVar[Tuple[str, ...]] = (
+        'roc',
+        'dca',
+        'calibration',
+        'pr',
+        'confusion',
+        'shap',
+        'shap_dependence',
+        'shap_waterfall',
+        'permutation',
+    )
+
     enabled: bool = True
     plot_types: List[str] = Field(default_factory=lambda: ['roc', 'dca', 'calibration', 'pr', 'confusion', 'shap'])
     dpi: int = 600
     format: str = "pdf"
+    explainability: ExplainabilityConfig = Field(default_factory=ExplainabilityConfig)
+
+    @field_validator('plot_types')
+    @classmethod
+    def plot_types_known(cls, v: List[str]) -> List[str]:
+        """
+        Reject unknown figure names instead of silently skipping them.
+
+        A typo here would otherwise produce a run that quietly omits the very
+        figure the user asked for.
+        """
+        unknown = [name for name in v if name not in cls.ALLOWED_PLOT_TYPES]
+        if unknown:
+            raise ValueError(
+                f"Unknown visualization.plot_types: {unknown}. "
+                f"Supported: {list(cls.ALLOWED_PLOT_TYPES)}."
+            )
+        return v
+
+
+class BootstrapConfig(BaseModel):
+    """
+    Bootstrap resampling settings for metric confidence intervals.
+
+    Disabled by default so existing runs keep their exact report shape. When
+    enabled, every reported performance metric gains a percentile confidence
+    interval, which imaging journals routinely require alongside point
+    estimates.
+    """
+    enabled: bool = False
+    n_iterations: int = 1000
+    ci_level: float = 0.95
+    # Resample within each class so every replicate preserves the observed class
+    # prevalence. Unstratified resampling of a small or imbalanced cohort yields
+    # replicates that contain a single class, where AUC is undefined and the
+    # interval silently narrows toward the surviving replicates.
+    stratified: bool = True
+    random_state: Optional[int] = Field(
+        None,
+        description=(
+            "Random seed for bootstrap resampling. When null/omitted, inherits "
+            "MLConfig.random_state."
+        ),
+    )
+
+    @field_validator('n_iterations')
+    @classmethod
+    def n_iterations_sufficient(cls, v: int) -> int:
+        """Require enough replicates to estimate a percentile interval."""
+        if v < 100:
+            raise ValueError(
+                "bootstrap.n_iterations must be at least 100 for a usable "
+                "percentile interval"
+            )
+        return v
+
+    @field_validator('ci_level')
+    @classmethod
+    def ci_level_range(cls, v: float) -> float:
+        """Confidence level must be a proportion, not a percentage."""
+        if not (0 < v < 1):
+            raise ValueError("bootstrap.ci_level must be between 0 and 1, e.g. 0.95")
+        return v
 
 
 class ComparisonFileConfig(BaseModel):
@@ -299,6 +403,9 @@ class MLConfig(BaseConfig):
 
     # Visualization detail.
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
+
+    # Evaluation detail: bootstrap confidence intervals for reported metrics.
+    bootstrap: BootstrapConfig = Field(default_factory=BootstrapConfig)
 
     # Predict-mode specific (ignored in train mode).
     evaluate: bool = False

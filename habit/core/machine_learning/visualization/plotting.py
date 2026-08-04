@@ -20,6 +20,7 @@ Provides various evaluation chart plotting functions
 import os
 from typing import Dict, List, Tuple, Union, Any
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix, auc
@@ -404,7 +405,117 @@ class Plotter:
         
         plt.close()
              
-    def plot_shap(self, model: Any, X: np.ndarray, feature_names: List[str], save_name: str = 'SHAP.pdf') -> None:
+    def _build_shap_explainer(self, model: Any, X: np.ndarray) -> Any:
+        """
+        Choose the SHAP explainer matching the model family.
+
+        Args:
+            model (Any): Trained model, possibly a HABIT wrapper exposing the
+                underlying sklearn estimator as ``.model``.
+            X (np.ndarray): Background/feature data used by the explainer.
+
+        Returns:
+            Any: An unfitted-on-data SHAP explainer for this model.
+        """
+        import shap
+
+        # Get model type - if not available, try to infer from model object
+        model_type = getattr(model, 'model_type', None)
+
+        if model_type == 'linear':
+            # For custom linear models, try to access the underlying sklearn model
+            if hasattr(model, 'model'):
+                # Access the internal sklearn model
+                return shap.LinearExplainer(model.model, X)
+            if hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
+                # If model has coefficients and intercept directly
+                return shap.LinearExplainer((model.coef_, model.intercept_), X)
+            # Fallback to KernelExplainer if we can't access the model structure
+            return shap.KernelExplainer(model.predict_proba, X)
+        if model_type == 'tree':
+            # For tree-based models
+            if hasattr(model, 'model'):
+                # Access the internal sklearn model
+                return shap.TreeExplainer(model.model)
+            # Try to use the model directly
+            return shap.TreeExplainer(model)
+        # Default to KernelExplainer for other model types
+        return shap.KernelExplainer(model.predict_proba, X)
+
+    def compute_shap_explanation(
+        self, model: Any, X: np.ndarray
+    ) -> Tuple[Any, Any]:
+        """
+        Compute SHAP values once so several figures can share them.
+
+        SHAP attribution is by far the most expensive part of the explanation
+        step (``KernelExplainer`` in particular). Summary, dependence and
+        waterfall figures therefore all consume the values returned here rather
+        than re-running the explainer.
+
+        Args:
+            model (Any): Trained model to explain.
+            X (np.ndarray): Feature matrix the values are computed on.
+
+        Returns:
+            Tuple[Any, Any]: ``(shap_values, expected_value)`` where
+            ``expected_value`` is the explainer's base value, needed to anchor
+            per-sample waterfall plots.
+        """
+        explainer = self._build_shap_explainer(model, X)
+        shap_values = process_shap_explanation(explainer.shap_values(X))
+        return shap_values, getattr(explainer, 'expected_value', None)
+
+    @staticmethod
+    def _shap_matrix_for_positive_class(shap_values: Any) -> np.ndarray:
+        """
+        Reduce SHAP output to a 2D ``(n_samples, n_features)`` matrix.
+
+        Explainers report per-class attributions in several shapes depending on
+        the SHAP version and model family: a list of per-class arrays, a 3D
+        array, or an already-2D array for single-output models. Dependence and
+        waterfall plots need one class, and the positive (last) class is the one
+        clinical reporting refers to.
+
+        Args:
+            shap_values (Any): Raw output of ``shap_values``.
+
+        Returns:
+            np.ndarray: Two-dimensional attribution matrix.
+        """
+        values = getattr(shap_values, 'values', shap_values)
+        if isinstance(values, list):
+            values = values[-1]
+        values = np.asarray(values)
+        if values.ndim == 3:
+            values = values[:, :, -1]
+        return values
+
+    @staticmethod
+    def _shap_base_value_for_positive_class(expected_value: Any) -> float:
+        """
+        Extract the scalar base value matching the positive class.
+
+        Args:
+            expected_value (Any): Explainer ``expected_value``; scalar for
+                single-output models, sequence for per-class models.
+
+        Returns:
+            float: Base value used as the waterfall plot's starting point.
+        """
+        if expected_value is None:
+            return 0.0
+        values = np.atleast_1d(np.asarray(expected_value, dtype=float))
+        return float(values[-1])
+
+    def plot_shap(
+        self,
+        model: Any,
+        X: np.ndarray,
+        feature_names: List[str],
+        save_name: str = 'SHAP.pdf',
+        shap_values: Any = None,
+    ) -> None:
         """
         Plot SHAP values with bar and beeswarm plots
         
@@ -413,43 +524,14 @@ class Plotter:
             X (np.ndarray): Feature data
             feature_names (List[str]): List of feature names
             save_name (str): Name of the file to save the plot
+            shap_values (Any): Precomputed SHAP values from
+                :meth:`compute_shap_explanation`. When omitted they are computed
+                here, preserving the original single-call behaviour.
         """
         import shap
 
-        # Get model type - if not available, try to infer from model object
-        model_type = getattr(model, 'model_type', None)
-        
-        # Calculate SHAP values based on model type
-        if model_type == 'linear':
-            # For custom linear models, try to access the underlying sklearn model
-            if hasattr(model, 'model'):
-                # Access the internal sklearn model
-                sklearn_model = model.model
-                explainer = shap.LinearExplainer(sklearn_model, X)
-            elif hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
-                # If model has coefficients and intercept directly
-                explainer = shap.LinearExplainer((model.coef_, model.intercept_), X)
-            else:
-                # Fallback to KernelExplainer if we can't access the model structure
-                explainer = shap.KernelExplainer(model.predict_proba, X)
-        elif model_type == 'tree':
-            # For tree-based models
-            if hasattr(model, 'model'):
-                # Access the internal sklearn model
-                sklearn_model = model.model
-                explainer = shap.TreeExplainer(sklearn_model)
-            else:
-                # Try to use the model directly
-                explainer = shap.TreeExplainer(model)
-        else:
-            # Default to KernelExplainer for other model types
-            explainer = shap.KernelExplainer(model.predict_proba, X)
-        
-        # Get SHAP values
-        shap_values = explainer.shap_values(X)
-        
-        # Process SHAP explanation for consistency
-        shap_values = process_shap_explanation(shap_values)
+        if shap_values is None:
+            shap_values, _ = self.compute_shap_explanation(model, X)
         
         # Plot 1: Feature importance bar plot - optimized for SCI journal
         plt.figure(figsize=(6, 5))
@@ -478,7 +560,224 @@ class Plotter:
         plt.tight_layout()
         self._save_figure(save_name)
         plt.close()
-    
+
+    def plot_shap_dependence(
+        self,
+        X: np.ndarray,
+        feature_names: List[str],
+        shap_values: Any,
+        top_k: int = 3,
+        save_name: str = 'shap_dependence.pdf',
+    ) -> None:
+        """
+        Plot SHAP dependence for the most influential features.
+
+        A dependence plot shows how one feature's attribution varies across its
+        own value range, which is what distinguishes a monotonic predictor from
+        one with a threshold or non-monotonic effect. The summary plots cannot
+        show this because they collapse each feature to a distribution.
+
+        Args:
+            X (np.ndarray): Feature matrix the SHAP values were computed on.
+            feature_names (List[str]): Column names aligned with ``X``.
+            shap_values (Any): Values from :meth:`compute_shap_explanation`.
+            top_k (int): Number of highest mean-absolute-attribution features to
+                plot, each written to its own file.
+            save_name (str): Base filename; the feature rank and name are
+                appended to keep one figure per feature.
+        """
+        import shap
+
+        values = self._shap_matrix_for_positive_class(shap_values)
+        feature_data = np.asarray(getattr(X, 'values', X))
+        if values.shape[1] != len(feature_names):
+            raise ValueError(
+                f"SHAP values have {values.shape[1]} features but "
+                f"{len(feature_names)} feature names were supplied."
+            )
+
+        mean_absolute = np.abs(values).mean(axis=0)
+        ranked_indices = np.argsort(mean_absolute)[::-1][: max(int(top_k), 0)]
+
+        stem, extension = os.path.splitext(save_name)
+        for rank, feature_index in enumerate(ranked_indices, start=1):
+            feature_name = feature_names[feature_index]
+            plt.figure(figsize=(5, 4))
+            shap.dependence_plot(
+                int(feature_index),
+                values,
+                feature_data,
+                feature_names=feature_names,
+                interaction_index='auto',
+                show=False,
+            )
+            plt.title(
+                f'SHAP Dependence: {feature_name}',
+                fontsize=11,
+                fontfamily=PUBLICATION_FONT,
+            )
+            plt.tight_layout()
+            safe_name = self._sanitize_filename_part(feature_name)
+            self._save_figure(f'{stem}_{rank}_{safe_name}{extension}')
+            plt.close()
+
+    def plot_shap_waterfall(
+        self,
+        X: np.ndarray,
+        feature_names: List[str],
+        shap_values: Any,
+        expected_value: Any = None,
+        n_samples: int = 2,
+        save_name: str = 'shap_waterfall.pdf',
+    ) -> None:
+        """
+        Plot per-sample SHAP waterfall explanations.
+
+        Summary plots describe the cohort; a waterfall plot explains one
+        prediction, which is the form clinicians ask for when they want to know
+        why a specific patient was scored as they were. Samples are picked at
+        the extremes and the median of the predicted-risk ordering, so the
+        exported set covers a low-, mid- and high-risk example rather than an
+        arbitrary first few rows.
+
+        Args:
+            X (np.ndarray): Feature matrix the SHAP values were computed on.
+            feature_names (List[str]): Column names aligned with ``X``.
+            shap_values (Any): Values from :meth:`compute_shap_explanation`.
+            expected_value (Any): Explainer base value from the same call.
+            n_samples (int): Number of samples to export.
+            save_name (str): Base filename; the sample index is appended.
+        """
+        import shap
+
+        values = self._shap_matrix_for_positive_class(shap_values)
+        feature_data = np.asarray(getattr(X, 'values', X))
+        base_value = self._shap_base_value_for_positive_class(expected_value)
+
+        sample_indices = self._select_representative_samples(
+            values.sum(axis=1), n_samples=int(n_samples)
+        )
+
+        stem, extension = os.path.splitext(save_name)
+        for sample_index in sample_indices:
+            explanation = shap.Explanation(
+                values=values[sample_index],
+                base_values=base_value,
+                data=feature_data[sample_index],
+                feature_names=list(feature_names),
+            )
+            plt.figure(figsize=(6, 5))
+            shap.plots.waterfall(explanation, show=False)
+            plt.title(
+                f'SHAP Explanation: Sample {sample_index}',
+                fontsize=11,
+                fontfamily=PUBLICATION_FONT,
+            )
+            plt.tight_layout()
+            self._save_figure(f'{stem}_sample{sample_index}{extension}')
+            plt.close()
+
+    @staticmethod
+    def _select_representative_samples(
+        scores: np.ndarray,
+        n_samples: int = 2,
+    ) -> List[int]:
+        """
+        Pick sample indices spanning the predicted-risk range.
+
+        Args:
+            scores (np.ndarray): Per-sample score used for ordering, e.g. the
+                summed SHAP attribution.
+            n_samples (int): Number of indices to return.
+
+        Returns:
+            List[int]: Indices evenly spaced over the score ranking, from the
+            lowest to the highest score.
+        """
+        total = len(scores)
+        n_samples = max(min(int(n_samples), total), 0)
+        if n_samples == 0:
+            return []
+        order = np.argsort(scores)
+        if n_samples == 1:
+            return [int(order[total // 2])]
+        positions = np.linspace(0, total - 1, n_samples).round().astype(int)
+        return [int(order[position]) for position in positions]
+
+    def plot_permutation_importance(
+        self,
+        importance: pd.DataFrame,
+        save_name: str = 'permutation_importance.pdf',
+        title: str = 'Permutation Importance',
+        top_k: int = 20,
+    ) -> None:
+        """
+        Plot permutation importance as a horizontal bar chart with error bars.
+
+        Args:
+            importance (pd.DataFrame): Table from
+                ``compute_permutation_importance`` with ``feature``,
+                ``importance_mean`` and ``importance_std`` columns, already
+                sorted by descending importance.
+            save_name (str): Name of the file to save the plot.
+            title (str): Title of the plot.
+            top_k (int): Maximum number of features to display.
+        """
+        top = importance.head(max(int(top_k), 1)).iloc[::-1]
+
+        # Height grows with the number of bars so labels never overlap.
+        figure_height = max(3.0, 0.28 * len(top) + 1.2)
+        plt.figure(figsize=(6, figure_height))
+        plt.barh(
+            top['feature'],
+            top['importance_mean'],
+            xerr=top['importance_std'],
+            color='#4C72B0',
+            edgecolor='black',
+            linewidth=0.5,
+            error_kw={'ecolor': '#444444', 'elinewidth': 0.8, 'capsize': 2},
+        )
+        # A permuted feature that the model does not use scores around zero;
+        # the reference line makes that boundary explicit.
+        plt.axvline(0.0, color='black', linestyle='--', linewidth=1.0)
+        plt.xlabel(
+            'Mean Score Decrease', fontsize=10, fontfamily=PUBLICATION_FONT
+        )
+        plt.ylabel('Feature', fontsize=10, fontfamily=PUBLICATION_FONT)
+        plt.title(title, fontsize=11, fontfamily=PUBLICATION_FONT)
+        plt.yticks(fontsize=8)
+
+        ax = plt.gca()
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_linewidth(1.5)
+        ax.spines['left'].set_linewidth(1.5)
+        ax.grid(True, linestyle='--', alpha=0.5, axis='x')
+
+        plt.tight_layout()
+        self._save_figure(save_name)
+        plt.close()
+
+    @staticmethod
+    def _sanitize_filename_part(name: str) -> str:
+        """
+        Make a feature name safe to embed in a filename.
+
+        Radiomics feature names routinely contain spaces, slashes and brackets,
+        any of which either break a path or produce an unreadable filename.
+
+        Args:
+            name (str): Raw feature name.
+
+        Returns:
+            str: Filename-safe fragment.
+        """
+        safe = ''.join(
+            character if character.isalnum() or character in '-_' else '_'
+            for character in str(name)
+        )
+        return safe.strip('_')[:60] or 'feature'
+
     def _save_figure(self, save_name: str) -> None:
         """
         Helper method to save figures with appropriate format and DPI

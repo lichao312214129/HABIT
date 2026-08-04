@@ -74,9 +74,7 @@ def check_habit_cli() -> Result:
 def check_native_extension() -> Result:
     """Require HABIT's compiled supervoxel extension in distributable installs."""
     try:
-        from habit.core.habitat_analysis.clustering_features.supervoxel_cext import (
-            is_cext_available,
-        )
+        from habit.kernels.radiomics.cext import is_cext_available
 
         available = bool(is_cext_available())
     except Exception as exc:

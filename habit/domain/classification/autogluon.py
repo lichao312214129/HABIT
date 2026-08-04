@@ -23,10 +23,10 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from habit.api.exceptions import HABITAPIError, OptionalDependencyError
+from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.contracts.table import FeatureTable
 from habit.domain.classification.registry import ClassifierRegistry
-from habit.domain.feature_selection._base import outcome_series
+from habit.domain.outcome_access import outcome_series
 from habit.spec.specs import Spec
 
 __all__ = ["AutogluonTabularClassifier", "AutogluonTabularClassifierParams"]

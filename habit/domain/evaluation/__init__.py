@@ -37,6 +37,26 @@ from habit.domain.evaluation.metrics import (
     SpiegelhalterZPValueMetricParams,
 )
 from habit.domain.evaluation.registry import MetricRegistry
+from habit.domain.evaluation.regression_metrics import (
+    MaeMetric,
+    MaeMetricParams,
+    MseMetric,
+    MseMetricParams,
+    R2Metric,
+    R2MetricParams,
+    RmseMetric,
+    RmseMetricParams,
+)
+from habit.domain.evaluation.regression_registry import RegressionMetricRegistry
+from habit.domain.evaluation.survival_metrics import (
+    CIndexMetric,
+    CIndexMetricParams,
+    CumulativeDynamicAucMetric,
+    CumulativeDynamicAucMetricParams,
+    IntegratedBrierScoreMetric,
+    IntegratedBrierScoreMetricParams,
+)
+from habit.domain.evaluation.survival_registry import SurvivalMetricRegistry
 from habit.domain.evaluation.statistics import (
     AucConfidenceInterval,
     CalibrationResult,
@@ -50,6 +70,22 @@ from habit.domain.evaluation.statistics import (
 
 __all__ = [
     "MetricRegistry",
+    "SurvivalMetricRegistry",
+    "RegressionMetricRegistry",
+    "CIndexMetric",
+    "CIndexMetricParams",
+    "IntegratedBrierScoreMetric",
+    "IntegratedBrierScoreMetricParams",
+    "CumulativeDynamicAucMetric",
+    "CumulativeDynamicAucMetricParams",
+    "R2Metric",
+    "R2MetricParams",
+    "MaeMetric",
+    "MaeMetricParams",
+    "MseMetric",
+    "MseMetricParams",
+    "RmseMetric",
+    "RmseMetricParams",
     "AccuracyMetric",
     "AccuracyMetricParams",
     "SensitivityMetric",

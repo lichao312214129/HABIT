@@ -22,6 +22,7 @@ import pytest
 from habit.api.exceptions import HABITAPIError
 from habit.contracts import Cohort, HabitatMap
 from habit.domain import (
+    CohortPreprocessingChain,
     HabitatVolumeFeatures,
     IthHabitatFeatures,
     KMeansHabitatModelFitter,
@@ -29,6 +30,8 @@ from habit.domain import (
     RawVoxelFeatures,
     SlicSupervoxelizer,
     SubjectPipeline,
+    SubjectPreprocessingChain,
+    build_methods,
 )
 from habit.domain.pipeline import voxel_units
 
@@ -150,3 +153,119 @@ def test_pipeline_runs_under_cohort_map() -> None:
     maps = cohort.map(pipeline)
     assert [m.subject_id for m in maps] == ["E0", "E1"]
     assert all(isinstance(m, HabitatMap) for m in maps)
+
+
+@pytest.mark.unit
+def test_pipeline_applies_the_voxel_feature_preprocessor() -> None:
+    """A configured voxel chain must actually change the units it feeds.
+
+    The bug this guards against is a chain that is specified, serialised into
+    provenance, and never called: the run reports normalisation it did not do.
+    """
+    subject = make_subject("new", seed=8)
+    plain = _fitted_pipeline()
+    scaled = SubjectPipeline(
+        plain.voxel_feature_extractor,
+        plain.supervoxelizer,
+        plain.habitat_assigner,
+        voxel_feature_preprocessor=SubjectPreprocessingChain(
+            build_methods([{"name": "minmax"}])
+        ),
+    )
+    raw_units = plain.units(subject)
+    scaled_units = scaled.units(subject)
+    assert raw_units.features.shape == scaled_units.features.shape
+    # min-max on the voxel features bounds every supervoxel mean to [0, 1],
+    # which the unscaled features are not.
+    assert scaled_units.features.to_numpy().max() <= 1.0
+    assert raw_units.features.to_numpy().max() > 1.0
+
+
+@pytest.mark.unit
+def test_pipeline_applies_the_supervoxel_feature_preprocessor() -> None:
+    """A configured supervoxel chain must change the supervoxel features."""
+    subject = make_subject("new", seed=12)
+    plain = _fitted_pipeline()
+    scaled = SubjectPipeline(
+        plain.voxel_feature_extractor,
+        plain.supervoxelizer,
+        plain.habitat_assigner,
+        supervoxel_feature_preprocessor=SubjectPreprocessingChain(
+            build_methods([{"name": "zscore"}])
+        ),
+    )
+    units = scaled.units(subject)
+    # z-scoring per subject centres every feature column on zero.
+    np.testing.assert_allclose(
+        units.features.to_numpy().mean(axis=0), 0.0, atol=1e-9
+    )
+    # The partition itself is untouched: describing regions never redraws them.
+    np.testing.assert_array_equal(
+        np.asarray(units.label_array),
+        np.asarray(plain.units(subject).label_array),
+    )
+
+
+@pytest.mark.unit
+def test_pipeline_applies_the_fitted_cohort_preprocessor_before_assignment() -> None:
+    """The cohort chain is replayed at prediction time, changing the labels.
+
+    Applying a habitat model without the cohort preprocessing it was defined
+    with would put the new subject in a different feature space and still
+    return plausible labels -- the failure mode that is impossible to notice
+    from the output alone.
+    """
+    subject = make_subject("new", seed=15)
+    plain = _fitted_pipeline()
+    chain = CohortPreprocessingChain(build_methods([{"name": "minmax"}]))
+    chain.fit(plain.units(subject).feature_frame() * 3.0)
+    wired = SubjectPipeline(
+        plain.voxel_feature_extractor,
+        plain.supervoxelizer,
+        plain.habitat_assigner,
+        cohort_feature_preprocessor=chain,
+    )
+    assert not np.array_equal(
+        np.asarray(plain(subject).label_array),
+        np.asarray(wired(subject).label_array),
+    )
+
+
+@pytest.mark.unit
+def test_pipeline_spec_records_every_preprocessing_chain() -> None:
+    """Each chain enters the fingerprint, so a run is identifiable by it."""
+    plain = _fitted_pipeline()
+    payload = plain.spec.params
+    for slot in (
+        "voxel_feature_preprocessor",
+        "supervoxel_feature_preprocessor",
+        "cohort_feature_preprocessor",
+    ):
+        assert slot in payload
+        assert payload[slot] is None
+    wired = SubjectPipeline(
+        plain.voxel_feature_extractor,
+        plain.supervoxelizer,
+        plain.habitat_assigner,
+        voxel_feature_preprocessor=SubjectPreprocessingChain(
+            build_methods([{"name": "minmax"}])
+        ),
+    )
+    assert wired.spec.fingerprint() != plain.spec.fingerprint()
+    steps = wired.spec.params["voxel_feature_preprocessor"]["params"]["steps"]
+    assert [step["name"] for step in steps] == ["impute", "minmax"]
+
+
+@pytest.mark.unit
+def test_supervoxel_preprocessor_requires_a_supervoxelizer() -> None:
+    """Without supervoxels there is only one matrix, so the slot is refused."""
+    plain = _fitted_pipeline(supervoxels=False)
+    with pytest.raises(HABITAPIError, match="voxel_feature_preprocessor instead"):
+        SubjectPipeline(
+            plain.voxel_feature_extractor,
+            None,
+            plain.habitat_assigner,
+            supervoxel_feature_preprocessor=SubjectPreprocessingChain(
+                build_methods([{"name": "minmax"}])
+            ),
+        )

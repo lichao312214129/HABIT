@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""What a completed study hands back: run manifest and study result.
+"""What a completed run records: the run manifest.
 
-These are L2 data structures only. The L4 recipe layer assembles them from
-executed runs, and the L4 report layer renders them; nothing here touches
-the filesystem except ``RunManifest.to_json`` and ``StudyResult.save`` when
-explicitly called by the user.
+This is an L2 data structure only. The L4 recipe layer assembles it from
+executed runs, and the L4 report layer renders it; nothing here touches the
+filesystem except ``RunManifest.to_json`` when explicitly called by the user.
+
+``StudyResult`` used to live here too. It moved to
+:mod:`habit.recipes.result`, where it belongs: it is the recipe layer's
+return type, no L0-L3 component produces or consumes one, and its ``save``
+method needs an output directory -- a concept L2 is forbidden to know.
 """
 
 from __future__ import annotations
@@ -29,12 +33,11 @@ from typing import Any, Dict, Mapping, Optional, Tuple, Union
 
 import pandas as pd
 
-from habit.api.exceptions import HABITAPIError
-from habit.contracts.habitat import HabitatMap, HabitatModel, _provenance_to_dict
+from habit.exceptions import HABITAPIError
+from habit.contracts.habitat import _provenance_to_dict
 from habit.contracts.provenance import Provenance
-from habit.contracts.table import FeatureTable
 
-__all__ = ["RunManifest", "StudyResult"]
+__all__ = ["RunManifest"]
 
 #: Reporting standards supported by :meth:`RunManifest.checklist`.
 _CHECKLIST_STANDARDS = ("IBSI", "CLEAR", "METRICS", "TRIPOD+AI")
@@ -115,8 +118,12 @@ def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
         )
         phrases.append(f"habitat feature families: {families}")
     for chain_key, chain_phrase in (
-        ("subject_table_preprocessors", "subject-level table preprocessing"),
-        ("group_table_preprocessors", "cohort-level table preprocessing"),
+        ("voxel_feature_preprocessors", "per-subject voxel feature preprocessing"),
+        (
+            "supervoxel_feature_preprocessors",
+            "per-subject supervoxel feature preprocessing",
+        ),
+        ("cohort_feature_preprocessors", "cohort-level feature preprocessing"),
     ):
         chain = payload.get(chain_key) or []
         if chain:
@@ -493,48 +500,3 @@ class RunManifest:
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(text, encoding="utf-8")
         return text
-
-
-@dataclass(frozen=True, eq=False)
-class StudyResult:
-    """
-    What a fitted study hands back, entirely in memory.
-
-    Nothing here has touched the filesystem. Writing is a separate, explicit
-    act via :meth:`save`, which is what allows the identical code to run
-    inside someone else's service where there is no output directory at all.
-
-    Attributes:
-        habitat_model: The population-level habitat definition. Named in
-            full rather than ``model`` because ``model`` already means a
-            trained classifier elsewhere in HABIT.
-        pipeline: The subject-level procedure that applies that definition,
-            so that model and procedure can be shipped together for external
-            validation.
-        features: Habitat-level features for the fitted cohort.
-        habitat_maps: Per-subject habitat label images, in cohort order.
-        manifest: Provenance and reporting for this run.
-    """
-
-    habitat_model: HabitatModel
-    pipeline: Any
-    features: FeatureTable
-    habitat_maps: Tuple[HabitatMap, ...]
-    manifest: RunManifest
-
-    def save(self, out_dir: Union[str, Path]) -> Path:
-        """
-        Write every artefact of this study to a directory.
-
-        Args:
-            out_dir: Destination directory, created when missing.
-
-        Returns:
-            The directory written to.
-        """
-        destination = Path(out_dir)
-        destination.mkdir(parents=True, exist_ok=True)
-        self.habitat_model.save(destination / "habitat_model.habitatmodel")
-        self.features.frame.to_csv(destination / "habitat_features.csv", index=False)
-        self.manifest.to_json(destination / "run_manifest.json")
-        return destination

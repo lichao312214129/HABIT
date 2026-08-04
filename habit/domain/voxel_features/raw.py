@@ -21,10 +21,14 @@ from typing import List, Optional, Sequence, Tuple
 import numpy as np
 from pydantic import BaseModel, Field
 
-from habit.api.exceptions import GeometryError, HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import VoxelFeatureField
-from habit.contracts.provenance import Provenance
 from habit.contracts.subject import Subject
+from habit.domain.voxel_features._base import (
+    aligned_image,
+    build_voxel_field,
+    roi_voxels,
+)
 from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
 from habit.spec.specs import Spec
 
@@ -82,30 +86,14 @@ class RawVoxelFeatures:
             KeyError: If a modality or the ROI is absent on the subject.
             GeometryError: If a modality and the mask do not share a grid.
         """
-        mask = subject.mask(self.roi)
-        arrays: List[np.ndarray] = []
-        for modality in self.modalities:
-            image = subject.image(modality)
-            if not image.geometry.is_compatible_with(mask.geometry):
-                raise GeometryError(
-                    f"Subject {subject.subject_id!r}: modality {modality!r} "
-                    "and the ROI mask do not share a compatible voxel grid."
-                )
-            arrays.append(np.asarray(image.data))
-        inside = np.asarray(mask.data) > 0
-        voxel_index = np.argwhere(inside)
+        mask, inside, voxel_index = roi_voxels(subject, self.roi)
+        arrays: List[np.ndarray] = [
+            aligned_image(subject, modality, mask, owner="raw")
+            for modality in self.modalities
+        ]
         values = np.stack([array[inside] for array in arrays], axis=1)
-        provenance = Provenance.source("subject_images").derive(
-            produced_by=f"voxel_feature_extractor.{self.spec.name}",
-            spec_fingerprint=self.spec.fingerprint(),
-        )
-        return VoxelFeatureField(
-            subject_id=subject.subject_id,
-            feature_names=tuple(self.modalities),
-            values=values.astype(np.float64, copy=False),
-            voxel_index=voxel_index,
-            geometry=mask.geometry,
-            provenance=provenance,
+        return build_voxel_field(
+            subject, mask, voxel_index, self.modalities, values, self.spec
         )
 
 

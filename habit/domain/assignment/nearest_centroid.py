@@ -21,7 +21,7 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, Field
 
-from habit.api.exceptions import CompatibilityError
+from habit.exceptions import CompatibilityError
 from habit.contracts.habitat import HabitatMap, HabitatModel, Supervoxelization
 from habit.domain.assignment.registry import HabitatAssignerRegistry
 from habit.spec.specs import Spec

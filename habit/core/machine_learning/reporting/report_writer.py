@@ -25,13 +25,27 @@ and avoids the previous duplication where the K-Fold workflow handled
 from __future__ import annotations
 
 import os
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 
 from habit.utils.io_utils import save_csv, save_json
 
 from ..contracts.results import InferenceResult, KFoldRunResult, RunResult
+
+#: Column order of the tidy metrics-CI table.
+_METRICS_CI_COLUMNS = (
+    "Model",
+    "Split",
+    "Metric",
+    "Point",
+    "Bootstrap_Mean",
+    "Bootstrap_SE",
+    "CI_Lower",
+    "CI_Upper",
+    "CI_Level",
+    "N_Valid_Replicates",
+)
 
 
 class ReportWriter:
@@ -94,6 +108,16 @@ class ReportWriter:
 
         self._write_holdout_prediction_table(run_result=run_result)
 
+        ci_rows: List[Dict[str, Any]] = []
+        for model_name, model in run_result.models.items():
+            ci_rows.extend(
+                self._metrics_ci_rows(model_name, "train", model.train_metrics_ci)
+            )
+            ci_rows.extend(
+                self._metrics_ci_rows(model_name, "test", model.test_metrics_ci)
+            )
+        self._write_metrics_ci(ci_rows)
+
     def _write_holdout_prediction_table(self, run_result: RunResult) -> None:
         """Write ``all_prediction_results.csv`` using train/test splits."""
         dataset = run_result.dataset
@@ -142,6 +166,65 @@ class ReportWriter:
         save_csv(
             summary_df,
             os.path.join(self.output_dir, f"{self.module_name}_summary.csv"),
+        )
+
+        ci_rows: List[Dict[str, Any]] = []
+        for model_name, aggregated in run_result.aggregated.items():
+            ci_rows.extend(
+                self._metrics_ci_rows(
+                    model_name, "out_of_fold", aggregated.overall_metrics_ci
+                )
+            )
+        self._write_metrics_ci(ci_rows)
+
+    # ------------------------------------------------------------------
+    # Bootstrap confidence intervals
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _metrics_ci_rows(
+        model_name: str,
+        split: str,
+        metrics_ci: Dict[str, Dict[str, float]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Flatten one metrics-CI mapping into tidy rows.
+
+        Args:
+        model_name:
+            Model the intervals belong to.
+        split:
+            Data split label, e.g. ``train``, ``test`` or ``out_of_fold``.
+        metrics_ci:
+            Mapping produced by ``bootstrap_metrics``.
+
+        Returns:
+        List[Dict[str, Any]]
+            One row per metric, empty when bootstrapping was disabled.
+        """
+        return [
+            {
+                "Model": model_name,
+                "Split": split,
+                "Metric": metric_name,
+                "Point": entry.get("point"),
+                "Bootstrap_Mean": entry.get("mean"),
+                "Bootstrap_SE": entry.get("se"),
+                "CI_Lower": entry.get("ci_lower"),
+                "CI_Upper": entry.get("ci_upper"),
+                "CI_Level": entry.get("ci_level"),
+                "N_Valid_Replicates": entry.get("n_valid"),
+            }
+            for metric_name, entry in metrics_ci.items()
+        ]
+
+    def _write_metrics_ci(self, ci_rows: List[Dict[str, Any]]) -> None:
+        """Write the tidy metrics-CI table, skipping the file when empty."""
+        if not ci_rows:
+            return
+        save_csv(
+            pd.DataFrame(ci_rows, columns=list(_METRICS_CI_COLUMNS)),
+            os.path.join(self.output_dir, f"{self.module_name}_metrics_ci.csv"),
         )
 
     # ------------------------------------------------------------------

@@ -1,6 +1,17 @@
 Habitat segmentation
 ====================
 
+Python API
+----------
+
+For in-memory runs without the CLI, see the **Common workflows** section in
+:doc:`../api/python_api` (synthetic cohort, three habitat designs, YAML
+translation, and ``StudyResult.save``). The CLI examples below use the same
+recipes internally.
+
+CLI
+---
+
 .. code-block:: bash
 
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml

@@ -33,7 +33,7 @@ from typing import Any, ClassVar, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseModel
 
-from habit.api.exceptions import ComponentNotFoundError, ConfigurationError
+from habit.exceptions import ComponentNotFoundError, ConfigurationError
 from habit.core.common.registry import ClassRegistry
 
 __all__ = ["ComponentRegistry"]

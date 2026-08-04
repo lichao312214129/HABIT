@@ -1,0 +1,698 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""The eight built-in feature-preprocessing methods.
+
+Each method is a ``fit``/``transform`` pair over a unit-by-feature matrix.
+Whether the fitted state survives the call is the CHAIN's decision, not the
+method's: a per-subject chain throws it away, a cohort chain stores it in the
+:class:`~habit.contracts.habitat.HabitatModel`. This is why the same eight
+methods serve voxel features, supervoxel features and both stateless and
+stateful use -- v0.1 already worked this way internally
+(``apply_stateless_preprocessing`` is literally a fit that discards state),
+but its configuration surface split the methods into two named blocks and
+hid the fact.
+
+Registered names match the v0.1 YAML spellings so a legacy configuration
+translates without a lookup table.
+
+One rename: v0.1's ``global_normalize`` becomes ``across_features``. The old
+name suggested "use global (cohort-wide) statistics", but the flag never had
+anything to do with cohorts -- it selects whether statistics are pooled
+ACROSS FEATURE COLUMNS or kept per column. With multi-modal features that
+distinction is scientific, not cosmetic: pooling preserves the relative
+intensity scale between modalities, while per-column scaling erases it.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Mapping, Optional, Tuple
+
+import pandas as pd
+from pydantic import BaseModel, Field
+
+from habit.exceptions import HABITAPIError
+from habit.domain.feature_preprocessing.registry import (
+    FeaturePreprocessingMethodRegistry,
+)
+from habit.kernels import feature_transforms as _kernel
+from habit.spec.specs import Spec
+
+__all__ = [
+    "Binning",
+    "BinningParams",
+    "CorrelationFilter",
+    "CorrelationFilterParams",
+    "Impute",
+    "ImputeParams",
+    "LogTransform",
+    "LogTransformParams",
+    "MinMaxScaling",
+    "MinMaxScalingParams",
+    "RobustScaling",
+    "RobustScalingParams",
+    "VarianceFilter",
+    "VarianceFilterParams",
+    "Winsorizing",
+    "WinsorizingParams",
+    "ZScoreScaling",
+    "ZScoreScalingParams",
+]
+
+
+class ImputeParams(BaseModel):
+    """Constructor parameters for :class:`Impute`."""
+
+    strategy: str = "mean"
+
+
+@FeaturePreprocessingMethodRegistry.register("impute")
+class Impute:
+    """
+    Replace non-finite feature values with a learned per-column statistic.
+
+    Every other method assumes finite input: a quantile computed over a column
+    containing infinity is meaningless, and scikit-learn refuses NaN outright.
+    So this belongs FIRST in a chain, and both chains insert it automatically
+    when a configuration does not name it -- recording it in their spec, so the
+    step is never applied invisibly.
+
+    v0.1 ran this logic as a hard-coded prologue rather than a configurable
+    step, which left the strategy unreachable from a study's configuration even
+    though the underlying helper already supported alternatives.
+
+    Args:
+        strategy: ``mean`` or ``median`` of each column's finite values, or
+            ``zero``. Columns with no finite value at all impute to 0.0
+            regardless, so one unusable modality cannot invalidate a subject.
+    """
+
+    _name = "impute"
+    changes_columns: bool = False
+
+    def __init__(self, strategy: str = "mean") -> None:
+        if strategy not in _kernel.IMPUTE_STRATEGIES:
+            raise HABITAPIError(
+                f"impute: unknown strategy {strategy!r}; expected one of "
+                f"{list(_kernel.IMPUTE_STRATEGIES)}."
+            )
+        self._strategy = str(strategy)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(name=self._name, params={"strategy": self._strategy})
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the per-column replacement values.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_impute(block, self._strategy)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Replace non-finite values with the learned statistics.
+
+        Args:
+            block: Matrix to repair.
+            state: State from :meth:`fit`.
+
+        Returns:
+            A finite matrix.
+        """
+        return _kernel.apply_impute(block, state)
+
+
+class _ScopedMethod:
+    """
+    Shared base for methods parameterised only by feature-column scope.
+
+    Args:
+        across_features: Pool statistics across every feature column instead
+            of computing them per column.
+    """
+
+    #: Registered name; also the spec name and the v0.1 YAML spelling.
+    _name: str = ""
+    #: Whether ``transform`` may return a different column set.
+    changes_columns: bool = False
+
+    def __init__(self, across_features: bool = False) -> None:
+        self._across_features = bool(across_features)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name, params={"across_features": self._across_features}
+        )
+
+
+class MinMaxScalingParams(BaseModel):
+    """Constructor parameters for :class:`MinMaxScaling`."""
+
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("minmax")
+class MinMaxScaling(_ScopedMethod):
+    """
+    Scale features to [0, 1].
+
+    The usual final step of a voxel-level chain: distance-based clustering
+    treats every feature dimension as commensurable, which is only true once
+    the dimensions share a range.
+    """
+
+    _name = "minmax"
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the scaling bounds.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_minmax(block, self._across_features)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned scaling.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The scaled matrix.
+        """
+        return _kernel.apply_minmax(block, state)
+
+
+class ZScoreScalingParams(BaseModel):
+    """Constructor parameters for :class:`ZScoreScaling`."""
+
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("zscore")
+class ZScoreScaling(_ScopedMethod):
+    """
+    Standardise features to zero mean and unit variance.
+
+    Preferred over min-max when the downstream algorithm assumes roughly
+    Gaussian inputs, since it does not let a single extreme value compress
+    everything else into a narrow band.
+    """
+
+    _name = "zscore"
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the mean and standard deviation.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_zscore(block, self._across_features)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned standardisation.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The standardised matrix.
+        """
+        return _kernel.apply_zscore(block, state)
+
+
+class RobustScalingParams(BaseModel):
+    """Constructor parameters for :class:`RobustScaling`."""
+
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("robust")
+class RobustScaling(_ScopedMethod):
+    """
+    Centre features on the median and scale by the interquartile range.
+
+    The outlier-resistant standardisation. Useful on radiomics features,
+    where a handful of supervoxels can carry values orders of magnitude away
+    from the bulk.
+    """
+
+    _name = "robust"
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the median and interquartile range.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_robust(block, self._across_features)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned robust scaling.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The robust-scaled matrix.
+        """
+        return _kernel.apply_robust(block, state)
+
+
+class LogTransformParams(BaseModel):
+    """Constructor parameters for :class:`LogTransform`."""
+
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("log")
+class LogTransform(_ScopedMethod):
+    """
+    Compress right-skewed features with ``log(x - min + 1)``.
+
+    The shift by the learned minimum keeps the argument positive for every
+    value seen at fit time, so no hand-tuned offset is needed.
+    """
+
+    _name = "log"
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the shift offsets.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_log(block, self._across_features)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned log transform.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The log-transformed matrix.
+        """
+        return _kernel.apply_log(block, state)
+
+
+class WinsorizingParams(BaseModel):
+    """Constructor parameters for :class:`Winsorizing`."""
+
+    winsor_limits: Tuple[float, float] = (0.05, 0.05)
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("winsorize")
+class Winsorizing:
+    """
+    Clip extreme values at tail quantiles instead of discarding them.
+
+    Typically the FIRST step of a voxel-level chain: MRI intensity outliers
+    (motion, susceptibility artefacts, a few necrotic voxels) would otherwise
+    dominate the min-max range that follows and squash the informative middle
+    of the distribution.
+
+    Args:
+        winsor_limits: Lower and upper tail fractions to clip, each in
+            ``[0, 0.5)``.
+        across_features: Pool statistics across feature columns.
+    """
+
+    _name = "winsorize"
+    changes_columns: bool = False
+
+    def __init__(
+        self,
+        winsor_limits: Tuple[float, float] = (0.05, 0.05),
+        across_features: bool = False,
+    ) -> None:
+        limits = tuple(float(value) for value in winsor_limits)
+        if len(limits) != 2 or not all(0.0 <= value < 0.5 for value in limits):
+            raise HABITAPIError(
+                "winsorize: winsor_limits must be two fractions in [0, 0.5); "
+                f"got {winsor_limits!r}."
+            )
+        self._winsor_limits = (limits[0], limits[1])
+        self._across_features = bool(across_features)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={
+                "winsor_limits": list(self._winsor_limits),
+                "across_features": self._across_features,
+            },
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the clipping bounds.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_winsorize(
+            block, self._winsor_limits, self._across_features
+        )
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Clip the matrix at the learned bounds.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The clipped matrix.
+        """
+        return _kernel.apply_winsorize(block, state)
+
+
+class BinningParams(BaseModel):
+    """Constructor parameters for :class:`Binning`."""
+
+    n_bins: int = Field(default=10, gt=1)
+    bin_strategy: str = "uniform"
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("binning")
+class Binning:
+    """
+    Discretise features into ordinal bin indices.
+
+    The characteristic cohort-level step for radiomics-heavy feature sets:
+    replacing a continuous value with its bin index discards the fine
+    variation that mostly reflects acquisition noise, while keeping the
+    ordering that carries biology. Because bin edges come from the pooled
+    cohort, the same index means the same thing across subjects.
+
+    Args:
+        n_bins: Number of bins.
+        bin_strategy: ``uniform``, ``quantile`` or ``kmeans``.
+        across_features: Learn one set of edges from the pooled values.
+    """
+
+    _name = "binning"
+    changes_columns: bool = False
+
+    def __init__(
+        self,
+        n_bins: int = 10,
+        bin_strategy: str = "uniform",
+        across_features: bool = False,
+    ) -> None:
+        if int(n_bins) < 2:
+            raise HABITAPIError(f"binning: n_bins must exceed 1; got {n_bins}.")
+        self._n_bins = int(n_bins)
+        self._bin_strategy = str(bin_strategy)
+        self._across_features = bool(across_features)
+        self._seed: Optional[int] = None
+
+    def set_random_state(self, seed: int) -> None:
+        """Seed the stochastic ``kmeans`` bin strategy."""
+        self._seed = int(seed)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={
+                "n_bins": self._n_bins,
+                "bin_strategy": self._bin_strategy,
+                "across_features": self._across_features,
+            },
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the bin edges.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_binning(
+            block,
+            self._n_bins,
+            self._bin_strategy,
+            self._across_features,
+            random_state=self._seed,
+        )
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Map the matrix onto the learned bins.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The binned matrix.
+        """
+        return _kernel.apply_binning(block, state)
+
+
+class VarianceFilterParams(BaseModel):
+    """Constructor parameters for :class:`VarianceFilter`."""
+
+    variance_threshold: float = 0.0
+
+
+@FeaturePreprocessingMethodRegistry.register("variance_filter")
+class VarianceFilter:
+    """
+    Drop feature columns whose variance is at or below a threshold.
+
+    A column that barely varies cannot separate one region from another, but
+    still contributes a dimension to every distance computation downstream.
+
+    Args:
+        variance_threshold: Columns with ``var <= threshold`` are dropped;
+            ``0.0`` removes only constant columns.
+    """
+
+    _name = "variance_filter"
+    changes_columns: bool = True
+
+    def __init__(self, variance_threshold: float = 0.0) -> None:
+        self._variance_threshold = float(variance_threshold)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={"variance_threshold": self._variance_threshold},
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the surviving column subset.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State naming the columns to keep.
+        """
+        return {
+            "columns": _kernel.select_variance_columns(
+                block, self._variance_threshold
+            )
+        }
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Restrict the matrix to the learned columns.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The matrix with only the surviving columns. Columns absent from
+            ``block`` are skipped rather than raising, matching v0.1.
+        """
+        kept: List[str] = [
+            column for column in state["columns"] if column in block.columns
+        ]
+        if not kept:
+            return block
+        return block[kept]
+
+
+class CorrelationFilterParams(BaseModel):
+    """Constructor parameters for :class:`CorrelationFilter`."""
+
+    corr_threshold: float = 0.95
+    corr_method: str = "spearman"
+
+
+@FeaturePreprocessingMethodRegistry.register("correlation_filter")
+class CorrelationFilter:
+    """
+    Greedily drop redundant, highly correlated feature columns.
+
+    Radiomics feature families are strongly collinear; keeping one
+    representative per correlated group cuts dimensionality without losing
+    discriminative content. The left-to-right walk makes the surviving subset
+    deterministic.
+
+    Args:
+        corr_threshold: Absolute-correlation cut-off above which later
+            columns are dropped.
+        corr_method: ``pearson``, ``spearman`` or ``kendall``.
+    """
+
+    _name = "correlation_filter"
+    changes_columns: bool = True
+
+    def __init__(
+        self,
+        corr_threshold: float = 0.95,
+        corr_method: str = "spearman",
+    ) -> None:
+        self._corr_threshold = float(corr_threshold)
+        self._corr_method = str(corr_method)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={
+                "corr_threshold": self._corr_threshold,
+                "corr_method": self._corr_method,
+            },
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the surviving column subset.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State naming the columns to keep.
+        """
+        return {
+            "columns": _kernel.select_correlation_columns(
+                block, self._corr_threshold, self._corr_method
+            )
+        }
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Restrict the matrix to the learned columns.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The matrix with only the surviving columns.
+        """
+        kept: List[str] = [
+            column for column in state["columns"] if column in block.columns
+        ]
+        if not kept:
+            return block
+        return block[kept]
+
+
+FeaturePreprocessingMethodRegistry.register_params_model("impute", ImputeParams)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "minmax", MinMaxScalingParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "zscore", ZScoreScalingParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "robust", RobustScalingParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model("log", LogTransformParams)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "winsorize", WinsorizingParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model("binning", BinningParams)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "variance_filter", VarianceFilterParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "correlation_filter", CorrelationFilterParams
+)

@@ -28,8 +28,15 @@ from habit.api.plugins import (
 
 #: domain -> built-in implementation names expected after a bare import.
 _V1_BUILTINS = {
-    "voxel_feature_extractor": {"raw"},
-    "supervoxelizer": {"slic"},
+    "voxel_feature_extractor": {
+        "raw",
+        "voxel_radiomics",
+        "kinetic",
+        "local_entropy",
+        "concat",
+    },
+    "supervoxelizer": {"slic", "kmeans", "gmm"},
+    "supervoxel_feature_extractor": {"mean_voxel_features", "supervoxel_radiomics"},
     "habitat_model_fitter": {"kmeans", "gmm"},
     "habitat_assigner": {"nearest_centroid"},
     "habitat_feature_extractor": {
@@ -63,7 +70,9 @@ _V1_BUILTINS = {
         "rfecv",
         "lasso",
         "icc",
+        "icc_precomputed",
         "mrmr",
+        "univariate_cox",
     },
     "classifier": {
         "DecisionTree",
@@ -136,10 +145,13 @@ def test_table_ml_singular_domains_resolve_to_v1_registries() -> None:
     for domain in ("classifier", "metric", "table_preprocessor", "feature_selector"):
         for info in list_plugins(domain):
             assert info.implementation.startswith("habit.domain.")
-    # The v0.1 plural domains still resolve to the v0.1 factories.
+    # Legacy plural domains delegate per name: v1 wins when the name exists
+    # in the L3 registry, otherwise the v0.1 core factory is used.
     for domain in ("models", "metrics"):
         for info in list_plugins(domain):
-            assert info.implementation.startswith("habit.core.")
+            assert info.implementation.startswith(
+                ("habit.domain.", "habit.core.")
+            ), info
 
 
 @pytest.mark.unit

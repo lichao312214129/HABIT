@@ -19,12 +19,12 @@ from __future__ import annotations
 from typing import Optional
 
 import numpy as np
-import pandas as pd
 from pydantic import BaseModel, Field
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import Supervoxelization, VoxelFeatureField
 from habit.domain.supervoxel.registry import SupervoxelizerRegistry
+from habit.domain.supervoxel_features import aggregate_voxel_means
 from habit.spec.specs import Spec
 
 __all__ = ["SlicSupervoxelizer", "SlicSupervoxelizerParams"]
@@ -93,7 +93,9 @@ class SlicSupervoxelizer:
 
         Returns:
             The supervoxel partition (``0`` = outside ROI, ``1..K`` =
-            supervoxels) together with per-supervoxel mean features.
+            supervoxels) together with per-supervoxel mean features. Pass a
+            :class:`~habit.domain.protocols.SupervoxelFeatureExtractor` to
+            the pipeline to describe the same regions differently.
         """
         from skimage.segmentation import slic
 
@@ -116,13 +118,7 @@ class SlicSupervoxelizer:
         )
         labels = np.where(mask, labels, 0).astype(np.int32)
 
-        # Aggregate per-supervoxel mean features; the index is the supervoxel
-        # id, so downstream cohort steps can join partitions on it directly.
-        voxel_labels = labels[tuple(field.voxel_index.T)]
-        frame = pd.DataFrame(field.values, columns=list(field.feature_names))
-        frame["__supervoxel__"] = voxel_labels
-        features = frame.groupby("__supervoxel__", sort=True).mean()
-        features.index.name = "supervoxel"
+        features = aggregate_voxel_means(field, labels)
 
         provenance = field.provenance.derive(
             produced_by=f"supervoxelizer.{self.spec.name}",

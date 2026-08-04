@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Test-retest reproducibility analysis command implementation."""
+"""Test-retest reproducibility analysis command implementation.
+
+L5 wiring only: parse the v0.1 YAML through the public schema, hand the
+validated object to the L4 recipe, echo the discovered label mapping, and
+surface success/failure. No ``habit.core`` imports live here.
+"""
 
 from __future__ import annotations
 
@@ -21,18 +26,13 @@ from pathlib import Path
 
 import click
 
+from habit.api.analysis import TestRetestConfig
 from habit.commands.common import (
     echo_success,
     exit_with_error,
     load_config_or_exit,
 )
-from habit.core.habitat_analysis.configurator import HabitatConfigurator
-from habit.core.machine_learning.config_schemas import TestRetestConfig
-from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
-    batch_process_files,
-    configure_logging,
-    find_habitat_mapping,
-)
+from habit.recipes.test_retest import test_retest_analysis
 from habit.utils.log_utils import setup_logger
 
 
@@ -60,34 +60,14 @@ def run_test_retest(config_file: str) -> None:
     click.echo(msg)
 
     try:
-        configurator = HabitatConfigurator(
-            config=config,
-            logger=logger,
-            output_dir=str(output_dir),
-        )
-        cfg = configurator.create_test_retest_analyzer()
-        configure_logging(output_dir, cfg.debug)
-
         click.echo("Computing habitat mapping between test and retest data...")
-        habitat_mapping = find_habitat_mapping(
-            cfg.test_habitat_table,
-            cfg.retest_habitat_table,
-            cfg.features,
-            cfg.similarity_method,
-        )
+        click.echo(f"Processing files using {config.processes} processes...")
+        result = test_retest_analysis(config, logger=logger)
 
+        habitat_mapping = result.data or {}
         click.echo("Habitat mapping:")
         for retest_label, test_label in habitat_mapping.items():
             click.echo(f"  Retest Habitat {retest_label} -> Test Habitat {test_label}")
-        logger.info("Habitat mapping: %s", habitat_mapping)
-
-        click.echo(f"Processing files using {cfg.processes} processes...")
-        batch_process_files(
-            cfg.input_dir,
-            habitat_mapping,
-            cfg.out_dir,
-            cfg.processes,
-        )
     except Exception as exc:  # noqa: BLE001
         logger.error("Test-retest analysis failed: %s", exc, exc_info=True)
         exit_with_error(f"Error: {exc}")

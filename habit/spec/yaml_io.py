@@ -26,7 +26,7 @@ from typing import Any, Dict, Mapping, Union
 
 import yaml
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec
 

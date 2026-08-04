@@ -1,49 +1,10 @@
-API contracts, provenance, and errors
-=====================================
+.. This page was retired with the v1.0 API documentation rewrite.
 
-Shared types used by public ``run_*`` helpers and object APIs.
+Workflow results and provenance (retired page)
+==============================================
 
-Workflow results
-----------------
+The v0.1-oriented contracts page has been replaced.
 
-::
-
-   from habit import WorkflowResult
-
-   # Most run_* helpers return WorkflowResult with output_dir / data / metadata.
-
-Provenance
-----------
-
-::
-
-   from habit import RunManifest, create_run_manifest, write_run_manifest
-
-Installers and workflow facades write a run manifest next to outputs so
-experiments remain reproducible.
-
-Exceptions
-----------
-
-Public error types include ``HABITAPIError``, ``ConfigurationError``,
-``DataFormatError``, ``GeometryError``, ``OptionalDependencyError``,
-``ComponentNotFoundError``, ``CompatibilityError``, ``ProcessingError``, and
-``NotFittedError``.
-
-Module reference
-----------------
-
-.. automodule:: habit.api.contracts
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.api.provenance
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: habit.api.exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
+* Data model: :doc:`data_model`
+* Errors: :doc:`exceptions`
+* Python API guide: :doc:`python_api`

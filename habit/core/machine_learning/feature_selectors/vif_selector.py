@@ -23,8 +23,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from typing import List, Optional, Tuple, Dict, Union
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+try:
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
+    STATSMODELS_AVAILABLE = True
+except ImportError:
+    # statsmodels is an optional dependency (extra 'ml'); the selector raises
+    # OptionalDependencyError when called without it.
+    STATSMODELS_AVAILABLE = False
+    variance_inflation_factor = None
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
 logger = get_module_logger(__name__)
 
@@ -51,6 +59,11 @@ def vif_selector(X: pd.DataFrame,
             - If detailed_output is False, returns only the list of selected features
             - If detailed_output is True, returns (selected features list, VIF DataFrame, excluded features dictionary)
     """
+    if not STATSMODELS_AVAILABLE:
+        raise OptionalDependencyError(
+            "selector 'vif' requires the optional statsmodels dependency; "
+            "install 'HABIT[ml]' to use it."
+        )
     if selected_features is None:
         selected_features = X.columns.tolist()
     

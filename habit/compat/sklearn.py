@@ -71,16 +71,14 @@ import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.exceptions import NotFittedError
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
+from habit.contracts.outcome import BinaryOutcome, MulticlassOutcome, Outcome
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
-from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
-from habit.domain.habitat_model import HabitatModelFitterRegistry
-from habit.domain.pipeline import SubjectPipeline, voxel_units
+from habit.domain.assembly import HabitatComponents, build_habitat_components
+from habit.domain.outcome_access import outcome_series
 from habit.domain.protocols import Seedable
-from habit.domain.supervoxel import SupervoxelizerRegistry
 from habit.domain.table_protocols import Classifier, FeatureSelector, TablePreprocessor
-from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
 from habit.spec.specs import HabitatSpec
 from habit.utils.progress_utils import CustomTqdm
 
@@ -120,7 +118,7 @@ def _iter_with_progress(
         bar.close()
 
 
-class HabitatFeaturesEstimator(BaseEstimator, TransformerMixin):
+class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
     """
     Turn a cohort of subjects into a habitat feature matrix, sklearn-style.
 
@@ -207,39 +205,21 @@ class HabitatFeaturesEstimator(BaseEstimator, TransformerMixin):
         return effective
 
     @staticmethod
-    def _create_components(
-        effective: HabitatSpec,
-    ) -> Tuple[Any, Any, Any, Tuple[Any, ...]]:
-        """Instantiate the pipeline components declared by the spec."""
-        voxel_extractor = VoxelFeatureExtractorRegistry.create(
-            effective.voxel_feature_extractor.name,
-            **effective.voxel_feature_extractor.params,
-        )
-        supervoxelizer = None
-        if effective.supervoxelizer is not None:
-            supervoxelizer = SupervoxelizerRegistry.create(
-                effective.supervoxelizer.name, **effective.supervoxelizer.params
-            )
-        fitter = HabitatModelFitterRegistry.create(
-            effective.habitat_model_fitter.name, **effective.habitat_model_fitter.params
-        )
-        extractors = tuple(
-            HabitatFeatureExtractorRegistry.create(
-                feature_spec.name, **feature_spec.params
-            )
-            for feature_spec in effective.habitat_features
-        )
-        if not extractors:
+    def _create_components(effective: HabitatSpec) -> HabitatComponents:
+        """Build the spec's components, then enforce the estimator's own
+        requirement that at least one habitat feature family is declared.
+
+        Construction itself lives in ``habit.domain.assembly``, so this
+        adapter and the recipe layer cannot drift apart.
+        """
+        components = build_habitat_components(effective)
+        if not components.extractors:
             raise HABITAPIError(
                 "HabitatSpec.habitat_features is empty; the estimator's whole "
                 "purpose is producing a feature matrix, so declare at least "
                 "one habitat feature family."
             )
-        if effective.random_seed is not None:
-            for component in (voxel_extractor, supervoxelizer, fitter, *extractors):
-                if isinstance(component, Seedable):
-                    component.set_random_state(effective.random_seed)
-        return voxel_extractor, supervoxelizer, fitter, extractors
+        return components
 
     # ------------------------------------------------------------------
     # sklearn API
@@ -341,18 +321,41 @@ class HabitatFeaturesEstimator(BaseEstimator, TransformerMixin):
     def _fit_components(self, subjects: List[Subject], cohort: Cohort) -> None:
         """Run the cohort-level fit and bind fitted state to ``self``."""
         effective = self._effective_spec()
-        voxel_extractor, supervoxelizer, fitter, extractors = self._create_components(
-            effective
-        )
-        units = []
-        for subject in _iter_with_progress(
-            subjects, enabled=self.verbose, desc="Fit: voxel->units"
-        ):
-            field = voxel_extractor(subject)
-            units.append(
-                supervoxelizer(field) if supervoxelizer is not None else voxel_units(field)
+        components = self._create_components(effective)
+        # The SAME pipeline object produces units at fit time and at predict
+        # time; only the assigner differs. Reimplementing the stages here is
+        # how train/predict pipelines silently diverge.
+        units_pipeline = components.pipeline(assigner=None)
+        units = [
+            units_pipeline.units(subject)
+            for subject in _iter_with_progress(
+                subjects, enabled=self.verbose, desc="Fit: voxel->units"
             )
-        model = fitter.fit(units, cohort=cohort)
+        ]
+        cohort_chain = components.cohort_chain
+        if cohort_chain is not None:
+            # Cohort-level statistics come from the pooled TRAINING units and
+            # nothing else; this is the one leakage-sensitive step in habitat
+            # definition.
+            pooled = pd.concat(
+                [unit.feature_frame() for unit in units], ignore_index=True
+            )
+            cohort_chain.fit(pooled)
+            units = [
+                unit.with_feature_frame(
+                    cohort_chain.transform(unit.feature_frame()),
+                    produced_by="feature_preprocessing.cohort",
+                    spec_fingerprint=cohort_chain.spec.fingerprint(),
+                )
+                for unit in units
+            ]
+        model = fitter_model = components.fitter.fit(units, cohort=cohort)
+        if cohort_chain is not None:
+            # The centroids only mean something in the preprocessed feature
+            # space, so the space travels with the model.
+            model = fitter_model.with_cohort_preprocessing(
+                cohort_chain.state, cohort_chain.spec.to_dict()
+            )
         assigner = model.assigner(
             effective.habitat_assigner.name, **effective.habitat_assigner.params
         )
@@ -360,18 +363,13 @@ class HabitatFeaturesEstimator(BaseEstimator, TransformerMixin):
             assigner.set_random_state(effective.random_seed)
         self.model_ = model
         self.spec_ = effective
-        self._voxel_extractor = voxel_extractor
-        self._supervoxelizer = supervoxelizer
+        self._components = components
         self._assigner = assigner
-        self._extractors = extractors
+        self._extractors = components.extractors
 
     def _extract_one(self, subject: Subject) -> FeatureTable:
         """Run the full per-subject chain and return its one-row table."""
-        pipeline = SubjectPipeline(
-            voxel_feature_extractor=self._voxel_extractor,
-            supervoxelizer=self._supervoxelizer,
-            habitat_assigner=self._assigner,
-        )
+        pipeline = self._components.pipeline(assigner=self._assigner)
         return pipeline.extract_features(subject, self._extractors)
 
     def _transform_subjects(
@@ -441,7 +439,7 @@ def _require_table(X: Any) -> FeatureTable:
     return X
 
 
-class TableTransformerEstimator(BaseEstimator, TransformerMixin):
+class TableTransformerEstimator(TransformerMixin, BaseEstimator):
     """
     Adapt a HABIT table transformation to the sklearn transformer API.
 
@@ -504,7 +502,7 @@ class TableTransformerEstimator(BaseEstimator, TransformerMixin):
         return self.component_.transform(_require_table(X))
 
 
-class TableClassifierEstimator(BaseEstimator, ClassifierMixin):
+class TableClassifierEstimator(ClassifierMixin, BaseEstimator):
     """
     Adapt a HABIT :class:`~habit.domain.table_protocols.Classifier` to sklearn.
 
@@ -542,14 +540,16 @@ class TableClassifierEstimator(BaseEstimator, ClassifierMixin):
                 "TableClassifierEstimator wraps a HABIT Classifier; got "
                 f"{type(self.component).__name__}."
             )
-        if table.outcome_column is not None and y is not None:
-            outcome = table.frame[table.outcome_column].to_numpy()
+        if table.outcome is not None and y is not None:
+            outcome = outcome_series(
+                table, owner="TableClassifierEstimator.fit"
+            ).to_numpy()
             if not np.array_equal(np.asarray(y), outcome):
                 raise HABITAPIError(
                     "y disagrees with the table's outcome column; refusing "
                     "to train on ambiguous labels."
                 )
-        if table.outcome_column is None:
+        if table.outcome is None:
             if y is None:
                 raise HABITAPIError(
                     "Training table has no outcome column and no y was given."
@@ -601,11 +601,13 @@ class TableClassifierEstimator(BaseEstimator, ClassifierMixin):
 
         if y is None:
             table = _require_table(X)
-            if table.outcome_column is None:
+            if table.outcome is None:
                 raise HABITAPIError(
                     "score needs y or a table carrying an outcome column."
                 )
-            y = table.frame[table.outcome_column].to_numpy()
+            y = outcome_series(
+                table, owner="TableClassifierEstimator.score"
+            ).to_numpy()
         return accuracy_score(y, self.predict(X), sample_weight=sample_weight)
 
     @staticmethod
@@ -622,11 +624,20 @@ class TableClassifierEstimator(BaseEstimator, ClassifierMixin):
             column = f"habit_{column}"
         frame = table.frame.copy()
         frame[column] = values
+        # sklearn passes bare labels, so the endpoint family is inferred from
+        # them; the positive class follows sklearn's own convention that the
+        # greater of two labels is positive.
+        labels = np.unique(values)
+        outcome: Outcome
+        if labels.size <= 2:
+            outcome = BinaryOutcome(column, positive_label=labels[-1])
+        else:
+            outcome = MulticlassOutcome(column, classes=tuple(labels))
         return FeatureTable(
             frame=frame,
             id_columns=table.id_columns,
             feature_columns=table.feature_columns,
-            outcome_column=column,
+            outcome=outcome,
             provenance=table.provenance,
         )
 

@@ -17,10 +17,18 @@ XGBoost Model
 
 Wrapper for XGBoost model
 """
-import xgboost as xgb
+try:
+    import xgboost as xgb
+    XGBOOST_AVAILABLE = True
+except ImportError:
+    # xgboost is an optional dependency (extra 'ml'); constructing the model
+    # raises OptionalDependencyError while importing this module stays safe.
+    XGBOOST_AVAILABLE = False
+    xgb = None
 from typing import Dict, Any, Optional, Union
 import numpy as np
 import pandas as pd
+from habit.exceptions import OptionalDependencyError
 from habit.utils.estimator_utils import build_estimator_params
 from .base import BaseModel
 from .factory import ModelFactory
@@ -28,26 +36,31 @@ from .factory import ModelFactory
 @ModelFactory.register('XGBoost')
 class XGBoostModel(BaseModel):
     """Wrapper for XGBoost model"""
-    
+
     @property
     def model_type(self) -> str:
         """
         Get the type of the model
-        
+
         Returns:
             str: Model type ('tree' for XGBoost)
         """
         return 'tree'
-    
+
     def __init__(self, config: Dict[str, Any]):
         """
         Initialize the model
-        
+
         Args:
             config: Configuration dictionary with model parameters
         """
+        if not XGBOOST_AVAILABLE:
+            raise OptionalDependencyError(
+                "model 'XGBoost' requires the optional xgboost dependency; "
+                "install 'HABIT[ml]' to use it."
+            )
         super().__init__(config)
-        
+
         # Extract parameters from config
         params = config.get('params', {})
         

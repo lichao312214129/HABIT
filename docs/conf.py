@@ -26,8 +26,8 @@ try:
     release = __version__
     version = '.'.join(__version__.split('.')[:2])  # Major.Minor
 except ImportError:
-    release = '0.1.0'
-    version = '0.1'
+    release = '1.0.0'
+    version = '1.0'
 
 # -- General configuration ----------------------------------------------------
 

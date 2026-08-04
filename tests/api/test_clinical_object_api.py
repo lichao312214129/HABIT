@@ -50,8 +50,8 @@ class _HabitatConfigStub:
 
 @pytest.mark.unit
 def test_cohort_normalizes_public_metadata() -> None:
-    """Cohort exposes immutable, explicit study-level input metadata."""
-    cohort = habit.Cohort.from_directory(
+    """ClinicalCohort exposes immutable, explicit study-level input metadata."""
+    cohort = habit.ClinicalCohort.from_directory(
         "input/cohort",
         name="training",
         subject_ids=["subject_01", "subject_02"],
@@ -66,11 +66,32 @@ def test_cohort_normalizes_public_metadata() -> None:
 
 
 @pytest.mark.unit
+def test_top_level_cohort_is_the_imaging_contract() -> None:
+    """Since v1.0.0, top-level ``habit.Cohort`` binds to the imaging cohort."""
+    from habit.contracts.subject import Cohort as ImagingCohort
+
+    assert habit.Cohort is ImagingCohort
+    assert habit.ClinicalCohort is not ImagingCohort
+
+
+@pytest.mark.unit
+def test_clinical_cohort_alias_warns_and_resolves() -> None:
+    """``habit.api.clinical.Cohort`` stays a deprecated alias until v1.2.0."""
+    import habit.api.clinical as clinical
+    from habit.utils.deprecation import HabitDeprecationWarning
+
+    with pytest.warns(HabitDeprecationWarning, match="deprecated since version"):
+        alias = clinical.Cohort
+
+    assert alias is habit.ClinicalCohort
+
+
+@pytest.mark.unit
 def test_clinical_preprocessor_uses_existing_public_runner() -> None:
     """The object API delegates to the stable config-driven preprocessing runner."""
     config = {"data_dir": "configured_input", "out_dir": "prepared_output"}
     workflow_result = WorkflowResult(output_dir=Path("prepared_output"))
-    cohort = habit.Cohort.from_directory("selected_input", name="baseline")
+    cohort = habit.ClinicalCohort.from_directory("selected_input", name="baseline")
 
     with patch(
         "habit.api.preprocessing.run_preprocess",
@@ -135,8 +156,10 @@ def test_habitat_segmenter_preserves_train_predict_lifecycle() -> None:
             {"unused": "validated by the patched config boundary"},
             prediction_output_dir="prediction_output",
         )
-        fitted = segmenter.fit(habit.Cohort.from_directory("training_input"))
-        prediction = fitted.predict(habit.Cohort.from_directory("external_input"))
+        fitted = segmenter.fit(habit.ClinicalCohort.from_directory("training_input"))
+        prediction = fitted.predict(
+            habit.ClinicalCohort.from_directory("external_input")
+        )
 
     train_config = mock_run.call_args_list[0].args[0]
     predict_config = mock_run.call_args_list[1].args[0]
@@ -182,16 +205,12 @@ def test_habitat_segmenter_accepts_omitted_data_dir_with_cohort() -> None:
             }
         )
         result = segmenter.fit_transform(
-            habit.Cohort.from_directory("prepared/processed_images")
+            habit.ClinicalCohort.from_directory("prepared/processed_images")
         )
 
     coerced_mapping = mock_coerce.call_args.args[0]
-    assert coerced_mapping["data_dir"] == str(
-        Path("prepared/processed_images")
-    )
-    assert mock_run.call_args.args[0].data_dir == str(
-        Path("prepared/processed_images")
-    )
+    assert coerced_mapping["data_dir"] == str(Path("prepared/processed_images"))
+    assert mock_run.call_args.args[0].data_dir == str(Path("prepared/processed_images"))
     pd.testing.assert_frame_equal(result.table, training_table)
 
 
@@ -203,7 +222,7 @@ def test_habitat_segmenter_requires_fit_before_prediction() -> None:
     )
 
     with pytest.raises(habit.NotFittedError):
-        segmenter.predict(habit.Cohort.from_directory("external_input"))
+        segmenter.predict(habit.ClinicalCohort.from_directory("external_input"))
 
 
 @pytest.mark.unit
@@ -240,7 +259,7 @@ def test_clinical_preprocessor_runs_existing_preprocessing_workflow(
     preprocessor = habit.ClinicalPreprocessor(config)
 
     prepared = preprocessor.fit_transform(
-        habit.Cohort.from_directory(data_dir, name="synthetic"),
+        habit.ClinicalCohort.from_directory(data_dir, name="synthetic"),
     )
 
     assert prepared.data_dir == Path(config["out_dir"]) / "processed_images"

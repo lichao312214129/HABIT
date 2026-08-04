@@ -27,14 +27,18 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from habit.api.exceptions import CompatibilityError, HABITAPIError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatMap, Supervoxelization, VoxelFeatureField
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
+from habit.domain.outcome_access import outcome_series, survival_target
 from habit.domain.protocols import (
+    CohortFeaturePreprocessor,
     HabitatAssigner,
     HabitatFeatureExtractor,
     Seedable,
+    SubjectFeaturePreprocessor,
+    SupervoxelFeatureExtractor,
     Supervoxelizer,
     VoxelFeatureExtractor,
 )
@@ -42,6 +46,10 @@ from habit.domain.table_protocols import (
     Classifier,
     FeatureSelector,
     Metric,
+    RegressionMetric,
+    Regressor,
+    SurvivalMetric,
+    SurvivalModel,
     TablePreprocessor,
 )
 from habit._version import __version__ as _habit_version
@@ -106,37 +114,136 @@ class SubjectPipeline:
             directly, which is what the one-step and direct-pooling
             designs do.
         habitat_assigner: Step assigning habitat labels, already bound to a
-            fitted model.
+            fitted model. ``None`` builds a FIT-TIME pipeline: :meth:`units`
+            works, :meth:`__call__` does not. Cohort-level fitting needs
+            exactly that, and sharing this class rather than reimplementing
+            the stages is what guarantees a model is applied to units produced
+            the same way it was fitted on.
+        supervoxel_feature_extractor: Optional step describing the
+            supervoxels. ``None`` keeps the feature means the supervoxelizer
+            attached, which is the v0.1 default; a
+            ``supervoxel_radiomics`` extractor replaces them with texture
+            features. Ignored when ``supervoxelizer`` is ``None``, since a
+            single voxel has no region to describe -- mirroring v0.1, where
+            the one-step design ignores the ``supervoxel_level`` block.
+        voxel_feature_preprocessor: Optional stateless preprocessing of the
+            voxel features, applied BEFORE supervoxelisation. This is v0.1's
+            ``preprocessing_for_subject_level``, and its position matters:
+            normalising each subject before its ROI is partitioned is what
+            keeps supervoxel boundaries from tracking scanner intensity scale.
+        supervoxel_feature_preprocessor: Optional stateless preprocessing of
+            the supervoxel features. The slot v0.1 lacked entirely -- per
+            supervoxel radiomics had no way to be normalised within a subject
+            before cohort pooling. Requires a supervoxelizer, for the same
+            reason as ``supervoxel_feature_extractor``.
+        cohort_feature_preprocessor: Optional FITTED cohort-level chain,
+            applied last, immediately before assignment. Required whenever
+            the habitat model was fitted on cohort-preprocessed units:
+            omitting it would feed the assigner a feature space different
+            from the one the model was defined in, and it would still return
+            plausible-looking labels.
     """
 
     def __init__(
         self,
         voxel_feature_extractor: VoxelFeatureExtractor,
         supervoxelizer: Optional[Supervoxelizer],
-        habitat_assigner: HabitatAssigner,
+        habitat_assigner: Optional[HabitatAssigner],
+        supervoxel_feature_extractor: Optional[SupervoxelFeatureExtractor] = None,
+        voxel_feature_preprocessor: Optional[SubjectFeaturePreprocessor] = None,
+        supervoxel_feature_preprocessor: Optional[SubjectFeaturePreprocessor] = None,
+        cohort_feature_preprocessor: Optional[CohortFeaturePreprocessor] = None,
     ) -> None:
-        if voxel_feature_extractor is None or habitat_assigner is None:
+        if voxel_feature_extractor is None:
             raise HABITAPIError(
-                "SubjectPipeline requires a voxel feature extractor and a "
-                "habitat assigner; only the supervoxelizer may be None."
+                "SubjectPipeline requires a voxel feature extractor; there is "
+                "no habitat analysis without per-voxel features."
+            )
+        if supervoxel_feature_extractor is not None and supervoxelizer is None:
+            raise HABITAPIError(
+                "SubjectPipeline received a supervoxel feature extractor but "
+                "no supervoxelizer. Direct voxel clustering has no supervoxel "
+                "to describe; either add a supervoxelizer or drop the "
+                "extractor."
+            )
+        if supervoxel_feature_preprocessor is not None and supervoxelizer is None:
+            raise HABITAPIError(
+                "SubjectPipeline received a supervoxel feature preprocessor "
+                "but no supervoxelizer. Without supervoxels there is only one "
+                "feature matrix to preprocess; pass it as "
+                "voxel_feature_preprocessor instead."
             )
         self.voxel_feature_extractor = voxel_feature_extractor
         self.supervoxelizer = supervoxelizer
         self.habitat_assigner = habitat_assigner
+        self.supervoxel_feature_extractor = supervoxel_feature_extractor
+        self.voxel_feature_preprocessor = voxel_feature_preprocessor
+        self.supervoxel_feature_preprocessor = supervoxel_feature_preprocessor
+        self.cohort_feature_preprocessor = cohort_feature_preprocessor
 
     @property
     def spec(self) -> Spec:
         """Return the composed specification of every stage."""
+
+        def _optional(component: Any) -> Optional[Dict[str, Any]]:
+            """Return a component's spec payload, or None when absent."""
+            return component.spec.to_dict() if component is not None else None
+
         stage_specs: Dict[str, Any] = {
             "voxel_feature_extractor": self.voxel_feature_extractor.spec.to_dict(),
-            "supervoxelizer": (
-                self.supervoxelizer.spec.to_dict()
-                if self.supervoxelizer is not None
-                else None
+            "voxel_feature_preprocessor": _optional(self.voxel_feature_preprocessor),
+            "supervoxelizer": _optional(self.supervoxelizer),
+            "supervoxel_feature_extractor": _optional(
+                self.supervoxel_feature_extractor
             ),
-            "habitat_assigner": self.habitat_assigner.spec.to_dict(),
+            "supervoxel_feature_preprocessor": _optional(
+                self.supervoxel_feature_preprocessor
+            ),
+            "cohort_feature_preprocessor": _optional(
+                self.cohort_feature_preprocessor
+            ),
+            "habitat_assigner": _optional(self.habitat_assigner),
         }
         return Spec(name="subject_pipeline", params=stage_specs)
+
+    def units(self, subject: Subject) -> Supervoxelization:
+        """
+        Run every stage up to (but excluding) habitat assignment.
+
+        Exposed separately because cohort-level fitting needs exactly this:
+        the clustering units of each training subject, pooled and then used to
+        DEFINE the habitats. Sharing one implementation with :meth:`__call__`
+        is what guarantees a model is applied to units produced the same way
+        they were fitted on.
+
+        Args:
+            subject: The subject to process.
+
+        Returns:
+            The subject's clustering units. Every ROI voxel is its own unit
+            when no supervoxelizer is configured.
+        """
+        field = self.voxel_feature_extractor(subject)
+        if self.voxel_feature_preprocessor is not None:
+            chain = self.voxel_feature_preprocessor
+            field = field.with_feature_frame(
+                chain(field.feature_frame()),
+                produced_by="feature_preprocessing.subject.voxel",
+                spec_fingerprint=chain.spec.fingerprint(),
+            )
+        if self.supervoxelizer is None:
+            return voxel_units(field)
+        units = self.supervoxelizer(field)
+        if self.supervoxel_feature_extractor is not None:
+            units = self.supervoxel_feature_extractor(subject, units)
+        if self.supervoxel_feature_preprocessor is not None:
+            chain = self.supervoxel_feature_preprocessor
+            units = units.with_feature_frame(
+                chain(units.feature_frame()),
+                produced_by="feature_preprocessing.subject.supervoxel",
+                spec_fingerprint=chain.spec.fingerprint(),
+            )
+        return units
 
     def __call__(self, subject: Subject) -> HabitatMap:
         """
@@ -147,12 +254,25 @@ class SubjectPipeline:
 
         Returns:
             The subject's habitat label image.
+
+        Raises:
+            HABITAPIError: If this is a fit-time pipeline (no assigner).
         """
-        field = self.voxel_feature_extractor(subject)
-        if self.supervoxelizer is None:
-            units = voxel_units(field)
-        else:
-            units = self.supervoxelizer(field)
+        if self.habitat_assigner is None:
+            raise HABITAPIError(
+                "This SubjectPipeline was built without a habitat assigner, so "
+                "it can only produce clustering units (pipeline.units(subject)). "
+                "Fit a model on those units, then rebuild the pipeline with "
+                "model.assigner() to label subjects."
+            )
+        units = self.units(subject)
+        if self.cohort_feature_preprocessor is not None:
+            chain = self.cohort_feature_preprocessor
+            units = units.with_feature_frame(
+                chain.transform(units.feature_frame()),
+                produced_by="feature_preprocessing.cohort",
+                spec_fingerprint=chain.spec.fingerprint(),
+            )
         return self.habitat_assigner(units)
 
     def extract_features(
@@ -219,19 +339,27 @@ class TablePipeline:
     Args:
         steps: Ordered transformation steps (``TablePreprocessor`` and/or
             ``FeatureSelector`` implementations). May be empty, in which case
-            the pipeline is the bare classifier.
-        classifier: The terminal outcome model.
+            the pipeline is the bare model.
+        model: The terminal outcome model -- a :class:`Classifier`,
+            :class:`Regressor`, or :class:`SurvivalModel`, matched to the
+            endpoint family of the tables it will be fitted on.
+        classifier: Deprecated alias for ``model`` (binary/multiclass
+            endpoints); kept so existing call sites keep working.
     """
 
     def __init__(
         self,
         steps: Sequence[Union[TablePreprocessor, FeatureSelector]],
-        classifier: Classifier,
+        model: Optional[Union[Classifier, Regressor, SurvivalModel]] = None,
+        *,
+        classifier: Optional[Classifier] = None,
     ) -> None:
-        if classifier is None:
-            raise HABITAPIError("TablePipeline requires a classifier.")
+        if model is None and classifier is not None:
+            model = classifier
+        if model is None:
+            raise HABITAPIError("TablePipeline requires a terminal model.")
         self._steps: List[Union[TablePreprocessor, FeatureSelector]] = list(steps)
-        self._classifier = classifier
+        self._model = model
         # Which steps learn from repeat-measurement tables (ICC selection).
         self._step_takes_repeats: List[bool] = [
             "repeat_tables" in inspect.signature(step.fit).parameters
@@ -246,9 +374,14 @@ class TablePipeline:
         return tuple(self._steps)
 
     @property
+    def model(self) -> Union[Classifier, Regressor, SurvivalModel]:
+        """Return the terminal outcome model."""
+        return self._model
+
+    @property
     def classifier(self) -> Classifier:
-        """Return the terminal classifier."""
-        return self._classifier
+        """Return the terminal model, asserted to be a classifier."""
+        return self._model  # type: ignore[return-value]
 
     @property
     def spec(self) -> Spec:
@@ -257,7 +390,7 @@ class TablePipeline:
             name="table_pipeline",
             params={
                 "steps": [step.spec.to_dict() for step in self._steps],
-                "classifier": self._classifier.spec.to_dict(),
+                "model": self._model.spec.to_dict(),
             },
         )
 
@@ -270,7 +403,7 @@ class TablePipeline:
         are untouched (v1.0 naming decisions: one seeding verb, never a
         constructor parameter).
         """
-        for component in [*self._steps, self._classifier]:
+        for component in [*self._steps, self._model]:
             if isinstance(component, Seedable):
                 component.set_random_state(seed)
 
@@ -303,7 +436,7 @@ class TablePipeline:
             else:
                 step.fit(current)
             current = step.transform(current)
-        self._classifier.fit(current)
+        self._model.fit(current)
         self._fit_output_columns = tuple(current.feature_columns)
         self._is_fitted = True
         return self
@@ -334,19 +467,28 @@ class TablePipeline:
 
     def predict(self, table: FeatureTable) -> pd.Series:
         """
-        Predict class labels for a table's rows.
+        Predict the terminal model's output for a table's rows.
+
+        Class labels for a classifier, values for a regressor, risk scores
+        for a survival model (routed through ``predict_risk``).
 
         Args:
             table: Table to predict; transformed with the fitted state first.
 
         Returns:
-            Predicted labels indexed by the table's identifier columns.
+            Predictions indexed by the table's identifier columns.
         """
-        return self._classifier.predict(self.transform(table))
+        transformed = self.transform(table)
+        if isinstance(self._model, SurvivalModel):
+            return self._model.predict_risk(transformed)
+        return self._model.predict(transformed)
 
     def predict_proba(self, table: FeatureTable) -> pd.DataFrame:
         """
         Predict class probabilities for a table's rows.
+
+        Only meaningful for a classifier terminal model; regressors and
+        survival models have no class-probability output.
 
         Args:
             table: Table to predict; transformed with the fitted state first.
@@ -354,41 +496,97 @@ class TablePipeline:
         Returns:
             Probability frame indexed by the identifier columns, one column
             per class.
+
+        Raises:
+            HABITAPIError: If the terminal model is not a classifier.
         """
-        return self._classifier.predict_proba(self.transform(table))
+        if not isinstance(self._model, Classifier):
+            raise HABITAPIError(
+                "TablePipeline.predict_proba requires a classifier terminal "
+                f"model; this pipeline ends in a "
+                f"{type(self._model).__name__}. Use predict() (values or "
+                "risk) or predict_survival_function() instead."
+            )
+        return self._model.predict_proba(self.transform(table))
+
+    def predict_survival_function(
+        self, table: FeatureTable, times: np.ndarray
+    ) -> pd.DataFrame:
+        """
+        Predict per-subject survival functions at the requested times.
+
+        Args:
+            table: Table to predict; transformed with the fitted state first.
+            times: Ascending 1-D grid of evaluation times.
+
+        Returns:
+            Survival probabilities, one row per subject, one column per time.
+
+        Raises:
+            HABITAPIError: If the terminal model is not a survival model.
+        """
+        if not isinstance(self._model, SurvivalModel):
+            raise HABITAPIError(
+                "TablePipeline.predict_survival_function requires a survival "
+                f"terminal model; this pipeline ends in a "
+                f"{type(self._model).__name__}."
+            )
+        return self._model.predict_survival_function(self.transform(table), times)
 
     def evaluate(
         self,
         table: FeatureTable,
-        metrics: Sequence[Metric],
+        metrics: Sequence[Union[Metric, RegressionMetric, SurvivalMetric]],
     ) -> Dict[str, float]:
         """
         Score the pipeline on a labelled table.
 
-        Probability metrics receive the positive-class scores (column ``"1"``
-        for a 0/1 outcome, else the last class column; multi-class problems
-        pass the full probability frame, for which the binary calibration
-        tests answer ``NaN``). Label metrics receive no scores.
+        Dispatches by the table's endpoint family:
+
+        - **binary / multiclass** -- classification ``Metric`` objects;
+          probability metrics receive the positive-class scores (column
+          ``"1"`` for a 0/1 outcome, else the last class column).
+        - **continuous** -- ``RegressionMetric`` objects on (true, predicted).
+        - **survival** -- ``SurvivalMetric`` objects; risk-based metrics get
+          ``predict_risk``, function-based ones get
+          ``predict_survival_function`` evaluated on a grid derived from the
+          follow-up range.
 
         Args:
-            table: Evaluation table carrying the outcome column.
+            table: Evaluation table carrying the endpoint column(s).
             metrics: Metrics to compute, keyed in the result by
-                ``metric.spec.name``.
+                ``metric.spec.name``. Must match the endpoint family.
 
         Returns:
             Mapping of metric name to value.
 
         Raises:
-            HABITAPIError: If ``metrics`` is empty or the table declares no
-                outcome column.
+            HABITAPIError: If ``metrics`` is empty, the table has no
+                endpoint, or a metric family does not match the endpoint.
         """
         if not metrics:
             raise HABITAPIError("TablePipeline.evaluate requires metrics.")
-        if table.outcome_column is None:
+        if table.outcome is None:
             raise HABITAPIError(
-                "TablePipeline.evaluate requires a table with an outcome column."
+                "TablePipeline.evaluate requires a table with an outcome; "
+                "this table declares none."
             )
-        y_true = table.frame[table.outcome_column].to_numpy()
+        task = table.outcome.task
+        if task in ("binary", "multiclass"):
+            return self._evaluate_classification(table, metrics)  # type: ignore[arg-type]
+        if task == "continuous":
+            return self._evaluate_regression(table, metrics)  # type: ignore[arg-type]
+        if task == "survival":
+            return self._evaluate_survival(table, metrics)  # type: ignore[arg-type]
+        raise HABITAPIError(
+            f"TablePipeline.evaluate does not know endpoint task {task!r}."
+        )
+
+    def _evaluate_classification(
+        self, table: FeatureTable, metrics: Sequence[Metric]
+    ) -> Dict[str, float]:
+        """Classification branch of :meth:`evaluate`."""
+        y_true = outcome_series(table, owner="TablePipeline.evaluate").to_numpy()
         y_pred = self.predict(table).to_numpy()
         needs_scores = any(metric.needs_proba for metric in metrics)
         scores: Optional[np.ndarray] = None
@@ -405,6 +603,63 @@ class TablePipeline:
             results[metric.spec.name] = metric(
                 y_true, y_pred, scores if metric.needs_proba else None
             )
+        return results
+
+    def _evaluate_regression(
+        self, table: FeatureTable, metrics: Sequence[RegressionMetric]
+    ) -> Dict[str, float]:
+        """Regression branch of :meth:`evaluate`."""
+        for metric in metrics:
+            if not isinstance(metric, RegressionMetric):
+                raise HABITAPIError(
+                    f"TablePipeline.evaluate: the table declares a continuous "
+                    f"endpoint, but metric {metric.spec.name!r} "
+                    f"({type(metric).__name__}) is not a regression metric. "
+                    "Use the regression_metric registry (r2, mae, mse, rmse)."
+                )
+        y_true = outcome_series(table, owner="TablePipeline.evaluate").to_numpy()
+        y_pred = self.predict(table).to_numpy()
+        return {
+            metric.spec.name: metric(y_true, y_pred)
+            for metric in metrics
+        }
+
+    def _evaluate_survival(
+        self, table: FeatureTable, metrics: Sequence[SurvivalMetric]
+    ) -> Dict[str, float]:
+        """Survival branch of :meth:`evaluate`."""
+        for metric in metrics:
+            if not isinstance(metric, SurvivalMetric):
+                raise HABITAPIError(
+                    f"TablePipeline.evaluate: the table declares a survival "
+                    f"endpoint, but metric {metric.spec.name!r} "
+                    f"({type(metric).__name__}) is not a survival metric. Use "
+                    "the survival_metric registry (c_index, "
+                    "integrated_brier_score, cumulative_dynamic_auc)."
+                )
+        time, event = survival_target(table, owner="TablePipeline.evaluate")
+        time = time.to_numpy(dtype=np.float64)
+        event = event.to_numpy(dtype=bool)
+        risk: Optional[np.ndarray] = None
+        probability: Optional[np.ndarray] = None
+        grid: Optional[np.ndarray] = None
+        results: Dict[str, float] = {}
+        for metric in metrics:
+            if metric.needs_survival_function:
+                if probability is None:
+                    # One shared grid inside the follow-up range for all
+                    # function-based metrics of this evaluation.
+                    event_times = time[event]
+                    lower = float(event_times.min()) if event_times.size else float(time.min())
+                    upper = float(time.max())
+                    step = (upper - lower) / 101
+                    grid = np.linspace(lower, upper - 0.5 * step, 100)
+                    probability = self.predict_survival_function(table, grid).to_numpy()
+                results[metric.spec.name] = metric(time, event, probability, times=grid)
+            else:
+                if risk is None:
+                    risk = self.predict(table).to_numpy()
+                results[metric.spec.name] = metric(time, event, risk)
         return results
 
     # -- persistence ----------------------------------------------------
@@ -439,13 +694,13 @@ class TablePipeline:
             "format_version": _PIPELINE_FORMAT_VERSION,
             "habit_version": _habit_version,
             "steps": [_component_record(step) for step in self._steps],
-            "classifier": _component_record(self._classifier),
+            "model": _component_record(self._model),
             "is_fitted": self._is_fitted,
             "fit_output_columns": list(self._fit_output_columns),
         }
         payload = {
             "steps": self._steps,
-            "classifier": self._classifier,
+            "model": self._model,
             "is_fitted": self._is_fitted,
             "fit_output_columns": self._fit_output_columns,
         }
@@ -499,7 +754,7 @@ class TablePipeline:
                     "pipeline."
                 )
             payload = pickle.loads(archive.read("payload.pkl"))
-        pipeline = cls(steps=payload["steps"], classifier=payload["classifier"])
+        pipeline = cls(steps=payload["steps"], model=payload["model"])
         pipeline._is_fitted = bool(payload["is_fitted"])
         pipeline._fit_output_columns = tuple(payload["fit_output_columns"])
         # Cross-check manifest against payload to catch archive corruption.

@@ -32,10 +32,20 @@ parallel eager/lazy pair.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional, Protocol, Tuple, Union, runtime_checkable
+from typing import (
+    Any,
+    Mapping,
+    Optional,
+    Protocol,
+    Tuple,
+    Union,
+    cast,
+    runtime_checkable,
+)
 
 import numpy as np
 
+from habit.exceptions import HABITAPIError
 from habit.api.image import ImageVolume as _PublicImageVolume
 from habit.api.image import MaskVolume as _PublicMaskVolume
 from habit.contracts.geometry import Geometry
@@ -46,6 +56,32 @@ __all__ = [
     "MaskVolume",
     "ArrayImageRef",
 ]
+
+
+def _check_geometry_matches_array(array: np.ndarray, geometry: Geometry) -> None:
+    """
+    Reject a geometry that does not describe the grid of ``array``.
+
+    Catching the mismatch here turns the most common axis-order mistake
+    (passing ``shape`` in SimpleITK ``(x, y, z)`` order instead of the NumPy
+    ``(z, y, x)`` order) into an explicit message at construction time,
+    rather than a wrong-but-silent volume flowing down the pipeline.
+
+    Args:
+        array: Voxel array in NumPy axis order ``(z, y, x)``.
+        geometry: Geometry expected to describe ``array``.
+
+    Raises:
+        HABITAPIError: If ``geometry.shape`` differs from ``array.shape``.
+    """
+    array_shape = tuple(int(v) for v in array.shape)
+    geometry_shape = tuple(int(v) for v in geometry.shape)
+    if array_shape != geometry_shape:
+        raise HABITAPIError(
+            f"geometry.shape {geometry_shape} does not match the array shape "
+            f"{array_shape}. Note that shape uses NumPy axis order (z, y, x) "
+            "while spacing/origin/direction use SimpleITK axis order (x, y, z)."
+        )
 
 
 @runtime_checkable
@@ -91,6 +127,53 @@ class ImageVolume(_PublicImageVolume):
         modality: Modality or sequence label, e.g. ``"T1"``, ``"delay2"``.
     """
 
+    @classmethod
+    def from_geometry(
+        cls,
+        array: np.ndarray,
+        geometry: Geometry,
+        *,
+        modality: Optional[str] = None,
+        subject_id: Optional[str] = None,
+        timepoint: Optional[str] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> "ImageVolume":
+        """
+        Build a volume from an array plus a :class:`Geometry` value.
+
+        The inherited constructor takes ``spacing`` / ``origin`` /
+        ``direction`` separately, because it is the stable public
+        ``habit.api.image`` contract. This classmethod is the contracts-layer
+        entry point for code that already holds a single ``Geometry`` object,
+        so the geometry never has to be unpacked by hand.
+
+        Args:
+            array: Voxel intensities, NumPy axis order ``(z, y, x)``.
+            geometry: Spatial definition of ``array``.
+            modality: Modality or sequence label, e.g. ``"T1"``.
+            subject_id: Optional owning subject identifier.
+            timepoint: Optional acquisition timepoint label.
+            metadata: Optional free-form acquisition attributes.
+
+        Returns:
+            The materialised volume bound to ``geometry``.
+
+        Raises:
+            HABITAPIError: If ``geometry`` does not describe ``array``.
+        """
+        values = np.asarray(array)
+        _check_geometry_matches_array(values, geometry)
+        return cls(
+            data=values,
+            spacing=tuple(geometry.spacing),
+            origin=tuple(geometry.origin),
+            direction=tuple(geometry.direction),
+            modality=modality,
+            subject_id=subject_id,
+            timepoint=timepoint,
+            metadata=metadata or {},
+        )
+
     @property
     def geometry(self) -> Geometry:
         """Return the spatial definition of this volume without copying data."""
@@ -103,7 +186,10 @@ class ImageVolume(_PublicImageVolume):
 
     def load(self) -> np.ndarray:
         """Return the already-resident voxel array (ImageRef conformance)."""
-        return self.data
+        # ``data`` is declared on the public base ``habit.api.image``, which
+        # mypy sees as ``Any`` under ``follow_imports = "skip"``; the field is
+        # a NumPy array by construction.
+        return cast(np.ndarray, self.data)
 
 
 class MaskVolume(_PublicMaskVolume):
@@ -119,6 +205,57 @@ class MaskVolume(_PublicMaskVolume):
         label_names: Optional human-readable names per label value.
     """
 
+    @classmethod
+    def from_geometry(
+        cls,
+        array: np.ndarray,
+        geometry: Geometry,
+        *,
+        roi_name: Optional[str] = None,
+        labels: Tuple[int, ...] = (),
+        label_names: Optional[Mapping[int, str]] = None,
+        subject_id: Optional[str] = None,
+        timepoint: Optional[str] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> "MaskVolume":
+        """
+        Build a mask from a label array plus a :class:`Geometry` value.
+
+        Args:
+            array: Integer labels, NumPy axis order ``(z, y, x)``; ``0``
+                denotes background.
+            geometry: Spatial definition of ``array``.
+            roi_name: Name of the delineated region, e.g. ``"tumor"``. Stored
+                in the shared ``modality`` field and exposed as
+                :attr:`roi_name`.
+            labels: Explicit non-background label values; inferred from the
+                array when empty.
+            label_names: Optional human-readable name per label value.
+            subject_id: Optional owning subject identifier.
+            timepoint: Optional acquisition timepoint label.
+            metadata: Optional free-form attributes.
+
+        Returns:
+            The materialised mask bound to ``geometry``.
+
+        Raises:
+            HABITAPIError: If ``geometry`` does not describe ``array``.
+        """
+        values = np.asarray(array)
+        _check_geometry_matches_array(values, geometry)
+        return cls(
+            data=values,
+            spacing=tuple(geometry.spacing),
+            origin=tuple(geometry.origin),
+            direction=tuple(geometry.direction),
+            modality=roi_name,
+            labels=labels,
+            label_names=label_names or {},
+            subject_id=subject_id,
+            timepoint=timepoint,
+            metadata=metadata or {},
+        )
+
     @property
     def geometry(self) -> Geometry:
         """Return the spatial definition of this mask without copying data."""
@@ -131,7 +268,7 @@ class MaskVolume(_PublicMaskVolume):
 
     def load(self) -> np.ndarray:
         """Return the already-resident label array (ImageRef conformance)."""
-        return self.data
+        return cast(np.ndarray, self.data)
 
     @property
     def roi_name(self) -> Optional[str]:
@@ -141,7 +278,7 @@ class MaskVolume(_PublicMaskVolume):
         field; the contracts layer exposes it under the domain term used by
         the ``Subject.masks`` mapping.
         """
-        return self.modality
+        return cast(Optional[str], self.modality)
 
 
 @dataclass(frozen=True)
@@ -177,10 +314,4 @@ class ArrayImageRef:
         Returns:
             The materialised volume bound to ``geometry``.
         """
-        return ImageVolume(
-            data=self.array,
-            spacing=self.geometry.spacing,
-            origin=self.geometry.origin,
-            direction=self.geometry.direction,
-            modality=modality,
-        )
+        return ImageVolume.from_geometry(self.array, self.geometry, modality=modality)

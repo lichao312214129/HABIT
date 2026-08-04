@@ -29,9 +29,8 @@ Third-party components incorporated into HABIT
    Copyright (c) lyhyl and PyTorchRadiomics contributors
    Licensed under the MIT License
 
-   The GPU feature classes in
-   habit/core/habitat_analysis/clustering_features/torchradiomics/ are vendored
-   from this project and adapted for HABIT.
+   The GPU feature classes in habit/kernels/radiomics/torchradiomics/ are
+   vendored from this project and adapted for HABIT.
 
 ---------------------------------------------------------------------------
 Runtime dependencies

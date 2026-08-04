@@ -129,17 +129,104 @@ def test_kmeans_kneedle_alias_uses_same_curve() -> None:
 
 
 @pytest.mark.unit
-def test_knee_point_degenerate_curve_falls_back_to_smallest() -> None:
-    """Flat or two-point inertia curves select the smallest candidate."""
-    counts = np.array([2.0, 3.0, 4.0])
-    flat = np.array([5.0, 5.0, 5.0])
-    assert KMeansHabitatModelFitter._knee_point(counts, flat) == 2
-    two = np.array([2.0, 3.0])
-    assert KMeansHabitatModelFitter._knee_point(two, np.array([9.0, 4.0])) == 2
-    # A clear knee at k=3: steep drop then plateau.
-    knee = np.array([10.0, 3.0, 2.2, 2.0, 1.9])
-    counts5 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-    assert KMeansHabitatModelFitter._knee_point(counts5, knee) == 3
+def test_kmeans_votes_across_several_validation_criteria() -> None:
+    """
+    A list of criteria is scored jointly and each casts one vote.
+
+    Reaching the v0.1 multi-method behaviour from the v1.0 API; the report
+    must record every criterion so the vote stays auditable.
+    """
+    units = two_cluster_units(supervoxels_per_subject=8)
+    fitter = KMeansHabitatModelFitter(
+        n_habitats=None,
+        min_habitats=2,
+        max_habitats=5,
+        validation=["silhouette", "calinski_harabasz", "kneedle"],
+        n_init=10,
+    )
+    fitter.set_random_state(7)
+    model = fitter.fit(units)
+
+    report = model.preprocessing_state["selection_report"]
+    assert report["methods"] == ["silhouette", "calinski_harabasz", "kneedle"]
+    assert report["directions"]["kneedle"] == "knee"
+    assert all(len(curve) == 4 for curve in report["scores"].values())
+    assert report["selected"] == model.n_habitats
+    assert model.preprocessing_state["validation"] == [
+        "silhouette",
+        "calinski_harabasz",
+        "kneedle",
+    ]
+
+
+@pytest.mark.unit
+def test_kmeans_gap_criterion_is_available_and_reproducible() -> None:
+    """The gap statistic is selectable and deterministic across fits."""
+    units = two_cluster_units(supervoxels_per_subject=8)
+    selections = []
+    for _ in range(2):
+        fitter = KMeansHabitatModelFitter(
+            n_habitats=None,
+            min_habitats=2,
+            max_habitats=4,
+            validation="gap",
+            n_init=10,
+        )
+        fitter.set_random_state(4)
+        model = fitter.fit(units)
+        selections.append(model.n_habitats)
+        assert model.preprocessing_state["selection_report"]["directions"] == {
+            "gap": "maximize"
+        }
+    assert selections[0] == selections[1]
+
+
+@pytest.mark.unit
+def test_gmm_supports_structure_based_criteria() -> None:
+    """GMM selection accepts silhouette alongside the information criteria."""
+    units = two_cluster_units(supervoxels_per_subject=8)
+    fitter = GmmHabitatModelFitter(
+        n_habitats=None,
+        min_habitats=2,
+        max_habitats=4,
+        validation=["bic", "silhouette"],
+        max_iter=50,
+    )
+    fitter.set_random_state(2)
+    model = fitter.fit(units)
+    report = model.preprocessing_state["selection_report"]
+    assert report["methods"] == ["bic", "silhouette"]
+    assert report["directions"] == {"bic": "minimize", "silhouette": "maximize"}
+    assert report["selected"] == model.n_habitats
+
+
+@pytest.mark.unit
+def test_kmeans_selection_uses_the_shared_kernel_rule() -> None:
+    """
+    The fitter delegates knee detection to the shared selection kernel.
+
+    Guards the v1.0 convergence: the fitter must not carry a private rule
+    that could pick a different habitat count than the v0.1 path.
+    """
+    from habit.kernels.cluster_selection import knee_index
+
+    units = two_cluster_units(supervoxels_per_subject=8)
+    fitter = KMeansHabitatModelFitter(
+        n_habitats=None,
+        min_habitats=2,
+        max_habitats=5,
+        validation="elbow",
+        n_init=10,
+    )
+    fitter.set_random_state(11)
+    model = fitter.fit(units)
+
+    report = model.preprocessing_state["selection_report"]
+    curve = report["scores"]["elbow"]
+    assert report["candidates"] == [2, 3, 4, 5]
+    assert report["directions"] == {"elbow": "knee"}
+    assert report["selected"] == model.n_habitats
+    assert report["candidates"][knee_index(curve)] == model.n_habitats
 
 
 @pytest.mark.unit
@@ -166,9 +253,15 @@ def test_fitter_validation_errors() -> None:
     with pytest.raises(HABITAPIError):
         KMeansHabitatModelFitter(n_habitats=None, min_habitats=5, max_habitats=5)
     with pytest.raises(HABITAPIError):
-        GmmHabitatModelFitter(validation="silhouette")
+        GmmHabitatModelFitter(validation="inertia")
     with pytest.raises(HABITAPIError):
         GmmHabitatModelFitter(covariance_type="diagonal")
+    # An empty criterion list must fail rather than fall back to a default.
+    with pytest.raises(HABITAPIError):
+        KMeansHabitatModelFitter(validation=[])
+    # One unsupported name spoils the whole vote.
+    with pytest.raises(HABITAPIError):
+        KMeansHabitatModelFitter(validation=["silhouette", "adjusted_rand"])
 
 
 @pytest.mark.unit

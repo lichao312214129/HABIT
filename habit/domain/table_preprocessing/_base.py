@@ -20,7 +20,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.table import FeatureTable
 from habit.spec.specs import Spec
@@ -121,6 +121,6 @@ def replace_feature_values(
         frame=frame,
         id_columns=table.id_columns,
         feature_columns=feature_columns,
-        outcome_column=table.outcome_column,
+        outcome=table.outcome,
         provenance=provenance,
     )

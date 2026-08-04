@@ -33,7 +33,7 @@ import pandas as pd
 from pydantic import BaseModel
 
 from habit._version import __version__
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 
 __all__ = [
     "RunManifest",

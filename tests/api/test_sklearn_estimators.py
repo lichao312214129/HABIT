@@ -267,7 +267,7 @@ def test_dicom_habitat_and_ml_runners_delegate_to_core() -> None:
         habit.run_ml(config, logger=logger, output_dir="ml-output")
         habit.run_kfold(config, logger=logger, output_dir="kfold-output")
 
-    dicom_run.assert_called_once_with(config)
+    dicom_run.assert_called_once_with(config, logger=None)
     habitat_run.assert_called_once_with(config, logger=logger)
     ml_run.assert_called_once_with(config, logger=logger, output_dir="ml-output")
     kfold_run.assert_called_once_with(

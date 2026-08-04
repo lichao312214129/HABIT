@@ -25,9 +25,17 @@ from sklearn.feature_selection import RFECV
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.svm import SVC, SVR
-import xgboost as xgb
+try:
+    import xgboost as xgb
+    XGBOOST_AVAILABLE = True
+except ImportError:
+    # xgboost is an optional dependency (extra 'ml'); the XGB* estimators are
+    # only registered when it is installed.
+    XGBOOST_AVAILABLE = False
+    xgb = None
 import matplotlib.pyplot as plt
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.font_config import show_or_close_figure
 from habit.utils.log_utils import get_module_logger
 logger = get_module_logger(__name__)
@@ -41,15 +49,16 @@ ESTIMATOR_MAP = {
     'RandomForestClassifier': RandomForestClassifier,
     'SVC': SVC,
     'GradientBoostingClassifier': GradientBoostingClassifier,
-    'XGBClassifier': xgb.XGBClassifier,
-    
+
     # Regression estimators
     'LinearRegression': LinearRegression,
     'RandomForestRegressor': RandomForestRegressor,
     'SVR': SVR,
     'GradientBoostingRegressor': GradientBoostingRegressor,
-    'XGBRegressor': xgb.XGBRegressor,
 }
+if XGBOOST_AVAILABLE:
+    ESTIMATOR_MAP['XGBClassifier'] = xgb.XGBClassifier
+    ESTIMATOR_MAP['XGBRegressor'] = xgb.XGBRegressor
 
 @SelectorRegistry.register('rfecv')
 def rfecv_selector(data: pd.DataFrame,
@@ -94,7 +103,12 @@ def rfecv_selector(data: pd.DataFrame,
     # Input validation
     if not isinstance(data, pd.DataFrame):
         raise TypeError("Input data must be a pandas DataFrame")
-    
+
+    if estimator.startswith('XGB') and not XGBOOST_AVAILABLE:
+        raise OptionalDependencyError(
+            f"rfecv estimator {estimator!r} requires the optional xgboost "
+            "dependency; install 'HABIT[ml]' to use it."
+        )
     if estimator not in ESTIMATOR_MAP:
         raise ValueError(f"Unsupported estimator: {estimator}. Must be one of {list(ESTIMATOR_MAP.keys())}")
     

@@ -6,7 +6,7 @@ Schema: ``ModelComparisonConfig``. Demo:
 ``config/model_comparison/config_model_comparison_demo.yaml``.
 
 Command usage: :doc:`../how_to/compare_models`. Python API:
-:doc:`../api/python_api` (Model comparison).
+:doc:`../api/python_api` and :doc:`../api/domain_table`.
 
 **Example configuration:**
 

@@ -125,12 +125,12 @@ def test_set_random_state_propagates_to_seedable_components() -> None:
 
 @pytest.mark.unit
 def test_spec_describes_every_stage() -> None:
-    """The composed spec lists the step specs and the classifier spec."""
+    """The composed spec lists the step specs and the model spec."""
     pipeline = _pipeline()
     spec = pipeline.spec
     assert spec.name == "table_pipeline"
     assert [s["name"] for s in spec.params["steps"]] == ["variance", "zscore"]
-    assert spec.params["classifier"]["name"] == "LogisticRegression"
+    assert spec.params["model"]["name"] == "LogisticRegression"
 
 
 @pytest.mark.unit

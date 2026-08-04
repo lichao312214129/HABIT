@@ -42,10 +42,10 @@ import logging
 import numpy as np
 import pandas as pd
 import SimpleITK as sitk
-from scipy import ndimage
 from typing import Union, List, Dict, Optional, Tuple
 from .base_extractor import BaseClusteringExtractor, FeatureExtractorRegistry
 from .method_param_spec import MethodParamSpec
+from habit.kernels.voxel_texture import local_entropy_map
 from habit.utils.progress_utils import CustomTqdm
 
 @FeatureExtractorRegistry.register('local_entropy')
@@ -78,71 +78,32 @@ class LocalEntropyExtractor(BaseClusteringExtractor):
     
     def _calculate_entropy(self, image_array: np.ndarray, mask_array: np.ndarray) -> np.ndarray:
         """
-        Calculate local entropy for each voxel using scipy.ndimage for faster processing
-        
+        Calculate local entropy for each voxel inside the mask.
+
+        The entropy map itself comes from
+        :func:`habit.kernels.voxel_texture.local_entropy_map`, shared with the
+        v1.0 domain extractor so both paths produce identical values.
+
         Args:
             image_array: 3D image array
             mask_array: 3D mask array
-            
+
         Returns:
             np.ndarray: Local entropy values for each voxel in the mask
         """
-        # Create progress bar for tracking
-        pbar = CustomTqdm(total=4, desc="Calculating local entropy")
-        
-        # Normalize image to [0, 1] for entropy calculation
-        img_min = np.min(image_array)
-        img_max = np.max(image_array)
-        if img_max > img_min:
-            norm_image = (image_array - img_min) / (img_max - img_min)
-        else:
-            # Handle constant image case
-            norm_image = np.zeros_like(image_array)
+        pbar = CustomTqdm(total=2, desc="Calculating local entropy")
+
+        entropy_map = local_entropy_map(
+            image_array,
+            kernel_size=self.kernel_size,
+            bins=self.bins,
+        )
         pbar.update(1)
-        
-        # Define kernel size (must be odd)
-        if self.kernel_size % 2 == 0:
-            kernel_size = self.kernel_size + 1
-        else:
-            kernel_size = self.kernel_size
-            
-        # Create a footprint for the local neighborhood
-        footprint = np.ones((kernel_size, kernel_size, kernel_size))
-        
-        # Calculate entropy for the entire image using scipy.ndimage
-        # First discretize the image into bins
-        binned_image = np.round(norm_image * (self.bins - 1)).astype(int)
-        pbar.update(1)
-        
-        # Initialize entropy map
-        entropy_map = np.zeros_like(norm_image, dtype=float)
-        
-        # For each possible value in the binned image
-        for i in range(self.bins):
-            # Create a binary map for this bin value
-            bin_map = (binned_image == i).astype(float)
-            
-            # Count occurrences of this value in each neighborhood
-            count_map = ndimage.convolve(bin_map, footprint, mode='constant', cval=0.0)
-            
-            # Calculate probability (avoid division by zero)
-            total_voxels = kernel_size**3  # Total voxels in the neighborhood
-            prob_map = count_map / total_voxels
-            
-            # Update entropy map (handling zeros to avoid log(0))
-            with np.errstate(divide='ignore', invalid='ignore'):
-                entropy_update = -prob_map * np.log2(prob_map)
-                entropy_update[~np.isfinite(entropy_update)] = 0
-                entropy_map += entropy_update
-        
-        pbar.update(1)
-        
-        # Extract entropy values for mask voxels
+
         mask_coords = np.where(mask_array > 0)
         entropy_values = entropy_map[mask_coords]
-        
         pbar.update(1)
-        
+
         return entropy_values
         
     def extract_features(self, image_data: Union[str, sitk.Image],
