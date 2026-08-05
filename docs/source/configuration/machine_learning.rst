@@ -271,6 +271,23 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 - **Type**: list
 - **Default**: ``[]`` (empty list = no feature selection step)
 - **Description**: sequential feature selection steps; each method has specific parameters.
+
+- **Pipeline position** (``before_z_score``): each entry accepts an optional
+  ``before_z_score`` boolean in ``params``. ``true`` runs that selector on
+  the **raw** table before normalization; ``false`` (default) runs it after.
+  The ``variance`` selector defaults to ``true`` because z-scoring makes
+  every feature's variance 1.0, so variance ranking is only meaningful on
+  the raw table.
+
+  .. note::
+
+     **v1 API equivalent**: v0 entries flagged ``before_z_score: true``
+     (including the ``variance`` selector's registry default) translate
+     losslessly into ``MLSpec.pre_preprocessing_feature_selectors`` -- an
+     ordered chain fitted on the raw training table before any
+     preprocessing. Preprocessors then fit on the selected training
+     features, exactly as the v0.1 two-stage pipeline did. The v1
+     translation no longer emits a reordering warning for these entries.
 - **Methods and parameters**:
 
 **variance (variance threshold)**:
