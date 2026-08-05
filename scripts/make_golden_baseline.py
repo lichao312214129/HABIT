@@ -346,12 +346,16 @@ ORDER_INSENSITIVE_JSON_LEAVES: Tuple[str, ...] = (
 #: JSON leaves that record wall-clock time, ephemeral ids, or absolute paths.
 #: They are reproducible in structure but not in value across runs or scratch
 #: directories, so they are omitted from golden fingerprints and comparisons.
+#: ``git_commit`` is provenance metadata: every commit after baseline
+#: generation would otherwise read as spurious "drift" (the dedicated
+#: top-level ``environment.git_commit`` still records the baseline's origin).
 VOLATILE_JSON_LEAF_NAMES: Tuple[str, ...] = (
     "started_at",
     "finished_at",
     "created_at",
     "run_id",
     "config_hash",
+    "git_commit",
 )
 VOLATILE_JSON_LEAF_PATHS: Tuple[str, ...] = (
     "resolved_config.out_dir",

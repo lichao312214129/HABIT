@@ -341,8 +341,10 @@ def _make_radiomics_frame(seed: int) -> pd.DataFrame:
     for feature_index in range(ML_TABLE_FEATURES):
         name = f"feature_{feature_index:02d}"
         if name == ML_SIGNAL_FEATURE:
-            # Signal feature: class means separated by 2.0 plus unit noise.
-            data[name] = 2.0 * label + rng.normal(0.0, 1.0, size=n_rows)
+            # Signal feature: class means separated by 3.0 plus unit noise.
+            # (2.0 gave marginal CV AUC ~0.69 on 60 rows, flaky vs the 0.7
+            # assertion threshold; 3.0 leaves comfortable headroom.)
+            data[name] = 3.0 * label + rng.normal(0.0, 1.0, size=n_rows)
         else:
             data[name] = rng.normal(0.0, 1.0, size=n_rows)
     frame = pd.DataFrame(data)

@@ -533,7 +533,15 @@ def _discover_habitat_configs() -> list:
 def test_bundled_habitat_config_translates_and_validates(config_path: Path) -> None:
     """Every bundled habitat config yields a valid v1 document."""
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    assert detect_yaml_version(payload) == "v0"
+
+    if detect_yaml_version(payload) == "v1":
+        # Native v1 documents (e.g. config_habitat_two_step_v1.yaml) need no
+        # translation; they must validate and parse directly.
+        validate_v1_document(payload)
+        if payload.get("mode", "train") != "predict":
+            HabitatSpec.from_dict(payload["spec"])
+            RunPolicy.from_dict(payload["policy"])
+        return
 
     translation = LegacyConfigAdapter().translate(payload, "habitat")
     document = translation.document

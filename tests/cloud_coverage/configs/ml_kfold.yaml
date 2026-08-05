@@ -32,10 +32,12 @@ feature_selection_methods:
       method: spearman
       visualize: true
       before_z_score: false
+  # See ml_train_a.yaml: v1 z-scores before selection, so top_k on
+  # standardized variances is arbitrary; threshold: 0.0 keeps every
+  # nonzero-variance feature (the planted signal survives).
   - method: variance
     params:
-      before_z_score: true
-      top_k: 10
+      threshold: 0.0
       plot_variances: true
 
 # NOTE: the v1 `habit cv` path fits ONE classifier per run (the v1 MLSpec

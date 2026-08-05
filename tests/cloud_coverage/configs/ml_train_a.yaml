@@ -20,10 +20,14 @@ normalization:
   method: z_score
 
 feature_selection_methods:
+  # NOTE: v1 always z-scores BEFORE selection (v0's before_z_score: true is
+  # not expressible; see LegacyConfigAdapter warning). After z-scoring every
+  # feature has variance ~1.0, so top_k would pick an arbitrary subset and
+  # could drop the planted signal feature. threshold: 0.0 keeps all
+  # nonzero-variance features while still exercising the selector path.
   - method: variance
     params:
-      before_z_score: true
-      top_k: 10
+      threshold: 0.0
       plot_variances: false
 
 is_visualize: true

@@ -179,8 +179,12 @@ def write_synthetic_demo_dataset(
         Absolute path to the cohort root that was written or already present.
     """
     data_root = (DEFAULT_DATA_ROOT if root is None else Path(root)).resolve()
-    marker = data_root / "images" / SUBJECT_IDS[0] / MODALITIES[0] / "image.nrrd"
-    if marker.is_file() and not overwrite:
+    # Guard against clobbering a pre-existing dataset: the real demo data
+    # lives at this path on developer machines with different filenames
+    # (e.g. delay2.nii.gz), so key on "subject dir already has any data
+    # files", not on the specific synthetic filenames.
+    subject_dir = data_root / "images" / SUBJECT_IDS[0]
+    if not overwrite and subject_dir.is_dir() and any(subject_dir.rglob("*.*")):
         return data_root
 
     for index, subject_id in enumerate(SUBJECT_IDS):

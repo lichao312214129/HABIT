@@ -32,7 +32,7 @@ import pytest
 import SimpleITK as sitk
 from click.testing import CliRunner
 
-from tests.cloud_coverage.conftest import RenderedConfig, run_cli
+from tests.cloud_coverage.conftest import REPO_ROOT, RenderedConfig, run_cli
 from tests.fixtures.synthetic_data import SyntheticTree
 
 def _output_images(out_dir: Path) -> list:
@@ -79,14 +79,18 @@ def test_preprocess_resample_zscore(synthetic_tree: SyntheticTree, render_config
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    shutil.which("elastix") is None
-    and not Path("/workspace/tools/bin/elastix").exists(),
-    reason="elastix binary unavailable on this Linux image (only tools/bin/elastix.exe ships; elastix is on the do-not-install list)",
+    (shutil.which("elastix") is None
+     and not Path("/workspace/tools/bin/elastix").exists())
+    or not (REPO_ROOT / "demo_data" / "Par0040affine.txt").is_file(),
+    reason="elastix binary or demo_data/Par0040affine.txt parameter file unavailable",
 )
 def test_preprocess_elastix_registration(synthetic_tree: SyntheticTree, render_config) -> None:
     """Elastix registration variant (runs only when an elastix binary exists)."""
     rendered: RenderedConfig = render_config(
-        "preprocess_registration.yaml", "preprocess_registration", synthetic_tree
+        "preprocess_registration.yaml",
+        "preprocess_registration",
+        synthetic_tree,
+        {"@PAR_FILE@": (REPO_ROOT / "demo_data" / "Par0040affine.txt").as_posix()},
     )
     run_cli(CliRunner(), ["preprocess", "-c", str(rendered.path)])
     assert _output_images(rendered.out_dir)

@@ -18,10 +18,11 @@ normalization:
   method: z_score
 
 feature_selection_methods:
+  # See ml_train_a.yaml: v1 z-scores before selection; threshold keeps all
+  # nonzero-variance features so the planted signal is never dropped.
   - method: variance
     params:
-      before_z_score: true
-      top_k: 10
+      threshold: 0.0
       plot_variances: false
 
 models:
