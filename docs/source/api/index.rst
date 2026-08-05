@@ -1,19 +1,928 @@
-Python API (v1.0)
-=================
+API Reference
+=============
 
-HABIT v1.0 is **API-first**. The documented surface is the layered core:
+HABIT v1.0 is **API-first**: the Python API is the product, and the CLI,
+YAML configuration files, and GUI are thin shells over the objects documented
+here. The layered core is:
 
-``contracts`` → ``domain`` → ``spec`` / ``execution`` → ``kernels`` / ``compat``.
+``kernels`` → ``contracts`` → ``domain`` → ``spec`` / ``execution`` /
+``adapters`` → ``recipes``
 
-CLI and YAML are thin shells over the same objects. The former ``run_*`` /
-clinical-facade documentation from v0.1 is **retired** from this section.
+Every symbol listed on this page is importable either from the top-level
+package (``from habit import two_step``) or from its canonical subpackage
+(``from habit.recipes import two_step``); both names refer to the same object.
+The declarative registry of the stable surface lives in
+``habit/_public_api.py``.
+
+**Stability.** Symbols listed here follow semantic versioning within v1.x:
+they may gain optional parameters but will not be removed or renamed without
+a deprecation cycle. Anything not listed here is internal and may change
+without notice.
+
+.. rubric:: Contents
+
+* :ref:`api-recipes`
+* :ref:`api-contracts`
+* :ref:`api-spec`
+* :ref:`api-domain`
+* :ref:`api-execution`
+* :ref:`api-adapters`
+* :ref:`api-datasets`
+* :ref:`api-registry`
+* :ref:`api-kernels`
+* :ref:`api-compat`
+* :ref:`api-viz`
+* :ref:`api-exceptions`
+* :ref:`api-v01-facade`
+* :ref:`api-guides`
+
+.. _api-recipes:
+
+Study recipes (``habit.recipes``)
+---------------------------------
+
+Recipes are the named study designs — the highest level of the library. Each
+takes a :class:`~habit.contracts.Cohort` (or a
+:class:`~habit.contracts.FeatureTable` for machine learning) plus a spec, and
+returns a typed result object. See :doc:`python_api` for a narrative
+walkthrough.
+
+Habitat analysis
+~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.two_step
+   habit.recipes.one_step
+   habit.recipes.direct_pooling
+   habit.recipes.two_step_habitat
+   habit.recipes.one_step_habitat
+   habit.recipes.direct_pooling_habitat
+   habit.recipes.apply_habitat_model
+
+Machine learning
+~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.train_model
+   habit.recipes.cross_validate
+   habit.recipes.predict_model
+   habit.recipes.compare_models
+   habit.recipes.pairwise_delong_test
+
+Feature extraction (config-driven)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.extract_habitat_features
+   habit.recipes.traditional_radiomics
+
+Study utilities
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.run_from_yaml
+   habit.recipes.preprocess_images
+   habit.recipes.icc_analysis
+   habit.recipes.test_retest_analysis
+   habit.recipes.sort_dicom
+   habit.recipes.dice
+   habit.recipes.dicom_info
+   habit.recipes.merge_tables
+
+Recipe result types
+~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.Study
+   habit.recipes.StudyResult
+   habit.recipes.ModelResult
+   habit.recipes.CVResult
+   habit.recipes.PredictionResult
+
+.. _api-contracts:
+
+Data contracts (``habit.contracts``)
+------------------------------------
+
+The in-memory data model. Contracts are plain value objects with no IO and no
+YAML knowledge; adapters and recipes move them to and from disk. See
+:doc:`data_model` for the narrative guide.
+
+Imaging
+~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.contracts.Geometry
+   habit.contracts.ImageRef
+   habit.contracts.ArrayImageRef
+   habit.contracts.ImageVolume
+   habit.contracts.MaskVolume
+   habit.contracts.Subject
+   habit.contracts.Cohort
+   habit.contracts.CohortFingerprint
+   habit.contracts.cohort_from_directory
+
+Provenance
+~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.contracts.Provenance
+   habit.contracts.RunManifest
+   habit.contracts.software_fingerprint
+
+Habitat artefacts
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.contracts.VoxelFeatureField
+   habit.contracts.Supervoxelization
+   habit.contracts.HabitatMap
+   habit.contracts.HabitatModel
+
+Tables and outcomes
+~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.contracts.FeatureTable
+   habit.contracts.Outcome
+   habit.contracts.BinaryOutcome
+   habit.contracts.MulticlassOutcome
+   habit.contracts.ContinuousOutcome
+   habit.contracts.SurvivalOutcome
+   habit.contracts.outcome_from_dict
+   habit.contracts.outcome_to_dict
+
+Operator protocols
+~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.contracts.SubjectOperator
+   habit.contracts.CohortOperator
+   habit.contracts.SubjectResult
+   habit.contracts.ExecutionBackend
+   habit.contracts.DataSource
+   habit.contracts.ResultWriter
+
+.. _api-spec:
+
+Specifications (``habit.spec``)
+-------------------------------
+
+Specs are frozen, fingerprintable value objects describing *what* to run.
+They are the in-Python counterpart of the YAML configuration files. See
+:doc:`spec` for the narrative guide and YAML migration walkthrough.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.spec.Spec
+   habit.spec.HabitatSpec
+   habit.spec.MLSpec
+   habit.spec.RunPolicy
+
+Serialisation
+~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.spec.load_habitat_spec
+   habit.spec.save_habitat_spec
+   habit.spec.load_run_policy
+   habit.spec.save_run_policy
+
+YAML migration (v0.1 → v1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.spec.LegacyConfigAdapter
+   habit.spec.LegacyTranslation
+   habit.spec.MigrationReport
+   habit.spec.detect_yaml_version
+   habit.spec.migrate_yaml
+   habit.spec.validate_v1_document
+
+.. _api-domain:
+
+Domain components (``habit.domain``)
+------------------------------------
+
+The pluggable operator surface. Every component is constructed either
+directly (``SlicSupervoxelizer(n_supervoxels=50)``) or by name through its
+registry (``SupervoxelizerRegistry.create("slic", ...)``). Importing
+``habit.domain`` registers the built-ins listed here. See :doc:`domain` for
+the narrative overview, :doc:`domain_habitat` and :doc:`domain_table` for the
+two pipeline families, and :doc:`plugins` for runtime introspection.
+
+Pipelines
+~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.SubjectPipeline
+   habit.domain.TablePipeline
+
+Habitat protocols
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.VoxelFeatureExtractor
+   habit.domain.Supervoxelizer
+   habit.domain.SupervoxelFeatureExtractor
+   habit.domain.HabitatModelFitter
+   habit.domain.HabitatAssigner
+   habit.domain.HabitatFeatureExtractor
+   habit.domain.Seedable
+
+Voxel feature extractors
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.RawVoxelFeatures
+   habit.domain.RawVoxelFeaturesParams
+
+Supervoxelizers
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.SlicSupervoxelizer
+   habit.domain.SlicSupervoxelizerParams
+   habit.domain.KMeansSupervoxelizer
+   habit.domain.KMeansSupervoxelizerParams
+   habit.domain.GmmSupervoxelizer
+   habit.domain.GmmSupervoxelizerParams
+
+Supervoxel feature extractors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.MeanVoxelFeatures
+   habit.domain.MeanVoxelFeaturesParams
+   habit.domain.SupervoxelRadiomicsFeatures
+   habit.domain.SupervoxelRadiomicsFeaturesParams
+
+Habitat model fitters
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.KMeansHabitatModelFitter
+   habit.domain.KMeansHabitatModelFitterParams
+   habit.domain.GmmHabitatModelFitter
+   habit.domain.GmmHabitatModelFitterParams
+
+Habitat assigners
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.NearestCentroidAssigner
+   habit.domain.NearestCentroidAssignerParams
+
+Habitat feature extractors
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.HabitatVolumeFeatures
+   habit.domain.HabitatVolumeFeaturesParams
+   habit.domain.IthHabitatFeatures
+   habit.domain.IthHabitatFeaturesParams
+   habit.domain.MsiHabitatFeatures
+   habit.domain.MsiHabitatFeaturesParams
+   habit.domain.NonRadiomicsHabitatFeatures
+   habit.domain.NonRadiomicsHabitatFeaturesParams
+   habit.domain.EachHabitatRadiomicsFeatures
+   habit.domain.EachHabitatRadiomicsFeaturesParams
+   habit.domain.WholeHabitatRadiomicsFeatures
+   habit.domain.WholeHabitatRadiomicsFeaturesParams
+   habit.domain.TraditionalRadiomicsHabitatFeatures
+   habit.domain.TraditionalRadiomicsHabitatFeaturesParams
+
+Voxel-feature preprocessing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Subject-level preprocessing of voxel feature matrices, composable into
+chains.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.SubjectFeaturePreprocessor
+   habit.domain.CohortFeaturePreprocessor
+   habit.domain.SubjectPreprocessingChain
+   habit.domain.CohortPreprocessingChain
+   habit.domain.build_methods
+   habit.domain.ZScoreScaling
+   habit.domain.ZScoreScalingParams
+   habit.domain.MinMaxScaling
+   habit.domain.MinMaxScalingParams
+   habit.domain.RobustScaling
+   habit.domain.RobustScalingParams
+   habit.domain.Winsorizing
+   habit.domain.WinsorizingParams
+   habit.domain.LogTransform
+   habit.domain.LogTransformParams
+   habit.domain.Binning
+   habit.domain.BinningParams
+   habit.domain.Impute
+   habit.domain.ImputeParams
+   habit.domain.VarianceFilter
+   habit.domain.VarianceFilterParams
+   habit.domain.CorrelationFilter
+   habit.domain.CorrelationFilterParams
+
+Table protocols
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.TablePreprocessor
+   habit.domain.FeatureSelector
+   habit.domain.Classifier
+   habit.domain.Metric
+
+Table preprocessors
+~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.ZScorePreprocessor
+   habit.domain.ZScorePreprocessorParams
+   habit.domain.MinMaxPreprocessor
+   habit.domain.MinMaxPreprocessorParams
+   habit.domain.RobustPreprocessor
+   habit.domain.RobustPreprocessorParams
+   habit.domain.WinsorizePreprocessor
+   habit.domain.WinsorizePreprocessorParams
+   habit.domain.LogPreprocessor
+   habit.domain.LogPreprocessorParams
+   habit.domain.BinningPreprocessor
+   habit.domain.BinningPreprocessorParams
+   habit.domain.VarianceFilterPreprocessor
+   habit.domain.VarianceFilterPreprocessorParams
+   habit.domain.CorrelationFilterPreprocessor
+   habit.domain.CorrelationFilterPreprocessorParams
+
+Feature selectors
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.VarianceSelector
+   habit.domain.VarianceSelectorParams
+   habit.domain.CorrelationSelector
+   habit.domain.CorrelationSelectorParams
+   habit.domain.AnovaSelector
+   habit.domain.AnovaSelectorParams
+   habit.domain.Chi2Selector
+   habit.domain.Chi2SelectorParams
+   habit.domain.IccSelector
+   habit.domain.IccSelectorParams
+   habit.domain.LassoSelector
+   habit.domain.LassoSelectorParams
+   habit.domain.MrmrSelector
+   habit.domain.MrmrSelectorParams
+   habit.domain.RfecvSelector
+   habit.domain.RfecvSelectorParams
+   habit.domain.StatisticalTestSelector
+   habit.domain.StatisticalTestSelectorParams
+   habit.domain.StepwiseSelector
+   habit.domain.StepwiseSelectorParams
+   habit.domain.UnivariateLogisticSelector
+   habit.domain.UnivariateLogisticSelectorParams
+   habit.domain.VifSelector
+   habit.domain.VifSelectorParams
+
+Classifiers
+~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.LogisticRegressionClassifier
+   habit.domain.LogisticRegressionClassifierParams
+   habit.domain.SvmClassifier
+   habit.domain.SvmClassifierParams
+   habit.domain.SvcClassifier
+   habit.domain.SvcClassifierParams
+   habit.domain.RandomForestClassifier
+   habit.domain.RandomForestClassifierParams
+   habit.domain.GradientBoostingClassifier
+   habit.domain.GradientBoostingClassifierParams
+   habit.domain.AdaboostClassifier
+   habit.domain.AdaboostClassifierParams
+   habit.domain.DecisionTreeClassifier
+   habit.domain.DecisionTreeClassifierParams
+   habit.domain.KnnClassifier
+   habit.domain.KnnClassifierParams
+   habit.domain.MlpClassifier
+   habit.domain.MlpClassifierParams
+   habit.domain.GaussianNbClassifier
+   habit.domain.GaussianNbClassifierParams
+   habit.domain.BernoulliNbClassifier
+   habit.domain.BernoulliNbClassifierParams
+   habit.domain.MultinomialNbClassifier
+   habit.domain.MultinomialNbClassifierParams
+   habit.domain.XgboostClassifier
+   habit.domain.XgboostClassifierParams
+   habit.domain.AutogluonTabularClassifier
+   habit.domain.AutogluonTabularClassifierParams
+
+Metrics
+~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.AccuracyMetric
+   habit.domain.AccuracyMetricParams
+   habit.domain.AucMetric
+   habit.domain.AucMetricParams
+   habit.domain.F1ScoreMetric
+   habit.domain.F1ScoreMetricParams
+   habit.domain.SensitivityMetric
+   habit.domain.SensitivityMetricParams
+   habit.domain.SpecificityMetric
+   habit.domain.SpecificityMetricParams
+   habit.domain.PpvMetric
+   habit.domain.PpvMetricParams
+   habit.domain.NpvMetric
+   habit.domain.NpvMetricParams
+   habit.domain.HosmerLemeshowPValueMetric
+   habit.domain.HosmerLemeshowPValueMetricParams
+   habit.domain.SpiegelhalterZPValueMetric
+   habit.domain.SpiegelhalterZPValueMetricParams
+
+Evaluation statistics
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.auc_confidence_interval
+   habit.domain.calibration_tests
+   habit.domain.delong_test
+   habit.domain.icc_analysis
+   habit.domain.repeat_measurement_matrix
+   habit.domain.AucConfidenceInterval
+   habit.domain.CalibrationResult
+   habit.domain.DelongResult
+
+Component registries
+~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.VoxelFeatureExtractorRegistry
+   habit.domain.SupervoxelizerRegistry
+   habit.domain.SupervoxelFeatureExtractorRegistry
+   habit.domain.HabitatModelFitterRegistry
+   habit.domain.HabitatAssignerRegistry
+   habit.domain.HabitatFeatureExtractorRegistry
+   habit.domain.FeaturePreprocessingMethodRegistry
+   habit.domain.TablePreprocessorRegistry
+   habit.domain.FeatureSelectorRegistry
+   habit.domain.ClassifierRegistry
+   habit.domain.MetricRegistry
+
+.. _api-execution:
+
+Execution (``habit.execution``)
+-------------------------------
+
+Execution backends control how subject-level operators are mapped over a
+cohort: serially, in a process pool, with per-subject timeouts and
+checkpoint/resume. See :doc:`execution`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.execution.SerialBackend
+   habit.execution.ProcessPoolBackend
+   habit.execution.SubjectTimeoutError
+   habit.execution.CheckpointStore
+
+.. _api-adapters:
+
+Adapters (``habit.adapters``)
+-----------------------------
+
+Adapters connect the contracts to the filesystem: directory conventions for
+cohorts, lazy file-backed image references, and result writers. See
+:doc:`adapters` and :doc:`image_io`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.adapters.DirectoryDataSource
+   habit.adapters.DirectoryResultWriter
+   habit.adapters.FileImageRef
+
+.. _api-datasets:
+
+Datasets (``habit.datasets``)
+-----------------------------
+
+Deterministic synthetic data for tutorials, tests, and API exploration. All
+generators take an explicit seed and never touch the network or disk.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.datasets.make_synthetic_cohort
+   habit.datasets.make_synthetic_feature_table
+
+.. _api-registry:
+
+Component registry (``habit.registry``)
+---------------------------------------
+
+The generic name → component mapping underlying every domain registry. See
+:doc:`registry`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.registry.ComponentRegistry
+
+.. _api-kernels:
+
+Numeric kernels (``habit.kernels``)
+-----------------------------------
+
+Pure NumPy/SciPy functions — no ``Subject``, no YAML, no IO. Call them the
+way you would call a SciPy function. See :doc:`kernels`.
+
+Model selection
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.kernels.score_direction
+   habit.kernels.knee_index
+   habit.kernels.best_index
+   habit.kernels.vote_best_index
+   habit.kernels.gap_statistic
+
+The four selection-rule constants are documented at their canonical defining
+module: module-level data does not carry a runtime docstring, so autodoc can
+only pick up their documentation there.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.kernels.cluster_selection.SCORE_DIRECTIONS
+   habit.kernels.cluster_selection.MAXIMIZE
+   habit.kernels.cluster_selection.MINIMIZE
+   habit.kernels.cluster_selection.KNEE
+
+Habitat metrics
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.kernels.local_entropy_map
+   habit.kernels.spatial_interaction_matrix
+   habit.kernels.msi_features_from_matrix
+   habit.kernels.habitat_volume_fractions
+   habit.kernels.habitat_region_stats
+   habit.kernels.ith_score
+
+Classification and agreement statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.kernels.compute_midrank
+   habit.kernels.fast_delong
+   habit.kernels.delong_roc_variance
+   habit.kernels.delong_roc_test
+   habit.kernels.delong_roc_ci
+   habit.kernels.hosmer_lemeshow_test
+   habit.kernels.spiegelhalter_z_test
+   habit.kernels.two_way_mean_squares
+   habit.kernels.icc3_1
+   habit.kernels.icc2_1
+
+.. _api-compat:
+
+Ecosystem compatibility (``habit.compat``)
+------------------------------------------
+
+Adapters to neighbouring ecosystems. The factory functions are top-level
+exports; the generated estimator classes stay namespaced. See :doc:`compat`.
+
+scikit-learn
+~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.compat.sklearn.as_estimator
+   habit.compat.sklearn.as_transformer
+   habit.compat.sklearn.as_classifier
+   habit.compat.sklearn.HabitatFeaturesEstimator
+   habit.compat.sklearn.TableClassifierEstimator
+   habit.compat.sklearn.TableTransformerEstimator
+
+MONAI
+~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.compat.monai.to_monai_dict
+   habit.compat.monai.from_monai_dict
+   habit.compat.monai.AsMonaiDict
+   habit.compat.monai.FromMonaiDict
+   habit.compat.monai.AsDictTransform
+
+nnU-Net
+~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.compat.nnunet.NnUNetDataSource
+
+.. _api-viz:
+
+Visualization (``habit.viz``)
+-----------------------------
+
+Publication figures. ``matplotlib`` is imported lazily inside each function,
+so importing ``habit`` never pulls a plotting backend. All figure labels are
+English-only.
+
+Styles
+~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.viz.StyleSpec
+   habit.viz.use_style
+   habit.viz.get_style
+   habit.viz.register_style
+   habit.viz.available_styles
+   habit.viz.sanitize_label
+
+Survival
+~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.viz.plot_kaplan_meier
+   habit.viz.plot_risk_triptych
+   habit.viz.plot_time_dependent_auc
+   habit.viz.plot_survival_calibration
+   habit.viz.plot_brier_curve
+   habit.viz.plot_cox_forest
+
+Regression and classification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.viz.plot_predicted_vs_observed
+   habit.viz.plot_residuals
+   habit.viz.plot_residual_qq
+   habit.viz.plot_bland_altman
+   habit.viz.plot_coefficient_forest
+
+Habitat clustering
+~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.viz.plot_habitat_clustering_pca_2d
+   habit.viz.plot_habitat_clustering_pca_3d
+   habit.viz.plot_habitat_clustering_pca_3d_interactive
+
+.. _api-exceptions:
+
+Exceptions (``habit.exceptions``)
+---------------------------------
+
+The canonical exception hierarchy. ``habit.api.exceptions`` remains as a
+backward-compatible facade. See :doc:`exceptions`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.exceptions.HabitError
+   habit.exceptions.HABITAPIError
+   habit.exceptions.ConfigurationError
+   habit.exceptions.DataFormatError
+   habit.exceptions.GeometryError
+   habit.exceptions.OptionalDependencyError
+   habit.exceptions.ComponentNotFoundError
+   habit.exceptions.CompatibilityError
+   habit.exceptions.ProcessingError
+   habit.exceptions.NotFittedError
+
+.. _api-v01-facade:
+
+v0.1 configuration-object API (``habit.api.*``)
+-----------------------------------------------
+
+The v0.1 facade: configuration dataclasses plus ``run_*`` entry points that
+mirror the CLI flags one-to-one. These symbols remain **stable and
+supported** — the CLI is implemented on top of them — but new library code
+should prefer the recipes, contracts, and domain components above. Note that
+``habit.api.image.ImageVolume`` / ``MaskVolume`` and
+``habit.api.provenance.RunManifest`` are the v0.1 types, distinct from the
+v1 contracts of the same name documented under :ref:`api-contracts`.
+
+Image and geometry
+~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.image.GeometryPolicy
+   habit.api.image.GeometryReport
+   habit.api.image.ImageVolume
+   habit.api.image.MaskVolume
+   habit.api.image.ImageMaskPair
+   habit.api.image.read_image
+   habit.api.image.read_mask
+   habit.api.image.validate_geometry
+   habit.api.image.align_image_mask
+
+Radiomics
+~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.radiomics.FeatureResult
+   habit.api.radiomics.FeatureTableResult
+   habit.api.radiomics.extract_features
+   habit.api.radiomics.extract_batch
+
+Clinical facade
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.clinical.ClinicalCohort
+   habit.api.clinical.PreparedCohort
+   habit.api.clinical.HabitatResult
+   habit.api.clinical.ClinicalPreprocessor
+   habit.api.clinical.HabitatSegmenter
+
+Habitat and feature-extraction workflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.habitat.HabitatAnalysisConfig
+   habit.api.habitat.FeatureExtractionConfig
+   habit.api.habitat.RadiomicsConfig
+   habit.api.habitat.run_habitat_analysis
+   habit.api.habitat.run_feature_extraction
+   habit.api.habitat.run_radiomics
+   habit.api.habitat.apply_habitat_cli_overrides
+   habit.api.habitat.build_feature_extraction_config
+   habit.api.habitat.load_feature_extraction_config
+
+Machine-learning workflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.machine_learning.MLConfig
+   habit.api.machine_learning.ModelComparisonConfig
+   habit.api.machine_learning.run_ml
+   habit.api.machine_learning.run_kfold
+   habit.api.machine_learning.run_model_comparison
+   habit.api.machine_learning.apply_ml_mode_override
+
+Analysis workflows
+~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.analysis.ICCConfig
+   habit.api.analysis.TestRetestConfig
+   habit.api.analysis.run_icc_analysis
+   habit.api.analysis.run_test_retest_analysis
+
+Preprocessing and DICOM utilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.preprocessing.PreprocessingConfig
+   habit.api.preprocessing.run_preprocess
+   habit.api.dicom_sort.DicomSortConfig
+   habit.api.dicom_sort.run_dicom_sort
+
+Estimators
+~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.estimators.EstimatorPersistenceMixin
+   habit.api.estimators.HabitatClusterer
+   habit.api.estimators.HabitClassifier
+   habit.api.estimators.OutcomeClassifier
+   habit.api.estimators.SubjectFeatureAggregator
+
+Provenance and workflow results
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.provenance.RunManifest
+   habit.api.provenance.create_run_manifest
+   habit.api.provenance.write_run_manifest
+   habit.api.contracts.WorkflowResult
+
+Plugins and utilities
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.api.plugins.PluginInfo
+   habit.api.plugins.PluginLoadReport
+   habit.api.plugins.list_plugins
+   habit.api.plugins.get_plugin_info
+   habit.api.plugins.get_param_schema
+   habit.api.plugins.load_plugins
+   habit.api.utils.setup_logger
+   habit.api.utils.is_available
+   habit.api.utils.show_versions
+   habit.api.utils.check_component
+
+.. _api-guides:
+
+API guides
+----------
+
+Narrative companions to the reference tables above:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    python_api
    data_model
    adapters
+   domain
    domain_habitat
    domain_table
    spec
