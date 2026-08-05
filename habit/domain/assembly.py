@@ -45,6 +45,8 @@ from habit.domain.supervoxel_features import SupervoxelFeatureExtractorRegistry
 from habit.domain.table_preprocessing import TablePreprocessorRegistry
 from habit.domain.table_protocols import Metric
 from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
+from habit.exceptions import ComponentNotFoundError
+from habit.registry.core import ComponentRegistry
 from habit.spec.specs import HabitatSpec, MLSpec, Spec
 
 __all__ = [
@@ -53,6 +55,7 @@ __all__ = [
     "build_subject_chain",
     "build_table_pipeline",
     "build_ml_metrics",
+    "validate_habitat_spec_registry",
 ]
 
 
@@ -208,6 +211,64 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
         fitter=fitter,
         extractors=extractors,
     )
+
+
+def _require_registered_name(spec_entry: Spec, registry: ComponentRegistry[Any]) -> None:
+    """
+    Verify one spec entry names a registered implementation.
+
+    Args:
+        spec_entry: Component declaration from a :class:`HabitatSpec`.
+        registry: Registry that should contain ``spec_entry.name``.
+
+    Raises:
+        ComponentNotFoundError: When the name is absent from ``registry``.
+    """
+    if registry.get(spec_entry.name) is None:
+        raise ComponentNotFoundError(
+            f"Unknown {registry.kind} {spec_entry.name!r} in domain "
+            f"{registry.domain!r}. Available: {registry.available()}"
+        )
+
+
+def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
+    """
+    Verify every component declared by a habitat spec is registered.
+
+    Intended for ``habit check-config`` and other pre-run validation paths so
+    unknown component names fail before a long pipeline job starts.
+
+    Args:
+        spec: Parsed habitat analysis specification.
+
+    Raises:
+        ComponentNotFoundError: When any declared component name is unknown.
+    """
+    from habit.domain.assignment.registry import HabitatAssignerRegistry
+    from habit.domain.feature_preprocessing.registry import (
+        FeaturePreprocessingMethodRegistry,
+    )
+
+    _require_registered_name(
+        spec.voxel_feature_extractor, VoxelFeatureExtractorRegistry
+    )
+    if spec.supervoxelizer is not None:
+        _require_registered_name(spec.supervoxelizer, SupervoxelizerRegistry)
+    if spec.supervoxel_feature_extractor is not None:
+        _require_registered_name(
+            spec.supervoxel_feature_extractor,
+            SupervoxelFeatureExtractorRegistry,
+        )
+    for step in spec.voxel_feature_preprocessors:
+        _require_registered_name(step, FeaturePreprocessingMethodRegistry)
+    for step in spec.supervoxel_feature_preprocessors:
+        _require_registered_name(step, FeaturePreprocessingMethodRegistry)
+    for step in spec.cohort_feature_preprocessors:
+        _require_registered_name(step, FeaturePreprocessingMethodRegistry)
+    _require_registered_name(spec.habitat_model_fitter, HabitatModelFitterRegistry)
+    _require_registered_name(spec.habitat_assigner, HabitatAssignerRegistry)
+    for feature_spec in spec.habitat_features:
+        _require_registered_name(feature_spec, HabitatFeatureExtractorRegistry)
 
 
 def build_table_pipeline(spec: MLSpec) -> TablePipeline:

@@ -28,7 +28,7 @@ reproducibility contract for population-level clustering -- is deterministic.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from habit.adapters.image_refs import FileImageRef
 from habit.exceptions import DataFormatError
@@ -148,8 +148,68 @@ class DirectoryDataSource:
                 )
             )
         if not subjects:
-            raise DataFormatError(
+            raise DataFormatError(self._incomplete_cohort_message())
+
+        return Cohort(subjects, name=self.name, metadata=self.metadata)
+
+    def _discovered_modalities(self) -> Tuple[Set[str], List[str]]:
+        """
+        Scan the images tree for modality folders that contain a file.
+
+        Returns:
+            Tuple of (modalities with at least one file somewhere, subject ids scanned).
+        """
+        found: Set[str] = set()
+        scanned: List[str] = []
+        for subject_dir in self._subject_dirs(self.images_folder):
+            scanned.append(subject_dir.name)
+            for entry in subject_dir.iterdir():
+                if not entry.is_dir() or entry.name.startswith("."):
+                    continue
+                if _first_file_in(entry) is not None:
+                    found.add(entry.name)
+        return found, scanned
+
+    def _incomplete_cohort_message(self) -> str:
+        """
+        Build an actionable error when no subject satisfies the spec.
+
+        Returns:
+            Multi-line message describing where HABIT looked and what it found.
+        """
+        found_modalities, scanned_subjects = self._discovered_modalities()
+        requested = set(self.modalities)
+        missing_from_tree = sorted(requested - found_modalities)
+        images_root = self.root / self.images_folder
+        masks_root = self.root / self.masks_folder
+
+        lines = [
+            (
                 f"No complete subjects found under {self.root} for modalities "
                 f"{list(self.modalities)} and roi {self.roi!r}."
+            ),
+            "",
+            f"Looked under: {images_root}/<subject>/<modality>/",
+            f"             {masks_root}/<subject>/{self.roi}/",
+        ]
+        if scanned_subjects:
+            lines.append(
+                "Subjects scanned: " + ", ".join(sorted(scanned_subjects))
             )
-        return Cohort(subjects, name=self.name, metadata=self.metadata)
+        else:
+            lines.append(f"No subject folders found under {images_root}.")
+        if found_modalities:
+            lines.append(
+                "Modalities present in the data tree: "
+                + ", ".join(sorted(found_modalities))
+            )
+        if missing_from_tree:
+            lines.append(
+                "Modalities configured but not found in the data tree: "
+                + ", ".join(missing_from_tree)
+            )
+        lines.append(
+            "Each subject must provide every configured modality and an ROI "
+            f"mask at {masks_root}/<subject>/{self.roi}/."
+        )
+        return "\n".join(lines)
