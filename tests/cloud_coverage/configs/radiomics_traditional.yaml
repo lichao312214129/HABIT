@@ -1,0 +1,18 @@
+# Cloud coverage: traditional radiomics extraction on the synthetic tree.
+# Adapted from config/radiomics/config_traditional_radiomics_minimal.yaml.
+paths:
+  images_folder: @DATA_ROOT@
+  out_dir: @OUT_DIR@
+
+processing:
+  n_processes: 1
+  process_image_types:
+    - delay2
+    - delay3
+    - delay5
+
+export:
+  export_by_image_type: true
+  export_combined: true
+  export_format: csv
+  add_timestamp: false

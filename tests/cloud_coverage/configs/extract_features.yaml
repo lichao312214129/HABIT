@@ -1,0 +1,18 @@
+# Cloud coverage: habitat feature extraction, chained on a two-step train.
+# Adapted from config/feature_extraction/config_extract_features_minimal.yaml.
+# @HABITAT_MAP_DIR@ points at a two-step train output holding
+# *_habitats.nrrd maps for every subject.
+raw_img_folder: @DATA_ROOT@
+habitats_map_folder: @HABITAT_MAP_DIR@
+out_dir: @OUT_DIR@
+
+n_processes: 1
+habitat_pattern: '*_habitats.nrrd'
+feature_types:
+  - traditional
+  - non_radiomics
+  - whole_habitat
+  - each_habitat
+  - msi
+  - ith_score
+n_habitats:

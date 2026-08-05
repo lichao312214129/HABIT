@@ -1,0 +1,36 @@
+# Cloud coverage: compare the two tiny ML runs (v0 layout).
+# Adapted from config/model_comparison/config_model_comparison_minimal.yaml.
+# @PRED_A@ / @PRED_B@ point at the all_prediction_results.csv files written
+# by the two holdout train runs.
+output_dir: @OUT_DIR@
+
+files_config:
+  - path: @PRED_A@
+    model_name: radiomics
+    subject_id_col: subject_id
+    label_col: label
+    prob_col: LogisticRegression_prob
+    pred_col: LogisticRegression_pred
+    split_col: dataset
+  - path: @PRED_B@
+    model_name: clinical
+    subject_id_col: subject_id
+    label_col: label
+    prob_col: LogisticRegression_prob
+    pred_col: LogisticRegression_pred
+    split_col: dataset
+
+merged_data:
+  enabled: true
+  save_name: combined_predictions.csv
+split:
+  enabled: true
+visualization:
+  roc:
+    enabled: true
+  dca:
+    enabled: true
+  calibration:
+    enabled: true
+  pr_curve:
+    enabled: true

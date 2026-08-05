@@ -1,0 +1,16 @@
+# Cloud coverage: ICC analysis on synthetic paired measurements.
+# Adapted from config/auxiliary/config_icc_minimal.yaml. The two CSVs hold
+# the same subjects; retest = test + small noise, so ICC must be high.
+input:
+  type: "files"
+  file_groups:
+    - [@ICC_TEST_CSV@, @ICC_RETEST_CSV@]
+
+output:
+  path: @OUT_DIR@/icc_results.json
+
+metrics:
+  - icc2
+  - icc3
+
+processes: 1

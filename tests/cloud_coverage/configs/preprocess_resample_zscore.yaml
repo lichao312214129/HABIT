@@ -1,0 +1,25 @@
+# Cloud coverage: resample + z-score normalisation on the synthetic tree.
+# Steps run in YAML order; z-score stats come from the whole image
+# (only_inmask: false), matching
+# config/preprocessing/config_preprocessing_n4_reg_resample_zscore.yaml.
+data_dir: @DATA_ROOT@
+out_dir: @OUT_DIR@
+
+auto_select_first_file: true
+
+preprocessing:
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [3.0, 3.0, 3.0]
+    img_mode: bilinear
+  zscore_normalization:
+    images: [delay2, delay3, delay5]
+    only_inmask: false
+    clip_values: [-3, 3]
+
+save_options:
+  save_intermediate: false
+  intermediate_steps: []
+
+processes: 1
+random_state: 42

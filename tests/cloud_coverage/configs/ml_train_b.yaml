@@ -1,0 +1,47 @@
+# Cloud coverage: holdout ML train run "clinical" for model comparison.
+# Same subjects/outcome as run A but on the noisy retest table, so the two
+# comparison inputs are genuinely different models.
+input:
+  - path: @RADIOMICS_RETEST_CSV@
+    name: clinical_
+    subject_id_col: subject_id
+    label_col: label
+    features:
+
+output: @OUT_DIR@
+
+run_mode: train
+split_method: stratified
+test_size: 0.3
+random_state: 42
+
+normalization:
+  method: z_score
+
+feature_selection_methods:
+  - method: variance
+    params:
+      before_z_score: true
+      top_k: 10
+      plot_variances: false
+
+is_visualize: true
+is_save_model: true
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: "l2"
+      solver: "lbfgs"
+
+visualization:
+  enabled: true
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion

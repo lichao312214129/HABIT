@@ -1,0 +1,36 @@
+# Cloud coverage: K-fold CV, RandomForest backend (v0 layout).
+# Companion to ml_kfold.yaml: the v1 cv recipe fits one classifier per run,
+# so each sklearn backend gets its own config.
+input:
+  - path: @RADIOMICS_CSV@
+    name: radiomics_
+    subject_id_col: subject_id
+    label_col: label
+    features:
+
+output: @OUT_DIR@
+
+n_splits: 5
+stratified: true
+random_state: 42
+
+normalization:
+  method: z_score
+
+feature_selection_methods:
+  - method: variance
+    params:
+      before_z_score: true
+      top_k: 10
+      plot_variances: false
+
+models:
+  RandomForest:
+    params:
+      random_state: 42
+      n_estimators: 30
+      max_depth: 4
+      max_features: "sqrt"
+
+is_visualize: false
+is_save_model: false

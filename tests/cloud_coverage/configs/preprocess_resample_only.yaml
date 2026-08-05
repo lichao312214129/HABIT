@@ -1,0 +1,19 @@
+# Cloud coverage: resample-only preprocessing on the synthetic tree.
+# Adapted from config/preprocessing/config_preprocessing_resample_only.yaml.
+data_dir: @DATA_ROOT@
+out_dir: @OUT_DIR@
+
+auto_select_first_file: true
+
+preprocessing:
+  resample:
+    images: [delay2, delay3, delay5]
+    target_spacing: [3.0, 3.0, 3.0]
+    img_mode: bilinear
+
+save_options:
+  save_intermediate: false
+  intermediate_steps: []
+
+processes: 1
+random_state: 42

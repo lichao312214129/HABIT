@@ -1,0 +1,9 @@
+# Cloud coverage: dcm2niix DICOM sort on the synthesized series.
+# Adapted from config/dicom_sort/config_sort_dicom.yaml. @DICOM_DIR@ is the
+# pydicom-synthesized CT series. dcm2niix_path uses PATH lookup so the run
+# succeeds on hosts with dcm2niix installed and fails cleanly elsewhere.
+data_dir: @DICOM_DIR@
+out_dir: @OUT_DIR@
+dcm2niix_path: dcm2niix
+f: "subj_%n_%g_%x/%s_%d/%r_%o.dcm"
+extra_args: []

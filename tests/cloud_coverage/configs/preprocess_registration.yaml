@@ -1,0 +1,21 @@
+# Cloud coverage: elastix registration variant -- only executed when an
+# elastix binary is available (skipped otherwise, see test_preprocessing.py).
+# Adapted from config/preprocessing/config_preprocessing_demo_elastix.yaml.
+data_dir: @DATA_ROOT@
+out_dir: @OUT_DIR@
+auto_select_first_file: true
+
+preprocessing:
+  registration:
+    images: [delay2, delay3, delay5]
+    fixed_image: delay2
+    use_mask: true
+    backend: elastix
+    elastix_parameter_files: @PAR_FILE@
+
+save_options:
+  save_intermediate: false
+  intermediate_steps: []
+
+processes: 1
+random_state: 42

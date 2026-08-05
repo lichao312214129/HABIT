@@ -1,0 +1,48 @@
+# Cloud coverage: holdout ML train run "radiomics" for model comparison.
+# Adapted from config/machine_learning/config_machine_learning_kfold_demo.yaml
+# (holdout split instead of K-fold; all_prediction_results.csv feeds
+# habit compare).
+input:
+  - path: @RADIOMICS_CSV@
+    name: radiomics_
+    subject_id_col: subject_id
+    label_col: label
+    features:
+
+output: @OUT_DIR@
+
+run_mode: train
+split_method: stratified
+test_size: 0.3
+random_state: 42
+
+normalization:
+  method: z_score
+
+feature_selection_methods:
+  - method: variance
+    params:
+      before_z_score: true
+      top_k: 10
+      plot_variances: false
+
+is_visualize: true
+is_save_model: true
+
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: "l2"
+      solver: "lbfgs"
+
+visualization:
+  enabled: true
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion

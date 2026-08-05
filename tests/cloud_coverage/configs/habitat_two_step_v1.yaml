@@ -1,0 +1,71 @@
+# Cloud coverage: two-step habitat train, NATIVE v1 document layout.
+# Adapted from config/habitat/config_habitat_two_step_v1.yaml. Executed
+# through habit.recipes.run_from_yaml only (v1 documents are not accepted
+# by the get-habitat CLI). Paths are absolute after template substitution,
+# so the run is independent of the current working directory.
+version: '1.0'
+workflow: habitat
+mode: train
+
+spec:
+  name: habitat_two_step
+  voxel_feature_extractor:
+    name: raw
+    params:
+      modalities: [delay2, delay3, delay5]
+  supervoxelizer:
+    name: kmeans
+    params:
+      n_supervoxels: 8
+      max_iter: 100
+      n_init: 5
+  habitat_model_fitter:
+    name: kmeans
+    params:
+      min_habitats: 2
+      max_habitats: 5
+      validation: elbow
+      fixed_n_habitats: 3
+      max_iter: 100
+      n_init: 5
+  habitat_assigner:
+    name: nearest_centroid
+    params: {}
+  habitat_features:
+    - name: volume
+      params: {}
+    - name: msi
+      params: {}
+    - name: ith_score
+      params: {}
+  voxel_feature_preprocessors:
+    - name: winsorize
+      params:
+        winsor_limits: [0.05, 0.05]
+        across_features: false
+    - name: minmax
+      params:
+        across_features: false
+  cohort_feature_preprocessors:
+    - name: binning
+      params:
+        n_bins: 10
+        bin_strategy: uniform
+        across_features: false
+  random_seed: 42
+
+data:
+  source: @DATA_ROOT@
+
+policy:
+  workers: 1
+  backend: serial
+  resume: false
+  subject_timeout_sec: 300
+
+output:
+  out_dir: @OUT_DIR@
+  save_images: true
+  save_results_csv: true
+  habitats_results_format: parquet
+  plot_curves: false

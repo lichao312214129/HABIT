@@ -1,0 +1,64 @@
+# Cloud coverage: K-fold CV on the synthetic radiomics table (v0 layout).
+# Adapted from config/machine_learning/config_machine_learning_kfold_demo.yaml.
+# sklearn backends only (no autogluon); shap plot excluded because the shap
+# package is intentionally not installed in this environment.
+input:
+  - path: @RADIOMICS_CSV@
+    name: radiomics_
+    subject_id_col: subject_id
+    label_col: label
+    features:
+
+output: @OUT_DIR@
+
+n_splits: 5
+stratified: true
+random_state: 42
+
+normalization:
+  method: z_score
+
+resampling:
+  enabled: false
+  method: random_over
+  position: before_model
+  ratio: 1.0
+  random_state: 42
+
+feature_selection_methods:
+  - method: correlation
+    params:
+      threshold: 0.80
+      method: spearman
+      visualize: true
+      before_z_score: false
+  - method: variance
+    params:
+      before_z_score: true
+      top_k: 10
+      plot_variances: true
+
+# NOTE: the v1 `habit cv` path fits ONE classifier per run (the v1 MLSpec
+# describes a single classifier; extra entries are preserved under legacy
+# but not fitted). LogisticRegression is covered here, RandomForest in the
+# sibling ml_kfold_rf.yaml run.
+models:
+  LogisticRegression:
+    params:
+      random_state: 42
+      max_iter: 1000
+      C: 1.0
+      penalty: "l2"
+      solver: "lbfgs"
+
+is_visualize: true
+is_save_model: false
+
+visualization:
+  enabled: true
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
