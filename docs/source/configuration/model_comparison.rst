@@ -155,7 +155,7 @@ Sub-blocks ``roc``, ``dca``, ``calibration``, and ``pr_curve`` each accept:
   points (each target value must be in ``(0, 1)``)
 
 Typical outputs under ``output_dir``
------------------------------------
+------------------------------------
 
 - ``roc_curves.pdf``, ``decision_curves.pdf``, ``calibration_curves.pdf``,
   ``precision_recall_curves.pdf``

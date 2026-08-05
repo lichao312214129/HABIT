@@ -380,7 +380,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
 **correlation_filter (high-correlation filter)**:
 
-      - ``corr_threshold`` (float, default: ``0.95``): drop redundant features when |correlation| exceeds threshold
+      - ``corr_threshold`` (float, default: ``0.95``): drop redundant features when the absolute correlation exceeds the threshold
       - ``corr_method`` (str, default: ``spearman``): ``pearson`` / ``spearman`` / ``kendall``
       - Note: drops feature columns
 

@@ -1,5 +1,5 @@
 Contributor Workflow
-============
+====================
 
 This page provides practical contribution guidance: environment setup, the
 test system, and three common implementation scenarios—adding a CLI command,
@@ -7,7 +7,7 @@ adding a configuration-step schema, and using the Web GUI bridge. See
 :doc:`contributing` for general pull-request and commit conventions.
 
 Environment setup
---------
+-----------------
 
 .. code-block:: bash
 
@@ -16,7 +16,7 @@ Environment setup
    pytest tests/                 # Run the tests
 
 Code conventions
---------
+----------------
 
 .. list-table::
    :header-rows: 1
@@ -62,7 +62,7 @@ Available markers: ``slow`` / ``integration`` / ``unit`` / ``preprocessing`` /
 ``habitat`` / ``ml`` / ``utils`` / ``cli``.
 
 Architecture contract tests
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``tests/test_architecture_contracts.py`` protects two cross-subsystem
 contracts. It **must pass** after adding a factory or orchestrator:
@@ -88,7 +88,7 @@ Tests for missing optional dependencies are automatically skipped, so the
 minimal installation remains usable.
 
 Demo data flow
-~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 ``tests/conftest.py`` provides fixtures such as ``project_root`` and
 ``demo_data_dir``; example data is stored in ``demo_data/``.
@@ -98,7 +98,7 @@ End-to-end examples are in ``tests/integration/`` (for example,
 file; see ``PathResolver`` in :doc:`configuration_system`.
 
 Scenario 1: Add a CLI command
--------------------------
+-----------------------------
 
 Keep the command declaration separate from its implementation:
 ``habit/cli.py`` declares options and forwards the call, while the
@@ -143,7 +143,7 @@ layer focused; Python API users should call ``habit.recipes`` or domain APIs.
 **4. Add a CLI test** in ``tests/.../test_cli_my_task.py`` using ``CliRunner``.
 
 Scenario 2: Add a configuration-step schema
--------------------------------
+-------------------------------------------
 
 If a new algorithm has configurable ``params``, define and register a
 parameter schema to obtain **type validation** and **GUI form generation**.
@@ -176,7 +176,7 @@ loading configuration, and the GUI reflects the corresponding form fields from
    schema; otherwise the configuration will report an unknown field.
 
 Scenario 3: Web GUI and bridge
--------------------------
+------------------------------
 
 ``habit-gui/`` is an optional, separate Web GUI (not checked out by default;
 see :doc:`repo_layout`). It reuses the core through two channels and **does

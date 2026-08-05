@@ -1,5 +1,5 @@
 Extension and Plugin Guide
-======================
+==========================
 
 HABIT is highly decoupled. Developers can inject custom algorithm components
 through the **Registry** mechanism without modifying core source code.
@@ -8,7 +8,7 @@ This guide is based on HABIT's code contracts and explains how to extend
 preprocessors, machine-learning models, and feature selectors.
 
 Core extension contracts
-------------------
+------------------------
 
 HABIT extensions follow three contracts:
 
@@ -29,7 +29,7 @@ HABIT extensions follow three contracts:
    corresponding subpackage ``__init__.py``.
 
 Example 1: Custom preprocessing step (ClassRegistry)
-----------------------------------------
+----------------------------------------------------
 
 Preprocessors are class-based components managed by ``PreprocessorFactory``.
 
@@ -84,7 +84,7 @@ Define and register the parameter model in
        sigma: 2.5
 
 Example 2: Custom feature selector (CallableRegistry)
--------------------------------------------
+-----------------------------------------------------
 
 Unlike scikit-learn, which requires a complete ``BaseEstimator`` class,
 **HABIT feature selectors are designed as pure functions**. The underlying
@@ -140,7 +140,7 @@ The selector receives a ``SelectorContext`` containing ``X``, ``y``, and
          threshold: 0.5
 
 Example 3: Custom machine-learning model (ModelFactory)
------------------------------------------
+-------------------------------------------------------
 
 The ``ModelFactory`` inherits from ``ClassRegistry[BaseModel]``. Its
 constructor contract is a single ``config`` dictionary.
@@ -240,7 +240,7 @@ YAML usage (parentheses declare bindings; ``params`` assigns values only):
 ``habit/resources/radiomics/``.
 
 Extension point reference
-----------------
+-------------------------
 
 HABIT has **eight registries** (six class-based factories and two
 function-based registries). The table below is the complete reference.

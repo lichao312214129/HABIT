@@ -6,7 +6,7 @@ the responsibilities of ``habit/`` subpackages, and where to start when
 changing a particular feature.
 
 Repository root
---------
+---------------
 
 .. list-table::
    :header-rows: 1
@@ -38,7 +38,7 @@ Repository root
        (``habit = "habit.cli:cli"``).
 
 ``habit/`` package structure
------------------
+----------------------------
 
 .. mermaid::
 
@@ -59,7 +59,7 @@ Repository root
      SCH --> REG["registry.py — ParamSchemaRegistry"]
 
 Top-level package responsibilities
-------------
+----------------------------------
 
 .. list-table::
    :header-rows: 1
@@ -97,7 +97,7 @@ Top-level package responsibilities
      - Shared utilities used across subsystems (see below).
 
 Shared utilities: ``habit/utils/``
--------------------------
+----------------------------------
 
 By convention, reusable cross-subsystem utilities live here. **All progress
 bars must use** ``progress_utils.py``. Common modules include:
@@ -129,7 +129,7 @@ bars must use** ``progress_utils.py``. Common modules include:
      - Cancellation detection for long-running tasks and the GUI.
 
 Cross-subsystem contract files
-----------------
+------------------------------
 
 The following files define package-wide interface contracts. Update them and
 run the contract tests when adding a factory or orchestrator:
@@ -151,7 +151,7 @@ run the contract tests when adding a factory or orchestrator:
      TST -.-> REC
 
 Where to start when changing X
-------------------
+------------------------------
 
 .. list-table::
    :header-rows: 1

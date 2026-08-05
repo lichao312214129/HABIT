@@ -152,7 +152,7 @@ DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; see
      - When non-empty, only listed steps write intermediate results; **empty list** with ``save_intermediate: true`` writes every step
 
 DICOM sort configuration (``habit sort-dicom``)
-----------------------------------------------
+-----------------------------------------------
 
 Field reference moved to :doc:`dicom_sort`. Template:
 ``config/dicom_sort/config_sort_dicom.yaml``.

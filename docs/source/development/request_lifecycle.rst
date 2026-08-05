@@ -1,5 +1,5 @@
 Complete Request Lifecycle
-=========================
+==========================
 
 This page follows one command from invocation to generated artifacts:
 
@@ -48,7 +48,7 @@ logging, delegates to the core API, and converts failures into clean CLI
 errors. It contains no domain algorithm.
 
 Stage 3: loading and validation
-------------------------------
+-------------------------------
 
 ``load_config_or_exit(MLConfig, path)`` reads the file, resolves paths relative
 to the configuration file, and validates it with Pydantic. Invalid fields and
