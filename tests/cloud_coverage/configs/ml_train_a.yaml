@@ -20,11 +20,11 @@ normalization:
   method: z_score
 
 feature_selection_methods:
-  # NOTE: v1 always z-scores BEFORE selection (v0's before_z_score: true is
-  # not expressible; see LegacyConfigAdapter warning). After z-scoring every
-  # feature has variance ~1.0, so top_k would pick an arbitrary subset and
-  # could drop the planted signal feature. threshold: 0.0 keeps all
-  # nonzero-variance features while still exercising the selector path.
+  # NOTE: the variance selector omits before_z_score, so it follows the v0
+  # registry default (true) and runs in v1's PRE-preprocessing stage on raw
+  # variances. threshold: 0.0 keeps all nonzero-variance features -- the
+  # surviving set is stage-invariant here, so this run stays numerically
+  # comparable with the sibling configs while exercising the staged path.
   - method: variance
     params:
       threshold: 0.0

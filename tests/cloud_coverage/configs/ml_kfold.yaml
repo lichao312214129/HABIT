@@ -32,9 +32,10 @@ feature_selection_methods:
       method: spearman
       visualize: true
       before_z_score: false
-  # See ml_train_a.yaml: v1 z-scores before selection, so top_k on
-  # standardized variances is arbitrary; threshold: 0.0 keeps every
-  # nonzero-variance feature (the planted signal survives).
+  # The variance selector omits before_z_score, so it follows the v0
+  # registry default (true) and runs in v1's PRE-preprocessing stage on raw
+  # variances; threshold: 0.0 keeps every nonzero-variance feature (the
+  # surviving set is stage-invariant, so the planted signal survives).
   - method: variance
     params:
       threshold: 0.0

@@ -253,10 +253,16 @@ _ML_OUTPUT_SWITCH_KEYS: Tuple[str, ...] = (
     "visualization",
 )
 
-#: Pipeline-assembly keys stripped from v0 selector params: v0 itself lists
-#: them as runtime-injected (``RUNTIME_STEP_KEYS`` in the v0 validation
-#: module), never as algorithm parameters.
-_ML_SELECTOR_RUNTIME_KEYS: Tuple[str, ...] = ("images", "before_z_score")
+#: v0 selector-registry defaults of ``default_before_z_score``, i.e. which
+#: stage a selector runs in when the config omits the parameter. The v0
+#: registry (``habit.compat.engines.machine_learning.feature_selectors``)
+#: defaults every selector to False and only ``variance`` opts into True --
+#: after z-scoring every variance is 1.0, so variance selection is vacuous
+#: post-normalisation. ``habit.spec`` sits below ``habit.compat`` in the
+#: layering and must not import the registry, so the (frozen, v0.1) mapping
+#: is mirrored here; ``tests/spec/test_legacy.py`` cross-checks it against
+#: the registry so a v0-side change cannot silently drift.
+_V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE: Dict[str, bool] = {"variance": True}
 
 #: v0 ML top-level keys consumed by dedicated v1 slots; everything else
 #: found at the top level is preserved under ``legacy``.
@@ -1106,15 +1112,19 @@ class LegacyConfigAdapter:
                 "v0 schema itself."
             )
             return None
+        pre_selectors, post_selectors = self._translate_ml_selectors(
+            payload.get("feature_selection_methods"), warnings, unmapped
+        )
         return {
             "name": f"ml_{workflow}",
             "version": self.SCHEMA_VERSION,
+            # Key order mirrors execution order: pre-preprocessing selection,
+            # preprocessing, post-preprocessing selection.
+            "pre_preprocessing_feature_selectors": pre_selectors,
             "table_preprocessors": self._translate_ml_normalization(
                 payload.get("normalization"), warnings, unmapped
             ),
-            "feature_selectors": self._translate_ml_selectors(
-                payload.get("feature_selection_methods"), warnings, unmapped
-            ),
+            "feature_selectors": post_selectors,
             "classifier": self._translate_ml_classifier(models, warnings, unmapped),
             # v0.1 reported a fixed metric panel chosen by the workflow, not
             # by the config; the v1 default panel lives in the recipe.
@@ -1158,30 +1168,36 @@ class LegacyConfigAdapter:
         methods: Optional[Sequence[Mapping[str, Any]]],
         warnings: List[str],
         unmapped: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
-        Translate v0 ``feature_selection_methods`` into selector Specs.
+        Translate v0 ``feature_selection_methods`` into staged selector Specs.
 
-        The YAML order -- which is scientifically meaningful -- is preserved
-        exactly. Two v0-only param kinds are stripped: the runtime
-        pipeline-assembly keys (``images``, ``before_z_score``; v0 itself
-        classifies them as runtime-injected, not algorithm parameters) and
-        per-component ``random_state`` seeds (v1 seeds every Seedable from
-        ``MLSpec.random_seed``). A ``before_z_score: true`` entry means v0
-        ran that selector BEFORE normalization, an ordering the v1 chain
-        cannot express (preprocessing always runs first), so the original
-        block is then preserved verbatim under ``legacy``.
+        Each entry lands in one of two chains: the PRE-preprocessing chain
+        (fitted on the raw training table) or the post-preprocessing chain.
+        The stage rule reproduces v0's two-stage pipeline exactly: an
+        explicit ``before_z_score`` param wins; when it is absent the v0
+        registry default applies (``_V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE`` --
+        the gap the old translation had, silently reordering selectors like
+        ``variance`` whose default is True). The YAML order -- which is
+        scientifically meaningful -- is preserved WITHIN each stage; v0
+        itself grouped execution by stage, so the split loses no ordering
+        information. ``before_z_score`` leaves the params because the stage
+        is a chain-level fact in v1, not an algorithm parameter; the
+        ``images`` runtime key and per-component ``random_state`` seeds are
+        stripped as before (v1 seeds every Seedable from
+        ``MLSpec.random_seed``).
 
         Args:
             methods: v0 ``feature_selection_methods`` list or ``None``.
             warnings: Warning sink.
-            unmapped: Legacy sink for reordered blocks and seeds.
+            unmapped: Legacy sink for stripped per-component seeds.
 
         Returns:
-            Ordered list of ``Spec.to_dict()`` payloads.
+            Tuple ``(pre_preprocessing, post_preprocessing)`` of ordered
+            ``Spec.to_dict()`` payload lists.
         """
-        selectors: List[Dict[str, Any]] = []
-        reordered = False
+        pre_selectors: List[Dict[str, Any]] = []
+        post_selectors: List[Dict[str, Any]] = []
         seeds: Dict[str, Any] = {}
         for entry in methods or ():
             entry = dict(entry)
@@ -1191,28 +1207,24 @@ class LegacyConfigAdapter:
                     "Every feature_selection_methods entry needs a 'method' "
                     f"key; got {entry!r}."
                 )
+            v0_name = str(name)
             params = dict(entry.get("params") or {})
-            for runtime_key in _ML_SELECTOR_RUNTIME_KEYS:
-                value = params.pop(runtime_key, None)
-                if runtime_key == "before_z_score" and value:
-                    reordered = True
+            before_z_score = params.pop("before_z_score", None)
+            params.pop("images", None)
             seed = params.pop("random_state", None)
             if seed is not None:
-                seeds[str(name)] = seed
-            if str(name) == "icc":
+                seeds[v0_name] = seed
+            if v0_name == "icc":
                 # v0.1's ``icc`` selector ONLY read a precomputed results
                 # JSON; the v1 registry names that contract ``icc_precomputed``
                 # (``icc`` is the repeat-tables recomputing selector).
                 name, params = self._translate_icc_selector(params)
-            selectors.append({"name": str(name), "params": params})
-        if reordered:
-            unmapped["feature_selection_methods"] = methods
-            warnings.append(
-                "v0 ran one or more selectors BEFORE normalization "
-                "(before_z_score: true); the v1 chain always preprocesses "
-                "first. The original block is preserved verbatim under "
-                "'legacy'."
-            )
+            if before_z_score is None:
+                run_pre = _V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE.get(v0_name, False)
+            else:
+                run_pre = bool(before_z_score)
+            target = pre_selectors if run_pre else post_selectors
+            target.append({"name": str(name), "params": params})
         if seeds:
             unmapped.setdefault("feature_selection_seeds", {}).update(seeds)
             warnings.append(
@@ -1221,7 +1233,7 @@ class LegacyConfigAdapter:
                 "MLSpec.random_seed to every Seedable. The original values "
                 "are preserved under 'legacy'."
             )
-        return selectors
+        return pre_selectors, post_selectors
 
     @staticmethod
     def _translate_icc_selector(

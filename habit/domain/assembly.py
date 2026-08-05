@@ -280,18 +280,26 @@ def build_table_pipeline(spec: MLSpec) -> TablePipeline:
             folded in.
 
     Returns:
-        The pipeline: preprocessing steps first, then feature selectors,
-        then the terminal classifier, seeded from ``spec.random_seed`` when
-        it is set.
+        The pipeline: pre-preprocessing selectors first (fitted on the raw
+        training table, the v0.1 ``before_z_score: true`` stage), then the
+        preprocessing chain, then the post-preprocessing selectors, then the
+        terminal classifier -- seeded from ``spec.random_seed`` when it is
+        set. ``TablePipeline.fit`` runs steps in this order on the training
+        rows only, so every selector's statistics come from the training
+        split regardless of stage.
 
     Raises:
         ComponentNotFoundError: If a spec names an unregistered component.
         ConfigurationError: If a component's parameters fail validation.
     """
     steps = [
+        FeatureSelectorRegistry.create(entry.name, **entry.params)
+        for entry in spec.pre_preprocessing_feature_selectors
+    ]
+    steps.extend(
         TablePreprocessorRegistry.create(entry.name, **entry.params)
         for entry in spec.table_preprocessors
-    ]
+    )
     steps.extend(
         FeatureSelectorRegistry.create(entry.name, **entry.params)
         for entry in spec.feature_selectors

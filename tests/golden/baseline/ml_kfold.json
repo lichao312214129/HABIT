@@ -11,7 +11,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "39dcab03fb82a07e237aaadb06f41311cc786814",
+    "git_commit": "0f32c33b30889add9a1af5a6bab2e6325af82e3c",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -136,7 +136,7 @@
         "provenance.software.pyradiomics": "3.0.1",
         "provenance.software.scikit-learn": "1.6.1",
         "provenance.software.scipy": "1.15.3",
-        "provenance.spec_fingerprint": "a18b173168189a69265a9a58363c45c1d3cbc7a3b4715b4c2633103efd778dee",
+        "provenance.spec_fingerprint": "77ca55231c75aae240e4b9fa35f3de1effbda8064551a39913a8ce0c35afd7f2",
         "spec_payload.classifier.name": "LogisticRegression",
         "spec_payload.classifier.params.penalty": "l2",
         "spec_payload.classifier.params.solver": "lbfgs",
@@ -145,11 +145,11 @@
         "spec_payload.feature_selectors[0].params.method": "spearman",
         "spec_payload.feature_selectors[0].params.visualize": true,
         "spec_payload.feature_selectors[0].version": "1.0",
-        "spec_payload.feature_selectors[1].name": "variance",
-        "spec_payload.feature_selectors[1].params.plot_variances": true,
-        "spec_payload.feature_selectors[1].version": "1.0",
         "spec_payload.metrics": [],
         "spec_payload.name": "ml_cv",
+        "spec_payload.pre_preprocessing_feature_selectors[0].name": "variance",
+        "spec_payload.pre_preprocessing_feature_selectors[0].params.plot_variances": true,
+        "spec_payload.pre_preprocessing_feature_selectors[0].version": "1.0",
         "spec_payload.table_preprocessors[0].name": "zscore",
         "spec_payload.table_preprocessors[0].version": "1.0",
         "spec_payload.version": "1.0",
@@ -736,7 +736,7 @@
         "spec_payload.feature_selectors[0].params.threshold": [
           0.8
         ],
-        "spec_payload.feature_selectors[1].params.top_k": [
+        "spec_payload.pre_preprocessing_feature_selectors[0].params.top_k": [
           20.0
         ],
         "spec_payload.random_seed": [

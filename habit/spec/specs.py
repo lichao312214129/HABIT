@@ -449,9 +449,15 @@ class HabitatSpec:
 
 
 #: Tabular preprocessing / selection chains of an MLSpec, keyed by field
-#: name, with the prose each renders as. Ordered as they run: preprocessing
-#: always precedes selection (a TablePipeline fits steps in chain order).
+#: name, with the prose each renders as. Ordered as they run: selection may
+#: happen BEFORE preprocessing (the stage v0.1 expressed as
+#: ``before_z_score: true`` -- scientifically meaningful whenever a
+#: selector's statistics are distorted by normalisation, e.g. variance-based
+#: selection is vacuous after z-scoring), preprocessing itself, then the
+#: ordinary post-preprocessing selection. A TablePipeline fits steps in
+#: chain order, so this tuple order IS the execution order.
 _ML_CHAINS: Tuple[Tuple[str, str], ...] = (
+    ("pre_preprocessing_feature_selectors", "pre-preprocessing feature selection"),
     ("table_preprocessors", "table preprocessing"),
     ("feature_selectors", "feature selection"),
 )
@@ -500,20 +506,30 @@ class MLSpec:
     Complete specification of a tabular machine-learning analysis.
 
     A frozen, fingerprintable value object describing ONE modelling
-    definition: an ordered table-preprocessing chain, an ordered
-    feature-selection chain, exactly one terminal classifier, and the
-    evaluation metric panel. It deliberately does NOT describe the
-    validation design (split counts, resampling, id files) -- those are
-    choices of the calling recipe, not of the model definition.
+    definition: an optional pre-preprocessing selection chain, an ordered
+    table-preprocessing chain, an ordered post-preprocessing selection
+    chain, exactly one terminal classifier, and the evaluation metric
+    panel. It deliberately does NOT describe the validation design (split
+    counts, resampling, id files) -- those are choices of the calling
+    recipe, not of the model definition.
 
     Attributes:
         name: Human-readable specification name.
         classifier: Spec of the terminal classifier.
+        pre_preprocessing_feature_selectors: Ordered specs of the selection
+            chain fitted on the RAW training table, BEFORE any
+            preprocessing (v0.1's ``before_z_score: true`` selectors). The
+            stage exists because some selection statistics are distorted by
+            normalisation -- after z-scoring every feature variance is 1.0,
+            so variance-based selection only carries information on the raw
+            table. The preprocessors then fit on the SELECTED training
+            features, exactly as v0.1's two-stage pipeline did.
         table_preprocessors: Ordered specs of the stateful preprocessing
             chain fitted on the TRAINING rows and replayed afterwards
             (v0.1's ``normalization``).
         feature_selectors: Ordered specs of the selection chain, fitted
-            after preprocessing (v0.1's ``feature_selection_methods``).
+            after preprocessing (v0.1's ``feature_selection_methods``
+            entries without ``before_z_score``).
         metrics: Specs of the evaluation metric panel. An empty tuple asks
             the calling recipe for its default panel.
         random_seed: Seed applied to every
@@ -525,6 +541,7 @@ class MLSpec:
 
     name: str
     classifier: Spec
+    pre_preprocessing_feature_selectors: Tuple[Spec, ...] = ()
     table_preprocessors: Tuple[Spec, ...] = ()
     feature_selectors: Tuple[Spec, ...] = ()
     metrics: Tuple[Spec, ...] = ()

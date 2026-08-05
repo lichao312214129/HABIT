@@ -18,17 +18,21 @@ from __future__ import annotations
 
 import json
 import zipfile
+from typing import Sequence
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from habit.api.exceptions import CompatibilityError, HABITAPIError
+from habit.contracts import BinaryOutcome, FeatureTable
+from habit.domain.assembly import build_table_pipeline
 from habit.domain.classification import LogisticRegressionClassifier, RandomForestClassifier
 from habit.domain.evaluation import AccuracyMetric, AucMetric, HosmerLemeshowPValueMetric
 from habit.domain.feature_selection import IccSelector, VarianceSelector
 from habit.domain.pipeline import TablePipeline
 from habit.domain.table_preprocessing import ZScorePreprocessor
-from habit.spec import Spec
+from habit.spec import MLSpec, Spec
 
 from .conftest import make_feature_table
 
@@ -213,3 +217,114 @@ def test_repeat_tables_reach_icc_step_only() -> None:
     transformed = pipeline.transform(primary)
     assert "signal" in transformed.feature_columns
     assert "noise0" not in transformed.feature_columns
+
+
+# ---------------------------------------------------------------------------
+# Pre-preprocessing selection stage (v0.1's ``before_z_score`` stage)
+# ---------------------------------------------------------------------------
+
+
+def _staged_variance_table(
+    subject_ids: Sequence[str],
+    *,
+    high_var_scale: float = 4.0,
+) -> FeatureTable:
+    """
+    Build a deterministic table with known per-column raw variances.
+
+    ``low_a``/``low_b`` alternate between two nearby levels (variance well
+    below 0.5); ``high_var`` is the same alternation scaled by
+    ``high_var_scale``, giving it a raw variance of ~4.0 at the default --
+    the only column above a 0.5 variance threshold. After z-scoring every
+    column's variance is ~1.0, which is what makes the stage assignment
+    observable: the same threshold keeps only ``high_var`` pre-preprocessing
+    and keeps everything post-preprocessing.
+    """
+    n = len(subject_ids)
+    pattern = (np.arange(n) % 2).astype(float)
+    frame = pd.DataFrame(
+        {
+            "subject": list(subject_ids),
+            "low_a": pattern,
+            "low_b": (1.0 - pattern) * 0.5,
+            "high_var": pattern * high_var_scale,
+            # Classes repeat in pairs so no feature separates them perfectly.
+            "y": (np.arange(n) % 4) // 2,
+        }
+    )
+    return FeatureTable(
+        frame=frame,
+        id_columns=("subject",),
+        feature_columns=("low_a", "low_b", "high_var"),
+        outcome=BinaryOutcome("y"),
+    )
+
+
+def _staged_ml_spec(*, pre_stage: bool) -> MLSpec:
+    """An MLSpec whose variance selector sits in the requested stage."""
+    selector = Spec(name="variance", params={"threshold": 0.5})
+    return MLSpec(
+        name="staged_demo",
+        classifier=Spec(name="LogisticRegression", params={"max_iter": 500}),
+        pre_preprocessing_feature_selectors=(selector,) if pre_stage else (),
+        table_preprocessors=(Spec(name="zscore"),),
+        feature_selectors=() if pre_stage else (selector,),
+    )
+
+
+@pytest.mark.unit
+def test_build_table_pipeline_orders_stages_as_declared() -> None:
+    """The pipeline runs pre-selectors, preprocessors, then post-selectors."""
+    spec = MLSpec(
+        name="order_demo",
+        classifier=Spec(name="LogisticRegression"),
+        pre_preprocessing_feature_selectors=(
+            Spec(name="variance", params={"threshold": 0.0}),
+        ),
+        table_preprocessors=(Spec(name="zscore"),),
+        feature_selectors=(Spec(name="correlation"),),
+    )
+    pipeline = build_table_pipeline(spec)
+    assert [step.spec.name for step in pipeline.steps] == [
+        "variance",
+        "zscore",
+        "correlation",
+    ]
+
+
+@pytest.mark.unit
+def test_pre_stage_selector_reads_raw_variances() -> None:
+    """Pre-preprocessing selection keeps the raw high-variance column."""
+    ids = tuple(f"S{i:02d}" for i in range(20))
+    table = _staged_variance_table(ids)
+    pipeline = build_table_pipeline(_staged_ml_spec(pre_stage=True)).fit(table)
+    # Raw variances: high_var ~4.0 vs low_* below 0.5 -- only high_var
+    # survives the 0.5 threshold BEFORE any z-scoring happens.
+    assert pipeline.transform(table).feature_columns == ("high_var",)
+
+
+@pytest.mark.unit
+def test_post_stage_selector_reads_scaled_variances() -> None:
+    """The same selector after z-scoring sees every variance as ~1.0."""
+    ids = tuple(f"S{i:02d}" for i in range(20))
+    table = _staged_variance_table(ids)
+    pipeline = build_table_pipeline(_staged_ml_spec(pre_stage=False)).fit(table)
+    # Post-z-score all variances are ~1.0 > 0.5, so nothing is pruned: the
+    # stage assignment, not the selector, decides the semantics.
+    assert pipeline.transform(table).feature_columns == ("low_a", "low_b", "high_var")
+
+
+@pytest.mark.unit
+def test_pre_stage_selection_is_fitted_on_training_rows_only() -> None:
+    """Evaluation tables reuse the TRAIN selection; they never re-select."""
+    train_ids = tuple(f"T{i:02d}" for i in range(20))
+    eval_ids = tuple(f"E{i:02d}" for i in range(6))
+    train = _staged_variance_table(train_ids)
+    # On the evaluation table the variance ranking is inverted: high_var is
+    # constant there while low_a spans a wide range. A leakage-prone
+    # implementation would re-select low_a here.
+    evaluation = _staged_variance_table(eval_ids, high_var_scale=0.0)
+    evaluation.frame["low_a"] = evaluation.frame["low_a"] * 8.0
+    pipeline = build_table_pipeline(_staged_ml_spec(pre_stage=True)).fit(train)
+    transformed = pipeline.transform(evaluation)
+    assert transformed.feature_columns == ("high_var",)

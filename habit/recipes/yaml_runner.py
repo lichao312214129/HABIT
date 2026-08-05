@@ -404,6 +404,11 @@ def _ml_v0_payload_from_v1(document: Mapping[str, Any], path: Path) -> Dict[str,
             spec["classifier"]["name"]: {"params": spec["classifier"].get("params") or {}}
         }
     payload["feature_selection_methods"] = [
+        # Pre-preprocessing selectors map back to v0's ``before_z_score``
+        # stage flag; stage order (pre first) matches v0 execution order.
+        {"method": entry["name"], "params": {**(entry.get("params") or {}), "before_z_score": True}}
+        for entry in (spec.get("pre_preprocessing_feature_selectors") or [])
+    ] + [
         {"method": entry["name"], "params": entry.get("params") or {}}
         for entry in (spec.get("feature_selectors") or [])
     ]

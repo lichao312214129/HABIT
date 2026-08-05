@@ -338,6 +338,7 @@ def test_ml_spec_roundtrip() -> None:
     assert set(payload) == {
         "name",
         "version",
+        "pre_preprocessing_feature_selectors",
         "table_preprocessors",
         "feature_selectors",
         "classifier",
@@ -351,6 +352,38 @@ def test_ml_spec_roundtrip() -> None:
     assert [s.name for s in restored.feature_selectors] == ["variance"]
     assert [s.name for s in restored.metrics] == ["accuracy", "auc"]
     assert restored.random_seed == 42
+
+
+@pytest.mark.unit
+def test_ml_spec_fingerprints_selector_stage_assignment() -> None:
+    """Two specs differing only in selection stage hash differently."""
+    selector = Spec(name="variance", params={"threshold": 0.01})
+    pre = MLSpec.from_dict(
+        {
+            **_ml_spec().to_dict(),
+            "pre_preprocessing_feature_selectors": [selector.to_dict()],
+            "feature_selectors": [],
+        }
+    )
+    post = MLSpec.from_dict(
+        {
+            **_ml_spec().to_dict(),
+            "pre_preprocessing_feature_selectors": [],
+            "feature_selectors": [selector.to_dict()],
+        }
+    )
+    assert pre.pre_preprocessing_feature_selectors == (selector,)
+    assert pre.feature_selectors == ()
+    assert post.pre_preprocessing_feature_selectors == ()
+    assert post.feature_selectors == (selector,)
+    assert pre.fingerprint() != post.fingerprint()
+    # The stage chains round-trip through the dict form untouched.
+    assert MLSpec.from_dict(pre.to_dict()) == pre
+    # And the methods paragraph states the stage in execution order.
+    text = pre.describe_methods()
+    assert text.index("pre-preprocessing feature selection") < text.index(
+        "table preprocessing"
+    )
 
 
 @pytest.mark.unit
@@ -409,6 +442,7 @@ def test_ml_spec_describe_methods_states_every_configured_step() -> None:
 def test_ml_spec_defaults_to_empty_chains() -> None:
     """Only the classifier is required; chains and seed default to unset."""
     spec = MLSpec(name="bare", classifier=Spec(name="SVM"))
+    assert spec.pre_preprocessing_feature_selectors == ()
     assert spec.table_preprocessors == ()
     assert spec.feature_selectors == ()
     assert spec.metrics == ()

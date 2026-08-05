@@ -25,6 +25,7 @@ import yaml
 from habit.api.exceptions import HABITAPIError
 from habit.spec.legacy import (
     LegacyConfigAdapter,
+    _V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE,
     default_migrated_path,
     detect_yaml_version,
     migrate_yaml,
@@ -748,22 +749,113 @@ def test_ml_translation_strips_per_component_seeds_into_legacy() -> None:
 
 
 @pytest.mark.unit
-def test_ml_translation_before_z_score_warns_and_preserves_order() -> None:
-    """A pre-normalization selector keeps its original block under legacy."""
+def test_ml_translation_explicit_before_z_score_true_lands_in_pre_stage() -> None:
+    """before_z_score: true selects the pre-preprocessing chain, losslessly."""
     payload = _minimal_ml_payload()
     payload["feature_selection_methods"] = [
         {"method": "variance", "params": {"before_z_score": True, "top_k": 20}},
     ]
     translation = _translate_ml(payload)
-    document = translation.document
+    spec = translation.document["spec"]
 
-    params = document["spec"]["feature_selectors"][0]["params"]
+    assert [s["name"] for s in spec["pre_preprocessing_feature_selectors"]] == [
+        "variance"
+    ]
+    params = spec["pre_preprocessing_feature_selectors"][0]["params"]
     assert "before_z_score" not in params
     assert params["top_k"] == 20
-    assert document["legacy"]["feature_selection_methods"] == payload[
-        "feature_selection_methods"
+    assert spec["feature_selectors"] == []
+    # Now expressible natively: no reordering warning, no legacy preservation.
+    assert not any("BEFORE normalization" in w for w in translation.warnings)
+    assert "feature_selection_methods" not in translation.document["legacy"]
+    # The staged spec parses into the typed MLSpec.
+    staged = MLSpec.from_dict(spec)
+    assert [s.name for s in staged.pre_preprocessing_feature_selectors] == ["variance"]
+
+
+@pytest.mark.unit
+def test_ml_translation_explicit_before_z_score_false_stays_post_stage() -> None:
+    """before_z_score: false overrides even a pre-by-default registry entry."""
+    payload = _minimal_ml_payload()
+    payload["feature_selection_methods"] = [
+        {"method": "variance", "params": {"before_z_score": False, "top_k": 20}},
     ]
-    assert any("BEFORE normalization" in warning for warning in translation.warnings)
+    translation = _translate_ml(payload)
+    spec = translation.document["spec"]
+
+    assert spec["pre_preprocessing_feature_selectors"] == []
+    assert [s["name"] for s in spec["feature_selectors"]] == ["variance"]
+    params = spec["feature_selectors"][0]["params"]
+    assert "before_z_score" not in params
+    assert params["top_k"] == 20
+    # No selector-stage warning (the only warnings concern n_splits etc.).
+    assert not any("BEFORE normalization" in w for w in translation.warnings)
+    assert "feature_selection_methods" not in translation.document["legacy"]
+
+
+@pytest.mark.unit
+def test_ml_translation_registry_default_routes_variance_to_pre_stage() -> None:
+    """A param-less variance selector follows its v0 default into pre-stage.
+
+    Regression test for the warning gap: v0's variance selector defaults to
+    running BEFORE normalisation (post-z-score variances are all 1.0), so an
+    empty-params entry must NOT silently land in the post-preprocessing
+    chain.
+    """
+    payload = _minimal_ml_payload()
+    payload["feature_selection_methods"] = [
+        {"method": "variance", "params": {}},
+        {"method": "correlation", "params": {}},
+    ]
+    translation = _translate_ml(payload)
+    spec = translation.document["spec"]
+
+    assert [s["name"] for s in spec["pre_preprocessing_feature_selectors"]] == [
+        "variance"
+    ]
+    assert [s["name"] for s in spec["feature_selectors"]] == ["correlation"]
+    # Faithful translation: nothing is reordered, so no stage warning fires
+    # (the only warnings concern n_splits/stratified, preserved by design).
+    assert not any("BEFORE normalization" in w for w in translation.warnings)
+    assert "feature_selection_methods" not in translation.document["legacy"]
+
+
+@pytest.mark.unit
+def test_ml_translation_stage_split_preserves_within_stage_order() -> None:
+    """Interleaved YAML entries keep their relative order inside each stage."""
+    payload = _minimal_ml_payload()
+    payload["feature_selection_methods"] = [
+        {"method": "correlation", "params": {}},
+        {"method": "variance", "params": {"threshold": 0.0}},
+        {"method": "variance", "params": {"top_k": 10}},
+        {"method": "lasso", "params": {}},
+    ]
+    spec = _translate_ml(payload).document["spec"]
+
+    assert spec["pre_preprocessing_feature_selectors"] == [
+        {"name": "variance", "params": {"threshold": 0.0}},
+        {"name": "variance", "params": {"top_k": 10}},
+    ]
+    assert [s["name"] for s in spec["feature_selectors"]] == [
+        "correlation",
+        "lasso",
+    ]
+
+
+@pytest.mark.unit
+def test_v0_selector_stage_defaults_mirror_the_v0_registry() -> None:
+    """The mirrored default-stage map cannot drift from the frozen v0 registry."""
+    from habit.compat.engines.machine_learning.feature_selectors.selector_registry import (
+        SelectorRegistry,
+    )
+
+    registry_pre_by_default = {
+        name
+        for name, entry in SelectorRegistry.entries().items()
+        if entry.get("default_before_z_score", False)
+    }
+    assert set(_V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE) == registry_pre_by_default
+    assert all(_V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE.values())
 
 
 @pytest.mark.unit
@@ -858,8 +950,11 @@ def test_bundled_ml_config_translates_into_constructible_spec() -> None:
 
     spec = MLSpec.from_dict(document["spec"])
     assert spec.classifier.name == "LogisticRegression"
-    assert [s.name for s in spec.table_preprocessors] == ["zscore"]
-    assert [s.name for s in spec.feature_selectors] == ["correlation", "variance"]
+    assert spec.table_preprocessors and spec.table_preprocessors[0].name == "zscore"
+    # The bundled config marks variance before_z_score: true, so it lands in
+    # the pre-preprocessing stage; correlation stays post-preprocessing.
+    assert [s.name for s in spec.pre_preprocessing_feature_selectors] == ["variance"]
+    assert [s.name for s in spec.feature_selectors] == ["correlation"]
     assert spec.random_seed == 42
 
     # The translated spec is not merely parseable: it builds real components.
