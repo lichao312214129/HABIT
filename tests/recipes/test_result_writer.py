@@ -210,6 +210,48 @@ def test_written_label_map_keeps_its_geometry(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+@pytest.mark.parametrize(
+    "map_format, suffix",
+    [
+        ("nrrd", ".nrrd"),
+        ("nii.gz", ".nii.gz"),
+        (".nii", ".nii"),
+        ("mha", ".mha"),
+    ],
+)
+def test_save_writes_label_maps_in_requested_format(
+    tmp_path: Path, map_format: str, suffix: str
+) -> None:
+    """
+    ``map_format`` selects the label-map container without changing the stem.
+
+    Args:
+        tmp_path: Destination root.
+        map_format: Format string accepted by ``StudyResult.save``.
+        suffix: Expected file extension including the leading dot.
+    """
+    import SimpleITK as sitk
+
+    out = _study().save(tmp_path / "study", map_format=map_format)
+    path = out / f"a_habitats{suffix}"
+    assert path.is_file()
+    image = sitk.ReadImage(str(path))
+    assert np.array_equal(
+        sitk.GetArrayFromImage(image), _habitat_map().label_array
+    )
+
+
+@pytest.mark.unit
+def test_unsupported_map_format_raises() -> None:
+    """Unknown ``map_format`` values fail loudly at writer construction."""
+    from habit.adapters import DirectoryResultWriter
+    from habit.exceptions import HABITAPIError
+
+    with pytest.raises(HABITAPIError, match="Unsupported map_format"):
+        DirectoryResultWriter("unused", map_format="dicom")
+
+
+@pytest.mark.unit
 def test_writer_creates_nothing_until_it_writes(tmp_path: Path) -> None:
     """
     Constructing a writer has no side effect.

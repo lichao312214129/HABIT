@@ -192,6 +192,7 @@ class StudyResult:
         out_dir: Union[str, Path],
         *,
         table_format: str = "parquet",
+        map_format: str = "nrrd",
         write_maps: bool = True,
         write_units_table: bool = True,
         write_cluster_plots: bool = False,
@@ -207,7 +208,7 @@ class StudyResult:
         :meth:`write`, which hands over everything unconditionally (the
         protocol semantics), this entry point honours the two v0.1
         reporting switches so the CLI can keep them meaningful:
-        ``write_maps=False`` skips every NRRD (v0.1 ``save_images: false``)
+        ``write_maps=False`` skips every label map (v0.1 ``save_images: false``)
         and ``write_units_table=False`` skips the units table (v0.1
         ``save_results_csv: false``).
 
@@ -215,7 +216,7 @@ class StudyResult:
         clustering :attr:`units` this also persists the derived v0.1
         reporting views of them: the ``habitats.parquet``/``habitats.csv``
         unit table (row granularity follows the recipe design) and, for the
-        two-step training design, one ``<subject_id>_supervoxel.nrrd`` per
+        two-step training design, one ``<subject_id>_supervoxel.<ext>`` per
         subject. v0.1 wrote supervoxel maps during training only -- its
         predict path read them back rather than rewriting them -- so the
         apply design writes none either.
@@ -230,8 +231,11 @@ class StudyResult:
             out_dir: Destination directory, created when missing.
             table_format: On-disk format of the units table, ``"parquet"``
                 (v0.1 default) or ``"csv"``.
+            map_format: On-disk format of habitat / supervoxel label maps.
+                ``"nrrd"`` (v0.1 default), ``"nii"``, ``"nii.gz"``, ``"mha"``,
+                or ``"mhd"``.
             write_maps: Write habitat maps (and, for the two-step design,
-                supervoxel maps) as NRRD files.
+                supervoxel maps) using ``map_format``.
             write_units_table: Write the ``habitats`` units table.
             write_cluster_plots: Write the population-level 2D PCA clustering
                 scatter when cohort-level units and a habitat model exist.
@@ -247,7 +251,7 @@ class StudyResult:
         # must not make the filesystem adapter a hard import dependency.
         from habit.adapters.writers import DirectoryResultWriter
 
-        writer = DirectoryResultWriter(out_dir)
+        writer = DirectoryResultWriter(out_dir, map_format=map_format)
         if write_maps:
             for habitat_map in self.habitat_maps:
                 writer.write_habitat_map(habitat_map)

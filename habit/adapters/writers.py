@@ -43,7 +43,7 @@ from habit.utils.habitats_results_io import (
     save_habitats_results,
 )
 
-__all__ = ["DirectoryResultWriter"]
+__all__ = ["DirectoryResultWriter", "normalize_map_format"]
 
 #: Habitat label dtype written to disk. v0.1 wrote label maps through
 #: ``sitk.GetImageFromArray`` on an ``int32`` label array, and the golden
@@ -60,6 +60,17 @@ _SUPERVOXEL_COLUMN = "supervoxel"
 _HABITATS_COLUMN = "habitats"
 _COUNT_COLUMN = "count"
 
+#: Canonical stem -> file extension (including the leading dot) for habitat
+#: and supervoxel label maps. SimpleITK selects the encoder from the path
+#: suffix, so the extension IS the format contract.
+_MAP_FORMAT_EXTENSIONS = {
+    "nrrd": ".nrrd",
+    "nii": ".nii",
+    "nii.gz": ".nii.gz",
+    "mha": ".mha",
+    "mhd": ".mhd",
+}
+
 
 def _require_simpleitk() -> Any:
     """Import SimpleITK lazily so the adapter layer stays light to import."""
@@ -70,6 +81,33 @@ def _require_simpleitk() -> Any:
             "SimpleITK is required to write image files to disk."
         ) from exc
     return sitk
+
+
+def normalize_map_format(map_format: str) -> str:
+    """
+    Canonicalise a label-map on-disk format to a file extension.
+
+    Accepted values (case-insensitive, leading dot optional)::
+
+        nrrd | nii | nii.gz | mha | mhd
+
+    Args:
+        map_format: Format name or extension requested by the caller.
+
+    Returns:
+        Extension including the leading dot, e.g. ``".nii.gz"``.
+
+    Raises:
+        HABITAPIError: When ``map_format`` is not one of the supported values.
+    """
+    key = str(map_format).strip().lower().lstrip(".")
+    try:
+        return _MAP_FORMAT_EXTENSIONS[key]
+    except KeyError as exc:
+        supported = ", ".join(sorted(_MAP_FORMAT_EXTENSIONS))
+        raise HABITAPIError(
+            f"Unsupported map_format {map_format!r}; expected one of: {supported}."
+        ) from exc
 
 
 def _apply_geometry(image: Any, geometry: Geometry) -> None:
@@ -196,10 +234,14 @@ class DirectoryResultWriter:
 
     The layout is fixed here and nowhere else::
 
-        <root>/<subject_id>_habitats.nrrd
+        <root>/<subject_id>_habitats.<ext>
         <root>/habitat_model.habitatmodel
         <root>/<name>.csv
         <root>/run_manifest.json
+
+    ``<ext>`` defaults to ``nrrd`` (v0.1). Pass ``map_format`` to write
+    NIfTI or MetaImage instead; SimpleITK chooses the encoder from the
+    destination suffix.
 
     Args:
         root: Destination directory. Created on first write rather than in
@@ -209,10 +251,19 @@ class DirectoryResultWriter:
             :class:`~habit.adapters.directory.DirectoryDataSource`: a
             destination is a filesystem fact here, not a configuration
             setting.
+        map_format: On-disk format for habitat and supervoxel label maps.
+            One of ``"nrrd"`` (default), ``"nii"``, ``"nii.gz"``, ``"mha"``,
+            ``"mhd"``. Leading dots are accepted (``".nii.gz"``).
     """
 
-    def __init__(self, root: Union[str, Path]) -> None:
+    def __init__(
+        self,
+        root: Union[str, Path],
+        *,
+        map_format: str = "nrrd",
+    ) -> None:
         self.root = Path(root)
+        self.map_extension = normalize_map_format(map_format)
 
     def _destination(self, filename: str) -> Path:
         """Return an absolute path inside ``root``, creating it if needed."""
@@ -221,16 +272,18 @@ class DirectoryResultWriter:
 
     def write_habitat_map(self, habitat_map: HabitatMap) -> Optional[str]:
         """
-        Write one subject's habitat label image as NRRD.
+        Write one subject's habitat label image.
 
         Args:
             habitat_map: Labels plus the grid they refer to.
 
         Returns:
-            The path written.
+            The path written (extension follows :attr:`map_extension`).
         """
         sitk = _require_simpleitk()
-        destination = self._destination(f"{habitat_map.subject_id}_habitats.nrrd")
+        destination = self._destination(
+            f"{habitat_map.subject_id}_habitats{self.map_extension}"
+        )
         array = np.ascontiguousarray(habitat_map.label_array, dtype=_LABEL_DTYPE)
         image = sitk.GetImageFromArray(array)
         _apply_geometry(image, habitat_map.geometry)
@@ -256,14 +309,15 @@ class DirectoryResultWriter:
 
     def write_supervoxel_map(self, units: Supervoxelization) -> Optional[str]:
         """
-        Write one subject's supervoxel partition as NRRD.
+        Write one subject's supervoxel partition.
 
         Not part of the :class:`~habit.contracts.ops.ResultWriter` protocol:
         the partition map is a v0.1 reporting artefact (two-step training
         wrote ``<subject_id>_supervoxel.nrrd`` during clustering), derived
         from the study's clustering units rather than produced by the
         algorithms. Keeping it off the protocol lets third-party writers
-        ignore it without structurally breaking the contract.
+        ignore it without structurally breaking the contract. The on-disk
+        extension follows the writer's :attr:`map_extension`.
 
         Args:
             units: The subject's supervoxel partition.
@@ -272,7 +326,9 @@ class DirectoryResultWriter:
             The path written.
         """
         sitk = _require_simpleitk()
-        destination = self._destination(f"{units.subject_id}_supervoxel.nrrd")
+        destination = self._destination(
+            f"{units.subject_id}_supervoxel{self.map_extension}"
+        )
         array = np.ascontiguousarray(units.label_array, dtype=_LABEL_DTYPE)
         image = sitk.GetImageFromArray(array)
         _apply_geometry(image, units.geometry)

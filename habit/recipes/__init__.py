@@ -42,7 +42,11 @@ from habit.recipes.modeling import (
     predict_model,
     train_model,
 )
-from habit.recipes.preprocess import preprocess_images
+from habit.recipes.preprocess import (
+    preprocess_image,
+    preprocess_images,
+    preprocess_subject,
+)
 from habit.recipes.sort_dicom import sort_dicom
 from habit.recipes.result import StudyResult
 from habit.recipes.study import (
@@ -74,7 +78,9 @@ __all__ = [
     "one_step_habitat",
     "pairwise_delong_test",
     "predict_model",
+    "preprocess_image",
     "preprocess_images",
+    "preprocess_subject",
     "run_from_yaml",
     "sort_dicom",
     "test_retest_analysis",

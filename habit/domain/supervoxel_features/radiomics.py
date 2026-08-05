@@ -140,6 +140,24 @@ class SupervoxelRadiomicsFeatures:
         self.torch_dtype = str(torch_dtype)
         self.output_float32 = bool(output_float32)
 
+    def _resolved_params_file(self) -> Optional[str]:
+        """
+        Return the parameter file to use, falling back to the supervoxel preset.
+
+        Matches v0.1 ``SupervoxelRadiomicsExtractor`` behaviour: when the user
+        omits ``params_file``, the bundled ``params_supervoxel_radiomics.yaml``
+        preset is used instead of PyRadiomics bare defaults (which enable no
+        feature classes and yield empty matrices).
+
+        Returns:
+            A path, or ``None`` when inline ``params`` were supplied.
+        """
+        if self.params is not None:
+            return None
+        from habit.utils.radiomics_preset_utils import resolve_params_file
+
+        return resolve_params_file(self.params_file, preset="supervoxel")
+
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
@@ -224,7 +242,7 @@ class SupervoxelRadiomicsFeatures:
         supervoxel_sitk.CopyInformation(image_sitk)
 
         extractor = build_pyradiomics_extractor(
-            self.params_file, self.params, owner="supervoxel_radiomics"
+            self._resolved_params_file(), self.params, owner="supervoxel_radiomics"
         )
         backend, device = resolve_voxel_radiomics_backend(
             use_torch_radiomics=self.use_torch_radiomics,

@@ -147,7 +147,11 @@ def echo_error(message: str) -> None:
 
 def echo_success(message: str) -> None:
     """Print a standardized success line."""
-    click.secho(f"✓ {message}", fg="green")
+    # ASCII prefix keeps Windows GBK consoles from crashing on Unicode checkmarks.
+    try:
+        click.secho(f"✓ {message}", fg="green")
+    except UnicodeEncodeError:
+        click.secho(f"[OK] {message}", fg="green")
 
 
 def exit_with_error(message: str, *, exit_code: int = 1) -> None:

@@ -99,6 +99,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     "api.preprocessing": (
         "PreprocessingConfig",
         "run_preprocess",
+        "preprocess_subject",
+        "preprocess_image",
     ),
     "api.dicom_sort": (
         "DicomSortConfig",

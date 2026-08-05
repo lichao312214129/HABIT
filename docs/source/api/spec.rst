@@ -7,6 +7,11 @@ described — the same document shape as v1 YAML.
 ``Spec`` and ``HabitatSpec``
 ----------------------------
 
+Keyword arguments may be written in **runtime pipeline order** (voxel features
+→ optional voxel prep → supervoxels → optional cohort prep → fit → assign →
+habitat features). That can differ from the dataclass field order, where
+optional preprocessor chains appear later because they have defaults.
+
 .. code-block:: python
 
    from habit import HabitatSpec, Spec, load_habitat_spec, save_habitat_spec

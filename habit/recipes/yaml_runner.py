@@ -1093,6 +1093,66 @@ def _save_model_result(
         log = logger or logging.getLogger(__name__)
         log.info("Saved fitted pipeline to %s", pipeline_path)
 
+    _write_all_prediction_results(result, table, out_dir, logger=logger)
+
+
+def _write_all_prediction_results(
+    result: ModelResult,
+    table: FeatureTable,
+    out_dir: Path,
+    *,
+    logger: Optional[logging.Logger],
+) -> None:
+    """Write ``all_prediction_results.csv`` for compare / DeLong (v0.1 compat).
+
+    Only emitted when a hold-out split ran; mirrors the v0.1 report writer
+    column layout (subject_id, label, dataset, {Model}_prob, {Model}_pred).
+    """
+    if result.test_metrics is None or not result.train_row_ids:
+        return
+    import pandas as pd
+    from habit.recipes.modeling import predict_model, _select_rows, _row_ids
+
+    model_name = result.pipeline.model.spec.name
+    row_ids = _row_ids(table)
+    id_to_index = {rid: idx for idx, rid in enumerate(row_ids)}
+    train_idx = [id_to_index[rid] for rid in result.train_row_ids]
+    test_idx = [id_to_index[rid] for rid in result.test_row_ids]
+    subj_col = table.id_columns[0]
+    label_col = table.outcome.column if table.outcome is not None else "label"
+
+    train_table = _select_rows(table, train_idx)
+    test_table = _select_rows(table, test_idx)
+    train_pred = predict_model(result.pipeline, train_table)
+    test_pred = predict_model(result.pipeline, test_table)
+
+    train_df = train_table.frame[[subj_col, label_col]].copy()
+    train_df.columns = ["subject_id", "label"]
+    train_df["dataset"] = "train"
+    test_df = test_table.frame[[subj_col, label_col]].copy()
+    test_df.columns = ["subject_id", "label"]
+    test_df["dataset"] = "test"
+
+    pos_idx = 1
+    train_df[f"{model_name}_pred"] = train_pred.predictions.to_numpy()
+    test_df[f"{model_name}_pred"] = test_pred.predictions.to_numpy()
+    if (
+        train_pred.probabilities is not None
+        and train_pred.probabilities.shape[1] > pos_idx
+    ):
+        train_df[f"{model_name}_prob"] = (
+            train_pred.probabilities.iloc[:, pos_idx].to_numpy()
+        )
+        test_df[f"{model_name}_prob"] = (
+            test_pred.probabilities.iloc[:, pos_idx].to_numpy()
+        )
+
+    all_df = pd.concat([train_df, test_df], ignore_index=True)
+    destination = out_dir / "all_prediction_results.csv"
+    all_df.to_csv(destination, index=False)
+    log = logger or logging.getLogger(__name__)
+    log.info("Saved hold-out predictions to %s", destination)
+
 
 def _save_cv_result(
     result: CVResult,

@@ -1,15 +1,16 @@
 Tabular machine learning: train, cross-validate, predict
-========================================================
+=========================================================
 
 Habitat (and radiomics) analyses bottom out in a per-subject feature table;
-the v1 ML recipes model that table directly. This example covers the full
-tabular track on a synthetic :class:`~habit.contracts.FeatureTable`:
+the v1 ML recipes model that table directly. This example covers:
 
 1. declare the modelling definition as an :class:`~habit.spec.MLSpec`
    (preprocessors, selector, classifier, metrics),
 2. hold-out evaluation with :func:`~habit.recipes.train_model`,
 3. K-fold cross-validation with :func:`~habit.recipes.cross_validate`,
-4. inference on new rows with :func:`~habit.recipes.predict_model`.
+4. inference with :func:`~habit.recipes.predict_model`,
+5. **TablePipeline** save/load (``.habitpipeline`` archive) — the tabular
+   equivalent of ``HabitatModel.save/load``.
 
 Two guarantees make these recipes leak-free by construction: under a split
 or a fold the pipeline sees the training rows **only**, and at prediction
@@ -39,21 +40,13 @@ workflow, not the score::
    Mean metrics: {'accuracy': 0.988, 'auc': 1.0}
    Std metrics:  {'accuracy': 0.025, 'auc': 0.0}
 
-   --- Prediction with the fitted pipeline ---
-   Predictions: 80 rows
-   Class probability columns: ['0', '1']
-                0      1
-   subject
-   subj001  0.903  0.097
-   subj002  0.109  0.891
-   subj003  0.830  0.170
+   --- TablePipeline round-trip ---
+   Saved demo.habitpipeline (...)
+   Reloaded classifier: LogisticRegression
 
 What to read next
 -----------------
 
-* :doc:`../api/domain_table` — the tabular building blocks (preprocessors,
-  selectors, classifiers, metrics, :class:`~habit.domain.TablePipeline`)
-* :class:`~habit.recipes.ModelResult` / :class:`~habit.recipes.CVResult` /
-  :class:`~habit.recipes.PredictionResult` — the result contracts
-* :doc:`../configuration/machine_learning` — the YAML equivalent
-  (``habit model`` / ``habit cv``)
+* :doc:`ml_advanced` — staged selectors + ``compare_models``
+* :doc:`../api/domain_table` — tabular building blocks
+* :doc:`../configuration/machine_learning` — YAML equivalent (``habit model`` / ``habit cv``)

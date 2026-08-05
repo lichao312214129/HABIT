@@ -421,6 +421,15 @@ def _load_predict_table(config: MLConfig, logger: logging.Logger) -> FeatureTabl
         column for column in frame.columns if column not in {subj_col, label_col}
     ]
     selected = features if features else available
+    prefix = str(entry.name or "").strip()
+    rename = {
+        column: f"{prefix}{column}"
+        for column in selected
+        if prefix and column in frame.columns
+    }
+    if rename:
+        frame = frame.rename(columns=rename)
+        selected = [rename.get(column, column) for column in selected]
     missing = [column for column in selected if column not in frame.columns]
     if missing:
         raise ValueError(f"Input table {path} is missing feature columns {missing}.")
@@ -753,6 +762,10 @@ def _save_model_result(
     if config.is_save_model:
         pipeline_path = result.pipeline.save(out_dir / _V1_PIPELINE_NAME)
         logger.info("Saved fitted pipeline to %s", pipeline_path)
+
+    from habit.recipes.yaml_runner import _write_all_prediction_results
+
+    _write_all_prediction_results(result, table, out_dir, logger=logger)
 
     logger.info("Metrics written to %s", metrics_path)
 

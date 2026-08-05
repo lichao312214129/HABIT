@@ -54,17 +54,23 @@ The write-side counterpart of ``DirectoryDataSource``, implementing the
 
    from habit.adapters import DirectoryResultWriter
 
-   writer = DirectoryResultWriter("out/study")   # creates nothing yet
+   writer = DirectoryResultWriter("out/study")   # creates nothing yet; maps as .nrrd
    result.write(writer)                          # a StudyResult from habit.recipes
+
+   # Prefer StudyResult.save for the common case (same layout + units table):
+   # result.save("out/study", map_format="nii.gz")
 
    # out/study/<subject>_habitats.nrrd     habitat label maps (geometry preserved)
    # out/study/habitat_model.habitatmodel  the population habitat definition
    # out/study/habitat_features.csv        the cohort feature table
    # out/study/run_manifest.json           provenance and methods text
 
-The directory is created on the first write, so constructing a writer you end
-up not using leaves nothing behind. Implement the same four methods elsewhere
-to send results to an object store or an in-memory sink instead.
+``map_format`` on :class:`~habit.adapters.DirectoryResultWriter` (and on
+:meth:`~habit.recipes.StudyResult.save`) selects the label-map container:
+``nrrd`` (default), ``nii``, ``nii.gz``, ``mha``, or ``mhd``. The directory is
+created on the first write, so constructing a writer you end up not using
+leaves nothing behind. Implement the same four methods elsewhere to send
+results to an object store or an in-memory sink instead.
 
 NnU-Net layout
 --------------

@@ -30,7 +30,8 @@ PARAMS = str(REPO_ROOT / "config" / "radiomics" / "params_voxel_radiomics.yaml")
 
 cohort = DirectoryDataSource(ROOT, modalities=MODS, roi=ROI).load()[:10]
 print(f"{len(cohort)} subjects from {ROOT}")
-
+ 
+ 
 kw = dict(modalities=MODS, roi=ROI, params_file=PARAMS, kernel_radius=3, voxel_batch=1000)
 gpu_ext = VoxelRadiomicsFeatures(**kw, use_torch_radiomics="auto")
 cpu_ext = VoxelRadiomicsFeatures(**kw, use_torch_radiomics=False)

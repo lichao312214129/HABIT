@@ -167,7 +167,9 @@ def run_check_config(
             f"当前类型 / got: {type(data).__name__}"
         )
 
-    click.echo(f"✓ YAML 语法正确 / YAML syntax OK: {path}")
+    from habit.common import echo_success
+
+    echo_success(f"YAML 语法正确 / YAML syntax OK: {path}")
 
     # 2) Schema (optional)
     if syntax_only:

@@ -6,29 +6,121 @@ This section explains how to customize and extend HABIT components, including pr
 .. seealso::
 
    Base classes and interfaces are defined in source code. If custom model metrics depend on **scikit-learn conventions**, see the `sklearn developer guide <https://scikit-learn.org/stable/developers/develop.html>`_ and :doc:`../reference/upstream_libraries`.
+   For arithmetic formulas without writing a plugin, use the built-in
+   ``expression`` voxel extractor (:doc:`../examples/custom_voxel_features`).
 
 Overview
 --------
 
 One of HABIT's design goals is extensibility. Factory patterns and registration let users add custom components easily.
 
-**Extensible components:**
+**v1.0 (preferred) — protocol registries**
 
-- **Preprocessors**: custom image preprocessing methods
-- **Feature extractors**: custom clustering feature extractors
-- **Clustering algorithms**: custom clustering algorithms
-- **Strategies**: custom habitat segmentation strategies
-- **Models**: custom machine learning models
-- **Feature selectors**: custom feature selection methods
+- Domain string = snake_case singular protocol name
+  (e.g. ``voxel_feature_extractor``, ``habitat_model_fitter``)
+- Entry-point group = ``habit.<domain>``
+- Discover with ``list_plugins("voxel_feature_extractor")`` / ``load_plugins()``
+
+**v0.1 (legacy, still honoured) — factory registries**
+
+- Plural domains such as ``feature_extractors``, ``models``, ``metrics``
+- Documented in the sections below that still mention
+  ``BaseClusteringExtractor`` / ``FeatureExtractorRegistry``
+
+**Extensible components (v1):**
+
+- **Voxel feature extractors**: ``VoxelFeatureExtractorRegistry``
+- **Supervoxelizers / supervoxel features**: matching domain registries
+- **Habitat model fitters / assigners / habitat features**
+- **Table preprocessors, feature selectors, classifiers, metrics**
 
 **Extension mechanism:**
 
-HABIT uses factory patterns and registration:
+1. **Registry**: create components with ``Registry.create(name, **params)``
+2. **Registration**: ``@Registry.register("name")`` (in-process) or entry points
+3. **Protocol**: implement the matching ``habit.domain.protocols`` protocol
+4. **Plug and play**: reference the name from ``HabitatSpec`` / YAML
 
-1. **Factory pattern**: all extensible components are created via factories
-2. **Registration**: register custom components with decorators
-3. **Unified interface**: custom components follow a common interface
-4. **Plug and play**: once registered, use in configuration files
+v1 custom voxel feature extractors
+----------------------------------
+
+Use this path for DIY formulas that need neighbourhoods, embeddings, or
+logic beyond the built-in ``expression`` DSL.
+
+**Step 1: Implement the protocol and register**
+
+.. code-block:: python
+
+   import numpy as np
+   from habit.contracts import VoxelFeatureField
+   from habit.contracts.subject import Subject
+   from habit.domain.voxel_features import (
+       VoxelFeatureExtractorRegistry,
+       aligned_image,
+       build_voxel_field,
+       roi_voxels,
+   )
+   from habit.spec import Spec
+
+   @VoxelFeatureExtractorRegistry.register("t1_t2_contrast")
+   class T1T2Contrast:
+       def __init__(self, modalities=("T1", "T2"), roi=None, eps=1e-8):
+           self.modalities = tuple(modalities)
+           self.roi = roi
+           self.eps = float(eps)
+
+       @property
+       def spec(self) -> Spec:
+           return Spec(
+               name="t1_t2_contrast",
+               params={
+                   "modalities": list(self.modalities),
+                   "roi": self.roi,
+                   "eps": self.eps,
+               },
+           )
+
+       def __call__(self, subject: Subject) -> VoxelFeatureField:
+           mask, inside, index = roi_voxels(subject, self.roi)
+           a = aligned_image(subject, self.modalities[0], mask, owner="t1_t2_contrast")
+           b = aligned_image(subject, self.modalities[1], mask, owner="t1_t2_contrast")
+           values = ((a[inside] - b[inside]) / (a[inside] + b[inside] + self.eps))
+           return build_voxel_field(
+               subject, mask, index, ("t1_t2_contrast",),
+               np.asarray(values).reshape(-1, 1), self.spec,
+           )
+
+**Step 2: Use it from a HabitatSpec (or YAML after migration)**
+
+.. code-block:: python
+
+   from habit import HabitatSpec, Spec
+   import habit.recipes as recipes
+
+   spec = HabitatSpec(
+       name="diy",
+       voxel_feature_extractor=Spec("t1_t2_contrast", {"modalities": ["T1", "T2"]}),
+       supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
+       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
+       habitat_assigner=Spec("nearest_centroid"),
+   )
+   result = recipes.two_step(cohort, spec)
+
+**Step 3 (optional): ship as a third-party package**
+
+In the plugin's ``pyproject.toml``::
+
+   [project.entry-points."habit.voxel_feature_extractor"]
+   t1_t2_contrast = "my_package.features:register"
+
+where ``register()`` performs the ``@VoxelFeatureExtractorRegistry.register``
+call (or imports the module that does). Users then::
+
+   from habit import load_plugins
+   load_plugins()
+
+See :doc:`../examples/custom_voxel_features` for a runnable demo covering both
+``expression`` and a custom plugin, and :doc:`../api/plugins` for discovery.
 
 Extension principles
 --------------------

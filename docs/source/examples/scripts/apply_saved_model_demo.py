@@ -59,8 +59,14 @@ with tempfile.TemporaryDirectory() as tmp:
     #    seed). The model's stored preprocessing state is replayed, so the
     #    new supervoxels are scored in the training feature space.
     new_cohort = make_synthetic_cohort(n_subjects=3, shape=(20, 20, 20), rng=1234)
-    print(f"\nNew cohort: {list(new_cohort.subject_ids)}")
+    print(f"\nNew cohort (batch apply): {list(new_cohort.subject_ids)}")
     prediction = recipes.apply_habitat_model(new_cohort, spec, model)
+
+    # Non-batch: apply to one subject via the returned SubjectPipeline.
+    atomic_subject = new_cohort[0]
+    atomic_map = prediction.pipeline(atomic_subject)
+    print(f"Atomic apply pipeline({atomic_subject.subject_id!r}): "
+          f"{len(set(atomic_map.label_array[atomic_map.label_array > 0]))} habitat labels")
 
     for habitat_map in prediction.habitat_maps:
         ids, counts = np.unique(

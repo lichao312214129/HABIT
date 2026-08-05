@@ -27,27 +27,34 @@ cohort = make_synthetic_cohort(
 print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 
 # 2. Spec: the whole analysis as one frozen, fingerprintable value object.
+# Keyword arguments follow the runtime pipeline (not HabitatSpec field order):
+#   voxel features -> supervoxels -> fit habitats on pooled units
+#   -> assign -> habitat features.
 spec = HabitatSpec(
     name="habitat_two_step",
-    # Voxel level: concatenate the raw intensities of both modalities.
+    # 1. Voxel level: concatenate the raw intensities of both modalities.
     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    # Supervoxel level: per-subject k-means over the voxel features.
+    # 2. Supervoxel level: per-subject k-means over the voxel features.
     supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
-    # Cohort level: k-means over pooled supervoxels; the habitat count is
-    # selected in [2, 3] by the silhouette score.
+    # 3. Cohort level: k-means over pooled supervoxels; habitat count in
+    #    [2, 3] selected by silhouette score.
     habitat_model_fitter=Spec(
         "kmeans",
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 5},
     ),
-    # Assignment: each supervoxel takes the habitat of its nearest centroid.
+    # 4. Assignment: each supervoxel takes the habitat of its nearest centroid.
     habitat_assigner=Spec("nearest_centroid"),
-    # Habitat feature families, computed after assignment.
+    # 5. Habitat feature families, computed after assignment.
     habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
     random_seed=42,
 )
 print(f"Spec fingerprint: {spec.fingerprint()}")
 
 # 3. Train: fit the cohort-level habitat definition and label every subject.
+#    Non-batch alternative after training:
+#      habitat_map = result.pipeline(cohort[0])
+#    Fit-time units (no assigner): build_habitat_components(spec).pipeline(
+#        assigner=None).units(cohort[0])  — see habitat_preprocessing_demo.py.
 result = recipes.two_step(cohort, spec)
 
 print("\n--- Fitted habitat model ---")

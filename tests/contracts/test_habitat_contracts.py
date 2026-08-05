@@ -216,3 +216,68 @@ def test_provenance_derive_chains_inputs() -> None:
     assert derived.random_seed == 42
     assert derived.software["habit"]
     assert derived.created_at
+
+
+@pytest.mark.unit
+def test_provenance_derive_inherits_random_seed_by_default() -> None:
+    """
+    Omitting random_seed keeps the parent's seed; None clears it explicitly.
+
+    Deterministic mid-pipeline steps must not erase the seed that defined the
+    scientific result, which is what made HabitatModel.summary() report None
+    after cohort-level preprocessing was attached.
+    """
+    seeded = Provenance.source("fitter").derive(
+        produced_by="habitat_model_fitter.kmeans",
+        spec_fingerprint="fit",
+        random_seed=42,
+    )
+    inherited = seeded.derive(
+        produced_by="habitat_model_fitter.kmeans+cohort_preprocessing",
+        spec_fingerprint="chain",
+    )
+    cleared = seeded.derive(
+        produced_by="deterministic_clear",
+        spec_fingerprint="clear",
+        random_seed=None,
+    )
+    replaced = seeded.derive(
+        produced_by="reseeded",
+        spec_fingerprint="new",
+        random_seed=7,
+    )
+
+    assert inherited.random_seed == 42
+    assert cleared.random_seed is None
+    assert replaced.random_seed == 7
+
+
+@pytest.mark.unit
+def test_with_cohort_preprocessing_preserves_random_seed() -> None:
+    """Attaching a cohort preprocessing chain must not wipe the fitter seed."""
+    model = HabitatModel(
+        model_id="kmeans-abc",
+        n_habitats=2,
+        feature_names=("f1", "f2"),
+        centroids=np.array([[1.0, 2.0], [3.0, 4.0]]),
+        preprocessing_state={"inertia": 1.0},
+        spec_payload={"habitat_model_fitter": {"name": "kmeans", "params": {}}},
+        cohort_fingerprint=CohortFingerprint(
+            n_subjects=2, modalities=("T1",), subject_id_digest="digest"
+        ),
+        provenance=Provenance(
+            produced_by="habitat_model_fitter.kmeans",
+            spec_fingerprint="fit",
+            random_seed=42,
+        ),
+    )
+
+    rebound = model.with_cohort_preprocessing(
+        state={"methods": []},
+        spec_payload={"name": "cohort_feature_preprocessor", "params": {}},
+    )
+
+    assert rebound.provenance.random_seed == 42
+    assert "cohort_preprocessing" in rebound.provenance.produced_by
+    assert "random seed        : 42" in rebound.summary()
+    assert "cohort_feature_preprocessor" in rebound.preprocessing_state

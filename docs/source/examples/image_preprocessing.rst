@@ -1,0 +1,48 @@
+Batch image preprocessing
+=========================
+
+:func:`~habit.recipes.preprocess_images` is the programmatic twin of
+``habit preprocess``. The full literature-aligned pipeline on real MRI is
+**N4 → registration → resample → z-score** (see
+``config/preprocessing/config_preprocessing_n4_reg_resample_zscore.yaml``);
+registration requires ``pip install habit[registration]`` (ANTs).
+
+Entry points
+------------
+
+* **Batch (directory pipeline)** — ``preprocess_images(config)`` scans
+  ``data_dir`` and writes ``processed_images/`` under ``out_dir``.
+* **Atomic (in-memory)** — no separate subject-level image recipe yet; embed
+  HABIT by preprocessing one subject into the conventional layout, or operate
+  on :class:`~habit.api.image.ImageVolume` upstream and pass the result to
+  :func:`~habit.cohort_from_directory`.
+
+This example runs **resample + z-score** on a synthetic cohort (seconds
+anywhere) and, when ``demo_data/`` is present, the **resample-only** path
+mirroring ``demo_data/results/api/01_preprocess``.
+
+Script
+------
+
+.. literalinclude:: scripts/image_preprocessing_demo.py
+   :language: python
+
+Output (abbreviated)
+--------------------
+
+::
+
+   === Batch: synthetic cohort (resample + z-score) ===
+   Wrote synthetic cohort under .../dataset
+     output: .../processed
+     NIfTI files: 6
+
+   === Batch: demo_data DCE-MRI (resample only) ===
+     NIfTI files: 12
+
+What to read next
+-----------------
+
+* :doc:`../configuration/preprocessing` — every preprocessing module
+* :doc:`cohort_plugins_auxiliary` — ``cohort_from_directory`` on processed data
+* :doc:`habitat_preprocessing` — subject-level habitat feature chains

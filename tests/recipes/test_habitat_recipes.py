@@ -112,6 +112,57 @@ def test_seed_argument_overrides_the_spec() -> None:
 
 
 @pytest.mark.unit
+def test_direct_pooling_summary_keeps_spec_random_seed_with_cohort_chain() -> None:
+    """
+    Cohort preprocessing must not erase ``HabitatSpec.random_seed`` from the model card.
+
+    Regression for the path ``fitter.fit`` -> ``with_cohort_preprocessing`` that
+    previously left ``summary()`` reporting ``random seed: None`` even when the
+    spec set ``random_seed=42``.
+    """
+    from habit.datasets import make_synthetic_cohort
+    import habit.recipes as recipes
+
+    cohort = make_synthetic_cohort(
+        n_subjects=3, modalities=("T1", "T2"), shape=(12, 12, 12), rng=0
+    )
+    spec = HabitatSpec(
+        name="direct_pooling_seeded",
+        voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1", "T2"]}),
+        supervoxelizer=None,
+        habitat_model_fitter=Spec(
+            name="kmeans",
+            params={
+                "min_habitats": 2,
+                "max_habitats": 3,
+                "validation": "silhouette",
+                "n_init": 3,
+            },
+        ),
+        habitat_assigner=Spec(name="nearest_centroid", params={}),
+        voxel_feature_preprocessors=(
+            Spec(name="minmax", params={"across_features": False}),
+        ),
+        cohort_feature_preprocessors=(
+            Spec(
+                name="binning",
+                params={"n_bins": 4, "bin_strategy": "uniform", "across_features": False},
+            ),
+        ),
+        habitat_features=(Spec(name="volume", params={}),),
+        random_seed=42,
+    )
+
+    result = recipes.direct_pooling(cohort, spec)
+    model = result.habitat_model
+    assert model is not None
+    assert model.provenance.random_seed == 42
+    assert "random seed        : 42" in model.summary()
+    assert "cohort_feature_preprocessor" in model.preprocessing_state
+    assert "cohort_preprocessing" in model.provenance.produced_by
+
+
+@pytest.mark.unit
 def test_public_recipe_surface() -> None:
     """The recipe layer exposes exactly the assembly functions plus the result."""
     import habit.recipes as recipes
@@ -125,7 +176,9 @@ def test_public_recipe_surface() -> None:
         "traditional_radiomics",
         "compare_models",
         "pairwise_delong_test",
+        "preprocess_image",
         "preprocess_images",
+        "preprocess_subject",
         "icc_analysis",
         "test_retest_analysis",
         "sort_dicom",

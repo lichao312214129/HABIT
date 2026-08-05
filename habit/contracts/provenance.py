@@ -25,11 +25,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from importlib import metadata as importlib_metadata
-from typing import Any, Mapping, Optional, Tuple
+from typing import Any, Mapping, Optional, Tuple, Union
 
 from habit._version import __version__ as _habit_version
 
 __all__ = ["Provenance", "software_fingerprint"]
+
+#: Sentinel for :meth:`Provenance.derive`: omit ``random_seed`` to inherit the
+#: parent's seed. Distinct from passing ``random_seed=None``, which clears it.
+_SEED_UNSET: object = object()
 
 #: Dependencies whose versions are scientifically relevant to habitat
 #: analysis and therefore recorded in every provenance record. Looked up via
@@ -84,8 +88,9 @@ class Provenance:
             forms a directed acyclic graph back to the raw images.
         software: Version fingerprint of HABIT and the scientifically relevant
             dependencies (e.g. PyRadiomics, SimpleITK, scikit-learn).
-        random_seed: Seed in effect when the object was produced, or ``None``
-            when the producing step is deterministic.
+        random_seed: Seed in effect for this scientific result, or ``None``
+            when no seeded step contributed. Deterministic derivations inherit
+            the parent's seed via :meth:`derive` unless cleared explicitly.
         created_at: ISO-8601 UTC timestamp.
         notes: Free-form annotations that must never be required for
             reproduction; they exist for human readers only.
@@ -104,7 +109,7 @@ class Provenance:
         *,
         produced_by: str,
         spec_fingerprint: str,
-        random_seed: Optional[int] = None,
+        random_seed: Union[int, None, object] = _SEED_UNSET,
     ) -> "Provenance":
         """
         Create the provenance of an object derived from this one.
@@ -114,21 +119,34 @@ class Provenance:
         The software fingerprint is inherited from ``self`` (the environment
         does not change mid-pipeline) and the timestamp is stamped here.
 
+        The random seed follows the same inheritance rule unless overridden:
+        a deterministic step that does not mention seeding must not erase the
+        seed that defined the scientific result upstream (for example,
+        attaching cohort-level feature preprocessing to a fitted
+        ``HabitatModel``). Pass ``random_seed=`` explicitly to record a new
+        seed, or ``random_seed=None`` to clear it.
+
         Args:
             produced_by: Registered name of the component doing the
                 derivation.
             spec_fingerprint: Fingerprint of that component's specification.
-            random_seed: Seed used by the derivation, when applicable.
+            random_seed: Seed used by the derivation. Omitted (default) keeps
+                ``self.random_seed``; ``None`` clears; an ``int`` replaces.
 
         Returns:
             A new ``Provenance`` whose ``inputs`` contains ``self``.
         """
+        resolved_seed: Optional[int]
+        if random_seed is _SEED_UNSET:
+            resolved_seed = self.random_seed
+        else:
+            resolved_seed = random_seed  # type: ignore[assignment]
         return Provenance(
             produced_by=produced_by,
             spec_fingerprint=spec_fingerprint,
             inputs=(self,),
             software=dict(self.software) if self.software else software_fingerprint(),
-            random_seed=random_seed,
+            random_seed=resolved_seed,
             created_at=_utc_now_iso(),
         )
 

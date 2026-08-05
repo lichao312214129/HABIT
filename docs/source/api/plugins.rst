@@ -80,7 +80,16 @@ In the plugin's ``pyproject.toml``:
    [project.entry-points."habit.supervoxelizer"]
    my_slic_variant = "my_package.my_module:MySupervoxelizer"
 
+   [project.entry-points."habit.voxel_feature_extractor"]
+   t1_t2_contrast = "my_package.features:register"
+
 The registered object must implement the matching protocol from
-``habit.domain.protocols`` and expose a ``spec`` (see :doc:`spec`). After
-``pip install`` of the plugin package, ``load_plugins()`` surfaces it and
-``list_plugins("supervoxelizer")`` reports ``provider="<distribution>"``.
+``habit.domain.protocols`` and expose a ``spec`` (see :doc:`spec`). For
+``voxel_feature_extractor``, the entry point commonly points at a callable
+that performs ``@VoxelFeatureExtractorRegistry.register(...)`` (same pattern
+as other domains). After ``pip install`` of the plugin package,
+``load_plugins()`` surfaces it and ``list_plugins("supervoxelizer")`` /
+``list_plugins("voxel_feature_extractor")`` report
+``provider="<distribution>"``.
+
+Runnable DIY example: :doc:`../examples/custom_voxel_features`.

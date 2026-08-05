@@ -16,9 +16,18 @@
 
 from __future__ import annotations
 
+from habit.domain.voxel_features._base import (
+    aligned_image,
+    build_voxel_field,
+    roi_voxels,
+)
 from habit.domain.voxel_features.concat import (
     ConcatVoxelFeatures,
     ConcatVoxelFeaturesParams,
+)
+from habit.domain.voxel_features.expression import (
+    ExpressionVoxelFeatures,
+    ExpressionVoxelFeaturesParams,
 )
 from habit.domain.voxel_features.kinetic import (
     KineticVoxelFeatures,
@@ -36,8 +45,13 @@ from habit.domain.voxel_features.voxel_radiomics import (
 )
 
 __all__ = [
+    "aligned_image",
+    "build_voxel_field",
+    "roi_voxels",
     "ConcatVoxelFeatures",
     "ConcatVoxelFeaturesParams",
+    "ExpressionVoxelFeatures",
+    "ExpressionVoxelFeaturesParams",
     "KineticVoxelFeatures",
     "KineticVoxelFeaturesParams",
     "LocalEntropyVoxelFeatures",

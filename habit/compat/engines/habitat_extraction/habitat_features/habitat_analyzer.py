@@ -189,18 +189,12 @@ class HabitatMapAnalyzer:
         if n_habitats is not None:
             return n_habitats
 
-        self.logger.warning(
-            "Unable to read habitat count from file; please enter manually"
+        raise ValueError(
+            "Unable to determine the number of habitats automatically. "
+            "Provide FeatureExtractionConfig.n_habitats explicitly, or write "
+            "habitats.parquet / habitats.csv (via StudyResult.save) into "
+            f"habitats_map_folder: {self.habitats_map_folder!r}."
         )
-        while True:
-            try:
-                value = int(input("Please enter the number of habitats (integer): ").strip())
-                if value > 0:
-                    self.logger.info("User entered number of habitats: %s", value)
-                    return value
-                self.logger.warning("Please enter a positive integer")
-            except ValueError:
-                self.logger.warning("Invalid input, please enter an integer")
 
     def get_mask_and_raw_files(
         self,

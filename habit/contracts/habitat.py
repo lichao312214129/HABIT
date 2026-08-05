@@ -553,9 +553,14 @@ class HabitatModel:
             model_id=f"{fitter_name}-{rebound_id}",
             preprocessing_state=merged_state,
             spec_payload=merged_spec,
+            # Cohort preprocessing is deterministic given the fitted chain
+            # state; it must not wipe the fitter seed from the model card.
+            # derive() inherits the parent seed when omitted -- pass it
+            # explicitly so the contract of this method is local and obvious.
             provenance=self.provenance.derive(
                 produced_by=f"{self.provenance.produced_by}+cohort_preprocessing",
                 spec_fingerprint=chain_fingerprint,
+                random_seed=self.provenance.random_seed,
             ),
         )
 
